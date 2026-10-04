@@ -287,7 +287,7 @@ _MetadataHealth _buildMetadataHealth(
   addSignal(
     present: presentation.releaseDate != null,
     weight: 10,
-    missingLabel: 'Release date',
+    missingLabel: 'Release Date',
   );
   addSignal(
     present: metadata.identityFacts.any(

@@ -56,7 +56,7 @@ class LibraryTitleMetadataSection extends StatelessWidget {
       children: [
         LibraryDetailFieldTable(
           fields: [
-            LibraryDetailField(label: 'Display title', value: dto.primaryLabel),
+            LibraryDetailField(label: 'Display Title', value: dto.primaryLabel),
             ...contextFacts,
             if (entryReleaseCount > 0)
               LibraryDetailField(

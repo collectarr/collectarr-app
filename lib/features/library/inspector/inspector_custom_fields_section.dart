@@ -68,7 +68,7 @@ class InspectorCustomFieldsSection extends ConsumerWidget {
     }
     if (resolved.isEmpty) return const SizedBox.shrink();
     return LibraryDetailSection(
-      title: 'Custom fields',
+      title: 'Custom Fields',
       accentColor: accent,
       children: [
         LibraryDetailFieldTable(

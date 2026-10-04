@@ -1165,7 +1165,7 @@ extension ComicEditTabBuilders on ComicEditHost {
     return EditTabShell(
       children: [
         EditSection(
-          title: 'My images workflow',
+          title: 'My Images Workflow',
           accent: comicAccent,
           child: ComicPhotosWorkflowText(
             style: TextStyle(color: appPalette(comicContext).textMuted),

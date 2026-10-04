@@ -55,7 +55,7 @@ class _CustomFieldsEditSectionState extends State<CustomFieldsEditSection> {
   Widget build(BuildContext context) {
     if (widget.definitions.isEmpty) {
       return EditSection(
-        title: 'Custom fields',
+        title: 'Custom Fields',
         accent: widget.accent,
         child: Text(
           'No custom fields defined. Add them in Settings → Data.',
@@ -67,7 +67,7 @@ class _CustomFieldsEditSectionState extends State<CustomFieldsEditSection> {
       );
     }
     return EditSection(
-      title: 'Custom fields',
+      title: 'Custom Fields',
       accent: widget.accent,
       child: Column(
         children: [
