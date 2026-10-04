@@ -59,10 +59,11 @@ Completed implementation slices:
   Translators. Add stores typed credits instead of a comma-separated string;
   Edit's Credits tab now renders those same editors, preserves credit metadata,
   and writes the visible order back to the credit sequence.
-- Manga Edit now treats an emptied Genres, Themes, Authors, or Artists field
-  as an explicit empty list instead of restoring the previous metadata during
-  save. Nullable scalar and date clearing still needs a separate field-by-field
-  pass because several kind model `copyWith` methods cannot represent clearing.
+- Manga Edit now uses explicit kind-data patches for Genres, Themes, Authors,
+  Artists, nullable publication fields, and partial release dates. Empty lists
+  and blank nullable values clear stored data instead of restoring the previous
+  metadata; blank language and country still resolve to the kind defaults
+  because the Manga model requires non-null values for them.
 - Game edit fields use stable draft-owned controllers and configured physical
   format/platform vocabularies. Comic edit host access requires the registered
   typed draft, with temporary controller fallbacks removed. Movie/TV/Anime
