@@ -98,8 +98,8 @@ const _movieLibraryEntryTabs = [
   ),
   LibraryEditTabSpec(
     id: 'specs',
-    icon: Icons.info_outline,
-    label: 'Edition Details',
+    icon: Icons.tune_outlined,
+    label: 'Specs',
     sectionIds: ['video_specs', 'hdr', 'audio_subtitles', 'features'],
   ),
   LibraryEditTabSpec(
