@@ -93,7 +93,9 @@ Completed implementation slices:
   options remain available across tab switches.
 - Game Edit now exposes the kind draft's already-persisted Developers, Genres,
   Age rating, Franchise, Languages, and Country fields in its Main tab. Manual
-  Add also exposes Series and Franchise from its existing typed form model.
+  Add uses the same field definitions across Main, Edition details,
+  Description, and Covers tabs; Series and Franchise remain on Main, while
+  the existing typed schema and vocabulary callbacks remain the data owners.
 - The shared video Specs section now also edits Screen ratio. TV and Anime
   hydrate their existing Specs controllers from metadata and persist all
   fields, including explicit clears; their Add forms expose the same supported
