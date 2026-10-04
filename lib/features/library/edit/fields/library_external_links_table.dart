@@ -1,4 +1,5 @@
 import 'package:collectarr_app/ui/theme/theme_palette.dart';
+import 'package:collectarr_app/features/library/ui/primitives/library_form_controls.dart';
 import 'package:flutter/material.dart';
 
 /// The kind-entry row data shown by [LibraryExternalLinksTable].
@@ -372,10 +373,11 @@ final class _LibraryExternalLinksTableState<TIdentity extends Object>
                       flex: 4,
                       child: row.titleController == null
                           ? const SizedBox.shrink()
-                          : TextFormField(
+                          : LibraryTextFormControl(
                               key: row.titleFieldKey ??
                                   ValueKey((row.key, 'title')),
                               controller: row.titleController,
+                              minimumHeight: 0,
                               decoration: const InputDecoration(
                                 isDense: true,
                                 contentPadding: EdgeInsets.symmetric(
@@ -390,9 +392,10 @@ final class _LibraryExternalLinksTableState<TIdentity extends Object>
                   ],
                   Expanded(
                     flex: 7,
-                    child: TextFormField(
+                    child: LibraryTextFormControl(
                       key: row.urlFieldKey ?? ValueKey((row.key, 'url')),
                       controller: row.urlController,
+                      minimumHeight: 0,
                       decoration: const InputDecoration(
                         hintText: 'https://example.com',
                         isDense: true,
@@ -406,10 +409,11 @@ final class _LibraryExternalLinksTableState<TIdentity extends Object>
                   const SizedBox(width: _columnGap),
                   Expanded(
                     flex: 5,
-                    child: TextFormField(
+                    child: LibraryTextFormControl(
                       key: row.descriptionFieldKey ??
                           ValueKey((row.key, 'description')),
                       controller: row.descriptionController,
+                      minimumHeight: 0,
                       decoration: const InputDecoration(
                         isDense: true,
                         contentPadding:

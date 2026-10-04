@@ -284,6 +284,9 @@ Completed implementation slices:
 - Custom Fields text, number, URL, person, and long-text editors now share the
   common labelled text control in both Add and Edit; field type, capitalization,
   and target-scope helper text remain definition-driven.
+- The shared editable links table now uses the common text control for Name,
+  URL, and Description cells while retaining its compact row sizing and staged
+  controller ownership.
 - Music Add and Edit disc metadata, track titles/artists/lengths, and disc-owned
   storage details now use the same input primitive and minimum control height.
 - Music Add and Edit track title, artist, and duration fields now share one

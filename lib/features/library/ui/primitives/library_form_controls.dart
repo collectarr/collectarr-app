@@ -42,6 +42,7 @@ class LibraryTextFormControl extends StatelessWidget {
     this.validator,
     this.onChanged,
     this.decoration,
+    this.minimumHeight = kLibraryFormControlHeight,
     this.keyboardType,
     this.minLines,
     this.maxLines = 1,
@@ -61,6 +62,7 @@ class LibraryTextFormControl extends StatelessWidget {
   final String? Function(String?)? validator;
   final ValueChanged<String>? onChanged;
   final InputDecoration? decoration;
+  final double minimumHeight;
   final TextInputType? keyboardType;
   final int? minLines;
   final int? maxLines;
@@ -93,9 +95,7 @@ class LibraryTextFormControl extends StatelessWidget {
         style: style,
         textCapitalization: textCapitalization,
         decoration: (decoration ?? const InputDecoration()).copyWith(
-          constraints: const BoxConstraints(
-            minHeight: kLibraryFormControlHeight,
-          ),
+          constraints: BoxConstraints(minHeight: minimumHeight),
         ),
       );
 }
