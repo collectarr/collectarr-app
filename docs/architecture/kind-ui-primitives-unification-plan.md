@@ -433,9 +433,10 @@ Completed implementation slices:
   vocabularies remain selectable.
 - Replaced the accidental `EntryPolicy details` heading with `Digital Entry
   Details` across all kind edit presentations.
-- The previous `TagPickListField` and `MultiSelectPickListField` have no live
-  library call sites. Their public barrel export and golden fixture remain for
-  the final cleanup pass; the old implementation is not used by the app UI.
+- The old tag/multi-select pick-list widgets and their barrel exports have
+  been removed after confirming there were no live library callers. The golden
+  test still references `TagPickListField` and is deferred to the final test
+  cleanup pass.
 
 Still outstanding:
 
@@ -500,9 +501,9 @@ Still outstanding:
   their Add/Edit row editors; date, image, selection, and other kinds' credit
   flows still need review. Runtime screenshots at matching size and text scale
   have not been reviewed.
-- The legacy pick-list source and its golden are retained temporarily even
-  though application call sites have moved to the shared chip control. Remove
-  the wrapper, barrel exports, and replace the golden during final UI cleanup.
+- The legacy pick-list source and barrel exports are already removed. The
+  remaining golden test still references the removed widget and must be
+  updated during the final test cleanup pass.
 - Music tracks, covers, images, and the remaining personal fields have not yet
   converged on one complete Add/Edit draft lifecycle. People/Classical credits
   and external links share their presentation while keeping kind-owned Add and
