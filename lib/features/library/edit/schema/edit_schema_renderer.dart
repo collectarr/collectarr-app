@@ -7,6 +7,7 @@ import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.
 import 'package:collectarr_app/features/library/edit/library_edit_tab_strip.dart';
 import 'package:collectarr_app/features/library/schema/library_field_spec_control_builder.dart';
 import 'package:collectarr_app/features/library/schema/library_field_spec_layout.dart';
+import 'package:collectarr_app/features/library/schema/library_schema_text_controller_store.dart';
 import 'package:collectarr_app/features/pick_lists/pick_list_repository.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:flutter/material.dart';
@@ -121,7 +122,7 @@ class EditSchemaRenderer<TModel, TDraft> extends StatefulWidget {
 
 class EditSchemaRendererState<TModel, TDraft>
     extends State<EditSchemaRenderer<TModel, TDraft>> {
-  late final Map<String, TextEditingController> _textControllers;
+  final _textControllers = LibrarySchemaTextControllerStore();
   late List<int> _tabOrder;
   late int _selectedTabIndex;
   final Map<String, Map<String, ({String listName, String value})>>
@@ -135,7 +136,6 @@ class EditSchemaRendererState<TModel, TDraft>
     super.initState();
     _selectedTabIndex = loadLibraryEditTabSelection(widget.tabOrderKey) ??
         widget.initialTabIndex;
-    _textControllers = {};
     _tabOrder = List.generate(_totalTabCount, (index) => index);
     _rememberSelectedTab();
     if (widget.showTabBar && _totalTabCount > 0) {
@@ -242,9 +242,7 @@ class EditSchemaRendererState<TModel, TDraft>
 
   @override
   void dispose() {
-    for (final controller in _textControllers.values) {
-      controller.dispose();
-    }
+    _textControllers.dispose();
     super.dispose();
   }
 
@@ -626,9 +624,6 @@ class EditSchemaRendererState<TModel, TDraft>
   }
 
   TextEditingController _controllerFor(String id, String initialValue) {
-    return _textControllers.putIfAbsent(
-      id,
-      () => TextEditingController(text: initialValue),
-    );
+    return _textControllers.controllerFor(id, initialValue);
   }
 }

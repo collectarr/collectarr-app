@@ -4,6 +4,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/features/library/schema/library_field_spec_control_builder.dart';
 import 'package:collectarr_app/features/library/schema/library_field_spec_layout.dart';
+import 'package:collectarr_app/features/library/schema/library_schema_text_controller_store.dart';
 
 import 'add_schema.dart';
 
@@ -90,22 +91,14 @@ class AddSchemaRenderer<TDraft> extends StatefulWidget {
 }
 
 class _AddSchemaRendererState<TDraft> extends State<AddSchemaRenderer<TDraft>> {
-  late final Map<String, TextEditingController> _textControllers;
+  final _textControllers = LibrarySchemaTextControllerStore();
   bool _isSubmitting = false;
   String? _submitError;
   String? _validationError;
 
   @override
-  void initState() {
-    super.initState();
-    _textControllers = {};
-  }
-
-  @override
   void dispose() {
-    for (final controller in _textControllers.values) {
-      controller.dispose();
-    }
+    _textControllers.dispose();
     super.dispose();
   }
 
@@ -300,9 +293,6 @@ class _AddSchemaRendererState<TDraft> extends State<AddSchemaRenderer<TDraft>> {
   }
 
   TextEditingController _controllerFor(String id, String initialValue) {
-    return _textControllers.putIfAbsent(
-      id,
-      () => TextEditingController(text: initialValue),
-    );
+    return _textControllers.controllerFor(id, initialValue);
   }
 }
