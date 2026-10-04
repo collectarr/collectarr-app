@@ -2,6 +2,30 @@ import 'package:collectarr_app/ui/theme/theme_palette.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_form_controls.dart';
 import 'package:flutter/material.dart';
 
+/// Temporary link values and controllers shared by kind Add/Edit tabs.
+final class LibraryExternalLinkDraftRow {
+  LibraryExternalLinkDraftRow({
+    String? id,
+    String title = '',
+    String url = '',
+    String description = '',
+  })  : id = id ?? UniqueKey().toString(),
+        titleController = TextEditingController(text: title),
+        urlController = TextEditingController(text: url),
+        descriptionController = TextEditingController(text: description);
+
+  final String id;
+  final TextEditingController titleController;
+  final TextEditingController urlController;
+  final TextEditingController descriptionController;
+
+  void dispose() {
+    titleController.dispose();
+    urlController.dispose();
+    descriptionController.dispose();
+  }
+}
+
 /// The kind-entry row data shown by [LibraryExternalLinksTable].
 ///
 /// The owning kind keeps the controllers and domain model. This row only gives

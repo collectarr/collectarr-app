@@ -855,4 +855,7 @@ This audit itself did not run the application or execute tests.
 
 Implementation note (2026-10-04): `dart analyze lib/features/library/add
 lib/features/library/edit lib/features/library/kinds` completed with no issues.
+Music Add and Edit Links now also share the same temporary row model and
+controller disposal lifecycle; each tab still owns conversion to its kind
+draft. Targeted analysis of the shared links table and both Music tabs passed.
 Tests and runtime screenshot review have not been run.

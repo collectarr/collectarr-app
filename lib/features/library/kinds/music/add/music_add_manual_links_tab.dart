@@ -20,14 +20,19 @@ final class MusicAddManualLinksTab extends StatefulWidget {
 }
 
 final class _MusicAddManualLinksTabState extends State<MusicAddManualLinksTab> {
-  late final List<_MusicAddLinkRow> _rows;
+  late final List<LibraryExternalLinkDraftRow> _rows;
 
   @override
   void initState() {
     super.initState();
     _rows = [
       for (final link in widget.draft.externalLinks)
-        _MusicAddLinkRow.fromLink(link),
+        LibraryExternalLinkDraftRow(
+          id: link.id,
+          title: link.title,
+          url: link.url,
+          description: link.description,
+        ),
     ];
   }
 
@@ -46,15 +51,15 @@ final class _MusicAddManualLinksTabState extends State<MusicAddManualLinksTab> {
         for (final row in _rows)
           MusicAddManualExternalLink(
             id: row.id,
-            title: row.title.text,
-            url: row.url.text,
-            description: row.description.text,
+            title: row.titleController.text,
+            url: row.urlController.text,
+            description: row.descriptionController.text,
           ),
       ]);
   }
 
   void _add() {
-    setState(() => _rows.add(_MusicAddLinkRow.empty()));
+    setState(() => _rows.add(LibraryExternalLinkDraftRow()));
     _syncDraft();
   }
 
@@ -67,7 +72,7 @@ final class _MusicAddManualLinksTabState extends State<MusicAddManualLinksTab> {
   }
 
   void _removeSelected(
-    List<LibraryExternalLinkEditRow<_MusicAddLinkRow>> selectedRows,
+    List<LibraryExternalLinkEditRow<LibraryExternalLinkDraftRow>> selectedRows,
   ) {
     final selected = {for (final row in selectedRows) row.identity};
     final removed = _rows.where(selected.contains).toList(growable: false);
@@ -83,14 +88,14 @@ final class _MusicAddManualLinksTabState extends State<MusicAddManualLinksTab> {
   Widget build(BuildContext context) => EditSection(
         title: 'Release links',
         accent: widget.accent,
-        child: LibraryExternalLinksTable<_MusicAddLinkRow>(
+        child: LibraryExternalLinksTable<LibraryExternalLinkDraftRow>(
           rows: [
             for (final row in _rows)
-              LibraryExternalLinkEditRow<_MusicAddLinkRow>(
+              LibraryExternalLinkEditRow<LibraryExternalLinkDraftRow>(
                 identity: row,
-                titleController: row.title,
-                urlController: row.url,
-                descriptionController: row.description,
+                titleController: row.titleController,
+                urlController: row.urlController,
+                descriptionController: row.descriptionController,
                 titleFieldKey: ValueKey('music-add-link-title-${row.id}'),
                 urlFieldKey: ValueKey('music-add-link-url-${row.id}'),
                 descriptionFieldKey:
@@ -107,39 +112,4 @@ final class _MusicAddManualLinksTabState extends State<MusicAddManualLinksTab> {
           onChanged: _syncDraft,
         ),
       );
-}
-
-final class _MusicAddLinkRow {
-  _MusicAddLinkRow({
-    required this.id,
-    required this.title,
-    required this.url,
-    required this.description,
-  });
-
-  factory _MusicAddLinkRow.empty() => _MusicAddLinkRow(
-        id: MusicAddManualExternalLink().id,
-        title: TextEditingController(),
-        url: TextEditingController(),
-        description: TextEditingController(),
-      );
-
-  factory _MusicAddLinkRow.fromLink(MusicAddManualExternalLink link) =>
-      _MusicAddLinkRow(
-        id: link.id,
-        title: TextEditingController(text: link.title),
-        url: TextEditingController(text: link.url),
-        description: TextEditingController(text: link.description),
-      );
-
-  final String id;
-  final TextEditingController title;
-  final TextEditingController url;
-  final TextEditingController description;
-
-  void dispose() {
-    title.dispose();
-    url.dispose();
-    description.dispose();
-  }
 }

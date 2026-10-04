@@ -19,14 +19,18 @@ final class MusicAlbumLinksTab extends StatefulWidget {
 }
 
 final class _MusicAlbumLinksTabState extends State<MusicAlbumLinksTab> {
-  late final List<_ReleaseLinkRow> _rows;
+  late final List<LibraryExternalLinkDraftRow> _rows;
 
   @override
   void initState() {
     super.initState();
     _rows = [
       for (final link in widget.draft.externalLinks)
-        _ReleaseLinkRow.fromLink(link),
+        LibraryExternalLinkDraftRow(
+          title: link.title ?? '',
+          url: link.url,
+          description: link.description ?? '',
+        ),
     ];
   }
 
@@ -42,15 +46,15 @@ final class _MusicAlbumLinksTabState extends State<MusicAlbumLinksTab> {
     widget.draft.externalLinks = [
       for (final row in _rows)
         MusicExternalLink(
-          url: row.url.text.trim(),
-          title: _nullable(row.title.text),
-          description: _nullable(row.description.text),
+          url: row.urlController.text.trim(),
+          title: _nullable(row.titleController.text),
+          description: _nullable(row.descriptionController.text),
         ),
     ];
   }
 
   void _add() {
-    setState(() => _rows.add(_ReleaseLinkRow.empty()));
+    setState(() => _rows.add(LibraryExternalLinkDraftRow()));
     _syncDraft();
   }
 
@@ -63,7 +67,7 @@ final class _MusicAlbumLinksTabState extends State<MusicAlbumLinksTab> {
   }
 
   void _removeSelected(
-    List<LibraryExternalLinkEditRow<_ReleaseLinkRow>> selectedRows,
+    List<LibraryExternalLinkEditRow<LibraryExternalLinkDraftRow>> selectedRows,
   ) {
     final selected = {for (final row in selectedRows) row.identity};
     final removed = _rows.where(selected.contains).toList();
@@ -79,18 +83,18 @@ final class _MusicAlbumLinksTabState extends State<MusicAlbumLinksTab> {
   Widget build(BuildContext context) => EditSection(
         title: 'Release links',
         accent: widget.accent,
-        child: LibraryExternalLinksTable<_ReleaseLinkRow>(
+        child: LibraryExternalLinksTable<LibraryExternalLinkDraftRow>(
           rows: [
             for (final row in _rows)
-              LibraryExternalLinkEditRow<_ReleaseLinkRow>(
+              LibraryExternalLinkEditRow<LibraryExternalLinkDraftRow>(
                 identity: row,
-                titleController: row.title,
-                urlController: row.url,
-                descriptionController: row.description,
-                titleFieldKey: ValueKey('musicAlbumLinkTitle_${row.key}'),
-                urlFieldKey: ValueKey('musicAlbumLinkUrl_${row.key}'),
+                titleController: row.titleController,
+                urlController: row.urlController,
+                descriptionController: row.descriptionController,
+                titleFieldKey: ValueKey('musicAlbumLinkTitle_${row.id}'),
+                urlFieldKey: ValueKey('musicAlbumLinkUrl_${row.id}'),
                 descriptionFieldKey:
-                    ValueKey('musicAlbumLinkDescription_${row.key}'),
+                    ValueKey('musicAlbumLinkDescription_${row.id}'),
               ),
           ],
           accent: widget.accent,
@@ -102,36 +106,6 @@ final class _MusicAlbumLinksTabState extends State<MusicAlbumLinksTab> {
           onChanged: _syncDraft,
         ),
       );
-}
-
-final class _ReleaseLinkRow {
-  _ReleaseLinkRow({
-    required this.title,
-    required this.url,
-    required this.description,
-  }) : key = UniqueKey();
-
-  factory _ReleaseLinkRow.empty() => _ReleaseLinkRow(
-        title: TextEditingController(),
-        url: TextEditingController(),
-        description: TextEditingController(),
-      );
-
-  factory _ReleaseLinkRow.fromLink(MusicExternalLink link) => _ReleaseLinkRow(
-        title: TextEditingController(text: link.title ?? ''),
-        url: TextEditingController(text: link.url),
-        description: TextEditingController(text: link.description ?? ''),
-      );
-
-  final Key key;
-  final TextEditingController title;
-  final TextEditingController url;
-  final TextEditingController description;
-  void dispose() {
-    title.dispose();
-    url.dispose();
-    description.dispose();
-  }
 }
 
 String? _nullable(String value) {
