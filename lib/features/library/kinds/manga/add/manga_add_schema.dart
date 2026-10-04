@@ -9,6 +9,8 @@ import 'package:collectarr_app/features/library/kinds/manga/vocabulary/manga_voc
 final AddSchema<MangaAddManualDraft> mangaAddSchema = mangaAddSchemaFor();
 
 AddSchema<MangaAddManualDraft> mangaAddSchemaFor({
+  Set<String>? fieldIds,
+  Map<String, String> sectionLabels = const {},
   Iterable<String>? publisherOptions,
   Iterable<String>? imprintOptions,
   Iterable<String>? formatOptions,
@@ -31,102 +33,107 @@ AddSchema<MangaAddManualDraft> mangaAddSchemaFor({
       }
       return null;
     },
-    sections: [
-      AddSectionSpec<MangaAddManualDraft>(
-        id: 'volume',
-        label: 'Volume',
-        fields: [
-          libraryAddCatalogTitleField<MangaAddManualDraft>(),
-          LibraryTextFieldSpec<MangaAddManualDraft>(
-            id: 'volume_number',
-            label: 'Volume No.',
-            value: (draft) => values(draft).volumeNumber,
-            setValue: (draft, value) => values(draft).volumeNumber = value,
-          ),
-          LibraryTextFieldSpec<MangaAddManualDraft>(
-            id: 'variant',
-            label: 'Variant',
-            value: (draft) => values(draft).variant,
-            setValue: (draft, value) => values(draft).variant = value,
-          ),
-          ...mangaReleaseFields(
-            values: values,
-            formatOptions: formatOptions ?? MangaVocabularies.format.builtIns,
-            publisherOptions:
-                publisherOptions ?? MangaVocabularies.publisher.builtIns,
-            imprintOptions:
-                imprintOptions ?? MangaVocabularies.imprint.builtIns,
-            onManageFormat: onManageFormat,
-            onManagePublisher: onManagePublisher,
-            onManageImprint: onManageImprint,
-          ),
-          LibraryNumberFieldSpec<MangaAddManualDraft>(
-            id: 'publication_year',
-            label: 'Publication year',
-            value: (draft) => values(draft).publicationYear?.toDouble(),
-            setValue: (draft, value) =>
-                values(draft).publicationYear = value?.toInt(),
-            minimum: 1,
-          ),
-        ],
-        fullWidthFieldIds: const {'catalog_title'},
-      ),
-      AddSectionSpec<MangaAddManualDraft>(
-        id: 'publication',
-        label: 'Series and metadata',
-        fields: [
-          LibraryTextFieldSpec<MangaAddManualDraft>(
-            id: 'series_group',
-            label: 'Series group',
-            value: (draft) => values(draft).seriesGroup,
-            setValue: (draft, value) => values(draft).seriesGroup = value,
-          ),
-          LibraryTextFieldSpec<MangaAddManualDraft>(
-            id: 'authors',
-            label: 'Authors / Artists',
-            value: (draft) => values(draft).authors,
-            setValue: (draft, value) => values(draft).authors = value,
-          ),
-          LibraryTextFieldSpec<MangaAddManualDraft>(
-            id: 'characters',
-            label: 'Characters',
-            value: (draft) => values(draft).characters,
-            setValue: (draft, value) => values(draft).characters = value,
-          ),
-          LibraryTextFieldSpec<MangaAddManualDraft>(
-            id: 'genres',
-            label: 'Genres',
-            value: (draft) => values(draft).genres.join(', '),
-            setValue: (draft, value) => values(draft).genres = _split(value),
-          ),
-          LibraryTextFieldSpec<MangaAddManualDraft>(
-            id: 'age_rating',
-            label: 'Age rating',
-            value: (draft) => values(draft).ageRating,
-            setValue: (draft, value) => values(draft).ageRating = value,
-          ),
-          LibraryTextFieldSpec<MangaAddManualDraft>(
-            id: 'country',
-            label: 'Country',
-            value: (draft) => values(draft).country,
-            setValue: (draft, value) => values(draft).country = value,
-          ),
-          LibraryTextFieldSpec<MangaAddManualDraft>(
-            id: 'synopsis',
-            label: 'Synopsis',
-            value: (draft) => values(draft).description,
-            setValue: (draft, value) => values(draft).description = value,
-            maxLines: 4,
-          ),
-          LibraryTextFieldSpec<MangaAddManualDraft>(
-            id: 'back_cover_image_url',
-            label: 'Back cover image URL',
-            value: (draft) => values(draft).backCoverImageUrl,
-            setValue: (draft, value) => values(draft).backCoverImageUrl = value,
-          ),
-        ],
-      ),
-    ],
+    sections: filterAddSchemaSections(
+      fieldIds: fieldIds,
+      sectionLabels: sectionLabels,
+      sections: [
+        AddSectionSpec<MangaAddManualDraft>(
+          id: 'volume',
+          label: 'Volume',
+          fields: [
+            libraryAddCatalogTitleField<MangaAddManualDraft>(),
+            LibraryTextFieldSpec<MangaAddManualDraft>(
+              id: 'volume_number',
+              label: 'Volume No.',
+              value: (draft) => values(draft).volumeNumber,
+              setValue: (draft, value) => values(draft).volumeNumber = value,
+            ),
+            LibraryTextFieldSpec<MangaAddManualDraft>(
+              id: 'variant',
+              label: 'Variant',
+              value: (draft) => values(draft).variant,
+              setValue: (draft, value) => values(draft).variant = value,
+            ),
+            ...mangaReleaseFields(
+              values: values,
+              formatOptions: formatOptions ?? MangaVocabularies.format.builtIns,
+              publisherOptions:
+                  publisherOptions ?? MangaVocabularies.publisher.builtIns,
+              imprintOptions:
+                  imprintOptions ?? MangaVocabularies.imprint.builtIns,
+              onManageFormat: onManageFormat,
+              onManagePublisher: onManagePublisher,
+              onManageImprint: onManageImprint,
+            ),
+            LibraryNumberFieldSpec<MangaAddManualDraft>(
+              id: 'publication_year',
+              label: 'Publication year',
+              value: (draft) => values(draft).publicationYear?.toDouble(),
+              setValue: (draft, value) =>
+                  values(draft).publicationYear = value?.toInt(),
+              minimum: 1,
+            ),
+          ],
+          fullWidthFieldIds: const {'catalog_title'},
+        ),
+        AddSectionSpec<MangaAddManualDraft>(
+          id: 'publication',
+          label: 'Series and metadata',
+          fields: [
+            LibraryTextFieldSpec<MangaAddManualDraft>(
+              id: 'series_group',
+              label: 'Series group',
+              value: (draft) => values(draft).seriesGroup,
+              setValue: (draft, value) => values(draft).seriesGroup = value,
+            ),
+            LibraryTextFieldSpec<MangaAddManualDraft>(
+              id: 'authors',
+              label: 'Authors / Artists',
+              value: (draft) => values(draft).authors,
+              setValue: (draft, value) => values(draft).authors = value,
+            ),
+            LibraryTextFieldSpec<MangaAddManualDraft>(
+              id: 'characters',
+              label: 'Characters',
+              value: (draft) => values(draft).characters,
+              setValue: (draft, value) => values(draft).characters = value,
+            ),
+            LibraryTextFieldSpec<MangaAddManualDraft>(
+              id: 'genres',
+              label: 'Genres',
+              value: (draft) => values(draft).genres.join(', '),
+              setValue: (draft, value) => values(draft).genres = _split(value),
+            ),
+            LibraryTextFieldSpec<MangaAddManualDraft>(
+              id: 'age_rating',
+              label: 'Age rating',
+              value: (draft) => values(draft).ageRating,
+              setValue: (draft, value) => values(draft).ageRating = value,
+            ),
+            LibraryTextFieldSpec<MangaAddManualDraft>(
+              id: 'country',
+              label: 'Country',
+              value: (draft) => values(draft).country,
+              setValue: (draft, value) => values(draft).country = value,
+            ),
+            LibraryTextFieldSpec<MangaAddManualDraft>(
+              id: 'synopsis',
+              label: 'Synopsis',
+              value: (draft) => values(draft).description,
+              setValue: (draft, value) => values(draft).description = value,
+              maxLines: 4,
+            ),
+            LibraryTextFieldSpec<MangaAddManualDraft>(
+              id: 'back_cover_image_url',
+              label: 'Back cover image URL',
+              value: (draft) => values(draft).backCoverImageUrl,
+              setValue: (draft, value) =>
+                  values(draft).backCoverImageUrl = value,
+            ),
+          ],
+        ),
+      ],
+    ),
   );
 }
 
