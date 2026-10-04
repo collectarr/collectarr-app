@@ -13,6 +13,7 @@ typedef MovieFormValuesReader<TDraft> = MovieCatalogFormValues Function(
 List<LibraryFieldSpec<TDraft>> movieCatalogItemFields<TDraft>({
   required MovieFormValuesReader<TDraft> values,
   Iterable<String>? formatOptions,
+  Iterable<String>? genreOptions,
   Iterable<String>? regionOptions,
   Iterable<String>? distributorOptions,
   FutureOr<void> Function()? onManageFormat,
@@ -39,7 +40,11 @@ List<LibraryFieldSpec<TDraft>> movieCatalogItemFields<TDraft>({
         values: (draft) => values(draft).genres.toSet(),
         setValues: (draft, selected) =>
             values(draft).genres = selected.toList(growable: false),
-        options: const [],
+        options: _options(
+          genreOptions ?? MovieVocabularies.genre.builtIns,
+        ),
+        pickListKey: MovieVocabularyIds.genre.value,
+        pluralLabel: 'Genres',
         allowCustomValues: true,
       ),
       LibraryTextFieldSpec<TDraft>(

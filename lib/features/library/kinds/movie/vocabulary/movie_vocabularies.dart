@@ -9,6 +9,7 @@ import 'package:collectarr_app/features/library/kinds/movie/entries/movie_entry_
 
 abstract final class MovieVocabularyIds {
   static const condition = VocabularyId<String>('movie.condition');
+  static const genre = VocabularyId<String>('movie.genre');
   static const physicalFormat = VocabularyId<String>('movie.physical_format');
   static const region = VocabularyId<String>('movie.region');
   static const packaging = VocabularyId<String>('movie.packaging');
@@ -153,6 +154,35 @@ abstract final class MovieVocabularies {
     ],
   );
 
+  static const genre = VocabularyDefinition<String>(
+    id: MovieVocabularyIds.genre,
+    label: 'Genre',
+    multiValue: true,
+    valuesFrom: TypedVocabularyProjector<MovieCatalogMetadata>(_genreValues),
+    builtIns: [
+      'Action',
+      'Adventure',
+      'Animation',
+      'Biography',
+      'Comedy',
+      'Crime',
+      'Documentary',
+      'Drama',
+      'Family',
+      'Fantasy',
+      'History',
+      'Horror',
+      'Music',
+      'Mystery',
+      'Romance',
+      'Science Fiction',
+      'Sport',
+      'Thriller',
+      'War',
+      'Western',
+    ],
+  );
+
   static const physicalFormat = VocabularyDefinition<String>(
     id: MovieVocabularyIds.physicalFormat,
     label: 'Format',
@@ -290,6 +320,7 @@ abstract final class MovieVocabularies {
 
   static const all = <VocabularyDefinition<dynamic>>[
     condition,
+    genre,
     physicalFormat,
     region,
     packaging,
@@ -300,6 +331,9 @@ abstract final class MovieVocabularies {
     hdr,
   ];
 }
+
+Iterable<String?> _genreValues(MovieCatalogMetadata metadata) =>
+    vocabularyValues([metadata.genres]);
 
 Iterable<String?> _physicalFormatCatalogValues(
   MovieCatalogMetadata metadata,

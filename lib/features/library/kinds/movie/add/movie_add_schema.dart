@@ -10,6 +10,7 @@ final AddSchema<MovieAddManualDraft> movieAddSchema = movieAddSchemaFor();
 
 AddSchema<MovieAddManualDraft> movieAddSchemaFor({
   Iterable<String>? formatOptions,
+  Iterable<String>? genreOptions,
   Iterable<String>? regionOptions,
   Iterable<String>? distributorOptions,
   FutureOr<void> Function()? onManageFormat,
@@ -32,6 +33,8 @@ AddSchema<MovieAddManualDraft> movieAddSchemaFor({
         label: 'Catalog Item',
         fields: movieCatalogItemFields(
           values: getValues,
+          genreOptions:
+              genreOptions ?? MovieVocabularies.genre.builtIns,
           formatOptions:
               formatOptions ?? MovieVocabularies.physicalFormat.builtIns,
           regionOptions: regionOptions ?? MovieVocabularies.region.builtIns,

@@ -73,7 +73,9 @@ Widget? buildMovieCustomTabView({
         languageOptions: const [],
         ageRatingOptions: const [],
         audienceRatingOptions: const [],
-        genreOptions: const [],
+        genreOptions:
+            draft.kindVocabularies[MovieVocabularyIds.genre.value] ??
+                MovieVocabularies.genre.builtIns,
       ),
     _ => null,
   };

@@ -413,8 +413,7 @@ final class LibraryFieldSpecControlBuilder<TDraft>
       value: selected,
       options: field.options,
       errorText: field.validate(draft),
-      allowCustomValueEntry: mode == LibraryFieldSpecControlMode.edit &&
-          field.allowCustomValues &&
+      allowCustomValueEntry: field.allowCustomValues &&
           field.pickListKey != null &&
           TValue == String,
       onChanged: (next) {
