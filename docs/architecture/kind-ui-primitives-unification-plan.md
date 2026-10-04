@@ -60,6 +60,9 @@ Completed implementation slices:
   Main, edition details, plot, Cast, Crew, Links, tracking, covers, and images
   alongside its Personal, Custom Fields, and Specs tabs. The shared metadata
   tab is labelled `Main` in both scopes.
+- TV and Anime Manual Add now have separate Cast and Crew tabs backed by
+  kind-owned editable credit rows. Their candidate builders serialize typed
+  person models rather than flattening creators into a comma-separated field.
 - Book Add and Edit now share a kind-owned ordered name editor for Authors and
   Translators. Add stores typed credits instead of a comma-separated string;
   Edit's Credits tab now renders those same editors, preserves credit metadata,
@@ -68,13 +71,15 @@ Completed implementation slices:
   one video-kind component. It preserves managed multi-value Audio/Subtitles
   vocabularies for Movie and TV, and text input for Anime, while sharing the
   Layers, Color, Discs fields and responsive layout.
-- TV and Anime Cast/Crew now use one shared video credits section for Name/Role
-  rows, empty states, adding, removal, and reordering. Their kind-owned credit
-  objects, controller disposal, and default roles remain in their own drafts;
-  the shared UI only receives row controller pairs and mutation callbacks.
+- TV and Anime Cast/Crew now use one shared video credits section in both Add
+  and Edit for Name/Role rows, empty states, adding, removal, and reordering.
+  Their kind-owned credit objects, controller disposal, and default roles
+  remain in their own drafts; the shared UI only receives row controller pairs
+  and mutation callbacks.
 - The Movie, TV, and Anime edit-tab helper files no longer carry unused
   responsive-field wrappers. TV/Anime credit tabs adapt their typed controller
-  rows directly to the shared editor; Add credit-field parity remains open.
+  rows directly to the shared editor. Their remaining Add/Edit field parity is
+  still open beyond Cast and Crew.
 - The unused legacy `TagPickListField` implementation has been removed after
   confirming it had no application callers. Its golden fixture is deferred to
   the final test cleanup, as requested.
@@ -191,8 +196,8 @@ My Images and adds Custom Fields only when definitions are nonempty.
 | --- | --- | --- |
 | Music | Main, Details, Classical, People, Tracks, Personal, Covers, Links | Registered edit route uses the typed album schema dialog; Add credits/tracks/links/covers still have independent widgets and bindings. No separate entry edit dialog or caller remains in the current source. |
 | Movies | One Main schema with mixed metadata fields | Generic session/presentation renderer; separate catalog/entry tab lists and custom tabs. The request-backed edit draft is initialized by the shared renderer state; Movie shares its Specs tab with TV and Anime. Remaining custom child-editor controller ownership still needs review. |
-| TV | One Main schema | Generic editor plus a separately registered typed media editor. The request-backed edit draft is initialized by the shared renderer state; Specs are shared with Movie/Anime, and Cast/Crew presentation is shared with Anime. Custom episode dialog is another surface to audit. |
-| Anime | One Main schema | Registered edit routes use generic editor; an additional typed media dialog exists. The request-backed edit draft is initialized by the shared renderer state; Specs are shared with Movie/TV, and Cast/Crew presentation is shared with TV. |
+| TV | Main, Cast, Crew | Generic editor plus a separately registered typed media editor. The request-backed edit draft is initialized by the shared renderer state; Specs are shared with Movie/Anime, and Cast/Crew use the same typed editor in Add/Edit. Custom episode dialog is another surface to audit. |
+| Anime | Main, Cast, Crew | Registered edit routes use generic editor; an additional typed media dialog exists. The request-backed edit draft is initialized by the shared renderer state; Specs are shared with Movie/TV, and Cast/Crew use the same typed editor in Add/Edit. |
 | Books | Main with managed publisher/format selection; typed Authors and Translators | Generic editor with separate catalog/entry presentation and an embedded entry schema renderer; Credits tab now uses the same typed ordered-name editors as Add. |
 | Comics | Main, Details, plus Series identity control | Generic entry editor and separately registered typed catalog editor; large custom tab/host adapter remains, with typed-draft checks and controller fallbacks removed. |
 | Manga | Identity, Publication, plus Series identity control | Registered routes use generic editor; a separate typed media editor exists. Managed series/publisher selection logic overlaps Comics/Books. |
@@ -444,8 +449,8 @@ tab placement, and metadata/personal classification.
 
 | Kind | Required work |
 | --- | --- |
-| TV | Physical-media Specs are shared with Movie and Anime; Cast/Crew presentation is shared with Anime. Unify generic and registered typed entry points; keep season/episode editing within the same draft/save lifecycle and expose parity fields in Add. |
-| Anime | Physical-media Specs and Cast/Crew presentation are shared with Movie/TV. Reconcile the extra media dialog with active routes; preserve kind-specific series/episode fields and expose parity fields in Add. |
+| TV | Physical-media Specs are shared with Movie and Anime; typed Cast/Crew editors are shared between Add/Edit and Anime. Unify generic and registered typed entry points; keep season/episode editing within the same draft/save lifecycle and finish remaining Add/Edit field parity. |
+| Anime | Physical-media Specs and typed Cast/Crew editors are shared with Movie/TV. Reconcile the extra media dialog with active routes; preserve kind-specific series/episode fields and finish remaining Add/Edit field parity. |
 | Books | Unify catalog/entry schemas and managed publisher/format bindings; Authors and Translators now use shared typed ordered-name editors in Add/Edit; retain identifiers, publication details, and review other credits. |
 | Comics | Controller fallbacks have been removed from the Comic edit host; unify the generic entry and typed catalog hosts while retaining series/issue, grading, variants, and meaningful credit structures. |
 | Manga | Consolidate series/publisher picker mechanics with other kinds; keep volume/publication semantics in Manga; reconcile generic/extra media editors. |
