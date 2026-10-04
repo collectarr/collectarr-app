@@ -184,66 +184,72 @@ inside the common form lifecycle.
 
 ## 3. Confirmed shared defects and inconsistencies
 
-### 3.1 Manual Add shell owns business fields and nested scroll containers
+### 3.1 Manual Add shell owns generic personal fields; vertical scrolling is shared
 
 Evidence: `add/panes/library_add_manual_pane_shell.dart`.
 
-- Injects its own raw Title TextFormField into the first tab. The kind cannot
-  place Title within its canonical Main layout or supply the same validation
-  and label treatment as Edit.
-- Wraps all tab contents in EditTabShell, while automatic Custom Fields and
-  My Images contents are already EditTabShell instances. Other contributed
-  tab widgets can also own their scroll/padding.
-- Embedded AddSchemaRenderer adds another 16px horizontal / 14px top padding
-  inside the tab shell. Layout density differs from direct Edit fields.
-- Displays `main` and `entry defaults` badges, exposing implementation terms.
-- Personal is not automatically contributed for all kinds. Music explicitly
-  supplies it; the other eight manual panes do not.
-
-Choose exactly one tab viewport owner, one scroll owner, and one padding
-owner. The shell must not define Title or personal field semantics.
+- The shell no longer creates a Title input. Kinds provide the optional
+  `identityDetails` widget and their Main schema owns its title field; the shell
+  only derives the dialog header from the current draft title.
+- Each tab view has one outer `EditTabShell`. Embedded `AddSchemaRenderer`
+  returns an unconstrained column without a fixed height, inner vertical
+  scroll view, or schema-owned padding. The shared shell owns the tab's
+  vertical scroll surface.
+- Personal is appended automatically when a kind has not supplied its own
+  tab. Custom Fields are added when definitions exist, and My Images is always
+  added. Those sections return content, not another `EditTabShell`.
+- The shell currently owns the generic Personal field list (condition,
+  location, purchase details, owner, tags, and notes). Move those semantic
+  definitions and defaults to kind-owned personal schemas; keep shared widgets
+  responsible for rendering contributed fields.
+- A reorderable image strip and horizontally scrolling tag chips have their
+  own bounded horizontal scrolling; they do not create a second vertical tab
+  viewport. Audit any new kind-contributed tab before adding nested vertical
+  scrolling.
 
 ### 3.2 Add and Edit schema renderers duplicate layout and lifecycle
 
 Evidence: `add/schema/add_schema_renderer.dart` and
 `edit/schema/edit_schema_renderer.dart`.
 
-Both implement field visibility, Wrap geometry, breakpoints 680/960,
-column spans, right alignment, controller maps, validation traversal, and
-submit state. The control builder is shared, but the form architecture is not.
+Both renderers use the shared field layout and control builder, but retain
+separate tab composition, controller stores, and submission/error lifecycles.
+Add has a standalone submit path and an embedded path. Embedded Add delegates
+validation to the shell action bar's `Form`; text, number, money, and schema
+fields register validators with that form. Verify validation and error routing
+for fields in tabs that have not been mounted yet.
 
-Embedded Add does not invoke its own `_submit()` validation path. The outer
-action bar calls Form.validate(), whereas schema text/number fields render
-`errorText` without registering their schema validators with TextFormField.
-Movie candidate creation separately checks its schema-level validator; this
-does not replace consistent field validation and visible error routing.
+Number-field minimum, maximum, and decimal-place limits are enforced by the
+shared control builder. It retains raw input in its controller and does not
+write an invalid number to the draft. Continue checking that numeric drafts
+distinguish blank from invalid values where a kind requires that distinction.
 
-Number field minimum/maximum/decimalPlaces are present in field specs but
-the control builder does not enforce them. Invalid numeric text can become
-null; integer callers can truncate decimals. Preserve raw input and distinguish
-empty, invalid, and valid values before updating the typed draft.
+Text controls now use the common external-label primitive. Add select fields
+also receive an external label, while specialized date, image, and selection
+controls may render their own label. Some legacy custom editors still build raw
+`TextFormField`s; migrate those when unifying their Add/Edit definitions.
+Embedded Add currently selects Edit-mode selection interactions, so picker mode
+still needs review independently from lifecycle mode.
 
-The control builder clears labels in `_controlDecoration()`, but external
-labels are only added for text, number, money, and partial dates. Review
-standalone Add select and read-only controls for missing labels. Embedded
-Add currently selects Edit control mode: lifecycle mode and picker behavior
-should not be coupled to whether the widget is embedded.
-
-### 3.3 Two control families and multiple grid mechanisms remain
+### 3.3 Remaining custom controls and dead layout helper
 
 Evidence: `edit/fields/edit_dialog_widgets.dart`,
 `ui/primitives/library_selection_fields.dart`, and the schema control builder.
 
-LibraryEditTextField still uses an InputDecoration label; schema text fields
-use LibraryFormField external labels. `LibraryVocabularyField` now renders
+`LibraryEditTextField` now composes `LibraryFormField` and the common
+`LibraryTextFormControl`. Some kind-specific custom tabs still use raw
+`TextFormField`s and their decoration labels. `LibraryVocabularyField` renders
 multi-value vocabularies with the shared chip field and single-value
 vocabularies with the labelled dropdown control. The old tag-pick-list widget
-remains only as an unused public export and golden fixture pending final
-cleanup.
-AddSchemaRenderer, EditSchemaRenderer, LibraryEditDenseFields,
-LibraryEditResponsiveRow, and other responsive-row helpers own overlapping
-geometry. Consolidate the mechanisms, with explicit layout parameters where
-the kind needs them.
+has no application caller and remains only as a public export and golden
+fixture pending final cleanup.
+
+The Add and Edit schema renderers still have separate lifecycle and tab
+orchestration, but both delegate field geometry to shared layout primitives.
+`LibraryEditDenseFields` and `LibraryEditResponsiveRow` are configuration
+adapters over `LibraryResponsiveFieldLayout`. The old `EditGrid` had no
+application or test callers and has been removed. Continue migrating custom
+tabs to the shared responsive layout instead of adding new row/grid engines.
 
 ### 3.4 Shared personal widgets still define business fields
 
