@@ -99,8 +99,9 @@ Completed implementation slices:
 - Board Game Manual Add now groups its existing kind-owned fields into Main,
   Edition Details, Gameplay & Ratings, Description, and Covers. Shared schema
   section filtering preserves layout and visibility configuration while a tab
-  presents a focused subset. This does not yet unify Board Game's Add/Edit
-  lifecycle or add external-link editing to Manual Add.
+  presents a focused subset. Its Links tab uses the shared links table, with
+  controller rows owned and disposed by the Board Game Add draft. Add/Edit
+  lifecycle unification remains outstanding.
 - Manga Manual Add now uses Main, Edition Details, Details, Plot, and Covers
   tabs, all backed by the same Manga draft and schema definitions. Its series
   selector and managed publisher, imprint, and format vocabularies stay owned
@@ -253,7 +254,7 @@ My Images and adds Custom Fields only when definitions are nonempty.
 | Comics | Main, Edition details, Details, Covers, plus Series identity control | Generic entry editor and separately registered typed catalog editor; large custom tab/host adapter remains, with typed-draft checks and controller fallbacks removed. Add-side creator, character, and links remain outstanding. |
 | Manga | Main, Edition details, Details, Plot, Covers, plus Series identity control | Registered routes use generic editor; a separate typed media editor exists. Managed series/publisher selection logic overlaps Comics/Books. |
 | Games | Main, Edition details, Description, Covers | Generic editor plus embedded entry schema; custom Main/Release fields and the registered Game platform vocabulary. The request-backed edit draft is renderer-owned; field-specific controller ownership still needs review. |
-| Board Games | Main, Edition Details, Gameplay & Ratings, Description, Covers | Generic renderer with catalog/entry presentation lists and embedded entry schema; shared release identity groups remain. Add still lacks its Edit Links editor. |
+| Board Games | Main, Edition Details, Gameplay & Ratings, Description, Covers, Links | Generic renderer with catalog/entry presentation lists and embedded entry schema; shared release identity groups remain. Links now use the shared table in Add and Edit. |
 
 The presence of a raw Flutter control is not automatically a defect. The
 problem is duplicated presentation/behavior, inconsistent validation, or a
