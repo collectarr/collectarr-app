@@ -14,6 +14,7 @@ import 'package:collectarr_app/features/library/tracking/media_rating_field.dart
 import 'package:collectarr_app/features/library/ui/primitives/library_dropdown_pick_field.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_form_controls.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_money_amount_field.dart';
+import 'package:collectarr_app/features/library/ui/primitives/library_notes_field.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_multi_value_options_dialog.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_multi_value_pick_field.dart';
 import 'package:collectarr_app/features/pick_lists/pick_list_options.dart';
@@ -221,17 +222,14 @@ class _LibraryEntryPersonalSectionState
                   ),
                 if (notesField != null) ...[
                   const SizedBox(height: 12),
-                  LibraryFormField(
+                  LibraryNotesField(
+                    fieldKey: ValueKey('library-entry-${notesField.key}'),
                     label: notesField.label,
-                    child: TextFormField(
-                      key: ValueKey('library-entry-${notesField.key}'),
-                      initialValue: _draft.text(notesField.key),
-                      maxLines: 5,
-                      onChanged: (value) {
-                        _draft.set(notesField.key, value);
-                        widget.onNotesChanged?.call(value);
-                      },
-                    ),
+                    value: _draft.text(notesField.key),
+                    onChanged: (value) {
+                      _draft.set(notesField.key, value);
+                      widget.onNotesChanged?.call(value);
+                    },
                   ),
                 ],
                 if (widget.history != null) ...[
