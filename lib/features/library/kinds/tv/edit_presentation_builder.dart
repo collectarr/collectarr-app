@@ -1,6 +1,6 @@
 import 'package:collectarr_app/features/library/config/library_edit_presentation_models.dart';
 import 'package:collectarr_app/features/library/config/presentation/library_edit_presentation_builder_base.dart';
-import 'package:collectarr_app/features/library/kinds/tv/edit/tv_custom_tab_builder.dart';
+import 'package:collectarr_app/features/library/kinds/tv/edit/tv_media_custom_tab_builder.dart';
 import 'package:flutter/material.dart';
 
 const _tvMediaTabs = [
@@ -97,7 +97,7 @@ class TvLibraryEditPresentationBuilder
           entryTabs: _tvAllTabs,
           trackedTabs: _tvMediaTabs,
           catalogTabs: _tvMediaTabs,
-          customTabBuilder: buildTvCustomTabView,
+          customTabBuilder: buildTvMediaCustomTabView,
         );
 }
 
@@ -116,7 +116,7 @@ class TvLibraryMediaEditPresentationBuilder
           entryTabs: _tvMediaTabs,
           trackedTabs: _tvMediaTabs,
           catalogTabs: _tvMediaTabs,
-          customTabBuilder: buildTvCustomTabView,
+          customTabBuilder: buildTvMediaCustomTabView,
         );
 }
 

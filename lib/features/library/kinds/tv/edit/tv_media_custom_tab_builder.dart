@@ -1,6 +1,9 @@
 import 'package:collectarr_app/features/library/edit/draft/library_edit_shell_state.dart';
 import 'package:collectarr_app/features/library/domain/library_entity_scope.dart';
 import 'package:collectarr_app/features/library/kinds/tv/edit/tv_edit_draft_contract.dart';
+import 'package:collectarr_app/features/library/kinds/tv/edit/tabs/tv_catalog_media_tab.dart';
+import 'package:collectarr_app/features/library/kinds/tv/edit/tabs/tv_episode_media_map_tab.dart';
+import 'package:collectarr_app/features/library/kinds/tv/edit/tabs/tv_episodes_tab.dart';
 import 'package:collectarr_app/features/library/kinds/tv/edit/tabs/tv_cast_tab.dart';
 import 'package:collectarr_app/features/library/kinds/tv/edit/tabs/tv_crew_tab.dart';
 import 'package:collectarr_app/features/library/kinds/tv/edit/tabs/tv_edition_tab.dart';
@@ -27,8 +30,25 @@ Widget? buildTvMediaCustomTabView({
     );
   }
   final tvEdit = entryDraft.tvEdit;
+  final mediaEdit = entryDraft.mediaEdit;
 
   return switch (tabId) {
+    'episodes' || 'tv_episodes' => TvEpisodesTab(
+        type: draft.type,
+        item: item.kindCapability.mapTransport((transport) => transport),
+        accent: accent,
+        mediaEdit: mediaEdit,
+      ),
+    'catalog_media' => TvCatalogMediaTab(
+        accent: accent,
+        mediaEdit: mediaEdit,
+      ),
+    'episode_media_map' => TvEpisodeMediaMapTab(
+        type: draft.type,
+        item: item.kindCapability.mapTransport((transport) => transport),
+        accent: accent,
+        mediaEdit: mediaEdit,
+      ),
     'edition' => TvEditEditionTab(
         tvEdit: tvEdit,
         accent: accent,

@@ -1,5 +1,6 @@
 import 'package:collectarr_app/features/library/edit/contracts/library_edit_kind_draft.dart';
 import 'package:collectarr_app/features/library/kinds/tv/edit/tv_edit_controller.dart';
+import 'package:collectarr_app/features/library/kinds/tv/edit/tv_media_edit_controller.dart';
 import 'package:flutter/material.dart';
 
 abstract class TvEditDraftContract
@@ -19,4 +20,5 @@ abstract class TvEditDraftContract
   TextEditingController get releaseYearController;
   List<String> get hdrFormats;
   TvEditController get tvEdit;
+  TvMediaEditController get mediaEdit;
 }
