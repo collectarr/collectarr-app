@@ -109,8 +109,14 @@ Completed implementation slices:
 - Comic Manual Add now separates Issue identity, Edition Details, publication
   metadata, and Covers into focused tabs backed by its existing draft and
   managed vocabulary state. Its Links tab now uses the shared links table and
-  stores manual external links in the Comic catalog model. Add-side creator
-  and character editors still need implementation.
+  stores manual external links in the Comic catalog model. Creators and
+  Characters now use the shared ordered name/detail editor and the same
+  kind-owned row models as Edit. The Add fields cover Name/Role and
+  Character/Real name; the richer creator and character metadata still needs
+  a parity review.
+- The TV/Anime-specific Name/Role editor is now a library UI primitive that
+  also supports Comic Add's different detail labels. Editable Comic people
+  drafts now live in `comic/forms/` and are shared by Add and Edit.
 - Kind Add drafts now opt into resource disposal only when they own resources.
   Movie, TV, and Anime dispose their controller-backed credits; kinds with
   plain data drafts no longer carry empty `dispose()` methods.
@@ -252,7 +258,7 @@ My Images and adds Custom Fields only when definitions are nonempty.
 | TV | Main, Edition details, Plot, Specs, Covers, Cast, Crew | Generic editor plus a separately registered typed media editor. The request-backed edit draft is initialized by the shared renderer state; Specs are shared with Movie/Anime, and Cast/Crew use the same typed editor in Add/Edit. Custom episode dialog is another surface to audit. |
 | Anime | Main, Details, Edition details, Specs, Cover, Synopsis, Cast, Crew | Registered edit routes use generic editor; an additional typed media dialog exists. The request-backed edit draft is initialized by the shared renderer state; Specs are shared with Movie/TV, and Cast/Crew use the same typed editor in Add/Edit. |
 | Books | Main, Credits, Links, Covers, Plot | Generic editor with separate catalog/entry presentation and an embedded entry schema renderer; Credits tab uses the same typed ordered-name editors as Add. |
-| Comics | Main, Edition details, Details, Covers, Links, plus Series identity control | Generic entry editor and separately registered typed catalog editor; large custom tab/host adapter remains, with typed-draft checks and controller fallbacks removed. Add-side creator and character editors remain outstanding. |
+| Comics | Main, Edition details, Details, Creators, Characters, Covers, Links, plus Series identity control | Generic entry editor and separately registered typed catalog editor; large custom tab/host adapter remains, with typed-draft checks and controller fallbacks removed. Add/Edit share the Comic people row models; advanced metadata parity remains to review. |
 | Manga | Main, Edition details, Details, Plot, Covers, plus Series identity control | Registered routes use generic editor; a separate typed media editor exists. Managed series/publisher selection logic overlaps Comics/Books. |
 | Games | Main, Edition details, Description, Covers | Generic editor plus embedded entry schema; custom Main/Release fields and the registered Game platform vocabulary. The request-backed edit draft is renderer-owned; field-specific controller ownership still needs review. |
 | Board Games | Main, Edition Details, Gameplay & Ratings, Description, Covers, Links | Generic renderer with catalog/entry presentation lists and embedded entry schema; shared release identity groups remain. Links now use the shared table in Add and Edit. |
