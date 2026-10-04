@@ -54,10 +54,12 @@ final class LibraryEditSessionBundle {
   const LibraryEditSessionBundle({
     required this.catalogItemSession,
     required this.entrySession,
-    required this.disposeSession,
+    this.disposeSession = _disposeNothing,
   });
 
   final LibraryCatalogItemEditSession catalogItemSession;
   final LibraryEntryEditSession entrySession;
   final void Function() disposeSession;
 }
+
+void _disposeNothing() {}
