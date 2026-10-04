@@ -2,6 +2,7 @@ import 'package:collectarr_app/features/library/add/controllers/library_add_dial
 import 'package:collectarr_app/features/library/add/panes/library_add_manual_personal_tab.dart';
 import 'package:collectarr_app/features/library/add/panes/library_add_manual_pane_shell.dart';
 import 'package:collectarr_app/features/library/schema/library_form_schema.dart';
+import 'package:collectarr_app/features/library/schema/library_form_schema_validation.dart';
 import 'package:collectarr_app/features/library/kinds/music/add/music_add_manual_credits_tab.dart';
 import 'package:collectarr_app/features/library/kinds/music/add/music_add_manual_covers_tab.dart';
 import 'package:collectarr_app/features/library/kinds/music/add/music_add_draft.dart';
@@ -112,6 +113,7 @@ class MusicAddManualPane extends StatelessWidget {
           id: 'classical',
           label: 'Classical',
           icon: Icons.queue_music_outlined,
+          validate: (_) => _validateCredits(draft, classical: true),
           content: MusicAddManualCreditsTab(
             draft: draft,
             accent: request.accent,
@@ -122,6 +124,7 @@ class MusicAddManualPane extends StatelessWidget {
           id: 'people',
           label: 'People',
           icon: Icons.people_outline,
+          validate: (_) => _validateCredits(draft, classical: false),
           content: MusicAddManualCreditsTab(
             draft: draft,
             accent: request.accent,
@@ -199,6 +202,32 @@ class MusicAddManualPane extends StatelessWidget {
       ],
     );
   }
+}
+
+LibraryFormValidationIssue? _validateCredits(
+  MusicAddManualDraft draft, {
+  required bool classical,
+}) {
+  final credits = classical
+      ? [
+          ...draft.composers,
+          ...draft.conductors,
+          ...draft.choruses,
+          ...draft.compositions,
+          ...draft.orchestras,
+        ]
+      : [
+          ...draft.songwriters,
+          ...draft.producers,
+          ...draft.engineers,
+          ...draft.musicians,
+        ];
+  if (credits.any((credit) => credit.name.trim().isEmpty)) {
+    return const LibraryFormValidationIssue(
+      'Complete or remove each unfinished music credit',
+    );
+  }
+  return null;
 }
 
 Widget buildMusicAddManualPane(

@@ -44,7 +44,8 @@ Completed implementation slices:
   text-controller store. It switches to the first invalid tab, shows its
   validation message, and focuses/scrolls to a field when the issue identifies
   one. Kind-owned custom tabs can contribute their own validator through the
-  same tab contract.
+  same tab contract. Music Manual Add now uses this path for unfinished
+  Classical and People credit rows, matching Edit's validation rule.
 - Add and Edit now use the same schema field-validation routine, including raw
   number validation and section/field visibility checks. Edit retains its
   schema-level and extra-tab validators and its existing save/error lifecycle.
