@@ -29,7 +29,7 @@ CatalogSearchCandidate? buildComicManualCandidate(
           ComicLink(
             url: link.urlController.text.trim(),
             title: _nullable(link.titleController.text),
-            description: _nullable(link.titleController.text),
+            description: _nullable(link.descriptionController.text),
             source: 'manual',
             isAutomatic: false,
             kind: 'external',

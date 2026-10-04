@@ -3,6 +3,7 @@ import 'package:collectarr_app/features/library/config/library_item_actions.dart
 import 'package:collectarr_app/features/library/edit/draft/library_edit_models.dart';
 import 'package:collectarr_app/features/library/edit/schema/library_edit_schema_dialog.dart';
 import 'package:collectarr_app/features/library/edit/core_correction/library_core_correction.dart';
+import 'package:collectarr_app/features/library/edit/fields/library_external_links_draft_editor.dart';
 import 'package:collectarr_app/features/library/edit/fields/library_external_links_table.dart';
 import 'package:collectarr_app/features/library/edit/schema/edit_schema_renderer.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_catalog_item.dart';
@@ -37,7 +38,8 @@ class _ComicCatalogItemEditDialogState
   late final ComicCatalogItemFormValues _draft;
   late final List<EditableComicCreator> _creators;
   late final List<EditableComicCharacter> _characters;
-  late final List<_EditableComicExternalLink> _externalLinks;
+  late final List<LibraryExternalLinkDraftRow> _externalLinks;
+  late final Map<LibraryExternalLinkDraftRow, ComicLink> _originalExternalLinks;
 
   @override
   void initState() {
@@ -48,10 +50,17 @@ class _ComicCatalogItemEditDialogState
     _draft = comicCatalogItemFormValuesFrom(_media);
     _creators = initComicCreators(_media);
     _characters = initComicCharacters(_media);
-    _externalLinks = [
-      for (final link in _media.links)
-        if (link.isExternalLink) _EditableComicExternalLink.fromLink(link),
-    ];
+    _externalLinks = [];
+    _originalExternalLinks = {};
+    for (final link in _media.links.where((link) => link.isExternalLink)) {
+      final row = LibraryExternalLinkDraftRow(
+        title: link.title ?? '',
+        url: link.url,
+        description: link.description ?? '',
+      );
+      _externalLinks.add(row);
+      _originalExternalLinks[row] = link;
+    }
   }
 
   @override
@@ -145,26 +154,9 @@ class _ComicCatalogItemEditDialogState
         id: 'links',
         label: 'Links',
         icon: Icons.public,
-        content: LibraryExternalLinksTable<_EditableComicExternalLink>(
-          rows: [
-            for (final link in _externalLinks)
-              LibraryExternalLinkEditRow<_EditableComicExternalLink>(
-                identity: link,
-                urlController: link.urlController,
-                descriptionController: link.descriptionController,
-              ),
-          ],
+        content: LibraryExternalLinksDraftEditor(
+          links: _externalLinks,
           accent: widget.request.accent,
-          addLabel: 'New Link',
-          onAdd: () => setState(
-            () => _externalLinks.add(_EditableComicExternalLink()),
-          ),
-          onReorder: _reorderLinks,
-          onRemoveSelected: (rows) => setState(() {
-            for (final row in rows) {
-              if (_externalLinks.remove(row.identity)) row.identity.dispose();
-            }
-          }),
           onChanged: _onDraftChanged,
         ),
       );
@@ -186,7 +178,8 @@ class _ComicCatalogItemEditDialogState
           for (final link in _media.links)
             if (!link.isExternalLink) link,
           for (final link in _externalLinks)
-            if (link.urlController.text.trim().isNotEmpty) link.toModel(),
+            if (link.urlController.text.trim().isNotEmpty)
+              _comicLinkFromDraft(link),
         ],
       );
 
@@ -200,49 +193,20 @@ class _ComicCatalogItemEditDialogState
         _characters.insert(newIndex, character);
       });
 
-  void _reorderLinks(int oldIndex, int newIndex) => setState(() {
-        final link = _externalLinks.removeAt(oldIndex);
-        _externalLinks.insert(newIndex, link);
-      });
+  ComicLink _comicLinkFromDraft(LibraryExternalLinkDraftRow row) {
+    final original = _originalExternalLinks[row];
+    return ComicLink(
+      url: row.urlController.text.trim(),
+      title: _nullable(row.titleController.text),
+      description: _nullable(row.descriptionController.text),
+      source: original?.source ?? 'manual',
+      isAutomatic: original?.isAutomatic ?? false,
+      kind: original?.kind ?? 'external',
+    );
+  }
 
   void _onDraftChanged() {
     if (mounted) setState(() {});
-  }
-}
-
-final class _EditableComicExternalLink {
-  _EditableComicExternalLink({ComicLink? original})
-      : original = original ??
-            const ComicLink(
-              url: '',
-              source: 'manual',
-              isAutomatic: false,
-              kind: 'external',
-            ),
-        urlController = TextEditingController(text: original?.url ?? ''),
-        descriptionController = TextEditingController(
-          text: original?.description ?? original?.title ?? '',
-        );
-
-  factory _EditableComicExternalLink.fromLink(ComicLink link) =>
-      _EditableComicExternalLink(original: link);
-
-  final ComicLink original;
-  final TextEditingController urlController;
-  final TextEditingController descriptionController;
-
-  ComicLink toModel() => ComicLink(
-        url: urlController.text.trim(),
-        title: original.title,
-        description: _nullable(descriptionController.text),
-        source: original.source,
-        isAutomatic: original.isAutomatic,
-        kind: original.kind,
-      );
-
-  void dispose() {
-    urlController.dispose();
-    descriptionController.dispose();
   }
 }
 
