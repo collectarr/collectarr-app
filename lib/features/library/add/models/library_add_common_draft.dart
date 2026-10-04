@@ -10,6 +10,7 @@ class LibraryAddCommonDraft {
     this.personalNotes,
     this.tags,
     this.locationId,
+    this.clearLocation = false,
     this.purchaseStore,
     this.ownerLabel,
     this.collectionStatus,
@@ -23,6 +24,7 @@ class LibraryAddCommonDraft {
   final String? personalNotes;
   final String? tags;
   final String? locationId;
+  final bool clearLocation;
   final String? purchaseStore;
   final String? ownerLabel;
   final String? collectionStatus;
@@ -36,6 +38,7 @@ class LibraryAddCommonDraft {
     String? personalNotes,
     String? tags,
     String? locationId,
+    bool? clearLocation,
     String? purchaseStore,
     String? ownerLabel,
     String? collectionStatus,
@@ -49,6 +52,7 @@ class LibraryAddCommonDraft {
       personalNotes: personalNotes ?? this.personalNotes,
       tags: tags ?? this.tags,
       locationId: locationId ?? this.locationId,
+      clearLocation: clearLocation ?? this.clearLocation,
       purchaseStore: purchaseStore ?? this.purchaseStore,
       ownerLabel: ownerLabel ?? this.ownerLabel,
       collectionStatus: collectionStatus ?? this.collectionStatus,

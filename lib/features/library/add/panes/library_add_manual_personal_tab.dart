@@ -25,7 +25,9 @@ final class LibraryAddManualPersonalTab extends StatelessWidget {
   Widget build(BuildContext context) {
     final current = request.commonDraft ?? const LibraryAddCommonDraft();
     final condition = current.condition ?? request.defaultCondition;
-    final locationId = current.locationId ?? request.defaultLocationId;
+    final locationId = current.clearLocation
+        ? null
+        : current.locationId ?? request.defaultLocationId;
     final date = current.purchaseDate ?? request.defaultPurchaseDate;
     final fields = <Widget>[
       if (request.conditions.isNotEmpty)
@@ -214,25 +216,18 @@ final class LibraryAddManualPersonalTab extends StatelessWidget {
         request.locations.any((location) => location.id == selectedId)
             ? selectedId
             : null;
-    return LibraryFormField(
+    return LibraryDropdownPickField<String>(
       label: 'Location',
-      child: DropdownButtonFormField<String>(
-        key: ValueKey('manual-location-$selected'),
-        initialValue: selected,
-        decoration: const InputDecoration(
-          constraints: BoxConstraints(minHeight: kLibraryFormControlHeight),
-        ),
-        items: [
-          for (final location in request.locations)
-            DropdownMenuItem(
-              value: location.id,
-              child: Text(location.fullPath(request.locations)),
-            ),
-        ],
-        onChanged: (value) {
-          if (value != null) _updateCommon(locationId: value);
-        },
-      ),
+      value: selected,
+      options: [
+        for (final location in request.locations)
+          LibraryFieldOption(
+            value: location.id,
+            label: location.fullPath(request.locations),
+          ),
+      ],
+      clearOptionLabel: 'No location',
+      onChanged: (value) => _updateCommon(locationId: value),
     );
   }
 
@@ -276,7 +271,7 @@ final class LibraryAddManualPersonalTab extends StatelessWidget {
     Object? currency = _unchanged,
     Object? purchaseStore = _unchanged,
     Object? ownerLabel = _unchanged,
-    String? locationId,
+    Object? locationId = _unchanged,
   }) {
     final current = request.commonDraft ?? const LibraryAddCommonDraft();
     request.onCommonDraftChanged?.call(
@@ -293,7 +288,12 @@ final class LibraryAddManualPersonalTab extends StatelessWidget {
             : currency as String?,
         personalNotes: current.personalNotes,
         tags: identical(tags, _unchanged) ? current.tags : tags as String?,
-        locationId: locationId ?? current.locationId,
+        locationId: identical(locationId, _unchanged)
+            ? current.locationId
+            : locationId as String?,
+        clearLocation: identical(locationId, _unchanged)
+            ? current.clearLocation
+            : locationId == null,
         purchaseStore: identical(purchaseStore, _unchanged)
             ? current.purchaseStore
             : purchaseStore as String?,

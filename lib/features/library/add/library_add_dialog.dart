@@ -593,7 +593,10 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
         tags: _textOrNull(_manualDraft.tagsController.text) ??
             _controller.state.defaultTags ??
             current.tags,
-        locationId: current.locationId ?? _controller.state.defaultLocationId,
+        locationId: current.clearLocation
+            ? null
+            : current.locationId ?? _controller.state.defaultLocationId,
+        clearLocation: current.clearLocation,
         purchaseStore: current.purchaseStore,
         ownerLabel: _textOrNull(_manualDraft.ownerLabelController.text) ??
             current.ownerLabel,

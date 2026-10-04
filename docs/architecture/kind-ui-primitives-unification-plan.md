@@ -248,6 +248,8 @@ Completed implementation slices:
   same base text-form control and common minimum height.
 - Add and Edit purchase amounts now use the same minor-unit money control,
   currency prefix, parsing, and non-negative validation.
+- Add Location now uses the shared dropdown and supports an explicit no-location
+  choice that remains distinct from the dialog's default location.
 - Kind Add/Edit fields and metadata comparison views now use consistent title
   casing for common labels such as Sort Title, Original Title, Search Aliases,
   Release Date, Custom Fields, and My Images.
