@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/ui/primitives/library_form_controls.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
@@ -160,7 +161,7 @@ final class _MusicContributionGroupsFieldState
               },
               itemBuilder: (context, index) {
                 final value = group.values[index];
-                final nameField = TextFormField(
+                final nameField = LibraryTextFormControl(
                   key: ValueKey('music-credit-name-${value.id}'),
                   initialValue: value.name,
                   decoration: InputDecoration(
@@ -178,7 +179,7 @@ final class _MusicContributionGroupsFieldState
                     ],
                   ),
                 );
-                final sortNameField = TextFormField(
+                final sortNameField = LibraryTextFormControl(
                   key: ValueKey('music-credit-sort-name-${value.id}'),
                   initialValue: value.sortName,
                   decoration: const InputDecoration(
@@ -225,7 +226,7 @@ final class _MusicContributionGroupsFieldState
                             if (group.hasInstrument) ...[
                               const SizedBox(width: 8),
                               Expanded(
-                                child: TextFormField(
+                                child: LibraryTextFormControl(
                                   key: ValueKey(
                                     'music-credit-instrument-${value.id}',
                                   ),

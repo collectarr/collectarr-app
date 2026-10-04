@@ -287,6 +287,9 @@ Completed implementation slices:
 - The shared editable links table now uses the common text control for Name,
   URL, and Description cells while retaining its compact row sizing and staged
   controller ownership.
+- Music's shared Add/Edit credit editor now uses the common text control for
+  contributor names, sort names, and instruments while preserving the credit
+  row identity, ordering, and kind-owned values.
 - Music Add and Edit disc metadata, track titles/artists/lengths, and disc-owned
   storage details now use the same input primitive and minimum control height.
 - Music Add and Edit track title, artist, and duration fields now share one
