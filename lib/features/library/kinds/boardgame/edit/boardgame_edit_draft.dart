@@ -1,5 +1,6 @@
 import 'package:collectarr_app/features/library/edit/draft/library_edit_form_fields.dart';
 import 'package:collectarr_app/core/models/tracking_summary.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_link_dto.dart';
 import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/data/boardgame_library_entry_projection.dart';
 import 'package:collectarr_app/features/collection/commands/library_entry_commands.dart';
@@ -11,6 +12,7 @@ import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame
 import 'package:collectarr_app/features/library/kinds/boardgame/forms/boardgame_catalog_form_draft.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/forms/boardgame_catalog_form_values.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/forms/boardgame_catalog_form_adapters.dart';
+import 'package:collectarr_app/features/library/edit/fields/library_external_links_table.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_entry_dispatch.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_library_entry.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/entries/boardgame_entry_details_draft.dart';
@@ -40,6 +42,8 @@ class BoardGameEditDraft
     this.storageNotes,
     required this.values,
     required this.catalogTitle,
+    required this.externalLinks,
+    required this.originalExternalLinks,
   });
 
   final BoardGameLibraryEntry? libraryEntry;
@@ -59,6 +63,62 @@ class BoardGameEditDraft
   bool hasCustomInsert;
   bool hasPaintedMiniatures;
   String? storageNotes;
+  final List<LibraryExternalLinkDraftRow> externalLinks;
+  final Map<LibraryExternalLinkDraftRow, BoardGameLink> originalExternalLinks;
+  bool _externalLinksEdited = false;
+
+  void markExternalLinksEdited() => _externalLinksEdited = true;
+
+  BoardGameLink _boardGameLinkFromDraft(
+    LibraryExternalLinkDraftRow row,
+    int position,
+  ) {
+    final original = originalExternalLinks[row];
+    final title = _boardGameOptional(row.titleController.text);
+    return BoardGameLink(
+      url: row.urlController.text.trim(),
+      id: original?.id,
+      label: title,
+      title: title,
+      site: original?.site,
+      name: original?.name,
+      kind: original?.kind,
+      description: _boardGameOptional(row.descriptionController.text),
+      position: position,
+      linkType: original?.linkType,
+    );
+  }
+
+  void dispose() {
+    for (final link in externalLinks) {
+      link.dispose();
+    }
+  }
+
+  @override
+  void setExternalLinks(List<TrailerLinkDto> links) {
+    for (final row in externalLinks) {
+      row.dispose();
+    }
+    externalLinks.clear();
+    originalExternalLinks.clear();
+    for (final link in links) {
+      final row = LibraryExternalLinkDraftRow(
+        title: link.title ?? '',
+        url: link.url,
+        description: link.description ?? '',
+      );
+      externalLinks.add(row);
+      originalExternalLinks[row] = BoardGameLink(
+        url: link.url,
+        title: link.title,
+        label: link.title,
+        description: link.description,
+        kind: link.kind,
+      );
+    }
+    _externalLinksEdited = true;
+  }
 
   @override
   JsonEncodable toDetailsDraft() => BoardgameEntryDetailsDraft(
@@ -174,11 +234,22 @@ class BoardGameEditDraft
   LibraryEditSelection applySelectionEdits(LibraryEditSelection selection) {
     final metadata = _boardGameMetadataFor(selection.kindItem);
     if (metadata == null) return selection;
-    final updated = applyBoardGameCatalogFormValues(
+    var updated = applyBoardGameCatalogFormValues(
       current: metadata,
       values: values,
       title: catalogTitle,
     );
+    if (_externalLinksEdited) {
+      updated = BoardGameMetadata.fromJson({
+        ...updated.toJson(),
+        'external_links': [
+          for (final (index, row) in externalLinks
+              .where((row) => row.urlController.text.trim().isNotEmpty)
+              .indexed)
+            _boardGameLinkFromDraft(row, index + 1).toJson(),
+        ],
+      });
+    }
     return selection.copyWith(
       kindItem: selection.kindItem.kindCapability.mapTransport(
         (transport) => CatalogSearchCandidate.fromItem(
@@ -209,6 +280,13 @@ LibraryEditSessionBundle createBoardGameEditDraft({
     throw StateError('Expected a Board Game catalog item for its edit draft.');
   }
   final entryDetails = entry?.personal.details;
+  final linkRows = <LibraryExternalLinkDraftRow>[];
+  final originalLinks = <LibraryExternalLinkDraftRow, BoardGameLink>{};
+  for (final link in boardGame.externalLinks) {
+    final row = _boardGameLinkDraftRow(link);
+    linkRows.add(row);
+    originalLinks[row] = link;
+  }
   final draft = BoardGameEditDraft(
     libraryEntry: entry,
     editionLanguage: entryDetails?.editionLanguage,
@@ -222,9 +300,24 @@ LibraryEditSessionBundle createBoardGameEditDraft({
     storageNotes: entryDetails?.storageNotes,
     values: boardGameCatalogFormValuesFromMetadata(boardGame),
     catalogTitle: boardGame.title,
+    externalLinks: linkRows,
+    originalExternalLinks: originalLinks,
   );
   return LibraryEditSessionBundle(
     catalogItemSession: draft,
     entrySession: draft,
+    disposeSession: draft.dispose,
   );
+}
+
+LibraryExternalLinkDraftRow _boardGameLinkDraftRow(BoardGameLink link) =>
+    LibraryExternalLinkDraftRow(
+      title: link.title ?? link.label ?? link.name ?? '',
+      url: link.url,
+      description: link.description ?? '',
+    );
+
+String? _boardGameOptional(String value) {
+  final trimmed = value.trim();
+  return trimmed.isEmpty ? null : trimmed;
 }

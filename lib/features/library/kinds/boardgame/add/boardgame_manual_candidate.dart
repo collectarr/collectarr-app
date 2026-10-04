@@ -23,6 +23,8 @@ CatalogSearchCandidate? buildBoardgameManualCandidate(
           .indexed)
         BoardGameLink(
           url: link.urlController.text.trim(),
+          label: _nullable(link.titleController.text),
+          title: _nullable(link.titleController.text),
           description: _nullable(link.descriptionController.text),
           position: index + 1,
         ),

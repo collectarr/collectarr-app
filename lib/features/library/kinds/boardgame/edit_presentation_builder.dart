@@ -11,6 +11,7 @@ import 'package:collectarr_app/features/library/kinds/boardgame/edit/entry/board
 import 'package:collectarr_app/features/library/kinds/boardgame/entries/boardgame_entry_details.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/entries/boardgame_entry_details_draft.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/forms/boardgame_catalog_form_field_ids.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/forms/boardgame_external_links_editor.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/vocabulary/boardgame_vocabularies.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:flutter/material.dart';
@@ -95,6 +96,21 @@ Widget? buildBoardGameCustomTabView({
       draft: kindDraft,
       mediaKind: draft.type.kind.apiValue,
       showTabBar: false,
+    );
+  }
+
+  if (tabId == 'links') {
+    return EditTabShell(
+      children: [
+        BoardGameExternalLinksEditor(
+          links: kindDraft.externalLinks,
+          accent: accent,
+          onChanged: () {
+            kindDraft.markExternalLinksEdited();
+            markDirty();
+          },
+        ),
+      ],
     );
   }
 

@@ -553,7 +553,7 @@ My Images and adds Custom Fields only when definitions are nonempty.
 | Comics | Main, Edition details, Details, Creators, Characters, Covers, Links, plus Series identity control | Generic entry editor and separately registered typed catalog editor; large custom tab/host adapter remains, with typed-draft checks and controller fallbacks removed. Add/Edit share the Comic people row models; advanced metadata parity remains to review. |
 | Manga | Main, Edition details, Details, Plot, Covers, plus Series identity control | Registered routes use the shared Edit shell with typed Edition Details and Details schemas; Add/Edit expose modeled metadata in matching areas and keep distinct ISBN/Barcode and Format/Binding values. Genres/Themes share the chip picker; Format/Publisher/Imprint share Manga vocabulary definitions. Identifiers, publication dates, series group, and back cover persist independently. Managed series selection logic still overlaps Comics/Books. |
 | Games | Main, Edition details, Description, Covers | Main, Edition, Description, and Covers share the kind-owned field schema and renderer with Add. The typed Entry details editor remains specialized. |
-| Board Games | Main, Edition Details, Gameplay & Ratings, Description, Covers, Links | Catalog tabs share the same kind-owned field schema, typed values, and renderer with Add. Entry details and personal state remain specialized; Links use the shared table. |
+| Board Games | Main, Edition Details, Gameplay & Ratings, Description, Covers, Links | Catalog tabs share the same kind-owned field schema, typed values, and renderer with Add. Links use the same kind-owned Add/Edit editor; Edit retains link identity and unexposed metadata through reordering. Entry details and personal state remain specialized. |
 
 The presence of a raw Flutter control is not automatically a defect. The
 problem is duplicated presentation/behavior, inconsistent validation, or a
@@ -898,3 +898,10 @@ Implementation note (2026-10-04): Comic and Board Game Manual Add no longer
 define separate external-link controller draft classes. Both reuse
 `LibraryExternalLinkDraftRow`; their candidate builders retain kind-specific
 link serialization. No tests were run.
+
+Implementation note (2026-10-04): Board Game Add and catalog Edit now render
+external links through the same kind-owned editor and shared reorderable
+table. Edit loads the existing links into draft-owned rows, preserves their
+unexposed identity and metadata, and applies the edited order on save. Targeted
+`dart analyze` for Board Game Add/Edit/forms passed. Tests and runtime screenshot
+review remain deferred.
