@@ -105,6 +105,10 @@ Completed implementation slices:
   tabs, all backed by the same Manga draft and schema definitions. Its series
   selector and managed publisher, imprint, and format vocabularies stay owned
   by the stateful Manga pane.
+- Comic Manual Add now separates Issue identity, Edition Details, publication
+  metadata, and Covers into focused tabs backed by its existing draft and
+  managed vocabulary state. The Edit-only creator, character, and external
+  link editors still need Add-side support and a shared typed lifecycle.
 - The shared video Specs section now also edits Screen ratio. TV and Anime
   hydrate their existing Specs controllers from metadata and persist all
   fields, including explicit clears; their Add forms expose the same supported
