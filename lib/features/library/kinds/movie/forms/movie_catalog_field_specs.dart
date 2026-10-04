@@ -22,10 +22,34 @@ List<LibraryFieldSpec<TDraft>> movieCatalogItemFields<TDraft>({
 }) =>
     [
       LibraryTextFieldSpec<TDraft>(
+        id: 'display_title',
+        label: 'Display Title',
+        value: (draft) => values(draft).displayTitle,
+        setValue: (draft, value) => values(draft).displayTitle = value,
+      ),
+      LibraryTextFieldSpec<TDraft>(
         id: 'sort_key',
         label: 'Sort title',
         value: (draft) => values(draft).sortTitle,
         setValue: (draft, value) => values(draft).sortTitle = value,
+      ),
+      LibraryTextFieldSpec<TDraft>(
+        id: 'original_title',
+        label: 'Original Title',
+        value: (draft) => values(draft).originalTitle,
+        setValue: (draft, value) => values(draft).originalTitle = value,
+      ),
+      LibraryTextFieldSpec<TDraft>(
+        id: 'localized_title',
+        label: 'Localized Title',
+        value: (draft) => values(draft).localizedTitle,
+        setValue: (draft, value) => values(draft).localizedTitle = value,
+      ),
+      LibraryTextFieldSpec<TDraft>(
+        id: 'search_aliases',
+        label: 'Search Aliases',
+        value: (draft) => values(draft).searchAliases,
+        setValue: (draft, value) => values(draft).searchAliases = value,
       ),
       LibraryTextFieldSpec<TDraft>(
         id: 'synopsis',

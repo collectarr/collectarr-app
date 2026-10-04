@@ -2,7 +2,11 @@
 final class MovieCatalogFormValues {
   MovieCatalogFormValues({
     this.title = '',
+    this.displayTitle = '',
     this.sortTitle = '',
+    this.originalTitle = '',
+    this.localizedTitle = '',
+    this.searchAliases = '',
     this.synopsis = '',
     this.genres = const [],
     this.originalLanguage = '',
@@ -27,6 +31,10 @@ final class MovieCatalogFormValues {
 
   String sortTitle;
   String title;
+  String displayTitle;
+  String originalTitle;
+  String localizedTitle;
+  String searchAliases;
   String synopsis;
   List<String> genres;
   String originalLanguage;

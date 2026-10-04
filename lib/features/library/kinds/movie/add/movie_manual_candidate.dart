@@ -19,13 +19,21 @@ CatalogSearchCandidate? buildMovieManualCandidate(
   final releaseDateParts = _releaseDateParts(values);
   final directors = _split(values.directors);
   final characters = _split(values.characters);
+  final aliases = _split(values.searchAliases);
   final item = CatalogItemDto.raw(
     id: id,
     mediaKind: CatalogMediaKind.movie,
     origin: CatalogItemOrigin.privateLocal,
     kindData: {
       'title': title.trim(),
+      if (_text(values.displayTitle) case final value?)
+        'display_title': value,
       if (_text(values.sortTitle) case final value?) 'sort_key': value,
+      if (_text(values.originalTitle) case final value?)
+        'original_title': value,
+      if (_text(values.localizedTitle) case final value?)
+        'localized_title': value,
+      if (aliases.isNotEmpty) 'search_aliases': aliases,
       if (_text(values.synopsis) case final value?) 'synopsis': value,
       if (_text(values.coverImageUrl) case final value?)
         'cover_image_url': value,
