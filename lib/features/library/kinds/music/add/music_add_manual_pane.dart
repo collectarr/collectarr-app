@@ -24,7 +24,7 @@ class MusicAddManualPane extends StatelessWidget {
         for (final field in section.fields) field.id: field,
     };
     const mainFieldIds = [
-      'title',
+      'catalog_title',
       'release_date',
       'original_release_date',
       'sort_title',
@@ -45,7 +45,7 @@ class MusicAddManualPane extends StatelessWidget {
           label: '',
           maxColumns: 4,
           fieldColumnSpans: const {
-            'title': 2,
+            'catalog_title': 2,
             'sort_title': 2,
             'subtitle': 2,
             'artist': 2,

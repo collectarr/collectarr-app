@@ -107,6 +107,12 @@ Completed implementation slices:
   editing; the obsolete custom Main and Edition tab renderers and the duplicate
   character-name controller were removed. Anime series, episode, disc, cast,
   crew, and Links editors remain specialized where they own distinct behavior.
+- Music Add and Edit now use the same `musicAlbumFields` definitions backed by
+  `MusicAlbumFormValues` for scalar catalog metadata. The Add draft exposes its
+  existing field API as accessors over those values, while child editors retain
+  their own typed state. The Add pane title field ID now matches the schema.
+  Add and Edit credit, track, image, link, and personal submission lifecycles
+  remain separate.
 - Book now uses one kind-owned schema for the Main, Links, Covers, and Plot
   fields in Add and Edit. The shared schema edits typed Book form values,
   including identifiers, publication details, and partial dates; Edit no
@@ -325,7 +331,7 @@ My Images and adds Custom Fields only when definitions are nonempty.
 
 | Kind | Manual Add composition | Edit composition / identified divergence |
 | --- | --- | --- |
-| Music | Main, Details, Classical, People, Tracks, Personal, Covers, Links | Registered edit route uses the typed album schema dialog; Add credits/tracks/links/covers still have independent widgets and bindings. No separate entry edit dialog or caller remains in the current source. |
+| Music | Main, Details, Classical, People, Tracks, Personal, Covers, Links | Main and Details scalar catalog fields share `musicAlbumFields` and the same typed values as Edit. Add credits/tracks/links/covers and personal submission still have independent widgets and bindings. No separate entry edit dialog or caller remains in the current source. |
 | Movies | Main, Edition details, Plot, Specs, Covers, Cast, Crew | Generic session/presentation renderer; catalog scalars now use the same typed field specs, values model, and embedded schema renderer as Add. Catalog and entry scopes share those metadata tabs; personal state, tracking, image, and link lifecycles remain separate. |
 | TV | Main, Edition details, Plot, Specs, Covers, Cast, Crew | Main, Edition, Specs, Plot, Covers, and Characters use the same kind-owned schema in Add/Edit. The request-backed draft also retains typed media and episode editors; Cast/Crew use the shared row editor, and user links use the shared entry-local draft. |
 | Anime | Main, Details, Edition details, Specs, Cover, Synopsis, Cast, Crew | Main, Details, Edition, Specs, Cover, and Synopsis use the same kind-owned field schema and renderer in Add/Edit. Characters retain matching metadata when renamed; series/episode/disc and typed credit editors remain specialized, and user links use the shared entry-local draft. |

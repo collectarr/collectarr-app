@@ -16,9 +16,12 @@ List<LibraryFieldSpec<TDraft>> musicAlbumFields<TDraft>({
   required MusicAlbumValuesReader<TDraft> values,
   Set<String>? include,
   Iterable<String>? formatOptions,
+  Iterable<String>? genreOptions,
   Iterable<String>? countryOptions,
   Iterable<String>? recordLabelOptions,
   Iterable<String>? packagingOptions,
+  Iterable<String>? studioOptions,
+  Iterable<String>? soundTypeOptions,
   FutureOr<void> Function()? onManageFormat,
   FutureOr<void> Function()? onManageCountry,
   FutureOr<void> Function()? onManageRecordLabel,
@@ -76,6 +79,10 @@ List<LibraryFieldSpec<TDraft>> musicAlbumFields<TDraft>({
                         .where((c) => c.id == names[index].id)
                         .firstOrNull
                         ?.artistId,
+                    joinPhrase: credits
+                        .where((c) => c.id == names[index].id)
+                        .firstOrNull
+                        ?.joinPhrase,
                     sequence: index + 1,
                   )
               ];
@@ -108,7 +115,7 @@ List<LibraryFieldSpec<TDraft>> musicAlbumFields<TDraft>({
         values: (draft) => values(draft).studios.toSet(),
         setValues: (draft, next) =>
             values(draft).studios = next.toList(growable: false),
-        options: _options(MusicVocabularies.studio.builtIns),
+        options: _options(studioOptions ?? MusicVocabularies.studio.builtIns),
       ),
       LibraryCustomFieldSpec<TDraft>(
         id: 'is_live',
@@ -131,7 +138,7 @@ List<LibraryFieldSpec<TDraft>> musicAlbumFields<TDraft>({
         values: (draft) => values(draft).genres.toSet(),
         setValues: (draft, next) =>
             values(draft).genres = next.toList(growable: false),
-        options: _options(MusicVocabularies.genre.builtIns),
+        options: _options(genreOptions ?? MusicVocabularies.genre.builtIns),
       ),
       LibraryVocabularyFieldSpec<TDraft, String>(
         id: 'format',
@@ -188,7 +195,9 @@ List<LibraryFieldSpec<TDraft>> musicAlbumFields<TDraft>({
         values: (draft) => values(draft).soundTypes.toSet(),
         setValues: (draft, next) =>
             values(draft).soundTypes = next.toList(growable: false),
-        options: _options(MusicVocabularies.soundType.builtIns),
+        options: _options(
+          soundTypeOptions ?? MusicVocabularies.soundType.builtIns,
+        ),
       ),
       LibraryVocabularyFieldSpec<TDraft, String>(
         id: 'vinyl_color',

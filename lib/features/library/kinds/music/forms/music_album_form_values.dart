@@ -9,7 +9,7 @@ final class MusicAlbumFormValues {
     this.sortTitle = '',
     this.subtitle = '',
     this.artist = '',
-    this.artistCredits = const [],
+    List<MusicArtistCredit> artistCredits = const [],
     this.originalReleaseDateParts,
     this.recordingDateParts,
     List<String> studios = const [],
@@ -33,7 +33,8 @@ final class MusicAlbumFormValues {
     this.backCoverImageUrl = '',
   })  : studios = List.of(studios),
         genres = List.of(genres),
-        soundTypes = List.of(soundTypes);
+        soundTypes = List.of(soundTypes),
+        artistCredits = List.of(artistCredits);
 
   factory MusicAlbumFormValues.fromAlbum(MusicAlbum album) =>
       MusicAlbumFormValues(

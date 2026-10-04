@@ -1,12 +1,8 @@
 import 'dart:async';
 
-import 'package:flutter/material.dart';
 import 'package:collectarr_app/features/library/add/schema/add_schema.dart';
 import 'package:collectarr_app/features/library/kinds/music/add/music_add_manual_draft.dart';
-import 'package:collectarr_app/features/library/kinds/music/music_country_name.dart';
-import 'package:collectarr_app/features/library/kinds/music/vocabulary/music_vocabularies.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_album_relations.dart';
-import 'package:collectarr_app/features/library/ui/primitives/library_ordered_names_field.dart';
+import 'package:collectarr_app/features/library/kinds/music/forms/music_catalog_field_specs.dart';
 
 final AddSchema<MusicAddManualDraft> musicAddSchema = musicAddSchemaFor();
 
@@ -22,284 +18,51 @@ AddSchema<MusicAddManualDraft> musicAddSchemaFor({
   FutureOr<void> Function()? onManageCountry,
   FutureOr<void> Function()? onManageRecordLabel,
   FutureOr<void> Function()? onManagePackaging,
-}) =>
-    AddSchema<MusicAddManualDraft>(
-      title: (_) => 'Manual music album',
-      validate: (draft) {
-        if (draft.releaseDateParts?.year case final year? when year < 1) {
-          return 'Release year must be greater than zero';
-        }
-        if (draft.discs.any(
-          (disc) => disc.tracks.any(
-            (track) =>
-                track.duration.trim().isNotEmpty && track.durationMs == null,
-          ),
-        )) {
-          return 'Track lengths must use MM:SS or HH:MM:SS';
-        }
-        return null;
-      },
-      sections: [
-        AddSectionSpec<MusicAddManualDraft>(
-          id: 'album',
-          label: 'Album details',
-          fields: [
-            libraryAddCatalogTitleField<MusicAddManualDraft>(),
-            LibraryTextFieldSpec<MusicAddManualDraft>(
-              id: 'sort_title',
-              label: 'Sort Title',
-              value: (draft) => draft.sortTitle,
-              setValue: (draft, value) => draft.sortTitle = value,
-            ),
-            LibraryTextFieldSpec<MusicAddManualDraft>(
-              id: 'subtitle',
-              label: 'Subtitle',
-              value: (draft) => draft.subtitle,
-              setValue: (draft, value) => draft.subtitle = value,
-            ),
-            LibraryCustomFieldSpec<MusicAddManualDraft>(
-              id: 'artist',
-              label: 'Artist',
-              builder: (context, draft) => StatefulBuilder(
-                builder: (context, refresh) {
-                  final credits = draft.artistCredits.isNotEmpty
-                      ? draft.artistCredits
-                      : [
-                          if (draft.artist.trim().isNotEmpty)
-                            MusicArtistCredit(
-                              id: 'artist-main',
-                              creditedName: draft.artist,
-                            ),
-                        ];
-                  return LibraryOrderedNamesField(
-                    label: 'Artist',
-                    values: [
-                      for (final credit in credits)
-                        LibraryNamedValue(
-                          id: credit.id,
-                          name: credit.creditedName,
-                          sortName: credit.sortName,
-                        ),
-                    ],
-                    onChanged: (names) => refresh(() {
-                      draft.artistCredits = [
-                        for (var index = 0; index < names.length; index++)
-                          MusicArtistCredit(
-                            id: names[index].id,
-                            creditedName: names[index].name,
-                            sortName: names[index].sortName,
-                            artistId: credits
-                                .where((credit) => credit.id == names[index].id)
-                                .firstOrNull
-                                ?.artistId,
-                            sequence: index + 1,
-                          ),
-                      ];
-                      draft.artist = names
-                          .map((value) => value.name.trim())
-                          .where((name) => name.isNotEmpty)
-                          .join(' / ');
-                    }),
-                  );
-                },
-              ),
-            ),
-            LibraryMultiVocabularyFieldSpec<MusicAddManualDraft, String>(
-              id: 'genres',
-              label: 'Genre',
-              pickListKey: MusicVocabularyIds.genre.value,
-              pluralLabel: 'Genres',
-              values: (draft) => draft.genres.toSet(),
-              setValues: (draft, next) =>
-                  draft.genres = next.toList(growable: false),
-              options:
-                  _options(genreOptions ?? MusicVocabularies.genre.builtIns),
-            ),
-            LibraryMultiVocabularyFieldSpec<MusicAddManualDraft, String>(
-              id: 'studios',
-              label: 'Studio',
-              pickListKey: MusicVocabularyIds.studio.value,
-              pluralLabel: 'Studios',
-              values: (draft) => draft.studios.toSet(),
-              setValues: (draft, values) =>
-                  draft.studios = values.toList(growable: false),
-              options: _options(
-                studioOptions ?? MusicVocabularies.studio.builtIns,
-              ),
-            ),
-            LibraryPartialDateFieldSpec<MusicAddManualDraft>(
-              id: 'release_date',
-              label: 'Release Date',
-              value: (draft) => draft.releaseDateParts,
-              setValue: (draft, value) => draft.releaseDateParts = value,
-            ),
-            LibraryPartialDateFieldSpec<MusicAddManualDraft>(
-              id: 'original_release_date',
-              label: 'Original Release Date',
-              value: (draft) => draft.originalReleaseDateParts,
-              setValue: (draft, value) =>
-                  draft.originalReleaseDateParts = value,
-            ),
-            LibraryPartialDateFieldSpec<MusicAddManualDraft>(
-              id: 'recording_date',
-              label: 'Recording Date',
-              value: (draft) => draft.recordingDateParts,
-              setValue: (draft, value) => draft.recordingDateParts = value,
-            ),
-          ],
-          fullWidthFieldIds: const {'catalog_title'},
+}) {
+  final sharedFields = musicAlbumFields<MusicAddManualDraft>(
+    values: (draft) => draft.values,
+    formatOptions: formatOptions,
+    genreOptions: genreOptions,
+    countryOptions: countryOptions,
+    recordLabelOptions: recordLabelOptions,
+    packagingOptions: packagingOptions,
+    studioOptions: studioOptions,
+    soundTypeOptions: soundTypeOptions,
+    onManageFormat: onManageFormat,
+    onManageCountry: onManageCountry,
+    onManageRecordLabel: onManageRecordLabel,
+    onManagePackaging: onManagePackaging,
+  );
+  return AddSchema<MusicAddManualDraft>(
+    title: (_) => 'Manual music album',
+    validate: (draft) {
+      if (draft.releaseDateParts?.year case final year? when year < 1) {
+        return 'Release year must be greater than zero';
+      }
+      if (draft.discs.any(
+        (disc) => disc.tracks.any(
+          (track) =>
+              track.duration.trim().isNotEmpty && track.durationMs == null,
         ),
-        AddSectionSpec<MusicAddManualDraft>(
-          id: 'edition',
-          label: 'Edition details',
-          fields: [
-            LibraryVocabularyFieldSpec<MusicAddManualDraft, String>(
-              id: 'record_label',
-              label: 'Label',
-              value: (draft) => _nullable(draft.recordLabel),
-              setValue: (draft, value) => draft.recordLabel = value ?? '',
-              options: _options(
-                recordLabelOptions ?? MusicVocabularies.recordLabel.builtIns,
-              ),
-              pickListKey: MusicVocabularyIds.recordLabel.value,
-              onManage: onManageRecordLabel == null
-                  ? null
-                  : (_) => onManageRecordLabel(),
-            ),
-            LibraryVocabularyFieldSpec<MusicAddManualDraft, String>(
-              id: 'format',
-              label: 'Format',
-              value: (draft) => _nullable(draft.format),
-              setValue: (draft, value) => draft.format = value ?? '',
-              options:
-                  _options(formatOptions ?? MusicVocabularies.format.builtIns),
-              pickListKey: MusicVocabularyIds.format.value,
-              onManage: onManageFormat == null ? null : (_) => onManageFormat(),
-            ),
-            LibraryVocabularyFieldSpec<MusicAddManualDraft, String>(
-              id: 'packaging',
-              label: 'Packaging',
-              value: (draft) => _nullable(draft.packaging),
-              setValue: (draft, value) => draft.packaging = value ?? '',
-              options: _options(
-                packagingOptions ?? MusicVocabularies.packaging.builtIns,
-              ),
-              pickListKey: MusicVocabularyIds.packaging.value,
-              onManage:
-                  onManagePackaging == null ? null : (_) => onManagePackaging(),
-            ),
-            LibraryTextFieldSpec<MusicAddManualDraft>(
-              id: 'catalog_number',
-              label: 'Cat No',
-              value: (draft) => draft.catalogNumber,
-              setValue: (draft, value) => draft.catalogNumber = value,
-            ),
-            LibraryTextFieldSpec<MusicAddManualDraft>(
-              id: 'barcode',
-              label: 'Barcode',
-              value: (draft) => draft.barcode,
-              setValue: (draft, value) => draft.barcode = value,
-            ),
-            LibraryVocabularyFieldSpec<MusicAddManualDraft, String>(
-              id: 'country',
-              label: 'Country',
-              value: (draft) => _nullable(draft.countryCode),
-              setValue: (draft, value) => draft.countryCode = value ?? '',
-              options: _countryOptions(
-                countryOptions ?? MusicVocabularies.country.builtIns,
-              ),
-              pickListKey: MusicVocabularyIds.country.value,
-              onManage:
-                  onManageCountry == null ? null : (_) => onManageCountry(),
-            ),
-          ],
-        ),
-        AddSectionSpec<MusicAddManualDraft>(
-          id: 'technical',
-          label: 'Pressing details',
-          fields: [
-            LibrarySelectFieldSpec<MusicAddManualDraft, bool>(
-              id: 'is_live',
-              label: 'Recording Type',
-              value: (draft) => draft.isLive,
-              setValue: (draft, value) => draft.isLive = value,
-              options: const [
-                LibraryFieldOption(value: false, label: 'Studio recording'),
-                LibraryFieldOption(value: true, label: 'Live recording'),
-              ],
-            ),
-            LibraryMultiVocabularyFieldSpec<MusicAddManualDraft, String>(
-              id: 'sound_types',
-              label: 'Sound',
-              pickListKey: MusicVocabularyIds.soundType.value,
-              pluralLabel: 'Sound types',
-              values: (draft) => draft.soundTypes.toSet(),
-              setValues: (draft, values) =>
-                  draft.soundTypes = values.toList(growable: false),
-              options: _options(
-                soundTypeOptions ?? MusicVocabularies.soundType.builtIns,
-              ),
-            ),
-            LibraryVocabularyFieldSpec<MusicAddManualDraft, String>(
-              id: 'vinyl_color',
-              label: 'Vinyl Color',
-              value: (draft) => _nullable(draft.vinylColor),
-              setValue: (draft, value) => draft.vinylColor = value ?? '',
-              options: _options(MusicVocabularies.vinylColor.builtIns),
-              pickListKey: MusicVocabularyIds.vinylColor.value,
-            ),
-            LibraryTextFieldSpec<MusicAddManualDraft>(
-              id: 'vinyl_weight',
-              label: 'Vinyl Weight',
-              value: (draft) => draft.vinylWeight,
-              setValue: (draft, value) => draft.vinylWeight = value,
-            ),
-            LibraryNumberFieldSpec<MusicAddManualDraft>(
-              id: 'rpm',
-              label: 'RPM',
-              value: (draft) => draft.rpm,
-              setValue: (draft, value) => draft.rpm = value?.toInt(),
-              minimum: 1,
-            ),
-            LibraryTextFieldSpec<MusicAddManualDraft>(
-              id: 'extra',
-              label: 'Extra',
-              value: (draft) => draft.extra,
-              setValue: (draft, value) => draft.extra = value,
-              maxLines: 3,
-            ),
-            LibraryTextFieldSpec<MusicAddManualDraft>(
-              id: 'spars',
-              label: 'SPARS',
-              value: (draft) => draft.spars,
-              setValue: (draft, value) => draft.spars = value,
-            ),
-            LibraryTextFieldSpec<MusicAddManualDraft>(
-              id: 'box_set',
-              label: 'Box Set',
-              value: (draft) => draft.boxSet,
-              setValue: (draft, value) => draft.boxSet = value,
-            ),
-          ],
-        ),
-      ],
-    );
-
-String? _nullable(String value) {
-  final normalized = value.trim();
-  return normalized.isEmpty ? null : normalized;
-}
-
-List<LibraryFieldOption<String>> _options(Iterable<String> values) => [
-      for (final value in values)
-        LibraryFieldOption(value: value, label: value),
-    ];
-
-List<LibraryFieldOption<String>> _countryOptions(Iterable<String> values) {
-  final options = [
-    for (final value in values)
-      LibraryFieldOption(value: value, label: musicCountryName(value) ?? value),
-  ];
-  options.sort((left, right) => left.label.compareTo(right.label));
-  return options;
+      )) {
+        return 'Track lengths must use MM:SS or HH:MM:SS';
+      }
+      return null;
+    },
+    sections: [
+      AddSectionSpec<MusicAddManualDraft>(
+        id: 'album',
+        label: 'Album details',
+        fullWidthFieldIds: const {'catalog_title'},
+        fields: [
+          libraryAddCatalogTitleField<MusicAddManualDraft>(),
+          for (final field in sharedFields)
+            if (field.id != 'title' &&
+                field.id != 'cover_image_url' &&
+                field.id != 'back_cover_image_url')
+              field,
+        ],
+      ),
+    ],
+  );
 }
