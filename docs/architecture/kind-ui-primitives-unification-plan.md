@@ -87,6 +87,10 @@ Completed implementation slices:
   existing typed Cast and Crew editors remain separate tabs; Anime's title and
   people fields retain a dedicated Details tab. Each tab reads and writes the
   same kind-owned Add draft through a filtered view of its schema.
+- Book Manual Add now separates Main, Credits, identifier Links, Covers, and
+  Plot into distinct dialog tabs. Authors and Translators stay on the shared
+  typed credit editors, while the existing managed Publisher and Format
+  options remain available across tab switches.
 - The shared video Specs section now also edits Screen ratio. TV and Anime
   hydrate their existing Specs controllers from metadata and persist all
   fields, including explicit clears; their Add forms expose the same supported
