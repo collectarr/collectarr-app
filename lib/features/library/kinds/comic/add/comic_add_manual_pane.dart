@@ -171,50 +171,61 @@ class _ComicAddManualPaneState extends ConsumerState<ComicAddManualPane> {
   Widget build(BuildContext context) {
     final comicDraft = widget.request.manualDraftAs<ComicAddManualDraft>();
     final request = widget.request;
-    final schema = comicAddSchemaFor(
-      publisherOptions: _publisherOptions.isEmpty
-          ? ComicVocabularies.publisher.builtIns
-          : _publisherOptions,
-      imprintOptions: _imprintOptions.isEmpty
-          ? ComicVocabularies.imprint.builtIns
-          : _imprintOptions,
-      seriesGroupOptions: _seriesGroupOptions.isEmpty
-          ? ComicVocabularies.seriesGroup.builtIns
-          : _seriesGroupOptions,
-      physicalFormatOptions: _physicalFormatOptions.isEmpty
-          ? [
+    AddSchema<ComicAddManualDraft> schemaFor(
+      Set<String> fieldIds,
+      String sectionLabel,
+    ) =>
+        comicAddSchemaFor(
+          fieldIds: fieldIds,
+          sectionLabels: {
+            'issue': sectionLabel,
+            'publication': sectionLabel,
+          },
+          publisherOptions: _publisherOptions.isEmpty
+              ? ComicVocabularies.publisher.builtIns
+              : _publisherOptions,
+          imprintOptions: _imprintOptions.isEmpty
+              ? ComicVocabularies.imprint.builtIns
+              : _imprintOptions,
+          seriesGroupOptions: _seriesGroupOptions.isEmpty
+              ? ComicVocabularies.seriesGroup.builtIns
+              : _seriesGroupOptions,
+          physicalFormatOptions: _physicalFormatOptions.isEmpty
+              ? [
+                  for (final format in _currentPhysicalFormats()) format.label,
+                ]
+              : _physicalFormatOptions,
+          onManagePublisher: () => _manageSingleValuePickList(
+            listName: ComicVocabularyIds.publisher.value,
+            label: 'Publishers',
+          ),
+          onManageImprint: () => _manageSingleValuePickList(
+            listName: ComicVocabularyIds.imprint.value,
+            label: 'Imprints',
+          ),
+          onManageSeriesGroup: () => _manageSingleValuePickList(
+            listName: ComicVocabularyIds.seriesGroup.value,
+            label: 'Series Groups',
+          ),
+          onManagePhysicalFormat: () => _manageSingleValuePickList(
+            listName: ComicVocabularyIds.physicalFormat.value,
+            label: 'Physical Formats',
+            builtInValues: [
               for (final format in _currentPhysicalFormats()) format.label,
-            ]
-          : _physicalFormatOptions,
-      onManagePublisher: () => _manageSingleValuePickList(
-        listName: ComicVocabularyIds.publisher.value,
-        label: 'Publishers',
-      ),
-      onManageImprint: () => _manageSingleValuePickList(
-        listName: ComicVocabularyIds.imprint.value,
-        label: 'Imprints',
-      ),
-      onManageSeriesGroup: () => _manageSingleValuePickList(
-        listName: ComicVocabularyIds.seriesGroup.value,
-        label: 'Series Groups',
-      ),
-      onManagePhysicalFormat: () => _manageSingleValuePickList(
-        listName: ComicVocabularyIds.physicalFormat.value,
-        label: 'Physical Formats',
-        builtInValues: [
-          for (final format in _currentPhysicalFormats()) format.label,
-        ],
-      ),
-      includeTitle: false,
-    );
-    final mainSchema = AddSchema<ComicAddManualDraft>(
-      validate: schema.validate,
-      sections: [schema.sections.first],
-    );
-    final detailsSchema = AddSchema<ComicAddManualDraft>(
-      validate: schema.validate,
-      sections: [schema.sections.last],
-    );
+            ],
+          ),
+          includeTitle: false,
+        );
+
+    Widget buildFields(Set<String> fieldIds, String sectionLabel) =>
+        AddSchemaRenderer<ComicAddManualDraft>.embedded(
+          schema: schemaFor(fieldIds, sectionLabel),
+          draft: comicDraft,
+          mediaKind: request.kind.apiValue,
+          onVocabularyValueChanged: request.onVocabularyValueChanged,
+          onVocabularyValuesChanged: request.onVocabularyValuesChanged,
+          onChanged: request.onManualDraftChanged,
+        );
     return LibraryAddManualPaneShell(
       request: request,
       identityDetails: LibraryVocabularyField(
@@ -230,26 +241,56 @@ class _ComicAddManualPaneState extends ConsumerState<ComicAddManualPane> {
           id: 'main',
           label: 'Main',
           icon: Icons.article_outlined,
-          content: AddSchemaRenderer<ComicAddManualDraft>.embedded(
-            schema: mainSchema,
-            draft: comicDraft,
-            mediaKind: request.kind.apiValue,
-            onVocabularyValueChanged: request.onVocabularyValueChanged,
-            onVocabularyValuesChanged: request.onVocabularyValuesChanged,
-            onChanged: request.onManualDraftChanged,
+          content: buildFields(
+            const {'catalog_title', 'issue_number'},
+            'Main',
+          ),
+        ),
+        LibraryAddManualPaneTab(
+          id: 'edition',
+          label: 'Edition Details',
+          icon: Icons.inventory_2_outlined,
+          content: buildFields(
+            const {
+              'variant',
+              'edition_title',
+              'barcode',
+              'isbn',
+              'upc',
+              'physical_format',
+              'cover_date',
+              'release_date',
+            },
+            'Edition details',
           ),
         ),
         LibraryAddManualPaneTab(
           id: 'details',
           label: 'Details',
-          icon: Icons.search,
-          content: AddSchemaRenderer<ComicAddManualDraft>.embedded(
-            schema: detailsSchema,
-            draft: comicDraft,
-            mediaKind: request.kind.apiValue,
-            onVocabularyValueChanged: request.onVocabularyValueChanged,
-            onVocabularyValuesChanged: request.onVocabularyValuesChanged,
-            onChanged: request.onManualDraftChanged,
+          icon: Icons.info_outline,
+          content: buildFields(
+            const {
+              'publisher',
+              'imprint',
+              'series_group',
+              'page_count',
+              'age_rating',
+              'genres',
+              'language',
+              'country',
+              'crossover',
+              'story_arcs',
+            },
+            'Publication details',
+          ),
+        ),
+        LibraryAddManualPaneTab(
+          id: 'covers',
+          label: 'Covers',
+          icon: Icons.camera_alt_outlined,
+          content: buildFields(
+            const {'cover_image_url'},
+            'Cover',
           ),
         ),
       ],

@@ -8,6 +8,8 @@ import 'package:collectarr_app/features/library/kinds/comic/vocabulary/comic_voc
 final AddSchema<ComicAddManualDraft> comicAddSchema = comicAddSchemaFor();
 
 AddSchema<ComicAddManualDraft> comicAddSchemaFor({
+  Set<String>? fieldIds,
+  Map<String, String> sectionLabels = const {},
   Iterable<String>? publisherOptions,
   Iterable<String>? imprintOptions,
   Iterable<String>? seriesGroupOptions,
@@ -27,35 +29,39 @@ AddSchema<ComicAddManualDraft> comicAddSchemaFor({
         }
         return null;
       },
-      sections: [
-        AddSectionSpec<ComicAddManualDraft>(
-          id: 'issue',
-          label: 'Issue',
-          fields: [
-            libraryAddCatalogTitleField<ComicAddManualDraft>(),
-            ...comicCatalogItemIdentityFields(
-              values: (draft) => draft.values,
-              includeTitle: includeTitle,
-              physicalFormatOptions: physicalFormatOptions ??
-                  ComicVocabularies.physicalFormat.builtIns,
-              onManagePhysicalFormat: onManagePhysicalFormat,
-              includeSeries: false,
-            ),
-          ],
-          fullWidthFieldIds: const {'catalog_title'},
-        ),
-        AddSectionSpec<ComicAddManualDraft>(
-          id: 'publication',
-          label: 'Publication',
-          fields: comicCatalogItemPublicationFields(
-            values: (draft) => draft.values,
-            publisherOptions: publisherOptions,
-            imprintOptions: imprintOptions,
-            seriesGroupOptions: seriesGroupOptions,
-            onManagePublisher: onManagePublisher,
-            onManageImprint: onManageImprint,
-            onManageSeriesGroup: onManageSeriesGroup,
+      sections: filterAddSchemaSections(
+        fieldIds: fieldIds,
+        sectionLabels: sectionLabels,
+        sections: [
+          AddSectionSpec<ComicAddManualDraft>(
+            id: 'issue',
+            label: 'Issue',
+            fields: [
+              libraryAddCatalogTitleField<ComicAddManualDraft>(),
+              ...comicCatalogItemIdentityFields(
+                values: (draft) => draft.values,
+                includeTitle: includeTitle,
+                physicalFormatOptions: physicalFormatOptions ??
+                    ComicVocabularies.physicalFormat.builtIns,
+                onManagePhysicalFormat: onManagePhysicalFormat,
+                includeSeries: false,
+              ),
+            ],
+            fullWidthFieldIds: const {'catalog_title'},
           ),
-        ),
-      ],
+          AddSectionSpec<ComicAddManualDraft>(
+            id: 'publication',
+            label: 'Publication',
+            fields: comicCatalogItemPublicationFields(
+              values: (draft) => draft.values,
+              publisherOptions: publisherOptions,
+              imprintOptions: imprintOptions,
+              seriesGroupOptions: seriesGroupOptions,
+              onManagePublisher: onManagePublisher,
+              onManageImprint: onManageImprint,
+              onManageSeriesGroup: onManageSeriesGroup,
+            ),
+          ),
+        ],
+      ),
     );
