@@ -5,9 +5,9 @@ import 'package:collectarr_app/core/api/api_client.dart';
 import 'package:collectarr_app/core/api/dto/media_catalog.dart';
 import 'package:collectarr_app/core/api/dto/canonical_correction_target.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_edit_contributors.dart';
+import 'package:collectarr_app/features/library/ui/primitives/library_form_controls.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
 import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 import 'package:flutter/material.dart';
@@ -83,7 +83,9 @@ Future<LibraryResolvedCoreCorrection> resolveLibraryCoreCorrection({
   final target = resolveLibraryCoreCorrectionTargetForKind(
     kind: source.request.type.kind,
     node: source.coreCatalogRef == null ? source.request.node : null,
-    requestedScope: source.coreCatalogRef == null ? source.request.scope : LibraryEntityScope.catalogItem,
+    requestedScope: source.coreCatalogRef == null
+        ? source.request.scope
+        : LibraryEntityScope.catalogItem,
     catalogRef: source.coreCatalogRef ?? source.request.kindItem.reference,
   );
   final snapshot = await apiClient.getCanonicalCorrectionTarget(
@@ -138,12 +140,21 @@ Future<bool?> showLibraryCoreCorrectionReview({
 }) {
   final entry = LibraryEntryEditScope.maybeOf(context);
   final provenance = entry?.record.sourceCatalogRef;
-  if (entry != null && provenance == null) throw StateError('This local entry has no source Core item to correct.');
-  final resolved = provenance == null ? source : LibraryCoreCorrectionSource(
-    request: source.request, originalFields: source.originalFields, proposedFields: source.proposedFields,
-    description: source.description,
-    coreCatalogRef: CatalogEntityRef(kind: provenance.kind, entityType: CatalogEntityTypeId.catalogItem, id: provenance.id),
-  );
+  if (entry != null && provenance == null) {
+    throw StateError('This local entry has no source Core item to correct.');
+  }
+  final resolved = provenance == null
+      ? source
+      : LibraryCoreCorrectionSource(
+          request: source.request,
+          originalFields: source.originalFields,
+          proposedFields: source.proposedFields,
+          description: source.description,
+          coreCatalogRef: CatalogEntityRef(
+              kind: provenance.kind,
+              entityType: CatalogEntityTypeId.catalogItem,
+              id: provenance.id),
+        );
   return showDialog<bool>(
     context: context,
     builder: (_) => _LibraryCoreCorrectionReviewDialog(source: resolved),
@@ -309,23 +320,25 @@ final class _LibraryCoreCorrectionReviewDialogState
       'string_list' || 'link_list' || 'track_list' || 'partial_date' => true,
       _ => false,
     };
-    return TextFormField(
-      controller: controller,
-      minLines: multiline ? 2 : 1,
-      maxLines: multiline ? 5 : 1,
-      keyboardType: field.valueType == 'integer'
-          ? const TextInputType.numberWithOptions(signed: true)
-          : null,
-      decoration: InputDecoration(
-        labelText: field.label,
-        helperText: '${field.valueType} | Core current: $currentPreview',
-        errorText: _fieldErrors[field.key],
+    return LibraryFormField(
+      label: field.label,
+      child: LibraryTextFormControl(
+        controller: controller,
+        minLines: multiline ? 2 : 1,
+        maxLines: multiline ? 5 : 1,
+        keyboardType: field.valueType == 'integer'
+            ? const TextInputType.numberWithOptions(signed: true)
+            : null,
+        decoration: InputDecoration(
+          helperText: '${field.valueType} | Core current: $currentPreview',
+          errorText: _fieldErrors[field.key],
+        ),
+        onChanged: (_) {
+          _touchedFields.add(field.key);
+          _fieldErrors.remove(field.key);
+          setState(() => _error = null);
+        },
       ),
-      onChanged: (_) {
-        _touchedFields.add(field.key);
-        _fieldErrors.remove(field.key);
-        setState(() => _error = null);
-      },
     );
   }
 

@@ -23,6 +23,7 @@ import 'package:collectarr_app/features/library/ui/primitives/library_selection_
 import 'package:collectarr_app/features/library/schema/library_field_spec.dart';
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/edit/fields/library_external_links_table.dart';
+import 'package:collectarr_app/features/library/ui/primitives/library_form_controls.dart';
 import 'package:collectarr_app/features/library/edit/sections/item_images_edit_section.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_edit_shell_state.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_edit_models.dart';
@@ -744,7 +745,7 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
                   ),
                 ]),
                 const SizedBox(height: 10),
-                TextFormField(
+                LibraryTextFormControl(
                   controller: _draft.personal.wishlistNotesController,
                   decoration:
                       const InputDecoration(labelText: 'Wishlist notes'),

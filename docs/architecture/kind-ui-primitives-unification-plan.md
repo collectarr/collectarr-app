@@ -295,6 +295,9 @@ Completed implementation slices:
 - Multi-value chip entry and pick-list search/custom-entry inputs now use the
   common text control while retaining their inline and dialog-specific sizing,
   keyboard actions, and callbacks.
+- The shared ordered-name editor, Core correction field editor, and wishlist
+  notes input now use the common text control; ordering, validation, focus,
+  correction errors, and field helper text remain intact.
 - Music Add and Edit disc metadata, track titles/artists/lengths, and disc-owned
   storage details now use the same input primitive and minimum control height.
 - Music Add and Edit track title, artist, and duration fields now share one
