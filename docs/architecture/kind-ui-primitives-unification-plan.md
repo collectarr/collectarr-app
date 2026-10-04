@@ -136,6 +136,9 @@ Completed implementation slices:
 - TV catalog and entry Edit registrations now use one typed custom-tab
   dispatcher for Specs, credits, metadata, catalog media, episode editing,
   and episode/media mapping. The duplicate scope dispatcher was removed.
+- TV Characters are editable in both Add and Edit. Editing a character name
+  retains its existing catalog identity, aliases, role, description, and image;
+  removing a name removes that character from the metadata.
 - The Movie, TV, and Anime edit-tab helper files no longer carry unused
   responsive-field wrappers. TV/Anime credit tabs adapt their typed controller
   rows directly to the shared editor. Their remaining Add/Edit field parity is
@@ -260,7 +263,7 @@ My Images and adds Custom Fields only when definitions are nonempty.
 | --- | --- | --- |
 | Music | Main, Details, Classical, People, Tracks, Personal, Covers, Links | Registered edit route uses the typed album schema dialog; Add credits/tracks/links/covers still have independent widgets and bindings. No separate entry edit dialog or caller remains in the current source. |
 | Movies | Main, Edition details, Plot, Specs, Covers, Cast, Crew | Generic session/presentation renderer; separate catalog/entry tab lists and custom tabs. The request-backed edit draft is initialized by the shared renderer state; Movie shares its Specs tab with TV and Anime. Remaining custom child-editor controller ownership still needs review. |
-| TV | Main, Edition details, Plot, Specs, Covers, Cast, Crew | Generic editor plus a separately registered typed media editor. The request-backed edit draft is initialized by the shared renderer state; Specs are shared with Movie/Anime, and Cast/Crew use the same typed editor in Add/Edit. Custom episode dialog is another surface to audit. |
+| TV | Main, Edition details, Plot, Specs, Covers, Cast, Crew | Generic editor plus a typed media editor. The request-backed edit draft is initialized by the shared renderer state; Specs are shared with Movie/Anime, Cast/Crew use the same row editor in Add/Edit, and Characters are editable in both. Custom episode dialog is another surface to audit. |
 | Anime | Main, Details, Edition details, Specs, Cover, Synopsis, Cast, Crew | Registered edit routes use generic editor; an additional typed media dialog exists. The request-backed edit draft is initialized by the shared renderer state; Specs are shared with Movie/TV, and Cast/Crew use the same typed editor in Add/Edit. |
 | Books | Main, Credits, Links, Covers, Plot | Generic editor with separate catalog/entry presentation and an embedded entry schema renderer; Credits tab uses the same typed ordered-name editors as Add. |
 | Comics | Main, Edition details, Details, Creators, Characters, Covers, Links, plus Series identity control | Generic entry editor and separately registered typed catalog editor; large custom tab/host adapter remains, with typed-draft checks and controller fallbacks removed. Add/Edit share the Comic people row models; advanced metadata parity remains to review. |
