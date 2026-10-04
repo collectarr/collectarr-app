@@ -5,6 +5,7 @@ import 'package:collectarr_app/features/library/kinds/music/domain/music_disc.da
 import 'package:collectarr_app/features/library/kinds/music/domain/music_ids.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_track.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_track_duration.dart';
+import 'package:collectarr_app/features/library/kinds/music/forms/music_disc_text_field.dart';
 import 'package:collectarr_app/features/library/kinds/music/forms/music_track_text_field.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit/music_album_edit_draft.dart';
 import 'package:collectarr_app/ui/accent_alert_dialog.dart';
@@ -265,13 +266,12 @@ final class _MusicAlbumStructureTabState
         return Wrap(spacing: 12, runSpacing: 12, children: [
           SizedBox(
               width: half,
-              child: LibraryFormField(
-                  label: 'Disc Title',
-                  child: LibraryTextFormControl(
-                    key: ValueKey('music-disc-title-${disc.id.value}'),
-                    initialValue: disc.title ?? '',
-                    onChanged: (value) => draft.updateDiscTitle(disc.id, value),
-                  ))),
+              child: MusicDiscTextField(
+                id: 'music-disc-title-${disc.id.value}',
+                label: 'Disc Title',
+                initialValue: disc.title ?? '',
+                onChanged: (value) => draft.updateDiscTitle(disc.id, value),
+              )),
           SizedBox(
               width: quarter,
               child:
@@ -281,28 +281,28 @@ final class _MusicAlbumStructureTabState
               child: _discPersonalField(disc, 'Slot', 'storage_slot')),
           SizedBox(
               width: half,
-              child: LibraryFormField(
-                  label: 'Matrix Nr Side A',
-                  child: LibraryTextFormControl(
-                    key: ValueKey('music-disc-matrix-a-${disc.id.value}'),
-                    initialValue: disc.matrixNumberSideA ?? '',
-                    onChanged: (value) => draft.updateDiscTechnicalDetails(
-                        disc.id,
-                        matrixNumberSideA: value,
-                        replaceMatrixNumberSideA: true),
-                  ))),
+              child: MusicDiscTextField(
+                id: 'music-disc-matrix-a-${disc.id.value}',
+                label: 'Matrix No. Side A',
+                initialValue: disc.matrixNumberSideA ?? '',
+                onChanged: (value) => draft.updateDiscTechnicalDetails(
+                  disc.id,
+                  matrixNumberSideA: value,
+                  replaceMatrixNumberSideA: true,
+                ),
+              )),
           SizedBox(
               width: half,
-              child: LibraryFormField(
-                  label: 'Matrix Nr Side B',
-                  child: LibraryTextFormControl(
-                    key: ValueKey('music-disc-matrix-b-${disc.id.value}'),
-                    initialValue: disc.matrixNumberSideB ?? '',
-                    onChanged: (value) => draft.updateDiscTechnicalDetails(
-                        disc.id,
-                        matrixNumberSideB: value,
-                        replaceMatrixNumberSideB: true),
-                  ))),
+              child: MusicDiscTextField(
+                id: 'music-disc-matrix-b-${disc.id.value}',
+                label: 'Matrix No. Side B',
+                initialValue: disc.matrixNumberSideB ?? '',
+                onChanged: (value) => draft.updateDiscTechnicalDetails(
+                  disc.id,
+                  matrixNumberSideB: value,
+                  replaceMatrixNumberSideB: true,
+                ),
+              )),
         ]);
       });
 

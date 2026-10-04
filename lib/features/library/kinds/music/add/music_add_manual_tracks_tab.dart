@@ -1,7 +1,7 @@
 import 'package:collectarr_app/features/library/kinds/music/add/music_add_manual_contents.dart';
 import 'package:collectarr_app/features/library/kinds/music/add/music_add_manual_draft.dart';
+import 'package:collectarr_app/features/library/kinds/music/forms/music_disc_text_field.dart';
 import 'package:collectarr_app/features/library/kinds/music/forms/music_track_text_field.dart';
-import 'package:collectarr_app/features/library/ui/primitives/library_form_controls.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
@@ -121,20 +121,20 @@ final class _MusicAddManualTracksTabState
           LayoutBuilder(
             builder: (context, constraints) {
               final fields = [
-                _discTextField(
-                  disc,
+                MusicDiscTextField(
+                  id: '${disc.id}-title',
                   label: 'Disc Title',
                   initialValue: disc.title,
                   onChanged: (value) => disc.title = value,
                 ),
-                _discTextField(
-                  disc,
+                MusicDiscTextField(
+                  id: '${disc.id}-matrix-a',
                   label: 'Matrix No. Side A',
                   initialValue: disc.matrixNumberSideA,
                   onChanged: (value) => disc.matrixNumberSideA = value,
                 ),
-                _discTextField(
-                  disc,
+                MusicDiscTextField(
+                  id: '${disc.id}-matrix-b',
                   label: 'Matrix No. Side B',
                   initialValue: disc.matrixNumberSideB,
                   onChanged: (value) => disc.matrixNumberSideB = value,
@@ -301,21 +301,6 @@ final class _MusicAddManualTracksTabState
       ),
     );
   }
-
-  Widget _discTextField(
-    MusicAddManualDisc disc, {
-    required String label,
-    required String initialValue,
-    required ValueChanged<String> onChanged,
-  }) =>
-      LibraryFormField(
-          label: label,
-          child: LibraryTextFormControl(
-            key: ValueKey('${disc.id}-$label'),
-            initialValue: initialValue,
-            decoration: const InputDecoration(isDense: true),
-            onChanged: onChanged,
-          ));
 
   void _addDisc() {
     final disc = MusicAddManualDisc();

@@ -309,6 +309,8 @@ Completed implementation slices:
   new values with the entry save.
 - Music Add and Edit disc metadata, track titles/artists/lengths, and disc-owned
   storage details now use the same input primitive and minimum control height.
+- Music Add and Edit now share one labelled disc text control for disc titles
+  and matrix numbers, with matching Matrix No. Side A/B labels.
 - Music Add and Edit track title, artist, and duration fields now share one
   kind-owned control; both flows use the same duration parser and formatter.
   Add still uses a responsive editable row, while Edit retains its sortable
