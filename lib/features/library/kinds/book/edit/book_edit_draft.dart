@@ -12,6 +12,7 @@ import 'package:collectarr_app/features/library/kinds/book/domain/book_metadata.
 import 'package:collectarr_app/features/library/kinds/book/forms/book_catalog_form_draft.dart';
 import 'package:collectarr_app/features/library/kinds/book/forms/book_catalog_form_values.dart';
 import 'package:collectarr_app/features/library/kinds/book/forms/book_catalog_form_adapters.dart';
+import 'package:collectarr_app/features/library/kinds/book/forms/book_catalog_external_link_draft.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_entry_dispatch.dart';
 import 'package:collectarr_app/features/library/kinds/book/domain/book_library_entry.dart';
 import 'package:collectarr_app/features/library/kinds/book/entries/book_entry_details_draft.dart';
@@ -34,6 +35,7 @@ class BookEditDraft
     this.dustJacketCondition,
     required this.values,
     required this.catalogTitle,
+    required this.externalLinks,
   });
 
   final BookLibraryEntry? libraryEntry;
@@ -47,6 +49,17 @@ class BookEditDraft
   String? signedBy;
   bool dustJacketPresent;
   String? dustJacketCondition;
+  final List<BookCatalogExternalLinkDraft> externalLinks;
+  bool _externalLinksEdited = false;
+
+  void markExternalLinksEdited() => _externalLinksEdited = true;
+
+  void dispose() {
+    for (final link in externalLinks) {
+      link.dispose();
+    }
+  }
+
   @override
   JsonEncodable toDetailsDraft() => BookEntryDetailsDraft(
         signedBy: signedBy,
@@ -137,12 +150,24 @@ class BookEditDraft
     );
   }
 
-  List<TrailerLinkDto> _externalLinks = const [];
-  bool _externalLinksEdited = false;
-
   @override
   void setExternalLinks(List<TrailerLinkDto> links) {
-    _externalLinks = links;
+    for (final link in externalLinks) {
+      link.dispose();
+    }
+    externalLinks
+      ..clear()
+      ..addAll([
+        for (final link in links)
+          BookCatalogExternalLinkDraft(
+            original: BookExternalLink(
+              url: link.url,
+              description: link.description,
+              kind: link.kind,
+              title: link.title,
+            ),
+          ),
+      ]);
     _externalLinksEdited = true;
   }
 
@@ -172,13 +197,11 @@ class BookEditDraft
     ).copyWith(
       externalLinks: _externalLinksEdited
           ? [
-              for (final link in _externalLinks)
-                BookExternalLink(
-                  url: link.url,
-                  description: link.description,
-                  kind: link.kind,
-                  title: link.title,
-                ),
+              for (final (index, link) in externalLinks
+                  .where(
+                      (link) => link.row.urlController.text.trim().isNotEmpty)
+                  .indexed)
+                link.toModel(index + 1),
             ]
           : meta.externalLinks,
     );
@@ -209,9 +232,14 @@ LibraryEditSessionBundle createBookEditDraft({
     dustJacketCondition: book?.dustJacketCondition,
     values: bookCatalogFormValuesFromMetadata(metadata),
     catalogTitle: metadata.title,
+    externalLinks: [
+      for (final link in metadata.externalLinks)
+        BookCatalogExternalLinkDraft(original: link),
+    ],
   );
   return LibraryEditSessionBundle(
     catalogItemSession: draft,
     entrySession: draft,
+    disposeSession: draft.dispose,
   );
 }

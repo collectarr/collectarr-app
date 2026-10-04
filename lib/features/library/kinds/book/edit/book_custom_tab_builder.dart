@@ -8,6 +8,7 @@ import 'package:collectarr_app/features/library/kinds/book/edit/book_edit_draft.
 import 'package:collectarr_app/features/library/kinds/book/edit/entry/book_entry_edit_schema.dart';
 import 'package:collectarr_app/features/library/kinds/book/forms/book_person_credits_field.dart';
 import 'package:collectarr_app/features/library/kinds/book/forms/book_catalog_form_field_ids.dart';
+import 'package:collectarr_app/features/library/kinds/book/forms/book_external_links_editor.dart';
 import 'package:collectarr_app/features/library/kinds/book/vocabulary/book_vocabularies.dart';
 import 'package:collectarr_app/features/library/kinds/book/entries/book_entry_details.dart';
 import 'package:collectarr_app/features/library/kinds/book/entries/book_entry_details_draft.dart';
@@ -126,6 +127,17 @@ Widget? buildBookCustomTabView({
           );
         },
       ),
+      if (tabId == 'links') ...[
+        const SizedBox(height: 12),
+        BookExternalLinksEditor(
+          links: kindDraft.externalLinks,
+          accent: accent,
+          onChanged: () {
+            kindDraft.markExternalLinksEdited();
+            markDirty();
+          },
+        ),
+      ],
     ],
   );
 }

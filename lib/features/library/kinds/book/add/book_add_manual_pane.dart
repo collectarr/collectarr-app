@@ -9,6 +9,7 @@ import 'package:collectarr_app/features/library/kinds/book/add/book_add_schema.d
 import 'package:collectarr_app/features/library/kinds/book/add/book_add_manual_draft.dart';
 import 'package:collectarr_app/features/library/kinds/book/forms/book_catalog_form_draft.dart';
 import 'package:collectarr_app/features/library/kinds/book/forms/book_catalog_form_field_ids.dart';
+import 'package:collectarr_app/features/library/kinds/book/forms/book_external_links_editor.dart';
 import 'package:collectarr_app/features/library/kinds/book/vocabulary/book_vocabularies.dart';
 import 'package:collectarr_app/features/library/providers/media_catalog_provider.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
@@ -139,6 +140,14 @@ class _BookAddManualPaneState extends ConsumerState<BookAddManualPane> {
           validateSchema: validateSchema,
         );
 
+    final identifierTab = schemaTab(
+      id: 'links',
+      label: 'Links',
+      icon: Icons.public,
+      fieldIds: bookLinkFieldIds,
+      sectionLabels: const {'edition': 'Identifiers'},
+    );
+
     return LibraryAddManualPaneShell(
       request: request,
       tabs: [
@@ -160,12 +169,23 @@ class _BookAddManualPaneState extends ConsumerState<BookAddManualPane> {
           fieldIds: bookCreditFieldIds,
           sectionLabels: const {'publication': 'Credits'},
         ),
-        schemaTab(
-          id: 'links',
-          label: 'Links',
-          icon: Icons.public,
-          fieldIds: bookLinkFieldIds,
-          sectionLabels: const {'edition': 'Identifiers'},
+        LibraryAddManualPaneTab(
+          id: identifierTab.id,
+          label: identifierTab.label,
+          icon: identifierTab.icon,
+          validate: identifierTab.validate,
+          content: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              identifierTab.content,
+              const SizedBox(height: 12),
+              BookExternalLinksEditor(
+                links: draft.externalLinks,
+                accent: request.accent,
+                onChanged: request.onManualDraftChanged,
+              ),
+            ],
+          ),
         ),
         schemaTab(
           id: 'covers',

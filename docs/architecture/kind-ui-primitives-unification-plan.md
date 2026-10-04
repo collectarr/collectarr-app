@@ -75,6 +75,9 @@ Completed implementation slices:
 - Comic catalog Edit and Manual Add now use the same managed series selector.
   Clearing or changing the selected series updates both the title and its Core
   series ID; clearing the selection removes the stale ID on save.
+- Book Add and Edit now expose catalog external links alongside ISBN/Barcode
+  in the Links tab. Both use the shared links table and Book-owned row mapping;
+  Edit preserves each existing link's auxiliary fields and saves its order.
 - Comic and Board Game Manual Add now use the shared external-link draft row
   for controller ownership and disposal. Each kind still maps those values to
   its own typed link model when it builds the catalog candidate.

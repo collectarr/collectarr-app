@@ -17,6 +17,13 @@ CatalogSearchCandidate? buildBookManualCandidate(
     values: draft.values,
     id: id,
     title: title,
+  ).copyWith(
+    externalLinks: [
+      for (final (index, link) in draft.externalLinks
+          .where((link) => link.row.urlController.text.trim().isNotEmpty)
+          .indexed)
+        link.toModel(index + 1),
+    ],
   );
   return CatalogSearchCandidate.fromItem(
     CatalogItemDto(
