@@ -351,6 +351,7 @@ class MovieEditDraft
     final updatedMeta = MovieCatalogMetadata.fromJson(applyJsonFieldPatch(
       meta.copyWith(
         runtimeMinutes: int.tryParse(movieEdit.runtimeController.text),
+        characters: List<MovieCharacter>.unmodifiable(movieEdit.characters),
         creators: const [],
         contributors: [
           for (final credit in [
@@ -381,6 +382,10 @@ class MovieEditDraft
       ),
       {
         'runtime_minutes': int.tryParse(movieEdit.runtimeController.text),
+        'characters': [
+          for (final character in movieEdit.characters)
+            if (character.name.trim().isNotEmpty) character.toJsonValue(),
+        ],
         'genres': parsedGenres,
         'age_rating': emptyToNull(movieEdit.ageRatingController.text),
         'audience_rating': emptyToNull(movieEdit.audienceRatingController.text),
@@ -468,9 +473,11 @@ LibraryEditSessionBundle createMovieEditDraft({
           role: creator.role,
         ),
     ],
+    initialCharacters: metadata.characters,
     initialTrailerLinks: movie.links,
   );
   movieEdit.initializeMovieEditors();
+  movieEdit.characters.addAll(movieEdit.initialCharacters);
 
   final draft = MovieEditDraft(
     libraryEntry: entry,

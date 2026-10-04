@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:collectarr_app/features/library/schema/library_field_spec.dart';
 import 'package:collectarr_app/features/library/kinds/movie/forms/movie_catalog_form_values.dart';
+import 'package:collectarr_app/features/library/kinds/movie/forms/movie_characters_editor.dart';
 import 'package:collectarr_app/features/library/kinds/movie/vocabulary/movie_vocabularies.dart';
 
 typedef MovieFormValuesReader<TDraft> = MovieCatalogFormValues Function(
@@ -109,11 +110,13 @@ List<LibraryFieldSpec<TDraft>> movieCatalogItemFields<TDraft>({
         value: (draft) => values(draft).subtitle,
         setValue: (draft, value) => values(draft).subtitle = value,
       ),
-      LibraryTextFieldSpec<TDraft>(
+      LibraryCustomFieldSpec<TDraft>(
         id: 'characters',
         label: 'Characters',
-        value: (draft) => values(draft).characters,
-        setValue: (draft, value) => values(draft).characters = value,
+        builder: (context, draft) => MovieCharactersEditor(
+          characters: values(draft).characters,
+          onChanged: (characters) => values(draft).characters = characters,
+        ),
       ),
       LibraryTextFieldSpec<TDraft>(
         id: 'edition_title',

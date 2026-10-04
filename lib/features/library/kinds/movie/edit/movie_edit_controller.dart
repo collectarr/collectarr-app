@@ -6,6 +6,7 @@ import 'package:collectarr_app/features/collection/repositories/user_external_li
 import 'package:collectarr_app/features/library/entries/library_entries_repository.dart';
 import 'package:collectarr_app/features/library/edit/draft/editable_user_external_link.dart';
 import 'package:collectarr_app/features/library/kinds/movie/forms/movie_credit_draft.dart';
+import 'package:collectarr_app/features/library/kinds/movie/domain/movie_metadata.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -30,6 +31,7 @@ class MovieEditController {
     this.initialReleaseDate = '',
     this.initialReleaseYear = '',
     this.initialCreators = const <MovieCreditInput>[],
+    this.initialCharacters = const <MovieCharacter>[],
     this.initialTrailerLinks = const <TrailerLinkDto>[],
   })  : runtimeController = TextEditingController(text: initialRuntime),
         ageRatingController = TextEditingController(text: initialAgeRating),
@@ -71,6 +73,7 @@ class MovieEditController {
   final String initialReleaseDate;
   final String initialReleaseYear;
   final List<MovieCreditInput> initialCreators;
+  final List<MovieCharacter> initialCharacters;
   final List<TrailerLinkDto> initialTrailerLinks;
 
   final TextEditingController runtimeController;
@@ -91,6 +94,7 @@ class MovieEditController {
 
   final List<EditableMovieCredit> castCredits = [];
   final List<EditableMovieCredit> crewCredits = [];
+  final List<MovieCharacter> characters = [];
   final List<EditableUserExternalLink> userLinkEdits = [];
   final List<EditableUserExternalLink> userTrailerEdits = [];
 

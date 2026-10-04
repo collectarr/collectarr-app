@@ -1,5 +1,6 @@
 import 'package:collectarr_app/features/library/kinds/movie/edit/movie_edit_controller.dart';
 import 'package:collectarr_app/features/library/kinds/movie/forms/movie_credits_editor.dart';
+import 'package:collectarr_app/features/library/kinds/movie/forms/movie_characters_editor.dart';
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
 import 'package:flutter/material.dart';
 
@@ -24,6 +25,16 @@ class MovieEditCastTab extends StatelessWidget {
           defaultRole: 'Actor',
           credits: movieEdit.castCredits,
           onChanged: markDirty,
+        ),
+        const SizedBox(height: 12),
+        MovieCharactersEditor(
+          characters: movieEdit.characters,
+          onChanged: (characters) {
+            movieEdit.characters
+              ..clear()
+              ..addAll(characters);
+            markDirty();
+          },
         ),
       ],
     );

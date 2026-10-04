@@ -22,7 +22,6 @@ CatalogSearchCandidate? buildMovieManualCandidate(
     ...movieDraft.castCredits,
     ...movieDraft.crewCredits,
   ].map((credit) => credit.toInput()).where((credit) => credit.name.isNotEmpty);
-  final characters = _split(values.characters);
   final aliases = _split(values.searchAliases);
   final item = CatalogItemDto.raw(
     id: id,
@@ -68,7 +67,11 @@ CatalogSearchCandidate? buildMovieManualCandidate(
               if (credit.role != null) 'role': credit.role,
             },
         ],
-      if (characters.isNotEmpty) 'characters': characters,
+      if (values.characters.isNotEmpty)
+        'characters': [
+          for (final character in values.characters)
+            if (character.name.trim().isNotEmpty) character.toJsonValue(),
+        ],
     },
   );
   return CatalogSearchCandidate.fromItem(item);

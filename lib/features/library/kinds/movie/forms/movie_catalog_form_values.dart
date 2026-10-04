@@ -1,3 +1,5 @@
+import 'package:collectarr_app/features/library/kinds/movie/domain/movie_metadata.dart';
+
 /// Flutter and domain independent values shared by Movie Add and catalog Edit.
 final class MovieCatalogFormValues {
   MovieCatalogFormValues({
@@ -25,7 +27,7 @@ final class MovieCatalogFormValues {
     this.itemNumber = '',
     this.variant = '',
     this.releaseYear,
-    this.characters = '',
+    this.characters = const [],
   });
 
   String sortTitle;
@@ -53,5 +55,5 @@ final class MovieCatalogFormValues {
   String itemNumber;
   String variant;
   int? releaseYear;
-  String characters;
+  List<MovieCharacter> characters;
 }
