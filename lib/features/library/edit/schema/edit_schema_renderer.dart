@@ -22,11 +22,15 @@ final class EditSchemaExtraTab {
     required this.label,
     required this.content,
     this.icon = Icons.extension_outlined,
+    this.validate,
   });
 
   final String label;
   final IconData icon;
   final Widget content;
+
+  /// Validates an extra tab even when it has not been mounted yet.
+  final String? Function()? validate;
 }
 
 class EditSchemaRenderer<TModel, TDraft> extends StatefulWidget {
@@ -559,11 +563,18 @@ class EditSchemaRendererState<TModel, TDraft>
       widget.model,
       widget.draft,
     );
-    final fieldError = _firstFieldError();
-    if (schemaError != null || fieldError != null) {
+    final fieldIssue = _firstFieldIssue();
+    if (schemaError != null || fieldIssue != null) {
+      final visibleTabs = _orderedVisibleTabIndexes();
+      final invalidVisibleIndex =
+          fieldIssue == null ? -1 : visibleTabs.indexOf(fieldIssue.tabIndex);
       setState(() {
-        _validationError = schemaError ?? fieldError;
+        _validationError = schemaError ?? fieldIssue?.error;
+        if (invalidVisibleIndex >= 0) {
+          _selectedTabIndex = invalidVisibleIndex;
+        }
       });
+      _rememberSelectedTab();
       return;
     }
 
@@ -607,17 +618,29 @@ class EditSchemaRendererState<TModel, TDraft>
   /// own the visible Save button without duplicating schema behavior.
   Future<void> save() => _save();
 
-  String? _firstFieldError() {
-    for (final tab in widget.schema.tabs) {
+  ({int tabIndex, String error})? _firstFieldIssue() {
+    for (var tabIndex = 0; tabIndex < widget.schema.tabs.length; tabIndex++) {
+      final tab = widget.schema.tabs[tabIndex];
       if (!tab.isVisible(widget.draft)) continue;
       for (final section in tab.sections) {
         if (!section.isVisible(widget.draft)) continue;
         for (final field in section.fields) {
           if (field.isVisible(widget.draft)) {
             final error = field.validate(widget.draft);
-            if (error != null) return error;
+            if (error != null) return (tabIndex: tabIndex, error: error);
           }
         }
+      }
+    }
+    for (var extraIndex = 0;
+        extraIndex < widget.extraTabs.length;
+        extraIndex++) {
+      final error = widget.extraTabs[extraIndex].validate?.call();
+      if (error != null) {
+        return (
+          tabIndex: widget.schema.tabs.length + extraIndex,
+          error: error,
+        );
       }
     }
     return null;
