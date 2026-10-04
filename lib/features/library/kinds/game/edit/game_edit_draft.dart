@@ -182,11 +182,6 @@ class GameEditDraft
     );
     return selection.copyWith(kindItem: candidate);
   }
-
-  void dispose() {
-    // Catalog form state is plain data; embedded schema renderers own their
-    // temporary text controllers.
-  }
 }
 
 LibraryEditSessionBundle createGameEditDraft({
@@ -215,6 +210,5 @@ LibraryEditSessionBundle createGameEditDraft({
   return LibraryEditSessionBundle(
     catalogItemSession: draft,
     entrySession: draft,
-    disposeSession: draft.dispose,
   );
 }

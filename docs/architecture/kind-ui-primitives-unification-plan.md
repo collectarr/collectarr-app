@@ -213,6 +213,10 @@ Completed implementation slices:
   typed draft, with temporary controller fallbacks removed. Movie, TV, and
   Anime custom tab builders require their typed drafts; Movie scalar fields
   use `MovieCatalogFormValues`, and TV/Anime Specs use their own draft values.
+- Book, Game, and Board Game edit drafts that contain only plain form values no
+  longer declare or pass empty disposal callbacks. Embedded schema renderers
+  own and dispose their temporary input controllers; kind drafts retain
+  disposal only when they own resources.
 - The eight kinds using `LibraryEditRenderer` now pass the edit request to the
   renderer instead of constructing `LibraryEditShellState` in their dialog
   widget's `build()` method. The renderer creates the request-backed draft in

@@ -137,11 +137,6 @@ class BookEditDraft
     );
   }
 
-  void dispose() {
-    // BookCatalogFormValues contains plain data. Embedded schema controllers
-    // are owned and disposed by their renderer states.
-  }
-
   List<TrailerLinkDto> _externalLinks = const [];
   bool _externalLinksEdited = false;
 
@@ -218,6 +213,5 @@ LibraryEditSessionBundle createBookEditDraft({
   return LibraryEditSessionBundle(
     catalogItemSession: draft,
     entrySession: draft,
-    disposeSession: draft.dispose,
   );
 }
