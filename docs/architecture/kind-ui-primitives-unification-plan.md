@@ -90,7 +90,10 @@ Completed implementation slices:
 - Book Manual Add now separates Main, Credits, identifier Links, Covers, and
   Plot into distinct dialog tabs. Authors and Translators stay on the shared
   typed credit editors, while the existing managed Publisher and Format
-  options remain available across tab switches.
+  options remain available across tab switches. The Links tab exposes ISBN
+  separately from Barcode, and Book Edit uses the same two typed identifiers;
+  editing ISBN preserves its original value until changed and clears stale
+  ISBN-10/ISBN-13 variants only when the displayed identifier is edited.
 - Game Edit now exposes the kind draft's already-persisted Developers, Genres,
   Age rating, Franchise, Languages, and Country fields in its Main tab. Manual
   Add uses the same field definitions across Main, Edition details,
@@ -518,7 +521,7 @@ tab placement, and metadata/personal classification.
 | --- | --- |
 | TV | Physical-media Specs are shared with Movie and Anime; Cast/Crew row layout is shared across Movie/TV/Anime and Add/Edit. One typed dispatcher now serves catalog and entry registrations; keep season/episode editing within the same draft/save lifecycle and finish remaining Add/Edit field parity. |
 | Anime | Physical-media Specs and Cast/Crew row layout are shared with Movie/TV. Reconcile the extra media dialog with active routes; preserve kind-specific series/episode fields and finish remaining Add/Edit field parity. |
-| Books | Unify catalog/entry schemas and managed publisher/format bindings; Authors and Translators now use shared typed ordered-name editors in Add/Edit; retain identifiers, publication details, and review other credits. |
+| Books | Unify catalog/entry schemas and managed publisher/format bindings; Authors and Translators now use shared typed ordered-name editors in Add/Edit; Add/Edit expose separate ISBN and Barcode identifiers; retain publication details and review other credits. |
 | Comics | Controller fallbacks have been removed from the Comic edit host; unify the generic entry and typed catalog hosts while retaining series/issue, grading, variants, and meaningful credit structures. |
 | Manga | Consolidate series/publisher picker mechanics with other kinds; keep volume/publication semantics in Manga; reconcile generic/extra media editors. |
 | Games | Request-backed edit draft creation is renderer-owned and the registered Game platform vocabulary is used. Audit remaining no-op callbacks and integrate the embedded entry schema with the complete form. |
