@@ -11,6 +11,7 @@ import 'package:collectarr_app/features/library/kinds/game/entries/game_entry_de
 import 'package:collectarr_app/features/library/kinds/game/forms/game_catalog_form_field_ids.dart';
 import 'package:collectarr_app/features/library/kinds/game/edit/game_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/game/vocabulary/game_vocabularies.dart';
+import 'package:collectarr_app/features/library/edit/fields/library_external_links_draft_editor.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:flutter/material.dart';
 
@@ -37,6 +38,21 @@ Widget? buildGameCustomTabView({
       draft: kindDraft,
       mediaKind: draft.type.kind.apiValue,
       showTabBar: false,
+    );
+  }
+
+  if (tabId == 'links') {
+    return EditTabShell(
+      children: [
+        LibraryExternalLinksDraftEditor(
+          links: kindDraft.externalLinks,
+          accent: accent,
+          onChanged: () {
+            kindDraft.markExternalLinksEdited();
+            markDirty();
+          },
+        ),
+      ],
     );
   }
 

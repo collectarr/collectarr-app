@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/library/edit/draft/library_edit_form_fields.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_link_dto.dart';
 import 'package:collectarr_app/core/models/tracking_summary.dart';
 import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/features/library/kinds/game/data/game_library_entry_projection.dart';
@@ -19,6 +20,7 @@ import 'package:collectarr_app/features/library/kinds/game/domain/game_library_e
 import 'package:collectarr_app/features/library/kinds/game/entries/game_entry_details_draft.dart';
 import 'package:collectarr_app/features/library/kinds/game/entries/game_library_entry_update_payload.dart';
 import 'package:collectarr_app/features/library/edit/draft/personal_state_draft.dart';
+import 'package:collectarr_app/features/library/edit/fields/library_external_links_table.dart';
 
 class GameEditDraft
     with
@@ -39,6 +41,8 @@ class GameEditDraft
     required this.gameValueIsLocked,
     required this.values,
     required this.catalogTitle,
+    required this.externalLinks,
+    required this.originalExternalLinks,
   });
 
   final GameLibraryEntry? libraryEntry;
@@ -56,6 +60,62 @@ class GameEditDraft
   final GameValuationSet? gameValuations;
   String? gameCoreRegion;
   bool gameValueIsLocked;
+  final List<LibraryExternalLinkDraftRow> externalLinks;
+  final Map<LibraryExternalLinkDraftRow, GameCatalogLink> originalExternalLinks;
+  bool _externalLinksEdited = false;
+
+  void markExternalLinksEdited() => _externalLinksEdited = true;
+
+  GameCatalogLink _linkFromDraft(
+    LibraryExternalLinkDraftRow row,
+    int position,
+  ) {
+    final original = originalExternalLinks[row];
+    final title = _gameOptional(row.titleController.text);
+    return GameCatalogLink(
+      url: row.urlController.text.trim(),
+      id: original?.id,
+      label: title,
+      title: title,
+      site: original?.site,
+      name: original?.name,
+      kind: original?.kind ?? 'external',
+      description: _gameOptional(row.descriptionController.text),
+      position: position,
+      linkType: original?.linkType,
+    );
+  }
+
+  void dispose() {
+    for (final link in externalLinks) {
+      link.dispose();
+    }
+  }
+
+  @override
+  void setExternalLinks(List<TrailerLinkDto> links) {
+    for (final row in externalLinks) {
+      row.dispose();
+    }
+    externalLinks.clear();
+    originalExternalLinks.clear();
+    for (final link in links) {
+      final row = LibraryExternalLinkDraftRow(
+        title: link.title ?? '',
+        url: link.url,
+        description: link.description ?? '',
+      );
+      externalLinks.add(row);
+      originalExternalLinks[row] = GameCatalogLink(
+        url: link.url,
+        title: link.title,
+        label: link.title,
+        description: link.description,
+        kind: link.kind,
+      );
+    }
+    _externalLinksEdited = true;
+  }
 
   @override
   JsonEncodable toDetailsDraft() => GameEntryDetailsDraft(
@@ -170,11 +230,21 @@ class GameEditDraft
     final metadata = selection.kindItem.kindCapability.mapTransport(
       (transport) => GameCatalogMetadata.fromJson(transport.kindData),
     );
-    final updated = applyGameCatalogFormValues(
+    var updated = applyGameCatalogFormValues(
       current: metadata,
       values: values,
       title: catalogTitle,
     );
+    if (_externalLinksEdited) {
+      final payload = updated.toJson()
+        ..['external_links'] = [
+          for (final (index, row) in externalLinks
+              .where((row) => row.urlController.text.trim().isNotEmpty)
+              .indexed)
+            _linkFromDraft(row, index + 1).toJson(),
+        ];
+      updated = GameCatalogMetadata.fromJson(payload);
+    }
     final candidate = selection.kindItem.kindCapability.mapTransport(
       (transport) => CatalogSearchCandidate.fromItem(
         transport.replacingKindData(updated),
@@ -195,6 +265,13 @@ LibraryEditSessionBundle createGameEditDraft({
   final meta = item.kindCapability.mapTransport(
     (transport) => GameCatalogMetadata.fromJson(transport.kindData),
   );
+  final linkRows = <LibraryExternalLinkDraftRow>[];
+  final originalLinks = <LibraryExternalLinkDraftRow, GameCatalogLink>{};
+  for (final link in meta.links.where((link) => link.isExternalLink)) {
+    final row = _gameLinkDraftRow(link);
+    linkRows.add(row);
+    originalLinks[row] = link;
+  }
   final draft = GameEditDraft(
     libraryEntry: entry,
     gameCompleteness: game?.completeness,
@@ -206,9 +283,24 @@ LibraryEditSessionBundle createGameEditDraft({
     gameValueIsLocked: game?.valueIsLocked ?? false,
     values: gameCatalogFormValuesFromMetadata(meta),
     catalogTitle: meta.title,
+    externalLinks: linkRows,
+    originalExternalLinks: originalLinks,
   );
   return LibraryEditSessionBundle(
     catalogItemSession: draft,
     entrySession: draft,
+    disposeSession: draft.dispose,
   );
+}
+
+LibraryExternalLinkDraftRow _gameLinkDraftRow(GameCatalogLink link) =>
+    LibraryExternalLinkDraftRow(
+      title: link.title ?? link.label ?? link.name ?? '',
+      url: link.url,
+      description: link.description ?? '',
+    );
+
+String? _gameOptional(String value) {
+  final normalized = value.trim();
+  return normalized.isEmpty ? null : normalized;
 }

@@ -4,6 +4,7 @@ import 'package:collectarr_app/features/library/kinds/game/add/game_add_manual_d
 import 'package:collectarr_app/features/library/kinds/game/add/game_add_schema.dart';
 import 'package:collectarr_app/features/library/kinds/game/forms/game_catalog_form_draft.dart';
 import 'package:collectarr_app/features/library/kinds/game/forms/game_catalog_form_field_ids.dart';
+import 'package:collectarr_app/features/library/edit/fields/library_external_links_draft_editor.dart';
 import 'package:flutter/material.dart';
 
 class GameAddManualPane extends StatelessWidget {
@@ -67,6 +68,16 @@ class GameAddManualPane extends StatelessWidget {
           icon: Icons.description_outlined,
           fieldIds: gameDescriptionFieldIds,
           sectionLabels: const {'game_details': 'Description'},
+        ),
+        LibraryAddManualPaneTab(
+          id: 'links',
+          label: 'Links',
+          icon: Icons.public,
+          content: LibraryExternalLinksDraftEditor(
+            links: draft.externalLinks,
+            accent: request.accent,
+            onChanged: request.onManualDraftChanged,
+          ),
         ),
         schemaTab(
           id: 'cover',

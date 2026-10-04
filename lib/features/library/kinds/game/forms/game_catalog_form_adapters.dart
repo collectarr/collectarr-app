@@ -48,6 +48,7 @@ GameCatalogMetadata gameMetadataFromManualFormValues({
   required GameCatalogFormValues values,
   required String id,
   required String title,
+  List<GameCatalogLink> externalLinks = const [],
 }) {
   final releaseDate = _effectiveReleaseDate(values);
   final publisher = _optional(values.publisher);
@@ -100,6 +101,8 @@ GameCatalogMetadata gameMetadataFromManualFormValues({
       'original_language': value,
     if (values.identifiers.isNotEmpty) 'identifiers': values.identifiers,
     if (values.companyRoles.isNotEmpty) 'company_roles': values.companyRoles,
+    if (externalLinks.isNotEmpty)
+      'external_links': [for (final link in externalLinks) link.toJson()],
     if (values.searchAliases.isNotEmpty) 'search_aliases': values.searchAliases,
   };
   return GameCatalogMetadata.fromJson(raw);

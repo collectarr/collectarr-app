@@ -4,6 +4,7 @@ import 'package:collectarr_app/features/library/add/models/library_kind_add_draf
 import 'package:collectarr_app/features/library/kinds/game/add/game_add_manual_draft.dart';
 import 'package:collectarr_app/features/library/kinds/game/add/game_add_schema.dart';
 import 'package:collectarr_app/features/library/kinds/game/forms/game_catalog_form_adapters.dart';
+import 'package:collectarr_app/features/library/kinds/game/domain/game_metadata.dart';
 import 'package:collectarr_app/features/library/models/library_item_identity.dart';
 
 CatalogSearchCandidate? buildGameManualCandidate(
@@ -17,6 +18,20 @@ CatalogSearchCandidate? buildGameManualCandidate(
     values: draft.values,
     id: id,
     title: title,
+    externalLinks: [
+      for (final (index, link) in draft.externalLinks
+          .where((link) => link.urlController.text.trim().isNotEmpty)
+          .indexed)
+        GameCatalogLink(
+          url: link.urlController.text.trim(),
+          label: _optional(link.titleController.text),
+          title: _optional(link.titleController.text),
+          description: _optional(link.descriptionController.text),
+          kind: 'external',
+          linkType: 'external',
+          position: index + 1,
+        ),
+    ],
   );
   return CatalogSearchCandidate.fromItem(
     CatalogItemDto(
@@ -25,6 +40,11 @@ CatalogSearchCandidate? buildGameManualCandidate(
       origin: CatalogItemOrigin.privateLocal,
     ),
   );
+}
+
+String? _optional(String value) {
+  final normalized = value.trim();
+  return normalized.isEmpty ? null : normalized;
 }
 
 /// Serializes this kind's typed manual catalog model for Core review.
