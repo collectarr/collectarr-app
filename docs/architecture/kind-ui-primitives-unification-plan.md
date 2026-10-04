@@ -23,6 +23,49 @@ Read applicable AGENTS.md files and inspect current working trees first.
 Preserve uncommitted changes. Several files are already undergoing refactoring;
 confirm every finding before changing it. Documentation remains English.
 
+## Implementation progress
+
+Updated 2026-10-04. This work is in progress; the checklist below is not a
+claim of full Add/Edit parity.
+
+Completed implementation slices:
+
+- Add and Edit schema fields now share one responsive field layout for column
+  count, spans, full-width fields, visibility, and right alignment.
+- The shared Add pane no longer owns the Catalog Item title field. Each of the
+  nine kind schemas contributes a required title field, and the dialog header
+  reads the same draft value. Manual Add now contributes a Personal tab for
+  every kind unless the kind already provides one.
+- Embedded Edit schema tabs use an explicit embedded constructor instead of
+  empty Save/Cancel callbacks. The parent dialog remains the save owner.
+- Shared edit text fields and Add schema text/select controls use external
+  labels and the common control height. Schema validators are registered with
+  the active Form; numeric minimum, maximum, and decimal-place constraints are
+  enforced on raw input.
+- Movie manual Add now uses the managed multi-value Genre vocabulary and
+  exposes Display Title, Original Title, Localized Title, and Search Aliases.
+  Clearing supported optional Movie metadata is preserved on save.
+- Game edit fields use stable draft-owned controllers and configured physical
+  format/platform vocabularies. Comic edit host access requires the registered
+  typed draft, with temporary controller fallbacks removed. Movie/TV/Anime
+  custom tab builders also require their typed drafts; the current specs tabs
+  read draft-owned controllers rather than shared dummy controllers.
+
+Still outstanding:
+
+- Add and Edit do not yet use one complete kind-owned field definition for all
+  nine kinds. Movie still has separate scalar Add fields and typed Edit credit
+  editors; other kinds also have separate catalog/entry compositions.
+- The Add and Edit renderers still own separate submission/error lifecycles and
+  controller registries. Validation policy for fields in unmounted tabs still
+  needs to be made explicit.
+- Legacy custom tabs, responsive row helpers, selection controls, managed
+  vocabulary loading, and kind-specific tab composition still have divergent
+  implementations. Runtime screenshots at matching size and text scale have
+  not been reviewed.
+- Music tracks, credits, covers, links, images, and personal fields have not
+  yet converged on one complete Add/Edit draft lifecycle.
+
 ## 1. What is already shared
 
 All nine `kinds/<kind>/add/<kind>_add_manual_pane.dart` files instantiate
