@@ -31,6 +31,7 @@ class MovieCreditsEditor extends StatelessWidget {
         emptyMessage: emptyMessage,
         addLabel: addLabel,
         accent: accent,
+        removeTooltip: 'Remove credit',
         rows: () => [
           for (final credit in credits)
             LibraryNamedDetailControllers(

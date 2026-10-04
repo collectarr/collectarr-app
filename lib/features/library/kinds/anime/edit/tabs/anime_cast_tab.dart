@@ -25,6 +25,7 @@ class AnimeEditCastTab extends StatelessWidget {
           emptyMessage: 'No cast data yet.',
           addLabel: 'Add Cast',
           accent: accent,
+          removeTooltip: 'Remove cast credit',
           rows: () => [
             for (final credit in animeEdit.castCredits)
               LibraryNamedDetailControllers(

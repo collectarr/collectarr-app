@@ -162,7 +162,8 @@ class AnimeAddManualPane extends StatelessWidget {
             emptyMessage: 'No cast data yet.',
             addLabel: 'Add Cast',
             accent: request.accent,
-            credits: [
+            removeTooltip: 'Remove cast credit',
+            rows: () => [
               for (final credit in draft.castCredits)
                 LibraryNamedDetailControllers(
                   identity: credit,
@@ -189,7 +190,8 @@ class AnimeAddManualPane extends StatelessWidget {
             emptyMessage: 'No crew data yet.',
             addLabel: 'Add Crew',
             accent: request.accent,
-            credits: [
+            removeTooltip: 'Remove crew credit',
+            rows: () => [
               for (final credit in draft.crewCredits)
                 LibraryNamedDetailControllers(
                   identity: credit,

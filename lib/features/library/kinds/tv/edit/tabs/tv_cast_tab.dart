@@ -25,6 +25,7 @@ class TvEditCastTab extends StatelessWidget {
           emptyMessage: 'No cast data yet.',
           addLabel: 'Add Cast',
           accent: accent,
+          removeTooltip: 'Remove cast credit',
           rows: () => [
             for (final credit in tvEdit.castCredits)
               LibraryNamedDetailControllers(

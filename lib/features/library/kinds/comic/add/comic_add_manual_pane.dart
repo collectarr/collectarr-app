@@ -296,6 +296,7 @@ class _ComicAddManualPaneState extends ConsumerState<ComicAddManualPane> {
             emptyMessage: 'No creator credits yet.',
             addLabel: 'Add Creator',
             accent: request.accent,
+            removeTooltip: 'Remove creator',
             rows: () => [
               for (final creator in comicDraft.creators)
                 LibraryNamedDetailControllers(
@@ -328,6 +329,7 @@ class _ComicAddManualPaneState extends ConsumerState<ComicAddManualPane> {
             nameLabel: 'Character',
             detailLabel: 'Real name',
             accent: request.accent,
+            removeTooltip: 'Remove character',
             rows: () => [
               for (final character in comicDraft.characters)
                 LibraryNamedDetailControllers(

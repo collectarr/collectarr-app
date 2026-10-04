@@ -26,6 +26,7 @@ final class LibraryNamedDetailList extends StatelessWidget {
     required this.addLabel,
     required this.accent,
     required this.rows,
+    this.removeTooltip = 'Remove item',
     this.nameLabel = 'Name',
     this.detailLabel = 'Role',
     required this.onAdd,
@@ -39,6 +40,7 @@ final class LibraryNamedDetailList extends StatelessWidget {
   final String addLabel;
   final Color accent;
   final List<LibraryNamedDetailControllers> Function() rows;
+  final String removeTooltip;
   final String nameLabel;
   final String detailLabel;
   final VoidCallback onAdd;
@@ -103,7 +105,7 @@ final class LibraryNamedDetailList extends StatelessWidget {
                               ),
                             ),
                             IconButton(
-                              tooltip: 'Remove ${title.toLowerCase()} credit',
+                              tooltip: removeTooltip,
                               visualDensity: VisualDensity.compact,
                               onPressed: () {
                                 onRemove(index);
