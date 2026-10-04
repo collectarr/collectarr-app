@@ -75,6 +75,12 @@ Completed implementation slices:
 - All live library Add/Edit, bulk-edit, Comic, Game, and Music multi-value
   fields now use the shared chip control. Its picker retains search and Clear;
   custom text entry and existing vocabulary-change callbacks remain connected.
+- Movie, TV, and Anime Edit fields without a configured vocabulary now use the
+  shared labelled text control, matching their Add inputs and avoiding empty
+  picker dialogs. Their supported movie genres and Movie/TV audio and subtitle
+  vocabularies remain selectable.
+- Replaced the accidental `EntryPolicy details` heading with `Digital Entry
+  Details` across all kind edit presentations.
 - The previous `TagPickListField` and `MultiSelectPickListField` have no live
   library call sites. Their public barrel export and golden fixture remain for
   the final cleanup pass; the old implementation is not used by the app UI.
@@ -221,58 +227,44 @@ not localized labels. Avoid a second personal draft only for Add.
 
 ## 4. Movies: defects to fix before visual cleanup
 
-### P0 — Specs are connected to the wrong state
+### Resolved P0 — Specs state and temporary controllers
 
-`kinds/movie/edit/movie_edit_controller.dart` exposes Audio tracks, Subtitles,
-Layers, Color, and Discs through one `static _dummyController`.
-`movie_specs_tab.dart` uses those getters. Meanwhile `movie_edit_draft.dart`
-saves separate draft-owned controllers with those names.
-
-Consequences: these inputs alias each other, can retain state between editor
-instances, and are disconnected from the controllers read during save.
-The same dummy-controller pattern exists in TV and Anime. Replace it with
-typed draft bindings to real fields; unsupported fields must not be represented
-by editable dummy controls. Audit whether every field belongs to metadata or
-personal state before assigning storage.
-
-### P0 — Temporary controllers and unobservable collection mutations
-
-`movie_custom_tab_builder.dart` constructs a fallback MovieEditController
-while building a tab if the expected session is missing. `movie_edition_tab.dart`
-creates fallback TextEditingController instances during build. There is no
-clear owner/disposal for these fallbacks, and edits can disappear on rebuild.
-
-The custom tab builder accepts markDirty but never forwards it. Cast/Crew Add
-callbacks append directly to lists without triggering a widget rebuild.
-Use one dialog-owned draft/controller scope, observable updates, and explicit
-errors for an invalid route/draft combination. Remove controller fallbacks.
+Movie, TV, and Anime specs now bind to their typed edit draft controllers, and
+the save path reads those same values. No static dummy controllers remain.
+Custom tab builders reject a missing or mismatched typed draft with a clear
+state error instead of constructing fallback controllers. Movie Cast/Crew
+mutations notify the owning draft so the tab rebuilds after additions.
 
 ### P1 — Add/Edit fields and tab coverage differ
 
 Evidence: `kinds/movie/add/movie_add_manual_pane.dart`,
 `forms/movie_catalog_field_specs.dart`, `edit_dialog.dart`, and `edit/tabs/`.
 
-- Add Genres is comma-separated text; Edit uses a multi-value picker.
-- Add language/ratings/directors/characters use flat text instead of consistent
-  kind vocabulary and structured people controls.
+- Genres now uses the managed multi-value picker in both Movie Add and Edit.
+- Movie, TV, and Anime country/language/rating fields without configured
+  vocabularies now use matching text controls in Add and Edit. Movie/TV audio
+  and subtitle fields retain their registered vocabulary pickers. Add and Edit
+  still use different people editors: Add has flat director/character text,
+  while Edit has typed Cast/Crew tabs.
 - Add includes cover URL text instead of the same cover editor.
 - The entry tab list omits Main, Cast, Crew, and Links supplied by the catalog
   list. Local complete-entry editing must expose editable metadata as well.
 - `edition` and `specs` both display Edition Details in the entry tab list.
-- All option lists passed by movie_custom_tab_builder are empty, bypassing
-  kind vocabularies and managed lists. Custom text entry may still work, but
-  this is not a correctly populated managed picker.
+- Empty option lists are no longer passed to Movie/TV/Anime fields as if they
+  were managed pickers. Fields without an actual kind vocabulary use text
+  controls; Movie Genre and Movie/TV audio and subtitle options come from their
+  registered vocabularies.
 - The `discs` switch branch has no matching tab in either Movie tab list.
   Its widget is read-only. Decide whether current typed item media needs a
   real editor; otherwise remove the unreachable branch/widget after tracing
   all callers. Do not reintroduce a separate release entity.
-- Labels retain `Sort title`, `EntryPolicy details`, and copy-specific wording.
+- Kind form labels use `Sort Title`; the pinned generated metadata label still
+  says `Sort title` and requires an update at its contract source/generator.
 
 ### P1 — Clearing fields and links need a save audit
 
-`movie_edit_draft.dart` preserves old genres when the edited list is empty and
-falls back to old country/language when empty. Users need an explicit clearing
-operation. Ensure nullable updates distinguish unchanged from cleared.
+Clearing Movie genres and supported optional metadata now persists an explicit
+empty or null value rather than restoring the old catalog value.
 
 `MovieEditController.buildUpdatedTrailerUrls()` only retains automatic links;
 user links are loaded/saved separately by CatalogEntityRef. Trace the current
