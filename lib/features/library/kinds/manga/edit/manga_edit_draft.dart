@@ -25,6 +25,7 @@ enum MangaCanonicalEditField {
   originalTitle,
   localizedTitle,
   searchAliases,
+  characters,
   synopsis,
   coverImage,
   thumbnailImage
@@ -263,6 +264,10 @@ class MangaEditDraft
       localizedTitle: emptyToNull(
           fields.controller(MangaCanonicalEditField.localizedTitle).text),
       searchAliases: aliases,
+      characters: _editedMangaCharacters(
+        fields.controller(MangaCanonicalEditField.characters).text,
+        metadata.characters,
+      ),
       synopsis:
           emptyToNull(fields.controller(MangaCanonicalEditField.synopsis).text),
       coverImageUrl: emptyToNull(
@@ -294,6 +299,12 @@ class MangaEditDraft
         initialValue: metadata.localizedTitle ?? '');
     fields.create(MangaCanonicalEditField.searchAliases,
         initialValue: metadata.searchAliases.join(', '));
+    final kindMetadata = mangaEditMetadataFromCandidate(item);
+    fields.create(
+      MangaCanonicalEditField.characters,
+      initialValue:
+          kindMetadata.characters.map((character) => character.name).join(', '),
+    );
     fields.create(MangaCanonicalEditField.synopsis,
         initialValue: metadata.synopsis ?? '');
     fields.create(MangaCanonicalEditField.coverImage,
@@ -326,6 +337,12 @@ class MangaEditDraft
           section: LibraryEditFormSection.details,
           controller: fields.controller(MangaCanonicalEditField.localizedTitle),
           label: 'Localized title',
+        ),
+        LibraryEditFormFieldSpec(
+          id: MangaCanonicalEditField.characters,
+          section: LibraryEditFormSection.details,
+          controller: fields.controller(MangaCanonicalEditField.characters),
+          label: 'Characters',
         ),
         LibraryEditFormFieldSpec(
           id: MangaCanonicalEditField.searchAliases,
@@ -558,3 +575,35 @@ List<String> _splitValues(String value) => value
     .where((entry) => entry.isNotEmpty)
     .toSet()
     .toList();
+
+List<MangaCharacter> _editedMangaCharacters(
+  String value,
+  List<MangaCharacter> original,
+) {
+  final previousByName = {
+    for (final character in original)
+      character.name.trim().toLowerCase(): character,
+  };
+  return [
+    for (final name in _splitValues(value))
+      _mangaCharacterWithPreservedDetails(
+        name,
+        previousByName.remove(name.toLowerCase()),
+      ),
+  ];
+}
+
+MangaCharacter _mangaCharacterWithPreservedDetails(
+  String name,
+  MangaCharacter? previous,
+) =>
+    MangaCharacter(
+      name: name,
+      id: previous?.id,
+      characterId: previous?.characterId,
+      role: previous?.role,
+      description: previous?.description,
+      imageUrl: previous?.imageUrl,
+      aliases: previous?.aliases ?? const [],
+      plainValue: previous?.plainValue ?? true,
+    );
