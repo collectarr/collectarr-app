@@ -69,9 +69,9 @@ Completed implementation slices:
   vocabularies for Movie and TV, and text input for Anime, while sharing the
   Layers, Color, Discs fields and responsive layout.
 - TV and Anime Cast/Crew now use one shared video credits section for Name/Role
-  rows, empty states, and adding a row. Their kind-owned credit objects and
-  default roles remain in their own drafts; the shared UI only receives row
-  controller pairs and callbacks.
+  rows, empty states, adding, removal, and reordering. Their kind-owned credit
+  objects, controller disposal, and default roles remain in their own drafts;
+  the shared UI only receives row controller pairs and mutation callbacks.
 - The Movie, TV, and Anime edit-tab helper files no longer carry unused
   responsive-field wrappers. TV/Anime credit tabs adapt their typed controller
   rows directly to the shared editor; Add credit-field parity remains open.
