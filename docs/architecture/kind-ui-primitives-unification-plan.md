@@ -53,6 +53,9 @@ Completed implementation slices:
   use the Edit schema renderer's scroll view as their only vertical scroll
   owner. Their shared tab surface can retain its border and padding without
   creating an inner scroll view.
+- Music Edit now stages raw track-duration input in its item draft, preserves
+  invalid text when switching tabs, blocks save until it parses, and clears the
+  staged text when the duration is corrected or the track is removed.
 - Comic Add and catalog Edit now use one shared page-count validation rule
   from the Comic catalog field definitions.
 - The controller audit found no kind-pane build path constructing a fresh

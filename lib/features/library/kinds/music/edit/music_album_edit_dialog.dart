@@ -167,6 +167,9 @@ final class _MusicAlbumEditDialogState
             id: 'tracks',
             label: 'Tracks',
             icon: Icons.format_list_numbered,
+            validate: () => _draft.hasInvalidTrackDurationInput
+                ? 'Track lengths must use seconds, MM:SS, or HH:MM:SS'
+                : null,
             content: MusicAlbumStructureTab(
               draft: _draft,
               accent: widget.request.accent,

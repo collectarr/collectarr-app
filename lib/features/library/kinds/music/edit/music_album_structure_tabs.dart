@@ -4,7 +4,6 @@ import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.
 import 'package:collectarr_app/features/library/kinds/music/domain/music_disc.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_ids.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_track.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_track_duration.dart';
 import 'package:collectarr_app/features/library/kinds/music/forms/music_disc_text_field.dart';
 import 'package:collectarr_app/features/library/kinds/music/forms/music_track_text_field.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit/music_album_edit_draft.dart';
@@ -625,27 +624,14 @@ final class _MusicAlbumStructureTabState
                   ? const SizedBox.shrink()
                   : MusicTrackTextField(
                       id: 'music-track-duration-${track.id.value}',
-                      initialValue:
-                          formatMusicTrackDuration(track.durationMs) ?? '',
+                      initialValue: widget.draft.trackDurationText(track),
                       keyboardType: TextInputType.datetime,
                       hint: 'MM:SS',
-                      onChanged: (value) {
-                        final parsed = parseMusicTrackDurationMs(value);
-                        if (value.trim().isNotEmpty && parsed == null) return;
-                        _replaceTrack(
-                          disc,
-                          index,
-                          musicTrackWithEdits(
-                            track,
-                            title: track.title,
-                            position: track.position,
-                            artist: track.artist ?? '',
-                            durationMs: parsed,
-                          ),
-                          previousTrack: track,
-                          rebuild: false,
-                        );
-                      },
+                      onChanged: (value) => widget.draft.setTrackDurationText(
+                        disc.id,
+                        index,
+                        value,
+                      ),
                     ),
             ),
             SizedBox(

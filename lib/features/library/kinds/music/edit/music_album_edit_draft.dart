@@ -3,6 +3,7 @@ import 'package:collectarr_app/features/library/kinds/music/domain/music_disc.da
 import 'package:collectarr_app/features/library/kinds/music/domain/music_album.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_track.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_ids.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_track_duration.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_album_relations.dart';
 import 'package:collectarr_app/features/library/kinds/music/forms/music_catalog_form_adapters.dart';
 import 'package:collectarr_app/features/library/kinds/music/forms/music_album_form_values.dart';
@@ -23,6 +24,45 @@ final class MusicAlbumEditDraft {
   List<MusicAlbumContribution> contributions;
   final List<MusicDisc> discs;
   List<MusicExternalLink> externalLinks;
+  final Map<String, String> _rawTrackDurationInputs = {};
+
+  bool get hasInvalidTrackDurationInput => _rawTrackDurationInputs.values.any(
+        (value) =>
+            value.trim().isNotEmpty && parseMusicTrackDurationMs(value) == null,
+      );
+
+  String trackDurationText(MusicTrack track) =>
+      _rawTrackDurationInputs[track.id.value] ??
+      formatMusicTrackDuration(track.durationMs) ??
+      '';
+
+  void setTrackDurationText(
+    MusicDiscId discId,
+    int index,
+    String value,
+  ) {
+    final disc = discs.where((candidate) => candidate.id == discId).firstOrNull;
+    if (disc == null || index < 0 || index >= disc.tracks.length) return;
+    final track = disc.tracks[index];
+    final normalized = value.trim();
+    final durationMs = parseMusicTrackDurationMs(value);
+    if (normalized.isNotEmpty && durationMs == null) {
+      _rawTrackDurationInputs[track.id.value] = value;
+      return;
+    }
+    _rawTrackDurationInputs.remove(track.id.value);
+    replaceTrack(
+      discId,
+      index,
+      musicTrackWithEdits(
+        track,
+        title: track.title,
+        position: track.position,
+        artist: track.artist ?? '',
+        durationMs: durationMs,
+      ),
+    );
+  }
 
   void addDisc() {
     final nextNumber = discs.fold<int>(
@@ -45,6 +85,9 @@ final class MusicAlbumEditDraft {
   void removeDisc(MusicDiscId discId) {
     final index = discs.indexWhere((disc) => disc.id == discId);
     if (index < 0) return;
+    for (final track in discs[index].tracks) {
+      _rawTrackDurationInputs.remove(track.id.value);
+    }
     discs.removeAt(index);
     _renumberDiscs();
   }
@@ -290,6 +333,8 @@ final class MusicAlbumEditDraft {
     final discIndex = discs.indexWhere((disc) => disc.id == discId);
     if (discIndex < 0) return;
     final disc = discs[discIndex];
+    _rawTrackDurationInputs
+        .removeWhere((trackId, _) => trackIds.contains(trackId));
     final remaining = disc.tracks
         .where((track) => !trackIds.contains(track.id.value))
         .map(

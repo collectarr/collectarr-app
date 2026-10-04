@@ -46,7 +46,7 @@ LibraryFormSchema<MusicAddManualDraft> musicAddSchemaFor({
               track.duration.trim().isNotEmpty && track.durationMs == null,
         ),
       )) {
-        return 'Track lengths must use MM:SS or HH:MM:SS';
+        return 'Track lengths must use seconds, MM:SS, or HH:MM:SS';
       }
       return null;
     },
