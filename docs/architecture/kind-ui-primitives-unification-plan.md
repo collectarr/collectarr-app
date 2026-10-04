@@ -396,7 +396,8 @@ Still outstanding:
   contributor. Common Add controls bind those declared fields to the typed
   common draft; kind-specific controls remain contributed by their kind pane.
 - The controller audit now disposes Comic lookup-search, Music listening-note,
-  user-folder prompt, and image-detail prompt controllers in `finally` blocks.
+  user-folder prompt, image-detail prompt, and ordered-name sort prompt
+  controllers in `finally` blocks.
   The remaining dialog-local Music and TV controllers already use `finally`,
   while credit, image, tracking, and form controllers remain owned by their
   state or typed drafts.

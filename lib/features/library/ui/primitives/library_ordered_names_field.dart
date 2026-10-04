@@ -93,25 +93,30 @@ class _LibraryOrderedNamesFieldState extends State<LibraryOrderedNamesField> {
                             onPressed: () async {
                               final controller = TextEditingController(
                                   text: value.sortName ?? value.name);
-                              final result = await showDialog<String>(
-                                  context: context,
-                                  builder: (ctx) => AlertDialog(
-                                        title: const Text('Sort Name'),
-                                        content: LibraryTextFormControl(
-                                            controller: controller,
-                                            autofocus: true),
-                                        actions: [
-                                          TextButton(
-                                              onPressed: () =>
-                                                  Navigator.pop(ctx),
-                                              child: const Text('Cancel')),
-                                          FilledButton(
-                                              onPressed: () => Navigator.pop(
-                                                  ctx, controller.text.trim()),
-                                              child: const Text('Save'))
-                                        ],
-                                      ));
-                              controller.dispose();
+                              String? result;
+                              try {
+                                result = await showDialog<String>(
+                                    context: context,
+                                    builder: (ctx) => AlertDialog(
+                                          title: const Text('Sort Name'),
+                                          content: LibraryTextFormControl(
+                                              controller: controller,
+                                              autofocus: true),
+                                          actions: [
+                                            TextButton(
+                                                onPressed: () =>
+                                                    Navigator.pop(ctx),
+                                                child: const Text('Cancel')),
+                                            FilledButton(
+                                                onPressed: () => Navigator.pop(
+                                                    ctx,
+                                                    controller.text.trim()),
+                                                child: const Text('Save'))
+                                          ],
+                                        ));
+                              } finally {
+                                controller.dispose();
+                              }
                               if (result != null && mounted) {
                                 _update(value.id, value.name, result);
                               }
