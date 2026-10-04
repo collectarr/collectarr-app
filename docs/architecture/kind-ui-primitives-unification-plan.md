@@ -248,6 +248,8 @@ Completed implementation slices:
   same base text-form control and common minimum height.
 - Add and Edit purchase amounts now use the same minor-unit money control,
   currency prefix, parsing, and non-negative validation.
+- Add Purchase Date now uses the same labelled date-part control and picker as
+  Edit, including explicit clearing and consistent year/month/day entry.
 - Add Location now uses the shared dropdown and supports an explicit no-location
   choice that remains distinct from the dialog's default location.
 - Add Condition now uses the same labelled pick-field primitive as Edit, with

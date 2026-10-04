@@ -11,7 +11,6 @@ import 'package:collectarr_app/features/library/ui/primitives/library_personal_f
 import 'package:collectarr_app/features/library/ui/primitives/library_multi_value_options_dialog.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_multi_value_pick_field.dart';
 import 'package:collectarr_app/features/pick_lists/pick_list_options.dart';
-import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
 /// Shared personal fields supported by the manual Add submission path.
@@ -59,7 +58,7 @@ final class LibraryAddManualPersonalTab extends StatelessWidget {
           ),
         ),
       _locationField(locationId),
-      _purchaseDateField(context, date),
+      _purchaseDateField(date),
       LibraryMoneyAmountField(
         key: const ValueKey('manual-price'),
         label: 'Purchase Price',
@@ -208,36 +207,14 @@ final class LibraryAddManualPersonalTab extends StatelessWidget {
     );
   }
 
-  Widget _purchaseDateField(BuildContext context, DateTime? currentDate) =>
-      LibraryFormField(
+  Widget _purchaseDateField(DateTime? currentDate) => LibraryDateFieldButton(
         label: 'Purchase Date',
-        child: InkWell(
-          onTap: () async {
-            final selected = await showDatePicker(
-              context: context,
-              initialDate: currentDate ?? DateTime.now(),
-              firstDate: DateTime(1),
-              lastDate: DateTime(9999),
-            );
-            if (selected == null) return;
-            request.purchaseDateController.text = _dateText(selected);
-            _updateCommon(purchaseDate: selected);
-          },
-          child: InputDecorator(
-            decoration: const InputDecoration(
-              suffixIcon: Icon(Icons.calendar_month_outlined),
-              constraints: BoxConstraints(minHeight: kLibraryFormControlHeight),
-            ),
-            child: Text(
-              currentDate == null ? 'Select a date' : _dateText(currentDate),
-              style: TextStyle(
-                color: currentDate == null
-                    ? appPalette(context).textMuted
-                    : appPalette(context).textPrimary,
-              ),
-            ),
-          ),
-        ),
+        value: currentDate,
+        onChanged: (selected) {
+          request.purchaseDateController.text =
+              selected == null ? '' : _dateText(selected);
+          _updateCommon(purchaseDate: selected);
+        },
       );
 
   void _updateCommon({
