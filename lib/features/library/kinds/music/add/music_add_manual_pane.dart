@@ -10,9 +10,10 @@ import 'package:collectarr_app/features/library/kinds/music/add/music_add_manual
 import 'package:collectarr_app/features/library/kinds/music/add/music_add_manual_links_tab.dart';
 import 'package:collectarr_app/features/library/kinds/music/add/music_add_schema.dart';
 import 'package:collectarr_app/features/library/kinds/music/add/music_add_manual_tracks_tab.dart';
+import 'package:collectarr_app/features/library/kinds/music/forms/music_grade_field.dart';
+import 'package:collectarr_app/features/library/kinds/music/vocabulary/music_vocabularies.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit/music_signed_by_personal_field.dart';
 import 'package:collectarr_app/features/pick_lists/pick_list_options.dart';
-import 'package:collectarr_app/features/library/ui/primitives/library_dropdown_pick_field.dart';
 import 'package:flutter/material.dart';
 
 class MusicAddManualPane extends StatelessWidget {
@@ -147,14 +148,8 @@ class MusicAddManualPane extends StatelessWidget {
           content: LibraryAddManualPersonalTab(
             request: request,
             kindSpecificFields: [
-              LibraryDropdownPickField<String>(
-                label: 'Grade',
+              MusicGradeField(
                 value: personalDraft.grade,
-                options: const [
-                  LibraryFieldOption(value: 'Ungraded', label: 'Ungraded'),
-                ],
-                allowCustomValue: true,
-                clearOptionLabel: 'Clear grade',
                 onChanged: (value) {
                   final update = request.onKindDraftChanged;
                   if (update == null) {
@@ -163,6 +158,11 @@ class MusicAddManualPane extends StatelessWidget {
                     );
                   }
                   update(personalDraft.copyWith(grade: value));
+                  request.onVocabularyValueChanged?.call(
+                    fieldId: 'grade',
+                    listName: MusicVocabularies.grade.key,
+                    value: value == 'Ungraded' ? null : value,
+                  );
                 },
               ),
               MusicSignedByPersonalField(

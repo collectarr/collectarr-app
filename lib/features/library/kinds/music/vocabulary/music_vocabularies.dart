@@ -9,6 +9,7 @@ import 'package:collectarr_app/features/library/kinds/music/music_country_name.d
 
 abstract final class MusicVocabularyIds {
   static const condition = VocabularyId<String>('music.condition');
+  static const grade = VocabularyId<String>('music.grade');
   static const format = VocabularyId<String>('music.format');
   static const packaging = VocabularyId<String>('music.packaging');
   static const recordLabel = VocabularyId<String>('music.record_label');
@@ -147,6 +148,12 @@ abstract final class MusicVocabularies {
     ],
   );
 
+  static const grade = VocabularyDefinition<String>(
+    id: MusicVocabularyIds.grade,
+    label: 'Grade',
+    builtIns: ['Ungraded'],
+  );
+
   static const format = VocabularyDefinition<String>(
     id: MusicVocabularyIds.format,
     label: 'Format',
@@ -266,6 +273,7 @@ abstract final class MusicVocabularies {
 
   static const all = <VocabularyDefinition<dynamic>>[
     condition,
+    grade,
     format,
     packaging,
     recordLabel,

@@ -14,6 +14,8 @@ import 'package:collectarr_app/features/library/kinds/music/domain/music_album_i
 import 'package:collectarr_app/features/library/kinds/music/data/music_album_image_repository.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit/music_album_structure_tabs.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit/music_album_credits_tab.dart';
+import 'package:collectarr_app/features/library/kinds/music/forms/music_grade_field.dart';
+import 'package:collectarr_app/features/library/kinds/music/vocabulary/music_vocabularies.dart';
 import 'package:collectarr_app/features/library/edit/schema/edit_schema_renderer.dart';
 import 'package:collectarr_app/features/library/edit/sections/custom_fields_edit_section.dart';
 import 'package:collectarr_app/features/library/edit/contracts/library_vocabulary_edit_change.dart';
@@ -291,6 +293,29 @@ final class _MusicAlbumEditDialogState
       LibraryEntryPersonalSection(
         draft: personal,
         kindSpecificFields: [
+          MusicGradeField(
+            value: personal.text('grade'),
+            onChanged: (value) {
+              personal.set('grade', value ?? '');
+              final normalized = value?.trim();
+              final vocabularyChangeKey =
+                  'vocabulary:${MusicVocabularies.grade.key}';
+              if (normalized == null ||
+                  normalized.isEmpty ||
+                  normalized == 'Ungraded') {
+                personal.pendingChanges.remove(vocabularyChangeKey);
+              } else {
+                personal.pendingChanges[vocabularyChangeKey] =
+                    LibraryVocabularyEditChange([
+                  (
+                    listName: MusicVocabularies.grade.key,
+                    value: normalized,
+                    mediaKind: 'music',
+                  ),
+                ]);
+              }
+            },
+          ),
           MusicSignedByPersonalField(
             value: personal.text('signed_by'),
             onChanged: (value) {

@@ -304,6 +304,9 @@ Completed implementation slices:
   text field with matching autofocus, multiline limits, and optional hints.
 - Cover-scan review inputs for the local label and recognized text now use the
   shared labelled control without changing OCR/edit callbacks.
+- Music Grade now uses one kind-owned pick-list field in Add and Edit. Both
+  flows include the local grade vocabulary, support custom grades, and stage
+  new values with the entry save.
 - Music Add and Edit disc metadata, track titles/artists/lengths, and disc-owned
   storage details now use the same input primitive and minimum control height.
 - Music Add and Edit track title, artist, and duration fields now share one
