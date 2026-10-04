@@ -100,6 +100,7 @@ final class _MusicAddManualLinksTabState extends State<MusicAddManualLinksTab> {
           accent: widget.accent,
           addLabel: 'New Link',
           emptyMessage: 'No links added yet.',
+          showTitleColumn: true,
           onAdd: _add,
           onReorder: _reorder,
           onRemoveSelected: _removeSelected,

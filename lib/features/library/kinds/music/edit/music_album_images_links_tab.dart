@@ -97,6 +97,7 @@ final class _MusicAlbumLinksTabState extends State<MusicAlbumLinksTab> {
               ],
               accent: widget.accent,
               addLabel: 'New Link',
+              showTitleColumn: true,
               onAdd: _add,
               onReorder: _reorder,
               onRemoveSelected: _removeSelected,

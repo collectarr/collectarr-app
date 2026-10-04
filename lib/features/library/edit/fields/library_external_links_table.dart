@@ -40,6 +40,7 @@ final class LibraryExternalLinksTable<TIdentity extends Object>
     required this.onRemoveSelected,
     this.onChanged,
     this.emptyMessage = 'No links added yet.',
+    this.showTitleColumn = false,
   });
 
   final List<LibraryExternalLinkEditRow<TIdentity>> rows;
@@ -51,6 +52,7 @@ final class LibraryExternalLinksTable<TIdentity extends Object>
       onRemoveSelected;
   final VoidCallback? onChanged;
   final String emptyMessage;
+  final bool showTitleColumn;
 
   @override
   State<LibraryExternalLinksTable<TIdentity>> createState() =>
@@ -117,7 +119,7 @@ final class _LibraryExternalLinksTableState<TIdentity extends Object>
     final selecting = _selectedKeys.isNotEmpty;
     final allSelected =
         widget.rows.isNotEmpty && _selectedKeys.length == widget.rows.length;
-    final hasTitleColumn =
+    final hasTitleColumn = widget.showTitleColumn ||
         widget.rows.any((row) => row.titleController != null);
 
     return Column(
