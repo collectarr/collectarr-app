@@ -22,6 +22,36 @@ const _animeEntryTabs = [
     sectionIds: ['purchase', 'value_summary'],
   ),
   LibraryEditTabSpec(
+    id: 'media',
+    icon: Icons.article_outlined,
+    label: 'Details',
+  ),
+  LibraryEditTabSpec(
+    id: 'edition',
+    icon: Icons.inventory_2_outlined,
+    label: 'Edition',
+  ),
+  LibraryEditTabSpec(
+    id: 'cast',
+    icon: Icons.people_outline,
+    label: 'Cast',
+  ),
+  LibraryEditTabSpec(
+    id: 'crew',
+    icon: Icons.work_outline,
+    label: 'Crew',
+  ),
+  LibraryEditTabSpec(
+    id: 'specs',
+    icon: Icons.tune_outlined,
+    label: 'Specs',
+  ),
+  LibraryEditTabSpec(
+    id: 'links',
+    icon: Icons.public,
+    label: 'Links',
+  ),
+  LibraryEditTabSpec(
     id: 'personal',
     icon: Icons.person,
     label: 'Personal',
@@ -78,6 +108,36 @@ const _animeTrackedTabs = [
     sectionIds: ['tracking_personal', 'wishlist_reference'],
   ),
   LibraryEditTabSpec(
+    id: 'media',
+    icon: Icons.article_outlined,
+    label: 'Details',
+  ),
+  LibraryEditTabSpec(
+    id: 'edition',
+    icon: Icons.inventory_2_outlined,
+    label: 'Edition',
+  ),
+  LibraryEditTabSpec(
+    id: 'cast',
+    icon: Icons.people_outline,
+    label: 'Cast',
+  ),
+  LibraryEditTabSpec(
+    id: 'crew',
+    icon: Icons.work_outline,
+    label: 'Crew',
+  ),
+  LibraryEditTabSpec(
+    id: 'specs',
+    icon: Icons.tune_outlined,
+    label: 'Specs',
+  ),
+  LibraryEditTabSpec(
+    id: 'links',
+    icon: Icons.public,
+    label: 'Links',
+  ),
+  LibraryEditTabSpec(
     id: 'cover',
     icon: Icons.image,
     label: 'Cover',
@@ -97,6 +157,36 @@ const _animeCatalogTabs = [
     icon: Icons.article,
     label: 'Main',
     sectionIds: ['catalog_snapshot'],
+  ),
+  LibraryEditTabSpec(
+    id: 'media',
+    icon: Icons.article_outlined,
+    label: 'Details',
+  ),
+  LibraryEditTabSpec(
+    id: 'edition',
+    icon: Icons.inventory_2_outlined,
+    label: 'Edition',
+  ),
+  LibraryEditTabSpec(
+    id: 'cast',
+    icon: Icons.people_outline,
+    label: 'Cast',
+  ),
+  LibraryEditTabSpec(
+    id: 'crew',
+    icon: Icons.work_outline,
+    label: 'Crew',
+  ),
+  LibraryEditTabSpec(
+    id: 'specs',
+    icon: Icons.tune_outlined,
+    label: 'Specs',
+  ),
+  LibraryEditTabSpec(
+    id: 'links',
+    icon: Icons.public,
+    label: 'Links',
   ),
   LibraryEditTabSpec(
     id: 'cover',
