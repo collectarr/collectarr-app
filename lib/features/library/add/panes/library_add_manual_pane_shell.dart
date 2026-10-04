@@ -36,18 +36,32 @@ class LibraryAddManualPaneShell extends StatefulWidget {
 class _LibraryAddManualPaneShellState extends State<LibraryAddManualPaneShell>
     with SingleTickerProviderStateMixin {
   late final GlobalKey<FormState> _formKey;
+  late final TextEditingController _catalogTitleController;
   late TabController _tabController;
 
   @override
   void initState() {
     super.initState();
     _formKey = GlobalKey<FormState>();
+    _catalogTitleController = TextEditingController(
+      text: widget.request.manualDraft.catalogTitle,
+    )..addListener(_handleCatalogTitleChanged);
     _tabController = TabController(length: _tabCount(widget), vsync: this);
+  }
+
+  void _handleCatalogTitleChanged() {
+    widget.request.manualDraft.catalogTitle = _catalogTitleController.text;
+    if (mounted) setState(() {});
   }
 
   @override
   void didUpdateWidget(covariant LibraryAddManualPaneShell oldWidget) {
     super.didUpdateWidget(oldWidget);
+    if (!identical(oldWidget.request.manualDraft, widget.request.manualDraft)) {
+      _catalogTitleController.removeListener(_handleCatalogTitleChanged);
+      _catalogTitleController.text = widget.request.manualDraft.catalogTitle;
+      _catalogTitleController.addListener(_handleCatalogTitleChanged);
+    }
     if (_tabCount(oldWidget) == _tabCount(widget)) return;
     final previousIndex = _tabController.index;
     _tabController.dispose();
@@ -66,6 +80,7 @@ class _LibraryAddManualPaneShellState extends State<LibraryAddManualPaneShell>
   @override
   void dispose() {
     _tabController.dispose();
+    _catalogTitleController.dispose();
     super.dispose();
   }
 
@@ -78,50 +93,40 @@ class _LibraryAddManualPaneShellState extends State<LibraryAddManualPaneShell>
         LibraryAddManualPaneTab(
           label: 'Custom Fields',
           icon: Icons.edit_note_outlined,
-          content: EditTabShell(
-            children: [
-              CustomFieldsEditSection(
-                definitions: request.customFieldDefinitions,
-                values: request.customFieldValues,
-                accent: request.accent,
-                mediaKind: request.kind.apiValue,
-                onChanged: (values) =>
-                    request.onCustomFieldValuesChanged?.call(values),
-                onCustomValueChanged: (fieldId, value) {
-                  request.onVocabularyValueChanged?.call(
-                    fieldId: 'customField:$fieldId',
-                    listName: 'customField:$fieldId',
-                    value: value,
-                  );
-                },
-              ),
-            ],
+          content: CustomFieldsEditSection(
+            definitions: request.customFieldDefinitions,
+            values: request.customFieldValues,
+            accent: request.accent,
+            mediaKind: request.kind.apiValue,
+            onChanged: (values) =>
+                request.onCustomFieldValuesChanged?.call(values),
+            onCustomValueChanged: (fieldId, value) {
+              request.onVocabularyValueChanged?.call(
+                fieldId: 'customField:$fieldId',
+                listName: 'customField:$fieldId',
+                value: value,
+              );
+            },
           ),
         ),
       LibraryAddManualPaneTab(
         label: 'My Images',
         icon: Icons.photo_library_outlined,
-        content: EditTabShell(
-          children: [
-            ItemImagesEditSection(
-              images: request.itemImages,
-              accent: request.accent,
-              onChanged: request.onItemImagesChanged ?? (_) {},
-            ),
-          ],
+        content: ItemImagesEditSection(
+          images: request.itemImages,
+          accent: request.accent,
+          onChanged: request.onItemImagesChanged ?? (_) {},
         ),
       ),
     ];
     final badges = <Widget>[
-      const LibraryAddResultBadge('main'),
-      LibraryAddResultBadge('entry defaults', accent: request.accent),
       if (request.defaultLocationLabel != null)
         LibraryAddResultBadge(
           request.defaultLocationLabel!,
           accent: request.accent,
         ),
     ];
-    final enteredTitle = request.manualDraft.catalogTitle.trim();
+    final enteredTitle = _catalogTitleController.text.trim();
     final headerTitle = enteredTitle.isEmpty
         ? 'Add ${request.type.identity.singularLabel}'
         : enteredTitle;
@@ -141,13 +146,11 @@ class _LibraryAddManualPaneShellState extends State<LibraryAddManualPaneShell>
           EditTabShell(
             children: [
               if (index == 0 && widget.showCatalogTitleField)
-                TextFormField(
-                  initialValue: request.manualDraft.catalogTitle,
-                  onChanged: (value) {
-                    request.manualDraft.catalogTitle = value;
-                    setState(() {});
-                  },
-                  decoration: const InputDecoration(labelText: 'Title'),
+                LibraryEditTextField(
+                  controller: _catalogTitleController,
+                  label: 'Title',
+                  validator: (value) =>
+                      value?.trim().isNotEmpty == true ? null : 'Enter a title',
                 ),
               if (index == 0 && widget.identityDetails != null) ...[
                 const SizedBox(height: 10),
