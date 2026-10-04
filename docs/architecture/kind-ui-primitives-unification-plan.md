@@ -72,6 +72,9 @@ Completed implementation slices:
 - The Movie, TV, and Anime edit-tab helper files no longer carry unused
   responsive-field wrappers. TV/Anime credit tabs adapt their typed controller
   rows directly to the shared editor; Add credit-field parity remains open.
+- The unused legacy `TagPickListField` implementation has been removed after
+  confirming it had no application callers. Its golden fixture is deferred to
+  the final test cleanup, as requested.
 - Manga Edit now uses explicit kind-data patches for Genres, Themes, Authors,
   Artists, nullable publication fields, and partial release dates. Empty lists
   and blank nullable values clear stored data instead of restoring the previous
@@ -259,8 +262,8 @@ Evidence: `edit/fields/edit_dialog_widgets.dart`,
 `TextFormField`s and their decoration labels. `LibraryVocabularyField` renders
 multi-value vocabularies with the shared chip field and single-value
 vocabularies with the labelled dropdown control. The old tag-pick-list widget
-has no application caller and remains only as a public export and golden
-fixture pending final cleanup.
+had no application caller and its implementation and barrel export have been
+removed; its golden fixture remains for the final test cleanup.
 
 The Add and Edit schema renderers still have separate lifecycle and tab
 orchestration, but both delegate field geometry to shared layout primitives.
