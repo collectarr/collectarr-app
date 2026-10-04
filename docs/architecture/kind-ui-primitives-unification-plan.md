@@ -400,6 +400,13 @@ Still outstanding:
   The remaining dialog-local Music and TV controllers already use `finally`,
   while credit, image, tracking, and form controllers remain owned by their
   state or typed drafts.
+- Previous/Next Edit navigation now restores the selected tab by its stable
+  tab ID instead of its numeric position. This keeps the same section selected
+  when item-specific tab visibility or ordering differs. The request-switching
+  host remounts the entry form for a new item, so its text controllers are not
+  reused across unrelated drafts. The Comic Edit controllers are created by
+  the request-backed session factory and disposed with that session; Game
+  schema controls remain owned by the shared renderer.
 - Legacy custom tabs and kind-specific tab composition still have divergent
   implementations. Responsive field geometry and the basic vocabulary/text
   controls are now shared. Book Authors/Translators and Movie Cast/Crew share

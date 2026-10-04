@@ -8,6 +8,7 @@ import 'package:collectarr_app/features/library/ui/library_panel_header.dart';
 import 'package:collectarr_app/ui/adaptive/window_class.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart' show listEquals;
 
 enum LibraryEditChromeVariant {
   standard,
@@ -24,6 +25,7 @@ class LibraryEditDialogScaffold extends StatefulWidget {
     required this.badges,
     this.tabController,
     this.tabs = const [],
+    this.tabIds = const [],
     this.views = const [],
     this.body,
     this.footerContent,
@@ -53,6 +55,9 @@ class LibraryEditDialogScaffold extends StatefulWidget {
   final List<Widget> badges;
   final TabController? tabController;
   final List<Widget> tabs;
+
+  /// Stable identities in the same source order as [tabs].
+  final List<String> tabIds;
   final List<Widget> views;
   final Widget? body;
   final Widget? footerContent;
@@ -97,20 +102,39 @@ class _LibraryEditDialogScaffoldState extends State<LibraryEditDialogScaffold> {
     _observedTabController = controller;
     if (controller == null) return;
 
-    final savedIndex = loadLibraryEditTabSelection(widget.tabOrderKey);
-    if (savedIndex != null && controller.length > 0) {
-      controller.index = savedIndex.clamp(0, controller.length - 1).toInt();
-    }
+    _restoreSelectedTab(controller);
     controller.addListener(_rememberSelectedTab);
     _rememberSelectedTab();
   }
 
+  void _restoreSelectedTab(TabController controller) {
+    final savedTabId = loadLibraryEditTabSelection(widget.tabOrderKey);
+    if (savedTabId == null || controller.length == 0 || widget.tabIds.isEmpty) {
+      return;
+    }
+    final sourceIndex = widget.tabIds.indexOf(savedTabId);
+    if (sourceIndex < 0) {
+      controller.index = 0;
+      return;
+    }
+    final visibleIndex = _tabOrder.indexOf(sourceIndex);
+    controller.index = (visibleIndex < 0 ? 0 : visibleIndex)
+        .clamp(0, controller.length - 1)
+        .toInt();
+  }
+
   void _rememberSelectedTab() {
     final controller = _observedTabController;
-    if (controller == null) return;
+    if (controller == null ||
+        controller.length == 0 ||
+        controller.index >= _tabOrder.length) {
+      return;
+    }
+    final sourceIndex = _tabOrder[controller.index];
+    if (sourceIndex < 0 || sourceIndex >= widget.tabIds.length) return;
     saveLibraryEditTabSelection(
       storageKey: widget.tabOrderKey,
-      index: controller.index,
+      tabId: widget.tabIds[sourceIndex],
     );
   }
 
@@ -121,6 +145,8 @@ class _LibraryEditDialogScaffoldState extends State<LibraryEditDialogScaffold> {
     );
     if (!mounted || order == null) return;
     setState(() => _tabOrder = order);
+    final controller = widget.tabController;
+    if (controller != null) _restoreSelectedTab(controller);
   }
 
   Future<void> _saveTabOrder() async {
@@ -134,7 +160,8 @@ class _LibraryEditDialogScaffoldState extends State<LibraryEditDialogScaffold> {
   void didUpdateWidget(LibraryEditDialogScaffold oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.tabController != widget.tabController ||
-        oldWidget.tabOrderKey != widget.tabOrderKey) {
+        oldWidget.tabOrderKey != widget.tabOrderKey ||
+        !listEquals(oldWidget.tabIds, widget.tabIds)) {
       _observeTabController(widget.tabController);
     }
     if (!widget.allowTabReorder) {
@@ -143,6 +170,8 @@ class _LibraryEditDialogScaffoldState extends State<LibraryEditDialogScaffold> {
     }
     if (widget.tabs.length != _tabOrder.length) {
       _tabOrder = List.generate(widget.tabs.length, (i) => i);
+      final controller = widget.tabController;
+      if (controller != null) _restoreSelectedTab(controller);
     }
   }
 

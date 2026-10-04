@@ -9,18 +9,18 @@ const double kLibraryEditTabStripContainerHeight = 33;
 
 // Keep the current selection in memory so Previous/Next can open the next
 // item's editor on the same kind-and-scope tab without persisting it as a
-// long-term preference.
-final Map<String, int> _activeEditTabIndexes = {};
+// long-term preference. Stable tab IDs survive per-item tab visibility changes.
+final Map<String, String> _activeEditTabIds = {};
 
-int? loadLibraryEditTabSelection(String? storageKey) =>
-    storageKey == null ? null : _activeEditTabIndexes[storageKey];
+String? loadLibraryEditTabSelection(String? storageKey) =>
+    storageKey == null ? null : _activeEditTabIds[storageKey];
 
 void saveLibraryEditTabSelection({
   required String? storageKey,
-  required int index,
+  required String tabId,
 }) {
-  if (storageKey == null || index < 0) return;
-  _activeEditTabIndexes[storageKey] = index;
+  if (storageKey == null || tabId.isEmpty) return;
+  _activeEditTabIds[storageKey] = tabId;
 }
 
 Future<List<int>?> loadLibraryEditTabOrder({

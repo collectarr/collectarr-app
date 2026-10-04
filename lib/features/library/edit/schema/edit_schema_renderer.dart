@@ -3,6 +3,7 @@ import 'package:collectarr_app/features/library/edit/contracts/library_vocabular
 import 'dart:async';
 import 'dart:math' as math;
 
+import 'package:flutter/foundation.dart' show listEquals;
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_tab_strip.dart';
 import 'package:collectarr_app/features/library/schema/library_field_spec_control_builder.dart';
@@ -132,6 +133,7 @@ class EditSchemaRendererState<TModel, TDraft>
   final Map<String, FocusNode> _fieldFocusNodes = {};
   late List<int> _tabOrder;
   late int _selectedTabIndex;
+  String? _selectedTabId;
   final Map<String, Map<String, ({String listName, String value})>>
       _pendingVocabularyValues = {};
   bool _isSaving = false;
@@ -141,9 +143,19 @@ class EditSchemaRendererState<TModel, TDraft>
   @override
   void initState() {
     super.initState();
-    _selectedTabIndex = loadLibraryEditTabSelection(widget.tabOrderKey) ??
-        widget.initialTabIndex;
     _tabOrder = List.generate(_totalTabCount, (index) => index);
+    final savedTabId = loadLibraryEditTabSelection(widget.tabOrderKey);
+    final savedSourceIndex = _sourceIndexForTabId(savedTabId);
+    final visibleIndexes = _orderedVisibleTabIndexes();
+    final savedVisibleIndex = savedSourceIndex == null
+        ? -1
+        : visibleIndexes.indexOf(savedSourceIndex);
+    _selectedTabIndex = savedVisibleIndex >= 0
+        ? savedVisibleIndex
+        : _boundedInitialTabIndex(visibleIndexes.length);
+    _selectedTabId = savedVisibleIndex >= 0
+        ? savedTabId
+        : _tabIdForVisibleIndex(visibleIndexes, _selectedTabIndex);
     _rememberSelectedTab();
     if (widget.showTabBar && _totalTabCount > 0) {
       _loadSavedTabOrder();
@@ -151,10 +163,43 @@ class EditSchemaRendererState<TModel, TDraft>
   }
 
   void _rememberSelectedTab() {
+    final visibleIndexes = _orderedVisibleTabIndexes();
+    _selectedTabId ??= _tabIdForVisibleIndex(visibleIndexes, _selectedTabIndex);
     saveLibraryEditTabSelection(
       storageKey: widget.tabOrderKey,
-      index: _selectedTabIndex,
+      tabId: _selectedTabId ?? '',
     );
+  }
+
+  int _boundedInitialTabIndex(int visibleTabCount) {
+    if (visibleTabCount == 0) return 0;
+    return widget.initialTabIndex.clamp(0, visibleTabCount - 1).toInt();
+  }
+
+  int? _sourceIndexForTabId(String? tabId) {
+    if (tabId == null) return null;
+    for (var index = 0; index < widget.schema.tabs.length; index++) {
+      if (widget.schema.tabs[index].id == tabId) return index;
+    }
+    for (var index = 0; index < widget.extraTabs.length; index++) {
+      if (widget.extraTabs[index].id == tabId) {
+        return widget.schema.tabs.length + index;
+      }
+    }
+    return null;
+  }
+
+  String? _tabIdForSourceIndex(int sourceIndex) {
+    if (sourceIndex < 0 || sourceIndex >= _totalTabCount) return null;
+    if (sourceIndex < widget.schema.tabs.length) {
+      return widget.schema.tabs[sourceIndex].id;
+    }
+    return widget.extraTabs[sourceIndex - widget.schema.tabs.length].id;
+  }
+
+  String? _tabIdForVisibleIndex(List<int> visibleIndexes, int index) {
+    if (index < 0 || index >= visibleIndexes.length) return null;
+    return _tabIdForSourceIndex(visibleIndexes[index]);
   }
 
   int get _totalTabCount => widget.schema.tabs.length + widget.extraTabs.length;
@@ -166,7 +211,22 @@ class EditSchemaRendererState<TModel, TDraft>
     );
     if (!mounted) return;
     if (order != null) {
-      setState(() => _tabOrder = order);
+      setState(() {
+        _tabOrder = order;
+        final visibleIndexes = _orderedVisibleTabIndexes();
+        final selectedSourceIndex = _sourceIndexForTabId(_selectedTabId);
+        final selectedVisibleIndex = selectedSourceIndex == null
+            ? -1
+            : visibleIndexes.indexOf(selectedSourceIndex);
+        if (selectedVisibleIndex >= 0) {
+          _selectedTabIndex = selectedVisibleIndex;
+        } else {
+          _selectedTabIndex = _boundedInitialTabIndex(visibleIndexes.length);
+          _selectedTabId =
+              _tabIdForVisibleIndex(visibleIndexes, _selectedTabIndex);
+        }
+      });
+      _rememberSelectedTab();
       return;
     }
 
@@ -186,7 +246,20 @@ class EditSchemaRendererState<TModel, TDraft>
             index++)
           index,
       ];
+      final visibleIndexes = _orderedVisibleTabIndexes();
+      final selectedSourceIndex = _sourceIndexForTabId(_selectedTabId);
+      final selectedVisibleIndex = selectedSourceIndex == null
+          ? -1
+          : visibleIndexes.indexOf(selectedSourceIndex);
+      if (selectedVisibleIndex >= 0) {
+        _selectedTabIndex = selectedVisibleIndex;
+      } else {
+        _selectedTabIndex = _boundedInitialTabIndex(visibleIndexes.length);
+        _selectedTabId =
+            _tabIdForVisibleIndex(visibleIndexes, _selectedTabIndex);
+      }
     });
+    _rememberSelectedTab();
   }
 
   Future<void> _saveTabOrder() {
@@ -241,6 +314,7 @@ class EditSchemaRendererState<TModel, TDraft>
       _tabOrder = [...visibleOrder, ...hiddenOrder];
       if (selectedSourceIndex != null) {
         _selectedTabIndex = visibleOrder.indexOf(selectedSourceIndex);
+        _selectedTabId = _tabIdForSourceIndex(selectedSourceIndex);
       }
     });
     _rememberSelectedTab();
@@ -259,10 +333,25 @@ class EditSchemaRendererState<TModel, TDraft>
   @override
   void didUpdateWidget(EditSchemaRenderer<TModel, TDraft> oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.schema.tabs.length != widget.schema.tabs.length ||
-        oldWidget.extraTabs.length != widget.extraTabs.length) {
+    final oldTabIds = [
+      for (final tab in oldWidget.schema.tabs) tab.id,
+      for (final tab in oldWidget.extraTabs) tab.id,
+    ];
+    final nextTabIds = [
+      for (final tab in widget.schema.tabs) tab.id,
+      for (final tab in widget.extraTabs) tab.id,
+    ];
+    if (!listEquals(oldTabIds, nextTabIds)) {
       _tabOrder = List.generate(_totalTabCount, (index) => index);
-      _selectedTabIndex = 0;
+      final visibleIndexes = _orderedVisibleTabIndexes();
+      final selectedSourceIndex = _sourceIndexForTabId(_selectedTabId);
+      final selectedVisibleIndex = selectedSourceIndex == null
+          ? -1
+          : visibleIndexes.indexOf(selectedSourceIndex);
+      _selectedTabIndex = selectedVisibleIndex >= 0
+          ? selectedVisibleIndex
+          : _boundedInitialTabIndex(visibleIndexes.length);
+      _selectedTabId = _tabIdForVisibleIndex(visibleIndexes, _selectedTabIndex);
       _rememberSelectedTab();
       if (widget.showTabBar && _totalTabCount > 0) {
         _loadSavedTabOrder();
@@ -284,6 +373,8 @@ class EditSchemaRendererState<TModel, TDraft>
     );
     if (selectedIndex != _selectedTabIndex) {
       _selectedTabIndex = selectedIndex;
+      _selectedTabId =
+          _tabIdForVisibleIndex(visibleTabIndexes, _selectedTabIndex);
       _rememberSelectedTab();
     }
 
@@ -353,6 +444,7 @@ class EditSchemaRendererState<TModel, TDraft>
         selectedIndex: selectedIndex,
         onSelect: (index) => setState(() {
           _selectedTabIndex = index;
+          _selectedTabId = _tabIdForVisibleIndex(tabIndexes, index);
           _rememberSelectedTab();
         }),
         allowReorder: true,

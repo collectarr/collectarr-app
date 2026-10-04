@@ -379,6 +379,7 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
       tabs: [
         for (final tab in _tabSpecs) EditTab(icon: tab.icon, label: tab.label)
       ],
+      tabIds: [for (final tab in _tabSpecs) tab.id],
       views: _tabViews(),
       onClose: () => Navigator.of(context).pop(),
       onCancel: () => Navigator.of(context).pop(),
