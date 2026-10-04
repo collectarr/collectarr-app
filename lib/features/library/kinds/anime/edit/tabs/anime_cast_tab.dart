@@ -32,6 +32,11 @@ class AnimeEditCastTab extends StatelessWidget {
       ],
       onAdd: () =>
           animeEdit.castCredits.add(EditableAnimeCredit.custom(role: 'Actor')),
+      onRemove: (index) => animeEdit.castCredits.removeAt(index).dispose(),
+      onReorder: (oldIndex, newIndex) {
+        final credit = animeEdit.castCredits.removeAt(oldIndex);
+        animeEdit.castCredits.insert(newIndex, credit);
+      },
       onChanged: markDirty,
     );
   }

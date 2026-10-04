@@ -32,6 +32,11 @@ class TvEditCastTab extends StatelessWidget {
       ],
       onAdd: () =>
           tvEdit.castCredits.add(EditableTvCredit.custom(role: 'Actor')),
+      onRemove: (index) => tvEdit.castCredits.removeAt(index).dispose(),
+      onReorder: (oldIndex, newIndex) {
+        final credit = tvEdit.castCredits.removeAt(oldIndex);
+        tvEdit.castCredits.insert(newIndex, credit);
+      },
       onChanged: markDirty,
     );
   }

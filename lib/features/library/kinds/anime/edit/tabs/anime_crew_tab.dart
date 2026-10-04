@@ -32,6 +32,11 @@ class AnimeEditCrewTab extends StatelessWidget {
       ],
       onAdd: () => animeEdit.crewCredits
           .add(EditableAnimeCredit.custom(role: 'Director')),
+      onRemove: (index) => animeEdit.crewCredits.removeAt(index).dispose(),
+      onReorder: (oldIndex, newIndex) {
+        final credit = animeEdit.crewCredits.removeAt(oldIndex);
+        animeEdit.crewCredits.insert(newIndex, credit);
+      },
       onChanged: markDirty,
     );
   }

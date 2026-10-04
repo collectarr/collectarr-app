@@ -27,6 +27,8 @@ final class LibraryVideoCreditsSection extends StatelessWidget {
     required this.accent,
     required this.credits,
     required this.onAdd,
+    required this.onRemove,
+    required this.onReorder,
     required this.onChanged,
   });
 
@@ -36,6 +38,8 @@ final class LibraryVideoCreditsSection extends StatelessWidget {
   final Color accent;
   final List<LibraryVideoCreditControllers> credits;
   final VoidCallback onAdd;
+  final ValueChanged<int> onRemove;
+  final void Function(int oldIndex, int newIndex) onReorder;
   final VoidCallback onChanged;
 
   @override
@@ -54,35 +58,61 @@ final class LibraryVideoCreditsSection extends StatelessWidget {
                       icon: Icons.person_outline,
                     )
                   else
-                    Column(
-                      children: [
-                        for (final credit in credits)
-                          Padding(
-                            key: ObjectKey(credit.identity),
-                            padding: const EdgeInsets.only(bottom: 8),
-                            child: Row(
-                              children: [
-                                Expanded(
-                                  child: LibraryEditTextField(
-                                    controller: credit.name,
-                                    label: 'Name',
-                                    maxLines: 1,
-                                    onChanged: (_) => onChanged(),
-                                  ),
+                    ReorderableListView.builder(
+                      shrinkWrap: true,
+                      primary: false,
+                      physics: const NeverScrollableScrollPhysics(),
+                      buildDefaultDragHandles: false,
+                      itemCount: credits.length,
+                      onReorderItem: (oldIndex, newIndex) {
+                        onReorder(oldIndex, newIndex);
+                        setState(() {});
+                        onChanged();
+                      },
+                      itemBuilder: (context, index) {
+                        final credit = credits[index];
+                        return Padding(
+                          key: ObjectKey(credit.identity),
+                          padding: const EdgeInsets.only(bottom: 8),
+                          child: Row(
+                            children: [
+                              ReorderableDragStartListener(
+                                index: index,
+                                child:
+                                    const Icon(Icons.drag_indicator, size: 18),
+                              ),
+                              const SizedBox(width: 6),
+                              Expanded(
+                                child: LibraryEditTextField(
+                                  controller: credit.name,
+                                  label: 'Name',
+                                  maxLines: 1,
+                                  onChanged: (_) => onChanged(),
                                 ),
-                                const SizedBox(width: 8),
-                                Expanded(
-                                  child: LibraryEditTextField(
-                                    controller: credit.role,
-                                    label: 'Role',
-                                    maxLines: 1,
-                                    onChanged: (_) => onChanged(),
-                                  ),
+                              ),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: LibraryEditTextField(
+                                  controller: credit.role,
+                                  label: 'Role',
+                                  maxLines: 1,
+                                  onChanged: (_) => onChanged(),
                                 ),
-                              ],
-                            ),
+                              ),
+                              IconButton(
+                                tooltip: 'Remove ${title.toLowerCase()} credit',
+                                visualDensity: VisualDensity.compact,
+                                onPressed: () {
+                                  onRemove(index);
+                                  setState(() {});
+                                  onChanged();
+                                },
+                                icon: const Icon(Icons.close, size: 18),
+                              ),
+                            ],
                           ),
-                      ],
+                        );
+                      },
                     ),
                   const SizedBox(height: 8),
                   OutlinedButton.icon(

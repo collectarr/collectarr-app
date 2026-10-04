@@ -32,6 +32,11 @@ class TvEditCrewTab extends StatelessWidget {
       ],
       onAdd: () =>
           tvEdit.crewCredits.add(EditableTvCredit.custom(role: 'Director')),
+      onRemove: (index) => tvEdit.crewCredits.removeAt(index).dispose(),
+      onReorder: (oldIndex, newIndex) {
+        final credit = tvEdit.crewCredits.removeAt(oldIndex);
+        tvEdit.crewCredits.insert(newIndex, credit);
+      },
       onChanged: markDirty,
     );
   }
