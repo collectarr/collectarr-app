@@ -1,15 +1,15 @@
 import 'dart:async';
 
 import 'package:collectarr_app/features/library/add/schema/add_schema.dart';
-import 'package:collectarr_app/features/library/kinds/book/add/book_add_manual_draft.dart';
+import 'package:collectarr_app/features/library/kinds/book/forms/book_catalog_form_draft.dart';
 import 'package:collectarr_app/features/library/kinds/book/forms/book_catalog_field_specs.dart';
 import 'package:collectarr_app/features/library/kinds/book/forms/book_catalog_form_values.dart';
 import 'package:collectarr_app/features/library/kinds/book/forms/book_person_credits_field.dart';
 import 'package:collectarr_app/features/library/kinds/book/vocabulary/book_vocabularies.dart';
 
-final AddSchema<BookAddManualDraft> bookAddSchema = bookAddSchemaFor();
+final AddSchema<BookCatalogFormDraft> bookAddSchema = bookAddSchemaFor();
 
-AddSchema<BookAddManualDraft> bookAddSchemaFor({
+AddSchema<TDraft> bookAddSchemaFor<TDraft extends BookCatalogFormDraft>({
   Set<String>? fieldIds,
   Map<String, String> sectionLabels = const {},
   Iterable<String>? publisherOptions,
@@ -17,9 +17,9 @@ AddSchema<BookAddManualDraft> bookAddSchemaFor({
   FutureOr<void> Function()? onManagePublisher,
   FutureOr<void> Function()? onManageFormat,
 }) {
-  BookCatalogFormValues values(BookAddManualDraft draft) => draft.values;
+  BookCatalogFormValues values(TDraft draft) => draft.values;
 
-  return AddSchema<BookAddManualDraft>(
+  return AddSchema<TDraft>(
     title: (_) => 'Manual book',
     validate: (draft) {
       final pageCount = draft.values.pageCount;
@@ -33,18 +33,27 @@ AddSchema<BookAddManualDraft> bookAddSchemaFor({
       return null;
     },
     sections: _filterSections(fieldIds, sectionLabels, [
-      AddSectionSpec<BookAddManualDraft>(
+      AddSectionSpec<TDraft>(
         id: 'edition',
         label: 'Edition',
         fields: [
-          libraryAddCatalogTitleField<BookAddManualDraft>(),
-          LibraryTextFieldSpec<BookAddManualDraft>(
+          libraryAddCatalogTitleField<TDraft>(),
+          ...bookCatalogIdentityFields(
+            values: values,
+            include: {
+              'sort_title',
+              'subtitle',
+              'original_title',
+              'localized_title',
+            },
+          ),
+          LibraryTextFieldSpec<TDraft>(
             id: 'number',
             label: 'Number',
             value: (draft) => values(draft).number,
             setValue: (draft, value) => values(draft).number = value,
           ),
-          LibraryTextFieldSpec<BookAddManualDraft>(
+          LibraryTextFieldSpec<TDraft>(
             id: 'variant',
             label: 'Variant',
             value: (draft) => values(draft).variant,
@@ -55,6 +64,7 @@ AddSchema<BookAddManualDraft> bookAddSchemaFor({
             titleLabel: 'Edition title',
             include: {
               'title',
+              'binding',
               'format',
               'isbn',
               'release_date',
@@ -62,6 +72,13 @@ AddSchema<BookAddManualDraft> bookAddSchemaFor({
               'imprint',
               'language',
               'cover_image_url',
+              'thumbnail_image_url',
+              'region',
+              'release_status',
+              'edition_statement',
+              'dimensions',
+              'first_edition',
+              'audio_length_minutes',
             },
             formatOptions: formatOptions ?? BookVocabularies.format.builtIns,
             publisherOptions:
@@ -69,13 +86,13 @@ AddSchema<BookAddManualDraft> bookAddSchemaFor({
             onManageFormat: onManageFormat,
             onManagePublisher: onManagePublisher,
           ),
-          LibraryTextFieldSpec<BookAddManualDraft>(
+          LibraryTextFieldSpec<TDraft>(
             id: 'barcode',
             label: 'Barcode',
             value: (draft) => values(draft).upc,
             setValue: (draft, value) => values(draft).upc = value,
           ),
-          LibraryNumberFieldSpec<BookAddManualDraft>(
+          LibraryNumberFieldSpec<TDraft>(
             id: 'publication_year',
             label: 'Publication year',
             value: (draft) => values(draft).publicationYear?.toDouble(),
@@ -86,11 +103,11 @@ AddSchema<BookAddManualDraft> bookAddSchemaFor({
         ],
         fullWidthFieldIds: const {'catalog_title'},
       ),
-      AddSectionSpec<BookAddManualDraft>(
+      AddSectionSpec<TDraft>(
         id: 'publication',
         label: 'Publication and metadata',
         fields: [
-          LibraryTextFieldSpec<BookAddManualDraft>(
+          LibraryTextFieldSpec<TDraft>(
             id: 'series_group',
             label: 'Series group',
             value: (draft) => values(draft).seriesGroup,
@@ -98,9 +115,9 @@ AddSchema<BookAddManualDraft> bookAddSchemaFor({
           ),
           ...bookCatalogEditionFields(
             values: values,
-            include: {'distributor', 'page_count'},
+            include: {'distributor', 'page_count', 'series_title'},
           ),
-          LibraryCustomFieldSpec<BookAddManualDraft>(
+          LibraryCustomFieldSpec<TDraft>(
             id: 'authors',
             label: 'Authors',
             builder: (context, draft) => BookPersonCreditsField(
@@ -110,7 +127,7 @@ AddSchema<BookAddManualDraft> bookAddSchemaFor({
               onChanged: (credits) => values(draft).authors = credits,
             ),
           ),
-          LibraryCustomFieldSpec<BookAddManualDraft>(
+          LibraryCustomFieldSpec<TDraft>(
             id: 'translators',
             label: 'Translators',
             builder: (context, draft) => BookPersonCreditsField(
@@ -120,7 +137,7 @@ AddSchema<BookAddManualDraft> bookAddSchemaFor({
               onChanged: (credits) => values(draft).translators = credits,
             ),
           ),
-          LibraryTextFieldSpec<BookAddManualDraft>(
+          LibraryTextFieldSpec<TDraft>(
             id: 'characters',
             label: 'Characters',
             value: (draft) => values(draft).characters,
@@ -128,15 +145,22 @@ AddSchema<BookAddManualDraft> bookAddSchemaFor({
           ),
           ...bookPublicationHistoryFields(
             values: values,
-            include: {'genres', 'subjects'},
+            include: {
+              'original_language',
+              'first_publication_date',
+              'original_publication_date',
+              'genres',
+              'subjects',
+              'search_aliases',
+            },
           ),
-          LibraryTextFieldSpec<BookAddManualDraft>(
+          LibraryTextFieldSpec<TDraft>(
             id: 'age_rating',
             label: 'Age rating',
             value: (draft) => values(draft).ageRating,
             setValue: (draft, value) => values(draft).ageRating = value,
           ),
-          LibraryTextFieldSpec<BookAddManualDraft>(
+          LibraryTextFieldSpec<TDraft>(
             id: 'country',
             label: 'Country',
             value: (draft) => values(draft).country,
@@ -147,7 +171,7 @@ AddSchema<BookAddManualDraft> bookAddSchemaFor({
             include: {'description'},
             descriptionLabel: 'Synopsis',
           ),
-          LibraryTextFieldSpec<BookAddManualDraft>(
+          LibraryTextFieldSpec<TDraft>(
             id: 'back_cover_image_url',
             label: 'Back cover image URL',
             value: (draft) => values(draft).backCoverImageUrl,
@@ -159,10 +183,10 @@ AddSchema<BookAddManualDraft> bookAddSchemaFor({
   );
 }
 
-List<AddSectionSpec<BookAddManualDraft>> _filterSections(
+List<AddSectionSpec<TDraft>> _filterSections<TDraft>(
   Set<String>? fieldIds,
   Map<String, String> sectionLabels,
-  List<AddSectionSpec<BookAddManualDraft>> sections,
+  List<AddSectionSpec<TDraft>> sections,
 ) {
   if (fieldIds == null && sectionLabels.isEmpty) return sections;
   return [
@@ -170,7 +194,7 @@ List<AddSectionSpec<BookAddManualDraft>> _filterSections(
       if (section.fields
           .where((field) => fieldIds == null || fieldIds.contains(field.id))
           .isNotEmpty)
-        AddSectionSpec<BookAddManualDraft>(
+        AddSectionSpec<TDraft>(
           id: section.id,
           label: sectionLabels[section.id] ?? section.label,
           fields: [

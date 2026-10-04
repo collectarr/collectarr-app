@@ -6,6 +6,8 @@ final class BookCatalogFormValues {
     this.title = '',
     this.sortTitle = '',
     this.subtitle = '',
+    this.originalTitle = '',
+    this.localizedTitle = '',
     this.description = '',
     this.originalLanguage = '',
     this.firstPublicationDate,
@@ -48,6 +50,8 @@ final class BookCatalogFormValues {
   String title;
   String sortTitle;
   String subtitle;
+  String originalTitle;
+  String localizedTitle;
   String description;
   String originalLanguage;
   DateTime? firstPublicationDate;

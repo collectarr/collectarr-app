@@ -1,0 +1,41 @@
+const bookMainFieldIds = {
+  'catalog_title',
+  'sort_title',
+  'subtitle',
+  'original_title',
+  'localized_title',
+  'number',
+  'variant',
+  'title',
+  'binding',
+  'format',
+  'release_date',
+  'publisher',
+  'imprint',
+  'language',
+  'publication_year',
+  'series_group',
+  'distributor',
+  'page_count',
+  'characters',
+  'genres',
+  'subjects',
+  'age_rating',
+  'country',
+  'region',
+  'release_status',
+  'edition_statement',
+  'dimensions',
+  'first_edition',
+  'audio_length_minutes',
+  'original_language',
+  'first_publication_date',
+  'original_publication_date',
+  'search_aliases',
+  'series_title',
+};
+
+const bookCreditFieldIds = {'authors', 'translators'};
+const bookLinkFieldIds = {'isbn', 'barcode'};
+const bookCoverFieldIds = {'cover_image_url', 'back_cover_image_url'};
+const bookPlotFieldIds = {'description'};

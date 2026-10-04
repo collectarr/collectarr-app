@@ -41,6 +41,18 @@ List<LibraryFieldSpec<TDraft>> bookCatalogIdentityFields<TDraft>({
         setValue: (draft, value) => values(draft).description = value,
         maxLines: 4,
       ),
+      LibraryTextFieldSpec<TDraft>(
+        id: 'original_title',
+        label: 'Original Title',
+        value: (draft) => values(draft).originalTitle,
+        setValue: (draft, value) => values(draft).originalTitle = value,
+      ),
+      LibraryTextFieldSpec<TDraft>(
+        id: 'localized_title',
+        label: 'Localized Title',
+        value: (draft) => values(draft).localizedTitle,
+        setValue: (draft, value) => values(draft).localizedTitle = value,
+      ),
     ].where((field) => include == null || include.contains(field.id)).toList();
 
 List<LibraryFieldSpec<TDraft>> bookPublicationHistoryFields<TDraft>({
@@ -112,6 +124,7 @@ List<LibraryFieldSpec<TDraft>> bookCatalogEditionFields<TDraft>({
         value: (draft) => values(draft).binding,
         setValue: (draft, value) => values(draft).binding = value,
         options: bindingOptions ?? BookVocabularies.binding.builtIns,
+        pickListKey: BookVocabularyIds.binding.value,
         onManage: onManageBinding,
       ),
       _vocabulary<TDraft>(
@@ -120,6 +133,7 @@ List<LibraryFieldSpec<TDraft>> bookCatalogEditionFields<TDraft>({
         value: (draft) => values(draft).format,
         setValue: (draft, value) => values(draft).format = value,
         options: formatOptions ?? BookVocabularies.format.builtIns,
+        pickListKey: BookVocabularyIds.format.value,
         onManage: onManageFormat,
       ),
       LibraryTextFieldSpec<TDraft>(
@@ -140,6 +154,7 @@ List<LibraryFieldSpec<TDraft>> bookCatalogEditionFields<TDraft>({
         value: (draft) => values(draft).publisher,
         setValue: (draft, value) => values(draft).publisher = value,
         options: publisherOptions ?? BookVocabularies.publisher.builtIns,
+        pickListKey: BookVocabularyIds.publisher.value,
         onManage: onManagePublisher,
       ),
       LibraryTextFieldSpec<TDraft>(
@@ -173,6 +188,7 @@ List<LibraryFieldSpec<TDraft>> bookCatalogEditionFields<TDraft>({
         value: (draft) => values(draft).language,
         setValue: (draft, value) => values(draft).language = value,
         options: languageOptions ?? BookVocabularies.language.builtIns,
+        pickListKey: BookVocabularyIds.language.value,
       ),
       LibraryTextFieldSpec<TDraft>(
         id: 'region',
@@ -204,6 +220,12 @@ List<LibraryFieldSpec<TDraft>> bookCatalogEditionFields<TDraft>({
         value: (draft) => values(draft).description,
         setValue: (draft, value) => values(draft).description = value,
         maxLines: 4,
+      ),
+      LibraryTextFieldSpec<TDraft>(
+        id: 'series_title',
+        label: 'Series',
+        value: (draft) => values(draft).seriesTitle,
+        setValue: (draft, value) => values(draft).seriesTitle = value,
       ),
       LibraryToggleFieldSpec<TDraft>(
         id: 'first_edition',
@@ -239,6 +261,7 @@ LibraryVocabularyFieldSpec<TDraft, String> _vocabulary<TDraft>({
   required String Function(TDraft draft) value,
   required void Function(TDraft draft, String value) setValue,
   required Iterable<String> options,
+  String? pickListKey,
   FutureOr<void> Function()? onManage,
 }) =>
     LibraryVocabularyFieldSpec<TDraft, String>(
@@ -253,6 +276,7 @@ LibraryVocabularyFieldSpec<TDraft, String> _vocabulary<TDraft>({
         for (final option in options)
           LibraryFieldOption<String>(value: option, label: option),
       ],
+      pickListKey: pickListKey,
       onManage: onManage == null ? null : (_) => onManage(),
     );
 

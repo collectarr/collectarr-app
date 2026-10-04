@@ -2,10 +2,13 @@ import 'package:collectarr_app/features/library/edit/draft/library_edit_shell_st
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/domain/library_entity_scope.dart';
 import 'package:collectarr_app/features/library/edit/schema/edit_schema_renderer.dart';
+import 'package:collectarr_app/features/library/add/schema/add_schema_renderer.dart';
+import 'package:collectarr_app/features/library/kinds/book/add/book_add_schema.dart';
 import 'package:collectarr_app/features/library/kinds/book/edit/book_edit_draft.dart';
-import 'package:collectarr_app/features/library/kinds/book/edit/tabs/book_identifiers_tab.dart';
 import 'package:collectarr_app/features/library/kinds/book/edit/entry/book_entry_edit_schema.dart';
 import 'package:collectarr_app/features/library/kinds/book/forms/book_person_credits_field.dart';
+import 'package:collectarr_app/features/library/kinds/book/forms/book_catalog_form_field_ids.dart';
+import 'package:collectarr_app/features/library/kinds/book/vocabulary/book_vocabularies.dart';
 import 'package:collectarr_app/features/library/kinds/book/entries/book_entry_details.dart';
 import 'package:collectarr_app/features/library/kinds/book/entries/book_entry_details_draft.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
@@ -20,7 +23,16 @@ Widget? buildBookCustomTabView({
   required CatalogSearchCandidate item,
   required VoidCallback markDirty,
 }) {
-  if (tabId != 'credits' && tabId != 'entry' && tabId != 'links') return null;
+  if (!{
+    'main',
+    'credits',
+    'entry',
+    'links',
+    'covers',
+    'plot',
+  }.contains(tabId)) {
+    return null;
+  }
   final kindDraft = draft.session.catalogItemSession;
   if (kindDraft is! BookEditDraft) {
     throw StateError('Expected BookEditDraft for Book editing');
@@ -31,9 +43,9 @@ Widget? buildBookCustomTabView({
         BookPersonCreditsField(
           label: 'Authors',
           role: 'Author',
-          credits: kindDraft.authorCredits,
+          credits: kindDraft.values.authors,
           onChanged: (credits) {
-            kindDraft.authorCredits = credits;
+            kindDraft.values.authors = credits;
             markDirty();
           },
         ),
@@ -41,29 +53,112 @@ Widget? buildBookCustomTabView({
         BookPersonCreditsField(
           label: 'Translators',
           role: 'Translator',
-          credits: kindDraft.translatorCredits,
+          credits: kindDraft.values.translators,
           onChanged: (credits) {
-            kindDraft.translatorCredits = credits;
+            kindDraft.values.translators = credits;
             markDirty();
           },
         ),
       ],
     );
   }
-  if (tabId == 'links') {
-    return BookIdentifiersTab(
+  if (tabId != 'main' &&
+      tabId != 'links' &&
+      tabId != 'covers' &&
+      tabId != 'plot') {
+    final detailsDraft = kindDraft.toDetailsDraft() as BookEntryDetailsDraft;
+    final details = detailsDraft.toDetails();
+    return EditSchemaRenderer<BookEntryDetails, BookEditDraft>.embedded(
+      schema: bookEntryEditSchema,
+      model: details,
       draft: kindDraft,
-      accent: accent,
-      markDirty: markDirty,
+      mediaKind: draft.type.kind.apiValue,
+      showTabBar: false,
     );
   }
-  final detailsDraft = kindDraft.toDetailsDraft() as BookEntryDetailsDraft;
-  final details = detailsDraft.toDetails();
-  return EditSchemaRenderer<BookEntryDetails, BookEditDraft>.embedded(
-    schema: bookEntryEditSchema,
-    model: details,
-    draft: kindDraft,
-    mediaKind: draft.type.kind.apiValue,
-    showTabBar: false,
+
+  final fieldIds = switch (tabId) {
+    'main' => bookMainFieldIds,
+    'links' => bookLinkFieldIds,
+    'covers' => bookCoverFieldIds,
+    _ => bookPlotFieldIds,
+  };
+  final sectionLabels = switch (tabId) {
+    'main' => const {'edition': 'Edition', 'publication': 'Publication'},
+    'links' => const {'edition': 'Identifiers'},
+    'covers' => const {'edition': 'Front cover', 'publication': 'Back cover'},
+    _ => const {'publication': 'Plot'},
+  };
+  final schema = bookAddSchemaFor<BookEditDraft>(
+    fieldIds: fieldIds,
+    sectionLabels: sectionLabels,
+    publisherOptions: _options(
+      draft,
+      BookVocabularyIds.publisher.value,
+      BookVocabularies.publisher.builtIns,
+    ),
+    formatOptions: _options(
+      draft,
+      BookVocabularyIds.format.value,
+      BookVocabularies.format.builtIns,
+    ),
+  );
+  return EditTabShell(
+    children: [
+      AddSchemaRenderer<BookEditDraft>.embedded(
+        key: ValueKey('book-fields-${draft.type.kind.apiValue}-$tabId'),
+        schema: schema,
+        draft: kindDraft,
+        mediaKind: draft.type.kind.apiValue,
+        onChanged: markDirty,
+        onVocabularyValueChanged: ({
+          required fieldId,
+          required listName,
+          required value,
+        }) {
+          draft.recordPendingVocabularyValue(
+            fieldId: fieldId,
+            listName: listName,
+            value: value,
+            options: _optionsForField(draft, fieldId),
+            allowCustomValues: true,
+            mediaKind: draft.type.kind.apiValue,
+          );
+        },
+      ),
+    ],
   );
 }
+
+List<String> _options(
+  LibraryEditShellState draft,
+  String key,
+  Iterable<String> fallback,
+) =>
+    draft.kindVocabularies[key]?.toList(growable: false) ??
+    fallback.toList(growable: false);
+
+List<String> _optionsForField(LibraryEditShellState draft, String fieldId) =>
+    switch (fieldId) {
+      'publisher' => _options(
+          draft,
+          BookVocabularyIds.publisher.value,
+          BookVocabularies.publisher.builtIns,
+        ),
+      'format' => _options(
+          draft,
+          BookVocabularyIds.format.value,
+          BookVocabularies.format.builtIns,
+        ),
+      'binding' => _options(
+          draft,
+          BookVocabularyIds.binding.value,
+          BookVocabularies.binding.builtIns,
+        ),
+      'language' => _options(
+          draft,
+          BookVocabularyIds.language.value,
+          BookVocabularies.language.builtIns,
+        ),
+      _ => const <String>[],
+    };

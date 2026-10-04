@@ -7,35 +7,13 @@ import 'package:collectarr_app/features/library/add/schema/add_schema_renderer.d
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
 import 'package:collectarr_app/features/library/kinds/book/add/book_add_schema.dart';
 import 'package:collectarr_app/features/library/kinds/book/add/book_add_manual_draft.dart';
+import 'package:collectarr_app/features/library/kinds/book/forms/book_catalog_form_draft.dart';
+import 'package:collectarr_app/features/library/kinds/book/forms/book_catalog_form_field_ids.dart';
 import 'package:collectarr_app/features/library/kinds/book/vocabulary/book_vocabularies.dart';
 import 'package:collectarr_app/features/library/providers/media_catalog_provider.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
-const _bookMainFieldIds = {
-  'catalog_title',
-  'number',
-  'variant',
-  'title',
-  'format',
-  'release_date',
-  'publisher',
-  'imprint',
-  'language',
-  'publication_year',
-  'series_group',
-  'distributor',
-  'page_count',
-  'characters',
-  'genres',
-  'subjects',
-  'age_rating',
-  'country',
-};
-const _bookCreditFieldIds = {'authors', 'translators'};
-const _bookLinkFieldIds = {'isbn', 'barcode'};
-const _bookCoverFieldIds = {'cover_image_url', 'back_cover_image_url'};
 
 class BookAddManualPane extends ConsumerStatefulWidget {
   const BookAddManualPane({super.key, required this.request});
@@ -118,7 +96,7 @@ class _BookAddManualPaneState extends ConsumerState<BookAddManualPane> {
       Set<String> fieldIds, {
       Map<String, String> sectionLabels = const {},
     }) =>
-        AddSchemaRenderer<BookAddManualDraft>.embedded(
+        AddSchemaRenderer<BookCatalogFormDraft>.embedded(
           schema: bookAddSchemaFor(
             fieldIds: fieldIds,
             sectionLabels: sectionLabels,
@@ -152,7 +130,7 @@ class _BookAddManualPaneState extends ConsumerState<BookAddManualPane> {
       tabs: [
         LibraryAddManualPaneTab.main(
           content: buildFields(
-            _bookMainFieldIds,
+            bookMainFieldIds,
             sectionLabels: const {
               'edition': 'Edition',
               'publication': 'Publication',
@@ -164,7 +142,7 @@ class _BookAddManualPaneState extends ConsumerState<BookAddManualPane> {
           label: 'Credits',
           icon: Icons.groups_2_outlined,
           content: buildFields(
-            _bookCreditFieldIds,
+            bookCreditFieldIds,
             sectionLabels: const {'publication': 'Credits'},
           ),
         ),
@@ -173,7 +151,7 @@ class _BookAddManualPaneState extends ConsumerState<BookAddManualPane> {
           label: 'Links',
           icon: Icons.public,
           content: buildFields(
-            _bookLinkFieldIds,
+            bookLinkFieldIds,
             sectionLabels: const {'edition': 'Identifiers'},
           ),
         ),
@@ -182,7 +160,7 @@ class _BookAddManualPaneState extends ConsumerState<BookAddManualPane> {
           label: 'Covers',
           icon: Icons.photo_camera_outlined,
           content: buildFields(
-            _bookCoverFieldIds,
+            bookCoverFieldIds,
             sectionLabels: const {
               'edition': 'Front cover',
               'publication': 'Back cover',
@@ -194,7 +172,7 @@ class _BookAddManualPaneState extends ConsumerState<BookAddManualPane> {
           label: 'Plot',
           icon: Icons.description_outlined,
           content: buildFields(
-            const {'description'},
+            bookPlotFieldIds,
             sectionLabels: const {'publication': 'Plot'},
           ),
         ),
