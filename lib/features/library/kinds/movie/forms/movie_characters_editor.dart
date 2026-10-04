@@ -138,14 +138,11 @@ class _MovieCharactersEditorState extends State<MovieCharactersEditor> {
                             ),
                             const SizedBox(width: 6),
                             Expanded(
-                              child: TextFormField(
+                              child: LibraryTextFormControl(
                                 key: ValueKey('$identity-name'),
                                 initialValue: character.name,
                                 decoration: const InputDecoration(
                                   hintText: 'Character name',
-                                  constraints: BoxConstraints(
-                                    minHeight: kLibraryFormControlHeight,
-                                  ),
                                 ),
                                 onChanged: (name) => _updateCharacter(
                                   index,
@@ -261,15 +258,10 @@ class _MovieCharactersEditorState extends State<MovieCharactersEditor> {
   }) =>
       LibraryFormField(
         label: label,
-        child: TextFormField(
+        child: LibraryTextFormControl(
           key: ValueKey('character-detail-$identity-$label'),
           initialValue: value,
           maxLines: maxLines,
-          decoration: InputDecoration(
-            constraints: const BoxConstraints(
-              minHeight: kLibraryFormControlHeight,
-            ),
-          ),
           onChanged: onChanged,
         ),
       );

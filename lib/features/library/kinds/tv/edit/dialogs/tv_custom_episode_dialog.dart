@@ -1,6 +1,7 @@
 import 'package:collectarr_app/core/models/library_entry_ref.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_tracking.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_tracking_mutation_provider.dart';
+import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
 import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -49,74 +50,67 @@ Future<void> showTvCustomEpisodeDialog(
                   Row(
                     children: [
                       Expanded(
-                        child: TextField(
+                        child: LibraryEditTextField(
                           controller: seasonController,
                           keyboardType: TextInputType.number,
-                          decoration:
-                              const InputDecoration(labelText: 'Season'),
+                          label: 'Season',
                         ),
                       ),
                       const SizedBox(width: 12),
                       Expanded(
-                        child: TextField(
+                        child: LibraryEditTextField(
                           controller: episodeController,
                           keyboardType: TextInputType.number,
-                          decoration:
-                              const InputDecoration(labelText: 'Episode'),
+                          label: 'Episode',
                         ),
                       ),
                     ],
                   ),
                   const SizedBox(height: 12),
-                  TextField(
+                  LibraryEditTextField(
                     controller: titleController,
-                    decoration: const InputDecoration(labelText: 'Title'),
+                    label: 'Title',
                   ),
                   const SizedBox(height: 12),
-                  TextField(
+                  LibraryEditTextField(
                     controller: overviewController,
                     maxLines: 3,
-                    decoration: const InputDecoration(labelText: 'Overview'),
+                    minLines: 3,
+                    label: 'Overview',
                   ),
                   const SizedBox(height: 12),
                   Row(
                     children: [
                       Expanded(
-                        child: TextField(
+                        child: LibraryEditTextField(
                           controller: airDateController,
-                          decoration:
-                              const InputDecoration(labelText: 'Air date'),
+                          label: 'Air date',
                         ),
                       ),
                       const SizedBox(width: 12),
                       Expanded(
-                        child: TextField(
+                        child: LibraryEditTextField(
                           controller: runtimeController,
                           keyboardType: TextInputType.number,
-                          decoration:
-                              const InputDecoration(labelText: 'Runtime (min)'),
+                          label: 'Runtime (min)',
                         ),
                       ),
                     ],
                   ),
                   const SizedBox(height: 12),
-                  TextField(
+                  LibraryEditTextField(
                     controller: stillController,
-                    decoration:
-                        const InputDecoration(labelText: 'Still image URL'),
+                    label: 'Still image URL',
                   ),
                   const SizedBox(height: 12),
-                  TextField(
+                  LibraryEditTextField(
                     controller: thumbnailController,
-                    decoration: const InputDecoration(
-                      labelText: 'Thumbnail image URL',
-                    ),
+                    label: 'Thumbnail image URL',
                   ),
                   const SizedBox(height: 12),
-                  TextField(
+                  LibraryEditTextField(
                     controller: localImageController,
-                    decoration:
-                        const InputDecoration(labelText: 'Local image path'),
+                    label: 'Local image path',
                   ),
                 ],
               ),

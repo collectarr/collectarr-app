@@ -263,6 +263,10 @@ Completed implementation slices:
   the same built-in and selected-value choices.
 - Add and Edit Notes now use one multiline field with matching labels and line
   limits while keeping their existing controller and draft ownership.
+- The common text control now supports initial values and multiline/expanding
+  layouts. Movie character details, Comic's remaining multiline catalog and
+  personal inputs, and the TV custom episode dialog use it instead of raw
+  per-kind text controls.
 - Add and Edit Personal sections now share one responsive four/two/one-column
   field grid, with long fields and history rendered across the full width.
 - Kind Add/Edit fields and metadata comparison views now use consistent title
@@ -425,8 +429,8 @@ Evidence: `edit/fields/edit_dialog_widgets.dart`,
 `ui/primitives/library_selection_fields.dart`, and the schema control builder.
 
 `LibraryEditTextField` now composes `LibraryFormField` and the common
-`LibraryTextFormControl`. Some kind-specific custom tabs still use raw
-`TextFormField`s and their decoration labels. `LibraryVocabularyField` renders
+`LibraryTextFormControl`. Music's structured track and cover editors, plus
+small search/lookup dialogs, still contain raw text controls. `LibraryVocabularyField` renders
 multi-value vocabularies with the shared chip field and single-value
 vocabularies with the labelled dropdown control. The old tag-pick-list widget
 had no application caller and its implementation and barrel export have been

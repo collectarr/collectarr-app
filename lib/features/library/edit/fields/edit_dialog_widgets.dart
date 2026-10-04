@@ -356,6 +356,8 @@ class LibraryEditTextField extends StatelessWidget {
     this.validator,
     this.onChanged,
     this.maxLines = 1,
+    this.minLines,
+    this.expands = false,
     this.keyboardType,
   });
 
@@ -364,7 +366,9 @@ class LibraryEditTextField extends StatelessWidget {
   final String? hint;
   final String? Function(String?)? validator;
   final ValueChanged<String>? onChanged;
-  final int maxLines;
+  final int? maxLines;
+  final int? minLines;
+  final bool expands;
   final TextInputType? keyboardType;
 
   @override
@@ -375,7 +379,9 @@ class LibraryEditTextField extends StatelessWidget {
         controller: controller,
         validator: validator,
         onChanged: onChanged,
+        minLines: minLines,
         maxLines: maxLines,
+        expands: expands,
         keyboardType: keyboardType,
         decoration: InputDecoration(
           hintText: hint,

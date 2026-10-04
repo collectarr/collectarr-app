@@ -131,14 +131,11 @@ extension ComicEditTabBuilders on ComicEditHost {
               LibraryEditResponsiveRow(children: [
                 LibraryEditTextField(
                     controller: comicSortKeyController, label: 'Sort Title'),
-                TextFormField(
+                LibraryEditTextField(
                   controller: comicSearchAliasesController,
-                  minLines: 1,
                   maxLines: 3,
-                  decoration: const InputDecoration(
-                    labelText: 'Search Aliases',
-                    hintText: 'Comma-separated aliases',
-                  ),
+                  label: 'Search Aliases',
+                  hint: 'Comma-separated aliases',
                 ),
               ]),
               const SizedBox(height: 10),
@@ -308,24 +305,18 @@ extension ComicEditTabBuilders on ComicEditHost {
                 ),
               ]),
               const SizedBox(height: 10),
-              TextFormField(
+              LibraryEditTextField(
                 controller: comicTrackingNotesController,
+                label: 'Tracking notes',
                 minLines: 2,
                 maxLines: 4,
-                decoration: const InputDecoration(
-                  labelText: 'Tracking notes',
-                  border: OutlineInputBorder(),
-                ),
               ),
               const SizedBox(height: 10),
-              TextFormField(
+              LibraryEditTextField(
                 controller: comicNotesController,
+                label: 'Personal notes',
                 minLines: 4,
                 maxLines: 7,
-                decoration: const InputDecoration(
-                  labelText: 'Personal notes',
-                  alignLabelWithHint: true,
-                ),
               ),
             ],
           ),
@@ -495,14 +486,11 @@ extension ComicEditTabBuilders on ComicEditHost {
                     return Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        TextFormField(
+                        LibraryEditTextField(
                           controller: comicNotesController,
+                          label: 'Notes',
                           minLines: 6,
                           maxLines: 9,
-                          decoration: const InputDecoration(
-                            labelText: 'Notes',
-                            alignLabelWithHint: true,
-                          ),
                         ),
                         const SizedBox(height: 10),
                         MediaRatingField(controller: comicRatingController),
@@ -526,15 +514,12 @@ extension ComicEditTabBuilders on ComicEditHost {
                       children: [
                         Expanded(
                           flex: 8,
-                          child: TextFormField(
+                          child: LibraryEditTextField(
                             controller: comicNotesController,
+                            label: 'Notes',
                             expands: true,
                             minLines: null,
                             maxLines: null,
-                            decoration: const InputDecoration(
-                              labelText: 'Notes',
-                              alignLabelWithHint: true,
-                            ),
                           ),
                         ),
                         const SizedBox(width: 10),
