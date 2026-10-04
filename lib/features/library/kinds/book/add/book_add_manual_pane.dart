@@ -34,7 +34,7 @@ const _bookMainFieldIds = {
   'country',
 };
 const _bookCreditFieldIds = {'authors', 'translators'};
-const _bookLinkFieldIds = {'barcode'};
+const _bookLinkFieldIds = {'isbn', 'barcode'};
 const _bookCoverFieldIds = {'cover_image_url', 'back_cover_image_url'};
 
 class BookAddManualPane extends ConsumerStatefulWidget {

@@ -56,6 +56,7 @@ AddSchema<BookAddManualDraft> bookAddSchemaFor({
             include: {
               'title',
               'format',
+              'isbn',
               'release_date',
               'publisher',
               'imprint',
@@ -70,7 +71,7 @@ AddSchema<BookAddManualDraft> bookAddSchemaFor({
           ),
           LibraryTextFieldSpec<BookAddManualDraft>(
             id: 'barcode',
-            label: 'ISBN / Barcode',
+            label: 'Barcode',
             value: (draft) => values(draft).upc,
             setValue: (draft, value) => values(draft).upc = value,
           ),

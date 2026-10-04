@@ -3,6 +3,7 @@ import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.
 import 'package:collectarr_app/features/library/domain/library_entity_scope.dart';
 import 'package:collectarr_app/features/library/edit/schema/edit_schema_renderer.dart';
 import 'package:collectarr_app/features/library/kinds/book/edit/book_edit_draft.dart';
+import 'package:collectarr_app/features/library/kinds/book/edit/tabs/book_identifiers_tab.dart';
 import 'package:collectarr_app/features/library/kinds/book/edit/entry/book_entry_edit_schema.dart';
 import 'package:collectarr_app/features/library/kinds/book/forms/book_person_credits_field.dart';
 import 'package:collectarr_app/features/library/kinds/book/entries/book_entry_details.dart';
@@ -19,7 +20,7 @@ Widget? buildBookCustomTabView({
   required CatalogSearchCandidate item,
   required VoidCallback markDirty,
 }) {
-  if (tabId != 'credits' && tabId != 'entry') return null;
+  if (tabId != 'credits' && tabId != 'entry' && tabId != 'links') return null;
   final kindDraft = draft.session.catalogItemSession;
   if (kindDraft is! BookEditDraft) {
     throw StateError('Expected BookEditDraft for Book editing');
@@ -47,6 +48,13 @@ Widget? buildBookCustomTabView({
           },
         ),
       ],
+    );
+  }
+  if (tabId == 'links') {
+    return BookIdentifiersTab(
+      draft: kindDraft,
+      accent: accent,
+      markDirty: markDirty,
     );
   }
   final detailsDraft = kindDraft.toDetailsDraft() as BookEntryDetailsDraft;

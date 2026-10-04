@@ -46,6 +46,8 @@ class BookEditDraft
     required this.releaseDateController,
     required this.releaseYearController,
     required this.publisherController,
+    required this.isbnController,
+    required this.initialIsbnText,
     required this.barcodeController,
     required this.editionTitleController,
     required this.variantController,
@@ -67,6 +69,8 @@ class BookEditDraft
   final TextEditingController releaseDateController;
   final TextEditingController releaseYearController;
   final TextEditingController publisherController;
+  final TextEditingController isbnController;
+  final String initialIsbnText;
   final TextEditingController barcodeController;
   final TextEditingController editionTitleController;
   final TextEditingController variantController;
@@ -173,6 +177,7 @@ class BookEditDraft
     releaseDateController.dispose();
     releaseYearController.dispose();
     publisherController.dispose();
+    isbnController.dispose();
     barcodeController.dispose();
     editionTitleController.dispose();
     variantController.dispose();
@@ -346,12 +351,17 @@ class BookEditDraft
     );
     final count = int.tryParse(pageCountController.text);
     final releaseDate = parseDate(releaseDateController.text);
+    final isbnText = isbnController.text.trim();
+    final isbnChanged = isbnText != initialIsbnText;
     final hasExplicitAuthors =
         meta.creators.any((credit) => _isRole(credit.role, 'author'));
     final updatedMetadata = meta.copyWith(
       pageCount: count,
       imprint: emptyToNull(imprintController.text),
       publisher: emptyToNull(publisherController.text),
+      isbn: isbnChanged ? emptyToNull(isbnText) : meta.isbn,
+      isbn10: isbnChanged ? null : meta.isbn10,
+      isbn13: isbnChanged ? null : meta.isbn13,
       barcode: emptyToNull(barcodeController.text),
       editionTitle: emptyToNull(editionTitleController.text),
       variant: emptyToNull(variantController.text),
@@ -421,6 +431,10 @@ LibraryEditSessionBundle createBookEditDraft({
     publisherController: textControllers.create(
       text: metadata.publisher ?? '',
     ),
+    isbnController: textControllers.create(
+      text: metadata.isbn ?? metadata.isbn13 ?? metadata.isbn10 ?? '',
+    ),
+    initialIsbnText: metadata.isbn ?? metadata.isbn13 ?? metadata.isbn10 ?? '',
     barcodeController: textControllers.create(
       text: metadata.barcode ?? '',
     ),
