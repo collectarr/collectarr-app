@@ -7,6 +7,7 @@ enum LibraryFieldEntryPolicy {
 }
 
 enum PersonalLibraryFieldEditor {
+  condition,
   partialDate,
   money,
   singleVocabulary,
@@ -36,6 +37,7 @@ class PersonalLibraryFieldSpec {
     this.editor,
     this.area,
     this.editOrder,
+    this.manualAddOrder,
     this.vocabularyListName,
     this.currencyFieldKey,
     this.options = const <String>[],
@@ -48,6 +50,7 @@ class PersonalLibraryFieldSpec {
   final PersonalLibraryFieldEditor? editor;
   final PersonalLibraryFieldArea? area;
   final int? editOrder;
+  final int? manualAddOrder;
   final String? vocabularyListName;
   final String? currencyFieldKey;
   final List<String> options;

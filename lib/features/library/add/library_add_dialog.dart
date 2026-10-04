@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_contributors.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_personal_field_registry.dart';
 import 'dart:async';
 
 import 'package:collectarr_app/core/models/custom_field.dart';
@@ -360,6 +361,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
       type: widget.type,
       commonDraft: state.commonDraft,
       kindDraft: state.manualDraft,
+      personalFields: personalFieldContributorFor(widget.type.kind).fields,
       manualDraft: _manualDraft.kindDraft,
       onCommonDraftChanged: (common) =>
           _controller.updateCommonDraft((_) => common),

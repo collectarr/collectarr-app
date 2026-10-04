@@ -1,6 +1,7 @@
 import 'package:collectarr_app/features/library/add/controllers/library_add_dialog_requests.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_common_draft.dart';
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
+import 'package:collectarr_app/features/library/metadata/library_field_entries.dart';
 import 'package:collectarr_app/features/library/schema/library_field_spec.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_dropdown_pick_field.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_form_controls.dart';
@@ -26,143 +27,24 @@ final class LibraryAddManualPersonalTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final current = request.commonDraft ?? const LibraryAddCommonDraft();
-    final condition = current.condition ?? request.defaultCondition;
-    final locationId = current.clearLocation
-        ? null
-        : current.locationId ?? request.defaultLocationId;
-    final date = current.purchaseDate ?? request.defaultPurchaseDate;
-    final fields = <Widget>[
-      if (request.conditions.isNotEmpty)
-        LibraryDropdownPickField<String>(
-          label: 'Condition',
-          value: request.conditions.contains(condition)
-              ? condition
-              : request.conditions.first,
-          options: [
-            for (final value in request.conditions)
-              LibraryFieldOption(value: value, label: value),
-          ],
-          onChanged: (value) {
-            if (value != null) _updateCommon(condition: value);
-          },
-        )
-      else
-        LibraryFormField(
-          label: 'Condition',
-          child: LibraryTextFormControl(
-            key: const ValueKey('manual-condition'),
-            initialValue: condition,
-            onChanged: (value) => _updateCommon(condition: value),
-          ),
-        ),
-      _locationField(locationId),
-      _purchaseDateField(date),
-      LibraryMoneyAmountField(
-        key: const ValueKey('manual-price'),
-        label: 'Purchase Price',
-        amountMinorUnits: current.pricePaidCents,
-        currency: current.currency ?? 'USD',
-        controller: request.priceController,
-        onChanged: (amount) => _updateCommon(pricePaidCents: amount),
-      ),
-      LibraryDropdownPickField<String>(
-        label: 'Currency',
-        value: (current.currency ?? 'USD').toUpperCase(),
-        options: [
-          for (final code in kLibraryCurrencyCodes)
-            LibraryFieldOption(value: code, label: code),
-        ],
-        onChanged: (value) => _updateCommon(currency: value),
-      ),
-      LibraryDropdownPickField<String>(
-        label: 'Purchase Store',
-        value: request.purchaseStoreController.text.trim().isNotEmpty
-            ? request.purchaseStoreController.text.trim()
-            : current.purchaseStore,
-        options: [
-          for (final value in request.purchaseStoreOptions)
-            LibraryFieldOption(value: value, label: value),
-        ],
-        allowCustomValue: true,
-        onChanged: (value) {
-          request.purchaseStoreController.text = value ?? '';
-          _updateCommon(purchaseStore: value);
-          request.onVocabularyValueChanged?.call(
-            fieldId: 'purchase_store',
-            listName: UniversalVocabularies.purchaseStore.key,
-            value: value,
-          );
-        },
-      ),
-      LibraryDropdownPickField<String>(
-        label: 'Owner',
-        value: request.ownerLabelController.text.trim().isNotEmpty
-            ? request.ownerLabelController.text.trim()
-            : current.ownerLabel,
-        options: [
-          for (final value in request.ownerOptions)
-            LibraryFieldOption(value: value, label: value),
-        ],
-        allowCustomValue: true,
-        onChanged: (value) {
-          request.ownerLabelController.text = value ?? '';
-          _updateCommon(ownerLabel: value);
-          request.onVocabularyValueChanged?.call(
-            fieldId: 'owner_label',
-            listName: UniversalVocabularies.owners.key,
-            value: value,
-          );
-        },
-      ),
-      LibraryMultiValuePickField<String>(
-        label: 'Tags',
-        value: splitPickListValues(
-          request.tagsController.text.trim().isNotEmpty
-              ? request.tagsController.text
-              : current.tags ?? request.defaultTags,
-        ).toSet(),
-        options: [
-          for (final option in request.tagOptions)
-            LibraryFieldOption<String>(value: option, label: option),
-        ],
-        allowCustomValueEntry: true,
-        pickerSearchHint: 'Search tags',
-        onOpenPicker: (
-                {required label,
-                required selectedValues,
-                required options,
-                searchHint,
-                customValueHint}) =>
-            showLibraryMultiValueOptionsDialog<String>(
-          context: context,
-          label: label,
-          options: options,
-          selectedValues: selectedValues,
-          searchHint: searchHint ?? 'Search tags',
-          customValueHint: customValueHint ?? 'Add value',
-        ),
-        onChanged: (selected) {
-          final values = selected.toList(growable: false);
-          final joined = joinPickListValues(values) ?? '';
-          request.tagsController.text = joined;
-          _updateCommon(tags: joined);
-          request.onVocabularyValuesChanged?.call(
-            fieldId: 'tags',
-            listName: UniversalVocabularies.tags.key,
-            values: values.toSet(),
-          );
-        },
-      ),
-      LibraryNotesField(
-        label: 'Notes',
-        controller: request.personalNotesController,
-      ),
+    final specs = request.personalFields
+        .where((field) => field.manualAddOrder != null)
+        .toList()
+      ..sort((left, right) =>
+          left.manualAddOrder!.compareTo(right.manualAddOrder!));
+    final fields = [
+      for (final field in specs) _buildField(context, field, current),
     ];
-
-    fields.insertAll(fields.length - 1, kindSpecificFields);
-    final gridFields = fields.take(fields.length - 2).toList(growable: false);
-    final fullWidthFields =
-        fields.skip(fields.length - 2).toList(growable: false);
+    final notesIndex = specs.indexWhere(
+      (field) => field.editor == PersonalLibraryFieldEditor.notes,
+    );
+    fields.insertAll(
+      notesIndex < 0 ? fields.length : notesIndex,
+      kindSpecificFields,
+    );
+    final fullWidthStart = fields.length > 2 ? fields.length - 2 : 0;
+    final gridFields = fields.take(fullWidthStart).toList(growable: false);
+    final fullWidthFields = fields.skip(fullWidthStart).toList(growable: false);
     return EditSection(
       title: 'Personal',
       accent: request.accent,
@@ -173,10 +55,207 @@ final class LibraryAddManualPersonalTab extends StatelessWidget {
     );
   }
 
-  Widget _locationField(String? selectedId) {
+  Widget _buildField(
+    BuildContext context,
+    PersonalLibraryFieldSpec field,
+    LibraryAddCommonDraft current,
+  ) {
+    switch (field.editor) {
+      case PersonalLibraryFieldEditor.condition:
+        _expectFieldKey(field, 'condition');
+        return _conditionField(field, current);
+      case PersonalLibraryFieldEditor.location:
+        _expectFieldKey(field, 'location_id');
+        final selectedId = current.clearLocation
+            ? null
+            : current.locationId ?? request.defaultLocationId;
+        return _locationField(field.label, selectedId);
+      case PersonalLibraryFieldEditor.partialDate:
+        _expectFieldKey(field, 'purchase_date');
+        return _purchaseDateField(
+          field.label,
+          current.purchaseDate ?? request.defaultPurchaseDate,
+        );
+      case PersonalLibraryFieldEditor.money:
+        _expectFieldKey(field, 'price_paid_cents');
+        return LibraryMoneyAmountField(
+          key: ValueKey('manual-${field.key}'),
+          label: field.label,
+          amountMinorUnits: current.pricePaidCents,
+          currency: current.currency ?? 'USD',
+          controller: request.priceController,
+          onChanged: (amount) => _updateCommon(pricePaidCents: amount),
+        );
+      case PersonalLibraryFieldEditor.singleVocabulary:
+        return _singleVocabularyField(field, current);
+      case PersonalLibraryFieldEditor.multiVocabulary:
+        return _multiVocabularyField(context, field, current);
+      case PersonalLibraryFieldEditor.currency:
+        _expectFieldKey(field, 'currency');
+        return LibraryDropdownPickField<String>(
+          label: field.label,
+          value: (current.currency ?? 'USD').toUpperCase(),
+          options: [
+            for (final code in kLibraryCurrencyCodes)
+              LibraryFieldOption(value: code, label: code),
+          ],
+          onChanged: (value) => _updateCommon(currency: value),
+        );
+      case PersonalLibraryFieldEditor.notes:
+        _expectFieldKey(field, 'personal_notes');
+        return LibraryNotesField(
+          label: field.label,
+          controller: request.personalNotesController,
+        );
+      case PersonalLibraryFieldEditor.rating:
+      case PersonalLibraryFieldEditor.collectionStatus:
+      case PersonalLibraryFieldEditor.integer:
+        throw StateError(
+          'Manual Add does not support ${field.editor} for ${field.key}.',
+        );
+      case null:
+        throw StateError(
+          'Manual Add field ${field.key} requires an explicit editor.',
+        );
+    }
+  }
+
+  Widget _conditionField(
+    PersonalLibraryFieldSpec field,
+    LibraryAddCommonDraft current,
+  ) {
+    final condition = current.condition ?? request.defaultCondition;
+    if (request.conditions.isEmpty) {
+      return LibraryFormField(
+        label: field.label,
+        child: LibraryTextFormControl(
+          key: ValueKey('manual-${field.key}'),
+          initialValue: condition,
+          onChanged: (value) => _updateCommon(condition: value),
+        ),
+      );
+    }
+    return LibraryDropdownPickField<String>(
+      label: field.label,
+      value: request.conditions.contains(condition)
+          ? condition
+          : request.conditions.first,
+      options: [
+        for (final value in request.conditions)
+          LibraryFieldOption(value: value, label: value),
+      ],
+      onChanged: (value) {
+        if (value != null) _updateCommon(condition: value);
+      },
+    );
+  }
+
+  Widget _singleVocabularyField(
+    PersonalLibraryFieldSpec field,
+    LibraryAddCommonDraft current,
+  ) {
+    final isPurchaseStore = field.key == 'purchase_store';
+    if (!isPurchaseStore && field.key != 'owner_label') {
+      throw StateError(
+        'Manual Add has no single-vocabulary binding for ${field.key}.',
+      );
+    }
+    final controller = isPurchaseStore
+        ? request.purchaseStoreController
+        : request.ownerLabelController;
+    final value = controller.text.trim().isNotEmpty
+        ? controller.text.trim()
+        : isPurchaseStore
+            ? current.purchaseStore
+            : current.ownerLabel;
+    final options =
+        isPurchaseStore ? request.purchaseStoreOptions : request.ownerOptions;
+    return LibraryDropdownPickField<String>(
+      label: field.label,
+      value: value,
+      options: [
+        for (final option in options)
+          LibraryFieldOption(value: option, label: option),
+      ],
+      allowCustomValue: true,
+      onChanged: (selected) {
+        controller.text = selected ?? '';
+        if (isPurchaseStore) {
+          _updateCommon(purchaseStore: selected);
+        } else {
+          _updateCommon(ownerLabel: selected);
+        }
+        request.onVocabularyValueChanged?.call(
+          fieldId: field.key,
+          listName: field.vocabularyListName,
+          value: selected,
+        );
+      },
+    );
+  }
+
+  Widget _multiVocabularyField(
+    BuildContext context,
+    PersonalLibraryFieldSpec field,
+    LibraryAddCommonDraft current,
+  ) {
+    _expectFieldKey(field, 'tags');
+    final rawValues = switch (field.key) {
+      'tags' => request.tagsController.text.trim().isNotEmpty
+          ? request.tagsController.text
+          : current.tags ?? request.defaultTags,
+      _ => '',
+    };
+    return LibraryMultiValuePickField<String>(
+      label: field.label,
+      value: splitPickListValues(rawValues).toSet(),
+      options: [
+        for (final option in request.tagOptions)
+          LibraryFieldOption<String>(value: option, label: option),
+      ],
+      allowCustomValueEntry: true,
+      pickerSearchHint: 'Search ${field.label.toLowerCase()}',
+      onOpenPicker: (
+              {required label,
+              required selectedValues,
+              required options,
+              searchHint,
+              customValueHint}) =>
+          showLibraryMultiValueOptionsDialog<String>(
+        context: context,
+        label: label,
+        options: options,
+        selectedValues: selectedValues,
+        searchHint: searchHint ?? 'Search ${field.label.toLowerCase()}',
+        customValueHint: customValueHint ?? 'Add value',
+      ),
+      onChanged: (selected) {
+        final values = selected.toList(growable: false);
+        final joined = joinPickListValues(values) ?? '';
+        request.tagsController.text = joined;
+        _updateCommon(tags: joined);
+        request.onVocabularyValuesChanged?.call(
+          fieldId: field.key,
+          listName: field.vocabularyListName,
+          values: values.toSet(),
+        );
+      },
+    );
+  }
+
+  void _expectFieldKey(PersonalLibraryFieldSpec field, String expectedKey) {
+    if (field.key != expectedKey) {
+      throw StateError(
+        'Manual Add ${field.editor} editor expects "$expectedKey", '
+        'received "${field.key}".',
+      );
+    }
+  }
+
+  Widget _locationField(String label, String? selectedId) {
     if (request.locations.isEmpty) {
       return LibraryFormField(
-        label: 'Location',
+        label: label,
         child: LibraryTextFormControl(
           key: ValueKey('manual-location-${request.defaultLocationLabel}'),
           initialValue: request.defaultLocationLabel ?? '',
@@ -189,7 +268,7 @@ final class LibraryAddManualPersonalTab extends StatelessWidget {
             ? selectedId
             : null;
     return LibraryDropdownPickField<String>(
-      label: 'Location',
+      label: label,
       value: selected,
       options: [
         for (final location in request.locations)
@@ -203,8 +282,9 @@ final class LibraryAddManualPersonalTab extends StatelessWidget {
     );
   }
 
-  Widget _purchaseDateField(DateTime? currentDate) => LibraryDateFieldButton(
-        label: 'Purchase Date',
+  Widget _purchaseDateField(String label, DateTime? currentDate) =>
+      LibraryDateFieldButton(
+        label: label,
         value: currentDate,
         onChanged: (selected) {
           request.purchaseDateController.text =

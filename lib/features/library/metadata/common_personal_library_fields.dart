@@ -23,6 +23,8 @@ const List<PersonalLibraryFieldSpec> commonPersonalLibraryFields = [
     label: 'Condition',
     group: 'Collection state',
     syncable: true,
+    editor: PersonalLibraryFieldEditor.condition,
+    manualAddOrder: 0,
   ),
   PersonalLibraryFieldSpec(
     key: 'grade',
@@ -38,6 +40,7 @@ const List<PersonalLibraryFieldSpec> commonPersonalLibraryFields = [
     editor: PersonalLibraryFieldEditor.location,
     area: PersonalLibraryFieldArea.statusStrip,
     editOrder: 3,
+    manualAddOrder: 1,
   ),
   PersonalLibraryFieldSpec(
     key: 'tags',
@@ -48,6 +51,7 @@ const List<PersonalLibraryFieldSpec> commonPersonalLibraryFields = [
     area: PersonalLibraryFieldArea.personalFields,
     editOrder: 6,
     vocabularyListName: 'tags',
+    manualAddOrder: 7,
   ),
   PersonalLibraryFieldSpec(
     key: 'collection_status',
@@ -80,6 +84,7 @@ const List<PersonalLibraryFieldSpec> commonPersonalLibraryFields = [
     area: PersonalLibraryFieldArea.personalFields,
     editOrder: 4,
     vocabularyListName: 'owners',
+    manualAddOrder: 6,
   ),
   PersonalLibraryFieldSpec(
     key: 'rating',
@@ -128,22 +133,24 @@ const List<PersonalLibraryFieldSpec> commonPersonalLibraryFields = [
   ),
   PersonalLibraryFieldSpec(
     key: 'purchase_date',
-    label: 'Purchase date',
+    label: 'Purchase Date',
     group: 'Acquisition',
     syncable: true,
     editor: PersonalLibraryFieldEditor.partialDate,
     area: PersonalLibraryFieldArea.personalFields,
     editOrder: 0,
+    manualAddOrder: 2,
   ),
   PersonalLibraryFieldSpec(
     key: 'price_paid_cents',
-    label: 'Price paid',
+    label: 'Purchase Price',
     group: 'Acquisition',
     syncable: true,
     editor: PersonalLibraryFieldEditor.money,
     area: PersonalLibraryFieldArea.personalFields,
     editOrder: 1,
     currencyFieldKey: 'currency',
+    manualAddOrder: 3,
   ),
   PersonalLibraryFieldSpec(
     key: 'currency',
@@ -153,14 +160,16 @@ const List<PersonalLibraryFieldSpec> commonPersonalLibraryFields = [
     editor: PersonalLibraryFieldEditor.currency,
     area: PersonalLibraryFieldArea.personalFields,
     editOrder: 5,
+    manualAddOrder: 4,
   ),
   PersonalLibraryFieldSpec(
     key: 'personal_notes',
-    label: 'Personal notes',
+    label: 'Notes',
     group: 'Acquisition',
     syncable: true,
     editor: PersonalLibraryFieldEditor.notes,
     area: PersonalLibraryFieldArea.notes,
+    manualAddOrder: 8,
   ),
   PersonalLibraryFieldSpec(
     key: 'index_number',
@@ -196,11 +205,12 @@ const List<PersonalLibraryFieldSpec> commonPersonalLibraryFields = [
   ),
   PersonalLibraryFieldSpec(
     key: 'purchase_store',
-    label: 'Purchase store',
+    label: 'Purchase Store',
     group: 'Acquisition',
     editor: PersonalLibraryFieldEditor.singleVocabulary,
     area: PersonalLibraryFieldArea.personalFields,
     editOrder: 2,
     vocabularyListName: 'purchase_store',
+    manualAddOrder: 5,
   ),
 ];

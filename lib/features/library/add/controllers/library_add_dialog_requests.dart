@@ -30,6 +30,7 @@ class LibraryAddManualPaneRequest {
     required this.type,
     this.commonDraft,
     this.kindDraft,
+    this.personalFields = const <PersonalLibraryFieldSpec>[],
     this.onCommonDraftChanged,
     this.onKindDraftChanged,
     required this.tagsController,
@@ -73,6 +74,7 @@ class LibraryAddManualPaneRequest {
   final LibraryKindRegistration type;
   final LibraryAddCommonDraft? commonDraft;
   final LibraryAddKindDraft? kindDraft;
+  final List<PersonalLibraryFieldSpec> personalFields;
   final LibraryKindAddDraft manualDraft;
   final ValueChanged<LibraryAddCommonDraft>? onCommonDraftChanged;
   final ValueChanged<LibraryAddKindDraft>? onKindDraftChanged;

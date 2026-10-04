@@ -224,6 +224,8 @@ class _LibraryEntryPersonalSectionState
 
   Widget _buildPersonalField(PersonalLibraryFieldSpec field) {
     switch (field.editor) {
+      case PersonalLibraryFieldEditor.condition:
+        return const SizedBox.shrink();
       case PersonalLibraryFieldEditor.partialDate:
         final partsKey = '${field.key}_parts';
         return LibraryFormField(
@@ -426,6 +428,8 @@ class _LibraryEntryStatusStripState
     PersonalLibraryFieldSpec field,
   ) {
     switch (field.editor) {
+      case PersonalLibraryFieldEditor.condition:
+        return const SizedBox.shrink();
       case PersonalLibraryFieldEditor.collectionStatus:
         final current = draft.text(field.key);
         final value = field.options.contains(current)

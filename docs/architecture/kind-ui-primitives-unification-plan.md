@@ -391,6 +391,10 @@ Still outstanding:
   renderer delegates section layout and control construction to
   `LibraryFieldSpecRenderer`, while retaining its stable controller registry,
   focus nodes, validation routing, and save state across tab switches.
+- Manual Add's shared Personal tab now derives its fields, labels, ordering,
+  and vocabulary keys from the active kind's `PersonalLibraryFieldSpec`
+  contributor. Common Add controls bind those declared fields to the typed
+  common draft; kind-specific controls remain contributed by their kind pane.
 - Legacy custom tabs and kind-specific tab composition still have divergent
   implementations. Responsive field geometry and the basic vocabulary/text
   controls are now shared. Book Authors/Translators and Movie Cast/Crew share
@@ -530,12 +534,14 @@ Evidence: `add/panes/library_add_manual_personal_tab.dart`,
 `edit/sections/library_entry_personal_section.dart`, and
 `edit/schema/library_edit_schema_dialog.dart`.
 
-The Add personal tab independently builds Condition, Purchase Price, Currency,
-etc. using mixed raw and common controls. The typed Edit dialog automatically
-injects a generic Personal section and detects duplicates partly by label.
-Move semantic definitions/defaults/validation to kind-owned personal schemas.
-Shared widgets should render contributed fields. Identify tabs by stable IDs,
-not localized labels. Avoid a second personal draft only for Add.
+Manual Add and Edit now obtain common Personal labels and fields from the
+registered kind contributors. Manual Add binds those specs to its common draft;
+Edit binds them to the local entry draft. Their outer submission and personal
+data adapters are still separate. The typed Edit dialog still injects a generic
+Personal section and has legacy paths that detect duplicates partly by label.
+Move remaining kind-specific semantics, defaults, and validation into owned
+field definitions. Identify tabs by stable IDs, not localized labels. Avoid a
+second personal draft only for Add.
 
 ## 4. Movies: defects to fix before visual cleanup
 
