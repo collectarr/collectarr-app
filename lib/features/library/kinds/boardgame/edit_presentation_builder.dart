@@ -2,13 +2,15 @@ import 'package:collectarr_app/features/library/config/library_edit_presentation
 import 'package:collectarr_app/features/library/config/presentation/library_edit_presentation_builder_base.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_edit_shell_state.dart';
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
-import 'package:collectarr_app/features/library/edit/fields/library_edit_field_groups.dart';
+import 'package:collectarr_app/features/library/add/schema/add_schema_renderer.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/add/boardgame_add_schema.dart';
 import 'package:collectarr_app/features/library/domain/library_entity_scope.dart';
 import 'package:collectarr_app/features/library/edit/schema/edit_schema_renderer.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/edit/boardgame_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/edit/entry/boardgame_entry_edit_schema.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/entries/boardgame_entry_details.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/entries/boardgame_entry_details_draft.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/forms/boardgame_catalog_form_field_ids.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/vocabulary/boardgame_vocabularies.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:flutter/material.dart';
@@ -17,20 +19,18 @@ const _boardGameTabs0 = LibraryEditTabSpec(
   id: 'main',
   icon: Icons.casino_outlined,
   label: 'Main',
-  sectionIds: [
-    'catalog_snapshot',
-    'tracking_context',
-    'entries_reference',
-    'entry_grading',
-  ],
 );
 
 const _boardGameSecondaryTabs = [
   LibraryEditTabSpec(
+    id: 'gameplay',
+    icon: Icons.casino_outlined,
+    label: 'Gameplay & Ratings',
+  ),
+  LibraryEditTabSpec(
     id: 'synopsis',
     icon: Icons.description_outlined,
     label: 'Description',
-    sectionIds: ['synopsis'],
   ),
   LibraryEditTabSpec(
     id: 'links',
@@ -42,7 +42,6 @@ const _boardGameSecondaryTabs = [
     id: 'cover',
     icon: Icons.photo_camera_outlined,
     label: 'Covers',
-    sectionIds: ['cover_images'],
   ),
   LibraryEditTabSpec(
     id: 'photos',
@@ -52,11 +51,10 @@ const _boardGameSecondaryTabs = [
   ),
 ];
 
-const _boardGameReleaseIdentityTab = LibraryEditTabSpec(
+const _boardGameEditionTab = LibraryEditTabSpec(
   id: 'edition',
   icon: Icons.album_outlined,
   label: 'Edition Details',
-  sectionIds: ['release_identity'],
 );
 
 const _boardGameEntryTab = LibraryEditTabSpec(
@@ -68,7 +66,7 @@ const _boardGameEntryTab = LibraryEditTabSpec(
 const _boardGameCombinedTabs = [
   _boardGameTabs0,
   _boardGameEntryTab,
-  _boardGameReleaseIdentityTab,
+  _boardGameEditionTab,
   ..._boardGameSecondaryTabs,
 ];
 
@@ -81,16 +79,17 @@ Widget? buildBoardGameCustomTabView({
   required CatalogSearchCandidate item,
   required VoidCallback markDirty,
 }) {
+  final kindDraft = draft.session.catalogItemSession;
+  if (kindDraft is! BoardGameEditDraft) {
+    throw StateError('Expected BoardGameEditDraft for Board Game editing');
+  }
+
   if (tabId == 'entry') {
-    final kindDraft = draft.session.catalogItemSession;
-    if (kindDraft is! BoardGameEditDraft) {
-      throw StateError(
-          'Expected BoardGameEditDraft for BoardGame entry editing');
-    }
     final detailsDraft =
         kindDraft.toDetailsDraft() as BoardgameEntryDetailsDraft;
     final details = detailsDraft.toDetails();
-    return EditSchemaRenderer<BoardgameEntryDetails, BoardGameEditDraft>.embedded(
+    return EditSchemaRenderer<BoardgameEntryDetails,
+        BoardGameEditDraft>.embedded(
       schema: boardGameEntryEditSchema,
       model: details,
       draft: kindDraft,
@@ -98,50 +97,114 @@ Widget? buildBoardGameCustomTabView({
       showTabBar: false,
     );
   }
-  if (tabId == 'edition') {
-    final kindDraft = draft.session.catalogItemSession;
-    if (kindDraft is! BoardGameEditDraft) {
-      throw StateError(
-        'Expected BoardGameEditDraft for Board Game edition editing',
-      );
-    }
-    final physicalFormatOptions = <String>{
-      for (final format in draft.physicalFormats) format.label,
-      ...BoardGameVocabularies.format.builtIns,
-    }.toList(growable: false);
-    return EditTabShell(
-      children: [
-        EditSection(
-          title: 'Edition Details',
-          accent: accent,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              LibraryReleaseIdentityFields(
-                editionTitleController: kindDraft.editionTitleController,
-                variantController: kindDraft.variantController,
-                barcodeController: kindDraft.barcodeController,
-                releaseDateController: kindDraft.releaseDateController,
-                releaseYearController: kindDraft.releaseYearController,
-                physicalFormatController: kindDraft.physicalFormatController,
-                physicalFormatOptions: physicalFormatOptions,
-                onPhysicalFormatChanged: (value) {
-                  kindDraft.physicalFormatController.text = value ?? '';
-                  markDirty();
-                },
-                editionTitleLabel: 'Edition title',
-                variantLabel: 'Variant',
-                barcodeLabel: 'UPC / Barcode',
-                releaseDateLabel: 'Release Date',
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-  return null;
+
+  final fieldIds = switch (tabId) {
+    'main' => boardGameMainFieldIds,
+    'edition' => boardGameEditionFieldIds,
+    'gameplay' => boardGamePlayFieldIds,
+    'synopsis' => boardGameDescriptionFieldIds,
+    'cover' => boardGameCoverFieldIds,
+    _ => null,
+  };
+  if (fieldIds == null) return null;
+
+  final sectionLabel = switch (tabId) {
+    'main' => 'Main',
+    'edition' => 'Edition',
+    'gameplay' => 'Gameplay and ratings',
+    'synopsis' => 'Description',
+    _ => 'Covers',
+  };
+  final schema = boardGameAddSchemaFor<BoardGameEditDraft>(
+    fieldIds: fieldIds,
+    sectionLabels: {'catalog_item': sectionLabel},
+    publisherOptions: _options(
+      draft,
+      BoardGameVocabularyIds.publisher.value,
+      BoardGameVocabularies.publisher.builtIns,
+    ),
+    categoryOptions: _options(
+      draft,
+      BoardGameVocabularyIds.category.value,
+      BoardGameVocabularies.category.builtIns,
+    ),
+    formatOptions: _options(
+      draft,
+      BoardGameVocabularyIds.format.value,
+      BoardGameVocabularies.format.builtIns,
+    ),
+  );
+  return EditTabShell(
+    children: [
+      AddSchemaRenderer<BoardGameEditDraft>.embedded(
+        key: ValueKey('boardgame-fields-${draft.type.kind.apiValue}-$tabId'),
+        schema: schema,
+        draft: kindDraft,
+        mediaKind: draft.type.kind.apiValue,
+        onChanged: markDirty,
+        onVocabularyValueChanged: ({
+          required fieldId,
+          required listName,
+          required value,
+        }) {
+          draft.recordPendingVocabularyValue(
+            fieldId: fieldId,
+            listName: listName,
+            value: value,
+            options: _optionsForField(draft, fieldId),
+            allowCustomValues: true,
+            mediaKind: draft.type.kind.apiValue,
+          );
+        },
+        onVocabularyValuesChanged: ({
+          required fieldId,
+          required listName,
+          required values,
+        }) {
+          draft.recordPendingVocabularyValues(
+            fieldId: fieldId,
+            listName: listName,
+            values: values,
+            options: _optionsForField(draft, fieldId),
+            allowCustomValues: true,
+            mediaKind: draft.type.kind.apiValue,
+          );
+        },
+      ),
+    ],
+  );
 }
+
+List<String> _options(
+  LibraryEditShellState draft,
+  String key,
+  Iterable<String> fallback,
+) =>
+    draft.kindVocabularies[key]?.toList(growable: false) ??
+    fallback.toList(growable: false);
+
+List<String> _optionsForField(
+  LibraryEditShellState draft,
+  String fieldId,
+) =>
+    switch (fieldId) {
+      'publisher' => _options(
+          draft,
+          BoardGameVocabularyIds.publisher.value,
+          BoardGameVocabularies.publisher.builtIns,
+        ),
+      'categories' => _options(
+          draft,
+          BoardGameVocabularyIds.category.value,
+          BoardGameVocabularies.category.builtIns,
+        ),
+      'format' => _options(
+          draft,
+          BoardGameVocabularyIds.format.value,
+          BoardGameVocabularies.format.builtIns,
+        ),
+      _ => const <String>[],
+    };
 
 class BoardGameLibraryCombinedEditPresentationBuilder
     extends LibraryEditPresentationBuilderBase {

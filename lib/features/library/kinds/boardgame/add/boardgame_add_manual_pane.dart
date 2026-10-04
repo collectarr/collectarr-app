@@ -4,57 +4,8 @@ import 'package:collectarr_app/features/library/add/schema/add_schema_renderer.d
 import 'package:collectarr_app/features/library/kinds/boardgame/add/boardgame_add_manual_draft.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/add/boardgame_add_links_tab.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/add/boardgame_add_schema.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/forms/boardgame_catalog_form_field_ids.dart';
 import 'package:flutter/material.dart';
-
-const _boardGameMainFields = {
-  'catalog_title',
-  'original_title',
-  'sort_title',
-  'subtitle',
-  'publisher',
-  'platforms',
-  'series_title',
-  'year_published',
-  'categories',
-  'designers',
-  'artists',
-  'contributors',
-  'characters',
-  'mechanics',
-  'families',
-  'themes',
-  'expansions',
-  'expansion_for',
-  'rankings',
-  'search_aliases',
-  'original_language',
-  'country',
-  'language',
-  'age_rating',
-  'audience_rating',
-  'release_status',
-};
-const _boardGameEditionFields = {
-  'item_number',
-  'barcode',
-  'catalog_number',
-  'variant',
-  'format',
-  'release_date',
-};
-const _boardGamePlayFields = {
-  'min_players',
-  'max_players',
-  'recommended_players',
-  'best_players',
-  'min_playtime_minutes',
-  'max_playtime_minutes',
-  'min_age',
-  'complexity_weight',
-  'bgg_rating',
-  'bgg_rating_count',
-  'bgg_rank',
-};
 
 class BoardgameAddManualPane extends StatelessWidget {
   const BoardgameAddManualPane({super.key, required this.request});
@@ -85,7 +36,7 @@ class BoardgameAddManualPane extends StatelessWidget {
       tabs: [
         LibraryAddManualPaneTab.main(
           content: buildFields(
-            _boardGameMainFields,
+            boardGameMainFieldIds,
             sectionLabel: 'Main',
           ),
         ),
@@ -94,7 +45,7 @@ class BoardgameAddManualPane extends StatelessWidget {
           label: 'Edition Details',
           icon: Icons.inventory_2_outlined,
           content: buildFields(
-            _boardGameEditionFields,
+            boardGameEditionFieldIds,
             sectionLabel: 'Edition',
           ),
         ),
@@ -103,7 +54,7 @@ class BoardgameAddManualPane extends StatelessWidget {
           label: 'Gameplay & Ratings',
           icon: Icons.casino_outlined,
           content: buildFields(
-            _boardGamePlayFields,
+            boardGamePlayFieldIds,
             sectionLabel: 'Gameplay and ratings',
           ),
         ),
@@ -112,7 +63,7 @@ class BoardgameAddManualPane extends StatelessWidget {
           label: 'Description',
           icon: Icons.description_outlined,
           content: buildFields(
-            const {'description'},
+            boardGameDescriptionFieldIds,
             sectionLabel: 'Description',
           ),
         ),
@@ -121,7 +72,7 @@ class BoardgameAddManualPane extends StatelessWidget {
           label: 'Covers',
           icon: Icons.camera_alt_outlined,
           content: buildFields(
-            const {'cover_image_url'},
+            boardGameCoverFieldIds,
             sectionLabel: 'Cover',
           ),
         ),

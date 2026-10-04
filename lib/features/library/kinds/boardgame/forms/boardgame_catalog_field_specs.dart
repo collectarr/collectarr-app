@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:collectarr_app/core/models/partial_date.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/forms/boardgame_catalog_form_values.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/vocabulary/boardgame_vocabularies.dart';
 import 'package:collectarr_app/features/library/schema/library_field_spec.dart';
@@ -22,6 +23,12 @@ List<LibraryFieldSpec<TDraft>> boardGameCatalogItemFields<TDraft>({
         label: 'Original Title',
         value: (draft) => values(draft).originalTitle,
         setValue: (draft, value) => values(draft).originalTitle = value,
+      ),
+      LibraryTextFieldSpec<TDraft>(
+        id: 'localized_title',
+        label: 'Localized Title',
+        value: (draft) => values(draft).localizedTitle,
+        setValue: (draft, value) => values(draft).localizedTitle = value,
       ),
       LibraryTextFieldSpec<TDraft>(
         id: 'sort_title',
@@ -198,6 +205,13 @@ List<LibraryFieldSpec<TDraft>> boardGameCatalogItemFields<TDraft>({
         minimum: 0,
       ),
       _number<TDraft>(
+        id: 'playing_time_minutes',
+        label: 'Playing time (minutes)',
+        read: (draft) => values(draft).playingTimeMinutes,
+        write: (draft, value) => values(draft).playingTimeMinutes = value,
+        minimum: 0,
+      ),
+      _number<TDraft>(
         id: 'min_age',
         label: 'Minimum age',
         read: (draft) => values(draft).minimumAge,
@@ -240,6 +254,12 @@ List<LibraryFieldSpec<TDraft>> boardGameCatalogItemFields<TDraft>({
         setValue: (draft, value) => values(draft).seriesTitle = value,
       ),
       LibraryTextFieldSpec<TDraft>(
+        id: 'edition_title',
+        label: 'Edition title',
+        value: (draft) => values(draft).editionTitle,
+        setValue: (draft, value) => values(draft).editionTitle = value,
+      ),
+      LibraryTextFieldSpec<TDraft>(
         id: 'item_number',
         label: 'Item number',
         value: (draft) => values(draft).itemNumber,
@@ -270,6 +290,7 @@ List<LibraryFieldSpec<TDraft>> boardGameCatalogItemFields<TDraft>({
         setValue: (draft, value) => values(draft).format = value ?? '',
         options:
             _options(formatOptions ?? BoardGameVocabularies.format.builtIns),
+        pickListKey: BoardGameVocabularyIds.format.value,
       ),
       LibraryTextFieldSpec<TDraft>(
         id: 'country',
@@ -287,7 +308,11 @@ List<LibraryFieldSpec<TDraft>> boardGameCatalogItemFields<TDraft>({
         id: 'release_date',
         label: 'Release Date',
         value: (draft) => values(draft).releaseDate,
-        setValue: (draft, value) => values(draft).releaseDate = value,
+        setValue: (draft, value) {
+          values(draft).releaseDate = value;
+          values(draft).releaseDateParts =
+              value == null ? null : PartialDate.fromDateTime(value);
+        },
       ),
       LibraryTextFieldSpec<TDraft>(
         id: 'age_rating',

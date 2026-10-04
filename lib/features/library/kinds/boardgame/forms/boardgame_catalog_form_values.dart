@@ -1,8 +1,11 @@
+import 'package:collectarr_app/core/models/partial_date.dart';
+
 /// Editable fields for one concrete Board Game Catalog Item.
 final class BoardGameCatalogFormValues {
   BoardGameCatalogFormValues({
     this.title = '',
     this.originalTitle = '',
+    this.localizedTitle = '',
     this.sortTitle = '',
     this.subtitle = '',
     this.description = '',
@@ -36,6 +39,7 @@ final class BoardGameCatalogFormValues {
     this.bggRatingCount,
     this.bggRank,
     this.seriesTitle = '',
+    this.editionTitle = '',
     this.itemNumber = '',
     this.variant = '',
     this.ageRating = '',
@@ -48,11 +52,13 @@ final class BoardGameCatalogFormValues {
     this.language = '',
     this.playingTimeMinutes,
     this.releaseDate,
+    this.releaseDateParts,
     this.releaseStatus = '',
   });
 
   String title;
   String originalTitle;
+  String localizedTitle;
   String sortTitle;
   String subtitle;
   String description;
@@ -86,6 +92,7 @@ final class BoardGameCatalogFormValues {
   int? bggRatingCount;
   int? bggRank;
   String seriesTitle;
+  String editionTitle;
   String itemNumber;
   String variant;
   String ageRating;
@@ -98,5 +105,6 @@ final class BoardGameCatalogFormValues {
   String language;
   int? playingTimeMinutes;
   DateTime? releaseDate;
+  PartialDate? releaseDateParts;
   String releaseStatus;
 }
