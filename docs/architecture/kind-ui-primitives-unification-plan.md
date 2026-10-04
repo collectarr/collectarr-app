@@ -316,7 +316,8 @@ Evidence: `kinds/movie/add/movie_add_manual_pane.dart`,
 - Cast and Crew now share typed, reorderable editors between Add and Edit.
   Characters expose their full supported metadata in the same editor in Add
   and Edit, including aliases, role, description, and image URL.
-- Add includes cover URL text instead of the same cover editor.
+- Movie Add and Edit now expose `Cover Image URL` in a dedicated Covers tab,
+  using the same labelled text control and the same draft value.
 - The local-entry profile now extends the same Movie metadata tabs used by the
   catalog profile, so those fields remain editable when changing an entry.
 - Empty option lists are no longer passed to Movie/TV/Anime fields as if they
