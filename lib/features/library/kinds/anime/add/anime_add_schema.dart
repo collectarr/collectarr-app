@@ -260,7 +260,7 @@ AddSchema<AnimeAddManualDraft> animeAddSchemaFor({
             ),
             LibraryDateFieldSpec<AnimeAddManualDraft>(
               id: 'release_date',
-              label: 'Release date',
+              label: 'Release Date',
               value: (draft) => draft.metadata.releaseDateParts?.asDateTime,
               setValue: (draft, value) {
                 final partialDate =

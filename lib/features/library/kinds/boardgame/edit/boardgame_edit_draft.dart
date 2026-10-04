@@ -350,7 +350,7 @@ class BoardGameEditDraft
     final metadata = item.boardGameCatalogFields;
     final catalogFields = <(String, String, TextEditingController)>[
       ('edition_title', 'Edition title', editionTitleController),
-      ('original_title', 'Original title', originalTitleController),
+      ('original_title', 'Original Title', originalTitleController),
       ('subtitle', 'Subtitle', subtitleController),
       ('platforms', 'Platforms', platformsController),
       ('identifiers', 'Identifiers', identifiersController),
@@ -400,7 +400,7 @@ class BoardGameEditDraft
       ('variant', 'Variant', variantController),
       ('country', 'Country / region', countryController),
       ('language', 'Language', languageController),
-      ('release_date', 'Release date', releaseDateController),
+      ('release_date', 'Release Date', releaseDateController),
       ('age_rating', 'Age rating', ageRatingController),
       ('audience_rating', 'Audience rating', audienceRatingController),
       ('release_status', 'Release status', releaseStatusController),
@@ -443,7 +443,7 @@ class BoardGameEditDraft
           section: LibraryEditFormSection.details,
           controller:
               fields.controller(BoardGameCanonicalEditField.originalTitle),
-          label: 'Original title',
+          label: 'Original Title',
           visible: false,
         ),
         LibraryEditFormFieldSpec(
@@ -458,14 +458,14 @@ class BoardGameEditDraft
           section: LibraryEditFormSection.details,
           controller:
               fields.controller(BoardGameCanonicalEditField.displayTitle),
-          label: 'Display title',
+          label: 'Display Title',
         ),
         LibraryEditFormFieldSpec(
           id: BoardGameCanonicalEditField.searchAliases,
           section: LibraryEditFormSection.details,
           controller:
               fields.controller(BoardGameCanonicalEditField.searchAliases),
-          label: 'Search aliases',
+          label: 'Search Aliases',
           visible: false,
         ),
         LibraryEditFormFieldSpec(

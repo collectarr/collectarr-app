@@ -319,7 +319,7 @@ class MangaEditDraft
           id: MangaCanonicalEditField.originalTitle,
           section: LibraryEditFormSection.details,
           controller: fields.controller(MangaCanonicalEditField.originalTitle),
-          label: 'Original title',
+          label: 'Original Title',
         ),
         LibraryEditFormFieldSpec(
           id: MangaCanonicalEditField.localizedTitle,
@@ -331,7 +331,7 @@ class MangaEditDraft
           id: MangaCanonicalEditField.searchAliases,
           section: LibraryEditFormSection.details,
           controller: fields.controller(MangaCanonicalEditField.searchAliases),
-          label: 'Search aliases',
+          label: 'Search Aliases',
           visible: false,
         ),
         LibraryEditFormFieldSpec(

@@ -263,7 +263,7 @@ class GameEditDraft
           id: GameCanonicalEditField.originalTitle,
           section: LibraryEditFormSection.details,
           controller: fields.controller(GameCanonicalEditField.originalTitle),
-          label: 'Original title',
+          label: 'Original Title',
         ),
         LibraryEditFormFieldSpec(
           id: GameCanonicalEditField.localizedTitle,
@@ -275,13 +275,13 @@ class GameEditDraft
           id: GameCanonicalEditField.displayTitle,
           section: LibraryEditFormSection.details,
           controller: fields.controller(GameCanonicalEditField.displayTitle),
-          label: 'Display title',
+          label: 'Display Title',
         ),
         LibraryEditFormFieldSpec(
           id: GameCanonicalEditField.searchAliases,
           section: LibraryEditFormSection.details,
           controller: fields.controller(GameCanonicalEditField.searchAliases),
-          label: 'Search aliases',
+          label: 'Search Aliases',
           visible: false,
         ),
         LibraryEditFormFieldSpec(

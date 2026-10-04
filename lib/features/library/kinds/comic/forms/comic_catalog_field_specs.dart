@@ -88,7 +88,7 @@ List<LibraryFieldSpec<T>> comicCatalogItemIdentityFields<T>({
       ),
       LibraryDateFieldSpec<T>(
         id: 'release_date',
-        label: 'Release date',
+        label: 'Release Date',
         value: (draft) => values(draft).releaseDate,
         setValue: (draft, value) => values(draft).releaseDate = value,
       ),

@@ -57,7 +57,7 @@ List<MetadataDiffEntry> _comicMetadataEntries(
       serverValue: formatDiffText(serverP['publisher']?.toString()),
     ),
     MetadataDiffEntry(
-      label: 'Release date',
+      label: 'Release Date',
       localValue: formatDiffDate(_parseDate(localP['release_date'])),
       serverValue: formatDiffDate(_parseDate(serverP['release_date'])),
     ),

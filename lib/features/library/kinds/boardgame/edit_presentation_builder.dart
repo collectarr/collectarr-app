@@ -132,7 +132,7 @@ Widget? buildBoardGameCustomTabView({
                 editionTitleLabel: 'Edition title',
                 variantLabel: 'Variant',
                 barcodeLabel: 'UPC / Barcode',
-                releaseDateLabel: 'Release date',
+                releaseDateLabel: 'Release Date',
               ),
             ],
           ),

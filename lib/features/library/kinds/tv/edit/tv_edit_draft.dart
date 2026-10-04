@@ -296,7 +296,7 @@ class TvEditDraft
           id: TvCanonicalEditField.originalTitle,
           section: LibraryEditFormSection.details,
           controller: fields.controller(TvCanonicalEditField.originalTitle),
-          label: 'Original title',
+          label: 'Original Title',
         ),
         LibraryEditFormFieldSpec(
           id: TvCanonicalEditField.localizedTitle,
@@ -308,13 +308,13 @@ class TvEditDraft
           id: TvCanonicalEditField.displayTitle,
           section: LibraryEditFormSection.details,
           controller: fields.controller(TvCanonicalEditField.displayTitle),
-          label: 'Display title',
+          label: 'Display Title',
         ),
         LibraryEditFormFieldSpec(
           id: TvCanonicalEditField.searchAliases,
           section: LibraryEditFormSection.details,
           controller: fields.controller(TvCanonicalEditField.searchAliases),
-          label: 'Search aliases',
+          label: 'Search Aliases',
           visible: false,
         ),
         LibraryEditFormFieldSpec(

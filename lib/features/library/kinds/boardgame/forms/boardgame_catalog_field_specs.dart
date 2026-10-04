@@ -19,7 +19,7 @@ List<LibraryFieldSpec<TDraft>> boardGameCatalogItemFields<TDraft>({
     [
       LibraryTextFieldSpec<TDraft>(
         id: 'original_title',
-        label: 'Original title',
+        label: 'Original Title',
         value: (draft) => values(draft).originalTitle,
         setValue: (draft, value) => values(draft).originalTitle = value,
       ),
@@ -139,7 +139,7 @@ List<LibraryFieldSpec<TDraft>> boardGameCatalogItemFields<TDraft>({
       ),
       LibraryTextFieldSpec<TDraft>(
         id: 'search_aliases',
-        label: 'Search aliases',
+        label: 'Search Aliases',
         value: (draft) => values(draft).searchAliases.join(', '),
         setValue: (draft, value) => values(draft).searchAliases = _split(value),
       ),
@@ -285,7 +285,7 @@ List<LibraryFieldSpec<TDraft>> boardGameCatalogItemFields<TDraft>({
       ),
       LibraryDateFieldSpec<TDraft>(
         id: 'release_date',
-        label: 'Release date',
+        label: 'Release Date',
         value: (draft) => values(draft).releaseDate,
         setValue: (draft, value) => values(draft).releaseDate = value,
       ),

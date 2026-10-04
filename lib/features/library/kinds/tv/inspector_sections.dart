@@ -107,7 +107,7 @@ List<LibraryDetailSectionSpec> _buildTvInspectorSectionSpecs(
       TvLibraryEntryProjection.fromDispatch(request.libraryEntryDispatch);
   final tvDto = dto is TvWorkspaceDto ? dto : null;
   final facts = <LibraryDetailField>[
-    LibraryDetailField(label: 'Display title', value: dto.primaryLabel),
+    LibraryDetailField(label: 'Display Title', value: dto.primaryLabel),
     if (tvDto?.publisher?.trim().isNotEmpty == true)
       LibraryDetailField(label: 'Studio', value: tvDto!.publisher!),
     if (tvDto?.seasonCount != null)

@@ -288,7 +288,7 @@ class MovieEditDraft
           id: MovieCanonicalEditField.originalTitle,
           section: LibraryEditFormSection.details,
           controller: fields.controller(MovieCanonicalEditField.originalTitle),
-          label: 'Original title',
+          label: 'Original Title',
         ),
         LibraryEditFormFieldSpec(
           id: MovieCanonicalEditField.localizedTitle,
@@ -300,13 +300,13 @@ class MovieEditDraft
           id: MovieCanonicalEditField.displayTitle,
           section: LibraryEditFormSection.details,
           controller: fields.controller(MovieCanonicalEditField.displayTitle),
-          label: 'Display title',
+          label: 'Display Title',
         ),
         LibraryEditFormFieldSpec(
           id: MovieCanonicalEditField.searchAliases,
           section: LibraryEditFormSection.details,
           controller: fields.controller(MovieCanonicalEditField.searchAliases),
-          label: 'Search aliases',
+          label: 'Search Aliases',
           visible: false,
         ),
         LibraryEditFormFieldSpec(

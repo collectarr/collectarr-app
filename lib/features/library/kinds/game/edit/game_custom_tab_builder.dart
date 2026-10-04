@@ -71,7 +71,7 @@ Widget? buildGameCustomTabView({
                 editionTitleLabel: 'Edition title',
                 variantLabel: 'Variant',
                 barcodeLabel: 'UPC / Barcode',
-                releaseDateLabel: 'Release date',
+                releaseDateLabel: 'Release Date',
               ),
             ],
           ),
@@ -109,7 +109,7 @@ Widget? buildGameCustomTabView({
               LibraryEditTextField(
                 controller: draft.formFields
                     .controller(GameCanonicalEditField.originalTitle),
-                label: 'Original title',
+                label: 'Original Title',
               ),
               LibraryEditTextField(
                 controller: kindDraft.gameEdit.seriesTitleController,
@@ -124,7 +124,7 @@ Widget? buildGameCustomTabView({
               ),
               LibraryEditTextField(
                 controller: kindDraft.gameEdit.releaseDateController,
-                label: 'Release date',
+                label: 'Release Date',
               ),
             ]),
             const SizedBox(height: 10),

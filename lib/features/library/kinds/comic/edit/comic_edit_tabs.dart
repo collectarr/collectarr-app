@@ -35,7 +35,7 @@ extension ComicEditTabBuilders on ComicEditHost {
                 ),
                 LibraryEditTextField(
                   controller: comicOriginalTitleController,
-                  label: 'Original title',
+                  label: 'Original Title',
                 ),
               ]),
               const SizedBox(height: 10),
@@ -137,7 +137,7 @@ extension ComicEditTabBuilders on ComicEditHost {
                   minLines: 1,
                   maxLines: 3,
                   decoration: const InputDecoration(
-                    labelText: 'Search aliases',
+                    labelText: 'Search Aliases',
                     hintText: 'Comma-separated aliases',
                   ),
                 ),

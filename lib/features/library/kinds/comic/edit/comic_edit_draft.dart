@@ -270,7 +270,7 @@ class ComicEditDraft
           id: ComicCanonicalEditField.originalTitle,
           section: LibraryEditFormSection.details,
           controller: fields.controller(ComicCanonicalEditField.originalTitle),
-          label: 'Original title',
+          label: 'Original Title',
         ),
         LibraryEditFormFieldSpec(
           id: ComicCanonicalEditField.localizedTitle,
@@ -282,13 +282,13 @@ class ComicEditDraft
           id: ComicCanonicalEditField.displayTitle,
           section: LibraryEditFormSection.details,
           controller: fields.controller(ComicCanonicalEditField.displayTitle),
-          label: 'Display title',
+          label: 'Display Title',
         ),
         LibraryEditFormFieldSpec(
           id: ComicCanonicalEditField.searchAliases,
           section: LibraryEditFormSection.details,
           controller: fields.controller(ComicCanonicalEditField.searchAliases),
-          label: 'Search aliases',
+          label: 'Search Aliases',
           visible: false,
         ),
         LibraryEditFormFieldSpec(

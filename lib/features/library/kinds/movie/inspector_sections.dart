@@ -51,7 +51,7 @@ List<Widget> _buildMovieEntitySections(
       LibraryDetailField(label: 'Studio', value: movieDto!.publisher!),
     if (adapter?.releaseDate != null)
       LibraryDetailField(
-          label: 'Release date', value: _formatDate(adapter!.releaseDate!)),
+          label: 'Release Date', value: _formatDate(adapter!.releaseDate!)),
     if (movieDto?.barcode?.trim().isNotEmpty == true)
       LibraryDetailField(label: 'Barcode', value: movieDto!.barcode!),
     if (adapter?.country?.trim().isNotEmpty == true)

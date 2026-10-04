@@ -154,7 +154,7 @@ List<LibraryFieldSpec<TDraft>> movieCatalogItemFields<TDraft>({
       ),
       LibraryDateFieldSpec<TDraft>(
         id: 'release_date',
-        label: 'Release date',
+        label: 'Release Date',
         value: (draft) => values(draft).releaseDate,
         setValue: (draft, value) => values(draft).releaseDate = value,
       ),

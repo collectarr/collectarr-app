@@ -46,7 +46,7 @@ class LibraryTitleMetadataFields extends StatelessWidget {
     this.localizedTitleController,
     this.searchAliasesController,
     this.titleLabel = 'Title',
-    this.searchAliasesLabel = 'Search aliases',
+    this.searchAliasesLabel = 'Search Aliases',
     this.showSortKey = true,
   });
 
@@ -66,7 +66,7 @@ class LibraryTitleMetadataFields extends StatelessWidget {
       if (showSortKey && sortKeyController != null)
         _field(sortKeyController!, 'Sort Title'),
       if (originalTitleController != null)
-        _field(originalTitleController!, 'Original title'),
+        _field(originalTitleController!, 'Original Title'),
       if (localizedTitleController != null)
         _field(localizedTitleController!, 'Localized title'),
       if (searchAliasesController != null)
@@ -112,7 +112,7 @@ class LibraryReleaseIdentityFields extends StatelessWidget {
     this.editionTitleLabel = 'Edition title',
     this.variantLabel = 'Variant',
     this.barcodeLabel = 'Barcode',
-    this.releaseDateLabel = 'Release date',
+    this.releaseDateLabel = 'Release Date',
     this.releaseYearLabel = 'Release year',
     this.showReleaseYear = true,
     this.showPhysicalFormat = true,

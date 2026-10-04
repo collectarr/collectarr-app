@@ -449,7 +449,7 @@ class AnimeEditDraft
           id: AnimeCanonicalEditField.originalTitle,
           section: LibraryEditFormSection.details,
           controller: fields.controller(AnimeCanonicalEditField.originalTitle),
-          label: 'Original title',
+          label: 'Original Title',
         ),
         LibraryEditFormFieldSpec(
           id: AnimeCanonicalEditField.localizedTitle,
@@ -461,13 +461,13 @@ class AnimeEditDraft
           id: AnimeCanonicalEditField.displayTitle,
           section: LibraryEditFormSection.details,
           controller: fields.controller(AnimeCanonicalEditField.displayTitle),
-          label: 'Display title',
+          label: 'Display Title',
         ),
         LibraryEditFormFieldSpec(
           id: AnimeCanonicalEditField.searchAliases,
           section: LibraryEditFormSection.details,
           controller: fields.controller(AnimeCanonicalEditField.searchAliases),
-          label: 'Search aliases',
+          label: 'Search Aliases',
           visible: false,
         ),
         LibraryEditFormFieldSpec(

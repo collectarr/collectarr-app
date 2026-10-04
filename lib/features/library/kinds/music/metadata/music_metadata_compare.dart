@@ -53,7 +53,7 @@ List<MetadataDiffEntry> _musicMetadataEntries(
         serverItem['recording_date']),
     _entry('Subtitle', localItem['subtitle'], serverItem['subtitle']),
     _dateEntry(
-        'Release date', localItem['release_date'], serverItem['release_date']),
+        'Release Date', localItem['release_date'], serverItem['release_date']),
     _entry('Record label', localItem['label'] ?? localItem['publisher'],
         serverItem['label']),
     _entry('Format', localItem['format'], serverItem['format']),

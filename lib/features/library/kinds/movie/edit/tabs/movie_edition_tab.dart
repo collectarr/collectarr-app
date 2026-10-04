@@ -49,7 +49,7 @@ class MovieEditEditionTab extends StatelessWidget {
             editionTitleLabel: 'Edition title',
             variantLabel: 'Variant',
             barcodeLabel: 'Barcode',
-            releaseDateLabel: 'Release date',
+            releaseDateLabel: 'Release Date',
           ),
         ),
       ],

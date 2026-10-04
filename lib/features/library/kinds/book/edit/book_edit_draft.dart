@@ -285,7 +285,7 @@ class BookEditDraft
           id: BookCanonicalEditField.originalTitle,
           section: LibraryEditFormSection.details,
           controller: fields.controller(BookCanonicalEditField.originalTitle),
-          label: 'Original title',
+          label: 'Original Title',
         ),
         LibraryEditFormFieldSpec(
           id: BookCanonicalEditField.localizedTitle,
@@ -297,7 +297,7 @@ class BookEditDraft
           id: BookCanonicalEditField.searchAliases,
           section: LibraryEditFormSection.details,
           controller: fields.controller(BookCanonicalEditField.searchAliases),
-          label: 'Search aliases',
+          label: 'Search Aliases',
           visible: false,
         ),
         LibraryEditFormFieldSpec(
