@@ -358,18 +358,6 @@ AddSchema<AnimeAddManualDraft> animeAddSchemaFor({
                   draft.metadata = draft.metadata.copyWith(country: value),
             ),
             _text(
-              id: 'creators',
-              label: 'Creators',
-              read: (metadata) =>
-                  metadata.creators.map((person) => person.name).join(', '),
-              write: (draft, value) => draft.metadata = draft.metadata.copyWith(
-                creators: [
-                  for (final name in _split(value))
-                    AnimePersonMetadata(name: name, role: 'creator'),
-                ],
-              ),
-            ),
-            _text(
               id: 'characters',
               label: 'Characters',
               read: (metadata) => metadata.characters

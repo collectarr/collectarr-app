@@ -3,6 +3,7 @@ import 'package:collectarr_app/features/catalog/transport/catalog_search_candida
 import 'package:collectarr_app/features/library/add/models/library_kind_add_draft.dart';
 import 'package:collectarr_app/features/library/kinds/tv/add/tv_add_manual_draft.dart';
 import 'package:collectarr_app/features/library/kinds/tv/add/tv_add_schema.dart';
+import 'package:collectarr_app/features/library/kinds/tv/domain/tv_metadata.dart';
 import 'package:collectarr_app/features/library/models/library_item_identity.dart';
 
 CatalogSearchCandidate? buildTvManualCandidate(
@@ -13,7 +14,26 @@ CatalogSearchCandidate? buildTvManualCandidate(
   if (tvAddSchema.validate?.call(draft) != null) return null;
 
   final id = 'manual-tv-${DateTime.now().microsecondsSinceEpoch}';
-  final metadata = draft.metadata.copyWith(title: title.trim());
+  final credits = [...draft.castCredits, ...draft.crewCredits];
+  final metadata = draft.metadata.copyWith(
+    title: title.trim(),
+    creators: [
+      for (final credit in credits)
+        if (credit.nameController.text.trim().isNotEmpty)
+          credit.originalCredit?.withEditedIdentity(
+                name: credit.nameController.text.trim(),
+                role: credit.roleController.text.trim().isEmpty
+                    ? null
+                    : credit.roleController.text.trim(),
+              ) ??
+              TvPersonCredit(
+                name: credit.nameController.text.trim(),
+                role: credit.roleController.text.trim().isEmpty
+                    ? null
+                    : credit.roleController.text.trim(),
+              ),
+    ],
+  );
   return CatalogSearchCandidate.fromItem(
     CatalogItemDto(
       identity: LibraryItemIdentity(id: id, mediaKind: CatalogMediaKind.tv),

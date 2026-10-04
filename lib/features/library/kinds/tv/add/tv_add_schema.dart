@@ -146,18 +146,6 @@ AddSchema<TvAddManualDraft> tvAddSchemaFor({
                   _writeNullable(draft, 'barcode', _nullable(value)),
             ),
             _text(
-              id: 'creators',
-              label: 'Creators',
-              read: (metadata) =>
-                  metadata.creators.map((credit) => credit.name).join(', '),
-              write: (draft, value) => draft.metadata = draft.metadata.copyWith(
-                creators: [
-                  for (final name in _split(value))
-                    TvPersonCredit(name: name, role: 'creator'),
-                ],
-              ),
-            ),
-            _text(
               id: 'characters',
               label: 'Characters',
               read: (metadata) => metadata.characters

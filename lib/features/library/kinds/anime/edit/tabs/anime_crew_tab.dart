@@ -1,6 +1,7 @@
-import 'package:collectarr_app/features/library/kinds/anime/edit/anime_edit_models.dart';
+import 'package:collectarr_app/features/library/kinds/anime/forms/anime_credit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/anime/edit/anime_edit_controller.dart';
 import 'package:collectarr_app/features/library/kinds/shared/video/library_video_credits_section.dart';
+import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
 import 'package:flutter/material.dart';
 
 class AnimeEditCrewTab extends StatelessWidget {
@@ -17,27 +18,31 @@ class AnimeEditCrewTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return LibraryVideoCreditsSection(
-      title: 'Crew',
-      emptyMessage: 'No crew data yet.',
-      addLabel: 'Add Crew',
-      accent: accent,
-      credits: [
-        for (final credit in animeEdit.crewCredits)
-          LibraryVideoCreditControllers(
-            identity: credit,
-            name: credit.nameController,
-            role: credit.roleController,
-          ),
+    return EditTabShell(
+      children: [
+        LibraryVideoCreditsSection(
+          title: 'Crew',
+          emptyMessage: 'No crew data yet.',
+          addLabel: 'Add Crew',
+          accent: accent,
+          credits: [
+            for (final credit in animeEdit.crewCredits)
+              LibraryVideoCreditControllers(
+                identity: credit,
+                name: credit.nameController,
+                role: credit.roleController,
+              ),
+          ],
+          onAdd: () => animeEdit.crewCredits
+              .add(EditableAnimeCredit.custom(role: 'Director')),
+          onRemove: (index) => animeEdit.crewCredits.removeAt(index).dispose(),
+          onReorder: (oldIndex, newIndex) {
+            final credit = animeEdit.crewCredits.removeAt(oldIndex);
+            animeEdit.crewCredits.insert(newIndex, credit);
+          },
+          onChanged: markDirty,
+        ),
       ],
-      onAdd: () => animeEdit.crewCredits
-          .add(EditableAnimeCredit.custom(role: 'Director')),
-      onRemove: (index) => animeEdit.crewCredits.removeAt(index).dispose(),
-      onReorder: (oldIndex, newIndex) {
-        final credit = animeEdit.crewCredits.removeAt(oldIndex);
-        animeEdit.crewCredits.insert(newIndex, credit);
-      },
-      onChanged: markDirty,
     );
   }
 }

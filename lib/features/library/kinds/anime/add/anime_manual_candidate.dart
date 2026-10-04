@@ -13,7 +13,15 @@ CatalogSearchCandidate? buildAnimeManualCandidate(
   if (animeAddSchema.validate?.call(draft) != null) return null;
 
   final id = 'manual-anime-${DateTime.now().microsecondsSinceEpoch}';
-  final metadata = draft.metadata.copyWith(title: title.trim());
+  final credits = [...draft.castCredits, ...draft.crewCredits];
+  final metadata = draft.metadata.copyWith(
+    title: title.trim(),
+    creators: [
+      for (var index = 0; index < credits.length; index++)
+        if (credits[index].nameController.text.trim().isNotEmpty)
+          credits[index].toMetadata(newSequence: index),
+    ],
+  );
 
   return CatalogSearchCandidate.fromItem(
     CatalogItemDto(

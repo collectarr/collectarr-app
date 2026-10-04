@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:collectarr_app/features/library/kinds/tv/edit/tv_edit_models.dart';
+import 'package:collectarr_app/features/library/kinds/tv/forms/tv_credit_draft.dart';
 
 class TvEditController {
   TvEditController({

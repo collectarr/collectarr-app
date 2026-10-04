@@ -8,7 +8,7 @@ import 'package:collectarr_app/features/library/edit/draft/text_controller_group
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_edit_models.dart';
 import 'package:collectarr_app/features/library/kinds/anime/edit/anime_edit_controller.dart';
-import 'package:collectarr_app/features/library/kinds/anime/edit/anime_edit_models.dart';
+import 'package:collectarr_app/features/library/kinds/anime/forms/anime_credit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_entry_dispatch.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_library_entry.dart';

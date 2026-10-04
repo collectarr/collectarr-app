@@ -9,6 +9,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_metadata_children.dart';
 import 'package:collectarr_app/features/library/kinds/anime/edit/anime_edit_models.dart';
+import 'package:collectarr_app/features/library/kinds/anime/forms/anime_credit_draft.dart';
 
 class AnimeEditController {
   AnimeEditController({

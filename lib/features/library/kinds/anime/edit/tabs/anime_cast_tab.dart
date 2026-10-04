@@ -1,6 +1,7 @@
-import 'package:collectarr_app/features/library/kinds/anime/edit/anime_edit_models.dart';
+import 'package:collectarr_app/features/library/kinds/anime/forms/anime_credit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/anime/edit/anime_edit_controller.dart';
 import 'package:collectarr_app/features/library/kinds/shared/video/library_video_credits_section.dart';
+import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
 import 'package:flutter/material.dart';
 
 class AnimeEditCastTab extends StatelessWidget {
@@ -17,27 +18,31 @@ class AnimeEditCastTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return LibraryVideoCreditsSection(
-      title: 'Cast',
-      emptyMessage: 'No cast data yet.',
-      addLabel: 'Add Cast',
-      accent: accent,
-      credits: [
-        for (final credit in animeEdit.castCredits)
-          LibraryVideoCreditControllers(
-            identity: credit,
-            name: credit.nameController,
-            role: credit.roleController,
-          ),
+    return EditTabShell(
+      children: [
+        LibraryVideoCreditsSection(
+          title: 'Cast',
+          emptyMessage: 'No cast data yet.',
+          addLabel: 'Add Cast',
+          accent: accent,
+          credits: [
+            for (final credit in animeEdit.castCredits)
+              LibraryVideoCreditControllers(
+                identity: credit,
+                name: credit.nameController,
+                role: credit.roleController,
+              ),
+          ],
+          onAdd: () => animeEdit.castCredits
+              .add(EditableAnimeCredit.custom(role: 'Actor')),
+          onRemove: (index) => animeEdit.castCredits.removeAt(index).dispose(),
+          onReorder: (oldIndex, newIndex) {
+            final credit = animeEdit.castCredits.removeAt(oldIndex);
+            animeEdit.castCredits.insert(newIndex, credit);
+          },
+          onChanged: markDirty,
+        ),
       ],
-      onAdd: () =>
-          animeEdit.castCredits.add(EditableAnimeCredit.custom(role: 'Actor')),
-      onRemove: (index) => animeEdit.castCredits.removeAt(index).dispose(),
-      onReorder: (oldIndex, newIndex) {
-        final credit = animeEdit.castCredits.removeAt(oldIndex);
-        animeEdit.castCredits.insert(newIndex, credit);
-      },
-      onChanged: markDirty,
     );
   }
 }

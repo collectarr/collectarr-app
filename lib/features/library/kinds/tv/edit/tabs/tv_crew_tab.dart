@@ -1,6 +1,7 @@
-import 'package:collectarr_app/features/library/kinds/tv/edit/tv_edit_models.dart';
+import 'package:collectarr_app/features/library/kinds/tv/forms/tv_credit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/tv/edit/tv_edit_controller.dart';
 import 'package:collectarr_app/features/library/kinds/shared/video/library_video_credits_section.dart';
+import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
 import 'package:flutter/material.dart';
 
 class TvEditCrewTab extends StatelessWidget {
@@ -17,27 +18,31 @@ class TvEditCrewTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return LibraryVideoCreditsSection(
-      title: 'Crew',
-      emptyMessage: 'No crew data yet.',
-      addLabel: 'Add Crew',
-      accent: accent,
-      credits: [
-        for (final credit in tvEdit.crewCredits)
-          LibraryVideoCreditControllers(
-            identity: credit,
-            name: credit.nameController,
-            role: credit.roleController,
-          ),
+    return EditTabShell(
+      children: [
+        LibraryVideoCreditsSection(
+          title: 'Crew',
+          emptyMessage: 'No crew data yet.',
+          addLabel: 'Add Crew',
+          accent: accent,
+          credits: [
+            for (final credit in tvEdit.crewCredits)
+              LibraryVideoCreditControllers(
+                identity: credit,
+                name: credit.nameController,
+                role: credit.roleController,
+              ),
+          ],
+          onAdd: () =>
+              tvEdit.crewCredits.add(EditableTvCredit.custom(role: 'Director')),
+          onRemove: (index) => tvEdit.crewCredits.removeAt(index).dispose(),
+          onReorder: (oldIndex, newIndex) {
+            final credit = tvEdit.crewCredits.removeAt(oldIndex);
+            tvEdit.crewCredits.insert(newIndex, credit);
+          },
+          onChanged: markDirty,
+        ),
       ],
-      onAdd: () =>
-          tvEdit.crewCredits.add(EditableTvCredit.custom(role: 'Director')),
-      onRemove: (index) => tvEdit.crewCredits.removeAt(index).dispose(),
-      onReorder: (oldIndex, newIndex) {
-        final credit = tvEdit.crewCredits.removeAt(oldIndex);
-        tvEdit.crewCredits.insert(newIndex, credit);
-      },
-      onChanged: markDirty,
     );
   }
 }
