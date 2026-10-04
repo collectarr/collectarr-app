@@ -17,6 +17,7 @@ import 'package:collectarr_app/features/library/kinds/music/edit/music_album_cre
 import 'package:collectarr_app/features/library/edit/schema/edit_schema_renderer.dart';
 import 'package:collectarr_app/features/library/edit/sections/custom_fields_edit_section.dart';
 import 'package:collectarr_app/features/library/edit/contracts/library_vocabulary_edit_change.dart';
+import 'package:collectarr_app/features/pick_lists/pick_list_options.dart';
 import 'package:collectarr_app/features/library/edit/sections/library_entry_personal_section.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit/music_signed_by_personal_field.dart';
 import 'package:collectarr_app/features/library/edit/sections/item_images_edit_section.dart';
@@ -289,7 +290,23 @@ final class _MusicAlbumEditDialogState
     return EditTabShell(children: [
       LibraryEntryPersonalSection(
         draft: personal,
-        kindSpecificFields: [MusicSignedByPersonalField(draft: personal)],
+        kindSpecificFields: [
+          MusicSignedByPersonalField(
+            value: personal.text('signed_by'),
+            onChanged: (value) {
+              personal.set('signed_by', value ?? '');
+              personal.pendingChanges['vocabulary:music.signed_by'] =
+                  LibraryVocabularyEditChange([
+                for (final signer in splitPickListValues(value ?? ''))
+                  (
+                    listName: 'music.signed_by',
+                    value: signer,
+                    mediaKind: 'music',
+                  ),
+              ]);
+            },
+          ),
+        ],
         history: _listening == null
             ? const LinearProgressIndicator()
             : MusicListeningDraftSection(draft: _listening!),

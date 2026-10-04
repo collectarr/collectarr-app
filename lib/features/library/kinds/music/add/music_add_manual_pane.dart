@@ -5,10 +5,13 @@ import 'package:collectarr_app/features/library/add/schema/add_schema.dart';
 import 'package:collectarr_app/features/library/add/schema/add_schema_renderer.dart';
 import 'package:collectarr_app/features/library/kinds/music/add/music_add_manual_credits_tab.dart';
 import 'package:collectarr_app/features/library/kinds/music/add/music_add_manual_covers_tab.dart';
+import 'package:collectarr_app/features/library/kinds/music/add/music_add_draft.dart';
 import 'package:collectarr_app/features/library/kinds/music/add/music_add_manual_draft.dart';
 import 'package:collectarr_app/features/library/kinds/music/add/music_add_manual_links_tab.dart';
 import 'package:collectarr_app/features/library/kinds/music/add/music_add_schema.dart';
 import 'package:collectarr_app/features/library/kinds/music/add/music_add_manual_tracks_tab.dart';
+import 'package:collectarr_app/features/library/kinds/music/edit/music_signed_by_personal_field.dart';
+import 'package:collectarr_app/features/pick_lists/pick_list_options.dart';
 import 'package:flutter/material.dart';
 
 class MusicAddManualPane extends StatelessWidget {
@@ -19,6 +22,10 @@ class MusicAddManualPane extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final draft = request.manualDraftAs<MusicAddManualDraft>();
+    final personalDraft = request.kindDraft;
+    if (personalDraft is! MusicAddDraft) {
+      throw StateError('Music Manual Add requires a MusicAddDraft.');
+    }
     final fieldsById = {
       for (final section in musicAddSchema.sections)
         for (final field in section.fields) field.id: field,
@@ -136,7 +143,28 @@ class MusicAddManualPane extends StatelessWidget {
           id: 'personal',
           label: 'Personal',
           icon: Icons.person_outline,
-          content: LibraryAddManualPersonalTab(request: request),
+          content: LibraryAddManualPersonalTab(
+            request: request,
+            kindSpecificFields: [
+              MusicSignedByPersonalField(
+                value: personalDraft.signedBy,
+                onChanged: (value) {
+                  final update = request.onKindDraftChanged;
+                  if (update == null) {
+                    throw StateError(
+                      'Music Manual Add has no kind-draft update callback.',
+                    );
+                  }
+                  update(personalDraft.copyWith(signedBy: value));
+                  request.onVocabularyValuesChanged?.call(
+                    fieldId: 'signed_by',
+                    listName: 'music.signed_by',
+                    values: splitPickListValues(value ?? '').toSet(),
+                  );
+                },
+              ),
+            ],
+          ),
         ),
         LibraryAddManualPaneTab(
           id: 'covers',

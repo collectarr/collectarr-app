@@ -272,6 +272,10 @@ Completed implementation slices:
 - Music Manual Add cover URLs and Music My Images descriptions now use the
   shared labelled text controls. Core cover upload/crop and personal-image
   storage still follow their separate create/edit lifecycles.
+- Music Add and Edit now use the same `Signed By` multi-value picker. Add
+  stores the selection in its typed Music entry-details draft and stages the
+  corresponding vocabulary values without adding signer data to catalog
+  metadata.
 - Add and Edit Personal sections now share one responsive four/two/one-column
   field grid, with long fields and history rendered across the full width.
 - Kind Add/Edit fields and metadata comparison views now use consistent title
@@ -329,9 +333,10 @@ Still outstanding:
 - The legacy pick-list source and its golden are retained temporarily even
   though application call sites have moved to the shared chip control. Remove
   the wrapper, barrel exports, and replace the golden during final UI cleanup.
-- Music tracks, covers, images, and personal fields have not yet converged on
-  one complete Add/Edit draft lifecycle. People/Classical credits and external
-  links share their presentation while keeping kind-owned Add and Edit adapters.
+- Music tracks, covers, images, and the remaining personal fields have not yet
+  converged on one complete Add/Edit draft lifecycle. People/Classical credits
+  and external links share their presentation while keeping kind-owned Add and
+  Edit adapters; Signed By now shares both its picker and typed entry detail.
 
 ## 1. What is already shared
 

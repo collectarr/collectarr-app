@@ -18,9 +18,11 @@ final class LibraryAddManualPersonalTab extends StatelessWidget {
   const LibraryAddManualPersonalTab({
     super.key,
     required this.request,
+    this.kindSpecificFields = const [],
   });
 
   final LibraryAddManualPaneRequest request;
+  final List<Widget> kindSpecificFields;
 
   @override
   Widget build(BuildContext context) {
@@ -161,6 +163,7 @@ final class LibraryAddManualPersonalTab extends StatelessWidget {
       ),
     ];
 
+    fields.insertAll(fields.length - 1, kindSpecificFields);
     final gridFields = fields.take(fields.length - 2).toList(growable: false);
     final fullWidthFields =
         fields.skip(fields.length - 2).toList(growable: false);

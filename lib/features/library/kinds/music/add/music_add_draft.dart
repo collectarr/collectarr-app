@@ -10,10 +10,25 @@ final class MusicAddDraft extends LibraryAddKindDraft {
   const MusicAddDraft({
     this.grade = 'Ungraded',
     this.media = const [],
+    this.signedBy,
   });
 
   final String? grade;
   final List<MusicEntryDiscDetails> media;
+  final String? signedBy;
+
+  MusicAddDraft copyWith({
+    String? grade,
+    List<MusicEntryDiscDetails>? media,
+    Object? signedBy = _musicAddDraftUnset,
+  }) =>
+      MusicAddDraft(
+        grade: grade ?? this.grade,
+        media: media ?? this.media,
+        signedBy: identical(signedBy, _musicAddDraftUnset)
+            ? this.signedBy
+            : signedBy as String?,
+      );
 
   @override
   CatalogMediaKind get kind => CatalogMediaKind.music;
@@ -21,5 +36,8 @@ final class MusicAddDraft extends LibraryAddKindDraft {
   @override
   JsonEncodable toEntryDetailsDraft() => MusicEntryDetailsDraft(
         media: media,
+        signedBy: signedBy,
       );
 }
+
+const Object _musicAddDraftUnset = Object();

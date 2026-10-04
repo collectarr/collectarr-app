@@ -1,7 +1,5 @@
 import 'dart:async';
 
-import 'package:collectarr_app/features/library/edit/contracts/library_vocabulary_edit_change.dart';
-import 'package:collectarr_app/features/library/edit/draft/library_entry_edit_draft.dart';
 import 'package:collectarr_app/features/library/schema/library_field_spec.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_multi_value_options_dialog.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_multi_value_pick_field.dart';
@@ -13,10 +11,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 final class MusicSignedByPersonalField extends ConsumerStatefulWidget {
   const MusicSignedByPersonalField({
     super.key,
-    required this.draft,
+    required this.value,
+    required this.onChanged,
   });
 
-  final LibraryEntryEditDraft draft;
+  final String? value;
+  final ValueChanged<String?> onChanged;
 
   @override
   ConsumerState<MusicSignedByPersonalField> createState() =>
@@ -36,7 +36,7 @@ final class _MusicSignedByPersonalFieldState
   @override
   void didUpdateWidget(covariant MusicSignedByPersonalField oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.draft != widget.draft) unawaited(_loadOptions());
+    if (oldWidget.value != widget.value) unawaited(_loadOptions());
   }
 
   Future<void> _loadOptions() async {
@@ -44,7 +44,7 @@ final class _MusicSignedByPersonalFieldState
       ref.read(localDatabaseProvider),
       listName: 'music.signed_by',
       mediaKind: 'music',
-      selectedValue: widget.draft.text('signed_by'),
+      selectedValue: widget.value,
     );
     if (!mounted) return;
     setState(() => _options = values);
@@ -53,7 +53,7 @@ final class _MusicSignedByPersonalFieldState
   @override
   Widget build(BuildContext context) => LibraryMultiValuePickField<String>(
         label: 'Signed By',
-        value: splitPickListValues(widget.draft.text('signed_by')).toSet(),
+        value: splitPickListValues(widget.value ?? '').toSet(),
         options: [
           for (final value in _options)
             LibraryFieldOption<String>(value: value, label: value),
@@ -78,16 +78,7 @@ final class _MusicSignedByPersonalFieldState
         ),
         onChanged: (values) {
           final selected = values.toList(growable: false);
-          widget.draft.set('signed_by', joinPickListValues(selected) ?? '');
-          widget.draft.pendingChanges['vocabulary:music.signed_by'] =
-              LibraryVocabularyEditChange([
-            for (final value in selected)
-              (
-                listName: 'music.signed_by',
-                value: value,
-                mediaKind: 'music',
-              ),
-          ]);
+          widget.onChanged(joinPickListValues(selected));
         },
       );
 }
