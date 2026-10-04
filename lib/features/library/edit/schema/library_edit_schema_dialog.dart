@@ -68,10 +68,11 @@ class _LibraryEditSchemaDialogState<TModel, TDraft>
     final entry = LibraryEntryEditScope.maybeOf(context);
     final extraTabs = [...widget.extraTabs];
     final hasPersonal = widget.schema.tabs.any((tab) => tab.id == 'personal') ||
-        extraTabs.any((tab) => tab.label == 'Personal');
+        extraTabs.any((tab) => tab.id == 'personal');
     if (entry != null && !hasPersonal) {
       entry.used = true;
       extraTabs.add(EditSchemaExtraTab(
+        id: 'personal',
         label: 'Personal',
         icon: Icons.person_outline,
         content: LibraryEntryPersonalSection(draft: entry),

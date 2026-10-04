@@ -19,12 +19,14 @@ import 'edit_schema.dart';
 /// draft model. The tab content may manage its own independent mutations.
 final class EditSchemaExtraTab {
   const EditSchemaExtraTab({
+    required this.id,
     required this.label,
     required this.content,
     this.icon = Icons.extension_outlined,
     this.validate,
   });
 
+  final String id;
   final String label;
   final IconData icon;
   final Widget content;
@@ -368,7 +370,7 @@ class EditSchemaRendererState<TModel, TDraft>
     final extraIndex = index - widget.schema.tabs.length;
     final tab = widget.extraTabs[extraIndex];
     return EditTab(
-      key: ValueKey<String>('extra-tab-$extraIndex'),
+      key: ValueKey<String>('extra-tab-${tab.id}'),
       icon: tab.icon,
       label: tab.label,
     );

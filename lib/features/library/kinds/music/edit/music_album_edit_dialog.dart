@@ -131,6 +131,7 @@ final class _MusicAlbumEditDialogState
         onNext: widget.request.onNext,
         extraTabs: [
           EditSchemaExtraTab(
+            id: 'classical',
             label: 'Classical',
             icon: Icons.queue_music_outlined,
             content: MusicAlbumCreditsTab(
@@ -140,6 +141,7 @@ final class _MusicAlbumEditDialogState
             ),
           ),
           EditSchemaExtraTab(
+            id: 'people',
             label: 'People',
             icon: Icons.people_outline,
             content: MusicAlbumCreditsTab(
@@ -149,6 +151,7 @@ final class _MusicAlbumEditDialogState
             ),
           ),
           EditSchemaExtraTab(
+            id: 'tracks',
             label: 'Tracks',
             icon: Icons.format_list_numbered,
             content: MusicAlbumStructureTab(
@@ -157,11 +160,13 @@ final class _MusicAlbumEditDialogState
             ),
           ),
           EditSchemaExtraTab(
+            id: 'personal',
             label: 'Personal',
             icon: Icons.headphones_outlined,
             content: _personalSection(context),
           ),
           EditSchemaExtraTab(
+            id: 'custom_fields',
             label: 'Custom Fields',
             icon: Icons.tune_outlined,
             content: CustomFieldsEditSection(
@@ -191,6 +196,7 @@ final class _MusicAlbumEditDialogState
             ),
           ),
           EditSchemaExtraTab(
+            id: 'covers',
             label: 'Covers',
             icon: Icons.photo_camera_outlined,
             content: _albumImagesReady
@@ -206,6 +212,7 @@ final class _MusicAlbumEditDialogState
                 : const Center(child: CircularProgressIndicator()),
           ),
           EditSchemaExtraTab(
+            id: 'my_images',
             label: 'My Images',
             icon: Icons.collections_outlined,
             content: _albumImagesReady
@@ -221,6 +228,7 @@ final class _MusicAlbumEditDialogState
                 : const Center(child: CircularProgressIndicator()),
           ),
           EditSchemaExtraTab(
+            id: 'links',
             label: 'Links',
             icon: Icons.public,
             content: MusicAlbumLinksTab(
