@@ -137,6 +137,41 @@ Widget? buildGameCustomTabView({
               hint: 'Select platforms',
               multiSelect: true,
             ),
+            const SizedBox(height: 10),
+            LibraryEditResponsiveRow(children: [
+              LibraryEditTextField(
+                controller: kindDraft.gameEdit.developersController,
+                label: 'Developers',
+              ),
+              LibraryVocabularyField(
+                controller: kindDraft.gameEdit.genresController,
+                options: kindDraft.gameEdit.genreOptions,
+                label: 'Genres',
+                multiSelect: true,
+              ),
+            ]),
+            const SizedBox(height: 10),
+            LibraryEditResponsiveRow(children: [
+              LibraryEditTextField(
+                controller: kindDraft.gameEdit.ageRatingController,
+                label: 'Age rating',
+              ),
+              LibraryEditTextField(
+                controller: kindDraft.gameEdit.franchiseController,
+                label: 'Franchise',
+              ),
+            ]),
+            const SizedBox(height: 10),
+            LibraryEditResponsiveRow(children: [
+              LibraryEditTextField(
+                controller: kindDraft.gameEdit.languageController,
+                label: 'Languages',
+              ),
+              LibraryEditTextField(
+                controller: kindDraft.gameEdit.countryController,
+                label: 'Country',
+              ),
+            ]),
           ],
         ),
       ),

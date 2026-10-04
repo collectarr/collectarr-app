@@ -67,6 +67,8 @@ AddSchema<GameAddManualDraft> gameAddSchemaFor({
             'age_ratings',
             'languages',
             'country',
+            'franchise',
+            'series',
             'description',
           },
         ),
