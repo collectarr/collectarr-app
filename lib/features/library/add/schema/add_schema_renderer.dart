@@ -31,9 +31,15 @@ class AddSchemaRenderer<TDraft> extends StatefulWidget {
         onVocabularyValueChanged: null,
         onVocabularyValuesChanged: null,
         onChanged: null,
+        controlMode: LibraryFieldSpecControlMode.add,
         embedded: false,
       );
 
+  /// Renders schema fields inside the shared Add shell.
+  ///
+  /// Selection interactions are configured independently from embedded
+  /// layout. The default keeps the full pick-list dialog behavior used by the
+  /// existing manual Add forms.
   const AddSchemaRenderer.embedded({
     Key? key,
     required AddSchema<TDraft> schema,
@@ -43,6 +49,7 @@ class AddSchemaRenderer<TDraft> extends StatefulWidget {
     LibraryVocabularyValueChanged? onVocabularyValueChanged,
     LibraryVocabularyValuesChanged? onVocabularyValuesChanged,
     VoidCallback? onChanged,
+    LibraryFieldSpecControlMode controlMode = LibraryFieldSpecControlMode.edit,
   }) : this._(
           key: key,
           schema: schema,
@@ -54,6 +61,7 @@ class AddSchemaRenderer<TDraft> extends StatefulWidget {
           onVocabularyValueChanged: onVocabularyValueChanged,
           onVocabularyValuesChanged: onVocabularyValuesChanged,
           onChanged: onChanged,
+          controlMode: controlMode,
           submitLabel: 'Add',
           embedded: true,
         );
@@ -69,6 +77,7 @@ class AddSchemaRenderer<TDraft> extends StatefulWidget {
     required this.onVocabularyValueChanged,
     required this.onVocabularyValuesChanged,
     required this.onChanged,
+    required this.controlMode,
     required this.submitLabel,
     required bool embedded,
   }) : _embedded = embedded;
@@ -83,6 +92,7 @@ class AddSchemaRenderer<TDraft> extends StatefulWidget {
   final LibraryVocabularyValueChanged? onVocabularyValueChanged;
   final LibraryVocabularyValuesChanged? onVocabularyValuesChanged;
   final VoidCallback? onChanged;
+  final LibraryFieldSpecControlMode controlMode;
   final bool _embedded;
 
   @override
@@ -195,9 +205,7 @@ class _AddSchemaRendererState<TDraft> extends State<AddSchemaRenderer<TDraft>> {
       LibraryFieldSpecControlBuilder<TDraft>(
         context: context,
         draft: widget.draft,
-        mode: widget._embedded
-            ? LibraryFieldSpecControlMode.edit
-            : LibraryFieldSpecControlMode.add,
+        mode: widget.controlMode,
         controllerFor: _controllerFor,
         mediaKind: widget.mediaKind,
         onVocabularyValueChanged: widget.onVocabularyValueChanged,
