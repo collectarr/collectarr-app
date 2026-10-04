@@ -72,6 +72,9 @@ Completed implementation slices:
   External links are staged with draft-owned controllers while trailer links
   remain intact; the previously blank placeholder tabs were removed. Personal
   My Images are not exposed as catalog metadata by this typed catalog editor.
+- Comic and Board Game Manual Add now use the shared external-link draft row
+  for controller ownership and disposal. Each kind still maps those values to
+  its own typed link model when it builds the catalog candidate.
 - Music credit Name, Sort Name, and Instrument inputs now use the same external
   label primitive as the rest of the forms in both Add and Edit.
 - The controller audit found no kind-pane build path constructing a fresh
@@ -883,3 +886,8 @@ placeholder tabs. Creators, Characters, and Links use staged editors with
 controller disposal; Covers exposes the existing typed URL field. Targeted
 `dart analyze` for the Comic catalog editor and field specs passed. Tests and
 runtime screenshot review remain deferred.
+
+Implementation note (2026-10-04): Comic and Board Game Manual Add no longer
+define separate external-link controller draft classes. Both reuse
+`LibraryExternalLinkDraftRow`; their candidate builders retain kind-specific
+link serialization. No tests were run.

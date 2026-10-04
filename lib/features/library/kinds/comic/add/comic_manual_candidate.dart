@@ -5,6 +5,7 @@ import 'package:collectarr_app/features/library/kinds/comic/add/comic_add_manual
 import 'package:collectarr_app/features/library/kinds/comic/add/comic_add_schema.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_catalog_item.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_ids.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_link.dart';
 import 'package:collectarr_app/features/library/kinds/comic/forms/comic_catalog_form_adapters.dart';
 import 'package:collectarr_app/features/library/models/library_item_identity.dart';
 
@@ -24,7 +25,15 @@ CatalogSearchCandidate? buildComicManualCandidate(
     values: values,
     externalLinks: [
       for (final link in draft.externalLinks)
-        if (link.urlController.text.trim().isNotEmpty) link.toModel(),
+        if (link.urlController.text.trim().isNotEmpty)
+          ComicLink(
+            url: link.urlController.text.trim(),
+            title: _nullable(link.titleController.text),
+            description: _nullable(link.titleController.text),
+            source: 'manual',
+            isAutomatic: false,
+            kind: 'external',
+          ),
     ],
     creators: [
       for (final creator in draft.creators)
@@ -44,6 +53,11 @@ CatalogSearchCandidate? buildComicManualCandidate(
       origin: CatalogItemOrigin.privateLocal,
     ),
   );
+}
+
+String? _nullable(String value) {
+  final normalized = value.trim();
+  return normalized.isEmpty ? null : normalized;
 }
 
 /// Serializes this kind's typed manual catalog model for Core review.

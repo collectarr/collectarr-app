@@ -1,6 +1,5 @@
 import 'package:collectarr_app/features/library/edit/fields/library_external_links_table.dart';
 import 'package:collectarr_app/features/library/kinds/comic/add/comic_add_manual_draft.dart';
-import 'package:collectarr_app/features/library/kinds/comic/add/comic_external_link_draft.dart';
 import 'package:flutter/material.dart';
 
 final class ComicAddLinksTab extends StatefulWidget {
@@ -23,10 +22,10 @@ final class _ComicAddLinksTabState extends State<ComicAddLinksTab> {
   @override
   Widget build(BuildContext context) {
     final links = widget.draft.externalLinks;
-    return LibraryExternalLinksTable<ComicExternalLinkDraft>(
+    return LibraryExternalLinksTable<LibraryExternalLinkDraftRow>(
       rows: [
         for (final link in links)
-          LibraryExternalLinkEditRow<ComicExternalLinkDraft>(
+          LibraryExternalLinkEditRow<LibraryExternalLinkDraftRow>(
             identity: link,
             urlController: link.urlController,
             descriptionController: link.titleController,
@@ -35,7 +34,7 @@ final class _ComicAddLinksTabState extends State<ComicAddLinksTab> {
       accent: widget.accent,
       addLabel: 'New Link',
       onAdd: () => setState(() {
-        links.add(ComicExternalLinkDraft());
+        links.add(LibraryExternalLinkDraftRow());
         widget.onChanged?.call();
       }),
       onReorder: (oldIndex, newIndex) => setState(() {

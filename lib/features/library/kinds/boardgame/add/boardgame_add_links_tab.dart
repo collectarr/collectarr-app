@@ -1,6 +1,5 @@
 import 'package:collectarr_app/features/library/edit/fields/library_external_links_table.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/add/boardgame_add_manual_draft.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/add/boardgame_external_link_draft.dart';
 import 'package:flutter/material.dart';
 
 final class BoardgameAddLinksTab extends StatefulWidget {
@@ -23,10 +22,10 @@ final class _BoardgameAddLinksTabState extends State<BoardgameAddLinksTab> {
   @override
   Widget build(BuildContext context) {
     final links = widget.draft.externalLinks;
-    return LibraryExternalLinksTable<BoardGameExternalLinkDraft>(
+    return LibraryExternalLinksTable<LibraryExternalLinkDraftRow>(
       rows: [
         for (final link in links)
-          LibraryExternalLinkEditRow<BoardGameExternalLinkDraft>(
+          LibraryExternalLinkEditRow<LibraryExternalLinkDraftRow>(
             identity: link,
             urlController: link.urlController,
             descriptionController: link.descriptionController,
@@ -35,7 +34,7 @@ final class _BoardgameAddLinksTabState extends State<BoardgameAddLinksTab> {
       accent: widget.accent,
       addLabel: 'New Link',
       onAdd: () => setState(() {
-        links.add(BoardGameExternalLinkDraft());
+        links.add(LibraryExternalLinkDraftRow());
         widget.onChanged?.call();
       }),
       onReorder: (oldIndex, newIndex) => setState(() {

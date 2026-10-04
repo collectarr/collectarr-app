@@ -21,7 +21,11 @@ CatalogSearchCandidate? buildBoardgameManualCandidate(
       for (final (index, link) in draft.externalLinks
           .where((link) => link.urlController.text.trim().isNotEmpty)
           .indexed)
-        link.toModel(index + 1),
+        BoardGameLink(
+          url: link.urlController.text.trim(),
+          description: _nullable(link.descriptionController.text),
+          position: index + 1,
+        ),
     ],
   );
   return CatalogSearchCandidate.fromItem(
@@ -32,6 +36,11 @@ CatalogSearchCandidate? buildBoardgameManualCandidate(
       origin: CatalogItemOrigin.privateLocal,
     ),
   );
+}
+
+String? _nullable(String value) {
+  final normalized = value.trim();
+  return normalized.isEmpty ? null : normalized;
 }
 
 /// Serializes this kind's typed manual catalog model for Core review.

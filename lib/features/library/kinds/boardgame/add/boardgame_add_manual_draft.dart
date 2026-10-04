@@ -1,5 +1,5 @@
 import 'package:collectarr_app/features/library/add/models/library_kind_add_draft.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/add/boardgame_external_link_draft.dart';
+import 'package:collectarr_app/features/library/edit/fields/library_external_links_table.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/forms/boardgame_catalog_form_draft.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/forms/boardgame_catalog_form_values.dart';
 
@@ -13,7 +13,7 @@ final class BoardgameAddManualDraft
 
   @override
   final BoardGameCatalogFormValues values;
-  final List<BoardGameExternalLinkDraft> externalLinks = [];
+  final List<LibraryExternalLinkDraftRow> externalLinks = [];
   @override
   String catalogTitle;
 
