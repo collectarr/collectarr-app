@@ -11,13 +11,11 @@ import 'package:collectarr_app/features/library/edit/draft/library_edit_models.d
 import 'package:collectarr_app/features/library/kinds/registry/library_entry_dispatch.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_library_entry.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_catalog_item.dart';
-import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/features/library/kinds/comic/entries/comic_entry_details.dart';
 import 'package:collectarr_app/features/library/kinds/comic/edit/entry/comic_entry_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/comic/entries/comic_entry_details_draft.dart';
 import 'package:collectarr_app/features/library/kinds/comic/entries/comic_library_entry_update_payload.dart';
 import 'package:collectarr_app/features/library/edit/draft/personal_state_draft.dart';
-import 'package:collectarr_app/features/catalog/serial/serial_authority_repository.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:flutter/material.dart';
 
@@ -76,7 +74,6 @@ class ComicEditDraft
 
   final ComicEntryEditDraft entryEdit;
   final ComicEditController comicEdit;
-  Future<List<SerialAuthorityEntry>>? seriesEntriesFuture;
 
   @override
   JsonEncodable toDetailsDraft() => entryEdit.toDetailsDraft();

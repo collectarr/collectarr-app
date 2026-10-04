@@ -14,8 +14,7 @@ import 'package:collectarr_app/features/pick_lists/models/universal_vocabularies
 import 'package:collectarr_app/features/pick_lists/widgets/pick_list_select_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
 import 'package:collectarr_app/features/library/location_picker_dialog.dart';
-import 'package:collectarr_app/features/library/serial/serial_authority_dialog.dart';
-import 'package:collectarr_app/features/catalog/serial/serial_authority_repository.dart';
+import 'package:collectarr_app/features/library/serial/library_series_selector_field.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -359,14 +358,6 @@ class ComicEditHostAdapter implements ComicEditHost {
     markDirty();
   }
 
-  Future<List<SerialAuthorityEntry>> get _comicSeriesEntries {
-    return _comicDraft.seriesEntriesFuture ??= SerialAuthorityRepository(
-      comicRef.read(localDatabaseProvider),
-    ).searchEntries(
-      mediaKind: draft.type.kind.apiValue,
-    );
-  }
-
   @override
   List<String> get comicGenreOptions => const [
         'Action',
@@ -463,48 +454,20 @@ class ComicEditHostAdapter implements ComicEditHost {
 
   @override
   Widget buildComicSeriesField() {
-    return FutureBuilder<List<SerialAuthorityEntry>>(
-      future: _comicSeriesEntries,
-      builder: (context, snapshot) {
-        SerialAuthorityEntry? selectedSeries;
-        return LibraryDropdownPickField<String>(
-          label: 'Series',
-          value: _comicDraft.comicEdit.seriesTitleController.text,
-          options: [
-            for (final entry in snapshot.data ?? const <SerialAuthorityEntry>[])
-              LibraryFieldOption<String>(
-                value: entry.title,
-                label: entry.title,
-              ),
-          ],
-          openPicker: (
-              {required label,
-              required selectedValue,
-              required options}) async {
-            final db = ProviderScope.containerOf(context, listen: false)
-                .read(localDatabaseProvider);
-            selectedSeries = await showSeriesPickerDialog(
-              context: context,
-              db: db,
-              mediaKind: draft.type.kind.apiValue,
-              selectedTitle: selectedValue ?? '',
-            );
-            return selectedSeries?.title;
-          },
-          onChanged: (value) {
-            if (value != null && value.isNotEmpty) {
-              final chosenSeries = selectedSeries;
-              if (chosenSeries != null) {
-                _comicDraft.comicEdit.seriesTitleController.text =
-                    chosenSeries.title;
-                _comicDraft.comicEdit.seriesId = chosenSeries.id;
-              }
-              draft.formFields.controller(ComicCanonicalEditField.title).text =
-                  value;
-            }
-            markDirty();
-          },
-        );
+    final comic = _comicDraft.comicEdit;
+    return LibrarySeriesSelectorField(
+      database: comicRef.read(localDatabaseProvider),
+      mediaKind: draft.type.kind.apiValue,
+      initialTitle: comic.seriesTitleController.text,
+      initialSeriesId: comic.seriesId,
+      onChanged: (title, coreSeriesId) {
+        comic.seriesTitleController.text = title;
+        comic.seriesId = coreSeriesId;
+        if (title.isNotEmpty) {
+          draft.formFields.controller(ComicCanonicalEditField.title).text =
+              title;
+        }
+        markDirty();
       },
     );
   }
