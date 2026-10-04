@@ -101,6 +101,10 @@ Completed implementation slices:
   section filtering preserves layout and visibility configuration while a tab
   presents a focused subset. This does not yet unify Board Game's Add/Edit
   lifecycle or add external-link editing to Manual Add.
+- Manga Manual Add now uses Main, Edition Details, Details, Plot, and Covers
+  tabs, all backed by the same Manga draft and schema definitions. Its series
+  selector and managed publisher, imprint, and format vocabularies stay owned
+  by the stateful Manga pane.
 - The shared video Specs section now also edits Screen ratio. TV and Anime
   hydrate their existing Specs controllers from metadata and persist all
   fields, including explicit clears; their Add forms expose the same supported
