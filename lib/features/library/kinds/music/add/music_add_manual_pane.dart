@@ -12,6 +12,7 @@ import 'package:collectarr_app/features/library/kinds/music/add/music_add_schema
 import 'package:collectarr_app/features/library/kinds/music/add/music_add_manual_tracks_tab.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit/music_signed_by_personal_field.dart';
 import 'package:collectarr_app/features/pick_lists/pick_list_options.dart';
+import 'package:collectarr_app/features/library/ui/primitives/library_dropdown_pick_field.dart';
 import 'package:flutter/material.dart';
 
 class MusicAddManualPane extends StatelessWidget {
@@ -146,6 +147,24 @@ class MusicAddManualPane extends StatelessWidget {
           content: LibraryAddManualPersonalTab(
             request: request,
             kindSpecificFields: [
+              LibraryDropdownPickField<String>(
+                label: 'Grade',
+                value: personalDraft.grade,
+                options: const [
+                  LibraryFieldOption(value: 'Ungraded', label: 'Ungraded'),
+                ],
+                allowCustomValue: true,
+                clearOptionLabel: 'Clear grade',
+                onChanged: (value) {
+                  final update = request.onKindDraftChanged;
+                  if (update == null) {
+                    throw StateError(
+                      'Music Manual Add has no kind-draft update callback.',
+                    );
+                  }
+                  update(personalDraft.copyWith(grade: value));
+                },
+              ),
               MusicSignedByPersonalField(
                 value: personalDraft.signedBy,
                 onChanged: (value) {

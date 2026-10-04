@@ -18,12 +18,14 @@ final class MusicAddDraft extends LibraryAddKindDraft {
   final String? signedBy;
 
   MusicAddDraft copyWith({
-    String? grade,
+    Object? grade = _musicAddDraftUnset,
     List<MusicEntryDiscDetails>? media,
     Object? signedBy = _musicAddDraftUnset,
   }) =>
       MusicAddDraft(
-        grade: grade ?? this.grade,
+        grade: identical(grade, _musicAddDraftUnset)
+            ? this.grade
+            : grade as String?,
         media: media ?? this.media,
         signedBy: identical(signedBy, _musicAddDraftUnset)
             ? this.signedBy

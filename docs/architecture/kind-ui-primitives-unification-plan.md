@@ -276,6 +276,9 @@ Completed implementation slices:
   stores the selection in its typed Music entry-details draft and stages the
   corresponding vocabulary values without adding signer data to catalog
   metadata.
+- Music Manual Add now exposes the existing local-copy Grade value alongside
+  the shared personal fields. It uses the Edit control's `Ungraded` default
+  and supports a user-entered value in the typed Music Add draft.
 - Add and Edit Personal sections now share one responsive four/two/one-column
   field grid, with long fields and history rendered across the full width.
 - Kind Add/Edit fields and metadata comparison views now use consistent title
