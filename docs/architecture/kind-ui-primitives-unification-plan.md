@@ -316,10 +316,10 @@ Evidence: `kinds/movie/add/movie_add_manual_pane.dart`,
   were managed pickers. Fields without an actual kind vocabulary use text
   controls; Movie Genre and Movie/TV audio and subtitle options come from their
   registered vocabularies.
-- The `discs` switch branch has no matching tab in either Movie tab list.
-  Its widget is read-only. Decide whether current typed item media needs a
-  real editor; otherwise remove the unreachable branch/widget after tracing
-  all callers. Do not reintroduce a separate release entity.
+- The unreachable read-only Movie `discs` tab branch and widget were removed
+  after confirming neither Movie tab list registered it and there were no
+  other callers. Movie media remains represented by its kind metadata; no
+  separate release entity or editor was introduced.
 - Kind form labels use `Sort Title`; the pinned generated metadata label still
   says `Sort title` and requires an update at its contract source/generator.
 
@@ -435,7 +435,8 @@ tab placement, and metadata/personal classification.
    wishlist/tracking actions, and Core proposals with current permissions.
 7. Trace replacement callers, then remove old Movie presentation builders,
    custom tab switch, dummy/fallback controllers, duplicated field groups,
-   and dead read-only media UI. Keep only genuinely specialized content.
+   and any remaining dead read-only media UI. The unregistered read-only discs
+   tab has already been removed. Keep only genuinely specialized content.
 
 ### Phase D — Apply the conversion to every remaining kind
 
