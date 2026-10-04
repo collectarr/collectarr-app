@@ -254,6 +254,9 @@ Completed implementation slices:
   buttons remain separate from choosing or typing a value.
 - Schema text, number, and money inputs and custom Edit text inputs share the
   same base text-form control and common minimum height.
+- TV and Anime episode-tracking editors now share the labelled Season/Episode
+  number fields; their typed lifecycle patches and controller ownership remain
+  kind-specific.
 - Add and Edit purchase amounts now use the same minor-unit money control,
   currency prefix, parsing, and non-negative validation.
 - Add Purchase Date now uses the same labelled date-part control and picker as

@@ -1,5 +1,6 @@
 import 'package:collectarr_app/core/models/tracking_summary.dart';
 import 'package:collectarr_app/features/library/config/library_tracking_editor_capability.dart';
+import 'package:collectarr_app/features/library/ui/primitives/library_episode_tracking_fields.dart';
 import 'package:collectarr_app/features/library/kinds/anime/tracking/anime_tracking_state_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -87,38 +88,11 @@ class _AnimeTrackingEditorExtensionState
       _episodeController.text =
           lifecycle.coordinates.episodeNumber?.toString() ?? '';
     }
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'Episode tracking',
-          style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                color: widget.accent,
-                fontWeight: FontWeight.w800,
-              ),
-        ),
-        const SizedBox(height: 6),
-        Row(
-          children: [
-            Expanded(child: _numberField(_seasonController, 'Season')),
-            const SizedBox(width: 10),
-            Expanded(child: _numberField(_episodeController, 'Episode')),
-          ],
-        ),
-      ],
-    );
-  }
-
-  Widget _numberField(TextEditingController controller, String label) {
-    return TextField(
-      controller: controller,
-      keyboardType: TextInputType.number,
-      decoration: InputDecoration(
-        labelText: label,
-        border: const OutlineInputBorder(),
-        isDense: true,
-      ),
-      onChanged: (_) => _publishMutation(),
+    return LibraryEpisodeTrackingFields(
+      accent: widget.accent,
+      seasonController: _seasonController,
+      episodeController: _episodeController,
+      onChanged: _publishMutation,
     );
   }
 
