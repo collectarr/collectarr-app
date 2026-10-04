@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.dart';
 
-import 'package:collectarr_app/core/models/collection_item_projection.dart';
+import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/features/library/inspector/library_inspector.dart';
@@ -10,8 +10,8 @@ import 'package:collectarr_app/features/library/inspector/inspector_item_images_
 import 'package:collectarr_app/features/library/inspector/library_inspector_hero.dart';
 import 'package:collectarr_app/features/library/inspector/library_inspector_sections.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
-import 'package:collectarr_app/features/library/kinds/book/data/book_owned_repository.dart';
-import 'package:collectarr_app/features/library/kinds/comic/data/comic_owned_repository.dart';
+import 'package:collectarr_app/features/library/kinds/book/data/book_entry_repository.dart';
+import 'package:collectarr_app/features/library/kinds/comic/data/comic_entry_repository.dart';
 import 'package:collectarr_app/features/library/kinds/comic/inspector_hero.dart';
 import 'package:collectarr_app/features/library/kinds/book/inspector_panel.dart';
 import 'package:collectarr_app/features/library/kinds/book/inspector/book_entity_inspector_contributors.dart';
@@ -61,7 +61,7 @@ void main() {
     final request = LibraryInspectorRequest(
       type: const BookRegistration(),
       item: item,
-      collectionItem: null,
+      libraryEntry: null,
       accent: Colors.orange,
     );
 
@@ -103,8 +103,8 @@ void main() {
                   title: 'The Last Ronin',
                   barcode: '82771402051700111',
                 ),
-                collectionItem: testCollectionItemSummary(testCollectionItem(
-                  id: 'owned-comic-hero-1',
+                libraryEntry: testLibraryEntrySummary(testLibraryEntry(
+                  id: 'entry-comic-hero-1',
                   itemId: 'comic-hero-1',
                   isDigital: false,
                   condition: 'Near Mint',
@@ -149,8 +149,8 @@ void main() {
                         kind: 'comic',
                         title: 'The Last Ronin',
                       ),
-                      collectionItem: testCollectionItemSummary(testCollectionItem(
-                        id: 'owned-comic-hero-narrow-1',
+                      libraryEntry: testLibraryEntrySummary(testLibraryEntry(
+                        id: 'entry-comic-hero-narrow-1',
                         itemId: 'comic-hero-narrow-1',
                         isDigital: false,
                         condition: 'Near Mint',
@@ -183,8 +183,8 @@ void main() {
     addTearDown(tester.view.resetDevicePixelRatio);
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
-    final collectionItem = testCollectionItem(
-      id: 'owned-comic-hero-2',
+    final libraryEntry = testLibraryEntry(
+      id: 'entry-comic-hero-2',
       itemId: 'comic-hero-2',
       kind: 'comic',
       isDigital: false,
@@ -213,15 +213,15 @@ void main() {
                 id: 'comic-hero-2',
                 kind: 'comic',
                 title: 'The Last Ronin',
-                collectionItem: collectionItem,
+                libraryEntry: libraryEntry,
               ),
-              collectionItem: testCollectionItemSummary(collectionItem),
-              collectionItemDispatch: testComicCollectionItemDispatchFrom(
-                testComicCollectionItemFrom(collectionItem),
+              libraryEntry: testLibraryEntrySummary(libraryEntry),
+              libraryEntryDispatch: testComicLibraryEntryDispatchFrom(
+                testComicLibraryEntryFrom(libraryEntry),
               ),
-              ownedCopies: [
-                testCollectionItemSummary(testCollectionItem(
-                  id: 'owned-comic-hero-2',
+              entryCopies: [
+                testLibraryEntrySummary(testLibraryEntry(
+                  id: 'entry-comic-hero-2',
                   itemId: 'comic-hero-2',
                   isDigital: false,
                   condition: 'Near Mint',
@@ -238,8 +238,8 @@ void main() {
                 )),
               ],
               accent: Colors.red,
-              onAddOwned: () {},
-              onRemoveOwned: () {},
+              onAddEntry: () {},
+              onRemoveEntry: () {},
               onAddWishlist: () {},
               onRemoveWishlist: () {},
               onEdit: (_) {},
@@ -266,23 +266,23 @@ void main() {
   ) async {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
-    await ComicOwnedRepository(db).upsertAll([
-      testComicCollectionItemFrom(testCollectionItem(
-        id: 'owned-comic-1',
+    await ComicEntryRepository(db).upsertAll([
+      testComicLibraryEntryFrom(testLibraryEntry(
+        id: 'entry-comic-1',
         itemId: 'comic-multi-1',
         kind: 'comic',
         condition: 'Near Mint',
         updatedAt: DateTime.utc(2026, 5, 23, 10),
       )),
-      testComicCollectionItemFrom(testCollectionItem(
-        id: 'owned-comic-2',
+      testComicLibraryEntryFrom(testLibraryEntry(
+        id: 'entry-comic-2',
         itemId: 'comic-multi-1',
         kind: 'comic',
         condition: 'Very Fine',
         updatedAt: DateTime.utc(2026, 5, 23, 11),
       )),
     ]);
-    CollectionItemSummary? editedCollectionItem;
+    LibraryEntrySummary? editedLibraryEntry;
 
     await tester.pumpWidget(
       ProviderScope(
@@ -297,32 +297,32 @@ void main() {
                 kind: 'comic',
                 title: 'The Last Ronin',
               ),
-              collectionItem: testCollectionItemSummary(testCollectionItem(
-                id: 'owned-comic-1',
+              libraryEntry: testLibraryEntrySummary(testLibraryEntry(
+                id: 'entry-comic-1',
                 itemId: 'comic-multi-1',
                 condition: 'Near Mint',
                 updatedAt: DateTime.utc(2026, 5, 23, 10),
               )),
-              ownedCopies: [
-                testCollectionItemSummary(testCollectionItem(
-                  id: 'owned-comic-1',
+              entryCopies: [
+                testLibraryEntrySummary(testLibraryEntry(
+                  id: 'entry-comic-1',
                   itemId: 'comic-multi-1',
                   condition: 'Near Mint',
                   updatedAt: DateTime.utc(2026, 5, 23, 10),
                 )),
-                testCollectionItemSummary(testCollectionItem(
-                  id: 'owned-comic-2',
+                testLibraryEntrySummary(testLibraryEntry(
+                  id: 'entry-comic-2',
                   itemId: 'comic-multi-1',
                   condition: 'Very Fine',
                   updatedAt: DateTime.utc(2026, 5, 23, 11),
                 )),
               ],
               accent: Colors.red,
-              onAddOwned: () {},
-              onRemoveOwned: () {},
+              onAddEntry: () {},
+              onRemoveEntry: () {},
               onAddWishlist: () {},
               onRemoveWishlist: () {},
-              onEdit: (collectionItem) => editedCollectionItem = collectionItem,
+              onEdit: (libraryEntry) => editedLibraryEntry = libraryEntry,
               db: db,
             ),
           ),
@@ -332,7 +332,7 @@ void main() {
 
     await pumpUntilSettled(tester);
 
-    expect(editedCollectionItem, isNull);
+    expect(editedLibraryEntry, isNull);
     expect(find.text('Active copy'), findsOneWidget);
     expect(find.textContaining('copies in collection'), findsOneWidget);
   });
@@ -353,14 +353,14 @@ void main() {
                     kind: 'book',
                     title: 'Hyperion',
                   ),
-                  collectionItem: null,
+                  libraryEntry: null,
                   accent: Colors.blue,
                 ),
                 hero: const SizedBox(height: 20),
                 primarySections: const [SizedBox.shrink()],
                 trailingSections: const [SizedBox.shrink()],
-                ownedCopies: const [],
-                selectedCollectionItemRef: null,
+                entryCopies: const [],
+                selectedLibraryEntryRef: null,
                 extraActions: const [Text('Extra action')],
                 onAddCopy: () {},
                 onOpenDetails: () {},
@@ -431,10 +431,10 @@ void main() {
     expect(find.text('Near Mint'), findsOneWidget);
   });
 
-  testWidgets('personal section shows cover price for Comic-owned details',
+  testWidgets('personal section shows cover price for Comic-entry details',
       (tester) async {
-    final collectionItem = testCollectionItem(
-      id: 'owned-1',
+    final libraryEntry = testLibraryEntry(
+      id: 'entry-1',
       itemId: 'comic-1',
       kind: 'comic',
       purchaseDate: DateTime.utc(2026, 5, 11),
@@ -454,11 +454,11 @@ void main() {
               id: 'comic-1',
               kind: 'comic',
               title: 'Saga',
-              collectionItem: collectionItem,
+              libraryEntry: libraryEntry,
             ),
-            collectionItem: testCollectionItemSummary(collectionItem),
-            collectionItemDispatch: testComicCollectionItemDispatchFrom(
-              testComicCollectionItemFrom(collectionItem),
+            libraryEntry: testLibraryEntrySummary(libraryEntry),
+            libraryEntryDispatch: testComicLibraryEntryDispatchFrom(
+              testComicLibraryEntryFrom(libraryEntry),
             ),
             accent: Colors.orange,
           ),
@@ -473,7 +473,7 @@ void main() {
   });
 
   testWidgets(
-      'personal section labels digital ownership and hides physical-only facts',
+      'personal section labels digital entries and hides physical-only facts',
       (tester) async {
     await tester.pumpWidget(
       MaterialApp(
@@ -485,8 +485,8 @@ void main() {
               kind: 'movie',
               title: 'Blade Runner 2049',
             ),
-            collectionItem: testCollectionItemSummary(testCollectionItem(
-              id: 'owned-1',
+            libraryEntry: testLibraryEntrySummary(testLibraryEntry(
+              id: 'entry-1',
               itemId: 'movie-1',
               isDigital: true,
               pricePaidCents: 1299,
@@ -499,7 +499,7 @@ void main() {
       ),
     );
 
-    expect(find.text('Ownership'), findsOneWidget);
+    expect(find.text('EntryPolicy'), findsOneWidget);
     expect(find.text('Digital copy'), findsOneWidget);
     expect(find.text('Condition'), findsNothing);
     expect(find.text('Grade'), findsNothing);
@@ -522,13 +522,13 @@ void main() {
                 id: 'book-1',
                 kind: 'book',
                 title: 'The Fellowship of the Ring',
-                collectionItem: testCollectionItem(
-                  id: 'owned-1',
+                libraryEntry: testLibraryEntry(
+                  id: 'entry-1',
                   itemId: 'book-1',
                   kind: 'book',
                 ),
               ),
-              onToggleOwned: () {},
+              onToggleEntry: () {},
               onToggleWishlist: () {},
               onEdit: () {},
               onOpenDetails: () {},
@@ -556,7 +556,7 @@ void main() {
 
     expect(tester.takeException(), isNull);
     expect(find.text('Quick actions'), findsOneWidget);
-    expect(find.text('Owned'), findsOneWidget);
+    expect(find.text('Entry'), findsOneWidget);
     expect(find.text('Wish list'), findsOneWidget);
   });
 
@@ -578,14 +578,14 @@ void main() {
                 kind: 'book',
                 title: 'The Two Towers',
               ),
-              collectionItem: testCollectionItemSummary(testCollectionItem(
-                id: 'owned-1',
+              libraryEntry: testLibraryEntrySummary(testLibraryEntry(
+                id: 'entry-1',
                 itemId: 'book-1',
                 updatedAt: DateTime.utc(2026, 5, 23),
               )),
               accent: Colors.orange,
-              onAddOwned: () {},
-              onRemoveOwned: () {},
+              onAddEntry: () {},
+              onRemoveEntry: () {},
               onAddWishlist: () {},
               onRemoveWishlist: () {},
               onEdit: (_) {},
@@ -614,7 +614,7 @@ void main() {
     await db.into(db.itemImagesCache).insert(
           ItemImagesCacheCompanion.insert(
             id: 'front-1',
-            collectionItemRefKey: 'book:owned-1',
+            libraryEntryRefKey: 'book:entry-1',
             imageType: const Value('front_cover'),
             imageData: base64Decode(base64Encode(const [0, 1, 2, 3])),
             createdAt: DateTime.utc(2026, 5, 23),
@@ -623,7 +623,7 @@ void main() {
     await db.into(db.itemImagesCache).insert(
           ItemImagesCacheCompanion.insert(
             id: 'back-1',
-            collectionItemRefKey: 'book:owned-1',
+            libraryEntryRefKey: 'book:entry-1',
             imageType: const Value('back_cover'),
             imageData: base64Decode(base64Encode(const [4, 5, 6, 7])),
             createdAt: DateTime.utc(2026, 5, 23),
@@ -635,7 +635,7 @@ void main() {
         child: MaterialApp(
           home: Scaffold(
             body: InspectorItemImagesSection(
-              collectionItemRef: CollectionItemRef.fromKey('book:owned-1'),
+              libraryEntryRef: LibraryEntryRef.fromKey('book:entry-1'),
               db: db,
               accent: Colors.orange,
             ),
@@ -656,16 +656,16 @@ void main() {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
     const type = BookRegistration();
-    await BookOwnedRepository(db).upsertAll([
-      testBookCollectionItemFrom(testCollectionItem(
-        id: 'owned-1',
+    await BookEntryRepository(db).upsertAll([
+      testBookLibraryEntryFrom(testLibraryEntry(
+        id: 'entry-1',
         itemId: 'book-1',
         kind: 'book',
         condition: 'Near Mint',
         updatedAt: DateTime.utc(2026, 5, 23, 10),
       )),
-      testBookCollectionItemFrom(testCollectionItem(
-        id: 'owned-2',
+      testBookLibraryEntryFrom(testLibraryEntry(
+        id: 'entry-2',
         itemId: 'book-1',
         kind: 'book',
         condition: 'Very Fine',
@@ -686,29 +686,29 @@ void main() {
                 kind: 'book',
                 title: 'The Return of the King',
               ),
-              collectionItem: testCollectionItemSummary(testCollectionItem(
-                id: 'owned-1',
+              libraryEntry: testLibraryEntrySummary(testLibraryEntry(
+                id: 'entry-1',
                 itemId: 'book-1',
                 condition: 'Near Mint',
                 updatedAt: DateTime.utc(2026, 5, 23, 10),
               )),
-              ownedCopies: [
-                testCollectionItemSummary(testCollectionItem(
-                  id: 'owned-1',
+              entryCopies: [
+                testLibraryEntrySummary(testLibraryEntry(
+                  id: 'entry-1',
                   itemId: 'book-1',
                   condition: 'Near Mint',
                   updatedAt: DateTime.utc(2026, 5, 23, 10),
                 )),
-                testCollectionItemSummary(testCollectionItem(
-                  id: 'owned-2',
+                testLibraryEntrySummary(testLibraryEntry(
+                  id: 'entry-2',
                   itemId: 'book-1',
                   condition: 'Very Fine',
                   updatedAt: DateTime.utc(2026, 5, 23, 11),
                 )),
               ],
               accent: Colors.orange,
-              onAddOwned: () {},
-              onRemoveOwned: () {},
+              onAddEntry: () {},
+              onRemoveEntry: () {},
               onAddWishlist: () {},
               onRemoveWishlist: () {},
               onEdit: (_) {},
@@ -730,23 +730,23 @@ void main() {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
     const type = BookRegistration();
-    await BookOwnedRepository(db).upsertAll([
-      testBookCollectionItemFrom(testCollectionItem(
-        id: 'owned-1',
+    await BookEntryRepository(db).upsertAll([
+      testBookLibraryEntryFrom(testLibraryEntry(
+        id: 'entry-1',
         itemId: 'book-1',
         kind: 'book',
         condition: 'Near Mint',
         updatedAt: DateTime.utc(2026, 5, 23, 10),
       )),
-      testBookCollectionItemFrom(testCollectionItem(
-        id: 'owned-2',
+      testBookLibraryEntryFrom(testLibraryEntry(
+        id: 'entry-2',
         itemId: 'book-1',
         kind: 'book',
         condition: 'Very Fine',
         updatedAt: DateTime.utc(2026, 5, 23, 11),
       )),
     ]);
-    CollectionItemSummary? editedCollectionItem;
+    LibraryEntrySummary? editedLibraryEntry;
 
     await tester.pumpWidget(
       ProviderScope(
@@ -761,32 +761,32 @@ void main() {
                 kind: 'book',
                 title: 'The Return of the King',
               ),
-              collectionItem: testCollectionItemSummary(testCollectionItem(
-                id: 'owned-1',
+              libraryEntry: testLibraryEntrySummary(testLibraryEntry(
+                id: 'entry-1',
                 itemId: 'book-1',
                 condition: 'Near Mint',
                 updatedAt: DateTime.utc(2026, 5, 23, 10),
               )),
-              ownedCopies: [
-                testCollectionItemSummary(testCollectionItem(
-                  id: 'owned-1',
+              entryCopies: [
+                testLibraryEntrySummary(testLibraryEntry(
+                  id: 'entry-1',
                   itemId: 'book-1',
                   condition: 'Near Mint',
                   updatedAt: DateTime.utc(2026, 5, 23, 10),
                 )),
-                testCollectionItemSummary(testCollectionItem(
-                  id: 'owned-2',
+                testLibraryEntrySummary(testLibraryEntry(
+                  id: 'entry-2',
                   itemId: 'book-1',
                   condition: 'Very Fine',
                   updatedAt: DateTime.utc(2026, 5, 23, 11),
                 )),
               ],
               accent: Colors.orange,
-              onAddOwned: () {},
-              onRemoveOwned: () {},
+              onAddEntry: () {},
+              onRemoveEntry: () {},
               onAddWishlist: () {},
               onRemoveWishlist: () {},
-              onEdit: (collectionItem) => editedCollectionItem = collectionItem,
+              onEdit: (libraryEntry) => editedLibraryEntry = libraryEntry,
               db: db,
             ),
           ),
@@ -796,7 +796,7 @@ void main() {
 
     await pumpUntilSettled(tester);
 
-    await tester.tap(find.byType(DropdownButtonFormField<CollectionItemRef>).first);
+    await tester.tap(find.byType(DropdownButtonFormField<LibraryEntryRef>).first);
     await pumpUntilSettled(tester);
     await tester.tap(find.textContaining('Copy 2').last);
     await pumpUntilSettled(tester);
@@ -811,7 +811,7 @@ void main() {
     );
     await tester.pump();
 
-    expect(editedCollectionItem?.ref.id.value, 'owned-2');
+    expect(editedLibraryEntry?.ref.id.value, 'entry-2');
   });
 
   testWidgets(
@@ -823,16 +823,16 @@ void main() {
     addTearDown(db.close);
     const type = BookRegistration();
 
-    await BookOwnedRepository(db).upsertAll([
-      testBookCollectionItemFrom(testCollectionItem(
-        id: 'owned-1',
+    await BookEntryRepository(db).upsertAll([
+      testBookLibraryEntryFrom(testLibraryEntry(
+        id: 'entry-1',
         itemId: 'book-1',
         kind: 'book',
         condition: 'Near Mint',
         updatedAt: DateTime.utc(2026, 5, 23, 10),
       )),
-      testBookCollectionItemFrom(testCollectionItem(
-        id: 'owned-2',
+      testBookLibraryEntryFrom(testLibraryEntry(
+        id: 'entry-2',
         itemId: 'book-1',
         kind: 'book',
         condition: 'Very Fine',
@@ -841,8 +841,8 @@ void main() {
     ]);
     await db.into(db.itemImagesCache).insert(
           ItemImagesCacheCompanion.insert(
-            id: 'back-owned-2',
-            collectionItemRefKey: 'book:owned-2',
+            id: 'back-entry-2',
+            libraryEntryRefKey: 'book:entry-2',
             imageType: const Value('back_cover'),
             imageData: base64Decode('AQIDBA=='),
             createdAt: DateTime.utc(2026, 5, 23, 11),
@@ -862,29 +862,29 @@ void main() {
                 kind: 'book',
                 title: 'The Return of the King',
               ),
-              collectionItem: testCollectionItemSummary(testCollectionItem(
-                id: 'owned-1',
+              libraryEntry: testLibraryEntrySummary(testLibraryEntry(
+                id: 'entry-1',
                 itemId: 'book-1',
                 condition: 'Near Mint',
                 updatedAt: DateTime.utc(2026, 5, 23, 10),
               )),
-              ownedCopies: [
-                testCollectionItemSummary(testCollectionItem(
-                  id: 'owned-1',
+              entryCopies: [
+                testLibraryEntrySummary(testLibraryEntry(
+                  id: 'entry-1',
                   itemId: 'book-1',
                   condition: 'Near Mint',
                   updatedAt: DateTime.utc(2026, 5, 23, 10),
                 )),
-                testCollectionItemSummary(testCollectionItem(
-                  id: 'owned-2',
+                testLibraryEntrySummary(testLibraryEntry(
+                  id: 'entry-2',
                   itemId: 'book-1',
                   condition: 'Very Fine',
                   updatedAt: DateTime.utc(2026, 5, 23, 11),
                 )),
               ],
               accent: Colors.orange,
-              onAddOwned: () {},
-              onRemoveOwned: () {},
+              onAddEntry: () {},
+              onRemoveEntry: () {},
               onAddWishlist: () {},
               onRemoveWishlist: () {},
               onEdit: (_) {},
@@ -900,7 +900,7 @@ void main() {
     expect(find.widgetWithText(FilledButton, 'Front'), findsNothing);
     expect(find.widgetWithText(FilledButton, 'Back'), findsNothing);
 
-    await tester.tap(find.byType(DropdownButtonFormField<CollectionItemRef>).first);
+    await tester.tap(find.byType(DropdownButtonFormField<LibraryEntryRef>).first);
     await pumpUntilSettled(tester);
     await tester.tap(find.textContaining('Copy 2').last);
     await pumpUntilSettled(tester);
@@ -924,7 +924,7 @@ void main() {
             onEdit: () {},
             onShare: () {},
             onDuplicate: () {},
-            onToggleOwned: () {},
+            onToggleEntry: () {},
             onLoan: () {},
             onRefreshMetadata: () {},
             onDetailsLayoutChanged: (_) {},
@@ -954,7 +954,7 @@ void main() {
             onEdit: () {},
             onShare: () {},
             onDuplicate: () {},
-            onToggleOwned: () {},
+            onToggleEntry: () {},
             onLoan: () {},
             onRefreshMetadata: () {},
             onDetailsLayoutChanged: (_) {},
@@ -982,7 +982,7 @@ void main() {
             onEdit: () {},
             onShare: () {},
             onDuplicate: () {},
-            onToggleOwned: () {},
+            onToggleEntry: () {},
             onLoan: () {},
             onRefreshMetadata: () {},
             onDetailsLayoutChanged: (_) {},

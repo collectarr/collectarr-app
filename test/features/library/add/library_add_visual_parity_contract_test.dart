@@ -50,7 +50,7 @@ void main() {
         defaultLocationLabel: null,
         defaultPurchaseDate: null,
         defaultTags: null,
-        onAddOwned: () {},
+        onAddEntry: () {},
         onAddWishlist: () {},
         onAddTrack: () {},
         onPropose: () {},

@@ -10,7 +10,7 @@ import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  test('GameKindSchema exposes complete GameOwnedDetails surface', () {
+  test('GameKindSchema exposes complete GameEntryDetails surface', () {
     final catalogItem = testCatalogItem(
       id: 'game-10',
       kind: 'game',
@@ -18,8 +18,8 @@ void main() {
       publisher: 'Nintendo',
     );
 
-    final owned = testCollectionItem(
-      id: 'owned-game-10',
+    final entry = testLibraryEntry(
+      id: 'entry-game-10',
       itemId: 'game-10',
       kind: 'game',
       gameCompleteness: 'CIB',
@@ -32,9 +32,9 @@ void main() {
     final shelf = LibraryWorkspaceSource(
       itemId: 'game-10',
       catalogData: testWorkspaceCatalogData(catalogItem.asShelfCatalogItem),
-      collectionItemSummary: testCollectionItemSummary(owned),
-      collectionItemDispatch: testGameCollectionItemDispatchFrom(
-        GameCollectionItem.fromJson(owned.toJson()),
+      libraryEntrySummary: testLibraryEntrySummary(entry),
+      libraryEntryDispatch: testGameLibraryEntryDispatchFrom(
+        GameLibraryEntry.fromJson(entry.toJson()),
       ),
     );
 
@@ -130,8 +130,8 @@ void main() {
     expect(gameKindIdentity.kind, CatalogMediaKind.game);
     expect(gameKindAdd.kind, CatalogMediaKind.game);
     expect(gameKindAdd.createInitialDraft(), isA<GameAddDraft>());
-    expect(const GameOwnedDetailsCodec(), isA<GameOwnedDetailsCodec>());
-    expect(const GameOwnedDetailsCodec().defaultDetails(),
-        isA<GameOwnedDetails>());
+    expect(const GameEntryDetailsCodec(), isA<GameEntryDetailsCodec>());
+    expect(const GameEntryDetailsCodec().defaultDetails(),
+        isA<GameEntryDetails>());
   });
 }

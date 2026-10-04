@@ -1,15 +1,15 @@
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.dart';
 import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/features/library/kinds/anime/ownership/anime_owned_details_draft.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/ownership/boardgame_owned_details_draft.dart';
-import 'package:collectarr_app/features/library/kinds/book/ownership/book_owned_details_draft.dart';
-import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_details_draft.dart';
-import 'package:collectarr_app/features/library/kinds/game/ownership/game_owned_details_draft.dart';
-import 'package:collectarr_app/features/library/kinds/manga/ownership/manga_owned_details_draft.dart';
-import 'package:collectarr_app/features/library/kinds/movie/ownership/movie_owned_details_draft.dart';
-import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_details_draft.dart';
-import 'package:collectarr_app/features/library/kinds/tv/ownership/tv_owned_details_draft.dart';
+import 'package:collectarr_app/features/library/kinds/anime/entries/anime_entry_details_draft.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/entries/boardgame_entry_details_draft.dart';
+import 'package:collectarr_app/features/library/kinds/book/entries/book_entry_details_draft.dart';
+import 'package:collectarr_app/features/library/kinds/comic/entries/comic_entry_details_draft.dart';
+import 'package:collectarr_app/features/library/kinds/game/entries/game_entry_details_draft.dart';
+import 'package:collectarr_app/features/library/kinds/manga/entries/manga_entry_details_draft.dart';
+import 'package:collectarr_app/features/library/kinds/movie/entries/movie_entry_details_draft.dart';
+import 'package:collectarr_app/features/library/kinds/music/entries/music_entry_details_draft.dart';
+import 'package:collectarr_app/features/library/kinds/tv/entries/tv_entry_details_draft.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_common_draft.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_tracking_draft.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
@@ -22,7 +22,7 @@ import 'package:collectarr_app/features/library/kinds/book/add/book_add_draft.da
 import 'package:collectarr_app/features/library/kinds/game/add/game_add_draft.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/add/boardgame_add_draft.dart';
 import 'package:collectarr_app/features/library/kinds/music/add/music_add_draft.dart';
-import 'package:collectarr_app/test/helpers/test_owned_details.dart';
+import 'package:collectarr_app/test/helpers/test_entry_details.dart';
 import 'package:collectarr_app/test/helpers/concrete_kind_dispatch.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_reference_type.dart';
 import 'package:collectarr_app/features/library/add/controllers/library_add_dialog_requests.dart';
@@ -127,37 +127,37 @@ void main() {
         expect(command.tracking?.rating, 9);
         expect(command.tracking?.notes, isNull);
         expect(command.typedPayload, isNotNull,
-            reason: '$kind must build a kind-owned Owned create payload');
+            reason: '$kind must build a kind-entry Entry create payload');
         expect(command.typedPayload.catalogRef.kind.apiValue, kind.apiValue,
             reason: '$kind payload must retain its owning kind');
-        expect(libraryOwnedEditForKind(kind).ownedIndexUpdatePayloadBuilder,
+        expect(libraryEntryEditForKind(kind).entryIndexUpdatePayloadBuilder,
             isNotNull,
-            reason: '$kind must build a kind-owned Owned index payload');
+            reason: '$kind must build a kind-entry Entry index payload');
         expect(
-            libraryOwnedEditForKind(kind)
-                .ownedConditionValueUpdatePayloadBuilder,
+            libraryEntryEditForKind(kind)
+                .entryConditionValueUpdatePayloadBuilder,
             isNotNull,
-            reason: '$kind must build a kind-owned condition/grade payload');
-        expect(libraryOwnedEditForKind(kind).ownedBulkUpdatePayloadBuilder,
+            reason: '$kind must build a kind-entry condition/grade payload');
+        expect(libraryEntryEditForKind(kind).entryBulkUpdatePayloadBuilder,
             isNotNull,
-            reason: '$kind must build a kind-owned bulk payload');
+            reason: '$kind must build a kind-entry bulk payload');
         expect(
-            libraryOwnedEditForKind(kind)
-                .ownedPersonalDetailsUpdatePayloadBuilder,
+            libraryEntryEditForKind(kind)
+                .entryPersonalDetailsUpdatePayloadBuilder,
             isNotNull,
-            reason: '$kind must build a kind-owned personal payload');
-        expect(libraryOwnedEditForKind(kind).ownedTransferUpdatePayloadBuilder,
+            reason: '$kind must build a kind-entry personal payload');
+        expect(libraryEntryEditForKind(kind).entryTransferUpdatePayloadBuilder,
             isNotNull,
-            reason: '$kind must build a kind-owned transfer payload');
+            reason: '$kind must build a kind-entry transfer payload');
 
         expect(command.typedPayload.detailsDraft,
-            isNot(isA<TestOwnedDetailsDraft>()),
-            reason: '$kind command details must not be TestOwnedDetailsDraft');
+            isNot(isA<TestEntryDetailsDraft>()),
+            reason: '$kind command details must not be TestEntryDetailsDraft');
 
         expect(
           command.typedPayload.detailsDraft.runtimeType,
-          _expectedOwnedDetailsDraftType(kind),
-          reason: '$kind must expose its concrete owned details draft type',
+          _expectedEntryDetailsDraftType(kind),
+          reason: '$kind must expose its concrete entry details draft type',
         );
       }
     });
@@ -239,7 +239,7 @@ void main() {
         defaultLocationLabel: null,
         defaultPurchaseDate: null,
         defaultTags: null,
-        onAddOwned: () {},
+        onAddEntry: () {},
         onAddWishlist: () {},
         onAddTrack: () {},
         onPropose: () {},
@@ -287,17 +287,17 @@ Type _expectedAddDraftType(CatalogMediaKind kind) {
   };
 }
 
-Type _expectedOwnedDetailsDraftType(CatalogMediaKind kind) {
+Type _expectedEntryDetailsDraftType(CatalogMediaKind kind) {
   return switch (kind) {
-    CatalogMediaKind.comic => ComicOwnedDetailsDraft,
-    CatalogMediaKind.manga => MangaOwnedDetailsDraft,
-    CatalogMediaKind.movie => MovieOwnedDetailsDraft,
-    CatalogMediaKind.tv => TvOwnedDetailsDraft,
-    CatalogMediaKind.anime => AnimeOwnedDetailsDraft,
-    CatalogMediaKind.book => BookOwnedDetailsDraft,
-    CatalogMediaKind.game => GameOwnedDetailsDraft,
-    CatalogMediaKind.boardgame => BoardgameOwnedDetailsDraft,
-    CatalogMediaKind.music => MusicOwnedDetailsDraft,
+    CatalogMediaKind.comic => ComicEntryDetailsDraft,
+    CatalogMediaKind.manga => MangaEntryDetailsDraft,
+    CatalogMediaKind.movie => MovieEntryDetailsDraft,
+    CatalogMediaKind.tv => TvEntryDetailsDraft,
+    CatalogMediaKind.anime => AnimeEntryDetailsDraft,
+    CatalogMediaKind.book => BookEntryDetailsDraft,
+    CatalogMediaKind.game => GameEntryDetailsDraft,
+    CatalogMediaKind.boardgame => BoardgameEntryDetailsDraft,
+    CatalogMediaKind.music => MusicEntryDetailsDraft,
     CatalogMediaKind.unknown => Object,
   };
 }

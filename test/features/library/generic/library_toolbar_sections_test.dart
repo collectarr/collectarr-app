@@ -30,7 +30,7 @@ void main() {
       onTransferFieldData: () {},
       onBulkUpdateValues: null,
       onBulkUpdateKeyInfo: null,
-      onBulkMoveToOwned: null,
+      onBulkMoveToEntry: null,
       onBulkMoveToWishlist: null,
       onBulkRemove: () {},
       onBulkRefreshMetadata: () {},
@@ -55,7 +55,7 @@ void main() {
     expect(find.text('Remove'), findsOneWidget);
     expect(find.text('Duplicate'), findsOneWidget);
     expect(find.text('Loan'), findsOneWidget);
-    expect(find.text('Move to owned'), findsOneWidget);
+    expect(find.text('Move to entry'), findsOneWidget);
     expect(find.text('Move to wishlist'), findsOneWidget);
     expect(find.text('Print to PDF'), findsOneWidget);
     expect(find.text('Update values'), findsOneWidget);
@@ -87,7 +87,7 @@ void main() {
       onTransferFieldData: () {},
       onBulkUpdateValues: null,
       onBulkUpdateKeyInfo: null,
-      onBulkMoveToOwned: () {},
+      onBulkMoveToEntry: () {},
       onBulkMoveToWishlist: () {},
       onBulkRemove: null,
       onBulkRefreshMetadata: null,
@@ -124,12 +124,12 @@ void main() {
           (widget.child as ListTile).title is Text &&
           ((widget.child as ListTile).title as Text).data == 'Loan',
     );
-    final moveToOwnedOverflowItem = find.byWidgetPredicate(
+    final moveToEntryOverflowItem = find.byWidgetPredicate(
       (widget) =>
           widget is PopupMenuItem &&
           widget.child is ListTile &&
           (widget.child as ListTile).title is Text &&
-          ((widget.child as ListTile).title as Text).data == 'Move to owned',
+          ((widget.child as ListTile).title as Text).data == 'Move to entry',
     );
     final moveToWishlistOverflowItem = find.byWidgetPredicate(
       (widget) =>
@@ -140,12 +140,12 @@ void main() {
     );
     expect(duplicateOverflowItem, findsNothing);
     expect(loanOverflowItem, findsNothing);
-    expect(moveToOwnedOverflowItem, findsNothing);
+    expect(moveToEntryOverflowItem, findsNothing);
     expect(moveToWishlistOverflowItem, findsNothing);
   });
 
   testWidgets(
-      'selection toolbar overflow disables owned-only actions when unavailable',
+      'selection toolbar overflow disables entry-only actions when unavailable',
       (
     tester,
   ) async {
@@ -160,7 +160,7 @@ void main() {
       onTransferFieldData: null,
       onBulkUpdateValues: null,
       onBulkUpdateKeyInfo: null,
-      onBulkMoveToOwned: () {},
+      onBulkMoveToEntry: () {},
       onBulkMoveToWishlist: () {},
       onBulkRemove: null,
       onBulkRefreshMetadata: null,
@@ -210,8 +210,8 @@ void main() {
     final loanButton = tester.widget<TextButton>(
       find.widgetWithText(TextButton, 'Loan'),
     );
-    final moveToOwnedButton = tester.widget<TextButton>(
-      find.widgetWithText(TextButton, 'Move to owned'),
+    final moveToEntryButton = tester.widget<TextButton>(
+      find.widgetWithText(TextButton, 'Move to entry'),
     );
     final moveToWishlistButton = tester.widget<TextButton>(
       find.widgetWithText(TextButton, 'Move to wishlist'),
@@ -220,7 +220,7 @@ void main() {
     expect(removeButton.onPressed, isNull);
     expect(duplicateButton.onPressed, isNull);
     expect(loanButton.onPressed, isNull);
-    expect(moveToOwnedButton.onPressed, isNotNull);
+    expect(moveToEntryButton.onPressed, isNotNull);
     expect(moveToWishlistButton.onPressed, isNotNull);
     expect(transferItem, findsOneWidget);
     expect(updateFromCoreItem, findsOneWidget);

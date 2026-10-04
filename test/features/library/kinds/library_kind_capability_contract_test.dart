@@ -1,8 +1,8 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
-import 'package:collectarr_app/features/library/kinds/book/ownership/book_owned_details.dart';
-import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_details.dart';
+import 'package:collectarr_app/features/library/kinds/book/entries/book_entry_details.dart';
+import 'package:collectarr_app/features/library/kinds/comic/entries/comic_entry_details.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.dart';
-import 'package:collectarr_app/test/helpers/owned_details_codec_fixtures.dart';
+import 'package:collectarr_app/test/helpers/entry_details_codec_fixtures.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_field_registry.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
@@ -56,10 +56,10 @@ void main() {
     });
 
     test(
-        'owned details codec encodes matching details and rejects invalid details',
+        'entry details codec encodes matching details and rejects invalid details',
         () {
       for (final registration in collectarrKindRegistrationsList) {
-        final codec = ownedDetailsFixtureForTest(registration.kind);
+        final codec = entryDetailsFixtureForTest(registration.kind);
         final defaultDetails = codec.defaultDetails();
         expect(defaultDetails, isNotNull);
 
@@ -69,8 +69,8 @@ void main() {
 
         // Encoding an invalid details type must throw ArgumentError
         final invalidDetails = switch (registration.kind) {
-          CatalogMediaKind.comic => const BookOwnedDetails(),
-          CatalogMediaKind.movie => const ComicOwnedDetails(),
+          CatalogMediaKind.comic => const BookEntryDetails(),
+          CatalogMediaKind.movie => const ComicEntryDetails(),
           _ => null,
         };
         if (invalidDetails != null) {

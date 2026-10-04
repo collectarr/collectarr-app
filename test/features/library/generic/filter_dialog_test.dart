@@ -136,8 +136,8 @@ void main() {
       itemId: 'comic-1',
       kind: 'comic',
       title: 'Batman',
-      collectionItem: testCollectionItem(
-        id: 'owned-1',
+      libraryEntry: testLibraryEntry(
+        id: 'entry-1',
         itemId: 'comic-1',
         tags: 'Signed, Slabbed, Variant',
       ),
@@ -185,7 +185,7 @@ void main() {
       selection,
       const MusicRegistration(),
     );
-    expect(sanitizedMusic.ownershipFilter, LibraryOwnershipFilter.all);
+    expect(sanitizedMusic.entriesFilter, LibraryEntryPolicyFilter.all);
     expect(sanitizedMusic.fieldValue('grade'), isNull);
     expect(sanitizedMusic.fieldValue('condition'), 'Mint');
     expect(sanitizedMusic.fieldValue('publisher'), 'DC');
@@ -195,7 +195,7 @@ void main() {
       selection,
       const ComicRegistration(),
     );
-    expect(sanitizedComics.ownershipFilter, LibraryOwnershipFilter.all);
+    expect(sanitizedComics.entriesFilter, LibraryEntryPolicyFilter.all);
     expect(
       sanitizedComics.fieldValue('grade'),
       LibraryFilterDefinition.missingValue,
@@ -207,8 +207,8 @@ void main() {
       itemId: 'comic-1',
       kind: 'comic',
       title: 'Batman',
-      collectionItem: testCollectionItem(
-        id: 'owned-1',
+      libraryEntry: testLibraryEntry(
+        id: 'entry-1',
         itemId: 'comic-1',
         tags: 'Signed, Variant',
       ),
@@ -228,8 +228,8 @@ void main() {
       itemId: 'comic-2',
       kind: 'comic',
       title: 'Robin',
-      collectionItem: testCollectionItem(
-        id: 'owned-2',
+      libraryEntry: testLibraryEntry(
+        id: 'entry-2',
         itemId: 'comic-2',
         tags: 'variant, Sketched',
       ),

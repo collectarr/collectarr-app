@@ -80,8 +80,8 @@ void main() {
           ),
           kindData: bookMeta,
         ).asShelfCatalogItem),
-        collectionItemSummary: testCollectionItemSummary(testCollectionItem(
-          id: 'owned_1',
+        libraryEntrySummary: testLibraryEntrySummary(testLibraryEntry(
+          id: 'entry_1',
           catalogRef: const CatalogEntityRef(
             id: 'book_1',
             kind: CatalogMediaKind.book,

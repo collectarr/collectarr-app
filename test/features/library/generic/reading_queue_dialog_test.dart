@@ -2,7 +2,7 @@ import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_display_summary.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/money.dart';
-import 'package:collectarr_app/core/models/collection_item_projection.dart';
+import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/core/models/tracking_summary.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/features/collection/repositories/reading_queue_repository.dart';
@@ -27,16 +27,16 @@ void main() {
       (
     tester,
   ) async {
-    const collectionItemRef1 = CollectionItemRef(
+    const libraryEntryRef1 = LibraryEntryRef(
       kind: CatalogMediaKind.book,
-      id: CollectionItemId('owned-1'),
+      id: LibraryEntryId('entry-1'),
     );
-    const collectionItemRef2 = CollectionItemRef(
+    const libraryEntryRef2 = LibraryEntryRef(
       kind: CatalogMediaKind.book,
-      id: CollectionItemId('owned-2'),
+      id: LibraryEntryId('entry-2'),
     );
-    await ReadingQueueRepository(db).addToQueue(collectionItemRef1);
-    await ReadingQueueRepository(db).addToQueue(collectionItemRef2);
+    await ReadingQueueRepository(db).addToQueue(libraryEntryRef1);
+    await ReadingQueueRepository(db).addToQueue(libraryEntryRef2);
 
     String? selectedItemId;
 
@@ -50,19 +50,19 @@ void main() {
                   context: context,
                   db: db,
                   mediaKind: 'book',
-                  collectionItems: [
-                    CollectionItemSummary(
-                      ref: const CollectionItemRef(
+                  libraryEntries: [
+                    LibraryEntrySummary(
+                      ref: const LibraryEntryRef(
                         kind: CatalogMediaKind.book,
-                        id: CollectionItemId('owned-1'),
+                        id: LibraryEntryId('entry-1'),
                       ),
                       title: 'Dune',
                       catalogRef: testCatalogRef('book-1', kind: 'book'),
                     ),
-                    CollectionItemSummary(
-                      ref: const CollectionItemRef(
+                    LibraryEntrySummary(
+                      ref: const LibraryEntryRef(
                         kind: CatalogMediaKind.book,
-                        id: CollectionItemId('owned-2'),
+                        id: LibraryEntryId('entry-2'),
                       ),
                       title: 'Foundation',
                       catalogRef: testCatalogRef('book-2', kind: 'book'),
@@ -74,7 +74,7 @@ void main() {
                     TrackingSummary(
                       id: 'tracking-1',
                       catalogRef: testCatalogRef('book-1', kind: 'book'),
-                      collectionItemRef: CollectionItemRef.fromKey('book:owned-1'),
+                      libraryEntryRef: LibraryEntryRef.fromKey('book:entry-1'),
                       status: MediaTrackingStatus.inProgress,
                       updatedAt: DateTime.utc(2026, 1, 1),
                     ),

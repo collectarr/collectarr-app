@@ -56,7 +56,7 @@ void main() {
     );
   });
 
-  test('Book facet values and vocabularies remain kind-owned', () {
+  test('Book facet values and vocabularies remain kind-entry', () {
     final dto = BookWorkspaceDto(
       common: WorkspaceCommonProjection(
         title: 'Dune',

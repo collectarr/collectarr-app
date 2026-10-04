@@ -173,12 +173,12 @@ void main() {
     expect(fromJson.nrDiscs, 2);
   });
 
-  test('MovieKindRegistration uses Movie-owned capabilities', () {
+  test('MovieKindRegistration uses Movie-entry capabilities', () {
     expect(movieKindIdentity.kind, CatalogMediaKind.movie);
     expect(movieKindAdd.kind, CatalogMediaKind.movie);
     expect(movieKindAdd.createInitialDraft(), isA<MovieAddDraft>());
-    expect(const MovieOwnedDetailsCodec(), isA<MovieOwnedDetailsCodec>());
-    expect(const MovieOwnedDetailsCodec().defaultDetails(),
-        isA<MovieOwnedDetails>());
+    expect(const MovieEntryDetailsCodec(), isA<MovieEntryDetailsCodec>());
+    expect(const MovieEntryDetailsCodec().defaultDetails(),
+        isA<MovieEntryDetails>());
   });
 }

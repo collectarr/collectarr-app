@@ -2,27 +2,27 @@ import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/catalog_display_summary.dart';
 import 'package:collectarr_app/core/models/catalog_item_ref.dart';
-import 'package:collectarr_app/test/helpers/test_collection_item_fixture.dart';
+import 'package:collectarr_app/test/helpers/test_library_entry_fixture.dart';
 
-export 'package:collectarr_app/test/helpers/test_collection_item_fixture.dart';
-import 'package:collectarr_app/core/models/collection_item_projection.dart';
+export 'package:collectarr_app/test/helpers/test_library_entry_fixture.dart';
+import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_record.dart';
-import 'package:collectarr_app/features/collection/commands/collection_item_commands.dart';
+import 'package:collectarr_app/features/collection/commands/library_entry_commands.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_reference_type.dart';
-import 'package:collectarr_app/features/library/kinds/anime/ownership/anime_owned_details.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/ownership/boardgame_owned_details.dart';
-import 'package:collectarr_app/features/library/kinds/book/ownership/book_owned_details.dart';
-import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_details.dart';
-import 'package:collectarr_app/features/library/kinds/game/ownership/game_owned_details.dart';
-import 'package:collectarr_app/features/library/kinds/manga/ownership/manga_owned_details.dart';
-import 'package:collectarr_app/features/library/kinds/movie/ownership/movie_owned_details.dart';
-import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_details.dart';
-import 'package:collectarr_app/features/library/kinds/tv/ownership/tv_owned_details.dart';
+import 'package:collectarr_app/features/library/kinds/anime/entries/anime_entry_details.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/entries/boardgame_entry_details.dart';
+import 'package:collectarr_app/features/library/kinds/book/entries/book_entry_details.dart';
+import 'package:collectarr_app/features/library/kinds/comic/entries/comic_entry_details.dart';
+import 'package:collectarr_app/features/library/kinds/game/entries/game_entry_details.dart';
+import 'package:collectarr_app/features/library/kinds/manga/entries/manga_entry_details.dart';
+import 'package:collectarr_app/features/library/kinds/movie/entries/movie_entry_details.dart';
+import 'package:collectarr_app/features/library/kinds/music/entries/music_entry_details.dart';
+import 'package:collectarr_app/features/library/kinds/tv/entries/tv_entry_details.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_common_draft.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_kind_draft.dart';
@@ -40,15 +40,15 @@ import 'package:collectarr_app/features/library/kinds/music/add/music_add_draft.
 import 'package:collectarr_app/features/library/kinds/tv/add/tv_add_draft.dart';
 import 'package:collectarr_app/features/library/kinds/registry/catalog_workspace_data_dispatch.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_catalog_data.dart';
-import 'package:collectarr_app/features/library/kinds/anime/domain/anime_collection_item.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_collection_item.dart';
-import 'package:collectarr_app/features/library/kinds/book/domain/book_collection_item.dart';
-import 'package:collectarr_app/features/library/kinds/comic/domain/comic_collection_item.dart';
-import 'package:collectarr_app/features/library/kinds/game/domain/game_collection_item.dart';
-import 'package:collectarr_app/features/library/kinds/manga/domain/manga_collection_item.dart';
-import 'package:collectarr_app/features/library/kinds/movie/domain/movie_collection_item.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_collection_item.dart';
-import 'package:collectarr_app/features/library/kinds/tv/domain/tv_collection_item.dart';
+import 'package:collectarr_app/features/library/kinds/anime/domain/anime_library_entry.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_library_entry.dart';
+import 'package:collectarr_app/features/library/kinds/book/domain/book_library_entry.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_library_entry.dart';
+import 'package:collectarr_app/features/library/kinds/game/domain/game_library_entry.dart';
+import 'package:collectarr_app/features/library/kinds/manga/domain/manga_library_entry.dart';
+import 'package:collectarr_app/features/library/kinds/movie/domain/movie_library_entry.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_library_entry.dart';
+import 'package:collectarr_app/features/library/kinds/tv/domain/tv_library_entry.dart';
 
 export 'package:collectarr_app/features/library/add/models/library_add_common_draft.dart';
 
@@ -222,16 +222,16 @@ CatalogEntityRef testCatalogRef(
   );
 }
 
-AddCollectionItemCommand typedAddCollectionItemCommand({
+AddLibraryEntryCommand typedAddLibraryEntryCommand({
   required CatalogEntityRef catalogRef,
   required LibraryAddCommonDraft common,
   required JsonEncodable details,
   String? grade,
-  CollectionItemCreatePayload? typedPayload,
-  CollectionItemTrackingDraft? tracking,
+  LibraryEntryCreatePayload? typedPayload,
+  LibraryEntryTrackingDraft? tracking,
 }) {
   if (typedPayload != null) {
-    return AddCollectionItemCommand(
+    return AddLibraryEntryCommand(
       catalogRef: catalogRef,
       typedPayload: typedPayload,
       tracking: tracking,
@@ -285,9 +285,9 @@ LibraryAddKindDraft? _addDraftWithGrade(CatalogMediaKind kind, String? grade) {
   };
 }
 
-/// Builds an [CollectionItem] with sensible defaults for testing.
-TestCollectionItem testCollectionItem({
-  String id = 'owned-1',
+/// Builds an [LibraryEntry] with sensible defaults for testing.
+TestLibraryEntry testLibraryEntry({
+  String id = 'entry-1',
   String itemId = 'test-item-1',
   String kind = 'comic',
   CatalogEntityRef? catalogRef,
@@ -359,7 +359,7 @@ TestCollectionItem testCollectionItem({
       );
 
   final details = switch (resolvedCatalogRef.mediaKind) {
-    CatalogMediaKind.comic => ComicOwnedDetails(
+    CatalogMediaKind.comic => ComicEntryDetails(
         rawOrSlabbed: rawOrSlabbed,
         gradingCompany: gradingCompany,
         graderNotes: graderNotes,
@@ -375,7 +375,7 @@ TestCollectionItem testCollectionItem({
         coverPriceCents: coverPriceCents,
         lastBagBoardDate: lastBagBoardDate,
       ),
-    CatalogMediaKind.manga => MangaOwnedDetails(
+    CatalogMediaKind.manga => MangaEntryDetails(
         signedBy: signedBy,
         gradingCompany: gradingCompany,
         graderNotes: graderNotes,
@@ -383,7 +383,7 @@ TestCollectionItem testCollectionItem({
         printing: '1st Print',
         localizedEdition: 'English edition',
       ),
-    CatalogMediaKind.movie => MovieOwnedDetails(
+    CatalogMediaKind.movie => MovieEntryDetails(
         features: features,
         hdrFormats: hdrFormats ?? const <String>[],
         boxSetId: boxSetId,
@@ -392,7 +392,7 @@ TestCollectionItem testCollectionItem({
         packaging: packaging,
         distributor: distributor,
       ),
-    CatalogMediaKind.tv => TvOwnedDetails(
+    CatalogMediaKind.tv => TvEntryDetails(
         features: features,
         hdrFormats: hdrFormats ?? const <String>[],
         boxSetId: boxSetId,
@@ -401,7 +401,7 @@ TestCollectionItem testCollectionItem({
         packaging: packaging,
         distributor: distributor,
       ),
-    CatalogMediaKind.anime => AnimeOwnedDetails(
+    CatalogMediaKind.anime => AnimeEntryDetails(
         features: features,
         hdrFormats: hdrFormats ?? const <String>[],
         boxSetId: boxSetId,
@@ -410,7 +410,7 @@ TestCollectionItem testCollectionItem({
         packaging: packaging,
         distributor: distributor,
       ),
-    CatalogMediaKind.game => GameOwnedDetails(
+    CatalogMediaKind.game => GameEntryDetails(
         completeness: gameCompleteness,
         hasBox: gameHasBox,
         hasManual: gameHasManual,
@@ -418,22 +418,22 @@ TestCollectionItem testCollectionItem({
         coreRegion: gameCoreRegion,
         valueIsLocked: gameValueIsLocked,
       ),
-    CatalogMediaKind.boardgame => const BoardgameOwnedDetails(
+    CatalogMediaKind.boardgame => const BoardgameEntryDetails(
         editionLanguage: 'English',
         editionRegion: 'US',
         componentCondition: 'Very Good',
         componentCompleteness: 'Complete',
       ),
-    CatalogMediaKind.music => MusicOwnedDetails(
+    CatalogMediaKind.music => MusicEntryDetails(
         media: [
-          MusicOwnedMediumDetails(
+          MusicEntryMediumDetails(
             mediumIndex: 1,
             storageDevice: storageDevice,
             storageSlot: storageSlot,
           ),
         ],
       ),
-    CatalogMediaKind.book => BookOwnedDetails(
+    CatalogMediaKind.book => BookEntryDetails(
         signedBy: signedBy,
       ),
     CatalogMediaKind.unknown => throw ArgumentError(
@@ -460,7 +460,7 @@ TestCollectionItem testCollectionItem({
                   bundleReleaseId: bundleReleaseId,
                 )));
 
-  return TestCollectionItem(
+  return TestLibraryEntry(
     id: id,
     catalogRef: resolvedCatalogRef,
     createdAt: createdAt,
@@ -511,8 +511,8 @@ CatalogEntityRef _testTargetRef(
   );
 }
 
-CollectionItemSummary testCollectionItemSummary(TestCollectionItem item) {
-  return CollectionItemSummary(
+LibraryEntrySummary testLibraryEntrySummary(TestLibraryEntry item) {
+  return LibraryEntrySummary(
     ref: item.ref,
     catalogRef: item.catalogRef,
     isDigital: item.isDigital,
@@ -534,29 +534,29 @@ CollectionItemSummary testCollectionItemSummary(TestCollectionItem item) {
   );
 }
 
-ComicCollectionItem testComicCollectionItemFrom(TestCollectionItem item) =>
-    ComicCollectionItem.fromJson(item.toJson());
+ComicLibraryEntry testComicLibraryEntryFrom(TestLibraryEntry item) =>
+    ComicLibraryEntry.fromJson(item.toJson());
 
-BookCollectionItem testBookCollectionItemFrom(TestCollectionItem item) =>
-    BookCollectionItem.fromJson(item.toJson());
+BookLibraryEntry testBookLibraryEntryFrom(TestLibraryEntry item) =>
+    BookLibraryEntry.fromJson(item.toJson());
 
-MovieCollectionItem testMovieCollectionItemFrom(TestCollectionItem item) =>
-    MovieCollectionItem.fromJson(item.toJson());
+MovieLibraryEntry testMovieLibraryEntryFrom(TestLibraryEntry item) =>
+    MovieLibraryEntry.fromJson(item.toJson());
 
-AnimeCollectionItem testAnimeCollectionItemFrom(TestCollectionItem item) =>
-    AnimeCollectionItem.fromJson(item.toJson());
+AnimeLibraryEntry testAnimeLibraryEntryFrom(TestLibraryEntry item) =>
+    AnimeLibraryEntry.fromJson(item.toJson());
 
-BoardGameCollectionItem testBoardGameCollectionItemFrom(
-        TestCollectionItem item) =>
-    BoardGameCollectionItem.fromJson(item.toJson());
+BoardGameLibraryEntry testBoardGameLibraryEntryFrom(
+        TestLibraryEntry item) =>
+    BoardGameLibraryEntry.fromJson(item.toJson());
 
-GameCollectionItem testGameCollectionItemFrom(TestCollectionItem item) =>
-    GameCollectionItem.fromJson(item.toJson());
+GameLibraryEntry testGameLibraryEntryFrom(TestLibraryEntry item) =>
+    GameLibraryEntry.fromJson(item.toJson());
 
-MangaCollectionItem testMangaCollectionItemFrom(TestCollectionItem item) =>
-    MangaCollectionItem.fromJson(item.toJson());
+MangaLibraryEntry testMangaLibraryEntryFrom(TestLibraryEntry item) =>
+    MangaLibraryEntry.fromJson(item.toJson());
 
-MusicCollectionItem testMusicCollectionItemFrom(TestCollectionItem item) {
+MusicLibraryEntry testMusicLibraryEntryFrom(TestLibraryEntry item) {
   final json = item.toJson();
   if (json['target_ref'] == null) {
     json['target_ref'] = CatalogEntityRef(
@@ -566,104 +566,104 @@ MusicCollectionItem testMusicCollectionItemFrom(TestCollectionItem item) {
       rootId: item.itemId,
     ).toJson();
   }
-  return MusicCollectionItem.fromJson(json);
+  return MusicLibraryEntry.fromJson(json);
 }
 
-TvCollectionItem testTvCollectionItemFrom(TestCollectionItem item) =>
-    TvCollectionItem.fromJson(item.toJson());
+TvLibraryEntry testTvLibraryEntryFrom(TestLibraryEntry item) =>
+    TvLibraryEntry.fromJson(item.toJson());
 
-LibraryCollectionItemDispatch testCollectionItemDispatchFrom(
-    TestCollectionItem item) {
+LibraryEntryDispatch testLibraryEntryDispatchFrom(
+    TestLibraryEntry item) {
   return switch (item.catalogRef.mediaKind) {
-    CatalogMediaKind.anime => OpaqueLibraryCollectionItemDispatch(
+    CatalogMediaKind.anime => OpaqueLibraryEntryDispatch(
         kind: CatalogMediaKind.anime,
         ref: item.ref,
-        value: testAnimeCollectionItemFrom(item),
+        value: testAnimeLibraryEntryFrom(item),
       ),
-    CatalogMediaKind.boardgame => OpaqueLibraryCollectionItemDispatch(
+    CatalogMediaKind.boardgame => OpaqueLibraryEntryDispatch(
         kind: CatalogMediaKind.boardgame,
         ref: item.ref,
-        value: testBoardGameCollectionItemFrom(item),
+        value: testBoardGameLibraryEntryFrom(item),
       ),
-    CatalogMediaKind.book => OpaqueLibraryCollectionItemDispatch(
+    CatalogMediaKind.book => OpaqueLibraryEntryDispatch(
         kind: CatalogMediaKind.book,
         ref: item.ref,
-        value: testBookCollectionItemFrom(item),
+        value: testBookLibraryEntryFrom(item),
       ),
-    CatalogMediaKind.comic => OpaqueLibraryCollectionItemDispatch(
+    CatalogMediaKind.comic => OpaqueLibraryEntryDispatch(
         kind: CatalogMediaKind.comic,
         ref: item.ref,
-        value: testComicCollectionItemFrom(item),
+        value: testComicLibraryEntryFrom(item),
       ),
-    CatalogMediaKind.game => OpaqueLibraryCollectionItemDispatch(
+    CatalogMediaKind.game => OpaqueLibraryEntryDispatch(
         kind: CatalogMediaKind.game,
         ref: item.ref,
-        value: testGameCollectionItemFrom(item),
+        value: testGameLibraryEntryFrom(item),
       ),
-    CatalogMediaKind.manga => OpaqueLibraryCollectionItemDispatch(
+    CatalogMediaKind.manga => OpaqueLibraryEntryDispatch(
         kind: CatalogMediaKind.manga,
         ref: item.ref,
-        value: testMangaCollectionItemFrom(item),
+        value: testMangaLibraryEntryFrom(item),
       ),
-    CatalogMediaKind.movie => OpaqueLibraryCollectionItemDispatch(
+    CatalogMediaKind.movie => OpaqueLibraryEntryDispatch(
         kind: CatalogMediaKind.movie,
         ref: item.ref,
-        value: testMovieCollectionItemFrom(item),
+        value: testMovieLibraryEntryFrom(item),
       ),
-    CatalogMediaKind.music => OpaqueLibraryCollectionItemDispatch(
+    CatalogMediaKind.music => OpaqueLibraryEntryDispatch(
         kind: CatalogMediaKind.music,
         ref: item.ref,
-        value: testMusicCollectionItemFrom(item),
+        value: testMusicLibraryEntryFrom(item),
       ),
-    CatalogMediaKind.tv => OpaqueLibraryCollectionItemDispatch(
+    CatalogMediaKind.tv => OpaqueLibraryEntryDispatch(
         kind: CatalogMediaKind.tv,
         ref: item.ref,
-        value: testTvCollectionItemFrom(item),
+        value: testTvLibraryEntryFrom(item),
       ),
     CatalogMediaKind.unknown => throw ArgumentError.value(
         item.catalogRef.mediaKind,
         'item',
-        'Test Owned fixture requires an active kind',
+        'Test Entry fixture requires an active kind',
       ),
   };
 }
 
-CollectionItemRef _testCollectionItemRef(
+LibraryEntryRef _testLibraryEntryRef(
         CatalogEntityRef catalogRef, String id) =>
-    CollectionItemRef(
+    LibraryEntryRef(
       kind: catalogRef.mediaKind,
-      id: CollectionItemId(id),
+      id: LibraryEntryId(id),
     );
 
-LibraryCollectionItemDispatch testComicCollectionItemDispatchFrom(
-        ComicCollectionItem item) =>
-    OpaqueLibraryCollectionItemDispatch(
+LibraryEntryDispatch testComicLibraryEntryDispatchFrom(
+        ComicLibraryEntry item) =>
+    OpaqueLibraryEntryDispatch(
       kind: CatalogMediaKind.comic,
-      ref: _testCollectionItemRef(item.catalogRef, item.id.value),
+      ref: _testLibraryEntryRef(item.catalogRef, item.id.value),
       value: item,
     );
 
-LibraryCollectionItemDispatch testGameCollectionItemDispatchFrom(
-        GameCollectionItem item) =>
-    OpaqueLibraryCollectionItemDispatch(
+LibraryEntryDispatch testGameLibraryEntryDispatchFrom(
+        GameLibraryEntry item) =>
+    OpaqueLibraryEntryDispatch(
       kind: CatalogMediaKind.game,
-      ref: _testCollectionItemRef(item.catalogRef, item.id.value),
+      ref: _testLibraryEntryRef(item.catalogRef, item.id.value),
       value: item,
     );
 
-LibraryCollectionItemDispatch testMangaCollectionItemDispatchFrom(
-        MangaCollectionItem item) =>
-    OpaqueLibraryCollectionItemDispatch(
+LibraryEntryDispatch testMangaLibraryEntryDispatchFrom(
+        MangaLibraryEntry item) =>
+    OpaqueLibraryEntryDispatch(
       kind: CatalogMediaKind.manga,
-      ref: _testCollectionItemRef(item.catalogRef, item.id.value),
+      ref: _testLibraryEntryRef(item.catalogRef, item.id.value),
       value: item,
     );
 
-LibraryCollectionItemDispatch testMovieCollectionItemDispatchFrom(
-        MovieCollectionItem item) =>
-    OpaqueLibraryCollectionItemDispatch(
+LibraryEntryDispatch testMovieLibraryEntryDispatchFrom(
+        MovieLibraryEntry item) =>
+    OpaqueLibraryEntryDispatch(
       kind: CatalogMediaKind.movie,
-      ref: _testCollectionItemRef(item.catalogRef, item.id.value),
+      ref: _testLibraryEntryRef(item.catalogRef, item.id.value),
       value: item,
     );
 
@@ -677,7 +677,7 @@ LibraryWorkspaceSource testLibraryWorkspaceSource({
   String title = 'Test Item',
   CatalogItemDto? catalogItem,
   LibraryWorkspaceCatalogData? catalogData,
-  TestCollectionItem? collectionItem,
+  TestLibraryEntry? libraryEntry,
   String? locationPath,
 }) {
   final resolvedCatalogItem = catalogItem ??
@@ -686,9 +686,9 @@ LibraryWorkspaceSource testLibraryWorkspaceSource({
         kind: kind,
         title: title,
       );
-  final collectionItemDispatch = collectionItem == null
+  final libraryEntryDispatch = libraryEntry == null
       ? null
-      : testCollectionItemDispatchFrom(collectionItem);
+      : testLibraryEntryDispatchFrom(libraryEntry);
   return LibraryWorkspaceSource(
     itemId: itemId,
     catalogSummary: CatalogSearchCandidate.fromItem(
@@ -700,10 +700,10 @@ LibraryWorkspaceSource testLibraryWorkspaceSource({
             testCatalogItemWithKindMetadata(resolvedCatalogItem),
           ),
         ),
-    collectionItemSummary: collectionItem == null
+    libraryEntrySummary: libraryEntry == null
         ? null
-        : testCollectionItemSummary(collectionItem),
-    collectionItemDispatch: collectionItemDispatch,
+        : testLibraryEntrySummary(libraryEntry),
+    libraryEntryDispatch: libraryEntryDispatch,
     locationPath: locationPath,
   );
 }
@@ -715,7 +715,7 @@ LibraryProjectionView testProjectionItem({
   String title = 'Test Item',
   String? barcode,
   CatalogItemDto? catalogItem,
-  TestCollectionItem? collectionItem,
+  TestLibraryEntry? libraryEntry,
   String? locationPath,
 }) {
   final resolvedId = id ?? itemId;
@@ -726,7 +726,7 @@ LibraryProjectionView testProjectionItem({
     catalogItem: catalogItem ??
         testCatalogItem(
             id: resolvedId, kind: kind, title: title, barcode: barcode),
-    collectionItem: collectionItem,
+    libraryEntry: libraryEntry,
     locationPath: locationPath,
   );
   final node = LibraryCatalogItemNodeRef(catalogItemId: resolvedId);
@@ -766,7 +766,7 @@ TrackingSummary trackingSummaryFromRecord(TrackingStorageRecord record) {
   return TrackingSummary(
     id: record.id,
     catalogRef: record.catalogRef,
-    collectionItemRef: record.collectionItemRef,
+    libraryEntryRef: record.libraryEntryRef,
     sourceType: record.sourceType,
     status: record.status ?? MediaTrackingStatus.none,
     rating: record.rating,

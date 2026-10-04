@@ -59,12 +59,12 @@ void main() {
     expect(MovieStatsCapability.formatRuntime(271), '4h 31m');
   });
 
-  test('Movie value capability summarizes owned market values', () {
+  test('Movie value capability summarizes entry market values', () {
     final entries = [
       testLibraryWorkspaceSource(
         itemId: 'movie-1',
         kind: 'movie',
-        collectionItem: testCollectionItem(
+        libraryEntry: testLibraryEntry(
           itemId: 'movie-1',
           kind: 'movie',
           marketValueCents: 2400,
@@ -74,7 +74,7 @@ void main() {
       testLibraryWorkspaceSource(
         itemId: 'movie-2',
         kind: 'movie',
-        collectionItem: testCollectionItem(
+        libraryEntry: testLibraryEntry(
           itemId: 'movie-2',
           kind: 'movie',
           marketValueCents: 1600,

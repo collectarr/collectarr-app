@@ -40,7 +40,7 @@ void main() {
     final builder = TvLibraryEditPresentationBuilder();
     final tabs = builder.buildTabs(
       context: const LibraryEditPresentationContext(
-        isOwned: false,
+        isEntry: false,
         isTrackingOnly: false,
         hasTrackingContext: false,
         hasWishlistContext: false,

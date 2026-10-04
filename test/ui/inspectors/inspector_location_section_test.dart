@@ -1,9 +1,9 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/money.dart';
-import 'package:collectarr_app/core/models/collection_item_projection.dart';
+import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/features/library/inspector/inspector_location_section.dart';
-import 'package:collectarr_app/features/library/kinds/comic/data/comic_owned_repository.dart';
+import 'package:collectarr_app/features/library/kinds/comic/data/comic_entry_repository.dart';
 import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
@@ -24,9 +24,9 @@ void main() {
             sortOrder: const Value(1),
           ),
         );
-    await ComicOwnedRepository(db).upsert(
-      testComicCollectionItemFrom(testCollectionItem(
-        id: 'owned-1',
+    await ComicEntryRepository(db).upsert(
+      testComicLibraryEntryFrom(testLibraryEntry(
+        id: 'entry-1',
         itemId: 'comic-1',
         kind: 'comic',
         locationId: 'loc-1',
@@ -38,9 +38,9 @@ void main() {
       MaterialApp(
         home: Scaffold(
           body: InspectorLocationSection(
-            collectionItemRef: const CollectionItemRef(
+            libraryEntryRef: const LibraryEntryRef(
               kind: CatalogMediaKind.comic,
-              id: CollectionItemId('owned-1'),
+              id: LibraryEntryId('entry-1'),
             ),
             db: db,
             accent: Colors.orange,
@@ -59,9 +59,9 @@ void main() {
     await tester.tap(find.text('Cancel'));
     await pumpUntilSettled(tester);
 
-    final owned = (await ComicOwnedRepository(db).listActive()).single;
+    final entry = (await ComicEntryRepository(db).listActive()).single;
 
-    expect(owned.locationId, 'loc-1');
+    expect(entry.locationId, 'loc-1');
     expect(find.text('Office Shelf'), findsOneWidget);
   });
 }

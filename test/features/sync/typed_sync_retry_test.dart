@@ -1,47 +1,44 @@
 import 'package:collectarr_app/core/db/local_database.dart';
-import 'package:collectarr_app/core/models/collection_item_ref.dart';
+import 'package:collectarr_app/core/models/library_entry_ref.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/sync/sync_change.dart';
-import 'package:collectarr_app/features/library/kinds/comic/data/comic_owned_repository.dart';
+import 'package:collectarr_app/features/library/kinds/comic/data/comic_entry_repository.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_ids.dart';
-import 'package:collectarr_app/features/library/kinds/comic/domain/comic_collection_item.dart';
-import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_details.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_library_entry.dart';
+import 'package:collectarr_app/features/library/kinds/comic/entries/comic_entry_details.dart';
 import 'package:collectarr_app/features/sync/data/sync_retry_mapper.dart';
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:uuid/uuid.dart';
 
 void main() {
-  test('owned retry serializes through the concrete kind model', () async {
+  test('entry retry serializes through the concrete kind model', () async {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
-    final repository = ComicOwnedRepository(db);
+    final repository = ComicEntryRepository(db);
     final updatedAt = DateTime.utc(2026, 5, 12, 8);
     await repository.upsert(
-      ComicCollectionItem(
-        id: CollectionItemId('owned-retry'),
+      ComicLibraryEntry(
+        id: LibraryEntryId('entry-retry'),
         catalogRef: const CatalogEntityRef(
           kind: CatalogMediaKind.comic,
           entityType: CatalogEntityTypeId.catalogItem,
-          id: 'comic-retry',
+          id: 'entry-retry',
         ),
+        catalogData: const {'title': 'Retry entry'},
         condition: 'Near Mint',
         updatedAt: updatedAt,
-        details: const ComicOwnedDetails(rawOrSlabbed: 'raw'),
+        details: const ComicEntryDetails(rawOrSlabbed: 'raw'),
       ),
     );
 
     final retry = await SyncRetryMapper.localRetryChange(
       const SyncRejectedChange(
-        entityType: 'collection_item',
-        entityId: 'owned-retry',
+        entityType: 'library_entry',
+        entityId: 'entry-retry',
         reason: 'conflict',
         localPayload: {
-          'catalog_ref': {
-            'kind': 'comic',
-            'entity_type': 'catalog_item',
-            'id': 'comic-retry',
-          },
+          'kind': 'comic',
         },
       ),
       db: db,
@@ -50,29 +47,28 @@ void main() {
     );
 
     expect(retry?.action, 'upsert');
-    expect(retry?.entityId, 'owned-retry');
-    expect(retry?.payload['catalog_ref'], {
-      'kind': 'comic',
-      'entity_type': 'catalog_item',
-      'id': 'comic-retry',
-    });
-    expect(retry?.payload['condition'], 'Near Mint');
-    expect(retry?.payload, isNot(contains('id')));
-    expect(retry?.payload, isNot(contains('updated_at')));
+    expect(retry?.entityId, 'entry-retry');
+    expect(retry?.payload['id'], 'entry-retry');
+    expect(retry?.payload['kind'], 'comic');
+    expect(retry?.payload['catalog_data'], {'title': 'Retry entry'});
+    expect(retry?.payload['personal_data'],
+        containsPair('condition', 'Near Mint'));
+    expect(retry?.payload['updated_at'], updatedAt.toIso8601String());
   });
 
-  test('owned retry preserves typed tombstone action', () async {
+  test('entry retry preserves typed tombstone action', () async {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
-    final repository = ComicOwnedRepository(db);
+    final repository = ComicEntryRepository(db);
     await repository.upsert(
-      ComicCollectionItem(
-        id: CollectionItemId('owned-deleted-retry'),
+      ComicLibraryEntry(
+        id: LibraryEntryId('entry-deleted-retry'),
         catalogRef: const CatalogEntityRef(
           kind: CatalogMediaKind.comic,
           entityType: CatalogEntityTypeId.catalogItem,
-          id: 'comic-deleted-retry',
+          id: 'entry-deleted-retry',
         ),
+        catalogData: const {'title': 'Deleted retry entry'},
         updatedAt: DateTime.utc(2026, 5, 12, 8),
         deletedAt: DateTime.utc(2026, 5, 12, 7),
       ),
@@ -80,15 +76,11 @@ void main() {
 
     final retry = await SyncRetryMapper.localRetryChange(
       const SyncRejectedChange(
-        entityType: 'collection_item',
-        entityId: 'owned-deleted-retry',
+        entityType: 'library_entry',
+        entityId: 'entry-deleted-retry',
         reason: 'conflict',
         localPayload: {
-          'catalog_ref': {
-            'kind': 'comic',
-            'entity_type': 'catalog_item',
-            'id': 'comic-deleted-retry',
-          },
+          'kind': 'comic',
         },
       ),
       db: db,
@@ -97,30 +89,31 @@ void main() {
     );
 
     expect(retry?.action, 'delete');
-    expect(retry?.payload, isNot(contains('deleted_at')));
+    expect(retry?.payload['deleted_at'],
+        DateTime.utc(2026, 5, 12, 7).toIso8601String());
   });
 
-  test('owned retry does not scan unrelated kinds without a typed ref',
-      () async {
+  test('entry retry requires a kind in the rejected payload', () async {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
-    await ComicOwnedRepository(db).upsert(
-      ComicCollectionItem(
-        id: CollectionItemId('owned-untyped-retry'),
+    await ComicEntryRepository(db).upsert(
+      ComicLibraryEntry(
+        id: LibraryEntryId('entry-untyped-retry'),
         catalogRef: const CatalogEntityRef(
           kind: CatalogMediaKind.comic,
           entityType: CatalogEntityTypeId.catalogItem,
-          id: 'comic-untyped-retry',
+          id: 'entry-untyped-retry',
         ),
+        catalogData: const {'title': 'Untyped retry entry'},
         updatedAt: DateTime.utc(2026, 5, 12, 8),
-        details: const ComicOwnedDetails(),
+        details: const ComicEntryDetails(),
       ),
     );
 
     final retry = await SyncRetryMapper.localRetryChange(
       const SyncRejectedChange(
-        entityType: 'collection_item',
-        entityId: 'owned-untyped-retry',
+        entityType: 'library_entry',
+        entityId: 'entry-untyped-retry',
         reason: 'conflict',
       ),
       db: db,

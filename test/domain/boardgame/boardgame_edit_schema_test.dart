@@ -6,11 +6,11 @@ import 'package:collectarr_app/features/library/edit/schema/edit_schema.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/add/boardgame_add_schema.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/edit/boardgame_edit_draft.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/edit/owned/boardgame_owned_edit_schema.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/edit/entry/boardgame_entry_edit_schema.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/forms/boardgame_catalog_form_adapters.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/forms/boardgame_catalog_form_values.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/ownership/boardgame_owned_details.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/ownership/boardgame_owned_details_draft.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/entries/boardgame_entry_details.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/entries/boardgame_entry_details_draft.dart';
 import 'package:collectarr_app/features/library/models/library_item_identity.dart';
 import 'package:collectarr_app/features/library/schema/library_field_spec.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -65,34 +65,34 @@ void main() {
     ).copySession as BoardGameEditDraft;
     addTearDown(draft.dispose);
 
-    (_ownedField('edition_language')
+    (_entryField('edition_language')
             as LibraryTextFieldSpec<BoardGameEditDraft>)
         .setValue(draft, 'German');
-    (_ownedField('edition_region') as LibraryTextFieldSpec<BoardGameEditDraft>)
+    (_entryField('edition_region') as LibraryTextFieldSpec<BoardGameEditDraft>)
         .setValue(draft, 'EU');
-    (_ownedField('component_condition')
+    (_entryField('component_condition')
             as LibraryTextFieldSpec<BoardGameEditDraft>)
         .setValue(draft, 'Very good');
-    (_ownedField('component_completeness')
+    (_entryField('component_completeness')
             as LibraryTextFieldSpec<BoardGameEditDraft>)
         .setValue(draft, 'Complete');
-    (_ownedField('missing_pieces_notes')
+    (_entryField('missing_pieces_notes')
             as LibraryTextFieldSpec<BoardGameEditDraft>)
         .setValue(draft, 'One spare token');
-    (_ownedField('is_sleeved') as LibraryToggleFieldSpec<BoardGameEditDraft>)
+    (_entryField('is_sleeved') as LibraryToggleFieldSpec<BoardGameEditDraft>)
         .setValue(draft, true);
-    (_ownedField('has_custom_insert')
+    (_entryField('has_custom_insert')
             as LibraryToggleFieldSpec<BoardGameEditDraft>)
         .setValue(draft, true);
-    (_ownedField('has_painted_miniatures')
+    (_entryField('has_painted_miniatures')
             as LibraryToggleFieldSpec<BoardGameEditDraft>)
         .setValue(draft, true);
-    (_ownedField('storage_notes') as LibraryTextFieldSpec<BoardGameEditDraft>)
+    (_entryField('storage_notes') as LibraryTextFieldSpec<BoardGameEditDraft>)
         .setValue(draft, 'Shelf 2');
 
     expect(
-      (draft.toDetailsDraft() as BoardgameOwnedDetailsDraft).toDetails(),
-      const BoardgameOwnedDetails(
+      (draft.toDetailsDraft() as BoardgameEntryDetailsDraft).toDetails(),
+      const BoardgameEntryDetails(
         editionLanguage: 'German',
         editionRegion: 'EU',
         componentCondition: 'Very good',
@@ -118,8 +118,8 @@ CatalogSearchCandidate _item(BoardGameMetadata metadata) =>
       ),
     );
 
-LibraryFieldSpec<BoardGameEditDraft> _ownedField(String id) => [
-      for (final tab in boardGameOwnedEditSchema.tabs)
+LibraryFieldSpec<BoardGameEditDraft> _entryField(String id) => [
+      for (final tab in boardGameEntryEditSchema.tabs)
         for (final section in tab.sections)
           for (final field in section.fields)
             if (field.id == id) field,

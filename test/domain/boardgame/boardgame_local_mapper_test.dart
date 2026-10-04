@@ -1,10 +1,10 @@
 import 'package:collectarr_app/core/db/local_database.dart';
-import 'package:collectarr_app/core/models/collection_item_ref.dart';
+import 'package:collectarr_app/core/models/library_entry_ref.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/data/local/boardgame_local_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_ids.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_collection_item.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/ownership/boardgame_owned_details.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_library_entry.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/entries/boardgame_entry_details.dart';
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -12,8 +12,8 @@ void main() {
   test('round trips the complete BoardGame collection item', () async {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
-    final item = BoardGameCollectionItem(
-      id: const CollectionItemId('owned-boardgame-1'),
+    final item = BoardGameLibraryEntry(
+      id: const LibraryEntryId('entry-boardgame-1'),
       catalogRef: const CatalogEntityRef(
         kind: CatalogMediaKind.boardgame,
         entityType: CatalogEntityTypeId.catalogItem,
@@ -34,9 +34,9 @@ void main() {
       ownerLabel: 'Board game collector',
       locationId: 'shelf-boardgame',
       purchaseStore: 'Specialist shop',
-      collectionStatus: 'owned',
+      collectionStatus: 'entry',
       marketValueCents: 9000,
-      details: const BoardgameOwnedDetails(
+      details: const BoardgameEntryDetails(
         editionLanguage: 'English',
         editionRegion: 'US',
         componentCondition: 'Like New',
@@ -49,11 +49,11 @@ void main() {
       ),
     );
 
-    await db.into(db.boardGameCollectionItemsRows).insert(
-          BoardGameLocalMapper.toCollectionItemRow(item),
+    await db.into(db.boardGameLibraryEntriesRows).insert(
+          BoardGameLocalMapper.toLibraryEntryRow(item),
         );
-    final row = await db.select(db.boardGameCollectionItemsRows).getSingle();
-    final restored = BoardGameLocalMapper.fromCollectionItemRow(row);
+    final row = await db.select(db.boardGameLibraryEntriesRows).getSingle();
+    final restored = BoardGameLocalMapper.fromLibraryEntryRow(row);
 
     expect(restored.id, item.id);
     expect(restored.itemId, item.itemId);
@@ -79,9 +79,9 @@ void main() {
 
   test('requires persisted BoardGame collection-item identities', () {
     expect(
-      () => BoardGameLocalMapper.toCollectionItemRow(
-        BoardGameCollectionItem(
-          id: const CollectionItemId(''),
+      () => BoardGameLocalMapper.toLibraryEntryRow(
+        BoardGameLibraryEntry(
+          id: const LibraryEntryId(''),
           catalogRef: const CatalogEntityRef(
             kind: CatalogMediaKind.boardgame,
             entityType: CatalogEntityTypeId.catalogItem,

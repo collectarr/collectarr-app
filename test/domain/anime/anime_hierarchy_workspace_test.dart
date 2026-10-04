@@ -8,7 +8,7 @@ import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  test('maps Anime-owned episodes into a generic hierarchy container', () {
+  test('maps Anime-entry episodes into a generic hierarchy container', () {
     const media = AnimeMedia(
       id: AnimeMediaId('anime-1'),
       title: 'Cowboy Bebop',

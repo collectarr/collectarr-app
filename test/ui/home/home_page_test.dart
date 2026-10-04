@@ -1,6 +1,6 @@
 import 'package:collectarr_app/core/api/dto/media_catalog.dart';
 import 'package:collectarr_app/core/models/loan.dart';
-import 'package:collectarr_app/core/models/collection_item_projection.dart';
+import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/money.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
@@ -38,9 +38,9 @@ void main() {
       barcode: '123456789012',
     );
     final shelf = ShelfState.from(
-      ownedSummaries: [
-        testCollectionItemSummary(testCollectionItem(
-          id: 'owned-1',
+      entrySummaries: [
+        testLibraryEntrySummary(testLibraryEntry(
+          id: 'entry-1',
           itemId: game.id,
           kind: 'game',
           condition: 'New',
@@ -109,9 +109,9 @@ void main() {
       releaseYear: 2020,
     );
     final shelf = ShelfState.from(
-      ownedSummaries: [
-        testCollectionItemSummary(testCollectionItem(
-          id: 'owned-1',
+      entrySummaries: [
+        testLibraryEntrySummary(testLibraryEntry(
+          id: 'entry-1',
           itemId: game.id,
           kind: 'game',
           updatedAt: now,
@@ -177,7 +177,7 @@ void main() {
       releaseYear: 2026,
     );
     final shelf = ShelfState.from(
-      ownedSummaries: const [],
+      entrySummaries: const [],
       wishlistItems: const [],
       catalogSummariesByRef: {
         podcast.catalogRef: podcast.asShelfCatalogSummary,
@@ -229,9 +229,9 @@ void main() {
       releaseYear: 2018,
     );
     final shelf = ShelfState.from(
-      ownedSummaries: [
-        testCollectionItemSummary(testCollectionItem(
-          id: 'owned-game-rail-1',
+      entrySummaries: [
+        testLibraryEntrySummary(testLibraryEntry(
+          id: 'entry-game-rail-1',
           itemId: game.id,
           kind: 'game',
           updatedAt: now,
@@ -286,14 +286,14 @@ void main() {
       publisher: 'Jump Over the Age',
       releaseYear: 2022,
     );
-    final owned = testCollectionItem(
-      id: 'owned-overdue-1',
+    final entry = testLibraryEntry(
+      id: 'entry-overdue-1',
       itemId: game.id,
       kind: 'game',
       updatedAt: now,
     );
     final shelf = ShelfState.from(
-      ownedSummaries: [testCollectionItemSummary(owned)],
+      entrySummaries: [testLibraryEntrySummary(entry)],
       wishlistItems: const [],
       catalogSummariesByRef: {game.catalogRef: game.asShelfCatalogSummary},
       catalogDataByRef: {game.catalogRef: game.asShelfCatalogData},
@@ -301,9 +301,9 @@ void main() {
     await LoanRepository(db).create(
       Loan(
         id: 'loan-overdue-1',
-        collectionItemRef: CollectionItemRef(
+        libraryEntryRef: LibraryEntryRef(
           kind: CatalogMediaKind.game,
-          id: CollectionItemId(owned.id),
+          id: LibraryEntryId(entry.id),
         ),
         borrowerName: 'Alex',
         lentDate: DateTime.utc(2020, 1, 1),
@@ -356,7 +356,7 @@ void main() {
           shelfProvider.overrideWith(
             (ref) async => const ShelfState(
               entries: [],
-              ownedCount: 0,
+              entryCount: 0,
               wishlistCount: 0,
               pricedCount: 0,
               totalPaidCents: null,

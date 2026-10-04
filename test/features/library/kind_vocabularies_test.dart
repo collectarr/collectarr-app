@@ -19,7 +19,7 @@ import 'package:collectarr_app/features/library/kinds/registry/library_kind_cont
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  group('PR 2: Kind-Owned Vocabularies Verification', () {
+  group('PR 2: Kind-Entry Vocabularies Verification', () {
     test(
         'Comic vocabularies have built-ins for grading, page quality, key categories, publisher',
         () {

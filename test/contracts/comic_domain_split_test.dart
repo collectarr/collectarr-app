@@ -3,7 +3,7 @@ import 'package:collectarr_app/features/library/kinds/comic/comic_domain.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  test('Comic domain exposes a flat catalog item and owned state', () {
+  test('Comic domain exposes a flat catalog item and entry state', () {
     const mediaId = ComicCatalogItemId('media-1');
     const sameMediaId = ComicCatalogItemId('media-1');
     const media = ComicCatalogItem(
@@ -11,14 +11,14 @@ void main() {
       title: 'Fixture Comic',
       issueNumber: '1',
     );
-    const ownedDetails = ComicOwnedDetails();
+    const entryDetails = ComicEntryDetails();
 
     expect(media.mediaKind, CatalogMediaKind.comic);
     expect(media.toSyncPayload()['title'], 'Fixture Comic');
     expect(media.toSyncPayload()['id'], 'media-1');
     expect(mediaId, sameMediaId);
     expect(mediaId.toString(), 'media-1');
-    expect(ownedDetails, isA<ComicOwnedDetails>());
+    expect(entryDetails, isA<ComicEntryDetails>());
   });
 
   test('ComicCatalogItem decodes its canonical domain payload', () {

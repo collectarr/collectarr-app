@@ -144,7 +144,7 @@ void main() {
         isA<KindDrilldownLibraryPageState>());
   });
 
-  test('reading queue visibility is now kind-owned in toolbar actions', () {
+  test('reading queue visibility is now kind-entry in toolbar actions', () {
     expect(
       const BookRegistration()
           .toolbarActionAvailability
@@ -193,7 +193,7 @@ void main() {
           title: 'Hyperion',
         ),
       )),
-      collectionItem: null,
+      libraryEntry: null,
       accent: Colors.blue,
       scope: LibraryEntityScope.catalogItem,
     );

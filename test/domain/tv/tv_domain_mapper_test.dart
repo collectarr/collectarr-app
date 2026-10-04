@@ -5,7 +5,7 @@ import 'package:collectarr_app/features/library/kinds/tv/tv_module.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  test('TvCoreMapper maps generated Core DTOs into TV-owned models', () {
+  test('TvCoreMapper maps generated Core DTOs into TV-entry models', () {
     final dto = TvSeriesDto.fromJson({
       'id': 'series-typed',
       'title': 'The Expanse',
@@ -288,11 +288,11 @@ void main() {
     expect(fromJson.releases.single.packaging, 'Collector Barrel');
   });
 
-  test('TvKindRegistration uses TV-owned capabilities', () {
+  test('TvKindRegistration uses TV-entry capabilities', () {
     expect(tvKindIdentity.kind, CatalogMediaKind.tv);
     expect(tvKindAdd.kind, CatalogMediaKind.tv);
     expect(tvKindAdd.createInitialDraft(), isA<TvAddDraft>());
-    expect(const TvOwnedDetailsCodec(), isA<TvOwnedDetailsCodec>());
-    expect(const TvOwnedDetailsCodec().defaultDetails(), isA<TvOwnedDetails>());
+    expect(const TvEntryDetailsCodec(), isA<TvEntryDetailsCodec>());
+    expect(const TvEntryDetailsCodec().defaultDetails(), isA<TvEntryDetails>());
   });
 }

@@ -2,7 +2,7 @@ import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/features/library/kinds/movie/tracking/movie_tracking_state.dart';
 import 'package:collectarr_app/features/library/inspector/inspector_personal_details.dart';
 import 'package:collectarr_app/features/library/kinds/movie/tracking/movie_tracking_profile.dart';
-import 'package:collectarr_app/features/library/kinds/movie/data/movie_owned_repository.dart';
+import 'package:collectarr_app/features/library/kinds/movie/data/movie_entry_repository.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:drift/drift.dart' show Value;
 import 'package:drift/native.dart';
@@ -43,9 +43,9 @@ void main() {
             sortOrder: const Value(2),
           ),
         );
-    await MovieOwnedRepository(db).upsert(
-      testMovieCollectionItemFrom(testCollectionItem(
-        id: 'owned-1',
+    await MovieEntryRepository(db).upsert(
+      testMovieLibraryEntryFrom(testLibraryEntry(
+        id: 'entry-1',
         itemId: 'movie-1',
         kind: 'movie',
         locationId: 'loc-a',
@@ -53,8 +53,8 @@ void main() {
       )),
     );
 
-    final collectionItem = testCollectionItem(
-      id: 'owned-1',
+    final libraryEntry = testLibraryEntry(
+      id: 'entry-1',
       itemId: 'movie-1',
       kind: 'movie',
       locationId: 'loc-a',
@@ -67,7 +67,7 @@ void main() {
         child: MaterialApp(
           home: Scaffold(
             body: InspectorPersonalDetailsEditor(
-              collectionItem: testCollectionItemSummary(collectionItem),
+              libraryEntry: testLibraryEntrySummary(libraryEntry),
               accent: Colors.orange,
             ),
           ),
@@ -88,7 +88,7 @@ void main() {
         .tap(find.widgetWithText(FilledButton, 'Apply personal changes'));
     await pumpUntilSettled(tester);
 
-    final updated = (await MovieOwnedRepository(db).listActive()).single;
+    final updated = (await MovieEntryRepository(db).listActive()).single;
     expect(updated.locationId, 'loc-b');
   });
 

@@ -1,7 +1,7 @@
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/money.dart';
-import 'package:collectarr_app/core/models/collection_item_projection.dart';
+import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/workspace/boardgame_workspace_projector.dart';
@@ -49,8 +49,8 @@ void main() {
           'max_players': 4,
         },
       ).asShelfCatalogItem),
-      collectionItemSummary: testCollectionItemSummary(testCollectionItem(
-        id: 'owned-1',
+      libraryEntrySummary: testLibraryEntrySummary(testLibraryEntry(
+        id: 'entry-1',
         itemId: 'boardgame-1',
         kind: 'boardgame',
       )),
@@ -72,16 +72,16 @@ void main() {
 
     final copyDto = projector.project(
       source: source,
-      entity: const LibraryCollectionItemNodeRef(
+      entity: const LibraryEntryNodeRef(
         catalogItemId: 'boardgame-1',
-        collectionItemRef: CollectionItemRef(
+        libraryEntryRef: LibraryEntryRef(
           kind: CatalogMediaKind.boardgame,
-          id: CollectionItemId('owned-1'),
+          id: LibraryEntryId('entry-1'),
         ),
       ),
     );
     expect(copyDto.title, 'Catan — Deluxe Edition');
-    expect(copyDto.personal.isOwned, isTrue);
+    expect(copyDto.personal.isEntry, isTrue);
   });
 
   testWidgets('boardgame inspector contributor exposes typed sections',
@@ -108,7 +108,7 @@ void main() {
     final inspector = LibraryInspectorRequest(
       type: const BoardgameRegistration(),
       item: item,
-      collectionItem: null,
+      libraryEntry: null,
       accent: Colors.amber,
     );
 

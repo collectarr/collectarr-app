@@ -5,19 +5,19 @@ import 'package:collectarr_app/features/catalog/transport/catalog_search_candida
 import 'package:collectarr_app/features/library/kinds/game/add/game_add_schema.dart';
 import 'package:collectarr_app/features/library/kinds/game/domain/game_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/game/edit/game_edit_draft.dart';
-import 'package:collectarr_app/features/library/kinds/game/edit/owned/game_owned_edit_schema.dart';
+import 'package:collectarr_app/features/library/kinds/game/edit/entry/game_entry_edit_schema.dart';
 import 'package:collectarr_app/features/library/kinds/game/forms/game_catalog_form_adapters.dart';
-import 'package:collectarr_app/features/library/kinds/game/ownership/game_owned_details.dart';
-import 'package:collectarr_app/features/library/kinds/game/ownership/game_owned_details_draft.dart';
+import 'package:collectarr_app/features/library/kinds/game/entries/game_entry_details.dart';
+import 'package:collectarr_app/features/library/kinds/game/entries/game_entry_details_draft.dart';
 import 'package:collectarr_app/features/library/models/library_item_identity.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import '../../contracts/owned_edit_contract.dart';
+import '../../contracts/entry_edit_contract.dart';
 
 void main() {
-  defineOwnedEditContract<EditSchema<GameOwnedDetails, GameEditDraft>>(
+  defineEntryEditContract<EditSchema<GameEntryDetails, GameEditDraft>>(
     name: 'Game',
-    create: () => gameOwnedEditSchema,
+    create: () => gameEntryEditSchema,
     tabIds: (schema) => schema.tabs.map((tab) => tab.id),
     fieldIds: (schema, tabId) => [
       for (final tab in schema.tabs)
@@ -93,28 +93,28 @@ void main() {
     expect(payload, isNot(contains('editions')));
   });
 
-  test('Game ownership schema round trips typed owned details', () {
+  test('Game entries schema round trips typed entry details', () {
     final draft = _createDraft(const GameCatalogMetadata(title: 'Game'));
     addTearDown(draft.dispose);
 
-    (_ownedField('completeness')
+    (_entryField('completeness')
             as LibraryVocabularyFieldSpec<GameEditDraft, String>)
         .setValue(draft, 'Complete in Box (CIB)');
-    (_ownedField('has_box') as LibraryToggleFieldSpec<GameEditDraft>)
+    (_entryField('has_box') as LibraryToggleFieldSpec<GameEditDraft>)
         .setValue(draft, true);
-    (_ownedField('has_manual') as LibraryToggleFieldSpec<GameEditDraft>)
+    (_entryField('has_manual') as LibraryToggleFieldSpec<GameEditDraft>)
         .setValue(draft, true);
-    (_ownedField('pricecharting_id') as LibraryTextFieldSpec<GameEditDraft>)
+    (_entryField('pricecharting_id') as LibraryTextFieldSpec<GameEditDraft>)
         .setValue(draft, 'pc-123');
-    (_ownedField('core_region')
+    (_entryField('core_region')
             as LibraryVocabularyFieldSpec<GameEditDraft, String>)
         .setValue(draft, 'NTSC-U/C (US/Canada)');
-    (_ownedField('value_locked') as LibraryToggleFieldSpec<GameEditDraft>)
+    (_entryField('value_locked') as LibraryToggleFieldSpec<GameEditDraft>)
         .setValue(draft, true);
 
     expect(
-      (draft.toDetailsDraft() as GameOwnedDetailsDraft).toDetails(),
-      const GameOwnedDetails(
+      (draft.toDetailsDraft() as GameEntryDetailsDraft).toDetails(),
+      const GameEntryDetails(
         completeness: 'Complete in Box (CIB)',
         hasBox: true,
         hasManual: true,
@@ -141,8 +141,8 @@ GameEditDraft _createDraft(GameCatalogMetadata metadata) {
   ).copySession as GameEditDraft;
 }
 
-LibraryFieldSpec<GameEditDraft> _ownedField(String id) => [
-      for (final tab in gameOwnedEditSchema.tabs)
+LibraryFieldSpec<GameEditDraft> _entryField(String id) => [
+      for (final tab in gameEntryEditSchema.tabs)
         for (final section in tab.sections)
           for (final field in section.fields)
             if (field.id == id) field,

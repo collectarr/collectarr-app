@@ -90,7 +90,7 @@ void main() {
         'Top Publishers / Studios');
   });
 
-  test('filter definitions are kind-owned and grade is not universal', () {
+  test('filter definitions are kind-entry and grade is not universal', () {
     final comicFilterIds = comicKindPresentation.filterDefinitions
         .map((definition) => definition.id)
         .toSet();

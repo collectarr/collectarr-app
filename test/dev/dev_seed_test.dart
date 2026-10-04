@@ -1,13 +1,13 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/core/models/collection_item_projection.dart';
+import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/core/models/money.dart';
 import 'package:collectarr_app/dev/dev_seed.dart';
 import 'package:collectarr_app/dev/seeds/seed_catalog_item_factory.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_snapshot_repository.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_item_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/custom_field_repository.dart';
-import 'package:collectarr_app/features/library/ownership/collection_items_repository.dart';
+import 'package:collectarr_app/features/library/entries/library_entries_repository.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/pick_lists/pick_list_repository.dart';
 import '../helpers/tracking_state_test_helpers.dart';
@@ -40,19 +40,19 @@ void main() {
       expect(contributor.validateCatalog, isNotNull);
       expect(contributor.validateCatalogGraph, isNotNull);
       expect(contributor.validateBarcode, isNotNull);
-      expect(contributor.ownedSummaries, isNotNull);
-      expect(contributor.validateOwned, isNotNull);
-      expect(contributor.seedOwned, isNotNull);
+      expect(contributor.entrySummaries, isNotNull);
+      expect(contributor.validateEntry, isNotNull);
+      expect(contributor.seedEntry, isNotNull);
       expect(contributor.trackingRecords, isNotNull);
 
-      final owned = contributor.ownedSummaries(DateTime.utc(2024, 1, 1));
-      expect(owned, isNotEmpty);
+      final entry = contributor.entrySummaries(DateTime.utc(2024, 1, 1));
+      expect(entry, isNotEmpty);
       expect(
-        owned.every(
+        entry.every(
           (item) => item.ref.kind == contributor.kind,
         ),
         isTrue,
-        reason: 'Owned seed type mismatch for ${contributor.kind.apiValue}',
+        reason: 'Entry seed type mismatch for ${contributor.kind.apiValue}',
       );
     }
   });
@@ -91,26 +91,26 @@ void main() {
     );
   });
 
-  test('seed quality guard rejects owned details under the wrong kind', () {
-    final movie = movieSeedCollectionItems(DateTime.utc(2024, 1, 1)).first;
+  test('seed quality guard rejects entry details under the wrong kind', () {
+    final movie = movieSeedLibraryEntries(DateTime.utc(2024, 1, 1)).first;
     final mismatched = movie.copyWith(
       catalogRef: seedCatalogRef(CatalogMediaKind.comic, 'seed-comic-01'),
     );
     final mismatchedSummary = movieDevSeedContributor
-        .ownedSummaries(
+        .entrySummaries(
           DateTime.utc(2024, 1, 1),
         )
         .first
         .copyWith(
-          ref: CollectionItemRef(
+          ref: LibraryEntryRef(
             kind: CatalogMediaKind.movie,
-            id: CollectionItemId(mismatched.id.value),
+            id: LibraryEntryId(mismatched.id.value),
           ),
           catalogRef: mismatched.catalogRef,
         );
 
     expect(
-      () => validateSeedOwnedQuality([mismatchedSummary]),
+      () => validateSeedEntryQuality([mismatchedSummary]),
       throwsA(isA<StateError>()),
     );
   });
@@ -138,7 +138,7 @@ void main() {
     final typedGraphCounts = await devSeedTypedGraphCounts(db);
     final typedGraphIntegrityIssues =
         await devSeedTypedGraphIntegrityIssues(db);
-    final typedOwnedCounts = await devSeedTypedOwnedCounts(db);
+    final typedEntryCounts = await devSeedTypedEntryCounts(db);
     final typedTrackingCounts = await devSeedTypedTrackingCounts(db);
     final typedTrackingUnitCounts = await devSeedTypedTrackingUnitCounts(db);
     final auxiliaryCounts = await devSeedAuxiliaryCounts(db);
@@ -147,12 +147,12 @@ void main() {
       isEmpty,
       reason: 'Typed seed graph relationships must remain intact',
     );
-    final typedOwnedIntegrityIssues =
-        await devSeedTypedOwnedIntegrityIssues(db);
+    final typedEntryIntegrityIssues =
+        await devSeedTypedEntryIntegrityIssues(db);
     expect(
-      typedOwnedIntegrityIssues,
+      typedEntryIntegrityIssues,
       isEmpty,
-      reason: 'Kind-owned seed rows must remain linked to common copies',
+      reason: 'Kind-entry seed rows must remain linked to common copies',
     );
     for (final entry in devSeedTypedGraphMinimumCounts.entries) {
       expect(
@@ -161,11 +161,11 @@ void main() {
         reason: 'Incomplete typed seed graph for ${entry.key}',
       );
     }
-    for (final entry in devSeedTypedOwnedMinimumCounts.entries) {
+    for (final entry in devSeedTypedEntryMinimumCounts.entries) {
       expect(
-        typedOwnedCounts[entry.key],
+        typedEntryCounts[entry.key],
         greaterThanOrEqualTo(entry.value),
-        reason: 'Incomplete typed owned seed data for ${entry.key}',
+        reason: 'Incomplete typed entry seed data for ${entry.key}',
       );
     }
     for (final entry in devSeedTypedTrackingMinimumCounts.entries) {
@@ -400,28 +400,28 @@ void main() {
             (row.payload['tracks'] as List?)?.isNotEmpty == true),
         isTrue);
 
-    final ownedRows = await CollectionItemsRepository(db).listActiveSummaries();
+    final entryRows = await LibraryEntriesRepository(db).listActiveSummaries();
     for (final entry in expectedCatalogCounts.entries) {
-      final kindOwned = ownedRows
+      final kindEntry = entryRows
           .where(
             (row) =>
                 row.catalogRef?.id.startsWith('seed-${entry.key.apiValue}-') ??
                 false,
           )
           .toList();
-      expect(kindOwned, hasLength(entry.value),
-          reason: 'Unexpected ${entry.key} owned seed count');
+      expect(kindEntry, hasLength(entry.value),
+          reason: 'Unexpected ${entry.key} entry seed count');
     }
     expect(
-        ownedRows.every((row) =>
+        entryRows.every((row) =>
             row.catalogRef != null &&
             catalogRows.any((item) => item.id == row.catalogRef!.id)),
         isTrue);
-    expect(ownedRows.map((row) => row.ref.id.value).toSet(),
+    expect(entryRows.map((row) => row.ref.id.value).toSet(),
         hasLength(expectedSeedTotal));
-    final comicOwnedRows = await db.select(db.comicCollectionItemsRows).get();
+    final comicEntryRows = await db.select(db.comicLibraryEntriesRows).get();
     final comicReadingRows = await db.select(db.comicReadingRows).get();
-    expect(comicOwnedRows, hasLength(15));
+    expect(comicEntryRows, hasLength(15));
     expect(comicReadingRows, hasLength(15));
     expect(
       comicReadingRows.every(
@@ -430,13 +430,13 @@ void main() {
       isTrue,
       reason: 'Comic seed reading rows must retain typed progress data',
     );
-    expect(comicOwnedRows.every((row) => row.itemId.startsWith('seed-comic-')),
+    expect(comicEntryRows.every((row) => row.itemId.startsWith('seed-comic-')),
         isTrue);
 
-    final movieOwnedRows = await db.select(db.movieCollectionItemsRows).get();
-    expect(movieOwnedRows, hasLength(15));
+    final movieEntryRows = await db.select(db.movieLibraryEntriesRows).get();
+    expect(movieEntryRows, hasLength(15));
     expect(
-      movieOwnedRows.every(
+      movieEntryRows.every(
         (row) =>
             row.itemId.startsWith('seed-movie-') &&
             row.region?.trim().isNotEmpty == true &&
@@ -444,13 +444,13 @@ void main() {
             row.distributor?.trim().isNotEmpty == true,
       ),
       isTrue,
-      reason: 'Movie seed copies must retain complete typed ownership data',
+      reason: 'Movie seed copies must retain complete typed entries data',
     );
 
-    final animeOwnedRows = await db.select(db.animeCollectionItemsRows).get();
-    expect(animeOwnedRows, hasLength(15));
+    final animeEntryRows = await db.select(db.animeLibraryEntriesRows).get();
+    expect(animeEntryRows, hasLength(15));
     expect(
-      animeOwnedRows.every(
+      animeEntryRows.every(
         (row) =>
             row.itemId.startsWith('seed-anime-') &&
             row.region?.trim().isNotEmpty == true &&
@@ -458,13 +458,13 @@ void main() {
             row.distributor?.trim().isNotEmpty == true,
       ),
       isTrue,
-      reason: 'Anime seed copies must retain complete typed ownership data',
+      reason: 'Anime seed copies must retain complete typed entries data',
     );
 
-    final tvOwnedRows = await db.select(db.tvCollectionItemsRows).get();
-    expect(tvOwnedRows, hasLength(15));
+    final tvEntryRows = await db.select(db.tvLibraryEntriesRows).get();
+    expect(tvEntryRows, hasLength(15));
     expect(
-      tvOwnedRows.every(
+      tvEntryRows.every(
         (row) =>
             row.itemId.startsWith('seed-tv-') &&
             row.region?.trim().isNotEmpty == true &&
@@ -472,13 +472,13 @@ void main() {
             row.distributor?.trim().isNotEmpty == true,
       ),
       isTrue,
-      reason: 'TV seed copies must retain complete typed ownership data',
+      reason: 'TV seed copies must retain complete typed entries data',
     );
 
-    final musicOwnedRows = await db.select(db.musicCollectionItemsRows).get();
-    expect(musicOwnedRows, hasLength(15));
+    final musicEntryRows = await db.select(db.musicLibraryEntriesRows).get();
+    expect(musicEntryRows, hasLength(15));
     expect(
-      musicOwnedRows.every(
+      musicEntryRows.every(
         (row) =>
             row.itemId.startsWith('seed-music-') &&
             row.mediumDetailsJson.contains('storage_device') &&
@@ -486,13 +486,13 @@ void main() {
             row.mediumDetailsJson.contains('runout_text'),
       ),
       isTrue,
-      reason: 'Music seed copies must retain complete typed ownership data',
+      reason: 'Music seed copies must retain complete typed entries data',
     );
 
-    final gameOwnedRows = await db.select(db.gameCollectionItemsRows).get();
-    expect(gameOwnedRows, hasLength(15));
+    final gameEntryRows = await db.select(db.gameLibraryEntriesRows).get();
+    expect(gameEntryRows, hasLength(15));
     expect(
-      gameOwnedRows.every(
+      gameEntryRows.every(
         (row) =>
             row.itemId.startsWith('seed-game-') &&
             row.completeness?.trim().isNotEmpty == true &&
@@ -501,14 +501,14 @@ void main() {
             row.coreRegion?.trim().isNotEmpty == true,
       ),
       isTrue,
-      reason: 'Game seed copies must retain complete typed ownership data',
+      reason: 'Game seed copies must retain complete typed entries data',
     );
 
-    final boardGameOwnedRows =
-        await db.select(db.boardGameCollectionItemsRows).get();
-    expect(boardGameOwnedRows, hasLength(15));
+    final boardGameEntryRows =
+        await db.select(db.boardGameLibraryEntriesRows).get();
+    expect(boardGameEntryRows, hasLength(15));
     expect(
-      boardGameOwnedRows.every(
+      boardGameEntryRows.every(
         (row) =>
             row.itemId.startsWith('seed-boardgame-') &&
             row.componentCompleteness?.trim().isNotEmpty == true &&
@@ -516,16 +516,16 @@ void main() {
             row.editionRegion?.trim().isNotEmpty == true,
       ),
       isTrue,
-      reason: 'BoardGame seed copies must retain complete typed ownership data',
+      reason: 'BoardGame seed copies must retain complete typed entries data',
     );
-    expect(boardGameOwnedRows.any((row) => row.isSleeved), isTrue);
-    expect(boardGameOwnedRows.any((row) => row.hasCustomInsert), isTrue);
-    expect(boardGameOwnedRows.any((row) => row.hasPaintedMiniatures), isTrue);
+    expect(boardGameEntryRows.any((row) => row.isSleeved), isTrue);
+    expect(boardGameEntryRows.any((row) => row.hasCustomInsert), isTrue);
+    expect(boardGameEntryRows.any((row) => row.hasPaintedMiniatures), isTrue);
 
-    final bookOwnedRows = await db.select(db.bookCollectionItemsRows).get();
-    expect(bookOwnedRows, hasLength(15));
+    final bookEntryRows = await db.select(db.bookLibraryEntriesRows).get();
+    expect(bookEntryRows, hasLength(15));
     expect(
-      bookOwnedRows.every(
+      bookEntryRows.every(
         (row) =>
             row.itemId.startsWith('seed-book-') &&
             row.signedBy?.trim().isNotEmpty == true &&
@@ -533,13 +533,13 @@ void main() {
             row.dustJacketCondition?.trim().isNotEmpty == true,
       ),
       isTrue,
-      reason: 'Book seed copies must retain complete typed ownership data',
+      reason: 'Book seed copies must retain complete typed entries data',
     );
 
-    final mangaOwnedRows = await db.select(db.mangaCollectionItemsRows).get();
-    expect(mangaOwnedRows, hasLength(15));
+    final mangaEntryRows = await db.select(db.mangaLibraryEntriesRows).get();
+    expect(mangaEntryRows, hasLength(15));
     expect(
-      mangaOwnedRows.every(
+      mangaEntryRows.every(
         (row) =>
             row.itemId.startsWith('seed-manga-') &&
             row.rawOrSlabbed?.trim().isNotEmpty == true &&
@@ -552,7 +552,7 @@ void main() {
             row.localizedEdition?.trim().isNotEmpty == true,
       ),
       isTrue,
-      reason: 'Manga seed copies must retain complete typed ownership data',
+      reason: 'Manga seed copies must retain complete typed entries data',
     );
 
     final trackingRows = await readTrackingStates(db);
@@ -564,15 +564,15 @@ void main() {
       expect(kindTracking, hasLength(entry.value),
           reason: 'Unexpected ${entry.key} tracking seed count');
     }
-    final collectionItemRefs = ownedRows.map((row) => row.ref.key).toSet();
+    final libraryEntryRefs = entryRows.map((row) => row.ref.key).toSet();
     expect(trackingRows.map((row) => row.id).toSet(),
         hasLength(expectedSeedTotal));
     expect(
       trackingRows.every((row) {
         if (row.catalogRef.kind == CatalogMediaKind.music) {
-          return row.collectionItemRef == null;
+          return row.libraryEntryRef == null;
         }
-        return row.collectionItemRef != null && collectionItemRefs.contains(row.collectionItemRef!.key);
+        return row.libraryEntryRef != null && libraryEntryRefs.contains(row.libraryEntryRef!.key);
       }),
       isTrue,
     );
@@ -627,60 +627,60 @@ void main() {
         customValues
             .every((value) => definitionIds.contains(value.fieldDefinitionId)),
         isTrue);
-    final customFieldOwnedIds = ownedRows.map((row) => row.ref.key).toSet();
+    final customFieldEntryIds = entryRows.map((row) => row.ref.key).toSet();
     expect(
       customValues
-          .every((value) => customFieldOwnedIds.contains(value.targetId)),
+          .every((value) => customFieldEntryIds.contains(value.targetId)),
       isTrue,
       reason: 'Seed custom-field values must target an existing collection item',
     );
 
-    final tvOwned = ownedRows
+    final tvEntry = entryRows
         .where((row) => row.catalogRef?.id.startsWith('seed-tv-') ?? false)
         .toList();
-    final animeOwned = ownedRows
+    final animeEntry = entryRows
         .where(
           (row) => row.catalogRef?.id.startsWith('seed-anime-') ?? false,
         )
         .toList();
-    final mangaOwned = ownedRows
+    final mangaEntry = entryRows
         .where(
           (row) => row.catalogRef?.id.startsWith('seed-manga-') ?? false,
         )
         .toList();
 
-    expect(tvOwned, hasLength(15));
-    expect(animeOwned, hasLength(15));
-    expect(mangaOwned, hasLength(15));
-    expect(tvOwned.every((row) => (row.notes ?? '').isNotEmpty), isTrue);
-    expect(animeOwned.every((row) => (row.notes ?? '').isNotEmpty), isTrue);
-    expect(mangaOwned.every((row) => (row.notes ?? '').isNotEmpty), isTrue);
+    expect(tvEntry, hasLength(15));
+    expect(animeEntry, hasLength(15));
+    expect(mangaEntry, hasLength(15));
+    expect(tvEntry.every((row) => (row.notes ?? '').isNotEmpty), isTrue);
+    expect(animeEntry.every((row) => (row.notes ?? '').isNotEmpty), isTrue);
+    expect(mangaEntry.every((row) => (row.notes ?? '').isNotEmpty), isTrue);
 
     final tvFront =
-        await _countImages(db, 'seed-owned-seed-tv-', 'front_cover');
+        await _countImages(db, 'seed-entry-seed-tv-', 'front_cover');
     final animeFront =
-        await _countImages(db, 'seed-owned-seed-anime-', 'front_cover');
+        await _countImages(db, 'seed-entry-seed-anime-', 'front_cover');
     final mangaFront =
-        await _countImages(db, 'seed-owned-seed-manga-', 'front_cover');
+        await _countImages(db, 'seed-entry-seed-manga-', 'front_cover');
     expect(tvFront, 15);
     expect(animeFront, 15);
     expect(mangaFront, 15);
 
-    final tvBack = await _countImages(db, 'seed-owned-seed-tv-', 'back_cover');
+    final tvBack = await _countImages(db, 'seed-entry-seed-tv-', 'back_cover');
     final animeBack =
-        await _countImages(db, 'seed-owned-seed-anime-', 'back_cover');
+        await _countImages(db, 'seed-entry-seed-anime-', 'back_cover');
     final mangaBack =
-        await _countImages(db, 'seed-owned-seed-manga-', 'back_cover');
+        await _countImages(db, 'seed-entry-seed-manga-', 'back_cover');
     expect(tvBack, greaterThan(0));
     expect(animeBack, greaterThan(0));
     expect(mangaBack, greaterThan(0));
 
     final tvExtra =
-        await _countImages(db, 'seed-owned-seed-tv-', 'detail_photo');
+        await _countImages(db, 'seed-entry-seed-tv-', 'detail_photo');
     final animeExtra =
-        await _countImages(db, 'seed-owned-seed-anime-', 'detail_photo');
+        await _countImages(db, 'seed-entry-seed-anime-', 'detail_photo');
     final mangaExtra =
-        await _countImages(db, 'seed-owned-seed-manga-', 'detail_photo');
+        await _countImages(db, 'seed-entry-seed-manga-', 'detail_photo');
     expect(tvExtra, greaterThan(0));
     expect(animeExtra, greaterThan(0));
     expect(mangaExtra, greaterThan(0));
@@ -696,7 +696,7 @@ void main() {
     final imageCountAfterSecondSeed =
         (await db.select(db.itemImagesCache).get()).length;
     final typedGraphCountsAfterSecondSeed = await devSeedTypedGraphCounts(db);
-    final typedOwnedCountsAfterSecondSeed = await devSeedTypedOwnedCounts(db);
+    final typedEntryCountsAfterSecondSeed = await devSeedTypedEntryCounts(db);
     final typedTrackingCountsAfterSecondSeed =
         await devSeedTypedTrackingCounts(db);
     final typedTrackingUnitCountsAfterSecondSeed =
@@ -706,7 +706,7 @@ void main() {
     expect(catalogCountAfterSecondSeed, catalogCountAfterFirstSeed);
     expect(imageCountAfterSecondSeed, imageCountAfterFirstSeed);
     expect(typedGraphCountsAfterSecondSeed, typedGraphCounts);
-    expect(typedOwnedCountsAfterSecondSeed, typedOwnedCounts);
+    expect(typedEntryCountsAfterSecondSeed, typedEntryCounts);
     expect(typedTrackingCountsAfterSecondSeed, typedTrackingCounts);
     expect(typedTrackingUnitCountsAfterSecondSeed, typedTrackingUnitCounts);
     expect(auxiliaryCountsAfterSecondSeed, auxiliaryCounts);
@@ -748,13 +748,13 @@ int _countKind(List<CatalogItemDto> rows, CatalogMediaKind kind) {
 
 Future<int> _countImages(
   LocalDatabase db,
-  String ownedPrefix,
+  String entryPrefix,
   String imageType,
 ) async {
   final rows = await db.select(db.itemImagesCache).get();
   return rows.where((row) {
-    final collectionItemRef = collectionItemRefFromSerialized(row.collectionItemRefKey);
-    return collectionItemRef?.id.value.startsWith(ownedPrefix) == true &&
+    final libraryEntryRef = libraryEntryRefFromSerialized(row.libraryEntryRefKey);
+    return libraryEntryRef?.id.value.startsWith(entryPrefix) == true &&
         row.imageType == imageType;
   }).length;
 }

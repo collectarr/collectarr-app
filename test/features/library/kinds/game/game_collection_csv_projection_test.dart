@@ -71,8 +71,8 @@ void main() {
           'edition_title': 'Collector edition',
         },
       )).asShelfCatalogItem),
-      collectionItemSummary: testCollectionItemSummary(testCollectionItem(
-        id: 'owned-1',
+      libraryEntrySummary: testLibraryEntrySummary(testLibraryEntry(
+        id: 'entry-1',
         itemId: 'game-1',
         updatedAt: DateTime.utc(2026, 5, 15),
       )),
@@ -92,7 +92,7 @@ void main() {
       '045496590593',
     ]);
     expect(
-      projection.ownedCellsAfterIndex(entry, clzFriendly: false),
+      projection.entryCellsAfterIndex(entry, clzFriendly: false),
       everyElement(isEmpty),
     );
   });

@@ -37,30 +37,30 @@ void main() {
         hasLength(11),
         reason: kind.apiValue,
       );
-      final importedOwnedCells = projection.importOwnedCells(
+      final importedEntryCells = projection.importEntryCells(
         header: const ['Media Type'],
         values: [kind.apiValue],
       );
-      expect(importedOwnedCells, isNotNull, reason: kind.apiValue);
+      expect(importedEntryCells, isNotNull, reason: kind.apiValue);
       expect(
-        importedOwnedCells!.length,
+        importedEntryCells!.length,
         allOf(greaterThanOrEqualTo(9), lessThanOrEqualTo(10)),
         reason: kind.apiValue,
       );
-      final importedOwnedTransport = projection.collectionItemImportTransport(
-        CollectionCsvOwnedImport(
-          id: 'owned-${kind.apiValue}',
+      final importedEntryTransport = projection.libraryEntryImportTransport(
+        CollectionCsvEntryImport(
+          id: 'entry-${kind.apiValue}',
           catalogRef: CatalogEntityRef(
             kind: kind,
             entityType: CatalogEntityTypeId.catalogItem,
             id: 'catalog-${kind.apiValue}',
           ),
           now: DateTime.utc(2026, 1, 1),
-          kindOwnedCells: importedOwnedCells,
+          kindEntryCells: importedEntryCells,
         ),
       );
-      expect(importedOwnedTransport.payload, isNotEmpty, reason: kind.apiValue);
-      expect(importedOwnedTransport.ref.kind, kind, reason: kind.apiValue);
+      expect(importedEntryTransport.payload, isNotEmpty, reason: kind.apiValue);
+      expect(importedEntryTransport.ref.kind, kind, reason: kind.apiValue);
 
       expect(
         projection.importDisplayTitle([

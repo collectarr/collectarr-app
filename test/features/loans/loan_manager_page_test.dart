@@ -2,11 +2,11 @@ import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/loan.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/money.dart';
-import 'package:collectarr_app/core/models/collection_item_projection.dart';
+import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/features/collection/repositories/loan_repository.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_transport_repository.dart';
 import 'package:collectarr_app/features/loans/loan_manager_page.dart';
-import 'package:collectarr_app/features/library/kinds/comic/data/comic_owned_repository.dart';
+import 'package:collectarr_app/features/library/kinds/comic/data/comic_entry_repository.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
@@ -36,9 +36,9 @@ void main() {
         'title': 'Action Comics #1',
       }),
     ]);
-    await ComicOwnedRepository(db).upsert(
-      testComicCollectionItemFrom(testCollectionItem(
-        id: 'owned-1',
+    await ComicEntryRepository(db).upsert(
+      testComicLibraryEntryFrom(testLibraryEntry(
+        id: 'entry-1',
         itemId: 'comic-1',
         kind: 'comic',
         condition: 'Near Mint',
@@ -50,9 +50,9 @@ void main() {
     await loanRepo.create(
       Loan(
         id: 'loan-1',
-        collectionItemRef: const CollectionItemRef(
+        libraryEntryRef: const LibraryEntryRef(
           kind: CatalogMediaKind.comic,
-          id: CollectionItemId('owned-1'),
+          id: LibraryEntryId('entry-1'),
         ),
         borrowerName: 'Alice',
         lentDate: DateTime.utc(2026, 5, 1),
@@ -93,9 +93,9 @@ void main() {
         'title': 'Detective Comics #27',
       }),
     ]);
-    await ComicOwnedRepository(db).upsert(
-      testComicCollectionItemFrom(testCollectionItem(
-        id: 'owned-2',
+    await ComicEntryRepository(db).upsert(
+      testComicLibraryEntryFrom(testLibraryEntry(
+        id: 'entry-2',
         itemId: 'comic-2',
         kind: 'comic',
         condition: 'Near Mint',
@@ -107,9 +107,9 @@ void main() {
     await loanRepo.create(
       Loan(
         id: 'loan-2',
-        collectionItemRef: const CollectionItemRef(
+        libraryEntryRef: const LibraryEntryRef(
           kind: CatalogMediaKind.comic,
-          id: CollectionItemId('owned-2'),
+          id: LibraryEntryId('entry-2'),
         ),
         borrowerName: 'Bob',
         lentDate: DateTime.utc(2020, 1, 1),

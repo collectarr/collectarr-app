@@ -60,7 +60,7 @@ void main() {
     );
   });
 
-  test('release browser mode is owned by navigation policy', () {
+  test('release browser mode is entry by navigation policy', () {
     final state = movieKindViewProfile.defaults();
     expect(
       libraryBrowserNavigationPolicy.browserModeForViewState(

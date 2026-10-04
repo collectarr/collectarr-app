@@ -1,7 +1,7 @@
 import 'package:collectarr_app/core/models/calendar_event.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/money.dart';
-import 'package:collectarr_app/core/models/collection_item_projection.dart';
+import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/features/calendar/calendar_ics.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -38,7 +38,7 @@ void main() {
           kind: CalendarEventKind.finished,
           date: DateTime(2026, 5, 14),
           title: 'Dune',
-          eventId: 'owned-finished:movie-9',
+          eventId: 'entry-finished:movie-9',
           catalogRef: const CatalogEntityRef(
             kind: CatalogMediaKind.movie,
             entityType: CatalogEntityTypeId.catalogItem,
@@ -54,7 +54,7 @@ void main() {
     expect(ics, contains('DTSTART;VALUE=DATE:20260514\r\n'));
     expect(ics, contains('DTSTAMP:20260624T190530Z\r\n'));
     expect(ics, contains('SUMMARY:Finished: Dune\r\n'));
-    expect(ics, contains('UID:owned-finished:movie-9@collectarr\r\n'));
+    expect(ics, contains('UID:entry-finished:movie-9@collectarr\r\n'));
   });
 
   test('escapes special characters and includes the subtitle', () {
@@ -65,9 +65,9 @@ void main() {
           date: DateTime(2026, 7, 1),
           title: 'Saga, Vol. 1; Deluxe',
           subtitle: 'Loaned to Bob',
-          collectionItemRef: const CollectionItemRef(
+          libraryEntryRef: const LibraryEntryRef(
             kind: CatalogMediaKind.comic,
-            id: CollectionItemId('owned-3'),
+            id: LibraryEntryId('entry-3'),
           ),
         ),
       ],

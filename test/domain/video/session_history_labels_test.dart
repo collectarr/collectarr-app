@@ -8,7 +8,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  group('kind-owned session history labels', () {
+  group('kind-entry session history labels', () {
     test('reading kinds map to read labels', () {
       for (final kind in [
         CatalogMediaKind.comic,

@@ -1,12 +1,12 @@
 import 'package:collectarr_app/core/db/local_database.dart';
-import 'package:collectarr_app/core/models/collection_item_ref.dart';
+import 'package:collectarr_app/core/models/library_entry_ref.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/library/kinds/anime/data/anime_repository.dart';
 import 'package:collectarr_app/features/library/kinds/anime/data/local/anime_local_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_ids.dart';
-import 'package:collectarr_app/features/library/kinds/anime/domain/anime_collection_item.dart';
+import 'package:collectarr_app/features/library/kinds/anime/domain/anime_library_entry.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_tracking.dart';
-import 'package:collectarr_app/features/library/kinds/anime/ownership/anime_owned_details.dart';
+import 'package:collectarr_app/features/library/kinds/anime/entries/anime_entry_details.dart';
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -47,8 +47,8 @@ void main() {
   test('AnimeLocalMapper round-trips the complete collection item', () async {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
-    final item = AnimeCollectionItem(
-      id: const CollectionItemId('owned-anime-1'),
+    final item = AnimeLibraryEntry(
+      id: const LibraryEntryId('entry-anime-1'),
       catalogRef: const CatalogEntityRef(
         kind: CatalogMediaKind.anime,
         entityType: CatalogEntityTypeId.catalogItem,
@@ -69,9 +69,9 @@ void main() {
       ownerLabel: 'Anime collector',
       locationId: 'shelf-anime',
       purchaseStore: 'Specialist shop',
-      collectionStatus: 'owned',
+      collectionStatus: 'entry',
       marketValueCents: 4500,
-      details: const AnimeOwnedDetails(
+      details: const AnimeEntryDetails(
         features: 'Commentary',
         hdrFormats: ['HDR10'],
         boxSetId: 'box-1',
@@ -82,11 +82,11 @@ void main() {
       ),
     );
 
-    await db.into(db.animeCollectionItemsRows).insert(
-          AnimeLocalMapper.toCollectionItemRow(item),
+    await db.into(db.animeLibraryEntriesRows).insert(
+          AnimeLocalMapper.toLibraryEntryRow(item),
         );
-    final row = await db.select(db.animeCollectionItemsRows).getSingle();
-    final restored = AnimeLocalMapper.fromCollectionItemRow(row);
+    final row = await db.select(db.animeLibraryEntriesRows).getSingle();
+    final restored = AnimeLocalMapper.fromLibraryEntryRow(row);
 
     expect(restored.id, item.id);
     expect(restored.itemId, item.itemId);
@@ -112,9 +112,9 @@ void main() {
 
   test('Anime local mapper requires persisted identities', () {
     expect(
-      () => AnimeLocalMapper.toCollectionItemRow(
-        AnimeCollectionItem(
-          id: const CollectionItemId(''),
+      () => AnimeLocalMapper.toLibraryEntryRow(
+        AnimeLibraryEntry(
+          id: const LibraryEntryId(''),
           catalogRef: const CatalogEntityRef(
             kind: CatalogMediaKind.anime,
             entityType: CatalogEntityTypeId.catalogItem,

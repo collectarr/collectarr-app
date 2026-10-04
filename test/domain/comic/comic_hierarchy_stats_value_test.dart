@@ -12,7 +12,7 @@ import 'package:collectarr_app/features/catalog/transport/catalog_search_candida
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
 import 'package:collectarr_app/core/models/money.dart';
-import 'package:collectarr_app/core/models/collection_item_projection.dart';
+import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
@@ -22,11 +22,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../helpers/test_data_factories.dart';
 
 void main() {
-  test('Comic stats count only owned key comics', () {
+  test('Comic stats count only entry key comics', () {
     final entries = [
       testLibraryWorkspaceSource(
         itemId: 'comic-1',
-        collectionItem: testCollectionItem(
+        libraryEntry: testLibraryEntry(
           itemId: 'comic-1',
           keyComic: true,
           kind: 'comic',
@@ -34,11 +34,11 @@ void main() {
       ),
       testLibraryWorkspaceSource(
         itemId: 'comic-2',
-        collectionItem: testCollectionItem(itemId: 'comic-2', kind: 'comic'),
+        libraryEntry: testLibraryEntry(itemId: 'comic-2', kind: 'comic'),
       ),
       testLibraryWorkspaceSource(
         itemId: 'comic-3',
-        collectionItem: null,
+        libraryEntry: null,
       ),
     ];
 
@@ -49,7 +49,7 @@ void main() {
     final entries = [
       testLibraryWorkspaceSource(
         itemId: 'comic-1',
-        collectionItem: testCollectionItem(
+        libraryEntry: testLibraryEntry(
           itemId: 'comic-1',
           kind: 'comic',
           coverPriceCents: 1200,
@@ -58,7 +58,7 @@ void main() {
       ),
       testLibraryWorkspaceSource(
         itemId: 'comic-2',
-        collectionItem: testCollectionItem(
+        libraryEntry: testLibraryEntry(
           itemId: 'comic-2',
           kind: 'comic',
           coverPriceCents: 800,
@@ -67,7 +67,7 @@ void main() {
       ),
       testLibraryWorkspaceSource(
         itemId: 'comic-3',
-        collectionItem: testCollectionItem(
+        libraryEntry: testLibraryEntry(
           itemId: 'comic-3',
           kind: 'comic',
           coverPriceCents: 500,
@@ -84,7 +84,7 @@ void main() {
     expect(summary?.hasMixedCurrencies, isFalse);
   });
 
-  test('Comic hierarchy diagnostics are owned by the Comic contributor', () {
+  test('Comic hierarchy diagnostics are entry by the Comic contributor', () {
     final complete = _comicProjection(
       id: 'complete',
       seriesTitle: 'Saga',
@@ -94,11 +94,11 @@ void main() {
     final missingVariant = _comicProjection(
       id: 'missing-variant',
       seriesTitle: 'Saga',
-      node: LibraryCollectionItemNodeRef(
+      node: LibraryEntryNodeRef(
         catalogItemId: 'missing-variant',
-        collectionItemRef: const CollectionItemRef(
+        libraryEntryRef: const LibraryEntryRef(
           kind: CatalogMediaKind.comic,
-          id: CollectionItemId('owned-missing-variant'),
+          id: LibraryEntryId('entry-missing-variant'),
         ),
       ),
     );
@@ -117,7 +117,7 @@ void main() {
   test('Comic owns its cover-price transfer field', () {
     expect(kTransferableReleaseFieldKeys, isNot(contains('coverPriceCents')));
     expect(
-      comicKindTransfer.fieldKeysForScope(LibraryEntityScope.collectionItem),
+      comicKindTransfer.fieldKeysForScope(LibraryEntityScope.libraryEntry),
       contains('coverPriceCents'),
     );
   });
@@ -136,13 +136,13 @@ void main() {
     final request = LibraryEditDialogRequest(
       type: const ComicRegistration(),
       item: CatalogSearchCandidate.fromItem(item),
-      collectionItem: null,
+      libraryEntry: null,
       accent: Colors.blue,
-      scope: LibraryEntityScope.collectionItem,
+      scope: LibraryEntityScope.libraryEntry,
     );
     final builder = comicKindEditCapabilities
         .presentationCapability.editRegistry
-        .builderForScope(LibraryEntityScope.collectionItem);
+        .builderForScope(LibraryEntityScope.libraryEntry);
 
     expect(builder, isNotNull);
     await tester.pumpWidget(
@@ -184,7 +184,7 @@ void main() {
     final request = LibraryEditDialogRequest(
       type: const ComicRegistration(),
       item: CatalogSearchCandidate.fromItem(item),
-      collectionItem: null,
+      libraryEntry: null,
       accent: Colors.blue,
       scope: LibraryEntityScope.release,
       editPrimaryRelease: true,
@@ -210,7 +210,7 @@ void main() {
     expect(find.text('Save'), findsOneWidget);
   });
 
-  testWidgets('Comic owned editing uses the typed edit schema tab',
+  testWidgets('Comic entry editing uses the typed edit schema tab',
       (tester) async {
     tester.view.physicalSize = const Size(1280, 900);
     tester.view.devicePixelRatio = 1;
@@ -220,7 +220,7 @@ void main() {
     addTearDown(db.close);
     final item = testCatalogItemWithKindMetadata(
       testCatalogItem(
-        id: 'comic-owned-editor',
+        id: 'comic-entry-editor',
         kind: 'comic',
         title: 'Saga #1',
         series: const CatalogSeriesDetailsDto(seriesTitle: 'Saga'),
@@ -229,7 +229,7 @@ void main() {
     final request = LibraryEditDialogRequest(
       type: const ComicRegistration(),
       item: CatalogSearchCandidate.fromItem(item),
-      collectionItem: testCollectionItemSummary(testCollectionItem(
+      libraryEntry: testLibraryEntrySummary(testLibraryEntry(
         itemId: item.identity.id,
         rawOrSlabbed: 'Slabbed',
         gradingCompany: 'CGC',
@@ -242,23 +242,23 @@ void main() {
     final draft = LibraryEditShellState.fromRequest(request);
     addTearDown(draft.dispose);
 
-    final ownedTabs = comicKindEditCapabilities
+    final entryTabs = comicKindEditCapabilities
         .presentationCapability.presentation.builder
         .buildTabs(
       context: const LibraryEditPresentationContext(
-        isOwned: true,
+        isEntry: true,
         isTrackingOnly: false,
         hasTrackingContext: true,
         hasWishlistContext: false,
         isDigitalFormat: false,
         hasPhysicalFormats: true,
         hasCustomFields: false,
-        scope: LibraryEntityScope.collectionItem,
+        scope: LibraryEntityScope.libraryEntry,
       ),
     );
-    expect(ownedTabs.map((tab) => tab.id), contains('owned'));
+    expect(entryTabs.map((tab) => tab.id), contains('entry'));
 
-    late Widget ownedTab;
+    late Widget entryTab;
     await tester.pumpWidget(
       ProviderScope(
         overrides: [localDatabaseProvider.overrideWithValue(db)],
@@ -266,16 +266,16 @@ void main() {
           home: Scaffold(
             body: Builder(
               builder: (context) {
-                ownedTab = buildComicCustomTabView(
-                  tabId: 'owned',
+                entryTab = buildComicCustomTabView(
+                  tabId: 'entry',
                   context: context,
                   draft: draft,
                   accent: Colors.blue,
-                  scope: LibraryEntityScope.collectionItem,
+                  scope: LibraryEntityScope.libraryEntry,
                   item: CatalogSearchCandidate.fromItem(item),
                   markDirty: () {},
                 )!;
-                return ownedTab;
+                return entryTab;
               },
             ),
           ),

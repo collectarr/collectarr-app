@@ -1,7 +1,7 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/money.dart';
-import 'package:collectarr_app/core/models/collection_item_projection.dart';
+import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
@@ -36,7 +36,7 @@ void main() {
         entityType: CatalogEntityTypeId.catalogItem,
         id: 'book-1',
       ),
-      collectionItemRef: CollectionItemRef.fromKey('book:owned-1'),
+      libraryEntryRef: LibraryEntryRef.fromKey('book:entry-1'),
       progressCurrent: 50,
       updatedAt: DateTime.utc(2026, 5, 25, 11),
     );
@@ -46,8 +46,8 @@ void main() {
         trackingSummaryFromRecord(trackedOnly),
         trackingSummaryFromRecord(copyTracked),
       ],
-      testCollectionItemSummary(testCollectionItem(
-        id: 'owned-1',
+      testLibraryEntrySummary(testLibraryEntry(
+        id: 'entry-1',
         catalogRef: const CatalogEntityRef(
           kind: CatalogMediaKind.book,
           entityType: CatalogEntityTypeId.catalogItem,
@@ -117,11 +117,11 @@ void main() {
         series: const CatalogSeriesDetailsDto(seriesTitle: 'Example Comic'),
       ).asShelfCatalogItem),
     );
-    final node = const LibraryCollectionItemNodeRef(
+    final node = const LibraryEntryNodeRef(
       catalogItemId: 'comic-2',
-      collectionItemRef: CollectionItemRef(
+      libraryEntryRef: LibraryEntryRef(
         kind: CatalogMediaKind.comic,
-        id: CollectionItemId('owned-comic-2'),
+        id: LibraryEntryId('entry-comic-2'),
       ),
     );
     final dto = const ComicWorkspaceProjector().project(
@@ -137,7 +137,7 @@ void main() {
   });
 
   test(
-      'resolveLibraryMutationTarget prefers explicit owned or wishlist targets',
+      'resolveLibraryMutationTarget prefers explicit entry or wishlist targets',
       () {
     final source = LibraryWorkspaceSource(
       itemId: 'movie-1',

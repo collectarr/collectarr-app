@@ -19,7 +19,7 @@ import 'fields_contract.dart';
 import 'group_contract.dart';
 import 'kind_identity_contract.dart';
 import 'media_edit_contract.dart';
-import 'owned_edit_contract.dart';
+import 'entry_edit_contract.dart';
 import 'overrides/override_contract.dart';
 import 'persistence_contract.dart';
 import 'release_edit_contract.dart';
@@ -154,7 +154,7 @@ class FixtureDto {
     name: 'fixture',
     create: () => 1,
     vocabularies: (_) => const {
-      'status': ['owned', 'wanted']
+      'status': ['entry', 'wanted']
     },
   );
 
@@ -179,10 +179,10 @@ class FixtureDto {
     fieldIds: (_, __) => const ['format'],
   );
 
-  defineOwnedEditContract<int>(
+  defineEntryEditContract<int>(
     name: 'fixture',
     create: () => 1,
-    tabIds: (_) => const ['owned'],
+    tabIds: (_) => const ['entry'],
     fieldIds: (_, __) => const ['condition'],
   );
 

@@ -9,8 +9,8 @@ void main() {
     test('LibraryWorkspaceSource delegates personal collection fields cleanly',
         () {
       final now = DateTime.now();
-      final owned = testCollectionItem(
-        id: 'owned_1',
+      final entry = testLibraryEntry(
+        id: 'entry_1',
         catalogRef: const CatalogEntityRef(
           id: 'cat_1',
           kind: CatalogMediaKind.comic,
@@ -32,11 +32,11 @@ void main() {
 
       final entry = LibraryWorkspaceSource(
         itemId: 'cat_1',
-        collectionItemSummary: testCollectionItemSummary(owned),
+        libraryEntrySummary: testLibraryEntrySummary(entry),
         locationPath: 'Box A / Row 1',
       );
 
-      expect(entry.isOwned, isTrue);
+      expect(entry.isEntry, isTrue);
       expect(entry.isWishlisted, isFalse);
       expect(entry.pricePaidCents, 1500);
       expect(entry.marketValueCents, 4500);
@@ -48,7 +48,7 @@ void main() {
       expect(entry.locationPath, 'Box A / Row 1');
     });
 
-    test('LibraryWorkspaceSource handles unowned / wishlisted items safely',
+    test('LibraryWorkspaceSource handles unentry / wishlisted items safely',
         () {
       final now = DateTime.now();
       final wishlist = WishlistItem(
@@ -69,9 +69,9 @@ void main() {
         fallbackOwnerLabel: 'Bob',
       );
 
-      expect(entry.isOwned, isFalse);
+      expect(entry.isEntry, isFalse);
       expect(entry.isWishlisted, isTrue);
-      expect(entry.collectionItemSummary, isNull);
+      expect(entry.libraryEntrySummary, isNull);
       expect(entry.pricePaidCents, isNull);
       expect(entry.ownerLabel, 'Bob');
       expect(entry.hasNotes, isTrue);

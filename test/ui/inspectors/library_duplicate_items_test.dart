@@ -16,7 +16,7 @@ void main() {
         issue: '1',
         publisher: 'Image',
         releaseYear: 2012,
-        owned: true,
+        entry: true,
       ),
       _entry(
         itemId: 'barcode-b',
@@ -106,7 +106,7 @@ void main() {
                             title: 'Saga',
                             barcode: '1111',
                             issue: '1',
-                            owned: true,
+                            entry: true,
                           ),
                           _entry(
                             itemId: 'b',
@@ -147,7 +147,7 @@ LibraryWorkspaceSource _entry({
   String? issue,
   String? publisher,
   int? releaseYear,
-  bool owned = false,
+  bool entry = false,
   bool wishlisted = false,
 }) {
   final timestamp = DateTime.utc(2024, 1, 1);
@@ -162,9 +162,9 @@ LibraryWorkspaceSource _entry({
       if (publisher != null) 'publisher': publisher,
       if (releaseYear != null) 'release_year': releaseYear,
     }).asShelfCatalogItem),
-    collectionItemSummary: owned
-        ? testCollectionItemSummary(testCollectionItem(
-            id: 'owned-$itemId',
+    libraryEntrySummary: entry
+        ? testLibraryEntrySummary(testLibraryEntry(
+            id: 'entry-$itemId',
             itemId: itemId,
             updatedAt: timestamp,
           ))

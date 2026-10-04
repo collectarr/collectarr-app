@@ -32,8 +32,8 @@ void main() {
     expect(boardGame.metadata.rawPayload['rankings'], ['BGG Rank #1']);
   });
 
-  test('BoardgameOwnedDetails supports rich copy fields and serialization', () {
-    const details = BoardgameOwnedDetails(
+  test('BoardgameEntryDetails supports rich copy fields and serialization', () {
+    const details = BoardgameEntryDetails(
       editionLanguage: 'English',
       editionRegion: 'US',
       componentCondition: 'Like New',
@@ -46,7 +46,7 @@ void main() {
     );
 
     final json = details.toJson();
-    final fromJson = BoardgameOwnedDetails.fromJson(json);
+    final fromJson = BoardgameEntryDetails.fromJson(json);
 
     expect(fromJson.editionLanguage, 'English');
     expect(fromJson.isSleeved, isTrue);
@@ -133,8 +133,8 @@ void main() {
     expect(boardGameKindAdd.kind, CatalogMediaKind.boardgame);
     expect(boardGameKindAdd.createInitialDraft(), isA<BoardgameAddDraft>());
     expect(
-        const BoardgameOwnedDetailsCodec(), isA<BoardgameOwnedDetailsCodec>());
-    expect(const BoardgameOwnedDetailsCodec().defaultDetails(),
-        isA<BoardgameOwnedDetails>());
+        const BoardgameEntryDetailsCodec(), isA<BoardgameEntryDetailsCodec>());
+    expect(const BoardgameEntryDetailsCodec().defaultDetails(),
+        isA<BoardgameEntryDetails>());
   });
 }

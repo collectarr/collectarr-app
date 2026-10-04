@@ -22,8 +22,8 @@ void main() {
   testWidgets('music inspector renders CLZ-like panel with disc groups', (
     tester,
   ) async {
-    final collectionItem = testCollectionItem(
-      id: 'owned-music-1',
+    final libraryEntry = testLibraryEntry(
+      id: 'entry-music-1',
       itemId: 'music-1',
       indexNumber: 1,
       createdAt: DateTime.utc(2026, 6, 3, 17, 21, 47),
@@ -49,7 +49,7 @@ void main() {
     final source = LibraryWorkspaceSource(
       itemId: 'music-1',
       catalogData: graph.catalog,
-      collectionItemSummary: testCollectionItemSummary(collectionItem),
+      libraryEntrySummary: testLibraryEntrySummary(libraryEntry),
     );
     final node = graph.ref;
     final dto = const MusicCatalogItemWorkspaceProjector().project(
@@ -61,8 +61,8 @@ void main() {
     final inspectorRequest = LibraryInspectorRequest(
       type: const MusicRegistration(),
       item: item,
-      collectionItem: testCollectionItemSummary(collectionItem),
-      ownedCopies: [testCollectionItemSummary(collectionItem)],
+      libraryEntry: testLibraryEntrySummary(libraryEntry),
+      entryCopies: [testLibraryEntrySummary(libraryEntry)],
       accent: const Color(0xFFFDAD49),
       detailsLayout: LibraryDetailsLayout.hidden,
       onFilterByValue: (_) {},
@@ -74,8 +74,8 @@ void main() {
       hero: const SizedBox.shrink(),
       primarySections: const [],
       trailingSections: const [],
-      ownedCopies: [testCollectionItemSummary(collectionItem)],
-      selectedCollectionItemRef: testCollectionItemSummary(collectionItem).ref,
+      entryCopies: [testLibraryEntrySummary(libraryEntry)],
+      selectedLibraryEntryRef: testLibraryEntrySummary(libraryEntry).ref,
       extraActions: const [],
       onAddCopy: () {},
       onOpenDetails: () {},
@@ -110,8 +110,8 @@ void main() {
   testWidgets('music inspector highlights matching tracks for track search', (
     tester,
   ) async {
-    final collectionItem = testCollectionItem(
-      id: 'owned-music-2',
+    final libraryEntry = testLibraryEntry(
+      id: 'entry-music-2',
       itemId: 'music-2',
       createdAt: DateTime.utc(2026, 6, 3, 17, 21, 47),
       updatedAt: DateTime.utc(2026, 6, 3, 17, 21, 48),
@@ -132,7 +132,7 @@ void main() {
     final source = LibraryWorkspaceSource(
       itemId: 'music-2',
       catalogData: graph.catalog,
-      collectionItemSummary: testCollectionItemSummary(collectionItem),
+      libraryEntrySummary: testLibraryEntrySummary(libraryEntry),
     );
     final node = graph.ref;
     final dto = const MusicCatalogItemWorkspaceProjector().project(
@@ -144,8 +144,8 @@ void main() {
     final inspectorRequest = LibraryInspectorRequest(
       type: const MusicRegistration(),
       item: item,
-      collectionItem: testCollectionItemSummary(collectionItem),
-      ownedCopies: [testCollectionItemSummary(collectionItem)],
+      libraryEntry: testLibraryEntrySummary(libraryEntry),
+      entryCopies: [testLibraryEntrySummary(libraryEntry)],
       accent: const Color(0xFFFDAD49),
       detailsLayout: LibraryDetailsLayout.hidden,
       onFilterByValue: (_) {},
@@ -158,8 +158,8 @@ void main() {
       hero: const SizedBox.shrink(),
       primarySections: const [],
       trailingSections: const [],
-      ownedCopies: [testCollectionItemSummary(collectionItem)],
-      selectedCollectionItemRef: testCollectionItemSummary(collectionItem).ref,
+      entryCopies: [testLibraryEntrySummary(libraryEntry)],
+      selectedLibraryEntryRef: testLibraryEntrySummary(libraryEntry).ref,
       extraActions: const [],
       onAddCopy: () {},
       onOpenDetails: () {},

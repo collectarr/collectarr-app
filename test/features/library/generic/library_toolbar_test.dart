@@ -565,7 +565,7 @@ void main() {
                 onTransferFieldData: () {},
                 onBulkUpdateValues: null,
                 onBulkUpdateKeyInfo: null,
-                onBulkMoveToOwned: null,
+                onBulkMoveToEntry: null,
                 onBulkMoveToWishlist: null,
                 onBulkRemove: () {},
                 onBulkRefreshMetadata: () {},
@@ -661,7 +661,7 @@ void main() {
     }
   });
 
-  test('comic kind exposes a contributor-owned missing issues toolbar action',
+  test('comic kind exposes a contributor-entry missing issues toolbar action',
       () {
     final action = comicKindToolbar.actions
         .firstWhere((a) => a.id == 'comic.missing_issues');

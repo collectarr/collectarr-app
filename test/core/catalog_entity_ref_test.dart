@@ -80,7 +80,7 @@ void main() {
 
     const targetWithoutRoot = CatalogEntityRef(
       kind: CatalogMediaKind.comic,
-      entityType: CatalogEntityTypeId('collection_item'),
+      entityType: CatalogEntityTypeId('library_entry'),
       id: 'copy-1',
     );
     expect(targetWithoutRoot.rootScope, targetWithoutRoot);

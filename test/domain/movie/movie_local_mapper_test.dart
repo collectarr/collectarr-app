@@ -1,10 +1,10 @@
 import 'package:collectarr_app/core/db/local_database.dart';
-import 'package:collectarr_app/core/models/collection_item_ref.dart';
+import 'package:collectarr_app/core/models/library_entry_ref.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/features/library/kinds/movie/data/local/movie_owned_local_mapper.dart';
+import 'package:collectarr_app/features/library/kinds/movie/data/local/movie_entry_local_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/movie/domain/movie_ids.dart';
-import 'package:collectarr_app/features/library/kinds/movie/domain/movie_collection_item.dart';
-import 'package:collectarr_app/features/library/kinds/movie/ownership/movie_owned_details.dart';
+import 'package:collectarr_app/features/library/kinds/movie/domain/movie_library_entry.dart';
+import 'package:collectarr_app/features/library/kinds/movie/entries/movie_entry_details.dart';
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -12,8 +12,8 @@ void main() {
   test('round trips the complete Movie collection item', () async {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
-    final item = MovieCollectionItem(
-      id: const CollectionItemId('owned-1'),
+    final item = MovieLibraryEntry(
+      id: const LibraryEntryId('entry-1'),
       catalogRef: const CatalogEntityRef(
         kind: CatalogMediaKind.movie,
         entityType: CatalogEntityTypeId.catalogItem,
@@ -37,9 +37,9 @@ void main() {
       ownerLabel: 'Collector',
       locationId: 'shelf-1',
       purchaseStore: 'Local shop',
-      collectionStatus: 'owned',
+      collectionStatus: 'entry',
       marketValueCents: 3500,
-      details: const MovieOwnedDetails(
+      details: const MovieEntryDetails(
         features: 'Director commentary',
         hdrFormats: ['HDR10', 'Dolby Vision'],
         boxSetId: 'box-1',
@@ -50,11 +50,11 @@ void main() {
       ),
     );
 
-    await db.into(db.movieCollectionItemsRows).insert(
-          MovieOwnedLocalMapper.toRow(item),
+    await db.into(db.movieLibraryEntriesRows).insert(
+          MovieEntryLocalMapper.toRow(item),
         );
-    final row = await db.select(db.movieCollectionItemsRows).getSingle();
-    final restored = MovieOwnedLocalMapper.fromRow(row);
+    final row = await db.select(db.movieLibraryEntriesRows).getSingle();
+    final restored = MovieEntryLocalMapper.fromRow(row);
 
     expect(restored.id, item.id);
     expect(restored.catalogRef.kind, CatalogMediaKind.movie);
@@ -84,9 +84,9 @@ void main() {
 
   test('requires a persisted Movie collection-item identity', () {
     expect(
-      () => MovieOwnedLocalMapper.toRow(
-        MovieCollectionItem(
-          id: const CollectionItemId(''),
+      () => MovieEntryLocalMapper.toRow(
+        MovieLibraryEntry(
+          id: const LibraryEntryId(''),
           catalogRef: const CatalogEntityRef(
             kind: CatalogMediaKind.movie,
             entityType: CatalogEntityTypeId.catalogItem,

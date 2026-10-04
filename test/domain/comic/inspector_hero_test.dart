@@ -34,7 +34,7 @@ LibraryProjectionItem _itemFixture() {
   return LibraryProjectionItem.fromShelf(source, const ComicRegistration());
 }
 
-Widget _heroHost(TestCollectionItem collectionItem) {
+Widget _heroHost(TestLibraryEntry libraryEntry) {
   final db = LocalDatabase(NativeDatabase.memory());
   return ProviderScope(
     overrides: [
@@ -46,9 +46,9 @@ Widget _heroHost(TestCollectionItem collectionItem) {
           request: LibraryInspectorRequest(
             type: const ComicRegistration(),
             item: _itemFixture(),
-            collectionItem: testCollectionItemSummary(collectionItem),
-            collectionItemDispatch: testComicCollectionItemDispatchFrom(
-              testComicCollectionItemFrom(collectionItem),
+            libraryEntry: testLibraryEntrySummary(libraryEntry),
+            libraryEntryDispatch: testComicLibraryEntryDispatchFrom(
+              testComicLibraryEntryFrom(libraryEntry),
             ),
             accent: Colors.red,
           ),
@@ -62,8 +62,8 @@ void main() {
   testWidgets('renders key comic metadata block', (tester) async {
     await tester.pumpWidget(
       _heroHost(
-        testCollectionItem(
-          id: 'owned-comic-hero-fixture',
+        testLibraryEntry(
+          id: 'entry-comic-hero-fixture',
           itemId: 'comic-hero-fixture',
           kind: 'comic',
           grade: '9.8 CGC',

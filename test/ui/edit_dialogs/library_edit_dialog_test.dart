@@ -5,7 +5,7 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/catalog_target_option.dart';
-import 'package:collectarr_app/core/models/collection_item_projection.dart';
+import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/kinds/book/tracking/book_tracking_state.dart';
 import 'package:collectarr_app/features/library/kinds/movie/tracking/movie_tracking_state.dart';
@@ -19,7 +19,7 @@ import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/edit/shell/library_edit_dialog.dart';
 
 import '../../helpers/test_constants.dart';
-import 'package:collectarr_app/features/library/kinds/book/ownership/book_collection_item_update_payload.dart';
+import 'package:collectarr_app/features/library/kinds/book/entries/book_library_entry_update_payload.dart';
 import 'package:collectarr_app/features/library/kinds/movie/movie_physical_media_formats.dart';
 import 'package:collectarr_app/features/library/kinds/music/music_physical_media_formats.dart';
 import 'package:collectarr_app/features/library/kinds/music/catalog/music_catalog_mapper.dart';
@@ -42,7 +42,7 @@ void main() {
   });
 
   testWidgets(
-      'generic edit dialog returns media-aware catalog and owned fields',
+      'generic edit dialog returns media-aware catalog and entry fields',
       (tester) async {
     markTestSkipped(
       'The former combined editor was replaced by scoped entity editors.',
@@ -98,8 +98,8 @@ void main() {
         ),
       ],
     ));
-    final collectionItem = testCollectionItem(
-      id: 'owned-1',
+    final libraryEntry = testLibraryEntry(
+      id: 'entry-1',
       itemId: 'movie-1',
       kind: 'movie',
       editionId: 'edition-standard',
@@ -113,7 +113,7 @@ void main() {
     final trackingRecord = MovieTrackingState(
       id: 'tracking-1',
       catalogRef: testCatalogRef('movie-1', kind: 'movie'),
-      collectionItemRef: CollectionItemRef.fromKey('movie:owned-1'),
+      libraryEntryRef: LibraryEntryRef.fromKey('movie:entry-1'),
       sourceType: 'physical',
       status: 'In progress',
       rating: 9,
@@ -135,8 +135,8 @@ void main() {
                     builder: (context) => LibraryEditRenderer(
                       type: type,
                       kindItem: CatalogSearchCandidate.fromItem(item),
-                      collectionItem: testCollectionItemSummary(collectionItem),
-                      collectionItemDispatch: testCollectionItemDispatchFrom(collectionItem),
+                      libraryEntry: testLibraryEntrySummary(libraryEntry),
+                      libraryEntryDispatch: testLibraryEntryDispatchFrom(libraryEntry),
                       trackingSummary:
                           trackingSummaryFromRecord(trackingRecord),
                       accent: Colors.red,
@@ -207,7 +207,7 @@ void main() {
   });
 
   testWidgets(
-      'generic edit dialog saves edition ownership without a physical release',
+      'generic edit dialog saves edition entries without a physical release',
       (tester) async {
     tester.view.physicalSize = const Size(1100, 860);
     tester.view.devicePixelRatio = 1;
@@ -240,8 +240,8 @@ void main() {
         ),
       ],
     ));
-    final collectionItem = testCollectionItem(
-      id: 'owned-edition-1',
+    final libraryEntry = testLibraryEntry(
+      id: 'entry-edition-1',
       itemId: 'movie-edition-1',
       updatedAt: DateTime.utc(2026, 5, 24),
     );
@@ -260,14 +260,14 @@ void main() {
                     builder: (context) => LibraryEditRenderer(
                       type: type,
                       kindItem: CatalogSearchCandidate.fromItem(item),
-                      collectionItem: testCollectionItemSummary(collectionItem),
-                      collectionItemDispatch: testCollectionItemDispatchFrom(collectionItem),
+                      libraryEntry: testLibraryEntrySummary(libraryEntry),
+                      libraryEntryDispatch: testLibraryEntryDispatchFrom(libraryEntry),
                       accent: Colors.red,
                       physicalFormats: moviePhysicalMediaFormats,
                     ),
                   );
                 },
-                child: const Text('Open edition owned'),
+                child: const Text('Open edition entry'),
               ),
             ),
           ),
@@ -275,16 +275,16 @@ void main() {
       ),
     );
 
-    await tester.tap(find.text('Open edition owned'));
+    await tester.tap(find.text('Open edition entry'));
     await pumpUntilSettled(tester);
 
-    // Navigate to the Edition tab (video kind places ownership anchor here)
+    // Navigate to the Edition tab (video kind places entries anchor here)
     final personalTab = find.text('Personal');
     await tester.ensureVisible(personalTab);
     await tester.tap(personalTab);
     await pumpUntilSettled(tester);
 
-    await tester.tap(find.byKey(const Key('library-edit-owned-anchor-field')));
+    await tester.tap(find.byKey(const Key('library-edit-entry-anchor-field')));
     await pumpUntilSettled(tester);
     final editionTabAfterAnchor = find.text('Edition').last;
     await tester.ensureVisible(editionTabAfterAnchor);
@@ -292,10 +292,10 @@ void main() {
     await pumpUntilSettled(tester);
 
     expect(
-        find.widgetWithText(InputDecorator, 'Owned edition'), findsOneWidget);
-    expect(find.widgetWithText(InputDecorator, 'Owned variant'), findsNothing);
+        find.widgetWithText(InputDecorator, 'Entry edition'), findsOneWidget);
+    expect(find.widgetWithText(InputDecorator, 'Entry variant'), findsNothing);
 
-    await tester.tap(find.widgetWithText(InputDecorator, 'Owned edition'));
+    await tester.tap(find.widgetWithText(InputDecorator, 'Entry edition'));
     await pumpUntilSettled(tester);
     await tester.tap(find.text('Steelbook').last);
     await pumpUntilSettled(tester);
@@ -342,7 +342,7 @@ void main() {
                     builder: (context) => LibraryEditRenderer(
                       type: type,
                       kindItem: CatalogSearchCandidate.fromItem(item),
-                      collectionItem: null,
+                      libraryEntry: null,
                       accent: Colors.red,
                       physicalFormats: moviePhysicalMediaFormats,
                     ),
@@ -407,7 +407,7 @@ void main() {
                     builder: (context) => LibraryEditRenderer(
                       type: type,
                       kindItem: CatalogSearchCandidate.fromItem(item),
-                      collectionItem: null,
+                      libraryEntry: null,
                       accent: Colors.red,
                       physicalFormats: moviePhysicalMediaFormats,
                     ),
@@ -456,7 +456,7 @@ void main() {
     await pumpUntilSettled(tester);
   });
 
-  testWidgets('owned comic edit dialog uses consolidated CLZ-style main layout',
+  testWidgets('entry comic edit dialog uses consolidated CLZ-style main layout',
       (
     tester,
   ) async {
@@ -515,8 +515,8 @@ void main() {
         characters: const ['Wirt', 'Greg'],
       ),
     );
-    final collectionItem = testCollectionItem(
-      id: 'owned-comic-1',
+    final libraryEntry = testLibraryEntry(
+      id: 'entry-comic-1',
       itemId: 'comic-1',
       locationId: 'comic-box-a',
       rating: 8,
@@ -549,13 +549,13 @@ void main() {
                     builder: (context) => LibraryEditRenderer(
                       type: type,
                       kindItem: CatalogSearchCandidate.fromItem(item),
-                      collectionItem: testCollectionItemSummary(collectionItem),
-                      collectionItemDispatch: testCollectionItemDispatchFrom(collectionItem),
+                      libraryEntry: testLibraryEntrySummary(libraryEntry),
+                      libraryEntryDispatch: testLibraryEntryDispatchFrom(libraryEntry),
                       accent: Colors.deepOrange,
                     ),
                   );
                 },
-                child: const Text('Open comic owned'),
+                child: const Text('Open comic entry'),
               ),
             ),
           ),
@@ -563,7 +563,7 @@ void main() {
       ),
     );
 
-    await tester.tap(find.text('Open comic owned'));
+    await tester.tap(find.text('Open comic entry'));
     await pumpUntilSettled(tester);
 
     expect(find.text('Details'), findsWidgets);
@@ -663,8 +663,8 @@ void main() {
     expect(find.text('Price paid'), findsOneWidget);
     expect(find.text('My value'), findsOneWidget);
 
-    await tester.ensureVisible(find.text('Owned', skipOffstage: false).first);
-    await tester.tap(find.text('Owned', skipOffstage: false).first);
+    await tester.ensureVisible(find.text('Entry', skipOffstage: false).first);
+    await tester.tap(find.text('Entry', skipOffstage: false).first);
     await pumpUntilSettled(tester);
     expect(find.text('Cover price'), findsOneWidget);
 
@@ -754,7 +754,7 @@ void main() {
                     request: LibraryEditDialogRequest(
                       type: type,
                       item: CatalogSearchCandidate.fromItem(item),
-                      collectionItem: null,
+                      libraryEntry: null,
                       accent: Colors.orange,
                     ),
                   );
@@ -835,8 +835,8 @@ void main() {
         ],
       ),
     );
-    final collectionItem = testCollectionItem(
-      id: 'owned-book-preserve-1',
+    final libraryEntry = testLibraryEntry(
+      id: 'entry-book-preserve-1',
       itemId: 'book-preserve-1',
       kind: 'book',
       signedBy: 'Isaac Asimov',
@@ -871,8 +871,8 @@ void main() {
                     request: LibraryEditDialogRequest(
                       type: type,
                       item: CatalogSearchCandidate.fromItem(item),
-                      collectionItem: testCollectionItemSummary(collectionItem),
-                      collectionItemDispatch: testCollectionItemDispatchFrom(collectionItem),
+                      libraryEntry: testLibraryEntrySummary(libraryEntry),
+                      libraryEntryDispatch: testLibraryEntryDispatchFrom(libraryEntry),
                       trackingSummary:
                           trackingSummaryFromRecord(trackingRecord),
                       accent: Colors.orange,
@@ -894,7 +894,7 @@ void main() {
     await pumpUntilSettled(tester);
 
     final bookPayload =
-        selection?.ownedUpdatePayload as BookCollectionItemUpdatePayload?;
+        selection?.entryUpdatePayload as BookLibraryEntryUpdatePayload?;
     expect(bookPayload?.details.valueOrNull()?.signedBy, 'Isaac Asimov');
 
     final savedItem = selection?.kindItem.kindCapability
@@ -966,7 +966,7 @@ void main() {
                     request: LibraryEditDialogRequest(
                       type: type,
                       item: CatalogSearchCandidate.fromItem(item),
-                      collectionItem: null,
+                      libraryEntry: null,
                       accent: Colors.orange,
                     ),
                   );
@@ -1064,7 +1064,7 @@ void main() {
                     builder: (context) => LibraryEditRenderer(
                       type: type,
                       kindItem: CatalogSearchCandidate.fromItem(item),
-                      collectionItem: null,
+                      libraryEntry: null,
                       trackingSummary:
                           trackingSummaryFromRecord(trackingRecord),
                       accent: Colors.teal,
@@ -1104,7 +1104,7 @@ void main() {
     expect(selection?.tracking?.startedAt, DateTime.utc(2026, 5, 1));
   });
 
-  testWidgets('generic edit dialog returns owned bundle reference selection',
+  testWidgets('generic edit dialog returns entry bundle reference selection',
       (tester) async {
     tester.view.physicalSize = const Size(1100, 860);
     tester.view.devicePixelRatio = 1;
@@ -1129,8 +1129,8 @@ void main() {
         ),
       ],
     ));
-    final collectionItem = testCollectionItem(
-      id: 'owned-bundle-1',
+    final libraryEntry = testLibraryEntry(
+      id: 'entry-bundle-1',
       itemId: 'movie-bundle-1',
       updatedAt: DateTime.utc(2026, 5, 20),
     );
@@ -1149,8 +1149,8 @@ void main() {
                     builder: (context) => LibraryEditRenderer(
                       type: type,
                       kindItem: CatalogSearchCandidate.fromItem(item),
-                      collectionItem: testCollectionItemSummary(collectionItem),
-                      collectionItemDispatch: testCollectionItemDispatchFrom(collectionItem),
+                      libraryEntry: testLibraryEntrySummary(libraryEntry),
+                      libraryEntryDispatch: testLibraryEntryDispatchFrom(libraryEntry),
                       accent: Colors.blue,
                       wishlistTargetOptions: [
                         CatalogTargetOption(
@@ -1166,7 +1166,7 @@ void main() {
                     ),
                   );
                 },
-                child: const Text('Open bundle owned'),
+                child: const Text('Open bundle entry'),
               ),
             ),
           ),
@@ -1174,16 +1174,16 @@ void main() {
       ),
     );
 
-    await tester.tap(find.text('Open bundle owned'));
+    await tester.tap(find.text('Open bundle entry'));
     await pumpUntilSettled(tester);
 
-    // Navigate to the Edition tab (video kind places ownership anchor here)
+    // Navigate to the Edition tab (video kind places entries anchor here)
     final personalTab = find.text('Personal');
     await tester.ensureVisible(personalTab);
     await tester.tap(personalTab);
     await pumpUntilSettled(tester);
 
-    await tester.tap(find.byKey(const Key('library-edit-owned-anchor-field')));
+    await tester.tap(find.byKey(const Key('library-edit-entry-anchor-field')));
     await pumpUntilSettled(tester);
     await tester.tap(find.text('Bundle release').last);
     await pumpUntilSettled(tester);
@@ -1211,8 +1211,8 @@ void main() {
         title: 'Alien',
       ),
     );
-    final collectionItem = testCollectionItem(
-      id: 'owned-bundle-existing-1',
+    final libraryEntry = testLibraryEntry(
+      id: 'entry-bundle-existing-1',
       itemId: 'movie-bundle-existing-1',
       targetRef: const CatalogEntityRef(
         kind: CatalogMediaKind.movie,
@@ -1238,8 +1238,8 @@ void main() {
                     builder: (context) => LibraryEditRenderer(
                       type: type,
                       kindItem: CatalogSearchCandidate.fromItem(item),
-                      collectionItem: testCollectionItemSummary(collectionItem),
-                      collectionItemDispatch: testCollectionItemDispatchFrom(collectionItem),
+                      libraryEntry: testLibraryEntrySummary(libraryEntry),
+                      libraryEntryDispatch: testLibraryEntryDispatchFrom(libraryEntry),
                       accent: Colors.orange,
                     ),
                   );
@@ -1268,10 +1268,10 @@ void main() {
   }, skip: true);
 
   testWidgets(
-      'generic edit dialog hides physical-only owned fields for digital items',
+      'generic edit dialog hides physical-only entry fields for digital items',
       (tester) async {
     markTestSkipped(
-      'Digital copy editing is owned by the scoped copy contributor now.',
+      'Digital copy editing is entry by the scoped copy contributor now.',
     );
     return;
     tester.view.physicalSize = const Size(1100, 860);
@@ -1299,8 +1299,8 @@ void main() {
         physicalFormatLabel: 'Digital',
       ),
     );
-    final collectionItem = testCollectionItem(
-      id: 'owned-digital-1',
+    final libraryEntry = testLibraryEntry(
+      id: 'entry-digital-1',
       itemId: 'movie-digital-1',
       kind: 'movie',
       condition: 'Mint',
@@ -1323,8 +1323,8 @@ void main() {
                     builder: (context) => LibraryEditRenderer(
                       type: type,
                       kindItem: CatalogSearchCandidate.fromItem(item),
-                      collectionItem: testCollectionItemSummary(collectionItem),
-                      collectionItemDispatch: testCollectionItemDispatchFrom(collectionItem),
+                      libraryEntry: testLibraryEntrySummary(libraryEntry),
+                      libraryEntryDispatch: testLibraryEntryDispatchFrom(libraryEntry),
                       accent: Colors.teal,
                       physicalFormats: moviePhysicalMediaFormats,
                     ),
@@ -1341,7 +1341,7 @@ void main() {
     await tester.tap(find.text('Open digital'));
     await pumpUntilSettled(tester);
 
-    // Ownership-specific fields now live under the Personal tab for video kinds.
+    // EntryPolicy-specific fields now live under the Personal tab for video kinds.
     final personalTab = find.text('Personal');
     await tester.ensureVisible(personalTab);
     await tester.tap(personalTab);
@@ -1358,7 +1358,7 @@ void main() {
     await tester.tap(find.widgetWithText(FilledButton, 'Save'));
     await pumpUntilSettled(tester);
 
-    expect(selection?.ownedUpdatePayload, isNotNull);
+    expect(selection?.entryUpdatePayload, isNotNull);
   });
 
   testWidgets('generic edit dialog returns wishlist reference edits',
@@ -1410,7 +1410,7 @@ void main() {
                     builder: (context) => LibraryEditRenderer(
                       type: type,
                       kindItem: CatalogSearchCandidate.fromItem(item),
-                      collectionItem: null,
+                      libraryEntry: null,
                       wishlistItem: wishlistItem,
                       accent: Colors.purple,
                       wishlistTargetOptions: [
@@ -1534,8 +1534,8 @@ void main() {
         },
       ),
     );
-    final collectionItem = testCollectionItem(
-      id: 'owned-music-1',
+    final libraryEntry = testLibraryEntry(
+      id: 'entry-music-1',
       itemId: 'music-1',
       kind: 'music',
       updatedAt: DateTime.utc(2026, 5, 23),
@@ -1556,8 +1556,8 @@ void main() {
                     request: LibraryEditDialogRequest(
                       type: type,
                       item: CatalogSearchCandidate.fromItem(item),
-                      collectionItem: testCollectionItemSummary(collectionItem),
-                      collectionItemDispatch: testCollectionItemDispatchFrom(collectionItem),
+                      libraryEntry: testLibraryEntrySummary(libraryEntry),
+                      libraryEntryDispatch: testLibraryEntryDispatchFrom(libraryEntry),
                       accent: Colors.cyan,
                       physicalFormats: musicPhysicalMediaFormats,
                     ),
@@ -1637,7 +1637,7 @@ void main() {
                     request: LibraryEditDialogRequest(
                       type: type,
                       item: CatalogSearchCandidate.fromItem(item),
-                      collectionItem: null,
+                      libraryEntry: null,
                       accent: Colors.red,
                     ),
                   );
@@ -1719,7 +1719,7 @@ void main() {
                     request: LibraryEditDialogRequest(
                       type: type,
                       item: CatalogSearchCandidate.fromItem(item),
-                      collectionItem: null,
+                      libraryEntry: null,
                       accent: Colors.red,
                       scope: LibraryEntityScope.release,
                       editPrimaryRelease: true,
@@ -1787,7 +1787,7 @@ void main() {
                     request: LibraryEditDialogRequest(
                       type: type,
                       item: CatalogSearchCandidate.fromItem(item),
-                      collectionItem: null,
+                      libraryEntry: null,
                       accent: Colors.brown,
                       scope: LibraryEntityScope.release,
                       editPrimaryRelease: true,
@@ -1846,7 +1846,7 @@ void main() {
                           ),
                         ),
                       ),
-                      collectionItem: null,
+                      libraryEntry: null,
                       accent: Colors.deepOrange,
                       scope: LibraryEntityScope.catalogItem,
                     ),

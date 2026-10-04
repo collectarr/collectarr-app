@@ -30,8 +30,8 @@ void main() {
         publisher: 'Marvel Comics',
         barcode: '759606083060141',
       ).asShelfCatalogItem),
-      collectionItemSummary: testCollectionItemSummary(testCollectionItem(
-        id: 'owned-1',
+      libraryEntrySummary: testLibraryEntrySummary(testLibraryEntry(
+        id: 'entry-1',
         itemId: 'comic-1',
         grade: '9.4',
         condition: 'Near Mint',
@@ -96,8 +96,8 @@ void main() {
           id: 'music-1',
         ),
       ),
-      collectionItemSummary: testCollectionItemSummary(testCollectionItem(
-        id: 'owned-m1',
+      libraryEntrySummary: testLibraryEntrySummary(testLibraryEntry(
+        id: 'entry-m1',
         itemId: 'music-1',
         personalNotes: 'Japanese pressing',
       )),
@@ -151,8 +151,8 @@ void main() {
         kind: 'movie',
         title: 'Dune',
       ).asShelfCatalogItem),
-      collectionItemSummary:
-          testCollectionItemSummary(testCollectionItem(id: 'om1', itemId: 'movie-1')),
+      libraryEntrySummary:
+          testLibraryEntrySummary(testLibraryEntry(id: 'om1', itemId: 'movie-1')),
     );
     const nodeMovie = LibraryCatalogItemNodeRef(catalogItemId: 'movie-1');
     final dtoMovie = const MovieWorkspaceProjector().project(
@@ -172,8 +172,8 @@ void main() {
         kind: 'game',
         title: 'Mario Kart 8 Deluxe',
       ).asShelfCatalogItem),
-      collectionItemSummary:
-          testCollectionItemSummary(testCollectionItem(id: 'og1', itemId: 'game-1')),
+      libraryEntrySummary:
+          testLibraryEntrySummary(testLibraryEntry(id: 'og1', itemId: 'game-1')),
     );
     const nodeGame = LibraryCatalogItemNodeRef(catalogItemId: 'game-1');
     final dtoGame = const GameWorkspaceProjector().project(

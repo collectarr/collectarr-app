@@ -52,8 +52,8 @@ void main() {
         title: 'Saga #1',
         series: const CatalogSeriesDetailsDto(seriesTitle: 'Saga'),
       ).asShelfCatalogItem),
-      collectionItemSummary:
-          testCollectionItemSummary(testCollectionItem(id: 'o1', itemId: 'comic-1')),
+      libraryEntrySummary:
+          testLibraryEntrySummary(testLibraryEntry(id: 'o1', itemId: 'comic-1')),
     );
     const node1 = LibraryCatalogItemNodeRef(catalogItemId: 'comic-1');
     final dto1 = const ComicWorkspaceProjector().project(

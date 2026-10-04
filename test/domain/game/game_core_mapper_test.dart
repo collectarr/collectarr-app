@@ -3,7 +3,7 @@ import 'package:collectarr_app/features/library/kinds/game/domain/game_metadata.
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  test('flat Game Catalog Item preserves kind-owned fields', () {
+  test('flat Game Catalog Item preserves kind-entry fields', () {
     final item = CatalogItemDto.fromJson({
       'id': 'game-1',
       'kind': 'game',

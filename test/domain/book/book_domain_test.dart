@@ -79,15 +79,15 @@ void main() {
     expect(restored.rawPayload['format'], 'Hardcover');
   });
 
-  test('BookOwnedDetails supports dust jacket and signature copy fields', () {
-    const details = BookOwnedDetails(
+  test('BookEntryDetails supports dust jacket and signature copy fields', () {
+    const details = BookEntryDetails(
       signedBy: 'J.R.R. Tolkien',
       dustJacketPresent: true,
       dustJacketCondition: 'Near Fine',
     );
 
     final json = details.toJson();
-    final fromJson = BookOwnedDetails.fromJson(json);
+    final fromJson = BookEntryDetails.fromJson(json);
 
     expect(fromJson.signedBy, 'J.R.R. Tolkien');
     expect(fromJson.dustJacketPresent, isTrue);
@@ -98,8 +98,8 @@ void main() {
     expect(bookKindIdentity.kind, CatalogMediaKind.book);
     expect(bookKindAdd.kind, CatalogMediaKind.book);
     expect(bookKindAdd.createInitialDraft(), isA<BookAddDraft>());
-    expect(const BookOwnedDetailsCodec(), isA<BookOwnedDetailsCodec>());
-    expect(const BookOwnedDetailsCodec().defaultDetails(),
-        isA<BookOwnedDetails>());
+    expect(const BookEntryDetailsCodec(), isA<BookEntryDetailsCodec>());
+    expect(const BookEntryDetailsCodec().defaultDetails(),
+        isA<BookEntryDetails>());
   });
 }

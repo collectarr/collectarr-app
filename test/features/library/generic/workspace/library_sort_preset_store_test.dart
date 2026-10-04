@@ -23,7 +23,7 @@ void main() {
 
     final store = LibrarySortPresetStore(
       const ComicRegistration(),
-      scope: LibraryEntityScope.collectionItem,
+      scope: LibraryEntityScope.libraryEntry,
     );
     final restored = await store.read();
 

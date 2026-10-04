@@ -57,13 +57,13 @@ void main() {
     expect(medium.effectiveTrackCount, 2);
   });
 
-  test('MusicOwnedDetails supports matrix/runout, signature, and cleaning date',
+  test('MusicEntryDetails supports matrix/runout, signature, and cleaning date',
       () {
-    final details = MusicOwnedDetails(
+    final details = MusicEntryDetails(
       signedBy: 'David Gilmour',
       lastCleanedDate: DateTime.utc(2026, 7, 10),
       media: const [
-        MusicOwnedMediumDetails(
+        MusicEntryMediumDetails(
           mediumIndex: 1,
           storageDevice: 'Turntable shelf',
           storageSlot: 'A-01',
@@ -75,7 +75,7 @@ void main() {
       ],
     );
 
-    final fromJson = MusicOwnedDetails.fromJson(details.toJson());
+    final fromJson = MusicEntryDetails.fromJson(details.toJson());
     expect(fromJson.signedBy, 'David Gilmour');
     expect(fromJson.lastCleanedDate, DateTime.utc(2026, 7, 10));
     expect(fromJson.media, hasLength(1));
@@ -131,8 +131,8 @@ void main() {
           .builderForScope(LibraryEntityScope.release),
       isNull,
     );
-    expect(const MusicOwnedDetailsCodec(), isA<MusicOwnedDetailsCodec>());
-    expect(const MusicOwnedDetailsCodec().defaultDetails(),
-        isA<MusicOwnedDetails>());
+    expect(const MusicEntryDetailsCodec(), isA<MusicEntryDetailsCodec>());
+    expect(const MusicEntryDetailsCodec().defaultDetails(),
+        isA<MusicEntryDetails>());
   });
 }

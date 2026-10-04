@@ -1,13 +1,13 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/money.dart';
-import 'package:collectarr_app/core/models/collection_item_projection.dart';
-import 'package:collectarr_app/features/collection/commands/collection_item_commands.dart';
+import 'package:collectarr_app/core/models/library_entry_projection.dart';
+import 'package:collectarr_app/features/collection/commands/library_entry_commands.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_import_transport.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_transport_bucket_mutators.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/domain/library_entity_scope.dart';
-import 'package:collectarr_app/features/library/kinds/music/ownership/music_collection_item_update_payload.dart';
-import 'package:collectarr_app/features/library/kinds/music/workspace/music_collection_item_workspace_fields.dart';
+import 'package:collectarr_app/features/library/kinds/music/entries/music_library_entry_update_payload.dart';
+import 'package:collectarr_app/features/library/kinds/music/workspace/music_library_entry_workspace_fields.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../../helpers/test_data_factories.dart';
@@ -201,20 +201,20 @@ void main() {
     expect(updated, isNull);
   });
 
-  test('builds an owned condition update and clears empty replacements', () {
-    final item = testMusicCollectionItemFrom(
-      testCollectionItem(
-        id: 'owned-music-1',
+  test('builds an entry condition update and clears empty replacements', () {
+    final item = testMusicLibraryEntryFrom(
+      testLibraryEntry(
+        id: 'entry-music-1',
         itemId: 'music-1',
         kind: 'music',
         condition: 'Very Good',
       ),
     );
-    final mutator = MusicCollectionItemWorkspaceFields.conditionBucketValueMutator();
-    final dispatch = OpaqueLibraryCollectionItemDispatch(
-      ref: CollectionItemRef(
+    final mutator = MusicLibraryEntryWorkspaceFields.conditionBucketValueMutator();
+    final dispatch = OpaqueLibraryEntryDispatch(
+      ref: LibraryEntryRef(
         kind: CatalogMediaKind.music,
-        id: CollectionItemId(item.id.value),
+        id: LibraryEntryId(item.id.value),
       ),
       kind: CatalogMediaKind.music,
       value: item,
@@ -222,14 +222,14 @@ void main() {
 
     final update = mutator(dispatch, 'Very Good', replacement: 'Mint');
     expect(update, isNotNull);
-    expect(update!.collectionItemRef.id.value, 'owned-music-1');
-    final payload = update.payload as MusicCollectionItemUpdatePayload;
+    expect(update!.libraryEntryRef.id.value, 'entry-music-1');
+    final payload = update.payload as MusicLibraryEntryUpdatePayload;
     expect(payload.condition, isA<SetValue<String?>>());
     expect((payload.condition as SetValue<String?>).value, 'Mint');
 
     final clear = mutator(dispatch, 'Very Good', replacement: '   ');
     expect(clear, isNotNull);
-    final clearPayload = clear!.payload as MusicCollectionItemUpdatePayload;
+    final clearPayload = clear!.payload as MusicLibraryEntryUpdatePayload;
     expect(clearPayload.condition, isA<ClearValue<String?>>());
   });
 }

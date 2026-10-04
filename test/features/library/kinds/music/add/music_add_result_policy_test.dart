@@ -2,7 +2,7 @@ import 'package:collectarr_app/features/library/kinds/music/data/remote/catalog_
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  test('Music search result is one concrete album with kind-owned details', () {
+  test('Music search result is one concrete album with kind-entry details', () {
     final result = CatalogMusicItemDto.fromJson({
       'id': 'album-1',
       'kind': 'music',

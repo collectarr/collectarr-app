@@ -27,7 +27,7 @@ void main() {
       'add',
       'mediaEdit',
       'identity',
-      'owned',
+      'entry',
     };
 
     expect(

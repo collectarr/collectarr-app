@@ -1,16 +1,13 @@
 import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/collection_item_projection.dart';
-import 'package:collectarr_app/core/models/money.dart';
+import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/core/models/tracking_state_ref.dart';
-import 'package:collectarr_app/features/library/kinds/book/ownership/book_owned_details.dart';
-import 'package:collectarr_app/features/library/kinds/book/domain/book_collection_item.dart';
-import 'package:collectarr_app/features/library/kinds/book/domain/book_ids.dart';
+import 'package:collectarr_app/features/library/kinds/book/entries/book_entry_details.dart';
+import 'package:collectarr_app/features/library/kinds/book/domain/book_library_entry.dart';
 import 'package:collectarr_app/features/library/kinds/book/tracking/book_tracking_state.dart';
-import 'package:collectarr_app/features/library/kinds/tv/domain/tv_collection_item.dart';
-import 'package:collectarr_app/features/library/kinds/tv/domain/tv_ids.dart';
-import 'package:collectarr_app/features/library/kinds/tv/ownership/tv_owned_details.dart';
+import 'package:collectarr_app/features/library/kinds/tv/domain/tv_library_entry.dart';
+import 'package:collectarr_app/features/library/kinds/tv/entries/tv_entry_details.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_tracking_state.dart';
 import 'package:collectarr_app/features/library/kinds/movie/tracking/movie_tracking_state.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
@@ -19,8 +16,9 @@ import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_transport_repository.dart';
 import 'package:collectarr_app/features/collection/events/collection_event_bus.dart';
 import 'package:collectarr_app/features/collection/mutations/tracking_mutations.dart';
-import 'package:collectarr_app/features/library/ownership/collection_items_repository.dart';
-import 'package:collectarr_app/features/library/ownership/owned_import_transport.dart';
+import 'package:collectarr_app/features/library/entries/library_entries_repository.dart';
+import 'package:collectarr_app/features/library/entries/library_entry_record.dart';
+import 'package:collectarr_app/features/library/entries/entry_import_transport.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_repository.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_unit_storage_repository.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.dart';
@@ -33,13 +31,13 @@ void main() {
   late LocalDatabase db;
   late TrackingMutations trackingMutations;
   late CatalogTransportRepository catalogCache;
-  late CollectionItemsRepository collectionItems;
+  late LibraryEntriesRepository libraryEntries;
   late TrackingStorageRepository trackingRecords;
 
   setUp(() {
     db = LocalDatabase(NativeDatabase.memory());
     catalogCache = CatalogTransportRepository(db);
-    collectionItems = CollectionItemsRepository(db);
+    libraryEntries = LibraryEntriesRepository(db);
     trackingRecords = TrackingStorageRepository(
       db,
       codecs: libraryTrackingStorageCodecs,
@@ -59,7 +57,7 @@ void main() {
         db,
         codecs: libraryWatchSessionCodecs,
       ),
-      collectionItems: collectionItems,
+      libraryEntries: libraryEntries,
       syncQueue: SyncQueueRepository(db),
       mutationRunner: runner,
     );
@@ -97,121 +95,69 @@ void main() {
       expect(entry.rating, 8);
     });
 
-    test('supports CollectionItemTrackingTarget and resolves its CatalogEntityRef',
+    test(
+        'supports LibraryEntryTrackingTarget and resolves its CatalogEntityRef',
         () async {
-      final owned = BookCollectionItem(
-        id: CollectionItemId('owned-item-77'),
+      final entry = BookLibraryEntry(
+        id: LibraryEntryId('entry-item-77'),
         catalogRef: const CatalogEntityRef(
           kind: CatalogMediaKind.book,
           entityType: CatalogEntityTypeId.catalogItem,
-          id: 'book-77',
+          id: 'entry-item-77',
         ),
-        details: const BookOwnedDetails(),
+        catalogData: const {'title': 'Test Book'},
+        details: const BookEntryDetails(),
         updatedAt: DateTime.now().toUtc(),
       );
       await catalogCache.upsertTransportItems([
         testCatalogItem(id: 'book-77', kind: 'book', title: 'Test Book'),
       ]);
-      await collectionItems.replaceFromTransport(
-        OwnedImportTransport(
-          ref: CollectionItemRef(
+      await libraryEntries.replaceFromTransport(
+        EntryImportTransport(
+          ref: LibraryEntryRef(
             kind: CatalogMediaKind.book,
-            id: CollectionItemId(owned.id.value),
+            id: LibraryEntryId(entry.id.value),
           ),
-          catalogRef: owned.catalogRef,
-          payload: owned.toJson(),
+          payload: LibraryEntryRecord(
+            id: entry.id.value,
+            kind: CatalogMediaKind.book,
+            catalogData: const {'title': 'Test Book'},
+            personalData: const {},
+            updatedAt: entry.updatedAt,
+          ).toJson(),
         ),
       );
 
       await trackingMutations.upsertTrackingState(
-        TrackingTarget.owned(
-          CollectionItemRef(
+        TrackingTarget.entry(
+          LibraryEntryRef(
             kind: CatalogMediaKind.book,
-            id: CollectionItemId(owned.id.value),
+            id: LibraryEntryId(entry.id.value),
           ),
         ),
         sourceType: TrackingSourceType.physical,
         status: MediaTrackingStatus.completed,
       );
 
-      final entry =
+      final trackingEntry =
           (await trackingRecords.findActiveStorageRecordsByCatalogRoots([
-        testCatalogRef('book-77', kind: 'book'),
+        testCatalogRef('entry-item-77', kind: 'book'),
       ]))
               .single;
-      expect(entry.collectionItemRef, CollectionItemRef.fromKey('book:owned-item-77'));
-      expect(entry.catalogRef.kind.apiValue, 'book');
-      expect(entry.status, MediaTrackingStatus.completed);
-    });
-
-    test('accepts a structural target when the owned row is unavailable',
-        () async {
-      await trackingMutations.upsertTrackingState(
-        TrackingTarget.owned(
-          const CollectionItemRef(
-            kind: CatalogMediaKind.book,
-            id: CollectionItemId('book-anchor-target'),
-          ),
-        ),
-        targetRef: const CatalogEntityRef(
-          kind: CatalogMediaKind.book,
-          entityType: CatalogEntityTypeId('release'),
-          id: 'variant-anchor',
-          rootId: 'book-anchor-target',
-          parentId: 'edition-anchor',
-        ),
-        status: MediaTrackingStatus.completed,
-      );
-
-      final entry =
-          (await trackingRecords.findActiveStorageRecordsByCatalogRoots([
-        testCatalogRef('book-anchor-target', kind: 'book'),
-      ]))
-              .single;
-      expect(entry.collectionItemRef, CollectionItemRef.fromKey('book:book-anchor-target'));
-      expect(entry.catalogRef.entityType, const CatalogEntityTypeId('release'));
-      expect(entry.catalogRef.id, 'variant-anchor');
-      expect(entry.catalogRef.rootId, 'book-anchor-target');
-    });
-
-    test('replaces an existing catalog target when explicitly cleared',
-        () async {
-      const ref = CatalogEntityRef(
-        kind: CatalogMediaKind.book,
-        entityType: CatalogEntityTypeId.catalogItem,
-        id: 'book-anchor-clear',
-      );
-
-      await trackingMutations.upsertTrackingState(
-        TrackingTarget.catalog(ref),
-        targetRef: const CatalogEntityRef(
-          kind: CatalogMediaKind.book,
-          entityType: CatalogEntityTypeId('release'),
-          id: 'variant-before-clear',
-          rootId: 'book-anchor-clear',
-          parentId: 'edition-before-clear',
-        ),
-      );
-      await trackingMutations.upsertTrackingState(
-        TrackingTarget.catalog(ref),
-        targetRef: ref,
-      );
-
-      final entry =
-          (await trackingRecords.findActiveStorageRecordsByCatalogRoots([ref]))
-              .single;
-      expect(entry.catalogRef.entityType, CatalogEntityTypeId.catalogItem);
-      expect(entry.catalogRef.id, ref.id);
+      expect(trackingEntry.libraryEntryRef,
+          LibraryEntryRef.fromKey('book:entry-item-77'));
+      expect(trackingEntry.catalogRef.kind.apiValue, 'book');
+      expect(trackingEntry.status, MediaTrackingStatus.completed);
     });
 
     test('rejects invalid or unresolvable tracking target with ArgumentError',
         () async {
       expect(
         () => trackingMutations.upsertTrackingState(
-          TrackingTarget.owned(
-            const CollectionItemRef(
+          TrackingTarget.entry(
+            const LibraryEntryRef(
               kind: CatalogMediaKind.book,
-              id: CollectionItemId('non-existent-owned-id'),
+              id: LibraryEntryId('non-existent-entry-id'),
             ),
           ),
         ),
@@ -276,12 +222,11 @@ void main() {
       expect(coordinates.episodeRatings, equals(unitRatings));
     });
 
-    test('does not introduce hardcoded comic fallback kind', () async {
+    test('uses the concrete Music Catalog Item tracking target', () async {
       const ref = CatalogEntityRef(
         kind: CatalogMediaKind.music,
-        entityType: CatalogEntityTypeId('release'),
-        id: 'music-release-99',
-        rootId: 'music-album-99',
+        entityType: CatalogEntityTypeId.catalogItem,
+        id: 'music-album-99',
       );
 
       await trackingMutations.upsertTrackingState(
@@ -295,7 +240,8 @@ void main() {
       ]))
               .single;
       expect(entry.catalogRef.kind.apiValue, 'music');
-      expect(entry.catalogRef.kind, isNot('comic'));
+      expect(entry.catalogRef.entityType, CatalogEntityTypeId.catalogItem);
+      expect(entry.catalogRef.id, 'music-album-99');
     });
 
     test('keeps TV season coordinates in the TV tracking patch', () async {
@@ -327,17 +273,18 @@ void main() {
       );
     });
 
-    test('owned sync preserves kind-owned tracking state on existing entries',
+    test('entry sync preserves kind-entry tracking state on existing entries',
         () async {
       const ref = CatalogEntityRef(
         kind: CatalogMediaKind.tv,
         entityType: CatalogEntityTypeId.catalogItem,
-        id: 'tv-owned-1',
+        id: 'entry-tv-1',
       );
-      final owned = TvCollectionItem(
-        id: CollectionItemId('owned-tv-1'),
+      final entry = TvLibraryEntry(
+        id: LibraryEntryId('entry-tv-1'),
         catalogRef: ref,
-        details: const TvOwnedDetails(),
+        details: const TvEntryDetails(),
+        catalogData: const {'title': 'Tracked Show'},
         updatedAt: DateTime.utc(2026, 6, 1),
       );
       await catalogCache.upsertTransportItems([
@@ -347,23 +294,28 @@ void main() {
           title: 'Tracked Show',
         ),
       ]);
-      await collectionItems.replaceFromTransport(
-        OwnedImportTransport(
-          ref: CollectionItemRef(
+      await libraryEntries.replaceFromTransport(
+        EntryImportTransport(
+          ref: LibraryEntryRef(
             kind: CatalogMediaKind.tv,
-            id: CollectionItemId(owned.id.value),
+            id: LibraryEntryId(entry.id.value),
           ),
-          catalogRef: owned.catalogRef,
-          payload: owned.toJson(),
+          payload: LibraryEntryRecord(
+            id: entry.id.value,
+            kind: CatalogMediaKind.tv,
+            catalogData: const {'title': 'Tracked Show'},
+            personalData: const {},
+            updatedAt: entry.updatedAt,
+          ).toJson(),
         ),
       );
       await trackingRecords.upsertStorageRecord(
         TvTrackingState(
           id: 'tracking-tv-1',
           catalogRef: ref,
-          collectionItemRef: CollectionItemRef(
+          libraryEntryRef: LibraryEntryRef(
             kind: CatalogMediaKind.tv,
-            id: CollectionItemId(owned.id.value),
+            id: LibraryEntryId(entry.id.value),
           ),
           coordinates: TvTrackingCoordinates(
             seasonNumber: 4,
@@ -374,89 +326,25 @@ void main() {
         ),
       );
 
-      await trackingMutations.syncOwnedTrackingState(
-        CollectionItemRef(
+      await trackingMutations.syncEntryTrackingState(
+        LibraryEntryRef(
           kind: CatalogMediaKind.tv,
-          id: CollectionItemId(owned.id.value),
+          id: LibraryEntryId(entry.id.value),
         ),
-        catalogRef: owned.catalogRef,
-        isDigital: owned.isDigital,
-        targetRef: ref,
+        catalogRef: entry.catalogRef,
+        isDigital: entry.isDigital,
         status: MediaTrackingStatus.inProgress,
         progressCurrent: 9,
       );
 
-      final entry =
+      final trackingEntry =
           (await trackingRecords.findActiveStorageRecordsByCatalogRoots([ref]))
               .single;
-      final coordinates = tvTrackingCoordinatesFor(entry);
+      final coordinates = tvTrackingCoordinatesFor(trackingEntry);
       expect(coordinates.seasonNumber, 4);
       expect(coordinates.episodeNumber, 9);
       expect(coordinates.episodeRatings, const {'4:9': 10});
-      expect(entry.progress.current, 9);
-    });
-
-    test('owned sync can explicitly replace its catalog target', () async {
-      const ref = CatalogEntityRef(
-        kind: CatalogMediaKind.book,
-        entityType: CatalogEntityTypeId.catalogItem,
-        id: 'book-owned-anchor-clear',
-      );
-      final owned = BookCollectionItem(
-        id: CollectionItemId('owned-book-anchor-clear'),
-        catalogRef: ref,
-        targetRef: const CatalogEntityRef(
-          kind: CatalogMediaKind.book,
-          entityType: CatalogEntityTypeId('edition'),
-          id: 'edition-owned-before-clear',
-        ),
-        details: const BookOwnedDetails(),
-        updatedAt: DateTime.utc(2026, 6, 1),
-      );
-      await catalogCache.upsertTransportItems([
-        testCatalogItem(
-          id: ref.id,
-          kind: ref.kind.apiValue,
-          title: 'Anchored Book',
-        ),
-      ]);
-      await collectionItems.replaceFromTransport(
-        OwnedImportTransport(
-          ref: CollectionItemRef(
-            kind: CatalogMediaKind.book,
-            id: CollectionItemId(owned.id.value),
-          ),
-          catalogRef: owned.catalogRef,
-          payload: owned.toJson(),
-        ),
-      );
-      final collectionItemRef = CollectionItemRef(
-        kind: CatalogMediaKind.book,
-        id: CollectionItemId(owned.id.value),
-      );
-      await trackingMutations.syncOwnedTrackingState(
-        collectionItemRef,
-        catalogRef: owned.catalogRef,
-        targetRef: const CatalogEntityRef(
-          kind: CatalogMediaKind.book,
-          entityType: CatalogEntityTypeId('edition'),
-          id: 'edition-owned-before-clear',
-          rootId: 'book-owned-anchor-clear',
-        ),
-        isDigital: owned.isDigital,
-      );
-
-      await trackingMutations.syncOwnedTrackingState(
-        collectionItemRef,
-        catalogRef: owned.catalogRef,
-        targetRef: ref,
-      );
-
-      final entry =
-          (await trackingRecords.findActiveStorageRecordsByCatalogRoots([ref]))
-              .single;
-      expect(entry.catalogRef.entityType, CatalogEntityTypeId.catalogItem);
-      expect(entry.catalogRef.id, ref.id);
+      expect(trackingEntry.progress.current, 9);
     });
 
     test('typed tracking repository applies explicit clears', () async {
@@ -500,7 +388,7 @@ void main() {
       expect(updated?.notes, isNull);
     });
 
-    test('rejects an Owned ref from a different kind at the storage boundary',
+    test('rejects an Entry ref from a different kind at the storage boundary',
         () async {
       const catalogRef = CatalogEntityRef(
         kind: CatalogMediaKind.movie,
@@ -513,9 +401,9 @@ void main() {
           MovieTrackingState(
             id: 'tracking-kind-check',
             catalogRef: catalogRef,
-            collectionItemRef: const CollectionItemRef(
+            libraryEntryRef: const LibraryEntryRef(
               kind: CatalogMediaKind.book,
-              id: CollectionItemId('book-owned'),
+              id: LibraryEntryId('book-entry'),
             ),
             updatedAt: DateTime.utc(2026, 9, 14),
           ),

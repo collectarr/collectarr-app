@@ -1,7 +1,7 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/money.dart';
-import 'package:collectarr_app/core/models/collection_item_projection.dart';
+import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/core/models/tracking_state_ref.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_repository.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_codec.dart';
@@ -203,16 +203,16 @@ void main() {
       entityType: CatalogEntityTypeId.catalogItem,
       id: 'comic-import-1',
     );
-    const collectionItemRef = CollectionItemRef(
+    const libraryEntryRef = LibraryEntryRef(
       kind: CatalogMediaKind.comic,
-      id: CollectionItemId('owned-import-1'),
+      id: LibraryEntryId('entry-import-1'),
     );
 
     final results = await repository.upsertImportedAll([
       TrackingStorageImport(
         entryId: 'tracking-import-1',
         catalogRef: catalogRef,
-        collectionItemRef: collectionItemRef,
+        libraryEntryRef: libraryEntryRef,
         now: DateTime.utc(2026, 9, 14),
         rating: 9,
         status: 'Completed',
@@ -225,7 +225,7 @@ void main() {
     expect(results.single.payload['rating'], 9);
     final persisted =
         await repository.findStorageRecordByRef(results.single.ref);
-    expect(persisted?.collectionItemRef, collectionItemRef);
+    expect(persisted?.libraryEntryRef, libraryEntryRef);
     expect(persisted?.rating, 9);
   });
 }

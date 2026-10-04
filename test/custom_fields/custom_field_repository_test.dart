@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/db/local_database.dart';
+import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/features/collection/repositories/custom_field_repository.dart';
 import 'package:drift/native.dart';
@@ -124,15 +125,15 @@ void main() {
         id: 'def-1',
         name: 'Storage Box',
         fieldType: 'text',
-        editScope: CustomFieldTargetScope.collectionItem.apiValue,
+        editScope: CustomFieldTargetScope.libraryEntry.apiValue,
         createdAt: DateTime.utc(2026, 1, 1),
       );
       await repo.upsertDefinition(def);
       final defs = await repo.listDefinitions(
-        targetScope: CustomFieldTargetScope.collectionItem,
+        targetScope: CustomFieldTargetScope.libraryEntry,
       );
       expect(defs, hasLength(1));
-      expect(defs.single.targetScope, CustomFieldTargetScope.collectionItem);
+      expect(defs.single.targetScope, CustomFieldTargetScope.libraryEntry);
     });
 
     test('deleteDefinition removes definition', () async {
@@ -151,8 +152,8 @@ void main() {
     test('listValuesForTarget returns empty initially', () async {
       expect(
         await repo.listValuesForTarget(
-          targetId: 'comic:owned-1',
-          targetScope: CustomFieldTargetScope.collectionItem,
+          targetId: 'comic:entry-1',
+          targetScope: CustomFieldTargetScope.libraryEntry,
         ),
         isEmpty,
       );
@@ -161,44 +162,63 @@ void main() {
     test('upsertValue inserts and retrieves', () async {
       final value = CustomFieldValue(
         id: 'val-1',
-        targetId: 'comic:owned-1',
-        targetScope: CustomFieldTargetScope.collectionItem,
+        targetId: 'comic:entry-1',
+        targetScope: CustomFieldTargetScope.libraryEntry,
         fieldDefinitionId: 'def-1',
         value: 'Shelf A',
         updatedAt: DateTime.utc(2026, 1, 1),
       );
       await repo.upsertValue(value);
       final values = await repo.listValuesForTarget(
-        targetId: 'comic:owned-1',
-        targetScope: CustomFieldTargetScope.collectionItem,
+        targetId: 'comic:entry-1',
+        targetScope: CustomFieldTargetScope.libraryEntry,
       );
       expect(values, hasLength(1));
       expect(values.single.value, 'Shelf A');
       expect(values.single.fieldDefinitionId, 'def-1');
     });
 
+    test('library-entry custom fields reject a redundant catalog parent',
+        () async {
+      final value = CustomFieldValue(
+        id: 'val-parent-ref',
+        targetId: 'comic:entry-1',
+        targetScope: CustomFieldTargetScope.libraryEntry,
+        catalogRef: const CatalogEntityRef(
+          kind: CatalogMediaKind.comic,
+          entityType: CatalogEntityTypeId.catalogItem,
+          id: 'core-comic-1',
+        ),
+        fieldDefinitionId: 'def-1',
+        value: 'Shelf A',
+        updatedAt: DateTime.utc(2026, 1, 1),
+      );
+
+      expect(() => repo.upsertValue(value), throwsArgumentError);
+    });
+
     test('upsertValues batch inserts', () async {
       await repo.upsertValues([
         CustomFieldValue(
           id: 'val-1',
-          targetId: 'comic:owned-1',
-          targetScope: CustomFieldTargetScope.collectionItem,
+          targetId: 'comic:entry-1',
+          targetScope: CustomFieldTargetScope.libraryEntry,
           fieldDefinitionId: 'def-1',
           value: 'A',
           updatedAt: DateTime.utc(2026, 1, 1),
         ),
         CustomFieldValue(
           id: 'val-2',
-          targetId: 'comic:owned-1',
-          targetScope: CustomFieldTargetScope.collectionItem,
+          targetId: 'comic:entry-1',
+          targetScope: CustomFieldTargetScope.libraryEntry,
           fieldDefinitionId: 'def-2',
           value: 'B',
           updatedAt: DateTime.utc(2026, 1, 1),
         ),
       ]);
       final values = await repo.listValuesForTarget(
-        targetId: 'comic:owned-1',
-        targetScope: CustomFieldTargetScope.collectionItem,
+        targetId: 'comic:entry-1',
+        targetScope: CustomFieldTargetScope.libraryEntry,
       );
       expect(values, hasLength(2));
     });
@@ -207,33 +227,33 @@ void main() {
       await repo.upsertValues([
         CustomFieldValue(
           id: 'val-1',
-          targetId: 'comic:owned-1',
-          targetScope: CustomFieldTargetScope.collectionItem,
+          targetId: 'comic:entry-1',
+          targetScope: CustomFieldTargetScope.libraryEntry,
           fieldDefinitionId: 'def-1',
           value: 'A',
           updatedAt: DateTime.utc(2026, 1, 1),
         ),
         CustomFieldValue(
           id: 'val-2',
-          targetId: 'comic:owned-2',
-          targetScope: CustomFieldTargetScope.collectionItem,
+          targetId: 'comic:entry-2',
+          targetScope: CustomFieldTargetScope.libraryEntry,
           fieldDefinitionId: 'def-1',
           value: 'B',
           updatedAt: DateTime.utc(2026, 1, 1),
         ),
         CustomFieldValue(
           id: 'val-3',
-          targetId: 'comic:owned-1',
-          targetScope: CustomFieldTargetScope.collectionItem,
+          targetId: 'comic:entry-1',
+          targetScope: CustomFieldTargetScope.libraryEntry,
           fieldDefinitionId: 'def-2',
           value: 'C',
           updatedAt: DateTime.utc(2026, 1, 1),
         ),
       ]);
       final all = await repo.listAllValues();
-      expect(all.keys, containsAll(['comic:owned-1', 'comic:owned-2']));
-      expect(all['comic:owned-1'], hasLength(2));
-      expect(all['comic:owned-2'], hasLength(1));
+      expect(all.keys, containsAll(['comic:entry-1', 'comic:entry-2']));
+      expect(all['comic:entry-1'], hasLength(2));
+      expect(all['comic:entry-2'], hasLength(1));
     });
 
     test('upsertValueForTarget preserves explicit target id', () async {
@@ -269,36 +289,36 @@ void main() {
       await repo.upsertValues([
         CustomFieldValue(
           id: 'val-1',
-          targetId: 'comic:owned-1',
-          targetScope: CustomFieldTargetScope.collectionItem,
+          targetId: 'comic:entry-1',
+          targetScope: CustomFieldTargetScope.libraryEntry,
           fieldDefinitionId: 'def-1',
           value: 'A',
           updatedAt: DateTime.utc(2026, 1, 1),
         ),
         CustomFieldValue(
           id: 'val-2',
-          targetId: 'comic:owned-2',
-          targetScope: CustomFieldTargetScope.collectionItem,
+          targetId: 'comic:entry-2',
+          targetScope: CustomFieldTargetScope.libraryEntry,
           fieldDefinitionId: 'def-1',
           value: 'B',
           updatedAt: DateTime.utc(2026, 1, 1),
         ),
       ]);
       await repo.deleteValuesForTarget(
-        targetId: 'comic:owned-1',
-        targetScope: CustomFieldTargetScope.collectionItem,
+        targetId: 'comic:entry-1',
+        targetScope: CustomFieldTargetScope.libraryEntry,
       );
       expect(
         await repo.listValuesForTarget(
-          targetId: 'comic:owned-1',
-          targetScope: CustomFieldTargetScope.collectionItem,
+          targetId: 'comic:entry-1',
+          targetScope: CustomFieldTargetScope.libraryEntry,
         ),
         isEmpty,
       );
       expect(
         await repo.listValuesForTarget(
-          targetId: 'comic:owned-2',
-          targetScope: CustomFieldTargetScope.collectionItem,
+          targetId: 'comic:entry-2',
+          targetScope: CustomFieldTargetScope.libraryEntry,
         ),
         hasLength(1),
       );

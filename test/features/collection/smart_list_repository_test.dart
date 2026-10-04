@@ -37,7 +37,7 @@ void main() {
           },
           missingCover: true,
         ),
-        quickView: LibraryQuickView.owned,
+        quickView: LibraryQuickView.entry,
         sortRules: const [
           LibrarySortRule(
             column: 'updated',
@@ -57,7 +57,7 @@ void main() {
         name: 'Books only',
         mediaKind: 'book',
         filterSelection: LibraryFilterSelection(
-          ownershipFilter: LibraryOwnershipFilter.owned,
+          entriesFilter: LibraryEntryPolicyFilter.entry,
         ),
       ),
     );
@@ -76,7 +76,7 @@ void main() {
     final global = bookLists.first;
     expect(global.id, isNotEmpty);
     expect(global.mediaKind, isNull);
-    expect(global.quickView, LibraryQuickView.owned);
+    expect(global.quickView, LibraryQuickView.entry);
     expect(global.sortColumn, 'updated');
     expect(global.sortAscending, isFalse);
     expect(global.sortRules, const [
@@ -140,10 +140,10 @@ void main() {
     final created = await repo.create(
       const SmartList(
         id: 'ignored-book',
-        name: 'Owned books',
+        name: 'Entry books',
         mediaKind: 'book',
         filterSelection: LibraryFilterSelection(
-          ownershipFilter: LibraryOwnershipFilter.owned,
+          entriesFilter: LibraryEntryPolicyFilter.entry,
         ),
       ),
     );

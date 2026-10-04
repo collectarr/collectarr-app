@@ -1072,8 +1072,8 @@ class _BookAdminApiClient extends _FakeAdminApiClient {
           section: 'relations',
           input: 'text',
           kinds: ['book'],
-          ownershipByKind: {
-            'book': MetadataFieldOwnership(
+          entriesByKind: {
+            'book': MetadataFieldEntryPolicy(
               scope: MetadataFieldScope.relations,
               sourceEntityType: 'book_series',
               sourceTable: 'book_series',

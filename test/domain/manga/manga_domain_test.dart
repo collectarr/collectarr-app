@@ -41,8 +41,8 @@ void main() {
       final shelf = LibraryWorkspaceSource(
         itemId: 'manga-1',
         catalogData: testWorkspaceCatalogData(catalogItem.asShelfCatalogItem),
-        collectionItemSummary: testCollectionItemSummary(testCollectionItem(
-          id: 'owned-manga-1',
+        libraryEntrySummary: testLibraryEntrySummary(testLibraryEntry(
+          id: 'entry-manga-1',
           itemId: 'manga-1',
           rawOrSlabbed: 'Raw',
           updatedAt: DateTime.utc(2026, 5, 30),
@@ -139,13 +139,13 @@ void main() {
       expect(hierarchy.volumes.first.releases, contains('vizbig-1'));
     });
 
-    test('MangaKindRegistration uses Manga-owned capabilities exclusively', () {
+    test('MangaKindRegistration uses Manga-entry capabilities exclusively', () {
       expect(mangaKindIdentity.kind, CatalogMediaKind.manga);
       expect(mangaKindAdd.kind, CatalogMediaKind.manga);
       expect(mangaKindAdd.createInitialDraft(), isA<MangaAddDraft>());
-      expect(const MangaOwnedDetailsCodec(), isA<MangaOwnedDetailsCodec>());
-      expect(const MangaOwnedDetailsCodec().defaultDetails(),
-          isA<MangaOwnedDetails>());
+      expect(const MangaEntryDetailsCodec(), isA<MangaEntryDetailsCodec>());
+      expect(const MangaEntryDetailsCodec().defaultDetails(),
+          isA<MangaEntryDetails>());
     });
   });
 }

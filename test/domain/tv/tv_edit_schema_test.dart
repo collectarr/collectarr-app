@@ -5,15 +5,15 @@ import 'package:collectarr_app/features/library/models/library_item_identity.dar
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_models.dart';
 import 'package:collectarr_app/features/library/kinds/tv/edit/tv_media_edit_schema.dart';
-import 'package:collectarr_app/features/library/kinds/tv/edit/tv_owned_edit_draft.dart';
-import 'package:collectarr_app/features/library/kinds/tv/edit/tv_owned_edit_schema.dart';
+import 'package:collectarr_app/features/library/kinds/tv/edit/tv_entry_edit_draft.dart';
+import 'package:collectarr_app/features/library/kinds/tv/edit/tv_entry_edit_schema.dart';
 import 'package:collectarr_app/features/library/kinds/tv/forms/tv_catalog_form_adapters.dart';
 import 'package:collectarr_app/features/library/kinds/tv/forms/tv_catalog_form_values.dart';
-import 'package:collectarr_app/features/library/kinds/tv/ownership/tv_owned_details.dart';
+import 'package:collectarr_app/features/library/kinds/tv/entries/tv_entry_details.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../contracts/media_edit_contract.dart';
-import '../../contracts/owned_edit_contract.dart';
+import '../../contracts/entry_edit_contract.dart';
 
 void main() {
   defineMediaEditContract<EditSchema<TvSeries, TvSeriesFormValues>>(
@@ -27,9 +27,9 @@ void main() {
             for (final field in section.fields) field.id,
     ],
   );
-  defineOwnedEditContract<EditSchema<TvOwnedDetails, TvOwnedEditDraft>>(
+  defineEntryEditContract<EditSchema<TvEntryDetails, TvEntryEditDraft>>(
     name: 'TV',
-    create: () => tvOwnedEditSchema,
+    create: () => tvEntryEditSchema,
     tabIds: (schema) => schema.tabs.map((tab) => tab.id),
     fieldIds: (schema, tabId) => [
       for (final tab in schema.tabs)
@@ -71,30 +71,30 @@ void main() {
     );
   });
 
-  test('round trips TV owned details through the typed schema', () {
-    const original = TvOwnedDetails(
+  test('round trips TV entry details through the typed schema', () {
+    const original = TvEntryDetails(
       features: 'Commentary',
       hdrFormats: ['HDR10'],
       boxSetName: 'Collection',
       region: 'Region A / Region 1',
       packaging: 'Steelbook Season',
     );
-    final draft = TvOwnedEditDraft.fromDetails(original);
+    final draft = TvEntryEditDraft.fromDetails(original);
     addTearDown(draft.dispose);
 
-    (_ownedField('features') as LibraryTextFieldSpec<TvOwnedEditDraft>)
+    (_entryField('features') as LibraryTextFieldSpec<TvEntryEditDraft>)
         .setValue(draft, 'Commentary and deleted scenes');
-    final hdr = _ownedField('hdr_formats')
-        as LibraryMultiVocabularyFieldSpec<TvOwnedEditDraft, String>;
+    final hdr = _entryField('hdr_formats')
+        as LibraryMultiVocabularyFieldSpec<TvEntryEditDraft, String>;
     expect(hdr.options, isNotEmpty);
     hdr.setValues(draft, {'HDR10', 'Dolby Vision'});
-    (_ownedField('packaging')
-            as LibraryVocabularyFieldSpec<TvOwnedEditDraft, String>)
+    (_entryField('packaging')
+            as LibraryVocabularyFieldSpec<TvEntryEditDraft, String>)
         .setValue(draft, 'Steelbook Season');
 
     expect(
       draft.toDetails(),
-      const TvOwnedDetails(
+      const TvEntryDetails(
         features: 'Commentary and deleted scenes',
         hdrFormats: ['HDR10', 'Dolby Vision'],
         boxSetName: 'Collection',
@@ -175,9 +175,9 @@ LibraryFieldSpec<TvSeriesFormValues> _mediaField(String id) {
   ].single;
 }
 
-LibraryFieldSpec<TvOwnedEditDraft> _ownedField(String id) {
+LibraryFieldSpec<TvEntryEditDraft> _entryField(String id) {
   return [
-    for (final tab in tvOwnedEditSchema.tabs)
+    for (final tab in tvEntryEditSchema.tabs)
       for (final section in tab.sections)
         for (final field in section.fields)
           if (field.id == id) field,

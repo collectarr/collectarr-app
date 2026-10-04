@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_transport_repository.dart';
 import 'package:collectarr_app/features/collection/collection_page.dart';
-import 'package:collectarr_app/features/library/kinds/comic/data/comic_owned_repository.dart';
+import 'package:collectarr_app/features/library/kinds/comic/data/comic_entry_repository.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
@@ -42,9 +42,9 @@ void main() {
             sortOrder: const Value(1),
           ),
         );
-    await ComicOwnedRepository(db).upsert(
-      testComicCollectionItemFrom(testCollectionItem(
-        id: 'owned-1',
+    await ComicEntryRepository(db).upsert(
+      testComicLibraryEntryFrom(testLibraryEntry(
+        id: 'entry-1',
         itemId: 'comic-1',
         kind: 'comic',
         condition: 'Near Mint',
@@ -78,7 +78,7 @@ void main() {
     await pumpUntilSettled(tester);
 
     expect(find.text('Shelf'), findsOneWidget);
-    expect(find.text('Owned'), findsWidgets);
+    expect(find.text('Entry'), findsWidgets);
     expect(find.text('Quantity'), findsNothing);
     expect(find.text('2'), findsWidgets);
     expect(find.text('Wishlist'), findsWidgets);
@@ -95,7 +95,7 @@ void main() {
     expect(find.text('Copy Collectarr CSV'), findsOneWidget);
     expect(find.text('Copy CLZ-friendly CSV'), findsOneWidget);
     expect(find.text('2 rows'), findsOneWidget);
-    expect(find.text('1 owned'), findsOneWidget);
+    expect(find.text('1 entry'), findsOneWidget);
     expect(find.text('1 wishlist'), findsOneWidget);
 
     await tester.tap(find.text('Close'));
@@ -129,9 +129,9 @@ void main() {
         'item_number': '8A',
       }),
     ]);
-    await ComicOwnedRepository(db).upsert(
-      testComicCollectionItemFrom(testCollectionItem(
-        id: 'owned-1',
+    await ComicEntryRepository(db).upsert(
+      testComicLibraryEntryFrom(testLibraryEntry(
+        id: 'entry-1',
         itemId: 'comic-1',
         kind: 'comic',
         condition: 'Near Mint',
@@ -151,7 +151,7 @@ void main() {
     await pumpUntilSettled(tester);
 
     expect(find.text('Shelf'), findsOneWidget);
-    expect(find.text('Owned'), findsWidgets);
+    expect(find.text('Entry'), findsWidgets);
     await tester.scrollUntilVisible(
       find.text('Superman, Vol. 4 #8A'),
       200,

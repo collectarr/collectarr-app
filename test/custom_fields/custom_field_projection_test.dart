@@ -53,8 +53,8 @@ void main() {
               kind: 'comic',
               title: 'Batman',
             ).asShelfCatalogItem),
-            collectionItemSummary: testCollectionItemSummary(testCollectionItem(
-              id: 'owned-1',
+            libraryEntrySummary: testLibraryEntrySummary(testLibraryEntry(
+              id: 'entry-1',
               itemId: 'comic-1',
               catalogRef: CatalogEntityRef(
                 kind: CatalogMediaKind.comic,
@@ -71,8 +71,8 @@ void main() {
               kind: 'comic',
               title: 'Superman',
             ).asShelfCatalogItem),
-            collectionItemSummary: testCollectionItemSummary(testCollectionItem(
-              id: 'owned-2',
+            libraryEntrySummary: testLibraryEntrySummary(testLibraryEntry(
+              id: 'entry-2',
               itemId: 'comic-2',
               catalogRef: CatalogEntityRef(
                 kind: CatalogMediaKind.comic,
@@ -83,7 +83,7 @@ void main() {
             )),
           ),
         ],
-        ownedCount: 2,
+        entryCount: 2,
         wishlistCount: 0,
         pricedCount: 0,
         totalPaidCents: null,
@@ -95,8 +95,8 @@ void main() {
         shelf: shelf,
         query: 'key issue',
         customFieldValuesByItem: {
-          'owned-1': ['Shelf A', 'Key Issue'],
-          'owned-2': ['Shelf B'],
+          'entry-1': ['Shelf A', 'Key Issue'],
+          'entry-2': ['Shelf B'],
         },
       );
 
@@ -117,7 +117,7 @@ void main() {
             ).asShelfCatalogItem),
           ),
         ],
-        ownedCount: 0,
+        entryCount: 0,
         wishlistCount: 0,
         pricedCount: 0,
         totalPaidCents: null,
@@ -160,7 +160,7 @@ void main() {
             ).asShelfCatalogItem),
           ),
         ],
-        ownedCount: 0,
+        entryCount: 0,
         wishlistCount: 0,
         pricedCount: 0,
         totalPaidCents: null,
@@ -196,7 +196,7 @@ void main() {
             ).asShelfCatalogItem),
           ),
         ],
-        ownedCount: 0,
+        entryCount: 0,
         wishlistCount: 0,
         pricedCount: 0,
         totalPaidCents: null,
@@ -219,8 +219,8 @@ void main() {
               kind: 'comic',
               title: 'Batman',
             ).asShelfCatalogItem),
-            collectionItemSummary: testCollectionItemSummary(testCollectionItem(
-              id: 'owned-1',
+            libraryEntrySummary: testLibraryEntrySummary(testLibraryEntry(
+              id: 'entry-1',
               itemId: 'comic-1',
               updatedAt: DateTime.utc(2026, 1, 1),
             )),
@@ -234,7 +234,7 @@ void main() {
             ).asShelfCatalogItem),
           ),
         ],
-        ownedCount: 1,
+        entryCount: 1,
         wishlistCount: 0,
         pricedCount: 0,
         totalPaidCents: null,
@@ -246,7 +246,7 @@ void main() {
         shelf: shelf,
         query: 'special value',
         customFieldValuesByItem: {
-          'owned-1': ['Special value here'],
+          'entry-1': ['Special value here'],
         },
       );
 

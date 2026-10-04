@@ -6,11 +6,11 @@ import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  test('Comic Add policy owns owned and variant visibility', () {
-    final owned = CatalogSearchCandidate.fromItem(testCatalogItemFromJson({
-      'id': 'comic-owned',
+  test('Comic Add policy owns entry and variant visibility', () {
+    final entry = CatalogSearchCandidate.fromItem(testCatalogItemFromJson({
+      'id': 'comic-entry',
       'kind': 'comic',
-      'title': 'Owned Comic',
+      'title': 'Entry Comic',
     }));
     final variant = CatalogSearchCandidate.fromItem(testCatalogItemFromJson({
       'id': 'comic-variant',
@@ -26,18 +26,18 @@ void main() {
 
     final state = const LibraryAddResultPolicyState(
       values: {
-        comicAddHideOwnedOptionId: true,
+        comicAddHideEntryOptionId: true,
         comicAddHideVariantsOptionId: true,
       },
     );
     final visible = comicAddResultPolicy.filterCoreResults(
-      items: [owned, variant, regular],
+      items: [entry, variant, regular],
       state: state,
-      ownedCatalogRefs: {
+      entryCatalogRefs: {
         CatalogEntityRef(
           kind: CatalogMediaKind.comic,
           entityType: CatalogEntityTypeId.catalogItem,
-          id: 'comic-owned',
+          id: 'comic-entry',
         ),
       },
     );

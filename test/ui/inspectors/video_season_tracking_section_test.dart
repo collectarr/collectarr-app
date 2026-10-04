@@ -65,10 +65,10 @@ void main() {
             request: LibraryDetailPageRequest(
               type: type,
               item: tvItem,
-              collectionItemSummary: null,
+              libraryEntrySummary: null,
               accent: Colors.orange,
-              onAddOwned: () {},
-              onRemoveOwned: () {},
+              onAddEntry: () {},
+              onRemoveEntry: () {},
               onAddWishlist: () {},
               onRemoveWishlist: () {},
               onEdit: (_) {},

@@ -22,8 +22,8 @@ void main() {
         title: 'Superman, Vol. 4',
         itemNumber: '8A',
       ).asShelfCatalogItem),
-      collectionItemSummary: testCollectionItemSummary(testCollectionItem(
-        id: 'owned-1',
+      libraryEntrySummary: testLibraryEntrySummary(testLibraryEntry(
+        id: 'entry-1',
         itemId: 'comic-1',
         collectionStatus: 'for_sale',
       )),

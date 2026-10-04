@@ -53,10 +53,10 @@ void main() {
             home: LibraryDetailPage(
               type: type,
               item: comicItem,
-              collectionItemSummary: null,
+              libraryEntrySummary: null,
               accent: Colors.red,
-              onAddOwned: () {},
-              onRemoveOwned: () {},
+              onAddEntry: () {},
+              onRemoveEntry: () {},
               onAddWishlist: () {},
               onRemoveWishlist: () {},
               onEdit: (_) {},
@@ -106,10 +106,10 @@ void main() {
             home: LibraryDetailPage(
               type: type,
               item: musicItem,
-              collectionItemSummary: null,
+              libraryEntrySummary: null,
               accent: Colors.cyan,
-              onAddOwned: () {},
-              onRemoveOwned: () {},
+              onAddEntry: () {},
+              onRemoveEntry: () {},
               onAddWishlist: () {},
               onRemoveWishlist: () {},
               onEdit: (_) {},
@@ -157,10 +157,10 @@ void main() {
             home: LibraryDetailPage(
               type: type,
               item: gameItem,
-              collectionItemSummary: null,
+              libraryEntrySummary: null,
               accent: Colors.green,
-              onAddOwned: () {},
-              onRemoveOwned: () {},
+              onAddEntry: () {},
+              onRemoveEntry: () {},
               onAddWishlist: () {},
               onRemoveWishlist: () {},
               onEdit: (_) {},
@@ -213,10 +213,10 @@ void main() {
             home: LibraryDetailPage(
               type: type,
               item: bookItem,
-              collectionItemSummary: null,
+              libraryEntrySummary: null,
               accent: Colors.amber,
-              onAddOwned: () {},
-              onRemoveOwned: () {},
+              onAddEntry: () {},
+              onRemoveEntry: () {},
               onAddWishlist: () {},
               onRemoveWishlist: () {},
               onEdit: (_) {},
@@ -232,7 +232,7 @@ void main() {
   });
 
   group('detail page - no collection item', () {
-    testWidgets('renders catalog-only view without owned fields', (
+    testWidgets('renders catalog-only view without entry fields', (
       tester,
     ) async {
       final db = LocalDatabase(NativeDatabase.memory());
@@ -265,10 +265,10 @@ void main() {
             home: LibraryDetailPage(
               type: type,
               item: comicItem,
-              collectionItemSummary: null,
+              libraryEntrySummary: null,
               accent: Colors.purple,
-              onAddOwned: () {},
-              onRemoveOwned: () {},
+              onAddEntry: () {},
+              onRemoveEntry: () {},
               onAddWishlist: () {},
               onRemoveWishlist: () {},
               onEdit: (_) {},

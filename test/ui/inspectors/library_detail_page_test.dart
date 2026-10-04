@@ -1,5 +1,5 @@
 import 'package:collectarr_app/core/db/local_database.dart';
-import 'package:collectarr_app/core/models/collection_item_projection.dart';
+import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
@@ -9,7 +9,7 @@ import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/inspector/inspector_personal_details.dart';
 import 'package:collectarr_app/features/library/config/generic_library_workspace_projector.dart';
 import 'package:collectarr_app/features/library/kinds/book/workspace/book_workspace_projector.dart';
-import 'package:collectarr_app/features/library/kinds/book/data/book_owned_repository.dart';
+import 'package:collectarr_app/features/library/kinds/book/data/book_entry_repository.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_dense_controls.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
@@ -30,16 +30,16 @@ void main() {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
     final type = libraryKindRegistrationForKind(CatalogMediaKind.book);
-    await BookOwnedRepository(db).upsertAll([
-      testBookCollectionItemFrom(testCollectionItem(
-        id: 'owned-1',
+    await BookEntryRepository(db).upsertAll([
+      testBookLibraryEntryFrom(testLibraryEntry(
+        id: 'entry-1',
         itemId: 'book-1',
         kind: 'book',
         condition: 'Near Mint',
         updatedAt: DateTime.utc(2026, 5, 23, 10),
       )),
-      testBookCollectionItemFrom(testCollectionItem(
-        id: 'owned-2',
+      testBookLibraryEntryFrom(testLibraryEntry(
+        id: 'entry-2',
         itemId: 'book-1',
         kind: 'book',
         condition: 'Very Fine',
@@ -47,8 +47,8 @@ void main() {
       )),
     ]);
 
-    final owned = testCollectionItem(
-      id: 'owned-1',
+    final entry = testLibraryEntry(
+      id: 'entry-1',
       itemId: 'book-1',
       condition: 'Near Mint',
       updatedAt: DateTime.utc(2026, 5, 23, 10),
@@ -60,7 +60,7 @@ void main() {
         kind: 'book',
         title: 'The Return of the King',
       ).asShelfCatalogItem),
-      collectionItemSummary: testCollectionItemSummary(owned),
+      libraryEntrySummary: testLibraryEntrySummary(entry),
     );
     const node = LibraryCatalogItemNodeRef(catalogItemId: 'book-1');
     final dto = const BookWorkspaceProjector().project(
@@ -80,10 +80,10 @@ void main() {
           home: LibraryDetailPage(
             type: type,
             item: bookItem,
-            collectionItemSummary: testCollectionItemSummary(owned),
+            libraryEntrySummary: testLibraryEntrySummary(entry),
             accent: Colors.orange,
-            onAddOwned: () {},
-            onRemoveOwned: () {},
+            onAddEntry: () {},
+            onRemoveEntry: () {},
             onAddWishlist: () {},
             onRemoveWishlist: () {},
             onEdit: (_) {},
@@ -106,26 +106,26 @@ void main() {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
     final type = libraryKindRegistrationForKind(CatalogMediaKind.book);
-    await BookOwnedRepository(db).upsertAll([
-      testBookCollectionItemFrom(testCollectionItem(
-        id: 'owned-1',
+    await BookEntryRepository(db).upsertAll([
+      testBookLibraryEntryFrom(testLibraryEntry(
+        id: 'entry-1',
         itemId: 'book-1',
         kind: 'book',
         condition: 'Near Mint',
         updatedAt: DateTime.utc(2026, 5, 23, 10),
       )),
-      testBookCollectionItemFrom(testCollectionItem(
-        id: 'owned-2',
+      testBookLibraryEntryFrom(testLibraryEntry(
+        id: 'entry-2',
         itemId: 'book-1',
         kind: 'book',
         condition: 'Very Fine',
         updatedAt: DateTime.utc(2026, 5, 23, 11),
       )),
     ]);
-    CollectionItemSummary? editedCollectionItemSummary;
+    LibraryEntrySummary? editedLibraryEntrySummary;
 
-    final owned = testCollectionItem(
-      id: 'owned-1',
+    final entry = testLibraryEntry(
+      id: 'entry-1',
       itemId: 'book-1',
       condition: 'Near Mint',
       updatedAt: DateTime.utc(2026, 5, 23, 10),
@@ -137,7 +137,7 @@ void main() {
         kind: 'book',
         title: 'The Return of the King',
       ).asShelfCatalogItem),
-      collectionItemSummary: testCollectionItemSummary(owned),
+      libraryEntrySummary: testLibraryEntrySummary(entry),
     );
     const node = LibraryCatalogItemNodeRef(catalogItemId: 'book-1');
     final dto = const BookWorkspaceProjector().project(
@@ -159,12 +159,12 @@ void main() {
           home: LibraryDetailPage(
             type: type,
             item: bookItem,
-            collectionItemSummary: testCollectionItemSummary(owned),
-            ownedCopies: [
-              testCollectionItemSummary(owned),
-              testCollectionItemSummary(
-                testCollectionItem(
-                  id: 'owned-2',
+            libraryEntrySummary: testLibraryEntrySummary(entry),
+            entryCopies: [
+              testLibraryEntrySummary(entry),
+              testLibraryEntrySummary(
+                testLibraryEntry(
+                  id: 'entry-2',
                   itemId: 'book-1',
                   condition: 'Very Fine',
                   updatedAt: DateTime.utc(2026, 5, 23, 11),
@@ -172,11 +172,11 @@ void main() {
               ),
             ],
             accent: Colors.orange,
-            onAddOwned: () {},
-            onRemoveOwned: () {},
+            onAddEntry: () {},
+            onRemoveEntry: () {},
             onAddWishlist: () {},
             onRemoveWishlist: () {},
-            onEdit: (collectionItemSummary) => editedCollectionItemSummary = collectionItemSummary,
+            onEdit: (libraryEntrySummary) => editedLibraryEntrySummary = libraryEntrySummary,
           ),
         ),
       ),
@@ -198,7 +198,7 @@ void main() {
     await tester.tap(find.text('Edit').first);
     await tester.pump();
 
-    expect(editedCollectionItemSummary?.ref.id.value, 'owned-2');
+    expect(editedLibraryEntrySummary?.ref.id.value, 'entry-2');
   });
 
   testWidgets('detail page shows tracking editor for tracked-only items',
@@ -253,10 +253,10 @@ void main() {
           home: LibraryDetailPage(
             type: type,
             item: movieItem,
-            collectionItemSummary: null,
+            libraryEntrySummary: null,
             accent: Colors.orange,
-            onAddOwned: () {},
-            onRemoveOwned: () {},
+            onAddEntry: () {},
+            onRemoveEntry: () {},
             onAddWishlist: () {},
             onRemoveWishlist: () {},
             onEdit: (_) {},

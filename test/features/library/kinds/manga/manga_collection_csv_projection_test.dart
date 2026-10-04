@@ -50,7 +50,7 @@ void main() {
       '9784592132043',
     ]);
     expect(
-      profile.importOwnedCells(
+      profile.importEntryCells(
         header: const ['Media Type'],
         values: const ['Manga'],
       ),
@@ -76,8 +76,8 @@ void main() {
         releaseDate: DateTime.utc(1990, 11, 1),
         barcode: '9784592132043',
       )).asShelfCatalogItem),
-      collectionItemSummary: testCollectionItemSummary(testCollectionItem(
-        id: 'owned-1',
+      libraryEntrySummary: testLibraryEntrySummary(testLibraryEntry(
+        id: 'entry-1',
         itemId: 'manga-1',
         updatedAt: DateTime.utc(2026, 5, 15),
       )),
@@ -97,11 +97,11 @@ void main() {
       '9784592132043',
     ]);
     expect(
-      projection.ownedCellsBeforeLocation(entry, clzFriendly: false),
+      projection.entryCellsBeforeLocation(entry, clzFriendly: false),
       isEmpty,
     );
     expect(
-      projection.ownedCellsAfterIndex(entry, clzFriendly: false),
+      projection.entryCellsAfterIndex(entry, clzFriendly: false),
       everyElement(isEmpty),
     );
   });

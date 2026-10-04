@@ -14,7 +14,7 @@ void main() {
 
   LibraryEditPresentationContext contextFor(LibraryEntityScope scope) {
     return LibraryEditPresentationContext(
-      isOwned: true,
+      isEntry: true,
       isTrackingOnly: false,
       hasTrackingContext: true,
       hasWishlistContext: false,
@@ -41,7 +41,7 @@ void main() {
       'covers',
       'plot',
       'links',
-      'owned',
+      'entry',
     ]);
     expect(releaseTabs.map((tab) => tab.id).toList(), [
       'details',

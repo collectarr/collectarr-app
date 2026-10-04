@@ -32,7 +32,7 @@ void main() {
         contains('<Publisher>Marvel Comics</Publisher>'));
   });
 
-  test('ComicInfo XML serializes comic-owned metadata and personal state', () {
+  test('ComicInfo XML serializes comic-entry metadata and personal state', () {
     final metadata = ComicCatalogItem(
       title: 'Amazing Fantasy',
       seriesTitle: 'Amazing Fantasy',

@@ -16,8 +16,8 @@ void main() {
       (kind) => kind != CatalogMediaKind.unknown,
     )) {
       final catalogItemId = 'workspace-${kind.apiValue}';
-      final owned = testCollectionItem(
-        id: 'owned-${kind.apiValue}',
+      final entry = testLibraryEntry(
+        id: 'entry-${kind.apiValue}',
         itemId: catalogItemId,
         kind: kind.apiValue,
       );
@@ -42,7 +42,7 @@ void main() {
             ],
           ),
         ),
-        collectionItemSummary: testCollectionItemSummary(owned),
+        libraryEntrySummary: testLibraryEntrySummary(entry),
       );
       final workspace = libraryKindWorkspaceForKind(kind);
       if (kind == CatalogMediaKind.anime || kind == CatalogMediaKind.manga) {
@@ -62,16 +62,16 @@ void main() {
           title: 'Second release',
         ),
       );
-      final copyRef = LibraryCollectionItemNodeRef(
+      final copyRef = LibraryEntryNodeRef(
         catalogItemId: catalogItemId,
-        collectionItemRef: source.collectionItemSummary!.ref,
+        libraryEntryRef: source.libraryEntrySummary!.ref,
       );
 
       final releaseDto = workspace
           .projectorForScope(LibraryEntityScope.release)
           .project(source: source, entity: releaseRef);
       final copyDto = workspace
-          .projectorForScope(LibraryEntityScope.collectionItem)
+          .projectorForScope(LibraryEntityScope.libraryEntry)
           .project(source: source, entity: copyRef);
       final releaseProjection = _selectedRelease(releaseDto, releaseRef);
       final copyProjection = _selectedRelease(copyDto, copyRef);
@@ -112,12 +112,12 @@ void main() {
       );
       expect(
         () => workspace
-            .projectorForScope(LibraryEntityScope.collectionItem)
+            .projectorForScope(LibraryEntityScope.libraryEntry)
             .project(
                 source: source,
-                entity: LibraryCollectionItemNodeRef(
+                entity: LibraryEntryNodeRef(
                   catalogItemId: catalogItemId,
-                  collectionItemRef: source.collectionItemSummary!.ref,
+                  libraryEntryRef: source.libraryEntrySummary!.ref,
                 )),
         throwsStateError,
         reason:
@@ -134,13 +134,13 @@ void main() {
   if (dto case MusicCatalogItemWorkspaceDto(:final music)) {
     return (id: music.id.value, title: music.title);
   }
-  if (dto case MusicCollectionItemWorkspaceDto(:final music)) {
+  if (dto case MusicLibraryEntryWorkspaceDto(:final music)) {
     return (id: music.id.value, title: music.title);
   }
   final id = switch (node) {
     LibraryReleaseRef(:final releaseId) => releaseId,
-    LibraryCollectionItemNodeRef(:final collectionItemRef) =>
-      collectionItemRef.id.value,
+    LibraryEntryNodeRef(:final libraryEntryRef) =>
+      libraryEntryRef.id.value,
     _ => throw StateError('Unexpected workspace node: ${node.runtimeType}'),
   };
   return (id: id, title: dto.primaryLabel);

@@ -70,7 +70,7 @@ LibraryEditDialogRequest _bookEditRequest() {
       'kind': 'book',
       'title': 'The Return of the King',
     })),
-    collectionItem: null,
+    libraryEntry: null,
     accent: Colors.orange,
   );
 }

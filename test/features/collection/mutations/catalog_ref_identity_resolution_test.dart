@@ -5,11 +5,11 @@ import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_transport_repository.dart';
 import 'package:collectarr_app/features/catalog/catalog_display_summary_repository.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_common_draft.dart';
-import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_details_draft.dart';
+import 'package:collectarr_app/features/library/kinds/music/entries/music_entry_details_draft.dart';
 import 'package:collectarr_app/features/collection/events/collection_event_bus.dart';
-import 'package:collectarr_app/features/collection/mutations/collection_item_mutations.dart';
+import 'package:collectarr_app/features/collection/mutations/library_entry_mutations.dart';
 import 'package:collectarr_app/features/collection/mutations/wishlist_mutations.dart';
-import 'package:collectarr_app/features/library/ownership/collection_items_repository.dart';
+import 'package:collectarr_app/features/library/entries/library_entries_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/wishlist_items_cache_repository.dart';
 import 'package:collectarr_app/features/collection/runner/collection_mutation_runner.dart';
 import 'package:drift/native.dart';
@@ -21,7 +21,7 @@ void main() {
   late WishlistItemsCacheRepository wishlistRepo;
   late SyncQueueRepository syncQueue;
   late WishlistMutations wishlistMutations;
-  late CollectionItemMutations ownedMutations;
+  late LibraryEntryMutations entryMutations;
 
   setUp(() {
     db = LocalDatabase(NativeDatabase.memory());
@@ -39,8 +39,8 @@ void main() {
       mutationRunner: runner,
     );
 
-    ownedMutations = CollectionItemMutations(
-      collectionItems: CollectionItemsRepository(db),
+    entryMutations = LibraryEntryMutations(
+      libraryEntries: LibraryEntriesRepository(db),
       catalogSummaries: CatalogDisplaySummaryRepository(db),
       wishlist: wishlistRepo,
       syncQueue: syncQueue,
@@ -107,22 +107,22 @@ void main() {
     });
 
     test(
-        'addCollectionItem with missing catalog cache item uses command catalogRef kind and never defaults to comic',
+        'addLibraryEntry with missing catalog cache item uses command catalogRef kind and never defaults to comic',
         () async {
-      final owned = await ownedMutations.addCollectionItem(
-        typedAddCollectionItemCommand(
+      final entry = await entryMutations.addLibraryEntry(
+        typedAddLibraryEntryCommand(
           catalogRef: CatalogEntityRef(
             kind: CatalogMediaKind.music,
             entityType: CatalogEntityTypeId.catalogItem,
             id: 'music-album-1',
           ),
           common: LibraryAddCommonDraft(),
-          details: MusicOwnedDetailsDraft(),
+          details: MusicEntryDetailsDraft(),
         ),
       );
 
-      expect(owned.kind, CatalogMediaKind.music);
-      expect(owned.kind, isNot(CatalogMediaKind.comic));
+      expect(entry.kind, CatalogMediaKind.music);
+      expect(entry.kind, isNot(CatalogMediaKind.comic));
     });
   });
 }

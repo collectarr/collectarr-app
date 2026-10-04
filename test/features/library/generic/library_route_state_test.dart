@@ -22,7 +22,7 @@ void main() {
       bucketCompletionScope: LibraryBucketCompletionScope.completed,
       quickView: LibraryQuickView.missingMetadata,
       filterSelection: LibraryFilterSelection(
-        ownershipFilter: LibraryOwnershipFilter.owned,
+        entriesFilter: LibraryEntryPolicyFilter.entry,
         trackingStatusFilter: LibraryTrackingStatusFilter.completed,
         fieldValues: {'location': 'Shelf A'},
         missingMetadata: true,
@@ -66,7 +66,7 @@ void main() {
     );
     expect(parsed.quickView, LibraryQuickView.missingMetadata);
     expect(
-        parsed.filterSelection.ownershipFilter, LibraryOwnershipFilter.owned);
+        parsed.filterSelection.entriesFilter, LibraryEntryPolicyFilter.entry);
     expect(
       parsed.filterSelection.trackingStatusFilter,
       LibraryTrackingStatusFilter.completed,
@@ -109,9 +109,9 @@ void main() {
     final state = LibraryRouteState(
       kind: 'movie',
       searchQuery: 'alien',
-      quickView: LibraryQuickView.owned,
+      quickView: LibraryQuickView.entry,
       filterSelection: const LibraryFilterSelection(
-        ownershipFilter: LibraryOwnershipFilter.owned,
+        entriesFilter: LibraryEntryPolicyFilter.entry,
       ),
     );
 
@@ -138,13 +138,13 @@ void main() {
 
     expect(filtered.quickView, isNull);
     expect(
-        filtered.filterSelection.ownershipFilter, LibraryOwnershipFilter.all);
+        filtered.filterSelection.entriesFilter, LibraryEntryPolicyFilter.all);
     expect(filtered.filterSelection.fieldValue('grade'), isNull);
 
     final comicsFiltered = state.filteredForType(const ComicRegistration());
     expect(comicsFiltered.quickView, isNull);
-    expect(comicsFiltered.filterSelection.ownershipFilter,
-        LibraryOwnershipFilter.all);
+    expect(comicsFiltered.filterSelection.entriesFilter,
+        LibraryEntryPolicyFilter.all);
   });
 
   test('filtered route state resets series scope outside series grouping', () {

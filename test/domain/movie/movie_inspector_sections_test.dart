@@ -39,7 +39,7 @@ void main() {
     final request = LibraryInspectorRequest(
       type: const MovieRegistration(),
       item: item,
-      collectionItem: null,
+      libraryEntry: null,
       accent: Colors.green,
     );
 

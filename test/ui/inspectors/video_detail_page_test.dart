@@ -1,6 +1,6 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/money.dart';
-import 'package:collectarr_app/core/models/collection_item_projection.dart';
+import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
@@ -22,7 +22,7 @@ import '../../helpers/test_constants.dart';
 import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 
 void main() {
-  CollectionItemSummary movieCollectionItemSummary({
+  LibraryEntrySummary movieLibraryEntrySummary({
     required String id,
     required String itemId,
   }) {
@@ -32,10 +32,10 @@ void main() {
       id: 'edition-4k',
       rootId: itemId,
     );
-    return CollectionItemSummary(
-      ref: CollectionItemRef(
+    return LibraryEntrySummary(
+      ref: LibraryEntryRef(
         kind: CatalogMediaKind.movie,
-        id: CollectionItemId(id),
+        id: LibraryEntryId(id),
       ),
       title: 'Spirited Away',
       catalogRef: targetRef,
@@ -74,8 +74,8 @@ void main() {
           ),
         ],
       ).asShelfCatalogItem),
-      collectionItemSummary: movieCollectionItemSummary(
-        id: 'owned-1',
+      libraryEntrySummary: movieLibraryEntrySummary(
+        id: 'entry-1',
         itemId: 'movie-1',
       ),
     );
@@ -86,10 +86,10 @@ void main() {
     final request = LibraryDetailPageRequest(
       type: type,
       item: item,
-      collectionItemSummary: null,
+      libraryEntrySummary: null,
       accent: Colors.orange,
-      onAddOwned: () {},
-      onRemoveOwned: () {},
+      onAddEntry: () {},
+      onRemoveEntry: () {},
       onAddWishlist: () {},
       onRemoveWishlist: () {},
       onEdit: (_) {},
@@ -138,8 +138,8 @@ void main() {
         overrides: [
           collectionProvider.overrideWith(
             (ref) async => [
-              movieCollectionItemSummary(
-                id: 'owned-1',
+              movieLibraryEntrySummary(
+                id: 'entry-1',
                 itemId: 'movie-1',
               ),
             ],
@@ -219,10 +219,10 @@ void main() {
     final request = LibraryDetailPageRequest(
       type: type,
       item: item,
-      collectionItemSummary: null,
+      libraryEntrySummary: null,
       accent: Colors.orange,
-      onAddOwned: () {},
-      onRemoveOwned: () {},
+      onAddEntry: () {},
+      onRemoveEntry: () {},
       onAddWishlist: () {},
       onRemoveWishlist: () {},
       onEdit: (_) {},
@@ -270,7 +270,7 @@ void main() {
       ProviderScope(
         overrides: [
           collectionProvider.overrideWith(
-            (ref) async => const <CollectionItemSummary>[],
+            (ref) async => const <LibraryEntrySummary>[],
           ),
           wishlistProvider.overrideWith(
             (ref) async => [
@@ -324,10 +324,10 @@ void main() {
     final request = LibraryDetailPageRequest(
       type: type,
       item: item,
-      collectionItemSummary: null,
+      libraryEntrySummary: null,
       accent: Colors.orange,
-      onAddOwned: () {},
-      onRemoveOwned: () {},
+      onAddEntry: () {},
+      onRemoveEntry: () {},
       onAddWishlist: () {},
       onRemoveWishlist: () {},
       onEdit: (_) {},
@@ -375,7 +375,7 @@ void main() {
       ProviderScope(
         overrides: [
           collectionProvider.overrideWith(
-            (ref) async => const <CollectionItemSummary>[],
+            (ref) async => const <LibraryEntrySummary>[],
           ),
           wishlistProvider.overrideWith((ref) async => const <WishlistItem>[]),
           watchSessionsProvider.overrideWith(

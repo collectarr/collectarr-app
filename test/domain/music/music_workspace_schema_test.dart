@@ -1,10 +1,10 @@
 import 'package:collectarr_app/features/library/kinds/music/music_module.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/money.dart';
-import 'package:collectarr_app/core/models/collection_item_projection.dart';
+import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_ids.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_box_set_membership.dart';
-import 'package:collectarr_app/features/library/kinds/music/workspace/music_collection_item_workspace_schema.dart';
+import 'package:collectarr_app/features/library/kinds/music/workspace/music_library_entry_workspace_schema.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_catalog_item_workspace_schema.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_dto.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_album.dart';
@@ -36,7 +36,7 @@ void main() {
     expect(itemColumnIds, isNot(contains(MusicFieldIds.condition.value)));
     expect(itemGroupIds, isNot(contains(MusicGroupIds.condition.value)));
 
-    final copyFieldIds = _fieldIds(musicCollectionItemWorkspaceSchema.fields);
+    final copyFieldIds = _fieldIds(musicLibraryEntryWorkspaceSchema.fields);
     expect(copyFieldIds, contains(MusicFieldIds.condition.value));
     expect(copyFieldIds, contains(MusicFieldIds.grade.value));
     expect(copyFieldIds, contains(MusicFieldIds.location.value));
@@ -55,11 +55,11 @@ void main() {
       const LibraryCatalogItemNodeRef(catalogItemId: 'group-1'),
     );
     final copySchema = musicKindWorkspace.fieldsForNode(
-      const LibraryCollectionItemNodeRef(
+      const LibraryEntryNodeRef(
         catalogItemId: 'group-1',
-        collectionItemRef: CollectionItemRef(
+        libraryEntryRef: LibraryEntryRef(
           kind: CatalogMediaKind.music,
-          id: CollectionItemId('owned-1'),
+          id: LibraryEntryId('entry-1'),
         ),
       ),
     );

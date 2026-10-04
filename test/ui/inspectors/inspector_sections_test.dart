@@ -168,8 +168,8 @@ void main() {
             body: InspectorPersonalSection(
               type: const BookRegistration(),
               item: bookItem,
-              collectionItem: testCollectionItemSummary(testCollectionItem(
-                id: 'owned-1',
+              libraryEntry: testLibraryEntrySummary(testLibraryEntry(
+                id: 'entry-1',
                 itemId: 'book-1',
                 rating: 8,
                 readStatus: 'completed',
@@ -217,8 +217,8 @@ void main() {
             body: InspectorPersonalSection(
               type: const BookRegistration(),
               item: bookItem,
-              collectionItem: testCollectionItemSummary(testCollectionItem(
-                id: 'owned-1',
+              libraryEntry: testLibraryEntrySummary(testLibraryEntry(
+                id: 'entry-1',
                 itemId: 'book-1',
                 pricePaidCents: 1000,
                 currency: 'USD',
@@ -237,7 +237,7 @@ void main() {
       expect(find.text('Profit / Loss'), findsOneWidget);
     });
 
-    testWidgets('leaves kind-owned tags to the typed contributor',
+    testWidgets('leaves kind-entry tags to the typed contributor',
         (tester) async {
       final source2 = LibraryWorkspaceSource(
         itemId: 'book-1',
@@ -258,8 +258,8 @@ void main() {
             body: InspectorPersonalSection(
               type: const BookRegistration(),
               item: bookItem,
-              collectionItem: testCollectionItemSummary(testCollectionItem(
-                id: 'owned-1',
+              libraryEntry: testLibraryEntrySummary(testLibraryEntry(
+                id: 'entry-1',
                 itemId: 'book-1',
                 tags: 'sci-fi, classic',
                 updatedAt: DateTime.utc(2026, 5, 22),

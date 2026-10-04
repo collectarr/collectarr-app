@@ -23,7 +23,7 @@ void main() {
               onTransferFieldData: null,
               onBulkUpdateValues: null,
               onBulkUpdateKeyInfo: null,
-              onBulkMoveToOwned: () {},
+              onBulkMoveToEntry: () {},
               onBulkMoveToWishlist: () {},
               onBulkRemove: () {
                 showDialog<void>(

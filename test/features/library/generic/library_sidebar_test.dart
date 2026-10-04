@@ -191,12 +191,12 @@ void main() {
                       LibraryBucket(
                         title: 'Batman',
                         count: 10,
-                        ownedCount: 10,
+                        entryCount: 10,
                       ),
                       LibraryBucket(
                         title: 'Spawn',
                         count: 10,
-                        ownedCount: 6,
+                        entryCount: 6,
                       ),
                       LibraryBucket(title: 'Sandman', count: 5),
                     ],

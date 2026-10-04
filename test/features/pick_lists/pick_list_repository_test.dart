@@ -1,10 +1,10 @@
 import 'package:collectarr_app/core/db/local_database.dart';
-import 'package:collectarr_app/core/models/collection_item_ref.dart';
+import 'package:collectarr_app/core/models/library_entry_ref.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_transport_repository.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/features/library/kinds/comic/data/comic_owned_repository.dart';
+import 'package:collectarr_app/features/library/kinds/comic/data/comic_entry_repository.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_ids.dart';
-import 'package:collectarr_app/features/library/kinds/comic/domain/comic_collection_item.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_library_entry.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_pick_list_contributors.dart';
 import 'package:collectarr_app/features/pick_lists/pick_list_merge_service.dart';
 import 'package:collectarr_app/features/pick_lists/pick_list_repository.dart';
@@ -93,12 +93,12 @@ void main() {
             sortOrder: const Value(0),
           ),
         );
-    await ComicOwnedRepository(db).upsert(
-      ComicCollectionItem(
-        id: CollectionItemId('owned-1'),
+    await ComicEntryRepository(db).upsert(
+      ComicLibraryEntry(
+        id: LibraryEntryId('entry-1'),
         catalogRef: CatalogEntityRef(
           kind: CatalogMediaKind.comic,
-          entityType: const CatalogEntityTypeId('collection_item'),
+          entityType: const CatalogEntityTypeId('library_entry'),
           id: 'item-1',
         ),
         condition: 'Near Mint',
@@ -151,13 +151,13 @@ void main() {
     expect(counts['publisher-1'], 1);
   });
 
-  test('owned value merge dispatches to the typed kind repository', () async {
-    await ComicOwnedRepository(db).upsert(
-      ComicCollectionItem(
-        id: const CollectionItemId('owned-merge-1'),
+  test('entry value merge dispatches to the typed kind repository', () async {
+    await ComicEntryRepository(db).upsert(
+      ComicLibraryEntry(
+        id: const LibraryEntryId('entry-merge-1'),
         catalogRef: const CatalogEntityRef(
           kind: CatalogMediaKind.comic,
-          entityType: CatalogEntityTypeId('collection_item'),
+          entityType: CatalogEntityTypeId('library_entry'),
           id: 'item-merge-1',
         ),
         condition: 'Near Mint',
@@ -180,8 +180,8 @@ void main() {
     await service.applyMerge(preview);
 
     expect(
-      (await ComicOwnedRepository(db)
-              .findById(const CollectionItemId('owned-merge-1')))
+      (await ComicEntryRepository(db)
+              .findById(const LibraryEntryId('entry-merge-1')))
           ?.condition,
       'Fine',
     );

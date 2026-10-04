@@ -79,8 +79,8 @@ void main() {
         'comic.location',
       );
       expect(
-        libraryGroupModeFromStorageValue('ownership', comicModule),
-        'ownership',
+        libraryGroupModeFromStorageValue('entries', comicModule),
+        'entries',
       );
     });
 

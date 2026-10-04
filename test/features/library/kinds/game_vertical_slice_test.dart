@@ -126,8 +126,8 @@ void main() {
           ),
           kindData: gameMeta,
         ).asShelfCatalogItem),
-        collectionItemSummary: testCollectionItemSummary(testCollectionItem(
-          id: 'owned_1',
+        libraryEntrySummary: testLibraryEntrySummary(testLibraryEntry(
+          id: 'entry_1',
           catalogRef: const CatalogEntityRef(
             id: 'game_1',
             kind: CatalogMediaKind.game,

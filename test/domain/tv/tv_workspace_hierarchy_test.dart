@@ -13,7 +13,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 
 void main() {
-  test('projects a TV snapshot into the TV-owned workspace graph', () {
+  test('projects a TV snapshot into the TV-entry workspace graph', () {
     final metadata = TvSeriesMetadata(
       title: 'The Expanse',
       firstAirDate: DateTime.utc(2015, 12, 14),
@@ -49,7 +49,7 @@ void main() {
         ),
         kindData: metadata,
       ).asShelfCatalogItem),
-      collectionItemSummary: null,
+      libraryEntrySummary: null,
     );
 
     final dto = const TvWorkspaceProjector().project(

@@ -12,9 +12,9 @@ import 'package:collectarr_app/features/library/add/models/library_add_target.da
 import 'package:collectarr_app/features/library/add/models/library_add_common_draft.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_kind_draft.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_tracking_draft.dart';
-import 'package:collectarr_app/features/library/kinds/comic/data/comic_owned_repository.dart';
+import 'package:collectarr_app/features/library/kinds/comic/data/comic_entry_repository.dart';
 import 'package:collectarr_app/features/library/kinds/comic/add/comic_add_draft.dart';
-import 'package:collectarr_app/features/library/kinds/movie/data/movie_owned_repository.dart';
+import 'package:collectarr_app/features/library/kinds/movie/data/movie_entry_repository.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:drift/drift.dart' show Value;
 import 'package:drift/native.dart';
@@ -30,7 +30,7 @@ void main() {
     SharedPreferences.setMockInitialValues({});
   });
 
-  test('adds metadata results to owned collection with default details',
+  test('adds metadata results to entry collection with default details',
       () async {
     final fixture = _WorkflowFixture();
     addTearDown(fixture.dispose);
@@ -45,11 +45,11 @@ void main() {
 
     await addLibraryItemsToTarget(
       catalog: fixture.catalog,
-      ownedMutations: fixture.ownedMutations,
+      entryMutations: fixture.entryMutations,
       wishlistMutations: fixture.wishlistMutations,
       trackingMutations: fixture.trackingMutations,
       items: [_comic('comic-1')],
-      target: LibraryAddTarget.owned,
+      target: LibraryAddTarget.entry,
       defaults: LibraryAddDefaults(
         condition: 'Very Fine',
         purchaseDate: DateTime.utc(2024, 5, 1),
@@ -67,20 +67,20 @@ void main() {
     );
 
     final catalogRows = await CatalogSnapshotRepository(fixture.db).findAll();
-    final ownedRows = await ComicOwnedRepository(fixture.db).listActive();
+    final entryRows = await ComicEntryRepository(fixture.db).listActive();
     final trackingRows = await readTrackingStates(fixture.db);
     final syncRows = await fixture.db.select(fixture.db.syncQueue).get();
 
     expect(catalogRows.single.id, 'comic-1');
-    expect(ownedRows.single.itemId, 'comic-1');
-    expect(ownedRows.single.condition, 'Very Fine');
-    expect(ownedRows.single.grade, '9.2');
-    expect(ownedRows.single.purchaseDate?.toUtc(), DateTime.utc(2024, 5, 1));
-    expect(ownedRows.single.locationId, 'loc-1');
-    expect(ownedRows.single.tags, 'favorite,dc');
+    expect(entryRows.single.itemId, 'comic-1');
+    expect(entryRows.single.condition, 'Very Fine');
+    expect(entryRows.single.grade, '9.2');
+    expect(entryRows.single.purchaseDate?.toUtc(), DateTime.utc(2024, 5, 1));
+    expect(entryRows.single.locationId, 'loc-1');
+    expect(entryRows.single.tags, 'favorite,dc');
     expect(trackingRows.single.catalogRef.id, 'comic-1');
     expect(trackingRows.single.statusStorageValue, 'Completed');
-    expect(syncRows.map((row) => row.entityType), contains('collection_item'));
+    expect(syncRows.map((row) => row.entityType), contains('library_entry'));
     expect(syncRows.map((row) => row.entityType), contains('tracking_entry'));
     expect(
       syncRows.map((row) => row.entityType),
@@ -88,13 +88,13 @@ void main() {
     );
   });
 
-  test('adds metadata results to wishlist without owned defaults', () async {
+  test('adds metadata results to wishlist without entry defaults', () async {
     final fixture = _WorkflowFixture();
     addTearDown(fixture.dispose);
 
     await addLibraryItemsToTarget(
       catalog: fixture.catalog,
-      ownedMutations: fixture.ownedMutations,
+      entryMutations: fixture.entryMutations,
       wishlistMutations: fixture.wishlistMutations,
       trackingMutations: fixture.trackingMutations,
       items: [_comic('comic-2')],
@@ -107,7 +107,7 @@ void main() {
 
     final wishlistRows =
         await fixture.db.select(fixture.db.wishlistItemsCache).get();
-    final ownedRows = await ComicOwnedRepository(fixture.db).listActive();
+    final entryRows = await ComicEntryRepository(fixture.db).listActive();
     final syncRows = await fixture.db.select(fixture.db.syncQueue).get();
 
     expect(
@@ -116,7 +116,7 @@ void main() {
       ).id,
       'comic-2',
     );
-    expect(ownedRows, isEmpty);
+    expect(entryRows, isEmpty);
     expect(syncRows.map((row) => row.entityType), contains('wishlist_item'));
     expect(
       syncRows.map((row) => row.entityType),
@@ -138,11 +138,11 @@ void main() {
 
     await addLibraryItemsToTarget(
       catalog: fixture.catalog,
-      ownedMutations: fixture.ownedMutations,
+      entryMutations: fixture.entryMutations,
       wishlistMutations: fixture.wishlistMutations,
       trackingMutations: fixture.trackingMutations,
       items: [_digitalMovie('movie-digital-1')],
-      target: LibraryAddTarget.owned,
+      target: LibraryAddTarget.entry,
       defaults: LibraryAddDefaults(
         condition: 'Mint',
         locationId: 'loc-digital',
@@ -150,13 +150,13 @@ void main() {
       ),
     );
 
-    final ownedRows = await MovieOwnedRepository(fixture.db).listActive();
+    final entryRows = await MovieEntryRepository(fixture.db).listActive();
 
-    expect(ownedRows.single.itemId, 'movie-digital-1');
-    expect(ownedRows.single.isDigital, isTrue);
-    expect(ownedRows.single.condition, isNull);
-    expect(ownedRows.single.grade, isNull);
-    expect(ownedRows.single.locationId, isNull);
+    expect(entryRows.single.itemId, 'movie-digital-1');
+    expect(entryRows.single.isDigital, isTrue);
+    expect(entryRows.single.condition, isNull);
+    expect(entryRows.single.grade, isNull);
+    expect(entryRows.single.locationId, isNull);
   });
 
   test('adds tracking-only entry when target is track', () async {
@@ -165,7 +165,7 @@ void main() {
 
     await addLibraryItemsToTarget(
       catalog: fixture.catalog,
-      ownedMutations: fixture.ownedMutations,
+      entryMutations: fixture.entryMutations,
       wishlistMutations: fixture.wishlistMutations,
       trackingMutations: fixture.trackingMutations,
       items: [_comic('comic-track-1')],
@@ -173,12 +173,12 @@ void main() {
       defaults: const LibraryAddDefaults(readStatus: 'reading'),
     );
 
-    final ownedRows = await ComicOwnedRepository(fixture.db).listActive();
+    final entryRows = await ComicEntryRepository(fixture.db).listActive();
     final wishlistRows =
         await fixture.db.select(fixture.db.wishlistItemsCache).get();
     final trackingRows = await readTrackingStates(fixture.db);
 
-    expect(ownedRows, isEmpty);
+    expect(entryRows, isEmpty);
     expect(wishlistRows, isEmpty);
     expect(trackingRows.single.catalogRef.id, 'comic-track-1');
     expect(trackingRows.single.statusStorageValue, 'In progress');
@@ -191,7 +191,7 @@ void main() {
 
     await addLibraryItemsToTarget(
       catalog: fixture.catalog,
-      ownedMutations: fixture.ownedMutations,
+      entryMutations: fixture.entryMutations,
       wishlistMutations: fixture.wishlistMutations,
       trackingMutations: fixture.trackingMutations,
       items: [_comic('comic-track-empty-1')],
@@ -199,12 +199,12 @@ void main() {
       defaults: const LibraryAddDefaults(),
     );
 
-    final ownedRows = await ComicOwnedRepository(fixture.db).listActive();
+    final entryRows = await ComicEntryRepository(fixture.db).listActive();
     final wishlistRows =
         await fixture.db.select(fixture.db.wishlistItemsCache).get();
     final trackingRows = await readTrackingStates(fixture.db);
 
-    expect(ownedRows, isEmpty);
+    expect(entryRows, isEmpty);
     expect(wishlistRows, isEmpty);
     expect(trackingRows.single.catalogRef.id, 'comic-track-empty-1');
     expect(trackingRows.single.statusStorageValue, isNull);
@@ -213,7 +213,7 @@ void main() {
 
 Future<void> addLibraryItemsToTarget({
   required CatalogTransportRepository catalog,
-  required CollectionItemMutations ownedMutations,
+  required LibraryEntryMutations entryMutations,
   required WishlistMutations wishlistMutations,
   required TrackingMutations trackingMutations,
   required Iterable<CatalogSearchCandidate> items,
@@ -227,7 +227,7 @@ Future<void> addLibraryItemsToTarget({
     LibraryAddBatchRequest(
       dependencies: LibraryAddMutationDependencies(
         catalog: catalog,
-        ownedMutations: ownedMutations,
+        entryMutations: entryMutations,
         wishlistMutations: wishlistMutations,
         trackingMutations: trackingMutations,
       ),
@@ -254,8 +254,8 @@ class _WorkflowFixture {
 
   CatalogTransportRepository get catalog => CatalogTransportRepository(db);
 
-  CollectionItemMutations get ownedMutations => container.read(
-        collectionItemMutationsProvider,
+  LibraryEntryMutations get entryMutations => container.read(
+        libraryEntryMutationsProvider,
       );
 
   WishlistMutations get wishlistMutations => container.read(

@@ -106,7 +106,7 @@ void main() {
       sanitizeLibraryPinnedColumnFavoriteKeys(
         registration,
         {
-          'builtin:ownership',
+          'builtin:entries',
           'builtin:value',
           'builtin:essential',
           'saved:my_columns'

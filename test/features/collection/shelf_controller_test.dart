@@ -7,17 +7,17 @@ import 'package:collectarr_app/core/models/watch_session.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/money.dart';
-import 'package:collectarr_app/core/models/collection_item_projection.dart';
+import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 
 void main() {
-  test('shelf state combines owned and wishlist records', () {
+  test('shelf state combines entry and wishlist records', () {
     final state = ShelfState.from(
-      ownedSummaries: [
-        testCollectionItemSummary(testCollectionItem(
-          id: 'owned-1',
+      entrySummaries: [
+        testLibraryEntrySummary(testLibraryEntry(
+          id: 'entry-1',
           itemId: 'comic-1',
           condition: 'Near Mint',
           grade: '9.8',
@@ -26,8 +26,8 @@ void main() {
           currency: 'USD',
           updatedAt: DateTime.utc(2026, 5, 11),
         )),
-        testCollectionItemSummary(testCollectionItem(
-          id: 'owned-2',
+        testLibraryEntrySummary(testLibraryEntry(
+          id: 'entry-2',
           itemId: 'comic-2',
           condition: 'Fine',
           pricePaidCents: 800,
@@ -66,16 +66,16 @@ void main() {
           itemNumber: '1',
         ).asShelfCatalogSummary,
       },
-      itemImagesByCollectionItem: {
-        CollectionItemRef(
+      itemImagesByLibraryEntry: {
+        LibraryEntryRef(
           kind: CatalogMediaKind.comic,
-          id: CollectionItemId('owned-1'),
+          id: LibraryEntryId('entry-1'),
         ): [
           ItemImage(
             id: 'img-1',
-            collectionItemRef: CollectionItemRef(
+            libraryEntryRef: LibraryEntryRef(
               kind: CatalogMediaKind.comic,
-              id: CollectionItemId('owned-1'),
+              id: LibraryEntryId('entry-1'),
             ),
             imageType: 'back_cover',
             imageData: Uint8List.fromList('data'.codeUnits),
@@ -85,7 +85,7 @@ void main() {
       },
     );
 
-    expect(state.ownedCount, 2);
+    expect(state.entryCount, 2);
     expect(state.wishlistCount, 1);
     expect(state.totalPaidCents, 2000);
     expect(state.primaryCurrency, 'USD');
@@ -98,10 +98,10 @@ void main() {
 
   test('shelf keeps each copy as a separate entry for one catalog item', () {
     final state = ShelfState.from(
-      ownedSummaries: [
-        testCollectionItemSummary(testCollectionItem(
-          id: 'owned-1',
-          itemId: 'owned-1',
+      entrySummaries: [
+        testLibraryEntrySummary(testLibraryEntry(
+          id: 'entry-1',
+          itemId: 'entry-1',
           catalogRef: const CatalogEntityRef(
             kind: CatalogMediaKind.book,
             entityType: CatalogEntityTypeId.catalogItem,
@@ -109,8 +109,8 @@ void main() {
           ),
           updatedAt: DateTime.utc(2026, 5, 11),
         )),
-        testCollectionItemSummary(testCollectionItem(
-          id: 'owned-2',
+        testLibraryEntrySummary(testLibraryEntry(
+          id: 'entry-2',
           itemId: 'book-1',
           catalogRef: const CatalogEntityRef(
             kind: CatalogMediaKind.book,
@@ -161,11 +161,11 @@ void main() {
     expect(state.entries.map((entry) => entry.itemId), everyElement('book-1'));
     expect(state.entries.map((entry) => entry.title),
         everyElement('Catalog keyed by ref'));
-    expect(state.entries.map((entry) => entry.collectionItemRef?.id.value).toSet(), {
-      'owned-1',
-      'owned-2',
+    expect(state.entries.map((entry) => entry.libraryEntryRef?.id.value).toSet(), {
+      'entry-1',
+      'entry-2',
     });
-    expect(state.ownedCount, 2);
+    expect(state.entryCount, 2);
     expect(state.wishlistCount, 1);
   });
 
@@ -181,19 +181,19 @@ void main() {
       id: 'shared-id',
     );
     final state = ShelfState.from(
-      ownedSummaries: [
-        const CollectionItemSummary(
-          ref: CollectionItemRef(
+      entrySummaries: [
+        const LibraryEntrySummary(
+          ref: LibraryEntryRef(
             kind: CatalogMediaKind.book,
-            id: CollectionItemId('book-copy'),
+            id: LibraryEntryId('book-copy'),
           ),
           title: 'Book copy',
           catalogRef: bookRef,
         ),
-        const CollectionItemSummary(
-          ref: CollectionItemRef(
+        const LibraryEntrySummary(
+          ref: LibraryEntryRef(
             kind: CatalogMediaKind.comic,
-            id: CollectionItemId('comic-copy'),
+            id: LibraryEntryId('comic-copy'),
           ),
           title: 'Comic copy',
           catalogRef: comicRef,
@@ -202,7 +202,7 @@ void main() {
       wishlistItems: const [],
     );
 
-    expect(state.ownedCount, 2);
+    expect(state.entryCount, 2);
     expect(
         state.entries.map((entry) => entry.catalogRef?.kind),
         containsAll(<CatalogMediaKind>[

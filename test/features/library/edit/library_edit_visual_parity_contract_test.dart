@@ -9,7 +9,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 const _editContexts = <LibraryEditPresentationContext>[
   LibraryEditPresentationContext(
-    isOwned: true,
+    isEntry: true,
     isTrackingOnly: false,
     hasTrackingContext: true,
     hasWishlistContext: true,
@@ -19,7 +19,7 @@ const _editContexts = <LibraryEditPresentationContext>[
     scope: LibraryEntityScope.catalogItem,
   ),
   LibraryEditPresentationContext(
-    isOwned: false,
+    isEntry: false,
     isTrackingOnly: true,
     hasTrackingContext: true,
     hasWishlistContext: false,
@@ -29,7 +29,7 @@ const _editContexts = <LibraryEditPresentationContext>[
     scope: LibraryEntityScope.catalogItem,
   ),
   LibraryEditPresentationContext(
-    isOwned: false,
+    isEntry: false,
     isTrackingOnly: false,
     hasTrackingContext: false,
     hasWishlistContext: false,

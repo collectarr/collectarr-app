@@ -1,0 +1,38 @@
+import 'package:collectarr_app/features/library/metadata/library_field_entries.dart';
+import 'package:collectarr_app/features/library/metadata/shared_metadata_editing_contract.dart';
+import 'package:flutter_test/flutter_test.dart';
+
+void main() {
+  test('canonical metadata and personal library fields stay disjoint', () {
+    final canonicalKeys = kCanonicalMetadataFieldKeys.toSet();
+    final personalKeys =
+        kUniversalPersonalLibraryFields.map((field) => field.key).toSet();
+
+    expect(canonicalKeys.intersection(personalKeys), isEmpty);
+    expect(personalKeys, contains('collection_status'));
+    expect(personalKeys, contains('owner_label'));
+    expect(personalKeys, contains('front_cover'));
+    expect(personalKeys, contains('back_cover'));
+    expect(personalKeys, isNot(contains('season_number')));
+    expect(personalKeys, isNot(contains('episode_number')));
+    expect(personalKeys, isNot(contains('episode_ratings')));
+  });
+
+  test('syncable personal fields are entry by the app', () {
+    final canonicalKeys = kCanonicalMetadataFieldKeys.toSet();
+    final personalKeys =
+        kUniversalPersonalLibraryFields.map((field) => field.key).toSet();
+    final syncableKeys = kUniversalPersonalLibraryFields
+        .where((field) => field.syncable)
+        .map((field) => field.key)
+        .toSet();
+
+    expect(syncableKeys.difference(personalKeys), isEmpty);
+    expect(syncableKeys.intersection(canonicalKeys), isEmpty);
+    expect(syncableKeys, contains('condition'));
+    expect(syncableKeys, contains('rating'));
+    expect(syncableKeys, contains('personal_notes'));
+    expect(syncableKeys, contains('front_cover'));
+    expect(syncableKeys, contains('back_cover'));
+  });
+}

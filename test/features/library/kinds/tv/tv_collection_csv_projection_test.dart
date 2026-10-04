@@ -50,7 +50,7 @@ void main() {
       '024543123456',
     ]);
     expect(
-      profile.importOwnedCells(
+      profile.importEntryCells(
         header: const ['Media Type'],
         values: const ['TV'],
       ),
@@ -75,8 +75,8 @@ void main() {
         physicalFormat: '4k-uhd',
         physicalFormatLabel: '4K UHD',
       )).asShelfCatalogItem),
-      collectionItemSummary: testCollectionItemSummary(testCollectionItem(
-        id: 'owned-1',
+      libraryEntrySummary: testLibraryEntrySummary(testLibraryEntry(
+        id: 'entry-1',
         itemId: 'tv-1',
         updatedAt: DateTime.utc(2026, 5, 15),
       )),
@@ -96,7 +96,7 @@ void main() {
       '024543123456',
     ]);
     expect(
-      projection.ownedCellsAfterIndex(entry, clzFriendly: true),
+      projection.entryCellsAfterIndex(entry, clzFriendly: true),
       hasLength(8),
     );
   });

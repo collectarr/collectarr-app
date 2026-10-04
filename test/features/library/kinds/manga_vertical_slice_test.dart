@@ -1,11 +1,11 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/collection_item_ref.dart';
-import 'package:collectarr_app/features/library/kinds/manga/ownership/manga_owned_details.dart';
-import 'package:collectarr_app/features/library/kinds/manga/ownership/manga_owned_details_draft.dart';
+import 'package:collectarr_app/core/models/library_entry_ref.dart';
+import 'package:collectarr_app/features/library/kinds/manga/entries/manga_entry_details.dart';
+import 'package:collectarr_app/features/library/kinds/manga/entries/manga_entry_details_draft.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/edit/draft/text_controller_group.dart';
 import 'package:collectarr_app/features/library/kinds/manga/domain/manga_metadata.dart';
-import 'package:collectarr_app/features/library/kinds/manga/domain/manga_collection_item.dart';
+import 'package:collectarr_app/features/library/kinds/manga/domain/manga_library_entry.dart';
 import 'package:collectarr_app/features/library/kinds/manga/domain/manga_ids.dart';
 import 'package:collectarr_app/features/library/kinds/manga/edit/manga_edit_draft.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
@@ -67,8 +67,8 @@ void main() {
       expect(restored.translator, 'Amanda Haley');
     });
 
-    test('MangaOwnedDetails serializes and deserializes collector fields', () {
-      const owned = MangaOwnedDetails(
+    test('MangaEntryDetails serializes and deserializes collector fields', () {
+      const entry = MangaEntryDetails(
         signedBy: 'Kanehito Yamada',
         obiStripPresent: true,
         slipcoverPresent: true,
@@ -80,8 +80,8 @@ void main() {
         localizedEdition: 'VIZ Signature',
       );
 
-      final json = owned.toJson();
-      final restored = MangaOwnedDetails.fromJson(json);
+      final json = entry.toJson();
+      final restored = MangaEntryDetails.fromJson(json);
 
       expect(restored.signedBy, 'Kanehito Yamada');
       expect(restored.obiStripPresent, isTrue);
@@ -94,7 +94,7 @@ void main() {
       expect(restored.localizedEdition, 'VIZ Signature');
     });
 
-    test('MangaWorkspaceProjector projects metadata and ownedDetails', () {
+    test('MangaWorkspaceProjector projects metadata and entryDetails', () {
       const mangaMeta = MangaMetadata(
         nativeTitle: 'è‘¬é€ã®ãƒ•ãƒªãƒ¼ãƒ¬ãƒ³',
         romajiTitle: 'Sousou no Frieren',
@@ -105,8 +105,8 @@ void main() {
         localizedPublisher: 'VIZ Media',
       );
 
-      final owned = testCollectionItem(
-        id: 'owned_1',
+      final entry = testLibraryEntry(
+        id: 'entry_1',
         catalogRef: const CatalogEntityRef(
           id: 'manga_1',
           kind: CatalogMediaKind.manga,
@@ -125,9 +125,9 @@ void main() {
           ),
           kindData: mangaMeta,
         ).asShelfCatalogItem),
-        collectionItemSummary: testCollectionItemSummary(owned),
-        collectionItemDispatch: testMangaCollectionItemDispatchFrom(
-          MangaCollectionItem.fromJson(owned.toJson()),
+        libraryEntrySummary: testLibraryEntrySummary(entry),
+        libraryEntryDispatch: testMangaLibraryEntryDispatchFrom(
+          MangaLibraryEntry.fromJson(entry.toJson()),
         ),
       );
 
@@ -143,8 +143,8 @@ void main() {
       expect(dto.metadata?.nativeTitle, 'è‘¬é€ã®ãƒ•ãƒªãƒ¼ãƒ¬ãƒ³');
       expect(dto.metadata?.demographic, MangaDemographic.shonen);
       expect(dto.metadata?.totalVolumes, 13);
-      expect(dto.ownedDetails?.obiStripPresent, isTrue);
-      expect(dto.ownedDetails?.printing, '1st Print');
+      expect(dto.entryDetails?.obiStripPresent, isTrue);
+      expect(dto.entryDetails?.printing, '1st Print');
 
       // Test field projection
       final ctx = LibraryProjectionContext<MangaWorkspaceDto>(
@@ -175,7 +175,7 @@ void main() {
       );
     });
 
-    test('MangaEditDraft builds complete MangaOwnedDetailsDraft', () {
+    test('MangaEditDraft builds complete MangaEntryDetailsDraft', () {
       final textControllers = TextControllerGroup();
       final metaItem = CatalogSearchCandidate.fromItem(
         CatalogItemDto.raw(
@@ -195,16 +195,16 @@ void main() {
 
       final bundle = createMangaEditDraft(
         item: metaItem,
-        collectionItemDispatch: testMangaCollectionItemDispatchFrom(
-          MangaCollectionItem(
-            id: const CollectionItemId('owned_1'),
+        libraryEntryDispatch: testMangaLibraryEntryDispatchFrom(
+          MangaLibraryEntry(
+            id: const LibraryEntryId('entry_1'),
             catalogRef: const CatalogEntityRef(
               id: 'manga_1',
               kind: CatalogMediaKind.manga,
               entityType: CatalogEntityTypeId.catalogItem,
             ),
             updatedAt: DateTime.now(),
-            details: const MangaOwnedDetails(
+            details: const MangaEntryDetails(
               obiStripPresent: true,
               slipcoverPresent: true,
               printing: '1st Print',
@@ -221,7 +221,7 @@ void main() {
       expect(draft.printing, '1st Print');
       expect(draft.localizedEdition, 'VIZ Signature');
 
-      final detailsDraft = draft.toDetailsDraft() as MangaOwnedDetailsDraft;
+      final detailsDraft = draft.toDetailsDraft() as MangaEntryDetailsDraft;
       final savedDetails = detailsDraft.toDetails();
 
       expect(savedDetails.obiStripPresent, isTrue);

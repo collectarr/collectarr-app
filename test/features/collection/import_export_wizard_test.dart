@@ -35,8 +35,8 @@ void main() {
                     publisher: 'Marvel Comics',
                     releaseDate: DateTime.utc(2005, 7, 1),
                   ).asShelfCatalogItem),
-                  collectionItemSummary: testCollectionItemSummary(testCollectionItem(
-                    id: 'owned-1',
+                  libraryEntrySummary: testLibraryEntrySummary(testLibraryEntry(
+                    id: 'entry-1',
                     itemId: 'comic-1',
                     updatedAt: DateTime.utc(2026, 5, 24),
                   )),

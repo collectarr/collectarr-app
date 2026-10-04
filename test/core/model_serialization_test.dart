@@ -7,7 +7,7 @@ import 'package:collectarr_app/core/models/smart_list.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/library/generic/filter_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/comic/comic_domain.dart';
-import 'package:collectarr_app/features/library/kinds/book/domain/book_collection_item.dart';
+import 'package:collectarr_app/features/library/kinds/book/domain/book_library_entry.dart';
 import 'package:collectarr_app/features/library/kinds/music/music_domain.dart';
 import 'package:collectarr_app/features/library/kinds/music/data/remote/catalog_music_item_dto.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_models.dart';
@@ -167,27 +167,27 @@ void main() {
       entityType: const CatalogEntityTypeId('edition'),
       id: 'edition-1',
     );
-    final owned = testCollectionItem(
-      id: 'owned-1',
+    final entry = testLibraryEntry(
+      id: 'entry-1',
       itemId: 'book-1',
       catalogRef: ref,
       updatedAt: DateTime.utc(2026, 7, 2),
     );
     final customValue = CustomFieldValue(
       id: 'cf-1',
-      targetId: owned.ref.key,
-      targetScope: CustomFieldTargetScope.collectionItem,
+      targetId: entry.ref.key,
+      targetScope: CustomFieldTargetScope.libraryEntry,
       catalogRef: ref,
       fieldDefinitionId: 'field-1',
       value: 'Shelf A',
       updatedAt: DateTime.utc(2026, 7, 2),
     );
 
-    expect(owned.toSyncPayload()['catalog_ref'], ref.toJson());
+    expect(entry.toSyncPayload()['catalog_ref'], ref.toJson());
     expect(customValue.toSyncPayload()['catalog_ref'], ref.toJson());
     expect(
-      BookCollectionItem.fromJson({
-        'id': 'owned-1',
+      BookLibraryEntry.fromJson({
+        'id': 'entry-1',
         'catalog_ref': ref.toJson(),
         'updated_at': '2026-07-02T00:00:00.000Z',
       }).catalogRef.id,
@@ -218,7 +218,7 @@ void main() {
       () {
     final loan = Loan.fromJson({
       'id': 'loan-1',
-      'collection_item_ref': {'kind': 'book', 'id': 'owned-1'},
+      'library_entry_ref': {'kind': 'book', 'id': 'entry-1'},
       'borrower_name': 'Alex',
       'lent_date': '2026-05-01',
       'due_date': 'not-a-date',
@@ -231,7 +231,7 @@ void main() {
     expect(
       () => Loan.fromJson({
         'id': 'loan-2',
-        'collection_item_ref': {'kind': 'book', 'id': 'owned-2'},
+        'library_entry_ref': {'kind': 'book', 'id': 'entry-2'},
         'borrower_name': 'Jamie',
         'lent_date': 'invalid-date',
       }),
@@ -243,19 +243,19 @@ void main() {
     final smartList = SmartList.fromRow(
       'smart-1',
       'Movies',
-      '{"schema_version":1,"entity_type":"catalog_item","quick_view":"unknown_view","sort_column":"unknown_sort","filter":{"ownership":"unknown"}}',
+      '{"schema_version":1,"entity_type":"catalog_item","quick_view":"unknown_view","sort_column":"unknown_sort","filter":{"entries":"unknown"}}',
     );
 
     expect(smartList.quickView, isNull);
     expect(smartList.sortColumn, 'unknown_sort');
     expect(smartList.degradedSortTokens, contains('unknown_sort'));
     expect(
-        smartList.filterSelection.ownershipFilter, LibraryOwnershipFilter.all);
+        smartList.filterSelection.entriesFilter, LibraryEntryPolicyFilter.all);
   });
 
   test('collection item builds sync payload', () {
-    final item = testCollectionItem(
-      id: 'owned-1',
+    final item = testLibraryEntry(
+      id: 'entry-1',
       itemId: 'comic-1',
       catalogRef: CatalogEntityRef(
         kind: CatalogMediaKind.comic,
@@ -352,7 +352,7 @@ void main() {
       'section': 'item',
       'input': 'text',
       'kinds': ['book'],
-      'ownership_by_kind': {
+      'entries_by_kind': {
         'book': {
           'scope': 'catalog_item',
           'write_target': 'core_canonical',
@@ -362,10 +362,10 @@ void main() {
       },
     });
 
-    final ownership = spec.ownershipForKind('book');
-    expect(ownership.scope, MetadataFieldScope.catalogItem);
-    expect(ownership.writeTarget, MetadataWriteTarget.coreCanonical);
-    expect(ownership.sourceEntityType, 'catalog_book_item');
-    expect(ownership.sourceTable, 'book_items');
+    final entries = spec.entriesForKind('book');
+    expect(entries.scope, MetadataFieldScope.catalogItem);
+    expect(entries.writeTarget, MetadataWriteTarget.coreCanonical);
+    expect(entries.sourceEntityType, 'catalog_book_item');
+    expect(entries.sourceTable, 'book_items');
   });
 }

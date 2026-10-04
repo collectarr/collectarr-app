@@ -40,7 +40,7 @@ void main() {
           customFieldDefinitionId: 'cf-location',
           customFieldValue: 'Shelf A',
         ),
-        quickView: LibraryQuickView.owned,
+        quickView: LibraryQuickView.entry,
         sortRules: const [
           LibrarySortRule(
             column: 'updated',
@@ -90,7 +90,7 @@ void main() {
     await pumpUntilSettled(tester);
 
     expect(find.text('Backlog sci-fi'), findsWidgets);
-    expect(find.text('Quick view: Owned'), findsOneWidget);
+    expect(find.text('Quick view: Entry'), findsOneWidget);
     expect(find.text('Sort: updated desc, title asc'), findsOneWidget);
     expect(find.text('Search: dune'), findsOneWidget);
     expect(find.text('Kind: book'), findsOneWidget);
@@ -109,7 +109,7 @@ void main() {
     );
     expect(loaded!.filterSelection.customFieldDefinitionId, 'cf-location');
     expect(loaded!.filterSelection.customFieldValue, 'Shelf A');
-    expect(loaded!.quickView, LibraryQuickView.owned);
+    expect(loaded!.quickView, LibraryQuickView.entry);
     expect(loaded!.sortRules, const [
       LibrarySortRule(
         column: 'updated',

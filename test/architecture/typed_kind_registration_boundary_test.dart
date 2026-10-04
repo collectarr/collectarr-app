@@ -29,7 +29,7 @@ void main() {
     expect(source, isNot(contains('buildAdd')));
     expect(source, isNot(contains('openMediaEdit')));
     expect(source, isNot(contains('openReleaseEdit')));
-    expect(source, isNot(contains('openOwnedEdit')));
+    expect(source, isNot(contains('openEntryEdit')));
   });
 
   test('page dispatch has no concrete-kind switch or imports', () {
@@ -115,7 +115,7 @@ void main() {
         reason: '${kind.apiValue} must define Core search ranking',
       );
     }
-    expect(libraryCollectionItemSummaryReadersByKind.keys, containsAll(activeKinds));
+    expect(libraryLibraryEntrySummaryReadersByKind.keys, containsAll(activeKinds));
     expect(libraryCatalogTransportCodecs, hasLength(activeKinds.length));
   });
 
@@ -159,22 +159,22 @@ void main() {
       expect(source, contains('CatalogMediaKind.${entry.key}'));
     }
 
-    final ownedSource = File(
-      'lib/features/library/owned/owned_kind_contributor_registry.dart',
+    final entrySource = File(
+      'lib/features/library/entries/entry_kind_contributor_registry.dart',
     ).readAsStringSync();
-    expect(ownedSource, contains('collectarrOwnedKindContributors'));
+    expect(entrySource, contains('collectarrEntryKindContributors'));
     for (final contributor in [
-      'animeOwnedContributor',
-      'boardGameOwnedContributor',
-      'bookOwnedContributor',
-      'comicOwnedContributor',
-      'gameOwnedContributor',
-      'mangaOwnedContributor',
-      'movieOwnedContributor',
-      'musicOwnedContributor',
-      'tvOwnedContributor',
+      'animeEntryContributor',
+      'boardGameEntryContributor',
+      'bookEntryContributor',
+      'comicEntryContributor',
+      'gameEntryContributor',
+      'mangaEntryContributor',
+      'movieEntryContributor',
+      'musicEntryContributor',
+      'tvEntryContributor',
     ]) {
-      expect(ownedSource, contains(contributor));
+      expect(entrySource, contains(contributor));
     }
   });
 

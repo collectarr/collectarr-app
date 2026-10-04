@@ -27,16 +27,16 @@ void main() {
       String? publisher,
       String? barcode,
       String? variant,
-      bool isOwned = true,
+      bool isEntry = true,
       bool isWishlisted = false,
       int? pricePaidCents,
       int? coverPriceCents,
       int? sellPriceCents,
       DateTime? releaseDate,
     }) {
-      final owned = isOwned
-          ? testCollectionItem(
-              id: 'owned-$id',
+      final entry = isEntry
+          ? testLibraryEntry(
+              id: 'entry-$id',
               updatedAt: DateTime.utc(2026, 1, 1),
               pricePaidCents: pricePaidCents,
               sellPriceCents: sellPriceCents,
@@ -44,7 +44,7 @@ void main() {
               coverPriceCents: coverPriceCents,
               catalogRef: CatalogEntityRef(
                 kind: CatalogMediaKind.comic,
-                entityType: const CatalogEntityTypeId('collection_item'),
+                entityType: const CatalogEntityTypeId('library_entry'),
                 id: id,
               ),
             )
@@ -81,10 +81,10 @@ void main() {
         itemId: id,
         catalogData: testWorkspaceCatalogData(
             testCatalogItemWithKindMetadata(catalog).asShelfCatalogItem),
-        collectionItemSummary: owned == null ? null : testCollectionItemSummary(owned),
-        collectionItemDispatch: owned == null
+        libraryEntrySummary: entry == null ? null : testLibraryEntrySummary(entry),
+        libraryEntryDispatch: entry == null
             ? null
-            : testComicCollectionItemDispatchFrom(testComicCollectionItemFrom(owned)),
+            : testComicLibraryEntryDispatchFrom(testComicLibraryEntryFrom(entry)),
         wishlistItem: wishlist,
       );
 
@@ -115,7 +115,7 @@ void main() {
       );
 
       final doc = searchIndex.getOrBuild(item, {
-        'owned-c1': ['Box 42', 'First Print'],
+        'entry-c1': ['Box 42', 'First Print'],
       });
 
       // Matches across various metadata fields
@@ -204,7 +204,7 @@ void main() {
             seriesTitle: 'X-Men',
             itemNumber: '3',
             publisher: 'Marvel',
-            isOwned: false),
+            isEntry: false),
         createTestProjectionItem(
             id: '4',
             title: 'Issue 4',
@@ -228,7 +228,7 @@ void main() {
 
       final xmenBucket = buckets.firstWhere((b) => b.title.contains('X-Men'));
       expect(xmenBucket.count, 5);
-      expect(xmenBucket.ownedCount, 4);
+      expect(xmenBucket.entryCount, 4);
       expect(xmenBucket.missingNumbers, [3]);
     });
 
@@ -267,13 +267,13 @@ void main() {
     test('LibrarySequenceGapAnalyzer computes gaps accurately', () {
       const analyzer = LibrarySequenceGapAnalyzer();
       final gaps1 = analyzer.calculateMissingSequence(
-        ownedValues: [1, 2, 4, 5, 8],
+        entryValues: [1, 2, 4, 5, 8],
         maxValue: 8,
       );
       expect(gaps1, [3, 6, 7]);
 
       final gaps2 = analyzer.calculateGapsForBucket(
-        ownedNumbers: {1, 2, 5},
+        entryNumbers: {1, 2, 5},
         bucketNumbers: {1, 2, 3, 4, 5},
       );
       expect(gaps2, [3, 4]);
@@ -286,7 +286,7 @@ void main() {
         createTestProjectionItem(
           id: '1',
           title: 'Item 1',
-          isOwned: true,
+          isEntry: true,
           pricePaidCents: 500,
           coverPriceCents: 399,
           sellPriceCents: 1000,
@@ -294,7 +294,7 @@ void main() {
         createTestProjectionItem(
           id: '2',
           title: 'Item 2',
-          isOwned: true,
+          isEntry: true,
           pricePaidCents: 400,
           coverPriceCents: 299,
           sellPriceCents: 800,
@@ -302,7 +302,7 @@ void main() {
         createTestProjectionItem(
           id: '3',
           title: 'Item 3',
-          isOwned: false,
+          isEntry: false,
           isWishlisted: true,
         ),
       ];
@@ -315,7 +315,7 @@ void main() {
 
       expect(stats.total, 3);
       expect(stats.shown, 2);
-      expect(stats.owned, 2);
+      expect(stats.entry, 2);
       expect(stats.wishlist, 1);
       expect(stats.totalPricePaidCents, 900);
       expect(stats.collectionValue?.totalValueCents, 698);
@@ -342,7 +342,7 @@ void main() {
 
       final shelf = ShelfState(
         entries: [for (final it in items) it.source],
-        ownedCount: 2,
+        entryCount: 2,
         wishlistCount: 0,
         pricedCount: 0,
         totalPaidCents: 0,

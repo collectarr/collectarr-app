@@ -46,10 +46,10 @@ void main() {
     expect(parsed.keyReason, 'First appearance');
   });
 
-  test('projects Comic catalog and owned cells at the CSV boundary', () {
+  test('projects Comic catalog and entry cells at the CSV boundary', () {
     final projection = const ComicCollectionCsvProjection();
-    final owned = testCollectionItem(
-      id: 'owned-1',
+    final entry = testLibraryEntry(
+      id: 'entry-1',
       itemId: 'comic-1',
       coverPriceCents: 399,
       rawOrSlabbed: 'Raw',
@@ -72,9 +72,9 @@ void main() {
         releaseDate: DateTime.utc(1963, 3, 1),
         barcode: '071486024576',
       )).asShelfCatalogItem),
-      collectionItemSummary: testCollectionItemSummary(owned),
-      collectionItemDispatch: testComicCollectionItemDispatchFrom(
-        testComicCollectionItemFrom(owned),
+      libraryEntrySummary: testLibraryEntrySummary(entry),
+      libraryEntryDispatch: testComicLibraryEntryDispatchFrom(
+        testComicLibraryEntryFrom(entry),
       ),
     );
 
@@ -92,19 +92,19 @@ void main() {
       '071486024576',
     ]);
     expect(
-      projection.ownedCellsBeforeLocation(entry, clzFriendly: false),
+      projection.entryCellsBeforeLocation(entry, clzFriendly: false),
       isEmpty,
     );
     expect(
-      projection.ownedCellsAfterIndex(entry, clzFriendly: false),
+      projection.entryCellsAfterIndex(entry, clzFriendly: false),
       ['399', 'Raw', '', '', '', '', '', 'true', ''],
     );
     expect(
-      projection.ownedCellsBeforeLocation(entry, clzFriendly: true),
+      projection.entryCellsBeforeLocation(entry, clzFriendly: true),
       ['3.99'],
     );
     expect(
-      projection.ownedCellsAfterIndex(entry, clzFriendly: true),
+      projection.entryCellsAfterIndex(entry, clzFriendly: true),
       ['Raw', '', '', '', '', '', 'true', ''],
     );
   });

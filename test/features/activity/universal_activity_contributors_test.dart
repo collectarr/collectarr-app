@@ -2,7 +2,7 @@ import 'package:collectarr_app/core/models/activity_event.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/loan.dart';
 import 'package:collectarr_app/core/models/money.dart';
-import 'package:collectarr_app/core/models/collection_item_projection.dart';
+import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/core/models/tracking_summary.dart';
 import 'package:collectarr_app/core/models/tracking_activity_summary.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
@@ -19,10 +19,10 @@ void main() {
       id: 'book-activity',
     );
     final now = DateTime.utc(2026, 9, 1);
-    final owned = CollectionItemSummary(
-      ref: CollectionItemRef(
+    final entry = LibraryEntrySummary(
+      ref: LibraryEntryRef(
         kind: catalogRef.mediaKind,
-        id: const CollectionItemId('owned-book-activity'),
+        id: const LibraryEntryId('entry-book-activity'),
       ),
       title: catalogRef.id,
       catalogRef: catalogRef,
@@ -48,9 +48,9 @@ void main() {
     );
     final loan = Loan(
       id: 'loan-book-activity',
-      collectionItemRef: CollectionItemRef(
+      libraryEntryRef: LibraryEntryRef(
         kind: catalogRef.mediaKind,
-        id: owned.ref.id,
+        id: entry.ref.id,
       ),
       borrowerName: 'Reader',
       lentDate: now.add(const Duration(days: 6)),
@@ -61,7 +61,7 @@ void main() {
         .expand(
           (contributor) => contributor.contribute(
             UniversalActivityContext(
-              collectionItems: [owned],
+              libraryEntries: [entry],
               trackingRecords: [TrackingActivitySummary.fromSummary(tracking)],
               wishlistItems: [wishlist],
               loans: [loan],

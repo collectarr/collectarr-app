@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/db/local_database.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
@@ -50,7 +51,7 @@ void main() {
     final request = LibraryEditDialogRequest(
       type: type,
       item: CatalogSearchCandidate.fromItem(item),
-      collectionItem: null,
+      libraryEntry: null,
       accent: Colors.deepPurple,
     );
 
@@ -120,18 +121,18 @@ void main() {
     addTearDown(db.close);
 
     final type = const MusicRegistration();
-    final item = testCatalogItemWithKindMetadata(
-      testCatalogItem(
-        id: 'music-vinyl',
-        kind: 'music',
-        title: 'Dark Side of the Moon',
-        physicalFormat: 'Vinyl',
-      ),
+    final item = CatalogItemDto.raw(
+      id: 'music-vinyl',
+      mediaKind: CatalogMediaKind.music,
+      kindData: const {
+        'title': 'Dark Side of the Moon',
+        'format': 'Vinyl (12" LP)',
+      },
     );
     final request = LibraryEditDialogRequest(
       type: type,
       item: CatalogSearchCandidate.fromItem(item),
-      collectionItem: null,
+      libraryEntry: null,
       accent: Colors.deepPurple,
       physicalFormats: musicPhysicalMediaFormats,
       customFieldDefinitions: [
@@ -168,8 +169,10 @@ void main() {
 
     await tester.tap(find.text('Open'));
     await tester.pumpAndSettle();
+    await tester.tap(find.text('Main').last);
+    await tester.pumpAndSettle();
 
     expect(tester.takeException(), isNull);
-    expect(find.text('Vinyl'), findsWidgets);
+    expect(find.text('Format'), findsOneWidget);
   });
 }

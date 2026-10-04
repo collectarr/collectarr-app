@@ -39,8 +39,8 @@ void main() {
   });
 
   test('personal copy projection prefers the typed tracking row rating', () {
-    final owned = testCollectionItem(
-      id: 'owned-1',
+    final entry = testLibraryEntry(
+      id: 'entry-1',
       itemId: 'book-1',
       kind: 'book',
       rating: 3,
@@ -48,12 +48,12 @@ void main() {
     final catalog = testLibraryWorkspaceSource(
       itemId: 'book-1',
       kind: 'book',
-      collectionItem: owned,
+      libraryEntry: entry,
     );
     final source = LibraryWorkspaceSource(
       itemId: catalog.itemId,
       catalogData: catalog.catalogData,
-      collectionItemSummary: testCollectionItemSummary(owned),
+      libraryEntrySummary: testLibraryEntrySummary(entry),
       trackingSummary: TrackingSummary(
         id: 'tracking-1',
         catalogRef: const CatalogEntityRef(

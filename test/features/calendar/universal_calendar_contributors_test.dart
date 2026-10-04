@@ -2,17 +2,17 @@ import 'package:collectarr_app/core/models/calendar_event.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/loan.dart';
 import 'package:collectarr_app/core/models/money.dart';
-import 'package:collectarr_app/core/models/collection_item_projection.dart';
+import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
 import 'package:collectarr_app/features/calendar/universal_calendar_contributors.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  test('projects owned lifecycle and loan events without kind semantics', () {
-    final owned = CollectionItemSummary(
-      ref: const CollectionItemRef(
+  test('projects entry lifecycle and loan events without kind semantics', () {
+    final entry = LibraryEntrySummary(
+      ref: const LibraryEntryRef(
         kind: CatalogMediaKind.book,
-        id: CollectionItemId('owned-1'),
+        id: LibraryEntryId('entry-1'),
       ),
       title: 'book-1',
       catalogRef: const CatalogEntityRef(
@@ -26,9 +26,9 @@ void main() {
     );
     final loan = Loan(
       id: 'loan-1',
-      collectionItemRef: const CollectionItemRef(
+      libraryEntryRef: const LibraryEntryRef(
         kind: CatalogMediaKind.book,
-        id: CollectionItemId('owned-1'),
+        id: LibraryEntryId('entry-1'),
       ),
       borrowerName: 'Reader',
       lentDate: DateTime.utc(2026, 1, 4),
@@ -37,12 +37,12 @@ void main() {
     );
 
     final context = UniversalCalendarContext(
-      collectionItems: [owned],
+      libraryEntries: [entry],
       loans: [loan],
       titleForRef: (ref) => ref.id == 'book-1' ? 'Seed Book' : 'Unknown item',
     );
     final events = [
-      ...const CollectionItemCalendarContributor().contribute(context),
+      ...const LibraryEntryCalendarContributor().contribute(context),
       ...const LoanCalendarContributor().contribute(context),
     ];
 
@@ -71,7 +71,7 @@ void main() {
       updatedAt: DateTime.utc(2026, 1, 5),
     );
     final context = UniversalCalendarContext(
-      collectionItems: const [],
+      libraryEntries: const [],
       loans: const [],
       watchSessions: [session],
       titleForRef: (_) => 'Seed Book',
@@ -86,11 +86,11 @@ void main() {
     expect(events.single.eventId, 'watch:watch-1');
   });
 
-  test('keeps equal owned ids distinct by media kind', () {
-    final book = CollectionItemSummary(
-      ref: const CollectionItemRef(
+  test('keeps equal entry ids distinct by media kind', () {
+    final book = LibraryEntrySummary(
+      ref: const LibraryEntryRef(
         kind: CatalogMediaKind.book,
-        id: CollectionItemId('shared-id'),
+        id: LibraryEntryId('shared-id'),
       ),
       title: 'Book copy',
       catalogRef: const CatalogEntityRef(
@@ -100,10 +100,10 @@ void main() {
       ),
       updatedAt: DateTime.utc(2026, 1, 3),
     );
-    final comic = CollectionItemSummary(
-      ref: const CollectionItemRef(
+    final comic = LibraryEntrySummary(
+      ref: const LibraryEntryRef(
         kind: CatalogMediaKind.comic,
-        id: CollectionItemId('shared-id'),
+        id: LibraryEntryId('shared-id'),
       ),
       title: 'Comic copy',
       catalogRef: const CatalogEntityRef(
@@ -114,18 +114,18 @@ void main() {
       updatedAt: DateTime.utc(2026, 1, 3),
     );
     final context = UniversalCalendarContext(
-      collectionItems: [book, comic],
+      libraryEntries: [book, comic],
       loans: [
         Loan(
           id: 'book-loan',
-          collectionItemRef: book.ref,
+          libraryEntryRef: book.ref,
           borrowerName: 'Reader',
           lentDate: DateTime.utc(2026, 1, 4),
           dueDate: DateTime.utc(2026, 1, 10),
         ),
         Loan(
           id: 'comic-loan',
-          collectionItemRef: comic.ref,
+          libraryEntryRef: comic.ref,
           borrowerName: 'Collector',
           lentDate: DateTime.utc(2026, 1, 4),
           dueDate: DateTime.utc(2026, 1, 11),
@@ -143,7 +143,7 @@ void main() {
 
   test('does not duplicate a watch handled by a kind contributor', () {
     final context = UniversalCalendarContext(
-      collectionItems: const [],
+      libraryEntries: const [],
       loans: const [],
       watchSessions: [
         WatchSession(

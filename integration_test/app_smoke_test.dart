@@ -81,7 +81,7 @@ List<Override> _testOverrides() {
     shelfProvider.overrideWith(
       (ref) async => const ShelfState(
         entries: [],
-        ownedCount: 0,
+        entryCount: 0,
         wishlistCount: 0,
         pricedCount: 0,
         totalPaidCents: null,

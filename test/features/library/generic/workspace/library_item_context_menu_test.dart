@@ -60,7 +60,7 @@ void main() {
     await pumpUntilSettled(tester);
 
     expect(find.text('Bulk edit selected'), findsOneWidget);
-    expect(find.text('Move selected to owned'), findsOneWidget);
+    expect(find.text('Move selected to entry'), findsOneWidget);
     expect(find.text('Move selected to wishlist'), findsOneWidget);
     expect(find.text('Remove selected'), findsOneWidget);
     expect(find.text('Copy title'), findsNothing);

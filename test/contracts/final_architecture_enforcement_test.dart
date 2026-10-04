@@ -27,7 +27,7 @@ void main() {
     }
   });
 
-  test('provider role ownership has no legacy inference switches', () {
+  test('provider role entries has no legacy inference switches', () {
     final providerSources = <File>[
       ...Directory('lib/features/library/kinds')
           .listSync(recursive: true)
@@ -99,7 +99,7 @@ void main() {
     const scopes = <LibraryEntityScope>[
       LibraryEntityScope.catalogItem,
       LibraryEntityScope.release,
-      LibraryEntityScope.collectionItem,
+      LibraryEntityScope.libraryEntry,
     ];
 
     for (final LibraryKindRegistration registration
@@ -171,8 +171,8 @@ void main() {
       final source = File(path).readAsStringSync();
       expect(source, isNot(contains('CatalogMediaKind.music')), reason: path);
       expect(source, isNot(contains('CatalogMediaKind.game')), reason: path);
-      expect(source, isNot(contains('MusicCollectionItem')), reason: path);
-      expect(source, isNot(contains('GameCollectionItem')), reason: path);
+      expect(source, isNot(contains('MusicLibraryEntry')), reason: path);
+      expect(source, isNot(contains('GameLibraryEntry')), reason: path);
       expect(source, isNot(contains('MusicTracking')), reason: path);
     }
   });
@@ -184,7 +184,7 @@ void main() {
         .where((file) => file.path.endsWith('_kind_configuration.dart'));
     for (final file in configurationFiles) {
       final source = file.readAsStringSync();
-      expect(source, isNot(contains('TransferCollectionItem')), reason: file.path);
+      expect(source, isNot(contains('TransferLibraryEntry')), reason: file.path);
       expect(source, isNot(contains('HierarchyContractDiagnosticLabel')),
           reason: file.path);
     }

@@ -11,7 +11,7 @@ import 'package:collectarr_app/core/api/dto/bundle_release.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/api/dto/media_catalog.dart';
 import 'package:collectarr_app/core/models/money.dart';
-import 'package:collectarr_app/core/models/collection_item_projection.dart';
+import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_snapshot_repository.dart';
 import 'package:collectarr_app/core/api/dto/metadata_search_query.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
@@ -1081,10 +1081,10 @@ void main() {
                 kind: CatalogMediaKind.comic,
                 entityType: CatalogEntityTypeId.catalogItem,
                 id: 'comic-423',
-              ): const CollectionItemSummary(
-                ref: CollectionItemRef(
+              ): const LibraryEntrySummary(
+                ref: LibraryEntryRef(
                   kind: CatalogMediaKind.comic,
-                  id: CollectionItemId('owned-comic-423'),
+                  id: LibraryEntryId('entry-comic-423'),
                 ),
                 title: 'comic-423',
                 catalogRef: CatalogEntityRef(
@@ -1128,7 +1128,7 @@ void main() {
     );
   });
 
-  testWidgets('comic add search can hide owned results', (tester) async {
+  testWidgets('comic add search can hide entry results', (tester) async {
     tester.view.physicalSize = const Size(1100, 760);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.resetPhysicalSize);
@@ -1149,10 +1149,10 @@ void main() {
                 kind: CatalogMediaKind.comic,
                 entityType: CatalogEntityTypeId.catalogItem,
                 id: 'comic-423',
-              ): const CollectionItemSummary(
-                ref: CollectionItemRef(
+              ): const LibraryEntrySummary(
+                ref: LibraryEntryRef(
                   kind: CatalogMediaKind.comic,
-                  id: CollectionItemId('owned-comic-423'),
+                  id: LibraryEntryId('entry-comic-423'),
                 ),
                 title: 'comic-423',
                 catalogRef: CatalogEntityRef(
@@ -1187,7 +1187,7 @@ void main() {
 
     expect(comicSearchResultById('comic-423'), findsOneWidget);
 
-    await tester.tap(find.widgetWithText(FilterChip, 'Hide owned'));
+    await tester.tap(find.widgetWithText(FilterChip, 'Hide entry'));
     await pumpUntilSettled(tester);
 
     expect(comicSearchResultById('comic-423'), findsNothing);

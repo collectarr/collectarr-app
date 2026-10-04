@@ -38,7 +38,7 @@ void main() {
     expect(customField?.listName, 'customfield:abc');
   });
 
-  test('kind definitions come from owned vocabulary modules', () {
+  test('kind definitions come from entry vocabulary modules', () {
     final registry = defaultPickListRegistry;
     final comicDefinitions = registry.definitionsForKind('comic');
 

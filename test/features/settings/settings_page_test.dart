@@ -284,8 +284,8 @@ void main() {
                 warningMessage: '1 sync change rejected',
                 rejectedChanges: [
                   SyncRejectedChange(
-                    entityType: 'collection_item',
-                    entityId: 'owned-item-123456',
+                    entityType: 'library_entry',
+                    entityId: 'entry-item-123456',
                     reason: 'stale_client_change',
                     currentClientChangedAt: DateTime.utc(2026, 5, 14, 9, 0),
                   ),
@@ -305,7 +305,7 @@ void main() {
     await _scrollToText(tester, 'Sync conflict review');
 
     expect(find.text('Sync conflict review'), findsOneWidget);
-    expect(find.text('collection_item:owned-it'), findsOneWidget);
+    expect(find.text('library_entry:entry-it'), findsOneWidget);
     expect(
       find.textContaining('This device is behind the service'),
       findsOneWidget,
@@ -337,8 +337,8 @@ void main() {
                 warningMessage: '1 sync change rejected',
                 rejectedChanges: [
                   SyncRejectedChange(
-                    entityType: 'collection_item',
-                    entityId: 'owned-item-123456',
+                    entityType: 'library_entry',
+                    entityId: 'entry-item-123456',
                     reason: 'stale_client_change',
                   ),
                 ],

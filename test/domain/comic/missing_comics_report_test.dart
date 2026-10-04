@@ -16,7 +16,7 @@ void main() {
       seriesTitle: 'Amazing Spider-Man',
     );
 
-    final owned = LibraryProjectionItem.fromShelf(
+    final entry = LibraryProjectionItem.fromShelf(
       testLibraryWorkspaceSource(
         itemId: 'issue-1',
         title: 'Amazing Spider-Man',
@@ -27,7 +27,7 @@ void main() {
           itemNumber: '1',
           series: series,
         )),
-        collectionItem: testCollectionItem(itemId: 'issue-1'),
+        libraryEntry: testLibraryEntry(itemId: 'issue-1'),
       ),
       libraryKindRegistrationForKind(CatalogMediaKind.comic),
     );
@@ -78,7 +78,7 @@ void main() {
     );
 
     final reports = buildMissingComicSeriesReports(
-      [owned, variantA, variantB, unreleased],
+      [entry, variantA, variantB, unreleased],
       options: const MissingComicReportOptions(
         includeVariants: true,
         excludeUnreleased: false,

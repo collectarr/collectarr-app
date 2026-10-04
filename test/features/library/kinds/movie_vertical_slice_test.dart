@@ -90,8 +90,8 @@ void main() {
           ),
           kindData: movieMeta,
         ).asShelfCatalogItem),
-        collectionItemSummary: testCollectionItemSummary(testCollectionItem(
-          id: 'owned_1',
+        libraryEntrySummary: testLibraryEntrySummary(testLibraryEntry(
+          id: 'entry_1',
           catalogRef: const CatalogEntityRef(
             id: 'movie_1',
             kind: CatalogMediaKind.movie,

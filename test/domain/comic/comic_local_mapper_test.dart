@@ -1,11 +1,11 @@
 import 'package:collectarr_app/core/db/local_database.dart';
-import 'package:collectarr_app/core/models/collection_item_ref.dart';
+import 'package:collectarr_app/core/models/library_entry_ref.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/library/kinds/comic/data/local/comic_local_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_ids.dart';
-import 'package:collectarr_app/features/library/kinds/comic/domain/comic_collection_item.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_library_entry.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_reading_state.dart';
-import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_details.dart';
+import 'package:collectarr_app/features/library/kinds/comic/entries/comic_entry_details.dart';
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -14,8 +14,8 @@ void main() {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
     final updatedAt = DateTime.utc(2026, 9, 30);
-    final input = ComicCollectionItem(
-      id: const CollectionItemId('owned-comic-1'),
+    final input = ComicLibraryEntry(
+      id: const LibraryEntryId('entry-comic-1'),
       catalogRef: const CatalogEntityRef(
         kind: CatalogMediaKind.comic,
         entityType: CatalogEntityTypeId.catalogItem,
@@ -24,7 +24,7 @@ void main() {
       condition: 'Very Fine',
       pricePaidCents: 1299,
       updatedAt: updatedAt,
-      details: const ComicOwnedDetails(
+      details: const ComicEntryDetails(
         rawOrSlabbed: 'Slabbed',
         gradingCompany: 'CGC',
         certificationNumber: '1234567890',
@@ -38,16 +38,16 @@ void main() {
       ),
     );
 
-    await db.into(db.comicCollectionItemsRows).insert(
-          ComicLocalMapper.toCollectionItemRow(input),
+    await db.into(db.comicLibraryEntriesRows).insert(
+          ComicLocalMapper.toLibraryEntryRow(input),
         );
     await db.into(db.comicReadingRows).insert(
           ComicLocalMapper.toReadingRow(input),
         );
-    final ownedRow = await db.select(db.comicCollectionItemsRows).getSingle();
+    final entryRow = await db.select(db.comicLibraryEntriesRows).getSingle();
     final readingRow = await db.select(db.comicReadingRows).getSingle();
-    final restored = ComicLocalMapper.fromCollectionItemRow(
-      ownedRow,
+    final restored = ComicLocalMapper.fromLibraryEntryRow(
+      entryRow,
       reading: ComicLocalMapper.fromReadingRow(readingRow),
     );
 

@@ -2,7 +2,7 @@ import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/money.dart';
-import 'package:collectarr_app/core/models/collection_item_projection.dart';
+import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/features/library/kinds/music/data/music_listening_repository.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_listening.dart';
 import 'package:drift/native.dart';
@@ -30,9 +30,9 @@ void main() {
     final newer = MusicListenEvent(
       id: 'listen-newer',
       catalogRef: album,
-      collectionItemRef: const CollectionItemRef(
+      libraryEntryRef: const LibraryEntryRef(
         kind: CatalogMediaKind.music,
-        id: CollectionItemId('owned-1'),
+        id: LibraryEntryId('entry-1'),
       ),
       listenedAt: DateTime.utc(2026, 8, 2),
       notes: 'First pressing',
@@ -43,7 +43,7 @@ void main() {
     final events = await repository.listForCatalogItem(album);
     expect(events.map((event) => event.id), ['listen-newer', 'listen-older']);
     expect(events.first.catalogRef, album);
-    expect(events.first.collectionItemRef?.key, 'music:owned-1');
+    expect(events.first.libraryEntryRef?.key, 'music:entry-1');
     expect(events.first.notes, 'First pressing');
     expect(
       MusicListeningStats.fromSessions(events).lastListened?.toUtc(),

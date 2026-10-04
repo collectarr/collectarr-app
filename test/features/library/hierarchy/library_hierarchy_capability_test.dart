@@ -4,7 +4,7 @@ import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_r
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  test('uses the kind-owned child title builder', () {
+  test('uses the kind-entry child title builder', () {
     const capability = LibraryHierarchyCapability(
       childrenTitleBuilder: _childrenTitle,
     );

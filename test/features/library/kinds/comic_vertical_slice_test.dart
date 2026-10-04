@@ -2,7 +2,7 @@ import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_link.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_catalog_item.dart';
-import 'package:collectarr_app/features/library/kinds/comic/domain/comic_collection_item.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_library_entry.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_dto.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_projector.dart';
@@ -92,8 +92,8 @@ void main() {
         variant: 'Direct',
       );
 
-      final owned = testCollectionItem(
-        id: 'owned_1',
+      final entry = testLibraryEntry(
+        id: 'entry_1',
         catalogRef: const CatalogEntityRef(
           id: 'comic_1',
           kind: CatalogMediaKind.comic,
@@ -119,9 +119,9 @@ void main() {
           ),
           kindData: comicMeta,
         ).asShelfCatalogItem),
-        collectionItemSummary: testCollectionItemSummary(owned),
-        collectionItemDispatch: testComicCollectionItemDispatchFrom(
-          ComicCollectionItem.fromJson(owned.toJson()),
+        libraryEntrySummary: testLibraryEntrySummary(entry),
+        libraryEntryDispatch: testComicLibraryEntryDispatchFrom(
+          ComicLibraryEntry.fromJson(entry.toJson()),
         ),
       );
 
@@ -135,10 +135,10 @@ void main() {
       );
 
       expect(dto.comic.title, 'Amazing Fantasy #15');
-      expect(dto.collectionItem?.id.value, 'owned_1');
-      expect(dto.collectionItem?.condition, '9.8');
-      expect(dto.collectionItem?.details.keyComic, isTrue);
-      expect(dto.collectionItem?.details.gradingCompany, 'CGC');
+      expect(dto.libraryEntry?.id.value, 'entry_1');
+      expect(dto.libraryEntry?.condition, '9.8');
+      expect(dto.libraryEntry?.details.keyComic, isTrue);
+      expect(dto.libraryEntry?.details.gradingCompany, 'CGC');
       expect(dto.writer, 'Stan Lee');
       expect(dto.artist, 'Steve Ditko');
       expect(dto.coverArtist, 'Jack Kirby');

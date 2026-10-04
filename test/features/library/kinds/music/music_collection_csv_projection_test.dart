@@ -51,7 +51,7 @@ void main() {
       '074646528825',
     ]);
     expect(
-      profile.importOwnedCells(
+      profile.importEntryCells(
         header: const ['Media Type'],
         values: const ['Music'],
       ),
@@ -96,8 +96,8 @@ void main() {
         catalogData.music,
         ref: catalogData.ref,
       ),
-      collectionItemSummary: testCollectionItemSummary(testCollectionItem(
-        id: 'owned-1',
+      libraryEntrySummary: testLibraryEntrySummary(testLibraryEntry(
+        id: 'entry-1',
         itemId: 'music-1',
         updatedAt: DateTime.utc(2026, 5, 15),
       )),
@@ -117,7 +117,7 @@ void main() {
       '074646528825',
     ]);
     expect(
-      projection.ownedCellsAfterIndex(entry, clzFriendly: true),
+      projection.entryCellsAfterIndex(entry, clzFriendly: true),
       hasLength(8),
     );
   });

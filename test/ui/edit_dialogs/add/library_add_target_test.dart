@@ -3,8 +3,8 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   test('exposes reusable add target labels', () {
-    expect(LibraryAddTarget.owned.actionLabel, 'Add as owned');
-    expect(LibraryAddTarget.owned.destinationLabel, 'Collection');
+    expect(LibraryAddTarget.entry.actionLabel, 'Add as entry');
+    expect(LibraryAddTarget.entry.destinationLabel, 'Collection');
     expect(LibraryAddTarget.wishlist.actionLabel, 'Add to wishlist');
     expect(LibraryAddTarget.wishlist.destinationLabel, 'Wishlist');
     expect(LibraryAddTarget.track.actionLabel, 'Track item');

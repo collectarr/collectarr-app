@@ -50,7 +50,7 @@ void main() {
       '9780261102217',
     ]);
     expect(
-      profile.importOwnedCells(
+      profile.importEntryCells(
         header: const ['Media Type'],
         values: const ['Book'],
       ),
@@ -76,8 +76,8 @@ void main() {
         releaseDate: DateTime.utc(1937, 9, 21),
         barcode: '9780261102217',
       )).asShelfCatalogItem),
-      collectionItemSummary: testCollectionItemSummary(testCollectionItem(
-        id: 'owned-1',
+      libraryEntrySummary: testLibraryEntrySummary(testLibraryEntry(
+        id: 'entry-1',
         itemId: 'book-1',
         updatedAt: DateTime.utc(2026, 5, 15),
       )),
@@ -97,11 +97,11 @@ void main() {
       '9780261102217',
     ]);
     expect(
-      projection.ownedCellsBeforeLocation(entry, clzFriendly: false),
+      projection.entryCellsBeforeLocation(entry, clzFriendly: false),
       isEmpty,
     );
     expect(
-      projection.ownedCellsAfterIndex(entry, clzFriendly: false),
+      projection.entryCellsAfterIndex(entry, clzFriendly: false),
       everyElement(isEmpty),
     );
   });

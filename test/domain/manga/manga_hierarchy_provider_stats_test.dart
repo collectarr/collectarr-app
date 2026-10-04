@@ -90,7 +90,7 @@ void main() {
       _mangaEntry('manga-1', 1),
       _mangaEntry('manga-3', 3),
       _mangaEntry('manga-4', 4),
-      _mangaEntry('other', 2, owned: false),
+      _mangaEntry('other', 2, entry: false),
     ];
 
     expect(
@@ -102,7 +102,7 @@ void main() {
   });
 }
 
-LibraryWorkspaceSource _mangaEntry(String id, int volume, {bool owned = true}) {
+LibraryWorkspaceSource _mangaEntry(String id, int volume, {bool entry = true}) {
   return LibraryWorkspaceSource(
     itemId: id,
     catalogData: testWorkspaceCatalogData(CatalogItemDto(
@@ -114,9 +114,9 @@ LibraryWorkspaceSource _mangaEntry(String id, int volume, {bool owned = true}) {
         series: const CatalogSeriesDetailsDto(seriesTitle: 'Nausicaa'),
       ),
     ).asShelfCatalogItem),
-    collectionItemSummary: owned
-        ? testCollectionItemSummary(testCollectionItem(
-            id: 'owned-$id',
+    libraryEntrySummary: entry
+        ? testLibraryEntrySummary(testLibraryEntry(
+            id: 'entry-$id',
             catalogRef: CatalogEntityRef(
               id: id,
               kind: CatalogMediaKind.manga,

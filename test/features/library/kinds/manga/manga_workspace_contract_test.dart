@@ -75,7 +75,7 @@ void main() {
     expect(facetValues['manga.demographic'], contains('Seinen'));
   });
 
-  test('Manga workspace facets and vocabularies are kind-owned', () {
+  test('Manga workspace facets and vocabularies are kind-entry', () {
     final facets = mangaLibraryFacetModule;
     expect(facets, isNotNull);
     expect(

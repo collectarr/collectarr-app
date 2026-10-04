@@ -1,11 +1,11 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_publishing_details_dto.dart';
-import 'package:collectarr_app/core/models/collection_item_ref.dart';
+import 'package:collectarr_app/core/models/library_entry_ref.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_transport_repository.dart';
-import 'package:collectarr_app/features/library/kinds/comic/data/comic_owned_repository.dart';
+import 'package:collectarr_app/features/library/kinds/comic/data/comic_entry_repository.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_ids.dart';
-import 'package:collectarr_app/features/library/kinds/comic/domain/comic_collection_item.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_library_entry.dart';
 import 'package:collectarr_app/features/library/stats/insurance_value.dart';
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -21,7 +21,7 @@ void main() {
 
   tearDown(() => db.close());
 
-  test('aggregates replacement values through kind-owned catalog codecs',
+  test('aggregates replacement values through kind-entry catalog codecs',
       () async {
     await CatalogTransportRepository(db).upsertTransportItems([
       testCatalogItem(
@@ -33,12 +33,12 @@ void main() {
         ),
       ),
     ]);
-    await ComicOwnedRepository(db).upsert(
-      ComicCollectionItem(
-        id: const CollectionItemId('owned-value-1'),
+    await ComicEntryRepository(db).upsert(
+      ComicLibraryEntry(
+        id: const LibraryEntryId('entry-value-1'),
         catalogRef: const CatalogEntityRef(
           kind: CatalogMediaKind.comic,
-          entityType: CatalogEntityTypeId('collection_item'),
+          entityType: CatalogEntityTypeId('library_entry'),
           id: 'comic-value-1',
         ),
         pricePaidCents: 1800,

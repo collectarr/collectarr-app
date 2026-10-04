@@ -47,8 +47,8 @@ void main() {
     final shelf = LibraryWorkspaceSource(
       itemId: 'comic-2',
       catalogData: testWorkspaceCatalogData(catalogItem.asShelfCatalogItem),
-      collectionItemSummary: testCollectionItemSummary(testCollectionItem(
-        id: 'owned-comic-2',
+      libraryEntrySummary: testLibraryEntrySummary(testLibraryEntry(
+        id: 'entry-comic-2',
         itemId: 'comic-2',
         kind: 'comic',
         rawOrSlabbed: 'Raw',
@@ -72,7 +72,7 @@ void main() {
     expect(dto.comic.publishing?.imprint, 'IDW');
   });
 
-  test('ComicKindSchema exposes complete ComicOwnedDetails surface', () {
+  test('ComicKindSchema exposes complete ComicEntryDetails surface', () {
     final catalogItem = testCatalogItem(
       id: 'comic-key-1',
       kind: 'comic',
@@ -81,8 +81,8 @@ void main() {
       publisher: 'Marvel Comics',
     );
 
-    final owned = testCollectionItem(
-      id: 'owned-comic-key-1',
+    final entry = testLibraryEntry(
+      id: 'entry-comic-key-1',
       itemId: 'comic-key-1',
       kind: 'comic',
       rawOrSlabbed: 'Slabbed',
@@ -103,9 +103,9 @@ void main() {
     final shelf = LibraryWorkspaceSource(
       itemId: 'comic-key-1',
       catalogData: testWorkspaceCatalogData(catalogItem.asShelfCatalogItem),
-      collectionItemSummary: testCollectionItemSummary(owned),
-      collectionItemDispatch: testComicCollectionItemDispatchFrom(
-        testComicCollectionItemFrom(owned),
+      libraryEntrySummary: testLibraryEntrySummary(entry),
+      libraryEntryDispatch: testComicLibraryEntryDispatchFrom(
+        testComicLibraryEntryFrom(entry),
       ),
     );
 
@@ -214,8 +214,8 @@ void main() {
     expect(comicKindIdentity.kind, CatalogMediaKind.comic);
     expect(comicKindAdd.kind, CatalogMediaKind.comic);
     expect(comicKindAdd.createInitialDraft(), isA<ComicAddDraft>());
-    expect(const ComicOwnedDetailsCodec(), isA<ComicOwnedDetailsCodec>());
-    expect(const ComicOwnedDetailsCodec().defaultDetails(),
-        isA<ComicOwnedDetails>());
+    expect(const ComicEntryDetailsCodec(), isA<ComicEntryDetailsCodec>());
+    expect(const ComicEntryDetailsCodec().defaultDetails(),
+        isA<ComicEntryDetails>());
   });
 }

@@ -11,9 +11,9 @@ import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import '../../tool/check_library_kind_boundaries.dart';
 
 void main() {
-  test('generated kind ownership joins Drift columns and model aliases', () {
+  test('generated kind entries joins Drift columns and model aliases', () {
     final manifest = jsonDecode(
-      File('tool/architecture/generated/kind-field-ownership.json')
+      File('tool/architecture/generated/kind-field-entries.json')
           .readAsStringSync(),
     ) as Map<String, dynamic>;
     final kinds = manifest['kinds'] as Map<String, dynamic>;
@@ -27,7 +27,7 @@ void main() {
 
     expect(storyArcs['databaseColumns'], contains('storyArcsJson'));
     expect(storyArcs['symbols'], contains('story_arcs'));
-    expect(comicTableNames, contains('ComicCollectionItemsRows'));
+    expect(comicTableNames, contains('ComicLibraryEntriesRows'));
     expect(comicTableNames, isNot(contains('ComicMediaRows')));
     expect(comicTableNames, isNot(contains('ComicReleaseRows')));
     expect(series['workspaceFieldIds'], contains('comic.series'));
@@ -54,15 +54,15 @@ final storyArc = <String, Object?>{'story_arcs': const <String>[]};
 
     expect(
       visitor.visitor.violations,
-      contains(contains('Kind-owned field "seriesTitle"')),
+      contains(contains('Kind-entry field "seriesTitle"')),
     );
     expect(
       visitor.visitor.violations,
-      contains(contains('Kind-owned field "series_title"')),
+      contains(contains('Kind-entry field "series_title"')),
     );
     expect(
       visitor.visitor.violations,
-      contains(contains('Kind-owned field "story_arcs"')),
+      contains(contains('Kind-entry field "story_arcs"')),
     );
   });
 
@@ -149,7 +149,7 @@ String? providerValue(Map<String, dynamic> raw) => raw['series_title'] as String
       staleReferences,
       isEmpty,
       reason: 'Library code must dispatch unknown kinds by failure and use '
-          'kind-owned hierarchy contributions instead of root aliases.',
+          'kind-entry hierarchy contributions instead of root aliases.',
     );
   });
 
@@ -217,15 +217,15 @@ class TestStats {}
     );
   });
 
-  test('architecture boundary checker allows structural owned projections', () {
+  test('architecture boundary checker allows structural entry projections', () {
     final repoRoot = Directory.current.path;
     const testCode = '''
-class CollectionItemSummary {
+class LibraryEntrySummary {
   final String? subtitle;
-  const CollectionItemSummary(this.subtitle);
+  const LibraryEntrySummary(this.subtitle);
 }
 ''';
-    final relativePath = 'lib/core/models/collection_item_projection.dart';
+    final relativePath = 'lib/core/models/library_entry_projection.dart';
     final parseResult = parseString(
       content: testCode,
       path: p.join(repoRoot, relativePath),
@@ -342,12 +342,12 @@ class GenericClass {
   });
 
   test(
-      'architecture boundary checker rejects value referencing concrete ComicOwnedDetails',
+      'architecture boundary checker rejects value referencing concrete ComicEntryDetails',
       () {
     final repoRoot = Directory.current.path;
     const testCode = '''
 class ValueClass {
-  void calculate(ComicOwnedDetails details) {}
+  void calculate(ComicEntryDetails details) {}
 }
 ''';
     final parseResult = parseString(
@@ -370,7 +370,7 @@ class ValueClass {
     parseResult.unit.accept(visitor);
     expect(visitor.violations, isNotEmpty);
     expect(
-      visitor.violations.any((v) => v.contains('ComicOwnedDetails')),
+      visitor.violations.any((v) => v.contains('ComicEntryDetails')),
       isTrue,
     );
   });

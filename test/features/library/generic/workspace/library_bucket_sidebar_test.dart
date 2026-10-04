@@ -23,7 +23,7 @@ void main() {
                   LibraryBucket(
                     title: 'Action Comics',
                     count: 12,
-                    ownedCount: 6,
+                    entryCount: 6,
                   ),
                   LibraryBucket(title: 'Superman', count: 4),
                 ],
@@ -145,7 +145,7 @@ void main() {
         const LibraryBucket(
           title: 'Saga',
           count: 6,
-          ownedCount: 3,
+          entryCount: 3,
         ),
       ),
       'Saga 6 (50%)',

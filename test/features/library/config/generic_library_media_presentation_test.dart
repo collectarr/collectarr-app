@@ -15,7 +15,7 @@ LibraryProjectionView _makeItem(
   String id, {
   String? title,
   String? locationPath,
-  TestCollectionItem? collectionItem,
+  TestLibraryEntry? libraryEntry,
   WishlistItem? wishlistItem,
 }) {
   final cat = testCatalogItem(
@@ -26,7 +26,7 @@ LibraryProjectionView _makeItem(
   final source = LibraryWorkspaceSource(
     itemId: id,
     catalogData: testWorkspaceCatalogData(cat.asShelfCatalogItem),
-    collectionItemSummary: collectionItem == null ? null : testCollectionItemSummary(collectionItem),
+    libraryEntrySummary: libraryEntry == null ? null : testLibraryEntrySummary(libraryEntry),
     wishlistItem: wishlistItem,
     locationPath: locationPath,
   );
@@ -81,11 +81,11 @@ void main() {
     expect(bucket, 'Unknown');
   });
 
-  test('uses semantic fallbacks for ownership states', () {
+  test('uses semantic fallbacks for entries states', () {
     final catalogOnly = _makeItem('catalog-only');
-    final owned = _makeItem(
-      'owned',
-      collectionItem: testCollectionItem(id: 'owned-1', itemId: 'owned', kind: 'comic'),
+    final entry = _makeItem(
+      'entry',
+      libraryEntry: testLibraryEntry(id: 'entry-1', itemId: 'entry', kind: 'comic'),
     );
     final wishlisted = _makeItem(
       'wishlisted',
@@ -97,13 +97,13 @@ void main() {
         LibraryBucketingContext(
           source: item.source,
           item: item,
-          groupId: LibraryStandardGroupIds.ownership,
+          groupId: LibraryStandardGroupIds.entries,
         ),
       );
     }
 
     expect(bucketFor(catalogOnly), 'Catalog only');
-    expect(bucketFor(owned), 'Owned');
+    expect(bucketFor(entry), 'Entry');
     expect(bucketFor(wishlisted), 'Wishlist');
   });
 }

@@ -1,12 +1,12 @@
 import 'package:collectarr_app/core/db/local_database.dart';
-import 'package:collectarr_app/core/models/collection_item_ref.dart';
+import 'package:collectarr_app/core/models/library_entry_ref.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/library/kinds/tv/data/local/tv_local_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/tv/data/tv_repository.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_ids.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_models.dart';
-import 'package:collectarr_app/features/library/kinds/tv/domain/tv_collection_item.dart';
-import 'package:collectarr_app/features/library/kinds/tv/ownership/tv_owned_details.dart';
+import 'package:collectarr_app/features/library/kinds/tv/domain/tv_library_entry.dart';
+import 'package:collectarr_app/features/library/kinds/tv/entries/tv_entry_details.dart';
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -37,8 +37,8 @@ void main() {
   test('TvLocalMapper round-trips the complete collection item', () async {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
-    final item = TvCollectionItem(
-      id: const CollectionItemId('owned-tv-1'),
+    final item = TvLibraryEntry(
+      id: const LibraryEntryId('entry-tv-1'),
       catalogRef: const CatalogEntityRef(
         kind: CatalogMediaKind.tv,
         entityType: CatalogEntityTypeId.catalogItem,
@@ -59,9 +59,9 @@ void main() {
       ownerLabel: 'TV collector',
       locationId: 'shelf-tv',
       purchaseStore: 'Specialist shop',
-      collectionStatus: 'owned',
+      collectionStatus: 'entry',
       marketValueCents: 4500,
-      details: const TvOwnedDetails(
+      details: const TvEntryDetails(
         features: 'Commentary',
         hdrFormats: ['HDR10'],
         boxSetId: 'box-1',
@@ -72,11 +72,11 @@ void main() {
       ),
     );
 
-    await db.into(db.tvCollectionItemsRows).insert(
-          TvLocalMapper.toCollectionItemRow(item),
+    await db.into(db.tvLibraryEntriesRows).insert(
+          TvLocalMapper.toLibraryEntryRow(item),
         );
-    final row = await db.select(db.tvCollectionItemsRows).getSingle();
-    final restored = TvLocalMapper.fromCollectionItemRow(row);
+    final row = await db.select(db.tvLibraryEntriesRows).getSingle();
+    final restored = TvLocalMapper.fromLibraryEntryRow(row);
 
     expect(restored.id, item.id);
     expect(restored.itemId, item.itemId);

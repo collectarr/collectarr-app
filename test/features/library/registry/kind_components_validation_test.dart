@@ -48,7 +48,7 @@ void main() {
       const requiredScopes = <LibraryEntityScope>[
         LibraryEntityScope.catalogItem,
         LibraryEntityScope.release,
-        LibraryEntityScope.collectionItem,
+        LibraryEntityScope.libraryEntry,
       ];
 
       for (final registration in collectarrKindRegistrationsList) {

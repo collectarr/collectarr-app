@@ -9,7 +9,7 @@ void main() {
       LibraryAddCopy.addToTargetLabel(
         count: 1,
         type: const ComicRegistration(),
-        target: LibraryAddTarget.owned,
+        target: LibraryAddTarget.entry,
       ),
       'Add 1 Comic to Collection',
     );

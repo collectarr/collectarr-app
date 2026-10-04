@@ -40,7 +40,7 @@ const kindContractManifest = KindContractManifest(
     'add': activeTypedKinds,
     'mediaEdit': activeTypedKinds,
     'identity': activeTypedKinds,
-    'owned': activeTypedKinds,
+    'entry': activeTypedKinds,
   },
   optionalParticipants: {
     'release': {

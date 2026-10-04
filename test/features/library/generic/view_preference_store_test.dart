@@ -32,16 +32,16 @@ void main() {
 
   test('read populates cache and clearing removes cached values', () async {
     SharedPreferences.setMockInitialValues({
-      'library.movie.quickView': LibraryQuickView.owned.name,
+      'library.movie.quickView': LibraryQuickView.entry.name,
       'library.movie.folderPreset': 'year',
     });
 
-    expect(await movieStore.readQuickView(), LibraryQuickView.owned);
+    expect(await movieStore.readQuickView(), LibraryQuickView.entry);
     expect(
       await movieStore.readFolderPreset(),
       LibraryFolderPreset.single('year'),
     );
-    expect(movieStore.cachedQuickView, LibraryQuickView.owned);
+    expect(movieStore.cachedQuickView, LibraryQuickView.entry);
     expect(movieStore.cachedFolderPreset, LibraryFolderPreset.single('year'));
 
     await movieStore.writeQuickView(null);

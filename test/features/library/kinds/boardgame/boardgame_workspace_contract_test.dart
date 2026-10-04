@@ -53,7 +53,7 @@ void main() {
     );
   });
 
-  test('BoardGame facets extract typed metadata and remain kind-owned', () {
+  test('BoardGame facets extract typed metadata and remain kind-entry', () {
     final dto = BoardGameWorkspaceDto(
       common: const WorkspaceCommonProjection(
         title: 'Catan',

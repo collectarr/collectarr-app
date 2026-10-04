@@ -50,7 +50,7 @@ void main() {
       '123456789012',
     ]);
     expect(
-      profile.importOwnedCells(
+      profile.importEntryCells(
         header: const ['Media Type'],
         values: const ['Anime'],
       ),
@@ -76,8 +76,8 @@ void main() {
         physicalFormat: 'blu-ray',
         physicalFormatLabel: 'Blu-ray',
       )).asShelfCatalogItem),
-      collectionItemSummary: testCollectionItemSummary(testCollectionItem(
-        id: 'owned-1',
+      libraryEntrySummary: testLibraryEntrySummary(testLibraryEntry(
+        id: 'entry-1',
         itemId: 'anime-1',
         updatedAt: DateTime.utc(2026, 5, 15),
       )),
@@ -97,7 +97,7 @@ void main() {
       '123456789012',
     ]);
     expect(
-      projection.ownedCellsAfterIndex(entry, clzFriendly: true),
+      projection.entryCellsAfterIndex(entry, clzFriendly: true),
       hasLength(8),
     );
   });

@@ -32,7 +32,7 @@ void main() {
     await db.into(db.itemImagesCache).insert(
           ItemImagesCacheCompanion.insert(
             id: 'front-only-1',
-            collectionItemRefKey: 'book:owned-1',
+            libraryEntryRefKey: 'book:entry-1',
             imageType: const Value('front_cover'),
             imageData: base64Decode(base64Encode(const [0, 1, 2, 3])),
             createdAt: DateTime.utc(2026, 5, 23),
@@ -40,8 +40,8 @@ void main() {
         );
 
     final type = libraryKindRegistrationForKind(CatalogMediaKind.book);
-    final owned = testCollectionItem(
-      id: 'owned-1',
+    final entry = testLibraryEntry(
+      id: 'entry-1',
       itemId: 'book-1',
       updatedAt: DateTime.utc(2026, 5, 23),
     );
@@ -52,7 +52,7 @@ void main() {
         kind: 'book',
         title: 'The Fellowship of the Ring',
       ).asShelfCatalogItem),
-      collectionItemSummary: testCollectionItemSummary(owned),
+      libraryEntrySummary: testLibraryEntrySummary(entry),
     );
     const node = LibraryCatalogItemNodeRef(catalogItemId: 'book-1');
     final dto = const BookWorkspaceProjector().project(
@@ -73,7 +73,7 @@ void main() {
             body: LibraryDetailHero(
               type: type,
               item: bookItem,
-              collectionItem: testCollectionItemSummary(owned),
+              libraryEntry: testLibraryEntrySummary(entry),
               accent: Colors.orange,
             ),
           ),
@@ -97,7 +97,7 @@ void main() {
     await db.into(db.itemImagesCache).insert(
           ItemImagesCacheCompanion.insert(
             id: 'front-1',
-            collectionItemRefKey: 'book:owned-1',
+            libraryEntryRefKey: 'book:entry-1',
             imageType: const Value('front_cover'),
             imageData: base64Decode(base64Encode(const [0, 1, 2, 3])),
             createdAt: DateTime.utc(2026, 5, 23),
@@ -106,7 +106,7 @@ void main() {
     await db.into(db.itemImagesCache).insert(
           ItemImagesCacheCompanion.insert(
             id: 'back-1',
-            collectionItemRefKey: 'book:owned-1',
+            libraryEntryRefKey: 'book:entry-1',
             imageType: const Value('back_cover'),
             imageData: base64Decode(base64Encode(const [4, 5, 6, 7])),
             createdAt: DateTime.utc(2026, 5, 23),
@@ -114,8 +114,8 @@ void main() {
         );
 
     final type = libraryKindRegistrationForKind(CatalogMediaKind.book);
-    final owned = testCollectionItem(
-      id: 'owned-1',
+    final entry = testLibraryEntry(
+      id: 'entry-1',
       itemId: 'book-1',
       updatedAt: DateTime.utc(2026, 5, 23),
     );
@@ -126,7 +126,7 @@ void main() {
         kind: 'book',
         title: 'The Two Towers',
       ).asShelfCatalogItem),
-      collectionItemSummary: testCollectionItemSummary(owned),
+      libraryEntrySummary: testLibraryEntrySummary(entry),
     );
     const node = LibraryCatalogItemNodeRef(catalogItemId: 'book-1');
     final dto = const BookWorkspaceProjector().project(
@@ -147,7 +147,7 @@ void main() {
             body: LibraryDetailHero(
               type: type,
               item: bookItem,
-              collectionItem: testCollectionItemSummary(owned),
+              libraryEntry: testLibraryEntrySummary(entry),
               accent: Colors.orange,
             ),
           ),
@@ -193,7 +193,7 @@ void main() {
     final inspectorRequest = LibraryInspectorRequest(
       type: type,
       item: bookItem,
-      collectionItem: null,
+      libraryEntry: null,
       accent: Colors.orange,
     );
 
@@ -223,16 +223,16 @@ void main() {
     tester,
   ) async {
     final type = libraryKindRegistrationForKind(CatalogMediaKind.book);
-    final owned1 = testCollectionItem(
-      id: 'owned-1',
+    final entry1 = testLibraryEntry(
+      id: 'entry-1',
       itemId: 'book-1',
       pricePaidCents: 1299,
       marketValueCents: 1899,
       currency: 'USD',
       updatedAt: DateTime.utc(2026, 5, 23),
     );
-    final owned2 = testCollectionItem(
-      id: 'owned-2',
+    final entry2 = testLibraryEntry(
+      id: 'entry-2',
       itemId: 'book-1',
       pricePaidCents: 999,
       marketValueCents: 2499,
@@ -246,7 +246,7 @@ void main() {
         kind: 'book',
         title: 'The Hobbit',
       ).asShelfCatalogItem),
-      collectionItemSummary: testCollectionItemSummary(owned1),
+      libraryEntrySummary: testLibraryEntrySummary(entry1),
     );
     const node = LibraryCatalogItemNodeRef(catalogItemId: 'book-1');
     final dto = const BookWorkspaceProjector().project(
@@ -266,10 +266,10 @@ void main() {
             body: LibraryDetailHero(
               type: type,
               item: bookItem,
-              collectionItem: testCollectionItemSummary(owned1),
-              ownedCopies: [
-                testCollectionItemSummary(owned1),
-                testCollectionItemSummary(owned2),
+              libraryEntry: testLibraryEntrySummary(entry1),
+              entryCopies: [
+                testLibraryEntrySummary(entry1),
+                testLibraryEntrySummary(entry2),
               ],
               accent: Colors.orange,
             ),

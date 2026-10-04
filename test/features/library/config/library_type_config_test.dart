@@ -76,7 +76,7 @@ void main() {
         isNotNull);
     expect(
         mangaKindEditCapabilities.presentationCapability.editRegistry
-            .builderForScope(LibraryEntityScope.collectionItem),
+            .builderForScope(LibraryEntityScope.libraryEntry),
         same(buildMangaMediaLibraryEditDialog));
     expect(mangaKindEditCapabilities.presentationCapability.presentation,
         same(mangaLibraryEditPresentation));
@@ -93,7 +93,7 @@ void main() {
     expect(libraryIconForKind(CatalogMediaKind.tv), Icons.tv_outlined);
   });
 
-  test('media and export labels are kind-owned', () {
+  test('media and export labels are kind-entry', () {
     expect(
       comicKindPresentation.previewLabels.labelFor(
         'media_scope',
@@ -156,7 +156,7 @@ void main() {
 
   test('tv edit presentation splits media and release tabs', () {
     const context = LibraryEditPresentationContext(
-      isOwned: false,
+      isEntry: false,
       isTrackingOnly: false,
       hasTrackingContext: false,
       hasWishlistContext: false,
@@ -181,7 +181,7 @@ void main() {
     expect(releaseTabs.any((tab) => tab.id == 'episode_map'), isFalse);
   });
 
-  test('index reassignment capability is kind-owned', () {
+  test('index reassignment capability is kind-entry', () {
     expect(
       const ComicRegistration()
           .toolbarActionAvailability
@@ -208,7 +208,7 @@ void main() {
     );
   });
 
-  test('collection export title labels are kind-owned', () {
+  test('collection export title labels are kind-entry', () {
     expect(
       comicKindPresentation.previewLabels.labelFor(
         'export_title',
@@ -262,7 +262,7 @@ void main() {
   test('book runtime registers typed add and edit hierarchy surfaces', () {
     expect(
       bookKindEditCapabilities.presentationCapability.editRegistry
-          .builderForScope(LibraryEntityScope.collectionItem),
+          .builderForScope(LibraryEntityScope.libraryEntry),
       same(buildBookLibraryEditDialog),
     );
     expect(
@@ -273,7 +273,7 @@ void main() {
     expect(bookKindHierarchy.childrenTitle(2), 'Editions (2)');
 
     const context = LibraryEditPresentationContext(
-      isOwned: true,
+      isEntry: true,
       isTrackingOnly: false,
       hasTrackingContext: false,
       hasWishlistContext: false,
@@ -284,7 +284,7 @@ void main() {
     final tabs = bookKindEditCapabilities.presentationCapability.presentation
         .builderForScope(LibraryEntityScope.catalogItem)
         .buildTabs(context: context);
-    expect(tabs.map((tab) => tab.id), contains('owned'));
+    expect(tabs.map((tab) => tab.id), contains('entry'));
   });
 
   test('book and boardgame runtimes own their scoped browser options', () {
@@ -443,7 +443,7 @@ void main() {
     }
   });
 
-  test('transferable field keys are kind-owned', () {
+  test('transferable field keys are kind-entry', () {
     expect(
       bookKindTransfer.transferableFieldKeys,
       containsAll([...kDefaultTransferableFieldKeys, 'grade']),
@@ -462,7 +462,7 @@ void main() {
     expect(bookKindTransfer.transferableFieldKeys, isNot(contains('keyComic')));
   });
 
-  test('add wording chrome is kind-owned', () {
+  test('add wording chrome is kind-entry', () {
     expect(
       LibraryAddReferenceType.media.labelForType(const BookRegistration()),
       'Media',
@@ -473,12 +473,12 @@ void main() {
     );
     expect(
       musicKindAdd.chrome.trackScopeSummary,
-      'Tracking stays album-level here. Edition and variant scope are only available for owned or wishlist entries.',
+      'Tracking stays album-level here. Edition and variant scope are only available for entry or wishlist entries.',
     );
     expect(
       LibraryAddReferenceType.edition
           .helperLabelForType(const MusicRegistration()),
-      'Attach ownership to an album edition. Pick a variant only if you want one exact format or pressing.',
+      'Attach entries to an album edition. Pick a variant only if you want one exact format or pressing.',
     );
     expect(
       movieKindAdd.chrome.kindFilterOptions.map((option) => option.scope),

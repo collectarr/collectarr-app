@@ -3,7 +3,7 @@ import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  test('keeps every catalog field in the kind-owned payload', () {
+  test('keeps every catalog field in the kind-entry payload', () {
     final item = CatalogItemDto.fromJson({
       'id': 'book-1',
       'kind': 'book',

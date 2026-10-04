@@ -5,7 +5,7 @@ import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_custom_epis
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  test('TV custom episode sync payload uses the TV-owned catalog ref', () {
+  test('TV custom episode sync payload uses the TV-entry catalog ref', () {
     final ref = CatalogEntityRef(
       kind: CatalogMediaKind.tv,
       entityType: CatalogEntityTypeId.catalogItem,

@@ -37,7 +37,7 @@ void main() {
       workspace: mangaKindWorkspace,
       contractFiles: const [
         'test/domain/manga/manga_catalog_transport_test.dart',
-        'test/domain/manga/manga_collection_item_local_mapper_test.dart',
+        'test/domain/manga/manga_library_entry_local_mapper_test.dart',
         'test/features/catalog/catalog_cache_repository_test.dart',
         'test/domain/manga/manga_add_schema_test.dart',
         'test/domain/manga/manga_media_edit_schema_test.dart',
@@ -49,7 +49,7 @@ void main() {
       kind: CatalogMediaKind.book,
       workspace: bookKindWorkspace,
       contractFiles: const [
-        'test/domain/book/book_collection_item_local_mapper_test.dart',
+        'test/domain/book/book_entry_repository_test.dart',
         'test/features/catalog/catalog_cache_repository_test.dart',
         'test/domain/book/book_add_schema_test.dart',
         'test/domain/book/book_edit_schema_test.dart',
@@ -62,7 +62,7 @@ void main() {
       workspace: gameKindWorkspace,
       contractFiles: const [
         'test/domain/game/game_core_mapper_test.dart',
-        'test/domain/game/game_collection_item_local_mapper_test.dart',
+        'test/domain/game/game_library_entry_local_mapper_test.dart',
         'test/features/catalog/catalog_cache_repository_test.dart',
         'test/domain/game/game_add_schema_test.dart',
         'test/domain/game/game_edit_schema_test.dart',
@@ -86,11 +86,11 @@ void main() {
       kind: CatalogMediaKind.movie,
       workspace: movieKindWorkspace,
       contractFiles: const [
-        'test/domain/movie/movie_core_mapper_test.dart',
-        'test/domain/movie/movie_repository_test.dart',
+        'test/domain/movie/movie_domain_mapper_test.dart',
+        'test/domain/movie/movie_entry_repository_test.dart',
         'test/domain/movie/movie_local_mapper_test.dart',
         'test/domain/movie/movie_add_schema_test.dart',
-        'test/domain/movie/movie_edit_schema_test.dart',
+        'test/features/library/kinds/movie_vertical_slice_test.dart',
         'test/domain/movie/movie_workspace_projection_test.dart',
       ],
     );
@@ -125,7 +125,8 @@ void main() {
       requiresKindSessionFactory: false,
       contractFiles: const [
         'test/domain/music/music_core_mapper_test.dart',
-        'test/domain/music/music_collection_item_mapper_test.dart',
+        'test/domain/music/music_catalog_mapper_roundtrip_test.dart',
+        'test/domain/music/music_entry_repository_test.dart',
         'test/domain/music/music_add_edit_schema_test.dart',
         'test/domain/music/music_workspace_test.dart',
       ],
@@ -141,9 +142,12 @@ void _checkTypedKind<TDto extends LibraryWorkspaceDto>({
   bool requiresKindSessionFactory = true,
 }) {
   final fields = workspace.fields;
+  const activeScopes = [
+    LibraryEntityScope.catalogItem,
+    LibraryEntityScope.libraryEntry,
+  ];
   final projectors = [
-    for (final scope in LibraryEntityScope.values)
-      workspace.projectorForScope(scope),
+    for (final scope in activeScopes) workspace.projectorForScope(scope),
   ];
 
   final registration = collectarrKindRegistrations[kind]!;
@@ -158,7 +162,7 @@ void _checkTypedKind<TDto extends LibraryWorkspaceDto>({
   expect(fields.sorts, isNotEmpty, reason: '$name needs sorts');
   expect(fields.groups, isNotEmpty, reason: '$name needs groups');
   expect(projectors, everyElement(isNotNull), reason: '$name needs projectors');
-  for (final scope in LibraryEntityScope.values) {
+  for (final scope in activeScopes) {
     final scopedWorkspace = workspace.workspaceForScope(scope);
     final scopedFields = workspace.fieldsForScope(scope);
     expect(scopedWorkspace.scope, scope,

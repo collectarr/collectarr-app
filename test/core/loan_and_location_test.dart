@@ -2,7 +2,7 @@ import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/loan.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/money.dart';
-import 'package:collectarr_app/core/models/collection_item_projection.dart';
+import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/core/models/storage_location.dart';
 import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
@@ -14,9 +14,9 @@ void main() {
     test('isOverdueAt uses the provided clock', () {
       final loan = Loan(
         id: 'loan-1',
-        collectionItemRef: const CollectionItemRef(
+        libraryEntryRef: const LibraryEntryRef(
           kind: CatalogMediaKind.book,
-          id: CollectionItemId('owned-1'),
+          id: LibraryEntryId('entry-1'),
         ),
         borrowerName: 'Alex',
         lentDate: DateTime.utc(2026, 5, 1),
@@ -28,22 +28,22 @@ void main() {
       expect(loan.isOverdueAt(DateTime.utc(2026, 5, 11)), isTrue);
     });
 
-    test('exposes the structural owned reference without domain details', () {
+    test('exposes the structural entry reference without domain details', () {
       final loan = Loan(
         id: 'loan-1',
-        collectionItemRef: const CollectionItemRef(
+        libraryEntryRef: const LibraryEntryRef(
           kind: CatalogMediaKind.book,
-          id: CollectionItemId('owned-1'),
+          id: LibraryEntryId('entry-1'),
         ),
         borrowerName: 'Alex',
         lentDate: DateTime.utc(2026, 5, 1),
       );
 
-      expect(loan.collectionItemRef.kind, CatalogMediaKind.book);
-      expect(loan.collectionItemRef.id, const CollectionItemId('owned-1'));
-      expect(loan.toJson()['collection_item_ref'], {
+      expect(loan.libraryEntryRef.kind, CatalogMediaKind.book);
+      expect(loan.libraryEntryRef.id, const LibraryEntryId('entry-1'));
+      expect(loan.toJson()['library_entry_ref'], {
         'kind': 'book',
-        'id': 'owned-1',
+        'id': 'entry-1',
       });
     });
   });

@@ -132,8 +132,8 @@ void main() {
           ),
           kindData: tvMeta,
         ).asShelfCatalogItem),
-        collectionItemSummary: testCollectionItemSummary(testCollectionItem(
-          id: 'owned_1',
+        libraryEntrySummary: testLibraryEntrySummary(testLibraryEntry(
+          id: 'entry_1',
           catalogRef: const CatalogEntityRef(
             id: 'tv_1',
             kind: CatalogMediaKind.tv,

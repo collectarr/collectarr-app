@@ -1,32 +1,40 @@
 import 'dart:convert';
+import 'dart:typed_data';
 
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/settings/connection_settings.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/catalog_item_ref.dart';
-import 'package:collectarr_app/core/models/collection_item_projection.dart';
-import 'package:collectarr_app/features/library/ownership/collection_items_repository.dart';
+import 'package:collectarr_app/core/models/custom_field.dart';
+import 'package:collectarr_app/core/models/item_image.dart';
+import 'package:collectarr_app/core/models/library_entry_projection.dart';
+import 'package:collectarr_app/features/library/entries/library_entries_repository.dart';
+import 'package:collectarr_app/features/library/entries/entry_import_transport.dart';
+import 'package:collectarr_app/features/library/entries/library_entry_record.dart';
+import 'package:collectarr_app/features/collection/repositories/custom_field_repository.dart';
+import 'package:collectarr_app/features/collection/repositories/item_image_repository.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_transport_repository.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_item_cache_repository.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_snapshot_repository.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
-import 'package:collectarr_app/features/collection/commands/collection_item_commands.dart';
+import 'package:collectarr_app/features/collection/commands/library_entry_commands.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_common_draft.dart';
-import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_details_draft.dart';
-import 'package:collectarr_app/features/library/kinds/movie/ownership/movie_owned_details_draft.dart';
+import 'package:collectarr_app/features/library/kinds/comic/entries/comic_entry_details_draft.dart';
+import 'package:collectarr_app/features/library/kinds/movie/entries/movie_entry_details_draft.dart';
 import 'package:collectarr_app/features/collection/csv/collection_csv_codec.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
-import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_collection_item_create_payload.dart';
-import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_collection_item_update_payload.dart';
-import 'package:collectarr_app/features/library/kinds/comic/domain/comic_collection_item.dart';
-import 'package:collectarr_app/features/library/kinds/comic/data/comic_owned_repository.dart';
-import 'package:collectarr_app/features/library/kinds/book/domain/book_collection_item.dart';
-import 'package:collectarr_app/features/library/kinds/book/data/book_owned_repository.dart';
-import 'package:collectarr_app/features/library/kinds/movie/domain/movie_collection_item.dart';
-import 'package:collectarr_app/features/library/kinds/movie/data/movie_owned_repository.dart';
+import 'package:collectarr_app/features/library/kinds/comic/entries/comic_library_entry_create_payload.dart';
+import 'package:collectarr_app/features/library/kinds/comic/entries/comic_library_entry_update_payload.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_library_entry.dart';
+import 'package:collectarr_app/features/library/kinds/comic/data/comic_entry_repository.dart';
+import 'package:collectarr_app/features/library/kinds/book/domain/book_library_entry.dart';
+import 'package:collectarr_app/features/library/kinds/book/data/book_entry_repository.dart';
+import 'package:collectarr_app/features/library/kinds/movie/domain/movie_library_entry.dart';
+import 'package:collectarr_app/features/library/kinds/movie/data/movie_entry_repository.dart';
 import 'package:collectarr_app/state/auth_provider.dart';
 import 'package:collectarr_app/state/connection_settings_provider.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
@@ -54,31 +62,31 @@ void main() {
       overrides: [localDatabaseProvider.overrideWithValue(db)],
     );
     addTearDown(container.dispose);
+    await _cacheSourceCatalogItem(db, 'comic-1', CatalogMediaKind.comic);
 
-    await container.read(collectionItemMutationsProvider).addCollectionItem(
-          typedAddCollectionItemCommand(
+    await container.read(libraryEntryMutationsProvider).addLibraryEntry(
+          typedAddLibraryEntryCommand(
             catalogRef: testCatalogRef('comic-1', kind: 'comic'),
             common: const LibraryAddCommonDraft(
               condition: 'Near Mint',
             ),
             grade: '9.8',
-            details: const ComicOwnedDetailsDraft(),
+            details: const ComicEntryDetailsDraft(),
           ),
         );
 
     final queued = (await db.select(db.syncQueue).get())
-        .where((row) => row.entityType == 'collection_item')
+        .where((row) => row.entityType == 'library_entry')
         .toList();
-    final owned =
-        await _typedOwnedForCatalog<ComicCollectionItem>(db, 'comic-1');
-    expect(owned.catalogRef.entityType, CatalogEntityTypeId.catalogItem);
-    expect(owned.catalogRef.id, 'comic-1');
+    final entry = await _typedEntryForCatalog<ComicLibraryEntry>(db, 'comic-1');
+    expect(entry.catalogRef.entityType, CatalogEntityTypeId.catalogItem);
+    expect(entry.catalogRef.id, entry.id.value);
     expect(queued, hasLength(1));
-    expect(queued.single.entityType, 'collection_item');
+    expect(queued.single.entityType, 'library_entry');
     expect(queued.single.action, 'upsert');
   });
 
-  test('collection add prefers the kind-owned create payload over defaults',
+  test('duplicate clones the full entry and gives attachments new identities',
       () async {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
@@ -87,16 +95,163 @@ void main() {
     );
     addTearDown(container.dispose);
 
-    await container.read(collectionItemMutationsProvider).addCollectionItem(
-          typedAddCollectionItemCommand(
+    const sourceRef = LibraryEntryRef(
+      kind: CatalogMediaKind.comic,
+      id: LibraryEntryId('source-entry'),
+    );
+    final sourceRecord = LibraryEntryRecord(
+      id: sourceRef.id.value,
+      kind: sourceRef.kind,
+      catalogData: const {
+        'title': 'Source issue',
+        'unmapped_catalog_field': {'kept': true},
+      },
+      personalData: const {
+        'condition': 'Near Mint',
+        'quantity': 3,
+        'unmapped_personal_field': ['keep', 'all', 'values'],
+      },
+      sourceCatalogRef: const CatalogItemRef(
+        kind: CatalogMediaKind.comic,
+        id: 'core-issue-7',
+      ),
+      updatedAt: DateTime.utc(2026, 10, 1),
+    );
+    final entries = LibraryEntriesRepository(db);
+    await entries.replaceFromTransport(
+      EntryImportTransport(ref: sourceRef, payload: sourceRecord.toJson()),
+    );
+    await ItemImageRepository(db).add(
+      ItemImage(
+        id: 'source-image',
+        libraryEntryRef: sourceRef,
+        imageData: Uint8List.fromList([1, 2, 3]),
+        caption: 'Personal image',
+        createdAt: DateTime.utc(2026, 10, 1),
+      ),
+    );
+    await CustomFieldRepository(db).upsertValue(
+      CustomFieldValue(
+        id: 'source-custom-value',
+        targetId: sourceRef.key,
+        targetScope: CustomFieldTargetScope.libraryEntry,
+        fieldDefinitionId: 'field-id',
+        value: 'Unmapped custom value',
+        updatedAt: DateTime.utc(2026, 10, 1),
+      ),
+    );
+    await container.read(trackingMutationsProvider).syncEntryTrackingState(
+          sourceRef,
+          targetRef: const CatalogEntityRef(
+            kind: CatalogMediaKind.comic,
+            entityType: CatalogEntityTypeId.catalogItem,
+            id: 'source-entry',
+          ),
+          sourceType: TrackingSourceType.physical,
+          status: MediaTrackingStatus.completed,
+          rating: 9,
+          startedAt: DateTime.utc(2026, 9, 28),
+          finishedAt: DateTime.utc(2026, 10, 1),
+          notes: 'Finished the issue',
+          progressCurrent: 6,
+          progressTotal: 12,
+          timesCompleted: 2,
+        );
+
+    final duplicate =
+        await container.read(libraryEntryMutationsProvider).duplicateItem(
+              sourceRef,
+              tracking: LibraryEntryTrackingDraft(
+                status: MediaTrackingStatus.completed,
+                sourceType: TrackingSourceType.physical,
+                rating: 9,
+                startedAt: DateTime.utc(2026, 9, 28),
+                finishedAt: DateTime.utc(2026, 10, 1),
+                notes: 'Finished the issue',
+                progressCurrent: 6,
+                progressTotal: 12,
+                timesCompleted: 2,
+              ),
+            );
+
+    expect(duplicate, isNotNull);
+    expect(duplicate, isNot(sourceRef));
+    final duplicatePayload = await entries.payloadByRef(duplicate!);
+    expect(duplicatePayload?['catalog_data'], sourceRecord.catalogData);
+    expect(duplicatePayload?['personal_data'], sourceRecord.personalData);
+    expect(duplicatePayload?['source_catalog_ref'],
+        sourceRecord.sourceCatalogRef!.toJson());
+
+    final images = ItemImageRepository(db);
+    final sourceImages = await images.listForLibraryEntryRef(sourceRef);
+    final duplicateImages = await images.listForLibraryEntryRef(duplicate);
+    expect(sourceImages.single.id, 'source-image');
+    expect(duplicateImages, hasLength(1));
+    expect(duplicateImages.single.id, isNot(sourceImages.single.id));
+    expect(duplicateImages.single.libraryEntryRef, duplicate);
+    expect(duplicateImages.single.imageData, sourceImages.single.imageData);
+
+    final fields = CustomFieldRepository(db);
+    final sourceFields = await fields.listValuesForTarget(
+      targetId: sourceRef.key,
+      targetScope: CustomFieldTargetScope.libraryEntry,
+    );
+    final duplicateFields = await fields.listValuesForTarget(
+      targetId: duplicate.key,
+      targetScope: CustomFieldTargetScope.libraryEntry,
+    );
+    expect(sourceFields.single.id, 'source-custom-value');
+    expect(duplicateFields, hasLength(1));
+    expect(duplicateFields.single.id, isNot(sourceFields.single.id));
+    expect(duplicateFields.single.targetId, duplicate.key);
+    expect(duplicateFields.single.value, sourceFields.single.value);
+
+    final changes = await db.select(db.syncQueue).get();
+    final entryChanges =
+        changes.where((change) => change.entityType == 'library_entry');
+    expect(entryChanges, hasLength(1));
+    expect(entryChanges.single.entityId, duplicate.id.value);
+    expect(
+        entryChanges.single.payloadJson, contains('unmapped_personal_field'));
+
+    final trackingRecords = await readTrackingStates(db);
+    expect(trackingRecords, hasLength(2));
+    final duplicateTracking = trackingRecords.singleWhere(
+      (record) => record.libraryEntryRef == duplicate,
+    );
+    expect(duplicateTracking.sourceType, TrackingSourceType.physical);
+    expect(duplicateTracking.status, MediaTrackingStatus.completed);
+    expect(duplicateTracking.rating, 9);
+    expect(duplicateTracking.notes, 'Finished the issue');
+    expect(duplicateTracking.progress.current, 6);
+    expect(duplicateTracking.progress.total, 12);
+    expect(duplicateTracking.progress.timesCompleted, 2);
+  });
+
+  test('collection add prefers the kind-entry create payload over defaults',
+      () async {
+    final db = LocalDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+    final container = ProviderContainer(
+      overrides: [localDatabaseProvider.overrideWithValue(db)],
+    );
+    addTearDown(container.dispose);
+    await _cacheSourceCatalogItem(
+      db,
+      'comic-typed-payload',
+      CatalogMediaKind.comic,
+    );
+
+    await container.read(libraryEntryMutationsProvider).addLibraryEntry(
+          typedAddLibraryEntryCommand(
             catalogRef: testCatalogRef('comic-typed-payload', kind: 'comic'),
             common: const LibraryAddCommonDraft(
               condition: 'Default condition',
             ),
-            details: const ComicOwnedDetailsDraft(),
-            typedPayload: ComicCollectionItemCreatePayload(
+            details: const ComicEntryDetailsDraft(),
+            typedPayload: ComicLibraryEntryCreatePayload(
               catalogRef: testCatalogRef('comic-typed-payload', kind: 'comic'),
-              details: const ComicOwnedDetailsDraft(),
+              details: const ComicEntryDetailsDraft(),
               condition: 'Typed condition',
               purchaseStore: 'Typed store',
               collectionStatus: 'Complete',
@@ -104,13 +259,13 @@ void main() {
           ),
         );
 
-    final owned = await _typedOwnedForCatalog<ComicCollectionItem>(
+    final entry = await _typedEntryForCatalog<ComicLibraryEntry>(
       db,
       'comic-typed-payload',
     );
-    expect(owned.condition, 'Typed condition');
-    expect(owned.purchaseStore, 'Typed store');
-    expect(owned.collectionStatus, 'Complete');
+    expect(entry.condition, 'Typed condition');
+    expect(entry.purchaseStore, 'Typed store');
+    expect(entry.collectionStatus, 'Complete');
   });
 
   test(
@@ -122,27 +277,27 @@ void main() {
       overrides: [
         localDatabaseProvider.overrideWithValue(db),
         authControllerProvider.overrideWith(
-          () => _CollectionItemAuthController(),
+          () => _LibraryEntryAuthController(),
         ),
       ],
     );
     addTearDown(container.dispose);
+    await _cacheSourceCatalogItem(db, 'movie-1', CatalogMediaKind.movie);
 
-    await container.read(collectionItemMutationsProvider).addCollectionItem(
-          typedAddCollectionItemCommand(
+    await container.read(libraryEntryMutationsProvider).addLibraryEntry(
+          typedAddLibraryEntryCommand(
             catalogRef: testCatalogRef('movie-1', kind: 'movie'),
             common: const LibraryAddCommonDraft(),
-            details: const MovieOwnedDetailsDraft(),
+            details: const MovieEntryDetailsDraft(),
           ),
         );
 
-    final owned =
-        await _typedOwnedForCatalog<MovieCollectionItem>(db, 'movie-1');
+    final entry = await _typedEntryForCatalog<MovieLibraryEntry>(db, 'movie-1');
     final queued = await db.select(db.syncQueue).getSingle();
 
-    expect(owned.createdAt, isNotNull);
-    expect(owned.ownerUserId, 'user-1');
-    expect(owned.ownerLabel, 'owner@example.com');
+    expect(entry.createdAt, isNotNull);
+    expect(entry.ownerUserId, 'user-1');
+    expect(entry.ownerLabel, 'owner@example.com');
     expect(queued.payloadJson, contains('"created_at"'));
     expect(queued.payloadJson, contains('"owner_user_id":"user-1"'));
     expect(queued.payloadJson, contains('"owner_label":"owner@example.com"'));
@@ -165,12 +320,13 @@ void main() {
       ],
     );
     addTearDown(container.dispose);
+    await _cacheSourceCatalogItem(db, 'comic-1', CatalogMediaKind.comic);
 
-    await container.read(collectionItemMutationsProvider).addCollectionItem(
-          typedAddCollectionItemCommand(
+    await container.read(libraryEntryMutationsProvider).addLibraryEntry(
+          typedAddLibraryEntryCommand(
             catalogRef: testCatalogRef('comic-1', kind: 'comic'),
             common: const LibraryAddCommonDraft(),
-            details: const ComicOwnedDetailsDraft(),
+            details: const ComicEntryDetailsDraft(),
           ),
         );
 
@@ -190,16 +346,14 @@ void main() {
     await CatalogTransportRepository(db).upsertTransportItems([
       testCatalogItem(id: 'comic-1', kind: 'comic', title: 'Original'),
     ]);
-    await container
-        .read(collectionCommandCoordinatorProvider)
-        .addCollectionItem(
-          typedAddCollectionItemCommand(
+    await container.read(collectionCommandCoordinatorProvider).addLibraryEntry(
+          typedAddLibraryEntryCommand(
             catalogRef: testCatalogRef('comic-1', kind: 'comic'),
             common: const LibraryAddCommonDraft(
               condition: 'Near Mint',
             ),
-            tracking: const CollectionItemTrackingDraft(rating: 8),
-            details: const ComicOwnedDetailsDraft(),
+            tracking: const LibraryEntryTrackingDraft(rating: 8),
+            details: const ComicEntryDetailsDraft(),
           ),
         );
 
@@ -212,8 +366,7 @@ void main() {
           )).kindCapability.toImportTransport(),
         );
 
-    final owned =
-        await _typedOwnedForCatalog<ComicCollectionItem>(db, 'comic-1');
+    final entry = await _typedEntryForCatalog<ComicLibraryEntry>(db, 'comic-1');
     final tracking = await readSingleTrackingState(db);
     final catalog = await CatalogSnapshotRepository(db).findByRef(
       const CatalogEntityRef(
@@ -223,7 +376,7 @@ void main() {
       ),
     );
 
-    expect(owned.condition, 'Near Mint');
+    expect(entry.condition, 'Near Mint');
     expect(tracking.rating, 8);
     expect(catalog?.title, 'Updated');
   });
@@ -235,35 +388,30 @@ void main() {
       overrides: [localDatabaseProvider.overrideWithValue(db)],
     );
     addTearDown(container.dispose);
+    await _cacheSourceCatalogItem(db, 'movie-1', CatalogMediaKind.movie);
 
-    await container
-        .read(collectionCommandCoordinatorProvider)
-        .addCollectionItem(
-          typedAddCollectionItemCommand(
+    await container.read(collectionCommandCoordinatorProvider).addLibraryEntry(
+          typedAddLibraryEntryCommand(
             catalogRef: testCatalogRef('movie-1', kind: 'movie'),
             common: LibraryAddCommonDraft(),
-            tracking: CollectionItemTrackingDraft(
+            tracking: LibraryEntryTrackingDraft(
               status: MediaTrackingStatus.completed,
               rating: 8,
               startedAt: DateTime.utc(2026, 5, 10),
               finishedAt: DateTime.utc(2026, 5, 12),
             ),
-            details: const MovieOwnedDetailsDraft(),
+            details: const MovieEntryDetailsDraft(),
           ),
         );
 
-    final owned =
-        await _typedOwnedForCatalog<MovieCollectionItem>(db, 'movie-1');
+    final entry = await _typedEntryForCatalog<MovieLibraryEntry>(db, 'movie-1');
     final tracking = await readSingleTrackingState(db);
     final queued = await db.select(db.syncQueue).get();
 
+    expect(tracking.catalogRef.id, entry.id.value);
     expect(
-      tracking.catalogRef.id,
-      'movie-1',
-    );
-    expect(
-      tracking.collectionItemRef?.key,
-      CollectionItemRef.fromKey('movie:${owned.id.value}').key,
+      tracking.libraryEntryRef?.key,
+      LibraryEntryRef.fromKey('movie:${entry.id.value}').key,
     );
     expect(tracking.sourceTypeApiValue, 'physical');
     expect(tracking.statusStorageValue, 'Completed');
@@ -274,7 +422,7 @@ void main() {
     );
   });
 
-  test('collection mutations infer digital ownership from catalog snapshots',
+  test('collection mutations infer digital entries from catalog snapshots',
       () async {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
@@ -293,31 +441,29 @@ void main() {
       ),
     ]);
 
-    await container
-        .read(collectionCommandCoordinatorProvider)
-        .addCollectionItem(
-          typedAddCollectionItemCommand(
+    await container.read(collectionCommandCoordinatorProvider).addLibraryEntry(
+          typedAddLibraryEntryCommand(
             catalogRef: testCatalogRef('movie-digital-1', kind: 'movie'),
             common: const LibraryAddCommonDraft(isDigital: true),
-            tracking: const CollectionItemTrackingDraft(
+            tracking: const LibraryEntryTrackingDraft(
               status: MediaTrackingStatus.completed,
               rating: 9,
             ),
-            details: const MovieOwnedDetailsDraft(),
+            details: const MovieEntryDetailsDraft(),
           ),
         );
 
-    final owned = await _typedOwnedForCatalog<MovieCollectionItem>(
+    final entry = await _typedEntryForCatalog<MovieLibraryEntry>(
       db,
       'movie-digital-1',
     );
     final tracking = await readSingleTrackingState(db);
 
-    expect(owned.isDigital, isTrue);
+    expect(entry.isDigital, isTrue);
     expect(tracking.sourceTypeApiValue, TrackingSourceType.digital.apiValue);
   });
 
-  test('collection mutations can sync owned tracking entries directly',
+  test('collection mutations can sync entry tracking entries directly',
       () async {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
@@ -325,19 +471,20 @@ void main() {
       overrides: [localDatabaseProvider.overrideWithValue(db)],
     );
     addTearDown(container.dispose);
+    await _cacheSourceCatalogItem(db, 'movie-2', CatalogMediaKind.movie);
 
-    final owned = await container
+    final entry = await container
         .read(collectionCommandCoordinatorProvider)
-        .addCollectionItem(
-          typedAddCollectionItemCommand(
+        .addLibraryEntry(
+          typedAddLibraryEntryCommand(
             catalogRef: testCatalogRef('movie-2', kind: 'movie'),
             common: const LibraryAddCommonDraft(),
-            details: const MovieOwnedDetailsDraft(),
+            details: const MovieEntryDetailsDraft(),
           ),
           syncTracking: false,
         );
-    await container.read(trackingMutationsProvider).syncOwnedTrackingState(
-          owned,
+    await container.read(trackingMutationsProvider).syncEntryTrackingState(
+          entry,
           targetRef: const CatalogEntityRef(
             kind: CatalogMediaKind.movie,
             entityType: CatalogEntityTypeId.catalogItem,
@@ -353,7 +500,7 @@ void main() {
     final queued = await db.select(db.syncQueue).get();
     final trackingRef = tracking.catalogRef;
 
-    expect(tracking.collectionItemRef?.key, owned.key);
+    expect(tracking.libraryEntryRef?.key, entry.key);
     expect(trackingRef.entityType, CatalogEntityTypeId.catalogItem);
     expect(trackingRef.id, 'movie-2');
     expect(tracking.statusStorageValue, 'Completed');
@@ -381,9 +528,8 @@ void main() {
           TrackingTarget.catalog(
             const CatalogEntityRef(
               kind: CatalogMediaKind.music,
-              entityType: CatalogEntityTypeId('release'),
-              id: 'music-1-release',
-              rootId: 'music-1',
+              entityType: CatalogEntityTypeId.catalogItem,
+              id: 'music-1',
             ),
           ),
           sourceType: TrackingSourceType.digital,
@@ -399,9 +545,9 @@ void main() {
 
     expect(
       tracking.catalogRef.id,
-      'music-1-release',
+      'music-1',
     );
-    expect(tracking.collectionItemRef, isNull);
+    expect(tracking.libraryEntryRef, isNull);
     expect(tracking.sourceTypeApiValue, 'digital');
     expect(tracking.progress.current, 6);
     expect(
@@ -490,30 +636,23 @@ void main() {
       ),
     ]);
 
-    await container.read(collectionItemMutationsProvider).addCollectionItem(
-          typedAddCollectionItemCommand(
+    await container.read(libraryEntryMutationsProvider).addLibraryEntry(
+          typedAddLibraryEntryCommand(
             catalogRef: testCatalogRef('comic-1', kind: 'comic'),
             common: const LibraryAddCommonDraft(),
-            details: const ComicOwnedDetailsDraft(),
+            details: const ComicEntryDetailsDraft(),
           ),
         );
 
     final queued = await db.select(db.syncQueue).get();
-    final snapshot =
-        queued.where((row) => row.entityType == 'catalog_item').single;
-    // addCollectionItem enqueues the collection item, a structural catalog reference,
-    // and auto-registers the publisher as a pick-list value.
-    expect(queued, hasLength(3));
-    expect(
-      queued.where((row) => row.entityType == 'pick_list_value').length,
-      1,
-    );
-    expect(snapshot.entityId, 'comic-1');
-    expect(snapshot.payloadJson, contains('"id":"comic-1"'));
-    expect(snapshot.payloadJson, contains('"kind":"comic"'));
-    expect(snapshot.payloadJson, isNot(contains('Absolute Batman')));
+    final snapshot = queued
+        .where((row) => row.entityType == 'library_entry')
+        .single;
+    expect(queued.where((row) => row.entityType == 'catalog_item'), isEmpty);
+    expect(snapshot.payloadJson, contains('"catalog_data"'));
+    expect(snapshot.payloadJson, contains('Absolute Batman'));
     await Future<void>.delayed(Duration.zero);
-    expect(container.read(syncControllerProvider).pendingCount, 3);
+    expect(container.read(syncControllerProvider).pendingCount, 1);
   });
 
   test('collection updates can clear nullable personal details', () async {
@@ -523,11 +662,10 @@ void main() {
       overrides: [localDatabaseProvider.overrideWithValue(db)],
     );
     addTearDown(container.dispose);
+    await _cacheSourceCatalogItem(db, 'comic-1', CatalogMediaKind.comic);
 
-    await container
-        .read(collectionCommandCoordinatorProvider)
-        .addCollectionItem(
-          typedAddCollectionItemCommand(
+    await container.read(collectionCommandCoordinatorProvider).addLibraryEntry(
+          typedAddLibraryEntryCommand(
             catalogRef: testCatalogRef('comic-1', kind: 'comic'),
             common: LibraryAddCommonDraft(
               condition: 'Near Mint',
@@ -537,21 +675,21 @@ void main() {
               personalNotes: 'Signed copy',
             ),
             grade: '9.8',
-            details: const ComicOwnedDetailsDraft(),
+            details: const ComicEntryDetailsDraft(),
           ),
         );
     final original =
-        await _typedOwnedForCatalog<ComicCollectionItem>(db, 'comic-1');
+        await _typedEntryForCatalog<ComicLibraryEntry>(db, 'comic-1');
 
     await container
         .read(collectionCommandCoordinatorProvider)
-        .updateCollectionItem(
-          UpdateCollectionItemCommand(
-            collectionItemRef: CollectionItemRef(
+        .updateLibraryEntry(
+          UpdateLibraryEntryCommand(
+            libraryEntryRef: LibraryEntryRef(
               kind: CatalogMediaKind.comic,
-              id: CollectionItemId(original.id.value),
+              id: LibraryEntryId(original.id.value),
             ),
-            payload: ComicCollectionItemUpdatePayload.partial(
+            payload: ComicLibraryEntryUpdatePayload.partial(
               condition: const Patch.set('Near Mint'),
               grade: const Patch.set('9.8'),
               purchaseDate: const Patch.clear(),
@@ -562,11 +700,11 @@ void main() {
           ),
         );
 
-    final updated = await _typedOwned<ComicCollectionItem>(
+    final updated = await _typedEntry<ComicLibraryEntry>(
       db,
-      CollectionItemRef(
+      LibraryEntryRef(
         kind: CatalogMediaKind.comic,
-        id: CollectionItemId(original.id.value),
+        id: LibraryEntryId(original.id.value),
       ),
     );
     expect(updated.purchaseDate, isNull);
@@ -582,40 +720,39 @@ void main() {
       overrides: [localDatabaseProvider.overrideWithValue(db)],
     );
     addTearDown(container.dispose);
+    await _cacheSourceCatalogItem(db, 'comic-1', CatalogMediaKind.comic);
 
-    await container
-        .read(collectionCommandCoordinatorProvider)
-        .addCollectionItem(
-          typedAddCollectionItemCommand(
+    await container.read(collectionCommandCoordinatorProvider).addLibraryEntry(
+          typedAddLibraryEntryCommand(
             catalogRef: testCatalogRef('comic-1', kind: 'comic'),
             common: const LibraryAddCommonDraft(
               locationId: 'loc-box-6',
             ),
-            details: const ComicOwnedDetailsDraft(),
+            details: const ComicEntryDetailsDraft(),
           ),
         );
     final original =
-        await _typedOwnedForCatalog<ComicCollectionItem>(db, 'comic-1');
+        await _typedEntryForCatalog<ComicLibraryEntry>(db, 'comic-1');
 
     await container
         .read(collectionCommandCoordinatorProvider)
-        .updateCollectionItem(
-          UpdateCollectionItemCommand(
-            collectionItemRef: CollectionItemRef(
+        .updateLibraryEntry(
+          UpdateLibraryEntryCommand(
+            libraryEntryRef: LibraryEntryRef(
               kind: CatalogMediaKind.comic,
-              id: CollectionItemId(original.id.value),
+              id: LibraryEntryId(original.id.value),
             ),
-            payload: ComicCollectionItemUpdatePayload.partial(
+            payload: ComicLibraryEntryUpdatePayload.partial(
               locationId: const Patch.clear(),
             ),
           ),
         );
 
-    final updated = await _typedOwned<ComicCollectionItem>(
+    final updated = await _typedEntry<ComicLibraryEntry>(
       db,
-      CollectionItemRef(
+      LibraryEntryRef(
         kind: CatalogMediaKind.comic,
-        id: CollectionItemId(original.id.value),
+        id: LibraryEntryId(original.id.value),
       ),
     );
     expect(updated.locationId, isNull);
@@ -763,8 +900,8 @@ void main() {
         CollectionImportRow(
           itemId: 'comic-1',
           mediaKind: CatalogMediaKind.comic,
-          status: 'owned',
-          kindOwnedCells: ['9.8'],
+          status: 'entry',
+          kindEntryCells: ['9.8'],
           personal: CollectionImportPersonalValues(
             condition: 'Near Mint',
             pricePaidCents: 1299,
@@ -779,30 +916,31 @@ void main() {
       ],
     );
 
-    final owned = await CollectionItemsRepository(db).listActiveSummaries();
-    final typedOwned = await db.select(db.comicCollectionItemsRows).get();
+    final entry = await LibraryEntriesRepository(db).listActiveSummaries();
+    final typedEntry = await ComicEntryRepository(db).listActive();
     final wishlist = await db.select(db.wishlistItemsCache).get();
     final queued = await db.select(db.syncQueue).get();
     expect(imported, 2);
-    expect(owned, hasLength(1));
-    expect(typedOwned, hasLength(1));
-    expect(typedOwned.single.grade, '9.8');
+    expect(entry, hasLength(1));
+    expect(typedEntry, hasLength(1));
+    expect(typedEntry.single.grade, '9.8');
     expect(wishlist, hasLength(1));
-    // Rows without a complete kind-owned catalog projection must not create a
-    // generic catalog snapshot as a side effect of importing Owned/Wishlist.
+    // Rows without a complete kind-entry catalog projection must not create a
+    // generic catalog snapshot as a side effect of importing Entry/Wishlist.
     expect(queued, hasLength(2));
-    final ownedChanges =
-        queued.where((row) => row.entityType == 'collection_item').toList();
-    expect(ownedChanges, hasLength(1));
-    final ownedPayload = jsonDecode(ownedChanges.single.payloadJson);
-    expect(ownedPayload, isA<Map<String, dynamic>>());
-    expect(ownedPayload, contains('catalog_ref'));
-    expect(ownedPayload, isNot(contains('id')));
-    expect(ownedPayload, isNot(contains('updated_at')));
+    final entryChanges =
+        queued.where((row) => row.entityType == 'library_entry').toList();
+    expect(entryChanges, hasLength(1));
+    final entryPayload = jsonDecode(entryChanges.single.payloadJson);
+    expect(entryPayload, isA<Map<String, dynamic>>());
+    expect(entryPayload, contains('id'));
+    expect(entryPayload, contains('catalog_data'));
+    expect(entryPayload, contains('personal_data'));
+    expect(entryPayload, contains('updated_at'));
     expect(container.read(syncControllerProvider).pendingCount, 2);
   });
 
-  test('collection import moves existing wishlist rows to owned in one batch',
+  test('collection import moves existing wishlist rows to entry in one batch',
       () async {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
@@ -821,21 +959,20 @@ void main() {
       const CollectionImportRow(
         itemId: 'comic-1',
         mediaKind: CatalogMediaKind.comic,
-        status: 'owned',
+        status: 'entry',
       ),
     ]);
 
-    final owned =
-        await _typedOwnedForCatalog<ComicCollectionItem>(db, 'comic-1');
+    final entry = await _typedEntryForCatalog<ComicLibraryEntry>(db, 'comic-1');
     final wishlist = await db.select(db.wishlistItemsCache).get();
     final queued = (await db.select(db.syncQueue).get())
         .where((row) =>
-            row.entityType == 'collection_item' ||
+            row.entityType == 'library_entry' ||
             row.entityType == 'wishlist_item' ||
             row.entityType == 'catalog_item')
         .toList();
 
-    expect(owned, isNotNull);
+    expect(entry, isNotNull);
     expect(wishlist.single.deletedAt, isNotNull);
     expect(queued, hasLength(3));
     expect(
@@ -867,7 +1004,7 @@ void main() {
       const [
         CollectionImportRow(
           itemId: '',
-          status: 'owned',
+          status: 'entry',
           title: 'Different title from CSV',
           mediaKind: CatalogMediaKind.comic,
           kindCatalogCells: [
@@ -883,19 +1020,18 @@ void main() {
             '',
             '75960604716152011',
           ],
-          kindOwnedCells: ['7.5'],
+          kindEntryCells: ['7.5'],
         ),
       ],
     );
 
-    final owned =
-        await _typedOwnedForCatalog<ComicCollectionItem>(db, 'comic-1');
-    final typedOwned = await db.select(db.comicCollectionItemsRows).get();
+    final entry = await _typedEntryForCatalog<ComicLibraryEntry>(db, 'comic-1');
+    final typedEntry = await ComicEntryRepository(db).listActive();
     final queued = await db.select(db.syncQueue).get();
     expect(imported, 1);
-    expect(owned.itemId, 'comic-1');
-    expect(owned.grade, '7.5');
-    expect(typedOwned, hasLength(1));
+    expect(entry.itemId, 'comic-1');
+    expect(entry.grade, '7.5');
+    expect(typedEntry, hasLength(1));
     expect(
       queued.where((row) => row.entityType == 'catalog_item'),
       hasLength(1),
@@ -917,7 +1053,7 @@ void main() {
         CollectionImportRow(
           itemId: 'movie-1',
           mediaKind: CatalogMediaKind.movie,
-          status: 'owned',
+          status: 'entry',
           title: 'Blade Runner',
           kindCatalogCells: [
             'movie-1',
@@ -955,7 +1091,7 @@ void main() {
     );
   });
 
-  test('collection import preserves universal owned fields from csv', () async {
+  test('collection import preserves universal entry fields from csv', () async {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
     final container = ProviderContainer(
@@ -967,11 +1103,11 @@ void main() {
         await container.read(collectionImportOrchestratorProvider).importRows(
       [
         CollectionImportRow(
-          itemId: 'book-owned-fields',
+          itemId: 'book-entry-fields',
           mediaKind: CatalogMediaKind.book,
-          status: 'owned',
+          status: 'entry',
           title: 'Imported book',
-          kindOwnedCells: ['8.5'],
+          kindEntryCells: ['8.5'],
           personal: CollectionImportPersonalValues(
             condition: 'Very Good',
             purchaseDate: DateTime.utc(2026, 8, 1),
@@ -989,27 +1125,27 @@ void main() {
       ],
     );
 
-    final owned = await _typedOwnedForCatalog<BookCollectionItem>(
+    final entry = await _typedEntryForCatalog<BookLibraryEntry>(
       db,
-      'book-owned-fields',
+      'book-entry-fields',
     );
     expect(imported, 1);
-    expect(owned.itemId, 'book-owned-fields');
-    expect(owned.condition, 'Very Good');
-    expect(owned.grade, '8.5');
-    expect(owned.purchaseDate?.toUtc(), DateTime.utc(2026, 8, 1));
-    expect(owned.pricePaidCents, 2599);
-    expect(owned.currency, 'EUR');
-    expect(owned.personalNotes, 'Imported note');
-    expect(owned.locationId, 'shelf-a');
-    expect(owned.indexNumber, 12);
-    expect(owned.tags, 'gift,read');
-    expect(owned.soldAt?.toUtc(), DateTime.utc(2026, 8, 15));
-    expect(owned.sellPriceCents, 3199);
-    expect(owned.soldTo, 'collector@example.test');
+    expect(entry.itemId, 'book-entry-fields');
+    expect(entry.condition, 'Very Good');
+    expect(entry.grade, '8.5');
+    expect(entry.purchaseDate?.toUtc(), DateTime.utc(2026, 8, 1));
+    expect(entry.pricePaidCents, 2599);
+    expect(entry.currency, 'EUR');
+    expect(entry.personalNotes, 'Imported note');
+    expect(entry.locationId, 'shelf-a');
+    expect(entry.indexNumber, 12);
+    expect(entry.tags, 'gift,read');
+    expect(entry.soldAt?.toUtc(), DateTime.utc(2026, 8, 15));
+    expect(entry.sellPriceCents, 3199);
+    expect(entry.soldTo, 'collector@example.test');
   });
 
-  test('collection import delegates kind-owned csv cells to Comic', () async {
+  test('collection import delegates kind-entry csv cells to Comic', () async {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
     final container = ProviderContainer(
@@ -1018,9 +1154,9 @@ void main() {
     addTearDown(container.dispose);
 
     final csv = CollectionCsvCodec(profiles: collectionCsvKindProfiles);
-    final ownedFixture = testCollectionItem(
-      id: 'owned-comic-details',
-      itemId: 'comic-owned-details',
+    final entryFixture = testLibraryEntry(
+      id: 'entry-comic-details',
+      itemId: 'comic-entry-details',
       rawOrSlabbed: 'Slabbed',
       gradingCompany: 'CGC',
       graderNotes: 'Pressing preserved',
@@ -1032,17 +1168,17 @@ void main() {
     final rows = csv.parse(
       csv.exportShelf([
         LibraryWorkspaceSource(
-          itemId: 'comic-owned-details',
+          itemId: 'comic-entry-details',
           catalogData: testWorkspaceCatalogData(testCatalogItemWithKindMetadata(
             testCatalogItem(
-              id: 'comic-owned-details',
+              id: 'comic-entry-details',
               kind: 'comic',
               title: 'Imported Comic',
             ),
           ).asShelfCatalogItem),
-          collectionItemSummary: testCollectionItemSummary(ownedFixture),
-          collectionItemDispatch: testComicCollectionItemDispatchFrom(
-            testComicCollectionItemFrom(ownedFixture),
+          libraryEntrySummary: testLibraryEntrySummary(entryFixture),
+          libraryEntryDispatch: testComicLibraryEntryDispatchFrom(
+            testComicLibraryEntryFrom(entryFixture),
           ),
         ),
       ]),
@@ -1050,11 +1186,11 @@ void main() {
 
     await container.read(collectionImportOrchestratorProvider).importRows(rows);
 
-    final owned = await _typedOwnedForCatalog<ComicCollectionItem>(
+    final entry = await _typedEntryForCatalog<ComicLibraryEntry>(
       db,
-      'comic-owned-details',
+      'comic-entry-details',
     );
-    final details = owned.details;
+    final details = entry.details;
     expect(details.rawOrSlabbed, 'Slabbed');
     expect(details.gradingCompany, 'CGC');
     expect(details.graderNotes, 'Pressing preserved');
@@ -1094,7 +1230,7 @@ void main() {
         CollectionImportRow(
           itemId: '',
           mediaKind: CatalogMediaKind.movie,
-          status: 'owned',
+          status: 'entry',
           title: 'Dune',
           kindCatalogCells: [
             '',
@@ -1113,10 +1249,9 @@ void main() {
       ],
     );
 
-    final owned =
-        await _typedOwnedForCatalog<MovieCollectionItem>(db, 'movie-1');
+    final entry = await _typedEntryForCatalog<MovieLibraryEntry>(db, 'movie-1');
     expect(imported, 1);
-    expect(owned.itemId, 'movie-1');
+    expect(entry.itemId, 'movie-1');
   });
 
   test(
@@ -1135,7 +1270,7 @@ void main() {
           itemId: 'comic-without-projection',
           mediaKind: CatalogMediaKind.comic,
           title: 'Only a structural import row',
-          status: 'owned',
+          status: 'entry',
         ),
       ],
     );
@@ -1182,7 +1317,7 @@ void main() {
         CollectionImportRow(
           itemId: '',
           mediaKind: CatalogMediaKind.comic,
-          status: 'owned',
+          status: 'entry',
           title: 'The Amazing Spider-Man, Vol. 2',
           kindCatalogCells: [
             '',
@@ -1200,7 +1335,7 @@ void main() {
         ),
         CollectionImportRow(
           itemId: '',
-          status: 'owned',
+          status: 'entry',
           title: 'Unknown Series',
           kindCatalogCells: [
             '',
@@ -1242,30 +1377,30 @@ void main() {
         CollectionImportRow(
           itemId: 'comic-1',
           mediaKind: CatalogMediaKind.comic,
-          status: 'owned',
-          kindOwnedCells: ['9.8'],
+          status: 'entry',
+          kindEntryCells: ['9.8'],
         ),
         CollectionImportRow(
           itemId: 'comic-1',
           mediaKind: CatalogMediaKind.comic,
-          status: 'owned',
-          kindOwnedCells: ['7.5'],
+          status: 'entry',
+          kindEntryCells: ['7.5'],
         ),
       ],
     );
 
     expect(preview.resolvedCount, 1);
     expect(preview.duplicateCount, 1);
-    expect(preview.duplicateRows.single.kindOwnedCells.first, '7.5');
+    expect(preview.duplicateRows.single.kindEntryCells.first, '7.5');
     expect(preview.reviewCount, 1);
 
     final imported = await importOrchestrator.importRows(preview.resolvedRows);
-    final owned = await _typedOwnedForCatalog<ComicCollectionItem>(
+    final entry = await _typedEntryForCatalog<ComicLibraryEntry>(
       db,
       'comic-1',
     );
     expect(imported, 1);
-    expect(owned.grade, '9.8');
+    expect(entry.grade, '9.8');
   });
 
   test('collection import routes tracking columns to tracking entries',
@@ -1283,7 +1418,7 @@ void main() {
         CollectionImportRow(
           itemId: 'comic-tracking-import',
           mediaKind: CatalogMediaKind.comic,
-          status: 'owned',
+          status: 'entry',
           tracking: CollectionImportTrackingValues(
             rating: 8,
             status: 'Read',
@@ -1294,15 +1429,15 @@ void main() {
       ],
     );
 
-    final owned = await _typedOwnedForCatalog<ComicCollectionItem>(
+    final entry = await _typedEntryForCatalog<ComicLibraryEntry>(
       db,
       'comic-tracking-import',
     );
     final tracking = await readSingleTrackingState(db);
     expect(imported, 1);
     expect(
-      tracking.collectionItemRef?.key,
-      CollectionItemRef.fromKey('comic:${owned.id.value}').key,
+      tracking.libraryEntryRef?.key,
+      LibraryEntryRef.fromKey('comic:${entry.id.value}').key,
     );
     expect(tracking.statusStorageValue, 'Completed');
     expect(tracking.rating, 8);
@@ -1310,7 +1445,7 @@ void main() {
     expect(tracking.finishedAt?.toUtc(), DateTime.utc(2026, 6, 2));
   });
 
-  test('collection import preview reports existing owned conflicts', () async {
+  test('collection import preview reports existing entry conflicts', () async {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
     final container = ProviderContainer(
@@ -1321,12 +1456,12 @@ void main() {
     final importOrchestrator =
         container.read(collectionImportOrchestratorProvider);
 
-    await coordinator.addCollectionItem(
-      typedAddCollectionItemCommand(
+    await coordinator.addLibraryEntry(
+      typedAddLibraryEntryCommand(
         catalogRef: testCatalogRef('comic-1', kind: 'comic'),
         common: const LibraryAddCommonDraft(),
         grade: '4.0',
-        details: const ComicOwnedDetailsDraft(),
+        details: const ComicEntryDetailsDraft(),
       ),
     );
 
@@ -1335,8 +1470,8 @@ void main() {
         CollectionImportRow(
           itemId: 'comic-1',
           mediaKind: CatalogMediaKind.comic,
-          status: 'owned',
-          kindOwnedCells: ['7.5'],
+          status: 'entry',
+          kindEntryCells: ['7.5'],
         ),
       ],
     );
@@ -1346,7 +1481,7 @@ void main() {
     expect(preview.conflictRows.single.itemId, 'comic-1');
   });
 
-  test('collection import updates existing owned conflict without duplicate',
+  test('collection import updates existing entry conflict without duplicate',
       () async {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
@@ -1358,36 +1493,35 @@ void main() {
     final importOrchestrator =
         container.read(collectionImportOrchestratorProvider);
 
-    await coordinator.addCollectionItem(
-      typedAddCollectionItemCommand(
+    await coordinator.addLibraryEntry(
+      typedAddLibraryEntryCommand(
         catalogRef: testCatalogRef('comic-1', kind: 'comic'),
         common: const LibraryAddCommonDraft(condition: 'Good'),
         grade: '4.0',
-        details: const ComicOwnedDetailsDraft(),
+        details: const ComicEntryDetailsDraft(),
       ),
     );
     final original =
-        await _typedOwnedForCatalog<ComicCollectionItem>(db, 'comic-1');
+        await _typedEntryForCatalog<ComicLibraryEntry>(db, 'comic-1');
 
     final imported = await importOrchestrator.importRows(
       const [
         CollectionImportRow(
           itemId: 'comic-1',
           mediaKind: CatalogMediaKind.comic,
-          status: 'owned',
-          kindOwnedCells: ['7.5'],
+          status: 'entry',
+          kindEntryCells: ['7.5'],
           personal: CollectionImportPersonalValues(locationId: 'loc-box-6'),
         ),
       ],
     );
 
-    final owned =
-        await _typedOwnedForCatalog<ComicCollectionItem>(db, 'comic-1');
+    final entry = await _typedEntryForCatalog<ComicLibraryEntry>(db, 'comic-1');
     expect(imported, 1);
-    expect(owned.id, original.id);
-    expect(owned.condition, 'Good');
-    expect(owned.grade, '7.5');
-    expect(owned.locationId, 'loc-box-6');
+    expect(entry.id, original.id);
+    expect(entry.condition, 'Good');
+    expect(entry.grade, '7.5');
+    expect(entry.locationId, 'loc-box-6');
   });
 
   test('collection import preserves structured location ids', () async {
@@ -1404,7 +1538,7 @@ void main() {
         CollectionImportRow(
           itemId: 'comic-1',
           mediaKind: CatalogMediaKind.comic,
-          status: 'owned',
+          status: 'entry',
           personal: CollectionImportPersonalValues(
             locationId: 'loc-short-box-6',
           ),
@@ -1412,37 +1546,70 @@ void main() {
       ],
     );
 
-    final owned =
-        await _typedOwnedForCatalog<ComicCollectionItem>(db, 'comic-1');
+    final entry = await _typedEntryForCatalog<ComicLibraryEntry>(db, 'comic-1');
     expect(imported, 1);
-    expect(owned.locationId, 'loc-short-box-6');
+    expect(entry.locationId, 'loc-short-box-6');
   });
 }
 
-Future<T> _typedOwned<T>(LocalDatabase db, CollectionItemRef ref) async {
+Future<T> _typedEntry<T>(LocalDatabase db, LibraryEntryRef ref) async {
   final result = switch (ref.kind) {
     CatalogMediaKind.comic =>
-      await ComicOwnedRepository(db).findById(CollectionItemId(ref.id.value)),
+      await ComicEntryRepository(db).findById(LibraryEntryId(ref.id.value)),
     CatalogMediaKind.book =>
-      await BookOwnedRepository(db).findById(CollectionItemId(ref.id.value)),
+      await BookEntryRepository(db).findById(LibraryEntryId(ref.id.value)),
     CatalogMediaKind.movie =>
-      await MovieOwnedRepository(db).findById(CollectionItemId(ref.id.value)),
-    _ => throw StateError('Unsupported test Owned kind ${ref.kind}'),
+      await MovieEntryRepository(db).findById(LibraryEntryId(ref.id.value)),
+    _ => throw StateError('Unsupported test Entry kind ${ref.kind}'),
   };
   expect(result, isNotNull, reason: 'Missing typed Collection item ${ref.key}');
   return result as T;
 }
 
-Future<T> _typedOwnedForCatalog<T>(LocalDatabase db, String itemId) async {
-  final summaries = await CollectionItemsRepository(db).listActiveSummaries();
-  final summary = summaries.firstWhere(
-    (item) => (item.catalogRef?.rootId ?? item.catalogRef?.id) == itemId,
-  );
-  return _typedOwned<T>(db, summary.ref);
+Future<T> _typedEntryForCatalog<T>(LocalDatabase db, String itemId) async {
+  final summaries = await LibraryEntriesRepository(db).listActiveSummaries();
+  final localCatalogItems = await CatalogItemCacheRepository(db).findAll();
+  final cachedItem = localCatalogItems
+      .where((item) => item.id == itemId)
+      .firstOrNull;
+  LibraryEntrySummary? summary;
+  for (final candidate in summaries) {
+    final payload = await LibraryEntriesRepository(db).payloadByRef(
+      candidate.ref,
+    );
+    final source = payload?['source_catalog_ref'];
+    final catalogData = payload?['catalog_data'];
+    final sourceId = source is Map ? source['id'] : null;
+    final matches = (candidate.catalogRef?.rootId ??
+                candidate.catalogRef?.id) ==
+            itemId ||
+        sourceId == itemId ||
+        (cachedItem != null &&
+            candidate.ref.kind == cachedItem.mediaKind &&
+            catalogData is Map &&
+            catalogData['title'] == cachedItem.title);
+    if (matches) {
+      summary = candidate;
+      break;
+    }
+  }
+  if (summary == null && summaries.length == 1) summary = summaries.single;
+  expect(summary, isNotNull, reason: 'Missing local entry for $itemId');
+  return _typedEntry<T>(db, summary!.ref);
 }
 
-class _CollectionItemAuthController extends AuthController {
-  _CollectionItemAuthController();
+Future<void> _cacheSourceCatalogItem(
+  LocalDatabase db,
+  String id,
+  CatalogMediaKind kind,
+) {
+  return CatalogTransportRepository(db).upsertTransportItems([
+    testCatalogItem(id: id, kind: kind.apiValue, title: id),
+  ]);
+}
+
+class _LibraryEntryAuthController extends AuthController {
+  _LibraryEntryAuthController();
 
   @override
   AuthState build() => const AuthState(

@@ -1,7 +1,7 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
-import 'package:collectarr_app/core/models/collection_item_projection.dart';
+import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/core/models/money.dart';
 import 'package:collectarr_app/features/library/kinds/music/tracking/music_tracking_state.dart';
 import 'package:collectarr_app/features/library/kinds/music/tracking/music_tracking_state_codec.dart';
@@ -16,7 +16,7 @@ void main() {
     id: 'music-item-1',
   );
 
-  test('Music tracking targets a catalog item and remains unowned', () {
+  test('Music tracking targets a catalog item and remains unentry', () {
     final state = MusicTrackingState(
       id: 'tracking-1',
       catalogRef: item,
@@ -25,7 +25,7 @@ void main() {
     );
 
     expect(state.catalogRef, item);
-    expect(state.collectionItemRef, isNull);
+    expect(state.libraryEntryRef, isNull);
     expect(const MusicTrackingStateCodec().toSyncPayload(state)['catalog_ref'],
         item.toJson());
   });
@@ -51,9 +51,9 @@ void main() {
       () => codec.create(
         id: 'copy-tracking',
         catalogRef: item,
-        collectionItemRef: const CollectionItemRef(
+        libraryEntryRef: const LibraryEntryRef(
           kind: CatalogMediaKind.music,
-          id: CollectionItemId('copy-1'),
+          id: LibraryEntryId('copy-1'),
         ),
         updatedAt: DateTime.utc(2026, 9, 15),
       ),
@@ -93,6 +93,6 @@ void main() {
     );
     expect(musicEntries.map((entry) => entry.catalogRef.id),
         containsAll(<String>['music-item-1', 'music-item-2']));
-    expect(musicEntries.every((entry) => entry.collectionItemRef == null), isTrue);
+    expect(musicEntries.every((entry) => entry.libraryEntryRef == null), isTrue);
   });
 }

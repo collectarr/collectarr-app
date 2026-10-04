@@ -14,8 +14,8 @@ void main() {
       itemId: 'comic-1',
       kind: 'comic',
       title: 'Batman',
-      collectionItem: testCollectionItem(
-        id: 'owned-1',
+      libraryEntry: testLibraryEntry(
+        id: 'entry-1',
         itemId: 'comic-1',
         locationId: 'loc-1',
         personalNotes: 'Newsstand copy',
@@ -39,7 +39,7 @@ void main() {
     );
 
     expect(projection.source.locationPath, 'Office › Shelf 2 › Short Box 1');
-    expect(projection.source.collectionItemSummary?.notes, 'Newsstand copy');
+    expect(projection.source.libraryEntrySummary?.notes, 'Newsstand copy');
   });
 
   test('library projection exposes bundle and release reference labels', () {
@@ -47,8 +47,8 @@ void main() {
       itemId: 'comic-2',
       kind: 'comic',
       title: 'Batman',
-      collectionItem: testCollectionItem(
-        id: 'owned-2',
+      libraryEntry: testLibraryEntry(
+        id: 'entry-2',
         itemId: 'comic-2',
         bundleReleaseId: 'bundle-2',
         updatedAt: DateTime.utc(2026, 5, 23),

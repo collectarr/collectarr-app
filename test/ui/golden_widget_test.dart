@@ -132,7 +132,7 @@ void main() {
       setView(tester, size: const Size(500, 80));
       await tester.pumpWidget(wrapWidget(
         const LibraryCoverBadges(
-          isOwned: true,
+          isEntry: true,
           isTracked: true,
           isWishlisted: true,
           hasMissingCover: true,
@@ -151,11 +151,11 @@ void main() {
       );
     });
 
-    testWidgets('renders owned only', (tester) async {
+    testWidgets('renders entry only', (tester) async {
       setView(tester, size: const Size(200, 60));
       await tester.pumpWidget(wrapWidget(
         const LibraryCoverBadges(
-          isOwned: true,
+          isEntry: true,
           isTracked: false,
           isWishlisted: false,
         ),
@@ -165,7 +165,7 @@ void main() {
 
       await expectLater(
         find.byType(LibraryCoverBadges),
-        matchesGoldenFile('goldens/cover_badges_owned.png'),
+        matchesGoldenFile('goldens/cover_badges_entry.png'),
       );
     });
   });
@@ -175,7 +175,7 @@ void main() {
       setView(tester, size: const Size(300, 60));
       await tester.pumpWidget(wrapWidget(
         const LibraryItemStatusIcons(
-          isOwned: true,
+          isEntry: true,
           isTracked: true,
           isWishlisted: true,
           hasMissingCover: true,
@@ -194,11 +194,11 @@ void main() {
       );
     });
 
-    testWidgets('renders unowned no flags', (tester) async {
+    testWidgets('renders unentry no flags', (tester) async {
       setView(tester, size: const Size(200, 60));
       await tester.pumpWidget(wrapWidget(
         const LibraryItemStatusIcons(
-          isOwned: false,
+          isEntry: false,
           isTracked: false,
           isWishlisted: false,
         ),
@@ -208,7 +208,7 @@ void main() {
 
       await expectLater(
         find.byType(LibraryItemStatusIcons),
-        matchesGoldenFile('goldens/status_icons_unowned.png'),
+        matchesGoldenFile('goldens/status_icons_unentry.png'),
       );
     });
   });

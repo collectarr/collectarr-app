@@ -8,10 +8,10 @@ import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
 import 'package:collectarr_app/features/catalog/catalog_display_summary_repository.dart';
 import 'package:collectarr_app/features/collection/events/collection_event_bus.dart';
-import 'package:collectarr_app/features/collection/mutations/collection_item_mutations.dart';
+import 'package:collectarr_app/features/collection/mutations/library_entry_mutations.dart';
 import 'package:collectarr_app/features/collection/mutations/tracking_mutations.dart';
 import 'package:collectarr_app/features/collection/mutations/wishlist_mutations.dart';
-import 'package:collectarr_app/features/library/ownership/collection_items_repository.dart';
+import 'package:collectarr_app/features/library/entries/library_entries_repository.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_repository.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_unit_storage_repository.dart';
 import 'package:collectarr_app/features/library/tracking/watch_sessions_repository.dart';
@@ -23,25 +23,25 @@ import 'package:collectarr_app/features/library/add/models/library_add_tracking_
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_advanced_filter.dart';
 import 'package:collectarr_app/features/library/kinds/comic/add/comic_add_draft.dart';
-import 'package:collectarr_app/features/library/kinds/comic/data/comic_owned_repository.dart';
-import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_details.dart';
-import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_details_draft.dart';
+import 'package:collectarr_app/features/library/kinds/comic/data/comic_entry_repository.dart';
+import 'package:collectarr_app/features/library/kinds/comic/entries/comic_entry_details.dart';
+import 'package:collectarr_app/features/library/kinds/comic/entries/comic_entry_details_draft.dart';
 import 'package:collectarr_app/features/library/kinds/music/add/music_add_draft.dart';
-import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_details.dart';
-import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_details_draft.dart';
+import 'package:collectarr_app/features/library/kinds/music/entries/music_entry_details.dart';
+import 'package:collectarr_app/features/library/kinds/music/entries/music_entry_details_draft.dart';
 import 'package:collectarr_app/features/library/kinds/movie/add/movie_add_draft.dart';
-import 'package:collectarr_app/features/library/kinds/movie/ownership/movie_owned_details.dart';
-import 'package:collectarr_app/features/library/kinds/movie/ownership/movie_owned_details_draft.dart';
+import 'package:collectarr_app/features/library/kinds/movie/entries/movie_entry_details.dart';
+import 'package:collectarr_app/features/library/kinds/movie/entries/movie_entry_details_draft.dart';
 import 'package:collectarr_app/features/library/kinds/game/add/game_add_draft.dart';
-import 'package:collectarr_app/features/library/kinds/game/ownership/game_owned_details.dart';
-import 'package:collectarr_app/features/library/kinds/game/ownership/game_owned_details_draft.dart';
+import 'package:collectarr_app/features/library/kinds/game/entries/game_entry_details.dart';
+import 'package:collectarr_app/features/library/kinds/game/entries/game_entry_details_draft.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_target.dart';
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   late LocalDatabase db;
-  late CollectionItemMutations ownedMutations;
+  late LibraryEntryMutations entryMutations;
   late WishlistMutations wishlistMutations;
   late TrackingMutations trackingMutations;
   late LibraryAddSessionController controller;
@@ -52,8 +52,8 @@ void main() {
       database: db,
       events: CollectionEventBus(),
     );
-    ownedMutations = CollectionItemMutations(
-      collectionItems: CollectionItemsRepository(db),
+    entryMutations = LibraryEntryMutations(
+      libraryEntries: LibraryEntriesRepository(db),
       wishlist: WishlistItemsCacheRepository(db),
       catalogSummaries: CatalogDisplaySummaryRepository(db),
       syncQueue: SyncQueueRepository(db),
@@ -79,14 +79,14 @@ void main() {
         db,
         codecs: libraryWatchSessionCodecs,
       ),
-      collectionItems: CollectionItemsRepository(db),
+      libraryEntries: LibraryEntriesRepository(db),
       syncQueue: SyncQueueRepository(db),
       mutationRunner: runner,
     );
 
     controller = LibraryAddSessionController(
       kind: CatalogMediaKind.comic,
-      ownedMutations: ownedMutations,
+      entryMutations: entryMutations,
       wishlistMutations: wishlistMutations,
       trackingMutations: trackingMutations,
     );
@@ -100,7 +100,7 @@ void main() {
   group('LibraryAddSessionController Tests', () {
     test('initial state matches kind and defaults', () {
       expect(controller.state.mode, LibraryAddDialogMode.search);
-      expect(controller.state.target, LibraryAddTarget.owned);
+      expect(controller.state.target, LibraryAddTarget.entry);
       expect(controller.state.manualDraft, isA<ComicAddDraft>());
     });
 
@@ -163,8 +163,8 @@ void main() {
       );
       expect(success, true);
 
-      final owned = (await ComicOwnedRepository(db).listActive()).single;
-      expect(owned.itemId, 'comic-sub-1');
+      final entry = (await ComicEntryRepository(db).listActive()).single;
+      expect(entry.itemId, 'comic-sub-1');
     });
 
     test('submits item to wishlist target', () async {
@@ -228,7 +228,7 @@ void main() {
     test('video kind defaults do not count as search input', () async {
       final movieController = LibraryAddSessionController(
         kind: CatalogMediaKind.movie,
-        ownedMutations: ownedMutations,
+        entryMutations: entryMutations,
         wishlistMutations: wishlistMutations,
         trackingMutations: trackingMutations,
       );
@@ -303,7 +303,7 @@ void main() {
   });
 
   group('Kind-Specific Add Draft to Command Capability Tests', () {
-    test('ComicAddDraft produces valid AddCollectionItemCommand', () {
+    test('ComicAddDraft produces valid AddLibraryEntryCommand', () {
       final item = testCatalogItemWithKindMetadata(
         testCatalogItem(id: 'c1', kind: 'comic', title: 'Comic 1'),
       );
@@ -320,14 +320,14 @@ void main() {
 
       expect(command.catalogRef.id, 'c1');
       final details =
-          (command.typedPayload.detailsDraft as ComicOwnedDetailsDraft)
+          (command.typedPayload.detailsDraft as ComicEntryDetailsDraft)
               .toDetails();
-      expect(details, isA<ComicOwnedDetails>());
+      expect(details, isA<ComicEntryDetails>());
       expect((details).gradingCompany, 'CBCS');
       expect(details.signedBy, 'Stan Lee');
     });
 
-    test('MovieAddDraft produces valid AddCollectionItemCommand', () {
+    test('MovieAddDraft produces valid AddLibraryEntryCommand', () {
       final item = testCatalogItemWithKindMetadata(
         testCatalogItem(id: 'v1', kind: 'movie', title: 'Video 1'),
       );
@@ -343,14 +343,14 @@ void main() {
 
       expect(command.catalogRef.id, 'v1');
       final details =
-          (command.typedPayload.detailsDraft as MovieOwnedDetailsDraft)
+          (command.typedPayload.detailsDraft as MovieEntryDetailsDraft)
               .toDetails();
-      expect(details, isA<MovieOwnedDetails>());
+      expect(details, isA<MovieEntryDetails>());
       expect((details).packaging, 'SteelBook');
       expect(details.region, 'Region A');
     });
 
-    test('GameAddDraft produces valid AddCollectionItemCommand', () {
+    test('GameAddDraft produces valid AddLibraryEntryCommand', () {
       final item = testCatalogItemWithKindMetadata(
         testCatalogItem(id: 'g1', kind: 'game', title: 'Game 1'),
       );
@@ -366,21 +366,21 @@ void main() {
 
       expect(command.catalogRef.id, 'g1');
       final details =
-          (command.typedPayload.detailsDraft as GameOwnedDetailsDraft)
+          (command.typedPayload.detailsDraft as GameEntryDetailsDraft)
               .toDetails();
-      expect(details, isA<GameOwnedDetails>());
+      expect(details, isA<GameEntryDetails>());
       expect((details).completeness, 'CIB');
       expect(details.hasBox, true);
     });
 
-    test('MusicAddDraft produces valid AddCollectionItemCommand', () {
+    test('MusicAddDraft produces valid AddLibraryEntryCommand', () {
       final item = testCatalogItemWithKindMetadata(
         testCatalogItem(id: 'm1', kind: 'music', title: 'Music 1'),
       );
       const common = LibraryAddCommonDraft();
       const draft = MusicAddDraft(
         media: [
-          MusicOwnedMediumDetails(
+          MusicEntryMediumDetails(
             mediumIndex: 1,
             storageDevice: 'Shelf A',
             storageSlot: '12',
@@ -397,9 +397,9 @@ void main() {
 
       expect(command.catalogRef.id, 'm1');
       final details =
-          (command.typedPayload.detailsDraft as MusicOwnedDetailsDraft)
+          (command.typedPayload.detailsDraft as MusicEntryDetailsDraft)
               .toDetails();
-      expect(details, isA<MusicOwnedDetails>());
+      expect(details, isA<MusicEntryDetails>());
       expect(details.media.single.storageDevice, 'Shelf A');
       expect(details.media.single.storageSlot, '12');
     });

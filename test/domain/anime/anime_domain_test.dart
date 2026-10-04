@@ -49,8 +49,8 @@ void main() {
       final shelf = LibraryWorkspaceSource(
         itemId: 'anime-1',
         catalogData: testWorkspaceCatalogData(catalogItem.asShelfCatalogItem),
-        collectionItemSummary: testCollectionItemSummary(testCollectionItem(
-          id: 'owned-anime-1',
+        libraryEntrySummary: testLibraryEntrySummary(testLibraryEntry(
+          id: 'entry-anime-1',
           itemId: 'anime-1',
           updatedAt: DateTime.utc(2026, 5, 30),
         )),
@@ -154,13 +154,13 @@ void main() {
       expect(hierarchy.movies, contains('knockin-on-heavens-door'));
     });
 
-    test('AnimeKindRegistration uses Anime-owned capabilities exclusively', () {
+    test('AnimeKindRegistration uses Anime-entry capabilities exclusively', () {
       expect(animeKindIdentity.kind, CatalogMediaKind.anime);
       expect(animeKindAdd.kind, CatalogMediaKind.anime);
       expect(animeKindAdd.createInitialDraft(), isA<AnimeAddDraft>());
-      expect(const AnimeOwnedDetailsCodec(), isA<AnimeOwnedDetailsCodec>());
-      expect(const AnimeOwnedDetailsCodec().defaultDetails(),
-          isA<AnimeOwnedDetails>());
+      expect(const AnimeEntryDetailsCodec(), isA<AnimeEntryDetailsCodec>());
+      expect(const AnimeEntryDetailsCodec().defaultDetails(),
+          isA<AnimeEntryDetails>());
     });
   });
 }

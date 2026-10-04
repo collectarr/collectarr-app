@@ -33,10 +33,10 @@ void main() {
   ];
 
   final counts = {
-    'comic': const LibraryKindCount(owned: 42, wishlist: 5),
-    'manga': const LibraryKindCount(owned: 12, wishlist: 0),
-    'movie': const LibraryKindCount(owned: 8, wishlist: 2),
-    'book': const LibraryKindCount(owned: 0, wishlist: 0),
+    'comic': const LibraryKindCount(entry: 42, wishlist: 5),
+    'manga': const LibraryKindCount(entry: 12, wishlist: 0),
+    'movie': const LibraryKindCount(entry: 8, wishlist: 2),
+    'book': const LibraryKindCount(entry: 0, wishlist: 0),
   };
 
   testWidgets('CompactLibraryKindPicker renders active kind and count',

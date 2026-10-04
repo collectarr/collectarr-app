@@ -84,7 +84,7 @@ void main() {
           testLibraryWorkspaceSource(
               itemId: '3', kind: 'music', title: 'Random Album'),
         ],
-        ownedCount: 3,
+        entryCount: 3,
         wishlistCount: 0,
         pricedCount: 0,
         totalPaidCents: 0,
@@ -144,7 +144,7 @@ void main() {
           testLibraryWorkspaceSource(
               itemId: '3', kind: 'comic', title: 'Amazing Spider-Man #1'),
         ],
-        ownedCount: 3,
+        entryCount: 3,
         wishlistCount: 0,
         pricedCount: 0,
         totalPaidCents: 0,
@@ -214,7 +214,7 @@ void main() {
                 id: '3', kind: 'comic', publisher: 'DC Comics')),
           ),
         ],
-        ownedCount: 3,
+        entryCount: 3,
         wishlistCount: 0,
         pricedCount: 0,
         totalPaidCents: 0,

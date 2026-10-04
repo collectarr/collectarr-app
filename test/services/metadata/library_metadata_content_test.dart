@@ -148,11 +148,11 @@ void main() {
         coverImageUrl: 'https://example.com/hyperion.jpg',
         barcode: '9780553283686',
       ).asShelfCatalogItem),
-      collectionItemSummary: testCollectionItemSummary(testCollectionItem(
-        id: 'owned-b1',
+      libraryEntrySummary: testLibraryEntrySummary(testLibraryEntry(
+        id: 'entry-b1',
         catalogRef: const CatalogEntityRef(
           kind: CatalogMediaKind.book,
-          entityType: CatalogEntityTypeId('collection_item'),
+          entityType: CatalogEntityTypeId('library_entry'),
           id: 'book-1',
         ),
         updatedAt: DateTime(2026, 1, 1),

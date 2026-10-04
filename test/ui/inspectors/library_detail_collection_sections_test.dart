@@ -11,8 +11,8 @@ void main() {
   testWidgets('detail personal section shows value tracking fields', (
     tester,
   ) async {
-    final owned1 = testCollectionItem(
-      id: 'owned-1',
+    final entry1 = testLibraryEntry(
+      id: 'entry-1',
       itemId: 'movie-1',
       purchaseDate: DateTime.utc(2026, 5, 11),
       pricePaidCents: 1299,
@@ -29,7 +29,7 @@ void main() {
         kind: 'movie',
         title: 'Blade Runner 2049',
       ).asShelfCatalogItem),
-      collectionItemSummary: testCollectionItemSummary(owned1),
+      libraryEntrySummary: testLibraryEntrySummary(entry1),
     );
     const node = LibraryCatalogItemNodeRef(catalogItemId: 'movie-1');
     final dto = const GenericWorkspaceProjector().project(
@@ -47,10 +47,10 @@ void main() {
         home: Scaffold(
           body: LibraryDetailPersonalSection(
             item: movieItem,
-            collectionItemSummary: testCollectionItemSummary(owned1),
-            ownedCopies: [
-              testCollectionItemSummary(testCollectionItem(
-                id: 'owned-1',
+            libraryEntrySummary: testLibraryEntrySummary(entry1),
+            entryCopies: [
+              testLibraryEntrySummary(testLibraryEntry(
+                id: 'entry-1',
                 itemId: 'movie-1',
                 purchaseDate: DateTime.utc(2026, 5, 11),
                 pricePaidCents: 1299,
@@ -61,8 +61,8 @@ void main() {
                 currency: 'USD',
                 updatedAt: DateTime.utc(2026, 5, 22),
               )),
-              testCollectionItemSummary(testCollectionItem(
-                id: 'owned-2',
+              testLibraryEntrySummary(testLibraryEntry(
+                id: 'entry-2',
                 itemId: 'movie-1',
                 pricePaidCents: 999,
                 marketValueCents: 2499,

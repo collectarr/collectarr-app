@@ -2,21 +2,21 @@ import 'package:collectarr_app/features/library/edit/draft/text_controller_group
 import 'package:collectarr_app/features/library/edit/schema/edit_schema.dart';
 import 'package:collectarr_app/features/library/kinds/book/domain/book_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/book/edit/book_edit_draft.dart';
-import 'package:collectarr_app/features/library/kinds/book/edit/owned/book_owned_edit_schema.dart';
-import 'package:collectarr_app/features/library/kinds/book/ownership/book_owned_details.dart';
-import 'package:collectarr_app/features/library/kinds/book/ownership/book_owned_details_draft.dart';
+import 'package:collectarr_app/features/library/kinds/book/edit/entry/book_entry_edit_schema.dart';
+import 'package:collectarr_app/features/library/kinds/book/entries/book_entry_details.dart';
+import 'package:collectarr_app/features/library/kinds/book/entries/book_entry_details_draft.dart';
 import 'package:collectarr_app/features/library/kinds/book/vocabulary/book_vocabularies.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/models/library_item_identity.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import '../../contracts/owned_edit_contract.dart';
+import '../../contracts/entry_edit_contract.dart';
 
 void main() {
-  defineOwnedEditContract<EditSchema<BookOwnedDetails, BookEditDraft>>(
+  defineEntryEditContract<EditSchema<BookEntryDetails, BookEditDraft>>(
     name: 'Book',
-    create: () => bookOwnedEditSchema,
+    create: () => bookEntryEditSchema,
     tabIds: (schema) => schema.tabs.map((tab) => tab.id),
     fieldIds: (schema, tabId) => [
       for (final tab in schema.tabs)
@@ -26,7 +26,7 @@ void main() {
     ],
   );
 
-  test('Book ownership schema round trips signed copies and dust jackets', () {
+  test('Book entries schema round trips signed copies and dust jackets', () {
     final draft = _createBookDraft(const BookCatalogMetadata(title: 'Book'));
     addTearDown(draft.dispose);
 
@@ -35,16 +35,16 @@ void main() {
     draft.dustJacketCondition = 'Very Good';
 
     final details =
-        (draft.toDetailsDraft() as BookOwnedDetailsDraft).toDetails();
+        (draft.toDetailsDraft() as BookEntryDetailsDraft).toDetails();
     expect(
       details,
-      const BookOwnedDetails(
+      const BookEntryDetails(
         signedBy: 'Ursula K. Le Guin',
         dustJacketPresent: true,
         dustJacketCondition: 'Very Good',
       ),
     );
-    final condition = _ownedField('dust_jacket_condition')
+    final condition = _entryField('dust_jacket_condition')
         as LibraryVocabularyFieldSpec<BookEditDraft, String>;
     expect(
       condition.options.map((option) => option.value),
@@ -75,9 +75,9 @@ CatalogSearchCandidate _bookItem([
   );
 }
 
-LibraryFieldSpec<BookEditDraft> _ownedField(String id) {
+LibraryFieldSpec<BookEditDraft> _entryField(String id) {
   return [
-    for (final tab in bookOwnedEditSchema.tabs)
+    for (final tab in bookEntryEditSchema.tabs)
       for (final section in tab.sections)
         for (final field in section.fields)
           if (field.id == id) field,

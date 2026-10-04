@@ -61,7 +61,7 @@ void main() {
                 LibraryInspectorRequest(
                   type: type,
                   item: item,
-                  collectionItem: null,
+                  libraryEntry: null,
                   accent: Colors.teal,
                 ),
               );

@@ -1,47 +1,47 @@
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/collection_item_ref.dart';
-import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_details.dart';
-import 'package:collectarr_app/features/library/kinds/game/ownership/game_owned_details.dart';
-import 'package:collectarr_app/features/library/kinds/movie/ownership/movie_owned_details.dart';
-import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_details.dart';
+import 'package:collectarr_app/core/models/library_entry_ref.dart';
+import 'package:collectarr_app/features/library/kinds/comic/entries/comic_entry_details.dart';
+import 'package:collectarr_app/features/library/kinds/game/entries/game_entry_details.dart';
+import 'package:collectarr_app/features/library/kinds/movie/entries/movie_entry_details.dart';
+import 'package:collectarr_app/features/library/kinds/music/entries/music_entry_details.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_ids.dart';
-import 'package:collectarr_app/features/library/kinds/comic/domain/comic_collection_item.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_library_entry.dart';
 import 'package:collectarr_app/features/library/kinds/movie/tracking/movie_tracking_state.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
-import 'package:collectarr_app/features/collection/commands/collection_item_commands.dart';
+import 'package:collectarr_app/features/collection/commands/library_entry_commands.dart';
 import 'package:collectarr_app/features/updater/app_update_service.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   group('Nullable copy semantics', () {
-    test('ComicCollectionItem exposes typed kind-owned details', () {
-      final item = ComicCollectionItem(
-        id: const CollectionItemId('item-typed'),
+    test('ComicLibraryEntry exposes typed kind-entry details', () {
+      final item = ComicLibraryEntry(
+        id: const LibraryEntryId('item-typed'),
         catalogRef: CatalogEntityRef(
           kind: CatalogMediaKind.comic,
           id: 'cat-typed',
           entityType: const CatalogEntityTypeId('issue'),
         ),
-        details: const ComicOwnedDetails(gradingCompany: 'CGC'),
+        details: const ComicEntryDetails(gradingCompany: 'CGC'),
         updatedAt: DateTime.utc(2025, 1, 1),
       );
 
       expect(item.details.gradingCompany, 'CGC');
-      expect(item.copyWith(details: const ComicOwnedDetails()).details,
-          isA<ComicOwnedDetails>());
+      expect(item.copyWith(details: const ComicEntryDetails()).details,
+          isA<ComicEntryDetails>());
     });
 
     test(
-        'ComicCollectionItem.copyWith allows preserving, updating, and clearing nullable fields',
+        'ComicLibraryEntry.copyWith allows preserving, updating, and clearing nullable fields',
         () {
-      final item = ComicCollectionItem(
-        id: const CollectionItemId('item-1'),
+      final item = ComicLibraryEntry(
+        id: const LibraryEntryId('item-1'),
         catalogRef: CatalogEntityRef(
           kind: CatalogMediaKind.comic,
           id: 'cat-1',
           entityType: const CatalogEntityTypeId('issue'),
         ),
-        details: const ComicOwnedDetails(),
+        details: const ComicEntryDetails(),
         condition: 'Near Mint',
         grade: '9.8',
         purchaseDate: DateTime.utc(2025, 1, 1),
@@ -50,7 +50,7 @@ void main() {
         personalNotes: 'Special note',
         locationId: 'loc-1',
         purchaseStore: 'Comic Shop',
-        collectionStatus: 'Owned',
+        collectionStatus: 'Entry',
         marketValueCents: 10000,
         soldTo: 'Buyer 1',
         soldAt: DateTime.utc(2025, 2, 1),
@@ -104,9 +104,9 @@ void main() {
     });
 
     test(
-        'ComicOwnedDetails.copyWith allows preserving, updating, and clearing fields',
+        'ComicEntryDetails.copyWith allows preserving, updating, and clearing fields',
         () {
-      final comic = const ComicOwnedDetails(
+      final comic = const ComicEntryDetails(
         rawOrSlabbed: 'Slabbed',
         gradingCompany: 'CGC',
         certificationNumber: '1234567890',
@@ -132,9 +132,9 @@ void main() {
     });
 
     test(
-        'MovieOwnedDetails.copyWith allows preserving, updating, and clearing fields',
+        'MovieEntryDetails.copyWith allows preserving, updating, and clearing fields',
         () {
-      final video = const MovieOwnedDetails(
+      final video = const MovieEntryDetails(
         boxSetId: 'box-1',
         boxSetName: 'Trilogy Set',
         distributor: 'Criterion',
@@ -159,11 +159,11 @@ void main() {
     });
 
     test(
-        'MusicOwnedDetails.copyWith allows preserving, updating, and clearing fields',
+        'MusicEntryDetails.copyWith allows preserving, updating, and clearing fields',
         () {
-      final music = const MusicOwnedDetails(
+      final music = const MusicEntryDetails(
         media: [
-          MusicOwnedMediumDetails(
+          MusicEntryMediumDetails(
             mediumIndex: 1,
             storageDevice: 'Shelf A',
             storageSlot: 'Slot 42',
@@ -178,7 +178,7 @@ void main() {
       expect(
         music
             .copyWith(media: const [
-              MusicOwnedMediumDetails(
+              MusicEntryMediumDetails(
                 mediumIndex: 1,
                 storageDevice: 'Shelf A',
                 storageSlot: 'Slot 99',
@@ -196,9 +196,9 @@ void main() {
     });
 
     test(
-        'GameOwnedDetails.copyWith allows preserving, updating, and clearing fields',
+        'GameEntryDetails.copyWith allows preserving, updating, and clearing fields',
         () {
-      final game = const GameOwnedDetails(
+      final game = const GameEntryDetails(
         completeness: 'CIB',
         priceChartingId: 'pc-123',
         valueIsLocked: true,

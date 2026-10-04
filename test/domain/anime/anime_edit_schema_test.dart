@@ -3,17 +3,17 @@ import 'package:collectarr_app/features/library/kinds/anime/domain/anime_ids.dar
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_media.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_release.dart';
 import 'package:collectarr_app/features/library/kinds/anime/edit/anime_media_edit_schema.dart';
-import 'package:collectarr_app/features/library/kinds/anime/edit/anime_owned_edit_draft.dart';
-import 'package:collectarr_app/features/library/kinds/anime/edit/anime_owned_edit_schema.dart';
+import 'package:collectarr_app/features/library/kinds/anime/edit/anime_entry_edit_draft.dart';
+import 'package:collectarr_app/features/library/kinds/anime/edit/anime_entry_edit_schema.dart';
 import 'package:collectarr_app/features/library/kinds/anime/edit/anime_release_edit_schema.dart';
 import 'package:collectarr_app/features/library/kinds/anime/forms/anime_catalog_form_adapters.dart';
 import 'package:collectarr_app/features/library/kinds/anime/forms/anime_catalog_form_values.dart';
-import 'package:collectarr_app/features/library/kinds/anime/ownership/anime_owned_details.dart';
+import 'package:collectarr_app/features/library/kinds/anime/entries/anime_entry_details.dart';
 import 'package:collectarr_app/features/library/kinds/anime/vocabulary/anime_vocabularies.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../contracts/media_edit_contract.dart';
-import '../../contracts/owned_edit_contract.dart';
+import '../../contracts/entry_edit_contract.dart';
 
 void main() {
   defineMediaEditContract<EditSchema<AnimeMedia, AnimeMediaFormValues>>(
@@ -38,9 +38,9 @@ void main() {
             for (final field in section.fields) field.id,
     ],
   );
-  defineOwnedEditContract<EditSchema<AnimeOwnedDetails, AnimeOwnedEditDraft>>(
+  defineEntryEditContract<EditSchema<AnimeEntryDetails, AnimeEntryEditDraft>>(
     name: 'Anime',
-    create: () => animeOwnedEditSchema,
+    create: () => animeEntryEditSchema,
     tabIds: (schema) => schema.tabs.map((tab) => tab.id),
     fieldIds: (schema, tabId) => [
       for (final tab in schema.tabs)
@@ -149,30 +149,30 @@ void main() {
     );
   });
 
-  test('round trips Anime owned details through the typed schema', () {
-    const original = AnimeOwnedDetails(
+  test('round trips Anime entry details through the typed schema', () {
+    const original = AnimeEntryDetails(
       features: 'Commentary',
       hdrFormats: ['HDR10'],
       boxSetName: 'Collector Box',
       region: 'Region A / Region 1',
       packaging: 'Digipak',
     );
-    final draft = AnimeOwnedEditDraft.fromDetails(original);
+    final draft = AnimeEntryEditDraft.fromDetails(original);
     addTearDown(draft.dispose);
 
-    (_ownedField('features') as LibraryTextFieldSpec<AnimeOwnedEditDraft>)
+    (_entryField('features') as LibraryTextFieldSpec<AnimeEntryEditDraft>)
         .setValue(draft, 'Commentary and artbook');
-    final hdr = _ownedField('hdr_formats')
-        as LibraryMultiVocabularyFieldSpec<AnimeOwnedEditDraft, String>;
+    final hdr = _entryField('hdr_formats')
+        as LibraryMultiVocabularyFieldSpec<AnimeEntryEditDraft, String>;
     expect(hdr.options, isNotEmpty);
     hdr.setValues(draft, {'HDR10', 'Dolby Vision'});
-    (_ownedField('packaging')
-            as LibraryVocabularyFieldSpec<AnimeOwnedEditDraft, String>)
+    (_entryField('packaging')
+            as LibraryVocabularyFieldSpec<AnimeEntryEditDraft, String>)
         .setValue(draft, 'Digipak');
 
     expect(
       draft.toDetails(),
-      const AnimeOwnedDetails(
+      const AnimeEntryDetails(
         features: 'Commentary and artbook',
         hdrFormats: ['HDR10', 'Dolby Vision'],
         boxSetName: 'Collector Box',
@@ -201,9 +201,9 @@ LibraryFieldSpec<AnimeReleaseFormValues> _releaseField(String id) {
   ].single;
 }
 
-LibraryFieldSpec<AnimeOwnedEditDraft> _ownedField(String id) {
+LibraryFieldSpec<AnimeEntryEditDraft> _entryField(String id) {
   return [
-    for (final tab in animeOwnedEditSchema.tabs)
+    for (final tab in animeEntryEditSchema.tabs)
       for (final section in tab.sections)
         for (final field in section.fields)
           if (field.id == id) field,

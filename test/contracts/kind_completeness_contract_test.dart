@@ -1,5 +1,5 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
-import 'package:collectarr_app/test/helpers/owned_details_codec_fixtures.dart';
+import 'package:collectarr_app/test/helpers/entry_details_codec_fixtures.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_pick_list_contributors.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_serial_authority_contributors.dart';
@@ -56,14 +56,14 @@ void main() {
               reason: '$kind must have explicit edit draft factory');
         }
 
-        // Owned details and codec live in the kind-owned serialization registry.
-        final ownedCodec = ownedDetailsFixtureForTest(kind);
-        expect(ownedCodec.defaultDetails(), isNotNull,
-            reason: '$kind defaultOwnedDetails must not be null');
+        // Entry details and codec live in the kind-entry serialization registry.
+        final entryCodec = entryDetailsFixtureForTest(kind);
+        expect(entryCodec.defaultDetails(), isNotNull,
+            reason: '$kind defaultEntryDetails must not be null');
         expect(
-            libraryAddForKind(kind).createInitialDraft().toOwnedDetailsDraft(),
+            libraryAddForKind(kind).createInitialDraft().toEntryDetailsDraft(),
             isNotNull,
-            reason: '$kind defaultOwnedDetailsDraft must not be null');
+            reason: '$kind defaultEntryDetailsDraft must not be null');
 
         // Fields & Schema
         expect(workspace.fields, isNotNull,
@@ -109,7 +109,7 @@ void main() {
     test('serialization detail registry covers every active kind', () {
       final decodedTypes = <Type>{};
       for (final kind in activeKinds) {
-        final codec = ownedDetailsFixtureForTest(kind);
+        final codec = entryDetailsFixtureForTest(kind);
         final details = codec.defaultDetails();
         final decoded = codec.fromJson(details.toJson());
         expect(decoded.runtimeType, details.runtimeType,
@@ -120,7 +120,7 @@ void main() {
 
       expect(decodedTypes, hasLength(activeKinds.length));
       expect(
-        () => ownedDetailsFixtureForTest(CatalogMediaKind.unknown),
+        () => entryDetailsFixtureForTest(CatalogMediaKind.unknown),
         throwsArgumentError,
       );
     });
@@ -148,23 +148,23 @@ void main() {
       );
 
       for (final kind in activeKinds) {
-        expect(libraryCollectionItemSummaryReadersByKind, contains(kind));
+        expect(libraryLibraryEntrySummaryReadersByKind, contains(kind));
       }
     });
 
     test(
-        'all 9 production kinds have distinct kind-owned details runtime types',
+        'all 9 production kinds have distinct kind-entry details runtime types',
         () {
       final detailsTypes = <Type>{};
       for (final kind in activeKinds) {
         final defaultDetails =
-            ownedDetailsFixtureForTest(kind).defaultDetails();
+            entryDetailsFixtureForTest(kind).defaultDetails();
         expect(defaultDetails, isNotNull);
         detailsTypes.add(defaultDetails.runtimeType);
       }
       expect(detailsTypes.length, equals(9),
           reason:
-              'Every production kind must have its own distinct owned details type');
+              'Every production kind must have its own distinct entry details type');
     });
 
     test('add draft identity contract matches kind exactly for all 9 kinds',
@@ -209,7 +209,7 @@ void main() {
               id.contains('updated_at') ||
               id.contains('added_at') ||
               id.contains('completeness')) {
-            expect(field.entityScope, equals(LibraryEntityScope.collectionItem),
+            expect(field.entityScope, equals(LibraryEntityScope.libraryEntry),
                 reason: '$kind field ${field.id.value} must have copy scope');
           }
 
@@ -245,7 +245,7 @@ void main() {
     });
 
     test(
-        'edit draft creation produces kind-owned edit drafts with non-null factories',
+        'edit draft creation produces kind-entry edit drafts with non-null factories',
         () {
       for (final kind in activeKinds) {
         expect(libraryEditSessionForKind(kind), isNotNull);

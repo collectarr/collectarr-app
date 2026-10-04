@@ -31,7 +31,7 @@ void main() {
     expect(dto.trackCount, 2);
   });
 
-  test('contained disc and track ownership follows its album', () {
+  test('contained disc and track entries follows its album', () {
     final album = MusicAlbum.fromJson({
       'id': 'album-2',
       'title': 'Discovery CD',
