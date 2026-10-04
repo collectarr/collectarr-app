@@ -313,14 +313,6 @@ final class LibraryAddManualPaneTab {
         ),
       );
 
-  factory LibraryAddManualPaneTab.main({required Widget content}) =>
-      LibraryAddManualPaneTab(
-        id: 'main',
-        label: 'Main',
-        icon: Icons.edit_note_outlined,
-        content: content,
-      );
-
   final String id;
   final String label;
   final IconData icon;
