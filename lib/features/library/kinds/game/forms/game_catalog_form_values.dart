@@ -5,6 +5,9 @@
 final class GameCatalogFormValues {
   GameCatalogFormValues({
     this.title = '',
+    this.displayTitle = '',
+    this.originalTitle = '',
+    this.localizedTitle = '',
     this.sortTitle = '',
     this.subtitle = '',
     this.description = '',
@@ -24,9 +27,9 @@ final class GameCatalogFormValues {
     this.languages = const [],
     this.country = 'US',
     this.editionTitle = '',
-    this.platform = '',
     this.region = '',
     this.format = '',
+    this.physicalFormatId,
     this.releaseDate,
     this.catalogNumber = '',
     this.releaseStatus = '',
@@ -35,10 +38,13 @@ final class GameCatalogFormValues {
     this.coverImageUrl = '',
     this.releaseYear,
     this.variant = '',
-    this.backCoverImageUrl = '',
+    this.thumbnailImageUrl = '',
   });
 
   String title;
+  String displayTitle;
+  String originalTitle;
+  String localizedTitle;
   String sortTitle;
   String subtitle;
   String description;
@@ -59,9 +65,9 @@ final class GameCatalogFormValues {
   String country;
 
   String editionTitle;
-  String platform;
   String region;
   String format;
+  String? physicalFormatId;
   DateTime? releaseDate;
   String catalogNumber;
   String releaseStatus;
@@ -70,5 +76,5 @@ final class GameCatalogFormValues {
   String coverImageUrl;
   int? releaseYear;
   String variant;
-  String backCoverImageUrl;
+  String thumbnailImageUrl;
 }

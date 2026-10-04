@@ -1,25 +1,25 @@
 import 'dart:async';
 
 import 'package:collectarr_app/features/library/add/schema/add_schema.dart';
-import 'package:collectarr_app/features/library/kinds/game/add/game_add_manual_draft.dart';
+import 'package:collectarr_app/features/library/kinds/game/forms/game_catalog_form_draft.dart';
 import 'package:collectarr_app/features/library/kinds/game/forms/game_catalog_field_specs.dart';
 import 'package:collectarr_app/features/library/kinds/game/forms/game_catalog_form_values.dart';
 
-final AddSchema<GameAddManualDraft> gameAddSchema = gameAddSchemaFor();
+final AddSchema<GameCatalogFormDraft> gameAddSchema = gameAddSchemaFor();
 
-AddSchema<GameAddManualDraft> gameAddSchemaFor({
+AddSchema<TDraft> gameAddSchemaFor<TDraft extends GameCatalogFormDraft>({
   Set<String>? fieldIds,
   Map<String, String> sectionLabels = const {},
   Iterable<String>? platformOptions,
   Iterable<String>? editionOptions,
+  String? Function(String value)? physicalFormatIdForValue,
   Iterable<String>? ageRatingOptions,
   Iterable<String>? regionOptions,
-  FutureOr<void> Function()? onManagePlatform,
   FutureOr<void> Function()? onManageEdition,
 }) {
-  GameCatalogFormValues values(GameAddManualDraft draft) => draft.values;
+  GameCatalogFormValues values(TDraft draft) => draft.values;
 
-  return AddSchema<GameAddManualDraft>(
+  return AddSchema<TDraft>(
     title: (_) => 'Manual game',
     validate: (draft) {
       final year = draft.values.releaseYear;
@@ -27,49 +27,52 @@ AddSchema<GameAddManualDraft> gameAddSchemaFor({
       return null;
     },
     sections: _filterSections(fieldIds, sectionLabels, [
-      AddSectionSpec<GameAddManualDraft>(
+      AddSectionSpec<TDraft>(
         id: 'catalog_item',
         label: 'Catalog Item',
         fields: [
-          libraryAddCatalogTitleField<GameAddManualDraft>(),
+          libraryAddCatalogTitleField<TDraft>(),
           ...gameCatalogItemFields(
             values: values,
             include: {
               'edition_title',
-              'platform',
               'region',
               'format',
               'release_date',
               'catalog_number',
               'barcode',
               'cover_image_url',
+              'thumbnail_image_url',
               'release_year',
               'variant',
-              'back_cover_image_url',
             },
-            platformOptions: platformOptions,
             regionOptions: regionOptions,
             formatOptions: editionOptions,
-            onManagePlatform: onManagePlatform,
+            physicalFormatIdForValue: physicalFormatIdForValue,
             onManageFormat: onManageEdition,
           ),
         ],
         fullWidthFieldIds: const {'catalog_title'},
       ),
-      AddSectionSpec<GameAddManualDraft>(
+      AddSectionSpec<TDraft>(
         id: 'game_details',
         label: 'Game Details',
         fields: gameMetadataFields(
           values: values,
           ageRatingOptions: ageRatingOptions,
+          platformOptions: platformOptions,
           include: {
+            'display_title',
             'publisher',
+            'original_title',
+            'localized_title',
             'sort_title',
             'subtitle',
             'identifiers',
             'company_roles',
             'search_aliases',
             'original_language',
+            'platforms',
             'developers',
             'genres',
             'age_ratings',
@@ -85,10 +88,10 @@ AddSchema<GameAddManualDraft> gameAddSchemaFor({
   );
 }
 
-List<AddSectionSpec<GameAddManualDraft>> _filterSections(
+List<AddSectionSpec<TDraft>> _filterSections<TDraft>(
   Set<String>? fieldIds,
   Map<String, String> sectionLabels,
-  List<AddSectionSpec<GameAddManualDraft>> sections,
+  List<AddSectionSpec<TDraft>> sections,
 ) {
   if (fieldIds == null && sectionLabels.isEmpty) return sections;
   return [
@@ -96,7 +99,7 @@ List<AddSectionSpec<GameAddManualDraft>> _filterSections(
       if (section.fields
           .where((field) => fieldIds == null || fieldIds.contains(field.id))
           .isNotEmpty)
-        AddSectionSpec<GameAddManualDraft>(
+        AddSectionSpec<TDraft>(
           id: section.id,
           label: sectionLabels[section.id] ?? section.label,
           fields: [

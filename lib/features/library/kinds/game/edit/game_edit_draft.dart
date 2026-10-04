@@ -1,5 +1,4 @@
 import 'package:collectarr_app/features/library/edit/draft/library_edit_form_fields.dart';
-import 'package:collectarr_app/features/library/kinds/game/catalog/game_catalog_fields.dart';
 import 'package:collectarr_app/core/models/tracking_summary.dart';
 import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/features/library/kinds/game/data/game_library_entry_projection.dart';
@@ -11,31 +10,24 @@ import 'package:collectarr_app/features/catalog/transport/catalog_search_candida
 
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/kinds/game/domain/game_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/game/forms/game_catalog_form_draft.dart';
+import 'package:collectarr_app/features/library/kinds/game/forms/game_catalog_form_values.dart';
+import 'package:collectarr_app/features/library/kinds/game/forms/game_catalog_form_adapters.dart';
 import 'package:collectarr_app/features/library/kinds/game/domain/game_valuation.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_entry_dispatch.dart';
 import 'package:collectarr_app/features/library/kinds/game/domain/game_library_entry.dart';
 import 'package:collectarr_app/features/library/kinds/game/entries/game_entry_details_draft.dart';
 import 'package:collectarr_app/features/library/kinds/game/entries/game_library_entry_update_payload.dart';
 import 'package:collectarr_app/features/library/edit/draft/personal_state_draft.dart';
-import 'game_edit_controller.dart';
-
-enum GameCanonicalEditField {
-  title,
-  displayTitle,
-  sortTitle,
-  originalTitle,
-  localizedTitle,
-  searchAliases,
-  synopsis,
-  coverImage,
-  thumbnailImage
-}
 
 class GameEditDraft
     with
         LibraryCatalogItemEditSessionLinkDefaults,
         LibraryEntryEditSessionDefaults
-    implements LibraryCatalogItemEditSession, LibraryEntryEditSession {
+    implements
+        LibraryCatalogItemEditSession,
+        LibraryEntryEditSession,
+        GameCatalogFormDraft {
   GameEditDraft({
     this.libraryEntry,
     required this.gameCompleteness,
@@ -45,10 +37,17 @@ class GameEditDraft
     this.gameValuations,
     required this.gameCoreRegion,
     required this.gameValueIsLocked,
-    required this.gameEdit,
+    required this.values,
+    required this.catalogTitle,
   });
 
   final GameLibraryEntry? libraryEntry;
+
+  @override
+  final GameCatalogFormValues values;
+
+  @override
+  String catalogTitle;
 
   String? gameCompleteness;
   bool? gameHasBox;
@@ -57,8 +56,6 @@ class GameEditDraft
   final GameValuationSet? gameValuations;
   String? gameCoreRegion;
   bool gameValueIsLocked;
-
-  final GameEditController gameEdit;
 
   @override
   JsonEncodable toDetailsDraft() => GameEntryDetailsDraft(
@@ -158,168 +155,37 @@ class GameEditDraft
   LibraryEditSelection applyCanonicalEdits(
     LibraryEditSelection selection,
     LibraryEditFormFields fields,
-  ) {
-    final aliases = fields
-        .controller(GameCanonicalEditField.searchAliases)
-        .text
-        .split(RegExp(r'[,\r\n]+'))
-        .map((entry) => entry.trim())
-        .where((entry) => entry.isNotEmpty)
-        .toList();
-    return selection.copyWith(
-      kindItem: CatalogSearchCandidate.fromItem(
-          selection.kindItem.kindCapability.mapTransport((transport) {
-        final metadata = GameCatalogMetadata.fromJson(transport.kindData);
-        final edited = metadata.copyWith(
-          title: fields.controller(GameCanonicalEditField.title).text.trim(),
-          displayTitle: emptyToNull(
-              fields.controller(GameCanonicalEditField.displayTitle).text),
-          originalTitle: emptyToNull(
-              fields.controller(GameCanonicalEditField.originalTitle).text),
-          localizedTitle: emptyToNull(
-              fields.controller(GameCanonicalEditField.localizedTitle).text),
-          searchAliases: aliases.isEmpty ? null : aliases,
-          synopsis: emptyToNull(
-              fields.controller(GameCanonicalEditField.synopsis).text),
-          coverImageUrl: emptyToNull(
-              fields.controller(GameCanonicalEditField.coverImage).text),
-          thumbnailImageUrl: emptyToNull(
-              fields.controller(GameCanonicalEditField.thumbnailImage).text),
-          sortKey: emptyToNull(
-            fields.controller(GameCanonicalEditField.sortTitle).text,
-          ),
-        );
-        final updated = GameCatalogMetadata.fromJson(applyJsonFieldPatch(
-          edited,
-          {
-            'display_title': emptyToNull(
-              fields.controller(GameCanonicalEditField.displayTitle).text,
-            ),
-            'original_title': emptyToNull(
-              fields.controller(GameCanonicalEditField.originalTitle).text,
-            ),
-            'localized_title': emptyToNull(
-              fields.controller(GameCanonicalEditField.localizedTitle).text,
-            ),
-            'search_aliases': aliases,
-            'synopsis': emptyToNull(
-              fields.controller(GameCanonicalEditField.synopsis).text,
-            ),
-            'cover_image_url': emptyToNull(
-              fields.controller(GameCanonicalEditField.coverImage).text,
-            ),
-            'thumbnail_image_url': emptyToNull(
-              fields.controller(GameCanonicalEditField.thumbnailImage).text,
-            ),
-            'sort_key': emptyToNull(
-              fields.controller(GameCanonicalEditField.sortTitle).text,
-            ),
-          },
-        ));
-        return transport.replacingKindData(updated);
-      })),
-    );
-  }
+  ) =>
+      selection;
 
   @override
   LibraryEditFormSchema buildCanonicalFormSchema(
     LibraryEditFormFields fields,
     CatalogSearchCandidate item,
-  ) {
-    final metadata = item.gameCatalogFields;
-    fields.create(GameCanonicalEditField.title, initialValue: metadata.title);
-    fields.create(GameCanonicalEditField.displayTitle,
-        initialValue: metadata.displayTitle ?? '');
-    fields.create(GameCanonicalEditField.sortTitle,
-        initialValue: metadata.sortKey ?? '');
-    fields.create(GameCanonicalEditField.originalTitle,
-        initialValue: metadata.originalTitle ?? '');
-    fields.create(GameCanonicalEditField.localizedTitle,
-        initialValue: metadata.localizedTitle ?? '');
-    fields.create(GameCanonicalEditField.searchAliases,
-        initialValue: metadata.searchAliases.join(', '));
-    fields.create(GameCanonicalEditField.synopsis,
-        initialValue: metadata.synopsis ?? '');
-    fields.create(GameCanonicalEditField.coverImage,
-        initialValue: metadata.coverImageUrl ?? '');
-    fields.create(GameCanonicalEditField.thumbnailImage,
-        initialValue: metadata.thumbnailImageUrl ?? '');
-    return LibraryEditFormSchema(
-      fields: [
-        LibraryEditFormFieldSpec(
-          id: GameCanonicalEditField.title,
-          section: LibraryEditFormSection.details,
-          controller: fields.controller(GameCanonicalEditField.title),
-          label: 'Title',
-          required: true,
-        ),
-        LibraryEditFormFieldSpec(
-          id: GameCanonicalEditField.sortTitle,
-          section: LibraryEditFormSection.details,
-          controller: fields.controller(GameCanonicalEditField.sortTitle),
-          label: 'Sort Title',
-        ),
-        LibraryEditFormFieldSpec(
-          id: GameCanonicalEditField.originalTitle,
-          section: LibraryEditFormSection.details,
-          controller: fields.controller(GameCanonicalEditField.originalTitle),
-          label: 'Original Title',
-        ),
-        LibraryEditFormFieldSpec(
-          id: GameCanonicalEditField.localizedTitle,
-          section: LibraryEditFormSection.details,
-          controller: fields.controller(GameCanonicalEditField.localizedTitle),
-          label: 'Localized title',
-        ),
-        LibraryEditFormFieldSpec(
-          id: GameCanonicalEditField.displayTitle,
-          section: LibraryEditFormSection.details,
-          controller: fields.controller(GameCanonicalEditField.displayTitle),
-          label: 'Display Title',
-        ),
-        LibraryEditFormFieldSpec(
-          id: GameCanonicalEditField.searchAliases,
-          section: LibraryEditFormSection.details,
-          controller: fields.controller(GameCanonicalEditField.searchAliases),
-          label: 'Search Aliases',
-          visible: false,
-        ),
-        LibraryEditFormFieldSpec(
-          id: GameCanonicalEditField.thumbnailImage,
-          section: LibraryEditFormSection.details,
-          controller: fields.controller(GameCanonicalEditField.thumbnailImage),
-          label: 'Thumbnail image URL',
-          visible: false,
-        ),
-        LibraryEditFormFieldSpec(
-          id: GameCanonicalEditField.coverImage,
-          section: LibraryEditFormSection.artwork,
-          controller: fields.controller(GameCanonicalEditField.coverImage),
-          label: 'Cover Image URL',
-        ),
-        LibraryEditFormFieldSpec(
-          id: GameCanonicalEditField.synopsis,
-          section: LibraryEditFormSection.description,
-          controller: fields.controller(GameCanonicalEditField.synopsis),
-          label: 'Synopsis',
-          maxLines: 8,
-        ),
-      ],
-      sectionTitles: const {
-        LibraryEditFormSection.details: 'Details',
-        LibraryEditFormSection.artwork: 'Cover Image',
-        LibraryEditFormSection.description: 'Synopsis',
-      },
-    );
-  }
+  ) =>
+      LibraryEditFormSchema.empty;
 
   @override
   LibraryEditSelection applySelectionEdits(LibraryEditSelection selection) {
-    return gameEdit.applySelectionEdits(selection);
+    final metadata = selection.kindItem.kindCapability.mapTransport(
+      (transport) => GameCatalogMetadata.fromJson(transport.kindData),
+    );
+    final updated = applyGameCatalogFormValues(
+      current: metadata,
+      values: values,
+      title: catalogTitle,
+    );
+    final candidate = selection.kindItem.kindCapability.mapTransport(
+      (transport) => CatalogSearchCandidate.fromItem(
+        transport.replacingKindData(updated),
+      ),
+    );
+    return selection.copyWith(kindItem: candidate);
   }
 
   void dispose() {
-    gameEdit.dispose();
+    // Catalog form state is plain data; embedded schema renderers own their
+    // temporary text controllers.
   }
 }
 
@@ -334,34 +200,6 @@ LibraryEditSessionBundle createGameEditDraft({
   final meta = item.kindCapability.mapTransport(
     (transport) => GameCatalogMetadata.fromJson(transport.kindData),
   );
-  final developerNames = meta.creators
-      .where(
-          (credit) => credit.role?.toLowerCase().contains('developer') ?? false)
-      .map((credit) => credit.name.trim())
-      .where((n) => n.isNotEmpty)
-      .join(', ');
-  final platforms = meta.platforms;
-  final gameEdit = GameEditController(
-    initialPlatforms: platforms.join(', '),
-    initialDevelopers: developerNames,
-    initialSeriesTitle: meta.seriesTitle ?? '',
-    initialPublisher: meta.publisher ?? '',
-    initialReleaseDate:
-        meta.releaseDate != null ? formatDate(meta.releaseDate!) : '',
-    initialReleaseYear: meta.releaseDate?.year.toString() ?? '',
-    initialFranchise: meta.franchise ?? '',
-    initialGenres: meta.genres.join(', '),
-    initialAgeRating: meta.ageRating ?? '',
-    initialLanguage: meta.languages.join(', '),
-    initialCountry: meta.country,
-    initialEditionTitle: meta.editionTitle ?? meta.titleExtension ?? '',
-    initialVariant: meta.variantName ?? '',
-    initialBarcode: meta.barcode ?? '',
-    initialPhysicalFormat:
-        meta.physicalFormatLabel ?? meta.physicalFormat ?? '',
-    initialPhysicalFormatId: meta.physicalFormat,
-  );
-
   final draft = GameEditDraft(
     libraryEntry: entry,
     gameCompleteness: game?.completeness,
@@ -371,7 +209,8 @@ LibraryEditSessionBundle createGameEditDraft({
     gameValuations: game?.valuations,
     gameCoreRegion: game?.coreRegion,
     gameValueIsLocked: game?.valueIsLocked ?? false,
-    gameEdit: gameEdit,
+    values: gameCatalogFormValuesFromMetadata(meta),
+    catalogTitle: meta.title,
   );
   return LibraryEditSessionBundle(
     catalogItemSession: draft,

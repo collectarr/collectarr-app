@@ -128,11 +128,12 @@ Completed implementation slices:
   separately from Barcode, and Book Edit uses the same two typed identifiers;
   editing ISBN preserves its original value until changed and clears stale
   ISBN-10/ISBN-13 variants only when the displayed identifier is edited.
-- Game Edit now exposes the kind draft's already-persisted Developers, Genres,
-  Age rating, Franchise, Languages, and Country fields in its Main tab. Manual
-  Add uses the same field definitions across Main, Edition details,
-  Description, and Covers tabs; Series and Franchise remain on Main, while
-  the existing typed schema and vocabulary callbacks remain the data owners.
+- Game Add and Edit now use the same kind-owned field definitions and embedded
+  schema renderer for Main, Edition details, Description, and Covers. The
+  shared typed values preserve partial release dates, physical-format IDs,
+  metadata credits, and optional image fields; the duplicate scalar edit
+  controller was removed. Game-specific Entry details remain on their typed
+  editor.
 - Board Game Manual Add now groups its existing kind-owned fields into Main,
   Edition Details, Gameplay & Ratings, Description, and Covers. Shared schema
   section filtering preserves layout and visibility configuration while a tab
@@ -322,7 +323,7 @@ My Images and adds Custom Fields only when definitions are nonempty.
 | Books | Main, Credits, Links, Covers, Plot | Main, Links, Covers, and Plot use the same kind-owned field schema and renderer as Add. Credits use the shared typed ordered-name editor. The embedded Entry schema and shared personal-state composition remain specialized. |
 | Comics | Main, Edition details, Details, Creators, Characters, Covers, Links, plus Series identity control | Generic entry editor and separately registered typed catalog editor; large custom tab/host adapter remains, with typed-draft checks and controller fallbacks removed. Add/Edit share the Comic people row models; advanced metadata parity remains to review. |
 | Manga | Main, Edition details, Details, Plot, Covers, plus Series identity control | Registered routes use the shared Edit shell with typed Edition Details and Details schemas; Add/Edit expose modeled metadata in matching areas and keep distinct ISBN/Barcode and Format/Binding values. Genres/Themes share the chip picker; Format/Publisher/Imprint share Manga vocabulary definitions. Identifiers, publication dates, series group, and back cover persist independently. Managed series selection logic still overlaps Comics/Books. |
-| Games | Main, Edition details, Description, Covers | Generic editor plus embedded entry schema; custom Main/Release fields and the registered Game platform vocabulary. The request-backed edit draft is renderer-owned; field-specific controller ownership still needs review. |
+| Games | Main, Edition details, Description, Covers | Main, Edition, Description, and Covers share the kind-owned field schema and renderer with Add. The typed Entry details editor remains specialized. |
 | Board Games | Main, Edition Details, Gameplay & Ratings, Description, Covers, Links | Generic renderer with catalog/entry presentation lists and embedded entry schema; shared release identity groups remain. Links now use the shared table in Add and Edit. |
 
 The presence of a raw Flutter control is not automatically a defect. The
@@ -591,7 +592,7 @@ tab placement, and metadata/personal classification.
 | Books | Main, identifier, covers, and Plot fields now use the same schema and renderer in Add/Edit; Authors and Translators share typed ordered-name editors. Continue unifying catalog/entry and personal lifecycles, and review other credit roles. |
 | Comics | Controller fallbacks have been removed from the Comic edit host; unify the generic entry and typed catalog hosts while retaining series/issue, grading, variants, and meaningful credit structures. |
 | Manga | Add/Edit now expose the same modeled volume, publication, identifier, people, character, and descriptive fields. Genres/Themes use the common chip control, and Edition Format, Publisher, and Imprint use the same vocabularies in both forms. Distributor and Country / region were removed from Add because Manga metadata has no such fields. Consolidate series selection mechanics with other kinds and retain Manga-specific volume/publication semantics. |
-| Games | Request-backed edit draft creation is renderer-owned and the registered Game platform vocabulary is used. Audit remaining no-op callbacks and integrate the embedded entry schema with the complete form. |
+| Games | Catalog fields now share the Add schema, typed values, and renderer across Main, Edition, Description, and Covers; the duplicate scalar controller is gone. Continue with whole-dialog submission/personal lifecycle unification and review the specialized Entry details editor. |
 | Board Games | Merge separate catalog/entry compositions, release identity groups, and embedded entry schema; retain players/age/play-time/components and play tracking as typed kind features. |
 | Music | Retain reference layout; converge Add/Edit credits, discs/tracks, covers, links, and personal controls. Preserve track-search highlighting in App. |
 

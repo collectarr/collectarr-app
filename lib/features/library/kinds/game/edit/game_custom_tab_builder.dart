@@ -1,18 +1,18 @@
+import 'package:collectarr_app/features/library/add/schema/add_schema_renderer.dart';
+import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
+import 'package:collectarr_app/features/library/domain/library_entity_scope.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_edit_shell_state.dart';
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
-import 'package:collectarr_app/features/library/edit/fields/library_edit_field_groups.dart';
-import 'package:collectarr_app/features/library/domain/library_entity_scope.dart';
-import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
-import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/edit/schema/edit_schema_renderer.dart';
-import 'package:collectarr_app/features/library/ui/primitives/library_selection_fields.dart';
+import 'package:collectarr_app/features/library/kinds/game/add/game_add_schema.dart';
 import 'package:collectarr_app/features/library/kinds/game/edit/entry/game_entry_edit_schema.dart';
 import 'package:collectarr_app/features/library/kinds/game/entries/game_entry_details.dart';
 import 'package:collectarr_app/features/library/kinds/game/entries/game_entry_details_draft.dart';
+import 'package:collectarr_app/features/library/kinds/game/forms/game_catalog_form_field_ids.dart';
+import 'package:collectarr_app/features/library/kinds/game/edit/game_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/game/vocabulary/game_vocabularies.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:flutter/material.dart';
-
-import 'game_edit_draft.dart';
 
 Widget? buildGameCustomTabView({
   required String tabId,
@@ -39,142 +39,142 @@ Widget? buildGameCustomTabView({
       showTabBar: false,
     );
   }
-  if (tabId == 'edition') {
-    return EditTabShell(
-      children: [
-        EditSection(
-          title: 'Edition Details',
-          accent: accent,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              LibraryReleaseIdentityFields(
-                editionTitleController:
-                    kindDraft.gameEdit.editionTitleController,
-                variantController: kindDraft.gameEdit.variantController,
-                barcodeController: kindDraft.gameEdit.barcodeController,
-                releaseDateController: kindDraft.gameEdit.releaseDateController,
-                releaseYearController: kindDraft.gameEdit.releaseYearController,
-                physicalFormatController:
-                    kindDraft.gameEdit.physicalFormatController,
-                physicalFormatOptions: [
-                  for (final format in draft.physicalFormats) format.label,
-                ],
-                onPhysicalFormatChanged: (value) {
-                  kindDraft.gameEdit.physicalFormatId =
-                      physicalMediaFormatByLabelOrId(
-                    value,
-                    formats: draft.physicalFormats,
-                  )?.id;
-                  markDirty();
-                },
-                editionTitleLabel: 'Edition title',
-                variantLabel: 'Variant',
-                barcodeLabel: 'UPC / Barcode',
-                releaseDateLabel: 'Release Date',
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-  if (tabId != 'main') return null;
+
+  final fieldIds = switch (tabId) {
+    'main' => gameMainFieldIds,
+    'edition' => gameEditionFieldIds,
+    'synopsis' => gameDescriptionFieldIds,
+    'cover' => gameCoverFieldIds,
+    _ => null,
+  };
+  if (fieldIds == null) return null;
+
+  final sectionLabels = switch (tabId) {
+    'main' => const {
+        'catalog_item': 'Main',
+        'game_details': 'Game details',
+      },
+    'edition' => const {'catalog_item': 'Edition'},
+    'synopsis' => const {'game_details': 'Description'},
+    _ => const {'catalog_item': 'Covers'},
+  };
+  final platformOptions = _options(
+    draft,
+    GameVocabularyIds.platform.value,
+    GameVocabularies.platform.builtIns,
+  );
+  final regionOptions = _options(
+    draft,
+    GameVocabularyIds.region.value,
+    GameVocabularies.region.builtIns,
+  );
+  final editionOptions = draft.physicalFormats.isNotEmpty
+      ? [for (final format in draft.physicalFormats) format.label]
+      : _options(
+          draft,
+          GameVocabularyIds.edition.value,
+          GameVocabularies.edition.builtIns,
+        );
+  final ageRatingOptions = _options(
+    draft,
+    GameVocabularyIds.ageRating.value,
+    GameVocabularies.ageRating.builtIns,
+  );
+  final schema = gameAddSchemaFor<GameEditDraft>(
+    fieldIds: fieldIds,
+    sectionLabels: sectionLabels,
+    platformOptions: platformOptions,
+    regionOptions: regionOptions,
+    editionOptions: editionOptions,
+    ageRatingOptions: ageRatingOptions,
+    physicalFormatIdForValue: (value) =>
+        _physicalFormatId(value, draft.physicalFormats),
+  );
 
   return EditTabShell(
     children: [
-      EditSection(
-        title: 'Details',
-        accent: accent,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            LibraryEditResponsiveRow(children: [
-              LibraryEditTextField(
-                controller:
-                    draft.formFields.controller(GameCanonicalEditField.title),
-                label: 'Title',
-                validator: (v) => (v == null || v.trim().isEmpty)
-                    ? 'Title is required'
-                    : null,
-              ),
-              LibraryEditTextField(
-                controller: draft.formFields
-                    .controller(GameCanonicalEditField.sortTitle),
-                label: 'Sort Title',
-              ),
-            ]),
-            const SizedBox(height: 10),
-            LibraryEditResponsiveRow(children: [
-              LibraryEditTextField(
-                controller: draft.formFields
-                    .controller(GameCanonicalEditField.originalTitle),
-                label: 'Original Title',
-              ),
-              LibraryEditTextField(
-                controller: kindDraft.gameEdit.seriesTitleController,
-                label: 'Series',
-              ),
-            ]),
-            const SizedBox(height: 10),
-            LibraryEditResponsiveRow(children: [
-              LibraryEditTextField(
-                controller: kindDraft.gameEdit.publisherController,
-                label: 'Publisher / Studio',
-              ),
-              LibraryEditTextField(
-                controller: kindDraft.gameEdit.releaseDateController,
-                label: 'Release Date',
-              ),
-            ]),
-            const SizedBox(height: 10),
-            LibraryVocabularyField(
-              controller: kindDraft.gameEdit.platformsController,
-              options:
-                  draft.kindVocabularies[GameVocabularyIds.platform.value] ??
-                      const [],
-              label: 'Platform',
-              hint: 'Select platforms',
-              multiSelect: true,
-            ),
-            const SizedBox(height: 10),
-            LibraryEditResponsiveRow(children: [
-              LibraryEditTextField(
-                controller: kindDraft.gameEdit.developersController,
-                label: 'Developers',
-              ),
-              LibraryVocabularyField(
-                controller: kindDraft.gameEdit.genresController,
-                options: kindDraft.gameEdit.genreOptions,
-                label: 'Genres',
-                multiSelect: true,
-              ),
-            ]),
-            const SizedBox(height: 10),
-            LibraryEditResponsiveRow(children: [
-              LibraryEditTextField(
-                controller: kindDraft.gameEdit.ageRatingController,
-                label: 'Age rating',
-              ),
-              LibraryEditTextField(
-                controller: kindDraft.gameEdit.franchiseController,
-                label: 'Franchise',
-              ),
-            ]),
-            const SizedBox(height: 10),
-            LibraryEditResponsiveRow(children: [
-              LibraryEditTextField(
-                controller: kindDraft.gameEdit.languageController,
-                label: 'Languages',
-              ),
-              LibraryEditTextField(
-                controller: kindDraft.gameEdit.countryController,
-                label: 'Country',
-              ),
-            ]),
-          ],
-        ),
+      AddSchemaRenderer<GameEditDraft>.embedded(
+        key: ValueKey('game-fields-${draft.type.kind.apiValue}-$tabId'),
+        schema: schema,
+        draft: kindDraft,
+        mediaKind: draft.type.kind.apiValue,
+        onChanged: markDirty,
+        onVocabularyValueChanged: ({
+          required fieldId,
+          required listName,
+          required value,
+        }) {
+          draft.recordPendingVocabularyValue(
+            fieldId: fieldId,
+            listName: listName,
+            value: value,
+            options: _optionsForField(draft, fieldId),
+            allowCustomValues: true,
+            mediaKind: draft.type.kind.apiValue,
+          );
+        },
+        onVocabularyValuesChanged: ({
+          required fieldId,
+          required listName,
+          required values,
+        }) {
+          draft.recordPendingVocabularyValues(
+            fieldId: fieldId,
+            listName: listName,
+            values: values,
+            options: _optionsForField(draft, fieldId),
+            allowCustomValues: true,
+            mediaKind: draft.type.kind.apiValue,
+          );
+        },
       ),
     ],
   );
+}
+
+List<String> _options(
+  LibraryEditShellState draft,
+  String key,
+  Iterable<String> fallback,
+) =>
+    draft.kindVocabularies[key]?.toList(growable: false) ??
+    fallback.toList(growable: false);
+
+List<String> _optionsForField(
+  LibraryEditShellState draft,
+  String fieldId,
+) =>
+    switch (fieldId) {
+      'platforms' => _options(
+          draft,
+          GameVocabularyIds.platform.value,
+          GameVocabularies.platform.builtIns,
+        ),
+      'age_ratings' => _options(
+          draft,
+          GameVocabularyIds.ageRating.value,
+          GameVocabularies.ageRating.builtIns,
+        ),
+      'region' => _options(
+          draft,
+          GameVocabularyIds.region.value,
+          GameVocabularies.region.builtIns,
+        ),
+      'format' when draft.physicalFormats.isNotEmpty => [
+          for (final format in draft.physicalFormats) format.label,
+        ],
+      'format' => _options(
+          draft,
+          GameVocabularyIds.edition.value,
+          GameVocabularies.edition.builtIns,
+        ),
+      _ => const <String>[],
+    };
+
+String? _physicalFormatId(
+  String value,
+  List<PhysicalMediaFormat> formats,
+) {
+  final matching = physicalMediaFormatByLabelOrId(value, formats: formats);
+  return matching?.id;
 }
