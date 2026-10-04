@@ -96,6 +96,11 @@ Completed implementation slices:
   Add uses the same field definitions across Main, Edition details,
   Description, and Covers tabs; Series and Franchise remain on Main, while
   the existing typed schema and vocabulary callbacks remain the data owners.
+- Board Game Manual Add now groups its existing kind-owned fields into Main,
+  Edition Details, Gameplay & Ratings, Description, and Covers. Shared schema
+  section filtering preserves layout and visibility configuration while a tab
+  presents a focused subset. This does not yet unify Board Game's Add/Edit
+  lifecycle or add external-link editing to Manual Add.
 - The shared video Specs section now also edits Screen ratio. TV and Anime
   hydrate their existing Specs controllers from metadata and persist all
   fields, including explicit clears; their Add forms expose the same supported
