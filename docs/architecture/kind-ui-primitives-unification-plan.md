@@ -58,8 +58,11 @@ Completed implementation slices:
   buttons remain separate from choosing or typing a value.
 - Schema text, number, and money inputs and custom Edit text inputs share the
   same base text-form control and common minimum height.
-- `Sort Title` now uses consistent title casing across kind Add/Edit forms and
-  the Music metadata comparison view.
+- Kind Add/Edit fields and metadata comparison views now use consistent title
+  casing for common labels such as Sort Title, Original Title, Search Aliases,
+  Release Date, Custom Fields, and My Images.
+- Edit extra tabs now require stable IDs. Personal-tab detection and Flutter
+  tab keys no longer depend on the visible label text.
 - Edit validation checks visible schema fields across inactive tabs and can
   run a validator contributed by an extra tab. When a non-mounted tab contains
   the first invalid field, the renderer switches to that tab and shows the
