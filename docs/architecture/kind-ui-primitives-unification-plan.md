@@ -180,7 +180,7 @@ My Images and adds Custom Fields only when definitions are nonempty.
 
 | Kind | Manual Add composition | Edit composition / identified divergence |
 | --- | --- | --- |
-| Music | Main, Details, Classical, People, Tracks, Personal, Covers, Links | Main registered edit route uses typed schema dialog; Add credits/tracks/links/covers still have independent widgets and bindings. An additional entry edit dialog exists; check callers before deleting. |
+| Music | Main, Details, Classical, People, Tracks, Personal, Covers, Links | Registered edit route uses the typed album schema dialog; Add credits/tracks/links/covers still have independent widgets and bindings. No separate entry edit dialog or caller remains in the current source. |
 | Movies | One Main schema with mixed metadata fields | Generic session/presentation renderer; separate catalog/entry tab lists and custom tabs. The request-backed edit draft is initialized by the shared renderer state; Movie shares its Specs tab with TV and Anime. Remaining custom child-editor controller ownership still needs review. |
 | TV | One Main schema | Generic editor plus a separately registered typed media editor. The request-backed edit draft is initialized by the shared renderer state; Specs are shared with Movie/Anime, and Cast/Crew presentation is shared with Anime. Custom episode dialog is another surface to audit. |
 | Anime | One Main schema | Registered edit routes use generic editor; an additional typed media dialog exists. The request-backed edit draft is initialized by the shared renderer state; Specs are shared with Movie/TV, and Cast/Crew presentation is shared with TV. |
@@ -440,7 +440,7 @@ tab placement, and metadata/personal classification.
 | Manga | Consolidate series/publisher picker mechanics with other kinds; keep volume/publication semantics in Manga; reconcile generic/extra media editors. |
 | Games | Remove build-created release controllers and no-op callbacks; replace hard-coded platform options with Game vocabularies; integrate embedded entry schema with complete form. |
 | Board Games | Merge separate catalog/entry compositions, release identity groups, and embedded entry schema; retain players/age/play-time/components and play tracking as typed kind features. |
-| Music | Retain reference layout; converge Add/Edit credits, discs/tracks, covers, links, and personal controls. Preserve track-search highlighting in App. Delete the extra entry editor only after verifying callers. |
+| Music | Retain reference layout; converge Add/Edit credits, discs/tracks, covers, links, and personal controls. Preserve track-search highlighting in App. |
 
 For all kinds, field coverage must be equal between local Add and Edit except
 explicit action-dependent fields. Do not imitate Music's musical tab names
