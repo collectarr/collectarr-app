@@ -72,6 +72,9 @@ Completed implementation slices:
   External links are staged with draft-owned controllers while trailer links
   remain intact; the previously blank placeholder tabs were removed. Personal
   My Images are not exposed as catalog metadata by this typed catalog editor.
+- Comic catalog Edit and Manual Add now use the same managed series selector.
+  Clearing or changing the selected series updates both the title and its Core
+  series ID; clearing the selection removes the stale ID on save.
 - Comic and Board Game Manual Add now use the shared external-link draft row
   for controller ownership and disposal. Each kind still maps those values to
   its own typed link model when it builds the catalog candidate.

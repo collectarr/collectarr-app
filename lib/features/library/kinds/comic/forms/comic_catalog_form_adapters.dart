@@ -52,7 +52,7 @@ ComicCatalogItem comicCatalogItemFromFormValues({
     title: _nullable(values.title) ?? original.title,
     sortTitle: original.sortTitle,
     seriesTitle: seriesTitle,
-    seriesId: _nullable(values.seriesId ?? '') ?? original.seriesId,
+    seriesId: _nullable(values.seriesId ?? ''),
     seriesGroup: seriesGroup,
     seriesTags: original.seriesTags,
     volumeName: original.volumeName,
