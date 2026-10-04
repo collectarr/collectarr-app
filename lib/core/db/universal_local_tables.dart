@@ -82,7 +82,8 @@ class UserExternalLinksCache extends Table {
   TextColumn get id => text()();
 
   /// Personal links belong to one local entry, not the shared Core catalog.
-  TextColumn get libraryEntryRefKey => text()();
+  TextColumn get libraryEntryRefKey =>
+      text().withDefault(const Constant(''))();
   TextColumn get label => text()();
   TextColumn get url => text()();
   TextColumn get kind => text()();

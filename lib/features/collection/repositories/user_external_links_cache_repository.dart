@@ -70,7 +70,7 @@ class UserExternalLinksCacheRepository {
         await _db.into(_db.userExternalLinksCache).insert(
               UserExternalLinksCacheCompanion.insert(
                 id: link.id,
-                libraryEntryRefKey: link.libraryEntryRef.key,
+                libraryEntryRefKey: Value(link.libraryEntryRef.key),
                 label: link.label,
                 url: link.url,
                 kind: link.kind,

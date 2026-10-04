@@ -1867,7 +1867,9 @@ class $UserExternalLinksCacheTable extends UserExternalLinksCache
   @override
   late final GeneratedColumn<String> libraryEntryRefKey =
       GeneratedColumn<String>('library_entry_ref_key', aliasedName, false,
-          type: DriftSqlType.string, requiredDuringInsert: true);
+          type: DriftSqlType.string,
+          requiredDuringInsert: false,
+          defaultValue: const Constant(''));
   static const VerificationMeta _labelMeta = const VerificationMeta('label');
   @override
   late final GeneratedColumn<String> label = GeneratedColumn<String>(
@@ -1919,8 +1921,6 @@ class $UserExternalLinksCacheTable extends UserExternalLinksCache
           _libraryEntryRefKeyMeta,
           libraryEntryRefKey.isAcceptableOrUnknown(
               data['library_entry_ref_key']!, _libraryEntryRefKeyMeta));
-    } else if (isInserting) {
-      context.missing(_libraryEntryRefKeyMeta);
     }
     if (data.containsKey('label')) {
       context.handle(
@@ -2141,7 +2141,7 @@ class UserExternalLinksCacheCompanion
   });
   UserExternalLinksCacheCompanion.insert({
     required String id,
-    required String libraryEntryRefKey,
+    this.libraryEntryRefKey = const Value.absent(),
     required String label,
     required String url,
     required String kind,
@@ -2149,7 +2149,6 @@ class UserExternalLinksCacheCompanion
     required DateTime updatedAt,
     this.rowid = const Value.absent(),
   })  : id = Value(id),
-        libraryEntryRefKey = Value(libraryEntryRefKey),
         label = Value(label),
         url = Value(url),
         kind = Value(kind),
@@ -19810,7 +19809,7 @@ typedef $$UserMetadataOverridesCacheTableProcessedTableManager
 typedef $$UserExternalLinksCacheTableCreateCompanionBuilder
     = UserExternalLinksCacheCompanion Function({
   required String id,
-  required String libraryEntryRefKey,
+  Value<String> libraryEntryRefKey,
   required String label,
   required String url,
   required String kind,
@@ -19977,7 +19976,7 @@ class $$UserExternalLinksCacheTableTableManager extends RootTableManager<
           ),
           createCompanionCallback: ({
             required String id,
-            required String libraryEntryRefKey,
+            Value<String> libraryEntryRefKey = const Value.absent(),
             required String label,
             required String url,
             required String kind,
