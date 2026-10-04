@@ -400,10 +400,10 @@ class MangaEditDraft
           : MangaEditionFormat.fromString(format),
       language: language ?? meta.language,
       country: country ?? meta.country,
-      genres: _splitValues(genresController.text, fallback: meta.genres),
-      themes: _splitValues(themesController.text, fallback: meta.themes),
-      authors: _splitValues(authorsController.text, fallback: meta.authors),
-      artists: _splitValues(artistsController.text, fallback: meta.artists),
+      genres: _splitValues(genresController.text),
+      themes: _splitValues(themesController.text),
+      authors: _splitValues(authorsController.text),
+      artists: _splitValues(artistsController.text),
       demographic: demographic == null
           ? meta.demographic
           : MangaDemographic.fromString(demographic),
@@ -546,15 +546,12 @@ MangaMetadata mangaEditKindMetadataForCandidate(
   return metadata;
 }
 
-List<String> _splitValues(String value, {required List<String> fallback}) {
-  final values = value
-      .split(RegExp(r'[,\r\n]+'))
-      .map((entry) => entry.trim())
-      .where((entry) => entry.isNotEmpty)
-      .toSet()
-      .toList();
-  return values.isEmpty ? fallback : values;
-}
+List<String> _splitValues(String value) => value
+    .split(RegExp(r'[,\r\n]+'))
+    .map((entry) => entry.trim())
+    .where((entry) => entry.isNotEmpty)
+    .toSet()
+    .toList();
 
 PartialDate? _partialDateFromController(String value) {
   final parsed = parseDate(value);
