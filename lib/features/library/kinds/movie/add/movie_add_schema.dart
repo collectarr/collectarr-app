@@ -12,6 +12,8 @@ final AddSchema<MovieAddManualDraft> movieCoverAddSchema =
     movieCoverAddSchemaFor();
 
 AddSchema<MovieAddManualDraft> movieAddSchemaFor({
+  Set<String>? fieldIds,
+  String sectionLabel = 'Catalog Item',
   Iterable<String>? formatOptions,
   Iterable<String>? genreOptions,
   Iterable<String>? regionOptions,
@@ -52,12 +54,13 @@ AddSchema<MovieAddManualDraft> movieAddSchemaFor({
     sections: [
       AddSectionSpec<MovieAddManualDraft>(
         id: 'catalog_item',
-        label: 'Catalog Item',
+        label: sectionLabel,
         fields: [
-          libraryAddCatalogTitleField<MovieAddManualDraft>(),
-          ...fields.where(
-            (field) => field.id != movieCoverImageUrlFieldId,
-          ),
+          if (fieldIds == null || fieldIds.contains('catalog_title'))
+            libraryAddCatalogTitleField<MovieAddManualDraft>(),
+          ...fields.where((field) =>
+              field.id != movieCoverImageUrlFieldId &&
+              (fieldIds == null || fieldIds.contains(field.id))),
         ],
         fullWidthFieldIds: const {'catalog_title'},
       ),

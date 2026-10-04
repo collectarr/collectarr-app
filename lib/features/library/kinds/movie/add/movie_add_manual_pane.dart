@@ -4,7 +4,45 @@ import 'package:collectarr_app/features/library/add/schema/add_schema_renderer.d
 import 'package:collectarr_app/features/library/kinds/movie/add/movie_add_manual_draft.dart';
 import 'package:collectarr_app/features/library/kinds/movie/add/movie_add_schema.dart';
 import 'package:collectarr_app/features/library/kinds/movie/forms/movie_credits_editor.dart';
+import 'package:collectarr_app/features/library/kinds/movie/forms/movie_characters_editor.dart';
 import 'package:flutter/material.dart';
+
+const _movieMainFieldIds = {
+  'catalog_title',
+  'sort_key',
+  'original_title',
+  'localized_title',
+  'display_title',
+  'search_aliases',
+  'genres',
+  'original_language',
+  'language',
+  'age_rating',
+  'audience_rating',
+  'runtime_minutes',
+  'country',
+  'publisher',
+};
+
+const _movieEditionFieldIds = {
+  'subtitle',
+  'edition_title',
+  'physical_format',
+  'release_year',
+  'release_date',
+  'barcode',
+  'item_number',
+  'variant_name',
+};
+
+const _movieSpecsFieldIds = {
+  'audio_tracks',
+  'subtitles',
+  'screen_ratio',
+  'layers',
+  'color',
+  'nr_discs',
+};
 
 class MovieAddManualPane extends StatelessWidget {
   const MovieAddManualPane({super.key, required this.request});
@@ -17,9 +55,61 @@ class MovieAddManualPane extends StatelessWidget {
     return LibraryAddManualPaneShell(
       request: request,
       tabs: [
-        LibraryAddManualPaneTab.main(
+        LibraryAddManualPaneTab(
+          id: 'main',
+          label: 'Main',
+          icon: Icons.movie_outlined,
           content: AddSchemaRenderer<MovieAddManualDraft>.embedded(
-            schema: movieAddSchema,
+            schema: movieAddSchemaFor(
+              fieldIds: _movieMainFieldIds,
+              sectionLabel: 'Main',
+            ),
+            draft: draft,
+            mediaKind: request.kind.apiValue,
+            onVocabularyValueChanged: request.onVocabularyValueChanged,
+            onVocabularyValuesChanged: request.onVocabularyValuesChanged,
+            onChanged: request.onManualDraftChanged,
+          ),
+        ),
+        LibraryAddManualPaneTab(
+          id: 'edition',
+          label: 'Edition details',
+          icon: Icons.info_outline,
+          content: AddSchemaRenderer<MovieAddManualDraft>.embedded(
+            schema: movieAddSchemaFor(
+              fieldIds: _movieEditionFieldIds,
+              sectionLabel: 'Edition',
+            ),
+            draft: draft,
+            mediaKind: request.kind.apiValue,
+            onVocabularyValueChanged: request.onVocabularyValueChanged,
+            onVocabularyValuesChanged: request.onVocabularyValuesChanged,
+            onChanged: request.onManualDraftChanged,
+          ),
+        ),
+        LibraryAddManualPaneTab(
+          id: 'synopsis',
+          label: 'Plot',
+          icon: Icons.description_outlined,
+          content: AddSchemaRenderer<MovieAddManualDraft>.embedded(
+            schema: movieAddSchemaFor(
+              fieldIds: const {'synopsis'},
+              sectionLabel: 'Plot',
+            ),
+            draft: draft,
+            mediaKind: request.kind.apiValue,
+            onChanged: request.onManualDraftChanged,
+          ),
+        ),
+        LibraryAddManualPaneTab(
+          id: 'specs',
+          label: 'Specs',
+          icon: Icons.tune_outlined,
+          content: AddSchemaRenderer<MovieAddManualDraft>.embedded(
+            schema: movieAddSchemaFor(
+              fieldIds: _movieSpecsFieldIds,
+              sectionLabel: 'Specs',
+            ),
             draft: draft,
             mediaKind: request.kind.apiValue,
             onVocabularyValueChanged: request.onVocabularyValueChanged,
@@ -42,13 +132,25 @@ class MovieAddManualPane extends StatelessWidget {
           id: 'cast',
           label: 'Cast',
           icon: Icons.people_outline,
-          content: MovieCreditsEditor(
-            title: 'Cast',
-            emptyMessage: 'No cast credits yet.',
-            addLabel: 'Add Cast',
-            defaultRole: 'Actor',
-            credits: draft.castCredits,
-            onChanged: request.onManualDraftChanged,
+          content: Column(
+            children: [
+              MovieCreditsEditor(
+                title: 'Cast',
+                emptyMessage: 'No cast credits yet.',
+                addLabel: 'Add Cast',
+                defaultRole: 'Actor',
+                credits: draft.castCredits,
+                onChanged: request.onManualDraftChanged,
+              ),
+              const SizedBox(height: 12),
+              MovieCharactersEditor(
+                characters: draft.values.characters,
+                onChanged: (characters) {
+                  draft.values.characters = characters;
+                  request.onManualDraftChanged?.call();
+                },
+              ),
+            ],
           ),
         ),
         LibraryAddManualPaneTab(
