@@ -11,6 +11,12 @@ const _mangaCombinedTabs = [
     sectionIds: ['catalog_snapshot'],
   ),
   LibraryEditTabSpec(
+    id: 'edition',
+    icon: Icons.inventory_2_outlined,
+    label: 'Edition Details',
+    sectionIds: ['manga_edition'],
+  ),
+  LibraryEditTabSpec(
     id: 'synopsis',
     icon: Icons.notes,
     label: 'Plot',

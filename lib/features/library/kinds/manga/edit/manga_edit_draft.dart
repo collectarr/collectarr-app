@@ -25,9 +25,9 @@ enum MangaCanonicalEditField {
   originalTitle,
   localizedTitle,
   searchAliases,
-  characters,
   synopsis,
   coverImage,
+  backCoverImage,
   thumbnailImage
 }
 
@@ -70,6 +70,12 @@ class MangaEditDraft
     required this.themesController,
     required this.authorsController,
     required this.artistsController,
+    required this.charactersController,
+    required this.seriesGroupController,
+    required this.ageRatingController,
+    required this.isbnController,
+    required this.bindingController,
+    required this.releaseDescriptionController,
     required this.demographicController,
     required this.statusController,
     required this.serializationController,
@@ -111,6 +117,12 @@ class MangaEditDraft
   final TextEditingController themesController;
   final TextEditingController authorsController;
   final TextEditingController artistsController;
+  final TextEditingController charactersController;
+  final TextEditingController seriesGroupController;
+  final TextEditingController ageRatingController;
+  final TextEditingController isbnController;
+  final TextEditingController bindingController;
+  final TextEditingController releaseDescriptionController;
   final TextEditingController demographicController;
   final TextEditingController statusController;
   final TextEditingController serializationController;
@@ -237,6 +249,12 @@ class MangaEditDraft
     themesController.dispose();
     authorsController.dispose();
     artistsController.dispose();
+    charactersController.dispose();
+    seriesGroupController.dispose();
+    ageRatingController.dispose();
+    isbnController.dispose();
+    bindingController.dispose();
+    releaseDescriptionController.dispose();
     demographicController.dispose();
     statusController.dispose();
     serializationController.dispose();
@@ -257,27 +275,34 @@ class MangaEditDraft
         .where((entry) => entry.isNotEmpty)
         .toList();
     final metadata = mangaEditMetadataFromCandidate(selection.kindItem);
-    final updatedMetadata = metadata.copyWith(
-      title: fields.controller(MangaCanonicalEditField.title).text.trim(),
-      originalTitle: emptyToNull(
-          fields.controller(MangaCanonicalEditField.originalTitle).text),
-      localizedTitle: emptyToNull(
-          fields.controller(MangaCanonicalEditField.localizedTitle).text),
-      searchAliases: aliases,
-      characters: _editedMangaCharacters(
-        fields.controller(MangaCanonicalEditField.characters).text,
-        metadata.characters,
-      ),
-      synopsis:
-          emptyToNull(fields.controller(MangaCanonicalEditField.synopsis).text),
-      coverImageUrl: emptyToNull(
-          fields.controller(MangaCanonicalEditField.coverImage).text),
-      thumbnailImageUrl: emptyToNull(
-          fields.controller(MangaCanonicalEditField.thumbnailImage).text),
-      sortKey: emptyToNull(
-        fields.controller(MangaCanonicalEditField.sortTitle).text,
-      ),
-    );
+    final updatedMetadata = MangaMetadata.fromJson(applyJsonFieldPatch(
+      metadata,
+      {
+        'title': fields.controller(MangaCanonicalEditField.title).text.trim(),
+        'original_title': emptyToNull(
+          fields.controller(MangaCanonicalEditField.originalTitle).text,
+        ),
+        'localized_title': emptyToNull(
+          fields.controller(MangaCanonicalEditField.localizedTitle).text,
+        ),
+        'search_aliases': aliases,
+        'synopsis': emptyToNull(
+          fields.controller(MangaCanonicalEditField.synopsis).text,
+        ),
+        'cover_image_url': emptyToNull(
+          fields.controller(MangaCanonicalEditField.coverImage).text,
+        ),
+        'back_cover_image_url': emptyToNull(
+          fields.controller(MangaCanonicalEditField.backCoverImage).text,
+        ),
+        'thumbnail_image_url': emptyToNull(
+          fields.controller(MangaCanonicalEditField.thumbnailImage).text,
+        ),
+        'sort_key': emptyToNull(
+          fields.controller(MangaCanonicalEditField.sortTitle).text,
+        ),
+      },
+    ));
     return selection.copyWith(
       kindItem:
           selection.kindItem.kindCapability.replacingKindData(updatedMetadata),
@@ -290,6 +315,7 @@ class MangaEditDraft
     CatalogSearchCandidate item,
   ) {
     final metadata = item.mangaCatalogFields;
+    final kindMetadata = mangaEditMetadataFromCandidate(item);
     fields.create(MangaCanonicalEditField.title, initialValue: metadata.title);
     fields.create(MangaCanonicalEditField.sortTitle,
         initialValue: metadata.sortKey ?? '');
@@ -299,16 +325,12 @@ class MangaEditDraft
         initialValue: metadata.localizedTitle ?? '');
     fields.create(MangaCanonicalEditField.searchAliases,
         initialValue: metadata.searchAliases.join(', '));
-    final kindMetadata = mangaEditMetadataFromCandidate(item);
-    fields.create(
-      MangaCanonicalEditField.characters,
-      initialValue:
-          kindMetadata.characters.map((character) => character.name).join(', '),
-    );
     fields.create(MangaCanonicalEditField.synopsis,
         initialValue: metadata.synopsis ?? '');
     fields.create(MangaCanonicalEditField.coverImage,
         initialValue: metadata.coverImageUrl ?? '');
+    fields.create(MangaCanonicalEditField.backCoverImage,
+        initialValue: kindMetadata.backCoverImageUrl ?? '');
     fields.create(MangaCanonicalEditField.thumbnailImage,
         initialValue: metadata.thumbnailImageUrl ?? '');
     return LibraryEditFormSchema(
@@ -339,12 +361,6 @@ class MangaEditDraft
           label: 'Localized title',
         ),
         LibraryEditFormFieldSpec(
-          id: MangaCanonicalEditField.characters,
-          section: LibraryEditFormSection.details,
-          controller: fields.controller(MangaCanonicalEditField.characters),
-          label: 'Characters',
-        ),
-        LibraryEditFormFieldSpec(
           id: MangaCanonicalEditField.searchAliases,
           section: LibraryEditFormSection.details,
           controller: fields.controller(MangaCanonicalEditField.searchAliases),
@@ -363,6 +379,12 @@ class MangaEditDraft
           section: LibraryEditFormSection.artwork,
           controller: fields.controller(MangaCanonicalEditField.coverImage),
           label: 'Cover Image URL',
+        ),
+        LibraryEditFormFieldSpec(
+          id: MangaCanonicalEditField.backCoverImage,
+          section: LibraryEditFormSection.artwork,
+          controller: fields.controller(MangaCanonicalEditField.backCoverImage),
+          label: 'Back Cover Image URL',
         ),
         LibraryEditFormFieldSpec(
           id: MangaCanonicalEditField.synopsis,
@@ -387,8 +409,12 @@ class MangaEditDraft
     final volumeNumber = int.tryParse(volumeNumberController.text);
     final impr = emptyToNull(imprintController.text);
     final pub = emptyToNull(publisherController.text);
+    final isbn = emptyToNull(isbnController.text);
     final barcode = emptyToNull(barcodeController.text);
+    final binding = emptyToNull(bindingController.text);
     final format = emptyToNull(physicalFormatController.text);
+    final seriesGroup = emptyToNull(seriesGroupController.text);
+    final ageRating = emptyToNull(ageRatingController.text);
     final variant = emptyToNull(variantController.text);
     final editionTitle = emptyToNull(editionTitleController.text);
     final originalPublisher = emptyToNull(originalPublisherController.text);
@@ -399,43 +425,62 @@ class MangaEditDraft
     final status = emptyToNull(statusController.text);
     final serialization = emptyToNull(serializationController.text);
 
-    final releaseDateText = releaseDateController.text.trim();
     final releaseYear = int.tryParse(releaseYearController.text.trim());
-    final releaseDate = releaseDateText.isEmpty
-        ? (releaseYear == null || releaseYear < 1
-            ? null
-            : PartialDate(year: releaseYear))
-        : PartialDate.tryParse(releaseDateText);
+    final releaseDate = PartialDate.tryParse(releaseDateController.text.trim());
     final updatedMetadata = MangaMetadata.fromJson(applyJsonFieldPatch(meta, {
       'page_count': count,
       'volume_number': volumeNumber?.toString(),
+      'series_group': seriesGroup,
       'edition_title': editionTitle,
       'variant_name': variant,
       'imprint': impr,
       'publisher': pub,
       'original_publisher': originalPublisher,
       'localized_publisher': localizedPublisher,
+      'isbn': isbn,
       'barcode': barcode,
-      'isbn': barcode,
-      'physical_format_label': format,
+      'identifiers': _editedMangaIdentifiers(
+        meta.identifiers,
+        isbn: isbn,
+        barcode: barcode,
+      ).map((identifier) => identifier.toJson()).toList(),
+      'physical_format_label': binding,
       'physical_format': format,
       'edition_format': format == null
           ? meta.editionFormat.name
           : MangaEditionFormat.fromString(format).name,
+      'age_rating': ageRating,
       'language': language ?? meta.language,
       'country': country ?? meta.country,
       'genres': _splitValues(genresController.text),
       'themes': _splitValues(themesController.text),
       'authors': _splitValues(authorsController.text),
       'artists': _splitValues(artistsController.text),
+      'creators': _editedMangaCredits(
+        original: meta.creators,
+        authors: _splitValues(authorsController.text),
+        artists: _splitValues(artistsController.text),
+        originalAuthors: meta.authors,
+        originalArtists: meta.artists,
+      ).map((credit) => credit.toJson()).toList(),
+      'characters': _editedMangaCharacters(
+        charactersController.text,
+        meta.characters,
+      ).map((character) => character.toJsonValue()).toList(),
       'demographic': demographic == null
           ? meta.demographic.name
           : MangaDemographic.fromString(demographic).name,
       'publication_status': status == null
           ? meta.publicationStatus.name
           : MangaPublicationStatus.fromString(status).name,
+      'release_status': status,
       'serialization_platform': serialization,
-      'release_date': null,
+      'description': emptyToNull(releaseDescriptionController.text),
+      'original_publication_date': releaseYear == null || releaseYear < 1
+          ? null
+          : DateTime.utc(releaseYear).toIso8601String(),
+      'localized_release_date': releaseDate?.asDateTime?.toIso8601String(),
+      'release_date': releaseDate?.toJson(),
       'release_date_parts': releaseDate?.toJson(),
     }));
 
@@ -493,7 +538,7 @@ LibraryEditSessionBundle createMangaEditDraft({
           '',
     ),
     barcodeController: textControllers.create(
-      text: metadata.barcode ?? metadata.isbn ?? '',
+      text: metadata.barcode ?? '',
     ),
     volumeNumberController: textControllers.create(
       text: metadata.volumeNumber?.toString() ?? '',
@@ -505,9 +550,7 @@ LibraryEditSessionBundle createMangaEditDraft({
       text: metadata.variant ?? '',
     ),
     physicalFormatController: textControllers.create(
-      text: metadata.physicalFormatLabel ??
-          metadata.physicalFormat ??
-          metadata.editionFormat.label,
+      text: metadata.physicalFormat ?? metadata.editionFormat.label,
     ),
     languageController: textControllers.create(text: metadata.language),
     countryController: textControllers.create(text: metadata.country),
@@ -522,6 +565,24 @@ LibraryEditSessionBundle createMangaEditDraft({
     ),
     artistsController: textControllers.create(
       text: metadata.artists.join(', '),
+    ),
+    charactersController: textControllers.create(
+      text: metadata.characters.map((character) => character.name).join(', '),
+    ),
+    seriesGroupController: textControllers.create(
+      text: metadata.seriesGroup ?? '',
+    ),
+    ageRatingController: textControllers.create(
+      text: metadata.ageRating ?? '',
+    ),
+    isbnController: textControllers.create(
+      text: metadata.isbn ?? '',
+    ),
+    bindingController: textControllers.create(
+      text: metadata.physicalFormatLabel ?? '',
+    ),
+    releaseDescriptionController: textControllers.create(
+      text: metadata.description ?? '',
     ),
     demographicController: textControllers.create(
       text: metadata.demographic.label,
@@ -541,12 +602,11 @@ LibraryEditSessionBundle createMangaEditDraft({
     releaseDateController: textControllers.create(
       text: metadata.releaseDateParts?.isoString ??
           metadata.releaseDate?.isoString ??
+          metadata.localizedReleaseDate?.toIso8601String().substring(0, 10) ??
           '',
     ),
     releaseYearController: textControllers.create(
-      text: metadata.releaseDateParts?.year?.toString() ??
-          metadata.releaseDate?.year?.toString() ??
-          '',
+      text: metadata.originalPublicationDate?.year.toString() ?? '',
     ),
   );
   return LibraryEditSessionBundle(
@@ -575,6 +635,138 @@ List<String> _splitValues(String value) => value
     .where((entry) => entry.isNotEmpty)
     .toSet()
     .toList();
+
+List<MangaCredit> _editedMangaCredits({
+  required List<MangaCredit> original,
+  required List<String> authors,
+  required List<String> artists,
+  required List<String> originalAuthors,
+  required List<String> originalArtists,
+}) {
+  final authorKeys = originalAuthors.map(_normalizedName).toSet();
+  final artistKeys = originalArtists.map(_normalizedName).toSet();
+  final authorCredits = <String, MangaCredit>{};
+  final artistCredits = <String, MangaCredit>{};
+  final otherCredits = <MangaCredit>[];
+
+  for (final credit in original) {
+    final name = _normalizedName(credit.name ?? credit.creditedName ?? '');
+    final role = credit.role?.trim().toLowerCase() ?? '';
+    if (role.contains('author') || authorKeys.contains(name)) {
+      authorCredits.putIfAbsent(name, () => credit);
+    } else if (role.contains('artist') || artistKeys.contains(name)) {
+      artistCredits.putIfAbsent(name, () => credit);
+    } else {
+      otherCredits.add(credit);
+    }
+  }
+
+  final edited = <MangaCredit>[];
+  for (final name in authors) {
+    edited.add(_mangaCreditForName(
+      name,
+      authorCredits[_normalizedName(name)],
+      role: 'author',
+      sequence: edited.length,
+    ));
+  }
+  for (final name in artists) {
+    edited.add(_mangaCreditForName(
+      name,
+      artistCredits[_normalizedName(name)],
+      role: 'artist',
+      sequence: edited.length,
+    ));
+  }
+  for (final credit in otherCredits) {
+    edited.add(_mangaCreditForName(
+      credit.name ?? credit.creditedName ?? '',
+      credit,
+      role: credit.role ?? '',
+      sequence: edited.length,
+    ));
+  }
+  return edited;
+}
+
+MangaCredit _mangaCreditForName(
+  String name,
+  MangaCredit? previous, {
+  required String role,
+  required int sequence,
+}) =>
+    MangaCredit(
+      artistId: previous?.artistId,
+      creditedName: previous?.creditedName,
+      id: previous?.id,
+      imageUrl: previous?.imageUrl,
+      instrument: previous?.instrument,
+      joinPhrase: previous?.joinPhrase,
+      name: name,
+      personId: previous?.personId,
+      role: previous?.role?.isNotEmpty == true ? previous!.role : role,
+      roleId: previous?.roleId,
+      sequence: sequence,
+      sortName: previous?.sortName,
+    );
+
+String _normalizedName(String value) => value.trim().toLowerCase();
+
+List<MangaIdentifier> _editedMangaIdentifiers(
+  List<MangaIdentifier> original, {
+  required String? isbn,
+  required String? barcode,
+}) {
+  const isbnIdentifierTypes = {
+    'isbn',
+    'isbn10',
+    'isbn_10',
+    'isbn13',
+    'isbn_13',
+  };
+  String normalizedType(MangaIdentifier value) =>
+      value.identifierType.toLowerCase().replaceAll('-', '_');
+
+  final identifiers = [
+    for (final identifier in original)
+      if (!isbnIdentifierTypes.contains(normalizedType(identifier)) &&
+          normalizedType(identifier) != 'barcode')
+        identifier,
+  ];
+  final originalIsbn = original.where(
+    (identifier) => isbnIdentifierTypes.contains(normalizedType(identifier)),
+  );
+  final previousIsbn = originalIsbn.isEmpty ? null : originalIsbn.first;
+  final previousBarcode = original
+      .where((identifier) => normalizedType(identifier) == 'barcode')
+      .firstOrNull;
+  if (isbn != null) {
+    identifiers.add(
+      MangaIdentifier(
+        identifierType: 'isbn',
+        value: isbn,
+        id: previousIsbn?.id,
+        normalizedValue:
+            previousIsbn?.value == isbn ? previousIsbn?.normalizedValue : null,
+        isPrimary: true,
+      ),
+    );
+  }
+  if (barcode != null) {
+    identifiers.add(
+      MangaIdentifier(
+        identifierType: 'barcode',
+        value: barcode,
+        id: previousBarcode?.id,
+        normalizedValue: previousBarcode?.value == barcode
+            ? previousBarcode?.normalizedValue
+            : null,
+        isPrimary: isbn == null,
+      ),
+    );
+  }
+  return identifiers;
+}
 
 List<MangaCharacter> _editedMangaCharacters(
   String value,

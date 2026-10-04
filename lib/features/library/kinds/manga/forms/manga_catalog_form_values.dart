@@ -12,25 +12,27 @@ final class MangaCatalogFormValues {
     this.firstPublicationDate,
     this.originalPublicationDate,
     this.genres = const [],
+    this.themes = const [],
     this.searchAliases = const [],
     this.seriesTitle = '',
     this.seriesId = '',
     this.seriesGroup = '',
     this.volumeNumber = '',
     this.authors = '',
+    this.artists = '',
     this.characters = '',
     this.ageRating = '',
     this.country = '',
+    this.demographic = '',
+    this.serializationPlatform = '',
     this.releaseTitle = '',
     this.format = '',
     this.binding = '',
     this.publisher = '',
     this.imprint = '',
-    this.distributor = '',
     this.isbn = '',
     this.barcode = '',
     this.language = '',
-    this.region = '',
     this.releaseDate,
     this.releaseDateParts,
     this.releaseDateEdited = false,
@@ -51,6 +53,7 @@ final class MangaCatalogFormValues {
   DateTime? firstPublicationDate;
   DateTime? originalPublicationDate;
   List<String> genres;
+  List<String> themes;
   List<String> searchAliases;
 
   String seriesTitle;
@@ -58,20 +61,21 @@ final class MangaCatalogFormValues {
   String seriesGroup;
   String volumeNumber;
   String authors;
+  String artists;
   String characters;
   String ageRating;
   String country;
+  String demographic;
+  String serializationPlatform;
 
   String releaseTitle;
   String format;
   String binding;
   String publisher;
   String imprint;
-  String distributor;
   String isbn;
   String barcode;
   String language;
-  String region;
   DateTime? releaseDate;
   PartialDate? releaseDateParts;
   bool releaseDateEdited;

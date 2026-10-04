@@ -17,6 +17,9 @@ enum MangaDemographic {
   static MangaDemographic fromString(String? value) {
     if (value == null) return MangaDemographic.other;
     final normalized = value.trim().toLowerCase();
+    if (normalized == 'shounen') return MangaDemographic.shonen;
+    if (normalized == 'shoujo') return MangaDemographic.shojo;
+    if (normalized == 'kids') return MangaDemographic.kodomo;
     return MangaDemographic.values.firstWhere(
       (e) => e.name == normalized || e.label.toLowerCase() == normalized,
       orElse: () => MangaDemographic.other,
@@ -48,6 +51,7 @@ enum MangaEditionFormat {
   tankobon('Tankobon'),
   bunkoban('Bunkoban'),
   kanzenban('Kanzenban'),
+  aizoban('Aizoban'),
   omnibus('Omnibus'),
   hardcover('Hardcover'),
   digital('Digital'),
@@ -60,7 +64,8 @@ enum MangaEditionFormat {
     if (value == null) return MangaEditionFormat.tankobon;
     final normalized = value.trim().toLowerCase();
     return MangaEditionFormat.values.firstWhere(
-      (e) => e.name == normalized || e.label.toLowerCase() == normalized,
+      (e) =>
+          e.name == normalized || normalized.startsWith(e.label.toLowerCase()),
       orElse: () => MangaEditionFormat.tankobon,
     );
   }

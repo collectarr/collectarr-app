@@ -16,14 +16,21 @@ MangaMetadata mangaMetadataFromManualCatalogFormValues({
   return MangaMetadata(
     title: normalizedTitle,
     authors: _split(values.authors),
+    artists: _split(values.artists),
     creators: [
       for (final author in _split(values.authors))
         MangaCredit(name: author, role: 'author'),
+      for (final artist in _split(values.artists))
+        MangaCredit(name: artist, role: 'artist'),
     ],
+    demographic: MangaDemographic.fromString(values.demographic),
+    publicationStatus: MangaPublicationStatus.fromString(values.status),
+    releaseStatus: _optional(values.status),
+    serializationPlatform: _optional(values.serializationPlatform),
     originalPublisher: _optional(values.publisher),
     localizedPublisher: _optional(values.imprint),
     volumeNumber: int.tryParse(values.volumeNumber.trim()),
-    volumeName: _optional(values.seriesGroup),
+    seriesGroup: _optional(values.seriesGroup),
     originalPublicationDate: publicationDate,
     localizedReleaseDate: values.releaseDate,
     isbn: isbn,
@@ -32,6 +39,7 @@ MangaMetadata mangaMetadataFromManualCatalogFormValues({
         'ja',
     country: _optional(values.country) ?? 'JP',
     genres: List<String>.unmodifiable(values.genres),
+    themes: List<String>.unmodifiable(values.themes),
     seriesTitle: _optional(values.seriesTitle),
     editionTitle: _optional(values.releaseTitle),
     pageCount: values.pageCount,
@@ -44,8 +52,9 @@ MangaMetadata mangaMetadataFromManualCatalogFormValues({
     sortKey: _optional(values.sortTitle),
     searchAliases: List<String>.unmodifiable(values.searchAliases),
     subtitle: _optional(values.subtitle),
-    description: _optional(values.description),
+    description: _optional(values.releaseDescription),
     synopsis: _optional(values.description),
+    plotDescription: _optional(values.description),
     titleExtension: _optional(values.releaseTitle),
     characters: [
       for (final character in _split(values.characters))
@@ -72,7 +81,6 @@ MangaMetadata mangaMetadataFromManualCatalogFormValues({
         (values.releaseDate == null
             ? null
             : PartialDate.fromDateTime(values.releaseDate!)),
-    releaseStatus: _optional(values.status),
   );
 }
 

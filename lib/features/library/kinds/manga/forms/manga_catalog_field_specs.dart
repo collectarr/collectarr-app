@@ -56,12 +56,6 @@ List<LibraryFieldSpec<TDraft>> mangaReleaseFields<TDraft>({
         onManage: onManageImprint,
       ),
       LibraryTextFieldSpec<TDraft>(
-        id: 'distributor',
-        label: 'Distributor',
-        value: (draft) => values(draft).distributor,
-        setValue: (draft, value) => values(draft).distributor = value,
-      ),
-      LibraryTextFieldSpec<TDraft>(
         id: 'isbn',
         label: 'ISBN',
         value: (draft) => values(draft).isbn,
@@ -78,12 +72,6 @@ List<LibraryFieldSpec<TDraft>> mangaReleaseFields<TDraft>({
         label: 'Language',
         value: (draft) => values(draft).language,
         setValue: (draft, value) => values(draft).language = value,
-      ),
-      LibraryTextFieldSpec<TDraft>(
-        id: 'region',
-        label: 'Country / region',
-        value: (draft) => values(draft).region,
-        setValue: (draft, value) => values(draft).region = value,
       ),
       LibraryDateFieldSpec<TDraft>(
         id: 'release_date',

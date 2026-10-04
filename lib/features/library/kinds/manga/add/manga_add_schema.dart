@@ -88,9 +88,15 @@ AddSchema<MangaAddManualDraft> mangaAddSchemaFor({
             ),
             LibraryTextFieldSpec<MangaAddManualDraft>(
               id: 'authors',
-              label: 'Authors / Artists',
+              label: 'Authors',
               value: (draft) => values(draft).authors,
               setValue: (draft, value) => values(draft).authors = value,
+            ),
+            LibraryTextFieldSpec<MangaAddManualDraft>(
+              id: 'artists',
+              label: 'Artists',
+              value: (draft) => values(draft).artists,
+              setValue: (draft, value) => values(draft).artists = value,
             ),
             LibraryTextFieldSpec<MangaAddManualDraft>(
               id: 'characters',
@@ -98,11 +104,23 @@ AddSchema<MangaAddManualDraft> mangaAddSchemaFor({
               value: (draft) => values(draft).characters,
               setValue: (draft, value) => values(draft).characters = value,
             ),
-            LibraryTextFieldSpec<MangaAddManualDraft>(
+            LibraryMultiVocabularyFieldSpec<MangaAddManualDraft, String>(
               id: 'genres',
               label: 'Genres',
-              value: (draft) => values(draft).genres.join(', '),
-              setValue: (draft, value) => values(draft).genres = _split(value),
+              values: (draft) => values(draft).genres.toSet(),
+              setValues: (draft, value) =>
+                  values(draft).genres = value.toList(growable: false),
+              options: const [],
+              allowCustomValues: true,
+            ),
+            LibraryMultiVocabularyFieldSpec<MangaAddManualDraft, String>(
+              id: 'themes',
+              label: 'Themes',
+              values: (draft) => values(draft).themes.toSet(),
+              setValues: (draft, value) =>
+                  values(draft).themes = value.toList(growable: false),
+              options: const [],
+              allowCustomValues: true,
             ),
             LibraryTextFieldSpec<MangaAddManualDraft>(
               id: 'age_rating',
@@ -115,6 +133,25 @@ AddSchema<MangaAddManualDraft> mangaAddSchemaFor({
               label: 'Country',
               value: (draft) => values(draft).country,
               setValue: (draft, value) => values(draft).country = value,
+            ),
+            LibraryTextFieldSpec<MangaAddManualDraft>(
+              id: 'demographic',
+              label: 'Demographic',
+              value: (draft) => values(draft).demographic,
+              setValue: (draft, value) => values(draft).demographic = value,
+            ),
+            LibraryTextFieldSpec<MangaAddManualDraft>(
+              id: 'publication_status',
+              label: 'Publication status',
+              value: (draft) => values(draft).status,
+              setValue: (draft, value) => values(draft).status = value,
+            ),
+            LibraryTextFieldSpec<MangaAddManualDraft>(
+              id: 'serialization_platform',
+              label: 'Serialization platform',
+              value: (draft) => values(draft).serializationPlatform,
+              setValue: (draft, value) =>
+                  values(draft).serializationPlatform = value,
             ),
             LibraryTextFieldSpec<MangaAddManualDraft>(
               id: 'synopsis',
@@ -136,10 +173,3 @@ AddSchema<MangaAddManualDraft> mangaAddSchemaFor({
     ),
   );
 }
-
-List<String> _split(String value) => value
-    .split(RegExp(r'[,\r\n]+'))
-    .map((entry) => entry.trim())
-    .where((entry) => entry.isNotEmpty)
-    .toSet()
-    .toList(growable: false);
