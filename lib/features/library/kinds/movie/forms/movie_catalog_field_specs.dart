@@ -185,12 +185,14 @@ List<LibraryFieldSpec<TDraft>> movieCatalogItemFields<TDraft>({
         setValue: (draft, value) => values(draft).variant = value,
       ),
       LibraryTextFieldSpec<TDraft>(
-        id: 'cover_image_url',
-        label: 'Cover image URL',
+        id: movieCoverImageUrlFieldId,
+        label: 'Cover Image URL',
         value: (draft) => values(draft).coverImageUrl,
         setValue: (draft, value) => values(draft).coverImageUrl = value,
       ),
     ];
+
+const movieCoverImageUrlFieldId = 'cover_image_url';
 
 String? _nullableText(String value) => value.trim().isEmpty ? null : value;
 

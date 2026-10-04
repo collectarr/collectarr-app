@@ -8,6 +8,9 @@ import 'package:collectarr_app/features/library/kinds/movie/vocabulary/movie_voc
 
 final AddSchema<MovieAddManualDraft> movieAddSchema = movieAddSchemaFor();
 
+final AddSchema<MovieAddManualDraft> movieCoverAddSchema =
+    movieCoverAddSchemaFor();
+
 AddSchema<MovieAddManualDraft> movieAddSchemaFor({
   Iterable<String>? formatOptions,
   Iterable<String>? genreOptions,
@@ -18,6 +21,17 @@ AddSchema<MovieAddManualDraft> movieAddSchemaFor({
   FutureOr<void> Function()? onManageDistributor,
 }) {
   MovieCatalogFormValues getValues(MovieAddManualDraft draft) => draft.values;
+  final fields = movieCatalogItemFields<MovieAddManualDraft>(
+    values: getValues,
+    genreOptions: genreOptions ?? MovieVocabularies.genre.builtIns,
+    formatOptions: formatOptions ?? MovieVocabularies.physicalFormat.builtIns,
+    regionOptions: regionOptions ?? MovieVocabularies.region.builtIns,
+    distributorOptions:
+        distributorOptions ?? MovieVocabularies.distributor.builtIns,
+    onManageFormat: onManageFormat,
+    onManageRegion: onManageRegion,
+    onManageDistributor: onManageDistributor,
+  );
   return AddSchema<MovieAddManualDraft>(
     title: (_) => 'Manual movie',
     validate: (draft) {
@@ -33,20 +47,27 @@ AddSchema<MovieAddManualDraft> movieAddSchemaFor({
         label: 'Catalog Item',
         fields: [
           libraryAddCatalogTitleField<MovieAddManualDraft>(),
-          ...movieCatalogItemFields(
-            values: getValues,
-            genreOptions: genreOptions ?? MovieVocabularies.genre.builtIns,
-            formatOptions:
-                formatOptions ?? MovieVocabularies.physicalFormat.builtIns,
-            regionOptions: regionOptions ?? MovieVocabularies.region.builtIns,
-            distributorOptions:
-                distributorOptions ?? MovieVocabularies.distributor.builtIns,
-            onManageFormat: onManageFormat,
-            onManageRegion: onManageRegion,
-            onManageDistributor: onManageDistributor,
+          ...fields.where(
+            (field) => field.id != movieCoverImageUrlFieldId,
           ),
         ],
         fullWidthFieldIds: const {'catalog_title'},
+      ),
+    ],
+  );
+}
+
+AddSchema<MovieAddManualDraft> movieCoverAddSchemaFor() {
+  MovieCatalogFormValues getValues(MovieAddManualDraft draft) => draft.values;
+  final coverField = movieCatalogItemFields<MovieAddManualDraft>(
+    values: getValues,
+  ).singleWhere((field) => field.id == movieCoverImageUrlFieldId);
+  return AddSchema<MovieAddManualDraft>(
+    sections: [
+      AddSectionSpec<MovieAddManualDraft>(
+        id: 'cover',
+        label: 'Cover',
+        fields: [coverField],
       ),
     ],
   );

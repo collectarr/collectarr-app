@@ -28,6 +28,17 @@ class MovieAddManualPane extends StatelessWidget {
           ),
         ),
         LibraryAddManualPaneTab(
+          id: 'covers',
+          label: 'Covers',
+          icon: Icons.camera_alt_outlined,
+          content: AddSchemaRenderer<MovieAddManualDraft>.embedded(
+            schema: movieCoverAddSchema,
+            draft: draft,
+            mediaKind: request.kind.apiValue,
+            onChanged: request.onManualDraftChanged,
+          ),
+        ),
+        LibraryAddManualPaneTab(
           id: 'cast',
           label: 'Cast',
           icon: Icons.people_outline,
