@@ -8,6 +8,8 @@ import 'package:collectarr_app/features/library/kinds/game/forms/game_catalog_fo
 final AddSchema<GameAddManualDraft> gameAddSchema = gameAddSchemaFor();
 
 AddSchema<GameAddManualDraft> gameAddSchemaFor({
+  Set<String>? fieldIds,
+  Map<String, String> sectionLabels = const {},
   Iterable<String>? platformOptions,
   Iterable<String>? editionOptions,
   Iterable<String>? ageRatingOptions,
@@ -24,7 +26,7 @@ AddSchema<GameAddManualDraft> gameAddSchemaFor({
       if (year != null && year < 1) return 'Release year must be positive';
       return null;
     },
-    sections: [
+    sections: _filterSections(fieldIds, sectionLabels, [
       AddSectionSpec<GameAddManualDraft>(
         id: 'catalog_item',
         label: 'Catalog Item',
@@ -62,6 +64,12 @@ AddSchema<GameAddManualDraft> gameAddSchemaFor({
           ageRatingOptions: ageRatingOptions,
           include: {
             'publisher',
+            'sort_title',
+            'subtitle',
+            'identifiers',
+            'company_roles',
+            'search_aliases',
+            'original_language',
             'developers',
             'genres',
             'age_ratings',
@@ -73,6 +81,33 @@ AddSchema<GameAddManualDraft> gameAddSchemaFor({
           },
         ),
       ),
-    ],
+    ]),
   );
+}
+
+List<AddSectionSpec<GameAddManualDraft>> _filterSections(
+  Set<String>? fieldIds,
+  Map<String, String> sectionLabels,
+  List<AddSectionSpec<GameAddManualDraft>> sections,
+) {
+  if (fieldIds == null && sectionLabels.isEmpty) return sections;
+  return [
+    for (final section in sections)
+      if (section.fields
+          .where((field) => fieldIds == null || fieldIds.contains(field.id))
+          .isNotEmpty)
+        AddSectionSpec<GameAddManualDraft>(
+          id: section.id,
+          label: sectionLabels[section.id] ?? section.label,
+          fields: [
+            for (final field in section.fields)
+              if (fieldIds == null || fieldIds.contains(field.id)) field,
+          ],
+          maxColumns: section.maxColumns,
+          fullWidthFieldIds: section.fullWidthFieldIds,
+          fieldColumnSpans: section.fieldColumnSpans,
+          rightAlignedFieldIds: section.rightAlignedFieldIds,
+          visibleWhen: section.visibleWhen,
+        ),
+  ];
 }
