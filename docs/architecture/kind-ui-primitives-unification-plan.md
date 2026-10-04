@@ -69,6 +69,14 @@ Completed implementation slices:
   typed draft, with temporary controller fallbacks removed. Movie/TV/Anime
   custom tab builders also require their typed drafts; the current specs tabs
   read draft-owned controllers rather than shared dummy controllers.
+- The eight kinds using `LibraryEditRenderer` now pass the edit request to the
+  renderer instead of constructing `LibraryEditShellState` in their dialog
+  widget's `build()` method. The renderer creates the request-backed draft in
+  its `initState`; Game and Board Game can still receive a draft explicitly
+  when a caller already owns one. Music already creates its kind-owned edit
+  draft in its state object's `initState`. This fixes draft/controller creation
+  at the kind dialog build boundary; custom field and child-editor controller
+  ownership still needs its own audit.
 - Schema fields and custom Edit fields now delegate responsive geometry to one
   configurable field layout. Existing breakpoints, column counts, spans,
   full-width placement, and right alignment remain caller configuration.
@@ -160,13 +168,13 @@ My Images and adds Custom Fields only when definitions are nonempty.
 | Kind | Manual Add composition | Edit composition / identified divergence |
 | --- | --- | --- |
 | Music | Main, Details, Classical, People, Tracks, Personal, Covers, Links | Main registered edit route uses typed schema dialog; Add credits/tracks/links/covers still have independent widgets and bindings. An additional entry edit dialog exists; check callers before deleting. |
-| Movies | One Main schema with mixed metadata fields | Generic session/presentation renderer; separate catalog/entry tab lists, custom tabs, controller-based fields, shared dummy controllers. |
-| TV | One Main schema | Generic editor plus a separately registered typed media editor; duplicated video credits/spec controls and dummy controllers. Custom episode dialog is another surface to audit. |
-| Anime | One Main schema | Registered edit routes use generic editor; an additional typed media dialog exists. Duplicated video credits/spec controls and dummy controllers. |
+| Movies | One Main schema with mixed metadata fields | Generic session/presentation renderer; separate catalog/entry tab lists and custom tabs. The request-backed edit draft is now initialized by the shared renderer state; remaining custom child-editor controller ownership still needs review. |
+| TV | One Main schema | Generic editor plus a separately registered typed media editor; duplicated video credits/spec controls. The request-backed edit draft is now initialized by the shared renderer state. Custom episode dialog is another surface to audit. |
+| Anime | One Main schema | Registered edit routes use generic editor; an additional typed media dialog exists. Duplicated video credits/spec controls remain; the request-backed edit draft is now initialized by the shared renderer state. |
 | Books | Main with managed publisher/format selection; typed Authors and Translators | Generic editor with separate catalog/entry presentation and an embedded entry schema renderer; Credits tab now uses the same typed ordered-name editors as Add. |
 | Comics | Main, Details, plus Series identity control | Generic entry editor and separately registered typed catalog editor; large custom tab/host adapter implementation with temporary controller fallbacks. |
 | Manga | Identity, Publication, plus Series identity control | Registered routes use generic editor; a separate typed media editor exists. Managed series/publisher selection logic overlaps Comics/Books. |
-| Games | One Main schema | Generic editor plus embedded entry schema; custom Main/Release fields, build-time controllers, and a hard-coded platform list. |
+| Games | One Main schema | Generic editor plus embedded entry schema; custom Main/Release fields and a hard-coded platform list. The registered dialog no longer constructs its request-backed edit draft in `build()`; field-specific controller ownership still needs review. |
 | Board Games | One Main schema | Generic renderer with catalog/entry presentation lists and embedded entry schema; shared release identity groups remain. |
 
 The presence of a raw Flutter control is not automatically a defect. The
@@ -343,8 +351,11 @@ tab placement, and metadata/personal classification.
 2. Create a field coverage ledger for all kinds: canonical path/type,
    Add presence/control, Edit presence/control, save binding, and inspector
    reader. Include supported fields currently absent from one form.
-3. Resolve the Movie/TV/Anime dummy bindings and build-time controller
-   fallbacks. Inspect Games and the Comic host adapter for the same issue.
+3. The Movie/TV/Anime specs tabs now use typed draft-owned state, and all eight
+   generic edit launchers pass requests to the shared renderer, which creates
+   request-backed drafts in `initState`. Music already initializes its own
+   draft in state. Continue auditing controllers owned by custom fields and
+   child editors, including the Games and Comic host adapters.
 4. Confirm obsolete dialogs by callers, not filename. Do not remove active
    episode/volume/track editors solely because they are kind-specific.
 5. Pick the old Music visual reference from repository history and existing
