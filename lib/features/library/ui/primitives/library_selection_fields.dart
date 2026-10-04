@@ -1,4 +1,3 @@
-import 'package:collectarr_app/ui/single_value_pick_field.dart';
 import 'package:collectarr_app/features/library/config/library_dialog_tokens.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_dropdown_pick_field.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_multi_value_options_dialog.dart';
@@ -163,47 +162,47 @@ class LibraryVocabularyField extends StatelessWidget {
         },
       );
     }
-    if (onManage != null) {
-      return SingleValuePickField(
-        controller: controller,
-        options: options,
-        label: label,
-        hint: hint,
-        validator: validator,
-        onChanged: onChanged,
-        onManage: onManage,
-        manageTooltip: manageTooltip,
-        enabled: enabled,
-      );
-    }
     return ValueListenableBuilder<TextEditingValue>(
       valueListenable: controller,
-      builder: (context, current, _) => LibraryDropdownPickField<String>(
-        label: label,
-        value: current.text.trim().isEmpty ? null : current.text.trim(),
-        enabled: enabled,
-        options: [
-          for (final option in options)
-            LibraryFieldOption<String>(value: option, label: option),
-        ],
-        helperText: hint,
-        errorText: validator?.call(current.text),
-        allowCustomValue: true,
-        openPicker: (
-            {required label, required selectedValue, required options}) {
-          return showPickListSelectDialog(
-            context: context,
-            label: label,
-            options: options,
-            selectedValue: selectedValue,
-            allowUserValues: true,
-          );
-        },
-        onChanged: (value) {
-          controller.text = value ?? '';
-          onChanged?.call(value);
-        },
-      ),
+      builder: (context, current, _) {
+        final selectedValue = current.text.trim();
+        return LibraryDropdownPickField<String>(
+          label: label,
+          value: selectedValue.isEmpty ? null : selectedValue,
+          enabled: enabled,
+          options: [
+            for (final option in options)
+              LibraryFieldOption<String>(value: option, label: option),
+          ],
+          helperText: hint,
+          errorText: validator?.call(current.text),
+          allowCustomValue: true,
+          manageTooltip: manageTooltip,
+          onManage: onManage,
+          openPicker: onManage != null
+              ? null
+              : ({
+                  required label,
+                  required selectedValue,
+                  required options,
+                }) =>
+                  showPickListSelectDialog(
+                    context: context,
+                    label: label,
+                    options: options,
+                    selectedValue: selectedValue,
+                    allowUserValues: true,
+                  ),
+          onChanged: (value) {
+            final text = value ?? '';
+            controller.value = TextEditingValue(
+              text: text,
+              selection: TextSelection.collapsed(offset: text.length),
+            );
+            onChanged?.call(value);
+          },
+        );
+      },
     );
   }
 }

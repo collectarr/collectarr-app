@@ -25,6 +25,8 @@ class LibraryDropdownPickField<TValue> extends StatefulWidget {
     this.helperText,
     this.allowCustomValue = false,
     this.openPicker,
+    this.onManage,
+    this.manageTooltip,
     this.clearOptionLabel,
     this.enabled = true,
   });
@@ -37,6 +39,8 @@ class LibraryDropdownPickField<TValue> extends StatefulWidget {
   final String? helperText;
   final bool allowCustomValue;
   final LibraryDropdownPickHandler? openPicker;
+  final VoidCallback? onManage;
+  final String? manageTooltip;
   final String? clearOptionLabel;
   final bool enabled;
 
@@ -136,19 +140,26 @@ class _LibraryDropdownPickFieldState<TValue>
 
   @override
   Widget build(BuildContext context) {
-    return LibraryFormField(label: widget.label, child: SingleValuePickField(
-      controller: _controller,
+    return LibraryFormField(
       label: widget.label,
-      showInlineLabel: false,
-      options: _labels,
-      validator: (_) => widget.errorText,
-      helperText: widget.helperText,
-      errorText: widget.errorText,
-      showPickerListAction: true,
-      manageTooltip: 'Select ${widget.label}',
-      enabled: widget.enabled,
-      onChanged: _selectLabel,
-      onManage: _openPicker,
-    ));
+      child: SingleValuePickField(
+        controller: _controller,
+        label: widget.label,
+        showInlineLabel: false,
+        options: _labels,
+        validator: (_) => widget.errorText,
+        helperText: widget.helperText,
+        errorText: widget.errorText,
+        showPickerListAction:
+            widget.openPicker != null || widget.onManage != null,
+        manageTooltip: widget.manageTooltip ??
+            (widget.onManage == null
+                ? 'Select ${widget.label}'
+                : 'Manage ${widget.label}'),
+        enabled: widget.enabled,
+        onChanged: _selectLabel,
+        onManage: widget.onManage ?? _openPicker,
+      ),
+    );
   }
 }
