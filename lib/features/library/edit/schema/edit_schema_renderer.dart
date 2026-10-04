@@ -29,28 +29,80 @@ final class EditSchemaExtraTab {
 }
 
 class EditSchemaRenderer<TModel, TDraft> extends StatefulWidget {
-  const EditSchemaRenderer({
+  factory EditSchemaRenderer({
+    Key? key,
+    required EditSchema<TModel, TDraft> schema,
+    required TModel model,
+    required TDraft draft,
+    required FutureOr<void> Function(TDraft draft) onSave,
+    VoidCallback? onCancel,
+    String? title,
+    bool showTitle = true,
+    int initialTabIndex = 0,
+    bool showTabBar = true,
+    bool showFooter = true,
+    Color? tabAccent,
+    String? tabOrderKey,
+    List<EditSchemaExtraTab> extraTabs = const [],
+    String? mediaKind,
+  }) =>
+      EditSchemaRenderer<TModel, TDraft>._(
+        key: key,
+        schema: schema,
+        model: model,
+        draft: draft,
+        onSave: onSave,
+        onCancel: onCancel,
+        title: title,
+        showTitle: showTitle,
+        initialTabIndex: initialTabIndex,
+        showTabBar: showTabBar,
+        showFooter: showFooter,
+        tabAccent: tabAccent,
+        tabOrderKey: tabOrderKey,
+        extraTabs: extraTabs,
+        mediaKind: mediaKind,
+      );
+
+  const EditSchemaRenderer.embedded({
+    super.key,
+    required this.schema,
+    required this.model,
+    required this.draft,
+    this.title,
+    this.showTitle = true,
+    this.initialTabIndex = 0,
+    this.showTabBar = true,
+    this.tabAccent,
+    this.tabOrderKey,
+    this.extraTabs = const [],
+    this.mediaKind,
+  })  : onSave = null,
+        onCancel = null,
+        showFooter = false;
+
+  const EditSchemaRenderer._({
     super.key,
     required this.schema,
     required this.model,
     required this.draft,
     required this.onSave,
-    this.onCancel,
-    this.title,
-    this.showTitle = true,
-    this.initialTabIndex = 0,
-    this.showTabBar = true,
-    this.showFooter = true,
-    this.tabAccent,
-    this.tabOrderKey,
-    this.extraTabs = const [],
-    this.mediaKind,
+    required this.onCancel,
+    required this.title,
+    required this.showTitle,
+    required this.initialTabIndex,
+    required this.showTabBar,
+    required this.showFooter,
+    required this.tabAccent,
+    required this.tabOrderKey,
+    required this.extraTabs,
+    required this.mediaKind,
   });
 
   final EditSchema<TModel, TDraft> schema;
   final TModel model;
   final TDraft draft;
-  final FutureOr<void> Function(TDraft draft) onSave;
+  final FutureOr<void> Function(TDraft draft)? onSave;
   final VoidCallback? onCancel;
   final String? title;
   final bool showTitle;
@@ -502,6 +554,8 @@ class EditSchemaRendererState<TModel, TDraft>
 
   Future<void> _save() async {
     if (_isSaving) return;
+    final onSave = widget.onSave;
+    if (onSave == null) return;
     if (Form.maybeOf(context)?.validate() == false) return;
     final schemaError = widget.schema.validate?.call(
       widget.model,
@@ -532,9 +586,9 @@ class EditSchemaRendererState<TModel, TDraft>
                 mediaKind: widget.mediaKind
               ),
         ]);
-        await widget.onSave(widget.draft);
+        await onSave(widget.draft);
       } else {
-        await widget.onSave(widget.draft);
+        await onSave(widget.draft);
         await _savePendingVocabularyValues(repository);
       }
     } catch (error) {

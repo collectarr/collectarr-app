@@ -90,15 +90,12 @@ Widget? buildBoardGameCustomTabView({
     final detailsDraft =
         kindDraft.toDetailsDraft() as BoardgameEntryDetailsDraft;
     final details = detailsDraft.toDetails();
-    return EditSchemaRenderer<BoardgameEntryDetails, BoardGameEditDraft>(
+    return EditSchemaRenderer<BoardgameEntryDetails, BoardGameEditDraft>.embedded(
       schema: boardGameEntryEditSchema,
       model: details,
       draft: kindDraft,
       mediaKind: draft.type.kind.apiValue,
       showTabBar: false,
-      showFooter: false,
-      onSave: (_) {},
-      onCancel: () {},
     );
   }
   if (tabId == 'edition') {

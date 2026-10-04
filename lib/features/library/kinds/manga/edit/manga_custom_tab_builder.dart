@@ -24,14 +24,11 @@ Widget? buildMangaCustomTabView({
   }
   final detailsDraft = kindDraft.toDetailsDraft() as MangaEntryDetailsDraft;
   final details = detailsDraft.toDetails();
-  return EditSchemaRenderer<MangaEntryDetails, MangaEditDraft>(
+  return EditSchemaRenderer<MangaEntryDetails, MangaEditDraft>.embedded(
     schema: mangaEntryEditSchema,
     model: details,
     draft: kindDraft,
     mediaKind: draft.type.kind.apiValue,
     showTabBar: false,
-    showFooter: false,
-    onSave: (_) {},
-    onCancel: () {},
   );
 }

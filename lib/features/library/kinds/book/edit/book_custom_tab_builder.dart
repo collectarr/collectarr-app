@@ -24,14 +24,11 @@ Widget? buildBookCustomTabView({
   }
   final detailsDraft = kindDraft.toDetailsDraft() as BookEntryDetailsDraft;
   final details = detailsDraft.toDetails();
-  return EditSchemaRenderer<BookEntryDetails, BookEditDraft>(
+  return EditSchemaRenderer<BookEntryDetails, BookEditDraft>.embedded(
     schema: bookEntryEditSchema,
     model: details,
     draft: kindDraft,
     mediaKind: draft.type.kind.apiValue,
     showTabBar: false,
-    showFooter: false,
-    onSave: (_) {},
-    onCancel: () {},
   );
 }

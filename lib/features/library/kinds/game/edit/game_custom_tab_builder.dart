@@ -31,15 +31,12 @@ Widget? buildGameCustomTabView({
   if (tabId == 'entry') {
     final detailsDraft = kindDraft.toDetailsDraft() as GameEntryDetailsDraft;
     final details = detailsDraft.toDetails();
-    return EditSchemaRenderer<GameEntryDetails, GameEditDraft>(
+    return EditSchemaRenderer<GameEntryDetails, GameEditDraft>.embedded(
       schema: gameEntryEditSchema,
       model: details,
       draft: kindDraft,
       mediaKind: draft.type.kind.apiValue,
       showTabBar: false,
-      showFooter: false,
-      onSave: (_) {},
-      onCancel: () {},
     );
   }
   if (tabId == 'edition') {
