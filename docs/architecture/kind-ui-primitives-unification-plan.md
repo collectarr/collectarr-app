@@ -941,3 +941,8 @@ external-link draft rows and table interactions. Link title and description
 are edited independently, existing source/classification metadata is retained,
 and rows own and dispose their controllers through the Comic edit draft.
 Targeted analysis passed; tests and runtime screenshot review remain deferred.
+
+Implementation note (2026-10-04): Removed the unused Anime and TV
+`Editable*Link` controller models. Their active local-entry links tabs already
+use the shared entry-local link draft; repository-wide reference searches found
+no imports or consumers of the obsolete model files.
