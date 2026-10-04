@@ -141,6 +141,9 @@ Completed implementation slices:
   removing a name removes that character from the metadata.
 - Anime Characters are now editable in both Add and Edit with the same
   metadata-preserving name list behavior.
+- Manga Characters are now editable in both Add and Edit. Matching names retain
+  existing character IDs, aliases, roles, descriptions, and images; removing a
+  name removes that character from catalog metadata.
 - The Movie, TV, and Anime edit-tab helper files no longer carry unused
   responsive-field wrappers. TV/Anime credit tabs adapt their typed controller
   rows directly to the shared editor. Their remaining Add/Edit field parity is
