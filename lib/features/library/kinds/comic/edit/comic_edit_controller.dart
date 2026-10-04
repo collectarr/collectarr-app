@@ -153,11 +153,9 @@ class ComicEditController {
     final updatedMeta = currentMeta.copyWith(
       title: emptyToNull(seriesTitleController.text) ?? currentMeta.title,
       crossover: emptyToNull(crossoverController.text),
-      storyArcs: parsedStoryArcs.isNotEmpty
-          ? _replaceStoryArcs(currentMeta.storyArcs, parsedStoryArcs)
-          : currentMeta.storyArcs,
+      storyArcs: _replaceStoryArcs(currentMeta.storyArcs, parsedStoryArcs),
       ageRating: emptyToNull(ageRatingController.text),
-      genres: parsedGenres.isNotEmpty ? parsedGenres : currentMeta.genres,
+      genres: parsedGenres,
       imprint: emptyToNull(imprintController.text),
       pageCount: int.tryParse(pageCountController.text),
       issueNumber: emptyToNull(numberController.text),

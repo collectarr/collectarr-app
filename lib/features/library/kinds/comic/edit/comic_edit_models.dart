@@ -201,13 +201,9 @@ LibraryEditSelection applyComicSelectionEdits(
   ];
 
   final updatedMetadata = current.copyWith(
-    creators: typedCreators.isNotEmpty ? typedCreators : current.creators,
-    characterDetails: typedCharacterDetails.isNotEmpty
-        ? typedCharacterDetails
-        : current.characterDetails,
-    characters: typedCharacterDetails.isNotEmpty
-        ? typedCharacterDetails
-        : current.characters,
+    creators: typedCreators,
+    characterDetails: typedCharacterDetails,
+    characters: typedCharacterDetails,
     links: newComicLinks,
   );
 
