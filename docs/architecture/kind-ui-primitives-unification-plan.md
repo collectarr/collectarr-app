@@ -91,6 +91,9 @@ Completed implementation slices:
   Plot into distinct dialog tabs. Authors and Translators stay on the shared
   typed credit editors, while the existing managed Publisher and Format
   options remain available across tab switches.
+- Game Edit now exposes the kind draft's already-persisted Developers, Genres,
+  Age rating, Franchise, Languages, and Country fields in its Main tab. Manual
+  Add also exposes Series and Franchise from its existing typed form model.
 - The shared video Specs section now also edits Screen ratio. TV and Anime
   hydrate their existing Specs controllers from metadata and persist all
   fields, including explicit clears; their Add forms expose the same supported
