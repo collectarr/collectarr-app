@@ -334,6 +334,9 @@ Evidence: `kinds/movie/add/movie_add_manual_pane.dart`,
 
 Clearing Movie genres and supported optional metadata now persists an explicit
 empty or null value rather than restoring the old catalog value.
+The same explicit-clear behavior now applies to TV genres and Comic genres,
+story arcs, creators, and characters. Empty edited lists no longer fall back
+to the catalog values that were loaded when the dialog opened.
 
 `MovieEditController.buildUpdatedTrailerUrls()` only retains automatic links;
 user links are loaded/saved separately by CatalogEntityRef. Trace the current
