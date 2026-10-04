@@ -102,11 +102,10 @@ Completed implementation slices:
   Edit, and character edits retain their existing metadata.
 - Anime Main, Details, Edition, Specs, Cover, and Synopsis now use the same
   kind-owned Add schema and renderer in Edit. The typed Anime metadata draft is
-  authoritative during save, so inactive legacy canonical controllers cannot
-  overwrite schema edits. Matching character names retain their metadata while
-  editing; the obsolete custom Main and Edition tab renderers and the duplicate
-  character-name controller were removed. Anime series, episode, disc, cast,
-  crew, and Links editors remain specialized where they own distinct behavior.
+  authoritative during save; the duplicate generic canonical controller
+  schema and character-name controller are removed. Matching character names
+  retain their metadata while editing. Anime series, episode, disc, cast, crew,
+  and Links editors remain specialized where they own distinct behavior.
 - Music Add and Edit now use the same `musicAlbumFields` definitions backed by
   `MusicAlbumFormValues` for scalar catalog metadata. The Add draft exposes its
   existing field API as accessors over those values, while child editors retain

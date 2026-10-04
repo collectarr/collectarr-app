@@ -24,31 +24,6 @@ import 'package:flutter/material.dart';
 
 import 'package:collectarr_app/features/library/kinds/anime/edit/anime_edit_draft_contract.dart';
 
-enum AnimeCanonicalEditField {
-  title,
-  displayTitle,
-  sortTitle,
-  originalTitle,
-  localizedTitle,
-  searchAliases,
-  synopsis,
-  coverImage,
-  thumbnailImage,
-  episodeRuntime,
-  genres,
-  editionTitle,
-  variant,
-  barcode,
-  physicalFormatLabel,
-  publisher,
-  country,
-  language,
-  releaseDate,
-  releaseYear,
-  ageRating,
-  audienceRating,
-}
-
 class AnimeEditDraft
     with
         LibraryCatalogItemEditSessionLinkDefaults,
@@ -281,150 +256,8 @@ class AnimeEditDraft
   LibraryEditFormSchema buildCanonicalFormSchema(
     LibraryEditFormFields fields,
     CatalogSearchCandidate item,
-  ) {
-    final metadata = item.kindCapability.mapTransport(
-        (transport) => AnimeMetadata.fromJson(transport.kindData));
-    fields.create(AnimeCanonicalEditField.title, initialValue: metadata.title);
-    fields.create(AnimeCanonicalEditField.displayTitle,
-        initialValue: metadata.displayTitle ?? '');
-    fields.create(AnimeCanonicalEditField.sortTitle,
-        initialValue: metadata.sortKey ?? '');
-    fields.create(AnimeCanonicalEditField.originalTitle,
-        initialValue: metadata.originalTitle ?? '');
-    fields.create(AnimeCanonicalEditField.localizedTitle,
-        initialValue: metadata.localizedTitle ?? '');
-    fields.create(AnimeCanonicalEditField.searchAliases,
-        initialValue: metadata.searchAliases.join(', '));
-    fields.create(AnimeCanonicalEditField.synopsis,
-        initialValue: metadata.synopsis ?? '');
-    fields.create(AnimeCanonicalEditField.coverImage,
-        initialValue: metadata.coverImageUrl ?? '');
-    fields.create(AnimeCanonicalEditField.thumbnailImage,
-        initialValue: metadata.thumbnailImageUrl ?? '');
-    fields.create(
-      AnimeCanonicalEditField.episodeRuntime,
-      initialValue: metadata.episodeRuntimeMinutes?.toString() ?? '',
-    );
-    fields.create(
-      AnimeCanonicalEditField.genres,
-      initialValue: metadata.genres.join(', '),
-    );
-    fields.create(
-      AnimeCanonicalEditField.editionTitle,
-      initialValue: metadata.editionTitle ?? metadata.titleExtension ?? '',
-    );
-    fields.create(
-      AnimeCanonicalEditField.variant,
-      initialValue: metadata.variant ?? '',
-    );
-    fields.create(
-      AnimeCanonicalEditField.barcode,
-      initialValue: metadata.barcode ?? '',
-    );
-    fields.create(
-      AnimeCanonicalEditField.physicalFormatLabel,
-      initialValue: metadata.physicalFormatLabel ?? metadata.variant ?? '',
-    );
-    fields.create(
-      AnimeCanonicalEditField.publisher,
-      initialValue: metadata.publisher ?? '',
-    );
-    fields.create(
-      AnimeCanonicalEditField.country,
-      initialValue: metadata.country,
-    );
-    fields.create(
-      AnimeCanonicalEditField.language,
-      initialValue: metadata.language,
-    );
-    fields.create(
-      AnimeCanonicalEditField.releaseDate,
-      initialValue:
-          metadata.startDate == null ? '' : formatDate(metadata.startDate!),
-    );
-    fields.create(
-      AnimeCanonicalEditField.releaseYear,
-      initialValue: (metadata.releaseYear ?? metadata.seasonYear)?.toString() ??
-          metadata.startDate?.year.toString() ??
-          '',
-    );
-    fields.create(
-      AnimeCanonicalEditField.ageRating,
-      initialValue: metadata.ageRating ?? '',
-    );
-    fields.create(
-      AnimeCanonicalEditField.audienceRating,
-      initialValue: metadata.audienceRating ?? '',
-    );
-    physicalFormatId = metadata.physicalFormat;
-    return LibraryEditFormSchema(
-      fields: [
-        LibraryEditFormFieldSpec(
-          id: AnimeCanonicalEditField.title,
-          section: LibraryEditFormSection.details,
-          controller: fields.controller(AnimeCanonicalEditField.title),
-          label: 'Title',
-          required: true,
-        ),
-        LibraryEditFormFieldSpec(
-          id: AnimeCanonicalEditField.sortTitle,
-          section: LibraryEditFormSection.details,
-          controller: fields.controller(AnimeCanonicalEditField.sortTitle),
-          label: 'Sort Title',
-        ),
-        LibraryEditFormFieldSpec(
-          id: AnimeCanonicalEditField.originalTitle,
-          section: LibraryEditFormSection.details,
-          controller: fields.controller(AnimeCanonicalEditField.originalTitle),
-          label: 'Original Title',
-        ),
-        LibraryEditFormFieldSpec(
-          id: AnimeCanonicalEditField.localizedTitle,
-          section: LibraryEditFormSection.details,
-          controller: fields.controller(AnimeCanonicalEditField.localizedTitle),
-          label: 'Localized title',
-        ),
-        LibraryEditFormFieldSpec(
-          id: AnimeCanonicalEditField.displayTitle,
-          section: LibraryEditFormSection.details,
-          controller: fields.controller(AnimeCanonicalEditField.displayTitle),
-          label: 'Display Title',
-        ),
-        LibraryEditFormFieldSpec(
-          id: AnimeCanonicalEditField.searchAliases,
-          section: LibraryEditFormSection.details,
-          controller: fields.controller(AnimeCanonicalEditField.searchAliases),
-          label: 'Search Aliases',
-          visible: false,
-        ),
-        LibraryEditFormFieldSpec(
-          id: AnimeCanonicalEditField.thumbnailImage,
-          section: LibraryEditFormSection.details,
-          controller: fields.controller(AnimeCanonicalEditField.thumbnailImage),
-          label: 'Thumbnail image URL',
-          visible: false,
-        ),
-        LibraryEditFormFieldSpec(
-          id: AnimeCanonicalEditField.coverImage,
-          section: LibraryEditFormSection.artwork,
-          controller: fields.controller(AnimeCanonicalEditField.coverImage),
-          label: 'Cover Image URL',
-        ),
-        LibraryEditFormFieldSpec(
-          id: AnimeCanonicalEditField.synopsis,
-          section: LibraryEditFormSection.description,
-          controller: fields.controller(AnimeCanonicalEditField.synopsis),
-          label: 'Synopsis',
-          maxLines: 8,
-        ),
-      ],
-      sectionTitles: const {
-        LibraryEditFormSection.details: 'Details',
-        LibraryEditFormSection.artwork: 'Cover Image',
-        LibraryEditFormSection.description: 'Synopsis',
-      },
-    );
-  }
+  ) =>
+      LibraryEditFormSchema.empty;
 
   @override
   LibraryEditSelection applySelectionEdits(LibraryEditSelection selection) {
@@ -484,6 +317,7 @@ LibraryEditSessionBundle createAnimeEditDraft({
     libraryEntry: entry,
     metadata: metadata,
     catalogTitle: metadata.title,
+    physicalFormatId: metadata.physicalFormat,
     featuresController: textControllers.create(text: video?.features ?? ''),
     boxSetNameController: textControllers.create(text: video?.boxSetName ?? ''),
     regionController: textControllers.create(text: video?.region ?? ''),
