@@ -250,6 +250,9 @@ Completed implementation slices:
   currency prefix, parsing, and non-negative validation.
 - Add Purchase Date now uses the same labelled date-part control and picker as
   Edit, including explicit clearing and consistent year/month/day entry.
+- Generic Edit Owner and Purchase Store now use the same persistent vocabulary
+  options and custom-value staging as Manual Add; custom values are committed
+  with the entry save.
 - Add Location now uses the shared dropdown and supports an explicit no-location
   choice that remains distinct from the dialog's default location.
 - Add Condition now uses the same labelled pick-field primitive as Edit, with

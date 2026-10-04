@@ -209,6 +209,13 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
       db,
       listName: UniversalVocabularies.owners.key,
       mediaKind: mediaKind,
+      selectedValue: _draft.personal.ownerLabelController.text,
+    );
+    final purchaseStores = await loadSingleValuePickListOptions(
+      db,
+      listName: UniversalVocabularies.purchaseStore.key,
+      mediaKind: mediaKind,
+      selectedValue: _draft.personal.purchaseStoreController.text,
     );
     final tags = await loadTagPickListOptions(
       db,
@@ -232,6 +239,7 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
       setState(() {
         _draft.locationOptions = locations.map((l) => l.name).toList();
         _draft.ownerOptions = owners;
+        _draft.purchaseStoreOptions = purchaseStores;
         _draft.tagOptions = tags;
         _draft.kindVocabularies = kindVocabs;
       });
@@ -446,6 +454,48 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
           value: value,
           options: options,
           allowCustomValues: definition?.allowCustomValues ?? false,
+          mediaKind: widget.type.kind.apiValue,
+        );
+        _markDirty();
+      },
+    );
+  }
+
+  Widget _buildUniversalVocabularyField({
+    required String listName,
+    required String label,
+    required TextEditingController controller,
+    required List<String> options,
+  }) {
+    return LibraryDropdownPickField<String>(
+      label: label,
+      value: controller.text.trim().isEmpty ? null : controller.text.trim(),
+      options: [
+        for (final option in options)
+          LibraryFieldOption<String>(value: option, label: option),
+      ],
+      allowCustomValue: true,
+      openPicker: ({required label, required selectedValue, required options}) {
+        final db = ref.read(localDatabaseProvider);
+        return showPickListSelectDialog(
+          context: context,
+          label: label,
+          options: options,
+          selectedValue: selectedValue,
+          listName: listName,
+          mediaKind: widget.type.kind.apiValue,
+          allowUserValues: true,
+          db: db,
+        );
+      },
+      onChanged: (value) {
+        controller.text = value ?? '';
+        _draft.recordPendingVocabularyValue(
+          fieldId: listName,
+          listName: listName,
+          value: value,
+          options: options,
+          allowCustomValues: true,
           mediaKind: widget.type.kind.apiValue,
         );
         _markDirty();
@@ -737,9 +787,11 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
                 const SizedBox(height: 10),
                 LibraryEditResponsiveRow(children: [
                   _buildLocationPickerField(),
-                  LibraryEditTextField(
-                    controller: _draft.personal.ownerLabelController,
+                  _buildUniversalVocabularyField(
+                    listName: UniversalVocabularies.owners.key,
                     label: 'Owner',
+                    controller: _draft.personal.ownerLabelController,
+                    options: _draft.ownerOptions,
                   ),
                 ]),
               ],
@@ -792,9 +844,11 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
                   keyboardType:
                       const TextInputType.numberWithOptions(decimal: true),
                 ),
-                LibraryEditTextField(
+                _buildUniversalVocabularyField(
+                  listName: UniversalVocabularies.purchaseStore.key,
                   controller: _draft.personal.purchaseStoreController,
-                  label: 'Store / Source',
+                  label: 'Purchase Store',
+                  options: _draft.purchaseStoreOptions,
                 ),
               ]),
               const SizedBox(height: 10),

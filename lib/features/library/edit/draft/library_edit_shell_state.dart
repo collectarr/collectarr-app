@@ -96,6 +96,7 @@ class LibraryEditShellState {
   List<ItemImageEdit> itemImageEdits;
   List<String> locationOptions = const [];
   List<String> ownerOptions = const [];
+  List<String> purchaseStoreOptions = const [];
   List<String> tagOptions = const [];
   Map<String, List<String>> kindVocabularies = const {};
   final Map<String, ({String listName, String value, String? mediaKind})>
