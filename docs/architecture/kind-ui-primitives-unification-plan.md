@@ -53,6 +53,11 @@ Completed implementation slices:
   use the Edit schema renderer's scroll view as their only vertical scroll
   owner. Their shared tab surface can retain its border and padding without
   creating an inner scroll view.
+- Edit schema tabs and their custom tabs now share the same `EditTabShell`
+  surface. The schema renderer owns the only vertical scroll view; Music's
+  custom tab widgets contribute content without adding another shell or
+  viewport. Manual Add and the legacy Edit scaffold continue to use the same
+  surface with their own single-scroll ownership.
 - Music Edit now stages raw track-duration input in its item draft, preserves
   invalid text when switching tabs, blocks save until it parses, and clears the
   staged text when the duration is corrected or the track is removed.

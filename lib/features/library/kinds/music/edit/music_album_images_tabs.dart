@@ -42,8 +42,8 @@ final class MusicAlbumCoversTab extends StatefulWidget {
 final class _MusicAlbumCoversTabState extends State<MusicAlbumCoversTab> {
   @override
   Widget build(BuildContext context) {
-    return EditTabShell(
-      scrollable: false,
+    return Column(
+      mainAxisSize: MainAxisSize.min,
       children: [
         LayoutBuilder(
           builder: (context, constraints) {
@@ -496,8 +496,8 @@ final class _MusicAlbumMyImagesEditorState
   }
 
   @override
-  Widget build(BuildContext context) => EditTabShell(
-        scrollable: false,
+  Widget build(BuildContext context) => Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
           EditSection(
             title: 'My Images (${_images.length}/5)',

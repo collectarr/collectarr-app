@@ -76,36 +76,31 @@ final class _MusicAlbumLinksTabState extends State<MusicAlbumLinksTab> {
   }
 
   @override
-  Widget build(BuildContext context) => EditTabShell(
-        scrollable: false,
-        children: [
-          EditSection(
-            title: 'Release links',
-            accent: widget.accent,
-            child: LibraryExternalLinksTable<_ReleaseLinkRow>(
-              rows: [
-                for (final row in _rows)
-                  LibraryExternalLinkEditRow<_ReleaseLinkRow>(
-                    identity: row,
-                    titleController: row.title,
-                    urlController: row.url,
-                    descriptionController: row.description,
-                    titleFieldKey: ValueKey('musicAlbumLinkTitle_${row.key}'),
-                    urlFieldKey: ValueKey('musicAlbumLinkUrl_${row.key}'),
-                    descriptionFieldKey:
-                        ValueKey('musicAlbumLinkDescription_${row.key}'),
-                  ),
-              ],
-              accent: widget.accent,
-              addLabel: 'New Link',
-              showTitleColumn: true,
-              onAdd: _add,
-              onReorder: _reorder,
-              onRemoveSelected: _removeSelected,
-              onChanged: _syncDraft,
-            ),
-          ),
-        ],
+  Widget build(BuildContext context) => EditSection(
+        title: 'Release links',
+        accent: widget.accent,
+        child: LibraryExternalLinksTable<_ReleaseLinkRow>(
+          rows: [
+            for (final row in _rows)
+              LibraryExternalLinkEditRow<_ReleaseLinkRow>(
+                identity: row,
+                titleController: row.title,
+                urlController: row.url,
+                descriptionController: row.description,
+                titleFieldKey: ValueKey('musicAlbumLinkTitle_${row.key}'),
+                urlFieldKey: ValueKey('musicAlbumLinkUrl_${row.key}'),
+                descriptionFieldKey:
+                    ValueKey('musicAlbumLinkDescription_${row.key}'),
+              ),
+          ],
+          accent: widget.accent,
+          addLabel: 'New Link',
+          showTitleColumn: true,
+          onAdd: _add,
+          onReorder: _reorder,
+          onRemoveSelected: _removeSelected,
+          onChanged: _syncDraft,
+        ),
       );
 }
 

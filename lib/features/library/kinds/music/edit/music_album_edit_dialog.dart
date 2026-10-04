@@ -25,7 +25,6 @@ import 'package:collectarr_app/features/library/kinds/music/edit/music_signed_by
 import 'package:collectarr_app/features/library/edit/sections/item_images_edit_section.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit/music_listening_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/music/data/music_listening_repository.dart';
-import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/edit/core_correction/library_core_correction.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/library_entry_ref.dart';
@@ -301,8 +300,7 @@ final class _MusicAlbumEditDialogState
       return const Text('Personal fields belong to your local library entry.');
     }
     personal.used = true;
-    return EditTabShell(scrollable: false, children: [
-      LibraryEntryPersonalSection(
+    return LibraryEntryPersonalSection(
         draft: personal,
         kindSpecificFields: [
           MusicGradeField(
@@ -347,7 +345,6 @@ final class _MusicAlbumEditDialogState
         history: _listening == null
             ? const LinearProgressIndicator()
             : MusicListeningDraftSection(draft: _listening!),
-      )
-    ]);
+      );
   }
 }

@@ -40,8 +40,8 @@ final class _MusicAlbumStructureTabState
 
   @override
   Widget build(BuildContext context) {
-    return EditTabShell(
-      scrollable: false,
+    return Column(
+      mainAxisSize: MainAxisSize.min,
       children: _trackSections(),
     );
   }

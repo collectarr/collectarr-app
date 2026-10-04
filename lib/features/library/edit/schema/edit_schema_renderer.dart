@@ -403,11 +403,23 @@ class EditSchemaRendererState<TModel, TDraft>
             constraints: const BoxConstraints(maxHeight: 720),
             child: ListView(
               shrinkWrap: true,
-              padding: const EdgeInsets.fromLTRB(16, 14, 16, 10),
+              padding: EdgeInsets.zero,
               children: [
-                if (!widget.showFooter) _buildFeedback(context),
-                _buildSelectedContent(
-                    context, visibleTabIndexes, selectedIndex),
+                if (!widget.showFooter)
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 14, 16, 10),
+                    child: _buildFeedback(context),
+                  ),
+                EditTabShell(
+                  scrollable: false,
+                  children: [
+                    _buildSelectedContent(
+                      context,
+                      visibleTabIndexes,
+                      selectedIndex,
+                    ),
+                  ],
+                ),
               ],
             ),
           ),
