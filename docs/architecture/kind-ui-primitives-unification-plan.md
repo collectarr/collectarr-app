@@ -109,6 +109,9 @@ Completed implementation slices:
   metadata, and Covers into focused tabs backed by its existing draft and
   managed vocabulary state. The Edit-only creator, character, and external
   link editors still need Add-side support and a shared typed lifecycle.
+- Kind Add drafts now opt into resource disposal only when they own resources.
+  Movie, TV, and Anime dispose their controller-backed credits; kinds with
+  plain data drafts no longer carry empty `dispose()` methods.
 - The shared video Specs section now also edits Screen ratio. TV and Anime
   hydrate their existing Specs controllers from metadata and persist all
   fields, including explicit clears; their Add forms expose the same supported
@@ -243,14 +246,14 @@ My Images and adds Custom Fields only when definitions are nonempty.
 | Kind | Manual Add composition | Edit composition / identified divergence |
 | --- | --- | --- |
 | Music | Main, Details, Classical, People, Tracks, Personal, Covers, Links | Registered edit route uses the typed album schema dialog; Add credits/tracks/links/covers still have independent widgets and bindings. No separate entry edit dialog or caller remains in the current source. |
-| Movies | One Main schema with mixed metadata fields | Generic session/presentation renderer; separate catalog/entry tab lists and custom tabs. The request-backed edit draft is initialized by the shared renderer state; Movie shares its Specs tab with TV and Anime. Remaining custom child-editor controller ownership still needs review. |
-| TV | Main, Cast, Crew | Generic editor plus a separately registered typed media editor. The request-backed edit draft is initialized by the shared renderer state; Specs are shared with Movie/Anime, and Cast/Crew use the same typed editor in Add/Edit. Custom episode dialog is another surface to audit. |
-| Anime | Main, Cast, Crew | Registered edit routes use generic editor; an additional typed media dialog exists. The request-backed edit draft is initialized by the shared renderer state; Specs are shared with Movie/TV, and Cast/Crew use the same typed editor in Add/Edit. |
-| Books | Main with managed publisher/format selection; typed Authors and Translators | Generic editor with separate catalog/entry presentation and an embedded entry schema renderer; Credits tab now uses the same typed ordered-name editors as Add. |
-| Comics | Main, Details, plus Series identity control | Generic entry editor and separately registered typed catalog editor; large custom tab/host adapter remains, with typed-draft checks and controller fallbacks removed. |
-| Manga | Identity, Publication, plus Series identity control | Registered routes use generic editor; a separate typed media editor exists. Managed series/publisher selection logic overlaps Comics/Books. |
-| Games | One Main schema | Generic editor plus embedded entry schema; custom Main/Release fields and the registered Game platform vocabulary. The request-backed edit draft is renderer-owned; field-specific controller ownership still needs review. |
-| Board Games | One Main schema | Generic renderer with catalog/entry presentation lists and embedded entry schema; shared release identity groups remain. |
+| Movies | Main, Edition details, Plot, Specs, Covers, Cast, Crew | Generic session/presentation renderer; separate catalog/entry tab lists and custom tabs. The request-backed edit draft is initialized by the shared renderer state; Movie shares its Specs tab with TV and Anime. Remaining custom child-editor controller ownership still needs review. |
+| TV | Main, Edition details, Plot, Specs, Covers, Cast, Crew | Generic editor plus a separately registered typed media editor. The request-backed edit draft is initialized by the shared renderer state; Specs are shared with Movie/Anime, and Cast/Crew use the same typed editor in Add/Edit. Custom episode dialog is another surface to audit. |
+| Anime | Main, Details, Edition details, Specs, Cover, Synopsis, Cast, Crew | Registered edit routes use generic editor; an additional typed media dialog exists. The request-backed edit draft is initialized by the shared renderer state; Specs are shared with Movie/TV, and Cast/Crew use the same typed editor in Add/Edit. |
+| Books | Main, Credits, Links, Covers, Plot | Generic editor with separate catalog/entry presentation and an embedded entry schema renderer; Credits tab uses the same typed ordered-name editors as Add. |
+| Comics | Main, Edition details, Details, Covers, plus Series identity control | Generic entry editor and separately registered typed catalog editor; large custom tab/host adapter remains, with typed-draft checks and controller fallbacks removed. Add-side creator, character, and links remain outstanding. |
+| Manga | Main, Edition details, Details, Plot, Covers, plus Series identity control | Registered routes use generic editor; a separate typed media editor exists. Managed series/publisher selection logic overlaps Comics/Books. |
+| Games | Main, Edition details, Description, Covers | Generic editor plus embedded entry schema; custom Main/Release fields and the registered Game platform vocabulary. The request-backed edit draft is renderer-owned; field-specific controller ownership still needs review. |
+| Board Games | Main, Edition Details, Gameplay & Ratings, Description, Covers | Generic renderer with catalog/entry presentation lists and embedded entry schema; shared release identity groups remain. Add still lacks its Edit Links editor. |
 
 The presence of a raw Flutter control is not automatically a defect. The
 problem is duplicated presentation/behavior, inconsistent validation, or a
