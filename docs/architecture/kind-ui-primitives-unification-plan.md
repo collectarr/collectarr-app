@@ -347,6 +347,10 @@ Completed implementation slices:
   Classical tab, so Edit switches to the section that needs correction.
 - The shared multi-value picker now follows the pick-list dialog behavior:
   top alignment, explicit Close, and no outside-click dismissal.
+- Unused generic title, release-identity, date, and contribution edit groups
+  were removed after a production caller audit. The active local-entry links
+  editor now lives in its own focused file; its orphaned raw token input was
+  removed with the old field groups.
 - All live library Add/Edit, bulk-edit, Comic, Game, and Music multi-value
   fields now use the shared chip control. Its picker retains search and Clear;
   custom text entry and existing vocabulary-change callbacks remain connected.

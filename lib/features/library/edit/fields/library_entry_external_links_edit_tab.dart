@@ -1,7 +1,7 @@
 import 'package:collectarr_app/features/library/detail/library_external_links_section.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_user_external_links_draft.dart';
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
-import 'package:collectarr_app/features/library/edit/fields/library_edit_field_groups.dart';
+import 'package:collectarr_app/features/library/edit/fields/library_external_links_editor.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:flutter/material.dart';
 
