@@ -346,6 +346,8 @@ class BookEditDraft
     );
     final count = int.tryParse(pageCountController.text);
     final releaseDate = parseDate(releaseDateController.text);
+    final hasExplicitAuthors =
+        meta.creators.any((credit) => _isRole(credit.role, 'author'));
     final updatedMetadata = meta.copyWith(
       pageCount: count,
       imprint: emptyToNull(imprintController.text),
@@ -359,7 +361,8 @@ class BookEditDraft
       creators: [
         for (final credit in meta.creators)
           if (!_isRole(credit.role, 'author') &&
-              !_isRole(credit.role, 'translator'))
+              !_isRole(credit.role, 'translator') &&
+              hasExplicitAuthors)
             credit,
         ..._withRole(authorCredits, 'Author'),
       ],
@@ -493,11 +496,7 @@ List<BookCatalogCredit> _bookAuthorCredits(BookCatalogMetadata metadata) {
       .where((credit) => _isRole(credit.role, 'author'))
       .toList(growable: false);
   if (explicitAuthors.isNotEmpty) return List.of(explicitAuthors);
-  if (metadata.creators
-      .every((credit) => credit.role?.trim().isEmpty ?? true)) {
-    return List.of(metadata.creators);
-  }
-  return const [];
+  return List.of(metadata.creators);
 }
 
 List<BookCatalogCredit> _bookTranslatorCredits(BookCatalogMetadata metadata) =>
