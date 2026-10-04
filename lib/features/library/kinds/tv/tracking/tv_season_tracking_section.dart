@@ -872,23 +872,23 @@ class _CustomEpisodeFormDialogState extends State<_CustomEpisodeFormDialog> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            TextField(
+            LibraryEditTextField(
               controller: _episodeNumberController,
-              decoration: const InputDecoration(labelText: 'Episode number'),
+              label: 'Episode number',
               keyboardType: TextInputType.number,
               onChanged: (_) => setState(() {}),
             ),
             const SizedBox(height: 8),
-            TextField(
+            LibraryEditTextField(
               controller: _titleController,
-              decoration: const InputDecoration(labelText: 'Title'),
+              label: 'Title',
               onChanged: (_) => setState(() {}),
             ),
             const SizedBox(height: 8),
-            TextField(
+            LibraryEditTextField(
               controller: _overviewController,
-              decoration:
-                  const InputDecoration(labelText: 'Overview (optional)'),
+              label: 'Overview (optional)',
+              minLines: 2,
               maxLines: 2,
             ),
             const SizedBox(height: 8),
@@ -901,32 +901,27 @@ class _CustomEpisodeFormDialogState extends State<_CustomEpisodeFormDialog> {
               }),
             ),
             const SizedBox(height: 8),
-            TextField(
+            LibraryEditTextField(
               controller: _runtimeController,
-              decoration: const InputDecoration(
-                labelText: 'Runtime minutes (optional)',
-              ),
+              label: 'Runtime minutes (optional)',
               keyboardType: TextInputType.number,
             ),
             const SizedBox(height: 8),
-            TextField(
+            LibraryEditTextField(
               controller: _stillImageUrlController,
-              decoration: const InputDecoration(
-                  labelText: 'Still image URL (optional)'),
+              label: 'Still image URL (optional)',
+              keyboardType: TextInputType.url,
             ),
             const SizedBox(height: 8),
-            TextField(
+            LibraryEditTextField(
               controller: _thumbnailImageUrlController,
-              decoration: const InputDecoration(
-                labelText: 'Thumbnail image URL (optional)',
-              ),
+              label: 'Thumbnail image URL (optional)',
+              keyboardType: TextInputType.url,
             ),
             const SizedBox(height: 8),
-            TextField(
+            LibraryEditTextField(
               controller: _localImagePathController,
-              decoration: const InputDecoration(
-                labelText: 'Local image path (optional)',
-              ),
+              label: 'Local image path (optional)',
             ),
           ],
         ),
