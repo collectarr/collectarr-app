@@ -100,6 +100,11 @@ Completed implementation slices:
   catalog media, episode editing/mapping, and typed credit editors remain
   kind-owned. Display Title and Localized Title are available in both Add and
   Edit, and character edits retain their existing metadata.
+- Anime physical-media Specs now use the same Add schema and field renderer in
+  Edit. The Edit draft owns the typed Anime metadata that the shared fields
+  update, and the duplicate scalar Specs controllers and tab widget were
+  removed. Anime's series, episode, credits, and media editors remain
+  specialized; its other metadata tabs still need Add/Edit alignment.
 - TV Manual Add now uses the shared multi-vocabulary controls and TV vocabulary
   IDs for Audio tracks and Subtitles, matching its Edit Specs controls while
   retaining the existing comma-separated catalog representation.
@@ -305,7 +310,7 @@ My Images and adds Custom Fields only when definitions are nonempty.
 | Music | Main, Details, Classical, People, Tracks, Personal, Covers, Links | Registered edit route uses the typed album schema dialog; Add credits/tracks/links/covers still have independent widgets and bindings. No separate entry edit dialog or caller remains in the current source. |
 | Movies | Main, Edition details, Plot, Specs, Covers, Cast, Crew | Generic session/presentation renderer; catalog scalars now use the same typed field specs, values model, and embedded schema renderer as Add. Catalog and entry scopes share those metadata tabs; personal state, tracking, image, and link lifecycles remain separate. |
 | TV | Main, Edition details, Plot, Specs, Covers, Cast, Crew | Main, Edition, Specs, Plot, Covers, and Characters use the same kind-owned schema in Add/Edit. The request-backed draft also retains typed media and episode editors; Cast/Crew use the shared row editor, and user links use the shared entry-local draft. |
-| Anime | Main, Details, Edition details, Specs, Cover, Synopsis, Cast, Crew | Registered edit routes use a typed media editor. The request-backed edit draft is initialized by the shared renderer state; Specs are shared with Movie/TV, Cast/Crew use the same row editor in Add/Edit, Characters are editable in both, and user links use the shared entry-local draft. |
+| Anime | Main, Details, Edition details, Specs, Cover, Synopsis, Cast, Crew | Specs now use the same filtered kind schema and renderer in Add/Edit. Registered edit routes retain typed media, series/episode, and credit editors; Cast/Crew use the shared row editor, Characters remain editable in both, and user links use the shared entry-local draft. Other metadata tabs still need parity work. |
 | Books | Main, Credits, Links, Covers, Plot | Generic editor with separate catalog/entry presentation and an embedded entry schema renderer; Credits tab uses the same typed ordered-name editors as Add. |
 | Comics | Main, Edition details, Details, Creators, Characters, Covers, Links, plus Series identity control | Generic entry editor and separately registered typed catalog editor; large custom tab/host adapter remains, with typed-draft checks and controller fallbacks removed. Add/Edit share the Comic people row models; advanced metadata parity remains to review. |
 | Manga | Main, Edition details, Details, Plot, Covers, plus Series identity control | Registered routes use the shared Edit shell with typed Edition Details and Details schemas; Add/Edit expose modeled metadata in matching areas and keep distinct ISBN/Barcode and Format/Binding values. Genres/Themes share the chip picker; Format/Publisher/Imprint share Manga vocabulary definitions. Identifiers, publication dates, series group, and back cover persist independently. Managed series selection logic still overlaps Comics/Books. |
@@ -574,7 +579,7 @@ tab placement, and metadata/personal classification.
 | Kind | Required work |
 | --- | --- |
 | TV | Add and Edit now render Main, Edition, Specs, Plot, Covers, and Characters from the same kind-owned schema. Cast/Crew row layout is shared across Movie/TV/Anime and Add/Edit. One typed dispatcher serves catalog and entry registrations; catalog media, episode editing/mapping, and tracking remain specialized. |
-| Anime | Physical-media Specs and Cast/Crew row layout are shared with Movie/TV. Reconcile the extra media dialog with active routes; preserve kind-specific series/episode fields and finish remaining Add/Edit field parity. |
+| Anime | Specs now use the same Add/Edit schema. Physical-media Specs and Cast/Crew row layout are shared with Movie/TV. Reconcile the extra media dialog with active routes; preserve kind-specific series/episode fields and align the remaining metadata tabs. |
 | Books | Unify catalog/entry schemas and managed publisher/format bindings; Authors and Translators now use shared typed ordered-name editors in Add/Edit; Add/Edit expose separate ISBN and Barcode identifiers; retain publication details and review other credits. |
 | Comics | Controller fallbacks have been removed from the Comic edit host; unify the generic entry and typed catalog hosts while retaining series/issue, grading, variants, and meaningful credit structures. |
 | Manga | Add/Edit now expose the same modeled volume, publication, identifier, people, character, and descriptive fields. Genres/Themes use the common chip control, and Edition Format, Publisher, and Imprint use the same vocabularies in both forms. Distributor and Country / region were removed from Add because Manga metadata has no such fields. Consolidate series selection mechanics with other kinds and retain Manga-specific volume/publication semantics. |

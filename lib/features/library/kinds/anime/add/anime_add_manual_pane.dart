@@ -7,52 +7,6 @@ import 'package:collectarr_app/features/library/kinds/anime/forms/anime_credit_d
 import 'package:collectarr_app/features/library/ui/primitives/library_named_detail_list.dart';
 import 'package:flutter/material.dart';
 
-const _animeMainFieldIds = {
-  'catalog_title',
-  'sort_key',
-  'format',
-  'season',
-  'source_material',
-  'original_language',
-  'genres',
-  'themes',
-  'studios',
-  'producers',
-  'licensors',
-  'airing_status',
-  'season_year',
-  'episode_count',
-  'episode_runtime_minutes',
-  'start_date',
-  'end_date',
-};
-const _animeDetailsFieldIds = {
-  'native_title',
-  'romaji_title',
-  'english_title',
-  'alternate_titles',
-  'country',
-  'characters',
-};
-const _animeEditionFieldIds = {
-  'edition_title',
-  'physical_format',
-  'publisher',
-  'barcode',
-  'release_date',
-  'variant_name',
-  'region',
-  'description',
-};
-const _animeSpecsFieldIds = {
-  'nr_discs',
-  'audio_tracks',
-  'subtitles',
-  'screen_ratio',
-  'layers',
-  'color',
-};
-
 class AnimeAddManualPane extends StatelessWidget {
   const AnimeAddManualPane({super.key, required this.request});
 
@@ -67,7 +21,7 @@ class AnimeAddManualPane extends StatelessWidget {
         LibraryAddManualPaneTab.main(
           content: AddSchemaRenderer<AnimeAddManualDraft>.embedded(
             schema: animeAddSchemaFor(
-              fieldIds: _animeMainFieldIds,
+              fieldIds: animeMainFieldIds,
               sectionLabel: 'Main',
             ),
             draft: draft,
@@ -83,7 +37,7 @@ class AnimeAddManualPane extends StatelessWidget {
           icon: Icons.article_outlined,
           content: AddSchemaRenderer<AnimeAddManualDraft>.embedded(
             schema: animeAddSchemaFor(
-              fieldIds: _animeDetailsFieldIds,
+              fieldIds: animeDetailsFieldIds,
               sectionLabel: 'Details',
             ),
             draft: draft,
@@ -99,7 +53,7 @@ class AnimeAddManualPane extends StatelessWidget {
           icon: Icons.inventory_2_outlined,
           content: AddSchemaRenderer<AnimeAddManualDraft>.embedded(
             schema: animeAddSchemaFor(
-              fieldIds: _animeEditionFieldIds,
+              fieldIds: animeEditionFieldIds,
               sectionLabel: 'Edition',
             ),
             draft: draft,
@@ -115,7 +69,7 @@ class AnimeAddManualPane extends StatelessWidget {
           icon: Icons.tune_outlined,
           content: AddSchemaRenderer<AnimeAddManualDraft>.embedded(
             schema: animeAddSchemaFor(
-              fieldIds: _animeSpecsFieldIds,
+              fieldIds: animeSpecsFieldIds,
               sectionLabel: 'Specs',
             ),
             draft: draft,

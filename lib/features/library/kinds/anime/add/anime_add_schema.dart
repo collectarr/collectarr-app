@@ -5,11 +5,61 @@ import 'package:collectarr_app/features/library/add/schema/add_schema.dart';
 import 'package:collectarr_app/features/library/kinds/anime/add/anime_add_manual_draft.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_metadata_children.dart';
+import 'package:collectarr_app/features/library/kinds/anime/forms/anime_catalog_form_draft.dart';
 import 'package:collectarr_app/features/library/kinds/anime/vocabulary/anime_vocabularies.dart';
 
 final AddSchema<AnimeAddManualDraft> animeAddSchema = animeAddSchemaFor();
 
-AddSchema<AnimeAddManualDraft> animeAddSchemaFor({
+const animeMainFieldIds = {
+  'catalog_title',
+  'sort_key',
+  'format',
+  'season',
+  'source_material',
+  'original_language',
+  'genres',
+  'themes',
+  'studios',
+  'producers',
+  'licensors',
+  'airing_status',
+  'season_year',
+  'episode_count',
+  'episode_runtime_minutes',
+  'start_date',
+  'end_date',
+};
+
+const animeDetailsFieldIds = {
+  'native_title',
+  'romaji_title',
+  'english_title',
+  'alternate_titles',
+  'country',
+  'characters',
+};
+
+const animeEditionFieldIds = {
+  'edition_title',
+  'physical_format',
+  'publisher',
+  'barcode',
+  'release_date',
+  'variant_name',
+  'region',
+  'description',
+};
+
+const animeSpecsFieldIds = {
+  'nr_discs',
+  'audio_tracks',
+  'subtitles',
+  'screen_ratio',
+  'layers',
+  'color',
+};
+
+AddSchema<TDraft> animeAddSchemaFor<TDraft extends AnimeCatalogFormDraft>({
   Set<String>? fieldIds,
   String? sectionLabel,
   Iterable<String>? formatOptions,
@@ -23,7 +73,7 @@ AddSchema<AnimeAddManualDraft> animeAddSchemaFor({
   FutureOr<void> Function()? onManagePhysicalFormat,
   FutureOr<void> Function()? onManageRegion,
 }) =>
-    AddSchema<AnimeAddManualDraft>(
+    AddSchema<TDraft>(
       title: (_) => 'Manual anime',
       validate: (draft) {
         final metadata = draft.metadata;
@@ -48,19 +98,19 @@ AddSchema<AnimeAddManualDraft> animeAddSchemaFor({
         return null;
       },
       sections: _filterSections(fieldIds, sectionLabel, [
-        AddSectionSpec<AnimeAddManualDraft>(
+        AddSectionSpec<TDraft>(
           id: 'catalog',
           label: 'Catalog item',
           fields: [
-            libraryAddCatalogTitleField<AnimeAddManualDraft>(),
-            _text(
+            libraryAddCatalogTitleField<TDraft>(),
+            _text<TDraft>(
               id: 'sort_key',
               label: 'Sort Title',
               read: (metadata) => metadata.sortKey ?? '',
               write: (draft, value) =>
                   _writeNullable(draft, 'sort_key', _nullable(value)),
             ),
-            LibraryTextFieldSpec<AnimeAddManualDraft>(
+            LibraryTextFieldSpec<TDraft>(
               id: 'synopsis',
               label: 'Synopsis',
               value: (draft) => draft.metadata.synopsis ?? '',
@@ -71,7 +121,7 @@ AddSchema<AnimeAddManualDraft> animeAddSchemaFor({
               ),
               maxLines: 4,
             ),
-            LibraryImageFieldSpec<AnimeAddManualDraft, String>(
+            LibraryImageFieldSpec<TDraft, String>(
               id: 'cover_image_url',
               label: 'Cover image URL',
               value: (draft) => _nullable(draft.metadata.coverImageUrl),
@@ -81,7 +131,7 @@ AddSchema<AnimeAddManualDraft> animeAddSchemaFor({
                 _nullable(value ?? ''),
               ),
             ),
-            _vocabulary(
+            _vocabulary<TDraft>(
               id: 'format',
               label: 'Anime format',
               read: (metadata) => metadata.format.label,
@@ -91,7 +141,7 @@ AddSchema<AnimeAddManualDraft> animeAddSchemaFor({
               options: formatOptions ?? AnimeVocabularies.format.builtIns,
               onManage: onManageFormat,
             ),
-            _vocabulary(
+            _vocabulary<TDraft>(
               id: 'season',
               label: 'Season',
               read: (metadata) => metadata.season?.label ?? '',
@@ -103,7 +153,7 @@ AddSchema<AnimeAddManualDraft> animeAddSchemaFor({
               options: seasonOptions ?? AnimeVocabularies.season.builtIns,
               onManage: onManageSeason,
             ),
-            _vocabulary(
+            _vocabulary<TDraft>(
               id: 'source_material',
               label: 'Source material',
               read: (metadata) => metadata.sourceMaterial.label,
@@ -121,14 +171,14 @@ AddSchema<AnimeAddManualDraft> animeAddSchemaFor({
                     'Other',
                   ],
             ),
-            _text(
+            _text<TDraft>(
               id: 'original_language',
               label: 'Original language',
               read: (metadata) => metadata.language,
               write: (draft, value) =>
                   draft.metadata = draft.metadata.copyWith(language: value),
             ),
-            LibraryMultiVocabularyFieldSpec<AnimeAddManualDraft, String>(
+            LibraryMultiVocabularyFieldSpec<TDraft, String>(
               id: 'genres',
               label: 'Genres',
               values: (draft) => draft.metadata.genres.toSet(),
@@ -137,35 +187,35 @@ AddSchema<AnimeAddManualDraft> animeAddSchemaFor({
               options: const [],
               allowCustomValues: true,
             ),
-            _text(
+            _text<TDraft>(
               id: 'themes',
               label: 'Themes',
               read: (metadata) => metadata.themes.join(', '),
               write: (draft, value) => draft.metadata =
                   draft.metadata.copyWith(themes: _split(value)),
             ),
-            _text(
+            _text<TDraft>(
               id: 'studios',
               label: 'Studios',
               read: (metadata) => metadata.studios.join(', '),
               write: (draft, value) => draft.metadata =
                   draft.metadata.copyWith(studios: _split(value)),
             ),
-            _text(
+            _text<TDraft>(
               id: 'producers',
               label: 'Producers',
               read: (metadata) => metadata.producers.join(', '),
               write: (draft, value) => draft.metadata =
                   draft.metadata.copyWith(producers: _split(value)),
             ),
-            _text(
+            _text<TDraft>(
               id: 'licensors',
               label: 'Licensors',
               read: (metadata) => metadata.licensors.join(', '),
               write: (draft, value) => draft.metadata =
                   draft.metadata.copyWith(licensors: _split(value)),
             ),
-            _vocabulary(
+            _vocabulary<TDraft>(
               id: 'airing_status',
               label: 'Airing status',
               read: (metadata) => metadata.airingStatus.label,
@@ -180,28 +230,28 @@ AddSchema<AnimeAddManualDraft> animeAddSchemaFor({
                     'Cancelled',
                   ],
             ),
-            _number(
+            _number<TDraft>(
               id: 'season_year',
               label: 'Season year',
               read: (metadata) => metadata.seasonYear,
               write: (draft, value) => draft.metadata =
                   draft.metadata.copyWith(seasonYear: value?.toInt()),
             ),
-            _number(
+            _number<TDraft>(
               id: 'episode_count',
               label: 'Episode count',
               read: (metadata) => metadata.episodeCount,
               write: (draft, value) => draft.metadata =
                   draft.metadata.copyWith(episodeCount: value?.toInt()),
             ),
-            _number(
+            _number<TDraft>(
               id: 'episode_runtime_minutes',
               label: 'Episode runtime (minutes)',
               read: (metadata) => metadata.episodeRuntimeMinutes,
               write: (draft, value) => draft.metadata = draft.metadata
                   .copyWith(episodeRuntimeMinutes: value?.toInt()),
             ),
-            LibraryDateFieldSpec<AnimeAddManualDraft>(
+            LibraryDateFieldSpec<TDraft>(
               id: 'start_date',
               label: 'Start date',
               value: (draft) => draft.metadata.startDate,
@@ -211,7 +261,7 @@ AddSchema<AnimeAddManualDraft> animeAddSchemaFor({
                 value?.toIso8601String(),
               ),
             ),
-            LibraryDateFieldSpec<AnimeAddManualDraft>(
+            LibraryDateFieldSpec<TDraft>(
               id: 'end_date',
               label: 'End date',
               value: (draft) => draft.metadata.endDate,
@@ -224,18 +274,18 @@ AddSchema<AnimeAddManualDraft> animeAddSchemaFor({
           ],
           fullWidthFieldIds: const {'catalog_title'},
         ),
-        AddSectionSpec<AnimeAddManualDraft>(
+        AddSectionSpec<TDraft>(
           id: 'edition_details',
           label: 'Edition details',
           fields: [
-            _text(
+            _text<TDraft>(
               id: 'edition_title',
               label: 'Edition title',
               read: (metadata) => metadata.editionTitle ?? '',
               write: (draft, value) =>
                   _writeNullable(draft, 'edition_title', _nullable(value)),
             ),
-            _vocabulary(
+            _vocabulary<TDraft>(
               id: 'physical_format',
               label: 'Physical format',
               read: (metadata) =>
@@ -248,21 +298,21 @@ AddSchema<AnimeAddManualDraft> animeAddSchemaFor({
                   AnimeVocabularies.physicalFormat.builtIns,
               onManage: onManagePhysicalFormat,
             ),
-            _text(
+            _text<TDraft>(
               id: 'publisher',
               label: 'Publisher',
               read: (metadata) => metadata.publisher ?? '',
               write: (draft, value) =>
                   _writeNullable(draft, 'publisher', _nullable(value)),
             ),
-            _text(
+            _text<TDraft>(
               id: 'barcode',
               label: 'Barcode',
               read: (metadata) => metadata.barcode ?? '',
               write: (draft, value) =>
                   _writeNullable(draft, 'barcode', _nullable(value)),
             ),
-            LibraryDateFieldSpec<AnimeAddManualDraft>(
+            LibraryDateFieldSpec<TDraft>(
               id: 'release_date',
               label: 'Release Date',
               value: (draft) => draft.metadata.releaseDateParts?.asDateTime,
@@ -275,49 +325,49 @@ AddSchema<AnimeAddManualDraft> animeAddSchemaFor({
                 });
               },
             ),
-            _number(
+            _number<TDraft>(
               id: 'nr_discs',
               label: 'Disc count',
               read: (metadata) => metadata.nrDiscs,
               write: (draft, value) => draft.metadata =
                   draft.metadata.copyWith(nrDiscs: value?.toInt()),
             ),
-            _text(
+            _text<TDraft>(
               id: 'audio_tracks',
               label: 'Audio languages',
               read: (metadata) => metadata.audioTracks ?? '',
               write: (draft, value) =>
                   _writeNullable(draft, 'audio_tracks', _nullable(value)),
             ),
-            _text(
+            _text<TDraft>(
               id: 'subtitles',
               label: 'Subtitle languages',
               read: (metadata) => metadata.subtitles ?? '',
               write: (draft, value) =>
                   _writeNullable(draft, 'subtitles', _nullable(value)),
             ),
-            _text(
+            _text<TDraft>(
               id: 'screen_ratio',
               label: 'Screen ratio',
               read: (metadata) => metadata.screenRatio ?? '',
               write: (draft, value) =>
                   _writeNullable(draft, 'screen_ratio', _nullable(value)),
             ),
-            _text(
+            _text<TDraft>(
               id: 'layers',
               label: 'Layers',
               read: (metadata) => metadata.layers ?? '',
               write: (draft, value) =>
                   _writeNullable(draft, 'layers', _nullable(value)),
             ),
-            _text(
+            _text<TDraft>(
               id: 'color',
               label: 'Color',
               read: (metadata) => metadata.color ?? '',
               write: (draft, value) =>
                   _writeNullable(draft, 'color', _nullable(value)),
             ),
-            _text(
+            _text<TDraft>(
               id: 'description',
               label: 'Description',
               read: (metadata) => metadata.description ?? '',
@@ -325,14 +375,14 @@ AddSchema<AnimeAddManualDraft> animeAddSchemaFor({
                   _writeNullable(draft, 'description', _nullable(value)),
               maxLines: 4,
             ),
-            _text(
+            _text<TDraft>(
               id: 'variant_name',
               label: 'Variant',
               read: (metadata) => metadata.variant ?? '',
               write: (draft, value) =>
                   _writeNullable(draft, 'variant_name', _nullable(value)),
             ),
-            _vocabulary(
+            _vocabulary<TDraft>(
               id: 'region',
               label: 'Region',
               read: _region,
@@ -343,46 +393,46 @@ AddSchema<AnimeAddManualDraft> animeAddSchemaFor({
             ),
           ],
         ),
-        AddSectionSpec<AnimeAddManualDraft>(
+        AddSectionSpec<TDraft>(
           id: 'titles_and_people',
           label: 'Titles and people',
           fields: [
-            _text(
+            _text<TDraft>(
               id: 'native_title',
               label: 'Native title',
               read: (metadata) => metadata.nativeTitle ?? '',
               write: (draft, value) =>
                   _writeNullable(draft, 'native_title', _nullable(value)),
             ),
-            _text(
+            _text<TDraft>(
               id: 'romaji_title',
               label: 'Romaji title',
               read: (metadata) => metadata.romajiTitle ?? '',
               write: (draft, value) =>
                   _writeNullable(draft, 'romaji_title', _nullable(value)),
             ),
-            _text(
+            _text<TDraft>(
               id: 'english_title',
               label: 'English title',
               read: (metadata) => metadata.englishTitle ?? '',
               write: (draft, value) =>
                   _writeNullable(draft, 'english_title', _nullable(value)),
             ),
-            _text(
+            _text<TDraft>(
               id: 'alternate_titles',
               label: 'Alternate titles',
               read: (metadata) => metadata.alternateTitles.join(', '),
               write: (draft, value) => draft.metadata =
                   draft.metadata.copyWith(alternateTitles: _split(value)),
             ),
-            _text(
+            _text<TDraft>(
               id: 'country',
               label: 'Country',
               read: (metadata) => metadata.country,
               write: (draft, value) =>
                   draft.metadata = draft.metadata.copyWith(country: value),
             ),
-            _text(
+            _text<TDraft>(
               id: 'characters',
               label: 'Characters',
               read: (metadata) => metadata.characters
@@ -400,10 +450,11 @@ AddSchema<AnimeAddManualDraft> animeAddSchemaFor({
       ]),
     );
 
-List<AddSectionSpec<AnimeAddManualDraft>> _filterSections(
+List<AddSectionSpec<TDraft>>
+    _filterSections<TDraft extends AnimeCatalogFormDraft>(
   Set<String>? fieldIds,
   String? sectionLabel,
-  List<AddSectionSpec<AnimeAddManualDraft>> sections,
+  List<AddSectionSpec<TDraft>> sections,
 ) {
   if (fieldIds == null && sectionLabel == null) return sections;
   return [
@@ -411,7 +462,7 @@ List<AddSectionSpec<AnimeAddManualDraft>> _filterSections(
       if (section.fields
           .where((field) => fieldIds == null || fieldIds.contains(field.id))
           .isNotEmpty)
-        AddSectionSpec<AnimeAddManualDraft>(
+        AddSectionSpec<TDraft>(
           id: section.id,
           label: sectionLabel ?? section.label,
           fields: [
@@ -427,14 +478,14 @@ List<AddSectionSpec<AnimeAddManualDraft>> _filterSections(
   ];
 }
 
-LibraryTextFieldSpec<AnimeAddManualDraft> _text({
+LibraryTextFieldSpec<TDraft> _text<TDraft extends AnimeCatalogFormDraft>({
   required String id,
   required String label,
   required String Function(AnimeMetadata metadata) read,
-  required void Function(AnimeAddManualDraft draft, String value) write,
+  required void Function(TDraft draft, String value) write,
   int maxLines = 1,
 }) =>
-    LibraryTextFieldSpec<AnimeAddManualDraft>(
+    LibraryTextFieldSpec<TDraft>(
       id: id,
       label: label,
       value: (draft) => read(draft.metadata),
@@ -442,13 +493,13 @@ LibraryTextFieldSpec<AnimeAddManualDraft> _text({
       maxLines: maxLines,
     );
 
-LibraryNumberFieldSpec<AnimeAddManualDraft> _number({
+LibraryNumberFieldSpec<TDraft> _number<TDraft extends AnimeCatalogFormDraft>({
   required String id,
   required String label,
   required num? Function(AnimeMetadata metadata) read,
-  required void Function(AnimeAddManualDraft draft, num? value) write,
+  required void Function(TDraft draft, num? value) write,
 }) =>
-    LibraryNumberFieldSpec<AnimeAddManualDraft>(
+    LibraryNumberFieldSpec<TDraft>(
       id: id,
       label: label,
       value: (draft) => read(draft.metadata),
@@ -456,25 +507,26 @@ LibraryNumberFieldSpec<AnimeAddManualDraft> _number({
       minimum: 0,
     );
 
-LibraryVocabularyFieldSpec<AnimeAddManualDraft, String> _vocabulary({
+LibraryVocabularyFieldSpec<TDraft, String>
+    _vocabulary<TDraft extends AnimeCatalogFormDraft>({
   required String id,
   required String label,
   required String Function(AnimeMetadata metadata) read,
-  required void Function(AnimeAddManualDraft draft, String? value) write,
+  required void Function(TDraft draft, String? value) write,
   required Iterable<String> options,
   FutureOr<void> Function()? onManage,
 }) =>
-    LibraryVocabularyFieldSpec<AnimeAddManualDraft, String>(
-      id: id,
-      label: label,
-      value: (draft) => read(draft.metadata),
-      setValue: write,
-      options: [
-        for (final value in options)
-          LibraryFieldOption(value: value, label: value),
-      ],
-      onManage: onManage == null ? null : (_) => onManage(),
-    );
+        LibraryVocabularyFieldSpec<TDraft, String>(
+          id: id,
+          label: label,
+          value: (draft) => read(draft.metadata),
+          setValue: write,
+          options: [
+            for (final value in options)
+              LibraryFieldOption(value: value, label: value),
+          ],
+          onManage: onManage == null ? null : (_) => onManage(),
+        );
 
 AnimeSeason? _animeSeason(String? value) {
   final normalized = value?.trim().toLowerCase();
@@ -486,15 +538,15 @@ AnimeSeason? _animeSeason(String? value) {
   return null;
 }
 
-void _writeNullable(
-  AnimeAddManualDraft draft,
+void _writeNullable<TDraft extends AnimeCatalogFormDraft>(
+  TDraft draft,
   String key,
   Object? value,
 ) =>
     _writeNullableFields(draft, {key: value});
 
-void _writeNullableFields(
-  AnimeAddManualDraft draft,
+void _writeNullableFields<TDraft extends AnimeCatalogFormDraft>(
+  TDraft draft,
   Map<String, Object?> fields,
 ) {
   final payload = Map<String, dynamic>.from(draft.metadata.toJson())

@@ -1,13 +1,16 @@
 import 'package:collectarr_app/features/library/add/models/library_kind_add_draft.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/anime/forms/anime_credit_draft.dart';
+import 'package:collectarr_app/features/library/kinds/anime/forms/anime_catalog_form_draft.dart';
 
-final class AnimeAddManualDraft implements LibraryKindAddDraftWithResources {
+final class AnimeAddManualDraft
+    implements LibraryKindAddDraftWithResources, AnimeCatalogFormDraft {
   AnimeAddManualDraft({
     AnimeMetadata? metadata,
     this.catalogTitle = '',
   }) : metadata = metadata ?? const AnimeMetadata();
 
+  @override
   AnimeMetadata metadata;
   final List<EditableAnimeCredit> castCredits = [];
   final List<EditableAnimeCredit> crewCredits = [];

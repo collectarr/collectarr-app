@@ -7,7 +7,8 @@ import 'package:collectarr_app/features/library/kinds/anime/edit/tabs/anime_disc
 import 'package:collectarr_app/features/library/kinds/anime/edit/tabs/anime_edition_tab.dart';
 import 'package:collectarr_app/features/library/kinds/anime/edit/tabs/anime_links_tab.dart';
 import 'package:collectarr_app/features/library/kinds/anime/edit/tabs/anime_media_tab.dart';
-import 'package:collectarr_app/features/library/kinds/anime/edit/tabs/anime_specs_tab.dart';
+import 'package:collectarr_app/features/library/kinds/anime/edit/anime_catalog_form_edit_tab.dart';
+import 'package:collectarr_app/features/library/kinds/anime/add/anime_add_schema.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:flutter/material.dart';
 
@@ -35,9 +36,13 @@ Widget? buildAnimeMediaCustomTabView({
         accent: accent,
         physicalFormats: draft.physicalFormats,
       ),
-    'specs' => AnimeEditSpecsTab(
-        animeDraft: catalogDraft,
-        accent: accent,
+    'specs' => AnimeCatalogFormEditTab(
+        state: draft,
+        draft: catalogDraft,
+        itemId: item.reference.id,
+        fieldIds: animeSpecsFieldIds,
+        sectionLabel: 'Specs',
+        markDirty: markDirty,
       ),
     'cast' => AnimeEditCastTab(
         accent: accent,

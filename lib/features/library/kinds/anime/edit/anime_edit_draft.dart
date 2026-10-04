@@ -56,17 +56,13 @@ class AnimeEditDraft
     implements AnimeEditDraftContract, LibraryEntryExternalLinksSource {
   AnimeEditDraft({
     this.libraryEntry,
+    required this.metadata,
+    required this.catalogTitle,
     required this.featuresController,
     required this.boxSetNameController,
     required this.regionController,
     required this.packagingController,
     required this.distributorController,
-    required this.screenRatioController,
-    required this.audioTracksController,
-    required this.subtitlesController,
-    required this.layersController,
-    required this.colorController,
-    required this.nrDiscsController,
     required this.hdrFormats,
     required this.seasonNumberController,
     required this.episodeNumberController,
@@ -78,6 +74,12 @@ class AnimeEditDraft
   final AnimeLibraryEntry? libraryEntry;
 
   @override
+  AnimeMetadata metadata;
+
+  @override
+  String catalogTitle;
+
+  @override
   final TextEditingController featuresController;
   @override
   final TextEditingController boxSetNameController;
@@ -87,19 +89,6 @@ class AnimeEditDraft
   final TextEditingController packagingController;
   @override
   final TextEditingController distributorController;
-  @override
-  final TextEditingController screenRatioController;
-  @override
-  final TextEditingController audioTracksController;
-  @override
-  final TextEditingController subtitlesController;
-  @override
-  final TextEditingController layersController;
-  @override
-  final TextEditingController colorController;
-  @override
-  final TextEditingController nrDiscsController;
-
   @override
   List<String> hdrFormats;
   final TextEditingController seasonNumberController;
@@ -363,12 +352,12 @@ class AnimeEditDraft
           'audience_rating': emptyToNull(
             fields.controller(AnimeCanonicalEditField.audienceRating).text,
           ),
-          'audio_tracks': emptyToNull(audioTracksController.text),
-          'subtitles': emptyToNull(subtitlesController.text),
-          'screen_ratio': emptyToNull(screenRatioController.text),
-          'layers': emptyToNull(layersController.text),
-          'color': emptyToNull(colorController.text),
-          'nr_discs': int.tryParse(nrDiscsController.text.trim()),
+          'audio_tracks': this.metadata.audioTracks,
+          'subtitles': this.metadata.subtitles,
+          'screen_ratio': this.metadata.screenRatio,
+          'layers': this.metadata.layers,
+          'color': this.metadata.color,
+          'nr_discs': this.metadata.nrDiscs,
         }));
         return transport.replacingKindData(updated);
       })),
@@ -582,21 +571,14 @@ LibraryEditSessionBundle createAnimeEditDraft({
 
   final draft = AnimeEditDraft(
     libraryEntry: entry,
+    metadata: metadata,
+    catalogTitle: metadata.title,
     featuresController: textControllers.create(text: video?.features ?? ''),
     boxSetNameController: textControllers.create(text: video?.boxSetName ?? ''),
     regionController: textControllers.create(text: video?.region ?? ''),
     packagingController: textControllers.create(text: video?.packaging ?? ''),
     distributorController:
         textControllers.create(text: video?.distributor ?? ''),
-    screenRatioController:
-        textControllers.create(text: metadata.screenRatio ?? ''),
-    audioTracksController:
-        textControllers.create(text: metadata.audioTracks ?? ''),
-    subtitlesController: textControllers.create(text: metadata.subtitles ?? ''),
-    layersController: textControllers.create(text: metadata.layers ?? ''),
-    colorController: textControllers.create(text: metadata.color ?? ''),
-    nrDiscsController:
-        textControllers.create(text: metadata.nrDiscs?.toString() ?? ''),
     hdrFormats: List<String>.from(video?.hdrFormats ?? const <String>[]),
     seasonNumberController: TextEditingController(),
     episodeNumberController: TextEditingController(
