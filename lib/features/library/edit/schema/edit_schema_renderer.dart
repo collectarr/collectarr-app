@@ -6,7 +6,7 @@ import 'dart:math' as math;
 import 'package:flutter/foundation.dart' show listEquals;
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_tab_strip.dart';
-import 'package:collectarr_app/features/library/schema/library_field_spec_control_builder.dart';
+import 'package:collectarr_app/features/library/schema/library_form_schema_validation.dart';
 import 'package:collectarr_app/features/library/schema/library_field_spec_renderer.dart';
 import 'package:collectarr_app/features/library/schema/library_schema_text_controller_store.dart';
 import 'package:collectarr_app/features/pick_lists/pick_list_repository.dart';
@@ -724,32 +724,24 @@ class EditSchemaRendererState<TModel, TDraft>
   }
 
   ({int tabIndex, String error, String? focusKey})? _firstFieldIssue() {
+    final controllers =
+        LibrarySchemaTextControllerScope.readOf(context) ?? _textControllers;
     for (var tabIndex = 0; tabIndex < widget.schema.tabs.length; tabIndex++) {
       final tab = widget.schema.tabs[tabIndex];
       if (!tab.isVisible(widget.draft)) continue;
-      for (final section in tab.sections) {
-        if (!section.isVisible(widget.draft)) continue;
-        for (final field in section.fields) {
-          if (field.isVisible(widget.draft)) {
-            final error = field is LibraryNumberFieldSpec<TDraft>
-                ? libraryNumberFieldError(
-                    field,
-                    _controllerFor(
-                      field.id,
-                      field.value(widget.draft)?.toString() ?? '',
-                    ).text,
-                    widget.draft,
-                  )
-                : field.validate(widget.draft);
-            if (error != null) {
-              return (
-                tabIndex: tabIndex,
-                error: error,
-                focusKey: '${tab.id}::${field.id}',
-              );
-            }
-          }
-        }
+      final issue = firstLibraryFormValidationIssue(
+        schema: LibraryFormSchema<TDraft>(sections: tab.sections),
+        draft: widget.draft,
+        controllers: controllers,
+        validateSchema: false,
+      );
+      if (issue != null) {
+        return (
+          tabIndex: tabIndex,
+          error: issue.message,
+          focusKey:
+              issue.fieldId == null ? null : '${tab.id}::${issue.fieldId}',
+        );
       }
     }
     for (var extraIndex = 0;

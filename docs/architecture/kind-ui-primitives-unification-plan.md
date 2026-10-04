@@ -45,6 +45,9 @@ Completed implementation slices:
   validation message, and focuses/scrolls to a field when the issue identifies
   one. Kind-owned custom tabs can contribute their own validator through the
   same tab contract.
+- Add and Edit now use the same schema field-validation routine, including raw
+  number validation and section/field visibility checks. Edit retains its
+  schema-level and extra-tab validators and its existing save/error lifecycle.
 - Shared edit text fields and Add schema text/select controls use external
   labels and the common control height. Schema validators are registered with
   the active Form; numeric minimum, maximum, and decimal-place constraints are
