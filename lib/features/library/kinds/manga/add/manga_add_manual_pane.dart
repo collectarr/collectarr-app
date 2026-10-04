@@ -11,8 +11,8 @@ import 'package:collectarr_app/features/catalog/serial/serial_authority_reposito
 import 'package:collectarr_app/features/library/kinds/manga/add/manga_add_schema.dart';
 import 'package:collectarr_app/features/library/kinds/manga/add/manga_add_manual_draft.dart';
 import 'package:collectarr_app/features/library/kinds/manga/vocabulary/manga_vocabularies.dart';
+import 'package:collectarr_app/features/library/ui/primitives/library_selection_fields.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
-import 'package:collectarr_app/ui/single_value_pick_field.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -185,12 +185,13 @@ class _MangaAddManualPaneState extends ConsumerState<MangaAddManualPane> {
     );
     return LibraryAddManualPaneShell(
       request: request,
-      identityDetails: SingleValuePickField(
+      identityDetails: LibraryVocabularyField(
         controller: _seriesController,
         options: [for (final entry in _seriesEntries) entry.title],
         label: 'Series',
         onChanged: _setManualSeries,
         onManage: _openManualSeriesPicker,
+        manageTooltip: 'Select or manage series',
       ),
       tabs: [
         LibraryAddManualPaneTab(

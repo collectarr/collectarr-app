@@ -28,7 +28,6 @@ export 'package:collectarr_app/features/library/workspace/tiles/library_cover_im
 export 'package:collectarr_app/ui/accent_alert_dialog.dart';
 export 'package:collectarr_app/ui/error_banner.dart';
 export 'package:collectarr_app/ui/single_value_pick_field.dart';
-export 'package:collectarr_app/ui/tag_pick_list_field.dart';
 export 'package:collectarr_app/ui/theme/app_theme.dart';
 export 'package:flutter/material.dart';
 export 'package:flutter/services.dart';

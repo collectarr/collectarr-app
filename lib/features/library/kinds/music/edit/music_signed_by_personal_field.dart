@@ -2,10 +2,11 @@ import 'dart:async';
 
 import 'package:collectarr_app/features/library/edit/contracts/library_vocabulary_edit_change.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_entry_edit_draft.dart';
-import 'package:collectarr_app/features/library/ui/primitives/library_form_controls.dart';
+import 'package:collectarr_app/features/library/schema/library_field_spec.dart';
+import 'package:collectarr_app/features/library/ui/primitives/library_multi_value_options_dialog.dart';
+import 'package:collectarr_app/features/library/ui/primitives/library_multi_value_pick_field.dart';
 import 'package:collectarr_app/features/pick_lists/pick_list_options.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
-import 'package:collectarr_app/ui/tag_pick_list_field.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -50,27 +51,43 @@ final class _MusicSignedByPersonalFieldState
   }
 
   @override
-  Widget build(BuildContext context) => LibraryFormField(
+  Widget build(BuildContext context) => LibraryMultiValuePickField<String>(
         label: 'Signed By',
-        child: MultiSelectPickListField(
-          label: 'Signed By',
-          values: splitPickListValues(widget.draft.text('signed_by')),
-          options: _options,
-          pickerTitle: 'Signed By',
-          pickerSearchHint: 'Search names',
-          customValueHint: 'Add signer',
-          onChanged: (values) {
-            widget.draft.set('signed_by', joinPickListValues(values) ?? '');
-            widget.draft.pendingChanges['vocabulary:music.signed_by'] =
-                LibraryVocabularyEditChange([
-              for (final value in values)
-                (
-                  listName: 'music.signed_by',
-                  value: value,
-                  mediaKind: 'music',
-                ),
-            ]);
-          },
+        value: splitPickListValues(widget.draft.text('signed_by')).toSet(),
+        options: [
+          for (final value in _options)
+            LibraryFieldOption<String>(value: value, label: value),
+        ],
+        allowCustomValueEntry: true,
+        hintText: 'Add signer',
+        pickerSearchHint: 'Search names',
+        customValueHint: 'Add signer',
+        onOpenPicker: (
+                {required label,
+                required selectedValues,
+                required options,
+                searchHint,
+                customValueHint}) =>
+            showLibraryMultiValueOptionsDialog<String>(
+          context: context,
+          label: label,
+          options: options,
+          selectedValues: selectedValues,
+          searchHint: searchHint ?? 'Search names',
+          customValueHint: customValueHint ?? 'Add signer',
         ),
+        onChanged: (values) {
+          final selected = values.toList(growable: false);
+          widget.draft.set('signed_by', joinPickListValues(selected) ?? '');
+          widget.draft.pendingChanges['vocabulary:music.signed_by'] =
+              LibraryVocabularyEditChange([
+            for (final value in selected)
+              (
+                listName: 'music.signed_by',
+                value: value,
+                mediaKind: 'music',
+              ),
+          ]);
+        },
       );
 }

@@ -13,7 +13,6 @@ import 'package:collectarr_app/features/library/kinds/comic/edit/comic_edit_mode
 import 'package:collectarr_app/features/library/kinds/comic/data/comic_catalog_browse_api.dart';
 import 'package:collectarr_app/features/library/tracking/media_rating_field.dart';
 import 'package:collectarr_app/state/api_provider.dart';
-import 'package:collectarr_app/ui/tag_pick_list_field.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 import 'package:flutter/material.dart';
@@ -77,10 +76,11 @@ extension ComicEditTabBuilders on ComicEditHost {
                           validator: optionalIntValidator,
                         ),
                         const SizedBox(height: 10),
-                        TagPickListField(
+                        LibraryVocabularyField(
                           controller: comicGenresEditController,
                           options: comicGenreOptions,
                           label: 'Genres',
+                          multiSelect: true,
                         ),
                       ],
                     );
@@ -110,10 +110,11 @@ extension ComicEditTabBuilders on ComicEditHost {
                       ),
                       const SizedBox(width: 10),
                       Expanded(
-                        child: TagPickListField(
+                        child: LibraryVocabularyField(
                           controller: comicGenresEditController,
                           options: comicGenreOptions,
                           label: 'Genres',
+                          multiSelect: true,
                         ),
                       ),
                     ],
@@ -463,11 +464,12 @@ extension ComicEditTabBuilders on ComicEditHost {
                 ),
                 const SizedBox(height: 10),
               ],
-              TagPickListField(
+              LibraryVocabularyField(
                 controller: comicTagsController,
                 options: comicTagOptions,
                 label: 'Tags',
                 hint: 'Comma-separated tags',
+                multiSelect: true,
               ),
               const SizedBox(height: 10),
               LibraryEditResponsiveRow(children: [

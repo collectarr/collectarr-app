@@ -9,6 +9,7 @@ import 'package:collectarr_app/features/library/kinds/comic/edit/comic_edit_host
 import 'package:collectarr_app/features/library/kinds/comic/edit/comic_edit_models.dart';
 import 'package:collectarr_app/features/library/schema/library_field_spec.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_dropdown_pick_field.dart';
+import 'package:collectarr_app/features/library/ui/primitives/library_selection_fields.dart';
 import 'package:collectarr_app/features/pick_lists/models/universal_vocabularies.dart';
 import 'package:collectarr_app/features/pick_lists/widgets/pick_list_select_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
@@ -16,7 +17,6 @@ import 'package:collectarr_app/features/library/location_picker_dialog.dart';
 import 'package:collectarr_app/features/library/serial/serial_authority_dialog.dart';
 import 'package:collectarr_app/features/catalog/serial/serial_authority_repository.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
-import 'package:collectarr_app/ui/tag_pick_list_field.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -560,10 +560,11 @@ class ComicEditHostAdapter implements ComicEditHost {
 
   @override
   Widget buildComicTagsDropdownField({String label = 'Tags'}) {
-    return TagPickListField(
+    return LibraryVocabularyField(
       controller: draft.personal.tagsController,
       options: draft.tagOptions,
       label: label,
+      multiSelect: true,
     );
   }
 

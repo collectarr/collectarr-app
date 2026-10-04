@@ -5,11 +5,11 @@ import 'package:collectarr_app/features/library/domain/library_entity_scope.dart
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/edit/schema/edit_schema_renderer.dart';
+import 'package:collectarr_app/features/library/ui/primitives/library_selection_fields.dart';
 import 'package:collectarr_app/features/library/kinds/game/edit/entry/game_entry_edit_schema.dart';
 import 'package:collectarr_app/features/library/kinds/game/entries/game_entry_details.dart';
 import 'package:collectarr_app/features/library/kinds/game/entries/game_entry_details_draft.dart';
 import 'package:collectarr_app/features/library/kinds/game/vocabulary/game_vocabularies.dart';
-import 'package:collectarr_app/ui/tag_pick_list_field.dart';
 import 'package:flutter/material.dart';
 
 import 'game_edit_draft.dart';
@@ -128,13 +128,14 @@ Widget? buildGameCustomTabView({
               ),
             ]),
             const SizedBox(height: 10),
-            TagPickListField(
+            LibraryVocabularyField(
               controller: kindDraft.gameEdit.platformsController,
               options:
                   draft.kindVocabularies[GameVocabularyIds.platform.value] ??
                       const [],
               label: 'Platform',
               hint: 'Select platforms',
+              multiSelect: true,
             ),
           ],
         ),

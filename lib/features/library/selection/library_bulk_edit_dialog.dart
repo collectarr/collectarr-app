@@ -3,9 +3,9 @@ import 'package:collectarr_app/core/models/storage_location.dart';
 import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
 import 'package:collectarr_app/features/library/location_picker_dialog.dart';
+import 'package:collectarr_app/features/library/ui/primitives/library_selection_fields.dart';
 import 'package:collectarr_app/features/pick_lists/pick_list_options.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
-import 'package:collectarr_app/ui/tag_pick_list_field.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/ui/compact_search_dropdown_form_field.dart';
@@ -141,11 +141,12 @@ class _LibraryBulkEditDialogState extends ConsumerState<LibraryBulkEditDialog> {
               ],
               _locationField(),
               const SizedBox(height: 12),
-              TagPickListField(
+              LibraryVocabularyField(
                 controller: _tagsController,
                 options: _tagOptions,
                 label: 'Tags',
                 hint: 'Leave blank to keep current',
+                multiSelect: true,
               ),
               const SizedBox(height: 12),
               CompactSearchDropdownFormField<String>(

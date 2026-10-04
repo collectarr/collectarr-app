@@ -33,6 +33,7 @@ import 'package:collectarr_app/features/library/add/panes/library_add_preview_pa
 import 'package:collectarr_app/features/library/add/panes/library_add_search_pane.dart';
 import 'package:collectarr_app/features/library/add/services/library_cover_scan_service.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_proposal.dart';
+import 'package:collectarr_app/features/library/ui/primitives/library_selection_fields.dart';
 import 'package:collectarr_app/features/library/edit/sections/item_images_edit_section.dart';
 import 'package:collectarr_app/features/library/ui/library_dialog_scaffold.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
@@ -47,7 +48,6 @@ import 'package:collectarr_app/ui/accent_dialog_header.dart';
 import 'package:collectarr_app/ui/library_accent_scope.dart';
 import 'package:collectarr_app/ui/adaptive/window_class.dart';
 import 'package:collectarr_app/core/utils/app_toast.dart';
-import 'package:collectarr_app/ui/tag_pick_list_field.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
@@ -294,11 +294,12 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
           title: const Text('Entry default tags'),
           content: SizedBox(
             width: 440,
-            child: TagPickListField(
+            child: LibraryVocabularyField(
               controller: controller,
               options: _tagOptions,
               label: 'Tags',
               hint: 'Comma-separated tags',
+              multiSelect: true,
             ),
           ),
           actions: [

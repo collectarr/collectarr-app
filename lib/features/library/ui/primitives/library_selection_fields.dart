@@ -151,12 +151,16 @@ class LibraryVocabularyField extends StatelessWidget {
               required label,
               required selectedValues,
               required options,
+              searchHint,
+              customValueHint,
             }) =>
                 showLibraryMultiValueOptionsDialog<String>(
               context: context,
               label: label,
               options: options,
               selectedValues: selectedValues,
+              searchHint: searchHint,
+              customValueHint: customValueHint ?? 'Add value',
             ),
           );
         },

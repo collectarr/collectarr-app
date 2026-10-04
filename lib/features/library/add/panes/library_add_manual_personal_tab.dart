@@ -5,8 +5,9 @@ import 'package:collectarr_app/features/library/schema/library_field_spec.dart';
 import 'package:collectarr_app/features/library/config/library_dialog_tokens.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_dropdown_pick_field.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_form_controls.dart';
+import 'package:collectarr_app/features/library/ui/primitives/library_multi_value_options_dialog.dart';
+import 'package:collectarr_app/features/library/ui/primitives/library_multi_value_pick_field.dart';
 import 'package:collectarr_app/features/pick_lists/pick_list_options.dart';
-import 'package:collectarr_app/ui/tag_pick_list_field.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
@@ -131,15 +132,35 @@ final class LibraryAddManualPersonalTab extends StatelessWidget {
           );
         },
       ),
-      MultiSelectPickListField(
+      LibraryMultiValuePickField<String>(
         label: 'Tags',
-        values: splitPickListValues(
+        value: splitPickListValues(
           request.tagsController.text.trim().isNotEmpty
               ? request.tagsController.text
               : current.tags ?? request.defaultTags,
+        ).toSet(),
+        options: [
+          for (final option in request.tagOptions)
+            LibraryFieldOption<String>(value: option, label: option),
+        ],
+        allowCustomValueEntry: true,
+        pickerSearchHint: 'Search tags',
+        onOpenPicker: (
+                {required label,
+                required selectedValues,
+                required options,
+                searchHint,
+                customValueHint}) =>
+            showLibraryMultiValueOptionsDialog<String>(
+          context: context,
+          label: label,
+          options: options,
+          selectedValues: selectedValues,
+          searchHint: searchHint ?? 'Search tags',
+          customValueHint: customValueHint ?? 'Add value',
         ),
-        options: request.tagOptions,
-        onChanged: (values) {
+        onChanged: (selected) {
+          final values = selected.toList(growable: false);
           final joined = joinPickListValues(values) ?? '';
           request.tagsController.text = joined;
           _updateCommon(tags: joined);

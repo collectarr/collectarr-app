@@ -446,7 +446,11 @@ final class LibraryFieldSpecControlBuilder<TDraft>
         onChanged();
       },
       onOpenPicker: (
-          {required label, required selectedValues, required options}) async {
+          {required label,
+          required selectedValues,
+          required options,
+          searchHint,
+          customValueHint}) async {
         final pickListKey = field.pickListKey;
         if (TValue == String && pickListKey != null) {
           final db = ProviderScope.containerOf(context, listen: false)
@@ -471,6 +475,8 @@ final class LibraryFieldSpecControlBuilder<TDraft>
           options: options,
           selectedValues: selectedValues,
           allowCustomValues: field.allowCustomValues,
+          searchHint: searchHint,
+          customValueHint: customValueHint ?? 'Add value',
         );
       },
     );

@@ -13,10 +13,11 @@ import 'package:collectarr_app/features/library/schema/library_field_spec.dart';
 import 'package:collectarr_app/features/library/tracking/media_rating_field.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_dropdown_pick_field.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_form_controls.dart';
+import 'package:collectarr_app/features/library/ui/primitives/library_multi_value_options_dialog.dart';
+import 'package:collectarr_app/features/library/ui/primitives/library_multi_value_pick_field.dart';
 import 'package:collectarr_app/features/pick_lists/pick_list_options.dart';
 import 'package:collectarr_app/features/pick_lists/widgets/pick_list_select_dialog.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
-import 'package:collectarr_app/ui/tag_pick_list_field.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -266,14 +267,31 @@ class _LibraryEntryPersonalSectionState
             : _text(field.label, field.key);
       case PersonalLibraryFieldEditor.multiVocabulary:
         if (!_optionsLoaded) return _text(field.label, field.key);
-        return LibraryFormField(
+        return LibraryMultiValuePickField<String>(
           label: field.label,
-          child: MultiSelectPickListField(
-            label: field.label,
-            values: splitPickListValues(_draft.text(field.key)),
-            options: _vocabularyOptions[field.key] ?? const <String>[],
-            onChanged: (values) => _setMultiVocabulary(field, values),
+          value: splitPickListValues(_draft.text(field.key)).toSet(),
+          options: [
+            for (final option
+                in _vocabularyOptions[field.key] ?? const <String>[])
+              LibraryFieldOption<String>(value: option, label: option),
+          ],
+          allowCustomValueEntry: true,
+          onOpenPicker: (
+                  {required label,
+                  required selectedValues,
+                  required options,
+                  searchHint,
+                  customValueHint}) =>
+              showLibraryMultiValueOptionsDialog<String>(
+            context: context,
+            label: label,
+            options: options,
+            selectedValues: selectedValues,
+            searchHint: searchHint,
+            customValueHint: customValueHint ?? 'Add value',
           ),
+          onChanged: (values) =>
+              _setMultiVocabulary(field, values.toList(growable: false)),
         );
       case PersonalLibraryFieldEditor.currency:
         return LibraryFormField(
