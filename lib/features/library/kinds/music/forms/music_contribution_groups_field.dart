@@ -161,40 +161,40 @@ final class _MusicContributionGroupsFieldState
               },
               itemBuilder: (context, index) {
                 final value = group.values[index];
-                final nameField = LibraryTextFormControl(
-                  key: ValueKey('music-credit-name-${value.id}'),
-                  initialValue: value.name,
-                  decoration: InputDecoration(
-                    labelText: group.label,
-                    isDense: true,
-                  ),
-                  onChanged: (text) => _replace(
-                    group.role,
-                    [
-                      for (final candidate in group.values)
-                        if (candidate.id == value.id)
-                          candidate.copyWith(name: text)
-                        else
-                          candidate,
-                    ],
+                final nameField = LibraryFormField(
+                  label: group.label,
+                  child: LibraryTextFormControl(
+                    key: ValueKey('music-credit-name-${value.id}'),
+                    initialValue: value.name,
+                    decoration: const InputDecoration(isDense: true),
+                    onChanged: (text) => _replace(
+                      group.role,
+                      [
+                        for (final candidate in group.values)
+                          if (candidate.id == value.id)
+                            candidate.copyWith(name: text)
+                          else
+                            candidate,
+                      ],
+                    ),
                   ),
                 );
-                final sortNameField = LibraryTextFormControl(
-                  key: ValueKey('music-credit-sort-name-${value.id}'),
-                  initialValue: value.sortName,
-                  decoration: const InputDecoration(
-                    labelText: 'Sort Name',
-                    isDense: true,
-                  ),
-                  onChanged: (text) => _replace(
-                    group.role,
-                    [
-                      for (final candidate in group.values)
-                        if (candidate.id == value.id)
-                          candidate.copyWith(sortName: text)
-                        else
-                          candidate,
-                    ],
+                final sortNameField = LibraryFormField(
+                  label: 'Sort Name',
+                  child: LibraryTextFormControl(
+                    key: ValueKey('music-credit-sort-name-${value.id}'),
+                    initialValue: value.sortName,
+                    decoration: const InputDecoration(isDense: true),
+                    onChanged: (text) => _replace(
+                      group.role,
+                      [
+                        for (final candidate in group.values)
+                          if (candidate.id == value.id)
+                            candidate.copyWith(sortName: text)
+                          else
+                            candidate,
+                      ],
+                    ),
                   ),
                 );
                 return Padding(
@@ -226,24 +226,25 @@ final class _MusicContributionGroupsFieldState
                             if (group.hasInstrument) ...[
                               const SizedBox(width: 8),
                               Expanded(
-                                child: LibraryTextFormControl(
-                                  key: ValueKey(
-                                    'music-credit-instrument-${value.id}',
-                                  ),
-                                  initialValue: value.instrument,
-                                  decoration: const InputDecoration(
-                                    labelText: 'Instrument',
-                                    isDense: true,
-                                  ),
-                                  onChanged: (text) => _replace(
-                                    group.role,
-                                    [
-                                      for (final candidate in group.values)
-                                        if (candidate.id == value.id)
-                                          candidate.copyWith(instrument: text)
-                                        else
-                                          candidate,
-                                    ],
+                                child: LibraryFormField(
+                                  label: 'Instrument',
+                                  child: LibraryTextFormControl(
+                                    key: ValueKey(
+                                      'music-credit-instrument-${value.id}',
+                                    ),
+                                    initialValue: value.instrument,
+                                    decoration:
+                                        const InputDecoration(isDense: true),
+                                    onChanged: (text) => _replace(
+                                      group.role,
+                                      [
+                                        for (final candidate in group.values)
+                                          if (candidate.id == value.id)
+                                            candidate.copyWith(instrument: text)
+                                          else
+                                            candidate,
+                                      ],
+                                    ),
                                   ),
                                 ),
                               ),

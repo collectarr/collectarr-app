@@ -58,6 +58,8 @@ Completed implementation slices:
   staged text when the duration is corrected or the track is removed.
 - Comic Add and catalog Edit now use one shared page-count validation rule
   from the Comic catalog field definitions.
+- Music credit Name, Sort Name, and Instrument inputs now use the same external
+  label primitive as the rest of the forms in both Add and Edit.
 - The controller audit found no kind-pane build path constructing a fresh
   controller on each rebuild. Advanced Add filters cache controllers by stable
   field ID; kind-specific row editors keep controllers in their draft/state and
