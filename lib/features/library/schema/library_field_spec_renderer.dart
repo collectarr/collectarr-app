@@ -3,14 +3,14 @@ import 'package:collectarr_app/features/library/schema/library_field_spec_contro
 import 'package:collectarr_app/features/library/schema/library_field_spec_layout.dart';
 import 'package:collectarr_app/features/library/schema/library_schema_text_controller_store.dart';
 
-import 'add_schema.dart';
+import '../add/schema/add_schema.dart';
 
-class AddSchemaRenderer<TDraft> extends StatefulWidget {
+class LibraryFieldSpecRenderer<TDraft> extends StatefulWidget {
   /// Renders schema fields inside their owning Add or Edit form shell.
   ///
   /// Selection interactions are configured independently from embedded
   /// layout so a kind can keep the same pick-list behavior in both modes.
-  const AddSchemaRenderer.embedded({
+  const LibraryFieldSpecRenderer.embedded({
     super.key,
     required this.schema,
     required this.draft,
@@ -32,11 +32,12 @@ class AddSchemaRenderer<TDraft> extends StatefulWidget {
   final LibraryFieldSpecControlMode controlMode;
 
   @override
-  State<AddSchemaRenderer<TDraft>> createState() =>
-      _AddSchemaRendererState<TDraft>();
+  State<LibraryFieldSpecRenderer<TDraft>> createState() =>
+      _LibraryFieldSpecRendererState<TDraft>();
 }
 
-class _AddSchemaRendererState<TDraft> extends State<AddSchemaRenderer<TDraft>> {
+class _LibraryFieldSpecRendererState<TDraft>
+    extends State<LibraryFieldSpecRenderer<TDraft>> {
   final _textControllers = LibrarySchemaTextControllerStore();
 
   @override

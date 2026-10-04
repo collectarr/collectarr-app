@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/library/add/schema/add_schema_renderer.dart';
+import 'package:collectarr_app/features/library/schema/library_field_spec_renderer.dart';
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
 import 'package:collectarr_app/features/library/domain/library_entity_scope.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_edit_shell_state.dart';
@@ -93,7 +93,7 @@ Widget? buildGameCustomTabView({
 
   return EditTabShell(
     children: [
-      AddSchemaRenderer<GameEditDraft>.embedded(
+      LibraryFieldSpecRenderer<GameEditDraft>.embedded(
         key: ValueKey('game-fields-${draft.type.kind.apiValue}-$tabId'),
         schema: schema,
         draft: kindDraft,

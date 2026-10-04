@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/library/add/schema/add_schema_renderer.dart';
+import 'package:collectarr_app/features/library/schema/library_field_spec_renderer.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_edit_shell_state.dart';
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/kinds/tv/add/tv_add_schema.dart';
@@ -81,7 +81,7 @@ final class TvCatalogFormFields extends StatelessWidget {
       subtitleOptions: subtitleOptions,
     );
 
-    return AddSchemaRenderer<TvEditDraft>.embedded(
+    return LibraryFieldSpecRenderer<TvEditDraft>.embedded(
       key: ValueKey('tv-fields-$itemId-$sectionLabel'),
       schema: schema,
       draft: draft,

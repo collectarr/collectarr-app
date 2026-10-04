@@ -4,7 +4,7 @@ import 'package:collectarr_app/features/pick_lists/pick_list_options.dart';
 import 'package:collectarr_app/features/pick_lists/models/vocabulary_id.dart';
 import 'package:collectarr_app/features/library/add/controllers/library_add_dialog_requests.dart';
 import 'package:collectarr_app/features/library/add/panes/library_add_manual_pane_shell.dart';
-import 'package:collectarr_app/features/library/add/schema/add_schema_renderer.dart';
+import 'package:collectarr_app/features/library/schema/library_field_spec_renderer.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/features/library/serial/library_series_selector_field.dart';
 import 'package:collectarr_app/features/library/kinds/manga/add/manga_add_schema.dart';
@@ -117,7 +117,7 @@ class _MangaAddManualPaneState extends ConsumerState<MangaAddManualPane> {
         onManageImprint: _manageImprints,
         onManageFormat: _manageFormats,
       );
-      return AddSchemaRenderer<MangaAddManualDraft>.embedded(
+      return LibraryFieldSpecRenderer<MangaAddManualDraft>.embedded(
         schema: schema,
         draft: draft,
         mediaKind: request.kind.apiValue,

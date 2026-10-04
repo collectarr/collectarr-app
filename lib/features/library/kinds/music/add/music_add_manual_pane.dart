@@ -2,7 +2,7 @@ import 'package:collectarr_app/features/library/add/controllers/library_add_dial
 import 'package:collectarr_app/features/library/add/panes/library_add_manual_personal_tab.dart';
 import 'package:collectarr_app/features/library/add/panes/library_add_manual_pane_shell.dart';
 import 'package:collectarr_app/features/library/add/schema/add_schema.dart';
-import 'package:collectarr_app/features/library/add/schema/add_schema_renderer.dart';
+import 'package:collectarr_app/features/library/schema/library_field_spec_renderer.dart';
 import 'package:collectarr_app/features/library/kinds/music/add/music_add_manual_credits_tab.dart';
 import 'package:collectarr_app/features/library/kinds/music/add/music_add_manual_covers_tab.dart';
 import 'package:collectarr_app/features/library/kinds/music/add/music_add_draft.dart';
@@ -90,7 +90,7 @@ class MusicAddManualPane extends StatelessWidget {
           id: 'main',
           label: 'Main',
           icon: Icons.music_note_outlined,
-          content: AddSchemaRenderer<MusicAddManualDraft>.embedded(
+          content: LibraryFieldSpecRenderer<MusicAddManualDraft>.embedded(
             schema: mainSchema,
             draft: draft,
             mediaKind: request.kind.apiValue,
@@ -103,7 +103,7 @@ class MusicAddManualPane extends StatelessWidget {
           id: 'details',
           label: 'Details',
           icon: Icons.info_outline,
-          content: AddSchemaRenderer<MusicAddManualDraft>.embedded(
+          content: LibraryFieldSpecRenderer<MusicAddManualDraft>.embedded(
             schema: detailsSchema,
             draft: draft,
             mediaKind: request.kind.apiValue,

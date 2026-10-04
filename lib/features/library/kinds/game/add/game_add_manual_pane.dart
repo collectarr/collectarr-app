@@ -1,6 +1,6 @@
 import 'package:collectarr_app/features/library/add/controllers/library_add_dialog_requests.dart';
 import 'package:collectarr_app/features/library/add/panes/library_add_manual_pane_shell.dart';
-import 'package:collectarr_app/features/library/add/schema/add_schema_renderer.dart';
+import 'package:collectarr_app/features/library/schema/library_field_spec_renderer.dart';
 import 'package:collectarr_app/features/library/kinds/game/add/game_add_manual_draft.dart';
 import 'package:collectarr_app/features/library/kinds/game/add/game_add_schema.dart';
 import 'package:collectarr_app/features/library/kinds/game/forms/game_catalog_form_draft.dart';
@@ -19,7 +19,7 @@ class GameAddManualPane extends StatelessWidget {
       Set<String> fieldIds, {
       Map<String, String> sectionLabels = const {},
     }) =>
-        AddSchemaRenderer<GameCatalogFormDraft>.embedded(
+        LibraryFieldSpecRenderer<GameCatalogFormDraft>.embedded(
           schema: gameAddSchemaFor<GameCatalogFormDraft>(
             fieldIds: fieldIds,
             sectionLabels: sectionLabels,

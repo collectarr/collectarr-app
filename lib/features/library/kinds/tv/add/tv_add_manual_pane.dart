@@ -1,6 +1,6 @@
 import 'package:collectarr_app/features/library/add/controllers/library_add_dialog_requests.dart';
 import 'package:collectarr_app/features/library/add/panes/library_add_manual_pane_shell.dart';
-import 'package:collectarr_app/features/library/add/schema/add_schema_renderer.dart';
+import 'package:collectarr_app/features/library/schema/library_field_spec_renderer.dart';
 import 'package:collectarr_app/features/library/kinds/tv/add/tv_add_manual_draft.dart';
 import 'package:collectarr_app/features/library/kinds/tv/add/tv_add_schema.dart';
 import 'package:collectarr_app/features/library/kinds/tv/forms/tv_credit_draft.dart';
@@ -19,7 +19,7 @@ class TvAddManualPane extends StatelessWidget {
       request: request,
       tabs: [
         LibraryAddManualPaneTab.main(
-          content: AddSchemaRenderer<TvAddManualDraft>.embedded(
+          content: LibraryFieldSpecRenderer<TvAddManualDraft>.embedded(
             schema: tvAddSchemaFor(
               fieldIds: tvMainFieldIds,
               sectionLabel: 'Main',
@@ -35,7 +35,7 @@ class TvAddManualPane extends StatelessWidget {
           id: 'edition',
           label: 'Edition',
           icon: Icons.inventory_2_outlined,
-          content: AddSchemaRenderer<TvAddManualDraft>.embedded(
+          content: LibraryFieldSpecRenderer<TvAddManualDraft>.embedded(
             schema: tvAddSchemaFor(
               fieldIds: tvEditionFieldIds,
               sectionLabel: 'Edition',
@@ -51,7 +51,7 @@ class TvAddManualPane extends StatelessWidget {
           id: 'synopsis',
           label: 'Plot',
           icon: Icons.description_outlined,
-          content: AddSchemaRenderer<TvAddManualDraft>.embedded(
+          content: LibraryFieldSpecRenderer<TvAddManualDraft>.embedded(
             schema: tvAddSchemaFor(
               fieldIds: const {'synopsis'},
               sectionLabel: 'Plot',
@@ -65,7 +65,7 @@ class TvAddManualPane extends StatelessWidget {
           id: 'specs',
           label: 'Specs',
           icon: Icons.tune_outlined,
-          content: AddSchemaRenderer<TvAddManualDraft>.embedded(
+          content: LibraryFieldSpecRenderer<TvAddManualDraft>.embedded(
             schema: tvAddSchemaFor(
               fieldIds: tvSpecsFieldIds,
               sectionLabel: 'Specs',
@@ -81,7 +81,7 @@ class TvAddManualPane extends StatelessWidget {
           id: 'covers',
           label: 'Covers',
           icon: Icons.camera_alt_outlined,
-          content: AddSchemaRenderer<TvAddManualDraft>.embedded(
+          content: LibraryFieldSpecRenderer<TvAddManualDraft>.embedded(
             schema: tvAddSchemaFor(
               fieldIds: const {'cover_image_url'},
               sectionLabel: 'Covers',
@@ -97,7 +97,7 @@ class TvAddManualPane extends StatelessWidget {
           icon: Icons.people_outline,
           content: Column(
             children: [
-              AddSchemaRenderer<TvAddManualDraft>.embedded(
+              LibraryFieldSpecRenderer<TvAddManualDraft>.embedded(
                 schema: tvAddSchemaFor(
                   fieldIds: const {'characters'},
                   sectionLabel: 'Characters',

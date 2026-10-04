@@ -378,6 +378,8 @@ Still outstanding:
 - `AddSchemaRenderer` is now embedded-only: its unused standalone Save/Cancel,
   validation, error, fixed-height, and inner-scroll path was removed. The
   dialog shell owns submission and the single vertical viewport.
+- The shared schema field renderer now lives under `library/schema/` and is
+  named `LibraryFieldSpecRenderer`, reflecting its use by Add and Edit tabs.
 - Legacy custom tabs and kind-specific tab composition still have divergent
   implementations. Responsive field geometry and the basic vocabulary/text
   controls are now shared. Book Authors/Translators and Movie Cast/Crew share

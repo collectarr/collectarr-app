@@ -1,6 +1,6 @@
 import 'package:collectarr_app/features/library/add/controllers/library_add_dialog_requests.dart';
 import 'package:collectarr_app/features/library/add/panes/library_add_manual_pane_shell.dart';
-import 'package:collectarr_app/features/library/add/schema/add_schema_renderer.dart';
+import 'package:collectarr_app/features/library/schema/library_field_spec_renderer.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/add/boardgame_add_manual_draft.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/add/boardgame_add_links_tab.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/add/boardgame_add_schema.dart';
@@ -19,7 +19,7 @@ class BoardgameAddManualPane extends StatelessWidget {
       Set<String> fieldIds, {
       required String sectionLabel,
     }) =>
-        AddSchemaRenderer<BoardgameAddManualDraft>.embedded(
+        LibraryFieldSpecRenderer<BoardgameAddManualDraft>.embedded(
           schema: boardGameAddSchemaFor(
             fieldIds: fieldIds,
             sectionLabels: {'catalog_item': sectionLabel},

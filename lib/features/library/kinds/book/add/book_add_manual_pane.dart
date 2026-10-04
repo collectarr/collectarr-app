@@ -3,7 +3,7 @@ import 'package:collectarr_app/features/pick_lists/widgets/pick_list_editor_dial
 import 'package:collectarr_app/features/pick_lists/pick_list_options.dart';
 import 'package:collectarr_app/features/library/add/controllers/library_add_dialog_requests.dart';
 import 'package:collectarr_app/features/library/add/panes/library_add_manual_pane_shell.dart';
-import 'package:collectarr_app/features/library/add/schema/add_schema_renderer.dart';
+import 'package:collectarr_app/features/library/schema/library_field_spec_renderer.dart';
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
 import 'package:collectarr_app/features/library/kinds/book/add/book_add_schema.dart';
 import 'package:collectarr_app/features/library/kinds/book/add/book_add_manual_draft.dart';
@@ -96,7 +96,7 @@ class _BookAddManualPaneState extends ConsumerState<BookAddManualPane> {
       Set<String> fieldIds, {
       Map<String, String> sectionLabels = const {},
     }) =>
-        AddSchemaRenderer<BookCatalogFormDraft>.embedded(
+        LibraryFieldSpecRenderer<BookCatalogFormDraft>.embedded(
           schema: bookAddSchemaFor(
             fieldIds: fieldIds,
             sectionLabels: sectionLabels,

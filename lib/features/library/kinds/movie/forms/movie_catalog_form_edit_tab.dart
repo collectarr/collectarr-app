@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/library/add/schema/add_schema_renderer.dart';
+import 'package:collectarr_app/features/library/schema/library_field_spec_renderer.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_edit_shell_state.dart';
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/kinds/movie/forms/movie_catalog_form_schema.dart';
@@ -60,7 +60,7 @@ final class MovieCatalogFormEditTab extends StatelessWidget {
 
     return EditTabShell(
       children: [
-        AddSchemaRenderer<MovieCatalogFormValues>.embedded(
+        LibraryFieldSpecRenderer<MovieCatalogFormValues>.embedded(
           key: ValueKey('movie-fields-$itemId-$sectionLabel'),
           schema: schema,
           draft: values,

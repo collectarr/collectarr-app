@@ -2,7 +2,7 @@ import 'package:collectarr_app/features/library/edit/draft/library_edit_shell_st
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/domain/library_entity_scope.dart';
 import 'package:collectarr_app/features/library/edit/schema/edit_schema_renderer.dart';
-import 'package:collectarr_app/features/library/add/schema/add_schema_renderer.dart';
+import 'package:collectarr_app/features/library/schema/library_field_spec_renderer.dart';
 import 'package:collectarr_app/features/library/kinds/book/add/book_add_schema.dart';
 import 'package:collectarr_app/features/library/kinds/book/edit/book_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/book/edit/entry/book_entry_edit_schema.dart';
@@ -105,7 +105,7 @@ Widget? buildBookCustomTabView({
   );
   return EditTabShell(
     children: [
-      AddSchemaRenderer<BookEditDraft>.embedded(
+      LibraryFieldSpecRenderer<BookEditDraft>.embedded(
         key: ValueKey('book-fields-${draft.type.kind.apiValue}-$tabId'),
         schema: schema,
         draft: kindDraft,

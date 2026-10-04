@@ -1,6 +1,6 @@
 import 'package:collectarr_app/features/library/add/controllers/library_add_dialog_requests.dart';
 import 'package:collectarr_app/features/library/add/panes/library_add_manual_pane_shell.dart';
-import 'package:collectarr_app/features/library/add/schema/add_schema_renderer.dart';
+import 'package:collectarr_app/features/library/schema/library_field_spec_renderer.dart';
 import 'package:collectarr_app/features/library/kinds/movie/add/movie_add_manual_draft.dart';
 import 'package:collectarr_app/features/library/kinds/movie/add/movie_add_schema.dart';
 import 'package:collectarr_app/features/library/kinds/movie/forms/movie_catalog_field_specs.dart';
@@ -23,7 +23,7 @@ class MovieAddManualPane extends StatelessWidget {
           id: 'main',
           label: 'Main',
           icon: Icons.movie_outlined,
-          content: AddSchemaRenderer<MovieAddManualDraft>.embedded(
+          content: LibraryFieldSpecRenderer<MovieAddManualDraft>.embedded(
             schema: movieAddSchemaFor(
               fieldIds: movieMainFieldIds,
               sectionLabel: 'Main',
@@ -39,7 +39,7 @@ class MovieAddManualPane extends StatelessWidget {
           id: 'edition',
           label: 'Edition details',
           icon: Icons.info_outline,
-          content: AddSchemaRenderer<MovieAddManualDraft>.embedded(
+          content: LibraryFieldSpecRenderer<MovieAddManualDraft>.embedded(
             schema: movieAddSchemaFor(
               fieldIds: movieEditionFieldIds,
               sectionLabel: 'Edition',
@@ -55,7 +55,7 @@ class MovieAddManualPane extends StatelessWidget {
           id: 'synopsis',
           label: 'Plot',
           icon: Icons.description_outlined,
-          content: AddSchemaRenderer<MovieAddManualDraft>.embedded(
+          content: LibraryFieldSpecRenderer<MovieAddManualDraft>.embedded(
             schema: movieAddSchemaFor(
               fieldIds: const {'synopsis'},
               sectionLabel: 'Plot',
@@ -69,7 +69,7 @@ class MovieAddManualPane extends StatelessWidget {
           id: 'specs',
           label: 'Specs',
           icon: Icons.tune_outlined,
-          content: AddSchemaRenderer<MovieAddManualDraft>.embedded(
+          content: LibraryFieldSpecRenderer<MovieAddManualDraft>.embedded(
             schema: movieAddSchemaFor(
               fieldIds: movieSpecsFieldIds,
               sectionLabel: 'Specs',
@@ -85,7 +85,7 @@ class MovieAddManualPane extends StatelessWidget {
           id: 'covers',
           label: 'Covers',
           icon: Icons.camera_alt_outlined,
-          content: AddSchemaRenderer<MovieAddManualDraft>.embedded(
+          content: LibraryFieldSpecRenderer<MovieAddManualDraft>.embedded(
             schema: movieCoverAddSchema,
             draft: draft,
             mediaKind: request.kind.apiValue,

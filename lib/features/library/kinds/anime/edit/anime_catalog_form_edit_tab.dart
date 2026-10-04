@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/library/add/schema/add_schema_renderer.dart';
+import 'package:collectarr_app/features/library/schema/library_field_spec_renderer.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_edit_shell_state.dart';
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/kinds/anime/add/anime_add_schema.dart';
@@ -30,7 +30,7 @@ final class AnimeCatalogFormEditTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) => EditTabShell(
         children: [
-          AddSchemaRenderer<AnimeEditDraftContract>.embedded(
+          LibraryFieldSpecRenderer<AnimeEditDraftContract>.embedded(
             key: ValueKey('anime-fields-$itemId-$sectionLabel'),
             schema: animeAddSchemaFor<AnimeEditDraftContract>(
               fieldIds: fieldIds,

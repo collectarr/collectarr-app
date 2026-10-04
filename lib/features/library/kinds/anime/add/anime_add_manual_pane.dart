@@ -1,6 +1,6 @@
 import 'package:collectarr_app/features/library/add/controllers/library_add_dialog_requests.dart';
 import 'package:collectarr_app/features/library/add/panes/library_add_manual_pane_shell.dart';
-import 'package:collectarr_app/features/library/add/schema/add_schema_renderer.dart';
+import 'package:collectarr_app/features/library/schema/library_field_spec_renderer.dart';
 import 'package:collectarr_app/features/library/kinds/anime/add/anime_add_manual_draft.dart';
 import 'package:collectarr_app/features/library/kinds/anime/add/anime_add_schema.dart';
 import 'package:collectarr_app/features/library/kinds/anime/forms/anime_credit_draft.dart';
@@ -19,7 +19,7 @@ class AnimeAddManualPane extends StatelessWidget {
       request: request,
       tabs: [
         LibraryAddManualPaneTab.main(
-          content: AddSchemaRenderer<AnimeAddManualDraft>.embedded(
+          content: LibraryFieldSpecRenderer<AnimeAddManualDraft>.embedded(
             schema: animeAddSchemaFor(
               fieldIds: animeMainFieldIds,
               sectionLabel: 'Main',
@@ -35,7 +35,7 @@ class AnimeAddManualPane extends StatelessWidget {
           id: 'media',
           label: 'Details',
           icon: Icons.article_outlined,
-          content: AddSchemaRenderer<AnimeAddManualDraft>.embedded(
+          content: LibraryFieldSpecRenderer<AnimeAddManualDraft>.embedded(
             schema: animeAddSchemaFor(
               fieldIds: animeDetailsFieldIds,
               sectionLabel: 'Details',
@@ -51,7 +51,7 @@ class AnimeAddManualPane extends StatelessWidget {
           id: 'edition',
           label: 'Edition',
           icon: Icons.inventory_2_outlined,
-          content: AddSchemaRenderer<AnimeAddManualDraft>.embedded(
+          content: LibraryFieldSpecRenderer<AnimeAddManualDraft>.embedded(
             schema: animeAddSchemaFor(
               fieldIds: animeEditionFieldIds,
               sectionLabel: 'Edition',
@@ -67,7 +67,7 @@ class AnimeAddManualPane extends StatelessWidget {
           id: 'specs',
           label: 'Specs',
           icon: Icons.tune_outlined,
-          content: AddSchemaRenderer<AnimeAddManualDraft>.embedded(
+          content: LibraryFieldSpecRenderer<AnimeAddManualDraft>.embedded(
             schema: animeAddSchemaFor(
               fieldIds: animeSpecsFieldIds,
               sectionLabel: 'Specs',
@@ -83,7 +83,7 @@ class AnimeAddManualPane extends StatelessWidget {
           id: 'cover',
           label: 'Cover',
           icon: Icons.camera_alt_outlined,
-          content: AddSchemaRenderer<AnimeAddManualDraft>.embedded(
+          content: LibraryFieldSpecRenderer<AnimeAddManualDraft>.embedded(
             schema: animeAddSchemaFor(
               fieldIds: const {'cover_image_url'},
               sectionLabel: 'Cover',
@@ -97,7 +97,7 @@ class AnimeAddManualPane extends StatelessWidget {
           id: 'synopsis',
           label: 'Synopsis',
           icon: Icons.description_outlined,
-          content: AddSchemaRenderer<AnimeAddManualDraft>.embedded(
+          content: LibraryFieldSpecRenderer<AnimeAddManualDraft>.embedded(
             schema: animeAddSchemaFor(
               fieldIds: const {'synopsis'},
               sectionLabel: 'Synopsis',
