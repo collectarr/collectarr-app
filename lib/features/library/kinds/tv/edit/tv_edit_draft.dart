@@ -365,7 +365,7 @@ class TvEditDraft
             metadata.copyWith(
               episodeRuntimeMinutes:
                   int.tryParse(tvEdit.runtimeController.text),
-              genres: parsedGenres.isNotEmpty ? parsedGenres : metadata.genres,
+              genres: parsedGenres,
               cast: tvEdit.castCredits
                   .map(_editedTvCredit)
                   .where((credit) => credit.name.isNotEmpty)
