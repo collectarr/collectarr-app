@@ -17,6 +17,12 @@ CatalogSearchCandidate? buildBoardgameManualCandidate(
   final BoardGameMetadata metadata = boardGameMetadataFromManualFormValues(
     values: draft.values,
     title: title,
+    externalLinks: [
+      for (final (index, link) in draft.externalLinks
+          .where((link) => link.urlController.text.trim().isNotEmpty)
+          .indexed)
+        link.toModel(index + 1),
+    ],
   );
   return CatalogSearchCandidate.fromItem(
     CatalogItemDto(

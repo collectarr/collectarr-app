@@ -63,6 +63,7 @@ BoardGameCatalogFormValues boardGameCatalogFormValuesFromMetadata(
 BoardGameMetadata boardGameMetadataFromManualFormValues({
   required BoardGameCatalogFormValues values,
   required String title,
+  List<BoardGameLink> externalLinks = const [],
 }) {
   final publisher = _optional(values.publisher);
   final language = _optional(values.language);
@@ -85,6 +86,7 @@ BoardGameMetadata boardGameMetadataFromManualFormValues({
     designers: values.designers,
     artists: values.artists,
     expansions: values.expansions,
+    externalLinks: externalLinks,
     families: values.families,
     identifiers: [
       for (final value in values.identifiers)
