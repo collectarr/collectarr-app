@@ -43,6 +43,16 @@ class TvEditCastTab extends StatelessWidget {
           },
           onChanged: markDirty,
         ),
+        const SizedBox(height: 12),
+        EditSection(
+          title: 'Characters',
+          accent: accent,
+          child: LibraryEditTextField(
+            controller: tvEdit.charactersController,
+            label: 'Characters',
+            onChanged: (_) => markDirty(),
+          ),
+        ),
       ],
     );
   }

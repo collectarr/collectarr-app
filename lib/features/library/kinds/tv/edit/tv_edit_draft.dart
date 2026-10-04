@@ -93,6 +93,7 @@ class TvEditDraft
   final Map<String, int> episodeRatings;
   @override
   final TvEditController tvEdit;
+  @override
   final TvMediaEditController mediaEdit;
 
   @override
@@ -375,6 +376,10 @@ class TvEditDraft
                       .map(_editedTvCredit)
                       .where((credit) => credit.name.isNotEmpty)
                       .toList(),
+                  characters: _editedTvCharacters(
+                    tvEdit.charactersController.text,
+                    metadata.characters,
+                  ),
                   contentRating: emptyToNull(tvEdit.ageRatingController.text),
                   variant: emptyToNull(tvEdit.variantController.text),
                   barcode: emptyToNull(tvEdit.barcodeController.text),
@@ -457,6 +462,8 @@ LibraryEditSessionBundle createTvEditDraft({
     initialRuntime: tv.episodeRuntimeMinutes?.toString() ?? '',
     initialAgeRating: tv.contentRating ?? '',
     initialGenres: tv.genres.join(', '),
+    initialCharacters:
+        tv.characters.map((character) => character.name).join(', '),
     initialEditionTitle: (tv.titleExtension ?? tv.editionTitle)?.trim() ?? '',
     initialVariant: tv.variant ?? '',
     initialBarcode: tv.barcode ?? '',
@@ -522,4 +529,33 @@ TvPersonCredit _editedTvCredit(EditableTvCredit credit) {
   final role = emptyToNull(credit.roleController.text.trim());
   return credit.originalCredit?.withEditedIdentity(name: name, role: role) ??
       TvPersonCredit(name: name, role: role);
+}
+
+List<TvCharacterMetadata> _editedTvCharacters(
+  String value,
+  List<TvCharacterMetadata> original,
+) {
+  final previousByName = {
+    for (final character in original)
+      character.name.trim().toLowerCase(): character,
+  };
+  final edited = <TvCharacterMetadata>[];
+  for (final rawName in value.split(RegExp(r'[,\r\n]+'))) {
+    final name = rawName.trim();
+    if (name.isEmpty) continue;
+    final previous = previousByName.remove(name.toLowerCase());
+    edited.add(
+      TvCharacterMetadata(
+        name: name,
+        id: previous?.id,
+        characterId: previous?.characterId,
+        aliases: previous?.aliases ?? const [],
+        role: previous?.role,
+        description: previous?.description,
+        imageUrl: previous?.imageUrl,
+        stringValue: previous?.stringValue ?? false,
+      ),
+    );
+  }
+  return edited;
 }

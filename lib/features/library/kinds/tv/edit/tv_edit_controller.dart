@@ -20,6 +20,7 @@ class TvEditController {
     this.initialAgeRating = '',
     this.initialAudienceRating = '',
     this.initialGenres = '',
+    this.initialCharacters = '',
     this.initialEditionTitle = '',
     this.initialVariant = '',
     this.initialBarcode = '',
@@ -37,6 +38,7 @@ class TvEditController {
         audienceRatingController =
             TextEditingController(text: initialAudienceRating),
         genresEditController = TextEditingController(text: initialGenres),
+        charactersController = TextEditingController(text: initialCharacters),
         editionTitleController =
             TextEditingController(text: initialEditionTitle),
         variantController = TextEditingController(text: initialVariant),
@@ -61,6 +63,7 @@ class TvEditController {
   final String initialAgeRating;
   final String initialAudienceRating;
   final String initialGenres;
+  final String initialCharacters;
   final String initialEditionTitle;
   final String initialVariant;
   final String initialBarcode;
@@ -78,6 +81,7 @@ class TvEditController {
   final TextEditingController ageRatingController;
   final TextEditingController audienceRatingController;
   final TextEditingController genresEditController;
+  final TextEditingController charactersController;
 
   final TextEditingController editionTitleController;
   final TextEditingController variantController;
@@ -144,6 +148,7 @@ class TvEditController {
     ageRatingController.dispose();
     audienceRatingController.dispose();
     genresEditController.dispose();
+    charactersController.dispose();
     editionTitleController.dispose();
     variantController.dispose();
     barcodeController.dispose();
