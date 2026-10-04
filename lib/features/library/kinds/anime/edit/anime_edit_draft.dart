@@ -344,6 +344,12 @@ class AnimeEditDraft
           'audience_rating': emptyToNull(
             fields.controller(AnimeCanonicalEditField.audienceRating).text,
           ),
+          'audio_tracks': emptyToNull(audioTracksController.text),
+          'subtitles': emptyToNull(subtitlesController.text),
+          'screen_ratio': emptyToNull(screenRatioController.text),
+          'layers': emptyToNull(layersController.text),
+          'color': emptyToNull(colorController.text),
+          'nr_discs': int.tryParse(nrDiscsController.text.trim()),
         }));
         return transport.replacingKindData(updated);
       })),
@@ -563,12 +569,15 @@ LibraryEditSessionBundle createAnimeEditDraft({
     packagingController: textControllers.create(text: video?.packaging ?? ''),
     distributorController:
         textControllers.create(text: video?.distributor ?? ''),
-    screenRatioController: textControllers.create(text: ''),
-    audioTracksController: textControllers.create(text: ''),
-    subtitlesController: textControllers.create(text: ''),
-    layersController: textControllers.create(text: ''),
-    colorController: textControllers.create(text: ''),
-    nrDiscsController: textControllers.create(text: ''),
+    screenRatioController:
+        textControllers.create(text: metadata.screenRatio ?? ''),
+    audioTracksController:
+        textControllers.create(text: metadata.audioTracks ?? ''),
+    subtitlesController: textControllers.create(text: metadata.subtitles ?? ''),
+    layersController: textControllers.create(text: metadata.layers ?? ''),
+    colorController: textControllers.create(text: metadata.color ?? ''),
+    nrDiscsController:
+        textControllers.create(text: metadata.nrDiscs?.toString() ?? ''),
     hdrFormats: List<String>.from(video?.hdrFormats ?? const <String>[]),
     seasonNumberController: TextEditingController(),
     episodeNumberController: TextEditingController(

@@ -362,34 +362,47 @@ class TvEditDraft
       kindItem: result.kindItem.kindCapability.mapTransport(
         (transport) => CatalogSearchCandidate.fromItem(
           transport.replacingKindData(
-            metadata.copyWith(
-              episodeRuntimeMinutes:
-                  int.tryParse(tvEdit.runtimeController.text),
-              genres: parsedGenres,
-              cast: tvEdit.castCredits
-                  .map(_editedTvCredit)
-                  .where((credit) => credit.name.isNotEmpty)
-                  .toList(),
-              crew: tvEdit.crewCredits
-                  .map(_editedTvCredit)
-                  .where((credit) => credit.name.isNotEmpty)
-                  .toList(),
-              contentRating: emptyToNull(tvEdit.ageRatingController.text),
-              variant: emptyToNull(tvEdit.variantController.text),
-              barcode: emptyToNull(tvEdit.barcodeController.text),
-              physicalFormat: tvEdit.physicalFormatId,
-              physicalFormatLabel:
-                  emptyToNull(tvEdit.physicalFormatLabelController.text),
-              publisher: emptyToNull(tvEdit.publisherController.text),
-              country: emptyToNull(tvEdit.countryController.text) ??
-                  metadata.country,
-              originalLanguage: emptyToNull(tvEdit.languageController.text) ??
-                  metadata.originalLanguage,
-              firstAirDate: parseDate(tvEdit.releaseDateController.text),
-              links: tvEdit.buildUpdatedTrailerUrls(metadata.links),
-              seasonNumber: seasonNumber ?? metadata.seasonNumber,
-              episodeNumber: episodeNumber ?? metadata.episodeNumber,
-            ),
+            TvMetadata.fromJson(applyJsonFieldPatch(
+                metadata.copyWith(
+                  episodeRuntimeMinutes:
+                      int.tryParse(tvEdit.runtimeController.text),
+                  genres: parsedGenres,
+                  cast: tvEdit.castCredits
+                      .map(_editedTvCredit)
+                      .where((credit) => credit.name.isNotEmpty)
+                      .toList(),
+                  crew: tvEdit.crewCredits
+                      .map(_editedTvCredit)
+                      .where((credit) => credit.name.isNotEmpty)
+                      .toList(),
+                  contentRating: emptyToNull(tvEdit.ageRatingController.text),
+                  variant: emptyToNull(tvEdit.variantController.text),
+                  barcode: emptyToNull(tvEdit.barcodeController.text),
+                  physicalFormat: tvEdit.physicalFormatId,
+                  physicalFormatLabel:
+                      emptyToNull(tvEdit.physicalFormatLabelController.text),
+                  publisher: emptyToNull(tvEdit.publisherController.text),
+                  country: emptyToNull(tvEdit.countryController.text) ??
+                      metadata.country,
+                  originalLanguage:
+                      emptyToNull(tvEdit.languageController.text) ??
+                          metadata.originalLanguage,
+                  firstAirDate: parseDate(tvEdit.releaseDateController.text),
+                  links: tvEdit.buildUpdatedTrailerUrls(metadata.links),
+                  seasonNumber: seasonNumber ?? metadata.seasonNumber,
+                  episodeNumber: episodeNumber ?? metadata.episodeNumber,
+                ),
+                {
+                  'audio_tracks':
+                      emptyToNull(audioTracksController.text),
+                  'subtitles': emptyToNull(subtitlesController.text),
+                  'screen_ratio':
+                      emptyToNull(screenRatioController.text),
+                  'layers': emptyToNull(layersController.text),
+                  'color': emptyToNull(colorController.text),
+                  'nr_discs':
+                      int.tryParse(nrDiscsController.text.trim()),
+                })),
           ),
         ),
       ),
@@ -479,12 +492,13 @@ LibraryEditSessionBundle createTvEditDraft({
     packagingController: textControllers.create(text: video?.packaging ?? ''),
     distributorController:
         textControllers.create(text: video?.distributor ?? ''),
-    screenRatioController: textControllers.create(text: ''),
-    audioTracksController: textControllers.create(text: ''),
-    subtitlesController: textControllers.create(text: ''),
-    layersController: textControllers.create(text: ''),
-    colorController: textControllers.create(text: ''),
-    nrDiscsController: textControllers.create(text: ''),
+    screenRatioController: textControllers.create(text: tv.screenRatio ?? ''),
+    audioTracksController: textControllers.create(text: tv.audioTracks ?? ''),
+    subtitlesController: textControllers.create(text: tv.subtitles ?? ''),
+    layersController: textControllers.create(text: tv.layers ?? ''),
+    colorController: textControllers.create(text: tv.color ?? ''),
+    nrDiscsController:
+        textControllers.create(text: tv.nrDiscs?.toString() ?? ''),
     hdrFormats: List<String>.from(video?.hdrFormats ?? const <String>[]),
     seasonNumberController: TextEditingController(
       text: tv.seasonNumber?.toString() ?? '',

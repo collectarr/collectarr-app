@@ -21,6 +21,7 @@ class TvEditSpecsTab extends StatelessWidget {
         accent: accent,
         audioTracksController: tvDraft.audioTracksController,
         subtitlesController: tvDraft.subtitlesController,
+        screenRatioController: tvDraft.screenRatioController,
         layersController: tvDraft.layersController,
         colorController: tvDraft.colorController,
         discsController: tvDraft.nrDiscsController,

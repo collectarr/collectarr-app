@@ -12,6 +12,7 @@ final class LibraryVideoSpecsSection extends StatelessWidget {
     required this.accent,
     required this.audioTracksController,
     required this.subtitlesController,
+    required this.screenRatioController,
     required this.layersController,
     required this.colorController,
     required this.discsController,
@@ -22,6 +23,7 @@ final class LibraryVideoSpecsSection extends StatelessWidget {
   final Color accent;
   final TextEditingController audioTracksController;
   final TextEditingController subtitlesController;
+  final TextEditingController screenRatioController;
   final TextEditingController layersController;
   final TextEditingController colorController;
   final TextEditingController discsController;
@@ -54,6 +56,10 @@ final class LibraryVideoSpecsSection extends StatelessWidget {
                   wideBreakpoint: 600,
                   ultraWideBreakpoint: 600,
                   children: [
+                    LibraryEditTextField(
+                      label: 'Screen ratio',
+                      controller: screenRatioController,
+                    ),
                     LibraryEditTextField(
                       label: 'Layers',
                       controller: layersController,

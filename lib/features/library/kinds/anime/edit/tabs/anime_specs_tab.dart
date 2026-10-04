@@ -17,6 +17,7 @@ class AnimeEditSpecsTab extends StatelessWidget {
         accent: accent,
         audioTracksController: animeDraft.audioTracksController,
         subtitlesController: animeDraft.subtitlesController,
+        screenRatioController: animeDraft.screenRatioController,
         layersController: animeDraft.layersController,
         colorController: animeDraft.colorController,
         discsController: animeDraft.nrDiscsController,

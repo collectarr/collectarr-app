@@ -21,6 +21,7 @@ class MovieEditSpecsTab extends StatelessWidget {
         accent: accent,
         audioTracksController: movieDraft.audioTracksController,
         subtitlesController: movieDraft.subtitlesController,
+        screenRatioController: movieDraft.screenRatioController,
         layersController: movieDraft.layersController,
         colorController: movieDraft.colorController,
         discsController: movieDraft.nrDiscsController,

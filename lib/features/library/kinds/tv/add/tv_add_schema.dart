@@ -208,6 +208,20 @@ AddSchema<TvAddManualDraft> tvAddSchemaFor({
               write: (draft, value) =>
                   _writeNullable(draft, 'screen_ratio', _nullable(value)),
             ),
+            _text(
+              id: 'layers',
+              label: 'Layers',
+              read: (metadata) => metadata.layers ?? '',
+              write: (draft, value) =>
+                  _writeNullable(draft, 'layers', _nullable(value)),
+            ),
+            _text(
+              id: 'color',
+              label: 'Color',
+              read: (metadata) => metadata.color ?? '',
+              write: (draft, value) =>
+                  _writeNullable(draft, 'color', _nullable(value)),
+            ),
           ],
           fullWidthFieldIds: const {'catalog_title'},
         ),

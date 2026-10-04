@@ -41,6 +41,12 @@ const _tvMediaTabs = [
     sectionIds: ['crew_list'],
   ),
   LibraryEditTabSpec(
+    id: 'specs',
+    icon: Icons.tune_outlined,
+    label: 'Specs',
+    sectionIds: ['video_specs'],
+  ),
+  LibraryEditTabSpec(
     id: 'cover',
     icon: Icons.camera_alt,
     label: 'Covers',
