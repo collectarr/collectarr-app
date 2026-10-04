@@ -75,6 +75,10 @@ Completed implementation slices:
   Color, and Discs in its kind-owned fields and serializes them into the Movie
   catalog document. Audio and subtitle choices use the existing Movie
   vocabularies; empty optional values remain omitted for a new item.
+- Movie Manual Add now organizes the shared Movie field definitions into Main,
+  Edition details, Plot, and Specs tabs alongside Covers, Cast, and Crew.
+  Characters use the same editor in Add and Edit under Cast; user images and
+  personal fields remain supplied by the common dialog shell.
 - TV Manual Add now uses the shared multi-vocabulary controls and TV vocabulary
   IDs for Audio tracks and Subtitles, matching its Edit Specs controls while
   retaining the existing comma-separated catalog representation.
