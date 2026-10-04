@@ -11,6 +11,12 @@ const _tvMediaTabs = [
     sectionIds: ['catalog_snapshot'],
   ),
   LibraryEditTabSpec(
+    id: 'edition',
+    icon: Icons.inventory_2_outlined,
+    label: 'Edition',
+    sectionIds: ['edition'],
+  ),
+  LibraryEditTabSpec(
     id: 'personal',
     icon: Icons.person,
     label: 'Personal',

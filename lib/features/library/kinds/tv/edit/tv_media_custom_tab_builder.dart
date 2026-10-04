@@ -1,16 +1,14 @@
 import 'package:collectarr_app/features/library/edit/draft/library_edit_shell_state.dart';
 import 'package:collectarr_app/features/library/domain/library_entity_scope.dart';
-import 'package:collectarr_app/features/library/kinds/tv/edit/tv_edit_draft_contract.dart';
+import 'package:collectarr_app/features/library/kinds/tv/edit/tabs/tv_episodes_tab.dart';
 import 'package:collectarr_app/features/library/kinds/tv/edit/tabs/tv_catalog_media_tab.dart';
 import 'package:collectarr_app/features/library/kinds/tv/edit/tabs/tv_episode_media_map_tab.dart';
-import 'package:collectarr_app/features/library/kinds/tv/edit/tabs/tv_episodes_tab.dart';
 import 'package:collectarr_app/features/library/kinds/tv/edit/tabs/tv_cast_tab.dart';
 import 'package:collectarr_app/features/library/kinds/tv/edit/tabs/tv_crew_tab.dart';
-import 'package:collectarr_app/features/library/kinds/tv/edit/tabs/tv_edition_tab.dart';
 import 'package:collectarr_app/features/library/kinds/tv/edit/tabs/tv_links_tab.dart';
-import 'package:collectarr_app/features/library/kinds/tv/edit/tabs/tv_media_tab.dart';
-import 'package:collectarr_app/features/library/kinds/tv/edit/tabs/tv_specs_tab.dart';
-import 'package:collectarr_app/features/library/kinds/tv/vocabulary/tv_vocabularies.dart';
+import 'package:collectarr_app/features/library/kinds/tv/edit/tv_catalog_form_edit_tab.dart';
+import 'package:collectarr_app/features/library/kinds/tv/edit/tv_edit_draft.dart';
+import 'package:collectarr_app/features/library/kinds/tv/add/tv_add_schema.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:flutter/material.dart';
 
@@ -24,7 +22,7 @@ Widget? buildTvMediaCustomTabView({
   required VoidCallback markDirty,
 }) {
   final entryDraft = draft.session.catalogItemSession;
-  if (entryDraft is! TvEditDraftContract) {
+  if (entryDraft is! TvEditDraft) {
     throw StateError(
       'TV tab "$tabId" requires the registered TV edit draft.',
     );
@@ -49,22 +47,51 @@ Widget? buildTvMediaCustomTabView({
         accent: accent,
         mediaEdit: mediaEdit,
       ),
-    'edition' => TvEditEditionTab(
-        tvEdit: tvEdit,
-        accent: accent,
-        physicalFormats: draft.physicalFormats,
+    'media' => TvCatalogFormEditTab(
+        state: draft,
+        draft: entryDraft,
+        itemId: item.reference.id,
+        fieldIds: tvMainFieldIds,
+        sectionLabel: 'Main',
+        markDirty: markDirty,
       ),
-    'specs' => TvEditSpecsTab(
-        tvDraft: entryDraft,
-        accent: accent,
-        audioTrackOptions:
-            draft.kindVocabularies[TvVocabularyIds.audio.value] ?? const [],
-        subtitleOptions:
-            draft.kindVocabularies[TvVocabularyIds.subtitles.value] ?? const [],
+    'edition' => TvCatalogFormEditTab(
+        state: draft,
+        draft: entryDraft,
+        itemId: item.reference.id,
+        fieldIds: tvEditionFieldIds,
+        sectionLabel: 'Edition',
+        markDirty: markDirty,
+      ),
+    'specs' => TvCatalogFormEditTab(
+        state: draft,
+        draft: entryDraft,
+        itemId: item.reference.id,
+        fieldIds: tvSpecsFieldIds,
+        sectionLabel: 'Specs',
+        markDirty: markDirty,
+      ),
+    'synopsis' => TvCatalogFormEditTab(
+        state: draft,
+        draft: entryDraft,
+        itemId: item.reference.id,
+        fieldIds: const {'synopsis'},
+        sectionLabel: 'Plot',
+        markDirty: markDirty,
+      ),
+    'cover' => TvCatalogFormEditTab(
+        state: draft,
+        draft: entryDraft,
+        itemId: item.reference.id,
+        fieldIds: const {'cover_image_url'},
+        sectionLabel: 'Covers',
+        markDirty: markDirty,
       ),
     'cast' => TvEditCastTab(
         accent: accent,
-        tvEdit: tvEdit,
+        state: draft,
+        draft: entryDraft,
+        itemId: item.reference.id,
         markDirty: markDirty,
       ),
     'crew' => TvEditCrewTab(
@@ -79,11 +106,6 @@ Widget? buildTvMediaCustomTabView({
         isEntry:
             draft.libraryEntry != null || draft.libraryEntryDispatch != null,
         markDirty: markDirty,
-      ),
-    'media' => TvEditMediaTab(
-        draft: draft,
-        tvEdit: tvEdit,
-        accent: accent,
       ),
     _ => null,
   };

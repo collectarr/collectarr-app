@@ -4,17 +4,53 @@ import 'package:collectarr_app/core/models/partial_date.dart';
 import 'package:collectarr_app/features/library/add/schema/add_schema.dart';
 import 'package:collectarr_app/features/library/kinds/tv/add/tv_add_manual_draft.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/tv/forms/tv_catalog_form_draft.dart';
 import 'package:collectarr_app/features/library/kinds/tv/vocabulary/tv_vocabularies.dart';
 
 final AddSchema<TvAddManualDraft> tvAddSchema = tvAddSchemaFor();
 
-AddSchema<TvAddManualDraft> tvAddSchemaFor({
+const tvMainFieldIds = {
+  'catalog_title',
+  'sort_key',
+  'original_title',
+  'localized_title',
+  'display_title',
+  'country',
+  'publisher',
+  'language',
+  'age_rating',
+  'genres',
+  'runtime_minutes',
+  'season_number',
+};
+
+const tvEditionFieldIds = {
+  'edition_title',
+  'variant_name',
+  'physical_format',
+  'release_date',
+  'barcode',
+};
+
+const tvSpecsFieldIds = {
+  'audio_tracks',
+  'subtitles',
+  'nr_discs',
+  'screen_ratio',
+  'layers',
+  'color',
+};
+
+AddSchema<TDraft> tvAddSchemaFor<TDraft extends TvCatalogFormDraft>({
   Set<String>? fieldIds,
   String sectionLabel = 'Catalog Item',
   Iterable<String>? formatOptions,
+  Iterable<String>? audioTrackOptions,
+  Iterable<String>? subtitleOptions,
+  String? Function(String value)? physicalFormatIdForValue,
   FutureOr<void> Function()? onManageFormat,
 }) =>
-    AddSchema<TvAddManualDraft>(
+    AddSchema<TDraft>(
       title: (_) => 'Manual TV Catalog Item',
       validate: (draft) {
         final metadata = draft.metadata;
@@ -31,40 +67,60 @@ AddSchema<TvAddManualDraft> tvAddSchemaFor({
         return null;
       },
       sections: [
-        AddSectionSpec<TvAddManualDraft>(
+        AddSectionSpec<TDraft>(
           id: 'catalog_item',
           label: sectionLabel,
           fields: [
-            libraryAddCatalogTitleField<TvAddManualDraft>(),
-            _text(
+            libraryAddCatalogTitleField<TDraft>(),
+            _text<TDraft>(
               id: 'sort_key',
               label: 'Sort Title',
               read: (metadata) => metadata.sortKey ?? '',
               write: (draft, value) =>
                   _writeNullable(draft, 'sort_key', _nullable(value)),
             ),
-            _text(
+            _text<TDraft>(
               id: 'original_title',
               label: 'Original Title',
               read: (metadata) => metadata.originalTitle ?? '',
               write: (draft, value) =>
                   _writeNullable(draft, 'original_title', _nullable(value)),
             ),
-            _text(
+            _text<TDraft>(
+              id: 'localized_title',
+              label: 'Localized Title',
+              read: (metadata) => metadata.localizedTitle ?? '',
+              write: (draft, value) => _writeNullable(
+                draft,
+                'localized_title',
+                _nullable(value),
+              ),
+            ),
+            _text<TDraft>(
+              id: 'display_title',
+              label: 'Custom Display Title',
+              read: (metadata) => metadata.displayTitle ?? '',
+              write: (draft, value) => _writeNullable(
+                draft,
+                'display_title',
+                _nullable(value),
+              ),
+            ),
+            _text<TDraft>(
               id: 'edition_title',
               label: 'Edition Title',
               read: (metadata) => metadata.editionTitle ?? '',
               write: (draft, value) =>
                   _writeNullable(draft, 'edition_title', _nullable(value)),
             ),
-            _text(
+            _text<TDraft>(
               id: 'variant_name',
               label: 'Variant',
               read: (metadata) => metadata.variant ?? '',
               write: (draft, value) =>
                   _writeNullable(draft, 'variant_name', _nullable(value)),
             ),
-            _text(
+            _text<TDraft>(
               id: 'synopsis',
               label: 'Synopsis',
               read: (metadata) => metadata.synopsis ?? '',
@@ -72,7 +128,7 @@ AddSchema<TvAddManualDraft> tvAddSchemaFor({
                   _writeNullable(draft, 'synopsis', _nullable(value)),
               maxLines: 4,
             ),
-            LibraryImageFieldSpec<TvAddManualDraft, String>(
+            LibraryImageFieldSpec<TDraft, String>(
               id: 'cover_image_url',
               label: 'Front Cover URL',
               value: (draft) => _nullable(draft.metadata.coverImageUrl),
@@ -82,7 +138,7 @@ AddSchema<TvAddManualDraft> tvAddSchemaFor({
                 _nullable(value ?? ''),
               ),
             ),
-            LibraryDateFieldSpec<TvAddManualDraft>(
+            LibraryDateFieldSpec<TDraft>(
               id: 'release_date',
               label: 'Release Date',
               value: (draft) => draft.metadata.releaseDateParts?.asDateTime,
@@ -95,26 +151,32 @@ AddSchema<TvAddManualDraft> tvAddSchemaFor({
                 });
               },
             ),
-            _vocabulary(
+            _vocabulary<TDraft>(
               id: 'physical_format',
               label: 'Format',
               read: (metadata) =>
                   metadata.physicalFormatLabel ?? metadata.physicalFormat ?? '',
-              write: (draft, value) => _writeNullableFields(draft, {
-                'physical_format': _nullable(value ?? ''),
-                'physical_format_label': _nullable(value ?? ''),
-              }),
+              write: (draft, value) {
+                final normalized = _nullable(value ?? '');
+                _writeNullableFields(draft, {
+                  'physical_format': normalized == null
+                      ? null
+                      : physicalFormatIdForValue?.call(normalized) ??
+                          normalized,
+                  'physical_format_label': normalized,
+                });
+              },
               options: formatOptions ?? TvVocabularies.physicalFormat.builtIns,
               onManage: onManageFormat,
             ),
-            _text(
+            _text<TDraft>(
               id: 'country',
               label: 'Country',
               read: (metadata) => metadata.country,
               write: (draft, value) =>
                   _writeNullable(draft, 'country', value.trim()),
             ),
-            _text(
+            _text<TDraft>(
               id: 'publisher',
               label: 'Publisher / Network',
               read: (metadata) => metadata.publisher ?? metadata.network ?? '',
@@ -123,7 +185,7 @@ AddSchema<TvAddManualDraft> tvAddSchemaFor({
                 'network': _nullable(value),
               }),
             ),
-            _text(
+            _text<TDraft>(
               id: 'language',
               label: 'Language',
               read: (metadata) => metadata.originalLanguage,
@@ -133,14 +195,14 @@ AddSchema<TvAddManualDraft> tvAddSchemaFor({
                 value.trim(),
               ),
             ),
-            _text(
+            _text<TDraft>(
               id: 'age_rating',
               label: 'Age Rating',
               read: (metadata) => metadata.contentRating ?? '',
               write: (draft, value) =>
                   _writeNullable(draft, 'age_rating', _nullable(value)),
             ),
-            LibraryMultiVocabularyFieldSpec<TvAddManualDraft, String>(
+            LibraryMultiVocabularyFieldSpec<TDraft, String>(
               id: 'genres',
               label: 'Genres',
               values: (draft) => draft.metadata.genres.toSet(),
@@ -149,27 +211,25 @@ AddSchema<TvAddManualDraft> tvAddSchemaFor({
               options: const [],
               allowCustomValues: true,
             ),
-            _text(
+            _text<TDraft>(
               id: 'barcode',
               label: 'Barcode',
               read: (metadata) => metadata.barcode ?? '',
               write: (draft, value) =>
                   _writeNullable(draft, 'barcode', _nullable(value)),
             ),
-            _text(
+            _text<TDraft>(
               id: 'characters',
               label: 'Characters',
               read: (metadata) => metadata.characters
                   .map((character) => character.name)
                   .join(', '),
               write: (draft, value) => draft.metadata = draft.metadata.copyWith(
-                characters: [
-                  for (final name in _split(value))
-                    TvCharacterMetadata(name: name),
-                ],
+                characters:
+                    _updatedCharacters(draft.metadata.characters, value),
               ),
             ),
-            _multiVocabulary(
+            _multiVocabulary<TDraft>(
               id: 'audio_tracks',
               label: 'Audio tracks',
               read: (metadata) => metadata.audioTracks ?? '',
@@ -178,10 +238,10 @@ AddSchema<TvAddManualDraft> tvAddSchemaFor({
                 'audio_tracks',
                 values.isEmpty ? null : values.join(', '),
               ),
-              options: TvVocabularies.audio.builtIns,
+              options: audioTrackOptions ?? TvVocabularies.audio.builtIns,
               pickListKey: TvVocabularyIds.audio.value,
             ),
-            _multiVocabulary(
+            _multiVocabulary<TDraft>(
               id: 'subtitles',
               label: 'Subtitles',
               read: (metadata) => metadata.subtitles ?? '',
@@ -190,10 +250,10 @@ AddSchema<TvAddManualDraft> tvAddSchemaFor({
                 'subtitles',
                 values.isEmpty ? null : values.join(', '),
               ),
-              options: TvVocabularies.subtitles.builtIns,
+              options: subtitleOptions ?? TvVocabularies.subtitles.builtIns,
               pickListKey: TvVocabularyIds.subtitles.value,
             ),
-            _number(
+            _number<TDraft>(
               id: 'season_number',
               label: 'Season Number',
               read: (metadata) => metadata.seasonNumber,
@@ -201,7 +261,7 @@ AddSchema<TvAddManualDraft> tvAddSchemaFor({
                   _writeNullable(draft, 'season_number', value?.toInt()),
               minimum: 0,
             ),
-            _number(
+            _number<TDraft>(
               id: 'runtime_minutes',
               label: 'Runtime (minutes)',
               read: (metadata) => metadata.episodeRuntimeMinutes,
@@ -212,7 +272,7 @@ AddSchema<TvAddManualDraft> tvAddSchemaFor({
               ),
               minimum: 1,
             ),
-            _number(
+            _number<TDraft>(
               id: 'nr_discs',
               label: 'Disc Count',
               read: (metadata) => metadata.nrDiscs,
@@ -220,21 +280,21 @@ AddSchema<TvAddManualDraft> tvAddSchemaFor({
                   _writeNullable(draft, 'nr_discs', value?.toInt()),
               minimum: 1,
             ),
-            _text(
+            _text<TDraft>(
               id: 'screen_ratio',
               label: 'Screen Ratio',
               read: (metadata) => metadata.screenRatio ?? '',
               write: (draft, value) =>
                   _writeNullable(draft, 'screen_ratio', _nullable(value)),
             ),
-            _text(
+            _text<TDraft>(
               id: 'layers',
               label: 'Layers',
               read: (metadata) => metadata.layers ?? '',
               write: (draft, value) =>
                   _writeNullable(draft, 'layers', _nullable(value)),
             ),
-            _text(
+            _text<TDraft>(
               id: 'color',
               label: 'Color',
               read: (metadata) => metadata.color ?? '',
@@ -249,14 +309,14 @@ AddSchema<TvAddManualDraft> tvAddSchemaFor({
       ],
     );
 
-LibraryTextFieldSpec<TvAddManualDraft> _text({
+LibraryTextFieldSpec<TDraft> _text<TDraft extends TvCatalogFormDraft>({
   required String id,
   required String label,
   required String Function(TvMetadata metadata) read,
-  required void Function(TvAddManualDraft draft, String value) write,
+  required void Function(TDraft draft, String value) write,
   int maxLines = 1,
 }) =>
-    LibraryTextFieldSpec<TvAddManualDraft>(
+    LibraryTextFieldSpec<TDraft>(
       id: id,
       label: label,
       value: (draft) => read(draft.metadata),
@@ -264,14 +324,14 @@ LibraryTextFieldSpec<TvAddManualDraft> _text({
       maxLines: maxLines,
     );
 
-LibraryNumberFieldSpec<TvAddManualDraft> _number({
+LibraryNumberFieldSpec<TDraft> _number<TDraft extends TvCatalogFormDraft>({
   required String id,
   required String label,
   required num? Function(TvMetadata metadata) read,
-  required void Function(TvAddManualDraft draft, num? value) write,
+  required void Function(TDraft draft, num? value) write,
   required num minimum,
 }) =>
-    LibraryNumberFieldSpec<TvAddManualDraft>(
+    LibraryNumberFieldSpec<TDraft>(
       id: id,
       label: label,
       value: (draft) => read(draft.metadata),
@@ -279,53 +339,59 @@ LibraryNumberFieldSpec<TvAddManualDraft> _number({
       minimum: minimum,
     );
 
-LibraryVocabularyFieldSpec<TvAddManualDraft, String> _vocabulary({
+LibraryVocabularyFieldSpec<TDraft, String>
+    _vocabulary<TDraft extends TvCatalogFormDraft>({
   required String id,
   required String label,
   required String Function(TvMetadata metadata) read,
-  required void Function(TvAddManualDraft draft, String? value) write,
+  required void Function(TDraft draft, String? value) write,
   required Iterable<String> options,
   FutureOr<void> Function()? onManage,
 }) =>
-    LibraryVocabularyFieldSpec<TvAddManualDraft, String>(
-      id: id,
-      label: label,
-      value: (draft) => read(draft.metadata),
-      setValue: write,
-      options: [
-        for (final value in options)
-          LibraryFieldOption(value: value, label: value),
-      ],
-      onManage: onManage == null ? null : (_) => onManage(),
-    );
+        LibraryVocabularyFieldSpec<TDraft, String>(
+          id: id,
+          label: label,
+          value: (draft) => read(draft.metadata),
+          setValue: write,
+          options: [
+            for (final value in options)
+              LibraryFieldOption(value: value, label: value),
+          ],
+          onManage: onManage == null ? null : (_) => onManage(),
+        );
 
-LibraryMultiVocabularyFieldSpec<TvAddManualDraft, String> _multiVocabulary({
+LibraryMultiVocabularyFieldSpec<TDraft, String>
+    _multiVocabulary<TDraft extends TvCatalogFormDraft>({
   required String id,
   required String label,
   required String Function(TvMetadata metadata) read,
-  required void Function(TvAddManualDraft draft, Set<String> values) write,
+  required void Function(TDraft draft, Set<String> values) write,
   required Iterable<String> options,
   required String pickListKey,
 }) =>
-    LibraryMultiVocabularyFieldSpec<TvAddManualDraft, String>(
-      id: id,
-      label: label,
-      values: (draft) => _split(read(draft.metadata)).toSet(),
-      setValues: write,
-      options: [
-        for (final value in options)
-          LibraryFieldOption(value: value, label: value),
-      ],
-      pickListKey: pickListKey,
-      pluralLabel: label,
-      allowCustomValues: true,
-    );
+        LibraryMultiVocabularyFieldSpec<TDraft, String>(
+          id: id,
+          label: label,
+          values: (draft) => _split(read(draft.metadata)).toSet(),
+          setValues: write,
+          options: [
+            for (final value in options)
+              LibraryFieldOption(value: value, label: value),
+          ],
+          pickListKey: pickListKey,
+          pluralLabel: label,
+          allowCustomValues: true,
+        );
 
-void _writeNullable(TvAddManualDraft draft, String key, Object? value) =>
+void _writeNullable<TDraft extends TvCatalogFormDraft>(
+  TDraft draft,
+  String key,
+  Object? value,
+) =>
     _writeNullableFields(draft, {key: value});
 
-void _writeNullableFields(
-  TvAddManualDraft draft,
+void _writeNullableFields<TDraft extends TvCatalogFormDraft>(
+  TDraft draft,
   Map<String, Object?> fields,
 ) {
   final payload = Map<String, dynamic>.from(draft.metadata.toJson())
@@ -344,3 +410,29 @@ List<String> _split(String value) => value
     .where((entry) => entry.isNotEmpty)
     .toSet()
     .toList(growable: false);
+
+List<TvCharacterMetadata> _updatedCharacters(
+  List<TvCharacterMetadata> existing,
+  String value,
+) {
+  final previousByName = {
+    for (final character in existing)
+      character.name.trim().toLowerCase(): character,
+  };
+  return [
+    for (final rawName in _split(value))
+      if (previousByName.remove(rawName.toLowerCase()) case final previous?)
+        TvCharacterMetadata(
+          name: rawName,
+          id: previous.id,
+          characterId: previous.characterId,
+          aliases: previous.aliases,
+          role: previous.role,
+          description: previous.description,
+          imageUrl: previous.imageUrl,
+          stringValue: previous.stringValue,
+        )
+      else
+        TvCharacterMetadata(name: rawName),
+  ];
+}

@@ -1,5 +1,4 @@
 import 'package:collectarr_app/features/library/edit/draft/library_edit_form_fields.dart';
-import 'package:collectarr_app/features/library/kinds/tv/catalog/tv_catalog_fields.dart';
 import 'package:collectarr_app/core/models/tracking_summary.dart';
 import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/features/library/kinds/tv/data/tv_library_entry_projection.dart';
@@ -12,53 +11,32 @@ import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.
 import 'package:collectarr_app/features/library/edit/draft/library_edit_models.dart';
 import 'package:collectarr_app/features/library/kinds/tv/edit/tv_edit_controller.dart';
 import 'package:collectarr_app/features/library/kinds/tv/forms/tv_credit_draft.dart';
+import 'package:collectarr_app/features/library/kinds/tv/forms/tv_catalog_form_draft.dart';
 import 'package:collectarr_app/features/library/kinds/tv/edit/tv_media_edit_controller.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_entry_dispatch.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_library_entry.dart';
-import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_tracking_state.dart';
 import 'package:collectarr_app/features/library/kinds/tv/entries/tv_entry_details_draft.dart';
 import 'package:collectarr_app/features/library/kinds/tv/entries/tv_library_entry_update_payload.dart';
 import 'package:collectarr_app/features/library/edit/draft/personal_state_draft.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:flutter/material.dart';
 
-import 'package:collectarr_app/features/library/kinds/tv/edit/tv_edit_draft_contract.dart';
-
-enum TvCanonicalEditField {
-  title,
-  displayTitle,
-  sortTitle,
-  originalTitle,
-  localizedTitle,
-  searchAliases,
-  synopsis,
-  coverImage,
-  thumbnailImage
-}
-
 class TvEditDraft
     with
         LibraryCatalogItemEditSessionLinkDefaults,
         LibraryEntryEditSessionDefaults
-    implements TvEditDraftContract, LibraryEntryExternalLinksSource {
+    implements LibraryEntryExternalLinksSource, TvCatalogFormDraft {
   TvEditDraft({
     this.libraryEntry,
+    required this.metadata,
+    required this.catalogTitle,
     required this.featuresController,
     required this.boxSetNameController,
     required this.regionController,
     required this.packagingController,
     required this.distributorController,
-    required this.screenRatioController,
-    required this.audioTracksController,
-    required this.subtitlesController,
-    required this.layersController,
-    required this.colorController,
-    required this.nrDiscsController,
     required this.hdrFormats,
-    required this.seasonNumberController,
-    required this.episodeNumberController,
-    required this.episodeRatings,
     required this.tvEdit,
     required this.mediaEdit,
   });
@@ -66,40 +44,22 @@ class TvEditDraft
   final TvLibraryEntry? libraryEntry;
 
   @override
-  final TextEditingController featuresController;
-  @override
-  final TextEditingController boxSetNameController;
-  @override
-  final TextEditingController regionController;
-  @override
-  final TextEditingController packagingController;
-  @override
-  final TextEditingController distributorController;
-  @override
-  final TextEditingController screenRatioController;
-  @override
-  final TextEditingController audioTracksController;
-  @override
-  final TextEditingController subtitlesController;
-  @override
-  final TextEditingController layersController;
-  @override
-  final TextEditingController colorController;
-  @override
-  final TextEditingController nrDiscsController;
+  TvMetadata metadata;
 
   @override
+  String catalogTitle;
+
+  final TextEditingController featuresController;
+  final TextEditingController boxSetNameController;
+  final TextEditingController regionController;
+  final TextEditingController packagingController;
+  final TextEditingController distributorController;
   List<String> hdrFormats;
-  final TextEditingController seasonNumberController;
-  final TextEditingController episodeNumberController;
-  final Map<String, int> episodeRatings;
-  @override
   final TvEditController tvEdit;
 
   @override
   Iterable<TrailerLinkDto> get legacyManualExternalLinks =>
       tvEdit.initialTrailerLinks;
-  @override
   final TvMediaEditController mediaEdit;
 
   @override
@@ -200,62 +160,13 @@ class TvEditDraft
     LibraryEditSelection selection,
     LibraryEditFormFields fields,
   ) {
-    final aliases = fields
-        .controller(TvCanonicalEditField.searchAliases)
-        .text
-        .split(RegExp(r'[,\r\n]+'))
-        .map((entry) => entry.trim())
-        .where((entry) => entry.isNotEmpty)
-        .toList();
     return selection.copyWith(
       kindItem: CatalogSearchCandidate.fromItem(
           selection.kindItem.kindCapability.mapTransport((transport) {
-        final metadata = TvMetadata.fromJson(transport.kindData);
-        final edited = metadata.copyWith(
-          title: fields.controller(TvCanonicalEditField.title).text.trim(),
-          displayTitle: emptyToNull(
-              fields.controller(TvCanonicalEditField.displayTitle).text),
-          originalTitle: emptyToNull(
-              fields.controller(TvCanonicalEditField.originalTitle).text),
-          localizedTitle: emptyToNull(
-              fields.controller(TvCanonicalEditField.localizedTitle).text),
-          searchAliases: aliases.isEmpty ? null : aliases,
-          synopsis: emptyToNull(
-              fields.controller(TvCanonicalEditField.synopsis).text),
-          coverImageUrl: emptyToNull(
-              fields.controller(TvCanonicalEditField.coverImage).text),
-          thumbnailImageUrl: emptyToNull(
-              fields.controller(TvCanonicalEditField.thumbnailImage).text),
-          sortKey: emptyToNull(
-            fields.controller(TvCanonicalEditField.sortTitle).text,
-          ),
-        );
-        final updated = TvMetadata.fromJson(applyJsonFieldPatch(edited, {
-          'display_title': emptyToNull(
-            fields.controller(TvCanonicalEditField.displayTitle).text,
-          ),
-          'original_title': emptyToNull(
-            fields.controller(TvCanonicalEditField.originalTitle).text,
-          ),
-          'localized_title': emptyToNull(
-            fields.controller(TvCanonicalEditField.localizedTitle).text,
-          ),
-          'search_aliases': aliases,
-          'synopsis': emptyToNull(
-            fields.controller(TvCanonicalEditField.synopsis).text,
-          ),
-          'cover_image_url': emptyToNull(
-            fields.controller(TvCanonicalEditField.coverImage).text,
-          ),
-          'thumbnail_image_url': emptyToNull(
-            fields.controller(TvCanonicalEditField.thumbnailImage).text,
-          ),
-          'sort_key': emptyToNull(
-            fields.controller(TvCanonicalEditField.sortTitle).text,
-          ),
-        }));
         return transport.replacingKindData(
-          mediaEdit.applyEpisodeMediaAssignments(updated),
+          mediaEdit.applyEpisodeMediaAssignments(
+            metadata.copyWith(title: catalogTitle.trim()),
+          ),
         );
       })),
     );
@@ -265,188 +176,38 @@ class TvEditDraft
   LibraryEditFormSchema buildCanonicalFormSchema(
     LibraryEditFormFields fields,
     CatalogSearchCandidate item,
-  ) {
-    final metadata = item.tvCatalogFields;
-    fields.create(TvCanonicalEditField.title, initialValue: metadata.title);
-    fields.create(TvCanonicalEditField.displayTitle,
-        initialValue: metadata.displayTitle ?? '');
-    fields.create(TvCanonicalEditField.sortTitle,
-        initialValue: metadata.sortKey ?? '');
-    fields.create(TvCanonicalEditField.originalTitle,
-        initialValue: metadata.originalTitle ?? '');
-    fields.create(TvCanonicalEditField.localizedTitle,
-        initialValue: metadata.localizedTitle ?? '');
-    fields.create(TvCanonicalEditField.searchAliases,
-        initialValue: metadata.searchAliases.join(', '));
-    fields.create(TvCanonicalEditField.synopsis,
-        initialValue: metadata.synopsis ?? '');
-    fields.create(TvCanonicalEditField.coverImage,
-        initialValue: metadata.coverImageUrl ?? '');
-    fields.create(TvCanonicalEditField.thumbnailImage,
-        initialValue: metadata.thumbnailImageUrl ?? '');
-    return LibraryEditFormSchema(
-      fields: [
-        LibraryEditFormFieldSpec(
-          id: TvCanonicalEditField.title,
-          section: LibraryEditFormSection.details,
-          controller: fields.controller(TvCanonicalEditField.title),
-          label: 'Title',
-          required: true,
-        ),
-        LibraryEditFormFieldSpec(
-          id: TvCanonicalEditField.sortTitle,
-          section: LibraryEditFormSection.details,
-          controller: fields.controller(TvCanonicalEditField.sortTitle),
-          label: 'Sort Title',
-        ),
-        LibraryEditFormFieldSpec(
-          id: TvCanonicalEditField.originalTitle,
-          section: LibraryEditFormSection.details,
-          controller: fields.controller(TvCanonicalEditField.originalTitle),
-          label: 'Original Title',
-        ),
-        LibraryEditFormFieldSpec(
-          id: TvCanonicalEditField.localizedTitle,
-          section: LibraryEditFormSection.details,
-          controller: fields.controller(TvCanonicalEditField.localizedTitle),
-          label: 'Localized title',
-        ),
-        LibraryEditFormFieldSpec(
-          id: TvCanonicalEditField.displayTitle,
-          section: LibraryEditFormSection.details,
-          controller: fields.controller(TvCanonicalEditField.displayTitle),
-          label: 'Display Title',
-        ),
-        LibraryEditFormFieldSpec(
-          id: TvCanonicalEditField.searchAliases,
-          section: LibraryEditFormSection.details,
-          controller: fields.controller(TvCanonicalEditField.searchAliases),
-          label: 'Search Aliases',
-          visible: false,
-        ),
-        LibraryEditFormFieldSpec(
-          id: TvCanonicalEditField.thumbnailImage,
-          section: LibraryEditFormSection.details,
-          controller: fields.controller(TvCanonicalEditField.thumbnailImage),
-          label: 'Thumbnail image URL',
-          visible: false,
-        ),
-        LibraryEditFormFieldSpec(
-          id: TvCanonicalEditField.coverImage,
-          section: LibraryEditFormSection.artwork,
-          controller: fields.controller(TvCanonicalEditField.coverImage),
-          label: 'Cover Image URL',
-        ),
-        LibraryEditFormFieldSpec(
-          id: TvCanonicalEditField.synopsis,
-          section: LibraryEditFormSection.description,
-          controller: fields.controller(TvCanonicalEditField.synopsis),
-          label: 'Synopsis',
-          maxLines: 8,
-        ),
-      ],
-      sectionTitles: const {
-        LibraryEditFormSection.details: 'Details',
-        LibraryEditFormSection.artwork: 'Cover Image',
-        LibraryEditFormSection.description: 'Synopsis',
-      },
-    );
-  }
+  ) =>
+      LibraryEditFormSchema.empty;
 
   @override
   LibraryEditSelection applySelectionEdits(LibraryEditSelection selection) {
-    var result = selection;
-    final seasonNumber = int.tryParse(seasonNumberController.text);
-    final episodeNumber = int.tryParse(episodeNumberController.text);
-    final metadata = result.kindItem.kindCapability
+    final metadata = selection.kindItem.kindCapability
         .mapTransport((transport) => TvMetadata.fromJson(transport.kindData));
-    final parsedGenres = tvEdit.genresEditController.text
-        .split(RegExp(r'[,\r\n]+'))
-        .map((value) => value.trim())
-        .where((value) => value.isNotEmpty)
-        .toList();
-    result = result.copyWith(
-      kindItem: result.kindItem.kindCapability.mapTransport(
+    return selection.copyWith(
+      kindItem: selection.kindItem.kindCapability.mapTransport(
         (transport) => CatalogSearchCandidate.fromItem(
           transport.replacingKindData(
-            TvMetadata.fromJson(applyJsonFieldPatch(
-                metadata.copyWith(
-                  episodeRuntimeMinutes:
-                      int.tryParse(tvEdit.runtimeController.text),
-                  genres: parsedGenres,
-                  cast: tvEdit.castCredits
-                      .map(_editedTvCredit)
-                      .where((credit) => credit.name.isNotEmpty)
-                      .toList(),
-                  crew: tvEdit.crewCredits
-                      .map(_editedTvCredit)
-                      .where((credit) => credit.name.isNotEmpty)
-                      .toList(),
-                  characters: _editedTvCharacters(
-                    tvEdit.charactersController.text,
-                    metadata.characters,
-                  ),
-                  contentRating: emptyToNull(tvEdit.ageRatingController.text),
-                  variant: emptyToNull(tvEdit.variantController.text),
-                  barcode: emptyToNull(tvEdit.barcodeController.text),
-                  physicalFormat: tvEdit.physicalFormatId,
-                  physicalFormatLabel:
-                      emptyToNull(tvEdit.physicalFormatLabelController.text),
-                  publisher: emptyToNull(tvEdit.publisherController.text),
-                  country: emptyToNull(tvEdit.countryController.text) ??
-                      metadata.country,
-                  originalLanguage:
-                      emptyToNull(tvEdit.languageController.text) ??
-                          metadata.originalLanguage,
-                  firstAirDate: parseDate(tvEdit.releaseDateController.text),
-                  links: tvEdit.buildUpdatedTrailerUrls(
-                    metadata.links,
-                    preserveManualLinks: libraryEntry == null,
-                  ),
-                  seasonNumber: seasonNumber ?? metadata.seasonNumber,
-                  episodeNumber: episodeNumber ?? metadata.episodeNumber,
-                ),
-                {
-                  'audio_tracks': emptyToNull(audioTracksController.text),
-                  'subtitles': emptyToNull(subtitlesController.text),
-                  'screen_ratio': emptyToNull(screenRatioController.text),
-                  'layers': emptyToNull(layersController.text),
-                  'color': emptyToNull(colorController.text),
-                  'nr_discs': int.tryParse(nrDiscsController.text.trim()),
-                })),
+            metadata.copyWith(
+              cast: tvEdit.castCredits
+                  .map(_editedTvCredit)
+                  .where((credit) => credit.name.isNotEmpty)
+                  .toList(),
+              crew: tvEdit.crewCredits
+                  .map(_editedTvCredit)
+                  .where((credit) => credit.name.isNotEmpty)
+                  .toList(),
+              links: tvEdit.buildUpdatedTrailerUrls(
+                metadata.links,
+                preserveManualLinks: libraryEntry == null,
+              ),
+            ),
           ),
         ),
       ),
     );
-    if (result.tracking != null) {
-      final episodeRatings = this.episodeRatings.isEmpty
-          ? null
-          : Map<String, int>.unmodifiable(this.episodeRatings);
-      result = result.copyWith(
-        trackingKindPatch: TvTrackingCoordinatesPatch(
-          seasonNumber: seasonNumber,
-          episodeNumber: episodeNumber,
-          episodeRatings: episodeRatings,
-          setSeasonNumber: seasonNumber != null,
-          setEpisodeNumber: episodeNumber != null,
-          setEpisodeRatings: episodeRatings != null,
-        ),
-      );
-    }
-    return result;
   }
 
-  @override
-  TextEditingController get releaseDateController =>
-      tvEdit.releaseDateController;
-
-  @override
-  TextEditingController get releaseYearController =>
-      tvEdit.releaseYearController;
-
   void dispose() {
-    seasonNumberController.dispose();
-    episodeNumberController.dispose();
     tvEdit.dispose();
   }
 }
@@ -463,22 +224,6 @@ LibraryEditSessionBundle createTvEditDraft({
       .mapTransport((transport) => TvMetadata.fromJson(transport.kindData));
   final tv = metadata;
   final tvEdit = TvEditController(
-    initialRuntime: tv.episodeRuntimeMinutes?.toString() ?? '',
-    initialAgeRating: tv.contentRating ?? '',
-    initialGenres: tv.genres.join(', '),
-    initialCharacters:
-        tv.characters.map((character) => character.name).join(', '),
-    initialEditionTitle: (tv.titleExtension ?? tv.editionTitle)?.trim() ?? '',
-    initialVariant: tv.variant ?? '',
-    initialBarcode: tv.barcode ?? '',
-    initialPhysicalFormatLabel: tv.physicalFormatLabel ?? tv.variant ?? '',
-    initialPhysicalFormatId: tv.physicalFormat,
-    initialPublisher: tv.publisher ?? tv.network ?? '',
-    initialCountry: tv.country,
-    initialLanguage: tv.originalLanguage,
-    initialReleaseDate:
-        tv.firstAirDate == null ? '' : formatDate(tv.firstAirDate!),
-    initialReleaseYear: tv.firstAirDate?.year.toString() ?? '',
     initialCreators: [
       for (final creator in tv.creators)
         TvCreditInput(
@@ -497,27 +242,15 @@ LibraryEditSessionBundle createTvEditDraft({
 
   final draft = TvEditDraft(
     libraryEntry: entry,
+    metadata: tv,
+    catalogTitle: tv.title,
     featuresController: textControllers.create(text: video?.features ?? ''),
     boxSetNameController: textControllers.create(text: video?.boxSetName ?? ''),
     regionController: textControllers.create(text: video?.region ?? ''),
     packagingController: textControllers.create(text: video?.packaging ?? ''),
     distributorController:
         textControllers.create(text: video?.distributor ?? ''),
-    screenRatioController: textControllers.create(text: tv.screenRatio ?? ''),
-    audioTracksController: textControllers.create(text: tv.audioTracks ?? ''),
-    subtitlesController: textControllers.create(text: tv.subtitles ?? ''),
-    layersController: textControllers.create(text: tv.layers ?? ''),
-    colorController: textControllers.create(text: tv.color ?? ''),
-    nrDiscsController:
-        textControllers.create(text: tv.nrDiscs?.toString() ?? ''),
     hdrFormats: List<String>.from(video?.hdrFormats ?? const <String>[]),
-    seasonNumberController: TextEditingController(
-      text: tv.seasonNumber?.toString() ?? '',
-    ),
-    episodeNumberController: TextEditingController(
-      text: tv.episodeNumber?.toString() ?? '',
-    ),
-    episodeRatings: const <String, int>{},
     tvEdit: tvEdit,
     mediaEdit: mediaEdit,
   );
@@ -533,33 +266,4 @@ TvPersonCredit _editedTvCredit(EditableTvCredit credit) {
   final role = emptyToNull(credit.roleController.text.trim());
   return credit.originalCredit?.withEditedIdentity(name: name, role: role) ??
       TvPersonCredit(name: name, role: role);
-}
-
-List<TvCharacterMetadata> _editedTvCharacters(
-  String value,
-  List<TvCharacterMetadata> original,
-) {
-  final previousByName = {
-    for (final character in original)
-      character.name.trim().toLowerCase(): character,
-  };
-  final edited = <TvCharacterMetadata>[];
-  for (final rawName in value.split(RegExp(r'[,\r\n]+'))) {
-    final name = rawName.trim();
-    if (name.isEmpty) continue;
-    final previous = previousByName.remove(name.toLowerCase());
-    edited.add(
-      TvCharacterMetadata(
-        name: name,
-        id: previous?.id,
-        characterId: previous?.characterId,
-        aliases: previous?.aliases ?? const [],
-        role: previous?.role,
-        description: previous?.description,
-        imageUrl: previous?.imageUrl,
-        stringValue: previous?.stringValue ?? false,
-      ),
-    );
-  }
-  return edited;
 }

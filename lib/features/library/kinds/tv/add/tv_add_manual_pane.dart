@@ -7,36 +7,6 @@ import 'package:collectarr_app/features/library/kinds/tv/forms/tv_credit_draft.d
 import 'package:collectarr_app/features/library/ui/primitives/library_named_detail_list.dart';
 import 'package:flutter/material.dart';
 
-const _tvMainFieldIds = {
-  'catalog_title',
-  'sort_key',
-  'original_title',
-  'country',
-  'publisher',
-  'language',
-  'age_rating',
-  'genres',
-  'runtime_minutes',
-  'season_number',
-};
-
-const _tvEditionFieldIds = {
-  'edition_title',
-  'variant_name',
-  'physical_format',
-  'release_date',
-  'barcode',
-};
-
-const _tvSpecsFieldIds = {
-  'audio_tracks',
-  'subtitles',
-  'nr_discs',
-  'screen_ratio',
-  'layers',
-  'color',
-};
-
 class TvAddManualPane extends StatelessWidget {
   const TvAddManualPane({super.key, required this.request});
 
@@ -51,7 +21,7 @@ class TvAddManualPane extends StatelessWidget {
         LibraryAddManualPaneTab.main(
           content: AddSchemaRenderer<TvAddManualDraft>.embedded(
             schema: tvAddSchemaFor(
-              fieldIds: _tvMainFieldIds,
+              fieldIds: tvMainFieldIds,
               sectionLabel: 'Main',
             ),
             draft: draft,
@@ -67,7 +37,7 @@ class TvAddManualPane extends StatelessWidget {
           icon: Icons.inventory_2_outlined,
           content: AddSchemaRenderer<TvAddManualDraft>.embedded(
             schema: tvAddSchemaFor(
-              fieldIds: _tvEditionFieldIds,
+              fieldIds: tvEditionFieldIds,
               sectionLabel: 'Edition',
             ),
             draft: draft,
@@ -97,7 +67,7 @@ class TvAddManualPane extends StatelessWidget {
           icon: Icons.tune_outlined,
           content: AddSchemaRenderer<TvAddManualDraft>.embedded(
             schema: tvAddSchemaFor(
-              fieldIds: _tvSpecsFieldIds,
+              fieldIds: tvSpecsFieldIds,
               sectionLabel: 'Specs',
             ),
             draft: draft,
