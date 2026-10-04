@@ -49,3 +49,34 @@ final class AddSectionSpec<TDraft> {
 
   bool isVisible(TDraft draft) => visibleWhen?.call(draft) ?? true;
 }
+
+List<AddSectionSpec<TDraft>> filterAddSchemaSections<TDraft>({
+  required List<AddSectionSpec<TDraft>> sections,
+  Set<String>? fieldIds,
+  Map<String, String> sectionLabels = const {},
+  String? sectionLabel,
+}) {
+  if (fieldIds == null && sectionLabels.isEmpty && sectionLabel == null) {
+    return sections;
+  }
+
+  return [
+    for (final section in sections)
+      if (section.fields
+          .where((field) => fieldIds == null || fieldIds.contains(field.id))
+          .isNotEmpty)
+        AddSectionSpec<TDraft>(
+          id: section.id,
+          label: sectionLabels[section.id] ?? sectionLabel ?? section.label,
+          fields: [
+            for (final field in section.fields)
+              if (fieldIds == null || fieldIds.contains(field.id)) field,
+          ],
+          maxColumns: section.maxColumns,
+          fullWidthFieldIds: section.fullWidthFieldIds,
+          fieldColumnSpans: section.fieldColumnSpans,
+          rightAlignedFieldIds: section.rightAlignedFieldIds,
+          visibleWhen: section.visibleWhen,
+        ),
+  ];
+}
