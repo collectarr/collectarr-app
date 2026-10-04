@@ -59,8 +59,8 @@ final class _MusicAlbumStructureTabState
         ),
       ];
     }
-    final disc = _activeDisc();
-    if (disc == null) return const [];
+    final activeDisc = _activeDisc();
+    if (activeDisc == null) return const [];
     return [
       Row(
         children: [
@@ -78,25 +78,25 @@ final class _MusicAlbumStructureTabState
                   _selectedTrackIds.clear();
                 }),
                 itemBuilder: (context, index) {
-                  final disc = draft.discs[index];
+                  final candidate = draft.discs[index];
                   return Padding(
-                    key: ValueKey('music-disc-${disc.id.value}'),
+                    key: ValueKey('music-disc-${candidate.id.value}'),
                     padding: const EdgeInsets.only(right: 6),
                     child: ReorderableDragStartListener(
                       index: index,
                       child: ChoiceChip(
                         label: Text(
-                          'Disc ${disc.discNumber} - '
-                          '${disc.effectiveTrackCount} tracks',
+                          'Disc ${candidate.discNumber} - '
+                          '${candidate.effectiveTrackCount} tracks',
                         ),
-                        selected: disc.id == disc.id,
+                        selected: candidate.id == activeDisc.id,
                         onSelected: (_) => setState(() {
-                          _activeDiscId = disc.id;
+                          _activeDiscId = candidate.id;
                           _selectedTrackIds.clear();
                         }),
                         selectedColor: widget.accent.withValues(alpha: 0.16),
                         side: BorderSide(
-                          color: disc.id == disc.id
+                          color: candidate.id == activeDisc.id
                               ? widget.accent
                               : Theme.of(context).dividerColor,
                         ),
@@ -109,9 +109,9 @@ final class _MusicAlbumStructureTabState
             ),
           ),
           IconButton(
-            tooltip: 'Remove disc ${disc.discNumber}',
+            tooltip: 'Remove disc ${activeDisc.discNumber}',
             visualDensity: VisualDensity.compact,
-            onPressed: () => _removeDisc(disc),
+            onPressed: () => _removeDisc(activeDisc),
             icon: const Icon(Icons.delete_outline, size: 18),
           ),
           const SizedBox(width: 8),
@@ -128,9 +128,9 @@ final class _MusicAlbumStructureTabState
       ),
       const SizedBox(height: 8),
       EditSection(
-        title: 'Disc ${disc.discNumber}',
+        title: 'Disc ${activeDisc.discNumber}',
         accent: widget.accent,
-        child: _discTrackEditor(disc),
+        child: _discTrackEditor(activeDisc),
       ),
     ];
   }
@@ -268,13 +268,12 @@ final class _MusicAlbumStructureTabState
                   child: TextFormField(
                     key: ValueKey('music-disc-title-${disc.id.value}'),
                     initialValue: disc.title ?? '',
-                    onChanged: (value) =>
-                        draft.updateDiscTitle(disc.id, value),
+                    onChanged: (value) => draft.updateDiscTitle(disc.id, value),
                   ))),
           SizedBox(
               width: quarter,
-              child: _discPersonalField(
-                  disc, 'Storage Device', 'storage_device')),
+              child:
+                  _discPersonalField(disc, 'Storage Device', 'storage_device')),
           SizedBox(
               width: quarter,
               child: _discPersonalField(disc, 'Slot', 'storage_slot')),
