@@ -447,6 +447,10 @@ Still outstanding:
   The remaining dialog-local Music and TV controllers already use `finally`,
   while credit, image, tracking, and form controllers remain owned by their
   state or typed drafts.
+- `MusicAlbumCreditsEditor` contains only immutable contribution rows and owns
+  no disposable resources. Its empty `dispose()` method and the dialog's
+  matching no-op lifecycle call have been removed; actual text controllers
+  remain owned by their respective form fields and drafts.
 - Previous/Next Edit navigation now restores the selected tab by its stable
   tab ID instead of its numeric position. This keeps the same section selected
   when item-specific tab visibility or ordering differs. The request-switching

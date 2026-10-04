@@ -111,8 +111,6 @@ final class MusicAlbumCreditsEditor {
           ),
     ];
   }
-
-  void dispose() {}
 }
 
 final class MusicAlbumCreditsTab extends StatefulWidget {

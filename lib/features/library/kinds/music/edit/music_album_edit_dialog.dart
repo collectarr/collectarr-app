@@ -82,7 +82,6 @@ final class _MusicAlbumEditDialogState
 
   @override
   void dispose() {
-    _creditsEditor.dispose();
     _listening?.dispose();
     super.dispose();
   }
