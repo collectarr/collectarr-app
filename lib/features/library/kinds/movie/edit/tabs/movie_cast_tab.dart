@@ -8,10 +8,12 @@ class MovieEditCastTab extends StatelessWidget {
   const MovieEditCastTab({
     super.key,
     required this.movieEdit,
+    required this.accent,
     required this.markDirty,
   });
 
   final MovieEditController movieEdit;
+  final Color accent;
   final VoidCallback markDirty;
 
   @override
@@ -23,6 +25,7 @@ class MovieEditCastTab extends StatelessWidget {
           emptyMessage: 'No cast data yet.',
           addLabel: 'Add Cast',
           defaultRole: 'Actor',
+          accent: accent,
           credits: movieEdit.castCredits,
           onChanged: markDirty,
         ),

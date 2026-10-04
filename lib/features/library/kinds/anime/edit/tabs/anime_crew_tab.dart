@@ -25,7 +25,7 @@ class AnimeEditCrewTab extends StatelessWidget {
           emptyMessage: 'No crew data yet.',
           addLabel: 'Add Crew',
           accent: accent,
-          credits: [
+          rows: () => [
             for (final credit in animeEdit.crewCredits)
               LibraryNamedDetailControllers(
                 identity: credit,

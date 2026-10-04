@@ -25,7 +25,7 @@ final class LibraryNamedDetailList extends StatelessWidget {
     required this.emptyMessage,
     required this.addLabel,
     required this.accent,
-    required this.credits,
+    required this.rows,
     this.nameLabel = 'Name',
     this.detailLabel = 'Role',
     required this.onAdd,
@@ -38,7 +38,7 @@ final class LibraryNamedDetailList extends StatelessWidget {
   final String emptyMessage;
   final String addLabel;
   final Color accent;
-  final List<LibraryNamedDetailControllers> credits;
+  final List<LibraryNamedDetailControllers> Function() rows;
   final String nameLabel;
   final String detailLabel;
   final VoidCallback onAdd;
@@ -48,85 +48,88 @@ final class LibraryNamedDetailList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => StatefulBuilder(
-        builder: (context, setState) => EditSection(
-          title: title,
-          accent: accent,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              if (credits.isEmpty)
-                EditSectionStateMessage(
-                  message: emptyMessage,
-                  icon: Icons.person_outline,
-                )
-              else
-                ReorderableListView.builder(
-                  shrinkWrap: true,
-                  primary: false,
-                  physics: const NeverScrollableScrollPhysics(),
-                  buildDefaultDragHandles: false,
-                  itemCount: credits.length,
-                  onReorderItem: (oldIndex, newIndex) {
-                    onReorder(oldIndex, newIndex);
+        builder: (context, setState) {
+          final credits = rows();
+          return EditSection(
+            title: title,
+            accent: accent,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (credits.isEmpty)
+                  EditSectionStateMessage(
+                    message: emptyMessage,
+                    icon: Icons.person_outline,
+                  )
+                else
+                  ReorderableListView.builder(
+                    shrinkWrap: true,
+                    primary: false,
+                    physics: const NeverScrollableScrollPhysics(),
+                    buildDefaultDragHandles: false,
+                    itemCount: credits.length,
+                    onReorderItem: (oldIndex, newIndex) {
+                      onReorder(oldIndex, newIndex);
+                      setState(() {});
+                      onChanged();
+                    },
+                    itemBuilder: (context, index) {
+                      final credit = credits[index];
+                      return Padding(
+                        key: ObjectKey(credit.identity),
+                        padding: const EdgeInsets.only(bottom: 8),
+                        child: Row(
+                          children: [
+                            ReorderableDragStartListener(
+                              index: index,
+                              child: const Icon(Icons.drag_indicator, size: 18),
+                            ),
+                            const SizedBox(width: 6),
+                            Expanded(
+                              child: LibraryEditTextField(
+                                controller: credit.name,
+                                label: nameLabel,
+                                maxLines: 1,
+                                onChanged: (_) => onChanged(),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: LibraryEditTextField(
+                                controller: credit.detail,
+                                label: detailLabel,
+                                maxLines: 1,
+                                onChanged: (_) => onChanged(),
+                              ),
+                            ),
+                            IconButton(
+                              tooltip: 'Remove ${title.toLowerCase()} credit',
+                              visualDensity: VisualDensity.compact,
+                              onPressed: () {
+                                onRemove(index);
+                                setState(() {});
+                                onChanged();
+                              },
+                              icon: const Icon(Icons.close, size: 18),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
+                const SizedBox(height: 8),
+                OutlinedButton.icon(
+                  onPressed: () {
+                    onAdd();
                     setState(() {});
                     onChanged();
                   },
-                  itemBuilder: (context, index) {
-                    final credit = credits[index];
-                    return Padding(
-                      key: ObjectKey(credit.identity),
-                      padding: const EdgeInsets.only(bottom: 8),
-                      child: Row(
-                        children: [
-                          ReorderableDragStartListener(
-                            index: index,
-                            child: const Icon(Icons.drag_indicator, size: 18),
-                          ),
-                          const SizedBox(width: 6),
-                          Expanded(
-                            child: LibraryEditTextField(
-                              controller: credit.name,
-                              label: nameLabel,
-                              maxLines: 1,
-                              onChanged: (_) => onChanged(),
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          Expanded(
-                            child: LibraryEditTextField(
-                              controller: credit.detail,
-                              label: detailLabel,
-                              maxLines: 1,
-                              onChanged: (_) => onChanged(),
-                            ),
-                          ),
-                          IconButton(
-                            tooltip: 'Remove ${title.toLowerCase()} credit',
-                            visualDensity: VisualDensity.compact,
-                            onPressed: () {
-                              onRemove(index);
-                              setState(() {});
-                              onChanged();
-                            },
-                            icon: const Icon(Icons.close, size: 18),
-                          ),
-                        ],
-                      ),
-                    );
-                  },
+                  icon: const Icon(Icons.add),
+                  label: Text(addLabel),
                 ),
-              const SizedBox(height: 8),
-              OutlinedButton.icon(
-                onPressed: () {
-                  onAdd();
-                  setState(() {});
-                  onChanged();
-                },
-                icon: const Icon(Icons.add),
-                label: Text(addLabel),
-              ),
-            ],
-          ),
-        ),
+              ],
+            ),
+          );
+        },
       );
 }

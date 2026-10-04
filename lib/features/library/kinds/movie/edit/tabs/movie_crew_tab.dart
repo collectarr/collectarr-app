@@ -7,10 +7,12 @@ class MovieEditCrewTab extends StatelessWidget {
   const MovieEditCrewTab({
     super.key,
     required this.movieEdit,
+    required this.accent,
     required this.markDirty,
   });
 
   final MovieEditController movieEdit;
+  final Color accent;
   final VoidCallback markDirty;
 
   @override
@@ -22,6 +24,7 @@ class MovieEditCrewTab extends StatelessWidget {
           emptyMessage: 'No crew data yet.',
           addLabel: 'Add Crew',
           defaultRole: 'Director',
+          accent: accent,
           credits: movieEdit.crewCredits,
           onChanged: markDirty,
         ),

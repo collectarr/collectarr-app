@@ -25,7 +25,7 @@ class TvEditCrewTab extends StatelessWidget {
           emptyMessage: 'No crew data yet.',
           addLabel: 'Add Crew',
           accent: accent,
-          credits: [
+          rows: () => [
             for (final credit in tvEdit.crewCredits)
               LibraryNamedDetailControllers(
                 identity: credit,
