@@ -130,6 +130,9 @@ Completed implementation slices:
   compatible credit/person rows in Add and Edit. It owns row layout, empty
   states, adding, removal, and reordering; kind-owned row models, controller
   disposal, and default values remain in their drafts.
+- TV catalog and entry Edit registrations now use one typed custom-tab
+  dispatcher for Specs, credits, metadata, catalog media, episode editing,
+  and episode/media mapping. The duplicate scope dispatcher was removed.
 - The Movie, TV, and Anime edit-tab helper files no longer carry unused
   responsive-field wrappers. TV/Anime credit tabs adapt their typed controller
   rows directly to the shared editor. Their remaining Add/Edit field parity is
@@ -513,7 +516,7 @@ tab placement, and metadata/personal classification.
 
 | Kind | Required work |
 | --- | --- |
-| TV | Physical-media Specs are shared with Movie and Anime; Cast/Crew row layout is shared across Movie/TV/Anime and Add/Edit. Unify generic and registered typed entry points; keep season/episode editing within the same draft/save lifecycle and finish remaining Add/Edit field parity. |
+| TV | Physical-media Specs are shared with Movie and Anime; Cast/Crew row layout is shared across Movie/TV/Anime and Add/Edit. One typed dispatcher now serves catalog and entry registrations; keep season/episode editing within the same draft/save lifecycle and finish remaining Add/Edit field parity. |
 | Anime | Physical-media Specs and Cast/Crew row layout are shared with Movie/TV. Reconcile the extra media dialog with active routes; preserve kind-specific series/episode fields and finish remaining Add/Edit field parity. |
 | Books | Unify catalog/entry schemas and managed publisher/format bindings; Authors and Translators now use shared typed ordered-name editors in Add/Edit; retain identifiers, publication details, and review other credits. |
 | Comics | Controller fallbacks have been removed from the Comic edit host; unify the generic entry and typed catalog hosts while retaining series/issue, grading, variants, and meaningful credit structures. |
