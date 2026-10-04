@@ -307,6 +307,9 @@ Completed implementation slices:
   each field's explicit vocabulary key. Movie, TV, Anime, Book, Game, and Comic
   fields with managed vocabularies now declare that key in their form specs;
   static enum choices and free multi-value fields remain unregistered.
+- Manual Add now uses the same editable pick-list control for fields with an
+  explicit managed vocabulary key, so custom text is staged with the new entry
+  just as it is with Edit. Static enums retain their compact dropdown.
 - Add Condition now uses the same labelled pick-field primitive as Edit, with
   the same built-in and selected-value choices.
 - Add and Edit Notes now use one multiline field with matching labels and line

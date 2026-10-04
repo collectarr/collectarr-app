@@ -294,7 +294,8 @@ final class LibraryFieldSpecControlBuilder<TDraft>
     String? vocabularyKey,
     bool showFieldLabel = true,
   }) {
-    if (mode == LibraryFieldSpecControlMode.add) {
+    final vocabulary = _vocabularyForField(vocabularyKey);
+    if (mode == LibraryFieldSpecControlMode.add && vocabulary == null) {
       return CompactSearchDropdownFormField<TValue>(
         initialValue: field.currentValue(draft),
         isExpanded: true,
@@ -340,7 +341,6 @@ final class LibraryFieldSpecControlBuilder<TDraft>
         ),
       ...field.options,
     ];
-    final vocabulary = _vocabularyForField(vocabularyKey);
     final pickListName = vocabulary?.key;
     return LibraryDropdownPickField<TValue>(
       label: field.label,
@@ -366,6 +366,12 @@ final class LibraryFieldSpecControlBuilder<TDraft>
           db: db,
         );
       },
+      onManage: mode == LibraryFieldSpecControlMode.add && onManage != null
+          ? () async {
+              await onManage(draft);
+              if (context.mounted) onChanged?.call();
+            }
+          : null,
       onChanged: (value) {
         field.updateValue(draft, value);
         final textValue = value is String ? value.trim() : null;
