@@ -809,83 +809,87 @@ extension ComicEditTabBuilders on ComicEditHost {
       }
     }
 
-    final selected = await showDialog<Map<String, dynamic>>(
-      context: comicContext,
-      builder: (dialogContext) {
-        return StatefulBuilder(
-          builder: (context, setDialogState) {
-            return AccentAlertDialog(
-              title: Text(title),
-              content: SizedBox(
-                width: 620,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Row(
-                      children: [
-                        Expanded(
-                          child: LibraryTextFormControl(
-                            controller: searchController,
-                            decoration: InputDecoration(hintText: searchHint),
-                            onFieldSubmitted: (_) => runSearch(setDialogState),
+    try {
+      return await showDialog<Map<String, dynamic>>(
+        context: comicContext,
+        builder: (dialogContext) {
+          return StatefulBuilder(
+            builder: (context, setDialogState) {
+              return AccentAlertDialog(
+                title: Text(title),
+                content: SizedBox(
+                  width: 620,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Row(
+                        children: [
+                          Expanded(
+                            child: LibraryTextFormControl(
+                              controller: searchController,
+                              decoration: InputDecoration(hintText: searchHint),
+                              onFieldSubmitted: (_) =>
+                                  runSearch(setDialogState),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          FilledButton(
+                            onPressed: () => runSearch(setDialogState),
+                            child: const Text('Search'),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 12),
+                      if (isLoading)
+                        const Padding(
+                          padding: EdgeInsets.all(16),
+                          child: CircularProgressIndicator(),
+                        )
+                      else if (error != null)
+                        Padding(
+                          padding: const EdgeInsets.all(8),
+                          child: Text(
+                            error!,
+                            style: const TextStyle(color: Colors.redAccent),
+                          ),
+                        )
+                      else
+                        Flexible(
+                          child: ListView.separated(
+                            shrinkWrap: true,
+                            itemCount: results.length,
+                            separatorBuilder: (_, __) =>
+                                const Divider(height: 1),
+                            itemBuilder: (context, index) {
+                              final result = results[index];
+                              final subtitle = subtitleForResult(result);
+                              return ListTile(
+                                title: Text(titleForResult(result)),
+                                subtitle:
+                                    subtitle.isEmpty ? null : Text(subtitle),
+                                onTap: () =>
+                                    Navigator.of(dialogContext).pop(result),
+                              );
+                            },
                           ),
                         ),
-                        const SizedBox(width: 8),
-                        FilledButton(
-                          onPressed: () => runSearch(setDialogState),
-                          child: const Text('Search'),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 12),
-                    if (isLoading)
-                      const Padding(
-                        padding: EdgeInsets.all(16),
-                        child: CircularProgressIndicator(),
-                      )
-                    else if (error != null)
-                      Padding(
-                        padding: const EdgeInsets.all(8),
-                        child: Text(
-                          error!,
-                          style: const TextStyle(color: Colors.redAccent),
-                        ),
-                      )
-                    else
-                      Flexible(
-                        child: ListView.separated(
-                          shrinkWrap: true,
-                          itemCount: results.length,
-                          separatorBuilder: (_, __) => const Divider(height: 1),
-                          itemBuilder: (context, index) {
-                            final result = results[index];
-                            final subtitle = subtitleForResult(result);
-                            return ListTile(
-                              title: Text(titleForResult(result)),
-                              subtitle:
-                                  subtitle.isEmpty ? null : Text(subtitle),
-                              onTap: () =>
-                                  Navigator.of(dialogContext).pop(result),
-                            );
-                          },
-                        ),
-                      ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.of(dialogContext).pop(),
-                  child: const Text('Cancel'),
-                ),
-              ],
-            );
-          },
-        );
-      },
-    );
-    searchController.dispose();
-    return selected;
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.of(dialogContext).pop(),
+                    child: const Text('Cancel'),
+                  ),
+                ],
+              );
+            },
+          );
+        },
+      );
+    } finally {
+      searchController.dispose();
+    }
   }
 
   List<ResolvedComicEditImage> _resolvedEditImages() {

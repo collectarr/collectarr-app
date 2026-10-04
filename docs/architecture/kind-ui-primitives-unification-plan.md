@@ -395,6 +395,10 @@ Still outstanding:
   and vocabulary keys from the active kind's `PersonalLibraryFieldSpec`
   contributor. Common Add controls bind those declared fields to the typed
   common draft; kind-specific controls remain contributed by their kind pane.
+- The controller audit now disposes Comic lookup-search and Music listening
+  note controllers in `finally` blocks. The remaining dialog-local Music and TV
+  controllers already use `finally`, while credit, image, tracking, and form
+  controllers remain owned by their state or typed drafts.
 - Legacy custom tabs and kind-specific tab composition still have divergent
   implementations. Responsive field geometry and the basic vocabulary/text
   controls are now shared. Book Authors/Translators and Movie Cast/Crew share

@@ -107,25 +107,29 @@ class MusicListeningDraftSection extends StatelessWidget {
         initialDate: existing?.listenedAt ?? DateTime.now());
     if (date == null || !context.mounted) return;
     final notes = TextEditingController(text: existing?.notes ?? '');
-    final value = await showDialog<String>(
-        context: context,
-        builder: (dialogContext) => AlertDialog(
-              title:
-                  Text(existing == null ? 'Mark as listened' : 'Edit listen'),
-              content: LibraryTextFormControl(
-                  controller: notes,
-                  decoration: const InputDecoration(labelText: 'Notes'),
-                  maxLines: 3),
-              actions: [
-                TextButton(
-                    onPressed: () => Navigator.pop(dialogContext),
-                    child: const Text('Cancel')),
-                FilledButton(
-                    onPressed: () => Navigator.pop(dialogContext, notes.text),
-                    child: const Text('Save'))
-              ],
-            ));
-    notes.dispose();
+    String? value;
+    try {
+      value = await showDialog<String>(
+          context: context,
+          builder: (dialogContext) => AlertDialog(
+                title:
+                    Text(existing == null ? 'Mark as listened' : 'Edit listen'),
+                content: LibraryTextFormControl(
+                    controller: notes,
+                    decoration: const InputDecoration(labelText: 'Notes'),
+                    maxLines: 3),
+                actions: [
+                  TextButton(
+                      onPressed: () => Navigator.pop(dialogContext),
+                      child: const Text('Cancel')),
+                  FilledButton(
+                      onPressed: () => Navigator.pop(dialogContext, notes.text),
+                      child: const Text('Save'))
+                ],
+              ));
+    } finally {
+      notes.dispose();
+    }
     if (value != null) {
       draft.save(
           existing: existing,
