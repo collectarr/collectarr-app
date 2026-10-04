@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_transport_repository.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
@@ -90,7 +89,6 @@ final class LibraryAddCoordinator {
     final catalog = request.dependencies.catalog;
     final entryMutations = request.dependencies.entryMutations;
     final wishlistMutations = request.dependencies.wishlistMutations;
-    final trackingMutations = request.dependencies.trackingMutations;
     final items = request.items;
     final target = request.target;
     final defaults = request.defaults;

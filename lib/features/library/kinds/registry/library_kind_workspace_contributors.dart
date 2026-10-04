@@ -5,7 +5,6 @@ import 'package:collectarr_app/features/library/config/library_search_target.dar
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_workspace_registry.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_view_state.dart';
-import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_workspace.dart';
 
 LibraryHierarchyCapability libraryHierarchyForKind(CatalogMediaKind kind) =>

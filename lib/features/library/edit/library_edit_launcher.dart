@@ -119,11 +119,21 @@ class _LibraryEntryEditorFrameState extends State<_LibraryEntryEditorFrame> {
   Widget build(BuildContext context) => FutureBuilder<LibraryEntryEditDraft?>(
     future: _draft,
     builder: (context, snapshot) {
-      if (snapshot.connectionState != ConnectionState.done) return const Center(child: CircularProgressIndicator());
-      if (snapshot.hasError) return AlertDialog(
-        title: const Text('Could not open entry'), content: Text('${snapshot.error}'),
-        actions: [TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Close'))],
-      );
+      if (snapshot.connectionState != ConnectionState.done) {
+        return const Center(child: CircularProgressIndicator());
+      }
+      if (snapshot.hasError) {
+        return AlertDialog(
+          title: const Text('Could not open entry'),
+          content: Text('${snapshot.error}'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Close'),
+            ),
+          ],
+        );
+      }
       return LibraryEntryEditScope(draft: snapshot.data, onCommit: widget.onCommit, child: Builder(builder: (ctx) => widget.builder(ctx, widget.request)));
     },
   );

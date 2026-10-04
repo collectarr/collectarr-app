@@ -853,6 +853,6 @@ Do not add or run tests unless requested. Static analysis and manual runtime
 review can be performed during implementation; record what was actually checked.
 This audit itself did not run the application or execute tests.
 
-Implementation note (2026-10-04): targeted `dart analyze` passed for the shared
-Add/Edit schema-validation files and all nine Manual Add pane files. Tests and
-runtime screenshot review have not been run.
+Implementation note (2026-10-04): `dart analyze lib/features/library/add
+lib/features/library/edit lib/features/library/kinds` completed with no issues.
+Tests and runtime screenshot review have not been run.

@@ -77,9 +77,7 @@ final animeKindAdd = StandardLibraryAddCapability<AnimeAddDraft>(
             metadataValues: (item) {
               final metadata = item.kindCapability.mapTransport(
                   (transport) => AnimeMetadata.fromJson(transport.kindData));
-              return metadata is AnimeMetadata
-                  ? [...metadata.studios, ...metadata.producers]
-                  : const <Object?>[];
+              return [...metadata.studios, ...metadata.producers];
             },
           ),
           LibraryAddSearchRankField(
@@ -89,9 +87,7 @@ final animeKindAdd = StandardLibraryAddCapability<AnimeAddDraft>(
             metadataValues: (item) {
               final metadata = item.kindCapability.mapTransport(
                   (transport) => AnimeMetadata.fromJson(transport.kindData));
-              return metadata is AnimeMetadata
-                  ? [metadata.seasonYear, metadata.startDate?.year]
-                  : const <Object?>[];
+              return [metadata.seasonYear, metadata.startDate?.year];
             },
           ),
         ],

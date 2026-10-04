@@ -62,9 +62,7 @@ final boardGameKindAdd = StandardLibraryAddCapability<BoardgameAddDraft>(
             metadataValues: (item) {
               final metadata = item.kindCapability.mapTransport((transport) =>
                   BoardGameMetadata.fromJson(transport.kindData));
-              return metadata is BoardGameMetadata
-                  ? [...metadata.designers, ...metadata.artists]
-                  : const <Object?>[];
+              return [...metadata.designers, ...metadata.artists];
             },
           ),
           LibraryAddSearchRankField(
@@ -74,9 +72,7 @@ final boardGameKindAdd = StandardLibraryAddCapability<BoardgameAddDraft>(
             metadataValues: (item) {
               final metadata = item.kindCapability.mapTransport((transport) =>
                   BoardGameMetadata.fromJson(transport.kindData));
-              return metadata is BoardGameMetadata
-                  ? [...metadata.publishers, metadata.publisher]
-                  : const <Object?>[];
+              return [...metadata.publishers, metadata.publisher];
             },
           ),
           LibraryAddSearchRankField(
@@ -86,9 +82,7 @@ final boardGameKindAdd = StandardLibraryAddCapability<BoardgameAddDraft>(
             metadataValues: (item) {
               final metadata = item.kindCapability.mapTransport((transport) =>
                   BoardGameMetadata.fromJson(transport.kindData));
-              return metadata is BoardGameMetadata
-                  ? [metadata.yearPublished]
-                  : const <Object?>[];
+              return [metadata.yearPublished];
             },
           ),
         ],
