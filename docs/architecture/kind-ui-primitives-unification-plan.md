@@ -71,6 +71,12 @@ Completed implementation slices:
   one video-kind component. It preserves managed multi-value Audio/Subtitles
   vocabularies for Movie and TV, and text input for Anime, while sharing the
   Layers, Color, Discs fields and responsive layout.
+- The shared video Specs section now also edits Screen ratio. TV and Anime
+  hydrate their existing Specs controllers from metadata and persist all
+  fields, including explicit clears; their Add forms expose the same supported
+  Layers and Color fields. TV's Specs tab is registered in its active Edit
+  tabs, and Anime's existing Details, Edition, Cast, Crew, Specs, and Links
+  editors are now reachable from its active tab sets.
 - TV and Anime Cast/Crew now use one shared video credits section in both Add
   and Edit for Name/Role rows, empty states, adding, removal, and reordering.
   Their kind-owned credit objects, controller disposal, and default roles
@@ -149,8 +155,9 @@ Completed implementation slices:
 Still outstanding:
 
 - Add and Edit do not yet use one complete kind-owned field definition for all
-  nine kinds. Movie still has separate scalar Add fields and typed Edit credit
-  editors; other kinds also have separate catalog/entry compositions.
+  nine kinds. Movie now shares typed Cast/Crew row editors, but scalar Add and
+  Edit fields remain separate; other kinds also have separate catalog/entry
+  compositions.
 - The Add and Edit renderers still own separate submission/error lifecycles and
   controller registries. Validation policy for fields in unmounted tabs still
   needs to be made explicit. Schema-backed invalid fields now focus after tab
