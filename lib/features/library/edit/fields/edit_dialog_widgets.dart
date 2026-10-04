@@ -1,5 +1,6 @@
 import 'package:collectarr_app/features/library/config/library_dialog_tokens.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_form_controls.dart';
+import 'package:collectarr_app/features/library/ui/primitives/library_responsive_field_layout.dart';
 import 'package:collectarr_app/features/library/ui/library_section_state_message.dart';
 import 'package:collectarr_app/features/library/schema/library_field_spec.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_dropdown_pick_field.dart';
@@ -384,10 +385,8 @@ class LibraryEditTextField extends StatelessWidget {
   }
 }
 
-/// A responsive form row that stacks its [children] into a single column on
-/// narrow layouts and lays them out as equal-width [Expanded] columns once the
-/// available width reaches [breakpoint]. Consolidates the identical private
-/// `_responsiveFields` helpers that several edit dialogs used to declare.
+/// A responsive form row that stacks its [children] on narrow layouts and uses
+/// equal-width columns above [breakpoint]. Geometry is shared with schema forms.
 class LibraryEditResponsiveRow extends StatelessWidget {
   const LibraryEditResponsiveRow({
     super.key,
@@ -400,29 +399,14 @@ class LibraryEditResponsiveRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final twoColumns = constraints.maxWidth >= breakpoint;
-        if (!twoColumns) {
-          return Column(
-            children: [
-              for (var index = 0; index < children.length; index++) ...[
-                if (index > 0) const SizedBox(height: 10),
-                children[index],
-              ],
-            ],
-          );
-        }
-        return Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            for (var index = 0; index < children.length; index++) ...[
-              if (index > 0) const SizedBox(width: 10),
-              Expanded(child: children[index]),
-            ],
-          ],
-        );
+    return LibraryResponsiveFieldLayout(
+      maxColumns: children.length,
+      columnBreakpoints: {
+        if (children.length > 1) children.length: breakpoint,
       },
+      spacing: 10,
+      runSpacing: 10,
+      children: children,
     );
   }
 }
@@ -451,25 +435,16 @@ class LibraryEditDenseFields extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final columns = constraints.maxWidth >= ultraWideBreakpoint
-            ? ultraWideColumns
-            : constraints.maxWidth >= wideBreakpoint
-                ? wideColumns
-                : 1;
-        final fieldWidth = columns == 1
-            ? constraints.maxWidth
-            : (constraints.maxWidth - (spacing * (columns - 1))) / columns;
-        return Wrap(
-          spacing: spacing,
-          runSpacing: spacing,
-          children: [
-            for (final child in children)
-              SizedBox(width: fieldWidth, child: child),
-          ],
-        );
+    return LibraryResponsiveFieldLayout(
+      maxColumns: ultraWideColumns,
+      columnBreakpoints: {
+        if (wideColumns > 1) wideColumns: wideBreakpoint,
+        if (ultraWideColumns > wideColumns)
+          ultraWideColumns: ultraWideBreakpoint,
       },
+      spacing: spacing,
+      runSpacing: spacing,
+      children: children,
     );
   }
 }
