@@ -64,6 +64,8 @@ Completed implementation slices:
   draft, load and save by the actual `LibraryEntryRef`, and are committed with
   the entry edit. Manual links found in the old catalog payload are retained
   for catalog-only edits and moved into the local entry on its next save.
+- Movie, TV, and Anime Links tabs now share one tab layout for read-only catalog
+  links and editable local links; each kind supplies only its catalog-link data.
 - TV and Anime Manual Add now have separate Cast and Crew tabs backed by
   kind-owned editable credit rows. Their candidate builders serialize typed
   person models rather than flattening creators into a comma-separated field.
