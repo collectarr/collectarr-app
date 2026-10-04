@@ -250,6 +250,8 @@ Completed implementation slices:
   currency prefix, parsing, and non-negative validation.
 - Add Location now uses the shared dropdown and supports an explicit no-location
   choice that remains distinct from the dialog's default location.
+- Add Condition now uses the same labelled pick-field primitive as Edit, with
+  the same built-in and selected-value choices.
 - Add and Edit Notes now use one multiline field with matching labels and line
   limits while keeping their existing controller and draft ownership.
 - Kind Add/Edit fields and metadata comparison views now use consistent title

@@ -32,24 +32,18 @@ final class LibraryAddManualPersonalTab extends StatelessWidget {
     final date = current.purchaseDate ?? request.defaultPurchaseDate;
     final fields = <Widget>[
       if (request.conditions.isNotEmpty)
-        LibraryFormField(
+        LibraryDropdownPickField<String>(
           label: 'Condition',
-          child: DropdownButtonFormField<String>(
-            key: ValueKey('manual-condition-$condition'),
-            initialValue: request.conditions.contains(condition)
-                ? condition
-                : request.conditions.first,
-            decoration: const InputDecoration(
-              constraints: BoxConstraints(minHeight: kLibraryFormControlHeight),
-            ),
-            items: [
-              for (final value in request.conditions)
-                DropdownMenuItem(value: value, child: Text(value)),
-            ],
-            onChanged: (value) {
-              if (value != null) _updateCommon(condition: value);
-            },
-          ),
+          value: request.conditions.contains(condition)
+              ? condition
+              : request.conditions.first,
+          options: [
+            for (final value in request.conditions)
+              LibraryFieldOption(value: value, label: value),
+          ],
+          onChanged: (value) {
+            if (value != null) _updateCommon(condition: value);
+          },
         )
       else
         LibraryFormField(
