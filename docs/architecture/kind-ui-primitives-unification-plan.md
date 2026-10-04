@@ -126,11 +126,10 @@ Completed implementation slices:
   Layers and Color fields. TV's Specs tab is registered in its active Edit
   tabs, and Anime's existing Details, Edition, Cast, Crew, Specs, and Links
   editors are now reachable from its active tab sets.
-- TV and Anime Cast/Crew now use one shared video credits section in both Add
-  and Edit for Name/Role rows, empty states, adding, removal, and reordering.
-  Their kind-owned credit objects, controller disposal, and default roles
-  remain in their own drafts; the shared UI only receives row controller pairs
-  and mutation callbacks.
+- Movie, TV, Anime, and Comic now use one shared ordered name/detail list for
+  compatible credit/person rows in Add and Edit. It owns row layout, empty
+  states, adding, removal, and reordering; kind-owned row models, controller
+  disposal, and default values remain in their drafts.
 - The Movie, TV, and Anime edit-tab helper files no longer carry unused
   responsive-field wrappers. TV/Anime credit tabs adapt their typed controller
   rows directly to the shared editor. Their remaining Add/Edit field parity is
@@ -360,7 +359,9 @@ Movie, TV, and Anime specs now bind to their typed edit draft controllers, and
 the save path reads those same values. No static dummy controllers remain.
 Custom tab builders reject a missing or mismatched typed draft with a clear
 state error instead of constructing fallback controllers. Movie Cast/Crew
-mutations notify the owning draft so the tab rebuilds after additions.
+mutations notify the owning draft so the tab rebuilds after additions. Their
+Add and Edit rows now render through the same list primitive as TV/Anime
+credits and Comic's simpler person lists.
 
 ### P1 — Add/Edit fields and tab coverage differ
 
@@ -512,8 +513,8 @@ tab placement, and metadata/personal classification.
 
 | Kind | Required work |
 | --- | --- |
-| TV | Physical-media Specs are shared with Movie and Anime; typed Cast/Crew editors are shared between Add/Edit and Anime. Unify generic and registered typed entry points; keep season/episode editing within the same draft/save lifecycle and finish remaining Add/Edit field parity. |
-| Anime | Physical-media Specs and typed Cast/Crew editors are shared with Movie/TV. Reconcile the extra media dialog with active routes; preserve kind-specific series/episode fields and finish remaining Add/Edit field parity. |
+| TV | Physical-media Specs are shared with Movie and Anime; Cast/Crew row layout is shared across Movie/TV/Anime and Add/Edit. Unify generic and registered typed entry points; keep season/episode editing within the same draft/save lifecycle and finish remaining Add/Edit field parity. |
+| Anime | Physical-media Specs and Cast/Crew row layout are shared with Movie/TV. Reconcile the extra media dialog with active routes; preserve kind-specific series/episode fields and finish remaining Add/Edit field parity. |
 | Books | Unify catalog/entry schemas and managed publisher/format bindings; Authors and Translators now use shared typed ordered-name editors in Add/Edit; retain identifiers, publication details, and review other credits. |
 | Comics | Controller fallbacks have been removed from the Comic edit host; unify the generic entry and typed catalog hosts while retaining series/issue, grading, variants, and meaningful credit structures. |
 | Manga | Consolidate series/publisher picker mechanics with other kinds; keep volume/publication semantics in Manga; reconcile generic/extra media editors. |
