@@ -51,6 +51,10 @@ Completed implementation slices:
   names and roles. The old free-text Director(s) Add field and its draft value
   were removed. `movie_edit_models.dart` was removed after its remaining
   external-link use moved to its owning shared edit model.
+- Book Add and Edit now share a kind-owned ordered name editor for Authors and
+  Translators. Add stores typed credits instead of a comma-separated string;
+  Edit's Credits tab now renders those same editors, preserves credit metadata,
+  and writes the visible order back to the credit sequence.
 - Game edit fields use stable draft-owned controllers and configured physical
   format/platform vocabularies. Comic edit host access requires the registered
   typed draft, with temporary controller fallbacks removed. Movie/TV/Anime
@@ -107,9 +111,10 @@ Still outstanding:
   validation behavior.
 - Legacy custom tabs and kind-specific tab composition still have divergent
   implementations. Responsive field geometry and the basic vocabulary/text
-  controls are now shared, but date, image, ordered-list, credit, and selection
-  flows still have separate behavior. Runtime screenshots at matching size and
-  text scale have not been reviewed.
+  controls are now shared. Book Authors/Translators and Movie Cast/Crew share
+  their Add/Edit row editors; date, image, selection, and other kinds' credit
+  flows still need review. Runtime screenshots at matching size and text scale
+  have not been reviewed.
 - The legacy pick-list source and its golden are retained temporarily even
   though application call sites have moved to the shared chip control. Remove
   the wrapper, barrel exports, and replace the golden during final UI cleanup.
@@ -149,7 +154,7 @@ My Images and adds Custom Fields only when definitions are nonempty.
 | Movies | One Main schema with mixed metadata fields | Generic session/presentation renderer; separate catalog/entry tab lists, custom tabs, controller-based fields, shared dummy controllers. |
 | TV | One Main schema | Generic editor plus a separately registered typed media editor; duplicated video credits/spec controls and dummy controllers. Custom episode dialog is another surface to audit. |
 | Anime | One Main schema | Registered edit routes use generic editor; an additional typed media dialog exists. Duplicated video credits/spec controls and dummy controllers. |
-| Books | Main, plus managed publisher/format selection support | Generic editor with separate catalog/entry presentation and an embedded entry schema renderer. |
+| Books | Main with managed publisher/format selection; typed Authors and Translators | Generic editor with separate catalog/entry presentation and an embedded entry schema renderer; Credits tab now uses the same typed ordered-name editors as Add. |
 | Comics | Main, Details, plus Series identity control | Generic entry editor and separately registered typed catalog editor; large custom tab/host adapter implementation with temporary controller fallbacks. |
 | Manga | Identity, Publication, plus Series identity control | Registered routes use generic editor; a separate typed media editor exists. Managed series/publisher selection logic overlaps Comics/Books. |
 | Games | One Main schema | Generic editor plus embedded entry schema; custom Main/Release fields, build-time controllers, and a hard-coded platform list. |
@@ -390,7 +395,7 @@ tab placement, and metadata/personal classification.
 | --- | --- |
 | TV | Reuse video field/credit mechanisms; replace dummy spec state; unify generic and registered typed entry points; keep season/episode editing within the same draft/save lifecycle. |
 | Anime | Same video cleanup; remove fallback edition controllers; reconcile the extra media dialog with active routes; preserve kind-specific series/episode fields. |
-| Books | Unify catalog/entry schemas and managed publisher/format bindings; contribute authors/translators/other credits via shared list controls; retain identifiers and publication details. |
+| Books | Unify catalog/entry schemas and managed publisher/format bindings; Authors and Translators now use shared typed ordered-name editors in Add/Edit; retain identifiers, publication details, and review other credits. |
 | Comics | Replace repeated controller fallbacks in comic_edit_host_adapter; unify generic entry and typed catalog hosts; retain series/issue, grading, variants, and meaningful credit structures. |
 | Manga | Consolidate series/publisher picker mechanics with other kinds; keep volume/publication semantics in Manga; reconcile generic/extra media editors. |
 | Games | Remove build-created release controllers and no-op callbacks; replace hard-coded platform options with Game vocabularies; integrate embedded entry schema with complete form. |
