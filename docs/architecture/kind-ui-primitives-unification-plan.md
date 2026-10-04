@@ -77,6 +77,8 @@ Completed implementation slices:
   field label as text inputs. Date controls and selection controls can suppress
   their internal label when composed under that shared label, preventing
   duplicate labels in both Add and Edit.
+- Calendar actions and segmented choices now use the shared form-control height
+  token instead of separate hard-coded dimensions.
 - Movie manual Add now uses the managed multi-value Genre vocabulary and
   exposes Display Title, Original Title, Localized Title, and Search Aliases.
   Clearing supported optional Movie metadata is preserved on save.

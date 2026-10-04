@@ -253,7 +253,7 @@ class LibrarySegmentedField<T> extends StatelessWidget {
         for (final entry in options.entries)
           Expanded(
               child: SizedBox(
-                  height: 34,
+                  height: kLibraryFormControlHeight,
                   child: OutlinedButton(
                     style: OutlinedButton.styleFrom(
                       backgroundColor: value == entry.key
