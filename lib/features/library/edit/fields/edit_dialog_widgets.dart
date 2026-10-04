@@ -673,6 +673,7 @@ class LibraryDateFieldButton extends StatefulWidget {
     required this.label,
     required this.value,
     required this.onChanged,
+    this.showLabel = true,
     this.errorText,
     this.fieldKeyPrefix,
     this.focusNode,
@@ -681,6 +682,7 @@ class LibraryDateFieldButton extends StatefulWidget {
   final String label;
   final DateTime? value;
   final ValueChanged<DateTime?> onChanged;
+  final bool showLabel;
   final String? errorText;
   final String? fieldKeyPrefix;
   final FocusNode? focusNode;
@@ -748,7 +750,9 @@ class _LibraryDateFieldButtonState extends State<LibraryDateFieldButton> {
           clipBehavior: Clip.none,
           children: [
             Padding(
-              padding: EdgeInsets.only(top: fieldTopPadding),
+              padding: EdgeInsets.only(
+                top: widget.showLabel ? fieldTopPadding : 0,
+              ),
               child: ConstrainedBox(
                 constraints: const BoxConstraints(
                   minHeight: kLibraryFormControlHeight,
@@ -799,14 +803,15 @@ class _LibraryDateFieldButtonState extends State<LibraryDateFieldButton> {
                 ),
               ),
             ),
-            Positioned(
-              left: 10,
-              top: 0,
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 3),
-                child: Text(widget.label, style: labelStyle),
+            if (widget.showLabel)
+              Positioned(
+                left: 10,
+                top: 0,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 3),
+                  child: Text(widget.label, style: labelStyle),
+                ),
               ),
-            ),
           ],
         ),
         if (widget.errorText != null) ...[

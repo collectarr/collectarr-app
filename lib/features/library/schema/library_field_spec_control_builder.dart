@@ -61,9 +61,12 @@ final class LibraryFieldSpecControlBuilder<TDraft>
         field is LibraryNumberFieldSpec<TDraft> ||
         field is LibraryMoneyFieldSpec<TDraft> ||
         field is LibraryPartialDateFieldSpec<TDraft> ||
+        field is LibraryDateFieldSpec<TDraft> ||
+        field is LibrarySelectFieldSpec<TDraft, Object?> ||
+        field is LibraryImageFieldSpec<TDraft, Object?> ||
+        field is LibraryReadOnlyFieldSpec<TDraft, Object?> ||
         (mode == LibraryFieldSpecControlMode.add &&
-            (field is LibrarySelectFieldSpec<TDraft, Object?> ||
-                field is LibraryVocabularyFieldSpec<TDraft, Object?>));
+            field is LibraryVocabularyFieldSpec<TDraft, Object?>);
     final labelled =
         external ? LibraryFormField(label: field.label, child: child) : child;
     final focusNode = _focusNode(field.id);
@@ -138,6 +141,7 @@ final class LibraryFieldSpecControlBuilder<TDraft>
     final value = field.value(draft);
     return LibraryDateFieldButton(
       label: field.label,
+      showLabel: false,
       value: value,
       focusNode: _focusNode(field.id),
       errorText: field.validate(draft),
@@ -209,7 +213,7 @@ final class LibraryFieldSpecControlBuilder<TDraft>
 
   @override
   Widget visitSelect<TValue>(LibrarySelectFieldSpec<TDraft, TValue> field) =>
-      _buildSelectField(field);
+      _buildSelectField(field, showFieldLabel: false);
 
   @override
   Widget visitVocabulary<TValue>(
@@ -219,6 +223,7 @@ final class LibraryFieldSpecControlBuilder<TDraft>
         field,
         onManage: field.onManage,
         vocabularyKey: field.pickListKey,
+        showFieldLabel: mode == LibraryFieldSpecControlMode.edit,
       );
 
   @override
@@ -232,7 +237,6 @@ final class LibraryFieldSpecControlBuilder<TDraft>
     final value = field.currentValue(draft);
     return InputDecorator(
       decoration: InputDecoration(
-        labelText: field.label,
         errorText: field.validate(draft),
         constraints: const BoxConstraints(
           minHeight: kLibraryFormControlHeight,
@@ -274,7 +278,6 @@ final class LibraryFieldSpecControlBuilder<TDraft>
       InputDecorator(
         decoration: _controlDecoration(
           InputDecoration(
-            labelText: field.label,
             errorText: field.validate(draft),
           ),
         ),
@@ -289,6 +292,7 @@ final class LibraryFieldSpecControlBuilder<TDraft>
     LibrarySingleValueField<TDraft, TValue> field, {
     FutureOr<void> Function(TDraft draft)? onManage,
     String? vocabularyKey,
+    bool showFieldLabel = true,
   }) {
     if (mode == LibraryFieldSpecControlMode.add) {
       return CompactSearchDropdownFormField<TValue>(
@@ -296,7 +300,8 @@ final class LibraryFieldSpecControlBuilder<TDraft>
         isExpanded: true,
         decoration: _controlDecoration(
           InputDecoration(
-            labelText: field.label,
+            labelText: '',
+            floatingLabelBehavior: FloatingLabelBehavior.never,
             errorText: field.validate(draft),
             suffixIcon: onManage == null
                 ? null
@@ -342,6 +347,7 @@ final class LibraryFieldSpecControlBuilder<TDraft>
     final pickListName = vocabulary?.key;
     return LibraryDropdownPickField<TValue>(
       label: field.label,
+      showFieldLabel: showFieldLabel,
       value: currentValue,
       focusNode: _focusNode(field.id),
       options: resolvedOptions,

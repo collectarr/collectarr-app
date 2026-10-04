@@ -30,6 +30,7 @@ class LibraryDropdownPickField<TValue> extends StatefulWidget {
     this.clearOptionLabel,
     this.enabled = true,
     this.focusNode,
+    this.showFieldLabel = true,
   });
 
   final String label;
@@ -45,6 +46,7 @@ class LibraryDropdownPickField<TValue> extends StatefulWidget {
   final String? clearOptionLabel;
   final bool enabled;
   final FocusNode? focusNode;
+  final bool showFieldLabel;
 
   @override
   State<LibraryDropdownPickField<TValue>> createState() =>
@@ -142,27 +144,27 @@ class _LibraryDropdownPickFieldState<TValue>
 
   @override
   Widget build(BuildContext context) {
-    return LibraryFormField(
+    final field = SingleValuePickField(
+      controller: _controller,
+      focusNode: widget.focusNode,
       label: widget.label,
-      child: SingleValuePickField(
-        controller: _controller,
-        focusNode: widget.focusNode,
-        label: widget.label,
-        showInlineLabel: false,
-        options: _labels,
-        validator: (_) => widget.errorText,
-        helperText: widget.helperText,
-        errorText: widget.errorText,
-        showPickerListAction:
-            widget.openPicker != null || widget.onManage != null,
-        manageTooltip: widget.manageTooltip ??
-            (widget.onManage == null
-                ? 'Select ${widget.label}'
-                : 'Manage ${widget.label}'),
-        enabled: widget.enabled,
-        onChanged: _selectLabel,
-        onManage: widget.onManage ?? _openPicker,
-      ),
+      showInlineLabel: false,
+      options: _labels,
+      validator: (_) => widget.errorText,
+      helperText: widget.helperText,
+      errorText: widget.errorText,
+      showPickerListAction:
+          widget.openPicker != null || widget.onManage != null,
+      manageTooltip: widget.manageTooltip ??
+          (widget.onManage == null
+              ? 'Select ${widget.label}'
+              : 'Manage ${widget.label}'),
+      enabled: widget.enabled,
+      onChanged: _selectLabel,
+      onManage: widget.onManage ?? _openPicker,
     );
+    return widget.showFieldLabel
+        ? LibraryFormField(label: widget.label, child: field)
+        : field;
   }
 }

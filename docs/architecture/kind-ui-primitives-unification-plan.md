@@ -73,6 +73,10 @@ Completed implementation slices:
   the shared text-form control. Date digit/length limits, money parsing,
   multiline sizing, focus, and validation remain supplied by their field
   definitions.
+- Schema Date, Select, Image, and Read-only fields now use the same external
+  field label as text inputs. Date controls and selection controls can suppress
+  their internal label when composed under that shared label, preventing
+  duplicate labels in both Add and Edit.
 - Movie manual Add now uses the managed multi-value Genre vocabulary and
   exposes Display Title, Original Title, Localized Title, and Search Aliases.
   Clearing supported optional Movie metadata is preserved on save.
