@@ -58,6 +58,14 @@ Completed implementation slices:
   buttons remain separate from choosing or typing a value.
 - Schema text, number, and money inputs and custom Edit text inputs share the
   same base text-form control and common minimum height.
+- `Sort Title` now uses consistent title casing across kind Add/Edit forms and
+  the Music metadata comparison view.
+- Edit validation checks visible schema fields across inactive tabs and can
+  run a validator contributed by an extra tab. When a non-mounted tab contains
+  the first invalid field, the renderer switches to that tab and shows the
+  validation message in the shared feedback area.
+- The shared multi-value picker now follows the pick-list dialog behavior:
+  top alignment, explicit Close, and no outside-click dismissal.
 
 Still outstanding:
 
@@ -66,7 +74,8 @@ Still outstanding:
   editors; other kinds also have separate catalog/entry compositions.
 - The Add and Edit renderers still own separate submission/error lifecycles and
   controller registries. Validation policy for fields in unmounted tabs still
-  needs to be made explicit.
+  needs to be made explicit, and focus does not yet move to the first invalid
+  control after the renderer switches tabs.
 - Legacy custom tabs and kind-specific tab composition still have divergent
   implementations. Responsive field geometry and the basic vocabulary/text
   controls are now shared, but date, image, ordered-list, credit, and selection
