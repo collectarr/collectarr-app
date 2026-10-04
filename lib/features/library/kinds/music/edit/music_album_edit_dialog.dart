@@ -137,6 +137,11 @@ final class _MusicAlbumEditDialogState
             id: 'classical',
             label: 'Classical',
             icon: Icons.queue_music_outlined,
+            validate: () => _creditsEditor.hasIncompleteContributions(
+              classical: true,
+            )
+                ? 'Complete or remove each unfinished music credit'
+                : null,
             content: MusicAlbumCreditsTab(
               editor: _creditsEditor,
               classical: true,
@@ -147,6 +152,11 @@ final class _MusicAlbumEditDialogState
             id: 'people',
             label: 'People',
             icon: Icons.people_outline,
+            validate: () => _creditsEditor.hasIncompleteContributions(
+              classical: false,
+            )
+                ? 'Complete or remove each unfinished music credit'
+                : null,
             content: MusicAlbumCreditsTab(
               editor: _creditsEditor,
               classical: false,

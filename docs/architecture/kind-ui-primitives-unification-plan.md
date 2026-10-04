@@ -343,6 +343,8 @@ Completed implementation slices:
   that tab is mounted, and the dialog scrolls the control into view. Extra-tab
   validators still own their focus behavior because the extra-tab contract
   does not expose a field identity.
+- Music's incomplete credit rows now validate on their owning People or
+  Classical tab, so Edit switches to the section that needs correction.
 - The shared multi-value picker now follows the pick-list dialog behavior:
   top alignment, explicit Close, and no outside-click dismissal.
 - All live library Add/Edit, bulk-edit, Comic, Game, and Music multi-value

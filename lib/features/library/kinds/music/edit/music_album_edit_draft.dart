@@ -23,7 +23,6 @@ final class MusicAlbumEditDraft {
   List<MusicAlbumContribution> contributions;
   final List<MusicDisc> discs;
   List<MusicExternalLink> externalLinks;
-  bool hasIncompleteContributions = false;
 
   void addDisc() {
     final nextNumber = discs.fold<int>(

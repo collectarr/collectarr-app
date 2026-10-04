@@ -13,9 +13,6 @@ final EditSchema<MusicAlbum, MusicAlbumEditDraft> musicAlbumEditSchema =
   },
   validate: (_, draft) {
     if (draft.values.title.trim().isEmpty) return 'Title is required';
-    if (draft.hasIncompleteContributions) {
-      return 'Complete or remove each unfinished music credit';
-    }
     return null;
   },
   tabs: [

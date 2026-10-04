@@ -15,6 +15,11 @@ final class MusicAlbumCreditsEditor {
   final MusicAlbumEditDraft _draft;
   final List<_CreditRow> _rows;
 
+  bool hasIncompleteContributions({required bool classical}) => _rows.any(
+        (row) =>
+            _isClassicalRole(row.role) == classical && row.name.trim().isEmpty,
+      );
+
   List<List<MusicCreditFieldGroup>> columnsFor({required bool classical}) {
     final roles = classical
         ? const [
@@ -86,8 +91,6 @@ final class MusicAlbumCreditsEditor {
   }
 
   void _sync() {
-    _draft.hasIncompleteContributions =
-        _rows.any((row) => row.name.trim().isEmpty);
     final now = DateTime.now().toUtc();
     _draft.contributions = [
       for (var index = 0; index < _rows.length; index++)
