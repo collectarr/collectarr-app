@@ -483,17 +483,6 @@ extension ComicEditTabBuilders on ComicEditHost {
                 ),
               ]),
               const SizedBox(height: 10),
-              LibraryEditResponsiveRow(children: [
-                LibraryEditTextField(
-                  controller: comicStorageDeviceController,
-                  label: 'Storage device',
-                ),
-                LibraryEditTextField(
-                  controller: comicStorageSlotController,
-                  label: 'Storage slot',
-                ),
-              ]),
-              const SizedBox(height: 10),
               TextFormField(
                 controller: comicTrackingNotesController,
                 minLines: 2,
