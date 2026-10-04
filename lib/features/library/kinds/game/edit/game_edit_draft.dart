@@ -354,6 +354,12 @@ LibraryEditSessionBundle createGameEditDraft({
     initialAgeRating: meta.ageRating ?? '',
     initialLanguage: meta.languages.join(', '),
     initialCountry: meta.country,
+    initialEditionTitle: meta.editionTitle ?? meta.titleExtension ?? '',
+    initialVariant: meta.variantName ?? '',
+    initialBarcode: meta.barcode ?? '',
+    initialPhysicalFormat:
+        meta.physicalFormatLabel ?? meta.physicalFormat ?? '',
+    initialPhysicalFormatId: meta.physicalFormat,
   );
 
   final draft = GameEditDraft(

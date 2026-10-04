@@ -21,6 +21,11 @@ class GameEditController {
     String initialAgeRating = '',
     String initialLanguage = '',
     String initialCountry = '',
+    String initialEditionTitle = '',
+    String initialVariant = '',
+    String initialBarcode = '',
+    String initialPhysicalFormat = '',
+    String? initialPhysicalFormatId,
   })  : platformsController = TextEditingController(text: initialPlatforms),
         developersController = TextEditingController(text: initialDevelopers),
         seriesTitleController = TextEditingController(text: initialSeriesTitle),
@@ -31,7 +36,14 @@ class GameEditController {
         genresController = TextEditingController(text: initialGenres),
         ageRatingController = TextEditingController(text: initialAgeRating),
         languageController = TextEditingController(text: initialLanguage),
-        countryController = TextEditingController(text: initialCountry);
+        countryController = TextEditingController(text: initialCountry),
+        editionTitleController =
+            TextEditingController(text: initialEditionTitle),
+        variantController = TextEditingController(text: initialVariant),
+        barcodeController = TextEditingController(text: initialBarcode),
+        physicalFormatController =
+            TextEditingController(text: initialPhysicalFormat),
+        physicalFormatId = initialPhysicalFormatId;
 
   final TextEditingController platformsController;
   final TextEditingController developersController;
@@ -44,6 +56,11 @@ class GameEditController {
   final TextEditingController ageRatingController;
   final TextEditingController languageController;
   final TextEditingController countryController;
+  final TextEditingController editionTitleController;
+  final TextEditingController variantController;
+  final TextEditingController barcodeController;
+  final TextEditingController physicalFormatController;
+  String? physicalFormatId;
   List<String> developerOptions = const [];
   List<String> genreOptions = const [];
   List<String> platformOptions = const [];
@@ -74,6 +91,10 @@ class GameEditController {
     ageRatingController.dispose();
     languageController.dispose();
     countryController.dispose();
+    editionTitleController.dispose();
+    variantController.dispose();
+    barcodeController.dispose();
+    physicalFormatController.dispose();
   }
 
   LibraryEditSelection applySelectionEdits(LibraryEditSelection selection) {
@@ -108,30 +129,38 @@ class GameEditController {
     final updatedFranchise = emptyToNull(franchiseController.text);
     final updatedAgeRating = emptyToNull(ageRatingController.text);
     final updatedCountry = emptyToNull(countryController.text);
-    final genres = _splitValues(
-      genresController.text,
-      fallback: meta.genres,
-    );
-    final languages = _splitValues(
-      languageController.text,
-      fallback: meta.languages,
-    );
+    final genres = _splitValues(genresController.text);
+    final languages = _splitValues(languageController.text);
+    final parsedDate = parseDate(releaseDateController.text);
+    final releaseDate = parsedDate == null
+        ? PartialDate.tryParse(releaseYearController.text)
+        : PartialDate.fromDateTime(parsedDate);
 
-    final updatedMetadata = meta.copyWith(
-      platforms: platforms,
-      developers: developerNames.isNotEmpty ? developerNames : meta.developers,
-      creators: mergedCreators.isNotEmpty ? mergedCreators : meta.creators,
-      seriesTitle: emptyToNull(seriesTitleController.text) ?? meta.seriesTitle,
-      publisher: updatedPub ?? meta.publisher,
-      franchise: updatedFranchise ?? meta.franchise,
-      genres: genres,
-      ageRating: updatedAgeRating ?? meta.ageRating,
-      languages: languages,
-      country: updatedCountry ?? meta.country,
-      releaseDateParts: parseDate(releaseDateController.text) == null
-          ? meta.releaseDateParts
-          : PartialDate.fromDateTime(parseDate(releaseDateController.text)!),
-    );
+    // Keep the controllers as the single source of truth until submit. The
+    // previous builder-created controllers were discarded on rebuild, and
+    // these values were not applied to the catalog document at all.
+    final metadataJson = meta.toJson()
+      ..addAll({
+        'platforms': platforms,
+        'developers': developerNames,
+        'creators': [for (final credit in mergedCreators) credit.toJson()],
+        'series_title': emptyToNull(seriesTitleController.text),
+        'publisher': updatedPub,
+        'franchise': updatedFranchise,
+        'genres': genres,
+        'age_rating': updatedAgeRating,
+        'languages': languages,
+        'language': languages.firstOrNull,
+        'country': updatedCountry,
+        'release_date': releaseDate?.isoString,
+        'release_date_parts': releaseDate?.toJson(),
+        'edition_title': emptyToNull(editionTitleController.text),
+        'barcode': emptyToNull(barcodeController.text),
+        'physical_format': physicalFormatId,
+        'physical_format_label': emptyToNull(physicalFormatController.text),
+        'variant_name': emptyToNull(variantController.text),
+      });
+    final updatedMetadata = GameCatalogMetadata.fromJson(metadataJson);
 
     final updatedItem = selection.kindItem.kindCapability.mapTransport(
       (transport) => CatalogSearchCandidate.fromItem(
@@ -179,12 +208,12 @@ class GameEditController {
   }
 }
 
-List<String> _splitValues(String value, {required List<String> fallback}) {
+List<String> _splitValues(String value) {
   final values = value
       .split(RegExp(r'[,\r\n]+'))
       .map((entry) => entry.trim())
       .where((entry) => entry.isNotEmpty)
       .toSet()
       .toList();
-  return values.isEmpty ? fallback : values;
+  return values;
 }

@@ -1,13 +1,14 @@
 import 'package:collectarr_app/features/library/edit/draft/library_edit_shell_state.dart';
-import 'package:collectarr_app/features/library/kinds/game/catalog/game_catalog_fields.dart';
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/edit/fields/library_edit_field_groups.dart';
 import 'package:collectarr_app/features/library/domain/library_entity_scope.dart';
+import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/edit/schema/edit_schema_renderer.dart';
 import 'package:collectarr_app/features/library/kinds/game/edit/entry/game_entry_edit_schema.dart';
 import 'package:collectarr_app/features/library/kinds/game/entries/game_entry_details.dart';
 import 'package:collectarr_app/features/library/kinds/game/entries/game_entry_details_draft.dart';
+import 'package:collectarr_app/features/library/kinds/game/vocabulary/game_vocabularies.dart';
 import 'package:collectarr_app/ui/tag_pick_list_field.dart';
 import 'package:flutter/material.dart';
 
@@ -22,11 +23,12 @@ Widget? buildGameCustomTabView({
   required CatalogSearchCandidate item,
   required VoidCallback markDirty,
 }) {
+  final kindDraft = draft.session.catalogItemSession;
+  if (kindDraft is! GameEditDraft) {
+    throw StateError('Expected GameEditDraft for Game editing');
+  }
+
   if (tabId == 'entry') {
-    final kindDraft = draft.session.catalogItemSession;
-    if (kindDraft is! GameEditDraft) {
-      throw StateError('Expected GameEditDraft for Game entry editing');
-    }
     final detailsDraft = kindDraft.toDetailsDraft() as GameEntryDetailsDraft;
     final details = detailsDraft.toDetails();
     return EditSchemaRenderer<GameEntryDetails, GameEditDraft>(
@@ -50,27 +52,25 @@ Widget? buildGameCustomTabView({
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               LibraryReleaseIdentityFields(
-                editionTitleController: TextEditingController(
-                  text: (item.gameCatalogFields.titleExtension ??
-                              item.gameCatalogFields.metadata?.editionTitle)
-                          ?.trim() ??
-                      '',
-                ),
-                variantController: TextEditingController(),
-                barcodeController: TextEditingController(),
-                releaseDateController:
-                    (draft.session.catalogItemSession as GameEditDraft?)
-                            ?.gameEdit
-                            .releaseDateController ??
-                        TextEditingController(),
-                releaseYearController:
-                    (draft.session.catalogItemSession as GameEditDraft?)
-                            ?.gameEdit
-                            .releaseYearController ??
-                        TextEditingController(),
-                physicalFormatController: TextEditingController(),
-                physicalFormatOptions: const [],
-                onPhysicalFormatChanged: (_) {},
+                editionTitleController:
+                    kindDraft.gameEdit.editionTitleController,
+                variantController: kindDraft.gameEdit.variantController,
+                barcodeController: kindDraft.gameEdit.barcodeController,
+                releaseDateController: kindDraft.gameEdit.releaseDateController,
+                releaseYearController: kindDraft.gameEdit.releaseYearController,
+                physicalFormatController:
+                    kindDraft.gameEdit.physicalFormatController,
+                physicalFormatOptions: [
+                  for (final format in draft.physicalFormats) format.label,
+                ],
+                onPhysicalFormatChanged: (value) {
+                  kindDraft.gameEdit.physicalFormatId =
+                      physicalMediaFormatByLabelOrId(
+                    value,
+                    formats: draft.physicalFormats,
+                  )?.id;
+                  markDirty();
+                },
                 editionTitleLabel: 'Edition title',
                 variantLabel: 'Variant',
                 barcodeLabel: 'UPC / Barcode',
@@ -83,9 +83,6 @@ Widget? buildGameCustomTabView({
     );
   }
   if (tabId != 'main') return null;
-  final gameDraft = draft.session.catalogItemSession is GameEditDraft
-      ? draft.session.catalogItemSession as GameEditDraft
-      : null;
 
   return EditTabShell(
     children: [
@@ -118,40 +115,30 @@ Widget? buildGameCustomTabView({
                 label: 'Original title',
               ),
               LibraryEditTextField(
-                controller: gameDraft?.gameEdit.seriesTitleController ??
-                    TextEditingController(),
+                controller: kindDraft.gameEdit.seriesTitleController,
                 label: 'Series',
               ),
             ]),
             const SizedBox(height: 10),
             LibraryEditResponsiveRow(children: [
               LibraryEditTextField(
-                controller: gameDraft?.gameEdit.publisherController ??
-                    TextEditingController(),
+                controller: kindDraft.gameEdit.publisherController,
                 label: 'Publisher / Studio',
               ),
               LibraryEditTextField(
-                controller: gameDraft?.gameEdit.releaseDateController ??
-                    TextEditingController(),
+                controller: kindDraft.gameEdit.releaseDateController,
                 label: 'Release date',
               ),
             ]),
-            if (gameDraft != null) ...[
-              const SizedBox(height: 10),
-              TagPickListField(
-                controller: gameDraft.gameEdit.platformsController,
-                options: const [
-                  'PlayStation 5',
-                  'Xbox Series X',
-                  'Nintendo Switch',
-                  'PC',
-                  'PlayStation 4',
-                  'Xbox One',
-                ],
-                label: 'Platform',
-                hint: 'Select platforms',
-              ),
-            ],
+            const SizedBox(height: 10),
+            TagPickListField(
+              controller: kindDraft.gameEdit.platformsController,
+              options:
+                  draft.kindVocabularies[GameVocabularyIds.platform.value] ??
+                      const [],
+              label: 'Platform',
+              hint: 'Select platforms',
+            ),
           ],
         ),
       ),
