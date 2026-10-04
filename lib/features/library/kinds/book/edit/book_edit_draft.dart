@@ -52,9 +52,9 @@ class BookEditDraft
     required this.formatController,
     required this.languageController,
     required this.countryController,
-    required this.authorsController,
+    required this.authorCredits,
+    required this.translatorCredits,
     required this.genresController,
-    required this.translatorsController,
   });
 
   final BookLibraryEntry? libraryEntry;
@@ -73,9 +73,9 @@ class BookEditDraft
   final TextEditingController formatController;
   final TextEditingController languageController;
   final TextEditingController countryController;
-  final TextEditingController authorsController;
+  List<BookCatalogCredit> authorCredits;
+  List<BookCatalogCredit> translatorCredits;
   final TextEditingController genresController;
-  final TextEditingController translatorsController;
 
   @override
   JsonEncodable toDetailsDraft() => BookEntryDetailsDraft(
@@ -179,9 +179,7 @@ class BookEditDraft
     formatController.dispose();
     languageController.dispose();
     countryController.dispose();
-    authorsController.dispose();
     genresController.dispose();
-    translatorsController.dispose();
   }
 
   List<TrailerLinkDto> _externalLinks = const [];
@@ -359,16 +357,19 @@ class BookEditDraft
       language: emptyToNull(languageController.text),
       country: emptyToNull(countryController.text),
       creators: [
-        for (final name in _splitValues(authorsController.text))
-          BookCatalogCredit(name: name, role: 'Author'),
+        for (final credit in meta.creators)
+          if (!_isRole(credit.role, 'author') &&
+              !_isRole(credit.role, 'translator'))
+            credit,
+        ..._withRole(authorCredits, 'Author'),
       ],
       genres: _splitValues(genresController.text),
       contributors: [
-        ...meta.contributors.where(
-          (credit) => credit.role?.toLowerCase() != 'translator',
-        ),
-        for (final name in _splitValues(translatorsController.text))
-          BookCatalogCredit(name: name, role: 'Translator'),
+        for (final credit in meta.contributors)
+          if (!_isRole(credit.role, 'author') &&
+              !_isRole(credit.role, 'translator'))
+            credit,
+        ..._withRole(translatorCredits, 'Translator'),
       ],
       releaseDate: releaseDate,
       externalLinks: _externalLinksEdited
@@ -442,14 +443,10 @@ LibraryEditSessionBundle createBookEditDraft({
     countryController: textControllers.create(
       text: metadata.country ?? '',
     ),
-    authorsController: textControllers.create(
-      text: metadata.authors.join(', '),
-    ),
+    authorCredits: _bookAuthorCredits(metadata),
+    translatorCredits: _bookTranslatorCredits(metadata),
     genresController: textControllers.create(
       text: metadata.genres.join(', '),
-    ),
-    translatorsController: textControllers.create(
-      text: metadata.translators.join(', '),
     ),
   );
   return LibraryEditSessionBundle(
@@ -465,3 +462,46 @@ List<String> _splitValues(String value) => value
     .where((entry) => entry.isNotEmpty)
     .toSet()
     .toList();
+
+bool _isRole(String? role, String expected) =>
+    role?.trim().toLowerCase() == expected.toLowerCase();
+
+List<BookCatalogCredit> _withRole(
+  List<BookCatalogCredit> credits,
+  String role,
+) =>
+    [
+      for (var index = 0; index < credits.length; index++)
+        BookCatalogCredit(
+          name: credits[index].name,
+          id: credits[index].id,
+          artistId: credits[index].artistId,
+          personId: credits[index].personId,
+          creditedName: credits[index].creditedName,
+          imageUrl: credits[index].imageUrl,
+          instrument: credits[index].instrument,
+          joinPhrase: credits[index].joinPhrase,
+          role: role,
+          roleId: credits[index].roleId,
+          sequence: index,
+          sortName: credits[index].sortName,
+        ),
+    ];
+
+List<BookCatalogCredit> _bookAuthorCredits(BookCatalogMetadata metadata) {
+  final explicitAuthors = [...metadata.creators, ...metadata.contributors]
+      .where((credit) => _isRole(credit.role, 'author'))
+      .toList(growable: false);
+  if (explicitAuthors.isNotEmpty) return List.of(explicitAuthors);
+  if (metadata.creators
+      .every((credit) => credit.role?.trim().isEmpty ?? true)) {
+    return List.of(metadata.creators);
+  }
+  return const [];
+}
+
+List<BookCatalogCredit> _bookTranslatorCredits(BookCatalogMetadata metadata) =>
+    [
+      for (final credit in [...metadata.creators, ...metadata.contributors])
+        if (_isRole(credit.role, 'translator')) credit,
+    ];

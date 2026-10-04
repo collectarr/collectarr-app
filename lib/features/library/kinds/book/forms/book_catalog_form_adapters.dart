@@ -25,10 +25,8 @@ BookCatalogMetadata bookMetadataFromManualFormValues({
     distributor: _optional(values.distributor),
     imprint: _optional(values.imprint),
     pageCount: values.pageCount,
-    creators: [
-      for (final name in _split(values.authors))
-        BookCatalogCredit(name: name, role: 'Author'),
-    ],
+    creators: values.authors,
+    contributors: values.translators,
     characters: [
       for (final name in _split(values.characters))
         BookCatalogCharacter(name: name),
@@ -80,5 +78,4 @@ List<String> _split(String value) => value
     .split(RegExp(r'[,\r\n]+'))
     .map((entry) => entry.trim())
     .where((entry) => entry.isNotEmpty)
-    .toSet()
     .toList(growable: false);

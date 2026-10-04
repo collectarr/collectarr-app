@@ -1,3 +1,5 @@
+import 'package:collectarr_app/features/library/kinds/book/domain/book_metadata.dart';
+
 /// Flutter independent catalog values shared by Book Add and Edit.
 final class BookCatalogFormValues {
   BookCatalogFormValues({
@@ -15,7 +17,8 @@ final class BookCatalogFormValues {
     this.variant = '',
     this.seriesTitle = '',
     this.seriesGroup = '',
-    this.authors = '',
+    this.authors = const [],
+    this.translators = const [],
     this.characters = '',
     this.ageRating = '',
     this.country = '',
@@ -57,7 +60,8 @@ final class BookCatalogFormValues {
   String variant;
   String seriesTitle;
   String seriesGroup;
-  String authors;
+  List<BookCatalogCredit> authors;
+  List<BookCatalogCredit> translators;
   String characters;
   String ageRating;
   String country;

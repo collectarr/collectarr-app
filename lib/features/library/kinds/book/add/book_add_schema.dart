@@ -4,6 +4,7 @@ import 'package:collectarr_app/features/library/add/schema/add_schema.dart';
 import 'package:collectarr_app/features/library/kinds/book/add/book_add_manual_draft.dart';
 import 'package:collectarr_app/features/library/kinds/book/forms/book_catalog_field_specs.dart';
 import 'package:collectarr_app/features/library/kinds/book/forms/book_catalog_form_values.dart';
+import 'package:collectarr_app/features/library/kinds/book/forms/book_person_credits_field.dart';
 import 'package:collectarr_app/features/library/kinds/book/vocabulary/book_vocabularies.dart';
 
 final AddSchema<BookAddManualDraft> bookAddSchema = bookAddSchemaFor();
@@ -96,11 +97,25 @@ AddSchema<BookAddManualDraft> bookAddSchemaFor({
             values: values,
             include: {'distributor', 'page_count'},
           ),
-          LibraryTextFieldSpec<BookAddManualDraft>(
+          LibraryCustomFieldSpec<BookAddManualDraft>(
             id: 'authors',
             label: 'Authors',
-            value: (draft) => values(draft).authors,
-            setValue: (draft, value) => values(draft).authors = value,
+            builder: (context, draft) => BookPersonCreditsField(
+              label: 'Authors',
+              role: 'Author',
+              credits: values(draft).authors,
+              onChanged: (credits) => values(draft).authors = credits,
+            ),
+          ),
+          LibraryCustomFieldSpec<BookAddManualDraft>(
+            id: 'translators',
+            label: 'Translators',
+            builder: (context, draft) => BookPersonCreditsField(
+              label: 'Translators',
+              role: 'Translator',
+              credits: values(draft).translators,
+              onChanged: (credits) => values(draft).translators = credits,
+            ),
           ),
           LibraryTextFieldSpec<BookAddManualDraft>(
             id: 'characters',
