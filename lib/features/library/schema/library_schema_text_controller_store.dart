@@ -20,3 +20,27 @@ final class LibrarySchemaTextControllerStore {
     _controllers.clear();
   }
 }
+
+/// Shares schema input controllers across every tab in one Add/Edit dialog.
+///
+/// The dialog scaffold owns the store and disposes it when the form closes.
+/// Standalone renderers can omit this scope and keep their local store.
+final class LibrarySchemaTextControllerScope extends InheritedWidget {
+  const LibrarySchemaTextControllerScope({
+    super.key,
+    required this.store,
+    required super.child,
+  });
+
+  final LibrarySchemaTextControllerStore store;
+
+  static LibrarySchemaTextControllerStore? maybeOf(BuildContext context) =>
+      context
+          .dependOnInheritedWidgetOfExactType<
+              LibrarySchemaTextControllerScope>()
+          ?.store;
+
+  @override
+  bool updateShouldNotify(LibrarySchemaTextControllerScope oldWidget) =>
+      !identical(store, oldWidget.store);
+}

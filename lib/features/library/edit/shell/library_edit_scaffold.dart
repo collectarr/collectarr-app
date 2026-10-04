@@ -5,6 +5,7 @@ import 'package:collectarr_app/features/library/ui/library_chrome_tokens.dart';
 import 'package:collectarr_app/features/library/ui/library_action_footer.dart';
 import 'package:collectarr_app/features/library/ui/library_dialog_scaffold.dart';
 import 'package:collectarr_app/features/library/ui/library_panel_header.dart';
+import 'package:collectarr_app/features/library/schema/library_schema_text_controller_store.dart';
 import 'package:collectarr_app/ui/adaptive/window_class.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
@@ -86,6 +87,7 @@ class LibraryEditDialogScaffold extends StatefulWidget {
 class _LibraryEditDialogScaffoldState extends State<LibraryEditDialogScaffold> {
   late List<int> _tabOrder;
   TabController? _observedTabController;
+  final _schemaTextControllers = LibrarySchemaTextControllerStore();
 
   @override
   void initState() {
@@ -197,6 +199,7 @@ class _LibraryEditDialogScaffoldState extends State<LibraryEditDialogScaffold> {
   @override
   void dispose() {
     _observedTabController?.removeListener(_rememberSelectedTab);
+    _schemaTextControllers.dispose();
     super.dispose();
   }
 
@@ -223,95 +226,98 @@ class _LibraryEditDialogScaffoldState extends State<LibraryEditDialogScaffold> {
         : (viewport.width > 1440 ? 1180.0 : 1100.0);
     final maxHeight = viewport.height > 900 ? 850.0 : viewport.height - 24;
     final p = appPalette(context);
-    return Theme(
-      data: editDialogTheme(
-        seedColor: widget.accent,
-        palette: p,
-        compactDesktop: isWideDesktop,
-      ),
-      child: LibraryDialogScaffold(
-        header: _LibraryEditTitleBar(
-          icon: widget.icon,
-          title: widget.title,
-          badges: widget.badges,
-          onClose: widget.onClose,
-          chromeVariant: widget.chromeVariant,
-          accent: widget.accent,
-          isBusy: widget.isBusy,
+    return LibrarySchemaTextControllerScope(
+      store: _schemaTextControllers,
+      child: Theme(
+        data: editDialogTheme(
+          seedColor: widget.accent,
+          palette: p,
+          compactDesktop: isWideDesktop,
         ),
-        footer: widget.footerOverride ??
-            _LibraryEditFooter(
-              onCancel: widget.onCancel,
-              onSave: widget.onSave,
-              onProposeToCore: widget.onProposeToCore,
-              onPrevious: widget.onPrevious,
-              onNext: widget.onNext,
-              chromeVariant: widget.chromeVariant,
-              accent: widget.accent,
-              isBusy: widget.isBusy,
-            ),
-        maxWidth: maxWidth,
-        minHeight: 0,
-        maxHeight: maxHeight,
-        alignment: Alignment.topCenter,
-        insetPadding: EdgeInsets.fromLTRB(
-          windowClass.isMedium ? 16 : 32,
-          8,
-          windowClass.isMedium ? 16 : 32,
-          16,
-        ),
-        density: LibraryDensity.comfortable,
-        expandBody: false,
-        body: ConstrainedBox(
-          constraints: BoxConstraints(maxHeight: maxHeight),
-          child: Form(
-            key: widget.formKey,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                if (hasTabStrip)
-                  LibraryEditTabStripFrame(
-                    child: LibraryEditReorderableTabStrip(
-                      tabController: widget.tabController!,
-                      tabs: orderedTabs,
-                      accent: widget.accent,
-                      allowReorder: widget.allowTabReorder && !widget.isBusy,
-                      onReorderItem: _onReorderItem,
-                    ),
-                  ),
-                Flexible(
-                  fit: FlexFit.loose,
-                  child: Material(
-                    color: p.surfaceBright,
-                    child: hasTabStrip
-                        ? AnimatedBuilder(
-                            animation: widget.tabController!,
-                            builder: (context, _) {
-                              final rawIndex = widget.tabController!.index;
-                              final currentIndex = rawIndex < 0
-                                  ? 0
-                                  : rawIndex >= orderedViews.length
-                                      ? orderedViews.length - 1
-                                      : rawIndex;
-                              return orderedViews[currentIndex];
-                            },
-                          )
-                        : widget.body!,
-                  ),
-                ),
-                if (widget.footerContent != null)
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.fromLTRB(10, 8, 10, 8),
-                    decoration: BoxDecoration(
-                      color: p.panelRaised,
-                      border: Border(
-                        top: BorderSide(color: p.divider),
+        child: LibraryDialogScaffold(
+          header: _LibraryEditTitleBar(
+            icon: widget.icon,
+            title: widget.title,
+            badges: widget.badges,
+            onClose: widget.onClose,
+            chromeVariant: widget.chromeVariant,
+            accent: widget.accent,
+            isBusy: widget.isBusy,
+          ),
+          footer: widget.footerOverride ??
+              _LibraryEditFooter(
+                onCancel: widget.onCancel,
+                onSave: widget.onSave,
+                onProposeToCore: widget.onProposeToCore,
+                onPrevious: widget.onPrevious,
+                onNext: widget.onNext,
+                chromeVariant: widget.chromeVariant,
+                accent: widget.accent,
+                isBusy: widget.isBusy,
+              ),
+          maxWidth: maxWidth,
+          minHeight: 0,
+          maxHeight: maxHeight,
+          alignment: Alignment.topCenter,
+          insetPadding: EdgeInsets.fromLTRB(
+            windowClass.isMedium ? 16 : 32,
+            8,
+            windowClass.isMedium ? 16 : 32,
+            16,
+          ),
+          density: LibraryDensity.comfortable,
+          expandBody: false,
+          body: ConstrainedBox(
+            constraints: BoxConstraints(maxHeight: maxHeight),
+            child: Form(
+              key: widget.formKey,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  if (hasTabStrip)
+                    LibraryEditTabStripFrame(
+                      child: LibraryEditReorderableTabStrip(
+                        tabController: widget.tabController!,
+                        tabs: orderedTabs,
+                        accent: widget.accent,
+                        allowReorder: widget.allowTabReorder && !widget.isBusy,
+                        onReorderItem: _onReorderItem,
                       ),
                     ),
-                    child: widget.footerContent!,
+                  Flexible(
+                    fit: FlexFit.loose,
+                    child: Material(
+                      color: p.surfaceBright,
+                      child: hasTabStrip
+                          ? AnimatedBuilder(
+                              animation: widget.tabController!,
+                              builder: (context, _) {
+                                final rawIndex = widget.tabController!.index;
+                                final currentIndex = rawIndex < 0
+                                    ? 0
+                                    : rawIndex >= orderedViews.length
+                                        ? orderedViews.length - 1
+                                        : rawIndex;
+                                return orderedViews[currentIndex];
+                              },
+                            )
+                          : widget.body!,
+                    ),
                   ),
-              ],
+                  if (widget.footerContent != null)
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.fromLTRB(10, 8, 10, 8),
+                      decoration: BoxDecoration(
+                        color: p.panelRaised,
+                        border: Border(
+                          top: BorderSide(color: p.divider),
+                        ),
+                      ),
+                      child: widget.footerContent!,
+                    ),
+                ],
+              ),
             ),
           ),
         ),

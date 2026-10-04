@@ -768,6 +768,8 @@ class EditSchemaRendererState<TModel, TDraft>
   }
 
   TextEditingController _controllerFor(String id, String initialValue) {
-    return _textControllers.controllerFor(id, initialValue);
+    return (LibrarySchemaTextControllerScope.maybeOf(context) ??
+            _textControllers)
+        .controllerFor(id, initialValue);
   }
 }

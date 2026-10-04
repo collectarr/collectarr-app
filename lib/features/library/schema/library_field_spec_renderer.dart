@@ -125,6 +125,7 @@ class _LibraryFieldSpecRendererState<TDraft>
 
   TextEditingController _controllerFor(String id, String initialValue) {
     return widget.controllerFor?.call(id, initialValue) ??
-        _textControllers.controllerFor(id, initialValue);
+        (LibrarySchemaTextControllerScope.maybeOf(context) ?? _textControllers)
+            .controllerFor(id, initialValue);
   }
 }

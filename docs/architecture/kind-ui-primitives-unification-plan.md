@@ -407,6 +407,10 @@ Still outstanding:
   reused across unrelated drafts. The Comic Edit controllers are created by
   the request-backed session factory and disposed with that session; Game
   schema controls remain owned by the shared renderer.
+- The shared Edit dialog scaffold now owns one schema text-controller store
+  for the lifetime of the dialog. Add and Edit schema renderers resolve their
+  field controllers from that scope, preserving raw input across tab
+  unmounts; closing or switching the edited item disposes the store.
 - Legacy custom tabs and kind-specific tab composition still have divergent
   implementations. Responsive field geometry and the basic vocabulary/text
   controls are now shared. Book Authors/Translators and Movie Cast/Crew share
