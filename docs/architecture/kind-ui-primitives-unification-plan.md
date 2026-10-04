@@ -935,3 +935,9 @@ catalog external links through the shared draft editor. Edit preserves each
 link's identity and auxiliary fields while applying removals and reordered
 positions. Targeted analysis for Manga Add/Edit/forms passed; tests and runtime
 screenshot review remain deferred.
+
+Implementation note (2026-10-04): Comic local-entry Edit now uses the shared
+external-link draft rows and table interactions. Link title and description
+are edited independently, existing source/classification metadata is retained,
+and rows own and dispose their controllers through the Comic edit draft.
+Targeted analysis passed; tests and runtime screenshot review remain deferred.

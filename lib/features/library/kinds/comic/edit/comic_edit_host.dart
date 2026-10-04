@@ -3,6 +3,7 @@ import 'package:collectarr_app/features/library/kinds/registry/library_kind_capa
 import 'package:collectarr_app/features/library/edit/sections/item_images_edit_section.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_catalog_item.dart';
 import 'package:collectarr_app/features/library/kinds/comic/forms/comic_person_draft.dart';
+import 'package:collectarr_app/features/library/edit/fields/library_external_links_table.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -15,7 +16,7 @@ abstract class ComicEditHost {
   List<ItemImage> get comicItemImages;
   List<EditableComicCreator> get comicCreators;
   List<EditableComicCharacter> get comicCharacters;
-  List<Map<String, TextEditingController>> get comicLinks;
+  List<LibraryExternalLinkDraftRow> get comicLinks;
   TextEditingController get comicTitleController;
   TextEditingController get comicOriginalTitleController;
   TextEditingController get comicEditionTitleController;
@@ -84,10 +85,6 @@ abstract class ComicEditHost {
 
   void comicMutateState(VoidCallback fn);
   void comicOpenEditTab(String id);
-  Map<String, TextEditingController> comicCreateLinkControllers({
-    String title = '',
-    String url = '',
-  });
 
   Widget buildComicCrossoverPickField({String label = 'Crossover'});
   Widget buildComicStoryArcPickField({String label = 'Story Arc'});

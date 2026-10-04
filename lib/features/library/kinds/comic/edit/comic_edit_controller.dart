@@ -3,7 +3,9 @@ import 'package:collectarr_app/features/catalog/transport/catalog_search_candida
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_edit_models.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_catalog_item.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_link.dart';
 import 'package:collectarr_app/features/library/kinds/comic/forms/comic_person_draft.dart';
+import 'package:collectarr_app/features/library/edit/fields/library_external_links_table.dart';
 import 'package:flutter/material.dart';
 
 import 'comic_edit_models.dart';
@@ -77,27 +79,33 @@ class ComicEditController {
 
   final List<EditableComicCreator> creators = [];
   final List<EditableComicCharacter> characters = [];
-  final List<Map<String, TextEditingController>> links = [];
+  final List<LibraryExternalLinkDraftRow> links = [];
+  final Map<LibraryExternalLinkDraftRow, ComicLink> originalLinks = {};
 
   void initialize() {
     creators.addAll(initComicCreators(item));
     characters.addAll(initComicCharacters(item));
     for (final link in item.links.where((entry) => entry.isExternalLink)) {
-      links.add(createLinkControllers(
+      final row = createLinkDraft(
         title: link.title ?? link.description ?? '',
         url: link.url,
-      ));
+        description: link.description ?? '',
+      );
+      links.add(row);
+      originalLinks[row] = link;
     }
   }
 
-  Map<String, TextEditingController> createLinkControllers({
+  LibraryExternalLinkDraftRow createLinkDraft({
     String title = '',
     String url = '',
+    String description = '',
   }) {
-    return <String, TextEditingController>{
-      'title': TextEditingController(text: title),
-      'url': TextEditingController(text: url),
-    };
+    return LibraryExternalLinkDraftRow(
+      title: title,
+      url: url,
+      description: description,
+    );
   }
 
   void dispose() {
@@ -127,8 +135,7 @@ class ComicEditController {
       character.dispose();
     }
     for (final link in links) {
-      link['title']?.dispose();
-      link['url']?.dispose();
+      link.dispose();
     }
   }
 
@@ -182,6 +189,7 @@ class ComicEditController {
       creators,
       characters,
       links,
+      originalExternalLinks: originalLinks,
     );
   }
 }

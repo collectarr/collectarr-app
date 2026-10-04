@@ -4,14 +4,15 @@ import 'package:collectarr_app/features/library/edit/draft/library_edit_models.d
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_link.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_catalog_item.dart';
 import 'package:collectarr_app/features/library/kinds/comic/forms/comic_person_draft.dart';
-import 'package:flutter/material.dart';
+import 'package:collectarr_app/features/library/edit/fields/library_external_links_table.dart';
 
 LibraryEditSelection applyComicSelectionEdits(
   LibraryEditSelection selection,
   List<EditableComicCreator> creators,
   List<EditableComicCharacter> characters,
-  List<Map<String, TextEditingController>> links,
-) {
+  List<LibraryExternalLinkDraftRow> links, {
+  required Map<LibraryExternalLinkDraftRow, ComicLink> originalExternalLinks,
+}) {
   final mappedCreators = creators
       .map((creator) => creator.toMap())
       .where(
@@ -37,14 +38,14 @@ LibraryEditSelection applyComicSelectionEdits(
   final newComicLinks = <ComicLink>[
     ...existingTrailerLinks,
     for (final l in links)
-      if ((l['url']?.text.trim() ?? '').isNotEmpty)
+      if (l.urlController.text.trim().isNotEmpty)
         ComicLink(
-          url: l['url']!.text.trim(),
-          title: emptyToNull(l['title']?.text ?? ''),
-          description: emptyToNull(l['title']?.text ?? ''),
-          source: 'manual',
-          isAutomatic: false,
-          kind: 'external',
+          url: l.urlController.text.trim(),
+          title: emptyToNull(l.titleController.text),
+          description: emptyToNull(l.descriptionController.text),
+          source: originalExternalLinks[l]?.source ?? 'manual',
+          isAutomatic: originalExternalLinks[l]?.isAutomatic ?? false,
+          kind: originalExternalLinks[l]?.kind ?? 'external',
         ),
   ];
 

@@ -1,7 +1,7 @@
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/pick_lists/widgets/pick_list_select_dialog.dart';
 import 'package:collectarr_app/features/library/edit/sections/item_images_edit_section.dart';
-import 'package:collectarr_app/features/library/edit/fields/library_external_links_table.dart';
+import 'package:collectarr_app/features/library/edit/fields/library_external_links_draft_editor.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_selection_fields.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_form_controls.dart';
 import 'package:collectarr_app/features/library/generic/external_links.dart';
@@ -217,32 +217,11 @@ extension ComicEditTabBuilders on ComicEditHost {
         EditSection(
           title: 'External Links',
           accent: comicAccent,
-          child: LibraryExternalLinksTable<Map<String, TextEditingController>>(
-            rows: [
-              for (final link in comicLinks)
-                LibraryExternalLinkEditRow<Map<String, TextEditingController>>(
-                  identity: link,
-                  urlController: link['url']!,
-                  descriptionController: link['title']!,
-                ),
-            ],
+          child: LibraryExternalLinksDraftEditor(
+            links: comicLinks,
             accent: comicAccent,
             addLabel: 'New Link',
-            onAdd: () => comicMutateState(
-              () => comicLinks.add(comicCreateLinkControllers()),
-            ),
-            onReorder: (oldIndex, newIndex) => comicMutateState(() {
-              final item = comicLinks.removeAt(oldIndex);
-              comicLinks.insert(newIndex, item);
-            }),
-            onRemoveSelected: (selectedRows) => comicMutateState(() {
-              for (final row in selectedRows) {
-                final link = row.identity;
-                if (!comicLinks.remove(link)) continue;
-                link['title']?.dispose();
-                link['url']?.dispose();
-              }
-            }),
+            onChanged: () => comicMutateState(() {}),
           ),
         ),
       ],
