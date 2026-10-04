@@ -17,6 +17,8 @@ import 'package:collectarr_app/features/catalog/transport/catalog_search_candida
 import 'package:collectarr_app/features/library/edit/sections/custom_fields_edit_section.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_dropdown_pick_field.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_money_amount_field.dart';
+import 'package:collectarr_app/features/library/ui/primitives/library_notes_field.dart';
+import 'package:collectarr_app/features/library/ui/primitives/library_personal_fields_layout.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_selection_fields.dart';
 import 'package:collectarr_app/features/library/schema/library_field_spec.dart';
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
@@ -755,61 +757,61 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
       );
     }
 
+    final fields = <Widget>[];
+    final fullWidthFields = <Widget>[];
+    if (_draft.isDigitalFormat) {
+      fullWidthFields.add(
+        Text(
+          'Digital items do not expose physical storage fields.',
+          style: TextStyle(color: Theme.of(context).hintColor),
+        ),
+      );
+      fullWidthFields.add(_buildLocationPickerField());
+    } else {
+      fields.addAll([
+        _buildPersonalVocabularyField(
+          suffix: 'condition',
+          label: 'Condition',
+          controller: _draft.personal.conditionController,
+          fallback: _editCapability.conditions,
+        ),
+        _buildPersonalVocabularyField(
+          suffix: 'grade',
+          label: 'Grade',
+          controller: _draft.personal.gradeController,
+          fallback: _editCapability.collectionValueOptions,
+        ),
+        _buildLocationPickerField(),
+        _buildUniversalVocabularyField(
+          listName: UniversalVocabularies.owners.key,
+          label: 'Owner',
+          controller: _draft.personal.ownerLabelController,
+          options: _draft.ownerOptions,
+        ),
+      ]);
+    }
+    fullWidthFields.addAll([
+      LibraryVocabularyField(
+        controller: _draft.personal.tagsController,
+        options: _draft.tagOptions,
+        label: 'Tags',
+        multiSelect: true,
+        onChanged: (_) => _markDirty(),
+      ),
+      LibraryNotesField(
+        label: 'Notes',
+        controller: _draft.personal.notesController,
+        onChanged: (_) => _markDirty(),
+      ),
+    ]);
     return EditTabShell(
       children: [
         EditSection(
           title: 'Personal',
           accent: widget.accent,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              if (_draft.isDigitalFormat) ...[
-                Text(
-                  'Digital items do not expose physical storage fields.',
-                  style: TextStyle(color: Theme.of(context).hintColor),
-                ),
-                const SizedBox(height: 10),
-                _buildLocationPickerField(),
-              ] else ...[
-                LibraryEditResponsiveRow(children: [
-                  _buildPersonalVocabularyField(
-                    suffix: 'condition',
-                    label: 'Condition',
-                    controller: _draft.personal.conditionController,
-                    fallback: _editCapability.conditions,
-                  ),
-                  _buildPersonalVocabularyField(
-                    suffix: 'grade',
-                    label: 'Grade',
-                    controller: _draft.personal.gradeController,
-                    fallback: _editCapability.collectionValueOptions,
-                  ),
-                ]),
-                const SizedBox(height: 10),
-                LibraryEditResponsiveRow(children: [
-                  _buildLocationPickerField(),
-                  _buildUniversalVocabularyField(
-                    listName: UniversalVocabularies.owners.key,
-                    label: 'Owner',
-                    controller: _draft.personal.ownerLabelController,
-                    options: _draft.ownerOptions,
-                  ),
-                ]),
-              ],
-              const SizedBox(height: 10),
-              LibraryEditResponsiveRow(children: [
-                LibraryVocabularyField(
-                  controller: _draft.personal.tagsController,
-                  options: _draft.tagOptions,
-                  label: 'Tags',
-                  multiSelect: true,
-                ),
-                LibraryEditTextField(
-                  controller: _draft.personal.notesController,
-                  label: 'Notes',
-                ),
-              ]),
-            ],
+          child: LibraryPersonalFieldsLayout(
+            fields: fields,
+            fullWidthFields: fullWidthFields,
           ),
         ),
       ],
@@ -822,40 +824,36 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
         EditSection(
           title: 'Purchase & Value',
           accent: widget.accent,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              LibraryEditResponsiveRow(children: [
-                LibraryMoneyAmountField(
-                  label: 'Purchase Price',
-                  amountMinorUnits: parseMoneyCents(
-                    _draft.personal.priceController.text,
-                  ),
-                  currency: _draft.personal.currencyController.text,
-                  controller: _draft.personal.priceController,
-                  onChanged: (_) => _markDirty(),
+          child: LibraryPersonalFieldsLayout(
+            fields: [
+              LibraryMoneyAmountField(
+                label: 'Purchase Price',
+                amountMinorUnits: parseMoneyCents(
+                  _draft.personal.priceController.text,
                 ),
-                LibraryCurrencyField(
-                  controller: _draft.personal.currencyController,
-                  onChanged: (_) => _markDirty(),
+                currency: _draft.personal.currencyController.text,
+                controller: _draft.personal.priceController,
+                onChanged: (_) => _markDirty(),
+              ),
+              LibraryCurrencyField(
+                controller: _draft.personal.currencyController,
+                onChanged: (_) => _markDirty(),
+              ),
+              LibraryMoneyAmountField(
+                label: 'Market Value',
+                amountMinorUnits: parseMoneyCents(
+                  _draft.personal.marketValueController.text,
                 ),
-              ]),
-              const SizedBox(height: 10),
-              LibraryEditResponsiveRow(children: [
-                LibraryEditTextField(
-                  controller: _draft.personal.marketValueController,
-                  label: 'Market Value',
-                  keyboardType:
-                      const TextInputType.numberWithOptions(decimal: true),
-                ),
-                _buildUniversalVocabularyField(
-                  listName: UniversalVocabularies.purchaseStore.key,
-                  controller: _draft.personal.purchaseStoreController,
-                  label: 'Purchase Store',
-                  options: _draft.purchaseStoreOptions,
-                ),
-              ]),
-              const SizedBox(height: 10),
+                currency: _draft.personal.currencyController.text,
+                controller: _draft.personal.marketValueController,
+                onChanged: (_) => _markDirty(),
+              ),
+              _buildUniversalVocabularyField(
+                listName: UniversalVocabularies.purchaseStore.key,
+                controller: _draft.personal.purchaseStoreController,
+                label: 'Purchase Store',
+                options: _draft.purchaseStoreOptions,
+              ),
               LibraryDateFieldButton(
                 label: 'Purchase Date',
                 value: _draft.personal.purchaseDateController.text.isEmpty
@@ -863,10 +861,9 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
                     : DateTime.tryParse(
                         _draft.personal.purchaseDateController.text),
                 onChanged: (date) {
-                  setState(() {
-                    _draft.personal.purchaseDateController.text =
-                        date?.toIso8601String().split('T').first ?? '';
-                  });
+                  _draft.personal.purchaseDateController.text =
+                      date?.toIso8601String().split('T').first ?? '';
+                  _markDirty();
                 },
               ),
             ],
