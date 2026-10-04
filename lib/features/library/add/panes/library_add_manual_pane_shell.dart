@@ -1,6 +1,7 @@
 import 'package:collectarr_app/features/library/add/controllers/library_add_dialog_requests.dart';
 import 'package:collectarr_app/features/library/add/library_add_result_badge.dart';
 import 'package:collectarr_app/features/library/add/panes/library_add_manual_action_bar.dart';
+import 'package:collectarr_app/features/library/add/panes/library_add_manual_personal_tab.dart';
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/edit/sections/custom_fields_edit_section.dart';
 import 'package:collectarr_app/features/library/edit/sections/item_images_edit_section.dart';
@@ -72,25 +73,25 @@ class _LibraryAddManualPaneShellState extends State<LibraryAddManualPaneShell>
     );
   }
 
-  int _tabCount(LibraryAddManualPaneShell shell) =>
-      shell.tabs.length +
-      (shell.request.customFieldDefinitions.isNotEmpty ? 1 : 0) +
-      1;
-
-  @override
-  void dispose() {
-    _tabController.dispose();
-    _catalogTitleController.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final request = widget.request;
-    final tabs = [
-      ...widget.tabs,
-      if (request.customFieldDefinitions.isNotEmpty)
+  List<LibraryAddManualPaneTab> _tabsFor(
+    LibraryAddManualPaneShell shell,
+  ) {
+    final request = shell.request;
+    final tabs = [...shell.tabs];
+    if (!tabs.any((tab) => tab.id == 'personal')) {
+      tabs.add(
         LibraryAddManualPaneTab(
+          id: 'personal',
+          label: 'Personal',
+          icon: Icons.person_outline,
+          content: LibraryAddManualPersonalTab(request: request),
+        ),
+      );
+    }
+    if (request.customFieldDefinitions.isNotEmpty) {
+      tabs.add(
+        LibraryAddManualPaneTab(
+          id: 'custom_fields',
           label: 'Custom Fields',
           icon: Icons.edit_note_outlined,
           content: CustomFieldsEditSection(
@@ -109,7 +110,11 @@ class _LibraryAddManualPaneShellState extends State<LibraryAddManualPaneShell>
             },
           ),
         ),
+      );
+    }
+    tabs.add(
       LibraryAddManualPaneTab(
+        id: 'my_images',
         label: 'My Images',
         icon: Icons.photo_library_outlined,
         content: ItemImagesEditSection(
@@ -118,7 +123,23 @@ class _LibraryAddManualPaneShellState extends State<LibraryAddManualPaneShell>
           onChanged: request.onItemImagesChanged ?? (_) {},
         ),
       ),
-    ];
+    );
+    return tabs;
+  }
+
+  int _tabCount(LibraryAddManualPaneShell shell) => _tabsFor(shell).length;
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    _catalogTitleController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final request = widget.request;
+    final tabs = _tabsFor(widget);
     final badges = <Widget>[
       if (request.defaultLocationLabel != null)
         LibraryAddResultBadge(
@@ -179,6 +200,7 @@ class _LibraryAddManualPaneShellState extends State<LibraryAddManualPaneShell>
 /// The shell owns tab layout and chrome; each kind owns tab contents.
 final class LibraryAddManualPaneTab {
   const LibraryAddManualPaneTab({
+    required this.id,
     required this.label,
     required this.icon,
     required this.content,
@@ -186,11 +208,13 @@ final class LibraryAddManualPaneTab {
 
   factory LibraryAddManualPaneTab.main({required Widget content}) =>
       LibraryAddManualPaneTab(
+        id: 'main',
         label: 'Main',
         icon: Icons.edit_note_outlined,
         content: content,
       );
 
+  final String id;
   final String label;
   final IconData icon;
   final Widget content;

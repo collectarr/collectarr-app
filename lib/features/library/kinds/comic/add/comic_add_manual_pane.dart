@@ -227,6 +227,7 @@ class _ComicAddManualPaneState extends ConsumerState<ComicAddManualPane> {
       ),
       tabs: [
         LibraryAddManualPaneTab(
+          id: 'main',
           label: 'Main',
           icon: Icons.article_outlined,
           content: AddSchemaRenderer<ComicAddManualDraft>.embedded(
@@ -238,6 +239,7 @@ class _ComicAddManualPaneState extends ConsumerState<ComicAddManualPane> {
           ),
         ),
         LibraryAddManualPaneTab(
+          id: 'details',
           label: 'Details',
           icon: Icons.search,
           content: AddSchemaRenderer<ComicAddManualDraft>.embedded(

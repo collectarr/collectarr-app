@@ -79,6 +79,7 @@ class MusicAddManualPane extends StatelessWidget {
       showCatalogTitleField: false,
       tabs: [
         LibraryAddManualPaneTab(
+          id: 'main',
           label: 'Main',
           icon: Icons.music_note_outlined,
           content: AddSchemaRenderer<MusicAddManualDraft>.embedded(
@@ -91,6 +92,7 @@ class MusicAddManualPane extends StatelessWidget {
           ),
         ),
         LibraryAddManualPaneTab(
+          id: 'details',
           label: 'Details',
           icon: Icons.info_outline,
           content: AddSchemaRenderer<MusicAddManualDraft>.embedded(
@@ -103,6 +105,7 @@ class MusicAddManualPane extends StatelessWidget {
           ),
         ),
         LibraryAddManualPaneTab(
+          id: 'classical',
           label: 'Classical',
           icon: Icons.queue_music_outlined,
           content: MusicAddManualCreditsTab(
@@ -112,6 +115,7 @@ class MusicAddManualPane extends StatelessWidget {
           ),
         ),
         LibraryAddManualPaneTab(
+          id: 'people',
           label: 'People',
           icon: Icons.people_outline,
           content: MusicAddManualCreditsTab(
@@ -121,6 +125,7 @@ class MusicAddManualPane extends StatelessWidget {
           ),
         ),
         LibraryAddManualPaneTab(
+          id: 'tracks',
           label: 'Tracks',
           icon: Icons.format_list_numbered,
           content: MusicAddManualTracksTab(
@@ -129,16 +134,19 @@ class MusicAddManualPane extends StatelessWidget {
           ),
         ),
         LibraryAddManualPaneTab(
+          id: 'personal',
           label: 'Personal',
           icon: Icons.person_outline,
           content: LibraryAddManualPersonalTab(request: request),
         ),
         LibraryAddManualPaneTab(
+          id: 'covers',
           label: 'Covers',
           icon: Icons.photo_camera_outlined,
           content: MusicAddManualCoversTab(draft: draft),
         ),
         LibraryAddManualPaneTab(
+          id: 'links',
           label: 'Links',
           icon: Icons.public,
           content: MusicAddManualLinksTab(

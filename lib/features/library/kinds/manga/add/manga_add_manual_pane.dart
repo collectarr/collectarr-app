@@ -194,6 +194,7 @@ class _MangaAddManualPaneState extends ConsumerState<MangaAddManualPane> {
       ),
       tabs: [
         LibraryAddManualPaneTab(
+          id: 'identity',
           label: 'Identity',
           icon: Icons.title,
           content: AddSchemaRenderer<MangaAddManualDraft>.embedded(
@@ -205,6 +206,7 @@ class _MangaAddManualPaneState extends ConsumerState<MangaAddManualPane> {
           ),
         ),
         LibraryAddManualPaneTab(
+          id: 'publication',
           label: 'Publication',
           icon: Icons.menu_book,
           content: AddSchemaRenderer<MangaAddManualDraft>.embedded(
