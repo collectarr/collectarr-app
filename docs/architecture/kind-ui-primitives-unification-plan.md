@@ -161,10 +161,11 @@ Completed implementation slices:
   metadata, and Covers into focused tabs backed by its existing draft and
   managed vocabulary state. Its Links tab now uses the shared links table and
   stores manual external links in the Comic catalog model. Creators and
-  Characters now use the shared ordered name/detail editor and the same
-  kind-owned row models as Edit. The Add fields cover Name/Role and
-  Character/Real name; the richer creator and character metadata still needs
-  a parity review.
+  Characters use shared ordered editors in Add and Edit, backed by the same
+  kind-owned row models. Both forms expose creator credited name, sort name,
+  join phrase, and image URL, plus character real name, aliases, role,
+  description, and image URL. Edit retains catalog lookup actions and both
+  forms preserve existing person identities and row order.
 - The TV/Anime-specific Name/Role editor is now a library UI primitive that
   also supports Comic Add's different detail labels. Editable Comic people
   drafts now live in `comic/forms/` and are shared by Add and Edit.
@@ -213,6 +214,9 @@ Completed implementation slices:
 - The unused legacy `TagPickListField` implementation has been removed after
   confirming it had no application callers. Its golden fixture is deferred to
   the final test cleanup, as requested.
+- Comic Creator and Character Add/Edit now use the same kind-owned list
+  editors. Creator role options have one definition under `comic/forms/`, and
+  the obsolete Edit-only character-name draft controller has been removed.
 - Manga Edit now uses explicit kind-data patches for Genres, Themes, Authors,
   Artists, nullable publication fields, and partial release dates. Empty lists
   and blank nullable values clear stored data instead of restoring the previous

@@ -16,8 +16,6 @@ abstract class ComicEditHost {
   List<EditableComicCreator> get comicCreators;
   List<EditableComicCharacter> get comicCharacters;
   List<Map<String, TextEditingController>> get comicLinks;
-  TextEditingController get comicCharacterDraftController;
-
   TextEditingController get comicTitleController;
   TextEditingController get comicOriginalTitleController;
   TextEditingController get comicEditionTitleController;

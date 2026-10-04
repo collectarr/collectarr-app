@@ -1,6 +1,12 @@
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
 import 'package:flutter/material.dart';
 
+typedef LibraryNamedDetailFieldBuilder = Widget Function(
+  BuildContext context,
+  int index,
+  LibraryNamedDetailControllers row,
+);
+
 @immutable
 final class LibraryNamedDetailControllers {
   const LibraryNamedDetailControllers({
@@ -29,6 +35,10 @@ final class LibraryNamedDetailList extends StatelessWidget {
     this.removeTooltip = 'Remove item',
     this.nameLabel = 'Name',
     this.detailLabel = 'Role',
+    this.headerActions = const <Widget>[],
+    this.detailFieldBuilder,
+    this.rowActionsBuilder,
+    this.detailsBuilder,
     required this.onAdd,
     required this.onRemove,
     required this.onReorder,
@@ -43,6 +53,10 @@ final class LibraryNamedDetailList extends StatelessWidget {
   final String removeTooltip;
   final String nameLabel;
   final String detailLabel;
+  final List<Widget> headerActions;
+  final LibraryNamedDetailFieldBuilder? detailFieldBuilder;
+  final LibraryNamedDetailFieldBuilder? rowActionsBuilder;
+  final LibraryNamedDetailFieldBuilder? detailsBuilder;
   final VoidCallback onAdd;
   final ValueChanged<int> onRemove;
   final void Function(int oldIndex, int newIndex) onReorder;
@@ -80,45 +94,71 @@ final class LibraryNamedDetailList extends StatelessWidget {
                       return Padding(
                         key: ObjectKey(credit.identity),
                         padding: const EdgeInsets.only(bottom: 8),
-                        child: Row(
+                        child: Column(
                           children: [
-                            ReorderableDragStartListener(
-                              index: index,
-                              child: const Icon(Icons.drag_indicator, size: 18),
+                            Row(
+                              children: [
+                                ReorderableDragStartListener(
+                                  index: index,
+                                  child: const Icon(
+                                    Icons.drag_indicator,
+                                    size: 18,
+                                  ),
+                                ),
+                                const SizedBox(width: 6),
+                                Expanded(
+                                  child: LibraryEditTextField(
+                                    controller: credit.name,
+                                    label: nameLabel,
+                                    maxLines: 1,
+                                    onChanged: (_) => onChanged(),
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  child: detailFieldBuilder?.call(
+                                        context,
+                                        index,
+                                        credit,
+                                      ) ??
+                                      LibraryEditTextField(
+                                        controller: credit.detail,
+                                        label: detailLabel,
+                                        maxLines: 1,
+                                        onChanged: (_) => onChanged(),
+                                      ),
+                                ),
+                                if (rowActionsBuilder != null)
+                                  rowActionsBuilder!(context, index, credit),
+                                IconButton(
+                                  tooltip: removeTooltip,
+                                  visualDensity: VisualDensity.compact,
+                                  onPressed: () {
+                                    onRemove(index);
+                                    setState(() {});
+                                    onChanged();
+                                  },
+                                  icon: const Icon(Icons.close, size: 18),
+                                ),
+                              ],
                             ),
-                            const SizedBox(width: 6),
-                            Expanded(
-                              child: LibraryEditTextField(
-                                controller: credit.name,
-                                label: nameLabel,
-                                maxLines: 1,
-                                onChanged: (_) => onChanged(),
-                              ),
-                            ),
-                            const SizedBox(width: 8),
-                            Expanded(
-                              child: LibraryEditTextField(
-                                controller: credit.detail,
-                                label: detailLabel,
-                                maxLines: 1,
-                                onChanged: (_) => onChanged(),
-                              ),
-                            ),
-                            IconButton(
-                              tooltip: removeTooltip,
-                              visualDensity: VisualDensity.compact,
-                              onPressed: () {
-                                onRemove(index);
-                                setState(() {});
-                                onChanged();
-                              },
-                              icon: const Icon(Icons.close, size: 18),
-                            ),
+                            if (detailsBuilder != null) ...[
+                              const SizedBox(height: 6),
+                              detailsBuilder!(context, index, credit),
+                            ],
                           ],
                         ),
                       );
                     },
                   ),
+                if (headerActions.isNotEmpty) ...[
+                  const SizedBox(height: 8),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: headerActions,
+                  ),
+                ],
                 const SizedBox(height: 8),
                 OutlinedButton.icon(
                   onPressed: () {

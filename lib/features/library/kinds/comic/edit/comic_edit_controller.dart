@@ -78,8 +78,6 @@ class ComicEditController {
   final List<EditableComicCreator> creators = [];
   final List<EditableComicCharacter> characters = [];
   final List<Map<String, TextEditingController>> links = [];
-  final TextEditingController characterDraftController =
-      TextEditingController();
 
   void initialize() {
     creators.addAll(initComicCreators(item));
@@ -110,7 +108,6 @@ class ComicEditController {
     ageRatingController.dispose();
     genresEditController.dispose();
     seriesGroupController.dispose();
-    characterDraftController.dispose();
     numberController.dispose();
     publisherController.dispose();
     editionTitleController.dispose();

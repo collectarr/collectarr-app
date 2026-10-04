@@ -127,10 +127,6 @@ class ComicEditHostAdapter implements ComicEditHost {
       _comicDraft.comicEdit.links;
 
   @override
-  TextEditingController get comicCharacterDraftController =>
-      _comicDraft.comicEdit.characterDraftController;
-
-  @override
   TextEditingController get comicTitleController =>
       draft.formFields.controller(ComicCanonicalEditField.title);
 

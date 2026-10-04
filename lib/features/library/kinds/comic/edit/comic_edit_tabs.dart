@@ -1,15 +1,13 @@
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
-import 'package:collectarr_app/features/library/ui/primitives/library_dropdown_pick_field.dart';
-import 'package:collectarr_app/features/library/schema/library_field_spec.dart';
 import 'package:collectarr_app/features/pick_lists/widgets/pick_list_select_dialog.dart';
 import 'package:collectarr_app/features/library/edit/sections/item_images_edit_section.dart';
 import 'package:collectarr_app/features/library/edit/fields/library_external_links_table.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_selection_fields.dart';
 import 'package:collectarr_app/features/library/generic/external_links.dart';
 import 'package:collectarr_app/features/library/kinds/comic/comic_edit_image_sections.dart';
-import 'package:collectarr_app/features/library/kinds/comic/edit/comic_creator_roles.dart';
 import 'package:collectarr_app/features/library/kinds/comic/edit/comic_edit_host.dart';
 import 'package:collectarr_app/features/library/kinds/comic/forms/comic_person_draft.dart';
+import 'package:collectarr_app/features/library/kinds/comic/forms/comic_people_editors.dart';
 import 'package:collectarr_app/features/library/kinds/comic/data/comic_catalog_browse_api.dart';
 import 'package:collectarr_app/features/library/tracking/media_rating_field.dart';
 import 'package:collectarr_app/state/api_provider.dart';
@@ -160,125 +158,32 @@ extension ComicEditTabBuilders on ComicEditHost {
   Widget buildComicCreatorsTab() {
     return EditTabShell(
       children: [
-        EditSection(
-          title: 'Creators',
+        ComicCreatorListEditor(
+          creators: comicCreators,
           accent: comicAccent,
-          child: Column(
-            children: [
-              Row(
-                children: [
-                  FilledButton.icon(
-                    onPressed: () => comicMutateState(
-                      () => comicCreators.add(EditableComicCreator.custom()),
-                    ),
-                    icon: const Icon(Icons.add, size: 16),
-                    label: const Text('Add'),
-                  ),
-                  const SizedBox(width: 8),
-                  OutlinedButton.icon(
-                    onPressed: _addCatalogComicCreator,
-                    icon: const Icon(Icons.person_search_outlined, size: 16),
-                    label: const Text('Find in Catalog'),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 10),
-              if (comicCreators.isEmpty)
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    'Creators is empty',
-                    style: TextStyle(color: appPalette(comicContext).textMuted),
-                  ),
-                )
-              else
-                ReorderableListView.builder(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  onReorderItem: (oldIndex, newIndex) {
-                    comicMutateState(() {
-                      final item = comicCreators.removeAt(oldIndex);
-                      comicCreators.insert(newIndex, item);
-                    });
-                  },
-                  itemCount: comicCreators.length,
-                  itemBuilder: (context, index) {
-                    final creator = comicCreators[index];
-                    final currentRole = creator.roleController.text.trim();
-                    final roles = <String>[
-                      if (currentRole.isNotEmpty &&
-                          !kComicCreatorRoles.contains(currentRole))
-                        currentRole,
-                      ...kComicCreatorRoles,
-                    ];
-                    return Padding(
-                      key: ValueKey(creator),
-                      padding: const EdgeInsets.only(bottom: 8),
-                      child: Row(
-                        children: [
-                          ReorderableDragStartListener(
-                            index: index,
-                            child: Icon(
-                              Icons.drag_handle,
-                              color: appPalette(comicContext).textMuted,
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          SizedBox(
-                            width: 180,
-                            child: LibraryDropdownPickField<String>(
-                              label: 'Role',
-                              value: currentRole.isEmpty ? null : currentRole,
-                              options: [
-                                for (final role in roles)
-                                  LibraryFieldOption(
-                                    value: role,
-                                    label: role,
-                                  ),
-                              ],
-                              openPicker: (
-                                      {required label,
-                                      required selectedValue,
-                                      required options}) =>
-                                  showPickListSelectDialog(
-                                context: comicContext,
-                                label: label,
-                                options: options,
-                                selectedValue: selectedValue,
-                              ),
-                              onChanged: (value) {
-                                if (value == null) return;
-                                creator.roleController.text = value;
-                              },
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          Expanded(
-                            child: TextFormField(
-                              controller: creator.nameController,
-                              decoration: const InputDecoration(
-                                labelText: 'Name',
-                              ),
-                            ),
-                          ),
-                          IconButton(
-                            onPressed: () => _lookupComicCreatorForRow(index),
-                            icon: const Icon(Icons.person_search, size: 18),
-                            tooltip: 'Lookup',
-                          ),
-                          IconButton(
-                            onPressed: () => comicMutateState(
-                              () => comicCreators.removeAt(index).dispose(),
-                            ),
-                            icon: const Icon(Icons.close, size: 18),
-                            tooltip: 'Remove',
-                          ),
-                        ],
-                      ),
-                    );
-                  },
-                ),
-            ],
+          onAdd: () => comicMutateState(
+            () => comicCreators.add(EditableComicCreator.custom()),
+          ),
+          onRemove: (index) => comicMutateState(
+            () => comicCreators.removeAt(index).dispose(),
+          ),
+          onReorder: (oldIndex, newIndex) => comicMutateState(() {
+            final item = comicCreators.removeAt(oldIndex);
+            comicCreators.insert(newIndex, item);
+          }),
+          onChanged: () => comicMutateState(() {}),
+          onFindInCatalog: _addCatalogComicCreator,
+          onLookupCreator: _lookupComicCreatorForRow,
+          roleOpenPicker: ({
+            required label,
+            required selectedValue,
+            required options,
+          }) =>
+              showPickListSelectDialog(
+            context: comicContext,
+            label: label,
+            options: options,
+            selectedValue: selectedValue,
           ),
         ),
       ],
@@ -288,103 +193,21 @@ extension ComicEditTabBuilders on ComicEditHost {
   Widget buildComicCharactersTab() {
     return EditTabShell(
       children: [
-        EditSection(
-          title: 'Characters',
+        ComicCharacterListEditor(
+          characters: comicCharacters,
           accent: comicAccent,
-          child: Column(
-            children: [
-              Row(
-                children: [
-                  Expanded(
-                    child: TextField(
-                      controller: comicCharacterDraftController,
-                      decoration:
-                          const InputDecoration(hintText: 'Character name'),
-                      onSubmitted: (_) => _addComicCharacter(),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  FilledButton.icon(
-                    onPressed: _addComicCharacter,
-                    icon: const Icon(Icons.add, size: 16),
-                    label: const Text('Add'),
-                  ),
-                  const SizedBox(width: 8),
-                  OutlinedButton.icon(
-                    onPressed: _addCatalogComicCharacter,
-                    icon: const Icon(Icons.person_search_outlined, size: 16),
-                    label: const Text('Find in Catalog'),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 10),
-              if (comicCharacters.isEmpty)
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    'Characters is empty',
-                    style: TextStyle(color: appPalette(comicContext).textMuted),
-                  ),
-                )
-              else
-                ReorderableListView.builder(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  onReorderItem: (oldIndex, newIndex) {
-                    comicMutateState(() {
-                      final item = comicCharacters.removeAt(oldIndex);
-                      comicCharacters.insert(newIndex, item);
-                    });
-                  },
-                  itemCount: comicCharacters.length,
-                  itemBuilder: (context, index) {
-                    final character = comicCharacters[index];
-                    return Padding(
-                      key: ValueKey(character),
-                      padding: const EdgeInsets.only(bottom: 8),
-                      child: Row(
-                        children: [
-                          ReorderableDragStartListener(
-                            index: index,
-                            child: Icon(
-                              Icons.drag_handle,
-                              color: appPalette(comicContext).textMuted,
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          Expanded(
-                            flex: 4,
-                            child: TextFormField(
-                              controller: character.nameController,
-                              decoration: const InputDecoration(
-                                labelText: 'Character',
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          Expanded(
-                            flex: 3,
-                            child: TextFormField(
-                              controller: character.realNameController,
-                              decoration: const InputDecoration(
-                                labelText: 'Real name',
-                              ),
-                            ),
-                          ),
-                          IconButton(
-                            onPressed: () => comicMutateState(
-                              () => comicCharacters.removeAt(index).dispose(),
-                            ),
-                            icon: const Icon(Icons.close, size: 18),
-                            tooltip: 'Remove',
-                          ),
-                        ],
-                      ),
-                    );
-                  },
-                ),
-            ],
+          onAdd: () => comicMutateState(
+            () => comicCharacters.add(EditableComicCharacter.custom('')),
           ),
+          onRemove: (index) => comicMutateState(
+            () => comicCharacters.removeAt(index).dispose(),
+          ),
+          onReorder: (oldIndex, newIndex) => comicMutateState(() {
+            final item = comicCharacters.removeAt(oldIndex);
+            comicCharacters.insert(newIndex, item);
+          }),
+          onChanged: () => comicMutateState(() {}),
+          onFindInCatalog: _addCatalogComicCharacter,
         ),
       ],
     );
@@ -940,22 +763,6 @@ extension ComicEditTabBuilders on ComicEditHost {
       current.metadata
         ..addAll(creator)
         ..['source_type'] = 'core';
-    });
-  }
-
-  void _addComicCharacter() {
-    final normalized = comicCharacterDraftController.text.trim();
-    if (normalized.isEmpty) return;
-    final exists = comicCharacters.any((character) =>
-        character.nameController.text.trim().toLowerCase() ==
-        normalized.toLowerCase());
-    if (exists) {
-      comicCharacterDraftController.clear();
-      return;
-    }
-    comicMutateState(() {
-      comicCharacters.add(EditableComicCharacter.custom(normalized));
-      comicCharacterDraftController.clear();
     });
   }
 
