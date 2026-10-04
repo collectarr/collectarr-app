@@ -160,19 +160,29 @@ AddSchema<TvAddManualDraft> tvAddSchemaFor({
                 ],
               ),
             ),
-            _text(
+            _multiVocabulary(
               id: 'audio_tracks',
-              label: 'Audio Tracks',
+              label: 'Audio tracks',
               read: (metadata) => metadata.audioTracks ?? '',
-              write: (draft, value) =>
-                  _writeNullable(draft, 'audio_tracks', _nullable(value)),
+              write: (draft, values) => _writeNullable(
+                draft,
+                'audio_tracks',
+                values.isEmpty ? null : values.join(', '),
+              ),
+              options: TvVocabularies.audio.builtIns,
+              pickListKey: TvVocabularyIds.audio.value,
             ),
-            _text(
+            _multiVocabulary(
               id: 'subtitles',
               label: 'Subtitles',
               read: (metadata) => metadata.subtitles ?? '',
-              write: (draft, value) =>
-                  _writeNullable(draft, 'subtitles', _nullable(value)),
+              write: (draft, values) => _writeNullable(
+                draft,
+                'subtitles',
+                values.isEmpty ? null : values.join(', '),
+              ),
+              options: TvVocabularies.subtitles.builtIns,
+              pickListKey: TvVocabularyIds.subtitles.value,
             ),
             _number(
               id: 'season_number',
@@ -276,6 +286,28 @@ LibraryVocabularyFieldSpec<TvAddManualDraft, String> _vocabulary({
           LibraryFieldOption(value: value, label: value),
       ],
       onManage: onManage == null ? null : (_) => onManage(),
+    );
+
+LibraryMultiVocabularyFieldSpec<TvAddManualDraft, String> _multiVocabulary({
+  required String id,
+  required String label,
+  required String Function(TvMetadata metadata) read,
+  required void Function(TvAddManualDraft draft, Set<String> values) write,
+  required Iterable<String> options,
+  required String pickListKey,
+}) =>
+    LibraryMultiVocabularyFieldSpec<TvAddManualDraft, String>(
+      id: id,
+      label: label,
+      values: (draft) => _split(read(draft.metadata)).toSet(),
+      setValues: write,
+      options: [
+        for (final value in options)
+          LibraryFieldOption(value: value, label: value),
+      ],
+      pickListKey: pickListKey,
+      pluralLabel: label,
+      allowCustomValues: true,
     );
 
 void _writeNullable(TvAddManualDraft draft, String key, Object? value) =>
