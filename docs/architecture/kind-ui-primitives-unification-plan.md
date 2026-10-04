@@ -63,6 +63,9 @@ Completed implementation slices:
   Release Date, Custom Fields, and My Images.
 - Edit extra tabs now require stable IDs. Personal-tab detection and Flutter
   tab keys no longer depend on the visible label text.
+- Music Tracks now compares each disc against the active disc when painting
+  the disc selector; the previous shadowed variable made every disc appear
+  selected.
 - Edit validation checks visible schema fields across inactive tabs and can
   run a validator contributed by an extra tab. When a non-mounted tab contains
   the first invalid field, the renderer switches to that tab and shows the
