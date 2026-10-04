@@ -5,12 +5,11 @@ import 'package:collectarr_app/features/pick_lists/models/vocabulary_id.dart';
 import 'package:collectarr_app/features/library/add/controllers/library_add_dialog_requests.dart';
 import 'package:collectarr_app/features/library/add/panes/library_add_manual_pane_shell.dart';
 import 'package:collectarr_app/features/library/add/schema/add_schema_renderer.dart';
-import 'package:collectarr_app/features/library/serial/serial_authority_dialog.dart';
-import 'package:collectarr_app/features/catalog/serial/serial_authority_repository.dart';
+import 'package:collectarr_app/core/db/local_database.dart';
+import 'package:collectarr_app/features/library/serial/library_series_selector_field.dart';
 import 'package:collectarr_app/features/library/kinds/manga/add/manga_add_schema.dart';
 import 'package:collectarr_app/features/library/kinds/manga/add/manga_add_manual_draft.dart';
 import 'package:collectarr_app/features/library/kinds/manga/vocabulary/manga_vocabularies.dart';
-import 'package:collectarr_app/features/library/ui/primitives/library_selection_fields.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -25,54 +24,38 @@ class MangaAddManualPane extends ConsumerStatefulWidget {
 }
 
 class _MangaAddManualPaneState extends ConsumerState<MangaAddManualPane> {
-  late final TextEditingController _seriesController;
+  late final LocalDatabase _database;
   List<String> _publisherOptions = const [];
   List<String> _imprintOptions = const [];
   List<String> _formatOptions = const [];
-  List<SerialAuthorityEntry> _seriesEntries = const [];
-  String? _selectedSeriesId;
 
   @override
   void initState() {
     super.initState();
-    final draft = widget.request.manualDraftAs<MangaAddManualDraft>();
-    _seriesController = TextEditingController(text: draft.values.seriesTitle);
-    _selectedSeriesId = draft.values.seriesId;
+    _database = ref.read(localDatabaseProvider);
     _loadVocabularies();
   }
 
-  @override
-  void dispose() {
-    _seriesController.dispose();
-    super.dispose();
-  }
-
   Future<void> _loadVocabularies() async {
-    final db = ref.read(localDatabaseProvider);
     final draft = widget.request.manualDraftAs<MangaAddManualDraft>();
     final results = await Future.wait<dynamic>([
       loadSingleValuePickListOptions(
-        db,
+        _database,
         listName: MangaVocabularyIds.publisher.value,
         mediaKind: CatalogMediaKind.manga.apiValue,
         selectedValue: draft.values.publisher,
       ),
       loadSingleValuePickListOptions(
-        db,
+        _database,
         listName: MangaVocabularyIds.imprint.value,
         mediaKind: CatalogMediaKind.manga.apiValue,
         selectedValue: draft.values.imprint,
       ),
       loadSingleValuePickListOptions(
-        db,
+        _database,
         listName: MangaVocabularyIds.format.value,
         mediaKind: CatalogMediaKind.manga.apiValue,
         selectedValue: draft.values.format,
-      ),
-      SerialAuthorityRepository(db).searchEntries(
-        mediaKind: CatalogMediaKind.manga.apiValue,
-        selectedTitle: _seriesController.text,
-        selectedSeriesId: _selectedSeriesId,
       ),
     ]);
     if (!mounted) return;
@@ -80,48 +63,6 @@ class _MangaAddManualPaneState extends ConsumerState<MangaAddManualPane> {
       _publisherOptions = List<String>.from(results[0] as List<String>);
       _imprintOptions = List<String>.from(results[1] as List<String>);
       _formatOptions = List<String>.from(results[2] as List<String>);
-      _seriesEntries = List<SerialAuthorityEntry>.from(
-          results[3] as List<SerialAuthorityEntry>);
-    });
-  }
-
-  Future<void> _openManualSeriesPicker() async {
-    final selected = await showSeriesPickerDialog(
-      context: context,
-      db: ref.read(localDatabaseProvider),
-      mediaKind: CatalogMediaKind.manga.apiValue,
-      selectedTitle: _seriesController.text,
-      selectedSeriesId: _selectedSeriesId,
-    );
-    if (!mounted || selected == null) return;
-    setState(() {
-      _selectedSeriesId = selected.coreSeriesId;
-      final values = widget.request.manualDraftAs<MangaAddManualDraft>().values;
-      values
-        ..seriesId = selected.coreSeriesId ?? ''
-        ..seriesTitle = selected.title;
-      _seriesController.value = TextEditingValue(
-        text: selected.title,
-        selection: TextSelection.collapsed(offset: selected.title.length),
-      );
-    });
-    await _loadVocabularies();
-  }
-
-  void _setManualSeries(String? value) {
-    final normalized = (value ?? '').trim();
-    final match = _seriesEntries.cast<SerialAuthorityEntry?>().firstWhere(
-          (entry) =>
-              entry != null &&
-              entry.title.trim().toLowerCase() == normalized.toLowerCase(),
-          orElse: () => null,
-        );
-    setState(() {
-      _selectedSeriesId = match?.coreSeriesId;
-      final values = widget.request.manualDraftAs<MangaAddManualDraft>().values;
-      values
-        ..seriesTitle = normalized
-        ..seriesId = match?.coreSeriesId ?? '';
     });
   }
 
@@ -188,13 +129,18 @@ class _MangaAddManualPaneState extends ConsumerState<MangaAddManualPane> {
 
     return LibraryAddManualPaneShell(
       request: request,
-      identityDetails: LibraryVocabularyField(
-        controller: _seriesController,
-        options: [for (final entry in _seriesEntries) entry.title],
-        label: 'Series',
-        onChanged: _setManualSeries,
-        onManage: _openManualSeriesPicker,
-        manageTooltip: 'Select or manage series',
+      identityDetails: LibrarySeriesSelectorField(
+        database: _database,
+        mediaKind: CatalogMediaKind.manga.apiValue,
+        initialTitle: draft.values.seriesTitle,
+        initialSeriesId:
+            draft.values.seriesId.isEmpty ? null : draft.values.seriesId,
+        onChanged: (title, coreSeriesId) {
+          draft.values
+            ..seriesTitle = title
+            ..seriesId = coreSeriesId ?? '';
+          request.onManualDraftChanged?.call();
+        },
       ),
       tabs: [
         LibraryAddManualPaneTab(

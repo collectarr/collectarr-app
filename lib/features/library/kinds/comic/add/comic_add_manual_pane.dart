@@ -1,3 +1,4 @@
+import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/pick_lists/widgets/pick_list_editor_dialog.dart';
 import 'package:collectarr_app/features/pick_lists/pick_list_options.dart';
@@ -6,15 +7,13 @@ import 'package:collectarr_app/features/library/add/panes/library_add_manual_pan
 import 'package:collectarr_app/features/library/add/schema/add_schema.dart';
 import 'package:collectarr_app/features/library/add/schema/add_schema_renderer.dart';
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
-import 'package:collectarr_app/features/library/serial/serial_authority_dialog.dart';
-import 'package:collectarr_app/features/catalog/serial/serial_authority_repository.dart';
+import 'package:collectarr_app/features/library/serial/library_series_selector_field.dart';
 import 'package:collectarr_app/features/library/kinds/comic/add/comic_add_manual_draft.dart';
 import 'package:collectarr_app/features/library/kinds/comic/add/comic_add_links_tab.dart';
 import 'package:collectarr_app/features/library/kinds/comic/add/comic_add_schema.dart';
 import 'package:collectarr_app/features/library/kinds/comic/forms/comic_person_draft.dart';
 import 'package:collectarr_app/features/library/kinds/comic/forms/comic_people_editors.dart';
 import 'package:collectarr_app/features/library/kinds/comic/vocabulary/comic_vocabularies.dart';
-import 'package:collectarr_app/features/library/ui/primitives/library_selection_fields.dart';
 import 'package:collectarr_app/features/library/providers/media_catalog_provider.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:flutter/material.dart';
@@ -30,27 +29,17 @@ class ComicAddManualPane extends ConsumerStatefulWidget {
 }
 
 class _ComicAddManualPaneState extends ConsumerState<ComicAddManualPane> {
-  late final TextEditingController _seriesController;
+  late final LocalDatabase _database;
   List<String> _publisherOptions = const [];
   List<String> _imprintOptions = const [];
   List<String> _seriesGroupOptions = const [];
   List<String> _physicalFormatOptions = const [];
-  List<SerialAuthorityEntry> _seriesEntries = const [];
-  String? _selectedSeriesId;
 
   @override
   void initState() {
     super.initState();
-    final draft = widget.request.manualDraftAs<ComicAddManualDraft>();
-    _seriesController = TextEditingController(text: draft.values.seriesTitle);
-    _selectedSeriesId = draft.values.seriesId;
+    _database = ref.read(localDatabaseProvider);
     _loadVocabularies();
-  }
-
-  @override
-  void dispose() {
-    _seriesController.dispose();
-    super.dispose();
   }
 
   List<PhysicalMediaFormat> _currentPhysicalFormats() {
@@ -64,42 +53,36 @@ class _ComicAddManualPaneState extends ConsumerState<ComicAddManualPane> {
   }
 
   Future<void> _loadVocabularies() async {
-    final db = ref.read(localDatabaseProvider);
     final comicDraft = widget.request.manualDraftAs<ComicAddManualDraft>();
     final formats = _currentPhysicalFormats();
     final results = await Future.wait<dynamic>([
       loadSingleValuePickListOptions(
-        db,
+        _database,
         listName: ComicVocabularyIds.publisher.value,
         mediaKind: CatalogMediaKind.comic.apiValue,
         builtInValues: ComicVocabularies.publisher.builtIns,
         selectedValue: comicDraft.values.publisher,
       ),
       loadSingleValuePickListOptions(
-        db,
+        _database,
         listName: ComicVocabularyIds.imprint.value,
         mediaKind: CatalogMediaKind.comic.apiValue,
         builtInValues: ComicVocabularies.imprint.builtIns,
         selectedValue: comicDraft.values.imprint,
       ),
       loadSingleValuePickListOptions(
-        db,
+        _database,
         listName: ComicVocabularyIds.seriesGroup.value,
         mediaKind: CatalogMediaKind.comic.apiValue,
         builtInValues: ComicVocabularies.seriesGroup.builtIns,
         selectedValue: comicDraft.values.seriesGroup,
       ),
       loadSingleValuePickListOptions(
-        db,
+        _database,
         listName: ComicVocabularyIds.physicalFormat.value,
         mediaKind: CatalogMediaKind.comic.apiValue,
         builtInValues: [for (final format in formats) format.label],
         selectedValue: comicDraft.values.physicalFormatLabel,
-      ),
-      SerialAuthorityRepository(db).searchEntries(
-        mediaKind: CatalogMediaKind.comic.apiValue,
-        selectedTitle: _seriesController.text,
-        selectedSeriesId: _selectedSeriesId,
       ),
     ]);
     if (!mounted) return;
@@ -108,48 +91,6 @@ class _ComicAddManualPaneState extends ConsumerState<ComicAddManualPane> {
       _imprintOptions = List<String>.from(results[1] as List<String>);
       _seriesGroupOptions = List<String>.from(results[2] as List<String>);
       _physicalFormatOptions = List<String>.from(results[3] as List<String>);
-      _seriesEntries = List<SerialAuthorityEntry>.from(
-          results[4] as List<SerialAuthorityEntry>);
-    });
-  }
-
-  Future<void> _openManualSeriesPicker() async {
-    final selected = await showSeriesPickerDialog(
-      context: context,
-      db: ref.read(localDatabaseProvider),
-      mediaKind: CatalogMediaKind.comic.apiValue,
-      selectedTitle: _seriesController.text,
-      selectedSeriesId: _selectedSeriesId,
-    );
-    if (!mounted || selected == null) return;
-    setState(() {
-      _selectedSeriesId = selected.coreSeriesId;
-      final values = widget.request.manualDraftAs<ComicAddManualDraft>().values;
-      values
-        ..seriesId = selected.coreSeriesId
-        ..seriesTitle = selected.title;
-      _seriesController.value = TextEditingValue(
-        text: selected.title,
-        selection: TextSelection.collapsed(offset: selected.title.length),
-      );
-    });
-    await _loadVocabularies();
-  }
-
-  void _setManualSeries(String? value) {
-    final normalized = (value ?? '').trim();
-    final match = _seriesEntries.cast<SerialAuthorityEntry?>().firstWhere(
-          (entry) =>
-              entry != null &&
-              entry.title.trim().toLowerCase() == normalized.toLowerCase(),
-          orElse: () => null,
-        );
-    setState(() {
-      _selectedSeriesId = match?.coreSeriesId;
-      final values = widget.request.manualDraftAs<ComicAddManualDraft>().values;
-      values
-        ..seriesTitle = normalized
-        ..seriesId = match?.coreSeriesId;
     });
   }
 
@@ -231,13 +172,17 @@ class _ComicAddManualPaneState extends ConsumerState<ComicAddManualPane> {
         );
     return LibraryAddManualPaneShell(
       request: request,
-      identityDetails: LibraryVocabularyField(
-        controller: _seriesController,
-        options: [for (final entry in _seriesEntries) entry.title],
-        label: 'Series',
-        onChanged: _setManualSeries,
-        onManage: _openManualSeriesPicker,
-        manageTooltip: 'Select or manage series',
+      identityDetails: LibrarySeriesSelectorField(
+        database: _database,
+        mediaKind: CatalogMediaKind.comic.apiValue,
+        initialTitle: comicDraft.values.seriesTitle,
+        initialSeriesId: comicDraft.values.seriesId,
+        onChanged: (title, coreSeriesId) {
+          comicDraft.values
+            ..seriesTitle = title
+            ..seriesId = coreSeriesId;
+          request.onManualDraftChanged?.call();
+        },
       ),
       tabs: [
         LibraryAddManualPaneTab(

@@ -217,6 +217,10 @@ Completed implementation slices:
 - Comic Creator and Character Add/Edit now use the same kind-owned list
   editors. Creator role options have one definition under `comic/forms/`, and
   the obsolete Edit-only character-name draft controller has been removed.
+- Comic and Manga Manual Add now use one `LibrarySeriesSelectorField` for
+  cached series options, free-text titles, Core series IDs, and the managed
+  series picker. Their kind panes retain ownership of the corresponding
+  typed draft fields; the selector owns its text controller and picker state.
 - Manga Edit now uses explicit kind-data patches for Genres, Themes, Authors,
   Artists, nullable publication fields, and partial release dates. Empty lists
   and blank nullable values clear stored data instead of restoring the previous
@@ -644,8 +648,8 @@ tab placement, and metadata/personal classification.
 | TV | Add and Edit now render Main, Edition, Specs, Plot, Covers, and Characters from the same kind-owned schema. Cast/Crew row layout is shared across Movie/TV/Anime and Add/Edit. One typed dispatcher serves catalog and entry registrations; catalog media, episode editing/mapping, and tracking remain specialized. |
 | Anime | Main, Details, Edition, Specs, Cover, and Synopsis now use the same Add/Edit schema. Cast/Crew row layout is shared with Movie/TV. Preserve kind-specific series/episode/disc editors and review the remaining Add/Edit personal lifecycle. |
 | Books | Main, identifier, covers, and Plot fields now use the same schema and renderer in Add/Edit; Authors and Translators share typed ordered-name editors. Continue unifying catalog/entry and personal lifecycles, and review other credit roles. |
-| Comics | Controller fallbacks have been removed from the Comic edit host; unify the generic entry and typed catalog hosts while retaining series/issue, grading, variants, and meaningful credit structures. |
-| Manga | Add/Edit now expose the same modeled volume, publication, identifier, people, character, and descriptive fields. Genres/Themes use the common chip control, and Edition Format, Publisher, and Imprint use the same vocabularies in both forms. Distributor and Country / region were removed from Add because Manga metadata has no such fields. Consolidate series selection mechanics with other kinds and retain Manga-specific volume/publication semantics. |
+| Comics | Controller fallbacks have been removed from the Comic edit host; unify the generic entry and typed catalog hosts while retaining series/issue, grading, variants, and meaningful credit structures. Comic Manual Add shares its managed series selector with Manga. |
+| Manga | Add/Edit now expose the same modeled volume, publication, identifier, people, character, and descriptive fields. Genres/Themes use the common chip control, and Edition Format, Publisher, and Imprint use the same vocabularies in both forms. Distributor and Country / region were removed from Add because Manga metadata has no such fields. Manual Add now shares the managed series selector with Comic while retaining Manga-specific volume/publication semantics. |
 | Games | Catalog fields now share the Add schema, typed values, and renderer across Main, Edition, Description, and Covers; the duplicate scalar controller is gone. Continue with whole-dialog submission/personal lifecycle unification and review the specialized Entry details editor. |
 | Board Games | Catalog Add/Edit fields now share their schema across Main, Edition, Gameplay & Ratings, Description, and Covers, and the scalar Edit controllers are removed. Continue whole-dialog personal/entry lifecycle unification; retain players, age, play-time, components, and play tracking as typed kind features. |
 | Music | Retain reference layout; credits and Links now share Add/Edit editors. Converge discs/tracks, covers, and personal controls. Preserve track-search highlighting in App. |
