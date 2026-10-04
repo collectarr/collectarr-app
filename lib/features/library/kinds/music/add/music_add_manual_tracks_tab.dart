@@ -1,5 +1,6 @@
 import 'package:collectarr_app/features/library/kinds/music/add/music_add_manual_contents.dart';
 import 'package:collectarr_app/features/library/kinds/music/add/music_add_manual_draft.dart';
+import 'package:collectarr_app/features/library/kinds/music/forms/music_track_text_field.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_form_controls.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
@@ -206,32 +207,23 @@ final class _MusicAddManualTracksTabState
                   padding: const EdgeInsets.symmetric(vertical: 4),
                   child: LayoutBuilder(
                     builder: (context, constraints) {
-                      final titleField = LibraryTextFormControl(
-                        key: ValueKey('${track.id}-title'),
+                      final titleField = MusicTrackTextField(
+                        id: '${track.id}-title',
                         initialValue: track.title,
-                        decoration: const InputDecoration(
-                          labelText: 'Title',
-                          isDense: true,
-                        ),
+                        label: 'Title',
                         onChanged: (value) => track.title = value,
                       );
-                      final artistField = LibraryTextFormControl(
-                        key: ValueKey('${track.id}-artist'),
+                      final artistField = MusicTrackTextField(
+                        id: '${track.id}-artist',
                         initialValue: track.artist,
-                        decoration: const InputDecoration(
-                          labelText: 'Artist',
-                          isDense: true,
-                        ),
+                        label: 'Artist',
                         onChanged: (value) => track.artist = value,
                       );
-                      final durationField = LibraryTextFormControl(
-                        key: ValueKey('${track.id}-duration'),
+                      final durationField = MusicTrackTextField(
+                        id: '${track.id}-duration',
                         initialValue: track.duration,
-                        decoration: const InputDecoration(
-                          labelText: 'Length',
-                          hintText: 'MM:SS',
-                          isDense: true,
-                        ),
+                        label: 'Length',
+                        hint: 'MM:SS',
                         onChanged: (value) => track.duration = value,
                       );
                       final controls = Row(

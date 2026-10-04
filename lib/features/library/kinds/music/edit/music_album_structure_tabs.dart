@@ -4,6 +4,8 @@ import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.
 import 'package:collectarr_app/features/library/kinds/music/domain/music_disc.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_ids.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_track.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_track_duration.dart';
+import 'package:collectarr_app/features/library/kinds/music/forms/music_track_text_field.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit/music_album_edit_draft.dart';
 import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 import 'package:flutter/material.dart';
@@ -566,15 +568,10 @@ final class _MusicAlbumStructureTabState
               flex: 5,
               child: Padding(
                 padding: EdgeInsets.only(left: track.indentLevel * 14.0),
-                child: LibraryTextFormControl(
-                  key: ValueKey('music-track-title-${track.id.value}'),
+                child: MusicTrackTextField(
+                  id: 'music-track-title-${track.id.value}',
                   initialValue: track.title,
-                  decoration: InputDecoration(
-                    hintText: isHeader ? 'Section title' : 'Track title',
-                    isDense: true,
-                    contentPadding:
-                        const EdgeInsets.symmetric(horizontal: 8, vertical: 9),
-                  ),
+                  hint: isHeader ? 'Section title' : 'Track title',
                   style: TextStyle(
                     fontWeight: isHeader ? FontWeight.w700 : FontWeight.normal,
                   ),
@@ -599,15 +596,10 @@ final class _MusicAlbumStructureTabState
               flex: 3,
               child: isHeader
                   ? const SizedBox.shrink()
-                  : LibraryTextFormControl(
-                      key: ValueKey('music-track-artist-${track.id.value}'),
+                  : MusicTrackTextField(
+                      id: 'music-track-artist-${track.id.value}',
                       initialValue: track.artist ?? '',
-                      decoration: const InputDecoration(
-                        hintText: 'Artist',
-                        isDense: true,
-                        contentPadding:
-                            EdgeInsets.symmetric(horizontal: 8, vertical: 9),
-                      ),
+                      hint: 'Artist',
                       onChanged: (value) => _replaceTrack(
                         disc,
                         index,
@@ -628,18 +620,14 @@ final class _MusicAlbumStructureTabState
               width: 92,
               child: isHeader
                   ? const SizedBox.shrink()
-                  : LibraryTextFormControl(
-                      key: ValueKey('music-track-duration-${track.id.value}'),
-                      initialValue: _durationLabel(track.durationMs),
+                  : MusicTrackTextField(
+                      id: 'music-track-duration-${track.id.value}',
+                      initialValue:
+                          formatMusicTrackDuration(track.durationMs) ?? '',
                       keyboardType: TextInputType.datetime,
-                      decoration: const InputDecoration(
-                        hintText: '0:00',
-                        isDense: true,
-                        contentPadding:
-                            EdgeInsets.symmetric(horizontal: 8, vertical: 9),
-                      ),
+                      hint: 'MM:SS',
                       onChanged: (value) {
-                        final parsed = _durationMs(value);
+                        final parsed = parseMusicTrackDurationMs(value);
                         if (value.trim().isNotEmpty && parsed == null) return;
                         _replaceTrack(
                           disc,
@@ -755,51 +743,4 @@ final class _MusicAlbumStructureTabState
     draft.replaceTrack(disc.id, index, mergedTrack);
     if (rebuild) setState(() {});
   }
-}
-
-String? _durationLabel(int? durationMs) {
-  if (durationMs == null || durationMs < 0) return null;
-  final totalSeconds = (durationMs / 1000).round();
-  final minutes = totalSeconds ~/ 60;
-  final seconds = (totalSeconds % 60).toString().padLeft(2, '0');
-  return '$minutes:$seconds';
-}
-
-int? _durationMs(String value) {
-  final normalized = value.trim();
-  if (normalized.isEmpty) return null;
-  final parts = normalized.split(':');
-  if (parts.length == 1) {
-    final seconds = double.tryParse(parts.single);
-    return seconds == null || seconds < 0 ? null : (seconds * 1000).round();
-  }
-  if (parts.length == 2) {
-    final minutes = int.tryParse(parts[0]);
-    final seconds = int.tryParse(parts[1]);
-    if (minutes == null ||
-        seconds == null ||
-        minutes < 0 ||
-        seconds < 0 ||
-        seconds >= 60) {
-      return null;
-    }
-    return (minutes * 60 + seconds) * 1000;
-  }
-  if (parts.length == 3) {
-    final hours = int.tryParse(parts[0]);
-    final minutes = int.tryParse(parts[1]);
-    final seconds = int.tryParse(parts[2]);
-    if (hours == null ||
-        minutes == null ||
-        seconds == null ||
-        hours < 0 ||
-        minutes < 0 ||
-        minutes >= 60 ||
-        seconds < 0 ||
-        seconds >= 60) {
-      return null;
-    }
-    return (hours * 3600 + minutes * 60 + seconds) * 1000;
-  }
-  return null;
 }

@@ -273,6 +273,10 @@ Completed implementation slices:
   per-kind text controls.
 - Music Add and Edit disc metadata, track titles/artists/lengths, and disc-owned
   storage details now use the same input primitive and minimum control height.
+- Music Add and Edit track title, artist, and duration fields now share one
+  kind-owned control; both flows use the same duration parser and formatter.
+  Add still uses a responsive editable row, while Edit retains its sortable
+  table, headers, selection, and track grouping actions.
 - Music Manual Add cover URLs and Music My Images descriptions now use the
   shared labelled text controls. Core cover upload/crop and personal-image
   storage still follow their separate create/edit lifecycles.

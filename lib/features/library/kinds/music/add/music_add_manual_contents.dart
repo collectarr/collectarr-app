@@ -1,3 +1,5 @@
+import 'package:collectarr_app/features/library/kinds/music/domain/music_track_duration.dart';
+
 /// Editable, kind-entry child values for a manual Music Catalog Item.
 ///
 /// These drafts contain disc and track data for the selected concrete Music
@@ -68,11 +70,11 @@ final class MusicAddManualTrack {
         'position': '$positionOrder',
         'title': title.trim(),
         if (artist.trim().isNotEmpty) 'artist': artist.trim(),
-        if (_durationMilliseconds(duration) case final durationMs?)
+        if (parseMusicTrackDurationMs(duration) case final durationMs?)
           'duration_ms': durationMs,
       };
 
-  int? get durationMs => _durationMilliseconds(duration);
+  int? get durationMs => parseMusicTrackDurationMs(duration);
 }
 
 final class MusicAddManualExternalLink {
@@ -98,19 +100,3 @@ final class MusicAddManualExternalLink {
 int _nextManualContentId = 0;
 
 String _nextId(String prefix) => 'music-add-$prefix-${_nextManualContentId++}';
-
-int? _durationMilliseconds(String value) {
-  final parts = value.trim().split(':');
-  if (parts.isEmpty || parts.any((part) => int.tryParse(part) == null)) {
-    return null;
-  }
-  final parsed = parts.map(int.parse).toList(growable: false);
-  if (parsed.any((part) => part < 0)) return null;
-  if (parsed.length == 2 && parsed[1] >= 60) return null;
-  if (parsed.length == 3 && (parsed[1] >= 60 || parsed[2] >= 60)) return null;
-  if (parsed.length < 2 || parsed.length > 3) return null;
-  final seconds = parsed.length == 2
-      ? parsed[0] * 60 + parsed[1]
-      : parsed[0] * 3600 + parsed[1] * 60 + parsed[2];
-  return seconds * 1000;
-}
