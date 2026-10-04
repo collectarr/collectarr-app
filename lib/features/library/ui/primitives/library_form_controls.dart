@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/models/partial_date.dart';
+import 'package:collectarr_app/features/library/config/library_dialog_tokens.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -23,6 +24,47 @@ class LibraryFormField extends StatelessWidget {
           const SizedBox(height: 3),
           child,
         ],
+      );
+}
+
+/// Shared unlabelled text input used inside the common labelled form chrome.
+/// Callers own field meaning and draft updates; this owns input appearance.
+class LibraryTextFormControl extends StatelessWidget {
+  const LibraryTextFormControl({
+    super.key,
+    required this.controller,
+    this.validator,
+    this.onChanged,
+    this.decoration,
+    this.keyboardType,
+    this.maxLines = 1,
+    this.obscureText = false,
+    this.enabled = true,
+  });
+
+  final TextEditingController controller;
+  final String? Function(String?)? validator;
+  final ValueChanged<String>? onChanged;
+  final InputDecoration? decoration;
+  final TextInputType? keyboardType;
+  final int maxLines;
+  final bool obscureText;
+  final bool enabled;
+
+  @override
+  Widget build(BuildContext context) => TextFormField(
+        controller: controller,
+        validator: validator,
+        onChanged: onChanged,
+        keyboardType: keyboardType,
+        maxLines: maxLines,
+        obscureText: obscureText,
+        enabled: enabled,
+        decoration: (decoration ?? const InputDecoration()).copyWith(
+          constraints: const BoxConstraints(
+            minHeight: kLibraryFormControlHeight,
+          ),
+        ),
       );
 }
 

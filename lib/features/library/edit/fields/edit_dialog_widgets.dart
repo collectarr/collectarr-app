@@ -369,16 +369,13 @@ class LibraryEditTextField extends StatelessWidget {
   Widget build(BuildContext context) {
     return LibraryFormField(
       label: label,
-      child: TextFormField(
+      child: LibraryTextFormControl(
         controller: controller,
         validator: validator,
         maxLines: maxLines,
         keyboardType: keyboardType,
         decoration: InputDecoration(
           hintText: hint,
-          constraints: const BoxConstraints(
-            minHeight: kLibraryFormControlHeight,
-          ),
         ),
       ),
     );

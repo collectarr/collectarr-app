@@ -60,9 +60,8 @@ final class LibraryFieldSpecControlBuilder<TDraft>
         (mode == LibraryFieldSpecControlMode.add &&
             (field is LibrarySelectFieldSpec<TDraft, Object?> ||
                 field is LibraryVocabularyFieldSpec<TDraft, Object?>));
-    final labelled = external
-        ? LibraryFormField(label: field.label, child: child)
-        : child;
+    final labelled =
+        external ? LibraryFormField(label: field.label, child: child) : child;
     if (field.validator == null ||
         field is LibraryTextFieldSpec<TDraft> ||
         field is LibraryNumberFieldSpec<TDraft> ||
@@ -79,16 +78,13 @@ final class LibraryFieldSpecControlBuilder<TDraft>
   @override
   Widget visitText(LibraryTextFieldSpec<TDraft> field) {
     final controller = controllerFor(field.id, field.value(draft));
-    return TextFormField(
+    return LibraryTextFormControl(
       controller: controller,
       maxLines: field.maxLines,
       obscureText: field.obscureText,
       validator: (_) => field.validate(draft),
       decoration: _controlDecoration(
-        InputDecoration(
-          labelText: field.label,
-          errorText: field.validate(draft),
-        ),
+        InputDecoration(errorText: field.validate(draft)),
       ),
       onChanged: (value) {
         field.setValue(draft, value);
@@ -103,15 +99,12 @@ final class LibraryFieldSpecControlBuilder<TDraft>
       field.id,
       field.value(draft)?.toString() ?? '',
     );
-    return TextFormField(
+    return LibraryTextFormControl(
       controller: controller,
       keyboardType: const TextInputType.numberWithOptions(decimal: true),
       validator: (_) => _numberError(field, controller.text, draft),
       decoration: _controlDecoration(
-        InputDecoration(
-          labelText: field.label,
-          errorText: _numberError(field, controller.text, draft),
-        ),
+        InputDecoration(errorText: _numberError(field, controller.text, draft)),
       ),
       onChanged: (value) {
         field.setValue(draft, _parseNumber(value));
@@ -162,13 +155,12 @@ final class LibraryFieldSpecControlBuilder<TDraft>
       field.id,
       cents == null ? '' : (cents / 100).toStringAsFixed(2),
     );
-    return TextFormField(
+    return LibraryTextFormControl(
       controller: controller,
       keyboardType: const TextInputType.numberWithOptions(decimal: true),
       validator: (_) => field.validate(draft),
       decoration: _controlDecoration(
         InputDecoration(
-          labelText: field.label,
           suffixText: field.currency(draft),
           errorText: field.validate(draft),
         ),
