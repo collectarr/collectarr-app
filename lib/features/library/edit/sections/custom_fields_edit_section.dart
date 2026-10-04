@@ -4,6 +4,7 @@ import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.
 import 'package:collectarr_app/features/library/ui/primitives/library_dropdown_pick_field.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_selection_fields.dart';
 import 'package:collectarr_app/features/library/schema/library_field_spec.dart';
+import 'package:collectarr_app/features/library/ui/primitives/library_form_controls.dart';
 import 'package:collectarr_app/features/pick_lists/widgets/pick_list_select_dialog.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:flutter/material.dart';
@@ -146,76 +147,63 @@ class _CustomFieldsEditSectionState extends State<CustomFieldsEditSection> {
           value: value,
           onChanged: (v) => _update(def.id, v),
         ),
-      CustomFieldValueType.longText => TextFormField(
-          initialValue: value ?? '',
-          decoration: InputDecoration(
-            labelText: def.name,
-            helperText: _scopeLabel(def.targetScope),
-          ),
+      CustomFieldValueType.longText => _textField(
+          def,
           minLines: 4,
           maxLines: 8,
           keyboardType: TextInputType.multiline,
-          onChanged: (v) {
-            final trimmed = v.trim();
-            _update(def.id, trimmed.isEmpty ? null : trimmed);
-          },
         ),
       CustomFieldValueType.number ||
       CustomFieldValueType.currency =>
-        TextFormField(
-          initialValue: value ?? '',
-          decoration: InputDecoration(
-            labelText: def.name,
-            helperText: _scopeLabel(def.targetScope),
-          ),
-          keyboardType: const TextInputType.numberWithOptions(
-            signed: true,
-            decimal: true,
-          ),
-          onChanged: (v) {
-            final trimmed = v.trim();
-            _update(def.id, trimmed.isEmpty ? null : trimmed);
-          },
+        _textField(
+          def,
+          keyboardType: def.valueType == CustomFieldValueType.number
+              ? TextInputType.number
+              : const TextInputType.numberWithOptions(
+                  signed: true,
+                  decimal: true,
+                ),
         ),
-      CustomFieldValueType.url => TextFormField(
-          initialValue: value ?? '',
-          decoration: InputDecoration(
-            labelText: def.name,
-            helperText: _scopeLabel(def.targetScope),
-          ),
+      CustomFieldValueType.url => _textField(
+          def,
           keyboardType: TextInputType.url,
-          onChanged: (v) {
-            final trimmed = v.trim();
-            _update(def.id, trimmed.isEmpty ? null : trimmed);
-          },
         ),
-      CustomFieldValueType.person => TextFormField(
-          initialValue: value ?? '',
-          decoration: InputDecoration(
-            labelText: def.name,
-            helperText: _scopeLabel(def.targetScope),
-          ),
+      CustomFieldValueType.person => _textField(
+          def,
           textCapitalization: TextCapitalization.words,
-          onChanged: (v) {
-            final trimmed = v.trim();
-            _update(def.id, trimmed.isEmpty ? null : trimmed);
-          },
         ),
-      _ => TextFormField(
-          initialValue: value ?? '',
-          decoration: InputDecoration(
-            labelText: def.name,
-            helperText: _scopeLabel(def.targetScope),
-          ),
+      _ => _textField(
+          def,
           keyboardType: def.valueType == CustomFieldValueType.number
               ? TextInputType.number
               : null,
-          onChanged: (v) {
-            final trimmed = v.trim();
-            _update(def.id, trimmed.isEmpty ? null : trimmed);
-          },
         ),
     };
+  }
+
+  Widget _textField(
+    CustomFieldDefinition def, {
+    TextInputType? keyboardType,
+    int? minLines,
+    int? maxLines = 1,
+    TextCapitalization textCapitalization = TextCapitalization.none,
+  }) {
+    final value = _values[def.id];
+    return LibraryFormField(
+      label: def.name,
+      child: LibraryTextFormControl(
+        initialValue: value ?? '',
+        keyboardType: keyboardType,
+        minLines: minLines,
+        maxLines: maxLines,
+        textCapitalization: textCapitalization,
+        decoration: InputDecoration(helperText: _scopeLabel(def.targetScope)),
+        onChanged: (input) {
+          final trimmed = input.trim();
+          _update(def.id, trimmed.isEmpty ? null : trimmed);
+        },
+      ),
+    );
   }
 
   String _scopeLabel(CustomFieldTargetScope scope) {
