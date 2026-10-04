@@ -5,6 +5,7 @@ import 'package:collectarr_app/core/models/item_image.dart';
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_dropdown_pick_field.dart';
 import 'package:collectarr_app/features/library/schema/library_field_spec.dart';
+import 'package:collectarr_app/features/library/ui/primitives/library_form_controls.dart';
 import 'package:collectarr_app/features/pick_lists/widgets/pick_list_select_dialog.dart';
 import 'package:file_selector/file_selector.dart';
 import 'package:collectarr_app/ui/dialog_action_buttons.dart';
@@ -218,7 +219,7 @@ class _ItemImagesEditSectionState extends State<ItemImagesEditSection> {
         title: const Text('Add image'),
         content: SizedBox(
           width: 400,
-          child: TextField(
+          child: LibraryTextFormControl(
             maxLines: 4,
             onChanged: (value) => draftBase64 = value,
             decoration: const InputDecoration(
@@ -328,7 +329,7 @@ class _ItemImagesEditSectionState extends State<ItemImagesEditSection> {
                 },
               ),
               const SizedBox(height: 12),
-              TextField(
+              LibraryTextFormControl(
                 controller: controller,
                 decoration: const InputDecoration(
                   labelText: 'Caption',

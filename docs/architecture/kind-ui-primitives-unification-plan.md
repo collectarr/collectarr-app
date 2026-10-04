@@ -277,6 +277,8 @@ Completed implementation slices:
 - The common text control now forwards keyboard submit and autofocus behavior;
   the Comic issue jump/search dialogs and Music listening-note dialog use it
   instead of building direct `TextField`s.
+- The image editor shared by Add and Edit now uses the common text control for
+  pasted image data and image captions.
 - Music Add and Edit disc metadata, track titles/artists/lengths, and disc-owned
   storage details now use the same input primitive and minimum control height.
 - Music Add and Edit track title, artist, and duration fields now share one
