@@ -313,7 +313,7 @@ class MangaEditDraft
           id: MangaCanonicalEditField.sortTitle,
           section: LibraryEditFormSection.details,
           controller: fields.controller(MangaCanonicalEditField.sortTitle),
-          label: 'Sort title',
+          label: 'Sort Title',
         ),
         LibraryEditFormFieldSpec(
           id: MangaCanonicalEditField.originalTitle,

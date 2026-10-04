@@ -131,7 +131,7 @@ extension ComicEditTabBuilders on ComicEditHost {
             children: [
               LibraryEditResponsiveRow(children: [
                 LibraryEditTextField(
-                    controller: comicSortKeyController, label: 'Sort title'),
+                    controller: comicSortKeyController, label: 'Sort Title'),
                 TextFormField(
                   controller: comicSearchAliasesController,
                   minLines: 1,

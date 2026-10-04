@@ -282,7 +282,7 @@ class MovieEditDraft
           id: MovieCanonicalEditField.sortTitle,
           section: LibraryEditFormSection.details,
           controller: fields.controller(MovieCanonicalEditField.sortTitle),
-          label: 'Sort title',
+          label: 'Sort Title',
         ),
         LibraryEditFormFieldSpec(
           id: MovieCanonicalEditField.originalTitle,

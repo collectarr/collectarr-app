@@ -53,7 +53,7 @@ AddSchema<AnimeAddManualDraft> animeAddSchemaFor({
             libraryAddCatalogTitleField<AnimeAddManualDraft>(),
             _text(
               id: 'sort_key',
-              label: 'Sort title',
+              label: 'Sort Title',
               read: (metadata) => metadata.sortKey ?? '',
               write: (draft, value) =>
                   _writeNullable(draft, 'sort_key', _nullable(value)),

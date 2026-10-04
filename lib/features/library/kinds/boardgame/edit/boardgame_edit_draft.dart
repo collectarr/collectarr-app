@@ -436,7 +436,7 @@ class BoardGameEditDraft
           id: BoardGameCanonicalEditField.sortTitle,
           section: LibraryEditFormSection.details,
           controller: fields.controller(BoardGameCanonicalEditField.sortTitle),
-          label: 'Sort title',
+          label: 'Sort Title',
         ),
         LibraryEditFormFieldSpec(
           id: BoardGameCanonicalEditField.originalTitle,

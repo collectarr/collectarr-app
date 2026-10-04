@@ -257,7 +257,7 @@ class GameEditDraft
           id: GameCanonicalEditField.sortTitle,
           section: LibraryEditFormSection.details,
           controller: fields.controller(GameCanonicalEditField.sortTitle),
-          label: 'Sort title',
+          label: 'Sort Title',
         ),
         LibraryEditFormFieldSpec(
           id: GameCanonicalEditField.originalTitle,

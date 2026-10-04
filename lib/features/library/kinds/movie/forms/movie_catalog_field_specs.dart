@@ -29,7 +29,7 @@ List<LibraryFieldSpec<TDraft>> movieCatalogItemFields<TDraft>({
       ),
       LibraryTextFieldSpec<TDraft>(
         id: 'sort_key',
-        label: 'Sort title',
+        label: 'Sort Title',
         value: (draft) => values(draft).sortTitle,
         setValue: (draft, value) => values(draft).sortTitle = value,
       ),

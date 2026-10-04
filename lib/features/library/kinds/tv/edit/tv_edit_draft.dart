@@ -290,7 +290,7 @@ class TvEditDraft
           id: TvCanonicalEditField.sortTitle,
           section: LibraryEditFormSection.details,
           controller: fields.controller(TvCanonicalEditField.sortTitle),
-          label: 'Sort title',
+          label: 'Sort Title',
         ),
         LibraryEditFormFieldSpec(
           id: TvCanonicalEditField.originalTitle,

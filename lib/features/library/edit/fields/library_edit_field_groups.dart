@@ -64,7 +64,7 @@ class LibraryTitleMetadataFields extends StatelessWidget {
     final fields = <Widget>[
       _field(titleController, titleLabel, validator: _requiredTitle),
       if (showSortKey && sortKeyController != null)
-        _field(sortKeyController!, 'Sort title'),
+        _field(sortKeyController!, 'Sort Title'),
       if (originalTitleController != null)
         _field(originalTitleController!, 'Original title'),
       if (localizedTitleController != null)

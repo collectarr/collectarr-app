@@ -279,7 +279,7 @@ class BookEditDraft
           id: BookCanonicalEditField.sortTitle,
           section: LibraryEditFormSection.details,
           controller: fields.controller(BookCanonicalEditField.sortTitle),
-          label: 'Sort title',
+          label: 'Sort Title',
         ),
         LibraryEditFormFieldSpec(
           id: BookCanonicalEditField.originalTitle,

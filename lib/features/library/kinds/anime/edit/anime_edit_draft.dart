@@ -443,7 +443,7 @@ class AnimeEditDraft
           id: AnimeCanonicalEditField.sortTitle,
           section: LibraryEditFormSection.details,
           controller: fields.controller(AnimeCanonicalEditField.sortTitle),
-          label: 'Sort title',
+          label: 'Sort Title',
         ),
         LibraryEditFormFieldSpec(
           id: AnimeCanonicalEditField.originalTitle,

@@ -264,7 +264,7 @@ class ComicEditDraft
           id: ComicCanonicalEditField.sortTitle,
           section: LibraryEditFormSection.details,
           controller: fields.controller(ComicCanonicalEditField.sortTitle),
-          label: 'Sort title',
+          label: 'Sort Title',
         ),
         LibraryEditFormFieldSpec(
           id: ComicCanonicalEditField.originalTitle,

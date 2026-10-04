@@ -101,7 +101,7 @@ Widget? buildGameCustomTabView({
               LibraryEditTextField(
                 controller: draft.formFields
                     .controller(GameCanonicalEditField.sortTitle),
-                label: 'Sort title',
+                label: 'Sort Title',
               ),
             ]),
             const SizedBox(height: 10),
