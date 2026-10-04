@@ -16,6 +16,7 @@ import 'package:collectarr_app/features/library/config/library_item_actions.dart
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/edit/sections/custom_fields_edit_section.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_dropdown_pick_field.dart';
+import 'package:collectarr_app/features/library/ui/primitives/library_money_amount_field.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_selection_fields.dart';
 import 'package:collectarr_app/features/library/schema/library_field_spec.dart';
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
@@ -825,15 +826,18 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               LibraryEditResponsiveRow(children: [
-                LibraryEditTextField(
-                  controller: _draft.personal.priceController,
+                LibraryMoneyAmountField(
                   label: 'Purchase Price',
-                  keyboardType:
-                      const TextInputType.numberWithOptions(decimal: true),
+                  amountMinorUnits: parseMoneyCents(
+                    _draft.personal.priceController.text,
+                  ),
+                  currency: _draft.personal.currencyController.text,
+                  controller: _draft.personal.priceController,
+                  onChanged: (_) => _markDirty(),
                 ),
-                LibraryEditTextField(
+                LibraryCurrencyField(
                   controller: _draft.personal.currencyController,
-                  label: 'Currency',
+                  onChanged: (_) => _markDirty(),
                 ),
               ]),
               const SizedBox(height: 10),
