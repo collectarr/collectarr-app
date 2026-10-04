@@ -296,7 +296,7 @@ class _LibraryEntryPersonalSectionState
 
   Widget _text(String label, String key) => LibraryFormField(
         label: label,
-        child: TextFormField(
+        child: LibraryTextFormControl(
           key: ValueKey('library-entry-$key'),
           initialValue: _draft.text(key),
           onChanged: (value) => _draft.set(key, value),
@@ -445,7 +445,7 @@ class _LibraryEntryStatusStripState
       case PersonalLibraryFieldEditor.integer:
         return LibraryFormField(
           label: field.label,
-          child: TextFormField(
+          child: LibraryTextFormControl(
             key: ValueKey('entry-${field.key}'),
             initialValue: draft.number(field.key)?.toString() ?? '',
             keyboardType: TextInputType.number,

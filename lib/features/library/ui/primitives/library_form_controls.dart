@@ -48,6 +48,7 @@ class LibraryTextFormControl extends StatelessWidget {
     this.expands = false,
     this.obscureText = false,
     this.enabled = true,
+    this.readOnly = false,
     this.autofocus = false,
     this.focusNode,
     this.style,
@@ -65,6 +66,7 @@ class LibraryTextFormControl extends StatelessWidget {
   final bool expands;
   final bool obscureText;
   final bool enabled;
+  final bool readOnly;
   final bool autofocus;
   final FocusNode? focusNode;
   final TextStyle? style;
@@ -85,6 +87,7 @@ class LibraryTextFormControl extends StatelessWidget {
         expands: expands,
         obscureText: obscureText,
         enabled: enabled,
+        readOnly: readOnly,
         style: style,
         decoration: (decoration ?? const InputDecoration()).copyWith(
           constraints: const BoxConstraints(

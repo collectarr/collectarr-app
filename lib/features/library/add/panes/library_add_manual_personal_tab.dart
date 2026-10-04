@@ -2,7 +2,6 @@ import 'package:collectarr_app/features/library/add/controllers/library_add_dial
 import 'package:collectarr_app/features/library/add/models/library_add_common_draft.dart';
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/schema/library_field_spec.dart';
-import 'package:collectarr_app/features/library/config/library_dialog_tokens.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_dropdown_pick_field.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_form_controls.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_money_amount_field.dart';
@@ -50,12 +49,9 @@ final class LibraryAddManualPersonalTab extends StatelessWidget {
       else
         LibraryFormField(
           label: 'Condition',
-          child: TextFormField(
+          child: LibraryTextFormControl(
             key: const ValueKey('manual-condition'),
             initialValue: condition,
-            decoration: const InputDecoration(
-              constraints: BoxConstraints(minHeight: kLibraryFormControlHeight),
-            ),
             onChanged: (value) => _updateCommon(condition: value),
           ),
         ),
@@ -181,13 +177,10 @@ final class LibraryAddManualPersonalTab extends StatelessWidget {
     if (request.locations.isEmpty) {
       return LibraryFormField(
         label: 'Location',
-        child: TextFormField(
+        child: LibraryTextFormControl(
           key: ValueKey('manual-location-${request.defaultLocationLabel}'),
           initialValue: request.defaultLocationLabel ?? '',
           readOnly: true,
-          decoration: const InputDecoration(
-            constraints: BoxConstraints(minHeight: kLibraryFormControlHeight),
-          ),
         ),
       );
     }

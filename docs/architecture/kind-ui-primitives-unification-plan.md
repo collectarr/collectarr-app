@@ -279,6 +279,8 @@ Completed implementation slices:
   instead of building direct `TextField`s.
 - The image editor shared by Add and Edit now uses the common text control for
   pasted image data and image captions.
+- Add and Edit personal fallback fields now use the common text control,
+  including read-only default locations and numeric status-strip values.
 - Music Add and Edit disc metadata, track titles/artists/lengths, and disc-owned
   storage details now use the same input primitive and minimum control height.
 - Music Add and Edit track title, artist, and duration fields now share one
