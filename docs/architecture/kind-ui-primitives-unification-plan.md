@@ -133,6 +133,9 @@ Completed implementation slices:
 - All live library Add/Edit, bulk-edit, Comic, Game, and Music multi-value
   fields now use the shared chip control. Its picker retains search and Clear;
   custom text entry and existing vocabulary-change callbacks remain connected.
+- TV and Anime Genre fields now use the same multi-value chip control in Add
+  and Edit. Their custom values remain kind data and do not create a managed
+  vocabulary unless a kind explicitly supplies a vocabulary key.
 - Movie, TV, and Anime Edit fields without a configured vocabulary now use the
   shared labelled text control, matching their Add inputs and avoiding empty
   picker dialogs. Their supported movie genres and Movie/TV audio and subtitle
