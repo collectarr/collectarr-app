@@ -3,6 +3,7 @@ import 'package:collectarr_app/features/pick_lists/widgets/pick_list_select_dial
 import 'package:collectarr_app/features/library/edit/sections/item_images_edit_section.dart';
 import 'package:collectarr_app/features/library/edit/fields/library_external_links_table.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_selection_fields.dart';
+import 'package:collectarr_app/features/library/ui/primitives/library_form_controls.dart';
 import 'package:collectarr_app/features/library/generic/external_links.dart';
 import 'package:collectarr_app/features/library/kinds/comic/comic_edit_image_sections.dart';
 import 'package:collectarr_app/features/library/kinds/comic/edit/comic_edit_host.dart';
@@ -823,10 +824,10 @@ extension ComicEditTabBuilders on ComicEditHost {
                     Row(
                       children: [
                         Expanded(
-                          child: TextField(
+                          child: LibraryTextFormControl(
                             controller: searchController,
                             decoration: InputDecoration(hintText: searchHint),
-                            onSubmitted: (_) => runSearch(setDialogState),
+                            onFieldSubmitted: (_) => runSearch(setDialogState),
                           ),
                         ),
                         const SizedBox(width: 8),

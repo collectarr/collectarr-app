@@ -48,8 +48,10 @@ class LibraryTextFormControl extends StatelessWidget {
     this.expands = false,
     this.obscureText = false,
     this.enabled = true,
+    this.autofocus = false,
     this.focusNode,
     this.style,
+    this.onFieldSubmitted,
   }) : assert(controller == null || initialValue == null);
 
   final TextEditingController? controller;
@@ -63,16 +65,20 @@ class LibraryTextFormControl extends StatelessWidget {
   final bool expands;
   final bool obscureText;
   final bool enabled;
+  final bool autofocus;
   final FocusNode? focusNode;
   final TextStyle? style;
+  final ValueChanged<String>? onFieldSubmitted;
 
   @override
   Widget build(BuildContext context) => TextFormField(
         controller: controller,
         initialValue: initialValue,
         focusNode: focusNode,
+        autofocus: autofocus,
         validator: validator,
         onChanged: onChanged,
+        onFieldSubmitted: onFieldSubmitted,
         keyboardType: keyboardType,
         minLines: minLines,
         maxLines: maxLines,

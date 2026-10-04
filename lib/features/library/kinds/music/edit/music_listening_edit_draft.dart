@@ -112,7 +112,7 @@ class MusicListeningDraftSection extends StatelessWidget {
         builder: (dialogContext) => AlertDialog(
               title:
                   Text(existing == null ? 'Mark as listened' : 'Edit listen'),
-              content: TextField(
+              content: LibraryTextFormControl(
                   controller: notes,
                   decoration: const InputDecoration(labelText: 'Notes'),
                   maxLines: 3),

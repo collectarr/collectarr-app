@@ -1,6 +1,7 @@
 import '../comic_module_dependencies.dart';
 import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/comic/data/comic_catalog_browse_api.dart';
+import 'package:collectarr_app/features/library/ui/primitives/library_form_controls.dart';
 import '../config/comic_kind_configuration.dart';
 import 'comic_manual_candidate.dart';
 
@@ -232,14 +233,14 @@ Future<void> _showJumpToIssueDialog(
 
         return AccentAlertDialog(
           title: const Text('Jump to issue'),
-          content: TextField(
+          content: LibraryTextFormControl(
             controller: controller,
             autofocus: true,
             keyboardType: TextInputType.number,
             decoration: const InputDecoration(
               hintText: 'Issue #',
             ),
-            onSubmitted: (_) => submit(),
+            onFieldSubmitted: (_) => submit(),
           ),
           actions: [
             TextButton(

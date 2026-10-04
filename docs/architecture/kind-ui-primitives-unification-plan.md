@@ -274,6 +274,9 @@ Completed implementation slices:
   layouts. Movie character details, Comic's remaining multiline catalog and
   personal inputs, and the TV custom episode dialog use it instead of raw
   per-kind text controls.
+- The common text control now forwards keyboard submit and autofocus behavior;
+  the Comic issue jump/search dialogs and Music listening-note dialog use it
+  instead of building direct `TextField`s.
 - Music Add and Edit disc metadata, track titles/artists/lengths, and disc-owned
   storage details now use the same input primitive and minimum control height.
 - Music Add and Edit track title, artist, and duration fields now share one
