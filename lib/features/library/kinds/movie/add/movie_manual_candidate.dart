@@ -14,10 +14,14 @@ CatalogSearchCandidate? buildMovieManualCandidate(
   if (movieAddSchema.validate?.call(draft) != null) return null;
 
   final id = 'manual-movie-${DateTime.now().microsecondsSinceEpoch}';
-  final values = draft.values;
+  final movieDraft = draft;
+  final values = movieDraft.values;
   final editionTitle = _text(values.editionTitle);
   final releaseDateParts = _releaseDateParts(values);
-  final directors = _split(values.directors);
+  final credits = [
+    ...movieDraft.castCredits,
+    ...movieDraft.crewCredits,
+  ].map((credit) => credit.toInput()).where((credit) => credit.name.isNotEmpty);
   final characters = _split(values.characters);
   final aliases = _split(values.searchAliases);
   final item = CatalogItemDto.raw(
@@ -26,8 +30,7 @@ CatalogSearchCandidate? buildMovieManualCandidate(
     origin: CatalogItemOrigin.privateLocal,
     kindData: {
       'title': title.trim(),
-      if (_text(values.displayTitle) case final value?)
-        'display_title': value,
+      if (_text(values.displayTitle) case final value?) 'display_title': value,
       if (_text(values.sortTitle) case final value?) 'sort_key': value,
       if (_text(values.originalTitle) case final value?)
         'original_title': value,
@@ -57,10 +60,13 @@ CatalogSearchCandidate? buildMovieManualCandidate(
       if (_text(values.barcode) case final value?) 'barcode': value,
       if (_text(values.itemNumber) case final value?) 'item_number': value,
       if (_text(values.variant) case final value?) 'variant_name': value,
-      if (directors.isNotEmpty)
+      if (credits.isNotEmpty)
         'contributors': [
-          for (final director in directors)
-            {'name': director, 'role': 'director'},
+          for (final credit in credits)
+            {
+              'name': credit.name,
+              if (credit.role != null) 'role': credit.role,
+            },
         ],
       if (characters.isNotEmpty) 'characters': characters,
     },

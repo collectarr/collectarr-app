@@ -9,7 +9,7 @@ import 'package:collectarr_app/features/library/edit/draft/text_controller_group
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_edit_models.dart';
 import 'package:collectarr_app/features/library/kinds/movie/edit/movie_edit_controller.dart';
-import 'package:collectarr_app/features/library/kinds/movie/edit/movie_edit_models.dart';
+import 'package:collectarr_app/features/library/kinds/movie/forms/movie_credit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/movie/domain/movie_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/movie/movie_physical_media_formats.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_entry_dispatch.dart';

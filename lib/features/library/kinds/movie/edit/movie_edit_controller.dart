@@ -4,11 +4,11 @@ import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/collection/repositories/user_external_links_cache_repository.dart';
 import 'package:collectarr_app/features/library/entries/library_entries_repository.dart';
+import 'package:collectarr_app/features/library/edit/draft/editable_user_external_link.dart';
+import 'package:collectarr_app/features/library/kinds/movie/forms/movie_credit_draft.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
-import 'package:collectarr_app/features/library/kinds/movie/edit/movie_edit_models.dart';
 
 class MovieEditController {
   MovieEditController({

@@ -1,31 +1,31 @@
-import 'package:collectarr_app/features/library/kinds/movie/edit/movie_edit_models.dart';
-import 'package:collectarr_app/features/library/kinds/movie/edit/movie_edit_tab_helpers.dart';
 import 'package:collectarr_app/features/library/kinds/movie/edit/movie_edit_controller.dart';
+import 'package:collectarr_app/features/library/kinds/movie/forms/movie_credits_editor.dart';
+import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
 import 'package:flutter/material.dart';
 
 class MovieEditCastTab extends StatelessWidget {
   const MovieEditCastTab({
     super.key,
-    required this.accent,
     required this.movieEdit,
     required this.markDirty,
   });
 
-  final Color accent;
   final MovieEditController movieEdit;
   final VoidCallback markDirty;
 
   @override
   Widget build(BuildContext context) {
-    return buildMovieCreditsTab(
-      title: 'Cast',
-      emptyMessage: 'No cast data yet.',
-      addLabel: 'Add Cast',
-      accent: accent,
-      credits: movieEdit.castCredits,
-      onAdd: () =>
-          movieEdit.castCredits.add(EditableMovieCredit.custom(role: 'Actor')),
-      onChanged: markDirty,
+    return EditTabShell(
+      children: [
+        MovieCreditsEditor(
+          title: 'Cast',
+          emptyMessage: 'No cast data yet.',
+          addLabel: 'Add Cast',
+          defaultRole: 'Actor',
+          credits: movieEdit.castCredits,
+          onChanged: markDirty,
+        ),
+      ],
     );
   }
 }

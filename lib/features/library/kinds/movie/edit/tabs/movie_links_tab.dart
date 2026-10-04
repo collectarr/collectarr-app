@@ -2,7 +2,7 @@ import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/edit/fields/library_edit_field_groups.dart';
-import 'package:collectarr_app/features/library/kinds/movie/edit/movie_edit_models.dart';
+import 'package:collectarr_app/features/library/edit/draft/editable_user_external_link.dart';
 import 'package:collectarr_app/features/library/kinds/movie/edit/movie_edit_controller.dart';
 import 'package:collectarr_app/features/library/kinds/movie/domain/movie_metadata.dart';
 import 'package:collectarr_app/features/library/detail/library_external_links_section.dart';

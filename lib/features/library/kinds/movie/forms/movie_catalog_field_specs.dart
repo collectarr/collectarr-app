@@ -110,12 +110,6 @@ List<LibraryFieldSpec<TDraft>> movieCatalogItemFields<TDraft>({
         setValue: (draft, value) => values(draft).subtitle = value,
       ),
       LibraryTextFieldSpec<TDraft>(
-        id: 'directors',
-        label: 'Director(s)',
-        value: (draft) => values(draft).directors,
-        setValue: (draft, value) => values(draft).directors = value,
-      ),
-      LibraryTextFieldSpec<TDraft>(
         id: 'characters',
         label: 'Characters',
         value: (draft) => values(draft).characters,

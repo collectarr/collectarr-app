@@ -25,7 +25,6 @@ final class MovieCatalogFormValues {
     this.itemNumber = '',
     this.variant = '',
     this.releaseYear,
-    this.directors = '',
     this.characters = '',
   });
 
@@ -54,6 +53,5 @@ final class MovieCatalogFormValues {
   String itemNumber;
   String variant;
   int? releaseYear;
-  String directors;
   String characters;
 }
