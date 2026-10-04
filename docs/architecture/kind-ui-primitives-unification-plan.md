@@ -72,6 +72,12 @@ Completed implementation slices:
   validation message in the shared feedback area.
 - The shared multi-value picker now follows the pick-list dialog behavior:
   top alignment, explicit Close, and no outside-click dismissal.
+- All live library Add/Edit, bulk-edit, Comic, Game, and Music multi-value
+  fields now use the shared chip control. Its picker retains search and Clear;
+  custom text entry and existing vocabulary-change callbacks remain connected.
+- The previous `TagPickListField` and `MultiSelectPickListField` have no live
+  library call sites. Their public barrel export and golden fixture remain for
+  the final cleanup pass; the old implementation is not used by the app UI.
 
 Still outstanding:
 
@@ -87,6 +93,9 @@ Still outstanding:
   controls are now shared, but date, image, ordered-list, credit, and selection
   flows still have separate behavior. Runtime screenshots at matching size and
   text scale have not been reviewed.
+- The legacy pick-list source and its golden are retained temporarily even
+  though application call sites have moved to the shared chip control. Remove
+  the wrapper, barrel exports, and replace the golden during final UI cleanup.
 - Music tracks, credits, covers, links, images, and personal fields have not
   yet converged on one complete Add/Edit draft lifecycle.
 
@@ -187,8 +196,11 @@ Evidence: `edit/fields/edit_dialog_widgets.dart`,
 `ui/primitives/library_selection_fields.dart`, and the schema control builder.
 
 LibraryEditTextField still uses an InputDecoration label; schema text fields
-use LibraryFormField external labels. LibraryVocabularyField wraps legacy
-TagPickListField/SingleValuePickField or the newer picker depending on options.
+use LibraryFormField external labels. `LibraryVocabularyField` now renders
+multi-value vocabularies with the shared chip field and single-value
+vocabularies with the labelled dropdown control. The old tag-pick-list widget
+remains only as an unused public export and golden fixture pending final
+cleanup.
 AddSchemaRenderer, EditSchemaRenderer, LibraryEditDenseFields,
 LibraryEditResponsiveRow, and other responsive-row helpers own overlapping
 geometry. Consolidate the mechanisms, with explicit layout parameters where
