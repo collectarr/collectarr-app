@@ -69,7 +69,11 @@ Completed implementation slices:
 - Edit validation checks visible schema fields across inactive tabs and can
   run a validator contributed by an extra tab. When a non-mounted tab contains
   the first invalid field, the renderer switches to that tab and shows the
-  validation message in the shared feedback area.
+  validation message in the shared feedback area. Schema-backed text, number,
+  money, date, partial-date, and single-select controls now receive focus after
+  that tab is mounted, and the dialog scrolls the control into view. Extra-tab
+  validators still own their focus behavior because the extra-tab contract
+  does not expose a field identity.
 - The shared multi-value picker now follows the pick-list dialog behavior:
   top alignment, explicit Close, and no outside-click dismissal.
 - All live library Add/Edit, bulk-edit, Comic, Game, and Music multi-value
@@ -92,8 +96,9 @@ Still outstanding:
   editors; other kinds also have separate catalog/entry compositions.
 - The Add and Edit renderers still own separate submission/error lifecycles and
   controller registries. Validation policy for fields in unmounted tabs still
-  needs to be made explicit, and focus does not yet move to the first invalid
-  control after the renderer switches tabs.
+  needs to be made explicit. Schema-backed invalid fields now focus after tab
+  navigation; a kind-owned custom tab must still provide its own focused
+  validation behavior.
 - Legacy custom tabs and kind-specific tab composition still have divergent
   implementations. Responsive field geometry and the basic vocabulary/text
   controls are now shared, but date, image, ordered-list, credit, and selection
