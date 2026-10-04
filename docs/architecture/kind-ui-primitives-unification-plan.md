@@ -144,6 +144,20 @@ Completed implementation slices:
 - Manga Characters are now editable in both Add and Edit. Matching names retain
   existing character IDs, aliases, roles, descriptions, and images; removing a
   name removes that character from catalog metadata.
+- Manga Add and Edit now expose the same modeled metadata across Main, Edition
+  Details, Details, Plot, and Covers. ISBN and Barcode, and Format and Binding,
+  have independent editors; series group, publication data, descriptions,
+  themes, demographic, status, and serialization platform are persisted. Add no
+  longer shows Distributor or Country / region fields because the Manga model
+  has no corresponding properties and those values were discarded.
+- Manga Edit now renders its previously hidden metadata controllers in typed
+  Edition Details and Details schemas. ISBN/Barcode changes also update their
+  identifier records, and publication year, partial publication date, series
+  group, and back cover map to their corresponding metadata fields.
+- Manga Genres and Themes now use the shared chip picker in Add and Edit. Edit
+  Format, Publisher, and Imprint use the same kind vocabulary definitions as
+  Add; demographic aliases and extended edition-format labels map to their
+  typed values instead of silently falling back.
 - The Movie, TV, and Anime edit-tab helper files no longer carry unused
   responsive-field wrappers. TV/Anime credit tabs adapt their typed controller
   rows directly to the shared editor. Their remaining Add/Edit field parity is
@@ -272,7 +286,7 @@ My Images and adds Custom Fields only when definitions are nonempty.
 | Anime | Main, Details, Edition details, Specs, Cover, Synopsis, Cast, Crew | Registered edit routes use a typed media editor. The request-backed edit draft is initialized by the shared renderer state; Specs are shared with Movie/TV, Cast/Crew use the same row editor in Add/Edit, and Characters are now editable in both. |
 | Books | Main, Credits, Links, Covers, Plot | Generic editor with separate catalog/entry presentation and an embedded entry schema renderer; Credits tab uses the same typed ordered-name editors as Add. |
 | Comics | Main, Edition details, Details, Creators, Characters, Covers, Links, plus Series identity control | Generic entry editor and separately registered typed catalog editor; large custom tab/host adapter remains, with typed-draft checks and controller fallbacks removed. Add/Edit share the Comic people row models; advanced metadata parity remains to review. |
-| Manga | Main, Edition details, Details, Plot, Covers, plus Series identity control | Registered routes use generic editor; a separate typed media editor exists. Managed series/publisher selection logic overlaps Comics/Books. |
+| Manga | Main, Edition details, Details, Plot, Covers, plus Series identity control | Registered routes use the shared Edit shell with typed Edition Details and Details schemas; Add/Edit expose modeled metadata in matching areas and keep distinct ISBN/Barcode and Format/Binding values. Genres/Themes share the chip picker; Format/Publisher/Imprint share Manga vocabulary definitions. Identifiers, publication dates, series group, and back cover persist independently. Managed series selection logic still overlaps Comics/Books. |
 | Games | Main, Edition details, Description, Covers | Generic editor plus embedded entry schema; custom Main/Release fields and the registered Game platform vocabulary. The request-backed edit draft is renderer-owned; field-specific controller ownership still needs review. |
 | Board Games | Main, Edition Details, Gameplay & Ratings, Description, Covers, Links | Generic renderer with catalog/entry presentation lists and embedded entry schema; shared release identity groups remain. Links now use the shared table in Add and Edit. |
 
@@ -531,7 +545,7 @@ tab placement, and metadata/personal classification.
 | Anime | Physical-media Specs and Cast/Crew row layout are shared with Movie/TV. Reconcile the extra media dialog with active routes; preserve kind-specific series/episode fields and finish remaining Add/Edit field parity. |
 | Books | Unify catalog/entry schemas and managed publisher/format bindings; Authors and Translators now use shared typed ordered-name editors in Add/Edit; Add/Edit expose separate ISBN and Barcode identifiers; retain publication details and review other credits. |
 | Comics | Controller fallbacks have been removed from the Comic edit host; unify the generic entry and typed catalog hosts while retaining series/issue, grading, variants, and meaningful credit structures. |
-| Manga | Consolidate series/publisher picker mechanics with other kinds; keep volume/publication semantics in Manga; reconcile generic/extra media editors. |
+| Manga | Add/Edit now expose the same modeled volume, publication, identifier, people, character, and descriptive fields. Genres/Themes use the common chip control, and Edition Format, Publisher, and Imprint use the same vocabularies in both forms. Distributor and Country / region were removed from Add because Manga metadata has no such fields. Consolidate series selection mechanics with other kinds and retain Manga-specific volume/publication semantics. |
 | Games | Request-backed edit draft creation is renderer-owned and the registered Game platform vocabulary is used. Audit remaining no-op callbacks and integrate the embedded entry schema with the complete form. |
 | Board Games | Merge separate catalog/entry compositions, release identity groups, and embedded entry schema; retain players/age/play-time/components and play tracking as typed kind features. |
 | Music | Retain reference layout; converge Add/Edit credits, discs/tracks, covers, links, and personal controls. Preserve track-search highlighting in App. |
