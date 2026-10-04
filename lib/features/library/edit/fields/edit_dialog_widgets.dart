@@ -1130,41 +1130,6 @@ class FooterReadonlyField extends StatelessWidget {
   }
 }
 
-class FooterTextField extends StatelessWidget {
-  const FooterTextField({
-    super.key,
-    required this.label,
-    required this.controller,
-    required this.width,
-    this.keyboardType,
-  });
-
-  final String label;
-  final TextEditingController controller;
-  final double width;
-  final TextInputType? keyboardType;
-
-  @override
-  Widget build(BuildContext context) {
-    return ConstrainedBox(
-      constraints: const BoxConstraints(minWidth: 0, minHeight: 48),
-      child: SizedBox(
-        width: width,
-        child: TextField(
-          controller: controller,
-          keyboardType: keyboardType,
-          style: Theme.of(context).textTheme.controlText,
-          decoration: InputDecoration(
-            labelText: label,
-            contentPadding:
-                const EdgeInsets.symmetric(horizontal: 8, vertical: 7),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
 class EditSummaryPill extends StatelessWidget {
   const EditSummaryPill({
     super.key,

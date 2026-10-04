@@ -290,6 +290,8 @@ Completed implementation slices:
 - Music's shared Add/Edit credit editor now uses the common text control for
   contributor names, sort names, and instruments while preserving the credit
   row identity, ordering, and kind-owned values.
+- Removed the unused `FooterTextField` helper after confirming it had no
+  production or test call sites.
 - Music Add and Edit disc metadata, track titles/artists/lengths, and disc-owned
   storage details now use the same input primitive and minimum control height.
 - Music Add and Edit track title, artist, and duration fields now share one
