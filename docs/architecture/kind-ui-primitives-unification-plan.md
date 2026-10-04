@@ -57,6 +57,10 @@ Completed implementation slices:
   changed names and order.
 - Movie's local entry Edit tab that contains the video specifications is now
   labelled `Specs`, avoiding the duplicate `Edition Details` tab label.
+- Movie's local-entry tab list now reuses the catalog metadata tabs, exposing
+  Main, edition details, plot, Cast, Crew, Links, tracking, covers, and images
+  alongside its Personal, Custom Fields, and Specs tabs. The shared metadata
+  tab is labelled `Main` in both scopes.
 - Book Add and Edit now share a kind-owned ordered name editor for Authors and
   Translators. Add stores typed credits instead of a comma-separated string;
   Edit's Credits tab now renders those same editors, preserves credit metadata,
@@ -310,8 +314,8 @@ Evidence: `kinds/movie/add/movie_add_manual_pane.dart`,
   during Edit. Dedicated editing for character aliases and descriptive fields
   remains open.
 - Add includes cover URL text instead of the same cover editor.
-- The entry tab list omits Main, Cast, Crew, and Links supplied by the catalog
-  list. Local complete-entry editing must expose editable metadata as well.
+- The local-entry profile now extends the same Movie metadata tabs used by the
+  catalog profile, so those fields remain editable when changing an entry.
 - Empty option lists are no longer passed to Movie/TV/Anime fields as if they
   were managed pickers. Fields without an actual kind vocabulary use text
   controls; Movie Genre and Movie/TV audio and subtitle options come from their
