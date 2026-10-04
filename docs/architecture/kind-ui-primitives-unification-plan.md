@@ -551,7 +551,7 @@ My Images and adds Custom Fields only when definitions are nonempty.
 | Anime | Main, Details, Edition details, Specs, Cover, Synopsis, Cast, Crew | Main, Details, Edition, Specs, Cover, and Synopsis use the same kind-owned field schema and renderer in Add/Edit. Characters retain matching metadata when renamed; series/episode/disc and typed credit editors remain specialized, and user links use the shared entry-local draft. |
 | Books | Main, Credits, Links, Covers, Plot | Main, Links, Covers, and Plot use the same kind-owned field schema and renderer as Add. Credits use the shared typed ordered-name editor. The embedded Entry schema and shared personal-state composition remain specialized. |
 | Comics | Main, Edition details, Details, Creators, Characters, Covers, Links, plus Series identity control | Generic entry editor and separately registered typed catalog editor; large custom tab/host adapter remains, with typed-draft checks and controller fallbacks removed. Add/Edit share the Comic people row models; advanced metadata parity remains to review. |
-| Manga | Main, Edition details, Details, Plot, Covers, plus Series identity control | Registered routes use the shared Edit shell with typed Edition Details and Details schemas; Add/Edit expose modeled metadata in matching areas and keep distinct ISBN/Barcode and Format/Binding values. Genres/Themes share the chip picker; Format/Publisher/Imprint share Manga vocabulary definitions. Identifiers, publication dates, series group, and back cover persist independently. Managed series selection logic still overlaps Comics/Books. |
+| Manga | Main, Edition details, Details, Plot, Covers, Links, plus Series identity control | Registered routes use the shared Edit shell with typed Edition Details and Details schemas; Add/Edit expose modeled metadata in matching areas and keep distinct ISBN/Barcode and Format/Binding values. Genres/Themes share the chip picker; Format/Publisher/Imprint share Manga vocabulary definitions. External links use the shared draft editor and preserve auxiliary metadata in Edit. Identifiers, publication dates, series group, and back cover persist independently. Managed series selection logic still overlaps Comics/Books. |
 | Games | Main, Edition details, Description, Links, Covers | Main, Edition, Description, Links, and Covers are available in both Add and Edit. External links use the shared draft editor; save preserves trailers and unexposed link metadata. The typed Entry details editor remains specialized. |
 | Board Games | Main, Edition Details, Gameplay & Ratings, Description, Covers, Links | Catalog tabs share the same kind-owned field schema, typed values, and renderer with Add. Links use the shared draft editor; Edit retains link identity and unexposed metadata through reordering. Entry details and personal state remain specialized. |
 
@@ -915,4 +915,10 @@ Implementation note (2026-10-04): Game Manual Add now exposes external links,
 and Game Add/Edit use `LibraryExternalLinksDraftEditor`. The typed Game mapper
 updates only external links and preserves trailer links and unexposed link
 metadata. Targeted analysis for Game Add/Edit/forms passed; tests and runtime
+screenshot review remain deferred.
+
+Implementation note (2026-10-04): Manga Add and Edit now expose the typed
+catalog external links through the shared draft editor. Edit preserves each
+link's identity and auxiliary fields while applying removals and reordered
+positions. Targeted analysis for Manga Add/Edit/forms passed; tests and runtime
 screenshot review remain deferred.

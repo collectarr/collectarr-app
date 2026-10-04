@@ -10,6 +10,7 @@ import 'package:collectarr_app/features/library/serial/library_series_selector_f
 import 'package:collectarr_app/features/library/kinds/manga/add/manga_add_schema.dart';
 import 'package:collectarr_app/features/library/kinds/manga/add/manga_add_manual_draft.dart';
 import 'package:collectarr_app/features/library/kinds/manga/vocabulary/manga_vocabularies.dart';
+import 'package:collectarr_app/features/library/edit/fields/library_external_links_draft_editor.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -218,6 +219,16 @@ class _MangaAddManualPaneState extends ConsumerState<MangaAddManualPane> {
           icon: Icons.camera_alt_outlined,
           fieldIds: const {'cover_image_url', 'back_cover_image_url'},
           sectionLabel: 'Covers',
+        ),
+        LibraryAddManualPaneTab(
+          id: 'links',
+          label: 'Links',
+          icon: Icons.public,
+          content: LibraryExternalLinksDraftEditor(
+            links: draft.externalLinks,
+            accent: request.accent,
+            onChanged: request.onManualDraftChanged,
+          ),
         ),
       ],
     );

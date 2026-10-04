@@ -70,6 +70,18 @@ const _mangaCombinedTabs = [
     sectionIds: ['cover_images'],
   ),
   LibraryEditTabSpec(
+    id: 'links',
+    icon: Icons.public,
+    label: 'Links',
+    sectionIds: ['external_links'],
+  ),
+  LibraryEditTabSpec(
+    id: 'links',
+    icon: Icons.public,
+    label: 'Links',
+    sectionIds: ['external_links'],
+  ),
+  LibraryEditTabSpec(
     id: 'entry',
     icon: Icons.inventory_2,
     label: 'Entry',

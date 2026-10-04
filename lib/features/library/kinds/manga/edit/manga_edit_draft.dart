@@ -18,6 +18,7 @@ import 'package:collectarr_app/features/library/kinds/manga/domain/manga_library
 import 'package:collectarr_app/features/library/kinds/manga/entries/manga_entry_details_draft.dart';
 import 'package:collectarr_app/features/library/kinds/manga/entries/manga_library_entry_update_payload.dart';
 import 'package:collectarr_app/features/library/edit/draft/personal_state_draft.dart';
+import 'package:collectarr_app/features/library/edit/fields/library_external_links_table.dart';
 
 enum MangaCanonicalEditField {
   title,
@@ -81,6 +82,8 @@ class MangaEditDraft
     required this.serializationController,
     required this.originalPublisherController,
     required this.localizedPublisherController,
+    required this.externalLinks,
+    required this.originalExternalLinks,
   });
 
   final MangaLibraryEntry? libraryEntry;
@@ -128,6 +131,12 @@ class MangaEditDraft
   final TextEditingController serializationController;
   final TextEditingController originalPublisherController;
   final TextEditingController localizedPublisherController;
+  final List<LibraryExternalLinkDraftRow> externalLinks;
+  final Map<LibraryExternalLinkDraftRow, MangaExternalLink>
+      originalExternalLinks;
+  bool _externalLinksEdited = false;
+
+  void markExternalLinksEdited() => _externalLinksEdited = true;
 
   @override
   JsonEncodable toDetailsDraft() => MangaEntryDetailsDraft(
@@ -260,6 +269,9 @@ class MangaEditDraft
     serializationController.dispose();
     originalPublisherController.dispose();
     localizedPublisherController.dispose();
+    for (final link in externalLinks) {
+      link.dispose();
+    }
   }
 
   @override
@@ -427,6 +439,16 @@ class MangaEditDraft
 
     final releaseYear = int.tryParse(releaseYearController.text.trim());
     final releaseDate = PartialDate.tryParse(releaseDateController.text.trim());
+    final updatedExternalLinks = [
+      for (final (index, row) in externalLinks
+          .where((row) => row.urlController.text.trim().isNotEmpty)
+          .indexed)
+        _mangaExternalLinkFromDraft(
+          row,
+          index + 1,
+          originalExternalLinks[row],
+        ),
+    ];
     final updatedMetadata = MangaMetadata.fromJson(applyJsonFieldPatch(meta, {
       'page_count': count,
       'volume_number': volumeNumber?.toString(),
@@ -482,6 +504,10 @@ class MangaEditDraft
       'localized_release_date': releaseDate?.asDateTime?.toIso8601String(),
       'release_date': releaseDate?.toJson(),
       'release_date_parts': releaseDate?.toJson(),
+      if (_externalLinksEdited)
+        'external_links': [
+          for (final link in updatedExternalLinks) link.toJson(),
+        ],
     }));
 
     final updatedItem = selection.kindItem.kindCapability.mapTransport(
@@ -507,6 +533,14 @@ LibraryEditSessionBundle createMangaEditDraft({
   final entry = MangaLibraryEntryProjection.fromDispatch(libraryEntryDispatch);
   final manga = entry?.personal.details;
   final metadata = mangaEditMetadataFromCandidate(item);
+  final externalLinkRows = <LibraryExternalLinkDraftRow>[];
+  final originalExternalLinks =
+      <LibraryExternalLinkDraftRow, MangaExternalLink>{};
+  for (final link in metadata.externalLinks) {
+    final row = _mangaExternalLinkDraftRow(link);
+    externalLinkRows.add(row);
+    originalExternalLinks[row] = link;
+  }
   final draft = MangaEditDraft(
     libraryEntry: entry,
     rawOrSlabbed: manga?.grading.rawOrSlabbed,
@@ -608,12 +642,48 @@ LibraryEditSessionBundle createMangaEditDraft({
     releaseYearController: textControllers.create(
       text: metadata.originalPublicationDate?.year.toString() ?? '',
     ),
+    externalLinks: externalLinkRows,
+    originalExternalLinks: originalExternalLinks,
   );
   return LibraryEditSessionBundle(
     catalogItemSession: draft,
     entrySession: draft,
     disposeSession: draft.dispose,
   );
+}
+
+LibraryExternalLinkDraftRow _mangaExternalLinkDraftRow(
+  MangaExternalLink link,
+) =>
+    LibraryExternalLinkDraftRow(
+      title: link.title ?? link.label ?? link.name ?? '',
+      url: link.url,
+      description: link.description ?? '',
+    );
+
+MangaExternalLink _mangaExternalLinkFromDraft(
+  LibraryExternalLinkDraftRow row,
+  int position,
+  MangaExternalLink? original,
+) {
+  final title = _mangaOptional(row.titleController.text);
+  return MangaExternalLink(
+    url: row.urlController.text.trim(),
+    id: original?.id,
+    description: _mangaOptional(row.descriptionController.text),
+    kind: original?.kind ?? 'external',
+    label: title,
+    linkType: original?.linkType,
+    name: original?.name,
+    position: position,
+    site: original?.site,
+    title: title,
+  );
+}
+
+String? _mangaOptional(String value) {
+  final normalized = value.trim();
+  return normalized.isEmpty ? null : normalized;
 }
 
 /// Decodes the flat Manga Catalog Item payload for editing.

@@ -6,6 +6,7 @@ MangaMetadata mangaMetadataFromManualCatalogFormValues({
   required MangaCatalogFormValues values,
   required String id,
   required String title,
+  List<MangaExternalLink> externalLinks = const [],
 }) {
   final normalizedTitle = title.trim();
   final publicationDate = values.publicationYear == null
@@ -63,6 +64,7 @@ MangaMetadata mangaMetadataFromManualCatalogFormValues({
     ageRating: _optional(values.ageRating),
     coverImageUrl: _optional(values.coverImageUrl),
     backCoverImageUrl: _optional(values.backCoverImageUrl),
+    externalLinks: externalLinks,
     identifiers: [
       if (isbn != null)
         MangaIdentifier(
