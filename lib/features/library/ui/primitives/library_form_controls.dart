@@ -44,6 +44,7 @@ class LibraryTextFormControl extends StatelessWidget {
     this.decoration,
     this.minimumHeight = kLibraryFormControlHeight,
     this.keyboardType,
+    this.inputFormatters,
     this.minLines,
     this.maxLines = 1,
     this.expands = false,
@@ -53,6 +54,7 @@ class LibraryTextFormControl extends StatelessWidget {
     this.autofocus = false,
     this.focusNode,
     this.style,
+    this.textAlign = TextAlign.start,
     this.textCapitalization = TextCapitalization.none,
     this.textInputAction,
     this.onFieldSubmitted,
@@ -65,6 +67,7 @@ class LibraryTextFormControl extends StatelessWidget {
   final InputDecoration? decoration;
   final double minimumHeight;
   final TextInputType? keyboardType;
+  final List<TextInputFormatter>? inputFormatters;
   final int? minLines;
   final int? maxLines;
   final bool expands;
@@ -74,6 +77,7 @@ class LibraryTextFormControl extends StatelessWidget {
   final bool autofocus;
   final FocusNode? focusNode;
   final TextStyle? style;
+  final TextAlign textAlign;
   final TextCapitalization textCapitalization;
   final TextInputAction? textInputAction;
   final ValueChanged<String>? onFieldSubmitted;
@@ -88,6 +92,7 @@ class LibraryTextFormControl extends StatelessWidget {
         onChanged: onChanged,
         onFieldSubmitted: onFieldSubmitted,
         keyboardType: keyboardType,
+        inputFormatters: inputFormatters,
         minLines: minLines,
         maxLines: maxLines,
         expands: expands,
@@ -95,6 +100,7 @@ class LibraryTextFormControl extends StatelessWidget {
         enabled: enabled,
         readOnly: readOnly,
         style: style,
+        textAlign: textAlign,
         textCapitalization: textCapitalization,
         textInputAction: textInputAction,
         decoration: (decoration ?? const InputDecoration()).copyWith(
@@ -201,11 +207,12 @@ class _LibraryPartialDateInputState extends State<LibraryPartialDateInput> {
           if (i > 0) const SizedBox(width: 6),
           Expanded(
               flex: i == 0 ? 3 : 2,
-              child: TextFormField(
+              child: LibraryTextFormControl(
                 controller: _controllers[i],
                 focusNode: i == 0 ? widget.focusNode : null,
                 textAlign: TextAlign.center,
                 keyboardType: TextInputType.number,
+                minimumHeight: kLibraryFormControlHeight,
                 inputFormatters: [
                   FilteringTextInputFormatter.digitsOnly,
                   LengthLimitingTextInputFormatter(i == 0 ? 4 : 2)

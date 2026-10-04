@@ -837,13 +837,16 @@ class _LibraryDateFieldButtonState extends State<LibraryDateFieldButton> {
       borderSide: BorderSide(color: palette.divider),
       borderRadius: BorderRadius.circular(4),
     );
-    return TextField(
+    return LibraryTextFormControl(
       key: key,
       controller: controller,
       focusNode: focusNode,
       keyboardType: TextInputType.number,
       textAlign: TextAlign.center,
-      maxLength: hintText.length,
+      inputFormatters: [
+        FilteringTextInputFormatter.digitsOnly,
+        LengthLimitingTextInputFormatter(hintText.length),
+      ],
       decoration: InputDecoration(
         hintText: hintText,
         counterText: '',
@@ -858,9 +861,6 @@ class _LibraryDateFieldButtonState extends State<LibraryDateFieldButton> {
         isDense: true,
         contentPadding: const EdgeInsets.symmetric(horizontal: 4, vertical: 10),
       ),
-      inputFormatters: [
-        FilteringTextInputFormatter.digitsOnly,
-      ],
       onChanged: (_) {
         _emitValueIfPossible();
       },

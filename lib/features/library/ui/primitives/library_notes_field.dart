@@ -25,7 +25,7 @@ final class LibraryNotesField extends StatelessWidget {
   @override
   Widget build(BuildContext context) => LibraryFormField(
         label: label,
-        child: TextFormField(
+        child: LibraryTextFormControl(
           key: fieldKey,
           controller: controller,
           initialValue: controller == null ? value : null,

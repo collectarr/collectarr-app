@@ -69,6 +69,10 @@ Completed implementation slices:
   labels and the common control height. Schema validators are registered with
   the active Form; numeric minimum, maximum, and decimal-place constraints are
   enforced on raw input.
+- Partial dates, full-date parts, money amounts, and notes now render through
+  the shared text-form control. Date digit/length limits, money parsing,
+  multiline sizing, focus, and validation remain supplied by their field
+  definitions.
 - Movie manual Add now uses the managed multi-value Genre vocabulary and
   exposes Display Title, Original Title, Localized Title, and Search Aliases.
   Clearing supported optional Movie metadata is preserved on save.

@@ -1,4 +1,3 @@
-import 'package:collectarr_app/features/library/config/library_dialog_tokens.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_form_controls.dart';
 import 'package:flutter/material.dart';
 
@@ -27,16 +26,13 @@ final class LibraryMoneyAmountField extends StatelessWidget {
   @override
   Widget build(BuildContext context) => LibraryFormField(
         label: label,
-        child: TextFormField(
+        child: LibraryTextFormControl(
           key: fieldKey,
           controller: controller,
           initialValue: controller == null ? _formattedAmount : null,
           keyboardType: const TextInputType.numberWithOptions(decimal: true),
           decoration: InputDecoration(
             prefixText: '$_currencyCode ',
-            constraints: const BoxConstraints(
-              minHeight: kLibraryFormControlHeight,
-            ),
           ),
           validator: _validate,
           onChanged: _handleChanged,
