@@ -88,11 +88,11 @@ Completed implementation slices:
 - The eight kinds using `LibraryEditRenderer` now pass the edit request to the
   renderer instead of constructing `LibraryEditShellState` in their dialog
   widget's `build()` method. The renderer creates the request-backed draft in
-  its `initState`; Game and Board Game can still receive a draft explicitly
-  when a caller already owns one. Music already creates its kind-owned edit
-  draft in its state object's `initState`. This fixes draft/controller creation
-  at the kind dialog build boundary; custom field and child-editor controller
-  ownership still needs its own audit.
+  its `initState` and disposes it with the renderer. The unused `fromDraft`
+  constructor and optional Game/Board Game draft-wrapper parameters were
+  removed after a call-site audit. Music already creates and disposes its
+  kind-owned edit draft in its state object's lifecycle. Custom field and
+  child-editor controller ownership still needs its own audit.
 - Schema fields and custom Edit fields now delegate responsive geometry to one
   configurable field layout. Existing breakpoints, column counts, spans,
   full-width placement, and right alignment remain caller configuration.
@@ -193,7 +193,7 @@ My Images and adds Custom Fields only when definitions are nonempty.
 | Books | Main with managed publisher/format selection; typed Authors and Translators | Generic editor with separate catalog/entry presentation and an embedded entry schema renderer; Credits tab now uses the same typed ordered-name editors as Add. |
 | Comics | Main, Details, plus Series identity control | Generic entry editor and separately registered typed catalog editor; large custom tab/host adapter implementation with temporary controller fallbacks. |
 | Manga | Identity, Publication, plus Series identity control | Registered routes use generic editor; a separate typed media editor exists. Managed series/publisher selection logic overlaps Comics/Books. |
-| Games | One Main schema | Generic editor plus embedded entry schema; custom Main/Release fields and a hard-coded platform list. The registered dialog no longer constructs its request-backed edit draft in `build()`; field-specific controller ownership still needs review. |
+| Games | One Main schema | Generic editor plus embedded entry schema; custom Main/Release fields and a hard-coded platform list. The request-backed edit draft is renderer-owned; field-specific controller ownership still needs review. |
 | Board Games | One Main schema | Generic renderer with catalog/entry presentation lists and embedded entry schema; shared release identity groups remain. |
 
 The presence of a raw Flutter control is not automatically a defect. The
@@ -379,9 +379,11 @@ tab placement, and metadata/personal classification.
    reader. Include supported fields currently absent from one form.
 3. The Movie/TV/Anime specs tabs now use typed draft-owned state, and all eight
    generic edit launchers pass requests to the shared renderer, which creates
-   request-backed drafts in `initState`. Music already initializes its own
-   draft in state. Continue auditing controllers owned by custom fields and
-   child editors, including the Games and Comic host adapters.
+   and disposes request-backed drafts in `initState`/`dispose`. The unused
+   prebuilt-draft constructor and Game/Board Game wrapper parameters are gone.
+   Music already manages its own draft in state. Continue auditing controllers
+   owned by custom fields and child editors, including Games and the Comic
+   host adapter.
 4. Confirm obsolete dialogs by callers, not filename. Do not remove active
    episode/volume/track editors solely because they are kind-specific.
 5. Pick the old Music visual reference from repository history and existing
