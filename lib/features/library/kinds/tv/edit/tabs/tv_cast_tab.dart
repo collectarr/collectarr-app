@@ -1,6 +1,6 @@
-import 'package:collectarr_app/features/library/kinds/tv/edit/tv_edit_models.dart';
-import 'package:collectarr_app/features/library/kinds/tv/edit/tv_edit_tab_helpers.dart';
 import 'package:collectarr_app/features/library/kinds/tv/edit/tv_edit_controller.dart';
+import 'package:collectarr_app/features/library/kinds/tv/edit/tv_edit_models.dart';
+import 'package:collectarr_app/features/library/kinds/shared/video/library_video_credits_section.dart';
 import 'package:flutter/material.dart';
 
 class TvEditCastTab extends StatelessWidget {
@@ -17,12 +17,19 @@ class TvEditCastTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return buildTvCreditsTab(
+    return LibraryVideoCreditsSection(
       title: 'Cast',
       emptyMessage: 'No cast data yet.',
       addLabel: 'Add Cast',
       accent: accent,
-      credits: tvEdit.castCredits,
+      credits: [
+        for (final credit in tvEdit.castCredits)
+          LibraryVideoCreditControllers(
+            identity: credit,
+            name: credit.nameController,
+            role: credit.roleController,
+          ),
+      ],
       onAdd: () =>
           tvEdit.castCredits.add(EditableTvCredit.custom(role: 'Actor')),
       onChanged: markDirty,

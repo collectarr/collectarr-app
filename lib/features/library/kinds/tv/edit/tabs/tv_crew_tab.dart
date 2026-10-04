@@ -1,6 +1,6 @@
 import 'package:collectarr_app/features/library/kinds/tv/edit/tv_edit_models.dart';
-import 'package:collectarr_app/features/library/kinds/tv/edit/tv_edit_tab_helpers.dart';
 import 'package:collectarr_app/features/library/kinds/tv/edit/tv_edit_controller.dart';
+import 'package:collectarr_app/features/library/kinds/shared/video/library_video_credits_section.dart';
 import 'package:flutter/material.dart';
 
 class TvEditCrewTab extends StatelessWidget {
@@ -17,12 +17,19 @@ class TvEditCrewTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return buildTvCreditsTab(
+    return LibraryVideoCreditsSection(
       title: 'Crew',
       emptyMessage: 'No crew data yet.',
       addLabel: 'Add Crew',
       accent: accent,
-      credits: tvEdit.crewCredits,
+      credits: [
+        for (final credit in tvEdit.crewCredits)
+          LibraryVideoCreditControllers(
+            identity: credit,
+            name: credit.nameController,
+            role: credit.roleController,
+          ),
+      ],
       onAdd: () =>
           tvEdit.crewCredits.add(EditableTvCredit.custom(role: 'Director')),
       onChanged: markDirty,
