@@ -51,6 +51,10 @@ Completed implementation slices:
   names and roles. The old free-text Director(s) Add field and its draft value
   were removed. `movie_edit_models.dart` was removed after its remaining
   external-link use moved to its owning shared edit model.
+- Movie Characters now use the shared ordered-name editor in Add and Edit.
+  The name list is editable and reorderable; Edit retains each existing
+  character's IDs, aliases, role, description, and image URL while saving the
+  changed names and order.
 - Book Add and Edit now share a kind-owned ordered name editor for Authors and
   Translators. Add stores typed credits instead of a comma-separated string;
   Edit's Credits tab now renders those same editors, preserves credit metadata,
@@ -263,12 +267,12 @@ Evidence: `kinds/movie/add/movie_add_manual_pane.dart`,
 - Genres now uses the managed multi-value picker in both Movie Add and Edit.
 - Movie, TV, and Anime country/language/rating fields without configured
   vocabularies now use matching text controls in Add and Edit. Movie/TV audio
-  and subtitle fields retain their registered vocabulary pickers. Add and Edit
-  still use different people editors: Add has flat director/character text,
-  while Edit has typed Cast/Crew tabs.
+  and subtitle fields retain their registered vocabulary pickers. Movie Cast,
+  Crew, and Characters now share their kind-owned Add/Edit editors.
 - Cast and Crew now share typed, reorderable editors between Add and Edit.
-  Add still keeps Characters as a flat text field, while Edit has no matching
-  character editor; reconciling character/person semantics remains open.
+  Characters use an ordered-name editor and preserve other character metadata
+  during Edit. Dedicated editing for character aliases and descriptive fields
+  remains open.
 - Add includes cover URL text instead of the same cover editor.
 - The entry tab list omits Main, Cast, Crew, and Links supplied by the catalog
   list. Local complete-entry editing must expose editable metadata as well.
