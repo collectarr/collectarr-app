@@ -1,6 +1,6 @@
 import 'package:collectarr_app/features/library/kinds/anime/forms/anime_credit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/anime/edit/anime_edit_controller.dart';
-import 'package:collectarr_app/features/library/kinds/shared/video/library_video_credits_section.dart';
+import 'package:collectarr_app/features/library/ui/primitives/library_named_detail_list.dart';
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
 import 'package:flutter/material.dart';
 
@@ -20,17 +20,17 @@ class AnimeEditCrewTab extends StatelessWidget {
   Widget build(BuildContext context) {
     return EditTabShell(
       children: [
-        LibraryVideoCreditsSection(
+        LibraryNamedDetailList(
           title: 'Crew',
           emptyMessage: 'No crew data yet.',
           addLabel: 'Add Crew',
           accent: accent,
           credits: [
             for (final credit in animeEdit.crewCredits)
-              LibraryVideoCreditControllers(
+              LibraryNamedDetailControllers(
                 identity: credit,
                 name: credit.nameController,
-                role: credit.roleController,
+                detail: credit.roleController,
               ),
           ],
           onAdd: () => animeEdit.crewCredits

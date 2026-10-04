@@ -6,7 +6,7 @@ import 'package:collectarr_app/features/library/kinds/comic/comic_module.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_catalog_item.dart';
 import 'package:collectarr_app/features/library/kinds/comic/edit/comic_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/comic/edit/comic_edit_host.dart';
-import 'package:collectarr_app/features/library/kinds/comic/edit/comic_edit_models.dart';
+import 'package:collectarr_app/features/library/kinds/comic/forms/comic_person_draft.dart';
 import 'package:collectarr_app/features/library/schema/library_field_spec.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_dropdown_pick_field.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_selection_fields.dart';

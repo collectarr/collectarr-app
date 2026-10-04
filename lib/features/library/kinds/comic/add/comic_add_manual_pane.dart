@@ -11,7 +11,9 @@ import 'package:collectarr_app/features/catalog/serial/serial_authority_reposito
 import 'package:collectarr_app/features/library/kinds/comic/add/comic_add_manual_draft.dart';
 import 'package:collectarr_app/features/library/kinds/comic/add/comic_add_links_tab.dart';
 import 'package:collectarr_app/features/library/kinds/comic/add/comic_add_schema.dart';
+import 'package:collectarr_app/features/library/kinds/comic/forms/comic_person_draft.dart';
 import 'package:collectarr_app/features/library/kinds/comic/vocabulary/comic_vocabularies.dart';
+import 'package:collectarr_app/features/library/ui/primitives/library_named_detail_list.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_selection_fields.dart';
 import 'package:collectarr_app/features/library/providers/media_catalog_provider.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
@@ -283,6 +285,69 @@ class _ComicAddManualPaneState extends ConsumerState<ComicAddManualPane> {
               'story_arcs',
             },
             'Publication details',
+          ),
+        ),
+        LibraryAddManualPaneTab(
+          id: 'creators',
+          label: 'Creators',
+          icon: Icons.people_outline,
+          content: LibraryNamedDetailList(
+            title: 'Creators',
+            emptyMessage: 'No creator credits yet.',
+            addLabel: 'Add Creator',
+            accent: request.accent,
+            credits: [
+              for (final creator in comicDraft.creators)
+                LibraryNamedDetailControllers(
+                  identity: creator,
+                  name: creator.nameController,
+                  detail: creator.roleController,
+                ),
+            ],
+            onAdd: () => setState(
+              () => comicDraft.creators.add(EditableComicCreator.custom()),
+            ),
+            onRemove: (index) => setState(
+              () => comicDraft.creators.removeAt(index).dispose(),
+            ),
+            onReorder: (oldIndex, newIndex) => setState(() {
+              final creator = comicDraft.creators.removeAt(oldIndex);
+              comicDraft.creators.insert(newIndex, creator);
+            }),
+            onChanged: request.onManualDraftChanged ?? () {},
+          ),
+        ),
+        LibraryAddManualPaneTab(
+          id: 'characters',
+          label: 'Characters',
+          icon: Icons.face_outlined,
+          content: LibraryNamedDetailList(
+            title: 'Characters',
+            emptyMessage: 'No characters added yet.',
+            addLabel: 'Add Character',
+            nameLabel: 'Character',
+            detailLabel: 'Real name',
+            accent: request.accent,
+            credits: [
+              for (final character in comicDraft.characters)
+                LibraryNamedDetailControllers(
+                  identity: character,
+                  name: character.nameController,
+                  detail: character.realNameController,
+                ),
+            ],
+            onAdd: () => setState(
+              () =>
+                  comicDraft.characters.add(EditableComicCharacter.custom('')),
+            ),
+            onRemove: (index) => setState(
+              () => comicDraft.characters.removeAt(index).dispose(),
+            ),
+            onReorder: (oldIndex, newIndex) => setState(() {
+              final character = comicDraft.characters.removeAt(oldIndex);
+              comicDraft.characters.insert(newIndex, character);
+            }),
+            onChanged: request.onManualDraftChanged ?? () {},
           ),
         ),
         LibraryAddManualPaneTab(

@@ -3,6 +3,7 @@ import 'package:collectarr_app/features/catalog/transport/catalog_search_candida
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_edit_models.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_catalog_item.dart';
+import 'package:collectarr_app/features/library/kinds/comic/forms/comic_person_draft.dart';
 import 'package:flutter/material.dart';
 
 import 'comic_edit_models.dart';

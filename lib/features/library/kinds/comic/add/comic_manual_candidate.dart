@@ -26,6 +26,16 @@ CatalogSearchCandidate? buildComicManualCandidate(
       for (final link in draft.externalLinks)
         if (link.urlController.text.trim().isNotEmpty) link.toModel(),
     ],
+    creators: [
+      for (final creator in draft.creators)
+        if (creator.nameController.text.trim().isNotEmpty)
+          ComicCreator.fromValue(creator.toMap()),
+    ],
+    characters: [
+      for (final character in draft.characters)
+        if (character.nameController.text.trim().isNotEmpty)
+          ComicCharacter.fromValue(character.toMap()),
+    ],
   );
   return CatalogSearchCandidate.fromItem(
     CatalogItemDto(

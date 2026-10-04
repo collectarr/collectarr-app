@@ -4,7 +4,7 @@ import 'package:collectarr_app/features/library/add/schema/add_schema_renderer.d
 import 'package:collectarr_app/features/library/kinds/anime/add/anime_add_manual_draft.dart';
 import 'package:collectarr_app/features/library/kinds/anime/add/anime_add_schema.dart';
 import 'package:collectarr_app/features/library/kinds/anime/forms/anime_credit_draft.dart';
-import 'package:collectarr_app/features/library/kinds/shared/video/library_video_credits_section.dart';
+import 'package:collectarr_app/features/library/ui/primitives/library_named_detail_list.dart';
 import 'package:flutter/material.dart';
 
 const _animeMainFieldIds = {
@@ -157,17 +157,17 @@ class AnimeAddManualPane extends StatelessWidget {
           id: 'cast',
           label: 'Cast',
           icon: Icons.people_outline,
-          content: LibraryVideoCreditsSection(
+          content: LibraryNamedDetailList(
             title: 'Cast',
             emptyMessage: 'No cast data yet.',
             addLabel: 'Add Cast',
             accent: request.accent,
             credits: [
               for (final credit in draft.castCredits)
-                LibraryVideoCreditControllers(
+                LibraryNamedDetailControllers(
                   identity: credit,
                   name: credit.nameController,
-                  role: credit.roleController,
+                  detail: credit.roleController,
                 ),
             ],
             onAdd: () => draft.castCredits
@@ -184,17 +184,17 @@ class AnimeAddManualPane extends StatelessWidget {
           id: 'crew',
           label: 'Crew',
           icon: Icons.work_outline,
-          content: LibraryVideoCreditsSection(
+          content: LibraryNamedDetailList(
             title: 'Crew',
             emptyMessage: 'No crew data yet.',
             addLabel: 'Add Crew',
             accent: request.accent,
             credits: [
               for (final credit in draft.crewCredits)
-                LibraryVideoCreditControllers(
+                LibraryNamedDetailControllers(
                   identity: credit,
                   name: credit.nameController,
-                  role: credit.roleController,
+                  detail: credit.roleController,
                 ),
             ],
             onAdd: () => draft.crewCredits

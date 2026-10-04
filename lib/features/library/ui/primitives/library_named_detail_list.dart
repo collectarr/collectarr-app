@@ -2,30 +2,32 @@ import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.
 import 'package:flutter/material.dart';
 
 @immutable
-final class LibraryVideoCreditControllers {
-  const LibraryVideoCreditControllers({
+final class LibraryNamedDetailControllers {
+  const LibraryNamedDetailControllers({
     required this.identity,
     required this.name,
-    required this.role,
+    required this.detail,
   });
 
   final Object identity;
   final TextEditingController name;
-  final TextEditingController role;
+  final TextEditingController detail;
 }
 
-/// Shared Name/Role editor for video-kind cast and crew lists.
+/// Shared ordered name/detail editor for credits and kind-specific people lists.
 ///
 /// The kind owns its credit models and mutations. This widget only renders
 /// their controller pairs and reports edits/additions to the owning draft.
-final class LibraryVideoCreditsSection extends StatelessWidget {
-  const LibraryVideoCreditsSection({
+final class LibraryNamedDetailList extends StatelessWidget {
+  const LibraryNamedDetailList({
     super.key,
     required this.title,
     required this.emptyMessage,
     required this.addLabel,
     required this.accent,
     required this.credits,
+    this.nameLabel = 'Name',
+    this.detailLabel = 'Role',
     required this.onAdd,
     required this.onRemove,
     required this.onReorder,
@@ -36,7 +38,9 @@ final class LibraryVideoCreditsSection extends StatelessWidget {
   final String emptyMessage;
   final String addLabel;
   final Color accent;
-  final List<LibraryVideoCreditControllers> credits;
+  final List<LibraryNamedDetailControllers> credits;
+  final String nameLabel;
+  final String detailLabel;
   final VoidCallback onAdd;
   final ValueChanged<int> onRemove;
   final void Function(int oldIndex, int newIndex) onReorder;
@@ -82,7 +86,7 @@ final class LibraryVideoCreditsSection extends StatelessWidget {
                           Expanded(
                             child: LibraryEditTextField(
                               controller: credit.name,
-                              label: 'Name',
+                              label: nameLabel,
                               maxLines: 1,
                               onChanged: (_) => onChanged(),
                             ),
@@ -90,8 +94,8 @@ final class LibraryVideoCreditsSection extends StatelessWidget {
                           const SizedBox(width: 8),
                           Expanded(
                             child: LibraryEditTextField(
-                              controller: credit.role,
-                              label: 'Role',
+                              controller: credit.detail,
+                              label: detailLabel,
                               maxLines: 1,
                               onChanged: (_) => onChanged(),
                             ),

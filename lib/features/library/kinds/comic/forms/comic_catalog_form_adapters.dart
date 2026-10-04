@@ -39,6 +39,8 @@ ComicCatalogItem comicCatalogItemFromFormValues({
   required ComicCatalogItem original,
   required ComicCatalogItemFormValues values,
   List<ComicLink>? externalLinks,
+  List<ComicCreator>? creators,
+  List<ComicCharacter>? characters,
 }) {
   final seriesTitle = _nullable(values.seriesTitle);
   final publisher = _nullable(values.publisher);
@@ -80,9 +82,9 @@ ComicCatalogItem comicCatalogItemFromFormValues({
     plotSummary: original.plotSummary,
     releaseStatus: original.releaseStatus,
     contributors: original.contributors,
-    characters: original.characters,
-    characterDetails: original.characterDetails,
-    creators: original.creators,
+    characters: characters ?? original.characters,
+    characterDetails: characters ?? original.characterDetails,
+    creators: creators ?? original.creators,
     storyArcs: _replaceComicStoryArcs(original.storyArcs, values.storyArcs),
     keyEvents: original.keyEvents,
     isKeyComic: original.isKeyComic,
