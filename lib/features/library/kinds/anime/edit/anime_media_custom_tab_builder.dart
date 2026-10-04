@@ -38,10 +38,6 @@ Widget? buildAnimeMediaCustomTabView({
     'specs' => AnimeEditSpecsTab(
         animeDraft: catalogDraft,
         accent: accent,
-        audioTrackOptions: const [],
-        subtitleOptions: const [],
-        layersOptions: const [],
-        colorOptions: const [],
       ),
     'cast' => AnimeEditCastTab(
         accent: accent,
@@ -65,11 +61,6 @@ Widget? buildAnimeMediaCustomTabView({
     'media' => AnimeEditMediaTab(
         draft: draft,
         accent: accent,
-        countryOptions: const [],
-        languageOptions: const [],
-        ageRatingOptions: const [],
-        audienceRatingOptions: const [],
-        genreOptions: const [],
       ),
     _ => null,
   };

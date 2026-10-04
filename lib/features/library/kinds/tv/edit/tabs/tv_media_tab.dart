@@ -3,7 +3,6 @@ import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.
 import 'package:collectarr_app/features/library/edit/fields/library_edit_field_groups.dart';
 import 'package:collectarr_app/features/library/kinds/tv/edit/tv_edit_controller.dart';
 import 'package:collectarr_app/features/library/kinds/tv/edit/tv_edit_draft.dart';
-import 'package:collectarr_app/features/library/ui/primitives/library_selection_fields.dart';
 import 'package:flutter/material.dart';
 
 class TvEditMediaTab extends StatelessWidget {
@@ -12,21 +11,11 @@ class TvEditMediaTab extends StatelessWidget {
     required this.draft,
     required this.tvEdit,
     required this.accent,
-    required this.countryOptions,
-    required this.languageOptions,
-    required this.ageRatingOptions,
-    required this.audienceRatingOptions,
-    required this.genreOptions,
   });
 
   final LibraryEditShellState draft;
   final TvEditController tvEdit;
   final Color accent;
-  final List<String> countryOptions;
-  final List<String> languageOptions;
-  final List<String> ageRatingOptions;
-  final List<String> audienceRatingOptions;
-  final List<String> genreOptions;
 
   @override
   Widget build(BuildContext context) {
@@ -80,11 +69,9 @@ class TvEditMediaTab extends StatelessWidget {
                     label: 'Runtime (min)',
                     validator: optionalIntValidator,
                   ),
-                  LibraryVocabularyField(
+                  LibraryEditTextField(
                     controller: tvEdit.genresEditController,
-                    options: genreOptions,
                     label: 'Genres',
-                    multiSelect: true,
                   ),
                 ],
               ),
@@ -103,15 +90,13 @@ class TvEditMediaTab extends StatelessWidget {
                 wideBreakpoint: 600,
                 ultraWideBreakpoint: 600,
                 children: [
-                  LibraryVocabularyField(
+                  LibraryEditTextField(
                     label: 'Age rating',
                     controller: tvEdit.ageRatingController,
-                    options: ageRatingOptions,
                   ),
-                  LibraryVocabularyField(
+                  LibraryEditTextField(
                     label: 'Audience rating',
                     controller: tvEdit.audienceRatingController,
-                    options: audienceRatingOptions,
                   ),
                 ],
               ),
@@ -122,15 +107,13 @@ class TvEditMediaTab extends StatelessWidget {
                 wideBreakpoint: 600,
                 ultraWideBreakpoint: 600,
                 children: [
-                  LibraryVocabularyField(
+                  LibraryEditTextField(
                     label: 'Country',
                     controller: tvEdit.countryController,
-                    options: countryOptions,
                   ),
-                  LibraryVocabularyField(
+                  LibraryEditTextField(
                     label: 'Language',
                     controller: tvEdit.languageController,
-                    options: languageOptions,
                   ),
                 ],
               ),

@@ -41,8 +41,6 @@ Widget? buildTvMediaCustomTabView({
             draft.kindVocabularies[TvVocabularyIds.audio.value] ?? const [],
         subtitleOptions:
             draft.kindVocabularies[TvVocabularyIds.subtitles.value] ?? const [],
-        layersOptions: const [],
-        colorOptions: const [],
       ),
     'cast' => TvEditCastTab(
         accent: accent,
@@ -63,11 +61,6 @@ Widget? buildTvMediaCustomTabView({
         draft: draft,
         tvEdit: tvEdit,
         accent: accent,
-        countryOptions: const [],
-        languageOptions: const [],
-        ageRatingOptions: const [],
-        audienceRatingOptions: const [],
-        genreOptions: const [],
       ),
     _ => null,
   };

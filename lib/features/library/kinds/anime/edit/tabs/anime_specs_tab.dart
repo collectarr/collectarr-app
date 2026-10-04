@@ -1,7 +1,6 @@
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/kinds/anime/edit/anime_edit_tab_helpers.dart';
 import 'package:collectarr_app/features/library/kinds/anime/edit/anime_edit_draft_contract.dart';
-import 'package:collectarr_app/features/library/ui/primitives/library_selection_fields.dart';
 import 'package:flutter/material.dart';
 
 class AnimeEditSpecsTab extends StatelessWidget {
@@ -9,18 +8,10 @@ class AnimeEditSpecsTab extends StatelessWidget {
     super.key,
     required this.animeDraft,
     required this.accent,
-    required this.audioTrackOptions,
-    required this.subtitleOptions,
-    required this.layersOptions,
-    required this.colorOptions,
   });
 
   final AnimeEditDraftContract animeDraft;
   final Color accent;
-  final List<String> audioTrackOptions;
-  final List<String> subtitleOptions;
-  final List<String> layersOptions;
-  final List<String> colorOptions;
 
   @override
   Widget build(BuildContext context) {
@@ -33,30 +24,24 @@ class AnimeEditSpecsTab extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               buildAnimeResponsiveFields([
-                LibraryVocabularyField(
+                LibraryEditTextField(
                   label: 'Audio tracks',
                   controller: animeDraft.audioTracksController,
-                  options: audioTrackOptions,
-                  multiSelect: true,
                 ),
-                LibraryVocabularyField(
+                LibraryEditTextField(
                   label: 'Subtitles',
                   controller: animeDraft.subtitlesController,
-                  options: subtitleOptions,
-                  multiSelect: true,
                 ),
               ]),
               const SizedBox(height: 10),
               buildAnimeResponsiveFields([
-                LibraryVocabularyField(
+                LibraryEditTextField(
                   label: 'Layers',
                   controller: animeDraft.layersController,
-                  options: layersOptions,
                 ),
-                LibraryVocabularyField(
+                LibraryEditTextField(
                   label: 'Color',
                   controller: animeDraft.colorController,
-                  options: colorOptions,
                 ),
                 buildAnimeField(
                   controller: animeDraft.nrDiscsController,

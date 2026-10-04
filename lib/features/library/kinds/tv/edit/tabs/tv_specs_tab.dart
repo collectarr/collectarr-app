@@ -11,16 +11,12 @@ class TvEditSpecsTab extends StatelessWidget {
     required this.accent,
     required this.audioTrackOptions,
     required this.subtitleOptions,
-    required this.layersOptions,
-    required this.colorOptions,
   });
 
   final TvEditDraftContract tvDraft;
   final Color accent;
   final List<String> audioTrackOptions;
   final List<String> subtitleOptions;
-  final List<String> layersOptions;
-  final List<String> colorOptions;
 
   @override
   Widget build(BuildContext context) {
@@ -48,15 +44,13 @@ class TvEditSpecsTab extends StatelessWidget {
               ]),
               const SizedBox(height: 10),
               buildTvResponsiveFields([
-                LibraryVocabularyField(
+                LibraryEditTextField(
                   label: 'Layers',
                   controller: tvDraft.layersController,
-                  options: layersOptions,
                 ),
-                LibraryVocabularyField(
+                LibraryEditTextField(
                   label: 'Color',
                   controller: tvDraft.colorController,
-                  options: colorOptions,
                 ),
                 buildTvField(
                   controller: tvDraft.nrDiscsController,

@@ -43,8 +43,6 @@ Widget? buildMovieCustomTabView({
         subtitleOptions:
             draft.kindVocabularies[MovieVocabularyIds.subtitles.value] ??
                 const [],
-        layersOptions: const [],
-        colorOptions: const [],
       ),
     'cast' => MovieEditCastTab(
         accent: accent,
@@ -69,13 +67,8 @@ Widget? buildMovieCustomTabView({
         draft: draft,
         movieEdit: movieEdit,
         accent: accent,
-        countryOptions: const [],
-        languageOptions: const [],
-        ageRatingOptions: const [],
-        audienceRatingOptions: const [],
-        genreOptions:
-            draft.kindVocabularies[MovieVocabularyIds.genre.value] ??
-                MovieVocabularies.genre.builtIns,
+        genreOptions: draft.kindVocabularies[MovieVocabularyIds.genre.value] ??
+            MovieVocabularies.genre.builtIns,
       ),
     _ => null,
   };

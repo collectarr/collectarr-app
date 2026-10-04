@@ -12,20 +12,12 @@ class MovieEditCatalogItemTab extends StatelessWidget {
     required this.draft,
     required this.movieEdit,
     required this.accent,
-    required this.countryOptions,
-    required this.languageOptions,
-    required this.ageRatingOptions,
-    required this.audienceRatingOptions,
     required this.genreOptions,
   });
 
   final LibraryEditShellState draft;
   final MovieEditController movieEdit;
   final Color accent;
-  final List<String> countryOptions;
-  final List<String> languageOptions;
-  final List<String> ageRatingOptions;
-  final List<String> audienceRatingOptions;
   final List<String> genreOptions;
 
   @override
@@ -103,15 +95,13 @@ class MovieEditCatalogItemTab extends StatelessWidget {
                 wideBreakpoint: 600,
                 ultraWideBreakpoint: 600,
                 children: [
-                  LibraryVocabularyField(
+                  LibraryEditTextField(
                     label: 'Age rating',
                     controller: movieEdit.ageRatingController,
-                    options: ageRatingOptions,
                   ),
-                  LibraryVocabularyField(
+                  LibraryEditTextField(
                     label: 'Audience rating',
                     controller: movieEdit.audienceRatingController,
-                    options: audienceRatingOptions,
                   ),
                 ],
               ),
@@ -122,15 +112,13 @@ class MovieEditCatalogItemTab extends StatelessWidget {
                 wideBreakpoint: 600,
                 ultraWideBreakpoint: 600,
                 children: [
-                  LibraryVocabularyField(
+                  LibraryEditTextField(
                     label: 'Country',
                     controller: movieEdit.countryController,
-                    options: countryOptions,
                   ),
-                  LibraryVocabularyField(
+                  LibraryEditTextField(
                     label: 'Language',
                     controller: movieEdit.languageController,
-                    options: languageOptions,
                   ),
                 ],
               ),

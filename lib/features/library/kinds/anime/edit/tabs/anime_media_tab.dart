@@ -2,7 +2,6 @@ import 'package:collectarr_app/features/library/edit/draft/library_edit_shell_st
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/edit/fields/library_edit_field_groups.dart';
 import 'package:collectarr_app/features/library/kinds/anime/edit/anime_edit_draft.dart';
-import 'package:collectarr_app/features/library/ui/primitives/library_selection_fields.dart';
 import 'package:flutter/material.dart';
 
 class AnimeEditMediaTab extends StatelessWidget {
@@ -10,20 +9,10 @@ class AnimeEditMediaTab extends StatelessWidget {
     super.key,
     required this.draft,
     required this.accent,
-    required this.countryOptions,
-    required this.languageOptions,
-    required this.ageRatingOptions,
-    required this.audienceRatingOptions,
-    required this.genreOptions,
   });
 
   final LibraryEditShellState draft;
   final Color accent;
-  final List<String> countryOptions;
-  final List<String> languageOptions;
-  final List<String> ageRatingOptions;
-  final List<String> audienceRatingOptions;
-  final List<String> genreOptions;
 
   @override
   Widget build(BuildContext context) {
@@ -79,12 +68,10 @@ class AnimeEditMediaTab extends StatelessWidget {
                     label: 'Runtime (min)',
                     validator: optionalIntValidator,
                   ),
-                  LibraryVocabularyField(
+                  LibraryEditTextField(
                     controller: draft.formFields
                         .controller(AnimeCanonicalEditField.genres),
-                    options: genreOptions,
                     label: 'Genres',
-                    multiSelect: true,
                   ),
                 ],
               ),
@@ -103,18 +90,16 @@ class AnimeEditMediaTab extends StatelessWidget {
                 wideBreakpoint: 600,
                 ultraWideBreakpoint: 600,
                 children: [
-                  LibraryVocabularyField(
+                  LibraryEditTextField(
                     label: 'Age rating',
                     controller: draft.formFields
                         .controller(AnimeCanonicalEditField.ageRating),
-                    options: ageRatingOptions,
                   ),
-                  LibraryVocabularyField(
+                  LibraryEditTextField(
                     label: 'Audience rating',
                     controller: draft.formFields.controller(
                       AnimeCanonicalEditField.audienceRating,
                     ),
-                    options: audienceRatingOptions,
                   ),
                 ],
               ),
@@ -125,17 +110,15 @@ class AnimeEditMediaTab extends StatelessWidget {
                 wideBreakpoint: 600,
                 ultraWideBreakpoint: 600,
                 children: [
-                  LibraryVocabularyField(
+                  LibraryEditTextField(
                     label: 'Country',
                     controller: draft.formFields
                         .controller(AnimeCanonicalEditField.country),
-                    options: countryOptions,
                   ),
-                  LibraryVocabularyField(
+                  LibraryEditTextField(
                     label: 'Language',
                     controller: draft.formFields
                         .controller(AnimeCanonicalEditField.language),
-                    options: languageOptions,
                   ),
                 ],
               ),

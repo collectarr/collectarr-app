@@ -11,16 +11,12 @@ class MovieEditSpecsTab extends StatelessWidget {
     required this.accent,
     required this.audioTrackOptions,
     required this.subtitleOptions,
-    required this.layersOptions,
-    required this.colorOptions,
   });
 
   final MovieEditDraftContract movieDraft;
   final Color accent;
   final List<String> audioTrackOptions;
   final List<String> subtitleOptions;
-  final List<String> layersOptions;
-  final List<String> colorOptions;
 
   @override
   Widget build(BuildContext context) {
@@ -48,15 +44,13 @@ class MovieEditSpecsTab extends StatelessWidget {
               ]),
               const SizedBox(height: 10),
               buildMovieResponsiveFields([
-                LibraryVocabularyField(
+                LibraryEditTextField(
                   label: 'Layers',
                   controller: movieDraft.layersController,
-                  options: layersOptions,
                 ),
-                LibraryVocabularyField(
+                LibraryEditTextField(
                   label: 'Color',
                   controller: movieDraft.colorController,
-                  options: colorOptions,
                 ),
                 buildMovieField(
                   controller: movieDraft.nrDiscsController,
