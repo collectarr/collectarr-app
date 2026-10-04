@@ -302,6 +302,8 @@ Completed implementation slices:
   controls for its episode number, title, overview, runtime, and image paths.
 - Music listening and edit-history note dialogs now use the shared labelled
   text field with matching autofocus, multiline limits, and optional hints.
+- Cover-scan review inputs for the local label and recognized text now use the
+  shared labelled control without changing OCR/edit callbacks.
 - Music Add and Edit disc metadata, track titles/artists/lengths, and disc-owned
   storage details now use the same input primitive and minimum control height.
 - Music Add and Edit track title, artist, and duration fields now share one

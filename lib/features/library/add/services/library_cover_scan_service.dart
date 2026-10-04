@@ -3,6 +3,8 @@ import 'dart:ui' as ui;
 
 import 'package:collectarr_app/core/logging/recoverable_error.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
+import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart'
+    show LibraryEditTextField;
 import 'package:collectarr_app/ui/accent_dialog_header.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -802,26 +804,21 @@ class _LibraryCoverScanReviewDialogState
                       ],
                     ),
                     const SizedBox(height: 12),
-                    TextField(
+                    LibraryEditTextField(
                       key: const ValueKey('library-cover-review-label-field'),
                       controller: _displayNameController,
-                      decoration: const InputDecoration(
-                        labelText: 'Local scan label',
-                        hintText:
-                            'Edit the title, issue, year, or publisher hints',
-                      ),
+                      label: 'Local scan label',
+                      hint: 'Edit the title, issue, year, or publisher hints',
                     ),
                     const SizedBox(height: 12),
-                    TextField(
+                    LibraryEditTextField(
                       key: const ValueKey('library-cover-review-text-field'),
                       controller: _extractedTextController,
+                      label: 'Auto extracted text',
+                      hint:
+                          'Review or correct locally extracted title, issue, year, or publisher text',
                       minLines: 2,
                       maxLines: 4,
-                      decoration: const InputDecoration(
-                        labelText: 'Auto extracted text',
-                        hintText:
-                            'Review or correct locally extracted title, issue, year, or publisher text',
-                      ),
                     ),
                     const SizedBox(height: 8),
                     Wrap(
