@@ -1,13 +1,14 @@
 import 'dart:async';
 
-import 'package:collectarr_app/features/library/add/schema/add_schema.dart';
+import 'package:collectarr_app/features/library/schema/library_form_schema.dart';
+import 'package:collectarr_app/features/library/add/schema/library_add_catalog_title_field.dart';
 import 'package:collectarr_app/features/library/kinds/comic/add/comic_add_manual_draft.dart';
 import 'package:collectarr_app/features/library/kinds/comic/forms/comic_catalog_field_specs.dart';
 import 'package:collectarr_app/features/library/kinds/comic/vocabulary/comic_vocabularies.dart';
 
-final AddSchema<ComicAddManualDraft> comicAddSchema = comicAddSchemaFor();
+final LibraryFormSchema<ComicAddManualDraft> comicAddSchema = comicAddSchemaFor();
 
-AddSchema<ComicAddManualDraft> comicAddSchemaFor({
+LibraryFormSchema<ComicAddManualDraft> comicAddSchemaFor({
   Set<String>? fieldIds,
   Map<String, String> sectionLabels = const {},
   Iterable<String>? publisherOptions,
@@ -20,7 +21,7 @@ AddSchema<ComicAddManualDraft> comicAddSchemaFor({
   FutureOr<void> Function()? onManagePhysicalFormat,
   bool includeTitle = false,
 }) =>
-    AddSchema<ComicAddManualDraft>(
+    LibraryFormSchema<ComicAddManualDraft>(
       title: (_) => 'Manual comic issue',
       validate: (draft) {
         final pageCount = draft.values.pageCount;
@@ -29,11 +30,11 @@ AddSchema<ComicAddManualDraft> comicAddSchemaFor({
         }
         return null;
       },
-      sections: filterAddSchemaSections(
+      sections: filterLibraryFormSections(
         fieldIds: fieldIds,
         sectionLabels: sectionLabels,
         sections: [
-          AddSectionSpec<ComicAddManualDraft>(
+          LibraryFormSectionSpec<ComicAddManualDraft>(
             id: 'issue',
             label: 'Issue',
             fields: [
@@ -49,7 +50,7 @@ AddSchema<ComicAddManualDraft> comicAddSchemaFor({
             ],
             fullWidthFieldIds: const {'catalog_title'},
           ),
-          AddSectionSpec<ComicAddManualDraft>(
+          LibraryFormSectionSpec<ComicAddManualDraft>(
             id: 'publication',
             label: 'Publication',
             fields: comicCatalogItemPublicationFields(

@@ -1,33 +1,23 @@
 import 'package:collectarr_app/features/library/schema/library_field_spec.dart';
-import 'package:collectarr_app/features/library/add/models/library_kind_add_draft.dart';
 
 export 'package:collectarr_app/features/library/schema/library_field_spec.dart';
 
-LibraryTextFieldSpec<TDraft>
-    libraryAddCatalogTitleField<TDraft extends LibraryKindAddDraft>() =>
-        LibraryTextFieldSpec<TDraft>(
-          id: 'catalog_title',
-          label: 'Title',
-          value: (draft) => draft.catalogTitle,
-          setValue: (draft, value) => draft.catalogTitle = value,
-          validator: (draft) =>
-              draft.catalogTitle.trim().isEmpty ? 'Enter a title' : null,
-        );
-
-final class AddSchema<TDraft> {
-  const AddSchema({
+/// Kind-owned field structure shared by local Add and Edit forms.
+final class LibraryFormSchema<TDraft> {
+  const LibraryFormSchema({
     required this.sections,
     this.title,
     this.validate,
   });
 
-  final List<AddSectionSpec<TDraft>> sections;
+  final List<LibraryFormSectionSpec<TDraft>> sections;
   final String? Function(TDraft draft)? title;
   final String? Function(TDraft draft)? validate;
 }
 
-final class AddSectionSpec<TDraft> {
-  const AddSectionSpec({
+/// A responsive group of fields in a kind-owned form.
+final class LibraryFormSectionSpec<TDraft> {
+  const LibraryFormSectionSpec({
     required this.id,
     required this.label,
     required this.fields,
@@ -50,8 +40,8 @@ final class AddSectionSpec<TDraft> {
   bool isVisible(TDraft draft) => visibleWhen?.call(draft) ?? true;
 }
 
-List<AddSectionSpec<TDraft>> filterAddSchemaSections<TDraft>({
-  required List<AddSectionSpec<TDraft>> sections,
+List<LibraryFormSectionSpec<TDraft>> filterLibraryFormSections<TDraft>({
+  required List<LibraryFormSectionSpec<TDraft>> sections,
   Set<String>? fieldIds,
   Map<String, String> sectionLabels = const {},
   String? sectionLabel,
@@ -65,7 +55,7 @@ List<AddSectionSpec<TDraft>> filterAddSchemaSections<TDraft>({
       if (section.fields
           .where((field) => fieldIds == null || fieldIds.contains(field.id))
           .isNotEmpty)
-        AddSectionSpec<TDraft>(
+        LibraryFormSectionSpec<TDraft>(
           id: section.id,
           label: sectionLabels[section.id] ?? sectionLabel ?? section.label,
           fields: [

@@ -1,17 +1,17 @@
 import 'dart:async';
 
-import 'package:collectarr_app/features/library/add/schema/add_schema.dart';
+import 'package:collectarr_app/features/library/schema/library_form_schema.dart';
 import 'package:collectarr_app/features/library/kinds/movie/add/movie_add_manual_draft.dart';
 import 'package:collectarr_app/features/library/kinds/movie/forms/movie_catalog_field_specs.dart';
 import 'package:collectarr_app/features/library/kinds/movie/forms/movie_catalog_form_schema.dart';
 import 'package:collectarr_app/features/library/kinds/movie/vocabulary/movie_vocabularies.dart';
 
-final AddSchema<MovieAddManualDraft> movieAddSchema = movieAddSchemaFor();
+final LibraryFormSchema<MovieAddManualDraft> movieAddSchema = movieAddSchemaFor();
 
-final AddSchema<MovieAddManualDraft> movieCoverAddSchema =
+final LibraryFormSchema<MovieAddManualDraft> movieCoverAddSchema =
     movieCoverAddSchemaFor();
 
-AddSchema<MovieAddManualDraft> movieAddSchemaFor({
+LibraryFormSchema<MovieAddManualDraft> movieAddSchemaFor({
   Set<String>? fieldIds,
   String sectionLabel = 'Catalog Item',
   Iterable<String>? formatOptions,
@@ -41,7 +41,7 @@ AddSchema<MovieAddManualDraft> movieAddSchemaFor({
     onManageRegion: onManageRegion,
     onManageDistributor: onManageDistributor,
   );
-  return AddSchema<MovieAddManualDraft>(
+  return LibraryFormSchema<MovieAddManualDraft>(
     title: (_) => 'Manual movie',
     validate: (draft) {
       final year = draft.values.releaseYear;
@@ -58,7 +58,7 @@ AddSchema<MovieAddManualDraft> movieAddSchemaFor({
   );
 }
 
-AddSchema<MovieAddManualDraft> movieCoverAddSchemaFor() {
+LibraryFormSchema<MovieAddManualDraft> movieCoverAddSchemaFor() {
   return movieCatalogFormSchemaFor<MovieAddManualDraft>(
     values: (draft) => draft.values,
     fieldIds: const {movieCoverImageUrlFieldId},

@@ -3,7 +3,7 @@ import 'package:collectarr_app/features/library/schema/library_field_spec_contro
 import 'package:collectarr_app/features/library/schema/library_field_spec_layout.dart';
 import 'package:collectarr_app/features/library/schema/library_schema_text_controller_store.dart';
 
-import '../add/schema/add_schema.dart';
+import 'library_form_schema.dart';
 
 class LibraryFieldSpecRenderer<TDraft> extends StatefulWidget {
   /// Renders schema fields inside their owning Add or Edit form shell.
@@ -22,7 +22,7 @@ class LibraryFieldSpecRenderer<TDraft> extends StatefulWidget {
     this.controlMode = LibraryFieldSpecControlMode.edit,
   });
 
-  final AddSchema<TDraft> schema;
+  final LibraryFormSchema<TDraft> schema;
   final TDraft draft;
   final String? title;
   final String? mediaKind;
@@ -70,7 +70,7 @@ class _LibraryFieldSpecRendererState<TDraft>
 
   Widget _buildSections(
     BuildContext context,
-    List<AddSectionSpec<TDraft>> sections,
+    List<LibraryFormSectionSpec<TDraft>> sections,
   ) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,

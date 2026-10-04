@@ -1,7 +1,7 @@
 import 'package:collectarr_app/features/library/add/controllers/library_add_dialog_requests.dart';
 import 'package:collectarr_app/features/library/add/panes/library_add_manual_personal_tab.dart';
 import 'package:collectarr_app/features/library/add/panes/library_add_manual_pane_shell.dart';
-import 'package:collectarr_app/features/library/add/schema/add_schema.dart';
+import 'package:collectarr_app/features/library/schema/library_form_schema.dart';
 import 'package:collectarr_app/features/library/schema/library_field_spec_renderer.dart';
 import 'package:collectarr_app/features/library/kinds/music/add/music_add_manual_credits_tab.dart';
 import 'package:collectarr_app/features/library/kinds/music/add/music_add_manual_covers_tab.dart';
@@ -46,10 +46,10 @@ class MusicAddManualPane extends StatelessWidget {
       'catalog_number',
       'genres',
     ];
-    final mainSchema = AddSchema<MusicAddManualDraft>(
+    final mainSchema = LibraryFormSchema<MusicAddManualDraft>(
       validate: musicAddSchema.validate,
       sections: [
-        AddSectionSpec<MusicAddManualDraft>(
+        LibraryFormSectionSpec<MusicAddManualDraft>(
           id: 'catalog_item',
           label: '',
           maxColumns: 4,
@@ -68,9 +68,9 @@ class MusicAddManualPane extends StatelessWidget {
         ),
       ],
     );
-    final detailsSchema = AddSchema<MusicAddManualDraft>(
+    final detailsSchema = LibraryFormSchema<MusicAddManualDraft>(
       sections: [
-        AddSectionSpec<MusicAddManualDraft>(
+        LibraryFormSectionSpec<MusicAddManualDraft>(
           id: 'additional_details',
           label: 'Additional details',
           fields: [

@@ -1,14 +1,15 @@
 import 'dart:async';
 
-import 'package:collectarr_app/features/library/add/schema/add_schema.dart';
+import 'package:collectarr_app/features/library/schema/library_form_schema.dart';
+import 'package:collectarr_app/features/library/add/schema/library_add_catalog_title_field.dart';
 import 'package:collectarr_app/features/library/kinds/manga/add/manga_add_manual_draft.dart';
 import 'package:collectarr_app/features/library/kinds/manga/forms/manga_catalog_field_specs.dart';
 import 'package:collectarr_app/features/library/kinds/manga/forms/manga_catalog_form_values.dart';
 import 'package:collectarr_app/features/library/kinds/manga/vocabulary/manga_vocabularies.dart';
 
-final AddSchema<MangaAddManualDraft> mangaAddSchema = mangaAddSchemaFor();
+final LibraryFormSchema<MangaAddManualDraft> mangaAddSchema = mangaAddSchemaFor();
 
-AddSchema<MangaAddManualDraft> mangaAddSchemaFor({
+LibraryFormSchema<MangaAddManualDraft> mangaAddSchemaFor({
   Set<String>? fieldIds,
   Map<String, String> sectionLabels = const {},
   Iterable<String>? publisherOptions,
@@ -20,7 +21,7 @@ AddSchema<MangaAddManualDraft> mangaAddSchemaFor({
 }) {
   MangaCatalogFormValues values(MangaAddManualDraft draft) => draft.values;
 
-  return AddSchema<MangaAddManualDraft>(
+  return LibraryFormSchema<MangaAddManualDraft>(
     title: (_) => 'Manual manga volume',
     validate: (draft) {
       final pageCount = draft.values.pageCount;
@@ -33,11 +34,11 @@ AddSchema<MangaAddManualDraft> mangaAddSchemaFor({
       }
       return null;
     },
-    sections: filterAddSchemaSections(
+    sections: filterLibraryFormSections(
       fieldIds: fieldIds,
       sectionLabels: sectionLabels,
       sections: [
-        AddSectionSpec<MangaAddManualDraft>(
+        LibraryFormSectionSpec<MangaAddManualDraft>(
           id: 'volume',
           label: 'Volume',
           fields: [
@@ -76,7 +77,7 @@ AddSchema<MangaAddManualDraft> mangaAddSchemaFor({
           ],
           fullWidthFieldIds: const {'catalog_title'},
         ),
-        AddSectionSpec<MangaAddManualDraft>(
+        LibraryFormSectionSpec<MangaAddManualDraft>(
           id: 'publication',
           label: 'Series and metadata',
           fields: [

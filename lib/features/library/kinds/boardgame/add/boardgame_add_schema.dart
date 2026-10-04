@@ -1,15 +1,16 @@
 import 'dart:async';
 
-import 'package:collectarr_app/features/library/add/schema/add_schema.dart';
+import 'package:collectarr_app/features/library/schema/library_form_schema.dart';
+import 'package:collectarr_app/features/library/add/schema/library_add_catalog_title_field.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/add/boardgame_add_manual_draft.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/forms/boardgame_catalog_form_draft.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/forms/boardgame_catalog_form_values.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/forms/boardgame_catalog_field_specs.dart';
 
-final AddSchema<BoardgameAddManualDraft> boardGameAddSchema =
+final LibraryFormSchema<BoardgameAddManualDraft> boardGameAddSchema =
     boardGameAddSchemaFor();
 
-AddSchema<TDraft>
+LibraryFormSchema<TDraft>
     boardGameAddSchemaFor<TDraft extends BoardGameCatalogFormDraft>({
   Set<String>? fieldIds,
   Map<String, String> sectionLabels = const {},
@@ -20,7 +21,7 @@ AddSchema<TDraft>
 }) {
   BoardGameCatalogFormValues values(TDraft draft) => draft.values;
 
-  return AddSchema(
+  return LibraryFormSchema(
     title: (_) => 'Manual board game',
     validate: (draft) {
       final values = draft.values;
@@ -37,11 +38,11 @@ AddSchema<TDraft>
       }
       return null;
     },
-    sections: filterAddSchemaSections(
+    sections: filterLibraryFormSections(
       fieldIds: fieldIds,
       sectionLabels: sectionLabels,
       sections: [
-        AddSectionSpec<TDraft>(
+        LibraryFormSectionSpec<TDraft>(
           id: 'catalog_item',
           label: 'Catalog Item',
           fields: [

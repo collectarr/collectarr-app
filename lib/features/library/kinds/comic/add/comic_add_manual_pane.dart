@@ -4,7 +4,7 @@ import 'package:collectarr_app/features/pick_lists/widgets/pick_list_editor_dial
 import 'package:collectarr_app/features/pick_lists/pick_list_options.dart';
 import 'package:collectarr_app/features/library/add/controllers/library_add_dialog_requests.dart';
 import 'package:collectarr_app/features/library/add/panes/library_add_manual_pane_shell.dart';
-import 'package:collectarr_app/features/library/add/schema/add_schema.dart';
+import 'package:collectarr_app/features/library/schema/library_form_schema.dart';
 import 'package:collectarr_app/features/library/schema/library_field_spec_renderer.dart';
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
 import 'package:collectarr_app/features/library/serial/library_series_selector_field.dart';
@@ -115,7 +115,7 @@ class _ComicAddManualPaneState extends ConsumerState<ComicAddManualPane> {
   Widget build(BuildContext context) {
     final comicDraft = widget.request.manualDraftAs<ComicAddManualDraft>();
     final request = widget.request;
-    AddSchema<ComicAddManualDraft> schemaFor(
+    LibraryFormSchema<ComicAddManualDraft> schemaFor(
       Set<String> fieldIds,
       String sectionLabel,
     ) =>

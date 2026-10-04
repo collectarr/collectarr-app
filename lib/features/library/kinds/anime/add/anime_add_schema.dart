@@ -1,14 +1,15 @@
 import 'dart:async';
 
 import 'package:collectarr_app/core/models/partial_date.dart';
-import 'package:collectarr_app/features/library/add/schema/add_schema.dart';
+import 'package:collectarr_app/features/library/schema/library_form_schema.dart';
+import 'package:collectarr_app/features/library/add/schema/library_add_catalog_title_field.dart';
 import 'package:collectarr_app/features/library/kinds/anime/add/anime_add_manual_draft.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_metadata_children.dart';
 import 'package:collectarr_app/features/library/kinds/anime/forms/anime_catalog_form_draft.dart';
 import 'package:collectarr_app/features/library/kinds/anime/vocabulary/anime_vocabularies.dart';
 
-final AddSchema<AnimeAddManualDraft> animeAddSchema = animeAddSchemaFor();
+final LibraryFormSchema<AnimeAddManualDraft> animeAddSchema = animeAddSchemaFor();
 
 const animeMainFieldIds = {
   'catalog_title',
@@ -68,7 +69,7 @@ const animeSpecsFieldIds = {
 const animeCoverFieldIds = {'cover_image_url'};
 const animeSynopsisFieldIds = {'synopsis'};
 
-AddSchema<TDraft> animeAddSchemaFor<TDraft extends AnimeCatalogFormDraft>({
+LibraryFormSchema<TDraft> animeAddSchemaFor<TDraft extends AnimeCatalogFormDraft>({
   Set<String>? fieldIds,
   String? sectionLabel,
   Iterable<String>? formatOptions,
@@ -82,7 +83,7 @@ AddSchema<TDraft> animeAddSchemaFor<TDraft extends AnimeCatalogFormDraft>({
   FutureOr<void> Function()? onManagePhysicalFormat,
   FutureOr<void> Function()? onManageRegion,
 }) =>
-    AddSchema<TDraft>(
+    LibraryFormSchema<TDraft>(
       title: (_) => 'Manual anime',
       validate: (draft) {
         final metadata = draft.metadata;
@@ -107,7 +108,7 @@ AddSchema<TDraft> animeAddSchemaFor<TDraft extends AnimeCatalogFormDraft>({
         return null;
       },
       sections: _filterSections(fieldIds, sectionLabel, [
-        AddSectionSpec<TDraft>(
+        LibraryFormSectionSpec<TDraft>(
           id: 'catalog',
           label: 'Catalog item',
           fields: [
@@ -341,7 +342,7 @@ AddSchema<TDraft> animeAddSchemaFor<TDraft extends AnimeCatalogFormDraft>({
           ],
           fullWidthFieldIds: const {'catalog_title'},
         ),
-        AddSectionSpec<TDraft>(
+        LibraryFormSectionSpec<TDraft>(
           id: 'edition_details',
           label: 'Edition details',
           fields: [
@@ -460,7 +461,7 @@ AddSchema<TDraft> animeAddSchemaFor<TDraft extends AnimeCatalogFormDraft>({
             ),
           ],
         ),
-        AddSectionSpec<TDraft>(
+        LibraryFormSectionSpec<TDraft>(
           id: 'titles_and_people',
           label: 'Titles and people',
           fields: [
@@ -517,11 +518,11 @@ AddSchema<TDraft> animeAddSchemaFor<TDraft extends AnimeCatalogFormDraft>({
       ]),
     );
 
-List<AddSectionSpec<TDraft>>
+List<LibraryFormSectionSpec<TDraft>>
     _filterSections<TDraft extends AnimeCatalogFormDraft>(
   Set<String>? fieldIds,
   String? sectionLabel,
-  List<AddSectionSpec<TDraft>> sections,
+  List<LibraryFormSectionSpec<TDraft>> sections,
 ) {
   if (fieldIds == null && sectionLabel == null) return sections;
   return [
@@ -529,7 +530,7 @@ List<AddSectionSpec<TDraft>>
       if (section.fields
           .where((field) => fieldIds == null || fieldIds.contains(field.id))
           .isNotEmpty)
-        AddSectionSpec<TDraft>(
+        LibraryFormSectionSpec<TDraft>(
           id: section.id,
           label: sectionLabel ?? section.label,
           fields: [

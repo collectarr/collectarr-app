@@ -1,13 +1,14 @@
 import 'dart:async';
 
 import 'package:collectarr_app/core/models/partial_date.dart';
-import 'package:collectarr_app/features/library/add/schema/add_schema.dart';
+import 'package:collectarr_app/features/library/schema/library_form_schema.dart';
+import 'package:collectarr_app/features/library/add/schema/library_add_catalog_title_field.dart';
 import 'package:collectarr_app/features/library/kinds/tv/add/tv_add_manual_draft.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/tv/forms/tv_catalog_form_draft.dart';
 import 'package:collectarr_app/features/library/kinds/tv/vocabulary/tv_vocabularies.dart';
 
-final AddSchema<TvAddManualDraft> tvAddSchema = tvAddSchemaFor();
+final LibraryFormSchema<TvAddManualDraft> tvAddSchema = tvAddSchemaFor();
 
 const tvMainFieldIds = {
   'catalog_title',
@@ -41,7 +42,7 @@ const tvSpecsFieldIds = {
   'color',
 };
 
-AddSchema<TDraft> tvAddSchemaFor<TDraft extends TvCatalogFormDraft>({
+LibraryFormSchema<TDraft> tvAddSchemaFor<TDraft extends TvCatalogFormDraft>({
   Set<String>? fieldIds,
   String sectionLabel = 'Catalog Item',
   Iterable<String>? formatOptions,
@@ -50,7 +51,7 @@ AddSchema<TDraft> tvAddSchemaFor<TDraft extends TvCatalogFormDraft>({
   String? Function(String value)? physicalFormatIdForValue,
   FutureOr<void> Function()? onManageFormat,
 }) =>
-    AddSchema<TDraft>(
+    LibraryFormSchema<TDraft>(
       title: (_) => 'Manual TV Catalog Item',
       validate: (draft) {
         final metadata = draft.metadata;
@@ -67,7 +68,7 @@ AddSchema<TDraft> tvAddSchemaFor<TDraft extends TvCatalogFormDraft>({
         return null;
       },
       sections: [
-        AddSectionSpec<TDraft>(
+        LibraryFormSectionSpec<TDraft>(
           id: 'catalog_item',
           label: sectionLabel,
           fields: [

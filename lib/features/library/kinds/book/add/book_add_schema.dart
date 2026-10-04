@@ -1,15 +1,16 @@
 import 'dart:async';
 
-import 'package:collectarr_app/features/library/add/schema/add_schema.dart';
+import 'package:collectarr_app/features/library/schema/library_form_schema.dart';
+import 'package:collectarr_app/features/library/add/schema/library_add_catalog_title_field.dart';
 import 'package:collectarr_app/features/library/kinds/book/forms/book_catalog_form_draft.dart';
 import 'package:collectarr_app/features/library/kinds/book/forms/book_catalog_field_specs.dart';
 import 'package:collectarr_app/features/library/kinds/book/forms/book_catalog_form_values.dart';
 import 'package:collectarr_app/features/library/kinds/book/forms/book_person_credits_field.dart';
 import 'package:collectarr_app/features/library/kinds/book/vocabulary/book_vocabularies.dart';
 
-final AddSchema<BookCatalogFormDraft> bookAddSchema = bookAddSchemaFor();
+final LibraryFormSchema<BookCatalogFormDraft> bookAddSchema = bookAddSchemaFor();
 
-AddSchema<TDraft> bookAddSchemaFor<TDraft extends BookCatalogFormDraft>({
+LibraryFormSchema<TDraft> bookAddSchemaFor<TDraft extends BookCatalogFormDraft>({
   Set<String>? fieldIds,
   Map<String, String> sectionLabels = const {},
   Iterable<String>? publisherOptions,
@@ -19,7 +20,7 @@ AddSchema<TDraft> bookAddSchemaFor<TDraft extends BookCatalogFormDraft>({
 }) {
   BookCatalogFormValues values(TDraft draft) => draft.values;
 
-  return AddSchema<TDraft>(
+  return LibraryFormSchema<TDraft>(
     title: (_) => 'Manual book',
     validate: (draft) {
       final pageCount = draft.values.pageCount;
@@ -33,7 +34,7 @@ AddSchema<TDraft> bookAddSchemaFor<TDraft extends BookCatalogFormDraft>({
       return null;
     },
     sections: _filterSections(fieldIds, sectionLabels, [
-      AddSectionSpec<TDraft>(
+      LibraryFormSectionSpec<TDraft>(
         id: 'edition',
         label: 'Edition',
         fields: [
@@ -103,7 +104,7 @@ AddSchema<TDraft> bookAddSchemaFor<TDraft extends BookCatalogFormDraft>({
         ],
         fullWidthFieldIds: const {'catalog_title'},
       ),
-      AddSectionSpec<TDraft>(
+      LibraryFormSectionSpec<TDraft>(
         id: 'publication',
         label: 'Publication and metadata',
         fields: [
@@ -183,10 +184,10 @@ AddSchema<TDraft> bookAddSchemaFor<TDraft extends BookCatalogFormDraft>({
   );
 }
 
-List<AddSectionSpec<TDraft>> _filterSections<TDraft>(
+List<LibraryFormSectionSpec<TDraft>> _filterSections<TDraft>(
   Set<String>? fieldIds,
   Map<String, String> sectionLabels,
-  List<AddSectionSpec<TDraft>> sections,
+  List<LibraryFormSectionSpec<TDraft>> sections,
 ) {
   if (fieldIds == null && sectionLabels.isEmpty) return sections;
   return [
@@ -194,7 +195,7 @@ List<AddSectionSpec<TDraft>> _filterSections<TDraft>(
       if (section.fields
           .where((field) => fieldIds == null || fieldIds.contains(field.id))
           .isNotEmpty)
-        AddSectionSpec<TDraft>(
+        LibraryFormSectionSpec<TDraft>(
           id: section.id,
           label: sectionLabels[section.id] ?? section.label,
           fields: [

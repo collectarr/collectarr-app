@@ -379,11 +379,14 @@ Still outstanding:
   unmounted tabs still needs to be made explicit. Schema-backed invalid fields
   now focus after tab navigation; a kind-owned custom tab must still provide
   its own focused validation behavior.
-- `AddSchemaRenderer` is now embedded-only: its unused standalone Save/Cancel,
+- `LibraryFieldSpecRenderer` is now embedded-only: its unused standalone Save/Cancel,
   validation, error, fixed-height, and inner-scroll path was removed. The
   dialog shell owns submission and the single vertical viewport.
 - The shared schema field renderer now lives under `library/schema/` and is
   named `LibraryFieldSpecRenderer`, reflecting its use by Add and Edit tabs.
+- Shared form definitions now use `LibraryFormSchema` and
+  `LibraryFormSectionSpec` under `library/schema/`. The required catalog title
+  field helper remains Add-specific under `add/schema/`.
 - Legacy custom tabs and kind-specific tab composition still have divergent
   implementations. Responsive field geometry and the basic vocabulary/text
   controls are now shared. Book Authors/Translators and Movie Cast/Crew share
@@ -410,8 +413,9 @@ Existing reusable mechanisms worth retaining and improving:
 - `edit/shell/library_edit_scaffold.dart`: dialog chrome.
 - `ui/primitives/library_form_controls.dart`: external labels, groups,
   partial dates, segmented choices.
-- `schema/library_field_spec.dart` and `library_field_spec_control_builder.dart`:
-  typed field descriptions and control rendering.
+- `schema/library_field_spec.dart`, `library_form_schema.dart`, and
+  `library_field_spec_control_builder.dart`: typed field definitions,
+  kind-owned form structure, and control rendering.
 - `ui/primitives/library_dropdown_pick_field.dart` and
   `library_multi_value_pick_field.dart`: single/multiple selection.
 - `ui/primitives/library_ordered_names_field.dart`: ordered name/sort-name rows.
@@ -451,7 +455,8 @@ Evidence: `add/panes/library_add_manual_pane_shell.dart`.
 - The shell no longer creates a Title input. Kinds provide the optional
   `identityDetails` widget and their Main schema owns its title field; the shell
   only derives the dialog header from the current draft title.
-- Each tab view has one outer `EditTabShell`. Embedded `AddSchemaRenderer`
+- Each tab view has one outer `EditTabShell`. Embedded
+  `LibraryFieldSpecRenderer`
   returns an unconstrained column without a fixed height, inner vertical
   scroll view, or schema-owned padding. The shared shell owns the tab's
   vertical scroll surface.
@@ -467,17 +472,19 @@ Evidence: `add/panes/library_add_manual_pane_shell.dart`.
   viewport. Audit any new kind-contributed tab before adding nested vertical
   scrolling.
 
-### 3.2 Add and Edit schema renderers duplicate layout and lifecycle
+### 3.2 Shared field structure, separate form lifecycles
 
-Evidence: `add/schema/add_schema_renderer.dart` and
+Evidence: `schema/library_form_schema.dart`,
+`schema/library_field_spec_renderer.dart`, and
 `edit/schema/edit_schema_renderer.dart`.
 
-Both renderers use the shared field layout and control builder, but retain
-separate tab composition, controller stores, and submission/error lifecycles.
-Add has a standalone submit path and an embedded path. Embedded Add delegates
-validation to the shell action bar's `Form`; text, number, money, and schema
-fields register validators with that form. Verify validation and error routing
-for fields in tabs that have not been mounted yet.
+Add and Edit tabs now use the same typed kind-owned form schema and shared field
+renderer. The Add shell owns submission and the Add `Form`; the Edit schema
+renderer owns its own submit/error path, per-tab navigation, and controller
+state. The two outer lifecycles remain separate. Embedded Add text, number,
+money, and schema fields register validators with the shell's `Form`. Continue
+checking validation and error routing for fields in tabs that have not been
+mounted yet.
 
 Number-field minimum, maximum, and decimal-place limits are enforced by the
 shared control builder. It retains raw input in its controller and does not
@@ -506,7 +513,7 @@ vocabularies with the labelled dropdown control. The old tag-pick-list widget
 had no application caller and its implementation and barrel export have been
 removed; its golden fixture remains for the final test cleanup.
 
-The Add and Edit schema renderers still have separate lifecycle and tab
+The Add shell and Edit schema renderer still have separate lifecycle and tab
 orchestration, but both delegate field geometry to shared layout primitives.
 `LibraryEditDenseFields` and `LibraryEditResponsiveRow` are configuration
 adapters over `LibraryResponsiveFieldLayout`. The old `EditGrid` had no

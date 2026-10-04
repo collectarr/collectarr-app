@@ -1,13 +1,14 @@
 import 'dart:async';
 
-import 'package:collectarr_app/features/library/add/schema/add_schema.dart';
+import 'package:collectarr_app/features/library/schema/library_form_schema.dart';
+import 'package:collectarr_app/features/library/add/schema/library_add_catalog_title_field.dart';
 import 'package:collectarr_app/features/library/kinds/game/forms/game_catalog_form_draft.dart';
 import 'package:collectarr_app/features/library/kinds/game/forms/game_catalog_field_specs.dart';
 import 'package:collectarr_app/features/library/kinds/game/forms/game_catalog_form_values.dart';
 
-final AddSchema<GameCatalogFormDraft> gameAddSchema = gameAddSchemaFor();
+final LibraryFormSchema<GameCatalogFormDraft> gameAddSchema = gameAddSchemaFor();
 
-AddSchema<TDraft> gameAddSchemaFor<TDraft extends GameCatalogFormDraft>({
+LibraryFormSchema<TDraft> gameAddSchemaFor<TDraft extends GameCatalogFormDraft>({
   Set<String>? fieldIds,
   Map<String, String> sectionLabels = const {},
   Iterable<String>? platformOptions,
@@ -19,7 +20,7 @@ AddSchema<TDraft> gameAddSchemaFor<TDraft extends GameCatalogFormDraft>({
 }) {
   GameCatalogFormValues values(TDraft draft) => draft.values;
 
-  return AddSchema<TDraft>(
+  return LibraryFormSchema<TDraft>(
     title: (_) => 'Manual game',
     validate: (draft) {
       final year = draft.values.releaseYear;
@@ -27,7 +28,7 @@ AddSchema<TDraft> gameAddSchemaFor<TDraft extends GameCatalogFormDraft>({
       return null;
     },
     sections: _filterSections(fieldIds, sectionLabels, [
-      AddSectionSpec<TDraft>(
+      LibraryFormSectionSpec<TDraft>(
         id: 'catalog_item',
         label: 'Catalog Item',
         fields: [
@@ -54,7 +55,7 @@ AddSchema<TDraft> gameAddSchemaFor<TDraft extends GameCatalogFormDraft>({
         ],
         fullWidthFieldIds: const {'catalog_title'},
       ),
-      AddSectionSpec<TDraft>(
+      LibraryFormSectionSpec<TDraft>(
         id: 'game_details',
         label: 'Game Details',
         fields: gameMetadataFields(
@@ -88,10 +89,10 @@ AddSchema<TDraft> gameAddSchemaFor<TDraft extends GameCatalogFormDraft>({
   );
 }
 
-List<AddSectionSpec<TDraft>> _filterSections<TDraft>(
+List<LibraryFormSectionSpec<TDraft>> _filterSections<TDraft>(
   Set<String>? fieldIds,
   Map<String, String> sectionLabels,
-  List<AddSectionSpec<TDraft>> sections,
+  List<LibraryFormSectionSpec<TDraft>> sections,
 ) {
   if (fieldIds == null && sectionLabels.isEmpty) return sections;
   return [
@@ -99,7 +100,7 @@ List<AddSectionSpec<TDraft>> _filterSections<TDraft>(
       if (section.fields
           .where((field) => fieldIds == null || fieldIds.contains(field.id))
           .isNotEmpty)
-        AddSectionSpec<TDraft>(
+        LibraryFormSectionSpec<TDraft>(
           id: section.id,
           label: sectionLabels[section.id] ?? section.label,
           fields: [

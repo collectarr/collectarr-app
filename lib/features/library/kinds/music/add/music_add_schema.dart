@@ -1,12 +1,13 @@
 import 'dart:async';
 
-import 'package:collectarr_app/features/library/add/schema/add_schema.dart';
+import 'package:collectarr_app/features/library/schema/library_form_schema.dart';
+import 'package:collectarr_app/features/library/add/schema/library_add_catalog_title_field.dart';
 import 'package:collectarr_app/features/library/kinds/music/add/music_add_manual_draft.dart';
 import 'package:collectarr_app/features/library/kinds/music/forms/music_catalog_field_specs.dart';
 
-final AddSchema<MusicAddManualDraft> musicAddSchema = musicAddSchemaFor();
+final LibraryFormSchema<MusicAddManualDraft> musicAddSchema = musicAddSchemaFor();
 
-AddSchema<MusicAddManualDraft> musicAddSchemaFor({
+LibraryFormSchema<MusicAddManualDraft> musicAddSchemaFor({
   Iterable<String>? formatOptions,
   Iterable<String>? genreOptions,
   Iterable<String>? countryOptions,
@@ -33,7 +34,7 @@ AddSchema<MusicAddManualDraft> musicAddSchemaFor({
     onManageRecordLabel: onManageRecordLabel,
     onManagePackaging: onManagePackaging,
   );
-  return AddSchema<MusicAddManualDraft>(
+  return LibraryFormSchema<MusicAddManualDraft>(
     title: (_) => 'Manual music album',
     validate: (draft) {
       if (draft.releaseDateParts?.year case final year? when year < 1) {
@@ -50,7 +51,7 @@ AddSchema<MusicAddManualDraft> musicAddSchemaFor({
       return null;
     },
     sections: [
-      AddSectionSpec<MusicAddManualDraft>(
+      LibraryFormSectionSpec<MusicAddManualDraft>(
         id: 'album',
         label: 'Album details',
         fullWidthFieldIds: const {'catalog_title'},

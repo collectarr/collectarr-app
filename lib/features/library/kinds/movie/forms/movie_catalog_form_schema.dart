@@ -1,11 +1,11 @@
 import 'dart:async';
 
-import 'package:collectarr_app/features/library/add/schema/add_schema.dart';
+import 'package:collectarr_app/features/library/schema/library_form_schema.dart';
 import 'package:collectarr_app/features/library/kinds/movie/forms/movie_catalog_field_specs.dart';
 
 /// Builds one tab's fields from the same Movie field definitions used by Add
 /// and Edit.
-AddSchema<TDraft> movieCatalogFormSchemaFor<TDraft>({
+LibraryFormSchema<TDraft> movieCatalogFormSchemaFor<TDraft>({
   required MovieFormValuesReader<TDraft> values,
   required Set<String> fieldIds,
   required String sectionLabel,
@@ -32,9 +32,9 @@ AddSchema<TDraft> movieCatalogFormSchemaFor<TDraft>({
     onManageDistributor: onManageDistributor,
   ).where((field) => fieldIds.contains(field.id));
 
-  return AddSchema<TDraft>(
+  return LibraryFormSchema<TDraft>(
     sections: [
-      AddSectionSpec<TDraft>(
+      LibraryFormSectionSpec<TDraft>(
         id: 'catalog_item',
         label: sectionLabel,
         fields: fields.toList(growable: false),
