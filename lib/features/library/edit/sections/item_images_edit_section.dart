@@ -292,73 +292,79 @@ class _ItemImagesEditSectionState extends State<ItemImagesEditSection> {
   Future<void> _editImageDetails(_EditableImage image) async {
     final controller = TextEditingController(text: image.caption ?? '');
     var selectedType = image.imageType;
-    final result = await showDialog<({String caption, String imageType})>(
-      context: context,
-      builder: (context) => AccentAlertDialog(
-        title: const Text('Edit image details'),
-        content: SizedBox(
-          width: 360,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              LibraryDropdownPickField<String>(
-                label: 'Image type',
-                value: selectedType,
-                options: const [
-                  LibraryFieldOption(
-                      value: 'front_cover', label: 'Front cover'),
-                  LibraryFieldOption(value: 'back_cover', label: 'Back cover'),
-                  LibraryFieldOption(value: 'auxiliary', label: 'Auxiliary'),
-                  LibraryFieldOption(value: 'booklet', label: 'Booklet'),
-                  LibraryFieldOption(value: 'disc', label: 'Disc'),
-                  LibraryFieldOption(value: 'label', label: 'Label'),
-                  LibraryFieldOption(value: 'other', label: 'Other'),
-                ],
-                openPicker: (
-                        {required label,
-                        required selectedValue,
-                        required options}) =>
-                    showPickListSelectDialog(
-                  context: context,
-                  label: label,
-                  options: options,
-                  selectedValue: selectedValue,
+    late final ({String caption, String imageType})? result;
+    try {
+      result = await showDialog<({String caption, String imageType})>(
+        context: context,
+        builder: (context) => AccentAlertDialog(
+          title: const Text('Edit image details'),
+          content: SizedBox(
+            width: 360,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                LibraryDropdownPickField<String>(
+                  label: 'Image type',
+                  value: selectedType,
+                  options: const [
+                    LibraryFieldOption(
+                        value: 'front_cover', label: 'Front cover'),
+                    LibraryFieldOption(
+                        value: 'back_cover', label: 'Back cover'),
+                    LibraryFieldOption(value: 'auxiliary', label: 'Auxiliary'),
+                    LibraryFieldOption(value: 'booklet', label: 'Booklet'),
+                    LibraryFieldOption(value: 'disc', label: 'Disc'),
+                    LibraryFieldOption(value: 'label', label: 'Label'),
+                    LibraryFieldOption(value: 'other', label: 'Other'),
+                  ],
+                  openPicker: (
+                          {required label,
+                          required selectedValue,
+                          required options}) =>
+                      showPickListSelectDialog(
+                    context: context,
+                    label: label,
+                    options: options,
+                    selectedValue: selectedValue,
+                  ),
+                  onChanged: (value) {
+                    selectedType = value ?? 'auxiliary';
+                  },
                 ),
-                onChanged: (value) {
-                  selectedType = value ?? 'auxiliary';
-                },
-              ),
-              const SizedBox(height: 12),
-              LibraryTextFormControl(
-                controller: controller,
-                decoration: const InputDecoration(
-                  labelText: 'Caption',
-                  border: OutlineInputBorder(),
+                const SizedBox(height: 12),
+                LibraryTextFormControl(
+                  controller: controller,
+                  decoration: const InputDecoration(
+                    labelText: 'Caption',
+                    border: OutlineInputBorder(),
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
+          actions: [
+            DialogActionButtons.cancel(
+              onPressed: () => Navigator.of(context).pop(),
+            ),
+            DialogActionButtons.save(
+              onPressed: () => Navigator.of(context).pop((
+                caption: controller.text.trim(),
+                imageType: selectedType,
+              )),
+            ),
+          ],
         ),
-        actions: [
-          DialogActionButtons.cancel(
-            onPressed: () => Navigator.of(context).pop(),
-          ),
-          DialogActionButtons.save(
-            onPressed: () => Navigator.of(context).pop((
-              caption: controller.text.trim(),
-              imageType: selectedType,
-            )),
-          ),
-        ],
-      ),
-    );
-    controller.dispose();
-    if (result == null) {
+      );
+    } finally {
+      controller.dispose();
+    }
+    final saved = result;
+    if (saved == null) {
       return;
     }
     setState(() {
-      image.caption = result.caption.isEmpty ? null : result.caption;
-      _assignImageType(image, result.imageType);
+      image.caption = saved.caption.isEmpty ? null : saved.caption;
+      _assignImageType(image, saved.imageType);
     });
     _notifyChanged();
   }

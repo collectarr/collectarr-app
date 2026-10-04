@@ -43,7 +43,8 @@ class _UserFoldersDialogState extends State<_UserFoldersDialog> {
     final folders = await repo.getAll();
     final libraryEntryRefs = <String, List<LibraryEntryRef>>{};
     for (final folder in folders) {
-      libraryEntryRefs[folder.id] = await repo.getLibraryEntryRefsInFolder(folder.id);
+      libraryEntryRefs[folder.id] =
+          await repo.getLibraryEntryRefsInFolder(folder.id);
     }
     if (mounted) {
       setState(() {
@@ -121,31 +122,35 @@ class _UserFoldersDialogState extends State<_UserFoldersDialog> {
     String? initialValue,
   }) async {
     final nameCtrl = TextEditingController(text: initialValue ?? '');
-    return showDialog<String>(
-      context: context,
-      builder: (ctx) => AccentAlertDialog(
-        backgroundColor: appPalette(ctx).panel,
-        title: Text(title),
-        content: TextField(
-          controller: nameCtrl,
-          autofocus: true,
-          decoration: InputDecoration(
-            labelText: 'Name',
-            hintText: hintText,
+    try {
+      return await showDialog<String>(
+        context: context,
+        builder: (ctx) => AccentAlertDialog(
+          backgroundColor: appPalette(ctx).panel,
+          title: Text(title),
+          content: TextField(
+            controller: nameCtrl,
+            autofocus: true,
+            decoration: InputDecoration(
+              labelText: 'Name',
+              hintText: hintText,
+            ),
           ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: const Text('Cancel'),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.pop(ctx, nameCtrl.text.trim()),
+              child: Text(confirmLabel),
+            ),
+          ],
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: const Text('Cancel'),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.pop(ctx, nameCtrl.text.trim()),
-            child: Text(confirmLabel),
-          ),
-        ],
-      ),
-    );
+      );
+    } finally {
+      nameCtrl.dispose();
+    }
   }
 
   @override
@@ -186,7 +191,8 @@ class _UserFoldersDialogState extends State<_UserFoldersDialog> {
                         Divider(height: 1, color: palette.divider),
                     itemBuilder: (context, i) {
                       final folder = _folders[i];
-                      final count = _folderLibraryEntryRefs[folder.id]?.length ?? 0;
+                      final count =
+                          _folderLibraryEntryRefs[folder.id]?.length ?? 0;
                       return ListTile(
                         leading: Icon(
                           _iconForFolder(folder.iconName),
