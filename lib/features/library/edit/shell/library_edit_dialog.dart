@@ -58,35 +58,11 @@ class LibraryEditRenderer extends ConsumerStatefulWidget {
     this.onNext,
     this.node,
     this.scope = LibraryEntityScope.catalogItem,
-  })  : draft = null,
-        request = null;
-
-  LibraryEditRenderer.fromDraft({
-    super.key,
-    required LibraryEditShellState draft,
-    this.onPrevious,
-    this.onNext,
-    this.scope = LibraryEntityScope.catalogItem,
-  })  : draft = draft,
-        request = null,
-        node = draft.node,
-        type = draft.type,
-        kindItem = draft.kindItem,
-        libraryEntry = draft.libraryEntry,
-        libraryEntryDispatch = draft.libraryEntryDispatch,
-        wishlistItem = draft.wishlistItem,
-        trackingSummary = draft.trackingSummary,
-        accent = draft.accent,
-        wishlistTargetOptions = draft.wishlistTargetOptions,
-        physicalFormats = draft.physicalFormats,
-        customFieldDefinitions = draft.customFieldDefinitions,
-        customFieldValues = draft.customFieldValues,
-        itemImages = draft.itemImages;
+  }) : request = null;
 
   LibraryEditRenderer.fromRequest({
     super.key,
     required LibraryEditDialogRequest request,
-    this.draft,
   })  : request = request,
         node = request.node,
         type = request.type,
@@ -125,7 +101,6 @@ class LibraryEditRenderer extends ConsumerStatefulWidget {
   final VoidCallback? onNext;
   final LibraryEntityRef? node;
   final LibraryEntityScope scope;
-  final LibraryEditShellState? draft;
   final LibraryEditDialogRequest? request;
 
   @override
@@ -179,25 +154,24 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
   void initState() {
     super.initState();
     final request = widget.request;
-    _draft = widget.draft ??
-        (request != null
-            ? LibraryEditShellState.fromRequest(request)
-            : LibraryEditShellState.fromItem(
-                type: widget.type,
-                scope: widget.scope,
-                node: widget.node,
-                item: widget.kindItem,
-                libraryEntry: widget.libraryEntry,
-                libraryEntryDispatch: widget.libraryEntryDispatch,
-                wishlistItem: widget.wishlistItem,
-                trackingSummary: widget.trackingSummary,
-                accent: widget.accent,
-                wishlistTargetOptions: widget.wishlistTargetOptions,
-                physicalFormats: widget.physicalFormats,
-                customFieldDefinitions: widget.customFieldDefinitions,
-                customFieldValues: widget.customFieldValues,
-                itemImages: widget.itemImages,
-              ));
+    _draft = request != null
+        ? LibraryEditShellState.fromRequest(request)
+        : LibraryEditShellState.fromItem(
+            type: widget.type,
+            scope: widget.scope,
+            node: widget.node,
+            item: widget.kindItem,
+            libraryEntry: widget.libraryEntry,
+            libraryEntryDispatch: widget.libraryEntryDispatch,
+            wishlistItem: widget.wishlistItem,
+            trackingSummary: widget.trackingSummary,
+            accent: widget.accent,
+            wishlistTargetOptions: widget.wishlistTargetOptions,
+            physicalFormats: widget.physicalFormats,
+            customFieldDefinitions: widget.customFieldDefinitions,
+            customFieldValues: widget.customFieldValues,
+            itemImages: widget.itemImages,
+          );
 
     _links = [];
 
@@ -257,9 +231,7 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
     for (final link in _links) {
       link.dispose();
     }
-    if (widget.draft == null) {
-      _draft.dispose();
-    }
+    _draft.dispose();
     super.dispose();
   }
 
