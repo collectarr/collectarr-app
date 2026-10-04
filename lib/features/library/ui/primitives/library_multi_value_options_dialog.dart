@@ -1,6 +1,8 @@
 import 'package:collectarr_app/features/library/schema/library_field_spec.dart';
 import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 import 'package:collectarr_app/ui/accent_dialog_header.dart';
+import 'package:collectarr_app/ui/adaptive/window_class.dart';
+import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
 Future<Set<TValue>?> showLibraryMultiValueOptionsDialog<TValue>({
@@ -12,6 +14,7 @@ Future<Set<TValue>?> showLibraryMultiValueOptionsDialog<TValue>({
 }) {
   return showDialog<Set<TValue>>(
     context: context,
+    barrierDismissible: false,
     builder: (context) => _LibraryMultiValueOptionsDialog<TValue>(
       label: label,
       options: options,
@@ -61,6 +64,8 @@ class _LibraryMultiValueOptionsDialogState<TValue>
 
   @override
   Widget build(BuildContext context) {
+    final palette = appPalette(context);
+    final windowClass = AppWindowClass.of(context);
     final visibleOptions = <LibraryFieldOption<TValue>>[
       ...widget.options,
       for (final value in _selected)
@@ -68,9 +73,18 @@ class _LibraryMultiValueOptionsDialogState<TValue>
           LibraryFieldOption<TValue>(value: value, label: value.toString()),
     ];
     return AccentAlertDialog(
+      backgroundColor: palette.panel,
+      alignment: Alignment.topCenter,
+      insetPadding: EdgeInsets.fromLTRB(
+        windowClass.isMedium ? 16 : 32,
+        8,
+        windowClass.isMedium ? 16 : 32,
+        16,
+      ),
       title: AccentDialogHeader(
         title: 'Select ${widget.label}',
         icon: Icons.list_alt_outlined,
+        onClose: () => Navigator.of(context).pop(),
       ),
       content: SizedBox(
         width: 480,
