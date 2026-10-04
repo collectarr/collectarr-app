@@ -16,6 +16,12 @@ final class MovieCatalogFormValues {
     this.audienceRating = '',
     this.runtimeMinutes,
     this.subtitle = '',
+    this.audioTracks = const [],
+    this.subtitles = const [],
+    this.screenRatio = '',
+    this.layers = '',
+    this.color = '',
+    this.nrDiscs,
     this.editionTitle = '',
     this.format = '',
     this.region = '',
@@ -43,6 +49,12 @@ final class MovieCatalogFormValues {
   String audienceRating;
   int? runtimeMinutes;
   String subtitle;
+  List<String> audioTracks;
+  List<String> subtitles;
+  String screenRatio;
+  String layers;
+  String color;
+  int? nrDiscs;
 
   String editionTitle;
   String format;

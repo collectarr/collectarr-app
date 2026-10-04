@@ -45,6 +45,13 @@ CatalogSearchCandidate? buildMovieManualCandidate(
       },
       if (editionTitle != null) 'edition_title': editionTitle,
       if (_text(values.subtitle) case final value?) 'subtitle': value,
+      if (values.audioTracks.isNotEmpty)
+        'audio_tracks': values.audioTracks.join(', '),
+      if (values.subtitles.isNotEmpty) 'subtitles': values.subtitles.join(', '),
+      if (_text(values.screenRatio) case final value?) 'screen_ratio': value,
+      if (_text(values.layers) case final value?) 'layers': value,
+      if (_text(values.color) case final value?) 'color': value,
+      if (values.nrDiscs case final value?) 'nr_discs': value,
       if (_text(values.originalLanguage) case final value?)
         'original_language': value,
       if (_text(values.format) case final value?) 'physical_format': value,

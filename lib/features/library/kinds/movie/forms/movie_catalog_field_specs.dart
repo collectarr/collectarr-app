@@ -17,6 +17,8 @@ List<LibraryFieldSpec<TDraft>> movieCatalogItemFields<TDraft>({
   Iterable<String>? genreOptions,
   Iterable<String>? regionOptions,
   Iterable<String>? distributorOptions,
+  Iterable<String>? audioTrackOptions,
+  Iterable<String>? subtitleOptions,
   FutureOr<void> Function()? onManageFormat,
   FutureOr<void> Function()? onManageRegion,
   FutureOr<void> Function()? onManageDistributor,
@@ -109,6 +111,56 @@ List<LibraryFieldSpec<TDraft>> movieCatalogItemFields<TDraft>({
         label: 'Subtitle',
         value: (draft) => values(draft).subtitle,
         setValue: (draft, value) => values(draft).subtitle = value,
+      ),
+      LibraryMultiVocabularyFieldSpec<TDraft, String>(
+        id: 'audio_tracks',
+        label: 'Audio tracks',
+        values: (draft) => values(draft).audioTracks.toSet(),
+        setValues: (draft, selected) =>
+            values(draft).audioTracks = selected.toList(growable: false),
+        options: _options(
+          audioTrackOptions ?? MovieVocabularies.audio.builtIns,
+        ),
+        pickListKey: MovieVocabularyIds.audio.value,
+        pluralLabel: 'Audio tracks',
+        allowCustomValues: true,
+      ),
+      LibraryMultiVocabularyFieldSpec<TDraft, String>(
+        id: 'subtitles',
+        label: 'Subtitles',
+        values: (draft) => values(draft).subtitles.toSet(),
+        setValues: (draft, selected) =>
+            values(draft).subtitles = selected.toList(growable: false),
+        options: _options(
+          subtitleOptions ?? MovieVocabularies.subtitles.builtIns,
+        ),
+        pickListKey: MovieVocabularyIds.subtitles.value,
+        pluralLabel: 'Subtitles',
+        allowCustomValues: true,
+      ),
+      LibraryTextFieldSpec<TDraft>(
+        id: 'screen_ratio',
+        label: 'Screen ratio',
+        value: (draft) => values(draft).screenRatio,
+        setValue: (draft, value) => values(draft).screenRatio = value,
+      ),
+      LibraryTextFieldSpec<TDraft>(
+        id: 'layers',
+        label: 'Layers',
+        value: (draft) => values(draft).layers,
+        setValue: (draft, value) => values(draft).layers = value,
+      ),
+      LibraryTextFieldSpec<TDraft>(
+        id: 'color',
+        label: 'Color',
+        value: (draft) => values(draft).color,
+        setValue: (draft, value) => values(draft).color = value,
+      ),
+      LibraryNumberFieldSpec<TDraft>(
+        id: 'nr_discs',
+        label: 'Discs',
+        value: (draft) => values(draft).nrDiscs,
+        setValue: (draft, value) => values(draft).nrDiscs = value?.toInt(),
       ),
       LibraryCustomFieldSpec<TDraft>(
         id: 'characters',

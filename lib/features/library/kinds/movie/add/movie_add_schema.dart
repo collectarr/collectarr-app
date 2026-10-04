@@ -16,6 +16,8 @@ AddSchema<MovieAddManualDraft> movieAddSchemaFor({
   Iterable<String>? genreOptions,
   Iterable<String>? regionOptions,
   Iterable<String>? distributorOptions,
+  Iterable<String>? audioTrackOptions,
+  Iterable<String>? subtitleOptions,
   FutureOr<void> Function()? onManageFormat,
   FutureOr<void> Function()? onManageRegion,
   FutureOr<void> Function()? onManageDistributor,
@@ -28,6 +30,8 @@ AddSchema<MovieAddManualDraft> movieAddSchemaFor({
     regionOptions: regionOptions ?? MovieVocabularies.region.builtIns,
     distributorOptions:
         distributorOptions ?? MovieVocabularies.distributor.builtIns,
+    audioTrackOptions: audioTrackOptions ?? MovieVocabularies.audio.builtIns,
+    subtitleOptions: subtitleOptions ?? MovieVocabularies.subtitles.builtIns,
     onManageFormat: onManageFormat,
     onManageRegion: onManageRegion,
     onManageDistributor: onManageDistributor,
@@ -38,6 +42,10 @@ AddSchema<MovieAddManualDraft> movieAddSchemaFor({
       final year = draft.values.releaseYear;
       if (year != null && year < 1) {
         return 'Release year must be greater than zero';
+      }
+      final discs = draft.values.nrDiscs;
+      if (discs != null && discs < 1) {
+        return 'Disc count must be greater than zero';
       }
       return null;
     },
