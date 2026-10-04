@@ -45,6 +45,12 @@ Completed implementation slices:
 - Movie manual Add now uses the managed multi-value Genre vocabulary and
   exposes Display Title, Original Title, Localized Title, and Search Aliases.
   Clearing supported optional Movie metadata is preserved on save.
+- Movie Add and Edit now use the same kind-owned Cast/Crew row model and
+  editor. Manual Add has separate Cast and Crew tabs; rows can be added,
+  removed, edited, and reordered, and the candidate builder retains their
+  names and roles. The old free-text Director(s) Add field and its draft value
+  were removed. `movie_edit_models.dart` was removed after its remaining
+  external-link use moved to its owning shared edit model.
 - Game edit fields use stable draft-owned controllers and configured physical
   format/platform vocabularies. Comic edit host access requires the registered
   typed draft, with temporary controller fallbacks removed. Movie/TV/Anime
@@ -251,6 +257,9 @@ Evidence: `kinds/movie/add/movie_add_manual_pane.dart`,
   and subtitle fields retain their registered vocabulary pickers. Add and Edit
   still use different people editors: Add has flat director/character text,
   while Edit has typed Cast/Crew tabs.
+- Cast and Crew now share typed, reorderable editors between Add and Edit.
+  Add still keeps Characters as a flat text field, while Edit has no matching
+  character editor; reconciling character/person semantics remains open.
 - Add includes cover URL text instead of the same cover editor.
 - The entry tab list omits Main, Cast, Crew, and Links supplied by the catalog
   list. Local complete-entry editing must expose editable metadata as well.
