@@ -3,14 +3,14 @@ final class MovieCatalogFormValues {
   MovieCatalogFormValues({
     this.title = '',
     this.sortTitle = '',
-    this.workDescription = '',
+    this.synopsis = '',
     this.genres = const [],
     this.originalLanguage = '',
     this.ageRating = '',
     this.audienceRating = '',
     this.runtimeMinutes,
     this.subtitle = '',
-    this.releaseTitle = '',
+    this.editionTitle = '',
     this.format = '',
     this.region = '',
     this.releaseDate,
@@ -27,7 +27,7 @@ final class MovieCatalogFormValues {
 
   String sortTitle;
   String title;
-  String workDescription;
+  String synopsis;
   List<String> genres;
   String originalLanguage;
   String ageRating;
@@ -35,7 +35,7 @@ final class MovieCatalogFormValues {
   int? runtimeMinutes;
   String subtitle;
 
-  String releaseTitle;
+  String editionTitle;
   String format;
   String region;
   DateTime? releaseDate;

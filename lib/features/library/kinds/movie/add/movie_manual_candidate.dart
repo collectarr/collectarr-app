@@ -15,7 +15,7 @@ CatalogSearchCandidate? buildMovieManualCandidate(
 
   final id = 'manual-movie-${DateTime.now().microsecondsSinceEpoch}';
   final values = draft.values;
-  final releaseTitle = _text(values.releaseTitle);
+  final editionTitle = _text(values.editionTitle);
   final releaseDateParts = _releaseDateParts(values);
   final directors = _split(values.directors);
   final characters = _split(values.characters);
@@ -26,14 +26,14 @@ CatalogSearchCandidate? buildMovieManualCandidate(
     kindData: {
       'title': title.trim(),
       if (_text(values.sortTitle) case final value?) 'sort_key': value,
-      if (_text(values.workDescription) case final value?) 'synopsis': value,
+      if (_text(values.synopsis) case final value?) 'synopsis': value,
       if (_text(values.coverImageUrl) case final value?)
         'cover_image_url': value,
       if (releaseDateParts != null) ...{
         'release_date': releaseDateParts.isoString,
         'release_date_parts': releaseDateParts.toJson(),
       },
-      if (releaseTitle != null) 'edition_title': releaseTitle,
+      if (editionTitle != null) 'edition_title': editionTitle,
       if (_text(values.subtitle) case final value?) 'subtitle': value,
       if (_text(values.originalLanguage) case final value?)
         'original_language': value,

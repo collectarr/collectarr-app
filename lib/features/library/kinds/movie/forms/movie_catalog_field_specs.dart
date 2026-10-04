@@ -29,15 +29,18 @@ List<LibraryFieldSpec<TDraft>> movieCatalogItemFields<TDraft>({
       LibraryTextFieldSpec<TDraft>(
         id: 'synopsis',
         label: 'Synopsis',
-        value: (draft) => values(draft).workDescription,
-        setValue: (draft, value) => values(draft).workDescription = value,
+        value: (draft) => values(draft).synopsis,
+        setValue: (draft, value) => values(draft).synopsis = value,
         maxLines: 4,
       ),
-      LibraryTextFieldSpec<TDraft>(
+      LibraryMultiVocabularyFieldSpec<TDraft, String>(
         id: 'genres',
         label: 'Genres',
-        value: (draft) => values(draft).genres.join(', '),
-        setValue: (draft, value) => values(draft).genres = _split(value),
+        values: (draft) => values(draft).genres.toSet(),
+        setValues: (draft, selected) =>
+            values(draft).genres = selected.toList(growable: false),
+        options: const [],
+        allowCustomValues: true,
       ),
       LibraryTextFieldSpec<TDraft>(
         id: 'original_language',
@@ -92,8 +95,8 @@ List<LibraryFieldSpec<TDraft>> movieCatalogItemFields<TDraft>({
       LibraryTextFieldSpec<TDraft>(
         id: 'edition_title',
         label: 'Edition title',
-        value: (draft) => values(draft).releaseTitle,
-        setValue: (draft, value) => values(draft).releaseTitle = value,
+        value: (draft) => values(draft).editionTitle,
+        setValue: (draft, value) => values(draft).editionTitle = value,
       ),
       LibraryVocabularyFieldSpec<TDraft, String>(
         id: 'physical_format',
@@ -169,10 +172,3 @@ List<LibraryFieldOption<String>> _options(Iterable<String> values) => [
       for (final value in values)
         LibraryFieldOption(value: value, label: value),
     ];
-
-List<String> _split(String value) => value
-    .split(RegExp(r'[,;\r\n]+'))
-    .map((entry) => entry.trim())
-    .where((entry) => entry.isNotEmpty)
-    .toSet()
-    .toList(growable: false);

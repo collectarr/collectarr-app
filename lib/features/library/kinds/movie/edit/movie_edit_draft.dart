@@ -11,7 +11,6 @@ import 'package:collectarr_app/features/library/edit/draft/library_edit_models.d
 import 'package:collectarr_app/features/library/kinds/movie/edit/movie_edit_controller.dart';
 import 'package:collectarr_app/features/library/kinds/movie/edit/movie_edit_models.dart';
 import 'package:collectarr_app/features/library/kinds/movie/domain/movie_metadata.dart';
-import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/features/library/kinds/movie/movie_physical_media_formats.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_entry_dispatch.dart';
 import 'package:collectarr_app/features/library/kinds/movie/domain/movie_library_entry.dart';
@@ -349,39 +348,60 @@ class MovieEditDraft
         .map((value) => value.trim())
         .where((value) => value.isNotEmpty)
         .toList();
-    final updatedMeta = meta.copyWith(
-      runtimeMinutes: int.tryParse(movieEdit.runtimeController.text),
-      genres: parsedGenres.isNotEmpty ? parsedGenres : meta.genres,
-      creators: const [],
-      contributors: [
-        for (final credit in [
-          ...movieEdit.castCredits,
-          ...movieEdit.crewCredits,
-        ])
-          if (credit.nameController.text.trim().isNotEmpty)
-            MoviePersonCredit(
-              name: credit.nameController.text.trim(),
-              role: emptyToNull(credit.roleController.text.trim()),
-            ),
-      ],
-      ageRating: emptyToNull(movieEdit.ageRatingController.text),
-      audienceRating: emptyToNull(movieEdit.audienceRatingController.text),
-      editionTitle: emptyToNull(movieEdit.editionTitleController.text),
-      variant: emptyToNull(movieEdit.variantController.text),
-      barcode: emptyToNull(movieEdit.barcodeController.text),
-      physicalFormat: movieEdit.physicalFormatId,
-      publisher: emptyToNull(movieEdit.publisherController.text),
-      country: emptyToNull(movieEdit.countryController.text) ?? meta.country,
-      language: emptyToNull(movieEdit.languageController.text) ?? meta.language,
-      releaseDate: parseDate(movieEdit.releaseDateController.text),
-      links: movieEdit.buildUpdatedTrailerUrls(meta.links),
-      screenRatio: emptyToNull(screenRatioController.text),
-      audioTracks: emptyToNull(audioTracksController.text),
-      subtitles: emptyToNull(subtitlesController.text),
-      layers: emptyToNull(layersController.text),
-      color: emptyToNull(colorController.text),
-      nrDiscs: int.tryParse(nrDiscsController.text),
-    );
+    final updatedMeta = MovieCatalogMetadata.fromJson(applyJsonFieldPatch(
+      meta.copyWith(
+        runtimeMinutes: int.tryParse(movieEdit.runtimeController.text),
+        creators: const [],
+        contributors: [
+          for (final credit in [
+            ...movieEdit.castCredits,
+            ...movieEdit.crewCredits,
+          ])
+            if (credit.nameController.text.trim().isNotEmpty)
+              MoviePersonCredit(
+                name: credit.nameController.text.trim(),
+                role: emptyToNull(credit.roleController.text.trim()),
+              ),
+        ],
+        ageRating: emptyToNull(movieEdit.ageRatingController.text),
+        audienceRating: emptyToNull(movieEdit.audienceRatingController.text),
+        editionTitle: emptyToNull(movieEdit.editionTitleController.text),
+        variant: emptyToNull(movieEdit.variantController.text),
+        barcode: emptyToNull(movieEdit.barcodeController.text),
+        physicalFormat: movieEdit.physicalFormatId,
+        publisher: emptyToNull(movieEdit.publisherController.text),
+        releaseDate: parseDate(movieEdit.releaseDateController.text),
+        links: movieEdit.buildUpdatedTrailerUrls(meta.links),
+        screenRatio: emptyToNull(screenRatioController.text),
+        audioTracks: emptyToNull(audioTracksController.text),
+        subtitles: emptyToNull(subtitlesController.text),
+        layers: emptyToNull(layersController.text),
+        color: emptyToNull(colorController.text),
+        nrDiscs: int.tryParse(nrDiscsController.text),
+      ),
+      {
+        'runtime_minutes': int.tryParse(movieEdit.runtimeController.text),
+        'genres': parsedGenres,
+        'age_rating': emptyToNull(movieEdit.ageRatingController.text),
+        'audience_rating': emptyToNull(movieEdit.audienceRatingController.text),
+        'edition_title': emptyToNull(movieEdit.editionTitleController.text),
+        'variant': emptyToNull(movieEdit.variantController.text),
+        'barcode': emptyToNull(movieEdit.barcodeController.text),
+        'physical_format': movieEdit.physicalFormatId,
+        'publisher': emptyToNull(movieEdit.publisherController.text),
+        'country': emptyToNull(movieEdit.countryController.text),
+        'language': emptyToNull(movieEdit.languageController.text),
+        'release_date':
+            parseDate(movieEdit.releaseDateController.text)?.toIso8601String(),
+        'release_date_parts': null,
+        'screen_ratio': emptyToNull(screenRatioController.text),
+        'audio_tracks': emptyToNull(audioTracksController.text),
+        'subtitles': emptyToNull(subtitlesController.text),
+        'layers': emptyToNull(layersController.text),
+        'color': emptyToNull(colorController.text),
+        'nr_discs': int.tryParse(nrDiscsController.text),
+      },
+    ));
     result = result.copyWith(
       kindItem: result.kindItem.kindCapability.mapTransport(
         (transport) => CatalogSearchCandidate.fromItem(
