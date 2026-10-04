@@ -34,6 +34,7 @@ AddSchema<BookAddManualDraft> bookAddSchemaFor({
         id: 'edition',
         label: 'Edition',
         fields: [
+          libraryAddCatalogTitleField<BookAddManualDraft>(),
           LibraryTextFieldSpec<BookAddManualDraft>(
             id: 'number',
             label: 'Number',
@@ -79,6 +80,7 @@ AddSchema<BookAddManualDraft> bookAddSchemaFor({
             minimum: 1,
           ),
         ],
+        fullWidthFieldIds: const {'catalog_title'},
       ),
       AddSectionSpec<BookAddManualDraft>(
         id: 'publication',

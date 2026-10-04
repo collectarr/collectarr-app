@@ -19,14 +19,12 @@ class LibraryAddManualPaneShell extends StatefulWidget {
     required this.request,
     required this.tabs,
     this.identityDetails,
-    this.showCatalogTitleField = true,
   }) : assert(tabs.length > 0);
 
   final LibraryAddManualPaneRequest request;
 
-  /// Optional kind-specific fields shown below the shared Catalog Item title.
+  /// Optional kind-specific identity controls shown before the active tab.
   final Widget? identityDetails;
-  final bool showCatalogTitleField;
   final List<LibraryAddManualPaneTab> tabs;
 
   @override
@@ -37,32 +35,18 @@ class LibraryAddManualPaneShell extends StatefulWidget {
 class _LibraryAddManualPaneShellState extends State<LibraryAddManualPaneShell>
     with SingleTickerProviderStateMixin {
   late final GlobalKey<FormState> _formKey;
-  late final TextEditingController _catalogTitleController;
   late TabController _tabController;
 
   @override
   void initState() {
     super.initState();
     _formKey = GlobalKey<FormState>();
-    _catalogTitleController = TextEditingController(
-      text: widget.request.manualDraft.catalogTitle,
-    )..addListener(_handleCatalogTitleChanged);
     _tabController = TabController(length: _tabCount(widget), vsync: this);
-  }
-
-  void _handleCatalogTitleChanged() {
-    widget.request.manualDraft.catalogTitle = _catalogTitleController.text;
-    if (mounted) setState(() {});
   }
 
   @override
   void didUpdateWidget(covariant LibraryAddManualPaneShell oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (!identical(oldWidget.request.manualDraft, widget.request.manualDraft)) {
-      _catalogTitleController.removeListener(_handleCatalogTitleChanged);
-      _catalogTitleController.text = widget.request.manualDraft.catalogTitle;
-      _catalogTitleController.addListener(_handleCatalogTitleChanged);
-    }
     if (_tabCount(oldWidget) == _tabCount(widget)) return;
     final previousIndex = _tabController.index;
     _tabController.dispose();
@@ -132,7 +116,6 @@ class _LibraryAddManualPaneShellState extends State<LibraryAddManualPaneShell>
   @override
   void dispose() {
     _tabController.dispose();
-    _catalogTitleController.dispose();
     super.dispose();
   }
 
@@ -147,7 +130,7 @@ class _LibraryAddManualPaneShellState extends State<LibraryAddManualPaneShell>
           accent: request.accent,
         ),
     ];
-    final enteredTitle = _catalogTitleController.text.trim();
+    final enteredTitle = request.manualDraft.catalogTitle.trim();
     final headerTitle = enteredTitle.isEmpty
         ? 'Add ${request.type.identity.singularLabel}'
         : enteredTitle;
@@ -166,18 +149,11 @@ class _LibraryAddManualPaneShellState extends State<LibraryAddManualPaneShell>
         for (var index = 0; index < tabs.length; index++)
           EditTabShell(
             children: [
-              if (index == 0 && widget.showCatalogTitleField)
-                LibraryEditTextField(
-                  controller: _catalogTitleController,
-                  label: 'Title',
-                  validator: (value) =>
-                      value?.trim().isNotEmpty == true ? null : 'Enter a title',
-                ),
               if (index == 0 && widget.identityDetails != null) ...[
-                const SizedBox(height: 10),
                 widget.identityDetails!,
               ],
-              if (index == 0) const SizedBox(height: 12),
+              if (index == 0 && widget.identityDetails != null)
+                const SizedBox(height: 12),
               tabs[index].content,
             ],
           ),

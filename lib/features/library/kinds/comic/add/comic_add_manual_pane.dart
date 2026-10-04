@@ -236,6 +236,7 @@ class _ComicAddManualPaneState extends ConsumerState<ComicAddManualPane> {
             mediaKind: request.kind.apiValue,
             onVocabularyValueChanged: request.onVocabularyValueChanged,
             onVocabularyValuesChanged: request.onVocabularyValuesChanged,
+            onChanged: request.onManualDraftChanged,
           ),
         ),
         LibraryAddManualPaneTab(
@@ -248,6 +249,7 @@ class _ComicAddManualPaneState extends ConsumerState<ComicAddManualPane> {
             mediaKind: request.kind.apiValue,
             onVocabularyValueChanged: request.onVocabularyValueChanged,
             onVocabularyValuesChanged: request.onVocabularyValuesChanged,
+            onChanged: request.onManualDraftChanged,
           ),
         ),
       ],

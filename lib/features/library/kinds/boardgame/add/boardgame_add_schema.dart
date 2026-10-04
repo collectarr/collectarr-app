@@ -23,9 +23,11 @@ final AddSchema<BoardgameAddManualDraft> boardGameAddSchema = AddSchema(
     AddSectionSpec<BoardgameAddManualDraft>(
       id: 'catalog_item',
       label: 'Catalog Item',
-      fields: boardGameCatalogItemFields(
-        values: (draft) => draft.values,
-      ),
+      fields: [
+        libraryAddCatalogTitleField<BoardgameAddManualDraft>(),
+        ...boardGameCatalogItemFields(values: (draft) => draft.values),
+      ],
+      fullWidthFieldIds: const {'catalog_title'},
     ),
   ],
 );

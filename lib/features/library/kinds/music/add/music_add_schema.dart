@@ -44,12 +44,7 @@ AddSchema<MusicAddManualDraft> musicAddSchemaFor({
           id: 'album',
           label: 'Album details',
           fields: [
-            LibraryTextFieldSpec<MusicAddManualDraft>(
-              id: 'title',
-              label: 'Title',
-              value: (draft) => draft.catalogTitle,
-              setValue: (draft, value) => draft.catalogTitle = value,
-            ),
+            libraryAddCatalogTitleField<MusicAddManualDraft>(),
             LibraryTextFieldSpec<MusicAddManualDraft>(
               id: 'sort_title',
               label: 'Sort Title',
@@ -152,6 +147,7 @@ AddSchema<MusicAddManualDraft> musicAddSchemaFor({
               setValue: (draft, value) => draft.recordingDateParts = value,
             ),
           ],
+          fullWidthFieldIds: const {'catalog_title'},
         ),
         AddSectionSpec<MusicAddManualDraft>(
           id: 'edition',

@@ -50,6 +50,7 @@ AddSchema<AnimeAddManualDraft> animeAddSchemaFor({
           id: 'catalog',
           label: 'Catalog item',
           fields: [
+            libraryAddCatalogTitleField<AnimeAddManualDraft>(),
             _text(
               id: 'sort_key',
               label: 'Sort title',
@@ -217,6 +218,7 @@ AddSchema<AnimeAddManualDraft> animeAddSchemaFor({
               ),
             ),
           ],
+          fullWidthFieldIds: const {'catalog_title'},
         ),
         AddSectionSpec<AnimeAddManualDraft>(
           id: 'edition_details',

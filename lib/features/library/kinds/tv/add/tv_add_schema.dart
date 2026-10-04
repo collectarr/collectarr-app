@@ -33,6 +33,7 @@ AddSchema<TvAddManualDraft> tvAddSchemaFor({
           id: 'catalog_item',
           label: 'Catalog Item',
           fields: [
+            libraryAddCatalogTitleField<TvAddManualDraft>(),
             _text(
               id: 'sort_key',
               label: 'Sort Title',
@@ -218,6 +219,7 @@ AddSchema<TvAddManualDraft> tvAddSchemaFor({
                   _writeNullable(draft, 'screen_ratio', _nullable(value)),
             ),
           ],
+          fullWidthFieldIds: const {'catalog_title'},
         ),
       ],
     );

@@ -16,7 +16,7 @@ AddSchema<ComicAddManualDraft> comicAddSchemaFor({
   FutureOr<void> Function()? onManageImprint,
   FutureOr<void> Function()? onManageSeriesGroup,
   FutureOr<void> Function()? onManagePhysicalFormat,
-  bool includeTitle = true,
+  bool includeTitle = false,
 }) =>
     AddSchema<ComicAddManualDraft>(
       title: (_) => 'Manual comic issue',
@@ -31,14 +31,18 @@ AddSchema<ComicAddManualDraft> comicAddSchemaFor({
         AddSectionSpec<ComicAddManualDraft>(
           id: 'issue',
           label: 'Issue',
-          fields: comicCatalogItemIdentityFields(
-            values: (draft) => draft.values,
-            includeTitle: includeTitle,
-            physicalFormatOptions: physicalFormatOptions ??
-                ComicVocabularies.physicalFormat.builtIns,
-            onManagePhysicalFormat: onManagePhysicalFormat,
-            includeSeries: false,
-          ),
+          fields: [
+            libraryAddCatalogTitleField<ComicAddManualDraft>(),
+            ...comicCatalogItemIdentityFields(
+              values: (draft) => draft.values,
+              includeTitle: includeTitle,
+              physicalFormatOptions: physicalFormatOptions ??
+                  ComicVocabularies.physicalFormat.builtIns,
+              onManagePhysicalFormat: onManagePhysicalFormat,
+              includeSeries: false,
+            ),
+          ],
+          fullWidthFieldIds: const {'catalog_title'},
         ),
         AddSectionSpec<ComicAddManualDraft>(
           id: 'publication',

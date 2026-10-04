@@ -36,6 +36,7 @@ AddSchema<MangaAddManualDraft> mangaAddSchemaFor({
         id: 'volume',
         label: 'Volume',
         fields: [
+          libraryAddCatalogTitleField<MangaAddManualDraft>(),
           LibraryTextFieldSpec<MangaAddManualDraft>(
             id: 'volume_number',
             label: 'Volume No.',
@@ -68,6 +69,7 @@ AddSchema<MangaAddManualDraft> mangaAddSchemaFor({
             minimum: 1,
           ),
         ],
+        fullWidthFieldIds: const {'catalog_title'},
       ),
       AddSectionSpec<MangaAddManualDraft>(
         id: 'publication',

@@ -76,7 +76,6 @@ class MusicAddManualPane extends StatelessWidget {
 
     return LibraryAddManualPaneShell(
       request: request,
-      showCatalogTitleField: false,
       tabs: [
         LibraryAddManualPaneTab(
           id: 'main',

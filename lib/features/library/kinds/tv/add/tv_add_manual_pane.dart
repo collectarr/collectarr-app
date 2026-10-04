@@ -23,6 +23,7 @@ class TvAddManualPane extends StatelessWidget {
             mediaKind: request.kind.apiValue,
             onVocabularyValueChanged: request.onVocabularyValueChanged,
             onVocabularyValuesChanged: request.onVocabularyValuesChanged,
+            onChanged: request.onManualDraftChanged,
           ),
         ),
       ],

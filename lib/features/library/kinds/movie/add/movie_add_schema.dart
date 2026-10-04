@@ -31,19 +31,22 @@ AddSchema<MovieAddManualDraft> movieAddSchemaFor({
       AddSectionSpec<MovieAddManualDraft>(
         id: 'catalog_item',
         label: 'Catalog Item',
-        fields: movieCatalogItemFields(
-          values: getValues,
-          genreOptions:
-              genreOptions ?? MovieVocabularies.genre.builtIns,
-          formatOptions:
-              formatOptions ?? MovieVocabularies.physicalFormat.builtIns,
-          regionOptions: regionOptions ?? MovieVocabularies.region.builtIns,
-          distributorOptions:
-              distributorOptions ?? MovieVocabularies.distributor.builtIns,
-          onManageFormat: onManageFormat,
-          onManageRegion: onManageRegion,
-          onManageDistributor: onManageDistributor,
-        ),
+        fields: [
+          libraryAddCatalogTitleField<MovieAddManualDraft>(),
+          ...movieCatalogItemFields(
+            values: getValues,
+            genreOptions: genreOptions ?? MovieVocabularies.genre.builtIns,
+            formatOptions:
+                formatOptions ?? MovieVocabularies.physicalFormat.builtIns,
+            regionOptions: regionOptions ?? MovieVocabularies.region.builtIns,
+            distributorOptions:
+                distributorOptions ?? MovieVocabularies.distributor.builtIns,
+            onManageFormat: onManageFormat,
+            onManageRegion: onManageRegion,
+            onManageDistributor: onManageDistributor,
+          ),
+        ],
+        fullWidthFieldIds: const {'catalog_title'},
       ),
     ],
   );

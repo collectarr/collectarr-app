@@ -1,6 +1,18 @@
 import 'package:collectarr_app/features/library/schema/library_field_spec.dart';
+import 'package:collectarr_app/features/library/add/models/library_kind_add_draft.dart';
 
 export 'package:collectarr_app/features/library/schema/library_field_spec.dart';
+
+LibraryTextFieldSpec<TDraft>
+    libraryAddCatalogTitleField<TDraft extends LibraryKindAddDraft>() =>
+        LibraryTextFieldSpec<TDraft>(
+          id: 'catalog_title',
+          label: 'Title',
+          value: (draft) => draft.catalogTitle,
+          setValue: (draft, value) => draft.catalogTitle = value,
+          validator: (draft) =>
+              draft.catalogTitle.trim().isEmpty ? 'Enter a title' : null,
+        );
 
 final class AddSchema<TDraft> {
   const AddSchema({
