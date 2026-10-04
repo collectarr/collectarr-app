@@ -12,6 +12,7 @@ import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/core/models/tracking_summary.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
+import 'package:collectarr_app/features/library/config/library_dialog_tokens.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/edit/sections/custom_fields_edit_section.dart';
@@ -1046,17 +1047,21 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
           });
         }
       },
-      child: InputDecorator(
-        decoration: const InputDecoration(
-          labelText: 'Location',
-          prefixIcon: Icon(Icons.place),
-        ),
-        child: Text(
-          _draft.personal.selectedLocationName ?? 'Pick location...',
-          style: TextStyle(
-            color: _draft.personal.selectedLocationName != null
-                ? Theme.of(context).colorScheme.onSurface
-                : Theme.of(context).hintColor,
+      child: LibraryFormField(
+        label: 'Location',
+        child: InputDecorator(
+          decoration: const InputDecoration(
+            constraints: BoxConstraints(minHeight: kLibraryFormControlHeight),
+            contentPadding: EdgeInsets.symmetric(horizontal: 10),
+            prefixIcon: Icon(Icons.place),
+          ),
+          child: Text(
+            _draft.personal.selectedLocationName ?? 'Pick location...',
+            style: TextStyle(
+              color: _draft.personal.selectedLocationName != null
+                  ? Theme.of(context).colorScheme.onSurface
+                  : Theme.of(context).hintColor,
+            ),
           ),
         ),
       ),

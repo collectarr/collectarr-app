@@ -435,16 +435,14 @@ class _LibraryEntryStatusStripState
         final value = field.options.contains(current)
             ? current
             : field.options.firstOrNull;
-        return LibraryFormField(
+        return LibraryDropdownPickField<String>(
           label: field.label,
-          child: DropdownButtonFormField<String>(
-            initialValue: value,
-            items: [
-              for (final option in field.options)
-                DropdownMenuItem(value: option, child: Text(option)),
-            ],
-            onChanged: (status) => draft.set(field.key, status),
-          ),
+          value: value,
+          options: [
+            for (final option in field.options)
+              LibraryFieldOption(value: option, label: option),
+          ],
+          onChanged: (status) => draft.set(field.key, status),
         );
       case PersonalLibraryFieldEditor.integer:
         return LibraryFormField(

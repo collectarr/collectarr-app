@@ -319,6 +319,9 @@ Completed implementation slices:
   the same built-in and selected-value choices.
 - Add and Edit Notes now use one multiline field with matching labels and line
   limits while keeping their existing controller and draft ownership.
+- The shared entry Collection Status selector now uses the common dropdown
+  primitive, and the legacy Edit location picker uses the same external-label
+  layout and minimum control height while retaining its location-dialog action.
 - The common text control now supports initial values and multiline/expanding
   layouts. Movie character details, Comic's remaining multiline catalog and
   personal inputs, and the TV custom episode dialog use it instead of raw
