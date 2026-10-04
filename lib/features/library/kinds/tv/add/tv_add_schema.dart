@@ -9,6 +9,8 @@ import 'package:collectarr_app/features/library/kinds/tv/vocabulary/tv_vocabular
 final AddSchema<TvAddManualDraft> tvAddSchema = tvAddSchemaFor();
 
 AddSchema<TvAddManualDraft> tvAddSchemaFor({
+  Set<String>? fieldIds,
+  String sectionLabel = 'Catalog Item',
   Iterable<String>? formatOptions,
   FutureOr<void> Function()? onManageFormat,
 }) =>
@@ -31,7 +33,7 @@ AddSchema<TvAddManualDraft> tvAddSchemaFor({
       sections: [
         AddSectionSpec<TvAddManualDraft>(
           id: 'catalog_item',
-          label: 'Catalog Item',
+          label: sectionLabel,
           fields: [
             libraryAddCatalogTitleField<TvAddManualDraft>(),
             _text(
@@ -54,6 +56,13 @@ AddSchema<TvAddManualDraft> tvAddSchemaFor({
               read: (metadata) => metadata.editionTitle ?? '',
               write: (draft, value) =>
                   _writeNullable(draft, 'edition_title', _nullable(value)),
+            ),
+            _text(
+              id: 'variant_name',
+              label: 'Variant',
+              read: (metadata) => metadata.variant ?? '',
+              write: (draft, value) =>
+                  _writeNullable(draft, 'variant_name', _nullable(value)),
             ),
             _text(
               id: 'synopsis',
@@ -232,7 +241,9 @@ AddSchema<TvAddManualDraft> tvAddSchemaFor({
               write: (draft, value) =>
                   _writeNullable(draft, 'color', _nullable(value)),
             ),
-          ],
+          ]
+              .where((field) => fieldIds == null || fieldIds.contains(field.id))
+              .toList(),
           fullWidthFieldIds: const {'catalog_title'},
         ),
       ],

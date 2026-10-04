@@ -10,6 +10,8 @@ import 'package:collectarr_app/features/library/kinds/anime/vocabulary/anime_voc
 final AddSchema<AnimeAddManualDraft> animeAddSchema = animeAddSchemaFor();
 
 AddSchema<AnimeAddManualDraft> animeAddSchemaFor({
+  Set<String>? fieldIds,
+  String? sectionLabel,
   Iterable<String>? formatOptions,
   Iterable<String>? seasonOptions,
   Iterable<String>? airingStatusOptions,
@@ -45,7 +47,7 @@ AddSchema<AnimeAddManualDraft> animeAddSchemaFor({
         }
         return null;
       },
-      sections: [
+      sections: _filterSections(fieldIds, sectionLabel, [
         AddSectionSpec<AnimeAddManualDraft>(
           id: 'catalog',
           label: 'Catalog item',
@@ -395,8 +397,35 @@ AddSchema<AnimeAddManualDraft> animeAddSchemaFor({
             ),
           ],
         ),
-      ],
+      ]),
     );
+
+List<AddSectionSpec<AnimeAddManualDraft>> _filterSections(
+  Set<String>? fieldIds,
+  String? sectionLabel,
+  List<AddSectionSpec<AnimeAddManualDraft>> sections,
+) {
+  if (fieldIds == null && sectionLabel == null) return sections;
+  return [
+    for (final section in sections)
+      if (section.fields
+          .where((field) => fieldIds == null || fieldIds.contains(field.id))
+          .isNotEmpty)
+        AddSectionSpec<AnimeAddManualDraft>(
+          id: section.id,
+          label: sectionLabel ?? section.label,
+          fields: [
+            for (final field in section.fields)
+              if (fieldIds == null || fieldIds.contains(field.id)) field,
+          ],
+          maxColumns: section.maxColumns,
+          fullWidthFieldIds: section.fullWidthFieldIds,
+          fieldColumnSpans: section.fieldColumnSpans,
+          rightAlignedFieldIds: section.rightAlignedFieldIds,
+          visibleWhen: section.visibleWhen,
+        ),
+  ];
+}
 
 LibraryTextFieldSpec<AnimeAddManualDraft> _text({
   required String id,

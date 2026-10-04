@@ -7,6 +7,52 @@ import 'package:collectarr_app/features/library/kinds/anime/forms/anime_credit_d
 import 'package:collectarr_app/features/library/kinds/shared/video/library_video_credits_section.dart';
 import 'package:flutter/material.dart';
 
+const _animeMainFieldIds = {
+  'catalog_title',
+  'sort_key',
+  'format',
+  'season',
+  'source_material',
+  'original_language',
+  'genres',
+  'themes',
+  'studios',
+  'producers',
+  'licensors',
+  'airing_status',
+  'season_year',
+  'episode_count',
+  'episode_runtime_minutes',
+  'start_date',
+  'end_date',
+};
+const _animeDetailsFieldIds = {
+  'native_title',
+  'romaji_title',
+  'english_title',
+  'alternate_titles',
+  'country',
+  'characters',
+};
+const _animeEditionFieldIds = {
+  'edition_title',
+  'physical_format',
+  'publisher',
+  'barcode',
+  'release_date',
+  'variant_name',
+  'region',
+  'description',
+};
+const _animeSpecsFieldIds = {
+  'nr_discs',
+  'audio_tracks',
+  'subtitles',
+  'screen_ratio',
+  'layers',
+  'color',
+};
+
 class AnimeAddManualPane extends StatelessWidget {
   const AnimeAddManualPane({super.key, required this.request});
 
@@ -20,11 +66,90 @@ class AnimeAddManualPane extends StatelessWidget {
       tabs: [
         LibraryAddManualPaneTab.main(
           content: AddSchemaRenderer<AnimeAddManualDraft>.embedded(
-            schema: animeAddSchema,
+            schema: animeAddSchemaFor(
+              fieldIds: _animeMainFieldIds,
+              sectionLabel: 'Main',
+            ),
             draft: draft,
             mediaKind: request.kind.apiValue,
             onVocabularyValueChanged: request.onVocabularyValueChanged,
             onVocabularyValuesChanged: request.onVocabularyValuesChanged,
+            onChanged: request.onManualDraftChanged,
+          ),
+        ),
+        LibraryAddManualPaneTab(
+          id: 'media',
+          label: 'Details',
+          icon: Icons.article_outlined,
+          content: AddSchemaRenderer<AnimeAddManualDraft>.embedded(
+            schema: animeAddSchemaFor(
+              fieldIds: _animeDetailsFieldIds,
+              sectionLabel: 'Details',
+            ),
+            draft: draft,
+            mediaKind: request.kind.apiValue,
+            onVocabularyValueChanged: request.onVocabularyValueChanged,
+            onVocabularyValuesChanged: request.onVocabularyValuesChanged,
+            onChanged: request.onManualDraftChanged,
+          ),
+        ),
+        LibraryAddManualPaneTab(
+          id: 'edition',
+          label: 'Edition',
+          icon: Icons.inventory_2_outlined,
+          content: AddSchemaRenderer<AnimeAddManualDraft>.embedded(
+            schema: animeAddSchemaFor(
+              fieldIds: _animeEditionFieldIds,
+              sectionLabel: 'Edition',
+            ),
+            draft: draft,
+            mediaKind: request.kind.apiValue,
+            onVocabularyValueChanged: request.onVocabularyValueChanged,
+            onVocabularyValuesChanged: request.onVocabularyValuesChanged,
+            onChanged: request.onManualDraftChanged,
+          ),
+        ),
+        LibraryAddManualPaneTab(
+          id: 'specs',
+          label: 'Specs',
+          icon: Icons.tune_outlined,
+          content: AddSchemaRenderer<AnimeAddManualDraft>.embedded(
+            schema: animeAddSchemaFor(
+              fieldIds: _animeSpecsFieldIds,
+              sectionLabel: 'Specs',
+            ),
+            draft: draft,
+            mediaKind: request.kind.apiValue,
+            onVocabularyValueChanged: request.onVocabularyValueChanged,
+            onVocabularyValuesChanged: request.onVocabularyValuesChanged,
+            onChanged: request.onManualDraftChanged,
+          ),
+        ),
+        LibraryAddManualPaneTab(
+          id: 'cover',
+          label: 'Cover',
+          icon: Icons.camera_alt_outlined,
+          content: AddSchemaRenderer<AnimeAddManualDraft>.embedded(
+            schema: animeAddSchemaFor(
+              fieldIds: const {'cover_image_url'},
+              sectionLabel: 'Cover',
+            ),
+            draft: draft,
+            mediaKind: request.kind.apiValue,
+            onChanged: request.onManualDraftChanged,
+          ),
+        ),
+        LibraryAddManualPaneTab(
+          id: 'synopsis',
+          label: 'Synopsis',
+          icon: Icons.description_outlined,
+          content: AddSchemaRenderer<AnimeAddManualDraft>.embedded(
+            schema: animeAddSchemaFor(
+              fieldIds: const {'synopsis'},
+              sectionLabel: 'Synopsis',
+            ),
+            draft: draft,
+            mediaKind: request.kind.apiValue,
             onChanged: request.onManualDraftChanged,
           ),
         ),
