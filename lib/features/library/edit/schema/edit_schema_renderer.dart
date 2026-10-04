@@ -129,6 +129,7 @@ class EditSchemaRenderer<TModel, TDraft> extends StatefulWidget {
 class EditSchemaRendererState<TModel, TDraft>
     extends State<EditSchemaRenderer<TModel, TDraft>> {
   final _textControllers = LibrarySchemaTextControllerStore();
+  final Map<String, FocusNode> _fieldFocusNodes = {};
   late List<int> _tabOrder;
   late int _selectedTabIndex;
   final Map<String, Map<String, ({String listName, String value})>>
@@ -249,6 +250,9 @@ class EditSchemaRendererState<TModel, TDraft>
   @override
   void dispose() {
     _textControllers.dispose();
+    for (final node in _fieldFocusNodes.values) {
+      node.dispose();
+    }
     super.dispose();
   }
 
@@ -391,7 +395,7 @@ class EditSchemaRendererState<TModel, TDraft>
           LibraryFieldSpecLayout<TDraft>(
             fields: section.fields,
             draft: widget.draft,
-            buildField: _buildField,
+            buildField: (field) => _buildField(tab.id, field),
             maxColumns: section.maxColumns,
             fullWidthFieldIds: section.fullWidthFieldIds,
             fieldColumnSpans: section.fieldColumnSpans,
@@ -403,19 +407,25 @@ class EditSchemaRendererState<TModel, TDraft>
     );
   }
 
-  Widget _buildField(LibraryFieldSpec<TDraft> field) =>
+  Widget _buildField(String tabId, LibraryFieldSpec<TDraft> field) =>
       LibraryFieldSpecControlBuilder<TDraft>(
         context: context,
         draft: widget.draft,
         mode: LibraryFieldSpecControlMode.edit,
         controllerFor: _controllerFor,
         mediaKind: widget.mediaKind,
+        focusNodeFor: (fieldId) => _fieldFocusNode(tabId, fieldId),
         onChanged: () {
           if (mounted) setState(() => _validationError = null);
         },
         onVocabularyValueChanged: _rememberVocabularyValue,
         onVocabularyValuesChanged: _rememberVocabularyValues,
       ).build(field);
+
+  FocusNode _fieldFocusNode(String tabId, String fieldId) {
+    final key = '$tabId::$fieldId';
+    return _fieldFocusNodes.putIfAbsent(key, FocusNode.new);
+  }
 
   void _rememberVocabularyValue({
     required String fieldId,
@@ -560,13 +570,13 @@ class EditSchemaRendererState<TModel, TDraft>
     if (_isSaving) return;
     final onSave = widget.onSave;
     if (onSave == null) return;
-    if (Form.maybeOf(context)?.validate() == false) return;
+    final formIsValid = Form.maybeOf(context)?.validate() ?? true;
     final schemaError = widget.schema.validate?.call(
       widget.model,
       widget.draft,
     );
     final fieldIssue = _firstFieldIssue();
-    if (schemaError != null || fieldIssue != null) {
+    if (!formIsValid || schemaError != null || fieldIssue != null) {
       final visibleTabs = _orderedVisibleTabIndexes();
       final invalidVisibleIndex =
           fieldIssue == null ? -1 : visibleTabs.indexOf(fieldIssue.tabIndex);
@@ -577,6 +587,11 @@ class EditSchemaRendererState<TModel, TDraft>
         }
       });
       _rememberSelectedTab();
+      if (schemaError == null &&
+          fieldIssue?.focusKey != null &&
+          invalidVisibleIndex >= 0) {
+        _focusInvalidField(fieldIssue!.focusKey!);
+      }
       return;
     }
 
@@ -620,7 +635,26 @@ class EditSchemaRendererState<TModel, TDraft>
   /// own the visible Save button without duplicating schema behavior.
   Future<void> save() => _save();
 
-  ({int tabIndex, String error})? _firstFieldIssue() {
+  void _focusInvalidField(String key) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      final node = _fieldFocusNodes[key];
+      if (node == null) return;
+      node.requestFocus();
+      final targetContext = node.context;
+      if (targetContext != null) {
+        unawaited(
+          Scrollable.ensureVisible(
+            targetContext,
+            alignment: 0.25,
+            duration: Duration.zero,
+          ),
+        );
+      }
+    });
+  }
+
+  ({int tabIndex, String error, String? focusKey})? _firstFieldIssue() {
     for (var tabIndex = 0; tabIndex < widget.schema.tabs.length; tabIndex++) {
       final tab = widget.schema.tabs[tabIndex];
       if (!tab.isVisible(widget.draft)) continue;
@@ -628,8 +662,23 @@ class EditSchemaRendererState<TModel, TDraft>
         if (!section.isVisible(widget.draft)) continue;
         for (final field in section.fields) {
           if (field.isVisible(widget.draft)) {
-            final error = field.validate(widget.draft);
-            if (error != null) return (tabIndex: tabIndex, error: error);
+            final error = field is LibraryNumberFieldSpec<TDraft>
+                ? libraryNumberFieldError(
+                    field,
+                    _controllerFor(
+                      field.id,
+                      field.value(widget.draft)?.toString() ?? '',
+                    ).text,
+                    widget.draft,
+                  )
+                : field.validate(widget.draft);
+            if (error != null) {
+              return (
+                tabIndex: tabIndex,
+                error: error,
+                focusKey: '${tab.id}::${field.id}',
+              );
+            }
           }
         }
       }
@@ -642,6 +691,7 @@ class EditSchemaRendererState<TModel, TDraft>
         return (
           tabIndex: widget.schema.tabs.length + extraIndex,
           error: error,
+          focusKey: null,
         );
       }
     }

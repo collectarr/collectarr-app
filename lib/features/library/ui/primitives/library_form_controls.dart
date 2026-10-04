@@ -40,6 +40,7 @@ class LibraryTextFormControl extends StatelessWidget {
     this.maxLines = 1,
     this.obscureText = false,
     this.enabled = true,
+    this.focusNode,
   });
 
   final TextEditingController controller;
@@ -50,10 +51,12 @@ class LibraryTextFormControl extends StatelessWidget {
   final int maxLines;
   final bool obscureText;
   final bool enabled;
+  final FocusNode? focusNode;
 
   @override
   Widget build(BuildContext context) => TextFormField(
         controller: controller,
+        focusNode: focusNode,
         validator: validator,
         onChanged: onChanged,
         keyboardType: keyboardType,
@@ -88,9 +91,15 @@ class LibraryFormGroup extends StatelessWidget {
 }
 
 class LibraryPartialDateInput extends StatefulWidget {
-  const LibraryPartialDateInput({super.key, this.value, required this.onChanged});
+  const LibraryPartialDateInput({
+    super.key,
+    this.value,
+    required this.onChanged,
+    this.focusNode,
+  });
   final PartialDate? value;
   final ValueChanged<PartialDate?> onChanged;
+  final FocusNode? focusNode;
 
   @override
   State<LibraryPartialDateInput> createState() => _LibraryPartialDateInputState();
@@ -140,6 +149,7 @@ class _LibraryPartialDateInputState extends State<LibraryPartialDateInput> {
           if (i > 0) const SizedBox(width: 6),
           Expanded(flex: i == 0 ? 3 : 2, child: TextFormField(
             controller: _controllers[i],
+            focusNode: i == 0 ? widget.focusNode : null,
             textAlign: TextAlign.center,
             keyboardType: TextInputType.number,
             inputFormatters: [FilteringTextInputFormatter.digitsOnly, LengthLimitingTextInputFormatter(i == 0 ? 4 : 2)],

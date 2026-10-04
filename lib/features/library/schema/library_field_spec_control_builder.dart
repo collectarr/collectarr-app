@@ -39,6 +39,7 @@ final class LibraryFieldSpecControlBuilder<TDraft>
     this.onVocabularyValueChanged,
     this.onVocabularyValuesChanged,
     this.mediaKind,
+    this.focusNodeFor,
   });
 
   final BuildContext context;
@@ -50,6 +51,9 @@ final class LibraryFieldSpecControlBuilder<TDraft>
   final LibraryVocabularyValueChanged? onVocabularyValueChanged;
   final LibraryVocabularyValuesChanged? onVocabularyValuesChanged;
   final String? mediaKind;
+  final FocusNode? Function(String fieldId)? focusNodeFor;
+
+  FocusNode? _focusNode(String fieldId) => focusNodeFor?.call(fieldId);
 
   Widget build(LibraryFieldSpec<TDraft> field) {
     final child = field.accept(this);
@@ -62,17 +66,29 @@ final class LibraryFieldSpecControlBuilder<TDraft>
                 field is LibraryVocabularyFieldSpec<TDraft, Object?>));
     final labelled =
         external ? LibraryFormField(label: field.label, child: child) : child;
-    if (field.validator == null ||
-        field is LibraryTextFieldSpec<TDraft> ||
+    final focusNode = _focusNode(field.id);
+    final hasControlFocus = field is LibraryTextFieldSpec<TDraft> ||
         field is LibraryNumberFieldSpec<TDraft> ||
-        field is LibraryMoneyFieldSpec<TDraft>) {
-      return labelled;
+        field is LibraryMoneyFieldSpec<TDraft> ||
+        field is LibraryDateFieldSpec<TDraft> ||
+        field is LibraryPartialDateFieldSpec<TDraft> ||
+        field is LibrarySingleValueField<TDraft, dynamic>;
+    final hasFieldValidator = field.validator != null &&
+        field is! LibraryTextFieldSpec<TDraft> &&
+        field is! LibraryNumberFieldSpec<TDraft> &&
+        field is! LibraryMoneyFieldSpec<TDraft>;
+    Widget result = labelled;
+    if (hasFieldValidator) {
+      result = FormField<void>(
+        key: ValueKey<String>('library-field-validator-${field.id}'),
+        validator: (_) => field.validate(draft),
+        builder: (_) => labelled,
+      );
     }
-    return FormField<void>(
-      key: ValueKey<String>('library-field-validator-${field.id}'),
-      validator: (_) => field.validate(draft),
-      builder: (_) => labelled,
-    );
+    if (focusNode != null && !hasControlFocus) {
+      result = Focus(focusNode: focusNode, child: result);
+    }
+    return result;
   }
 
   @override
@@ -80,6 +96,7 @@ final class LibraryFieldSpecControlBuilder<TDraft>
     final controller = controllerFor(field.id, field.value(draft));
     return LibraryTextFormControl(
       controller: controller,
+      focusNode: _focusNode(field.id),
       maxLines: field.maxLines,
       obscureText: field.obscureText,
       validator: (_) => field.validate(draft),
@@ -101,10 +118,13 @@ final class LibraryFieldSpecControlBuilder<TDraft>
     );
     return LibraryTextFormControl(
       controller: controller,
+      focusNode: _focusNode(field.id),
       keyboardType: const TextInputType.numberWithOptions(decimal: true),
-      validator: (_) => _numberError(field, controller.text, draft),
+      validator: (_) => libraryNumberFieldError(field, controller.text, draft),
       decoration: _controlDecoration(
-        InputDecoration(errorText: _numberError(field, controller.text, draft)),
+        InputDecoration(
+          errorText: libraryNumberFieldError(field, controller.text, draft),
+        ),
       ),
       onChanged: (value) {
         field.setValue(draft, _parseNumber(value));
@@ -119,6 +139,7 @@ final class LibraryFieldSpecControlBuilder<TDraft>
     return LibraryDateFieldButton(
       label: field.label,
       value: value,
+      focusNode: _focusNode(field.id),
       errorText: field.validate(draft),
       onChanged: (picked) {
         var selected = picked;
@@ -141,6 +162,7 @@ final class LibraryFieldSpecControlBuilder<TDraft>
   Widget visitPartialDate(LibraryPartialDateFieldSpec<TDraft> field) {
     return LibraryPartialDateInput(
       value: field.value(draft),
+      focusNode: _focusNode(field.id),
       onChanged: (value) {
         field.updateValue(draft, value);
         onChanged();
@@ -157,6 +179,7 @@ final class LibraryFieldSpecControlBuilder<TDraft>
     );
     return LibraryTextFormControl(
       controller: controller,
+      focusNode: _focusNode(field.id),
       keyboardType: const TextInputType.numberWithOptions(decimal: true),
       validator: (_) => field.validate(draft),
       decoration: _controlDecoration(
@@ -320,6 +343,7 @@ final class LibraryFieldSpecControlBuilder<TDraft>
     return LibraryDropdownPickField<TValue>(
       label: field.label,
       value: currentValue,
+      focusNode: _focusNode(field.id),
       options: resolvedOptions,
       errorText: field.validate(draft),
       allowCustomValue: vocabulary?.allowCustomValues ?? false,
@@ -483,7 +507,7 @@ final class LibraryFieldSpecControlBuilder<TDraft>
   }
 }
 
-String? _numberError<TDraft>(
+String? libraryNumberFieldError<TDraft>(
   LibraryNumberFieldSpec<TDraft> field,
   String raw,
   TDraft draft,

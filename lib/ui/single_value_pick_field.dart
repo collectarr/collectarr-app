@@ -23,6 +23,7 @@ class SingleValuePickField extends StatefulWidget {
     this.showInlineLabel = true,
     this.enabled = true,
     this.readOnly = false,
+    this.focusNode,
   });
 
   final TextEditingController controller;
@@ -40,13 +41,15 @@ class SingleValuePickField extends StatefulWidget {
   final bool showInlineLabel;
   final bool enabled;
   final bool readOnly;
+  final FocusNode? focusNode;
 
   @override
   State<SingleValuePickField> createState() => _SingleValuePickFieldState();
 }
 
 class _SingleValuePickFieldState extends State<SingleValuePickField> {
-  late final FocusNode _focusNode;
+  late final FocusNode _ownedFocusNode;
+  FocusNode get _focusNode => widget.focusNode ?? _ownedFocusNode;
   final GlobalKey _fieldAnchorKey = GlobalKey();
   static const _suffixFieldExtent = kLibraryFormControlHeight;
   static const _suffixButtonExtent = 32.0;
@@ -55,12 +58,12 @@ class _SingleValuePickFieldState extends State<SingleValuePickField> {
   @override
   void initState() {
     super.initState();
-    _focusNode = FocusNode();
+    _ownedFocusNode = FocusNode();
   }
 
   @override
   void dispose() {
-    _focusNode.dispose();
+    _ownedFocusNode.dispose();
     super.dispose();
   }
 

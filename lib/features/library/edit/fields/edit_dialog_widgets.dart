@@ -681,6 +681,7 @@ class LibraryDateFieldButton extends StatefulWidget {
     required this.onChanged,
     this.errorText,
     this.fieldKeyPrefix,
+    this.focusNode,
   });
 
   final String label;
@@ -688,6 +689,7 @@ class LibraryDateFieldButton extends StatefulWidget {
   final ValueChanged<DateTime?> onChanged;
   final String? errorText;
   final String? fieldKeyPrefix;
+  final FocusNode? focusNode;
 
   @override
   State<LibraryDateFieldButton> createState() => _LibraryDateFieldButtonState();
@@ -765,6 +767,7 @@ class _LibraryDateFieldButtonState extends State<LibraryDateFieldButton> {
                         key: _partKey('year'),
                         controller: _yearController,
                         hintText: 'YYYY',
+                        focusNode: widget.focusNode,
                       ),
                     ),
                     _dateConnector(palette),
@@ -834,6 +837,7 @@ class _LibraryDateFieldButtonState extends State<LibraryDateFieldButton> {
     required AppThemePalette palette,
     required TextEditingController controller,
     required String hintText,
+    FocusNode? focusNode,
   }) {
     final outline = OutlineInputBorder(
       borderSide: BorderSide(color: palette.divider),
@@ -842,6 +846,7 @@ class _LibraryDateFieldButtonState extends State<LibraryDateFieldButton> {
     return TextField(
       key: key,
       controller: controller,
+      focusNode: focusNode,
       keyboardType: TextInputType.number,
       textAlign: TextAlign.center,
       maxLength: hintText.length,

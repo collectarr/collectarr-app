@@ -29,6 +29,7 @@ class LibraryDropdownPickField<TValue> extends StatefulWidget {
     this.manageTooltip,
     this.clearOptionLabel,
     this.enabled = true,
+    this.focusNode,
   });
 
   final String label;
@@ -43,6 +44,7 @@ class LibraryDropdownPickField<TValue> extends StatefulWidget {
   final String? manageTooltip;
   final String? clearOptionLabel;
   final bool enabled;
+  final FocusNode? focusNode;
 
   @override
   State<LibraryDropdownPickField<TValue>> createState() =>
@@ -144,6 +146,7 @@ class _LibraryDropdownPickFieldState<TValue>
       label: widget.label,
       child: SingleValuePickField(
         controller: _controller,
+        focusNode: widget.focusNode,
         label: widget.label,
         showInlineLabel: false,
         options: _labels,
