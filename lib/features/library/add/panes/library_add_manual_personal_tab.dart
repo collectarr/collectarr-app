@@ -2,6 +2,7 @@ import 'package:collectarr_app/features/library/add/controllers/library_add_dial
 import 'package:collectarr_app/features/library/add/models/library_add_common_draft.dart';
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/schema/library_field_spec.dart';
+import 'package:collectarr_app/features/library/config/library_dialog_tokens.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_dropdown_pick_field.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_form_controls.dart';
 import 'package:collectarr_app/features/pick_lists/pick_list_options.dart';
@@ -26,59 +27,69 @@ final class LibraryAddManualPersonalTab extends StatelessWidget {
     final date = current.purchaseDate ?? request.defaultPurchaseDate;
     final fields = <Widget>[
       if (request.conditions.isNotEmpty)
-        DropdownButtonFormField<String>(
-          key: const ValueKey('manual-condition'),
-          initialValue: request.conditions.contains(condition)
-              ? condition
-              : request.conditions.first,
-          decoration: const InputDecoration(labelText: 'Condition'),
-          items: [
-            for (final value in request.conditions)
-              DropdownMenuItem(value: value, child: Text(value)),
-          ],
-          onChanged: (value) {
-            if (value != null) _updateCommon(condition: value);
-          },
+        LibraryFormField(
+          label: 'Condition',
+          child: DropdownButtonFormField<String>(
+            key: ValueKey('manual-condition-$condition'),
+            initialValue: request.conditions.contains(condition)
+                ? condition
+                : request.conditions.first,
+            decoration: const InputDecoration(
+              constraints: BoxConstraints(minHeight: kLibraryFormControlHeight),
+            ),
+            items: [
+              for (final value in request.conditions)
+                DropdownMenuItem(value: value, child: Text(value)),
+            ],
+            onChanged: (value) {
+              if (value != null) _updateCommon(condition: value);
+            },
+          ),
         )
       else
-        TextFormField(
-          key: const ValueKey('manual-condition'),
-          initialValue: condition,
-          decoration: const InputDecoration(labelText: 'Condition'),
-          onChanged: (value) => _updateCommon(condition: value),
+        LibraryFormField(
+          label: 'Condition',
+          child: TextFormField(
+            key: const ValueKey('manual-condition'),
+            initialValue: condition,
+            decoration: const InputDecoration(
+              constraints: BoxConstraints(minHeight: kLibraryFormControlHeight),
+            ),
+            onChanged: (value) => _updateCommon(condition: value),
+          ),
         ),
       _locationField(locationId),
       _purchaseDateField(context, date),
-      TextFormField(
-        key: const ValueKey('manual-price'),
-        initialValue: current.pricePaidCents == null
-            ? ''
-            : (current.pricePaidCents! / 100).toStringAsFixed(2),
-        decoration: const InputDecoration(labelText: 'Purchase Price'),
-        keyboardType: const TextInputType.numberWithOptions(decimal: true),
-        onChanged: (value) {
-          final text = value.trim();
-          if (text.isEmpty) {
-            _updateCommon(pricePaidCents: null);
-            return;
-          }
-          final amount = double.tryParse(text);
-          if (amount != null && amount.isFinite && amount >= 0) {
-            _updateCommon(pricePaidCents: (amount * 100).round());
-          }
-        },
-      ),
       LibraryFormField(
-        label: 'Currency',
-        child: LibraryDropdownPickField<String>(
-          label: 'Currency',
-          value: (current.currency ?? 'USD').toUpperCase(),
-          options: [
-            for (final code in kLibraryCurrencyCodes)
-              LibraryFieldOption(value: code, label: code),
-          ],
-          onChanged: (value) => _updateCommon(currency: value),
+        label: 'Purchase Price',
+        child: TextFormField(
+          key: const ValueKey('manual-price'),
+          controller: request.priceController,
+          decoration: const InputDecoration(
+            constraints: BoxConstraints(minHeight: kLibraryFormControlHeight),
+          ),
+          keyboardType: const TextInputType.numberWithOptions(decimal: true),
+          onChanged: (value) {
+            final text = value.trim();
+            if (text.isEmpty) {
+              _updateCommon(pricePaidCents: null);
+              return;
+            }
+            final amount = double.tryParse(text.replaceAll(',', '.'));
+            if (amount != null && amount.isFinite && amount >= 0) {
+              _updateCommon(pricePaidCents: (amount * 100).round());
+            }
+          },
         ),
+      ),
+      LibraryDropdownPickField<String>(
+        label: 'Currency',
+        value: (current.currency ?? 'USD').toUpperCase(),
+        options: [
+          for (final code in kLibraryCurrencyCodes)
+            LibraryFieldOption(value: code, label: code),
+        ],
+        onChanged: (value) => _updateCommon(currency: value),
       ),
       LibraryDropdownPickField<String>(
         label: 'Purchase Store',
@@ -120,33 +131,35 @@ final class LibraryAddManualPersonalTab extends StatelessWidget {
           );
         },
       ),
-      LibraryFormField(
+      MultiSelectPickListField(
         label: 'Tags',
-        child: MultiSelectPickListField(
-          label: 'Tags',
-          values: splitPickListValues(
-            request.tagsController.text.trim().isNotEmpty
-                ? request.tagsController.text
-                : current.tags ?? request.defaultTags,
-          ),
-          options: request.tagOptions,
-          onChanged: (values) {
-            final joined = joinPickListValues(values) ?? '';
-            request.tagsController.text = joined;
-            _updateCommon(tags: joined);
-            request.onVocabularyValuesChanged?.call(
-              fieldId: 'tags',
-              listName: UniversalVocabularies.tags.key,
-              values: values.toSet(),
-            );
-          },
+        values: splitPickListValues(
+          request.tagsController.text.trim().isNotEmpty
+              ? request.tagsController.text
+              : current.tags ?? request.defaultTags,
         ),
+        options: request.tagOptions,
+        onChanged: (values) {
+          final joined = joinPickListValues(values) ?? '';
+          request.tagsController.text = joined;
+          _updateCommon(tags: joined);
+          request.onVocabularyValuesChanged?.call(
+            fieldId: 'tags',
+            listName: UniversalVocabularies.tags.key,
+            values: values.toSet(),
+          );
+        },
       ),
-      TextField(
-        controller: request.personalNotesController,
-        decoration: const InputDecoration(labelText: 'Notes'),
-        minLines: 2,
-        maxLines: 4,
+      LibraryFormField(
+        label: 'Notes',
+        child: TextField(
+          controller: request.personalNotesController,
+          decoration: const InputDecoration(
+            constraints: BoxConstraints(minHeight: kLibraryFormControlHeight),
+          ),
+          minLines: 2,
+          maxLines: 4,
+        ),
       ),
     ];
 
@@ -177,58 +190,71 @@ final class LibraryAddManualPersonalTab extends StatelessWidget {
 
   Widget _locationField(String? selectedId) {
     if (request.locations.isEmpty) {
-      return TextFormField(
-        key: ValueKey('manual-location-${request.defaultLocationLabel}'),
-        initialValue: request.defaultLocationLabel ?? '',
-        readOnly: true,
-        decoration: const InputDecoration(labelText: 'Location'),
+      return LibraryFormField(
+        label: 'Location',
+        child: TextFormField(
+          key: ValueKey('manual-location-${request.defaultLocationLabel}'),
+          initialValue: request.defaultLocationLabel ?? '',
+          readOnly: true,
+          decoration: const InputDecoration(
+            constraints: BoxConstraints(minHeight: kLibraryFormControlHeight),
+          ),
+        ),
       );
     }
     final selected =
         request.locations.any((location) => location.id == selectedId)
             ? selectedId
             : null;
-    return DropdownButtonFormField<String>(
-      key: ValueKey('manual-location-$selected'),
-      initialValue: selected,
-      decoration: const InputDecoration(labelText: 'Location'),
-      items: [
-        for (final location in request.locations)
-          DropdownMenuItem(
-            value: location.id,
-            child: Text(location.fullPath(request.locations)),
-          ),
-      ],
-      onChanged: (value) {
-        if (value != null) _updateCommon(locationId: value);
-      },
+    return LibraryFormField(
+      label: 'Location',
+      child: DropdownButtonFormField<String>(
+        key: ValueKey('manual-location-$selected'),
+        initialValue: selected,
+        decoration: const InputDecoration(
+          constraints: BoxConstraints(minHeight: kLibraryFormControlHeight),
+        ),
+        items: [
+          for (final location in request.locations)
+            DropdownMenuItem(
+              value: location.id,
+              child: Text(location.fullPath(request.locations)),
+            ),
+        ],
+        onChanged: (value) {
+          if (value != null) _updateCommon(locationId: value);
+        },
+      ),
     );
   }
 
   Widget _purchaseDateField(BuildContext context, DateTime? currentDate) =>
-      InkWell(
-        onTap: () async {
-          final selected = await showDatePicker(
-            context: context,
-            initialDate: currentDate ?? DateTime.now(),
-            firstDate: DateTime(1),
-            lastDate: DateTime(9999),
-          );
-          if (selected == null) return;
-          request.purchaseDateController.text = _dateText(selected);
-          _updateCommon(purchaseDate: selected);
-        },
-        child: InputDecorator(
-          decoration: const InputDecoration(
-            labelText: 'Purchase Date',
-            suffixIcon: Icon(Icons.calendar_month_outlined),
-          ),
-          child: Text(
-            currentDate == null ? 'Select a date' : _dateText(currentDate),
-            style: TextStyle(
-              color: currentDate == null
-                  ? appPalette(context).textMuted
-                  : appPalette(context).textPrimary,
+      LibraryFormField(
+        label: 'Purchase Date',
+        child: InkWell(
+          onTap: () async {
+            final selected = await showDatePicker(
+              context: context,
+              initialDate: currentDate ?? DateTime.now(),
+              firstDate: DateTime(1),
+              lastDate: DateTime(9999),
+            );
+            if (selected == null) return;
+            request.purchaseDateController.text = _dateText(selected);
+            _updateCommon(purchaseDate: selected);
+          },
+          child: InputDecorator(
+            decoration: const InputDecoration(
+              suffixIcon: Icon(Icons.calendar_month_outlined),
+              constraints: BoxConstraints(minHeight: kLibraryFormControlHeight),
+            ),
+            child: Text(
+              currentDate == null ? 'Select a date' : _dateText(currentDate),
+              style: TextStyle(
+                color: currentDate == null
+                    ? appPalette(context).textMuted
+                    : appPalette(context).textPrimary,
+              ),
             ),
           ),
         ),
