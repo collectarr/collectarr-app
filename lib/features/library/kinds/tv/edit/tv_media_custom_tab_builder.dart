@@ -7,6 +7,7 @@ import 'package:collectarr_app/features/library/kinds/tv/edit/tabs/tv_edition_ta
 import 'package:collectarr_app/features/library/kinds/tv/edit/tabs/tv_links_tab.dart';
 import 'package:collectarr_app/features/library/kinds/tv/edit/tabs/tv_media_tab.dart';
 import 'package:collectarr_app/features/library/kinds/tv/edit/tabs/tv_specs_tab.dart';
+import 'package:collectarr_app/features/library/kinds/tv/vocabulary/tv_vocabularies.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:flutter/material.dart';
 
@@ -31,13 +32,15 @@ Widget? buildTvMediaCustomTabView({
     'edition' => TvEditEditionTab(
         tvEdit: tvEdit,
         accent: accent,
-        physicalFormats: const [],
+        physicalFormats: draft.physicalFormats,
       ),
     'specs' => TvEditSpecsTab(
         tvDraft: entryDraft,
         accent: accent,
-        audioTrackOptions: const [],
-        subtitleOptions: const [],
+        audioTrackOptions:
+            draft.kindVocabularies[TvVocabularyIds.audio.value] ?? const [],
+        subtitleOptions:
+            draft.kindVocabularies[TvVocabularyIds.subtitles.value] ?? const [],
         layersOptions: const [],
         colorOptions: const [],
       ),

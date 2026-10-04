@@ -33,7 +33,7 @@ Widget? buildAnimeMediaCustomTabView({
         draft: draft,
         animeDraft: catalogDraft,
         accent: accent,
-        physicalFormats: const [],
+        physicalFormats: draft.physicalFormats,
       ),
     'specs' => AnimeEditSpecsTab(
         animeDraft: catalogDraft,

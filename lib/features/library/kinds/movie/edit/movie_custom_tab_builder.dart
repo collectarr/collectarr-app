@@ -8,6 +8,7 @@ import 'package:collectarr_app/features/library/kinds/movie/edit/tabs/movie_edit
 import 'package:collectarr_app/features/library/kinds/movie/edit/tabs/movie_links_tab.dart';
 import 'package:collectarr_app/features/library/kinds/movie/edit/tabs/movie_catalog_item_tab.dart';
 import 'package:collectarr_app/features/library/kinds/movie/edit/tabs/movie_specs_tab.dart';
+import 'package:collectarr_app/features/library/kinds/movie/vocabulary/movie_vocabularies.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:flutter/material.dart';
 
@@ -32,13 +33,16 @@ Widget? buildMovieCustomTabView({
     'edition' => MovieEditEditionTab(
         movieEdit: movieEdit,
         accent: accent,
-        physicalFormats: const [],
+        physicalFormats: draft.physicalFormats,
       ),
     'specs' => MovieEditSpecsTab(
         movieDraft: catalogDraft,
         accent: accent,
-        audioTrackOptions: const [],
-        subtitleOptions: const [],
+        audioTrackOptions:
+            draft.kindVocabularies[MovieVocabularyIds.audio.value] ?? const [],
+        subtitleOptions:
+            draft.kindVocabularies[MovieVocabularyIds.subtitles.value] ??
+                const [],
         layersOptions: const [],
         colorOptions: const [],
       ),
