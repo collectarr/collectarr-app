@@ -5,7 +5,8 @@ import 'package:collectarr_app/features/library/add/panes/library_add_manual_per
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/edit/sections/custom_fields_edit_section.dart';
 import 'package:collectarr_app/features/library/edit/sections/item_images_edit_section.dart';
-import 'package:collectarr_app/features/library/edit/shell/library_edit_scaffold.dart';
+import 'package:collectarr_app/features/library/edit/shell/library_edit_scaffold.dart'
+    show LibraryEditDialogScaffold, LibraryEditTabNavigationScope;
 import 'package:collectarr_app/features/library/schema/library_form_schema.dart';
 import 'package:collectarr_app/features/library/schema/library_form_schema_validation.dart';
 import 'package:collectarr_app/features/library/schema/library_field_spec_renderer.dart';
@@ -119,7 +120,7 @@ class _LibraryAddManualPaneShellState extends State<LibraryAddManualPaneShell>
   int _tabCount(LibraryAddManualPaneShell shell) => _tabsFor(shell).length;
 
   String? _validateAllTabs(BuildContext validationContext) {
-    final controllers = LibrarySchemaTextControllerScope.maybeOf(
+    final controllers = LibrarySchemaTextControllerScope.readOf(
       validationContext,
     );
     if (controllers == null) {
@@ -127,25 +128,46 @@ class _LibraryAddManualPaneShellState extends State<LibraryAddManualPaneShell>
           'Manual Add validation requires the dialog controller scope.');
     }
     final tabs = _tabsFor(widget);
-    for (var index = 0; index < tabs.length; index++) {
-      final issue = tabs[index].validate?.call(controllers);
+    final navigation = LibraryEditTabNavigationScope.readOf(
+      validationContext,
+    );
+    final tabsById = {for (final tab in tabs) tab.id: tab};
+    final orderedTabs = navigation == null
+        ? tabs
+        : [
+            for (final id in navigation.orderedTabIds)
+              if (tabsById[id] case final tab?) tab,
+          ];
+    for (final tab in orderedTabs) {
+      final issue = tab.validate?.call(controllers);
       if (issue == null) continue;
-      if (_tabController.index != index) _tabController.index = index;
+      if (navigation != null) {
+        navigation.selectTabId(tab.id);
+      } else {
+        final sourceIndex = tabs.indexOf(tab);
+        if (_tabController.index != sourceIndex) {
+          _tabController.index = sourceIndex;
+        }
+      }
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted && _tabController.index == index) {
-          _formKey.currentState?.validate();
-          final fieldId = issue.fieldId;
-          if (fieldId != null) {
-            final node = _fieldFocusNodes['${tabs[index].id}::$fieldId'];
-            node?.requestFocus();
-            final targetContext = node?.context;
-            if (targetContext != null) {
-              Scrollable.ensureVisible(
-                targetContext,
-                alignment: 0.25,
-                duration: Duration.zero,
-              );
-            }
+        final visibleIndex = _tabController.index;
+        final selectedTabId = navigation?.selectedTabId() ??
+            (visibleIndex >= 0 && visibleIndex < tabs.length
+                ? tabs[visibleIndex].id
+                : null);
+        if (!mounted || selectedTabId != tab.id) return;
+        _formKey.currentState?.validate();
+        final fieldId = issue.fieldId;
+        if (fieldId != null) {
+          final node = _fieldFocusNodes['${tab.id}::$fieldId'];
+          node?.requestFocus();
+          final targetContext = node?.context;
+          if (targetContext != null) {
+            Scrollable.ensureVisible(
+              targetContext,
+              alignment: 0.25,
+              duration: Duration.zero,
+            );
           }
         }
       });

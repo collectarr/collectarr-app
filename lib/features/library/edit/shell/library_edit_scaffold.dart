@@ -196,6 +196,28 @@ class _LibraryEditDialogScaffoldState extends State<LibraryEditDialogScaffold> {
     _saveTabOrder();
   }
 
+  String? _selectedTabId() {
+    final controller = widget.tabController;
+    if (controller == null || widget.tabIds.isEmpty) return null;
+    final index = controller.index;
+    if (index < 0 || index >= _tabOrder.length) return null;
+    final sourceIndex = _tabOrder[index];
+    return sourceIndex >= 0 && sourceIndex < widget.tabIds.length
+        ? widget.tabIds[sourceIndex]
+        : null;
+  }
+
+  void _selectTabId(String tabId) {
+    final controller = widget.tabController;
+    if (controller == null) return;
+    final sourceIndex = widget.tabIds.indexOf(tabId);
+    if (sourceIndex < 0) return;
+    final visibleIndex = _tabOrder.indexOf(sourceIndex);
+    if (visibleIndex >= 0 && visibleIndex < controller.length) {
+      controller.index = visibleIndex;
+    }
+  }
+
   @override
   void dispose() {
     _observedTabController?.removeListener(_rememberSelectedTab);
@@ -228,95 +250,105 @@ class _LibraryEditDialogScaffoldState extends State<LibraryEditDialogScaffold> {
     final p = appPalette(context);
     return LibrarySchemaTextControllerScope(
       store: _schemaTextControllers,
-      child: Theme(
-        data: editDialogTheme(
-          seedColor: widget.accent,
-          palette: p,
-          compactDesktop: isWideDesktop,
-        ),
-        child: LibraryDialogScaffold(
-          header: _LibraryEditTitleBar(
-            icon: widget.icon,
-            title: widget.title,
-            badges: widget.badges,
-            onClose: widget.onClose,
-            chromeVariant: widget.chromeVariant,
-            accent: widget.accent,
-            isBusy: widget.isBusy,
+      child: LibraryEditTabNavigationScope(
+        orderedTabIds: [
+          for (final sourceIndex in tabOrder)
+            if (sourceIndex >= 0 && sourceIndex < widget.tabIds.length)
+              widget.tabIds[sourceIndex],
+        ],
+        selectedTabId: _selectedTabId,
+        selectTabId: _selectTabId,
+        child: Theme(
+          data: editDialogTheme(
+            seedColor: widget.accent,
+            palette: p,
+            compactDesktop: isWideDesktop,
           ),
-          footer: widget.footerOverride ??
-              _LibraryEditFooter(
-                onCancel: widget.onCancel,
-                onSave: widget.onSave,
-                onProposeToCore: widget.onProposeToCore,
-                onPrevious: widget.onPrevious,
-                onNext: widget.onNext,
-                chromeVariant: widget.chromeVariant,
-                accent: widget.accent,
-                isBusy: widget.isBusy,
-              ),
-          maxWidth: maxWidth,
-          minHeight: 0,
-          maxHeight: maxHeight,
-          alignment: Alignment.topCenter,
-          insetPadding: EdgeInsets.fromLTRB(
-            windowClass.isMedium ? 16 : 32,
-            8,
-            windowClass.isMedium ? 16 : 32,
-            16,
-          ),
-          density: LibraryDensity.comfortable,
-          expandBody: false,
-          body: ConstrainedBox(
-            constraints: BoxConstraints(maxHeight: maxHeight),
-            child: Form(
-              key: widget.formKey,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  if (hasTabStrip)
-                    LibraryEditTabStripFrame(
-                      child: LibraryEditReorderableTabStrip(
-                        tabController: widget.tabController!,
-                        tabs: orderedTabs,
-                        accent: widget.accent,
-                        allowReorder: widget.allowTabReorder && !widget.isBusy,
-                        onReorderItem: _onReorderItem,
-                      ),
-                    ),
-                  Flexible(
-                    fit: FlexFit.loose,
-                    child: Material(
-                      color: p.surfaceBright,
-                      child: hasTabStrip
-                          ? AnimatedBuilder(
-                              animation: widget.tabController!,
-                              builder: (context, _) {
-                                final rawIndex = widget.tabController!.index;
-                                final currentIndex = rawIndex < 0
-                                    ? 0
-                                    : rawIndex >= orderedViews.length
-                                        ? orderedViews.length - 1
-                                        : rawIndex;
-                                return orderedViews[currentIndex];
-                              },
-                            )
-                          : widget.body!,
-                    ),
-                  ),
-                  if (widget.footerContent != null)
-                    Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.fromLTRB(10, 8, 10, 8),
-                      decoration: BoxDecoration(
-                        color: p.panelRaised,
-                        border: Border(
-                          top: BorderSide(color: p.divider),
+          child: LibraryDialogScaffold(
+            header: _LibraryEditTitleBar(
+              icon: widget.icon,
+              title: widget.title,
+              badges: widget.badges,
+              onClose: widget.onClose,
+              chromeVariant: widget.chromeVariant,
+              accent: widget.accent,
+              isBusy: widget.isBusy,
+            ),
+            footer: widget.footerOverride ??
+                _LibraryEditFooter(
+                  onCancel: widget.onCancel,
+                  onSave: widget.onSave,
+                  onProposeToCore: widget.onProposeToCore,
+                  onPrevious: widget.onPrevious,
+                  onNext: widget.onNext,
+                  chromeVariant: widget.chromeVariant,
+                  accent: widget.accent,
+                  isBusy: widget.isBusy,
+                ),
+            maxWidth: maxWidth,
+            minHeight: 0,
+            maxHeight: maxHeight,
+            alignment: Alignment.topCenter,
+            insetPadding: EdgeInsets.fromLTRB(
+              windowClass.isMedium ? 16 : 32,
+              8,
+              windowClass.isMedium ? 16 : 32,
+              16,
+            ),
+            density: LibraryDensity.comfortable,
+            expandBody: false,
+            body: ConstrainedBox(
+              constraints: BoxConstraints(maxHeight: maxHeight),
+              child: Form(
+                key: widget.formKey,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (hasTabStrip)
+                      LibraryEditTabStripFrame(
+                        child: LibraryEditReorderableTabStrip(
+                          tabController: widget.tabController!,
+                          tabs: orderedTabs,
+                          accent: widget.accent,
+                          allowReorder:
+                              widget.allowTabReorder && !widget.isBusy,
+                          onReorderItem: _onReorderItem,
                         ),
                       ),
-                      child: widget.footerContent!,
+                    Flexible(
+                      fit: FlexFit.loose,
+                      child: Material(
+                        color: p.surfaceBright,
+                        child: hasTabStrip
+                            ? AnimatedBuilder(
+                                animation: widget.tabController!,
+                                builder: (context, _) {
+                                  final rawIndex = widget.tabController!.index;
+                                  final currentIndex = rawIndex < 0
+                                      ? 0
+                                      : rawIndex >= orderedViews.length
+                                          ? orderedViews.length - 1
+                                          : rawIndex;
+                                  return orderedViews[currentIndex];
+                                },
+                              )
+                            : widget.body!,
+                      ),
                     ),
-                ],
+                    if (widget.footerContent != null)
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.fromLTRB(10, 8, 10, 8),
+                        decoration: BoxDecoration(
+                          color: p.panelRaised,
+                          border: Border(
+                            top: BorderSide(color: p.divider),
+                          ),
+                        ),
+                        child: widget.footerContent!,
+                      ),
+                  ],
+                ),
               ),
             ),
           ),
@@ -324,6 +356,35 @@ class _LibraryEditDialogScaffoldState extends State<LibraryEditDialogScaffold> {
       ),
     );
   }
+}
+
+/// Exposes the scaffold's visible tab order to form lifecycle coordinators.
+final class LibraryEditTabNavigationScope extends InheritedWidget {
+  const LibraryEditTabNavigationScope({
+    super.key,
+    required this.orderedTabIds,
+    required this.selectedTabId,
+    required this.selectTabId,
+    required super.child,
+  });
+
+  final List<String> orderedTabIds;
+  final String? Function() selectedTabId;
+  final ValueChanged<String> selectTabId;
+
+  static LibraryEditTabNavigationScope? readOf(BuildContext context) {
+    final widget = context
+        .getElementForInheritedWidgetOfExactType<
+            LibraryEditTabNavigationScope>()
+        ?.widget;
+    return widget is LibraryEditTabNavigationScope ? widget : null;
+  }
+
+  @override
+  bool updateShouldNotify(LibraryEditTabNavigationScope oldWidget) =>
+      !listEquals(orderedTabIds, oldWidget.orderedTabIds) ||
+      !identical(selectedTabId, oldWidget.selectedTabId) ||
+      !identical(selectTabId, oldWidget.selectTabId);
 }
 
 class _LibraryEditTitleBar extends StatelessWidget {

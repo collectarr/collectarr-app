@@ -40,6 +40,14 @@ final class LibrarySchemaTextControllerScope extends InheritedWidget {
               LibrarySchemaTextControllerScope>()
           ?.store;
 
+  static LibrarySchemaTextControllerStore? readOf(BuildContext context) {
+    final widget = context
+        .getElementForInheritedWidgetOfExactType<
+            LibrarySchemaTextControllerScope>()
+        ?.widget;
+    return widget is LibrarySchemaTextControllerScope ? widget.store : null;
+  }
+
   @override
   bool updateShouldNotify(LibrarySchemaTextControllerScope oldWidget) =>
       !identical(store, oldWidget.store);
