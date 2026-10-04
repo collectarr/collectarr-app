@@ -463,6 +463,8 @@ Still outstanding:
   read their displayed labels from the same kind-owned personal field
   contributor used by Manual Add, including Location. Their data adapters and
   tab composition remain separate for now.
+- Generic Edit now displays the full hierarchical location path, matching the
+  Manual Add location picker instead of showing only the leaf location name.
 - The controller audit now disposes Comic lookup-search, Music listening-note,
   user-folder prompt, image-detail prompt, and ordered-name sort prompt
   controllers in `finally` blocks.

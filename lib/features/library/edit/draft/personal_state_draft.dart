@@ -63,4 +63,12 @@ class PersonalStateDraft {
         .firstOrNull
         ?.name;
   }
+
+  String? get selectedLocationPath {
+    if (selectedLocationId == null) return null;
+    return availableLocations
+        .where((location) => location.id == selectedLocationId)
+        .firstOrNull
+        ?.fullPath(availableLocations);
+  }
 }

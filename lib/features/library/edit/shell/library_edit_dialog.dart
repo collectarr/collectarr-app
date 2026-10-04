@@ -243,6 +243,7 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
 
     if (mounted) {
       setState(() {
+        _draft.personal.availableLocations = locations;
         _draft.locationOptions = locations.map((l) => l.name).toList();
         _draft.ownerOptions = owners;
         _draft.purchaseStoreOptions = purchaseStores;
@@ -1071,9 +1072,9 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
             prefixIcon: Icon(Icons.place),
           ),
           child: Text(
-            _draft.personal.selectedLocationName ?? 'Pick location...',
+            _draft.personal.selectedLocationPath ?? 'Pick location...',
             style: TextStyle(
-              color: _draft.personal.selectedLocationName != null
+              color: _draft.personal.selectedLocationPath != null
                   ? Theme.of(context).colorScheme.onSurface
                   : Theme.of(context).hintColor,
             ),
