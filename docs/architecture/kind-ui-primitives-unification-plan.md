@@ -900,8 +900,13 @@ define separate external-link controller draft classes. Both reuse
 link serialization. No tests were run.
 
 Implementation note (2026-10-04): Board Game Add and catalog Edit now render
-external links through the same kind-owned editor and shared reorderable
-table. Edit loads the existing links into draft-owned rows, preserves their
+external links through a shared draft editor and reorderable table. Edit loads
+the existing links into draft-owned rows, preserves their
 unexposed identity and metadata, and applies the edited order on save. Targeted
 `dart analyze` for Board Game Add/Edit/forms passed. Tests and runtime screenshot
 review remain deferred.
+
+Implementation note (2026-10-04): The row-add, reorder, remove, and controller
+disposal behavior used by the Board Game link editor now lives in the shared
+`LibraryExternalLinksDraftEditor`; the kind maps its rows to its own typed
+catalog link model.

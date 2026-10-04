@@ -1,5 +1,5 @@
 import 'package:collectarr_app/features/library/kinds/boardgame/add/boardgame_add_manual_draft.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/forms/boardgame_external_links_editor.dart';
+import 'package:collectarr_app/features/library/edit/fields/library_external_links_draft_editor.dart';
 import 'package:flutter/material.dart';
 
 final class BoardgameAddLinksTab extends StatefulWidget {
@@ -20,7 +20,7 @@ final class BoardgameAddLinksTab extends StatefulWidget {
 
 final class _BoardgameAddLinksTabState extends State<BoardgameAddLinksTab> {
   @override
-  Widget build(BuildContext context) => BoardGameExternalLinksEditor(
+  Widget build(BuildContext context) => LibraryExternalLinksDraftEditor(
         links: widget.draft.externalLinks,
         accent: widget.accent,
         onChanged: widget.onChanged,

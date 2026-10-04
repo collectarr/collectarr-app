@@ -1,26 +1,32 @@
 import 'package:collectarr_app/features/library/edit/fields/library_external_links_table.dart';
 import 'package:flutter/material.dart';
 
-/// Shared Add/Edit editor for Board Game catalog links.
-final class BoardGameExternalLinksEditor extends StatefulWidget {
-  const BoardGameExternalLinksEditor({
+/// Owns the common row interactions for a list of editable external links.
+///
+/// Kinds keep ownership of the rows and map them to their own metadata models.
+final class LibraryExternalLinksDraftEditor extends StatefulWidget {
+  const LibraryExternalLinksDraftEditor({
     super.key,
     required this.links,
     required this.accent,
     this.onChanged,
+    this.addLabel = 'Add Link',
+    this.emptyMessage = 'No external links added.',
   });
 
   final List<LibraryExternalLinkDraftRow> links;
   final Color accent;
   final VoidCallback? onChanged;
+  final String addLabel;
+  final String emptyMessage;
 
   @override
-  State<BoardGameExternalLinksEditor> createState() =>
-      _BoardGameExternalLinksEditorState();
+  State<LibraryExternalLinksDraftEditor> createState() =>
+      _LibraryExternalLinksDraftEditorState();
 }
 
-final class _BoardGameExternalLinksEditorState
-    extends State<BoardGameExternalLinksEditor> {
+final class _LibraryExternalLinksDraftEditorState
+    extends State<LibraryExternalLinksDraftEditor> {
   @override
   Widget build(BuildContext context) =>
       LibraryExternalLinksTable<LibraryExternalLinkDraftRow>(
@@ -34,8 +40,8 @@ final class _BoardGameExternalLinksEditorState
             ),
         ],
         accent: widget.accent,
-        addLabel: 'Add Link',
-        emptyMessage: 'No external links added.',
+        addLabel: widget.addLabel,
+        emptyMessage: widget.emptyMessage,
         showTitleColumn: true,
         onAdd: () => setState(() {
           widget.links.add(LibraryExternalLinkDraftRow());
