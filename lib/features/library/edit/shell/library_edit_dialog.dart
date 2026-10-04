@@ -58,7 +58,8 @@ class LibraryEditRenderer extends ConsumerStatefulWidget {
     this.onNext,
     this.node,
     this.scope = LibraryEntityScope.catalogItem,
-  }) : draft = null;
+  })  : draft = null,
+        request = null;
 
   LibraryEditRenderer.fromDraft({
     super.key,
@@ -67,6 +68,7 @@ class LibraryEditRenderer extends ConsumerStatefulWidget {
     this.onNext,
     this.scope = LibraryEntityScope.catalogItem,
   })  : draft = draft,
+        request = null,
         node = draft.node,
         type = draft.type,
         kindItem = draft.kindItem,
@@ -80,6 +82,28 @@ class LibraryEditRenderer extends ConsumerStatefulWidget {
         customFieldDefinitions = draft.customFieldDefinitions,
         customFieldValues = draft.customFieldValues,
         itemImages = draft.itemImages;
+
+  LibraryEditRenderer.fromRequest({
+    super.key,
+    required LibraryEditDialogRequest request,
+    this.draft,
+  })  : request = request,
+        node = request.node,
+        type = request.type,
+        kindItem = request.kindItem,
+        libraryEntry = request.libraryEntry,
+        libraryEntryDispatch = request.libraryEntryDispatch,
+        wishlistItem = request.wishlistItem,
+        trackingSummary = request.trackingSummary,
+        accent = request.accent,
+        wishlistTargetOptions = request.wishlistTargetOptions,
+        physicalFormats = request.physicalFormats,
+        customFieldDefinitions = request.customFieldDefinitions,
+        customFieldValues = request.customFieldValues,
+        itemImages = request.itemImages,
+        onPrevious = request.onPrevious,
+        onNext = request.onNext,
+        scope = request.resolvedScope;
 
   final LibraryKindRegistration type;
 
@@ -102,6 +126,7 @@ class LibraryEditRenderer extends ConsumerStatefulWidget {
   final LibraryEntityRef? node;
   final LibraryEntityScope scope;
   final LibraryEditShellState? draft;
+  final LibraryEditDialogRequest? request;
 
   @override
   ConsumerState<LibraryEditRenderer> createState() =>
@@ -153,23 +178,26 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
   @override
   void initState() {
     super.initState();
+    final request = widget.request;
     _draft = widget.draft ??
-        LibraryEditShellState.fromItem(
-          type: widget.type,
-          scope: widget.scope,
-          node: widget.node,
-          item: widget.kindItem,
-          libraryEntry: widget.libraryEntry,
-          libraryEntryDispatch: widget.libraryEntryDispatch,
-          wishlistItem: widget.wishlistItem,
-          trackingSummary: widget.trackingSummary,
-          accent: widget.accent,
-          wishlistTargetOptions: widget.wishlistTargetOptions,
-          physicalFormats: widget.physicalFormats,
-          customFieldDefinitions: widget.customFieldDefinitions,
-          customFieldValues: widget.customFieldValues,
-          itemImages: widget.itemImages,
-        );
+        (request != null
+            ? LibraryEditShellState.fromRequest(request)
+            : LibraryEditShellState.fromItem(
+                type: widget.type,
+                scope: widget.scope,
+                node: widget.node,
+                item: widget.kindItem,
+                libraryEntry: widget.libraryEntry,
+                libraryEntryDispatch: widget.libraryEntryDispatch,
+                wishlistItem: widget.wishlistItem,
+                trackingSummary: widget.trackingSummary,
+                accent: widget.accent,
+                wishlistTargetOptions: widget.wishlistTargetOptions,
+                physicalFormats: widget.physicalFormats,
+                customFieldDefinitions: widget.customFieldDefinitions,
+                customFieldValues: widget.customFieldValues,
+                itemImages: widget.itemImages,
+              ));
 
     _links = [];
 
