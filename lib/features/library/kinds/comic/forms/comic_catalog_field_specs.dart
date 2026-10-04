@@ -188,6 +188,13 @@ List<LibraryFieldSpec<T>> comicCatalogItemPublicationFields<T>({
         options: const [],
         pickListKey: ComicVocabularyIds.storyArc.value,
       ),
+      ...comicCatalogItemCoverFields(values: values),
+    ];
+
+List<LibraryFieldSpec<T>> comicCatalogItemCoverFields<T>({
+  required ComicCatalogItemValuesReader<T> values,
+}) =>
+    [
       _text<T>(
         id: 'cover_image_url',
         label: 'Cover image URL',

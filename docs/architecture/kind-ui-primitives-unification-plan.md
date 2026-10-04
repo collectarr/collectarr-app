@@ -67,6 +67,11 @@ Completed implementation slices:
   staged text when the duration is corrected or the track is removed.
 - Comic Add and catalog Edit now use one shared page-count validation rule
   from the Comic catalog field definitions.
+- Comic catalog Edit now renders its Covers tab with the shared Cover image URL
+  field and uses real kind-owned editors for Creators, Characters, and Links.
+  External links are staged with draft-owned controllers while trailer links
+  remain intact; the previously blank placeholder tabs were removed. Personal
+  My Images are not exposed as catalog metadata by this typed catalog editor.
 - Music credit Name, Sort Name, and Instrument inputs now use the same external
   label primitive as the rest of the forms in both Add and Edit.
 - The controller audit found no kind-pane build path constructing a fresh
@@ -872,3 +877,9 @@ Music Add and Edit Links now also share the same temporary row model and
 controller disposal lifecycle; each tab still owns conversion to its kind
 draft. Targeted analysis of the shared links table and both Music tabs passed.
 Tests and runtime screenshot review have not been run.
+
+Implementation note (2026-10-04): Comic catalog Edit no longer contains blank
+placeholder tabs. Creators, Characters, and Links use staged editors with
+controller disposal; Covers exposes the existing typed URL field. Targeted
+`dart analyze` for the Comic catalog editor and field specs passed. Tests and
+runtime screenshot review remain deferred.

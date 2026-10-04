@@ -31,84 +31,29 @@ final EditSchema<ComicCatalogItem, ComicCatalogItemFormValues>
         LibraryFormSectionSpec<ComicCatalogItemFormValues>(
           id: 'catalog_details',
           label: 'Publication details',
-          fields: comicCatalogItemPublicationFields(
+          fields: [
+            for (final field in comicCatalogItemPublicationFields<
+                ComicCatalogItemFormValues>(
+              values: (values) => values,
+            ))
+              if (field.id != 'cover_image_url') field,
+          ],
+        ),
+      ],
+    ),
+    EditTabSpec<ComicCatalogItemFormValues>(
+      id: 'covers',
+      label: 'Covers',
+      icon: Icons.camera_alt_outlined,
+      sections: [
+        LibraryFormSectionSpec<ComicCatalogItemFormValues>(
+          id: 'cover',
+          label: 'Cover',
+          fields: comicCatalogItemCoverFields<ComicCatalogItemFormValues>(
             values: (values) => values,
           ),
         ),
       ],
     ),
-    _customTab(
-      id: 'creators',
-      label: 'Creators',
-      icon: Icons.group,
-      sectionId: 'comic_creators',
-      sectionLabel: 'Creator credits',
-      fieldId: 'creator_credits',
-      fieldLabel: 'Creators',
-    ),
-    _customTab(
-      id: 'characters',
-      label: 'Characters',
-      icon: Icons.face,
-      sectionId: 'comic_characters',
-      sectionLabel: 'Character appearances',
-      fieldId: 'character_appearances',
-      fieldLabel: 'Characters',
-    ),
-    _customTab(
-      id: 'links',
-      label: 'Links',
-      icon: Icons.public,
-      sectionId: 'external_links',
-      sectionLabel: 'External links',
-      fieldId: 'external_links',
-      fieldLabel: 'Links',
-    ),
-    _customTab(
-      id: 'cover',
-      label: 'Covers',
-      icon: Icons.image,
-      sectionId: 'cover_images',
-      sectionLabel: 'Cover images',
-      fieldId: 'cover_images',
-      fieldLabel: 'Covers',
-    ),
-    _customTab(
-      id: 'photos',
-      label: 'My Images',
-      icon: Icons.photo_library,
-      sectionId: 'photos',
-      sectionLabel: 'Personal images',
-      fieldId: 'photos',
-      fieldLabel: 'Photos',
-    ),
   ],
 );
-
-EditTabSpec<ComicCatalogItemFormValues> _customTab({
-  required String id,
-  required String label,
-  required IconData icon,
-  required String sectionId,
-  required String sectionLabel,
-  required String fieldId,
-  required String fieldLabel,
-}) =>
-    EditTabSpec<ComicCatalogItemFormValues>(
-      id: id,
-      label: label,
-      icon: icon,
-      sections: [
-        LibraryFormSectionSpec<ComicCatalogItemFormValues>(
-          id: sectionId,
-          label: sectionLabel,
-          fields: [
-            LibraryCustomFieldSpec<ComicCatalogItemFormValues>(
-              id: fieldId,
-              label: fieldLabel,
-              builder: (_, __) => const SizedBox.shrink(),
-            ),
-          ],
-        ),
-      ],
-    );
