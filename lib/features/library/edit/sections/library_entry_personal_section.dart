@@ -13,6 +13,7 @@ import 'package:collectarr_app/features/library/schema/library_field_spec.dart';
 import 'package:collectarr_app/features/library/tracking/media_rating_field.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_dropdown_pick_field.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_form_controls.dart';
+import 'package:collectarr_app/features/library/ui/primitives/library_money_amount_field.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_multi_value_options_dialog.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_multi_value_pick_field.dart';
 import 'package:collectarr_app/features/pick_lists/pick_list_options.dart';
@@ -327,36 +328,15 @@ class _LibraryEntryPersonalSectionState
         ),
       );
 
-  Widget _money(PersonalLibraryFieldSpec field) => LibraryFormField(
+  Widget _money(PersonalLibraryFieldSpec field) => LibraryMoneyAmountField(
+        fieldKey: ValueKey('library-entry-${field.key}'),
         label: field.label,
-        child: TextFormField(
-          key: ValueKey('library-entry-${field.key}'),
-          initialValue: _draft.number(field.key) == null
-              ? ''
-              : (_draft.number(field.key)! / 100).toStringAsFixed(2),
-          keyboardType: const TextInputType.numberWithOptions(decimal: true),
-          decoration: InputDecoration(prefixText: _moneyCurrency(field)),
-          validator: (value) => value == null ||
-                  value.isEmpty ||
-                  double.tryParse(value.replaceAll(',', '.')) != null
-              ? null
-              : 'Enter an amount',
-          onChanged: (raw) {
-            final amount = double.tryParse(raw.replaceAll(',', '.'));
-            _draft.set(
-              field.key,
-              amount == null ? null : (amount * 100).round(),
-            );
-          },
-        ),
+        amountMinorUnits: _draft.number(field.key),
+        currency: field.currencyFieldKey == null
+            ? 'USD'
+            : _draft.text(field.currencyFieldKey!).trim(),
+        onChanged: (amount) => _draft.set(field.key, amount),
       );
-
-  String _moneyCurrency(PersonalLibraryFieldSpec field) {
-    final currencyKey = field.currencyFieldKey;
-    if (currencyKey == null) return 'USD ';
-    final currency = _draft.text(currencyKey).trim();
-    return '${currency.isEmpty ? 'USD' : currency} ';
-  }
 
   Widget _singleVocabulary(PersonalLibraryFieldSpec field) {
     final listName = field.vocabularyListName ?? field.key;

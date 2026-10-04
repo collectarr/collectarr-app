@@ -5,6 +5,7 @@ import 'package:collectarr_app/features/library/schema/library_field_spec.dart';
 import 'package:collectarr_app/features/library/config/library_dialog_tokens.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_dropdown_pick_field.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_form_controls.dart';
+import 'package:collectarr_app/features/library/ui/primitives/library_money_amount_field.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_multi_value_options_dialog.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_multi_value_pick_field.dart';
 import 'package:collectarr_app/features/pick_lists/pick_list_options.dart';
@@ -61,27 +62,13 @@ final class LibraryAddManualPersonalTab extends StatelessWidget {
         ),
       _locationField(locationId),
       _purchaseDateField(context, date),
-      LibraryFormField(
+      LibraryMoneyAmountField(
+        key: const ValueKey('manual-price'),
         label: 'Purchase Price',
-        child: TextFormField(
-          key: const ValueKey('manual-price'),
-          controller: request.priceController,
-          decoration: const InputDecoration(
-            constraints: BoxConstraints(minHeight: kLibraryFormControlHeight),
-          ),
-          keyboardType: const TextInputType.numberWithOptions(decimal: true),
-          onChanged: (value) {
-            final text = value.trim();
-            if (text.isEmpty) {
-              _updateCommon(pricePaidCents: null);
-              return;
-            }
-            final amount = double.tryParse(text.replaceAll(',', '.'));
-            if (amount != null && amount.isFinite && amount >= 0) {
-              _updateCommon(pricePaidCents: (amount * 100).round());
-            }
-          },
-        ),
+        amountMinorUnits: current.pricePaidCents,
+        currency: current.currency ?? 'USD',
+        controller: request.priceController,
+        onChanged: (amount) => _updateCommon(pricePaidCents: amount),
       ),
       LibraryDropdownPickField<String>(
         label: 'Currency',
