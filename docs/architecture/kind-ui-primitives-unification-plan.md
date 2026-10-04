@@ -71,6 +71,10 @@ Completed implementation slices:
   one video-kind component. It preserves managed multi-value Audio/Subtitles
   vocabularies for Movie and TV, and text input for Anime, while sharing the
   Layers, Color, Discs fields and responsive layout.
+- Movie Manual Add now includes Audio tracks, Subtitles, Screen ratio, Layers,
+  Color, and Discs in its kind-owned fields and serializes them into the Movie
+  catalog document. Audio and subtitle choices use the existing Movie
+  vocabularies; empty optional values remain omitted for a new item.
 - The shared video Specs section now also edits Screen ratio. TV and Anime
   hydrate their existing Specs controllers from metadata and persist all
   fields, including explicit clears; their Add forms expose the same supported
