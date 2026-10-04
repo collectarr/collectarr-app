@@ -52,9 +52,8 @@ Completed implementation slices:
   were removed. `movie_edit_models.dart` was removed after its remaining
   external-link use moved to its owning shared edit model.
 - Movie Characters now use the shared ordered-name editor in Add and Edit.
-  The name list is editable and reorderable; Edit retains each existing
-  character's IDs, aliases, role, description, and image URL while saving the
-  changed names and order.
+  The list is editable and reorderable; an expandable details area edits
+  aliases, role, description, and image URL while preserving character IDs.
 - Movie's local entry Edit tab that contains the video specifications is now
   labelled `Specs`, avoiding the duplicate `Edition Details` tab label.
 - Movie's local-entry tab list now reuses the catalog metadata tabs, exposing
@@ -310,9 +309,8 @@ Evidence: `kinds/movie/add/movie_add_manual_pane.dart`,
   and subtitle fields retain their registered vocabulary pickers. Movie Cast,
   Crew, and Characters now share their kind-owned Add/Edit editors.
 - Cast and Crew now share typed, reorderable editors between Add and Edit.
-  Characters use an ordered-name editor and preserve other character metadata
-  during Edit. Dedicated editing for character aliases and descriptive fields
-  remains open.
+  Characters expose their full supported metadata in the same editor in Add
+  and Edit, including aliases, role, description, and image URL.
 - Add includes cover URL text instead of the same cover editor.
 - The local-entry profile now extends the same Movie metadata tabs used by the
   catalog profile, so those fields remain editable when changing an entry.
