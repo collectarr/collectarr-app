@@ -43,7 +43,7 @@ final class _MusicAlbumLinksTabState extends State<MusicAlbumLinksTab> {
       for (final row in _rows)
         MusicExternalLink(
           url: row.url.text.trim(),
-          title: row.original?.title,
+          title: _nullable(row.title.text),
           description: _nullable(row.description.text),
         ),
     ];
@@ -86,8 +86,10 @@ final class _MusicAlbumLinksTabState extends State<MusicAlbumLinksTab> {
                 for (final row in _rows)
                   LibraryExternalLinkEditRow<_ReleaseLinkRow>(
                     identity: row,
+                    titleController: row.title,
                     urlController: row.url,
                     descriptionController: row.description,
+                    titleFieldKey: ValueKey('musicAlbumLinkTitle_${row.key}'),
                     urlFieldKey: ValueKey('musicAlbumLinkUrl_${row.key}'),
                     descriptionFieldKey:
                         ValueKey('musicAlbumLinkDescription_${row.key}'),
@@ -107,30 +109,29 @@ final class _MusicAlbumLinksTabState extends State<MusicAlbumLinksTab> {
 
 final class _ReleaseLinkRow {
   _ReleaseLinkRow({
+    required this.title,
     required this.url,
     required this.description,
-    this.original,
   }) : key = UniqueKey();
 
   factory _ReleaseLinkRow.empty() => _ReleaseLinkRow(
+        title: TextEditingController(),
         url: TextEditingController(),
         description: TextEditingController(),
       );
 
   factory _ReleaseLinkRow.fromLink(MusicExternalLink link) => _ReleaseLinkRow(
+        title: TextEditingController(text: link.title ?? ''),
         url: TextEditingController(text: link.url),
-        description: TextEditingController(
-          text: link.description ?? link.title ?? '',
-        ),
-        original: link,
+        description: TextEditingController(text: link.description ?? ''),
       );
 
   final Key key;
+  final TextEditingController title;
   final TextEditingController url;
   final TextEditingController description;
-  final MusicExternalLink? original;
-
   void dispose() {
+    title.dispose();
     url.dispose();
     description.dispose();
   }

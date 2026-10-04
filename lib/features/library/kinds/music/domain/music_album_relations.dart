@@ -58,6 +58,7 @@ final class MusicAlbumContribution implements JsonEncodable {
     this.sequence,
     this.displayName,
     this.sortName,
+    this.instrument,
     this.imageUrl,
     DateTime? createdAt,
     DateTime? updatedAt,
@@ -74,6 +75,7 @@ final class MusicAlbumContribution implements JsonEncodable {
   final int? sequence;
   final String? displayName;
   final String? sortName;
+  final String? instrument;
   final String? imageUrl;
   final DateTime createdAt;
   final DateTime updatedAt;
@@ -88,6 +90,7 @@ final class MusicAlbumContribution implements JsonEncodable {
       sequence: _int(json['sequence']),
       displayName: _text(json['name']),
       sortName: _text(json['sort_name']),
+      instrument: _text(json['instrument']),
       imageUrl: _text(json['image_url']),
       createdAt: _dateTime(json['created_at']),
       updatedAt: _dateTime(json['updated_at']),
@@ -106,6 +109,7 @@ final class MusicAlbumContribution implements JsonEncodable {
         if (sequence != null) 'sequence': sequence,
         if (displayName != null) 'name': displayName,
         if (sortName != null) 'sort_name': sortName,
+        if (instrument != null) 'instrument': instrument,
         if (imageUrl != null) 'image_url': imageUrl,
       };
 }

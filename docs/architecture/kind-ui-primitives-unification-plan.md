@@ -110,8 +110,11 @@ Completed implementation slices:
   `MusicAlbumFormValues` for scalar catalog metadata. The Add draft exposes its
   existing field API as accessors over those values, while child editors retain
   their own typed state. The Add pane title field ID now matches the schema.
-  Add and Edit credit, track, image, link, and personal submission lifecycles
-  remain separate.
+  People and Classical credits also use one ordered Add/Edit editor; contribution
+  IDs, order, sort names, and musician instruments are retained by the local
+  catalog model and transport mapping. Add and Edit Links now use the same
+  reorderable table with editable Name, URL, and Description columns. Track,
+  image, and personal submission lifecycles remain separate.
 - Book now uses one kind-owned schema for the Main, Links, Covers, and Plot
   fields in Add and Edit. The shared schema edits typed Book form values,
   including identifiers, publication details, and partial dates; Edit no
@@ -298,8 +301,9 @@ Still outstanding:
 - The legacy pick-list source and its golden are retained temporarily even
   though application call sites have moved to the shared chip control. Remove
   the wrapper, barrel exports, and replace the golden during final UI cleanup.
-- Music tracks, credits, covers, links, images, and personal fields have not
-  yet converged on one complete Add/Edit draft lifecycle.
+- Music tracks, covers, images, and personal fields have not yet converged on
+  one complete Add/Edit draft lifecycle. People/Classical credits and external
+  links share their presentation while keeping kind-owned Add and Edit adapters.
 
 ## 1. What is already shared
 
@@ -330,7 +334,7 @@ My Images and adds Custom Fields only when definitions are nonempty.
 
 | Kind | Manual Add composition | Edit composition / identified divergence |
 | --- | --- | --- |
-| Music | Main, Details, Classical, People, Tracks, Personal, Covers, Links | Main and Details scalar catalog fields share `musicAlbumFields` and the same typed values as Edit. Add credits/tracks/links/covers and personal submission still have independent widgets and bindings. No separate entry edit dialog or caller remains in the current source. |
+| Music | Main, Details, Classical, People, Tracks, Personal, Covers, Links | Main and Details scalar catalog fields share `musicAlbumFields` and the same typed values as Edit. People/Classical credits use one ordered editor that retains IDs, order, sort names, and musician instruments. Links use one reorderable Name/URL/Description table. Tracks, covers, and personal submission still have separate Add/Edit draft adapters. No separate entry edit dialog or caller remains in the current source. |
 | Movies | Main, Edition details, Plot, Specs, Covers, Cast, Crew | Generic session/presentation renderer; catalog scalars now use the same typed field specs, values model, and embedded schema renderer as Add. Catalog and entry scopes share those metadata tabs; personal state, tracking, image, and link lifecycles remain separate. |
 | TV | Main, Edition details, Plot, Specs, Covers, Cast, Crew | Main, Edition, Specs, Plot, Covers, and Characters use the same kind-owned schema in Add/Edit. The request-backed draft also retains typed media and episode editors; Cast/Crew use the shared row editor, and user links use the shared entry-local draft. |
 | Anime | Main, Details, Edition details, Specs, Cover, Synopsis, Cast, Crew | Main, Details, Edition, Specs, Cover, and Synopsis use the same kind-owned field schema and renderer in Add/Edit. Characters retain matching metadata when renamed; series/episode/disc and typed credit editors remain specialized, and user links use the shared entry-local draft. |
@@ -608,7 +612,7 @@ tab placement, and metadata/personal classification.
 | Manga | Add/Edit now expose the same modeled volume, publication, identifier, people, character, and descriptive fields. Genres/Themes use the common chip control, and Edition Format, Publisher, and Imprint use the same vocabularies in both forms. Distributor and Country / region were removed from Add because Manga metadata has no such fields. Consolidate series selection mechanics with other kinds and retain Manga-specific volume/publication semantics. |
 | Games | Catalog fields now share the Add schema, typed values, and renderer across Main, Edition, Description, and Covers; the duplicate scalar controller is gone. Continue with whole-dialog submission/personal lifecycle unification and review the specialized Entry details editor. |
 | Board Games | Catalog Add/Edit fields now share their schema across Main, Edition, Gameplay & Ratings, Description, and Covers, and the scalar Edit controllers are removed. Continue whole-dialog personal/entry lifecycle unification; retain players, age, play-time, components, and play tracking as typed kind features. |
-| Music | Retain reference layout; converge Add/Edit credits, discs/tracks, covers, links, and personal controls. Preserve track-search highlighting in App. |
+| Music | Retain reference layout; credits and Links now share Add/Edit editors. Converge discs/tracks, covers, and personal controls. Preserve track-search highlighting in App. |
 
 For all kinds, field coverage must be equal between local Add and Edit except
 explicit action-dependent fields. Do not imitate Music's musical tab names

@@ -270,6 +270,8 @@ final class MusicCatalogMapper {
           if (name != null) 'name': name,
           if (_text(person['sort_name']) case final sortName?)
             'sort_name': sortName,
+          if (_text(person['instrument']) case final instrument?)
+            'instrument': instrument,
           if (_text(person['image_url']) case final imageUrl?)
             'image_url': imageUrl,
         });
@@ -317,6 +319,8 @@ List<Map<String, Object?>> _peopleForRole(MusicAlbum album, String role) => [
             'name': contribution.displayName ?? contribution.personId,
             if (contribution.sortName != null)
               'sort_name': contribution.sortName,
+            if (contribution.instrument != null)
+              'instrument': contribution.instrument,
             'role': contribution.role,
             if (contribution.imageUrl != null)
               'image_url': contribution.imageUrl,

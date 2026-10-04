@@ -4,10 +4,11 @@
 /// Catalog Item. Their sequence in the parent list defines catalog order.
 final class MusicAddManualNamedCredit {
   MusicAddManualNamedCredit({
+    String? id,
     this.name = '',
     this.sortName = '',
     this.instrument = '',
-  }) : id = _nextId('credit');
+  }) : id = id ?? _nextId('credit');
 
   final String id;
   String name;
@@ -76,10 +77,11 @@ final class MusicAddManualTrack {
 
 final class MusicAddManualExternalLink {
   MusicAddManualExternalLink({
+    String? id,
     this.title = '',
     this.url = '',
     this.description = '',
-  }) : id = _nextId('link');
+  }) : id = id ?? _nextId('link');
 
   final String id;
   String title;

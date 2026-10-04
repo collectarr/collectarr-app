@@ -1,9 +1,10 @@
+import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
+import 'package:collectarr_app/features/library/edit/fields/library_external_links_table.dart';
 import 'package:collectarr_app/features/library/kinds/music/add/music_add_manual_contents.dart';
 import 'package:collectarr_app/features/library/kinds/music/add/music_add_manual_draft.dart';
-import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
-/// Manual Add editor for the ordered external links entry by a Music item.
+/// Manual Add editor for the ordered external links attached to an album.
 final class MusicAddManualLinksTab extends StatefulWidget {
   const MusicAddManualLinksTab({
     super.key,
@@ -19,134 +20,125 @@ final class MusicAddManualLinksTab extends StatefulWidget {
 }
 
 final class _MusicAddManualLinksTabState extends State<MusicAddManualLinksTab> {
+  late final List<_MusicAddLinkRow> _rows;
+
   @override
-  Widget build(BuildContext context) {
-    final palette = appPalette(context);
-    final links = widget.draft.externalLinks;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Row(
-          children: [
-            const Expanded(
-              child:
-                  Text('Links', style: TextStyle(fontWeight: FontWeight.w700)),
-            ),
-            OutlinedButton.icon(
-              onPressed: () => setState(
-                () => links.add(MusicAddManualExternalLink()),
-              ),
-              icon: const Icon(Icons.add, size: 16),
-              label: const Text('New Link'),
-            ),
-          ],
-        ),
-        const SizedBox(height: 8),
-        if (links.isEmpty)
-          Text('No links added', style: TextStyle(color: palette.textMuted))
-        else
-          ReorderableListView.builder(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            buildDefaultDragHandles: false,
-            itemCount: links.length,
-            onReorderItem: (oldIndex, newIndex) => setState(() {
-              final link = links.removeAt(oldIndex);
-              links.insert(newIndex, link);
-            }),
-            itemBuilder: (context, index) {
-              final link = links[index];
-              return Container(
-                key: ValueKey(link.id),
-                margin: const EdgeInsets.only(bottom: 8),
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: palette.surface,
-                  border: Border.all(color: palette.divider),
-                  borderRadius: BorderRadius.circular(3),
-                ),
-                child: LayoutBuilder(
-                  builder: (context, constraints) {
-                    final titleField = TextFormField(
-                      key: ValueKey('${link.id}-title'),
-                      initialValue: link.title,
-                      decoration: const InputDecoration(
-                        labelText: 'Name',
-                        isDense: true,
-                      ),
-                      onChanged: (value) => link.title = value,
-                    );
-                    final urlField = TextFormField(
-                      key: ValueKey('${link.id}-url'),
-                      initialValue: link.url,
-                      decoration: const InputDecoration(
-                        labelText: 'URL',
-                        isDense: true,
-                      ),
-                      keyboardType: TextInputType.url,
-                      onChanged: (value) => link.url = value,
-                    );
-                    final descriptionField = TextFormField(
-                      key: ValueKey('${link.id}-description'),
-                      initialValue: link.description,
-                      decoration: const InputDecoration(
-                        labelText: 'Description',
-                        isDense: true,
-                      ),
-                      onChanged: (value) => link.description = value,
-                    );
-                    final removeButton = IconButton(
-                      tooltip: 'Remove link',
-                      onPressed: () => setState(() => links.removeAt(index)),
-                      icon: const Icon(Icons.close, size: 18),
-                    );
-                    if (constraints.maxWidth < 680) {
-                      return Column(
-                        children: [
-                          Row(
-                            children: [
-                              ReorderableDragStartListener(
-                                index: index,
-                                child: const Padding(
-                                  padding: EdgeInsets.symmetric(horizontal: 4),
-                                  child: Icon(Icons.drag_handle, size: 18),
-                                ),
-                              ),
-                              const Spacer(),
-                              removeButton,
-                            ],
-                          ),
-                          titleField,
-                          const SizedBox(height: 8),
-                          urlField,
-                          const SizedBox(height: 8),
-                          descriptionField,
-                        ],
-                      );
-                    }
-                    return Row(
-                      children: [
-                        ReorderableDragStartListener(
-                          index: index,
-                          child: const Padding(
-                            padding: EdgeInsets.symmetric(horizontal: 4),
-                            child: Icon(Icons.drag_handle, size: 18),
-                          ),
-                        ),
-                        Expanded(flex: 2, child: titleField),
-                        const SizedBox(width: 8),
-                        Expanded(flex: 4, child: urlField),
-                        const SizedBox(width: 8),
-                        Expanded(flex: 3, child: descriptionField),
-                        removeButton,
-                      ],
-                    );
-                  },
-                ),
-              );
-            },
+  void initState() {
+    super.initState();
+    _rows = [
+      for (final link in widget.draft.externalLinks)
+        _MusicAddLinkRow.fromLink(link),
+    ];
+  }
+
+  @override
+  void dispose() {
+    for (final row in _rows) {
+      row.dispose();
+    }
+    super.dispose();
+  }
+
+  void _syncDraft() {
+    widget.draft.externalLinks
+      ..clear()
+      ..addAll([
+        for (final row in _rows)
+          MusicAddManualExternalLink(
+            id: row.id,
+            title: row.title.text,
+            url: row.url.text,
+            description: row.description.text,
           ),
-      ],
-    );
+      ]);
+  }
+
+  void _add() {
+    setState(() => _rows.add(_MusicAddLinkRow.empty()));
+    _syncDraft();
+  }
+
+  void _reorder(int oldIndex, int newIndex) {
+    if (oldIndex == newIndex) return;
+    final row = _rows.removeAt(oldIndex);
+    _rows.insert(newIndex, row);
+    setState(() {});
+    _syncDraft();
+  }
+
+  void _removeSelected(
+    List<LibraryExternalLinkEditRow<_MusicAddLinkRow>> selectedRows,
+  ) {
+    final selected = {for (final row in selectedRows) row.identity};
+    final removed = _rows.where(selected.contains).toList(growable: false);
+    _rows.removeWhere(selected.contains);
+    for (final row in removed) {
+      row.dispose();
+    }
+    setState(() {});
+    _syncDraft();
+  }
+
+  @override
+  Widget build(BuildContext context) => EditSection(
+        title: 'Release links',
+        accent: widget.accent,
+        child: LibraryExternalLinksTable<_MusicAddLinkRow>(
+          rows: [
+            for (final row in _rows)
+              LibraryExternalLinkEditRow<_MusicAddLinkRow>(
+                identity: row,
+                titleController: row.title,
+                urlController: row.url,
+                descriptionController: row.description,
+                titleFieldKey: ValueKey('music-add-link-title-${row.id}'),
+                urlFieldKey: ValueKey('music-add-link-url-${row.id}'),
+                descriptionFieldKey:
+                    ValueKey('music-add-link-description-${row.id}'),
+              ),
+          ],
+          accent: widget.accent,
+          addLabel: 'New Link',
+          emptyMessage: 'No links added yet.',
+          onAdd: _add,
+          onReorder: _reorder,
+          onRemoveSelected: _removeSelected,
+          onChanged: _syncDraft,
+        ),
+      );
+}
+
+final class _MusicAddLinkRow {
+  _MusicAddLinkRow({
+    required this.id,
+    required this.title,
+    required this.url,
+    required this.description,
+  });
+
+  factory _MusicAddLinkRow.empty() => _MusicAddLinkRow(
+        id: MusicAddManualExternalLink().id,
+        title: TextEditingController(),
+        url: TextEditingController(),
+        description: TextEditingController(),
+      );
+
+  factory _MusicAddLinkRow.fromLink(MusicAddManualExternalLink link) =>
+      _MusicAddLinkRow(
+        id: link.id,
+        title: TextEditingController(text: link.title),
+        url: TextEditingController(text: link.url),
+        description: TextEditingController(text: link.description),
+      );
+
+  final String id;
+  final TextEditingController title;
+  final TextEditingController url;
+  final TextEditingController description;
+
+  void dispose() {
+    title.dispose();
+    url.dispose();
+    description.dispose();
   }
 }

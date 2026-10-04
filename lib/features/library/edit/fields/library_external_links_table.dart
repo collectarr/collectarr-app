@@ -4,21 +4,25 @@ import 'package:flutter/material.dart';
 /// The kind-entry row data shown by [LibraryExternalLinksTable].
 ///
 /// The owning kind keeps the controllers and domain model. This row only gives
-/// the shared editor a stable identity and the two editable values it displays.
+/// the shared editor a stable identity and the editable values it displays.
 final class LibraryExternalLinkEditRow<TIdentity extends Object> {
   const LibraryExternalLinkEditRow({
     required this.identity,
     required this.urlController,
     required this.descriptionController,
+    this.titleController,
     this.urlFieldKey,
     this.descriptionFieldKey,
+    this.titleFieldKey,
   });
 
   final TIdentity identity;
   final TextEditingController urlController;
   final TextEditingController descriptionController;
+  final TextEditingController? titleController;
   final Key? urlFieldKey;
   final Key? descriptionFieldKey;
+  final Key? titleFieldKey;
 
   Key get key => ObjectKey(identity);
 }
@@ -113,16 +117,19 @@ final class _LibraryExternalLinksTableState<TIdentity extends Object>
     final selecting = _selectedKeys.isNotEmpty;
     final allSelected =
         widget.rows.isNotEmpty && _selectedKeys.length == widget.rows.length;
+    final hasTitleColumn =
+        widget.rows.any((row) => row.titleController != null);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         LayoutBuilder(
           builder: (context, constraints) {
-            final tableWidth =
-                constraints.hasBoundedWidth && constraints.maxWidth > 760
-                    ? constraints.maxWidth
-                    : 760.0;
+            final minimumWidth = hasTitleColumn ? 960.0 : 760.0;
+            final tableWidth = constraints.hasBoundedWidth &&
+                    constraints.maxWidth > minimumWidth
+                ? constraints.maxWidth
+                : minimumWidth;
             return SingleChildScrollView(
               scrollDirection: Axis.horizontal,
               child: SizedBox(
@@ -138,7 +145,7 @@ final class _LibraryExternalLinksTableState<TIdentity extends Object>
                       if (selecting)
                         _buildSelectionHeader(palette, allSelected)
                       else
-                        _buildColumnHeader(),
+                        _buildColumnHeader(hasTitleColumn),
                       if (widget.rows.isEmpty)
                         Padding(
                           padding: const EdgeInsets.all(18),
@@ -152,7 +159,7 @@ final class _LibraryExternalLinksTableState<TIdentity extends Object>
                         )
                       else
                         for (var index = 0; index < widget.rows.length; index++)
-                          _buildRow(context, index),
+                          _buildRow(context, index, hasTitleColumn),
                     ],
                   ),
                 ),
@@ -236,7 +243,7 @@ final class _LibraryExternalLinksTableState<TIdentity extends Object>
     );
   }
 
-  Widget _buildColumnHeader() {
+  Widget _buildColumnHeader(bool hasTitleColumn) {
     return Container(
       height: 32,
       decoration: BoxDecoration(
@@ -250,6 +257,13 @@ final class _LibraryExternalLinksTableState<TIdentity extends Object>
         children: [
           const SizedBox(width: _selectionColumnWidth),
           const SizedBox(width: _handleColumnWidth),
+          if (hasTitleColumn) ...[
+            Expanded(
+              flex: 4,
+              child: Text('Name', style: _columnHeaderStyle(context)),
+            ),
+            const SizedBox(width: _columnGap),
+          ],
           Expanded(
             flex: 7,
             child: Text(
@@ -270,7 +284,7 @@ final class _LibraryExternalLinksTableState<TIdentity extends Object>
     );
   }
 
-  Widget _buildRow(BuildContext context, int index) {
+  Widget _buildRow(BuildContext context, int index, bool hasTitleColumn) {
     final row = widget.rows[index];
     final palette = appPalette(context);
     final isSelected = _selectedKeys.contains(row.key);
@@ -335,6 +349,7 @@ final class _LibraryExternalLinksTableState<TIdentity extends Object>
                           row,
                           constraints.maxWidth,
                           palette,
+                          hasTitleColumn,
                         ),
                         childWhenDragging: Icon(
                           Icons.drag_indicator,
@@ -350,6 +365,27 @@ final class _LibraryExternalLinksTableState<TIdentity extends Object>
                       ),
                     ),
                   ),
+                  if (hasTitleColumn) ...[
+                    Expanded(
+                      flex: 4,
+                      child: row.titleController == null
+                          ? const SizedBox.shrink()
+                          : TextFormField(
+                              key: row.titleFieldKey ??
+                                  ValueKey((row.key, 'title')),
+                              controller: row.titleController,
+                              decoration: const InputDecoration(
+                                isDense: true,
+                                contentPadding: EdgeInsets.symmetric(
+                                  horizontal: 8,
+                                  vertical: 9,
+                                ),
+                              ),
+                              onChanged: (_) => widget.onChanged?.call(),
+                            ),
+                    ),
+                    const SizedBox(width: _columnGap),
+                  ],
                   Expanded(
                     flex: 7,
                     child: TextFormField(
@@ -393,6 +429,7 @@ final class _LibraryExternalLinksTableState<TIdentity extends Object>
     LibraryExternalLinkEditRow<TIdentity> row,
     double availableWidth,
     AppThemePalette palette,
+    bool hasTitleColumn,
   ) {
     final width =
         availableWidth.isFinite && availableWidth > 0 ? availableWidth : 520.0;
@@ -414,6 +451,16 @@ final class _LibraryExternalLinksTableState<TIdentity extends Object>
               width: _handleColumnWidth,
               child: Icon(Icons.drag_indicator, color: widget.accent),
             ),
+            if (hasTitleColumn) ...[
+              Expanded(
+                flex: 4,
+                child: _dragFeedbackCell(
+                  row.titleController?.text ?? '',
+                  palette,
+                ),
+              ),
+              const SizedBox(width: _columnGap),
+            ],
             Expanded(
               flex: 7,
               child: _dragFeedbackCell(
