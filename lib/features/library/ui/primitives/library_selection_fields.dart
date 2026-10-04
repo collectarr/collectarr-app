@@ -1,8 +1,10 @@
 import 'package:collectarr_app/ui/single_value_pick_field.dart';
-import 'package:collectarr_app/ui/tag_pick_list_field.dart';
 import 'package:collectarr_app/features/library/config/library_dialog_tokens.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_dropdown_pick_field.dart';
+import 'package:collectarr_app/features/library/ui/primitives/library_multi_value_options_dialog.dart';
+import 'package:collectarr_app/features/library/ui/primitives/library_multi_value_pick_field.dart';
 import 'package:collectarr_app/features/library/schema/library_field_spec.dart';
+import 'package:collectarr_app/features/pick_lists/pick_list_options.dart';
 import 'package:collectarr_app/features/pick_lists/widgets/pick_list_select_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/ui/compact_search_dropdown_form_field.dart';
@@ -123,13 +125,42 @@ class LibraryVocabularyField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (multiSelect) {
-      return TagPickListField(
-        controller: controller,
-        options: options,
-        label: label,
-        hint: hint,
-        validator: validator,
-        enabled: enabled,
+      return ValueListenableBuilder<TextEditingValue>(
+        valueListenable: controller,
+        builder: (context, current, _) {
+          final values = splitPickListValues(current.text);
+          return LibraryMultiValuePickField<String>(
+            label: label,
+            value: values.toSet(),
+            options: [
+              for (final option in options)
+                LibraryFieldOption<String>(value: option, label: option),
+            ],
+            enabled: enabled,
+            allowCustomValueEntry: true,
+            hintText: hint,
+            errorText: validator?.call(current.text),
+            onChanged: (next) {
+              final text = joinPickListValues(next) ?? '';
+              controller.value = TextEditingValue(
+                text: text,
+                selection: TextSelection.collapsed(offset: text.length),
+              );
+              onChanged?.call(text.isEmpty ? null : text);
+            },
+            onOpenPicker: ({
+              required label,
+              required selectedValues,
+              required options,
+            }) =>
+                showLibraryMultiValueOptionsDialog<String>(
+              context: context,
+              label: label,
+              options: options,
+              selectedValues: selectedValues,
+            ),
+          );
+        },
       );
     }
     if (onManage != null) {
