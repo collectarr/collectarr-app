@@ -8,7 +8,6 @@ import 'package:collectarr_app/features/library/edit/draft/library_edit_shell_st
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart'
     hide formatDate;
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
 
 /// Owns the semantic mutation boundary for the edit shell.
 ///
@@ -42,6 +41,11 @@ final class LibraryEditSessionController {
     LibraryEditSubmitAction submitAction = LibraryEditSubmitAction.save,
   }) {
     final existingLibraryEntry = state.libraryEntry;
+    final entryRef =
+        existingLibraryEntry?.ref ?? state.libraryEntryDispatch?.ref;
+    final externalLinksChange = entryRef == null
+        ? null
+        : state.userExternalLinks.buildEditChange(entryRef);
     final baseSelection = LibraryEditSelection(
       kindItem: state.kindItem,
       scope: state.scope,
@@ -88,6 +92,9 @@ final class LibraryEditSessionController {
             ),
       customFieldEdits: state.customFieldEdits,
       itemImageEdits: state.itemImageEdits,
+      localChanges: [
+        if (externalLinksChange != null) externalLinksChange,
+      ],
       submitAction: submitAction,
     );
     final canonical = buildCanonicalSelection(

@@ -5,6 +5,8 @@ import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/features/library/kinds/tv/data/tv_library_entry_projection.dart';
 import 'package:collectarr_app/features/collection/commands/library_entry_commands.dart';
 import 'package:collectarr_app/features/library/edit/contracts/library_edit_kind_draft.dart';
+import 'package:collectarr_app/features/library/edit/contracts/library_external_links_edit_session.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/edit/draft/text_controller_group.dart';
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_edit_models.dart';
@@ -39,7 +41,7 @@ class TvEditDraft
     with
         LibraryCatalogItemEditSessionLinkDefaults,
         LibraryEntryEditSessionDefaults
-    implements TvEditDraftContract {
+    implements TvEditDraftContract, LibraryEntryExternalLinksSource {
   TvEditDraft({
     this.libraryEntry,
     required this.featuresController,
@@ -93,6 +95,10 @@ class TvEditDraft
   final Map<String, int> episodeRatings;
   @override
   final TvEditController tvEdit;
+
+  @override
+  Iterable<TrailerLinkDto> get legacyManualExternalLinks =>
+      tvEdit.initialTrailerLinks;
   @override
   final TvMediaEditController mediaEdit;
 
@@ -393,20 +399,20 @@ class TvEditDraft
                       emptyToNull(tvEdit.languageController.text) ??
                           metadata.originalLanguage,
                   firstAirDate: parseDate(tvEdit.releaseDateController.text),
-                  links: tvEdit.buildUpdatedTrailerUrls(metadata.links),
+                  links: tvEdit.buildUpdatedTrailerUrls(
+                    metadata.links,
+                    preserveManualLinks: libraryEntry == null,
+                  ),
                   seasonNumber: seasonNumber ?? metadata.seasonNumber,
                   episodeNumber: episodeNumber ?? metadata.episodeNumber,
                 ),
                 {
-                  'audio_tracks':
-                      emptyToNull(audioTracksController.text),
+                  'audio_tracks': emptyToNull(audioTracksController.text),
                   'subtitles': emptyToNull(subtitlesController.text),
-                  'screen_ratio':
-                      emptyToNull(screenRatioController.text),
+                  'screen_ratio': emptyToNull(screenRatioController.text),
                   'layers': emptyToNull(layersController.text),
                   'color': emptyToNull(colorController.text),
-                  'nr_discs':
-                      int.tryParse(nrDiscsController.text.trim()),
+                  'nr_discs': int.tryParse(nrDiscsController.text.trim()),
                 })),
           ),
         ),
@@ -457,8 +463,6 @@ LibraryEditSessionBundle createTvEditDraft({
       .mapTransport((transport) => TvMetadata.fromJson(transport.kindData));
   final tv = metadata;
   final tvEdit = TvEditController(
-    itemId: item.reference.id,
-    catalogRef: item.reference,
     initialRuntime: tv.episodeRuntimeMinutes?.toString() ?? '',
     initialAgeRating: tv.contentRating ?? '',
     initialGenres: tv.genres.join(', '),

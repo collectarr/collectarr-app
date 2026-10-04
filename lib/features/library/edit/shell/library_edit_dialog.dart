@@ -1,5 +1,6 @@
 import 'package:collectarr_app/features/library/edit/sections/library_entry_personal_section.dart';
 import 'package:collectarr_app/features/library/edit/contracts/library_vocabulary_edit_change.dart';
+import 'package:collectarr_app/features/library/edit/contracts/library_external_links_edit_session.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_entry_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_contributors.dart';
 import 'dart:async';
@@ -191,6 +192,18 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
   Future<void> _loadEditOptions() async {
     final db = ref.read(localDatabaseProvider);
     final mediaKind = widget.type.kind.apiValue;
+    final libraryEntryRef =
+        _draft.libraryEntry?.ref ?? _draft.libraryEntryDispatch?.ref;
+    final entrySession = _draft.session.entrySession;
+    if (libraryEntryRef != null &&
+        entrySession is LibraryEntryExternalLinksSource) {
+      final linksSource = entrySession as LibraryEntryExternalLinksSource;
+      await _draft.userExternalLinks.load(
+        db,
+        libraryEntryRef,
+        legacyManualLinks: linksSource.legacyManualExternalLinks,
+      );
+    }
     final locations = await LocationRepository(db).getAll();
     final owners = await loadSingleValuePickListOptions(
       db,

@@ -56,7 +56,10 @@ Widget? buildAnimeMediaCustomTabView({
     'links' => AnimeEditLinksTab(
         item: item,
         accent: accent,
-        animeEdit: animeEdit,
+        userExternalLinks: draft.userExternalLinks,
+        isEntry:
+            draft.libraryEntry != null || draft.libraryEntryDispatch != null,
+        markDirty: markDirty,
       ),
     'media' => AnimeEditMediaTab(
         draft: draft,

@@ -75,7 +75,10 @@ Widget? buildTvMediaCustomTabView({
     'links' => TvEditLinksTab(
         item: item,
         accent: accent,
-        tvEdit: tvEdit,
+        userExternalLinks: draft.userExternalLinks,
+        isEntry:
+            draft.libraryEntry != null || draft.libraryEntryDispatch != null,
+        markDirty: markDirty,
       ),
     'media' => TvEditMediaTab(
         draft: draft,

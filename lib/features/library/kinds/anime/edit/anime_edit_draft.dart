@@ -4,6 +4,8 @@ import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/features/library/kinds/anime/data/anime_library_entry_projection.dart';
 import 'package:collectarr_app/features/collection/commands/library_entry_commands.dart';
 import 'package:collectarr_app/features/library/edit/contracts/library_edit_kind_draft.dart';
+import 'package:collectarr_app/features/library/edit/contracts/library_external_links_edit_session.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/edit/draft/text_controller_group.dart';
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_edit_models.dart';
@@ -51,7 +53,7 @@ class AnimeEditDraft
     with
         LibraryCatalogItemEditSessionLinkDefaults,
         LibraryEntryEditSessionDefaults
-    implements AnimeEditDraftContract {
+    implements AnimeEditDraftContract, LibraryEntryExternalLinksSource {
   AnimeEditDraft({
     this.libraryEntry,
     required this.featuresController,
@@ -105,6 +107,10 @@ class AnimeEditDraft
   final Map<String, int> episodeRatings;
   @override
   final AnimeEditController animeEdit;
+
+  @override
+  Iterable<TrailerLinkDto> get legacyManualExternalLinks =>
+      animeEdit.initialTrailerLinks;
   @override
   String? physicalFormatId;
 
@@ -289,7 +295,10 @@ class AnimeEditDraft
           ),
           creators: animeEdit.buildUpdatedCreators(),
           characters: characters,
-          links: animeEdit.buildUpdatedTrailerUrls(metadata.links),
+          links: animeEdit.buildUpdatedTrailerUrls(
+            metadata.links,
+            preserveManualLinks: libraryEntry == null,
+          ),
         );
         final updated = AnimeMetadata.fromJson(applyJsonFieldPatch(edited, {
           'display_title': emptyToNull(
@@ -556,8 +565,6 @@ LibraryEditSessionBundle createAnimeEditDraft({
   final metadata = item.kindCapability
       .mapTransport((transport) => AnimeMetadata.fromJson(transport.kindData));
   final animeEdit = AnimeEditController(
-    itemId: item.reference.id,
-    catalogRef: item.reference,
     initialCharacters:
         metadata.characters.map((character) => character.name).join(', '),
     initialCreators: [

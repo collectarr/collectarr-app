@@ -5,6 +5,8 @@ import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/features/library/kinds/movie/data/movie_library_entry_projection.dart';
 import 'package:collectarr_app/features/collection/commands/library_entry_commands.dart';
 import 'package:collectarr_app/features/library/edit/contracts/library_edit_kind_draft.dart';
+import 'package:collectarr_app/features/library/edit/contracts/library_external_links_edit_session.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/edit/draft/text_controller_group.dart';
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_edit_models.dart';
@@ -38,7 +40,7 @@ class MovieEditDraft
     with
         LibraryCatalogItemEditSessionLinkDefaults,
         LibraryEntryEditSessionDefaults
-    implements MovieEditDraftContract {
+    implements MovieEditDraftContract, LibraryEntryExternalLinksSource {
   MovieEditDraft({
     this.libraryEntry,
     required this.featuresController,
@@ -85,6 +87,10 @@ class MovieEditDraft
   List<String> hdrFormats;
   @override
   final MovieEditController movieEdit;
+
+  @override
+  Iterable<TrailerLinkDto> get legacyManualExternalLinks =>
+      movieEdit.initialTrailerLinks;
 
   @override
   JsonEncodable toDetailsDraft() => MovieEntryDetailsDraft(
@@ -372,7 +378,10 @@ class MovieEditDraft
         physicalFormat: movieEdit.physicalFormatId,
         publisher: emptyToNull(movieEdit.publisherController.text),
         releaseDate: parseDate(movieEdit.releaseDateController.text),
-        links: movieEdit.buildUpdatedTrailerUrls(meta.links),
+        links: movieEdit.buildUpdatedTrailerUrls(
+          meta.links,
+          preserveManualLinks: libraryEntry == null,
+        ),
         screenRatio: emptyToNull(screenRatioController.text),
         audioTracks: emptyToNull(audioTracksController.text),
         subtitles: emptyToNull(subtitlesController.text),
@@ -442,8 +451,6 @@ LibraryEditSessionBundle createMovieEditDraft({
       (transport) => MovieCatalogMetadata.fromJson(transport.kindData));
   final movie = metadata;
   final movieEdit = MovieEditController(
-    itemId: item.reference.id,
-    catalogRef: item.reference,
     initialRuntime: movie.runtimeMinutes?.toString() ?? '',
     initialAgeRating: movie.ageRating ?? '',
     initialAudienceRating: movie.audienceRating ?? '',

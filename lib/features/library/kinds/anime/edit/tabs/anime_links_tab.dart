@@ -1,28 +1,34 @@
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
+import 'package:collectarr_app/features/library/detail/library_external_links_section.dart';
+import 'package:collectarr_app/features/library/edit/draft/library_user_external_links_draft.dart';
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/edit/fields/library_edit_field_groups.dart';
-import 'package:collectarr_app/features/library/kinds/anime/edit/anime_edit_models.dart';
-import 'package:collectarr_app/features/library/kinds/anime/edit/anime_edit_controller.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_metadata.dart';
-import 'package:collectarr_app/features/library/detail/library_external_links_section.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class AnimeEditLinksTab extends ConsumerWidget {
+class AnimeEditLinksTab extends StatelessWidget {
   const AnimeEditLinksTab({
     super.key,
     required this.item,
     required this.accent,
-    required this.animeEdit,
+    required this.userExternalLinks,
+    required this.isEntry,
+    required this.markDirty,
   });
 
   final CatalogSearchCandidate item;
   final Color accent;
-  final AnimeEditController animeEdit;
+  final LibraryUserExternalLinksDraft userExternalLinks;
+  final bool isEntry;
+  final VoidCallback markDirty;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
+    void markLinksChanged() {
+      userExternalLinks.markChanged();
+      markDirty();
+    }
+
     final catalogLinks = item.kindCapability.mapTransport(
       (transport) => AnimeMetadata.fromJson(transport.kindData).links,
     );
@@ -38,47 +44,40 @@ class AnimeEditLinksTab extends ConsumerWidget {
               accent: accent,
             ),
           ),
-        EditSection(
-          title: 'User links',
-          accent: accent,
-          child: LibraryExternalLinksEditor(
+        if (isEntry) ...[
+          EditSection(
             title: 'User links',
-            items: animeEdit.userLinkEdits,
             accent: accent,
-            onAdd: () => animeEdit.userLinkEdits.add(
-              EditableUserExternalLink.fromTrailerLink(
-                TrailerLinkDto(
-                  url: '',
-                  source: 'manual',
-                  isAutomatic: false,
-                  kind: 'external',
-                ),
-                libraryEntryRef: animeEdit.libraryEntryRef,
-                kind: 'custom',
-              ),
+            child: LibraryExternalLinksEditor(
+              title: 'User links',
+              items: userExternalLinks.userLinks,
+              accent: accent,
+              onAdd: () => userExternalLinks.add(kind: 'custom'),
+              onChanged: markLinksChanged,
             ),
           ),
-        ),
-        EditSection(
-          title: 'Trailers',
-          accent: accent,
-          child: LibraryExternalLinksEditor(
+          EditSection(
             title: 'Trailers',
-            items: animeEdit.userTrailerEdits,
             accent: accent,
-            onAdd: () => animeEdit.userTrailerEdits.add(
-              EditableUserExternalLink.fromTrailerLink(
-                TrailerLinkDto(
-                  url: '',
-                  source: 'manual',
-                  isAutomatic: false,
-                  kind: 'trailer',
-                ),
-                libraryEntryRef: animeEdit.libraryEntryRef,
+            child: LibraryExternalLinksEditor(
+              title: 'Trailers',
+              items: userExternalLinks.trailers,
+              accent: accent,
+              onAdd: () => userExternalLinks.add(kind: 'trailer'),
+              onChanged: markLinksChanged,
+            ),
+          ),
+        ] else
+          EditSection(
+            title: 'User links',
+            accent: accent,
+            child: const Padding(
+              padding: EdgeInsets.all(12),
+              child: Text(
+                'Add this item to your library to manage personal links.',
               ),
             ),
           ),
-        ),
       ],
     );
   }

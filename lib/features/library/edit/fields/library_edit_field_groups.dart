@@ -216,6 +216,7 @@ class LibraryExternalLinksEditor extends StatefulWidget {
     required this.title,
     required this.items,
     required this.onAdd,
+    this.onChanged,
     this.emptyMessage = 'No entries yet.',
     this.accent,
   });
@@ -223,6 +224,7 @@ class LibraryExternalLinksEditor extends StatefulWidget {
   final String title;
   final List<EditableUserExternalLink> items;
   final VoidCallback onAdd;
+  final VoidCallback? onChanged;
   final String emptyMessage;
   final Color? accent;
 
@@ -235,6 +237,7 @@ class _LibraryExternalLinksEditorState
     extends State<LibraryExternalLinksEditor> {
   void _add() {
     widget.onAdd();
+    widget.onChanged?.call();
     setState(() {});
   }
 
@@ -242,6 +245,7 @@ class _LibraryExternalLinksEditorState
     if (oldIndex == newIndex) return;
     final item = widget.items.removeAt(oldIndex);
     widget.items.insert(newIndex, item);
+    widget.onChanged?.call();
     setState(() {});
   }
 
@@ -254,6 +258,7 @@ class _LibraryExternalLinksEditorState
       item.dispose();
       return true;
     });
+    widget.onChanged?.call();
     setState(() {});
   }
 
@@ -274,6 +279,7 @@ class _LibraryExternalLinksEditorState
       onAdd: _add,
       onReorder: _reorder,
       onRemoveSelected: _removeSelected,
+      onChanged: widget.onChanged,
     );
   }
 }

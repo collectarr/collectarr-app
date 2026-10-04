@@ -1,28 +1,34 @@
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
+import 'package:collectarr_app/features/library/detail/library_external_links_section.dart';
+import 'package:collectarr_app/features/library/edit/draft/library_user_external_links_draft.dart';
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/edit/fields/library_edit_field_groups.dart';
-import 'package:collectarr_app/features/library/kinds/tv/edit/tv_edit_models.dart';
-import 'package:collectarr_app/features/library/kinds/tv/edit/tv_edit_controller.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_metadata.dart';
-import 'package:collectarr_app/features/library/detail/library_external_links_section.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class TvEditLinksTab extends ConsumerWidget {
+class TvEditLinksTab extends StatelessWidget {
   const TvEditLinksTab({
     super.key,
     required this.item,
     required this.accent,
-    required this.tvEdit,
+    required this.userExternalLinks,
+    required this.isEntry,
+    required this.markDirty,
   });
 
   final CatalogSearchCandidate item;
   final Color accent;
-  final TvEditController tvEdit;
+  final LibraryUserExternalLinksDraft userExternalLinks;
+  final bool isEntry;
+  final VoidCallback markDirty;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
+    void markLinksChanged() {
+      userExternalLinks.markChanged();
+      markDirty();
+    }
+
     final catalogLinks = item.kindCapability.mapTransport(
       (transport) => TvMetadata.fromJson(transport.kindData).links,
     );
@@ -38,47 +44,40 @@ class TvEditLinksTab extends ConsumerWidget {
               accent: accent,
             ),
           ),
-        EditSection(
-          title: 'User links',
-          accent: accent,
-          child: LibraryExternalLinksEditor(
+        if (isEntry) ...[
+          EditSection(
             title: 'User links',
-            items: tvEdit.userLinkEdits,
             accent: accent,
-            onAdd: () => tvEdit.userLinkEdits.add(
-              EditableUserExternalLink.fromTrailerLink(
-                TrailerLinkDto(
-                  url: '',
-                  source: 'manual',
-                  isAutomatic: false,
-                  kind: 'external',
-                ),
-                libraryEntryRef: tvEdit.libraryEntryRef,
-                kind: 'custom',
-              ),
+            child: LibraryExternalLinksEditor(
+              title: 'User links',
+              items: userExternalLinks.userLinks,
+              accent: accent,
+              onAdd: () => userExternalLinks.add(kind: 'custom'),
+              onChanged: markLinksChanged,
             ),
           ),
-        ),
-        EditSection(
-          title: 'Trailers',
-          accent: accent,
-          child: LibraryExternalLinksEditor(
+          EditSection(
             title: 'Trailers',
-            items: tvEdit.userTrailerEdits,
             accent: accent,
-            onAdd: () => tvEdit.userTrailerEdits.add(
-              EditableUserExternalLink.fromTrailerLink(
-                TrailerLinkDto(
-                  url: '',
-                  source: 'manual',
-                  isAutomatic: false,
-                  kind: 'trailer',
-                ),
-                libraryEntryRef: tvEdit.libraryEntryRef,
+            child: LibraryExternalLinksEditor(
+              title: 'Trailers',
+              items: userExternalLinks.trailers,
+              accent: accent,
+              onAdd: () => userExternalLinks.add(kind: 'trailer'),
+              onChanged: markLinksChanged,
+            ),
+          ),
+        ] else
+          EditSection(
+            title: 'User links',
+            accent: accent,
+            child: const Padding(
+              padding: EdgeInsets.all(12),
+              child: Text(
+                'Add this item to your library to manage personal links.',
               ),
             ),
           ),
-        ),
       ],
     );
   }

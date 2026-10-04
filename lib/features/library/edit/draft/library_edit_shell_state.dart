@@ -1,4 +1,3 @@
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/catalog_target_option.dart';
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/core/models/item_image.dart';
@@ -10,6 +9,7 @@ import 'package:collectarr_app/features/library/edit/draft/library_edit_form_fie
 import 'package:collectarr_app/features/library/edit/draft/personal_state_draft.dart';
 import 'package:collectarr_app/features/library/edit/draft/text_controller_group.dart';
 import 'package:collectarr_app/features/library/edit/draft/tracking_draft.dart';
+import 'package:collectarr_app/features/library/edit/draft/library_user_external_links_draft.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/edit/sections/item_images_edit_section.dart';
 import 'package:flutter/material.dart';
@@ -82,6 +82,8 @@ class LibraryEditShellState {
   final LibraryEditFormSchema canonicalFormSchema;
   final PersonalStateDraft personal;
   final TrackingDraft tracking;
+  final LibraryUserExternalLinksDraft userExternalLinks =
+      LibraryUserExternalLinksDraft();
 
   /// Semantic mutations are kept outside the shell form state.
   ///
@@ -270,6 +272,7 @@ class LibraryEditShellState {
       );
 
   void dispose() {
+    userExternalLinks.dispose();
     session.dispose();
     _textControllers.dispose();
   }

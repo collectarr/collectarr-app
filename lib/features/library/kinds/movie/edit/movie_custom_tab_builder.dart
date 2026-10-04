@@ -56,7 +56,10 @@ Widget? buildMovieCustomTabView({
     'links' => MovieEditLinksTab(
         item: item,
         accent: accent,
-        movieEdit: movieEdit,
+        userExternalLinks: draft.userExternalLinks,
+        isEntry:
+            draft.libraryEntry != null || draft.libraryEntryDispatch != null,
+        markDirty: markDirty,
       ),
     'catalog_item' => MovieEditCatalogItemTab(
         draft: draft,
