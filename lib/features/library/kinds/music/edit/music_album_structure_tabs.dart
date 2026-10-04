@@ -41,7 +41,10 @@ final class _MusicAlbumStructureTabState
 
   @override
   Widget build(BuildContext context) {
-    return EditTabShell(children: _trackSections());
+    return EditTabShell(
+      scrollable: false,
+      children: _trackSections(),
+    );
   }
 
   List<Widget> _trackSections() {

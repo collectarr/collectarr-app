@@ -158,16 +158,28 @@ ThemeData editDialogTheme({
 // ---------------------------------------------------------------------------
 
 class EditTabShell extends StatelessWidget {
-  const EditTabShell({super.key, required this.children, this.cover});
+  const EditTabShell({
+    super.key,
+    required this.children,
+    this.cover,
+    this.scrollable = true,
+  });
 
   final List<Widget> children;
   final Widget? cover;
+
+  /// Set false when this shell is embedded inside a parent-owned scroll view.
+  final bool scrollable;
 
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
         final palette = appPalette(context);
+        final content = Column(
+          mainAxisSize: MainAxisSize.min,
+          children: children,
+        );
         final scrollContent = DecoratedBox(
           decoration: BoxDecoration(
             color: palette.panelRaised,
@@ -178,13 +190,15 @@ class EditTabShell extends StatelessWidget {
               bottom: BorderSide(color: palette.divider),
             ),
           ),
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.fromLTRB(10, 16, 10, 10),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: children,
-            ),
-          ),
+          child: scrollable
+              ? SingleChildScrollView(
+                  padding: const EdgeInsets.fromLTRB(10, 16, 10, 10),
+                  child: content,
+                )
+              : Padding(
+                  padding: const EdgeInsets.fromLTRB(10, 16, 10, 10),
+                  child: content,
+                ),
         );
         if (cover == null || constraints.maxWidth < 720) {
           return Padding(

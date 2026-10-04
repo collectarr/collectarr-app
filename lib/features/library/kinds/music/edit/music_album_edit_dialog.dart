@@ -299,7 +299,7 @@ final class _MusicAlbumEditDialogState
       return const Text('Personal fields belong to your local library entry.');
     }
     personal.used = true;
-    return EditTabShell(children: [
+    return EditTabShell(scrollable: false, children: [
       LibraryEntryPersonalSection(
         draft: personal,
         kindSpecificFields: [

@@ -77,6 +77,7 @@ final class _MusicAlbumLinksTabState extends State<MusicAlbumLinksTab> {
 
   @override
   Widget build(BuildContext context) => EditTabShell(
+        scrollable: false,
         children: [
           EditSection(
             title: 'Release links',

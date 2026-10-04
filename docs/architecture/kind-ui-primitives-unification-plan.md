@@ -49,6 +49,10 @@ Completed implementation slices:
 - Add and Edit now use the same schema field-validation routine, including raw
   number validation and section/field visibility checks. Edit retains its
   schema-level and extra-tab validators and its existing save/error lifecycle.
+- Music's structured Tracks, Covers, My Images, Links, and Personal tabs now
+  use the Edit schema renderer's scroll view as their only vertical scroll
+  owner. Their shared tab surface can retain its border and padding without
+  creating an inner scroll view.
 - The controller audit found no kind-pane build path constructing a fresh
   controller on each rebuild. Advanced Add filters cache controllers by stable
   field ID; kind-specific row editors keep controllers in their draft/state and
