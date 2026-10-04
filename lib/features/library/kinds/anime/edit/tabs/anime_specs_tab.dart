@@ -1,6 +1,5 @@
-import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
-import 'package:collectarr_app/features/library/kinds/anime/edit/anime_edit_tab_helpers.dart';
 import 'package:collectarr_app/features/library/kinds/anime/edit/anime_edit_draft_contract.dart';
+import 'package:collectarr_app/features/library/kinds/shared/video/library_video_specs_section.dart';
 import 'package:flutter/material.dart';
 
 class AnimeEditSpecsTab extends StatelessWidget {
@@ -14,45 +13,12 @@ class AnimeEditSpecsTab extends StatelessWidget {
   final Color accent;
 
   @override
-  Widget build(BuildContext context) {
-    return EditTabShell(
-      children: [
-        EditSection(
-          title: 'Specs',
-          accent: accent,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              buildAnimeResponsiveFields([
-                LibraryEditTextField(
-                  label: 'Audio tracks',
-                  controller: animeDraft.audioTracksController,
-                ),
-                LibraryEditTextField(
-                  label: 'Subtitles',
-                  controller: animeDraft.subtitlesController,
-                ),
-              ]),
-              const SizedBox(height: 10),
-              buildAnimeResponsiveFields([
-                LibraryEditTextField(
-                  label: 'Layers',
-                  controller: animeDraft.layersController,
-                ),
-                LibraryEditTextField(
-                  label: 'Color',
-                  controller: animeDraft.colorController,
-                ),
-                buildAnimeField(
-                  controller: animeDraft.nrDiscsController,
-                  label: 'Discs',
-                  validator: optionalIntValidator,
-                ),
-              ]),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
+  Widget build(BuildContext context) => LibraryVideoSpecsSection(
+        accent: accent,
+        audioTracksController: animeDraft.audioTracksController,
+        subtitlesController: animeDraft.subtitlesController,
+        layersController: animeDraft.layersController,
+        colorController: animeDraft.colorController,
+        discsController: animeDraft.nrDiscsController,
+      );
 }
