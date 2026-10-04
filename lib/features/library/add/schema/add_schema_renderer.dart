@@ -3,6 +3,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/features/library/schema/library_field_spec_control_builder.dart';
+import 'package:collectarr_app/features/library/schema/library_field_spec_layout.dart';
 
 import 'add_schema.dart';
 
@@ -128,17 +129,11 @@ class _AddSchemaRendererState<TDraft> extends State<AddSchemaRenderer<TDraft>> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           if (schemaTitle != null)
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 14, 16, 8),
-              child: Text(
-                schemaTitle,
-                style: Theme.of(context).textTheme.titleMedium,
-              ),
+            Text(
+              schemaTitle,
+              style: Theme.of(context).textTheme.titleMedium,
             ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 14, 16, 10),
-            child: _buildSections(context, visibleSections),
-          ),
+          _buildSections(context, visibleSections),
         ],
       );
     }
@@ -188,9 +183,10 @@ class _AddSchemaRendererState<TDraft> extends State<AddSchemaRenderer<TDraft>> {
             Text(section.label, style: Theme.of(context).textTheme.titleSmall),
             const SizedBox(height: 8),
           ],
-          _buildFieldWrap(
-            context,
-            section.fields,
+          LibraryFieldSpecLayout<TDraft>(
+            fields: section.fields,
+            draft: widget.draft,
+            buildField: _buildField,
             maxColumns: section.maxColumns,
             fullWidthFieldIds: section.fullWidthFieldIds,
             fieldColumnSpans: section.fieldColumnSpans,
@@ -199,74 +195,6 @@ class _AddSchemaRendererState<TDraft> extends State<AddSchemaRenderer<TDraft>> {
           const SizedBox(height: 18),
         ],
       ],
-    );
-  }
-
-  Widget _buildFieldWrap(
-    BuildContext context,
-    List<LibraryFieldSpec<TDraft>> fields, {
-    required int maxColumns,
-    required Set<String> fullWidthFieldIds,
-    required Map<String, int> fieldColumnSpans,
-    required Set<String> rightAlignedFieldIds,
-  }) {
-    final visibleFields = fields
-        .where((field) => field.isVisible(widget.draft))
-        .toList(growable: false);
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final columns = constraints.maxWidth >= 960
-            ? maxColumns
-            : constraints.maxWidth >= 680
-                ? math.min(maxColumns, 2)
-                : 1;
-        final columnWidth = columns == 1
-            ? constraints.maxWidth
-            : (constraints.maxWidth - 12 * (columns - 1)) / columns;
-        return Wrap(
-          spacing: 12,
-          runSpacing: 12,
-          children: [
-            for (final field in visibleFields)
-              _buildFieldSlot(
-                field,
-                constraints: constraints,
-                columns: columns,
-                columnWidth: columnWidth,
-                fullWidth: fullWidthFieldIds.contains(field.id),
-                span: fieldColumnSpans[field.id] ?? 1,
-                rightAligned: rightAlignedFieldIds.contains(field.id),
-              ),
-          ],
-        );
-      },
-    );
-  }
-
-  Widget _buildFieldSlot(
-    LibraryFieldSpec<TDraft> field, {
-    required BoxConstraints constraints,
-    required int columns,
-    required double columnWidth,
-    required bool fullWidth,
-    required int span,
-    required bool rightAligned,
-  }) {
-    final resolvedSpan = fullWidth ? columns : span.clamp(1, columns).toInt();
-    final fieldWidth = resolvedSpan * columnWidth + 12 * (resolvedSpan - 1);
-    final fieldWidget = _buildField(field);
-    if (rightAligned && columns > 1 && !fullWidth) {
-      return SizedBox(
-        width: constraints.maxWidth,
-        child: Align(
-          alignment: Alignment.centerRight,
-          child: SizedBox(width: fieldWidth, child: fieldWidget),
-        ),
-      );
-    }
-    return SizedBox(
-      width: fullWidth ? constraints.maxWidth : fieldWidth,
-      child: fieldWidget,
     );
   }
 
