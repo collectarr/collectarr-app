@@ -191,9 +191,9 @@ My Images and adds Custom Fields only when definitions are nonempty.
 | TV | One Main schema | Generic editor plus a separately registered typed media editor. The request-backed edit draft is initialized by the shared renderer state; Specs are shared with Movie/Anime, and Cast/Crew presentation is shared with Anime. Custom episode dialog is another surface to audit. |
 | Anime | One Main schema | Registered edit routes use generic editor; an additional typed media dialog exists. The request-backed edit draft is initialized by the shared renderer state; Specs are shared with Movie/TV, and Cast/Crew presentation is shared with TV. |
 | Books | Main with managed publisher/format selection; typed Authors and Translators | Generic editor with separate catalog/entry presentation and an embedded entry schema renderer; Credits tab now uses the same typed ordered-name editors as Add. |
-| Comics | Main, Details, plus Series identity control | Generic entry editor and separately registered typed catalog editor; large custom tab/host adapter implementation with temporary controller fallbacks. |
+| Comics | Main, Details, plus Series identity control | Generic entry editor and separately registered typed catalog editor; large custom tab/host adapter remains, with typed-draft checks and controller fallbacks removed. |
 | Manga | Identity, Publication, plus Series identity control | Registered routes use generic editor; a separate typed media editor exists. Managed series/publisher selection logic overlaps Comics/Books. |
-| Games | One Main schema | Generic editor plus embedded entry schema; custom Main/Release fields and a hard-coded platform list. The request-backed edit draft is renderer-owned; field-specific controller ownership still needs review. |
+| Games | One Main schema | Generic editor plus embedded entry schema; custom Main/Release fields and the registered Game platform vocabulary. The request-backed edit draft is renderer-owned; field-specific controller ownership still needs review. |
 | Board Games | One Main schema | Generic renderer with catalog/entry presentation lists and embedded entry schema; shared release identity groups remain. |
 
 The presence of a raw Flutter control is not automatically a defect. The
@@ -444,9 +444,9 @@ tab placement, and metadata/personal classification.
 | TV | Physical-media Specs are shared with Movie and Anime; Cast/Crew presentation is shared with Anime. Unify generic and registered typed entry points; keep season/episode editing within the same draft/save lifecycle and expose parity fields in Add. |
 | Anime | Physical-media Specs and Cast/Crew presentation are shared with Movie/TV. Reconcile the extra media dialog with active routes; preserve kind-specific series/episode fields and expose parity fields in Add. |
 | Books | Unify catalog/entry schemas and managed publisher/format bindings; Authors and Translators now use shared typed ordered-name editors in Add/Edit; retain identifiers, publication details, and review other credits. |
-| Comics | Replace repeated controller fallbacks in comic_edit_host_adapter; unify generic entry and typed catalog hosts; retain series/issue, grading, variants, and meaningful credit structures. |
+| Comics | Controller fallbacks have been removed from the Comic edit host; unify the generic entry and typed catalog hosts while retaining series/issue, grading, variants, and meaningful credit structures. |
 | Manga | Consolidate series/publisher picker mechanics with other kinds; keep volume/publication semantics in Manga; reconcile generic/extra media editors. |
-| Games | Remove build-created release controllers and no-op callbacks; replace hard-coded platform options with Game vocabularies; integrate embedded entry schema with complete form. |
+| Games | Request-backed edit draft creation is renderer-owned and the registered Game platform vocabulary is used. Audit remaining no-op callbacks and integrate the embedded entry schema with the complete form. |
 | Board Games | Merge separate catalog/entry compositions, release identity groups, and embedded entry schema; retain players/age/play-time/components and play tracking as typed kind features. |
 | Music | Retain reference layout; converge Add/Edit credits, discs/tracks, covers, links, and personal controls. Preserve track-search highlighting in App. |
 
