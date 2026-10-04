@@ -75,6 +75,9 @@ Completed implementation slices:
   Color, and Discs in its kind-owned fields and serializes them into the Movie
   catalog document. Audio and subtitle choices use the existing Movie
   vocabularies; empty optional values remain omitted for a new item.
+- TV Manual Add now uses the shared multi-vocabulary controls and TV vocabulary
+  IDs for Audio tracks and Subtitles, matching its Edit Specs controls while
+  retaining the existing comma-separated catalog representation.
 - The shared video Specs section now also edits Screen ratio. TV and Anime
   hydrate their existing Specs controllers from metadata and persist all
   fields, including explicit clears; their Add forms expose the same supported
