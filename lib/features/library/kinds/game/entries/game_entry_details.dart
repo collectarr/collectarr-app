@@ -6,6 +6,9 @@ const Object _gameDetailsUnset = Object();
 
 @immutable
 class GameEntryDetails implements JsonEncodable {
+  /// Personal details for one local Game entry. The PriceCharting identifier
+  /// and tiered amounts describe the user's valuation snapshot; they are not
+  /// canonical Core metadata and travel with this personal entry.
   const GameEntryDetails({
     this.completeness,
     this.hasBox,

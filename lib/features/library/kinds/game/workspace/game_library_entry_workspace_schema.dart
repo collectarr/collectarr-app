@@ -155,7 +155,43 @@ abstract final class GameLibraryEntryWorkspaceFields {
       return entry is GameLibraryEntry
           ? entry.personal.details.valueIsLocked
           : null;
-    },
+      },
+    );
+
+  static final loosePrice = numberField<GameKind, GameWorkspaceDto>(
+    id: GameFieldIds.loosePrice,
+    label: 'Loose Price',
+    getValue: (dto) => dto.loosePrice,
+  );
+
+  static final cibPrice = numberField<GameKind, GameWorkspaceDto>(
+    id: GameFieldIds.cibPrice,
+    label: 'CIB Price',
+    getValue: (dto) => dto.cibPrice,
+  );
+
+  static final newPrice = numberField<GameKind, GameWorkspaceDto>(
+    id: GameFieldIds.newPrice,
+    label: 'New/Sealed Price',
+    getValue: (dto) => dto.newPrice,
+  );
+
+  static final gradedPrice = numberField<GameKind, GameWorkspaceDto>(
+    id: GameFieldIds.gradedPrice,
+    label: 'Graded Price',
+    getValue: (dto) => dto.gradedPrice,
+  );
+
+  static final boxOnlyPrice = numberField<GameKind, GameWorkspaceDto>(
+    id: GameFieldIds.boxOnlyPrice,
+    label: 'Box Only Price',
+    getValue: (dto) => dto.boxOnlyPrice,
+  );
+
+  static final manualOnlyPrice = numberField<GameKind, GameWorkspaceDto>(
+    id: GameFieldIds.manualOnlyPrice,
+    label: 'Manual Only Price',
+    getValue: (dto) => dto.manualOnlyPrice,
   );
 }
 
@@ -175,6 +211,12 @@ final gameLibraryEntryWorkspaceFieldDefinitions = [
   GameLibraryEntryWorkspaceFields.hasManual,
   GameLibraryEntryWorkspaceFields.priceChartingId,
   GameLibraryEntryWorkspaceFields.valueLocked,
+  GameLibraryEntryWorkspaceFields.loosePrice,
+  GameLibraryEntryWorkspaceFields.cibPrice,
+  GameLibraryEntryWorkspaceFields.newPrice,
+  GameLibraryEntryWorkspaceFields.gradedPrice,
+  GameLibraryEntryWorkspaceFields.boxOnlyPrice,
+  GameLibraryEntryWorkspaceFields.manualOnlyPrice,
 ];
 
 final gameLibraryEntryWorkspaceGroupDefinitions = [
@@ -209,6 +251,14 @@ final gameLibraryEntryWorkspaceSortDefinitions = [
       return res != 0 ? res : left.dto.title.compareTo(right.dto.title);
     },
     label: 'Status',
+  ),
+  sortFromField<GameKind, GameWorkspaceDto, num>(
+    GameLibraryEntryWorkspaceFields.loosePrice,
+    defaultAscending: false,
+  ),
+  sortFromField<GameKind, GameWorkspaceDto, num>(
+    GameLibraryEntryWorkspaceFields.cibPrice,
+    defaultAscending: false,
   ),
 ];
 
@@ -285,6 +335,54 @@ final gameLibraryEntryWorkspaceColumnDefinitions = [
     getValue: GameLibraryEntryWorkspaceFields.rating.getValue,
     cellValue: (context) => Text(context.dto.personal.rating?.toString() ?? ''),
     defaultWidth: 80,
+  ),
+  columnFromField<GameKind, GameWorkspaceDto, num?>(
+    GameLibraryEntryWorkspaceFields.loosePrice,
+    cellValue: (context) =>
+        Text(_formatCents(context.dto.loosePrice, context.dto.currency)),
+    group: 'Valuation',
+    isNumeric: true,
+    defaultWidth: 100,
+  ),
+  columnFromField<GameKind, GameWorkspaceDto, num?>(
+    GameLibraryEntryWorkspaceFields.cibPrice,
+    cellValue: (context) =>
+        Text(_formatCents(context.dto.cibPrice, context.dto.currency)),
+    group: 'Valuation',
+    isNumeric: true,
+    defaultWidth: 100,
+  ),
+  columnFromField<GameKind, GameWorkspaceDto, num?>(
+    GameLibraryEntryWorkspaceFields.newPrice,
+    cellValue: (context) =>
+        Text(_formatCents(context.dto.newPrice, context.dto.currency)),
+    group: 'Valuation',
+    isNumeric: true,
+    defaultWidth: 100,
+  ),
+  columnFromField<GameKind, GameWorkspaceDto, num?>(
+    GameLibraryEntryWorkspaceFields.gradedPrice,
+    cellValue: (context) =>
+        Text(_formatCents(context.dto.gradedPrice, context.dto.currency)),
+    group: 'Valuation',
+    isNumeric: true,
+    defaultWidth: 100,
+  ),
+  columnFromField<GameKind, GameWorkspaceDto, num?>(
+    GameLibraryEntryWorkspaceFields.boxOnlyPrice,
+    cellValue: (context) =>
+        Text(_formatCents(context.dto.boxOnlyPrice, context.dto.currency)),
+    group: 'Valuation',
+    isNumeric: true,
+    defaultWidth: 100,
+  ),
+  columnFromField<GameKind, GameWorkspaceDto, num?>(
+    GameLibraryEntryWorkspaceFields.manualOnlyPrice,
+    cellValue: (context) =>
+        Text(_formatCents(context.dto.manualOnlyPrice, context.dto.currency)),
+    group: 'Valuation',
+    isNumeric: true,
+    defaultWidth: 100,
   ),
 ];
 

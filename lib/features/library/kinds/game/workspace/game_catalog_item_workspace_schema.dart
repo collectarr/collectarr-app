@@ -73,29 +73,6 @@ abstract final class GameCatalogItemWorkspaceFields {
     getValue: (dto) => dto.ageRating,
   );
 
-  static final loosePrice = numberField<GameKind, GameWorkspaceDto>(
-    id: GameFieldIds.loosePrice,
-    label: 'Loose Price',
-    getValue: (dto) => dto.loosePrice,
-  );
-
-  static final cibPrice = numberField<GameKind, GameWorkspaceDto>(
-    id: GameFieldIds.cibPrice,
-    label: 'CIB Price',
-    getValue: (dto) => dto.cibPrice,
-  );
-
-  static final newPrice = numberField<GameKind, GameWorkspaceDto>(
-    id: GameFieldIds.newPrice,
-    label: 'New/Sealed Price',
-    getValue: (dto) => dto.newPrice,
-  );
-
-  static final gradedPrice = numberField<GameKind, GameWorkspaceDto>(
-    id: GameFieldIds.gradedPrice,
-    label: 'Graded Price',
-    getValue: (dto) => dto.gradedPrice,
-  );
 }
 
 final gameCatalogItemWorkspaceFieldDefinitions = [
@@ -110,10 +87,6 @@ final gameCatalogItemWorkspaceFieldDefinitions = [
   GameCatalogItemWorkspaceFields.franchise,
   GameCatalogItemWorkspaceFields.series,
   GameCatalogItemWorkspaceFields.ageRating,
-  GameCatalogItemWorkspaceFields.loosePrice,
-  GameCatalogItemWorkspaceFields.cibPrice,
-  GameCatalogItemWorkspaceFields.newPrice,
-  GameCatalogItemWorkspaceFields.gradedPrice,
 ];
 
 final gameCatalogItemWorkspaceGroupDefinitions = [
@@ -148,12 +121,6 @@ final gameCatalogItemWorkspaceSortDefinitions = [
       GameCatalogItemWorkspaceFields.edition),
   sortFromField<GameKind, GameWorkspaceDto, String>(
       GameCatalogItemWorkspaceFields.barcode),
-  sortFromField<GameKind, GameWorkspaceDto, num>(
-      GameCatalogItemWorkspaceFields.cibPrice,
-      defaultAscending: false),
-  sortFromField<GameKind, GameWorkspaceDto, num>(
-      GameCatalogItemWorkspaceFields.loosePrice,
-      defaultAscending: false),
 ];
 
 final gameCatalogItemWorkspaceDefaultVisibleColumns = <LibraryFieldIdRuntime>{
@@ -212,22 +179,6 @@ final gameCatalogItemWorkspaceColumnDefinitions = [
     group: 'Classification',
     defaultWidth: 130,
   ),
-  columnFromField<GameKind, GameWorkspaceDto, num?>(
-    GameCatalogItemWorkspaceFields.cibPrice,
-    cellValue: (context) =>
-        Text(_formatCents(context.dto.cibPrice, context.dto.currency)),
-    group: 'Valuation',
-    isNumeric: true,
-    defaultWidth: 100,
-  ),
-  columnFromField<GameKind, GameWorkspaceDto, num?>(
-    GameCatalogItemWorkspaceFields.loosePrice,
-    cellValue: (context) =>
-        Text(_formatCents(context.dto.loosePrice, context.dto.currency)),
-    group: 'Valuation',
-    isNumeric: true,
-    defaultWidth: 100,
-  ),
 ];
 
 final gameCatalogItemWorkspaceSchema =
@@ -242,12 +193,6 @@ final gameCatalogItemWorkspaceSchema =
   defaultSort: GameSortIds.platform,
   defaultGroup: GameGroupIds.platform,
 );
-
-String _formatCents(int? cents, String? currency) {
-  if (cents == null) return '';
-  final amount = (cents / 100).toStringAsFixed(2);
-  return currency == null ? amount : '$currency $amount';
-}
 
 String _formatDate(DateTime? value) {
   if (value == null) return '';

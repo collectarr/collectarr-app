@@ -1,6 +1,7 @@
 import 'package:collectarr_app/features/library/domain/valuation_snapshot.dart';
 import 'package:flutter/foundation.dart';
 
+/// User-owned valuation amounts recorded for one Game library entry.
 @immutable
 class GameValuationSet {
   const GameValuationSet({
