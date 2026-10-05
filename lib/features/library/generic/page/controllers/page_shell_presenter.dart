@@ -181,7 +181,7 @@ abstract final class LibraryPageShellPresenter {
       collapsedGroupBuckets: state._session.preferences.collapsedGroupBuckets,
       onGroupBucketCollapsedToggled: state._toggleCollapsedGroupBucket,
       onSetCollapsedGroupBuckets: state._setCollapsedGroupBuckets,
-      onGroupModeChanged: state._setGroupMode,
+      onGroupModeChanged: state._setFolderPreset,
       onSortChanged: (column) => state._updateViewState(
         (stateValue) => stateValue.withSortColumn(
           activeFields.decodeSortId(column),

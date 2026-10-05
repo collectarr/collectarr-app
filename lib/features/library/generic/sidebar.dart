@@ -61,7 +61,7 @@ class LibrarySidebar extends StatelessWidget {
   final bool groupLoading;
   final String selectedBucket;
   final ValueChanged<String> onSelected;
-  final ValueChanged<String> onGroupModeChanged;
+  final ValueChanged<LibraryFolderPreset> onGroupModeChanged;
   final List<String>? availableGroupModes;
   final List<String> breadcrumbs;
   final List<String> ancestorScopeLabels;
@@ -127,7 +127,7 @@ class LibrarySidebar extends StatelessWidget {
           folderPreset ?? LibraryFolderPreset.single(groupMode),
           type,
         ),
-        onChanged: (preset) => onGroupModeChanged(preset.primaryMode),
+        onChanged: onGroupModeChanged,
         breadcrumbs: breadcrumbs,
         onNavigateBack: onNavigateBack,
         onNavigateToBreadcrumb: onNavigateToBreadcrumb,

@@ -178,7 +178,7 @@ class LibraryBody extends StatelessWidget {
   final ValueChanged<LibraryProjectionItem> onOpenItem;
   final ValueChanged<Set<String>>? onBoxSelectionChanged;
   final ValueChanged<String?> onBucketChanged;
-  final ValueChanged<String> onGroupModeChanged;
+  final ValueChanged<LibraryFolderPreset> onGroupModeChanged;
   final List<String> sidebarBreadcrumbs;
   final List<String> sidebarAncestorScopeLabels;
   final VoidCallback? onSidebarNavigateBack;
