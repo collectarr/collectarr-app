@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/workspace/schema/library_group_values.dart';
 import 'package:collectarr_app/features/settings/ui_preferences.dart';
 import 'package:collectarr_app/features/library/ui/library_chrome_tokens.dart';
 import 'package:collectarr_app/features/library/ui/library_density_scope.dart';
@@ -19,6 +20,7 @@ class LibraryBucket {
   });
 
   final String title;
+  final String? allBucketLabel;
   final int count;
   final String? coverUrl;
   final int? startYear;
@@ -48,6 +50,7 @@ class LibraryBucketSidebar extends ConsumerStatefulWidget {
     required this.selectedBucket,
     required this.onSelectBucket,
     this.title = 'Buckets',
+    this.allBucketLabel,
     this.icon = Icons.folder,
     this.trailing,
     this.headerOverride,
@@ -143,9 +146,23 @@ class _LibraryBucketSidebarState extends ConsumerState<LibraryBucketSidebar> {
         // Keep original order (already alphabetical from projection).
         break;
       case _SidebarSortMode.byCount:
-        items.sort((a, b) => b.count.compareTo(a.count));
+        items.sort((a, b) => _compareFolders(a.title, a.count, b.title, b.count));
     }
     return items;
+  }
+
+  int _compareFolders(String a, int aCount, String b, int bCount) {
+    if (a == b) return 0;
+    if (a == widget.allBucketLabel) return -1;
+    if (b == widget.allBucketLabel) return 1;
+    if (a == libraryEmptyGroupLabel || b == libraryEmptyGroupLabel) {
+      return compareLibraryGroupBuckets(a, b);
+    }
+    if (_sortMode == _SidebarSortMode.byCount) {
+      final countOrder = bCount.compareTo(aCount);
+      if (countOrder != 0) return countOrder;
+    }
+    return compareLibraryGroupBuckets(a, b);
   }
 
   List<LibraryFolderTreeNode> _filteredSortedTree(

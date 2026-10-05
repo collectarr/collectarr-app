@@ -99,6 +99,7 @@ class LibrarySidebar extends StatelessWidget {
   Widget build(BuildContext context) {
     return LibraryBucketSidebar(
       title: 'Folders',
+      allBucketLabel: genericAllBucketLabel(type),
       icon: Icons.folder_open_outlined,
       buckets: buckets,
       selectedBucket: selectedBucket,
