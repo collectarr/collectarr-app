@@ -25,19 +25,33 @@ const Color kEditValueChip = kAppPanel;
 const Color kEditValueChipBorder = kAppSurfaceBright;
 const BorderRadius kEditMenuBorderRadius = kAppMenuBorderRadius;
 
+/// Saved CLZ editor surfaces, scoped to dialogs rather than the workspace.
+AppThemePalette libraryEditPalette(AppThemePalette palette) => palette.isDark
+    ? palette.copyWith(
+        panel: const Color(0xFF242424),
+        panelRaised: const Color(0xFF383838),
+        surfaceBright: const Color(0xFF383838),
+        surface: const Color(0xFF444444),
+        field: const Color(0xFF444444),
+        toolbar: const Color(0xFF383838),
+        divider: const Color(0xFF606060),
+      )
+    : palette;
+
 /// Theme preset for edit dialogs – resolves from [palette] for light/dark.
 ThemeData editDialogTheme({
   Color? seedColor,
   AppThemePalette palette = kDefaultAppThemePalette,
   bool compactDesktop = false,
 }) {
+  palette = libraryEditPalette(palette);
   final accent = seedColor ?? palette.accent;
   final base = palette.isDark
       ? ThemeData.dark(useMaterial3: true)
       : ThemeData.light(useMaterial3: true);
   return base.copyWith(
     extensions: [palette],
-    visualDensity: VisualDensity.compact,
+    visualDensity: VisualDensity.standard,
     canvasColor: palette.panel,
     colorScheme: ColorScheme.fromSeed(
       seedColor: accent,
@@ -82,8 +96,8 @@ ThemeData editDialogTheme({
       fillColor: palette.isDark ? const Color(0xFF444444) : palette.surface,
       isDense: true,
       contentPadding: EdgeInsets.symmetric(
-        horizontal: compactDesktop ? 8 : 9,
-        vertical: compactDesktop ? 6 : 7,
+        horizontal: 7,
+        vertical: 6,
       ),
       constraints: const BoxConstraints(
         minHeight: kLibraryFormControlHeight,
@@ -140,11 +154,30 @@ ThemeData editDialogTheme({
     iconButtonTheme: const IconButtonThemeData(
       style: ButtonStyle(mouseCursor: WidgetStateMouseCursor.clickable),
     ),
-    textTheme: base.textTheme.apply(
-      fontFamily: 'Inter',
-      bodyColor: palette.textPrimary,
-      displayColor: palette.textPrimary,
-    ),
+    textTheme: base.textTheme
+        .copyWith(
+          bodyLarge: base.textTheme.bodyLarge?.copyWith(
+              fontSize: 14,
+              height: 20 / 14,
+              fontWeight: FontWeight.w400,
+              letterSpacing: 0),
+          bodyMedium: base.textTheme.bodyMedium?.copyWith(
+              fontSize: 14,
+              height: 20 / 14,
+              fontWeight: FontWeight.w400,
+              letterSpacing: 0),
+          labelLarge: base.textTheme.labelLarge?.copyWith(
+              fontSize: 14,
+              height: 20 / 14,
+              fontWeight: FontWeight.w500,
+              letterSpacing: 0),
+        )
+        .apply(
+          fontFamily: kLibraryEditorFontFamily,
+          fontFamilyFallback: kClzFontFallback,
+          bodyColor: palette.textPrimary,
+          displayColor: palette.textPrimary,
+        ),
     datePickerTheme: buildAppDatePickerTheme(
       palette: palette,
       accent: accent,
@@ -192,19 +225,16 @@ class EditTabShell extends StatelessWidget {
           ),
           child: scrollable
               ? SingleChildScrollView(
-                  padding: const EdgeInsets.fromLTRB(10, 16, 10, 10),
+                  padding: const EdgeInsets.fromLTRB(15, 16, 15, 16),
                   child: content,
                 )
               : Padding(
-                  padding: const EdgeInsets.fromLTRB(10, 16, 10, 10),
+                  padding: const EdgeInsets.fromLTRB(15, 16, 15, 16),
                   child: content,
                 ),
         );
         if (cover == null || constraints.maxWidth < 720) {
-          return Padding(
-            padding: const EdgeInsets.fromLTRB(8, 8, 8, 8),
-            child: scrollContent,
-          );
+          return scrollContent;
         }
         return Row(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -344,7 +374,7 @@ class EditTab extends StatelessWidget {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(icon, size: 14),
+        Icon(icon, size: 16),
         const SizedBox(width: 3),
         Text(label),
       ],

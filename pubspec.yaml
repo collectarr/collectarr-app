@@ -52,7 +52,18 @@ flutter:
   uses-material-design: true
   assets:
     - assets/logos/
+    - assets/fonts/CollectarrSans-OFL.txt
   fonts:
+    - family: Collectarr Sans
+      fonts:
+        - asset: assets/fonts/CollectarrSans-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/CollectarrSans-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/CollectarrSans-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/CollectarrSans-Bold.ttf
+          weight: 700
     - family: Inter
       fonts:
         - asset: assets/fonts/Inter-Variable.ttf

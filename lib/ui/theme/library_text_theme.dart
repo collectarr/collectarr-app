@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 
+/// The bundled OFL geometric face shared by Library editors.
+const kLibraryEditorFontFamily = 'Collectarr Sans';
+
 /// Semantic text roles for Library UI.
 extension LibraryTextTheme on TextTheme {
   /// Panel and dialog title styling (prominent header).

@@ -23,10 +23,12 @@ class LibraryFormField extends StatelessWidget {
                       color: appPalette(context).textMuted,
                       fontSize: 13,
                       fontWeight: FontWeight.w600,
+                      height: 20 / 14,
+                      letterSpacing: 0,
                     ))),
             if (action != null) action!,
           ]),
-          const SizedBox(height: 3),
+          const SizedBox(height: 1),
           child,
         ],
       );
@@ -128,14 +130,15 @@ class LibraryFormGroup extends StatelessWidget {
         Align(
             alignment: Alignment.topCenter,
             child: ColoredBox(
-              color: Theme.of(context).colorScheme.surface,
+              color: appPalette(context).panelRaised,
               child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 7),
                   child: Text(title,
                       style: TextStyle(
                           color: appPalette(context).textMuted,
                           fontWeight: FontWeight.w600,
-                          fontSize: 15))),
+                          fontSize: 16.8,
+                          height: 24 / 16.8))),
             )),
       ]);
 }
