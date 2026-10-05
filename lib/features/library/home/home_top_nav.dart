@@ -1,4 +1,6 @@
 import 'package:collectarr_app/core/routing/app_router.dart';
+import 'package:collectarr_app/core/models/library_entry_projection.dart';
+import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/core/api/dto/media_catalog.dart';
 import 'package:collectarr_app/features/library/home/home_catalog.dart';
 import 'package:collectarr_app/features/library/home/home_nav_models.dart';
@@ -7,8 +9,6 @@ import 'package:collectarr_app/features/library/home/home_nav_button.dart';
 import 'package:collectarr_app/features/library/config/library_kind_style.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/providers/library_nav_preferences.dart';
-import 'package:collectarr_app/features/library/workspace/config/library_workspace_tokens.dart';
-import 'package:collectarr_app/features/sync/state/sync_controller.dart';
 
 import 'package:collectarr_app/features/library/home/compact_kind_picker.dart';
 import 'package:collectarr_app/ui/adaptive/adaptive.dart';
@@ -18,63 +18,6 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-
-class MediaLibraryActionsBar extends StatelessWidget {
-  const MediaLibraryActionsBar({
-    super.key,
-    required this.overdueLoanCount,
-    required this.selectedOverdueLoanCount,
-    required this.selectedLabel,
-    this.animationDuration = kAppAnimNormal,
-  });
-
-  final int overdueLoanCount;
-  final int selectedOverdueLoanCount;
-  final String selectedLabel;
-  final Duration animationDuration;
-
-  @override
-  Widget build(BuildContext context) {
-    final accentData = LibraryAccentScope.of(context);
-    return AnimatedLibraryChromeGradient(
-      accent: accentData.accent,
-      begin: Alignment.centerLeft,
-      end: Alignment.centerRight,
-      duration: animationDuration,
-      borderBuilder: (animatedAccent, brightness) => Border(
-        top: BorderSide(
-          color: libraryChromeBorderColor(
-            animatedAccent,
-            brightness: brightness,
-          ),
-        ),
-        bottom: BorderSide(
-          color: libraryChromeBorderColor(
-            animatedAccent,
-            brightness: brightness,
-          ),
-        ),
-      ),
-      child: SizedBox(
-        height: 36,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 6),
-          child: Row(
-            children: [
-              _MediaLibraryOverdueActions(
-                overdueLoanCount: overdueLoanCount,
-                selectedOverdueLoanCount: selectedOverdueLoanCount,
-                selectedLabel: selectedLabel,
-              ),
-              const Spacer(),
-              const _LibraryTopNavSyncButton(),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
 
 class MediaLibraryNav extends ConsumerWidget {
   const MediaLibraryNav({
@@ -157,15 +100,6 @@ class MediaLibraryNav extends ConsumerWidget {
                       onSelected: onSelected,
                       animationDuration: animationDuration,
                     ),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(left: 4, right: 6),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const _LibraryTopNavSyncButton(),
-                ],
-              ),
             ),
           ],
         ),
@@ -250,8 +184,6 @@ class MediaLibraryTitleBar extends ConsumerWidget {
                         selectedOverdueLoanCount: selectedOverdueLoanCount,
                         selectedLabel: selectedLabel,
                       ),
-                      const SizedBox(width: 6),
-                      const _LibraryTopNavSyncButton(),
                     ],
                   ),
                 ],
@@ -306,6 +238,37 @@ class _MediaLibraryTitle extends StatelessWidget {
   }
 }
 
+/// Keep the overdue-loan shortcut in the main app bar after removing the extra row.
+class LibraryOverdueLoansAction extends ConsumerWidget {
+  const LibraryOverdueLoansAction(
+      {super.key, required this.selectedKind, required this.selectedLabel});
+  final String selectedKind;
+  final String selectedLabel;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final overdue = ref.watch(overdueLoanLibraryEntryIdsProvider).maybeWhen(
+        data: (value) => value, orElse: () => const <LibraryEntryRef>{});
+    if (overdue.isEmpty) return const SizedBox.shrink();
+    final counts = ref.watch(shelfProvider).maybeWhen(
+        data: (value) => overdueLoanCountsByKind(value, overdue),
+        orElse: () => const <String, int>{});
+    final selectedCount = counts[selectedKind] ?? 0;
+    return IconButton(
+        tooltip:
+            '${overdue.length} overdue loans ? $selectedCount in $selectedLabel ? Open Loans',
+        visualDensity: VisualDensity.compact,
+        style: IconButton.styleFrom(
+            foregroundColor: Colors.white,
+            backgroundColor: Colors.transparent,
+            side: BorderSide.none),
+        onPressed: () => context.go(AppRoutes.loans),
+        icon: Badge(
+            label: Text('${overdue.length}'),
+            child: const Icon(Icons.warning_amber_rounded)));
+  }
+}
+
 class _MediaLibraryOverdueActions extends StatelessWidget {
   const _MediaLibraryOverdueActions({
     required this.overdueLoanCount,
@@ -334,48 +297,6 @@ class _MediaLibraryOverdueActions extends StatelessWidget {
             ),
           ],
         ],
-      ),
-    );
-  }
-}
-
-class _LibraryTopNavSyncButton extends ConsumerWidget {
-  const _LibraryTopNavSyncButton();
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final sync = ref.watch(syncControllerProvider);
-    return Tooltip(
-      message: sync.isSyncing
-          ? 'Personal sync is running'
-          : sync.pendingCount > 0
-              ? 'Run personal sync now (${sync.pendingCount} pending)'
-              : 'Run personal sync now',
-      child: SizedBox.square(
-        dimension: kLibraryToolbarControlHeight,
-        child: IconButton(
-          onPressed: sync.isSyncing
-              ? null
-              : () => ref.read(syncControllerProvider.notifier).syncNow(),
-          icon: Icon(
-            sync.isOffline ? Icons.cloud_off_outlined : Icons.sync_outlined,
-            size: 18,
-          ),
-          visualDensity: VisualDensity.compact,
-          padding: EdgeInsets.zero,
-          constraints: const BoxConstraints.tightFor(
-            width: kLibraryToolbarControlHeight,
-            height: kLibraryToolbarControlHeight,
-          ),
-          style: IconButton.styleFrom(
-            foregroundColor: appPalette(context).textMuted,
-            backgroundColor: appPalette(context).surface,
-            side: BorderSide(color: appPalette(context).divider),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(3),
-            ),
-          ),
-        ),
       ),
     );
   }

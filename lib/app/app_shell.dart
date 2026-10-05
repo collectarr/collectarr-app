@@ -7,6 +7,7 @@ import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/home/home_catalog.dart';
 import 'package:collectarr_app/features/library/home/home_kind_menu.dart';
 import 'package:collectarr_app/features/library/home/home_nav_models.dart';
+import 'package:collectarr_app/features/library/home/home_top_nav.dart';
 import 'package:collectarr_app/features/library/inspector/library_duplicate_items.dart';
 import 'package:collectarr_app/features/library/keyboard/library_keyboard_shortcuts.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
@@ -23,6 +24,7 @@ import 'package:collectarr_app/features/library/providers/media_catalog_provider
 import 'package:collectarr_app/features/library/providers/selected_library_provider.dart';
 import 'package:collectarr_app/features/settings/ui_preferences.dart';
 import 'package:collectarr_app/features/sync/presentation/sync_status_overlay.dart';
+import 'package:collectarr_app/features/sync/presentation/sync_action_button.dart';
 import 'package:collectarr_app/features/sync/state/sync_controller.dart';
 import 'package:collectarr_app/state/auth_provider.dart';
 import 'package:collectarr_app/ui/library_accent_scope.dart';
@@ -85,10 +87,12 @@ class _AppShellState extends ConsumerState<AppShell> {
     final uiPreferences = ref.watch(uiPreferencesProvider);
     final mediaQuery = MediaQuery.maybeOf(context);
     final accentTheme = buildLibraryAccentTheme(Theme.of(context), accent);
-    final toolbarIconStyle = Theme.of(context).iconButtonTheme.style?.copyWith(
-              backgroundColor: const WidgetStatePropertyAll(Colors.transparent),
-            ) ??
-        IconButton.styleFrom(backgroundColor: Colors.transparent);
+    final toolbarIconStyle = IconButton.styleFrom(
+        foregroundColor: Colors.white,
+        disabledForegroundColor: Colors.white54,
+        backgroundColor: Colors.transparent,
+        disabledBackgroundColor: Colors.transparent,
+        side: BorderSide.none);
 
     final shell = LibraryAccentScope(
       kind: activeLibrary,
@@ -137,6 +141,10 @@ class _AppShellState extends ConsumerState<AppShell> {
                 : Duration.zero,
           ),
           actions: [
+            LibraryOverdueLoansAction(
+              selectedKind: activeLibrary,
+              selectedLabel: activeType.identity.pluralLabel,
+            ),
             MediaLibraryKindMenu(
               types: libraryTypes,
               registry: defaultLibraryKindRegistry,
@@ -151,6 +159,7 @@ class _AppShellState extends ConsumerState<AppShell> {
                 context.go(libraryUri.toString());
               },
             ),
+            SyncActionButton(style: toolbarIconStyle),
             IconButton(
               key: const Key('nav.settings'),
               tooltip: 'Settings',

@@ -3,7 +3,6 @@ import 'dart:developer' as developer;
 
 import 'package:collectarr_app/core/api/dto/media_catalog.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
-import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/core/utils/image_url.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
@@ -11,9 +10,7 @@ import 'package:flutter/foundation.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/features/library/home/home_nav_models.dart';
 import 'package:collectarr_app/features/library/home/library_switch_transition.dart';
-import 'package:collectarr_app/features/library/home/home_top_nav.dart';
 import 'package:collectarr_app/features/library/home/home_catalog.dart';
-import 'package:collectarr_app/features/library/home/home_counts.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_pages.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/providers/library_nav_preferences.dart';
@@ -249,7 +246,6 @@ class _LibraryHomePageState extends ConsumerState<LibraryHomePage> {
 
   Widget _buildCachedKindBody({
     required CatalogMediaType selected,
-    required Widget resolvedTopBar,
     required Color accent,
     required Uri routeUri,
     required List<CatalogMediaType> visibleTypes,
@@ -262,7 +258,7 @@ class _LibraryHomePageState extends ConsumerState<LibraryHomePage> {
         registration: libraryKindRegistrationForKind(
           catalogMediaKindFromApiValue(selected.kind),
         ),
-        topBar: resolvedTopBar,
+        topBar: const SizedBox.shrink(),
         accent: accent,
         routeUri: routeUri,
         switchLayoutSnapshot: switchLayoutSnapshot,
@@ -373,25 +369,6 @@ class _LibraryHomePageState extends ConsumerState<LibraryHomePage> {
       data: (value) => value,
       orElse: () => null,
     );
-    final overdueLoanLibraryEntryRefs =
-        ref.watch(overdueLoanLibraryEntryIdsProvider).maybeWhen(
-              data: (value) => value,
-              orElse: () => const <LibraryEntryRef>{},
-            );
-    final shelfForOverdue = ref.watch(shelfProvider);
-    final overdueCounts = shelfForOverdue.maybeWhen(
-      data: (value) => overdueLoanCountsByKind(value, overdueLoanLibraryEntryRefs),
-      orElse: () => const <String, int>{},
-    );
-    final overdueLoanCount = overdueLoanLibraryEntryRefs.length;
-    final selectedOverdueLoanCount = overdueCounts[selected.kind] ?? 0;
-    final topBar = MediaLibraryActionsBar(
-      overdueLoanCount: overdueLoanCount,
-      selectedOverdueLoanCount: selectedOverdueLoanCount,
-      selectedLabel: selected.pluralLabel,
-      animationDuration:
-          uiPreferences.animationsEnabled ? kAppAnimNormal : Duration.zero,
-    );
     final offlineBanner = isCatalogOffline
         ? Container(
             width: double.infinity,
@@ -414,29 +391,23 @@ class _LibraryHomePageState extends ConsumerState<LibraryHomePage> {
           )
         : null;
     final accent = LibraryAccentScope.of(context).accent;
-    final resolvedTopBar = _CoverPrewarmTrigger(
-      onIntent: loadedShelf == null
-          ? null
-          : () => _requestCoverPrewarm(
-                context,
-                loadedShelf,
-                selected.kind,
-              ),
-      child: topBar,
-    );
     final content = Column(
       children: [
         if (offlineBanner != null) offlineBanner,
         Expanded(
-          child: _buildCachedKindBody(
-            selected: selected,
-            resolvedTopBar: resolvedTopBar,
-            accent: accent,
-            routeUri: widget.routeUri,
-            visibleTypes: visibleTypes,
-            animationDuration: switchAnimationDuration,
-            switchLayoutSnapshot: _switchLayoutSnapshot,
-          ),
+          child: _CoverPrewarmTrigger(
+              onIntent: loadedShelf == null
+                  ? null
+                  : () =>
+                      _requestCoverPrewarm(context, loadedShelf, selected.kind),
+              child: _buildCachedKindBody(
+                selected: selected,
+                accent: accent,
+                routeUri: widget.routeUri,
+                visibleTypes: visibleTypes,
+                animationDuration: switchAnimationDuration,
+                switchLayoutSnapshot: _switchLayoutSnapshot,
+              )),
         ),
       ],
     );
