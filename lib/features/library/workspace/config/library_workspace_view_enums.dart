@@ -21,6 +21,8 @@ enum LibraryDetailsLayout { right, bottom, hidden }
 
 enum LibraryFolderDisplayMode { drilldown, tree }
 
+enum LibraryFolderSortMode { alphabetical, byCount }
+
 extension LibraryFolderDisplayModeLabels on LibraryFolderDisplayMode {
   String get label {
     return switch (this) {

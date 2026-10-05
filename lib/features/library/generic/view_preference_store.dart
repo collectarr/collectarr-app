@@ -19,6 +19,7 @@ class LibraryViewPreferenceStore {
       <String, Set<LibraryWorkspacePreset>>{};
   static final _cachedPinnedSortFavoriteIds = <String, Set<String>>{};
   static final _cachedPinnedColumnFavoriteKeys = <String, Set<String>>{};
+  static final _cachedFolderSortModes = <String, LibraryFolderSortMode>{};
   static final _cachedFolderDisplayModes = <String, LibraryFolderDisplayMode>{};
   static final _cachedFolderTreeExpandedNodeIds = <String, Set<String>>{};
   static final _cachedFolderTreeSelectedNodeIds = <String, String?>{};
@@ -72,6 +73,7 @@ class LibraryViewPreferenceStore {
   }
 
   static void resetCachedPreferencesForTesting() {
+    _cachedFolderSortModes.clear();
     _cachedQuickViews.clear();
     _cachedFolderPresets.clear();
     _cachedPinnedFolderPresets.clear();
@@ -282,6 +284,32 @@ class LibraryViewPreferenceStore {
       _key('pinnedColumnFavoriteKeys'),
       keys.toList(growable: false),
     );
+  }
+
+  LibraryFolderSortMode? cachedFolderSortMode(LibraryFolderPreset preset) =>
+      _cachedFolderSortModes[_folderTreeCacheKey(preset)];
+
+  Future<LibraryFolderSortMode?> readFolderSortMode(
+      LibraryFolderPreset preset) async {
+    final prefs = await SharedPreferences.getInstance();
+    final name = prefs.getString(_folderTreeKey(preset, 'sortMode'));
+    LibraryFolderSortMode? result;
+    for (final mode in LibraryFolderSortMode.values) {
+      if (mode.name == name) result = mode;
+    }
+    if (result == null) {
+      _cachedFolderSortModes.remove(_folderTreeCacheKey(preset));
+    } else {
+      _cachedFolderSortModes[_folderTreeCacheKey(preset)] = result;
+    }
+    return result;
+  }
+
+  Future<void> writeFolderSortMode(
+      LibraryFolderPreset preset, LibraryFolderSortMode mode) async {
+    _cachedFolderSortModes[_folderTreeCacheKey(preset)] = mode;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_folderTreeKey(preset, 'sortMode'), mode.name);
   }
 
   Future<LibraryFolderDisplayMode?> readFolderDisplayMode(

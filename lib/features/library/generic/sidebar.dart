@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/generic/view_preference_store.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/generic/sidebar/sidebar_header.dart';
@@ -99,6 +100,8 @@ class LibrarySidebar extends StatelessWidget {
   Widget build(BuildContext context) {
     return LibraryBucketSidebar(
       title: 'Folders',
+      preferenceStore: LibraryViewPreferenceStore(type.kind),
+      folderPreset: folderPreset ?? LibraryFolderPreset.single(groupMode),
       allBucketLabel: genericAllBucketLabel(type),
       icon: Icons.folder_open_outlined,
       buckets: buckets,

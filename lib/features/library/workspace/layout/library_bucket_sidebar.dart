@@ -1,3 +1,5 @@
+import 'dart:async';
+import 'package:collectarr_app/features/library/generic/view_preference_store.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_group_values.dart';
 import 'package:collectarr_app/features/settings/ui_preferences.dart';
 import 'package:collectarr_app/features/library/ui/library_chrome_tokens.dart';
@@ -20,7 +22,6 @@ class LibraryBucket {
   });
 
   final String title;
-  final String? allBucketLabel;
   final int count;
   final String? coverUrl;
   final int? startYear;
@@ -51,6 +52,8 @@ class LibraryBucketSidebar extends ConsumerStatefulWidget {
     required this.onSelectBucket,
     this.title = 'Buckets',
     this.allBucketLabel,
+    this.preferenceStore,
+    this.folderPreset,
     this.icon = Icons.folder,
     this.trailing,
     this.headerOverride,
@@ -82,6 +85,9 @@ class LibraryBucketSidebar extends ConsumerStatefulWidget {
   final String? selectedBucket;
   final ValueChanged<String> onSelectBucket;
   final String title;
+  final String? allBucketLabel;
+  final LibraryViewPreferenceStore? preferenceStore;
+  final LibraryFolderPreset? folderPreset;
   final IconData icon;
   final Widget? trailing;
   final Widget? headerOverride;
@@ -115,11 +121,67 @@ class LibraryBucketSidebar extends ConsumerStatefulWidget {
       _LibraryBucketSidebarState();
 }
 
-enum _SidebarSortMode { alphabetical, byCount }
-
 class _LibraryBucketSidebarState extends ConsumerState<LibraryBucketSidebar> {
   final _searchController = TextEditingController();
-  var _sortMode = _SidebarSortMode.alphabetical;
+  var _sortMode = LibraryFolderSortMode.alphabetical;
+
+  int _sortRevision = 0;
+  Future<void> _sortWrite = Future<void>.value();
+
+  @override
+  void initState() {
+    super.initState();
+    _restoreSortMode();
+  }
+
+  @override
+  void didUpdateWidget(covariant LibraryBucketSidebar oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.preferenceStore?.kind != widget.preferenceStore?.kind ||
+        oldWidget.folderPreset?.storageValue !=
+            widget.folderPreset?.storageValue) {
+      _restoreSortMode();
+    }
+  }
+
+  void _restoreSortMode() {
+    final revision = ++_sortRevision;
+    final store = widget.preferenceStore;
+    final preset = widget.folderPreset;
+    _sortMode = store != null && preset != null
+        ? store.cachedFolderSortMode(preset) ??
+            LibraryFolderSortMode.alphabetical
+        : LibraryFolderSortMode.alphabetical;
+    if (store == null || preset == null) return;
+    unawaited(() async {
+      try {
+        final restored = await store.readFolderSortMode(preset);
+        if (!mounted || revision != _sortRevision) return;
+        setState(
+            () => _sortMode = restored ?? LibraryFolderSortMode.alphabetical);
+      } catch (error) {
+        debugPrint('Could not restore folder sorting: $error');
+      }
+    }());
+  }
+
+  void _toggleSortMode() {
+    ++_sortRevision;
+    setState(() {
+      _sortMode = _sortMode == LibraryFolderSortMode.alphabetical
+          ? LibraryFolderSortMode.byCount
+          : LibraryFolderSortMode.alphabetical;
+    });
+    final store = widget.preferenceStore;
+    final preset = widget.folderPreset;
+    final mode = _sortMode;
+    if (store == null || preset == null) return;
+    _sortWrite = _sortWrite
+        .then((_) => store.writeFolderSortMode(preset, mode))
+        .catchError((Object error) {
+      debugPrint('Could not save folder sorting: $error');
+    });
+  }
 
   @override
   void dispose() {
@@ -142,11 +204,12 @@ class _LibraryBucketSidebarState extends ConsumerState<LibraryBucketSidebar> {
       };
     }).toList();
     switch (_sortMode) {
-      case _SidebarSortMode.alphabetical:
+      case LibraryFolderSortMode.alphabetical:
         // Keep original order (already alphabetical from projection).
         break;
-      case _SidebarSortMode.byCount:
-        items.sort((a, b) => _compareFolders(a.title, a.count, b.title, b.count));
+      case LibraryFolderSortMode.byCount:
+        items.sort(
+            (a, b) => _compareFolders(a.title, a.count, b.title, b.count));
     }
     return items;
   }
@@ -158,7 +221,7 @@ class _LibraryBucketSidebarState extends ConsumerState<LibraryBucketSidebar> {
     if (a == libraryEmptyGroupLabel || b == libraryEmptyGroupLabel) {
       return compareLibraryGroupBuckets(a, b);
     }
-    if (_sortMode == _SidebarSortMode.byCount) {
+    if (_sortMode == LibraryFolderSortMode.byCount) {
       final countOrder = bCount.compareTo(aCount);
       if (countOrder != 0) return countOrder;
     }
@@ -210,8 +273,11 @@ class _LibraryBucketSidebarState extends ConsumerState<LibraryBucketSidebar> {
       List<LibraryFolderTreeNode> nodes) {
     final sorted = nodes.toList(growable: true);
     sorted.sort((a, b) => _compareFolders(
-      a.label, a.cumulativeCount, b.label, b.cumulativeCount,
-    ));
+          a.label,
+          a.cumulativeCount,
+          b.label,
+          b.cumulativeCount,
+        ));
     return [
       for (final node in sorted)
         node.copyWith(children: _sortTreeNodes(node.children)),
@@ -310,11 +376,7 @@ class _LibraryBucketSidebarState extends ConsumerState<LibraryBucketSidebar> {
             onBucketCompletionScopeChanged:
                 widget.onBucketCompletionScopeChanged,
             onChanged: () => setState(() {}),
-            onToggleSort: () => setState(() {
-              _sortMode = _sortMode == _SidebarSortMode.alphabetical
-                  ? _SidebarSortMode.byCount
-                  : _SidebarSortMode.alphabetical;
-            }),
+            onToggleSort: _toggleSortMode,
           ),
           Expanded(
             child: widget.folderDisplayMode == LibraryFolderDisplayMode.tree
@@ -396,7 +458,7 @@ class _SidebarSearchAndSort extends StatelessWidget {
   });
 
   final TextEditingController controller;
-  final _SidebarSortMode sortMode;
+  final LibraryFolderSortMode sortMode;
   final String searchPlaceholder;
   final Color accentColor;
   final Color dividerColor;
@@ -618,7 +680,7 @@ class _SidebarSortSwitch extends StatelessWidget {
     required this.onTap,
   });
 
-  final _SidebarSortMode sortMode;
+  final LibraryFolderSortMode sortMode;
   final Color accentColor;
   final Color dividerColor;
   final Color mutedTextColor;
@@ -626,7 +688,7 @@ class _SidebarSortSwitch extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final alphabeticalSelected = sortMode == _SidebarSortMode.alphabetical;
+    final alphabeticalSelected = sortMode == LibraryFolderSortMode.alphabetical;
     return Tooltip(
       message: alphabeticalSelected ? 'Sort by count' : 'Sort alphabetically',
       child: InkWell(
