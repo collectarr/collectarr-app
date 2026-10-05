@@ -101,6 +101,7 @@ final class LibraryFieldRegistry<TDto extends LibraryWorkspaceDto> {
             icon: group.icon,
             presentation: group.presentation,
             supportsBucketManagement: group.supportsBucketManagement,
+            bucketVocabulary: group.bucketVocabulary,
             supportsJump: group.supportsJump,
             sequenceValue: group.sequenceValue == null
                 ? null

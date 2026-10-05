@@ -43,6 +43,16 @@ live CLZ server behavior; mutation semantics below are Collectarr's contract.
   and button style. Other modal headers keep their existing default title style.
 - Errors have Retry and mutations disable competing actions with progress.
 
+## Sidebar integration
+
+The Group By manage action resolves `bucketVocabulary` from the workspace's
+structural field registry. `LibraryFieldRegistry.asStructural()` must retain
+that metadata along with the group callbacks. Dropping it incorrectly routes
+Music groups such as Artist to the older bucket mutation dialog, even though
+the kind declares a managed vocabulary. The structural conversion now preserves
+it, so these sidebar actions open the same CLZ-aligned pick-list manager used by
+other entry points.
+
 ## Dictionaries and form wiring
 
 Music now exposes every dictionary represented in the snapshot, including
