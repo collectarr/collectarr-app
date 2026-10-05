@@ -1,5 +1,6 @@
 import 'dart:math' as math;
 
+import 'package:collectarr_app/ui/pick_list_field_button.dart';
 import 'package:collectarr_app/features/library/config/library_dialog_tokens.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
@@ -53,7 +54,6 @@ class _SingleValuePickFieldState extends State<SingleValuePickField> {
   final GlobalKey _fieldAnchorKey = GlobalKey();
   static const _suffixFieldExtent = kLibraryFormControlHeight;
   static const _suffixButtonExtent = 32.0;
-  static const _suffixHorizontalPadding = 8.0;
 
   @override
   void initState() {
@@ -215,7 +215,6 @@ class _SingleValuePickFieldState extends State<SingleValuePickField> {
     required String tooltip,
     required VoidCallback? onPressed,
     required IconData icon,
-    bool showDivider = false,
   }) {
     return Tooltip(
       message: tooltip,
@@ -224,16 +223,9 @@ class _SingleValuePickFieldState extends State<SingleValuePickField> {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            if (showDivider)
-              Container(
-                width: 1,
-                height: _suffixFieldExtent,
-                margin: const EdgeInsets.only(right: 4),
-                color: Theme.of(context).dividerColor,
-              ),
             InkWell(
               mouseCursor: WidgetStateMouseCursor.clickable,
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: BorderRadius.circular(3),
               onTap: onPressed,
               child: SizedBox(
                 width: _suffixButtonExtent,
@@ -263,7 +255,7 @@ class _SingleValuePickFieldState extends State<SingleValuePickField> {
       if (hasBrowseAction) true,
     ].length;
     final suffixWidth =
-        actionCount * _suffixButtonExtent + (_suffixHorizontalPadding * 2);
+        _suffixButtonExtent + (hasBrowseAction ? PickListFieldButton.width : 0);
     return KeyedSubtree(
       key: _fieldAnchorKey,
       child: TextFormField(
@@ -284,7 +276,7 @@ class _SingleValuePickFieldState extends State<SingleValuePickField> {
           suffixIconConstraints: BoxConstraints(
             minWidth: actionCount == 0 ? 0 : suffixWidth,
             maxWidth: actionCount == 0 ? 0 : suffixWidth,
-            minHeight: _suffixFieldExtent,
+            minHeight: _suffixFieldExtent - 2,
           ),
           suffixIcon: actionCount == 0
               ? null
@@ -300,15 +292,13 @@ class _SingleValuePickFieldState extends State<SingleValuePickField> {
                         icon: Icons.arrow_drop_down,
                       ),
                       if (hasBrowseAction)
-                        _suffixAction(
+                        PickListFieldButton(
                           tooltip:
                               widget.manageTooltip ?? 'Browse ${widget.label}',
                           onPressed: widget.enabled
                               ? (widget.onManage ??
                                   () => _openPickerDialog(normalizedOptions))
                               : null,
-                          icon: Icons.list_alt_outlined,
-                          showDivider: normalizedOptions.isNotEmpty,
                         ),
                     ],
                   ),

@@ -1,5 +1,6 @@
 import 'dart:math' as math;
 
+import 'package:collectarr_app/ui/pick_list_field_button.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_form_controls.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_value_chip.dart';
 import 'package:collectarr_app/features/library/schema/library_field_spec.dart';
@@ -266,7 +267,6 @@ class _LibraryMultiValuePickFieldState<TValue>
 
   @override
   Widget build(BuildContext context) {
-    final palette = appPalette(context);
     return LibraryFormField(
         label: widget.label,
         child: InputDecorator(
@@ -311,21 +311,13 @@ class _LibraryMultiValuePickFieldState<TValue>
                                       ])))))),
               Positioned(
                   top: 0,
+                  bottom: 0,
                   right: 0,
-                  child: Container(
-                      width: 33,
-                      height: kLibraryFormControlHeight - 2,
-                      decoration: BoxDecoration(
-                          border:
-                              Border(left: BorderSide(color: palette.divider))),
-                      child: IconButton(
-                          tooltip: 'Select ${widget.label.toLowerCase()}',
-                          onPressed: widget.enabled && !_pickerOpen
-                              ? _openPicker
-                              : null,
-                          icon: Icon(Icons.format_list_bulleted,
-                              size: 18, color: palette.textMuted),
-                          padding: EdgeInsets.zero))),
+                  child: PickListFieldButton(
+                      height: null,
+                      tooltip: 'Select ${widget.label.toLowerCase()}',
+                      onPressed:
+                          widget.enabled && !_pickerOpen ? _openPicker : null)),
             ])));
   }
 }
