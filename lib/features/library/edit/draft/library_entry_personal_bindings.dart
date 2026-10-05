@@ -2,8 +2,8 @@ import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/core/models/storage_location.dart';
 import 'package:flutter/material.dart';
 
-class PersonalStateDraft {
-  PersonalStateDraft({
+class LibraryEntryPersonalBindings {
+  LibraryEntryPersonalBindings({
     required this.ownerLabelController,
     required this.conditionController,
     required this.gradeController,

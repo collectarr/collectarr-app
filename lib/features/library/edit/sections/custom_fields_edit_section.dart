@@ -55,16 +55,11 @@ class _CustomFieldsEditSectionState extends State<CustomFieldsEditSection> {
   @override
   Widget build(BuildContext context) {
     if (widget.definitions.isEmpty) {
-      return EditSection(
-        title: 'Custom Fields',
-        accent: widget.accent,
-        child: Text(
-          'No custom fields defined. Add them in Settings → Data.',
-          style: TextStyle(
-            color: kEditTextMuted,
-            fontSize: 13,
-          ),
-        ),
+      return Padding(
+        padding: const EdgeInsets.symmetric(vertical: 24),
+        child: Text('No custom fields defined. Add them in Settings ? Data.',
+            textAlign: TextAlign.center,
+            style: TextStyle(color: kEditTextMuted, fontSize: 14)),
       );
     }
     return EditSection(

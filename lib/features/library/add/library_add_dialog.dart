@@ -85,7 +85,6 @@ class LibraryAddDialog extends ConsumerStatefulWidget {
   @override
   ConsumerState<LibraryAddDialog> createState() => LibraryAddDialogState();
 }
-
 class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
   late final LibraryAddSessionController _controller;
   late final LibraryAddManualDraft _manualDraft;
@@ -755,7 +754,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
         LibraryAccentScope.accentOf(context,
             fallback: widget.type.identity.accent);
     final state = _controller.state;
-    final entryByCatalogRef = ref.watch(collectionByCatalogRefProvider);
+    final entryByCatalogRef = ref.watch(collectionBySourceCatalogRefProvider);
     final isWideLayout = libraryUiPolicyForKind(widget.type.kind).wideDialog;
     final resultPolicy = libraryAddForKind(widget.type.kind).resultPolicy;
     final visibleCore = state.visibleCoreResults(
@@ -1013,6 +1012,16 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
           accent: accent,
           selectedItem: selectedItem,
           addTarget: state.target,
+          collectionStatus:
+              state.commonDraft.collectionStatus ?? 'In Collection',
+          onCollectionStatusChanged: (status) {
+            _controller.updateCommonDraft(
+              (draft) => draft.copyWith(collectionStatus: status),
+            );
+            _controller.setTarget(status == 'Wish List'
+                ? LibraryAddTarget.wishlist
+                : LibraryAddTarget.entry);
+          },
           addCount: checkedSelectionCount > 0 ? checkedSelectionCount : 1,
           hasCheckedSelection: hasCheckedSelection,
           isAdding: state.isAdding || state.submitState.isLoading,

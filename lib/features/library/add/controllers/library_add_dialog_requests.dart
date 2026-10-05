@@ -201,6 +201,8 @@ class LibraryAddBottomBarRequest {
     required this.accent,
     required this.selectedItem,
     required this.addTarget,
+    this.collectionStatus = 'In Collection',
+    this.onCollectionStatusChanged,
     required this.addCount,
     this.hasCheckedSelection = false,
     required this.isAdding,
@@ -222,6 +224,8 @@ class LibraryAddBottomBarRequest {
   final Color accent;
   final CatalogSearchCandidate? selectedItem;
   final LibraryAddTarget addTarget;
+  final String collectionStatus;
+  final ValueChanged<String>? onCollectionStatusChanged;
   final int addCount;
   final bool hasCheckedSelection;
   final bool isAdding;

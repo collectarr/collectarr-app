@@ -15,6 +15,7 @@ class LibraryFieldSpecRenderer<TDraft> extends StatefulWidget {
     required this.schema,
     required this.draft,
     this.title,
+    this.sectionSpacing = 18,
     this.emptyMessage = 'No add fields',
     this.mediaKind,
     this.onVocabularyValueChanged,
@@ -28,6 +29,7 @@ class LibraryFieldSpecRenderer<TDraft> extends StatefulWidget {
   final LibraryFormSchema<TDraft> schema;
   final TDraft draft;
   final String? title;
+  final double sectionSpacing;
   final String? emptyMessage;
   final String? mediaKind;
   final LibraryVocabularyValueChanged? onVocabularyValueChanged;
@@ -103,8 +105,9 @@ class _LibraryFieldSpecRendererState<TDraft>
             fullWidthFieldIds: section.fullWidthFieldIds,
             fieldColumnSpans: section.fieldColumnSpans,
             rightAlignedFieldIds: section.rightAlignedFieldIds,
+            columns: section.columns,
           ),
-          const SizedBox(height: 18),
+          SizedBox(height: widget.sectionSpacing),
         ],
       ],
     );
@@ -121,7 +124,10 @@ class _LibraryFieldSpecRendererState<TDraft>
         mediaKind: widget.mediaKind,
         onVocabularyValueChanged: widget.onVocabularyValueChanged,
         onVocabularyValuesChanged: widget.onVocabularyValuesChanged,
-        onChanged: widget.onChanged,
+        onChanged: () {
+          setState(() {});
+          widget.onChanged?.call();
+        },
       ).build(field);
 
   TextEditingController _controllerFor(String id, String initialValue) {

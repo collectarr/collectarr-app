@@ -47,3 +47,7 @@ final class LibraryPersonalFieldsLayout extends StatelessWidget {
         },
       );
 }
+
+/// Kind-owned composition receives semantic controls from the common renderer.
+typedef LibraryPersonalLayoutBuilder = Widget Function(
+    Map<String, Widget> fields, Widget? history);

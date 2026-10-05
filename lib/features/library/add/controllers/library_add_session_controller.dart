@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:collectarr_app/core/api/api_client.dart';
 import 'package:collectarr_app/core/logging/recoverable_error.dart';
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/core/settings/connection_diagnostics.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_transport_repository.dart';
@@ -270,7 +270,7 @@ class LibraryAddSessionController extends ValueNotifier<LibraryAddSessionState>
     }
 
     final searchGen = state.search.coreSearchGeneration;
-    final pending = Set<CatalogEntityRef>.from(
+    final pending = Set<CatalogItemRef>.from(
       state.preview.pendingHydratedResultRefs,
     )..add(catalogRef);
     state = state.copyWith(
@@ -293,11 +293,11 @@ class LibraryAddSessionController extends ValueNotifier<LibraryAddSessionState>
                 fallback: selected,
               );
 
-      final hydratedMap = Map<CatalogEntityRef, CatalogSearchCandidate>.from(
+      final hydratedMap = Map<CatalogItemRef, CatalogSearchCandidate>.from(
         state.preview.hydratedResultsByRef,
       );
       hydratedMap[catalogRef] = mergedItem;
-      final pendingUpdated = Set<CatalogEntityRef>.from(
+      final pendingUpdated = Set<CatalogItemRef>.from(
         state.preview.pendingHydratedResultRefs,
       )..remove(catalogRef);
       state = state.copyWith(
@@ -313,7 +313,7 @@ class LibraryAddSessionController extends ValueNotifier<LibraryAddSessionState>
         error: error,
         stackTrace: stackTrace,
       );
-      final pendingUpdated = Set<CatalogEntityRef>.from(
+      final pendingUpdated = Set<CatalogItemRef>.from(
         state.preview.pendingHydratedResultRefs,
       )..remove(catalogRef);
       state = state.copyWith(

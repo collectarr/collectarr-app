@@ -1,3 +1,6 @@
+import 'package:collectarr_app/features/library/ui/primitives/library_collection_status_field.dart';
+import 'library_add_status_button.dart';
+import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'library_add_pane_dependencies.dart';
 
 class LibraryAddBottomBar extends StatelessWidget {
@@ -40,19 +43,6 @@ class LibraryAddBottomBar extends StatelessWidget {
     final palette = appPalette(context);
     final hasSelection = hasCheckedSelection || selectedItem != null;
     final effectiveCount = addCount > 0 ? addCount : (hasSelection ? 1 : 0);
-    final addLabel = hasCheckedSelection
-        ? LibraryAddCopy.addToTargetLabel(
-            count: effectiveCount,
-            type: type,
-            target: addTarget,
-          )
-        : effectiveCount > 0
-            ? LibraryAddCopy.addToTargetLabel(
-                count: effectiveCount,
-                type: type,
-                target: addTarget,
-              )
-            : 'Select a ${type.identity.singularLabel.toLowerCase()} to add';
     return DecoratedBox(
       decoration: BoxDecoration(
         color: palette.panel,
@@ -80,12 +70,6 @@ class LibraryAddBottomBar extends StatelessWidget {
                 LibraryAddResultBadge(effectiveCount > 0
                     ? '$effectiveCount selected'
                     : '0 selected'),
-                _LibraryAddTargetMenu(
-                  value: addTarget,
-                  enabled: !isAdding,
-                  accent: accent,
-                  onChanged: onAddTargetChanged,
-                ),
               ],
             ),
             if (addTarget == LibraryAddTarget.entry && !isWideLayout) ...[
@@ -104,34 +88,27 @@ class LibraryAddBottomBar extends StatelessWidget {
               ),
             ],
             const SizedBox(height: 8),
-            Row(
-              children: [
-                Expanded(
-                  child: FilledButton(
-                    onPressed: isAdding ? null : onAdd,
-                    style: libraryAddFilledButtonStyle(accent),
-                    child: isAdding
-                        ? const SizedBox.square(
-                            dimension: 16,
-                            child: CircularProgressIndicator(strokeWidth: 2),
-                          )
-                        : Text(isWideLayout ? _wideLayoutAddLabel() : addLabel),
-                  ),
-                ),
-              ],
+            Align(
+              alignment: Alignment.centerRight,
+              child: LibraryAddStatusButton(
+                status: addTarget == LibraryAddTarget.wishlist
+                    ? LibraryCollectionStatusScope.wishList
+                    : addTarget == LibraryAddTarget.track
+                        ? LibraryCollectionStatusScope.notInCollection
+                        : libraryCollectionStatusFromValue(
+                            request.collectionStatus),
+                isBusy: isAdding,
+                onAdd: onAdd,
+                onStatusChanged: request.onCollectionStatusChanged == null
+                    ? null
+                    : (status) => request.onCollectionStatusChanged!(
+                        libraryCollectionStatusValue(status)),
+              ),
             ),
           ],
         ),
       ),
     );
-  }
-
-  String _wideLayoutAddLabel() {
-    return switch (addTarget) {
-      LibraryAddTarget.entry => 'Add to Collection',
-      LibraryAddTarget.wishlist => 'Add to Wishlist',
-      LibraryAddTarget.track => 'Track in Library',
-    };
   }
 }
 
@@ -230,65 +207,5 @@ class _AddTargetDefaultsBar extends StatelessWidget {
       return tags.first;
     }
     return '${tags.first} +${tags.length - 1}';
-  }
-}
-
-class _LibraryAddTargetMenu extends StatelessWidget {
-  const _LibraryAddTargetMenu({
-    required this.value,
-    required this.enabled,
-    required this.accent,
-    required this.onChanged,
-  });
-
-  final LibraryAddTarget value;
-  final bool enabled;
-  final Color accent;
-  final ValueChanged<LibraryAddTarget> onChanged;
-
-  @override
-  Widget build(BuildContext context) {
-    final palette = appPalette(context);
-    return PopupMenuButton<LibraryAddTarget>(
-      initialValue: value,
-      enabled: enabled,
-      tooltip: 'Add target',
-      position: PopupMenuPosition.under,
-      color: compactMenuBackgroundFor(accent, palette),
-      elevation: 10,
-      constraints: const BoxConstraints(minWidth: 158, maxWidth: 210),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(3),
-        side: BorderSide(color: compactMenuBorderFor(accent, palette)),
-      ),
-      padding: EdgeInsets.zero,
-      onSelected: onChanged,
-      itemBuilder: (context) => [
-        compactPopupMenuItem(
-          value: LibraryAddTarget.entry,
-          label: LibraryAddTarget.entry.actionLabel,
-          selected: value == LibraryAddTarget.entry,
-          accent: accent,
-        ),
-        compactPopupMenuItem(
-          value: LibraryAddTarget.wishlist,
-          label: LibraryAddTarget.wishlist.actionLabel,
-          selected: value == LibraryAddTarget.wishlist,
-          accent: accent,
-        ),
-        compactPopupMenuItem(
-          value: LibraryAddTarget.track,
-          label: LibraryAddTarget.track.actionLabel,
-          selected: value == LibraryAddTarget.track,
-          accent: accent,
-        ),
-      ],
-      child: CompactMenuButton(
-        width: 158,
-        label: value.actionLabel,
-        accent: accent,
-        enabled: enabled,
-      ),
-    );
   }
 }

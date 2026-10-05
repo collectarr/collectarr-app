@@ -24,12 +24,14 @@ class LibraryAddManualPaneShell extends StatefulWidget {
     required this.request,
     required this.tabs,
     this.identityDetails,
+    this.footerContent,
   }) : assert(tabs.length > 0);
 
   final LibraryAddManualPaneRequest request;
 
   /// Optional kind-specific identity controls shown before the active tab.
   final Widget? identityDetails;
+  final Widget? footerContent;
   final List<LibraryAddManualPaneTab> tabs;
 
   @override
@@ -78,7 +80,7 @@ class _LibraryAddManualPaneShellState extends State<LibraryAddManualPaneShell>
         ),
       );
     }
-    if (request.customFieldDefinitions.isNotEmpty) {
+    if (!tabs.any((tab) => tab.id == 'custom_fields')) {
       tabs.add(
         LibraryAddManualPaneTab(
           id: 'custom_fields',
@@ -102,18 +104,20 @@ class _LibraryAddManualPaneShellState extends State<LibraryAddManualPaneShell>
         ),
       );
     }
-    tabs.add(
-      LibraryAddManualPaneTab(
-        id: 'my_images',
-        label: 'My Images',
-        icon: Icons.photo_library_outlined,
-        content: ItemImagesEditSection(
-          images: request.itemImages,
-          accent: request.accent,
-          onChanged: request.onItemImagesChanged ?? (_) {},
+    if (!tabs.any((tab) => tab.id == 'my_images')) {
+      tabs.add(
+        LibraryAddManualPaneTab(
+          id: 'my_images',
+          label: 'My Images',
+          icon: Icons.photo_library_outlined,
+          content: ItemImagesEditSection(
+            images: request.itemImages,
+            accent: request.accent,
+            onChanged: request.onItemImagesChanged ?? (_) {},
+          ),
         ),
-      ),
-    );
+      );
+    }
     return tabs;
   }
 
@@ -245,6 +249,7 @@ class _LibraryAddManualPaneShellState extends State<LibraryAddManualPaneShell>
       onClose: () => Navigator.of(context).pop(),
       onCancel: () => Navigator.of(context).pop(),
       onSave: request.onAddEntry,
+      footerContent: widget.footerContent,
       footerOverride: LibraryAddManualActionBar(
         request: request,
         formKey: _formKey,

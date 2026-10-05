@@ -79,16 +79,31 @@ final class LibraryTextFieldSpec<TDraft> extends LibraryFieldSpec<TDraft> {
     super.validator,
     this.maxLines = 1,
     this.obscureText = false,
+    this.actions = const <LibraryTextFieldAction>[],
   });
 
   final String Function(TDraft draft) value;
   final void Function(TDraft draft, String value) setValue;
   final int maxLines;
   final bool obscureText;
+  final List<LibraryTextFieldAction> actions;
 
   @override
   TResult accept<TResult>(LibraryFieldSpecVisitor<TDraft, TResult> visitor) =>
       visitor.visitText(this);
+}
+
+/// A text transformation rendered in the shared external field header.
+final class LibraryTextFieldAction {
+  const LibraryTextFieldAction({
+    required this.label,
+    required this.icon,
+    required this.transform,
+  });
+
+  final String label;
+  final IconData icon;
+  final String Function(String value) transform;
 }
 
 final class LibraryNumberFieldSpec<TDraft> extends LibraryFieldSpec<TDraft> {

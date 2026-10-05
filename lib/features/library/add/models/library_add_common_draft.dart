@@ -32,7 +32,7 @@ class LibraryAddCommonDraft {
 
   LibraryAddCommonDraft copyWith({
     String? condition,
-    DateTime? purchaseDate,
+    Object? purchaseDate = _unchangedPurchaseDate,
     int? pricePaidCents,
     String? currency,
     String? personalNotes,
@@ -46,7 +46,9 @@ class LibraryAddCommonDraft {
   }) {
     return LibraryAddCommonDraft(
       condition: condition ?? this.condition,
-      purchaseDate: purchaseDate ?? this.purchaseDate,
+      purchaseDate: identical(purchaseDate, _unchangedPurchaseDate)
+          ? this.purchaseDate
+          : purchaseDate as DateTime?,
       pricePaidCents: pricePaidCents ?? this.pricePaidCents,
       currency: currency ?? this.currency,
       personalNotes: personalNotes ?? this.personalNotes,
@@ -60,3 +62,5 @@ class LibraryAddCommonDraft {
     );
   }
 }
+
+const Object _unchangedPurchaseDate = Object();

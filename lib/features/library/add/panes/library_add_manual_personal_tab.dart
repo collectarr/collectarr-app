@@ -19,10 +19,14 @@ final class LibraryAddManualPersonalTab extends StatelessWidget {
     super.key,
     required this.request,
     this.kindSpecificFields = const [],
+    this.fieldOverrides = const {},
+    this.layoutBuilder,
   });
 
   final LibraryAddManualPaneRequest request;
   final List<Widget> kindSpecificFields;
+  final Map<String, Widget> fieldOverrides;
+  final LibraryPersonalLayoutBuilder? layoutBuilder;
 
   @override
   Widget build(BuildContext context) {
@@ -33,8 +37,16 @@ final class LibraryAddManualPersonalTab extends StatelessWidget {
       ..sort((left, right) =>
           left.manualAddOrder!.compareTo(right.manualAddOrder!));
     final fields = [
-      for (final field in specs) _buildField(context, field, current),
+      for (final field in specs)
+        fieldOverrides[field.key] ?? _buildField(context, field, current),
     ];
+    if (layoutBuilder != null) {
+      return layoutBuilder!({
+        for (var index = 0; index < specs.length; index++)
+          specs[index].key: fields[index],
+        ...fieldOverrides,
+      }, null);
+    }
     final notesIndex = specs.indexWhere(
       (field) => field.editor == PersonalLibraryFieldEditor.notes,
     );

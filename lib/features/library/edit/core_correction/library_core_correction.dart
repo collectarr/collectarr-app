@@ -2,13 +2,11 @@ import 'package:collectarr_app/features/library/edit/draft/library_entry_edit_dr
 import 'dart:convert';
 
 import 'package:collectarr_app/core/api/api_client.dart';
-import 'package:collectarr_app/core/api/dto/media_catalog.dart';
 import 'package:collectarr_app/core/api/dto/canonical_correction_target.dart';
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
-import 'package:collectarr_app/features/library/kinds/registry/library_kind_edit_contributors.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_form_controls.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
+import 'package:collectarr_app/features/library/domain/library_target_ref.dart';
 import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -21,26 +19,28 @@ import 'package:dio/dio.dart';
 final class LibraryCoreCorrectionSource {
   const LibraryCoreCorrectionSource({
     required this.request,
+    required this.coreCatalogRef,
     required this.originalFields,
     required this.proposedFields,
     this.description,
-    this.coreCatalogRef,
   });
 
   final LibraryEditDialogRequest request;
   final Map<String, Object?> originalFields;
   final Map<String, Object?> proposedFields;
   final String? description;
-  final CatalogEntityRef? coreCatalogRef;
+  final CatalogItemRef coreCatalogRef;
 
   factory LibraryCoreCorrectionSource.fromTypedFields({
     required LibraryEditDialogRequest request,
+    required CatalogItemRef coreCatalogRef,
     required Map<String, Object?> originalFields,
     required Map<String, Object?> proposedFields,
     String? description,
   }) {
     return LibraryCoreCorrectionSource(
       request: request,
+      coreCatalogRef: coreCatalogRef,
       originalFields: Map.unmodifiable(originalFields),
       proposedFields: Map.unmodifiable(proposedFields),
       description: description,
@@ -63,7 +63,7 @@ final class LibraryResolvedCoreCorrection {
   final LibraryCoreCorrectionSource source;
   final String entityType;
   final String entityId;
-  final MetadataFieldScope scope;
+  final String scope;
   final String baseRevision;
   final String baseHash;
   final Map<String, Object?> currentFields;
@@ -80,30 +80,46 @@ Future<LibraryResolvedCoreCorrection> resolveLibraryCoreCorrection({
   required LibraryCoreCorrectionSource source,
   required ApiClient apiClient,
 }) async {
-  final target = resolveLibraryCoreCorrectionTargetForKind(
-    kind: source.request.type.kind,
-    node: source.coreCatalogRef == null ? source.request.node : null,
-    requestedScope: source.coreCatalogRef == null
-        ? source.request.scope
-        : LibraryEntityScope.catalogItem,
-    catalogRef: source.coreCatalogRef ?? source.request.kindItem.reference,
-  );
+  final target = source.coreCatalogRef;
+  if (target.kind != source.request.type.kind || target.id.trim().isEmpty) {
+    throw StateError(
+      'Core correction requires a valid Catalog Item reference for '
+      '${source.request.type.kind.apiValue}.',
+    );
+  }
   final snapshot = await apiClient.getCanonicalCorrectionTarget(
-    kind: source.request.type.kind,
-    entityId: target.entityId,
-    scope: target.scope,
+    kind: target.kind,
+    entityId: target.id,
+    scope: 'catalog_item',
   );
   return LibraryResolvedCoreCorrection(
     source: source,
     entityType: snapshot.entityType,
-    entityId: target.entityId,
-    scope: MetadataFieldScope.fromApiValue(target.scope),
+    entityId: target.id,
+    scope: 'catalog_item',
     baseRevision: snapshot.revision,
     baseHash: snapshot.hash,
     currentFields: snapshot.fields,
     fieldSchema: snapshot.fieldSchema,
   );
 }
+
+/// Resolves correction provenance at the edit boundary, before opening the
+/// Core review. A local entry must carry an explicit source reference.
+CatalogItemRef coreCatalogRefForEditRequest(
+  LibraryEditDialogRequest request,
+) =>
+    switch (request.target) {
+      CatalogTargetRef(:final ref) => ref,
+      EntryTargetRef() => request.libraryEntry?.sourceCatalogRef ??
+          (throw StateError(
+            'This local entry has no source Core item to correct.',
+          )),
+      null => request.kindItem.catalogRef ??
+          (throw StateError(
+            'Core correction requires an explicit Catalog Item target.',
+          )),
+    };
 
 bool _isSupportedCoreType(String valueType) => switch (valueType) {
       'string' ||
@@ -143,18 +159,15 @@ Future<bool?> showLibraryCoreCorrectionReview({
   if (entry != null && provenance == null) {
     throw StateError('This local entry has no source Core item to correct.');
   }
-  final resolved = provenance == null
-      ? source
-      : LibraryCoreCorrectionSource(
+  final resolved = entry != null
+      ? LibraryCoreCorrectionSource(
           request: source.request,
           originalFields: source.originalFields,
           proposedFields: source.proposedFields,
           description: source.description,
-          coreCatalogRef: CatalogEntityRef(
-              kind: provenance.kind,
-              entityType: CatalogEntityTypeId.catalogItem,
-              id: provenance.id),
-        );
+          coreCatalogRef: provenance!,
+        )
+      : source;
   return showDialog<bool>(
     context: context,
     builder: (_) => _LibraryCoreCorrectionReviewDialog(source: resolved),
@@ -256,7 +269,7 @@ final class _LibraryCoreCorrectionReviewDialogState
         mainAxisSize: MainAxisSize.min,
         children: [
           Text(
-            '${request.type.identity.singularLabel} · ${value.scope.apiValue}',
+            '${request.type.identity.singularLabel} · ${value.scope}',
             style: Theme.of(context).textTheme.titleSmall,
           ),
           const SizedBox(height: 4),
@@ -264,7 +277,7 @@ final class _LibraryCoreCorrectionReviewDialogState
             '${value.entityType} / ${value.entityId}',
             style: Theme.of(context).textTheme.bodySmall,
           ),
-          if (request.node?.scope == LibraryEntityScope.libraryEntry) ...[
+          if (request.target is EntryTargetRef) ...[
             const SizedBox(height: 8),
             const Chip(
               avatar: Icon(Icons.subdirectory_arrow_right, size: 16),
@@ -298,7 +311,7 @@ final class _LibraryCoreCorrectionReviewDialogState
   ) sync* {
     for (final field in value.fieldSchema) {
       if (!field.writable ||
-          field.scope != value.scope.apiValue ||
+          field.scope != value.scope ||
           field.entityType != value.entityType ||
           !_isSupportedCoreType(field.valueType)) {
         continue;
@@ -413,7 +426,7 @@ final class _LibraryCoreCorrectionReviewDialogState
             kind: value.kind,
             entityType: value.entityType,
             entityId: value.entityId,
-            scope: value.scope.apiValue,
+            scope: value.scope,
             baseRevision: value.baseRevision,
             baseHash: value.baseHash,
             proposedFields: proposedFields,

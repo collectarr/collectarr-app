@@ -1,4 +1,4 @@
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 
 typedef LibraryAddCoreResultVisibilityPredicate = bool Function(
@@ -39,7 +39,7 @@ class LibraryAddResultPolicyContext {
   });
 
   final LibraryAddResultPolicyState state;
-  final Set<CatalogEntityRef> entryCatalogRefs;
+  final Set<CatalogItemRef> entryCatalogRefs;
   final Map<String, bool> defaultValues;
 
   bool optionIsEnabled(String id) =>
@@ -63,7 +63,7 @@ class LibraryAddResultPolicy {
 
   LibraryAddResultPolicyContext context({
     required LibraryAddResultPolicyState state,
-    Set<CatalogEntityRef> entryCatalogRefs = const {},
+    Set<CatalogItemRef> entryCatalogRefs = const {},
   }) =>
       LibraryAddResultPolicyContext(
         state: state,
@@ -76,7 +76,7 @@ class LibraryAddResultPolicy {
   List<CatalogSearchCandidate> filterCoreResults({
     required List<CatalogSearchCandidate> items,
     required LibraryAddResultPolicyState state,
-    Set<CatalogEntityRef> entryCatalogRefs = const {},
+    Set<CatalogItemRef> entryCatalogRefs = const {},
   }) {
     final resultContext = context(
       state: state,

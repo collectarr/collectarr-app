@@ -1,7 +1,7 @@
 import 'package:collectarr_app/features/library/add/contracts/library_add_result_policy.dart';
 
 import 'library_add_pane_dependencies.dart';
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 
 class LibraryAddSearchPane extends StatelessWidget {
   const LibraryAddSearchPane({
@@ -37,7 +37,7 @@ class LibraryAddSearchPane extends StatelessWidget {
   final List<CatalogSearchCandidate> results;
   final String? selectedResultId;
   final Set<String> checkedResultIds;
-  final Set<CatalogEntityRef> entryCatalogRefs;
+  final Set<CatalogItemRef> entryCatalogRefs;
   final String? Function(CatalogSearchCandidate item)? coreMatchSummary;
   final LibraryAddResultPolicy resultPolicy;
   final LibraryAddResultPolicyState resultPolicyState;
@@ -300,7 +300,7 @@ class _SearchResultsList extends StatelessWidget {
   final List<CatalogSearchCandidate> results;
   final String? selectedResultId;
   final Set<String> checkedResultIds;
-  final Set<CatalogEntityRef> entryCatalogRefs;
+  final Set<CatalogItemRef> entryCatalogRefs;
   final String? Function(CatalogSearchCandidate item)? coreMatchSummary;
   final ValueChanged<String> onSelectResult;
   final ValueChanged<String> onToggleResultCheck;
@@ -382,7 +382,7 @@ class _SearchResultsGrid extends StatelessWidget {
   final List<CatalogSearchCandidate> results;
   final String? selectedResultId;
   final Set<String> checkedResultIds;
-  final Set<CatalogEntityRef> entryCatalogRefs;
+  final Set<CatalogItemRef> entryCatalogRefs;
   final String? Function(CatalogSearchCandidate item)? coreMatchSummary;
   final ValueChanged<String> onSelectResult;
   final ValueChanged<String> onToggleResultCheck;

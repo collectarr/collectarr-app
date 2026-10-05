@@ -65,6 +65,7 @@ class LibraryEditTabStripFrame extends StatelessWidget {
     final palette = appPalette(context);
     return Container(
       width: double.infinity,
+      padding: const EdgeInsets.fromLTRB(12, 10, 12, 0),
       decoration: BoxDecoration(
         color: palette.panel,
       ),
@@ -99,8 +100,9 @@ class LibraryEditStyledTabLabel extends StatelessWidget {
         selected || highlighted ? palette.textPrimary : palette.textMuted;
     return AnimatedContainer(
       duration: const Duration(milliseconds: 150),
-      margin: EdgeInsets.fromLTRB(2, 2, 2, selected ? 0 : 2),
-      padding: const EdgeInsets.symmetric(horizontal: 10),
+      margin: const EdgeInsets.symmetric(horizontal: 1.5),
+      constraints: const BoxConstraints(minHeight: kLibraryEditTabStripHeight),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
       decoration: BoxDecoration(
         color: selected
             ? palette.panelRaised
@@ -124,8 +126,10 @@ class LibraryEditStyledTabLabel extends StatelessWidget {
       child: DefaultTextStyle.merge(
         style: TextStyle(
           color: foreground,
-          fontWeight: selected ? FontWeight.w700 : FontWeight.w600,
-          fontSize: 13,
+          fontWeight: selected ? FontWeight.w600 : FontWeight.w500,
+          fontSize: 14,
+          height: 20 / 14,
+          letterSpacing: 0,
         ),
         child: IconTheme.merge(
           data: IconThemeData(color: foreground, size: 14),
@@ -166,8 +170,8 @@ class LibraryEditDraggedTabLabel extends StatelessWidget {
       child: DefaultTextStyle.merge(
         style: TextStyle(
           color: foreground,
-          fontWeight: FontWeight.w700,
-          fontSize: 13,
+          fontWeight: FontWeight.w500,
+          fontSize: 14,
         ),
         child: IconTheme.merge(
           data: IconThemeData(color: foreground, size: 14),

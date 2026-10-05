@@ -1,7 +1,9 @@
+import 'package:collectarr_app/features/library/ui/primitives/library_vocabulary_options_loader.dart';
 import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/core/models/partial_date.dart';
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/config/library_dialog_tokens.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_edit_contributors.dart';
@@ -67,8 +69,67 @@ final class LibraryFieldSpecControlBuilder<TDraft>
         field is LibraryReadOnlyFieldSpec<TDraft, Object?> ||
         (mode == LibraryFieldSpecControlMode.add &&
             field is LibraryVocabularyFieldSpec<TDraft, Object?>);
-    final labelled =
-        external ? LibraryFormField(label: field.label, child: child) : child;
+    final labelled = external
+        ? LibraryFormField(
+            label: field.label,
+            action: field is LibraryTextFieldSpec<TDraft> &&
+                    field.actions.isNotEmpty
+                ? Row(mainAxisSize: MainAxisSize.min, children: [
+                    for (final action in field.actions)
+                      Tooltip(
+                        message: action.label,
+                        child: InkWell(
+                          onTap: () {
+                            final controller =
+                                controllerFor(field.id, field.value(draft));
+                            final text = action.transform(controller.text);
+                            controller.value = TextEditingValue(
+                              text: text,
+                              selection:
+                                  TextSelection.collapsed(offset: text.length),
+                            );
+                            field.setValue(draft, text);
+                            onChanged?.call();
+                          },
+                          child: SizedBox(
+                            width: 22,
+                            height: 16,
+                            child: Icon(action.icon, size: 16),
+                          ),
+                        ),
+                      ),
+                  ])
+                : field is LibraryPartialDateFieldSpec<TDraft>
+                    ? Tooltip(
+                        message: 'Choose ${field.label}',
+                        child: InkWell(
+                          onTap: () async {
+                            final value = field.value(draft);
+                            final now = DateTime.now();
+                            final picked = await showDatePicker(
+                              context: context,
+                              initialDate: value?.asDateTime ??
+                                  DateTime(value?.year ?? now.year,
+                                      value?.month ?? 1),
+                              firstDate: DateTime(1),
+                              lastDate: DateTime(9999, 12, 31),
+                            );
+                            if (!context.mounted || picked == null) return;
+                            field.updateValue(
+                                draft, PartialDate.fromDateTime(picked));
+                            onChanged?.call();
+                          },
+                          child: const SizedBox(
+                            width: 22,
+                            height: 16,
+                            child: Icon(Icons.calendar_month, size: 16),
+                          ),
+                        ),
+                      )
+                    : null,
+            child: child,
+          )
+        : child;
     final focusNode = _focusNode(field.id);
     final hasControlFocus = field is LibraryTextFieldSpec<TDraft> ||
         field is LibraryNumberFieldSpec<TDraft> ||
@@ -293,9 +354,32 @@ final class LibraryFieldSpecControlBuilder<TDraft>
     FutureOr<void> Function(TDraft draft)? onManage,
     String? vocabularyKey,
     bool showFieldLabel = true,
+    List<String>? loadedOptions,
   }) {
     final vocabulary = _vocabularyForField(vocabularyKey);
-    if (mode == LibraryFieldSpecControlMode.add && vocabulary == null) {
+    if (TValue == String &&
+        vocabularyKey != null &&
+        mediaKind != null &&
+        loadedOptions == null) {
+      return LibraryVocabularyOptionsLoader(
+        listName: vocabularyKey,
+        mediaKind: mediaKind!,
+        builtIns: [for (final option in field.options) option.value as String],
+        selected: [
+          if (field.currentValue(draft) != null)
+            field.currentValue(draft) as String
+        ],
+        builder: (options) => _buildSelectField(field,
+            onManage: onManage,
+            vocabularyKey: vocabularyKey,
+            showFieldLabel: showFieldLabel,
+            loadedOptions: options),
+      );
+    }
+
+    if (mode == LibraryFieldSpecControlMode.add &&
+        vocabulary == null &&
+        vocabularyKey == null) {
       return CompactSearchDropdownFormField<TValue>(
         initialValue: field.currentValue(draft),
         isExpanded: true,
@@ -334,14 +418,21 @@ final class LibraryFieldSpecControlBuilder<TDraft>
     final currentValue = field.currentValue(draft);
     final resolvedOptions = <LibraryFieldOption<TValue>>[
       if (currentValue != null &&
-          !field.options.any((option) => option.value == currentValue))
+          !field.options.any((option) => option.value == currentValue) &&
+          !(loadedOptions?.contains(currentValue) ?? false))
         LibraryFieldOption<TValue>(
           value: currentValue,
           label: currentValue.toString(),
         ),
       ...field.options,
+      if (TValue == String && loadedOptions != null)
+        for (final value in loadedOptions)
+          if (!field.options.any((option) => option.value == value))
+            LibraryFieldOption<TValue>(value: value as TValue, label: value),
     ];
-    final pickListName = vocabulary?.key;
+    final pickListName = vocabulary?.key ?? vocabularyKey;
+    final allowCustomValues =
+        vocabulary?.allowCustomValues ?? (vocabularyKey != null);
     return LibraryDropdownPickField<TValue>(
       label: field.label,
       showFieldLabel: showFieldLabel,
@@ -349,7 +440,7 @@ final class LibraryFieldSpecControlBuilder<TDraft>
       focusNode: _focusNode(field.id),
       options: resolvedOptions,
       errorText: field.validate(draft),
-      allowCustomValue: vocabulary?.allowCustomValues ?? false,
+      allowCustomValue: allowCustomValues,
       openPicker: ({required label, required selectedValue, required options}) {
         final db = pickListName == null
             ? null
@@ -362,7 +453,7 @@ final class LibraryFieldSpecControlBuilder<TDraft>
           selectedValue: selectedValue,
           listName: pickListName,
           mediaKind: mediaKind,
-          allowUserValues: vocabulary?.allowCustomValues ?? false,
+          allowUserValues: allowCustomValues,
           db: db,
         );
       },
@@ -384,8 +475,8 @@ final class LibraryFieldSpecControlBuilder<TDraft>
                 true;
         onVocabularyValueChanged?.call(
           fieldId: field.id,
-          listName: vocabulary?.key,
-          value: vocabulary?.allowCustomValues == true &&
+          listName: pickListName,
+          value: allowCustomValues &&
                   textValue != null &&
                   textValue.isNotEmpty &&
                   !isBuiltIn
@@ -423,13 +514,33 @@ final class LibraryFieldSpecControlBuilder<TDraft>
   }
 
   Widget _buildMultiSelectField<TValue>(
-    LibraryMultiVocabularyFieldSpec<TDraft, TValue> field,
-  ) {
+    LibraryMultiVocabularyFieldSpec<TDraft, TValue> field, {
+    List<String>? loadedOptions,
+  }) {
+    if (TValue == String &&
+        field.pickListKey != null &&
+        mediaKind != null &&
+        loadedOptions == null) {
+      return LibraryVocabularyOptionsLoader(
+        listName: field.pickListKey!,
+        mediaKind: mediaKind!,
+        builtIns: [for (final option in field.options) option.value as String],
+        selected: field.currentValues(draft).cast<String>().toList(),
+        builder: (options) =>
+            _buildMultiSelectField(field, loadedOptions: options),
+      );
+    }
     final selected = field.currentValues(draft);
     return LibraryMultiValuePickField<TValue>(
       label: field.label,
       value: selected,
-      options: field.options,
+      options: [
+        ...field.options,
+        if (TValue == String && loadedOptions != null)
+          for (final value in loadedOptions)
+            if (!field.options.any((option) => option.value == value))
+              LibraryFieldOption<TValue>(value: value as TValue, label: value),
+      ],
       errorText: field.validate(draft),
       allowCustomValueEntry: field.allowCustomValues && TValue == String,
       onChanged: (next) {

@@ -1,27 +1,27 @@
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:flutter/foundation.dart';
 
 class LibraryAddPreviewController {
-  final hydratedResultsByRef = <CatalogEntityRef, CatalogSearchCandidate>{};
-  final pendingHydratedResultRefs = <CatalogEntityRef>{};
+  final hydratedResultsByRef = <CatalogItemRef, CatalogSearchCandidate>{};
+  final pendingHydratedResultRefs = <CatalogItemRef>{};
 
-  CatalogSearchCandidate? hydratedResultFor(CatalogEntityRef ref) =>
+  CatalogSearchCandidate? hydratedResultFor(CatalogItemRef ref) =>
       hydratedResultsByRef[ref];
 
-  bool hasHydratedResult(CatalogEntityRef ref) =>
+  bool hasHydratedResult(CatalogItemRef ref) =>
       hydratedResultsByRef.containsKey(ref);
 
-  void setHydratedResult(CatalogEntityRef ref, CatalogSearchCandidate item) {
+  void setHydratedResult(CatalogItemRef ref, CatalogSearchCandidate item) {
     hydratedResultsByRef[ref] = item;
     pendingHydratedResultRefs.remove(ref);
   }
 
-  void markHydratedResultPending(CatalogEntityRef ref) {
+  void markHydratedResultPending(CatalogItemRef ref) {
     pendingHydratedResultRefs.add(ref);
   }
 
-  bool isHydratedResultPending(CatalogEntityRef ref) =>
+  bool isHydratedResultPending(CatalogItemRef ref) =>
       pendingHydratedResultRefs.contains(ref);
 
   void clearSelectionCaches() {
@@ -43,21 +43,21 @@ class LibraryAddPreviewState {
 
   const LibraryAddPreviewState.initial() : this();
 
-  final Map<CatalogEntityRef, CatalogSearchCandidate> hydratedResultsByRef;
-  final Set<CatalogEntityRef> pendingHydratedResultRefs;
+  final Map<CatalogItemRef, CatalogSearchCandidate> hydratedResultsByRef;
+  final Set<CatalogItemRef> pendingHydratedResultRefs;
 
-  CatalogSearchCandidate? hydratedResultFor(CatalogEntityRef ref) =>
+  CatalogSearchCandidate? hydratedResultFor(CatalogItemRef ref) =>
       hydratedResultsByRef[ref];
 
-  bool hasHydratedResult(CatalogEntityRef ref) =>
+  bool hasHydratedResult(CatalogItemRef ref) =>
       hydratedResultsByRef.containsKey(ref);
 
-  bool isHydratedResultPending(CatalogEntityRef ref) =>
+  bool isHydratedResultPending(CatalogItemRef ref) =>
       pendingHydratedResultRefs.contains(ref);
 
   LibraryAddPreviewState copyWith({
-    Map<CatalogEntityRef, CatalogSearchCandidate>? hydratedResultsByRef,
-    Set<CatalogEntityRef>? pendingHydratedResultRefs,
+    Map<CatalogItemRef, CatalogSearchCandidate>? hydratedResultsByRef,
+    Set<CatalogItemRef>? pendingHydratedResultRefs,
   }) {
     return LibraryAddPreviewState(
       hydratedResultsByRef: hydratedResultsByRef ?? this.hydratedResultsByRef,

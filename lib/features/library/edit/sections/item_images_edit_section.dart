@@ -1,4 +1,4 @@
-import 'dart:convert';
+import 'package:collectarr_app/features/library/ui/primitives/library_image_intake.dart';
 
 import 'package:collectarr_app/core/logging/recoverable_error.dart';
 import 'package:collectarr_app/core/models/item_image.dart';
@@ -7,7 +7,6 @@ import 'package:collectarr_app/features/library/ui/primitives/library_dropdown_p
 import 'package:collectarr_app/features/library/schema/library_field_spec.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_form_controls.dart';
 import 'package:collectarr_app/features/pick_lists/widgets/pick_list_select_dialog.dart';
-import 'package:file_selector/file_selector.dart';
 import 'package:collectarr_app/ui/dialog_action_buttons.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/foundation.dart';
@@ -140,22 +139,14 @@ class _ItemImagesEditSectionState extends State<ItemImagesEditSection> {
             ),
           ],
           const SizedBox(height: 8),
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: [
-              OutlinedButton.icon(
-                onPressed: canAddMore ? _addImageFromFile : null,
-                icon: const Icon(Icons.upload_file_outlined),
-                label: const Text('Upload image'),
-              ),
-              OutlinedButton.icon(
-                onPressed: canAddMore ? _addImageFromClipboard : null,
-                icon: const Icon(Icons.add_photo_alternate_outlined),
-                label: const Text('Paste base64 image'),
-              ),
-            ],
-          ),
+          LibraryImageIntake(
+              remaining: canAddMore ? 5 - visible.length : 0,
+              height: visible.isEmpty ? 180 : 100,
+              onImages: (bytes) {
+                for (final image in bytes) {
+                  _addImage(image);
+                }
+              }),
         ],
       ),
     );
@@ -190,82 +181,6 @@ class _ItemImagesEditSectionState extends State<ItemImagesEditSection> {
           deleted: image.deleted,
         ),
     ]);
-  }
-
-  Future<void> _addImageFromFile() async {
-    if (_visibleImages().length >= 5) {
-      return;
-    }
-    final file = await openFile(
-      acceptedTypeGroups: const [
-        XTypeGroup(
-          label: 'images',
-          extensions: ['png', 'jpg', 'jpeg', 'gif', 'webp'],
-        ),
-      ],
-    );
-    if (file == null) {
-      return;
-    }
-    final bytes = await file.readAsBytes();
-    _addImage(bytes);
-  }
-
-  Future<void> _addImageFromClipboard() async {
-    var draftBase64 = '';
-    final base64Data = await showDialog<String>(
-      context: context,
-      builder: (context) => AccentAlertDialog(
-        title: const Text('Add image'),
-        content: SizedBox(
-          width: 400,
-          child: LibraryTextFormControl(
-            maxLines: 4,
-            onChanged: (value) => draftBase64 = value,
-            decoration: const InputDecoration(
-              labelText: 'Base64 image data',
-              hintText: 'Paste base64-encoded image here...',
-              border: OutlineInputBorder(),
-            ),
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Cancel'),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.of(context).pop(draftBase64.trim()),
-            child: const Text('Add'),
-          ),
-        ],
-      ),
-    );
-    if (base64Data == null || base64Data.isEmpty) {
-      return;
-    }
-    Uint8List bytes;
-    try {
-      var normalizedData = base64Data.trim();
-      if (normalizedData.contains(',')) {
-        normalizedData = normalizedData.split(',').last;
-      }
-      bytes = base64Decode(normalizedData);
-    } catch (error, stackTrace) {
-      logRecoverableError(
-        source: 'item_images',
-        message: 'Failed to decode pasted base64 image data in edit dialog.',
-        error: error,
-        stackTrace: stackTrace,
-      );
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Invalid base64 data')),
-        );
-      }
-      return;
-    }
-    _addImage(bytes);
   }
 
   void _addImage(Uint8List imageData) {

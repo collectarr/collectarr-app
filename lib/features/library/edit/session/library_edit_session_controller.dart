@@ -48,12 +48,12 @@ final class LibraryEditSessionController {
         : state.userExternalLinks.buildEditChange(entryRef);
     final baseSelection = LibraryEditSelection(
       kindItem: state.kindItem,
-      scope: state.scope,
       wishlist: state.wishlistItem == null
           ? null
           : LibraryWishlistEditSelection(
               catalogRef: state.personal.selectedWishlistCatalogRef ??
-                  state.kindItem.reference.toCatalogItemRef(),
+                  state.kindItem.catalogRef ??
+                  state.wishlistItem!.catalogRef,
               targetPriceCents: parseMoneyCents(
                 state.personal.wishlistPriceController.text,
               ),
@@ -111,7 +111,6 @@ final class LibraryEditSessionController {
     final source = selection ??
         LibraryEditSelection(
           kindItem: state.kindItem,
-          scope: state.scope,
         );
     return catalogItemSession.applyCanonicalEdits(source, state.formFields);
   }

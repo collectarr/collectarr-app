@@ -1,4 +1,4 @@
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/features/library/add/controllers/library_add_preview_controller.dart';
 import 'package:collectarr_app/features/library/add/controllers/library_add_search_state.dart';
 import 'package:collectarr_app/features/library/add/controllers/library_add_selection_state.dart';
@@ -64,7 +64,7 @@ final class LibraryAddSessionState {
     LibraryAddResultPolicy policy, {
     required bool Function(CatalogSearchCandidate item) isEntryCatalogItem,
   }) {
-    final libraryEntryRefs = <CatalogEntityRef>{
+    final libraryEntryRefs = <CatalogItemRef>{
       for (final item in search.results)
         if (isEntryCatalogItem(item)) item.reference,
     };

@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_transport_repository.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
@@ -74,7 +74,7 @@ final class LibraryAddBatchRequest {
   final LibraryAddDefaults defaults;
   final LibraryAddCommonDraft? commonDraft;
   final LibraryAddTrackingDraft? trackingDraft;
-  final Map<CatalogEntityRef, LibraryAddKindDraft> kindDraftsByCatalogRef;
+  final Map<CatalogItemRef, LibraryAddKindDraft> kindDraftsByCatalogRef;
   final bool upsertCatalogItems;
   final FutureOr<void> Function(LibraryEntryRef libraryEntryRef)?
       onLibraryEntryCreated;
@@ -108,7 +108,7 @@ final class LibraryAddCoordinator {
       final submittedItemIds = <String>[];
       if (request.upsertCatalogItems && catalog != null) {
         await catalog.upsertTransports(
-          values.map((item) => item.kindCapability.toImportTransport()),
+          values.map((item) => item.toImportTransport()),
         );
       } else if (request.upsertCatalogItems) {
         throw StateError('Catalog storage is unavailable for Add.');
@@ -147,7 +147,7 @@ final class LibraryAddCoordinator {
             break;
           case LibraryAddTarget.wishlist:
             await wishlistMutations.addToWishlist(
-              reference.toCatalogItemRef(),
+              reference,
             );
             submittedItemIds.add(reference.id);
             break;

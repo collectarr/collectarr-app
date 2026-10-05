@@ -31,7 +31,7 @@ import 'package:collectarr_app/features/library/edit/draft/library_edit_shell_st
 import 'package:collectarr_app/features/library/edit/draft/library_edit_models.dart';
 import 'package:collectarr_app/features/library/edit/shell/library_edit_scaffold.dart';
 import 'package:collectarr_app/features/library/edit/core_correction/library_core_correction.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
+import 'package:collectarr_app/features/library/domain/library_target_ref.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
 import 'package:collectarr_app/features/library/location_picker_dialog.dart';
 import 'package:collectarr_app/features/library/tracking/media_rating_field.dart';
@@ -63,15 +63,15 @@ class LibraryEditRenderer extends ConsumerStatefulWidget {
     this.itemImages = const [],
     this.onPrevious,
     this.onNext,
-    this.node,
-    this.scope = LibraryEntityScope.catalogItem,
-  }) : request = null;
+    this.target,
+  })  : request = null,
+        isEntryTarget = target is EntryTargetRef || libraryEntry != null;
 
   LibraryEditRenderer.fromRequest({
     super.key,
     required LibraryEditDialogRequest request,
   })  : request = request,
-        node = request.node,
+        target = request.target,
         type = request.type,
         kindItem = request.kindItem,
         libraryEntry = request.libraryEntry,
@@ -86,7 +86,7 @@ class LibraryEditRenderer extends ConsumerStatefulWidget {
         itemImages = request.itemImages,
         onPrevious = request.onPrevious,
         onNext = request.onNext,
-        scope = request.resolvedScope;
+        isEntryTarget = request.isLibraryEntry;
 
   final LibraryKindRegistration type;
 
@@ -106,8 +106,8 @@ class LibraryEditRenderer extends ConsumerStatefulWidget {
   final List<ItemImage> itemImages;
   final VoidCallback? onPrevious;
   final VoidCallback? onNext;
-  final LibraryEntityRef? node;
-  final LibraryEntityScope scope;
+  final LibraryTargetRef? target;
+  final bool isEntryTarget;
   final LibraryEditDialogRequest? request;
 
   @override
@@ -154,7 +154,6 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
         isDigitalFormat: _draft.isDigitalFormat,
         hasPhysicalFormats: widget.physicalFormats.isNotEmpty,
         hasCustomFields: widget.customFieldDefinitions.isNotEmpty,
-        scope: widget.scope,
       );
 
   @override
@@ -165,8 +164,7 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
         ? LibraryEditShellState.fromRequest(request)
         : LibraryEditShellState.fromItem(
             type: widget.type,
-            scope: widget.scope,
-            node: widget.node,
+            target: widget.target,
             item: widget.kindItem,
             libraryEntry: widget.libraryEntry,
             libraryEntryDispatch: widget.libraryEntryDispatch,
@@ -184,7 +182,7 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
 
     _tabSpecs = libraryEditPresentationForKind(widget.type.kind)
         .presentation
-        .builderForScope(widget.scope)
+        .builderForTarget(widget.isEntryTarget)
         .buildTabs(context: _editPresentationContext);
 
     _tabController = TabController(
@@ -333,21 +331,25 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
     final request = LibraryEditDialogRequest(
       type: widget.type,
       item: _draft.kindItem,
-      node: _draft.node,
+      target: _draft.target,
       libraryEntry: _draft.libraryEntry,
       libraryEntryDispatch: _draft.libraryEntryDispatch,
       accent: widget.accent,
-      scope: widget.scope,
     );
     final sent = await showLibraryCoreCorrectionReview(
       context: context,
       source: LibraryCoreCorrectionSource.fromTypedFields(
         request: request,
+        coreCatalogRef: coreCatalogRefForEditRequest(request),
         originalFields: {
-          ..._draft.kindItem.kindCapability.toImportTransport().payload,
+          ..._draft.kindItem.kindCapability.mapTransport(
+            (item) => item.kindData,
+          ),
         },
         proposedFields: {
-          ...proposed.kindItem.kindCapability.toImportTransport().payload,
+          ...proposed.kindItem.kindCapability.mapTransport(
+            (item) => item.kindData,
+          ),
         },
       ),
     );
@@ -362,7 +364,7 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
   Widget build(BuildContext context) {
     final title = libraryEditPresentationForKind(widget.type.kind)
         .presentation
-        .builderForScope(widget.scope)
+        .builderForTarget(widget.isEntryTarget)
         .buildDialogTitle(
           kindItem: widget.kindItem,
         );
@@ -400,7 +402,7 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
       onPrevious: _isSaving ? null : widget.onPrevious,
       onNext: _isSaving ? null : widget.onNext,
       tabOrderKey:
-          'library_edit_tabs_${widget.type.kind.apiValue}_${widget.scope.name}',
+          'library_edit_tabs_${widget.type.kind.apiValue}_${widget.isEntryTarget ? 'entry' : 'catalog'}',
     );
   }
 
@@ -531,13 +533,12 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
   Widget _tabViewFor(String id) {
     final customView = libraryEditPresentationForKind(widget.type.kind)
         .presentation
-        .builderForScope(widget.scope)
+        .builderForTarget(widget.isEntryTarget)
         .buildCustomTabView(
           tabId: id,
           context: context,
           draft: _draft,
           accent: widget.accent,
-          scope: widget.scope,
           item: widget.kindItem,
           markDirty: _markDirty,
         );
@@ -677,7 +678,7 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
       final targetOptions = widget.wishlistTargetOptions;
       CatalogTargetOption? selectedTarget;
       for (final option in targetOptions) {
-        if (option.ref.toCatalogItemRef() == wishlistRef) {
+        if (option.ref == wishlistRef) {
           selectedTarget = option;
           break;
         }
@@ -716,8 +717,7 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
                     onChanged: (option) {
                       if (option == null) return;
                       setState(() {
-                        _draft.personal.selectedWishlistCatalogRef =
-                            option.ref.toCatalogItemRef();
+                        _draft.personal.selectedWishlistCatalogRef = option.ref;
                       });
                     },
                   ),

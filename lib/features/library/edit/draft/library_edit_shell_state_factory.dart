@@ -11,15 +11,14 @@ import 'package:collectarr_app/features/library/edit/draft/library_edit_shell_st
 import 'package:collectarr_app/features/library/edit/draft/text_controller_group.dart';
 import 'package:collectarr_app/features/library/edit/session/library_edit_session_controller.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
+import 'package:collectarr_app/features/library/domain/library_target_ref.dart';
 import 'package:flutter/material.dart';
 
 /// Builds common edit state from the typed Library boundary and asks the
 /// selected kind session to create its canonical form fields and schema.
 LibraryEditShellState createLibraryEditShellState({
   required LibraryKindRegistration type,
-  LibraryEntityScope scope = LibraryEntityScope.catalogItem,
-  LibraryEntityRef? node,
+  LibraryTargetRef? target,
   required CatalogSearchCandidate item,
   required LibraryEntrySummary? libraryEntry,
   LibraryEntryDispatch? libraryEntryDispatch,
@@ -93,7 +92,7 @@ LibraryEditShellState createLibraryEditShellState({
         : (libraryEntry!.marketValueCents! / 100).toStringAsFixed(2),
   );
 
-  final personal = PersonalStateDraft(
+  final personal = LibraryEntryPersonalBindings(
     ownerLabelController: ownerLabelController,
     conditionController: conditionController,
     gradeController: gradeController,
@@ -167,8 +166,7 @@ LibraryEditShellState createLibraryEditShellState({
   return LibraryEditShellState.create(
     textControllers: textControllers,
     type: type,
-    scope: scope,
-    node: node,
+    target: target,
     kindItem: item,
     libraryEntry: libraryEntry,
     libraryEntryDispatch: libraryEntryDispatch,

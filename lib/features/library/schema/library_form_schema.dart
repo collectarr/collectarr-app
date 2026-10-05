@@ -25,6 +25,7 @@ final class LibraryFormSectionSpec<TDraft> {
     this.fullWidthFieldIds = const <String>{},
     this.fieldColumnSpans = const <String, int>{},
     this.rightAlignedFieldIds = const <String>{},
+    this.columns = const <LibraryFormColumnSpec>[],
     this.visibleWhen,
   });
 
@@ -35,9 +36,19 @@ final class LibraryFormSectionSpec<TDraft> {
   final Set<String> fullWidthFieldIds;
   final Map<String, int> fieldColumnSpans;
   final Set<String> rightAlignedFieldIds;
+
+  /// Independently stacked columns; each row contains one or more field IDs.
+  /// Empty means the section uses the regular responsive field grid.
+  final List<LibraryFormColumnSpec> columns;
   final LibraryFieldVisibility<TDraft>? visibleWhen;
 
   bool isVisible(TDraft draft) => visibleWhen?.call(draft) ?? true;
+}
+
+final class LibraryFormColumnSpec {
+  const LibraryFormColumnSpec({required this.rows});
+
+  final List<List<String>> rows;
 }
 
 List<LibraryFormSectionSpec<TDraft>> filterLibraryFormSections<TDraft>({
@@ -66,6 +77,21 @@ List<LibraryFormSectionSpec<TDraft>> filterLibraryFormSections<TDraft>({
           fullWidthFieldIds: section.fullWidthFieldIds,
           fieldColumnSpans: section.fieldColumnSpans,
           rightAlignedFieldIds: section.rightAlignedFieldIds,
+          columns: [
+            for (final column in section.columns)
+              if (column.rows.any((row) => row.any(
+                    (id) => fieldIds == null || fieldIds.contains(id),
+                  )))
+                LibraryFormColumnSpec(rows: [
+                  for (final row in column.rows)
+                    if (row
+                        .any((id) => fieldIds == null || fieldIds.contains(id)))
+                      [
+                        for (final id in row)
+                          if (fieldIds == null || fieldIds.contains(id)) id,
+                      ],
+                ]),
+          ],
           visibleWhen: section.visibleWhen,
         ),
   ];

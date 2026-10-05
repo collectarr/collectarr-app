@@ -6,7 +6,7 @@ import 'package:collectarr_app/core/models/tracking_summary.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_edit_form_fields.dart';
-import 'package:collectarr_app/features/library/edit/draft/personal_state_draft.dart';
+import 'package:collectarr_app/features/library/edit/draft/library_entry_personal_bindings.dart';
 import 'package:collectarr_app/features/library/edit/draft/text_controller_group.dart';
 import 'package:collectarr_app/features/library/edit/draft/tracking_draft.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_user_external_links_draft.dart';
@@ -15,14 +15,14 @@ import 'package:collectarr_app/features/library/edit/sections/item_images_edit_s
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_edit_shell_state_factory.dart';
 import 'package:collectarr_app/features/library/edit/session/library_edit_session_controller.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
+import 'package:collectarr_app/features/library/domain/library_target_ref.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_registration.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_entry_dispatch.dart';
 
 export 'package:collectarr_app/features/library/edit/draft/library_edit_form_fields.dart';
 export 'package:collectarr_app/features/library/edit/contracts/library_edit_kind_draft.dart';
-export 'package:collectarr_app/features/library/edit/draft/personal_state_draft.dart';
+export 'package:collectarr_app/features/library/edit/draft/library_entry_personal_bindings.dart';
 export 'package:collectarr_app/features/library/edit/draft/tracking_draft.dart';
 
 class LibraryEditShellState {
@@ -32,8 +32,7 @@ class LibraryEditShellState {
   LibraryEditShellState.create({
     required TextControllerGroup textControllers,
     required this.type,
-    required this.scope,
-    required this.node,
+    required this.target,
     required this.kindItem,
     required this.libraryEntry,
     required this.libraryEntryDispatch,
@@ -58,8 +57,7 @@ class LibraryEditShellState {
   final TextControllerGroup _textControllers;
 
   final LibraryKindRegistration type;
-  final LibraryEntityScope scope;
-  final LibraryEntityRef? node;
+  final LibraryTargetRef? target;
 
   /// The selected transport candidate is retained only for the kind-entry
   /// draft and final catalog mutation boundary. The shared shell keeps this
@@ -80,7 +78,7 @@ class LibraryEditShellState {
   /// Modular Sub-Drafts
   final LibraryEditFormFields formFields;
   final LibraryEditFormSchema canonicalFormSchema;
-  final PersonalStateDraft personal;
+  final LibraryEntryPersonalBindings personal;
   final TrackingDraft tracking;
   final LibraryUserExternalLinksDraft userExternalLinks =
       LibraryUserExternalLinksDraft();
@@ -177,8 +175,7 @@ class LibraryEditShellState {
   factory LibraryEditShellState.fromRequest(LibraryEditDialogRequest request) {
     return LibraryEditShellState.fromFields(
       type: request.type,
-      scope: request.resolvedScope,
-      node: request.node,
+      target: request.target,
       item: request.kindItem,
       libraryEntry: request.libraryEntry,
       libraryEntryDispatch: request.libraryEntryDispatch,
@@ -195,8 +192,7 @@ class LibraryEditShellState {
 
   factory LibraryEditShellState.fromItem({
     required LibraryKindRegistration type,
-    LibraryEntityScope scope = LibraryEntityScope.catalogItem,
-    LibraryEntityRef? node,
+    LibraryTargetRef? target,
     required CatalogSearchCandidate item,
     LibraryEntrySummary? libraryEntry,
     LibraryEntryDispatch? libraryEntryDispatch,
@@ -211,8 +207,7 @@ class LibraryEditShellState {
   }) {
     return LibraryEditShellState.fromFields(
       type: type,
-      scope: scope,
-      node: node,
+      target: target,
       item: item,
       libraryEntry: libraryEntry,
       libraryEntryDispatch: libraryEntryDispatch,
@@ -229,8 +224,7 @@ class LibraryEditShellState {
 
   factory LibraryEditShellState.fromFields({
     required LibraryKindRegistration type,
-    LibraryEntityScope scope = LibraryEntityScope.catalogItem,
-    LibraryEntityRef? node,
+    LibraryTargetRef? target,
     required CatalogSearchCandidate item,
     required LibraryEntrySummary? libraryEntry,
     LibraryEntryDispatch? libraryEntryDispatch,
@@ -245,8 +239,7 @@ class LibraryEditShellState {
   }) =>
       createLibraryEditShellState(
         type: type,
-        scope: scope,
-        node: node,
+        target: target,
         item: item,
         libraryEntry: libraryEntry,
         libraryEntryDispatch: libraryEntryDispatch,
@@ -264,7 +257,7 @@ class LibraryEditShellState {
   // Domain Helpers & Actions
   // ---------------------------------------------------------------------------
 
-  bool get isEntry => libraryEntry != null;
+  bool get isEntry => target is EntryTargetRef || libraryEntry != null;
   bool get hasTrackingContext => isEntry || trackingSummary != null;
   bool get isTrackingOnly => !isEntry && trackingSummary != null;
   bool get hasWishlistContext => wishlistItem != null;

@@ -5,7 +5,7 @@ import 'package:collectarr_app/features/library/config/library_entry_update_payl
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_edit_models.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_edit_form_fields.dart';
-import 'package:collectarr_app/features/library/edit/draft/personal_state_draft.dart';
+import 'package:collectarr_app/features/library/edit/draft/library_entry_personal_bindings.dart';
 
 /// Kind-entry canonical edit operations for one Catalog Item.
 abstract interface class LibraryCatalogItemEditSession {
@@ -28,11 +28,11 @@ abstract interface class LibraryCatalogItemEditSession {
 abstract interface class LibraryEntryEditSession {
   JsonEncodable toDetailsDraft();
 
-  void initializePersonalState(PersonalStateDraft personal);
+  void initializePersonalState(LibraryEntryPersonalBindings personal);
 
   LibraryEntryUpdatePayload buildEntryUpdatePayload({
     required LibraryEntryRef libraryEntryRef,
-    required PersonalStateDraft personal,
+    required LibraryEntryPersonalBindings personal,
   });
 }
 
@@ -46,7 +46,7 @@ mixin LibraryCatalogItemEditSessionLinkDefaults
 /// Default copy initialization for a kind with no additional personal fields.
 mixin LibraryEntryEditSessionDefaults implements LibraryEntryEditSession {
   @override
-  void initializePersonalState(PersonalStateDraft personal) {}
+  void initializePersonalState(LibraryEntryPersonalBindings personal) {}
 }
 
 /// The kind-entry edit composition returned to the generic UI shell.

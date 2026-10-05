@@ -11,12 +11,14 @@ final class LibraryExternalLinksDraftEditor extends StatefulWidget {
     required this.accent,
     this.onChanged,
     this.addLabel = 'Add Link',
+    this.showTitleColumn = true,
     this.emptyMessage = 'No external links added.',
   });
 
   final List<LibraryExternalLinkDraftRow> links;
   final Color accent;
   final VoidCallback? onChanged;
+  final bool showTitleColumn;
   final String addLabel;
   final String emptyMessage;
 
@@ -34,7 +36,8 @@ final class _LibraryExternalLinksDraftEditorState
           for (final link in widget.links)
             LibraryExternalLinkEditRow<LibraryExternalLinkDraftRow>(
               identity: link,
-              titleController: link.titleController,
+              titleController:
+                  widget.showTitleColumn ? link.titleController : null,
               urlController: link.urlController,
               descriptionController: link.descriptionController,
             ),
@@ -42,7 +45,7 @@ final class _LibraryExternalLinksDraftEditorState
         accent: widget.accent,
         addLabel: widget.addLabel,
         emptyMessage: widget.emptyMessage,
-        showTitleColumn: true,
+        showTitleColumn: widget.showTitleColumn,
         onAdd: () => setState(() {
           widget.links.add(LibraryExternalLinkDraftRow());
           widget.onChanged?.call();

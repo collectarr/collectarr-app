@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/library/schema/library_field_spec.dart';
+import 'package:collectarr_app/features/library/schema/library_form_schema.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_responsive_field_layout.dart';
 import 'package:flutter/material.dart';
 
@@ -16,6 +16,7 @@ class LibraryFieldSpecLayout<TDraft> extends StatelessWidget {
     required this.fullWidthFieldIds,
     required this.fieldColumnSpans,
     required this.rightAlignedFieldIds,
+    this.columns = const <LibraryFormColumnSpec>[],
   });
 
   final List<LibraryFieldSpec<TDraft>> fields;
@@ -25,11 +26,56 @@ class LibraryFieldSpecLayout<TDraft> extends StatelessWidget {
   final Set<String> fullWidthFieldIds;
   final Map<String, int> fieldColumnSpans;
   final Set<String> rightAlignedFieldIds;
+  final List<LibraryFormColumnSpec> columns;
 
   @override
   Widget build(BuildContext context) {
     final visibleFields =
         fields.where((field) => field.isVisible(draft)).toList(growable: false);
+    if (columns.isNotEmpty) {
+      final fieldsById = {for (final field in fields) field.id: field};
+      final assignedIds = <String>{};
+      for (final column in columns) {
+        for (final row in column.rows) {
+          for (final id in row) {
+            if (!fieldsById.containsKey(id) || !assignedIds.add(id)) {
+              throw StateError('Invalid or repeated form column field: $id');
+            }
+          }
+        }
+      }
+      if (assignedIds.length != fieldsById.length) {
+        throw StateError('Every section field must belong to a form column.');
+      }
+      return LibraryResponsiveFieldLayout(
+        maxColumns: columns.length,
+        spacing: 14,
+        columnBreakpoints: const {2: 680},
+        children: [
+          for (final column in columns)
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                for (final row in column.rows)
+                  if (row.any((id) => fieldsById[id]!.isVisible(draft)))
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 10),
+                      child: LibraryResponsiveFieldLayout(
+                        maxColumns: row.length,
+                        spacing: 14,
+                        columnBreakpoints: const {2: 300},
+                        children: [
+                          for (final id in row)
+                            if (fieldsById[id]!.isVisible(draft))
+                              buildField(fieldsById[id]!),
+                        ],
+                      ),
+                    ),
+              ],
+            ),
+        ],
+      );
+    }
     final fullWidthIndices = <int>{};
     final columnSpans = <int, int>{};
     final rightAlignedIndices = <int>{};

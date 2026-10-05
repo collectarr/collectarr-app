@@ -22,45 +22,35 @@ Future<LibraryEditSelection?> showLibraryEditDialog({
   Future<void> Function(LibraryEditSelection result)? onCommit,
 }) async {
   final sessions = <String, LibraryEntryEditDraft>{};
-  final database = ProviderScope.containerOf(context, listen: false).read(localDatabaseProvider);
-  final editCapability = libraryEditPresentationForKind(request.type.kind);
-  final builder = editCapability.editRegistry.builderForScope(
-    request.resolvedScope,
-  );
-  if (builder == null) {
-    throw StateError(
-      'No edit dialog builder registered for ${request.type.kind.apiValue}.',
-    );
-  }
+  final database = ProviderScope.containerOf(context, listen: false)
+      .read(localDatabaseProvider);
 
   LibraryEditDialogBuilder builderForRequest(
     LibraryEditDialogRequest currentRequest,
   ) {
     final currentCapability =
         libraryEditPresentationForKind(currentRequest.type.kind);
-    final currentBuilder = currentCapability.editRegistry.builderForScope(
-      currentRequest.resolvedScope,
+    final currentBuilder = currentCapability.editRegistry.builderForTarget(
+      currentRequest.target,
     );
-    if (currentBuilder == null) {
-      throw StateError(
-        'No edit dialog builder registered for '
-        '${currentRequest.type.kind.apiValue}.',
-      );
-    }
     return (ctx, nextRequest) => _LibraryEntryEditorFrame(
-      request: nextRequest,
-      builder: currentBuilder,
-      onCommit: onCommit,
-      load: () async {
-        final key = nextRequest.kindItem.reference.toCatalogItemRef().key;
-        if (sessions.containsKey(key)) return sessions[key];
-        final entry = await LibraryEntryStore(database).find(nextRequest.type.kind, nextRequest.kindItem.reference.id);
-        if (entry == null) return null;
-        final draft = LibraryEntryEditDraft(entry);
-        sessions[key] = draft;
-        return draft;
-      },
-    );
+          request: nextRequest,
+          builder: currentBuilder,
+          onCommit: onCommit,
+          load: () async {
+            final entryRef = nextRequest.target?.libraryEntryRef ??
+                nextRequest.kindItem.libraryEntryRef;
+            if (entryRef == null) return null;
+            final key = entryRef.key;
+            if (sessions.containsKey(key)) return sessions[key];
+            final entry = await LibraryEntryStore(database)
+                .find(entryRef.kind, entryRef.id.value);
+            if (entry == null) return null;
+            final draft = LibraryEntryEditDraft(entry);
+            sessions[key] = draft;
+            return draft;
+          },
+        );
   }
 
   final windowClass = AppWindowClass.of(context);
@@ -75,7 +65,8 @@ Future<LibraryEditSelection?> showLibraryEditDialog({
     return _DeferredLibraryEditDialog(
       initialRequest: request,
       requestLoader: requestLoader,
-      builder: (ctx, nextRequest) => builderForRequest(nextRequest)(ctx, nextRequest),
+      builder: (ctx, nextRequest) =>
+          builderForRequest(nextRequest)(ctx, nextRequest),
     );
   }
 
@@ -90,53 +81,67 @@ Future<LibraryEditSelection?> showLibraryEditDialog({
       );
     } else {
       result = await showDialog<LibraryEditSelection>(
-        context: context, barrierDismissible: false, builder: widgetBuilder,
+        context: context,
+        barrierDismissible: false,
+        builder: widgetBuilder,
       );
     }
     if (result == null) return null;
-    final draft = sessions[result.kindItem.reference.toCatalogItemRef().key];
+    final entryRef = result.kindItem.libraryEntryRef;
+    final draft = entryRef == null ? null : sessions[entryRef.key];
     return draft?.used == true
         ? result.copyWith(entryPersonalData: draft!.changes)
         : result;
   } finally {
-    for (final draft in sessions.values) { draft.dispose(); }
+    for (final draft in sessions.values) {
+      draft.dispose();
+    }
   }
 }
 
 class _LibraryEntryEditorFrame extends StatefulWidget {
-  const _LibraryEntryEditorFrame({required this.request, required this.builder, required this.load, this.onCommit});
+  const _LibraryEntryEditorFrame(
+      {required this.request,
+      required this.builder,
+      required this.load,
+      this.onCommit});
   final LibraryEditDialogRequest request;
   final LibraryEditDialogBuilder builder;
   final Future<LibraryEntryEditDraft?> Function() load;
   final Future<void> Function(LibraryEditSelection result)? onCommit;
   @override
-  State<_LibraryEntryEditorFrame> createState() => _LibraryEntryEditorFrameState();
+  State<_LibraryEntryEditorFrame> createState() =>
+      _LibraryEntryEditorFrameState();
 }
 
 class _LibraryEntryEditorFrameState extends State<_LibraryEntryEditorFrame> {
   late final Future<LibraryEntryEditDraft?> _draft = widget.load();
   @override
   Widget build(BuildContext context) => FutureBuilder<LibraryEntryEditDraft?>(
-    future: _draft,
-    builder: (context, snapshot) {
-      if (snapshot.connectionState != ConnectionState.done) {
-        return const Center(child: CircularProgressIndicator());
-      }
-      if (snapshot.hasError) {
-        return AlertDialog(
-          title: const Text('Could not open entry'),
-          content: Text('${snapshot.error}'),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: const Text('Close'),
-            ),
-          ],
-        );
-      }
-      return LibraryEntryEditScope(draft: snapshot.data, onCommit: widget.onCommit, child: Builder(builder: (ctx) => widget.builder(ctx, widget.request)));
-    },
-  );
+        future: _draft,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState != ConnectionState.done) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          if (snapshot.hasError) {
+            return AlertDialog(
+              title: const Text('Could not open entry'),
+              content: Text('${snapshot.error}'),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  child: const Text('Close'),
+                ),
+              ],
+            );
+          }
+          return LibraryEntryEditScope(
+              draft: snapshot.data,
+              onCommit: widget.onCommit,
+              child: Builder(
+                  builder: (ctx) => widget.builder(ctx, widget.request)));
+        },
+      );
 }
 
 class _SwitchingLibraryEditDialog extends StatefulWidget {

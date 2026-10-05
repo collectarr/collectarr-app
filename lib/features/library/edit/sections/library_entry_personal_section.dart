@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/ui/primitives/library_collection_status_field.dart';
 import 'dart:async';
 
 import 'package:collectarr_app/core/models/partial_date.dart';
@@ -32,6 +33,8 @@ class LibraryEntryPersonalSection extends ConsumerStatefulWidget {
     this.onRatingChanged,
     this.onNotesChanged,
     this.history,
+    this.layoutBuilder,
+    this.additionalFields = const {},
   });
 
   final LibraryEntryEditDraft draft;
@@ -39,6 +42,8 @@ class LibraryEntryPersonalSection extends ConsumerStatefulWidget {
   final ValueChanged<int?>? onRatingChanged;
   final ValueChanged<String>? onNotesChanged;
   final Widget? history;
+  final LibraryPersonalLayoutBuilder? layoutBuilder;
+  final Map<String, Widget> additionalFields;
 
   @override
   ConsumerState<LibraryEntryPersonalSection> createState() =>
@@ -182,11 +187,11 @@ class _LibraryEntryPersonalSectionState
   Widget build(BuildContext context) => AnimatedBuilder(
         animation: _draft,
         builder: (context, _) {
-          final fields = [
-            for (final field
-                in _fieldsFor(PersonalLibraryFieldArea.personalFields))
-              _buildPersonalField(field),
-          ];
+          final specs = _fieldsFor(PersonalLibraryFieldArea.personalFields);
+          final fieldsByKey = <String, Widget>{
+            for (final field in specs) field.key: _buildPersonalField(field),
+          };
+          final fields = fieldsByKey.values.toList();
           final ratingField = _fieldFor(
             PersonalLibraryFieldArea.rating,
             PersonalLibraryFieldEditor.rating,
@@ -201,7 +206,10 @@ class _LibraryEntryPersonalSectionState
             if (ratingField != null)
               LibraryFormField(
                 label: ratingField.label,
-                child: MediaRatingField(controller: _ratingController),
+                child: MediaRatingField(
+                    controller: _ratingController,
+                    showLabel: false,
+                    compact: true),
               ),
             if (notesField != null)
               LibraryNotesField(
@@ -214,6 +222,16 @@ class _LibraryEntryPersonalSectionState
                 },
               ),
           ];
+          if (ratingField != null) {
+            fieldsByKey[ratingField.key] = fullWidthFields.first;
+          }
+          if (notesField != null) {
+            fieldsByKey[notesField.key] = fullWidthFields.last;
+          }
+          fieldsByKey.addAll(widget.additionalFields);
+          if (widget.layoutBuilder != null) {
+            return widget.layoutBuilder!(fieldsByKey, widget.history);
+          }
           return LibraryPersonalFieldsLayout(
             fields: fields,
             fullWidthFields: fullWidthFields,
@@ -431,25 +449,29 @@ class _LibraryEntryStatusStripState
       case PersonalLibraryFieldEditor.condition:
         return const SizedBox.shrink();
       case PersonalLibraryFieldEditor.collectionStatus:
-        final current = draft.text(field.key);
-        final value = field.options.contains(current)
-            ? current
-            : field.options.firstOrNull;
-        return LibraryDropdownPickField<String>(
+        return LibraryCollectionStatusField(
           label: field.label,
-          value: value,
-          options: [
-            for (final option in field.options)
-              LibraryFieldOption(value: option, label: option),
-          ],
-          onChanged: (status) => draft.set(field.key, status),
+          value: draft.text(field.key),
+          onChanged: (value) => draft.set(field.key, value),
         );
       case PersonalLibraryFieldEditor.integer:
         return LibraryFormField(
           label: field.label,
           child: LibraryTextFormControl(
             key: ValueKey('entry-${field.key}'),
-            initialValue: draft.number(field.key)?.toString() ?? '',
+            initialValue:
+                (draft.number(field.key) ?? field.defaultInteger)?.toString() ??
+                    '',
+            validator: (value) {
+              if (value == null || value.trim().isEmpty) {
+                return field.minimum == null ? null : 'Enter a value';
+              }
+              final number = int.tryParse(value);
+              if (number == null) return 'Enter a whole number';
+              return field.minimum != null && number < field.minimum!
+                  ? 'Minimum ${field.minimum}'
+                  : null;
+            },
             keyboardType: TextInputType.number,
             onChanged: (value) => draft.set(field.key, int.tryParse(value)),
           ),

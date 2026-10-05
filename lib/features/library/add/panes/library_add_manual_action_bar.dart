@@ -1,7 +1,10 @@
+import 'package:collectarr_app/features/library/ui/primitives/library_collection_status_field.dart';
+import 'library_add_status_button.dart';
+import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
+import 'package:collectarr_app/features/library/add/models/library_add_common_draft.dart';
 import 'package:collectarr_app/features/library/add/controllers/library_add_dialog_requests.dart';
 import 'package:collectarr_app/features/library/add/library_add_copy.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_target.dart';
-import 'package:collectarr_app/features/library/add/shell/library_add_dialog_theme.dart';
 import 'package:collectarr_app/features/library/ui/library_action_footer.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
@@ -65,42 +68,27 @@ class LibraryAddManualActionBar extends StatelessWidget {
           ),
           const SizedBox(width: 8),
           Expanded(
-            child: OutlinedButton.icon(
-              onPressed: _validatedAction(context, request.onAddWishlist),
-              style: OutlinedButton.styleFrom(
-                foregroundColor: palette.textPrimary,
-                visualDensity: VisualDensity.compact,
+            child: LibraryAddStatusButton(
+              status: libraryCollectionStatusFromValue(
+                  request.commonDraft?.collectionStatus),
+              isBusy: request.isAdding,
+              onAdd: _validatedAction(
+                context,
+                libraryCollectionStatusFromValue(
+                            request.commonDraft?.collectionStatus) ==
+                        LibraryCollectionStatusScope.wishList
+                    ? request.onAddWishlist
+                    : request.onAddEntry,
               ),
-              icon: const Icon(Icons.star_outline, size: 18),
-              label: Text(
-                LibraryAddCopy.addToTargetLabel(
-                  count: 1,
-                  type: request.type,
-                  target: LibraryAddTarget.wishlist,
-                ),
-                overflow: TextOverflow.ellipsis,
-              ),
-            ),
-          ),
-          const SizedBox(width: 8),
-          Expanded(
-            child: FilledButton.icon(
-              onPressed: _validatedAction(context, request.onAddEntry),
-              style: libraryAddFilledButtonStyle(request.accent),
-              icon: request.isAdding
-                  ? const SizedBox.square(
-                      dimension: 16,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  : const Icon(Icons.inventory_2_outlined, size: 18),
-              label: Text(
-                LibraryAddCopy.addToTargetLabel(
-                  count: 1,
-                  type: request.type,
-                  target: LibraryAddTarget.entry,
-                ),
-                overflow: TextOverflow.ellipsis,
-              ),
+              onStatusChanged: request.onCommonDraftChanged == null
+                  ? null
+                  : (status) {
+                      request.onCommonDraftChanged!(
+                          (request.commonDraft ?? const LibraryAddCommonDraft())
+                              .copyWith(
+                        collectionStatus: libraryCollectionStatusValue(status),
+                      ));
+                    },
             ),
           ),
         ];
