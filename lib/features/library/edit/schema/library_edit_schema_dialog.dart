@@ -115,6 +115,7 @@ class _LibraryEditSchemaDialogState<TModel, TDraft>
         draft: widget.draft,
         showTitle: false,
         showFooter: false,
+        fillAvailableHeight: true,
         tabAccent: widget.accent,
         tabNavigationEnabled: !_saving,
         tabOrderKey: widget.tabOrderKey,

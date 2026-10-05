@@ -1,3 +1,4 @@
+import 'package:collectarr_app/core/models/partial_date.dart';
 import 'package:flutter/foundation.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
 
@@ -67,11 +68,13 @@ final class MusicEntryDetails implements JsonEncodable {
     this.media = const [],
     this.signedBy,
     this.lastCleanedDate,
+    this.lastCleanedDateParts,
   });
 
   final List<MusicEntryDiscDetails> media;
   final String? signedBy;
   final DateTime? lastCleanedDate;
+  final PartialDate? lastCleanedDateParts;
 
   @override
   Map<String, dynamic> toJson() => {
@@ -81,6 +84,8 @@ final class MusicEntryDetails implements JsonEncodable {
               if (!entry.isEmpty) entry.toJson(),
           ],
         if (signedBy != null) 'signed_by': signedBy,
+        if (lastCleanedDateParts != null)
+          'last_cleaned_date_parts': lastCleanedDateParts!.toJson(),
         if (lastCleanedDate != null)
           'last_cleaned_date': lastCleanedDate!.toUtc().toIso8601String(),
       };
@@ -99,6 +104,8 @@ final class MusicEntryDetails implements JsonEncodable {
           : const <MusicEntryDiscDetails>[],
       signedBy: _text(json['signed_by']),
       lastCleanedDate: _date(json['last_cleaned_date']),
+      lastCleanedDateParts: PartialDate.tryParse(
+          json['last_cleaned_date_parts'] ?? json['last_cleaned_date']),
     );
   }
 
@@ -106,12 +113,16 @@ final class MusicEntryDetails implements JsonEncodable {
     List<MusicEntryDiscDetails>? media,
     Object? signedBy = _musicDetailsUnset,
     Object? lastCleanedDate = _musicDetailsUnset,
+    Object? lastCleanedDateParts = _musicDetailsUnset,
   }) {
     return MusicEntryDetails(
       media: media ?? this.media,
       signedBy: identical(signedBy, _musicDetailsUnset)
           ? this.signedBy
           : signedBy as String?,
+      lastCleanedDateParts: identical(lastCleanedDateParts, _musicDetailsUnset)
+          ? this.lastCleanedDateParts
+          : lastCleanedDateParts as PartialDate?,
       lastCleanedDate: identical(lastCleanedDate, _musicDetailsUnset)
           ? this.lastCleanedDate
           : lastCleanedDate as DateTime?,
@@ -124,13 +135,15 @@ final class MusicEntryDetails implements JsonEncodable {
       other is MusicEntryDetails &&
           listEquals(media, other.media) &&
           signedBy == other.signedBy &&
-          lastCleanedDate == other.lastCleanedDate;
+          lastCleanedDate == other.lastCleanedDate &&
+          lastCleanedDateParts == other.lastCleanedDateParts;
 
   @override
   int get hashCode => Object.hash(
         Object.hashAll(media),
         signedBy,
         lastCleanedDate,
+        lastCleanedDateParts,
       );
 
   MusicEntryDiscDetails? disc(String discId) {

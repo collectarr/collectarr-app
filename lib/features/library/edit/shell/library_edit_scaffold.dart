@@ -245,9 +245,9 @@ class _LibraryEditDialogScaffoldState extends State<LibraryEditDialogScaffold> {
     final windowClass = AppWindowClass.of(context);
     final maxWidth = isWideDesktop
         ? (viewport.width > 1440 ? 1220.0 : 1140.0)
-        : (viewport.width > 1440 ? 1180.0 : 1100.0);
+        : (viewport.width > 1264 ? 1200.0 : viewport.width - 64);
     final maxHeight = viewport.height > 900 ? 850.0 : viewport.height - 24;
-    final p = appPalette(context);
+    final p = libraryEditPalette(appPalette(context));
     return LibrarySchemaTextControllerScope(
       store: _schemaTextControllers,
       child: LibraryEditTabNavigationScope(
@@ -291,7 +291,7 @@ class _LibraryEditDialogScaffoldState extends State<LibraryEditDialogScaffold> {
             alignment: Alignment.topCenter,
             insetPadding: EdgeInsets.fromLTRB(
               windowClass.isMedium ? 16 : 32,
-              8,
+              10,
               windowClass.isMedium ? 16 : 32,
               16,
             ),
@@ -417,9 +417,16 @@ class _LibraryEditTitleBar extends StatelessWidget {
       backgroundColor: accent,
       foregroundColor: foreground,
       borderColor: accent.withValues(alpha: 0.92),
-      onClose: isBusy ? null : onClose,
+      trailing: IconButton(
+        tooltip: 'Close',
+        onPressed: isBusy ? null : onClose,
+        constraints: const BoxConstraints.tightFor(width: 24, height: 24),
+        padding: EdgeInsets.zero,
+        visualDensity: VisualDensity.standard,
+        icon: const Icon(Icons.close, size: 18),
+      ),
       minHeight: headerMinHeight,
-      padding: const EdgeInsets.fromLTRB(10, 6, 10, 6),
+      padding: const EdgeInsets.fromLTRB(15, 6, 10, 6),
       child: Row(
         children: [
           Expanded(
@@ -434,6 +441,8 @@ class _LibraryEditTitleBar extends StatelessWidget {
                   style: TextStyle(
                     fontWeight: FontWeight.w700,
                     fontSize: isWideDesktop ? 16 : 18,
+                    height: 1,
+                    letterSpacing: 0,
                     color: foreground,
                   ),
                 ),
@@ -478,17 +487,27 @@ class _LibraryEditFooter extends StatelessWidget {
   Widget build(BuildContext context) {
     final isWideDesktop =
         chromeVariant == LibraryEditChromeVariant.movieDesktop;
+    final editorPalette = libraryEditPalette(appPalette(context));
     final navButtonStyle = OutlinedButton.styleFrom(
+      backgroundColor: editorPalette.field,
+      foregroundColor: editorPalette.textPrimary,
+      disabledBackgroundColor: editorPalette.panelRaised,
+      disabledForegroundColor: editorPalette.textMuted,
+      side: BorderSide.none,
       shape: kLibraryDialogFooterButtonShape,
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 9),
+      padding: const EdgeInsets.symmetric(horizontal: 8),
       minimumSize: const Size(100, kLibraryDialogFooterButtonHeight),
-      visualDensity: VisualDensity.compact,
+      visualDensity: VisualDensity.standard,
+      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+      textStyle: const TextStyle(
+          fontSize: 14, fontWeight: FontWeight.w500, letterSpacing: 0),
     );
     final compactIconButtonStyle = OutlinedButton.styleFrom(
       shape: kLibraryDialogFooterButtonShape,
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 9),
+      padding: const EdgeInsets.symmetric(horizontal: 8),
       minimumSize: const Size(44, kLibraryDialogFooterButtonHeight),
-      visualDensity: VisualDensity.compact,
+      visualDensity: VisualDensity.standard,
+      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
     );
     final windowClass = AppWindowClass.of(context);
     final proposalBackground = Color.alphaBlend(
@@ -503,6 +522,7 @@ class _LibraryEditFooter extends StatelessWidget {
       children: [
         if (showNav) ...[
           SizedBox(
+            height: kLibraryDialogFooterButtonHeight,
             width: isWideDesktop || windowClass.isCompact ? 44 : 100,
             child: isWideDesktop || windowClass.isCompact
                 ? OutlinedButton(
@@ -510,15 +530,23 @@ class _LibraryEditFooter extends StatelessWidget {
                     onPressed: onPrevious,
                     child: const Icon(Icons.chevron_left, size: 16),
                   )
-                : OutlinedButton.icon(
+                : OutlinedButton(
                     style: navButtonStyle,
                     onPressed: onPrevious,
-                    icon: const Icon(Icons.chevron_left),
-                    label: const Text('Previous'),
+                    child: const Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.chevron_left, size: 16),
+                          SizedBox(width: 2),
+                          Flexible(
+                              child: Text('Previous',
+                                  maxLines: 1, softWrap: false)),
+                        ]),
                   ),
           ),
           const SizedBox(width: 8),
           SizedBox(
+            height: kLibraryDialogFooterButtonHeight,
             width: isWideDesktop || windowClass.isCompact ? 44 : 100,
             child: isWideDesktop || windowClass.isCompact
                 ? OutlinedButton(
@@ -532,9 +560,9 @@ class _LibraryEditFooter extends StatelessWidget {
                     child: const Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Text('Next'),
+                        Text('Next', maxLines: 1, softWrap: false),
                         SizedBox(width: 4),
-                        Icon(Icons.chevron_right),
+                        Icon(Icons.chevron_right, size: 16),
                       ],
                     ),
                   ),
@@ -545,9 +573,10 @@ class _LibraryEditFooter extends StatelessWidget {
           OutlinedButton.icon(
             style: OutlinedButton.styleFrom(
               shape: kLibraryDialogFooterButtonShape,
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 9),
+              padding: const EdgeInsets.symmetric(horizontal: 10),
               minimumSize: const Size(0, kLibraryDialogFooterButtonHeight),
-              visualDensity: VisualDensity.compact,
+              visualDensity: VisualDensity.standard,
+              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
             ),
             onPressed: isBusy ? null : onProposeToCore,
             icon: const Icon(Icons.cloud_upload_outlined, size: 17),
@@ -556,18 +585,10 @@ class _LibraryEditFooter extends StatelessWidget {
           const SizedBox(width: 8),
         ],
         SizedBox(
+          height: kLibraryDialogFooterButtonHeight,
           width: isWideDesktop ? 44 : (windowClass.isCompact ? 92 : 100),
           child: OutlinedButton(
-            style: isWideDesktop
-                ? compactIconButtonStyle
-                : OutlinedButton.styleFrom(
-                    shape: kLibraryDialogFooterButtonShape,
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 10, vertical: 9),
-                    minimumSize: Size(windowClass.isCompact ? 92 : 100,
-                        kLibraryDialogFooterButtonHeight),
-                    visualDensity: VisualDensity.compact,
-                  ),
+            style: isWideDesktop ? compactIconButtonStyle : navButtonStyle,
             onPressed: isBusy ? null : onCancel,
             child: isWideDesktop
                 ? const Icon(Icons.close, size: 16)
@@ -576,6 +597,7 @@ class _LibraryEditFooter extends StatelessWidget {
         ),
         const SizedBox(width: 8),
         SizedBox(
+          height: kLibraryDialogFooterButtonHeight,
           width: windowClass.isCompact ? 96 : 100,
           child: FilledButton(
             style: FilledButton.styleFrom(
@@ -583,12 +605,14 @@ class _LibraryEditFooter extends StatelessWidget {
               foregroundColor: isWideDesktop
                   ? appContrastingTextColor(proposalBackground)
                   : null,
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 9),
+              padding: const EdgeInsets.symmetric(horizontal: 10),
               minimumSize: Size(windowClass.isCompact ? 96 : 112,
                   kLibraryDialogFooterButtonHeight),
               shape: kLibraryDialogFooterButtonShape,
-              textStyle: const TextStyle(fontWeight: FontWeight.w700),
-              visualDensity: VisualDensity.compact,
+              textStyle: const TextStyle(
+                  fontSize: 14, fontWeight: FontWeight.w500, letterSpacing: 0),
+              visualDensity: VisualDensity.standard,
+              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
             ),
             onPressed: isBusy ? null : onSave,
             child: const Text('Save'),

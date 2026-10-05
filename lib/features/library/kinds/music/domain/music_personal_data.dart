@@ -1,3 +1,4 @@
+import 'package:collectarr_app/core/models/partial_date.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/features/library/kinds/music/entries/music_entry_details.dart';
 import 'package:flutter/foundation.dart';
@@ -7,6 +8,10 @@ const Object _musicPersonalUnset = Object();
 @immutable
 final class MusicPersonalData implements JsonEncodable {
   const MusicPersonalData({
+    this.quantity = 1,
+    this.rating,
+    this.mediaCondition,
+    this.purchaseDateParts,
     this.isDigital,
     this.condition,
     this.grade,
@@ -28,6 +33,10 @@ final class MusicPersonalData implements JsonEncodable {
     this.details = const MusicEntryDetails(),
   });
 
+  final int quantity;
+  final int? rating;
+  final String? mediaCondition;
+  final PartialDate? purchaseDateParts;
   final bool? isDigital;
   final String? condition;
   final String? grade;
@@ -50,6 +59,10 @@ final class MusicPersonalData implements JsonEncodable {
 
   @override
   Map<String, dynamic> toJson() => {
+        'quantity': quantity,
+        'rating': rating,
+        'media_condition': mediaCondition,
+        'purchase_date_parts': purchaseDateParts?.toJson(),
         'is_digital': isDigital,
         'condition': condition,
         'grade': grade,
@@ -73,6 +86,11 @@ final class MusicPersonalData implements JsonEncodable {
 
   factory MusicPersonalData.fromJson(Map<String, dynamic> json) =>
       MusicPersonalData(
+        quantity: _quantity(json['quantity']),
+        rating: (json['rating'] as num?)?.toInt(),
+        mediaCondition: json['media_condition'] as String?,
+        purchaseDateParts: PartialDate.tryParse(
+            json['purchase_date_parts'] ?? json['purchase_date']),
         isDigital: json['is_digital'] as bool?,
         condition: json['condition'] as String?,
         grade: json['grade'] as String?,
@@ -95,6 +113,10 @@ final class MusicPersonalData implements JsonEncodable {
       );
 
   MusicPersonalData copyWith({
+    int? quantity,
+    Object? rating = _musicPersonalUnset,
+    Object? mediaCondition = _musicPersonalUnset,
+    Object? purchaseDateParts = _musicPersonalUnset,
     Object? isDigital = _musicPersonalUnset,
     Object? condition = _musicPersonalUnset,
     Object? grade = _musicPersonalUnset,
@@ -116,6 +138,16 @@ final class MusicPersonalData implements JsonEncodable {
     MusicEntryDetails? details,
   }) =>
       MusicPersonalData(
+        quantity: quantity ?? this.quantity,
+        rating: identical(rating, _musicPersonalUnset)
+            ? this.rating
+            : rating as int?,
+        mediaCondition: identical(mediaCondition, _musicPersonalUnset)
+            ? this.mediaCondition
+            : mediaCondition as String?,
+        purchaseDateParts: identical(purchaseDateParts, _musicPersonalUnset)
+            ? this.purchaseDateParts
+            : purchaseDateParts as PartialDate?,
         isDigital: identical(isDigital, _musicPersonalUnset)
             ? this.isDigital
             : isDigital as bool?,
@@ -172,8 +204,14 @@ final class MusicPersonalData implements JsonEncodable {
         details: details ?? this.details,
       );
 }
-
 DateTime? _musicPersonalDate(Object? value) {
   if (value is! String || value.trim().isEmpty) return null;
   return DateTime.tryParse(value);
+}
+int _quantity(Object? value) {
+  if (value == null) return 1;
+  if (value is! num || value != value.toInt() || value < 1) {
+    throw const FormatException('Music quantity must be a positive integer.');
+  }
+  return value.toInt();
 }

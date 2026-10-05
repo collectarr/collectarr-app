@@ -12,6 +12,7 @@ final class MusicTrackTextField extends StatelessWidget {
     this.hint,
     this.keyboardType,
     this.style,
+    this.maxLines = 1,
   });
 
   final String id;
@@ -21,6 +22,7 @@ final class MusicTrackTextField extends StatelessWidget {
   final String? hint;
   final TextInputType? keyboardType;
   final TextStyle? style;
+  final int? maxLines;
 
   @override
   Widget build(BuildContext context) => LibraryTextFormControl(
@@ -28,13 +30,14 @@ final class MusicTrackTextField extends StatelessWidget {
         initialValue: initialValue,
         keyboardType: keyboardType,
         style: style,
+        maxLines: maxLines,
         decoration: InputDecoration(
           labelText: label,
           hintText: hint,
           isDense: true,
           contentPadding: const EdgeInsets.symmetric(
             horizontal: 8,
-            vertical: 9,
+            vertical: 3,
           ),
         ),
         onChanged: onChanged,

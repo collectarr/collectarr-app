@@ -1,6 +1,8 @@
+import 'package:collectarr_app/features/library/ui/primitives/library_image_intake.dart';
+import 'package:collectarr_app/features/library/ui/primitives/library_form_controls.dart';
+import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'dart:typed_data';
 
-import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_dropdown_pick_field.dart';
 import 'package:collectarr_app/features/library/schema/library_field_spec.dart';
 import 'package:collectarr_app/features/pick_lists/widgets/pick_list_select_dialog.dart';
@@ -50,7 +52,7 @@ final class _MusicAlbumCoversTabState extends State<MusicAlbumCoversTab> {
             final front = _cover('front_cover');
             final back = _cover('back_cover');
             final children = [
-              _CoverEditor(
+              MusicCoverEditor(
                 title: 'Front Cover',
                 albumId: widget.albumId,
                 image: front,
@@ -60,7 +62,7 @@ final class _MusicAlbumCoversTabState extends State<MusicAlbumCoversTab> {
                 onRemoveCoreCover: () => _removeCoreCover(false),
                 onChanged: (value) => _replaceCover('front_cover', value),
               ),
-              _CoverEditor(
+              MusicCoverEditor(
                 title: 'Back Cover',
                 albumId: widget.albumId,
                 image: back,
@@ -134,8 +136,9 @@ final class _MusicAlbumCoversTabState extends State<MusicAlbumCoversTab> {
   }
 }
 
-final class _CoverEditor extends StatefulWidget {
-  const _CoverEditor({
+final class MusicCoverEditor extends StatefulWidget {
+  const MusicCoverEditor({
+    super.key,
     required this.title,
     required this.albumId,
     required this.image,
@@ -156,10 +159,10 @@ final class _CoverEditor extends StatefulWidget {
   final ValueChanged<MusicAlbumImage?> onChanged;
 
   @override
-  State<_CoverEditor> createState() => _CoverEditorState();
+  State<MusicCoverEditor> createState() => MusicCoverEditorState();
 }
 
-final class _CoverEditorState extends State<_CoverEditor> {
+final class MusicCoverEditorState extends State<MusicCoverEditor> {
   Uint8List? _cropEditorBytes;
   bool _transforming = false;
 
@@ -175,7 +178,7 @@ final class _CoverEditorState extends State<_CoverEditor> {
   }
 
   @override
-  void didUpdateWidget(covariant _CoverEditor oldWidget) {
+  void didUpdateWidget(covariant MusicCoverEditor oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (_sourceKeyFor(oldWidget.image, oldWidget.coreCoverUrl) != _sourceKey) {
       _cropEditorBytes = null;
@@ -274,9 +277,9 @@ final class _CoverEditorState extends State<_CoverEditor> {
             child: ClipRRect(
               borderRadius: BorderRadius.circular(3),
               child: AspectRatio(
-                aspectRatio: 1.08,
+                aspectRatio: 1,
                 child: ColoredBox(
-                  color: const Color(0xFFE3E3E1),
+                  color: appPalette(context).surface,
                   child: image != null
                       ? Image.memory(image.imageData, fit: BoxFit.contain)
                       : widget.coreCoverUrl?.trim().isNotEmpty == true
@@ -326,6 +329,16 @@ final class _CoverEditorState extends State<_CoverEditor> {
     );
     if (file == null || !mounted) return;
     final bytes = await file.readAsBytes();
+    try {
+      await validateLibraryImageBytes(bytes);
+    } catch (error) {
+      if (mounted) {
+        ScaffoldMessenger.maybeOf(context)
+            ?.showSnackBar(SnackBar(content: Text(error.toString())));
+      }
+      return;
+    }
+    if (!mounted) return;
     final current = widget.image;
     widget.onChanged(
       MusicAlbumImage(
@@ -410,19 +423,19 @@ final class _NoCoverPreview extends StatelessWidget {
   const _NoCoverPreview();
 
   @override
-  Widget build(BuildContext context) => const Center(
+  Widget build(BuildContext context) => Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Icon(
               Icons.image_outlined,
               size: 38,
-              color: Color(0xFF424242),
+              color: appPalette(context).textMuted,
             ),
             SizedBox(height: 6),
             Text(
               'No cover image',
-              style: TextStyle(color: Color(0xFF424242)),
+              style: TextStyle(color: appPalette(context).textMuted),
             ),
           ],
         ),
@@ -497,72 +510,51 @@ final class _MusicAlbumMyImagesEditorState
 
   @override
   Widget build(BuildContext context) => Column(
-        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          EditSection(
-            title: 'My Images (${_images.length}/5)',
-            accent: widget.accent,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  'Add your own images (max. 5), set a description and an image type (Signature, Booklet, etc).',
-                ),
-                if (_images.isEmpty)
-                  const Padding(
-                    padding: EdgeInsets.symmetric(vertical: 18),
-                    child: Center(
-                      child: Text('Choose an image file to add it here.'),
-                    ),
-                  ),
-                if (_images.isNotEmpty)
-                  ReorderableListView.builder(
-                    shrinkWrap: true,
-                    primary: false,
-                    physics: const NeverScrollableScrollPhysics(),
-                    itemCount: _images.length,
-                    onReorderItem: _reorder,
-                    itemBuilder: (context, index) => _PersonalImageRow(
-                      key: ValueKey(_images[index].id),
-                      image: _images[index],
-                      index: index,
-                      onChanged: (image) => _replace(index, image),
-                      onDelete: () => _remove(index),
-                    ),
-                  ),
-                const SizedBox(height: 10),
-                OutlinedButton.icon(
-                  onPressed: _images.length >= 5 ? null : _add,
-                  icon: const Icon(Icons.add_photo_alternate_outlined),
-                  label: const Text('Add image'),
-                ),
-              ],
+          if (_images.isNotEmpty)
+            ReorderableListView.builder(
+              shrinkWrap: true,
+              primary: false,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: _images.length,
+              onReorderItem: _reorder,
+              itemBuilder: (context, index) => _PersonalImageRow(
+                  key: ValueKey(_images[index].id),
+                  image: _images[index],
+                  index: index,
+                  onChanged: (image) => _replace(index, image),
+                  onDelete: () => _remove(index)),
+            ),
+          if (_images.isEmpty) ...[
+            const Text(
+              'Add your own images (max. 5). Add a description and an image type for each.',
+              style: TextStyle(fontSize: 13),
+            ),
+            const SizedBox(height: 10),
+          ],
+          Center(
+            child: SizedBox(
+              width: 190,
+              child: LibraryImageIntake(
+                  remaining: 5 - _images.length,
+                  height: _images.isEmpty ? 200 : 100,
+                  onImages: (bytes) => _commit([
+                        ..._images,
+                        for (final image in bytes.take(5 - _images.length))
+                          MusicAlbumImage(
+                              id: const Uuid().v4(),
+                              albumId: widget.albumId,
+                              purpose: MusicAlbumImagePurpose.personal,
+                              imageType: 'other',
+                              imageData: image,
+                              sortOrder: _images.length,
+                              createdAt: DateTime.now().toUtc()),
+                      ])),
             ),
           ),
         ],
       );
-
-  Future<void> _add() async {
-    final file = await openFile(
-      acceptedTypeGroups: const [
-        XTypeGroup(
-          label: 'Images',
-          extensions: ['jpg', 'jpeg', 'png', 'webp', 'gif'],
-        ),
-      ],
-    );
-    if (file == null || !mounted) return;
-    final image = MusicAlbumImage(
-      id: const Uuid().v4(),
-      albumId: widget.albumId,
-      purpose: MusicAlbumImagePurpose.personal,
-      imageType: 'other',
-      imageData: await file.readAsBytes(),
-      sortOrder: _images.length,
-      createdAt: DateTime.now().toUtc(),
-    );
-    _commit([..._images, image]);
-  }
 
   void _replace(int index, MusicAlbumImage image) {
     final next = List<MusicAlbumImage>.of(_images)..[index] = image;
@@ -685,15 +677,16 @@ final class _PersonalImageRowState extends State<_PersonalImageRow> {
                     },
                   ),
                   const SizedBox(height: 8),
-                  LibraryEditTextField(
-                    controller: _description,
-                    label: 'Description',
-                    onChanged: (value) => widget.onChanged(
-                      widget.image.copyWith(
-                        description: _nullable(value),
-                      ),
-                    ),
-                  ),
+                  LibraryFormField(
+                      label: 'Description',
+                      child: LibraryTextFormControl(
+                        controller: _description,
+                        onChanged: (value) => widget.onChanged(
+                          widget.image.copyWith(
+                            description: _nullable(value),
+                          ),
+                        ),
+                      )),
                 ],
               ),
             ),

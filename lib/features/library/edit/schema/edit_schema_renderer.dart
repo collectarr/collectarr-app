@@ -49,6 +49,7 @@ class EditSchemaRenderer<TModel, TDraft> extends StatefulWidget {
     int initialTabIndex = 0,
     bool showTabBar = true,
     bool showFooter = true,
+    bool fillAvailableHeight = false,
     bool tabNavigationEnabled = true,
     Color? tabAccent,
     String? tabOrderKey,
@@ -67,6 +68,7 @@ class EditSchemaRenderer<TModel, TDraft> extends StatefulWidget {
         initialTabIndex: initialTabIndex,
         showTabBar: showTabBar,
         showFooter: showFooter,
+        fillAvailableHeight: fillAvailableHeight,
         tabNavigationEnabled: tabNavigationEnabled,
         tabAccent: tabAccent,
         tabOrderKey: tabOrderKey,
@@ -90,7 +92,8 @@ class EditSchemaRenderer<TModel, TDraft> extends StatefulWidget {
     this.mediaKind,
   })  : onSave = null,
         onCancel = null,
-        showFooter = false;
+        showFooter = false,
+        fillAvailableHeight = false;
 
   const EditSchemaRenderer._({
     super.key,
@@ -104,6 +107,7 @@ class EditSchemaRenderer<TModel, TDraft> extends StatefulWidget {
     required this.initialTabIndex,
     required this.showTabBar,
     required this.showFooter,
+    required this.fillAvailableHeight,
     required this.tabNavigationEnabled,
     required this.tabAccent,
     required this.tabOrderKey,
@@ -121,6 +125,7 @@ class EditSchemaRenderer<TModel, TDraft> extends StatefulWidget {
   final int initialTabIndex;
   final bool showTabBar;
   final bool showFooter;
+  final bool fillAvailableHeight;
   final bool tabNavigationEnabled;
   final Color? tabAccent;
   final String? tabOrderKey;
@@ -404,33 +409,48 @@ class EditSchemaRendererState<TModel, TDraft>
           ],
           if (widget.showTabBar)
             _buildTabBar(context, visibleTabIndexes, selectedIndex),
-          ConstrainedBox(
-            constraints: const BoxConstraints(maxHeight: 720),
-            child: ListView(
-              shrinkWrap: true,
-              padding: EdgeInsets.zero,
-              children: [
-                if (!widget.showFooter)
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(16, 14, 16, 10),
-                    child: _buildFeedback(context),
-                  ),
-                EditTabShell(
-                  scrollable: false,
-                  children: [
-                    _buildSelectedContent(
-                      context,
-                      visibleTabIndexes,
-                      selectedIndex,
-                    ),
-                  ],
-                ),
-              ],
+          if (widget.fillAvailableHeight)
+            Flexible(
+              fit: FlexFit.loose,
+              child: _contentList(context, visibleTabIndexes, selectedIndex),
+            )
+          else
+            ConstrainedBox(
+              constraints: const BoxConstraints(maxHeight: 720),
+              child: _contentList(context, visibleTabIndexes, selectedIndex),
             ),
-          ),
           if (widget.showFooter) _buildFooter(context),
         ],
       ),
+    );
+  }
+
+  Widget _contentList(
+    BuildContext context,
+    List<int> visibleTabIndexes,
+    int selectedIndex,
+  ) {
+    return ListView(
+      shrinkWrap: true,
+      padding: EdgeInsets.zero,
+      children: [
+        if (!widget.showFooter &&
+            (_validationError != null || _saveError != null))
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 14, 16, 10),
+            child: _buildFeedback(context),
+          ),
+        EditTabShell(
+          scrollable: false,
+          children: [
+            _buildSelectedContent(
+              context,
+              visibleTabIndexes,
+              selectedIndex,
+            ),
+          ],
+        ),
+      ],
     );
   }
 
