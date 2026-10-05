@@ -872,7 +872,7 @@ class _GroupModeFavoritesDialogState extends State<_GroupModeFavoritesDialog> {
   @override
   Widget build(BuildContext context) {
     final availableHeight = MediaQuery.sizeOf(context).height - 60;
-    final listHeight = 167.0 + _favoritePresets.length * 49;
+    final listHeight = (167.0 + _favoritePresets.length * 49).clamp(200.0, double.infinity);
     return Dialog(
       alignment: Alignment.topCenter,
       insetPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 30),
@@ -1078,7 +1078,15 @@ class _GroupModeFavoritesDialogState extends State<_GroupModeFavoritesDialog> {
           color: _insetColor(context),
           borderRadius: BorderRadius.circular(4),
         ),
-        child: LibraryFolderReorderList(
+        child: _draftModes.isEmpty
+            ? Center(
+                child: Text(
+                  'Select one or more fields',
+                  style: _fieldStyle.copyWith(
+                      color: libraryToolbarMenuMutedText(context)),
+                ),
+              )
+            : LibraryFolderReorderList(
           padding: const EdgeInsets.all(10),
           placeholderColor: const Color(0xff808080),
           itemCount: _draftModes.length,

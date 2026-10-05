@@ -93,22 +93,7 @@ class LibrarySidebarHeader extends StatelessWidget {
           isPickList: true,
           onPressed: manageBuckets,
         ),
-      if (onFolderDisplayModeChanged != null)
-        _LibrarySidebarToolbarButton(
-          tooltip: folderDisplayMode == LibraryFolderDisplayMode.drilldown
-              ? 'Switch to tree view'
-              : 'Switch to drilldown view',
-          icon: folderDisplayMode == LibraryFolderDisplayMode.drilldown
-              ? Icons.account_tree_outlined
-              : Icons.segment_outlined,
-          onPressed: () => onFolderDisplayModeChanged!(
-            folderDisplayMode == LibraryFolderDisplayMode.drilldown
-                ? LibraryFolderDisplayMode.tree
-                : LibraryFolderDisplayMode.drilldown,
-          ),
-          active: folderDisplayMode == LibraryFolderDisplayMode.tree,
-          activeColor: accent,
-        ),
+
       if (navigateBack != null || (!isRootScope && clearFilter != null))
         _LibrarySidebarToolbarButton(
           tooltip: navigateBack != null

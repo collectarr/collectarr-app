@@ -390,7 +390,10 @@ class _LibraryBucketSidebarState extends ConsumerState<LibraryBucketSidebar> {
             onToggleSort: _toggleSortMode,
           ),
           Expanded(
-            child: widget.folderDisplayMode == LibraryFolderDisplayMode.tree
+            child: ((widget.folderPreset != null &&
+                        widget.folderPreset!.modes.length > 1 &&
+                        widget.treeRoots.isNotEmpty) ||
+                    widget.folderDisplayMode == LibraryFolderDisplayMode.tree)
                 ? _FolderTreePane(
                     roots: _filteredSortedTree(widget.treeRoots),
                     countWidth: countWidth,

@@ -90,6 +90,9 @@ extension _PageSidebarHooks on GenericLibraryPageState {
     _mutateState(() {
       _session.preferences.folderPreset = sanitized;
       _session.preferences.groupMode = sanitized.primaryMode;
+      _session.preferences.folderDisplayMode = sanitized.modes.length > 1
+          ? LibraryFolderDisplayMode.tree
+          : LibraryFolderDisplayMode.drilldown;
       if (_session.preferences.groupMode == null ||
           !libraryGroupModeSupportsCompletion(
               widget.type, _session.preferences.groupMode!)) {

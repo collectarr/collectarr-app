@@ -184,7 +184,9 @@ abstract final class _LibraryPageLifecycleControllerOps {
     state._session.preferences.groupMode =
         state._session.preferences.folderPreset?.primaryMode;
     state._session.preferences.folderDisplayMode =
-        LibraryFolderDisplayMode.drilldown;
+        (state._session.preferences.folderPreset?.modes.length ?? 0) > 1
+            ? LibraryFolderDisplayMode.tree
+            : LibraryFolderDisplayMode.drilldown;
     state._session.preferences.folderTreeExpandedNodeIds = const <String>{};
     state._session.preferences.folderTreeSelectedNodeId = null;
     state._session.preferences.groupPresentationOverride = null;
@@ -242,7 +244,9 @@ abstract final class _LibraryPageLifecycleControllerOps {
       state._session.preferences.savedColumnFavoritePresets = const [];
       state._session.preferences.scopeHistory = const [];
       state._session.preferences.folderDisplayMode =
-          LibraryFolderDisplayMode.drilldown;
+          (state._session.preferences.folderPreset?.modes.length ?? 0) > 1
+              ? LibraryFolderDisplayMode.tree
+              : LibraryFolderDisplayMode.drilldown;
       state._session.preferences.folderTreeExpandedNodeIds = const <String>{};
       state._session.preferences.folderTreeSelectedNodeId = null;
       state._session.preferences.groupPresentationOverride = null;

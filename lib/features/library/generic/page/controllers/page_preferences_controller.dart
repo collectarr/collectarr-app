@@ -78,7 +78,10 @@ abstract final class LibraryPagePreferencesControllerOps {
       }
       state._mutateState(() {
         state._session.preferences.folderDisplayMode =
-            displayMode ?? LibraryFolderDisplayMode.drilldown;
+            displayMode ??
+                (preset.modes.length > 1
+                    ? LibraryFolderDisplayMode.tree
+                    : LibraryFolderDisplayMode.drilldown);
         state._session.preferences.folderTreeExpandedNodeIds = expandedNodeIds;
         state._session.preferences.folderTreeSelectedNodeId = selectedNodeId;
         state._session.preferences.groupPresentationOverride =
