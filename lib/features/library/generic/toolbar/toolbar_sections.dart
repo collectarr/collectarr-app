@@ -218,14 +218,6 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
                               onChanged: onViewModeChanged,
                               iconOnly: true,
                             ),
-                            if (groupPresentation != null &&
-                                onGroupPresentationChanged != null) ...[
-                              const _LibraryDesktopToolbarSeparator(),
-                              LibraryGroupPresentationToggle(
-                                groupPresentation: groupPresentation!,
-                                onChanged: onGroupPresentationChanged!,
-                              ),
-                            ],
                             if (viewState.detailsLayout ==
                                 LibraryDetailsLayout.hidden) ...[
                               const _LibraryDesktopToolbarSeparator(),
@@ -1108,12 +1100,6 @@ class LibraryCompactToolbarContent extends StatelessWidget {
                       LibraryToolbarScopeChip(
                         label: selectedBucket!,
                         onClear: onClearBucket,
-                      ),
-                    if (groupPresentation != null &&
-                        onGroupPresentationChanged != null)
-                      LibraryGroupPresentationToggle(
-                        groupPresentation: groupPresentation!,
-                        onChanged: onGroupPresentationChanged!,
                       ),
                     LibraryItemCountLabel(
                       shown: counts.shown,

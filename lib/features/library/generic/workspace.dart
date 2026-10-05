@@ -9,7 +9,6 @@ import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/selection/library_selection_state.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_tile.dart';
 import 'package:collectarr_app/features/library/workspace/layout/library_flow_carousel.dart';
-import 'package:collectarr_app/features/library/workspace/layout/library_grouped_shelf_view.dart';
 import 'package:collectarr_app/features/library/workspace/layout/library_shelf_view.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_workspace_card.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
@@ -17,7 +16,6 @@ import 'package:collectarr_app/features/library/workspace/config/library_workspa
 import 'package:collectarr_app/features/library/workspace/layout/library_workspace_grid.dart';
 import 'package:collectarr_app/features/library/workspace/table/library_workspace_table.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_view_state.dart';
-import 'package:collectarr_app/features/library/workspace/schema/library_identifier_types.dart';
 import 'package:collectarr_app/features/settings/ui_preferences.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -98,18 +96,6 @@ class LibraryWorkspace extends ConsumerWidget {
   final void Function(String column, String? beforeColumn) onColumnReordered;
   final LibraryItemContextMenuCallback? onItemContextMenu;
   final int? initialCrossAxisCount;
-
-  bool get _showGrouped =>
-      viewState.viewMode != LibraryViewMode.horizontalCards &&
-      viewState.viewMode != LibraryViewMode.cardFlow &&
-      viewState.viewMode != LibraryViewMode.shelves &&
-      selectedBucket == null &&
-      (() {
-        final workspace = libraryKindWorkspaceForKind(type.kind);
-        final semantic = workspace.fields.decodeGroupId(groupMode).semantic;
-        return semantic != LibraryGroupSemantic.title &&
-            semantic != LibraryGroupSemantic.entries;
-      })();
 
   bool _isActive(LibraryProjectionItem item) => item.target.id == selectedId;
 
@@ -193,35 +179,7 @@ class LibraryWorkspace extends ConsumerWidget {
       type: type,
       coverSize: viewState.coverSize,
     );
-    if (_showGrouped && items.isNotEmpty) {
-      final groups = libraryGroupEntriesForItems(
-        items,
-        type,
-        groupMode,
-        presentationOverride: groupPresentation,
-      );
-      return LibraryGroupedShelfView(
-        type: type,
-        groups: groups,
-        viewState: viewState,
-        selectedId: selectedId,
-        selectionEnabled: selectionEnabled,
-        selectedIds: selectedIds,
-        accent: accent,
-        onSelectGroupBucket: onBucketChanged,
-        collapsedGroupBuckets: collapsedGroupBuckets,
-        onGroupBucketCollapsedToggled: onGroupBucketCollapsedToggled,
-        onSetCollapsedGroupBuckets: onSetCollapsedGroupBuckets,
-        onOpenGroupDetails: (group) => onOpenItem(group.representativeItem),
-        onTapItem: (item) => _selectionTap(item)(),
-        onToggleSelectionItem: onToggleSelectionItem,
-        onOpenItem: onOpenItem,
-        onEditItem: onEditItem,
-        emptyBuilder: _emptyBuilder,
-        onItemContextMenu: onItemContextMenu,
-        onBoxSelectionChanged: onBoxSelectionChanged,
-      );
-    }
+
     return switch (viewState.viewMode) {
       LibraryViewMode.grid => LibraryWorkspaceGrid<LibraryProjectionItem>(
           items: items,
