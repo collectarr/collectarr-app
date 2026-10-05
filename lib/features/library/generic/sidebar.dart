@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/workspace/layout/library_folder_row.dart';
 import 'package:collectarr_app/features/library/generic/view_preference_store.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
@@ -108,8 +109,8 @@ class LibrarySidebar extends StatelessWidget {
       selectedBucket: selectedBucket,
       onSelectBucket: onSelected,
       accentColor: accent,
-      selectionColor: accent.withValues(alpha: 0.42),
-      backgroundColor: appPalette(context).panel,
+      selectionColor: accent,
+      backgroundColor: libraryFolderDepthColor(context, 0),
       headerColor: appPalette(context).surface,
       dividerColor: appPalette(context).divider,
       selectedBadgeColor: appPalette(context).highlight,

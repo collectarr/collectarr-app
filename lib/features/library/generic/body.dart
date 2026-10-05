@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:math' as math;
 
+import 'package:collectarr_app/features/library/workspace/layout/library_folder_row.dart';
+
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
@@ -55,19 +57,24 @@ double resolveLibrarySidebarMinWidth(
   BuildContext context, {
   required String selectedBucketLabel,
   required int ancestorScopeDepth,
+  Iterable<int> counts = const [],
 }) {
-  final labelStyle = Theme.of(context).textTheme.bodySmall?.copyWith(
-            fontWeight: FontWeight.w700,
-          ) ??
-      const TextStyle(fontSize: 12, fontWeight: FontWeight.w700);
+  final labelStyle = libraryFolderTextStyle(context);
   final textPainter = TextPainter(
     text: TextSpan(text: selectedBucketLabel, style: labelStyle),
     maxLines: 1,
     textDirection: Directionality.of(context),
+    textScaler: MediaQuery.textScalerOf(context),
   )..layout();
   final leadingInset =
       ancestorScopeDepth == 0 ? 0.0 : 14.0 + ancestorScopeDepth * 12.0;
-  final rowWidth = 6.0 + leadingInset + 20.0 + 6.0 + textPainter.width + 8.0;
+  final rowWidth = 5.0 +
+      leadingInset +
+      libraryFolderCountWidth(context, counts) +
+      4.0 +
+      textPainter.width +
+      5.0;
+  textPainter.dispose();
   return rowWidth
       .clamp(kLibrarySidebarMinWidth, kLibraryPaneStoredMaxWidth)
       .toDouble();
@@ -258,6 +265,7 @@ class LibraryBody extends StatelessWidget {
           context,
           selectedBucketLabel: resolvedSelectedBucket,
           ancestorScopeDepth: sidebarAncestorScopeLabels.length,
+          counts: projection.buckets.map((bucket) => bucket.count),
         );
         final registration = type;
         final detailsLayout = resolveEffectiveLibraryDetailsLayout(

@@ -88,8 +88,6 @@ class LibraryFolderTreeBuilder {
         index: index,
       );
       final id = libraryFolderTreeNodeId(modes: modes, buckets: nextPath);
-      final descendantSelected =
-          selectedNodeId != null && selectedNodeId.startsWith('$id|');
       children.add(
         LibraryFolderTreeNode(
           id: id,
@@ -99,9 +97,7 @@ class LibraryFolderTreeBuilder {
           groupMode: groupMode,
           bucketValue: bucket.title,
           children: subtree,
-          isExpanded: expandedNodeIds.contains(id) ||
-              descendantSelected ||
-              (subtree.isNotEmpty && subtree.any((node) => node.isExpanded)),
+          isExpanded: expandedNodeIds.contains(id),
         ),
       );
     }

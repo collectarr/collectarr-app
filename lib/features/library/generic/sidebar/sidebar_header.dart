@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/workspace/layout/library_folder_row.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
 import 'package:collectarr_app/features/library/generic/library_group_mode_menu.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
@@ -82,6 +83,14 @@ class LibrarySidebarHeader extends StatelessWidget {
     final clearFilter = onClearFilter;
     final hideSidebar = onHideSidebar;
     final actions = <_LibrarySidebarToolbarButton>[
+      if (manageBuckets != null &&
+          libraryGroupModeSupportsBucketManagement(type, groupMode))
+        _LibrarySidebarToolbarButton(
+          tooltip:
+              'Manage ${genericGroupModeSidebarTitle(groupMode, type).toLowerCase()}',
+          icon: Icons.format_list_bulleted,
+          onPressed: manageBuckets,
+        ),
       if (onFolderDisplayModeChanged != null)
         _LibrarySidebarToolbarButton(
           tooltip: folderDisplayMode == LibraryFolderDisplayMode.drilldown
@@ -97,14 +106,6 @@ class LibrarySidebarHeader extends StatelessWidget {
           ),
           active: folderDisplayMode == LibraryFolderDisplayMode.tree,
           activeColor: accent,
-        ),
-      if (manageBuckets != null &&
-          libraryGroupModeSupportsBucketManagement(type, groupMode))
-        _LibrarySidebarToolbarButton(
-          tooltip:
-              'Manage ${genericGroupModeSidebarTitle(groupMode, type).toLowerCase()}',
-          icon: Icons.edit_outlined,
-          onPressed: manageBuckets,
         ),
       if (navigateBack != null || (!isRootScope && clearFilter != null))
         _LibrarySidebarToolbarButton(
@@ -126,11 +127,11 @@ class LibrarySidebarHeader extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 4),
       decoration: BoxDecoration(
-        color: palette.surface,
+        color: libraryFolderDepthColor(context, 0),
         border: Border(bottom: BorderSide(color: palette.divider)),
       ),
       child: SizedBox(
-        height: kLibraryToolbarBandHeight,
+        height: kLibraryToolbarBandHeight - 1,
         child: LayoutBuilder(
           builder: (context, constraints) {
             final width = constraints.maxWidth;
@@ -144,14 +145,18 @@ class LibrarySidebarHeader extends StatelessWidget {
             final loadingWidth = groupLoading && width >= 140 ? 22.0 : 0.0;
             final available = width - selectorWidth - loadingWidth;
             final slots = (available / 34).floor().clamp(0, actions.length);
-            final overflow = slots < actions.length;
+            final primaryCount = manageBuckets != null &&
+                    libraryGroupModeSupportsBucketManagement(type, groupMode)
+                ? 1
+                : 0;
+            final overflow =
+                actions.length > primaryCount || slots < actions.length;
             final visibleCount =
-                overflow ? (slots - 1).clamp(0, actions.length) : slots;
+                overflow ? (slots - 1).clamp(0, primaryCount) : slots;
             final hiddenActions = actions.skip(visibleCount).toList();
             final selector = DecoratedBox(
               decoration: BoxDecoration(
-                color: palette.surface,
-                border: Border.all(color: palette.divider),
+                color: libraryFolderDepthColor(context, 0),
                 borderRadius: BorderRadius.circular(2),
               ),
               child: Padding(
