@@ -166,19 +166,23 @@ Map<String, dynamic> _candidateDisc(
       for (var trackIndex = 0; trackIndex < tracks.length; trackIndex++)
         {
           'id': tracks[trackIndex].id,
-          'position': tracks[trackIndex].position.isEmpty
-              ? '${trackIndex + 1}'
-              : tracks[trackIndex].position,
+          'position': tracks[trackIndex].isHeader
+              ? ''
+              : tracks[trackIndex].position.isEmpty
+                  ? '${trackIndex + 1}'
+                  : tracks[trackIndex].position,
           'position_order': trackIndex + 1,
           'is_header': tracks[trackIndex].isHeader,
           'indent_level': tracks[trackIndex].indentLevel,
           if (tracks[trackIndex].parentHeaderId != null)
             'parent_header_id': tracks[trackIndex].parentHeaderId,
           'title': tracks[trackIndex].title.trim(),
-          if (tracks[trackIndex].artist.trim().isNotEmpty)
+          if (!tracks[trackIndex].isHeader &&
+              tracks[trackIndex].artist.trim().isNotEmpty)
             'artist': tracks[trackIndex].artist.trim(),
-          if (tracks[trackIndex].durationMs case final durationMs?)
-            'duration_ms': durationMs,
+          if (!tracks[trackIndex].isHeader)
+            if (tracks[trackIndex].durationMs case final durationMs?)
+              'duration_ms': durationMs,
         },
     ],
   };

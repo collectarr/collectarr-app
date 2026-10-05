@@ -110,8 +110,7 @@ final class MusicCatalogMapper {
                 'matrix_number_side_b': disc.matrixNumberSideB,
               'tracks': [
                 for (var index = 0; index < disc.tracks.length; index++)
-                  if (!disc.tracks[index].isHeader)
-                    _trackToCatalogData(disc.tracks[index], index),
+                  _trackToCatalogData(disc.tracks[index], index),
               ],
             },
         ],
@@ -129,11 +128,15 @@ final class MusicCatalogMapper {
       {
         'id': track.id.value,
         'position': track.position,
-        'position_order':
-            track.positionOrder ?? int.tryParse(track.position) ?? index + 1,
+        'position_order': index + 1,
         'title': track.title,
-        if (track.artist != null) 'artist': track.artist,
-        if (track.durationMs != null) 'duration_ms': track.durationMs,
+        'is_header': track.isHeader,
+        'indent_level': track.indentLevel,
+        if (track.parentHeaderId != null)
+          'parent_header_id': track.parentHeaderId,
+        if (!track.isHeader && track.artist != null) 'artist': track.artist,
+        if (!track.isHeader && track.durationMs != null)
+          'duration_ms': track.durationMs,
       };
 
   static MusicAlbum mapDtoToMusic(CatalogItemDto dto) =>

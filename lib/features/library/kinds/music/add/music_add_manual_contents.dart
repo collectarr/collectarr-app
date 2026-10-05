@@ -1,3 +1,4 @@
+import 'package:uuid/uuid.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_track_duration.dart';
 
 /// Editable, kind-entry child values for a manual Music Catalog Item.
@@ -31,7 +32,7 @@ final class MusicAddManualDisc {
     this.matrixNumberSideA = '',
     this.matrixNumberSideB = '',
     List<MusicAddManualTrack> tracks = const [],
-  })  : id = id ?? _nextId('disc'),
+  })  : id = id ?? const Uuid().v4(),
         tracks = List.of(tracks);
 
   final String id;
@@ -41,6 +42,7 @@ final class MusicAddManualDisc {
   final List<MusicAddManualTrack> tracks;
 
   Map<String, Object?> toProposalData(int discNumber) => {
+        'id': id,
         'disc_number': discNumber,
         if (title.trim().isNotEmpty) 'title': title.trim(),
         if (matrixNumberSideA.trim().isNotEmpty)
@@ -48,10 +50,8 @@ final class MusicAddManualDisc {
         if (matrixNumberSideB.trim().isNotEmpty)
           'matrix_number_side_b': matrixNumberSideB.trim(),
         'tracks': [
-          for (final (index, track) in tracks
-              .where(
-                  (track) => !track.isHeader && track.title.trim().isNotEmpty)
-              .indexed)
+          for (final (index, track)
+              in tracks.where((track) => track.title.trim().isNotEmpty).indexed)
             track.toProposalData(index + 1),
         ],
       };
@@ -67,7 +67,7 @@ final class MusicAddManualTrack {
     this.title = '',
     this.artist = '',
     this.duration = '',
-  }) : id = id ?? _nextId('track');
+  }) : id = id ?? const Uuid().v4();
 
   final String id;
   String title;
@@ -79,12 +79,21 @@ final class MusicAddManualTrack {
   String? parentHeaderId;
 
   Map<String, Object?> toProposalData(int positionOrder) => {
-        'position':
-            position.trim().isEmpty ? '$positionOrder' : position.trim(),
+        'id': id,
+        'position': isHeader
+            ? ''
+            : position.trim().isEmpty
+                ? '$positionOrder'
+                : position.trim(),
+        'position_order': positionOrder,
         'title': title.trim(),
-        if (artist.trim().isNotEmpty) 'artist': artist.trim(),
-        if (parseMusicTrackDurationMs(duration) case final durationMs?)
-          'duration_ms': durationMs,
+        'is_header': isHeader,
+        'indent_level': indentLevel,
+        if (parentHeaderId != null) 'parent_header_id': parentHeaderId,
+        if (!isHeader && artist.trim().isNotEmpty) 'artist': artist.trim(),
+        if (!isHeader)
+          if (parseMusicTrackDurationMs(duration) case final durationMs?)
+            'duration_ms': durationMs,
       };
 
   int? get durationMs => parseMusicTrackDurationMs(duration);

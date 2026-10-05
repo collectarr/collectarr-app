@@ -156,7 +156,10 @@ String _discText(Map<String, dynamic>? value) {
   final title = _text(value['title']);
   final tracks = _maps(value['tracks']);
   if (title != null) lines.add('Title: $title');
-  lines.add('Tracks: ${tracks.length}');
+  lines.add(
+      'Tracks: ${tracks.where((track) => track['is_header'] != true).length}');
+  final headers = tracks.where((track) => track['is_header'] == true).length;
+  if (headers > 0) lines.add('Sections: $headers');
   return lines.join('\n');
 }
 
@@ -172,7 +175,11 @@ int _trackCount(Map<String, dynamic> group) {
   final discs = _discs(group);
   return discs.fold<int>(
     0,
-    (total, disc) => total + _maps(disc['tracks']).length,
+    (total, disc) =>
+        total +
+        _maps(disc['tracks'])
+            .where((track) => track['is_header'] != true)
+            .length,
   );
 }
 

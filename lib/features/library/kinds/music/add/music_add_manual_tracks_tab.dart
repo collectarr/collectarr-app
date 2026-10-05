@@ -7,7 +7,6 @@ import 'package:collectarr_app/features/library/kinds/music/domain/music_disc.da
 import 'package:collectarr_app/features/library/kinds/music/domain/music_track.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_ids.dart';
 import 'package:collectarr_app/core/models/catalog_item_ref.dart';
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit/music_album_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit/music_album_structure_tabs.dart';
 import 'package:collectarr_app/features/library/kinds/music/entries/music_entry_details.dart';
@@ -54,9 +53,11 @@ class _MusicAddManualTracksTabState extends State<MusicAddManualTracksTab> {
                 for (final (trackIndex, track) in disc.tracks.indexed)
                   MusicTrack(
                     id: MusicTrackId(track.id),
-                    position: track.position.isEmpty
-                        ? '${trackIndex + 1}'
-                        : track.position,
+                    position: track.isHeader
+                        ? ''
+                        : track.position.isEmpty
+                            ? '${trackIndex + 1}'
+                            : track.position,
                     title: track.title,
                     artist: track.artist,
                     durationMs: track.durationMs,

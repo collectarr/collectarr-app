@@ -1,3 +1,4 @@
+import 'package:uuid/uuid.dart';
 import 'package:collectarr_app/features/library/kinds/music/forms/music_title_formatting.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_external_link.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_disc.dart';
@@ -76,10 +77,7 @@ final class MusicAlbumEditDraft {
         1;
     discs.add(
       MusicDisc(
-        id: MusicDiscId(
-          '${original.id?.id ?? 'music-draft'}:disc:'
-          '${DateTime.now().microsecondsSinceEpoch}',
-        ),
+        id: MusicDiscId(const Uuid().v4()),
         discNumber: nextNumber,
         tracks: const [],
       ),
@@ -174,9 +172,7 @@ final class MusicAlbumEditDraft {
       }
     }
     final track = MusicTrack(
-      id: MusicTrackId(
-        '${disc.id.value}:track:${DateTime.now().microsecondsSinceEpoch}',
-      ),
+      id: MusicTrackId(const Uuid().v4()),
       position: header ? '' : nextPosition.toString(),
       title: header ? 'New section' : 'New track',
       isHeader: header,
