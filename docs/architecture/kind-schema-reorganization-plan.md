@@ -1,10 +1,9 @@
 # Kind Form and Workspace Schema Reorganization Plan
 
 > Historical plan: this Work/Release schema organization has been superseded by
-> the flattened Catalog Item + Collection Item cutover. Use the current status and
-> field ledgers for implementation decisions. The eight non-Music kinds still
-> have Work/Release consumers being migrated; Music no longer follows this
-> plan's split scopes.
+> the flattened Catalog Item + local entry cutover. The old scope tables and
+> progress notes below describe the 2026-09 snapshot only; they do not describe
+> active App architecture. Use current status and field ledgers for decisions.
 
 ## Goal and boundaries
 
@@ -103,7 +102,7 @@ Book, Game, Board Game, Comic, Manga, Movie, TV, and Anime each now define Work,
 
 ### 5. Complete Add/Edit forms for the remaining kinds — complete
 
-All nine kinds have typed catalog form values, kind-owned field specs, and adapters used by Add and dedicated Edit. The eight non-Music kinds still have Work/Release paths being replaced by the flattened catalog plan. Music uses one flat Catalog Item form; tracks, credits, and discs remain kind-owned contained data rather than generic scalar fields.
+At the 2026-09 snapshot, all nine kinds had typed catalog form values and kind-owned field specs. The eight non-Music kinds still had Work/Release paths at that time. This historical state was superseded by the flattened Catalog Item implementation; Music's tracks, credits, and discs remain kind-owned contained data.
 
 ### 6. Remove superseded paths — complete
 

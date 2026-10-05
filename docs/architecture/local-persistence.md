@@ -48,10 +48,9 @@ Locations, folder definitions, and pick-list values are user-owned Sync
 entities. Kind-specific progress and repeated contents stay in their owning
 kind model.
 
-Some tracking summaries and storage adapters still carry a derived Catalog
-Item reference in addition to the required local entry identity. Treat the
-local `LibraryEntryRef` as authoritative; the derived value is transitional
-and must not imply a parent relationship.
+Tracking summaries use `LibraryEntryRef` as their only local owner. A Catalog
+Item reference appears only when an operation explicitly targets canonical
+catalog data, such as a wishlist item or optional source provenance.
 
 ## Kind-owned data
 

@@ -5,6 +5,13 @@ The working tree was clean at the final source snapshot, before this report was
 added. Earlier staged changes were committed during inspection. This report
 describes the current source, not the removed September v1 workspace.
 
+> Status note (2026-10-05): this is a historical audit, not the current list
+> of open findings. App has since removed the Work/Release reference types,
+> per-field workspace entity scopes, Anime/TV/Manga legacy projections, and
+> Music's redundant tracking lookup scope. It now declares a fresh Drift v1
+> baseline without upgrade or repair hooks. Core-side registry cleanup is
+> outside this App repository and is tracked in `current-status.md`.
+
 ## Scope and verification
 
 Inspected the App composition root, all nine kind registrations, catalog

@@ -4,8 +4,9 @@
 > Music-specific source paths and Release Group/Release scopes below are no
 > longer current. Use [the Music field ledger](music-catalog-field-inventory.md)
 > for Music decisions and [current status](current-status.md) for the active
-> architecture. The other eight kinds still use some Work/Release consumers
-> while their Catalog Item cutover proceeds.
+> architecture. All nine kinds have since moved to the flat Catalog Item and
+> local-entry model; the tables below are retained only as historical source
+> data, not as active schemas or remaining work.
 
 This inventory records the fields, identifiers, defaults, and persistence consumers inventoried before schema extraction. It is retained as a historical audit, not as an implementation plan.
 

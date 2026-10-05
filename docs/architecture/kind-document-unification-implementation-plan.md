@@ -1,5 +1,10 @@
 # Kind Document Unification — Implementation Plan
 
+> Status note (2026-10-05): this plan contains dated implementation snapshots.
+> For the current App state and remaining cross-repository limits, see
+> [`current-status.md`](current-status.md). Quantity remains supported where a
+> kind defines it, including Music.
+
 ## Objective and scope
 
 Apply the same document architecture to Music, Movies, TV, Anime, Books,
@@ -57,8 +62,8 @@ slice. This is progress, not completion of this plan:
   display order, vocabulary list, currency relationship, and enum options.
   The shared section no longer hardcodes universal field keys or switches on a
   kind. Music's `Signed By` vocabulary loading and persistence remain in its
-  edit module. The unsupported `Quantity` control was removed because quantity
-  is not part of any kind's personal-data model.
+  edit module. Keep `Quantity` where a kind defines it; Music quantity remains
+  personal data and is not reinterpreted as separate local entries.
 - Personal field registration no longer applies a global universal list. Each
   kind explicitly composes reusable common personal field specs with its own
   additions; the registry only combines those kind contributions.
@@ -380,25 +385,22 @@ slice. This is progress, not completion of this plan:
   by calendars and workspace projections are derived views; the canonical Core
   serializer still emits the date-only string and precision object.
 
-Still outstanding: replacing the universal `PersonalStateDraft` with
-kind-owned edit drafts/bindings and moving validation/serialization out of the
-shared personal editor; completing field, schema, and form ownership across
-all kinds; and auditing generic display projections and transport envelopes to
-remove any remaining duplicated kind semantics. Anime's workspace, lookup,
-catalog transport, manual Add,
-and episode hierarchy now use the flattened typed document. Its scalar Edit
-fields use the shared form registry, and its Cast/Crew tabs persist to the
-typed root document. Credit and user-link editing buffers remain kind-owned.
-TV workspace, manual Add, hierarchy,
-tracking, and Edit tabs now consume `TvMetadata` and its contained typed
-values; custom episodes and watch history remain separate local personal
-records.
-Manga's root map has been removed, but App/Core field ownership differences
-remain under review against its provisional ledger. Game's PriceCharting
-reference and valuation snapshots are owned by the local Game entry and remain
-outside the Core contract. The nine field ledgers remain authoritative, and
-exact CLZ parity is only confirmed for Music until the other reference captures
-are available.
+### Current App status — 2026-10-05
+
+The historical status blocks above are snapshots, not current completion
+claims. App has since removed the universal `PersonalStateDraft`, converted
+workspace projection callbacks to explicit `WorkspaceItem` and
+`PersonalOverlay` inputs, removed Anime/TV/Manga legacy hierarchy projections,
+and replaced scope-based Smart Lists with strict v2 criteria. Runtime
+navigation no longer uses Work/Release refs or `LibraryEntityScope`. Drift now
+declares a clean schema-v1 baseline without upgrade or repair hooks; no existing
+database or backup was opened, changed, or deleted.
+
+Remaining limits: exact CLZ parity is confirmed only for Music; Core-side
+registry simplification and catalog search/index work require the Core
+repository; atomicity still needs review for activity and auxiliary edit
+controls; and the final analyzer/build/tests are deferred until implementation
+work is complete. See `current-status.md` for the actively maintained summary.
 
 ## Architectural decisions
 

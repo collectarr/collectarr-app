@@ -2,6 +2,10 @@
 
 Date: 2026-10-02
 
+Historical snapshot: several findings below have since been addressed. Use
+[the October 4 full-editor comparison](music-full-editor-comparison-2026-10-04.md)
+for the current remaining differences and the newer `full_editor.mhtml` reference.
+
 ## Scope and evidence
 
 Reference: `C:\Users\saita\Desktop\tmp\My Albums - CLZ Music Web.html`, including its saved CSS and JavaScript assets. The saved editor contains all ten tab panels, not just the currently selected Details tab. The album in this file is **Lordi YLE TV2 Dokumentti / Lordi**.
@@ -183,11 +187,11 @@ A unified modal must bind personal disc fields to the selected Collection Item, 
 | Owner | `owner` | Copy Personal / Owner | Separate dialog; text rather than managed pick list |
 | My Rating (0 /10) | `rating` | Catalog Personal / Rating | App parses integer and clamps 0–5; CLZ range is 0–10 |
 | Notes | `notes` | Catalog Personal tracking notes AND Copy Personal personal notes | Two stores and meanings; choose intended binding explicitly |
-| Played History / total plays | History component | Not mounted in active Music Edit | `MusicCatalogListeningTab` exists but has no mounting reference; catalog Log listen action exists elsewhere |
-| Mark as listened | Button | Not in active Personal tab | Mount the catalog listening history/action in the editor |
+| Played History / total plays | History component | Music Inspector listening section | Listening history is available on the selected local entry; the unmounted edit-tab duplicate was removed |
+| Mark as listened | Button | Music Inspector listening section | Log, edit and delete actions operate on the local entry |
 | Collection Status | `status` | Copy Personal / Collection status | Plain text; no permanent strip or constrained status selector |
 | Index | `indexnr` | Copy Personal / Index | No permanent strip |
-| Quantity | `quantity` | No Music editor control | Reconcile with multiple independently stored copies; do not invent a shared catalog quantity |
+| Quantity | `quantity` | Local entry status strip | Retained as an editable positive integer on the local entry |
 | Location | `location` | Copy Personal / Location | Text/ID input rather than managed picker; no permanent strip |
 
 App additionally shows listening Status, Copy type, Grade, Currency code and Sale details. CLZ has sale-related collection states in its status menu, but this saved Personal panel does not expose the App's Sold at/Sell price/Sold to fields.

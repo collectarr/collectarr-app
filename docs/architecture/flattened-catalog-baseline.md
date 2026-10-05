@@ -9,6 +9,11 @@ in a user's library. The local `LibraryEntryRecord` contains kind-specific
 `source_catalog_ref` records provenance only and does not make the local record
 a child of a Core item.
 
+The local entry is the independently editable unit and may be duplicated with a
+new local ID. Keep the existing `quantity` value where a kind uses it (Music
+currently does); it is personal data and must not be removed or silently
+reinterpreted as separate local records.
+
 Repeated information such as Music discs and tracks, credits, TV seasons, or
 episodes remains contained kind data. It does not create an editable Work or
 Release identity. Personal state and kind metadata are both editable on the
@@ -45,25 +50,23 @@ stored in Sync.
 
 Watch sessions and tracking records belong to a local entry; kind-specific
 season/episode/chapter coordinates are part of their payload. Wishlist may
-refer to a Core Catalog Item before a local entry has been created. A few
-tracking storage projections still retain a derived Catalog Item ref beside
-the local entry key; this is redundant internal state scheduled for removal,
-not a second owner identity.
+refer to a Core Catalog Item before a local entry has been created. Core
+provenance and personal activity ownership remain separate references.
 
 ## Database baseline and fresh setup
 
-App supports Drift schema version `1` without an upgrade chain. Native builds
-create `collectarr-library.sqlite` in the application's documents directory;
-web uses `collectarr-library-sqlite3`. Core schema v1 must be created from an
-empty PostgreSQL database. Sync protocol/schema v1 must use an empty Sync
-database path. Old App, Core, Sync, CSV, and backup data are not migrated by
-this cutover.
+The App source defines Drift schema version `1` with `onCreate` only. It has no
+upgrade chain or external-links repair path. Native builds use
+`collectarr-library.sqlite` in the application's documents directory; web uses
+`collectarr-library-sqlite3`. The App baseline is intentionally incompatible
+with previous database and backup formats.
 
-For development, stop all three services, retain the old files outside their
-active data directories, and configure fresh empty paths/profiles for the v1
-instances. Do not delete or overwrite existing user data as part of
-implementation. The App can use the normal platform documents directory when
-it is already empty; otherwise select a fresh app data profile.
+For development, stop all three services and start App against an empty
+application data directory. Keep existing database and backup files untouched;
+choose a separate empty profile if the normal documents directory contains an
+older App database. Core and Sync also require fresh empty database paths for
+their respective v1 baselines. No live database has been reset or deleted by
+this implementation.
 
 ## Field decisions and limits
 
