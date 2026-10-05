@@ -57,7 +57,7 @@ abstract final class LibraryPageNumberNavigationControllerOps {
       state._searchController.clear();
     });
     state._searchControllerOps.clearSearch();
-    state._selectItem(match.node.id);
+    state._selectItem(match.target.id);
   }
 
   static LibraryProjectionItem? _matchNumberInProjection(
@@ -89,7 +89,7 @@ abstract final class LibraryPageNumberNavigationControllerOps {
           state.widget.type, state._activeGroupMode)) {
         return false;
       }
-      if (item.node.scope != LibraryEntityScope.catalogItem) {
+      if (item.target is! CatalogTargetRef) {
         return false;
       }
       return true;

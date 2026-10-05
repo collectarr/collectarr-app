@@ -1,17 +1,15 @@
 import 'dart:async';
 
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/loan.dart';
 import 'package:collectarr_app/core/models/library_entry_projection.dart';
-import 'package:collectarr_app/features/catalog/catalog_display_summary_repository.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/pick_lists/widgets/pick_list_editor_dialog.dart';
 import 'package:collectarr_app/features/pick_lists/pick_list_options.dart';
 import 'package:collectarr_app/features/collection/repositories/loan_repository.dart';
 import 'package:collectarr_app/features/library/entries/library_entries_repository.dart';
+import 'package:collectarr_app/features/library/kinds/registry/catalog_workspace_data_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/reading_queue_repository.dart';
-import 'package:collectarr_app/features/library/entries/library_entries_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/add/library_add_launcher.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_target.dart';
@@ -26,9 +24,8 @@ import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/generic/reading_queue_dialog.dart';
 import 'package:collectarr_app/features/library/generic/smart_lists_dialog.dart';
 import 'package:collectarr_app/features/library/generic/sort_dialog.dart';
-import 'package:collectarr_app/core/models/smart_list.dart';
+import 'package:collectarr_app/core/models/smart_list_criteria.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
 import 'package:collectarr_app/features/library/generic/toolbar/toolbar_auxiliary_controls.dart';
 import 'package:collectarr_app/features/library/generic/transfer_field_data_dialog.dart';
 import 'package:collectarr_app/features/library/generic/transferable_field.dart';
@@ -50,7 +47,7 @@ class LibraryPageDialogCoordinator {
     final source = item.source;
     final value = source.libraryEntryDispatch;
     final ref = source.libraryEntryRef;
-    final catalogRef = source.catalogRef;
+    final catalogRef = source.sourceCatalogRef;
     if (value == null || ref == null || catalogRef == null) {
       return null;
     }
@@ -102,10 +99,7 @@ class LibraryPageDialogCoordinator {
         if (entry.itemId != catalogItemId || !entry.isEntry) continue;
         final libraryEntryRef = entry.libraryEntryRef;
         if (libraryEntryRef != null) {
-          selectedEntryId = LibraryCatalogItemNodeRef(
-            catalogItemId: catalogItemId,
-            libraryEntryRef: libraryEntryRef,
-          ).id;
+          selectedEntryId = libraryEntryRef.id.value;
         }
         break;
       }
@@ -208,9 +202,7 @@ class LibraryPageDialogCoordinator {
       currentSortAscending: _page.viewState?.sortAscending,
       currentSearchQuery:
           _page.searchQuery.isNotEmpty ? _page.searchQuery : null,
-      currentEntityType: _page.activeEntityScope == LibraryEntityScope.libraryEntry
-          ? SmartListEntityType.libraryEntry
-          : SmartListEntityType.catalogItem,
+      currentTarget: SmartListCriteriaTarget.catalog,
       customFieldDefinitions: customFieldCache.definitions,
     );
     if (result != null && _page.mounted && context.mounted) {
@@ -224,24 +216,21 @@ class LibraryPageDialogCoordinator {
         }
         final viewState = _page.viewState;
         if (viewState != null) {
-          final entityType = result.entityType ??
-              (_page.activeEntityScope == LibraryEntityScope.libraryEntry
-                  ? SmartListEntityType.libraryEntry
-                  : SmartListEntityType.catalogItem);
+          final target = result.target ?? SmartListCriteriaTarget.catalog;
           if (result.sortRules != null && result.sortRules!.isNotEmpty) {
             _page.viewState = viewState.withSortRules(
-              _page.viewProfile.decodeSortRules(
-                result.sortRules!,
-                scope: entityType == SmartListEntityType.libraryEntry
-                    ? LibraryEntityScope.libraryEntry
-                    : LibraryEntityScope.catalogItem,
-              ),
+              target == SmartListCriteriaTarget.catalog
+                  ? _page.viewProfile.decodeSortRules(result.sortRules!)
+                  : _page.viewProfile
+                      .decodeLibraryEntrySortRules(result.sortRules!),
               _page.viewProfile,
             );
           } else if (result.sortColumn != null) {
+            final workspace = libraryKindWorkspaceForKind(registration.kind);
             _page.viewState = viewState.copyWith(
-              sortId: libraryKindWorkspaceForKind(registration.kind)
-                  .fieldsForEntityType(entityType.apiValue)
+              sortId: (target == SmartListCriteriaTarget.catalog
+                      ? workspace.fields
+                      : workspace.libraryEntryFields)
                   .decodeSortId(result.sortColumn!),
               sortAscending: result.sortAscending ?? true,
             );
@@ -268,14 +257,12 @@ class LibraryPageDialogCoordinator {
             ascending: rule.ascending,
           ),
       ],
-      defaultAscendingForColumn: (column) =>
-          _page.viewProfile.initialSortAscending(
-        libraryKindWorkspaceForKind(registration.kind)
-            .fieldsForScope(_page.activeEntityScope)
-            .decodeSortId(column),
-      ),
+      defaultAscendingForColumn: (column) => _page.viewProfile
+          .initialSortAscending(
+            libraryKindWorkspaceForKind(registration.kind)
+                .fields.decodeSortId(column),
+          ),
       availableColumns: _page.scopeAvailableSortColumns,
-      scope: _page.activeEntityScope,
     );
     if (sortRules != null && _page.mounted) {
       final allowed = _page.scopeAvailableSortColumns.toSet();
@@ -317,17 +304,15 @@ class LibraryPageDialogCoordinator {
     final context = _page.context;
     final db = _page.ref.read(localDatabaseProvider);
     final queueRefs = await ReadingQueueRepository(db).getQueue();
-    final libraryEntries = await LibraryEntriesRepository(db).listActiveSummaries();
+    final libraryEntries =
+        await LibraryEntriesRepository(db).listActiveSummaries();
     final trackingSummaries =
         await _page.ref.read(trackingSummariesProvider.future);
     final queuedLibraryEntries = libraryEntries
         .where((item) => queueRefs.contains(item.ref))
         .toList(growable: false);
-    final catalogSummariesByRef =
-        await CatalogDisplaySummaryRepository(db).findByRefs(
-      queuedLibraryEntries
-          .map((item) => item.ref.localCatalogItemRef),
-    );
+    final kindPresentationByEntryRef = await CatalogWorkspaceDataRepository(db)
+        .findEntries(queuedLibraryEntries.map((item) => item.ref));
     if (!_page.mounted) {
       return;
     }
@@ -340,7 +325,7 @@ class LibraryPageDialogCoordinator {
       mediaKind: _page.type.kind.apiValue,
       libraryEntries: queuedLibraryEntries,
       trackingSummaries: trackingSummaries,
-      catalogSummariesByRef: catalogSummariesByRef,
+      kindPresentationByEntryRef: kindPresentationByEntryRef,
       onSelectItem: _page.selectItem,
     );
   }
@@ -490,7 +475,7 @@ class LibraryPageDialogCoordinator {
     );
     final items = <TransferableLibraryEntry>{
       for (final item in projection.filteredItems)
-        if (_page.selection.itemIds.contains(item.node.id))
+        if (_page.selection.itemIds.contains(item.target.id))
           if (_transferItem(item) case final entry?) entry,
     }.toList(growable: false);
     if (items.isEmpty || !_page.mounted) return;
@@ -531,7 +516,7 @@ class LibraryPageDialogCoordinator {
     final libraryEntriesByRef = <LibraryEntryRef, LibraryEntrySummary>{};
     for (final item in projection.filteredItems) {
       final libraryEntry = item.source.libraryEntrySummary;
-      if (_page.selection.itemIds.contains(item.node.id) &&
+      if (_page.selection.itemIds.contains(item.target.id) &&
           libraryEntry != null &&
           !_page.activeLoanLibraryEntryIds.contains(libraryEntry.ref)) {
         libraryEntriesByRef[libraryEntry.ref] = libraryEntry;

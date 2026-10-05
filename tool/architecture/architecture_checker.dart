@@ -207,6 +207,91 @@ class ArchitectureRuleVisitor extends RecursiveAstVisitor<void> {
     'LibraryCatalogItemView',
   };
 
+  static const _forbiddenFlattenedIdentityNames = {
+    'CatalogEntityRef',
+    'LibraryEntityRef',
+    'LibraryEntityScope',
+    'LibraryReleaseRef',
+    'CopyProjectionCapability',
+    'LibraryTrackingLookupScope',
+    'lookupReferenceFor',
+    'LibraryWorkspaceSource',
+    'LibraryWorkspaceCatalogData',
+    'LibraryBrowserNode',
+    'SmartListEntityType',
+    'PersonalStateDraft',
+  };
+  static const _forbiddenTargetReferenceMembers = {
+    'entityType',
+    'entity_type',
+    'rootId',
+    'root_id',
+    'rootScope',
+    'parentId',
+    'parent_id',
+    'parentRef',
+    'workRef',
+    'releaseRef',
+    'releaseGroupRef',
+  };
+  static const _forbiddenFieldScopeMembers = {
+    'entityScope',
+    'entity_scope',
+  };
+
+  @override
+  void visitSimpleIdentifier(SimpleIdentifier node) {
+    if (_forbiddenFlattenedIdentityNames.contains(node.name) &&
+        relativePath.startsWith('lib/') &&
+        !relativePath.startsWith('lib/test/') &&
+        !relativePath.endsWith('.g.dart') &&
+        !relativePath.endsWith('.freezed.dart')) {
+      final line = lineInfo.getLocation(node.offset).lineNumber;
+      violations.add(
+        'TK018 $relativePath:$line: Removed Work/Release identity '
+        'abstraction "${node.name}" must not return to production code.',
+      );
+    }
+    final isTargetReference = relativePath ==
+            'lib/core/models/catalog_item_ref.dart' ||
+        relativePath == 'lib/core/models/library_entry_ref.dart' ||
+        relativePath == 'lib/features/library/domain/library_target_ref.dart';
+    if (isTargetReference &&
+        _forbiddenTargetReferenceMembers.contains(node.name)) {
+      final line = lineInfo.getLocation(node.offset).lineNumber;
+      violations.add(
+        'TK019 $relativePath:$line: Flat target references cannot carry '
+        'entity type, root, parent, Work, or Release identity fields '
+        '("${node.name}").',
+      );
+    }
+    if (isBoundaryFile &&
+        _forbiddenKindDomainTypes.contains(node.name) &&
+        node.parent is! NamedType) {
+      final line = lineInfo.getLocation(node.offset).lineNumber;
+      violations.add(
+        'TK004 $relativePath:$line: Forbidden concrete kind reference '
+        '"${node.name}" in generic boundary code',
+      );
+    }
+    final isWorkspaceFieldSchema = relativePath ==
+            'lib/features/library/workspace/config/library_typed_field_definition.dart' ||
+        relativePath ==
+            'lib/features/library/workspace/schema/library_workspace_schema.dart' ||
+        relativePath ==
+            'lib/features/library/workspace/schema/library_field_registry.dart';
+    if (isWorkspaceFieldSchema &&
+        _forbiddenFieldScopeMembers.contains(node.name)) {
+      final line = lineInfo.getLocation(node.offset).lineNumber;
+      violations.add(
+        'TK020 $relativePath:$line: Workspace field definitions inherit '
+        'their target from the selected schema and must not repeat '
+        'entityScope ("${node.name}").',
+      );
+    }
+    super.visitSimpleIdentifier(node);
+  }
+
   @override
   void visitPropertyAccess(PropertyAccess node) {
     if (_isStrictGenericContext(relativePath)) {
@@ -230,6 +315,24 @@ class ArchitectureRuleVisitor extends RecursiveAstVisitor<void> {
       }
     }
     super.visitPropertyAccess(node);
+  }
+
+  @override
+  void visitFieldDeclaration(FieldDeclaration node) {
+    if (relativePath ==
+        'lib/features/library/workspace/entry/library_workspace_context.dart') {
+      for (final variable in node.fields.variables) {
+        final name = variable.name.lexeme;
+        if (name != 'item' && name != 'personal') {
+          final line = lineInfo.getLocation(variable.offset).lineNumber;
+          violations.add(
+            'TK021 $relativePath:$line: Workspace context may store only '
+            'its WorkspaceItem and PersonalOverlay owners ("$name").',
+          );
+        }
+      }
+    }
+    super.visitFieldDeclaration(node);
   }
 
   @override
@@ -408,24 +511,6 @@ class ArchitectureRuleVisitor extends RecursiveAstVisitor<void> {
       }
     }
     super.visitNamedType(node);
-  }
-
-  @override
-  void visitSimpleIdentifier(SimpleIdentifier node) {
-    if (isBoundaryFile) {
-      final idName = node.name;
-      if (_forbiddenKindDomainTypes.contains(idName)) {
-        final parent = node.parent;
-        // Don't duplicate if already caught as NamedType
-        if (parent is! NamedType) {
-          final line = lineInfo.getLocation(node.offset).lineNumber;
-          violations.add(
-            'TK004 $relativePath:$line: Forbidden concrete kind reference "$idName" in generic boundary code',
-          );
-        }
-      }
-    }
-    super.visitSimpleIdentifier(node);
   }
 
   @override
@@ -936,14 +1021,14 @@ void _checkKindModuleLayout(String repoRoot, List<String> violations) {
       'library',
       'workspace',
       'schema',
-      'library_entity_workspace_schema.dart',
+      'library_workspace_schema.dart',
     ),
   );
   if (workspaceSchema.existsSync() &&
       workspaceSchema.readAsStringSync().contains('.withEntityScope(')) {
     violations.add(
       'TK014 lib/features/library/workspace/schema/'
-      'library_entity_workspace_schema.dart: Scoped field definitions must '
+      'library_workspace_schema.dart: Scoped field definitions must '
       'not be silently rebound to another entity scope.',
     );
   }

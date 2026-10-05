@@ -1,11 +1,10 @@
 import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_ids.dart';
 import 'package:collectarr_app/features/library/kinds/movie/data/movie_library_entry_projection.dart';
-import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_preference_codec.dart';
 import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_workspace_dto.dart';
 import 'package:collectarr_app/features/library/kinds/movie/domain/movie_library_entry.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/schema/field_factories.dart';
-import 'package:collectarr_app/features/library/workspace/schema/library_entity_workspace_schema.dart';
+import 'package:collectarr_app/features/library/workspace/schema/library_workspace_schema.dart';
 import 'package:flutter/material.dart';
 
 abstract final class MovieLibraryEntryWorkspaceFields {
@@ -15,36 +14,32 @@ abstract final class MovieLibraryEntryWorkspaceFields {
     label: 'Condition',
     getValue: (context) {
       final entry = MovieLibraryEntryProjection.fromDispatch(
-          context.source.libraryEntryDispatch);
+          context.item.libraryEntryDispatch);
       return entry is MovieLibraryEntry ? entry.personal.condition : null;
     },
-    entityScope: LibraryEntityScope.libraryEntry,
   );
 
   static final location =
       LibraryFieldDefinition<MovieKind, MovieWorkspaceDto, String?>(
     id: MovieFieldIds.location,
     label: 'Location',
-    getValue: (context) => context.source.locationPath,
-    entityScope: LibraryEntityScope.libraryEntry,
+    getValue: (context) => context.personal.locationPath,
   );
 
   static final pricePaid =
       LibraryFieldDefinition<MovieKind, MovieWorkspaceDto, int?>(
     id: MovieFieldIds.pricePaid,
     label: 'Purchase Price',
-    getValue: (context) => context.source.pricePaidCents,
-    entityScope: LibraryEntityScope.libraryEntry,
+    getValue: (context) => context.item.entrySummary?.pricePaidCents,
   );
 
   static final status =
       LibraryFieldDefinition<MovieKind, MovieWorkspaceDto, String?>(
     id: MovieFieldIds.status,
     label: 'Status',
-    getValue: (context) => context.source.isWishlisted
+    getValue: (context) => context.personal.isWishlisted
         ? 'wishlist'
-        : (context.source.isEntry ? 'entry' : null),
-    entityScope: LibraryEntityScope.libraryEntry,
+        : ((context.item.entrySummary != null) ? 'entry' : null),
   );
 
   static final rating =
@@ -52,31 +47,27 @@ abstract final class MovieLibraryEntryWorkspaceFields {
     id: MovieFieldIds.rating,
     label: 'Rating',
     getValue: (context) => context.dto.personal.rating,
-    entityScope: LibraryEntityScope.libraryEntry,
   );
 
   static final wishlist =
       LibraryFieldDefinition<MovieKind, MovieWorkspaceDto, bool>(
     id: MovieFieldIds.wishlist,
     label: 'Wishlist',
-    getValue: (context) => context.source.isWishlisted,
-    entityScope: LibraryEntityScope.libraryEntry,
+    getValue: (context) => context.personal.isWishlisted,
   );
 
   static final updatedAt =
       LibraryFieldDefinition<MovieKind, MovieWorkspaceDto, DateTime>(
     id: MovieFieldIds.updatedAt,
     label: 'Updated',
-    getValue: (context) => context.source.updatedAt,
-    entityScope: LibraryEntityScope.libraryEntry,
+    getValue: (context) => context.updatedAt,
   );
 
   static final addedAt =
       LibraryFieldDefinition<MovieKind, MovieWorkspaceDto, DateTime?>(
     id: MovieFieldIds.addedAt,
     label: 'Added',
-    getValue: (context) => context.source.addedAt,
-    entityScope: LibraryEntityScope.libraryEntry,
+    getValue: (context) => context.addedAt,
   );
 
   static final watchStatus =
@@ -84,7 +75,6 @@ abstract final class MovieLibraryEntryWorkspaceFields {
     id: MovieFieldIds.watchStatus,
     label: 'Watch Status',
     getValue: (context) => context.dto.personal.trackingStatus,
-    entityScope: LibraryEntityScope.libraryEntry,
   );
 }
 
@@ -112,11 +102,10 @@ final movieLibraryEntryWorkspaceGroupDefinitions = [
 final movieLibraryEntryWorkspaceSortDefinitions = [
   LibrarySortDefinition<MovieKind, MovieWorkspaceDto>(
     id: MovieSortIds.status,
-    entityScope: LibraryEntityScope.libraryEntry,
     compare: (left, right) {
       int rank(LibraryProjectionContext<MovieWorkspaceDto> ctx) {
-        if (ctx.source.isEntry) return 0;
-        if (ctx.source.isWishlisted) return 1;
+        if ((ctx.item.entrySummary != null)) return 0;
+        if (ctx.personal.isWishlisted) return 1;
         return 2;
       }
 
@@ -142,9 +131,9 @@ final movieLibraryEntryWorkspaceColumnDefinitions = [
     id: MovieFieldIds.status,
     label: 'Status',
     getValue: MovieLibraryEntryWorkspaceFields.status.getValue,
-    cellValue: (context) => Text(context.source.isWishlisted
+    cellValue: (context) => Text(context.personal.isWishlisted
         ? 'Wishlist'
-        : (context.source.isEntry ? 'Entry' : '')),
+        : ((context.item.entrySummary != null) ? 'Entry' : '')),
     sortable: false,
     groupable: false,
     defaultWidth: 52,
@@ -154,7 +143,7 @@ final movieLibraryEntryWorkspaceColumnDefinitions = [
     id: MovieFieldIds.wishlist,
     label: 'Wishlist',
     getValue: MovieLibraryEntryWorkspaceFields.wishlist.getValue,
-    cellValue: (context) => Text(context.source.isWishlisted ? 'Wishlist' : ''),
+    cellValue: (context) => Text(context.personal.isWishlisted ? 'Wishlist' : ''),
     group: 'Personal',
     defaultWidth: 82,
     minWidth: 70,
@@ -163,7 +152,7 @@ final movieLibraryEntryWorkspaceColumnDefinitions = [
     id: MovieFieldIds.updatedAt,
     label: 'Updated',
     getValue: MovieLibraryEntryWorkspaceFields.updatedAt.getValue,
-    cellValue: (context) => Text(_formatDate(context.source.updatedAt)),
+    cellValue: (context) => Text(_formatDate(context.updatedAt)),
     group: 'Personal',
     defaultWidth: 112,
   ),
@@ -171,7 +160,7 @@ final movieLibraryEntryWorkspaceColumnDefinitions = [
     id: MovieFieldIds.addedAt,
     label: 'Added',
     getValue: MovieLibraryEntryWorkspaceFields.addedAt.getValue,
-    cellValue: (context) => Text(_formatDate(context.source.addedAt)),
+    cellValue: (context) => Text(_formatDate(context.addedAt)),
     group: 'Personal',
     defaultWidth: 112,
   ),
@@ -188,7 +177,7 @@ final movieLibraryEntryWorkspaceColumnDefinitions = [
   columnFromField<MovieKind, MovieWorkspaceDto, int?>(
     MovieLibraryEntryWorkspaceFields.pricePaid,
     cellValue: (context) =>
-        Text(_formatCents(context.source.pricePaidCents, context.dto.currency)),
+        Text(_formatCents(context.item.entrySummary?.pricePaidCents, context.dto.currency)),
     group: 'Value',
     isNumeric: true,
     defaultWidth: 92,
@@ -204,9 +193,8 @@ final movieLibraryEntryWorkspaceColumnDefinitions = [
 ];
 
 final movieLibraryEntryWorkspaceSchema =
-    LibraryEntityWorkspaceSchema<MovieKind, MovieWorkspaceDto>(
+    LibraryWorkspaceSchema<MovieKind, MovieWorkspaceDto>(
   kindNamespace: 'movie',
-  entityScope: LibraryEntityScope.libraryEntry,
   fields: movieLibraryEntryWorkspaceFieldDefinitions,
   columns: movieLibraryEntryWorkspaceColumnDefinitions,
   sorts: movieLibraryEntryWorkspaceSortDefinitions,
@@ -215,7 +203,6 @@ final movieLibraryEntryWorkspaceSchema =
   defaultVisibleColumns: movieLibraryEntryWorkspaceDefaultVisibleColumns,
   defaultSort: MovieSortIds.status,
   defaultGroup: MovieGroupIds.condition,
-  preferenceCodec: const MoviePreferenceCodec(),
 );
 
 String _formatDate(DateTime? value) {

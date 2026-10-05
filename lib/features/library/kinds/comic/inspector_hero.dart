@@ -12,14 +12,14 @@ import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-Widget buildComicWorkInspectorHero(
+Widget buildComicCatalogItemInspectorHero(
   BuildContext context,
   LibraryInspectorRequest request,
 ) {
   return ComicInspectorHero(request: request);
 }
 
-Widget buildComicCopyInspectorHero(
+Widget buildComicLibraryEntryInspectorHero(
   BuildContext context,
   LibraryInspectorRequest request,
 ) {
@@ -83,8 +83,7 @@ class _ComicInspectorHeroState extends ConsumerState<ComicInspectorHero> {
             : null) ??
         adapter?.referenceFormatLabel ??
         libraryLibraryEntryReferenceLabel(libraryEntrySummary,
-            mediaType: (item.source.catalogData?.kind ?? request.type.kind)
-                .apiValue) ??
+            mediaType: item.target.kind.apiValue) ??
         request.type.identity.singularLabel.toUpperCase();
     final seriesLabel = comic?.seriesTitle?.trim().isNotEmpty == true
         ? comic!.seriesTitle!.trim()

@@ -2,7 +2,6 @@ import 'package:collectarr_app/features/library/kinds/registry/library_kind_cont
 import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/generic/library_custom_field_cache.dart';
-import 'package:collectarr_app/features/library/domain/library_entity_scope.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
 import 'package:collectarr_app/features/library/generic/filter_dialog.dart';
 import 'package:collectarr_app/features/library/generic/page/sidebar_scope_snapshot.dart';
@@ -264,8 +263,6 @@ class LibraryPageCoordinatorContext {
 
   LibraryWorkspaceViewState? get viewState => _getViewState();
   set viewState(LibraryWorkspaceViewState? value) => _setViewState(value);
-
-  LibraryEntityScope get activeEntityScope => LibraryEntityScope.catalogItem;
 
   LibrarySelectionState get selection => _getSelection();
   set selection(LibrarySelectionState value) => _setSelection(value);

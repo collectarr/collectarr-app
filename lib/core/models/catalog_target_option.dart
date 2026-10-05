@@ -1,4 +1,4 @@
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:flutter/foundation.dart';
 
 /// A target choice rendered by a generic host.
@@ -13,6 +13,6 @@ final class CatalogTargetOption {
     required this.label,
   });
 
-  final CatalogEntityRef ref;
+  final CatalogItemRef ref;
   final String label;
 }

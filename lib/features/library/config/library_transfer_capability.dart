@@ -1,10 +1,7 @@
 import 'package:collectarr_app/core/models/custom_field.dart';
-import 'package:collectarr_app/features/library/domain/library_entity_scope.dart';
 import 'package:collectarr_app/features/library/generic/transferable_field.dart';
 
-const kTransferableMediaFieldKeys = <String>[];
-
-const kTransferableCatalogItemFieldKeys = <String>[
+const kTransferableEntryDetailFieldKeys = <String>[
   'features',
   'boxSetName',
   'packaging',
@@ -26,7 +23,7 @@ const kTransferablePersonalFieldKeys = <String>[
 ];
 
 const kDefaultTransferableFieldKeys = <String>[
-  ...kTransferableCatalogItemFieldKeys,
+  ...kTransferableEntryDetailFieldKeys,
   ...kTransferablePersonalFieldKeys,
 ];
 
@@ -50,23 +47,13 @@ class LibraryTransferCapability {
     ];
   }
 
-  List<String> fieldKeysForScope(
-      [LibraryEntityScope scope = LibraryEntityScope.libraryEntry]) {
-    return switch (scope) {
-      LibraryEntityScope.catalogItem => kTransferableMediaFieldKeys,
-      LibraryEntityScope.libraryEntry => transferableFieldKeys,
-    };
-  }
-
   List<TransferableField> fieldsWithCustomFields(
-    List<CustomFieldDefinition> definitions, {
-    LibraryEntityScope scope = LibraryEntityScope.libraryEntry,
-  }) {
+    List<CustomFieldDefinition> definitions,
+  ) {
     return TransferableField.withCustomFields(
       definitions,
       availableFields: allFields(),
-      fieldKeys: fieldKeysForScope(scope),
-      scope: scope,
+      fieldKeys: transferableFieldKeys,
     );
   }
 }

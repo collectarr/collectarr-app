@@ -1,12 +1,12 @@
 import 'package:collectarr_app/features/catalog/transport/catalog_import_transport.dart';
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/features/library/kinds/comic/data/comic_library_entry_projection.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/features/collection/csv/collection_csv_kind_profile.dart';
 import 'package:collectarr_app/features/library/kinds/comic/integrations/collection_csv/comic_collection_csv_import_profile.dart';
 import 'package:collectarr_app/features/library/kinds/comic/entries/comic_entry_details.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
-import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_catalog_data.dart';
+import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_data.dart';
 
 /// Comic's semantic contribution to the generic collection CSV host.
 ///
@@ -115,9 +115,9 @@ final class ComicCollectionCsvProjection
   }
 
   @override
-  List<String> catalogCells(LibraryWorkspaceSource entry) {
-    final catalog = entry.catalogData;
-    final comic = catalog is ComicWorkspaceCatalogData ? catalog.comic : null;
+  List<String> catalogCells(LibraryWorkspaceContext entry) {
+    final catalog = entry.kindPresentationData;
+    final comic = catalog is ComicWorkspaceData ? catalog.comic : null;
     return [
       entry.itemId,
       CatalogMediaKind.comic.apiValue,
@@ -134,32 +134,32 @@ final class ComicCollectionCsvProjection
   }
 
   @override
-  String? entryCollectionValue(LibraryWorkspaceSource entry) =>
+  String? entryCollectionValue(LibraryWorkspaceContext entry) =>
       ComicLibraryEntryProjection.fromDispatch(entry.libraryEntryDispatch)
           ?.personal
           .grade;
 
   @override
-  String? entryCondition(LibraryWorkspaceSource entry) =>
+  String? entryCondition(LibraryWorkspaceContext entry) =>
       ComicLibraryEntryProjection.fromDispatch(entry.libraryEntryDispatch)
           ?.personal
           .condition;
 
   @override
-  int? entryIndexNumber(LibraryWorkspaceSource entry) =>
+  int? entryIndexNumber(LibraryWorkspaceContext entry) =>
       ComicLibraryEntryProjection.fromDispatch(entry.libraryEntryDispatch)
           ?.personal
           .indexNumber;
 
   @override
-  String? entryTags(LibraryWorkspaceSource entry) =>
+  String? entryTags(LibraryWorkspaceContext entry) =>
       ComicLibraryEntryProjection.fromDispatch(entry.libraryEntryDispatch)
           ?.personal
           .tags;
 
   @override
   List<String> entryCellsBeforeLocation(
-    LibraryWorkspaceSource entry, {
+    LibraryWorkspaceContext entry, {
     required bool clzFriendly,
   }) {
     final personalState =
@@ -171,7 +171,7 @@ final class ComicCollectionCsvProjection
 
   @override
   List<String> entryCellsAfterIndex(
-    LibraryWorkspaceSource entry, {
+    LibraryWorkspaceContext entry, {
     required bool clzFriendly,
   }) {
     final personalState =

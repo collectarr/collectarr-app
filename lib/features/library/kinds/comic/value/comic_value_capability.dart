@@ -8,7 +8,7 @@ class ComicValueCapability implements LibraryValueCapability {
 
   @override
   LibraryCollectionValueSummary? resolveCollectionValueSummary(
-    Iterable<LibraryWorkspaceSource> entries,
+    Iterable<LibraryWorkspaceContext> entries,
   ) {
     final valuedEntries = [
       for (final entry in entries)
@@ -46,7 +46,7 @@ class ComicValueCapability implements LibraryValueCapability {
     );
   }
 
-  static ComicLibraryEntry? _comicLibraryEntry(LibraryWorkspaceSource entry) {
+  static ComicLibraryEntry? _comicLibraryEntry(LibraryWorkspaceContext entry) {
     return ComicLibraryEntryProjection.fromDispatch(entry.libraryEntryDispatch);
   }
 }

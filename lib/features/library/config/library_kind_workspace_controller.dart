@@ -29,7 +29,7 @@ class LibraryKindWorkspaceController extends LibraryNoopBrowserDelegate {
     if (!canOpenItemDetailDrilldown(type, item)) {
       return;
     }
-    openItemDrilldown(item.node.catalogItemId);
+    openItemDrilldown(item.target.id);
   }
 
   @override
@@ -50,7 +50,7 @@ class LibraryKindWorkspaceController extends LibraryNoopBrowserDelegate {
     }
     final drilldownState = itemDrilldownState;
     if (drilldownState == null ||
-        drilldownState.rootItemId != selectedItem.node.catalogItemId) {
+        drilldownState.rootItemId != selectedItem.target.id) {
       return null;
     }
     return buildLibraryKindDrilldown(

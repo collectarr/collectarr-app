@@ -1,5 +1,4 @@
 import 'package:collectarr_app/features/library/edit/draft/library_edit_shell_state.dart';
-import 'package:collectarr_app/features/library/domain/library_entity_scope.dart';
 import 'package:collectarr_app/features/library/kinds/anime/edit/anime_edit_draft_contract.dart';
 import 'package:collectarr_app/features/library/kinds/anime/edit/tabs/anime_cast_tab.dart';
 import 'package:collectarr_app/features/library/kinds/anime/edit/tabs/anime_crew_tab.dart';
@@ -15,7 +14,6 @@ Widget? buildAnimeMediaCustomTabView({
   required BuildContext context,
   required LibraryEditShellState draft,
   required Color accent,
-  required LibraryEntityScope scope,
   required CatalogSearchCandidate item,
   required VoidCallback markDirty,
 }) {
@@ -31,7 +29,9 @@ Widget? buildAnimeMediaCustomTabView({
     'main' => AnimeCatalogFormEditTab(
         state: draft,
         draft: catalogDraft,
-        itemId: item.reference.id,
+        itemId: draft.target?.id ??
+            item.catalogRef?.id ??
+            (throw StateError('Anime editor requires an explicit target.')),
         fieldIds: animeMainFieldIds,
         sectionLabel: 'Main',
         markDirty: markDirty,
@@ -39,7 +39,9 @@ Widget? buildAnimeMediaCustomTabView({
     'media' => AnimeCatalogFormEditTab(
         state: draft,
         draft: catalogDraft,
-        itemId: item.reference.id,
+        itemId: draft.target?.id ??
+            item.catalogRef?.id ??
+            (throw StateError('Anime editor requires an explicit target.')),
         fieldIds: animeDetailsFieldIds,
         sectionLabel: 'Details',
         markDirty: markDirty,
@@ -47,7 +49,9 @@ Widget? buildAnimeMediaCustomTabView({
     'edition' => AnimeCatalogFormEditTab(
         state: draft,
         draft: catalogDraft,
-        itemId: item.reference.id,
+        itemId: draft.target?.id ??
+            item.catalogRef?.id ??
+            (throw StateError('Anime editor requires an explicit target.')),
         fieldIds: animeEditionFieldIds,
         sectionLabel: 'Edition',
         physicalFormatOptions: [
@@ -58,7 +62,9 @@ Widget? buildAnimeMediaCustomTabView({
     'specs' => AnimeCatalogFormEditTab(
         state: draft,
         draft: catalogDraft,
-        itemId: item.reference.id,
+        itemId: draft.target?.id ??
+            item.catalogRef?.id ??
+            (throw StateError('Anime editor requires an explicit target.')),
         fieldIds: animeSpecsFieldIds,
         sectionLabel: 'Specs',
         markDirty: markDirty,
@@ -88,7 +94,9 @@ Widget? buildAnimeMediaCustomTabView({
     'cover' => AnimeCatalogFormEditTab(
         state: draft,
         draft: catalogDraft,
-        itemId: item.reference.id,
+        itemId: draft.target?.id ??
+            item.catalogRef?.id ??
+            (throw StateError('Anime editor requires an explicit target.')),
         fieldIds: animeCoverFieldIds,
         sectionLabel: 'Cover',
         markDirty: markDirty,
@@ -96,7 +104,9 @@ Widget? buildAnimeMediaCustomTabView({
     'synopsis' => AnimeCatalogFormEditTab(
         state: draft,
         draft: catalogDraft,
-        itemId: item.reference.id,
+        itemId: draft.target?.id ??
+            item.catalogRef?.id ??
+            (throw StateError('Anime editor requires an explicit target.')),
         fieldIds: animeSynopsisFieldIds,
         sectionLabel: 'Synopsis',
         markDirty: markDirty,

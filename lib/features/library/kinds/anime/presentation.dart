@@ -9,14 +9,14 @@ import 'package:collectarr_app/features/catalog/transport/catalog_search_candida
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/config/workspace_presentation_support.dart';
 import 'package:collectarr_app/features/library/kinds/anime/workspace/anime_card_presentation.dart';
-import 'package:collectarr_app/features/library/kinds/anime/workspace/anime_workspace_catalog_data.dart';
+import 'package:collectarr_app/features/library/kinds/anime/workspace/anime_workspace_data.dart';
 import 'package:collectarr_app/features/library/kinds/anime/workspace/anime_workspace_dto.dart';
 import 'package:collectarr_app/features/library/config/presentation/library_media_presentation_builder_helpers.dart';
 import 'package:collectarr_app/features/library/details/library_detail_models.dart';
 import 'package:collectarr_app/features/library/details/library_detail_section.dart';
 import 'package:collectarr_app/features/library/generic/display.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
+import 'package:collectarr_app/features/library/domain/library_target_ref.dart';
 import 'package:collectarr_app/features/library/kinds/anime/anime_physical_media_formats.dart';
 import 'package:collectarr_app/features/library/widgets/format_badge.dart';
 import 'package:flutter/material.dart';
@@ -55,10 +55,10 @@ class AnimeLibraryMediaPresentationBuilder
 
   @override
   List<LibraryDuplicateCandidate> buildDuplicateCandidates(
-    LibraryWorkspaceSource entry,
+    LibraryWorkspaceContext entry,
   ) {
-    final catalog = entry.catalogData;
-    if (catalog is! AnimeWorkspaceCatalogData) return const [];
+    final catalog = entry.kindPresentationData;
+    if (catalog is! AnimeWorkspaceData) return const [];
     final identifier =
         normalizeLibraryDuplicateIdentifier(catalog.metadata.barcode);
     if (identifier == null) return const [];
@@ -74,10 +74,10 @@ class AnimeLibraryMediaPresentationBuilder
 
   @override
   List<LibraryWorkspaceLinkSummary> buildWorkspaceLinks(
-    LibraryWorkspaceSource entry,
+    LibraryWorkspaceContext entry,
   ) {
-    final catalog = entry.catalogData;
-    if (catalog is! AnimeWorkspaceCatalogData) return const [];
+    final catalog = entry.kindPresentationData;
+    if (catalog is! AnimeWorkspaceData) return const [];
     return [
       for (final value in catalog.metadata.links)
         if (value.url.trim().isNotEmpty)
@@ -167,7 +167,7 @@ class AnimeLibraryMediaPresentationBuilder
 
   @override
   bool canOpenKindDrilldown(LibraryProjectionView item) {
-    return item.node.scope == LibraryEntityScope.catalogItem &&
+    return item.target is CatalogTargetRef &&
         item.source.mediaKind == CatalogMediaKind.anime;
   }
 
@@ -194,7 +194,7 @@ class AnimeLibraryMediaPresentationBuilder
       identityFacts: [
         if (includeIdentityFacts) ...[
           LibraryDetailField(label: 'Kind', value: singularLabel),
-          LibraryDetailField(label: 'ID', value: item.node.catalogItemId),
+          LibraryDetailField(label: 'ID', value: item.target.id),
           LibraryDetailField(label: 'Title', value: dto.primaryLabel),
         ],
         if (seriesTitle != null)
@@ -203,15 +203,13 @@ class AnimeLibraryMediaPresentationBuilder
             value: seriesTitle,
             onTap: tapFor(seriesTitle),
           ),
-        if (item.node.scope != LibraryEntityScope.catalogItem &&
-            variant != null)
+        if (item.target is EntryTargetRef && variant != null)
           LibraryDetailField(
             label: 'Format / Edition',
             value: variant,
             onTap: tapFor(variant),
           ),
-        if (item.node.scope != LibraryEntityScope.catalogItem &&
-            barcode != null)
+        if (item.target is EntryTargetRef && barcode != null)
           LibraryDetailField(label: 'UPC / Barcode', value: barcode),
       ],
       contextFacts: [

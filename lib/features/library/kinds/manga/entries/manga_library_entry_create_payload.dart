@@ -81,6 +81,9 @@ final class MangaLibraryEntryCreatePayload
     return MangaLibraryEntry(
       id: LibraryEntryId(id),
       metadata: MangaMetadata.fromJson(sourceCatalogItem.kindData),
+      sourceCatalogRef: sourceCatalogItem.origin == CatalogItemOrigin.core
+          ? sourceCatalogItem.catalogItemRef
+          : null,
       personal: MangaPersonalData(
         isDigital: isDigital ?? existingIsDigital,
         details: details.toDetails(),

@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/ui/primitives/library_collection_status_icon.dart';
 import 'dart:collection';
 
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
@@ -59,12 +60,13 @@ class LibraryCollectionStatusScopeDropdown extends StatelessWidget {
     final menuWidth = measureLibraryToolbarDropdownWidth(
       context,
       labels: LibraryCollectionStatusScope.values.map((scope) => scope.label),
-      textStyle: dropdownTextStyle,
+      textStyle: dropdownTextStyle?.copyWith(
+          fontSize: 13, fontWeight: FontWeight.w600),
       leadingWidth: 20,
-      leadingSpacing: 8,
-      trailingWidth: 24,
-      horizontalPadding: 24,
-      minWidth: 132,
+      leadingSpacing: 6,
+      trailingWidth: 0,
+      horizontalPadding: 16,
+      minWidth: 166,
     );
     final triggerWidth = measureLibraryToolbarDropdownWidth(
       context,
@@ -84,20 +86,22 @@ class LibraryCollectionStatusScopeDropdown extends StatelessWidget {
         initialValue: collectionStatusScope,
         onSelected: onCollectionStatusScopeChanged,
         padding: EdgeInsets.zero,
-        menuPadding: const EdgeInsets.symmetric(vertical: 4),
+        menuPadding: EdgeInsets.zero,
         position: PopupMenuPosition.under,
-        color: libraryToolbarMenuSurface(context),
+        color: Theme.of(context).brightness == Brightness.dark
+            ? const Color(0xFF444444)
+            : libraryToolbarMenuSurface(context),
         surfaceTintColor: Colors.transparent,
         constraints: const BoxConstraints(
           minWidth: 0,
           maxWidth: double.infinity,
         ).copyWith(minWidth: menuWidth, maxWidth: menuWidth),
-        shape: libraryToolbarDropdownMenuShape(context),
+        shape: RoundedRectangleBorder(side: BorderSide(color: palette.divider)),
         itemBuilder: (context) => [
           for (final scope in LibraryCollectionStatusScope.values)
             PopupMenuItem<LibraryCollectionStatusScope>(
               value: scope,
-              height: kLibraryToolbarTextDropdownHeight,
+              height: 24,
               padding: const EdgeInsets.symmetric(horizontal: 8),
               child: LibraryCollectionStatusScopeMenuItem(
                 scope: scope,
@@ -949,7 +953,6 @@ class LibraryCollectionStatusScopeMenuItem extends StatelessWidget {
     required this.muted,
     required this.textColor,
   });
-
   final LibraryCollectionStatusScope scope;
   final bool isSelected;
   final Color accent;
@@ -957,26 +960,18 @@ class LibraryCollectionStatusScopeMenuItem extends StatelessWidget {
   final Color textColor;
 
   @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      width: double.infinity,
-      child: LibraryWorkspaceMenuRow(
-        label: scope.label,
-        leading: LibraryCollectionStatusScopeBadge(
-          scope: scope,
-          accent: accent,
-          muted: muted,
-        ),
-        trailing:
-            isSelected ? Icon(Icons.check, size: 16, color: textColor) : null,
-        textStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              height: 1,
-              fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-              color: textColor,
-            ),
-      ),
-    );
-  }
+  Widget build(BuildContext context) => Row(children: [
+        LibraryCollectionStatusIcon(status: scope),
+        const SizedBox(width: 6),
+        Expanded(
+            child: Text(scope.label,
+                style: TextStyle(
+                  fontSize: 13,
+                  height: 1,
+                  fontWeight: FontWeight.w600,
+                  color: textColor,
+                ))),
+      ]);
 }
 
 class LibraryCollectionStatusScopeBadge extends StatelessWidget {
@@ -986,29 +981,13 @@ class LibraryCollectionStatusScopeBadge extends StatelessWidget {
     required this.accent,
     required this.muted,
   });
-
   final LibraryCollectionStatusScope scope;
   final Color accent;
   final Color muted;
 
   @override
-  Widget build(BuildContext context) {
-    final color = libraryCollectionStatusScopeColor(scope, accent, muted);
-    return Container(
-      width: 20,
-      height: 20,
-      decoration: BoxDecoration(
-        color: color,
-        borderRadius: BorderRadius.circular(4),
-      ),
-      alignment: Alignment.center,
-      child: Icon(
-        scope.icon,
-        size: 13,
-        color: appContrastingTextColor(color),
-      ),
-    );
-  }
+  Widget build(BuildContext context) =>
+      LibraryCollectionStatusIcon(status: scope);
 }
 
 Color libraryCollectionStatusScopeColor(
@@ -1018,12 +997,12 @@ Color libraryCollectionStatusScopeColor(
 ) {
   return switch (scope) {
     LibraryCollectionStatusScope.all => muted,
-    LibraryCollectionStatusScope.inCollection => accent,
-    LibraryCollectionStatusScope.forSale => const Color(0xFF2E7D32),
-    LibraryCollectionStatusScope.wishList => const Color(0xFFFF9800),
-    LibraryCollectionStatusScope.onOrder => const Color(0xFF0EA5E9),
-    LibraryCollectionStatusScope.sold => const Color(0xFFC44B4F),
-    LibraryCollectionStatusScope.notInCollection => const Color(0xFF9E9E9E),
+    LibraryCollectionStatusScope.inCollection => const Color(0xFF2AA4CC),
+    LibraryCollectionStatusScope.forSale => const Color(0xFF2D7427),
+    LibraryCollectionStatusScope.wishList => const Color(0xFFFF9B00),
+    LibraryCollectionStatusScope.onOrder => const Color(0xFF13627F),
+    LibraryCollectionStatusScope.sold => const Color(0xFFA63131),
+    LibraryCollectionStatusScope.notInCollection => const Color(0xFF605C5C),
   };
 }
 

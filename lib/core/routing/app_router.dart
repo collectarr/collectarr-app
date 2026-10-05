@@ -157,9 +157,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             child = LibraryHomePage(routeUri: state.uri);
           } else {
             final builder = libraryInspectorForKind(request.type.kind)
-                    .detailPageBuilderForScope(
-                  request.item.node.scope,
-                ) ??
+                    .detailPageBuilderForTarget(request.item.target) ??
                 _buildDefaultDetailPage;
             child = builder(context, request);
           }

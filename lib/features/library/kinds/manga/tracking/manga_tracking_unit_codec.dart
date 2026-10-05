@@ -1,5 +1,5 @@
 import 'package:collectarr_app/core/db/local_database.dart';
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/tracking_unit_summary.dart';
 import 'package:collectarr_app/core/models/tracking_unit_ref.dart';
@@ -27,7 +27,7 @@ final class MangaTrackingUnitCodec implements TrackingUnitStorageCodec {
         fromStorageRow(
           trackingUnitStorageRowFromColumns(
             id: row.id,
-                        trackingEntryId: row.trackingEntryId,
+            trackingEntryId: row.trackingEntryId,
             libraryEntryRefKey: row.libraryEntryRefKey,
             completedAt: row.completedAt,
             updatedAt: row.updatedAt,
@@ -52,7 +52,7 @@ final class MangaTrackingUnitCodec implements TrackingUnitStorageCodec {
     return fromStorageRow(
       trackingUnitStorageRowFromColumns(
         id: row.id,
-                trackingEntryId: row.trackingEntryId,
+        trackingEntryId: row.trackingEntryId,
         libraryEntryRefKey: row.libraryEntryRefKey,
         completedAt: row.completedAt,
         updatedAt: row.updatedAt,
@@ -89,7 +89,7 @@ final class MangaTrackingUnitCodec implements TrackingUnitStorageCodec {
       await db.into(db.mangaTrackingUnitRows).insertOnConflictUpdate(
             MangaTrackingUnitRowsCompanion.insert(
               id: unit.id,
-                            trackingEntryId: Value(unit.trackingEntryId),
+              trackingEntryId: Value(unit.trackingEntryId),
               libraryEntryRefKey: unit.libraryEntryRef.key,
               completedAt: unit.completedAt,
               updatedAt: unit.updatedAt,
@@ -134,7 +134,7 @@ final class MangaTrackingUnitCodec implements TrackingUnitStorageCodec {
         : const _MangaCoordinates();
     return MangaTrackingUnit(
       id: row.id,
-            trackingEntryId: row.trackingEntryId,
+      trackingEntryId: row.trackingEntryId,
       libraryEntryRef: row.libraryEntryRef,
       volumeNumber: typedCoordinates.volumeNumber,
       chapterNumber: typedCoordinates.chapterNumber,

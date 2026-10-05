@@ -35,14 +35,12 @@ TransferableField movieTransferField({
   required String? Function(MovieLibraryEntry item) read,
   required MovieLibraryEntry Function(MovieLibraryEntry item, String? value)
       write,
-  LibraryEntityScope scope = LibraryEntityScope.libraryEntry,
 }) {
   return TransferableField.typed<MovieLibraryEntry>(
     key: key,
     label: label,
     icon: icon,
     type: type,
-    scope: scope,
     decode: (value) => value as MovieLibraryEntry,
     read: read,
     write: write,
@@ -115,7 +113,6 @@ final movieTransferableFields = <TransferableField>[
     label: 'Features',
     icon: Icons.featured_play_list_outlined,
     type: TransferableFieldType.text,
-    scope: LibraryEntityScope.libraryEntry,
     read: (item) => item.personal.details.features,
     write: (item, value) {
       return item.copyWith(
@@ -128,7 +125,6 @@ final movieTransferableFields = <TransferableField>[
     label: 'Box set name',
     icon: Icons.inventory_outlined,
     type: TransferableFieldType.text,
-    scope: LibraryEntityScope.libraryEntry,
     read: (item) => item.personal.details.boxSetName,
     write: (item, value) {
       return item.copyWith(
@@ -141,7 +137,6 @@ final movieTransferableFields = <TransferableField>[
     label: 'Packaging',
     icon: Icons.inventory_2_outlined,
     type: TransferableFieldType.text,
-    scope: LibraryEntityScope.libraryEntry,
     read: (item) => item.personal.details.packaging,
     write: (item, value) {
       return item.copyWith(
@@ -164,13 +159,13 @@ Iterable<String?> movieLinkedMetadataValues(MovieCatalogMetadata metadata) => [
       ...metadata.genres,
     ];
 
-MovieCatalogMetadata? movieLinkedMetadata(LibraryWorkspaceSource source) {
-  final catalog = source.catalogData;
-  return catalog is MovieWorkspaceCatalogData ? catalog.metadata : null;
+MovieCatalogMetadata? movieLinkedMetadata(LibraryWorkspaceContext source) {
+  final catalog = source.kindPresentationData;
+  return catalog is MovieWorkspaceData ? catalog.metadata : null;
 }
 
 MetadataSearchQuery movieMetadataSearchQuery({
-  required LibraryWorkspaceSource source,
+  required LibraryWorkspaceContext source,
   required String title,
 }) {
   final metadata = movieLinkedMetadata(source);

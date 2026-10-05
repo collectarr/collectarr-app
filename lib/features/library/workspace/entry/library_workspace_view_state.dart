@@ -175,13 +175,20 @@ class LibraryWorkspaceViewProfile {
   }
 
   List<LibrarySortRuleRuntime> decodeSortRules(
-    Iterable<LibrarySortRule> rules, {
-    LibraryEntityScope? scope,
-  }) {
+    Iterable<LibrarySortRule> rules,
+  ) {
     return _decodeSortRules(
-      libraryKindWorkspaceForKind(registrationResolver().kind).fieldsForScope(
-        scope ?? LibraryEntityScope.catalogItem,
-      ),
+      libraryKindWorkspaceForKind(registrationResolver().kind).fields,
+      rules,
+    );
+  }
+
+  List<LibrarySortRuleRuntime> decodeLibraryEntrySortRules(
+    Iterable<LibrarySortRule> rules,
+  ) {
+    return _decodeSortRules(
+      libraryKindWorkspaceForKind(registrationResolver().kind)
+          .libraryEntryFields,
       rules,
     );
   }

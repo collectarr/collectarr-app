@@ -92,7 +92,7 @@ void main() {
         listenedAt: DateTime.utc(2026, 2, 3),
       ),
     ];
-    final summary = MusicCatalogItemListeningSummary.fromEvents(
+    final summary = MusicEntryListeningSummary.fromEvents(
       catalogItemId: album.id.value,
       events: events,
     );
@@ -110,7 +110,7 @@ void main() {
 
 LibraryWorkspaceSource _source(
   MusicAlbum album, {
-  MusicCatalogItemListeningSummary? listeningSummary,
+  MusicEntryListeningSummary? listeningSummary,
 }) =>
     LibraryWorkspaceSource(
       itemId: album.id.value,

@@ -111,10 +111,10 @@ class LibraryWorkspace extends ConsumerWidget {
             semantic != LibraryGroupSemantic.entries;
       })();
 
-  bool _isActive(LibraryProjectionItem item) => item.node.id == selectedId;
+  bool _isActive(LibraryProjectionItem item) => item.target.id == selectedId;
 
   bool _isSelectionSelected(LibraryProjectionItem item) =>
-      selectedIds.contains(item.node.id);
+      selectedIds.contains(item.target.id);
 
   bool _isHighlighted(LibraryProjectionItem item) =>
       selectionEnabled ? _isSelectionSelected(item) : _isActive(item);
@@ -124,29 +124,29 @@ class LibraryWorkspace extends ConsumerWidget {
       final isRangeSelection = isLibraryRangeModifierPressed();
       final isToggleSelection = isLibraryToggleModifierPressed();
       if (isRangeSelection) {
-        final anchorId = selectedAnchorId ?? selectedId ?? item.node.id;
+        final anchorId = selectedAnchorId ?? selectedId ?? item.target.id;
         final orderedIds = <String>[
-          for (final candidate in items) candidate.node.id
+          for (final candidate in items) candidate.target.id
         ];
         final rangeIds = selectionRangeItemIds(
           orderedIds,
           anchorId: anchorId,
-          targetId: item.node.id,
+          targetId: item.target.id,
         );
         onApplySelection(
           isToggleSelection ? {...selectedIds, ...rangeIds} : rangeIds,
-          item.node.id,
+          item.target.id,
         );
         return;
       }
       if (isToggleSelection) {
-        onToggleSelectionItem(item.node.id);
+        onToggleSelectionItem(item.target.id);
         return;
       }
       if (_isActive(item) && !selectionEnabled) {
         return;
       }
-      onActivateItem(item.node.id);
+      onActivateItem(item.target.id);
     };
   }
 
@@ -234,18 +234,18 @@ class LibraryWorkspace extends ConsumerWidget {
           padding: gridPadding,
           selectionEnabled: selectionEnabled,
           selectedIds: selectedIds,
-          itemIdOf: (item) => item.node.id,
+          itemIdOf: (item) => item.target.id,
           onSelectionChanged: onBoxSelectionChanged,
           backgroundColor: palette.gridCanvas,
           itemBuilder: (context, item) => LibraryCoverTile(
-            key: ValueKey(item.node.id),
+            key: ValueKey(item.target.id),
             item: item,
             customFieldBadges: item.customFieldBadges,
             active: _isActive(item),
             selected: _isSelectionSelected(item),
             selectionMode: selectionEnabled,
             onTap: _selectionTap(item),
-            onSelectionToggleTap: () => onToggleSelectionItem(item.node.id),
+            onSelectionToggleTap: () => onToggleSelectionItem(item.target.id),
             onDoubleTap: () => onOpenItem(item),
             onEditTap: () => onEditItem(item),
             onSecondaryTapUp: onItemContextMenu == null
@@ -273,11 +273,11 @@ class LibraryWorkspace extends ConsumerWidget {
           padding: gridPadding,
           selectionEnabled: selectionEnabled,
           selectedIds: selectedIds,
-          itemIdOf: (item) => item.node.id,
+          itemIdOf: (item) => item.target.id,
           onSelectionChanged: onBoxSelectionChanged,
           backgroundColor: palette.gridCanvas,
           itemBuilder: (context, item) => LibraryWorkspaceCard(
-            key: ValueKey(item.node.id),
+            key: ValueKey(item.target.id),
             item: item,
             customFieldBadges: item.customFieldBadges,
             selected: _isHighlighted(item),
@@ -295,7 +295,7 @@ class LibraryWorkspace extends ConsumerWidget {
                 usesCoverFocusedCards ? viewState.coverSize : cardCoverWidth,
             cardLayout: LibraryCardLayout.vertical,
             selectionMode: selectionEnabled,
-            onSelectionToggleTap: () => onToggleSelectionItem(item.node.id),
+            onSelectionToggleTap: () => onToggleSelectionItem(item.target.id),
             onEditTap: () => onEditItem(item),
           ),
         ),
@@ -329,7 +329,7 @@ class LibraryWorkspace extends ConsumerWidget {
           isSelected: _isSelectionSelected,
           selectionEnabled: selectionEnabled,
           onTap: (item) => _selectionTap(item)(),
-          onToggleSelectionItem: (item) => onToggleSelectionItem(item.node.id),
+          onToggleSelectionItem: (item) => onToggleSelectionItem(item.target.id),
           onDoubleTap: onOpenItem,
           onSecondaryTapUp: onItemContextMenu == null
               ? null
@@ -364,15 +364,15 @@ class LibraryWorkspace extends ConsumerWidget {
         final density = viewState.densityPreset;
         final registration = type;
         final workspace = libraryKindWorkspaceForKind(registration.kind);
-        final schemaNode = items.first.node;
+        final schemaNode = items.first.target;
         final visibleColumns = workspace.orderedTableColumns(
           viewState.visibleColumnIds,
-          node: schemaNode,
+          target: schemaNode,
         );
         final tableWidth = workspace.tableWidthForColumns(
           viewState.visibleColumnIds,
           viewState.columnWidths,
-          node: schemaNode,
+          target: schemaNode,
         );
         final contentWidth = math.max(tableWidth + 16, constraints.maxWidth);
         return ColoredBox(
@@ -395,29 +395,29 @@ class LibraryWorkspace extends ConsumerWidget {
                       ),
                   ],
                   columnWidthFor: (column) => workspace.tableColumnWidth(
-                    workspace.fieldsForNode(schemaNode).decodeColumnId(column),
+                    workspace.fieldsForTarget(schemaNode).decodeColumnId(column),
                     viewState.columnWidths,
-                    node: schemaNode,
+                    target: schemaNode,
                   ),
                   defaultColumnWidthFor: (column) =>
                       workspace.defaultTableColumnWidth(
-                    workspace.fieldsForNode(schemaNode).decodeColumnId(column),
-                    node: schemaNode,
+                    workspace.fieldsForTarget(schemaNode).decodeColumnId(column),
+                    target: schemaNode,
                   ),
                   columnSortFor: (column) => workspace
                       .columnSort(
                           workspace
-                              .fieldsForNode(schemaNode)
+                              .fieldsForTarget(schemaNode)
                               .decodeColumnId(column),
-                          node: schemaNode)
+                          target: schemaNode)
                       ?.value,
                   columnLabelFor: (column) => workspace.columnLabel(
-                    workspace.fieldsForNode(schemaNode).decodeColumnId(column),
-                    node: schemaNode,
+                    workspace.fieldsForTarget(schemaNode).decodeColumnId(column),
+                    target: schemaNode,
                   ),
                   columnIsNumeric: (column) => workspace.columnIsNumeric(
-                    workspace.fieldsForNode(schemaNode).decodeColumnId(column),
-                    node: schemaNode,
+                    workspace.fieldsForTarget(schemaNode).decodeColumnId(column),
+                    target: schemaNode,
                   ),
                   cellBuilder: (entry, column) => _tableCell(entry, column),
                   isSelected: _isHighlighted,
@@ -492,13 +492,13 @@ class LibraryWorkspace extends ConsumerWidget {
           padding: EdgeInsets.all(spacing),
           selectionEnabled: selectionEnabled,
           selectedIds: selectedIds,
-          itemIdOf: (item) => item.node.id,
+          itemIdOf: (item) => item.target.id,
           onSelectionChanged: onBoxSelectionChanged,
           backgroundColor: backgroundColor,
           itemBuilder: (context, item) {
             final palette = appPalette(context);
             return LibraryWorkspaceCard(
-              key: ValueKey(item.node.id),
+              key: ValueKey(item.target.id),
               item: item,
               customFieldBadges: item.customFieldBadges,
               selected: _isHighlighted(item),
@@ -515,7 +515,7 @@ class LibraryWorkspace extends ConsumerWidget {
               coverWidth: tileCoverWidth,
               cardLayout: LibraryCardLayout.horizontal,
               selectionMode: selectionEnabled,
-              onSelectionToggleTap: () => onToggleSelectionItem(item.node.id),
+              onSelectionToggleTap: () => onToggleSelectionItem(item.target.id),
               onEditTap: () => onEditItem(item),
             );
           },
@@ -529,7 +529,7 @@ class LibraryWorkspace extends ConsumerWidget {
     final workspace = libraryKindWorkspaceForKind(registration.kind);
     return workspace.buildTableCell(
       item,
-      workspace.fieldsForNode(item.node).decodeColumnId(column),
+      workspace.fieldsForTarget(item.target).decodeColumnId(column),
     );
   }
 }

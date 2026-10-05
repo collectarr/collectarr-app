@@ -1,5 +1,5 @@
 import 'package:collectarr_app/core/db/local_database.dart';
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/features/library/config/library_entry_create_payload.dart';
@@ -24,7 +24,7 @@ final class CollectarrLibraryEntryPersistence {
   Future<LibraryEntryMutationResult> createLibraryEntry({
     required CatalogMediaKind kind,
     required LibraryEntryCreatePayload payload,
-    required CatalogEntityRef resolvedCatalogRef,
+    required CatalogItemRef resolvedCatalogRef,
     required String id,
     required DateTime createdAt,
     required bool? existingIsDigital,

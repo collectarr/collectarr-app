@@ -11,7 +11,7 @@ List<LibraryGroupModeCategory> defaultLibraryGroupModeCategories(
   final categoriesMap = <String, List<String>>{};
 
   for (final mode in modes) {
-    final fields = workspace.fieldsForGroupModeAcrossScopes(mode);
+    final fields = workspace.fieldsForGroupModeAcrossTargets(mode);
     if (fields == null) {
       continue;
     }

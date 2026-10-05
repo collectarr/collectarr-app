@@ -1,4 +1,4 @@
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/core/models/library_entry_ref.dart';
 import 'package:collectarr_app/core/models/tracking_unit_summary.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
@@ -28,7 +28,7 @@ class VideoSeasonTrackingSection extends ConsumerStatefulWidget {
     required this.accent,
   });
 
-  final CatalogEntityRef seriesRef;
+  final CatalogItemRef seriesRef;
   final String kind;
   final Color accent;
 
@@ -46,7 +46,7 @@ class _VideoSeasonTrackingSectionState
 
   LibraryEntryRef get entryRef => LibraryEntryRef(
         kind: widget.seriesRef.kind,
-        id: LibraryEntryId(widget.seriesRef.rootScope.id),
+        id: LibraryEntryId(widget.seriesRef.id),
       );
 
   @override

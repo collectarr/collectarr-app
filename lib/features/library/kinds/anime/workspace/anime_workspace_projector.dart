@@ -1,56 +1,47 @@
-import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_metadata.dart';
-import 'package:collectarr_app/features/library/kinds/anime/workspace/anime_workspace_catalog_data.dart';
+import 'package:collectarr_app/features/library/kinds/anime/workspace/anime_workspace_data.dart';
 import 'package:collectarr_app/features/library/kinds/anime/workspace/anime_workspace_dto.dart';
-import 'package:collectarr_app/features/library/workspace/config/library_entity_workspace_projector.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_target_workspace_projector.dart';
+import 'package:collectarr_app/features/library/workspace/entry/personal_overlay.dart';
+import 'package:collectarr_app/features/library/workspace/entry/workspace_item.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 
 final class AnimeWorkspaceProjector
-    implements LibraryEntityWorkspaceProjector<AnimeWorkspaceDto> {
-  const AnimeWorkspaceProjector({this.expectedScope});
-
-  final LibraryEntityScope? expectedScope;
+    implements LibraryTargetWorkspaceProjector<AnimeWorkspaceDto> {
+  const AnimeWorkspaceProjector();
 
   @override
   AnimeWorkspaceDto project({
-    required LibraryWorkspaceSource source,
-    required LibraryEntityRef entity,
+    required WorkspaceItem item,
+    required PersonalOverlay personal,
   }) {
-    requireEntityBelongsToSource(source, entity);
-    requireEntityScope(entity, expectedScope ?? entity.scope);
-    final catalog = _catalogFor(source);
+    final catalog = _catalogFor(item);
     return AnimeWorkspaceDto(
       common: _animeCommonProjection(
-        source,
-        entity,
+        item,
         catalog.metadata,
       ),
-      personal: PersonalCopyProjection.fromShelf(
-        source,
-      ),
+      personal: PersonalEntryProjection.fromShelf(item, personal),
       metadata: catalog.metadata,
     );
   }
 }
 
-AnimeWorkspaceCatalogData _catalogFor(LibraryWorkspaceSource source) {
-  final data = source.catalogData;
-  if (data case final AnimeWorkspaceCatalogData catalog) return catalog;
-  throw StateError('Expected AnimeWorkspaceCatalogData for anime workspace');
+AnimeWorkspaceData _catalogFor(WorkspaceItem item) {
+  final data = item.kindPresentationData;
+  if (data case final AnimeWorkspaceData catalog) return catalog;
+  throw StateError('Expected AnimeWorkspaceData for anime workspace');
 }
 
 WorkspaceCommonProjection _animeCommonProjection(
-  LibraryWorkspaceSource source,
-  LibraryEntityRef node,
+  WorkspaceItem item,
   AnimeMetadata metadata,
 ) {
-  return WorkspaceCommonProjection.fromStructuralShelf(
-    source,
-    node,
-    overrideTitle: metadata.title,
-    overrideSynopsis: metadata.synopsis,
-    overrideReleaseDate: metadata.startDate ?? metadata.releaseDate,
-    overrideCoverImageUrl: metadata.coverImageUrl,
+  return WorkspaceCommonProjection.fromKindPresentation(
+    item,
+    title: metadata.title,
+    synopsis: metadata.synopsis,
+    releaseDate: metadata.startDate ?? metadata.releaseDate,
+    coverImageUrl: metadata.coverImageUrl,
   );
 }

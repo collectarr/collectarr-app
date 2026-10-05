@@ -1,8 +1,6 @@
 import 'package:collectarr_app/core/models/tracking_status.dart';
-import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
-import 'package:collectarr_app/features/library/workspace/config/library_entity_workspace_projector.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_workspace_catalog_data.dart';
+import 'package:collectarr_app/features/library/workspace/entry/personal_overlay.dart';
+import 'package:collectarr_app/features/library/workspace/entry/workspace_item.dart';
 
 class WorkspaceCommonProjection {
   const WorkspaceCommonProjection({
@@ -13,23 +11,20 @@ class WorkspaceCommonProjection {
     this.coverImageUrl,
   });
 
-  factory WorkspaceCommonProjection.fromStructuralShelf(
-    LibraryWorkspaceSource source,
-    LibraryEntityRef node, {
-    String? overrideTitle,
-    String? overrideSynopsis,
-    DateTime? overrideReleaseDate,
-    String? overrideCoverImageUrl,
+  factory WorkspaceCommonProjection.fromKindPresentation(
+    WorkspaceItem item,
+    {
+    required String title,
+    String? synopsis,
+    DateTime? releaseDate,
+    String? coverImageUrl,
   }) {
     return WorkspaceCommonProjection(
-      title: overrideTitle ?? source.title,
-      synopsis: overrideSynopsis ??
-          libraryWorkspaceCatalogSynopsis(source.catalogData),
-      releaseDate: overrideReleaseDate ?? source.catalogData?.releaseDate,
-      currency: source.libraryEntrySummary?.currency,
-      coverImageUrl: overrideCoverImageUrl ??
-          source.catalogSummary?.imageUrl ??
-          source.catalogData?.coverImageUrl,
+      title: title,
+      synopsis: synopsis,
+      releaseDate: releaseDate,
+      currency: item.entrySummary?.currency,
+      coverImageUrl: coverImageUrl ?? item.presentation?.imageUrl,
     );
   }
 
@@ -40,8 +35,8 @@ class WorkspaceCommonProjection {
   final String? coverImageUrl;
 }
 
-class PersonalCopyProjection {
-  PersonalCopyProjection({
+class PersonalEntryProjection {
+  PersonalEntryProjection({
     this.isEntry = false,
     this.isWishlisted = false,
     this.isTracked = false,
@@ -57,24 +52,30 @@ class PersonalCopyProjection {
     this.notes,
   }) : updatedAt = updatedAt ?? DateTime.utc(1970);
 
-  factory PersonalCopyProjection.fromShelf(
-    LibraryWorkspaceSource source,
+  factory PersonalEntryProjection.fromShelf(
+    WorkspaceItem item,
+    PersonalOverlay personal,
   ) {
-    final tracking = source.trackingSummary;
-    return PersonalCopyProjection(
-      isEntry: source.isEntry,
-      isWishlisted: source.isWishlisted,
-      isTracked: source.isTracked,
+    final tracking = personal.tracking;
+    final entryUpdatedAt = item.entrySummary?.updatedAt;
+    final personalUpdatedAt = personal.updatedAt;
+    return PersonalEntryProjection(
+      isEntry: item.entrySummary != null,
+      isWishlisted: personal.isWishlisted,
+      isTracked: personal.isTracked,
       condition: null,
-      locationPath: source.locationPath,
+      locationPath: personal.locationPath,
       trackingStatus: mediaTrackingStatusToStorageValue(tracking?.status),
       rating: tracking?.rating,
-      pricePaidCents: source.libraryEntrySummary?.pricePaidCents,
-      addedAt: source.addedAt,
-      updatedAt: source.updatedAt,
+      pricePaidCents: item.entrySummary?.pricePaidCents,
+      addedAt: item.entrySummary?.createdAt ?? personal.wishlist?.createdAt,
+      updatedAt: entryUpdatedAt == null ||
+              !entryUpdatedAt.isAfter(personalUpdatedAt)
+          ? personalUpdatedAt
+          : entryUpdatedAt,
       tags: null,
       collectionStatus: null,
-      notes: source.libraryEntrySummary?.notes,
+      notes: item.entrySummary?.notes,
     );
   }
 

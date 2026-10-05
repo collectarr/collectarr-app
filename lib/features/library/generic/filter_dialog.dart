@@ -458,7 +458,7 @@ bool libraryFilterMatches(
     }
   }
   if (filters.missingCover && item.dto.imageUrl != null) return false;
-  if (filters.missingMetadata && item.source.catalogSummary != null) {
+  if (filters.missingMetadata && item.source.kindPresentationData != null) {
     return false;
   }
   return true;

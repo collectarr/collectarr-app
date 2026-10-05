@@ -4,8 +4,7 @@ import 'package:collectarr_app/features/library/kinds/comic/domain/comic_library
 import 'package:collectarr_app/features/library/kinds/comic/entries/comic_entry_details.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/schema/field_factories.dart';
-import 'package:collectarr_app/features/library/workspace/schema/library_entity_workspace_schema.dart';
-import 'package:collectarr_app/features/library/workspace/schema/library_preference_codec.dart';
+import 'package:collectarr_app/features/library/workspace/schema/library_workspace_schema.dart';
 import 'package:flutter/material.dart';
 
 abstract final class ComicLibraryEntryWorkspaceFields {
@@ -14,15 +13,13 @@ abstract final class ComicLibraryEntryWorkspaceFields {
     id: ComicFieldIds.condition,
     label: 'Condition',
     getValue: (context) => _entry(context)?.personal.condition,
-    entityScope: LibraryEntityScope.libraryEntry,
   );
 
   static final location =
       LibraryFieldDefinition<ComicKind, ComicWorkspaceDto, String?>(
     id: ComicFieldIds.location,
     label: 'Location',
-    getValue: (context) => context.source.locationPath,
-    entityScope: LibraryEntityScope.libraryEntry,
+    getValue: (context) => context.personal.locationPath,
   );
 
   static final pricePaid =
@@ -30,17 +27,15 @@ abstract final class ComicLibraryEntryWorkspaceFields {
     id: ComicFieldIds.pricePaid,
     label: 'Purchase Price',
     getValue: (context) => _entry(context)?.personal.pricePaidCents,
-    entityScope: LibraryEntityScope.libraryEntry,
   );
 
   static final status =
       LibraryFieldDefinition<ComicKind, ComicWorkspaceDto, String?>(
     id: ComicFieldIds.status,
     label: 'Status',
-    getValue: (context) => context.source.isWishlisted
+    getValue: (context) => context.personal.isWishlisted
         ? 'wishlist'
-        : (context.source.isEntry ? 'entry' : null),
-    entityScope: LibraryEntityScope.libraryEntry,
+        : ((context.item.entrySummary != null) ? 'entry' : null),
   );
 
   static final rating =
@@ -48,31 +43,27 @@ abstract final class ComicLibraryEntryWorkspaceFields {
     id: ComicFieldIds.rating,
     label: 'Rating',
     getValue: (context) => _entry(context)?.personal.reading.rating,
-    entityScope: LibraryEntityScope.libraryEntry,
   );
 
   static final wishlist =
       LibraryFieldDefinition<ComicKind, ComicWorkspaceDto, bool>(
     id: ComicFieldIds.wishlist,
     label: 'Wishlist',
-    getValue: (context) => context.source.isWishlisted,
-    entityScope: LibraryEntityScope.libraryEntry,
+    getValue: (context) => context.personal.isWishlisted,
   );
 
   static final updatedAt =
       LibraryFieldDefinition<ComicKind, ComicWorkspaceDto, DateTime>(
     id: ComicFieldIds.updatedAt,
     label: 'Updated',
-    getValue: (context) => context.source.updatedAt,
-    entityScope: LibraryEntityScope.libraryEntry,
+    getValue: (context) => context.updatedAt,
   );
 
   static final addedAt =
       LibraryFieldDefinition<ComicKind, ComicWorkspaceDto, DateTime?>(
     id: ComicFieldIds.addedAt,
     label: 'Added',
-    getValue: (context) => context.source.addedAt,
-    entityScope: LibraryEntityScope.libraryEntry,
+    getValue: (context) => context.addedAt,
   );
 
   static final grade =
@@ -80,7 +71,6 @@ abstract final class ComicLibraryEntryWorkspaceFields {
     id: ComicFieldIds.grade,
     label: 'Grade',
     getValue: (context) => _entry(context)?.personal.grade,
-    entityScope: LibraryEntityScope.libraryEntry,
   );
 
   static final keyComic =
@@ -88,7 +78,6 @@ abstract final class ComicLibraryEntryWorkspaceFields {
     id: ComicFieldIds.keyComic,
     label: 'Key Comic',
     getValue: (context) => _entryDetails(context)?.keyComic == true,
-    entityScope: LibraryEntityScope.libraryEntry,
   );
 
   static final keyReason =
@@ -96,7 +85,6 @@ abstract final class ComicLibraryEntryWorkspaceFields {
     id: ComicFieldIds.keyReason,
     label: 'Key Reason',
     getValue: (context) => _entryDetails(context)?.keyReason,
-    entityScope: LibraryEntityScope.libraryEntry,
   );
 
   static final keyCategory =
@@ -104,7 +92,6 @@ abstract final class ComicLibraryEntryWorkspaceFields {
     id: ComicFieldIds.keyCategory,
     label: 'Key Category',
     getValue: (context) => _entryDetails(context)?.keyCategory,
-    entityScope: LibraryEntityScope.libraryEntry,
   );
 
   static final keySeverity =
@@ -112,7 +99,6 @@ abstract final class ComicLibraryEntryWorkspaceFields {
     id: ComicFieldIds.keySeverity,
     label: 'Key Severity',
     getValue: (context) => _entryDetails(context)?.keySeverity,
-    entityScope: LibraryEntityScope.libraryEntry,
   );
 
   static final rawOrSlabbed =
@@ -120,7 +106,6 @@ abstract final class ComicLibraryEntryWorkspaceFields {
     id: ComicFieldIds.rawOrSlabbed,
     label: 'Raw / Slabbed',
     getValue: (context) => _entryDetails(context)?.rawOrSlabbed,
-    entityScope: LibraryEntityScope.libraryEntry,
   );
 
   static final gradingCompany =
@@ -128,7 +113,6 @@ abstract final class ComicLibraryEntryWorkspaceFields {
     id: ComicFieldIds.gradingCompany,
     label: 'Grading Company',
     getValue: (context) => _entryDetails(context)?.gradingCompany,
-    entityScope: LibraryEntityScope.libraryEntry,
   );
 
   static final graderNotes =
@@ -136,7 +120,6 @@ abstract final class ComicLibraryEntryWorkspaceFields {
     id: ComicFieldIds.graderNotes,
     label: 'Grader Notes',
     getValue: (context) => _entryDetails(context)?.graderNotes,
-    entityScope: LibraryEntityScope.libraryEntry,
   );
 
   static final signedBy =
@@ -144,7 +127,6 @@ abstract final class ComicLibraryEntryWorkspaceFields {
     id: ComicFieldIds.signedBy,
     label: 'Signed By',
     getValue: (context) => _entryDetails(context)?.signedBy,
-    entityScope: LibraryEntityScope.libraryEntry,
   );
 
   static final labelType =
@@ -152,7 +134,6 @@ abstract final class ComicLibraryEntryWorkspaceFields {
     id: ComicFieldIds.labelType,
     label: 'Label Type',
     getValue: (context) => _entryDetails(context)?.labelType,
-    entityScope: LibraryEntityScope.libraryEntry,
   );
 
   static final customLabel =
@@ -160,7 +141,6 @@ abstract final class ComicLibraryEntryWorkspaceFields {
     id: ComicFieldIds.customLabel,
     label: 'Custom Label',
     getValue: (context) => _entryDetails(context)?.customLabel,
-    entityScope: LibraryEntityScope.libraryEntry,
   );
 
   static final pageQuality =
@@ -168,7 +148,6 @@ abstract final class ComicLibraryEntryWorkspaceFields {
     id: ComicFieldIds.pageQuality,
     label: 'Page Quality',
     getValue: (context) => _entryDetails(context)?.pageQuality,
-    entityScope: LibraryEntityScope.libraryEntry,
   );
 
   static final certificationNumber =
@@ -176,7 +155,6 @@ abstract final class ComicLibraryEntryWorkspaceFields {
     id: ComicFieldIds.certificationNumber,
     label: 'Certification Number',
     getValue: (context) => _entryDetails(context)?.certificationNumber,
-    entityScope: LibraryEntityScope.libraryEntry,
   );
 
   static final coverPrice =
@@ -184,7 +162,6 @@ abstract final class ComicLibraryEntryWorkspaceFields {
     id: ComicFieldIds.coverPrice,
     label: 'Cover Price',
     getValue: (context) => _entryDetails(context)?.coverPriceCents,
-    entityScope: LibraryEntityScope.libraryEntry,
   );
 
   static final lastBagBoardDate =
@@ -192,7 +169,6 @@ abstract final class ComicLibraryEntryWorkspaceFields {
     id: ComicFieldIds.lastBagBoardDate,
     label: 'Last Bag & Board Date',
     getValue: (context) => _entryDetails(context)?.lastBagBoardDate,
-    entityScope: LibraryEntityScope.libraryEntry,
   );
 }
 
@@ -241,11 +217,10 @@ final comicLibraryEntryWorkspaceGroupDefinitions = [
 final comicLibraryEntryWorkspaceSortDefinitions = [
   LibrarySortDefinition<ComicKind, ComicWorkspaceDto>(
     id: ComicSortIds.status,
-    entityScope: LibraryEntityScope.libraryEntry,
     compare: (left, right) {
       int rank(LibraryProjectionContext<ComicWorkspaceDto> ctx) {
-        if (ctx.source.isEntry) return 0;
-        if (ctx.source.isWishlisted) return 1;
+        if ((ctx.item.entrySummary != null)) return 0;
+        if (ctx.personal.isWishlisted) return 1;
         return 2;
       }
 
@@ -283,9 +258,9 @@ final comicLibraryEntryWorkspaceColumnDefinitions = [
     id: ComicFieldIds.status,
     label: 'Status',
     getValue: ComicLibraryEntryWorkspaceFields.status.getValue,
-    cellValue: (context) => Text(context.source.isWishlisted
+    cellValue: (context) => Text(context.personal.isWishlisted
         ? 'Wishlist'
-        : (context.source.isEntry ? 'Entry' : '')),
+        : ((context.item.entrySummary != null) ? 'Entry' : '')),
     sortable: false,
     groupable: false,
     defaultWidth: 52,
@@ -305,7 +280,7 @@ final comicLibraryEntryWorkspaceColumnDefinitions = [
     id: ComicFieldIds.wishlist,
     label: 'Wishlist',
     getValue: ComicLibraryEntryWorkspaceFields.wishlist.getValue,
-    cellValue: (context) => Text(context.source.isWishlisted ? 'Wishlist' : ''),
+    cellValue: (context) => Text(context.personal.isWishlisted ? 'Wishlist' : ''),
     group: 'Personal',
     defaultWidth: 82,
     minWidth: 70,
@@ -314,7 +289,7 @@ final comicLibraryEntryWorkspaceColumnDefinitions = [
     id: ComicFieldIds.updatedAt,
     label: 'Updated',
     getValue: ComicLibraryEntryWorkspaceFields.updatedAt.getValue,
-    cellValue: (context) => Text(_formatDate(context.source.updatedAt)),
+    cellValue: (context) => Text(_formatDate(context.updatedAt)),
     group: 'Personal',
     defaultWidth: 112,
   ),
@@ -322,7 +297,7 @@ final comicLibraryEntryWorkspaceColumnDefinitions = [
     id: ComicFieldIds.addedAt,
     label: 'Added',
     getValue: ComicLibraryEntryWorkspaceFields.addedAt.getValue,
-    cellValue: (context) => Text(_formatDate(context.source.addedAt)),
+    cellValue: (context) => Text(_formatDate(context.addedAt)),
     group: 'Personal',
     defaultWidth: 112,
   ),
@@ -356,9 +331,8 @@ final comicLibraryEntryWorkspaceColumnDefinitions = [
 ];
 
 final comicLibraryEntryWorkspaceSchema =
-    LibraryEntityWorkspaceSchema<ComicKind, ComicWorkspaceDto>(
+    LibraryWorkspaceSchema<ComicKind, ComicWorkspaceDto>(
   kindNamespace: 'comic',
-  entityScope: LibraryEntityScope.libraryEntry,
   fields: comicLibraryEntryWorkspaceFieldDefinitions,
   columns: comicLibraryEntryWorkspaceColumnDefinitions,
   sorts: comicLibraryEntryWorkspaceSortDefinitions,
@@ -367,7 +341,6 @@ final comicLibraryEntryWorkspaceSchema =
   defaultVisibleColumns: comicLibraryEntryWorkspaceDefaultVisibleColumns,
   defaultSort: ComicSortIds.status,
   defaultGroup: ComicGroupIds.condition,
-  preferenceCodec: const IdentityLibraryWorkspacePreferenceCodec<ComicKind>(),
 );
 
 String _formatDate(DateTime? value) {

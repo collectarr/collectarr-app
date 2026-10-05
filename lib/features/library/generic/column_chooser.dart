@@ -3,7 +3,6 @@ import 'package:collectarr_app/features/library/workspace/table/library_column_c
 import 'package:collectarr_app/features/library/workspace/config/library_column_preset_store.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_view_state.dart';
-import 'package:collectarr_app/features/library/domain/library_entity_scope.dart';
 import 'package:flutter/material.dart';
 
 Future<Set<String>?> showGenericLibraryColumnChooser({
@@ -13,14 +12,13 @@ Future<Set<String>?> showGenericLibraryColumnChooser({
   Set<String> pinnedFavoriteKeys = const {},
   ValueChanged<LibraryTableColumnPreset>? onTogglePinnedFavorite,
 }) async {
-  const scope = LibraryEntityScope.catalogItem;
-  final store = LibraryColumnPresetStore(type, scope: scope);
+  final store = LibraryColumnPresetStore(type);
   final savedPresets = await store.read();
   if (!context.mounted) {
     return null;
   }
   final workspace = libraryKindWorkspaceForKind(type.kind);
-  final fields = workspace.fieldsForScope(scope);
+  final fields = workspace.fields;
   return showDialog<Set<String>>(
     context: context,
     builder: (context) => LibraryColumnChooserDialog(

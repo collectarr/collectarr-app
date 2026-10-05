@@ -9,7 +9,7 @@ import 'package:collectarr_app/features/library/config/library_media_presentatio
 import 'package:collectarr_app/features/library/config/presentation/library_media_presentation_builder_helpers.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tv_shelf_drilldown.dart';
 import 'package:collectarr_app/features/library/kinds/tv/workspace/tv_workspace_dto.dart';
-import 'package:collectarr_app/features/library/kinds/tv/workspace/tv_workspace_catalog_data.dart';
+import 'package:collectarr_app/features/library/kinds/tv/workspace/tv_workspace_data.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tv_physical_media_formats.dart';
 import 'package:collectarr_app/features/library/widgets/format_badge.dart';
 import 'package:collectarr_app/features/library/details/library_detail_models.dart';
@@ -19,8 +19,8 @@ import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
-import 'package:collectarr_app/features/library/workspace/config/library_entity_workspace_projector.dart';
+import 'package:collectarr_app/features/library/domain/library_target_ref.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_target_workspace_projector.dart';
 import 'package:flutter/material.dart';
 
 const tvMetadataLabels = LibraryMetadataLabels(
@@ -57,10 +57,10 @@ class TvLibraryMediaPresentationBuilder
 
   @override
   List<LibraryDuplicateCandidate> buildDuplicateCandidates(
-    LibraryWorkspaceSource entry,
+    LibraryWorkspaceContext entry,
   ) {
-    final catalog = entry.catalogData;
-    if (catalog is! TvWorkspaceCatalogData) return const [];
+    final catalog = entry.kindPresentationData;
+    if (catalog is! TvWorkspaceData) return const [];
     final identifier = normalizeLibraryDuplicateIdentifier(
       catalog.metadata.barcode,
     );
@@ -77,10 +77,10 @@ class TvLibraryMediaPresentationBuilder
 
   @override
   List<LibraryWorkspaceLinkSummary> buildWorkspaceLinks(
-    LibraryWorkspaceSource entry,
+    LibraryWorkspaceContext entry,
   ) {
-    final catalog = entry.catalogData;
-    if (catalog is! TvWorkspaceCatalogData) return const [];
+    final catalog = entry.kindPresentationData;
+    if (catalog is! TvWorkspaceData) return const [];
     return [
       for (final value in catalog.metadata.links)
         if (value.url.trim().isNotEmpty)
@@ -173,7 +173,7 @@ class TvLibraryMediaPresentationBuilder
 
   @override
   bool canOpenKindDrilldown(LibraryProjectionView item) {
-    return item.node.scope == LibraryEntityScope.catalogItem &&
+    return item.target is CatalogTargetRef &&
         item.source.mediaKind == CatalogMediaKind.tv;
   }
 
@@ -200,7 +200,7 @@ class TvLibraryMediaPresentationBuilder
       identityFacts: [
         if (includeIdentityFacts) ...[
           LibraryDetailField(label: 'Kind', value: singularLabel),
-          LibraryDetailField(label: 'ID', value: item.node.catalogItemId),
+          LibraryDetailField(label: 'ID', value: item.target.id),
           LibraryDetailField(label: 'Title', value: dto.primaryLabel),
         ],
         if (seriesTitle != null)
@@ -209,15 +209,13 @@ class TvLibraryMediaPresentationBuilder
             value: seriesTitle,
             onTap: tapFor(seriesTitle),
           ),
-        if (item.node.scope != LibraryEntityScope.catalogItem &&
-            variant != null)
+        if (item.target is EntryTargetRef && variant != null)
           LibraryDetailField(
             label: 'Format / Edition',
             value: variant,
             onTap: tapFor(variant),
           ),
-        if (item.node.scope != LibraryEntityScope.catalogItem &&
-            barcode != null)
+        if (item.target is EntryTargetRef && barcode != null)
           LibraryDetailField(label: 'UPC / Barcode', value: barcode),
       ],
       contextFacts: [
@@ -292,7 +290,7 @@ class TvLibraryMediaPresentationBuilder
     required VoidCallback onOpenTitleDetails,
     required List<LibraryEntrySummary> libraryEntries,
     required List<WishlistItem> wishlistItems,
-    required LibraryEntityWorkspaceProjector projector,
+    required LibraryTargetWorkspaceProjector projector,
   }) {
     return TvShelfSeasonDrilldown(
       titleItem: selectedItem,

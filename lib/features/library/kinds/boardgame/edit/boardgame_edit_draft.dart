@@ -17,7 +17,7 @@ import 'package:collectarr_app/features/library/kinds/registry/library_entry_dis
 import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_library_entry.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/entries/boardgame_entry_details_draft.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/entries/boardgame_library_entry_update_payload.dart';
-import 'package:collectarr_app/features/library/edit/draft/personal_state_draft.dart';
+import 'package:collectarr_app/features/library/edit/draft/library_entry_personal_bindings.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 
@@ -134,7 +134,7 @@ class BoardGameEditDraft
       );
 
   @override
-  void initializePersonalState(PersonalStateDraft personal) {
+  void initializePersonalState(LibraryEntryPersonalBindings personal) {
     final item = libraryEntry;
     if (item == null) return;
     personal.ownerLabelController.text = item.personal.ownerLabel ?? '';
@@ -167,7 +167,7 @@ class BoardGameEditDraft
   @override
   BoardgameLibraryEntryUpdatePayload buildEntryUpdatePayload({
     required LibraryEntryRef libraryEntryRef,
-    required PersonalStateDraft personal,
+    required LibraryEntryPersonalBindings personal,
   }) {
     return BoardgameLibraryEntryUpdatePayload(
       isDigital: const Patch.unchanged(),
@@ -254,6 +254,7 @@ class BoardGameEditDraft
       kindItem: selection.kindItem.kindCapability.mapTransport(
         (transport) => CatalogSearchCandidate.fromItem(
           transport.replacingKindData(updated),
+          basedOn: selection.kindItem,
         ),
       ),
     );
@@ -261,7 +262,7 @@ class BoardGameEditDraft
 }
 
 BoardGameMetadata? _boardGameMetadataFor(CatalogSearchCandidate item) {
-  if (item.reference.kind != CatalogMediaKind.boardgame) return null;
+  if (item.summary.kind != CatalogMediaKind.boardgame) return null;
   return item.kindCapability.mapTransport(
     (transport) => BoardGameMetadata.fromJson(transport.kindData),
   );

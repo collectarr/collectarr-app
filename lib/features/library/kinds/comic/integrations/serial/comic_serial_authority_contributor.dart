@@ -47,7 +47,7 @@ final class ComicSerialAuthorityContributor
       for (final item in media)
         if (item.id case final id?)
           SerialAuthorityCatalogRecord(
-            itemId: id.value,
+            itemId: id.id,
             title: item.title,
             seriesTitle: _seriesTitle(item),
             coreSeriesId: item.seriesId,
@@ -67,7 +67,7 @@ final class ComicSerialAuthorityContributor
 
     final repository = ComicRepository(db);
     for (final item in await repository.search()) {
-      final id = item.id?.value;
+      final id = item.id?.id;
       if (id == null || !wanted.contains(id)) continue;
 
       final payload = Map<String, dynamic>.from(item.toJson())

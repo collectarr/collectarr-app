@@ -2,19 +2,9 @@ import '../boardgame_module_dependencies.dart';
 import '../entries/boardgame_transfer_library_entry.dart';
 
 final boardGameKindEditCapabilities = LibraryEditCapabilitySet(
-  editRegistry: LibraryEntityEditRegistry(contributors: [
-    LibraryEntityEditContributor(
-      scope: LibraryEntityScope.catalogItem,
-      builder: buildBoardGameLibraryEditDialog,
-    ),
-    LibraryEntityEditContributor(
-      scope: LibraryEntityScope.libraryEntry,
-      builder: buildBoardGameLibraryEditDialog,
-    ),
-  ]),
+  editRegistry: LibraryTargetEditRegistry(catalogItem: buildBoardGameLibraryEditDialog, libraryEntry: buildBoardGameLibraryEditDialog),
   vocabularies: StandardKindVocabularyCapability(BoardGameVocabularies.all),
   presentation: boardGamesLibraryEditPresentation,
-  coreCorrectionTargetResolver: resolveStructuralLibraryCoreCorrectionTarget,
   conditions: BoardGameVocabularies.condition.builtIns,
   entryCollectionValueReader: (libraryEntry) => switch (libraryEntry?.value) {
     BoardGameLibraryEntry item => item.personal.grade,

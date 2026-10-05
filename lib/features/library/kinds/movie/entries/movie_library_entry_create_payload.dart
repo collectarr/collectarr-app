@@ -81,6 +81,9 @@ final class MovieLibraryEntryCreatePayload
     return MovieLibraryEntry(
       id: LibraryEntryId(id),
       metadata: MovieCatalogMetadata.fromJson(sourceCatalogItem.kindData),
+      sourceCatalogRef: sourceCatalogItem.origin == CatalogItemOrigin.core
+          ? sourceCatalogItem.catalogItemRef
+          : null,
       personal: MoviePersonalData(
         isDigital: isDigital ?? existingIsDigital,
         details: details.toDetails(),

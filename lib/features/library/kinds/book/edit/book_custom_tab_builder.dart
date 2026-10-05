@@ -1,6 +1,5 @@
 import 'package:collectarr_app/features/library/edit/draft/library_edit_shell_state.dart';
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
-import 'package:collectarr_app/features/library/domain/library_entity_scope.dart';
 import 'package:collectarr_app/features/library/edit/schema/edit_schema_renderer.dart';
 import 'package:collectarr_app/features/library/schema/library_field_spec_renderer.dart';
 import 'package:collectarr_app/features/library/kinds/book/add/book_add_schema.dart';
@@ -20,7 +19,7 @@ Widget? buildBookCustomTabView({
   required BuildContext context,
   required LibraryEditShellState draft,
   required Color accent,
-  required LibraryEntityScope scope,
+
   required CatalogSearchCandidate item,
   required VoidCallback markDirty,
 }) {

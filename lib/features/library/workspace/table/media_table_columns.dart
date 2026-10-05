@@ -160,8 +160,8 @@ Widget standardMediaTableCellTyped<TDto extends LibraryWorkspaceDto>(
     return const LibraryTableCellText('');
   }
   final context = LibraryProjectionContext<TDto>(
-    source: item.source,
-    node: item.node,
+    item: item.source.item,
+    personal: item.source.personal,
     dto: item.dto as TDto,
   );
   final builder = definition.cellValue;

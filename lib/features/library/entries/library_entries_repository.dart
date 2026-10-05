@@ -1,5 +1,5 @@
 import 'package:collectarr_app/core/db/local_database.dart';
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/core/models/item_image.dart';
 import 'package:collectarr_app/core/models/user_external_link.dart';
@@ -40,7 +40,7 @@ final class LibraryEntriesRepository {
   Future<LibraryEntryMutationResult> createLibraryEntry({
     required CatalogMediaKind kind,
     required LibraryEntryCreatePayload payload,
-    required CatalogEntityRef resolvedCatalogRef,
+    required CatalogItemRef resolvedCatalogRef,
     required String id,
     required DateTime createdAt,
     required bool? existingIsDigital,
@@ -175,7 +175,8 @@ final class LibraryEntriesRepository {
     final parsedExternalLinks = hasExternalLinks
         ? _parseImportedExternalLinks(rawExternalLinks, entryRef)
         : null;
-    final parsedLoans = hasLoans ? _parseImportedLoans(rawLoans, entryRef) : null;
+    final parsedLoans =
+        hasLoans ? _parseImportedLoans(rawLoans, entryRef) : null;
     final parsedFolderMemberships = hasFolderMemberships
         ? _parseImportedFolderMemberships(rawFolderMemberships)
         : null;
@@ -300,6 +301,35 @@ final class LibraryEntriesRepository {
     ];
   }
 
+  /// Replaces the kind-owned metadata on one local entry without treating its
+  /// local ID as a Core Catalog Item ID.
+  Future<LibraryEntryMutationResult> updateCatalogData({
+    required LibraryEntryRef ref,
+    required Map<String, dynamic> catalogData,
+    required DateTime updatedAt,
+  }) async {
+    final existing = await LibraryEntryStore(database).find(
+      ref.kind,
+      ref.id.value,
+    );
+    if (existing == null) {
+      throw StateError('Library entry not found: ${ref.key}');
+    }
+    final updated = LibraryEntryRecord(
+      id: existing.id,
+      kind: existing.kind,
+      catalogData: catalogData,
+      personalData: existing.personalData,
+      sourceCatalogRef: existing.sourceCatalogRef,
+      updatedAt: updatedAt.toUtc(),
+      deletedAt: existing.deletedAt,
+    );
+    return _persistence.replaceFromPayload(
+      ref.kind,
+      JsonMap.from(updated.toJson()),
+    );
+  }
+
   List<Loan> _parseImportedLoans(Object? rawLoans, LibraryEntryRef entryRef) {
     if (rawLoans is! List) {
       throw const FormatException('Imported loans must be a list.');
@@ -321,7 +351,8 @@ final class LibraryEntriesRepository {
     Object? rawMemberships,
   ) {
     if (rawMemberships is! List) {
-      throw const FormatException('Imported folder memberships must be a list.');
+      throw const FormatException(
+          'Imported folder memberships must be a list.');
     }
     return [
       for (final value in rawMemberships)
@@ -339,7 +370,8 @@ final class LibraryEntriesRepository {
 
   List<UserFolder> _parseImportedFolderDefinitions(Object? rawFolders) {
     if (rawFolders is! List) {
-      throw const FormatException('Imported folder definitions must be a list.');
+      throw const FormatException(
+          'Imported folder definitions must be a list.');
     }
     return [
       for (final value in rawFolders)
@@ -364,7 +396,8 @@ final class LibraryEntriesRepository {
     LibraryEntryRef entryRef,
   ) {
     if (rawExternalLinks is! List) {
-      throw const FormatException('Imported entry external links must be a list.');
+      throw const FormatException(
+          'Imported entry external links must be a list.');
     }
     return [
       for (final value in rawExternalLinks)
@@ -375,7 +408,8 @@ final class LibraryEntriesRepository {
             'library_entry_ref': entryRef.toJson(),
           })
         else
-          throw const FormatException('Imported entry external link is invalid.'),
+          throw const FormatException(
+              'Imported entry external link is invalid.'),
     ];
   }
 

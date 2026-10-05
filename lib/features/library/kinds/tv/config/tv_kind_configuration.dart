@@ -26,14 +26,12 @@ TransferableField tvTransferField({
   required TransferableFieldType type,
   required String? Function(TvLibraryEntry item) read,
   required TvLibraryEntry Function(TvLibraryEntry item, String? value) write,
-  LibraryEntityScope scope = LibraryEntityScope.libraryEntry,
 }) {
   return TransferableField.typed<TvLibraryEntry>(
     key: key,
     label: label,
     icon: icon,
     type: type,
-    scope: scope,
     decode: (value) => value as TvLibraryEntry,
     read: read,
     write: write,
@@ -106,7 +104,6 @@ final tvTransferableFields = <TransferableField>[
     label: 'Features',
     icon: Icons.featured_play_list_outlined,
     type: TransferableFieldType.text,
-    scope: LibraryEntityScope.libraryEntry,
     read: (item) => item.personal.details.features,
     write: (item, value) {
       return item.copyWith(
@@ -119,7 +116,6 @@ final tvTransferableFields = <TransferableField>[
     label: 'Box set name',
     icon: Icons.inventory_outlined,
     type: TransferableFieldType.text,
-    scope: LibraryEntityScope.libraryEntry,
     read: (item) => item.personal.details.boxSetName,
     write: (item, value) {
       return item.copyWith(
@@ -132,7 +128,6 @@ final tvTransferableFields = <TransferableField>[
     label: 'Packaging',
     icon: Icons.inventory_2_outlined,
     type: TransferableFieldType.text,
-    scope: LibraryEntityScope.libraryEntry,
     read: (item) => item.personal.details.packaging,
     write: (item, value) {
       return item.copyWith(
@@ -155,13 +150,13 @@ Iterable<String?> tvLinkedMetadataValues(TvMetadata metadata) => [
       ...metadata.genres,
     ];
 
-TvMetadata? tvLinkedMetadata(LibraryWorkspaceSource source) {
-  final catalog = source.catalogData;
-  return catalog is TvWorkspaceCatalogData ? catalog.metadata : null;
+TvMetadata? tvLinkedMetadata(LibraryWorkspaceContext source) {
+  final catalog = source.kindPresentationData;
+  return catalog is TvWorkspaceData ? catalog.metadata : null;
 }
 
 MetadataSearchQuery tvMetadataSearchQuery({
-  required LibraryWorkspaceSource source,
+  required LibraryWorkspaceContext source,
   required String title,
 }) {
   final metadata = tvLinkedMetadata(source);

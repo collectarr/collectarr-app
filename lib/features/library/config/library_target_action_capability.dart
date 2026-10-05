@@ -2,17 +2,17 @@ import 'dart:async';
 
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/core/models/library_entry_projection.dart';
-import 'package:collectarr_app/features/library/domain/library_entity_scope.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_registration.dart';
+import 'package:collectarr_app/features/library/domain/library_target_ref.dart';
 import 'package:flutter/material.dart';
 
 /// The entity-level actions a kind intentionally exposes for one scope.
 ///
 /// Workspace actions such as sorting, grouping, columns, and printing do not
 /// belong here. They are registered by the workspace toolbar instead.
-final class LibraryEntityActionSet {
-  const LibraryEntityActionSet({
+final class LibraryTargetActionSet {
+  const LibraryTargetActionSet({
     this.openDetails = false,
     this.toggleEntry = false,
     this.toggleWishlist = false,
@@ -24,7 +24,7 @@ final class LibraryEntityActionSet {
     this.unlinkFromCore = false,
   });
 
-  static const catalogItem = LibraryEntityActionSet(
+  static const catalogItem = LibraryTargetActionSet(
     openDetails: true,
     toggleEntry: true,
     toggleWishlist: true,
@@ -33,7 +33,7 @@ final class LibraryEntityActionSet {
     share: true,
   );
 
-  static const libraryEntry = LibraryEntityActionSet(
+  static const libraryEntry = LibraryTargetActionSet(
     openDetails: true,
     toggleEntry: true,
     edit: true,
@@ -57,8 +57,8 @@ final class LibraryEntityActionSet {
 /// Runtime callbacks supplied by the generic host to a kind-entry action
 /// capability. The host owns lifecycle and navigation mechanics; the kind
 /// decides which callbacks are legal at each entity scope.
-final class LibraryEntityActionContext {
-  const LibraryEntityActionContext({
+final class LibraryTargetActionContext {
+  const LibraryTargetActionContext({
     required this.type,
     required this.buildContext,
     required this.projection,
@@ -93,8 +93,8 @@ final class LibraryEntityActionContext {
   final Color accent;
 }
 
-final class LibraryEntitySemanticActionDefinition {
-  const LibraryEntitySemanticActionDefinition({
+final class LibraryTargetSemanticActionDefinition {
+  const LibraryTargetSemanticActionDefinition({
     required this.id,
     required this.label,
     required this.icon,
@@ -104,62 +104,37 @@ final class LibraryEntitySemanticActionDefinition {
   final String id;
   final String label;
   final IconData icon;
-  final FutureOr<void> Function(LibraryEntityActionContext context) invoke;
+  final FutureOr<void> Function(LibraryTargetActionContext context) invoke;
 }
 
 /// Kind-entry entity action registration.
-final class LibraryEntityActionCapability {
-  const LibraryEntityActionCapability({
+final class LibraryTargetActionCapability {
+  const LibraryTargetActionCapability({
     required this.catalogItem,
     required this.libraryEntry,
-    this.semanticActions = const {},
+    this.catalogItemSemanticActions = const [],
+    this.libraryEntrySemanticActions = const [],
   });
 
-  final LibraryEntityActionSet catalogItem;
-  final LibraryEntityActionSet libraryEntry;
-  final Map<LibraryEntityScope, List<LibraryEntitySemanticActionDefinition>>
-      semanticActions;
+  final LibraryTargetActionSet catalogItem;
+  final LibraryTargetActionSet libraryEntry;
+  final List<LibraryTargetSemanticActionDefinition> catalogItemSemanticActions;
+  final List<LibraryTargetSemanticActionDefinition> libraryEntrySemanticActions;
 
-  LibraryEntityActionSet actionSetForScope(LibraryEntityScope scope) =>
-      switch (scope) {
-        LibraryEntityScope.catalogItem => catalogItem,
-        LibraryEntityScope.libraryEntry => libraryEntry,
-      };
-
-  List<LibraryEntitySemanticActionDefinition> semanticActionsForScope(
-    LibraryEntityScope scope,
-  ) =>
-      semanticActions[scope] ?? const [];
-
-  LibraryEntityActionRegistry build(LibraryEntityActionContext context) {
-    return LibraryEntityActionRegistry(
-      contributors: [
-        LibraryEntityActionContributor(
-          scope: LibraryEntityScope.catalogItem,
-          actions: _buildActions(
-            LibraryEntityScope.catalogItem,
-            catalogItem,
-            context,
-          ),
-        ),
-        LibraryEntityActionContributor(
-          scope: LibraryEntityScope.libraryEntry,
-          actions: _buildActions(
-            LibraryEntityScope.libraryEntry,
-            libraryEntry,
-            context,
-          ),
-        ),
-      ],
+  LibraryItemActions build(LibraryTargetActionContext context) {
+    final isEntry = context.item.target is EntryTargetRef;
+    return _buildActions(
+      isEntry ? libraryEntry : catalogItem,
+      isEntry ? libraryEntrySemanticActions : catalogItemSemanticActions,
+      context,
     );
   }
 
   LibraryItemActions _buildActions(
-    LibraryEntityScope scope,
-    LibraryEntityActionSet actionSet,
-    LibraryEntityActionContext context,
+    LibraryTargetActionSet actionSet,
+    List<LibraryTargetSemanticActionDefinition> definitions,
+    LibraryTargetActionContext context,
   ) {
-    final definitions = semanticActionsForScope(scope);
     return LibraryItemActions(
       onOpenDetails: actionSet.openDetails ? context.onOpenDetails : null,
       onToggleEntry: actionSet.toggleEntry ? context.onToggleEntry : null,
@@ -175,7 +150,7 @@ final class LibraryEntityActionCapability {
           actionSet.unlinkFromCore ? context.onUnlinkFromCore : null,
       semanticActions: [
         for (final definition in definitions)
-          LibraryEntitySemanticAction(
+          LibraryTargetSemanticAction(
             id: definition.id,
             label: definition.label,
             icon: definition.icon,

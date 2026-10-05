@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_edit_shell_state.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
-import 'package:collectarr_app/features/library/domain/library_entity_scope.dart';
 
 class LibraryEditPresentationContext {
   const LibraryEditPresentationContext({
@@ -12,7 +11,6 @@ class LibraryEditPresentationContext {
     required this.isDigitalFormat,
     required this.hasPhysicalFormats,
     required this.hasCustomFields,
-    this.scope = LibraryEntityScope.catalogItem,
   });
 
   final bool isEntry;
@@ -22,7 +20,6 @@ class LibraryEditPresentationContext {
   final bool isDigitalFormat;
   final bool hasPhysicalFormats;
   final bool hasCustomFields;
-  final LibraryEntityScope scope;
 }
 
 class LibraryEditTabSpec {
@@ -89,7 +86,6 @@ abstract class LibraryEditPresentationBuilder {
     required BuildContext context,
     required LibraryEditShellState draft,
     required Color accent,
-    required LibraryEntityScope scope,
     required CatalogSearchCandidate item,
     required VoidCallback markDirty,
   }) =>
@@ -107,10 +103,6 @@ class LibraryEditPresentation {
   final LibraryEditPresentationBuilder? catalogItemBuilder;
   final LibraryEditPresentationBuilder? entryBuilder;
 
-  LibraryEditPresentationBuilder builderForScope(LibraryEntityScope scope) {
-    return switch (scope) {
-      LibraryEntityScope.catalogItem => catalogItemBuilder ?? builder,
-      LibraryEntityScope.libraryEntry => entryBuilder ?? builder,
-    };
-  }
+  LibraryEditPresentationBuilder builderForTarget(bool isEntry) =>
+      isEntry ? entryBuilder ?? builder : catalogItemBuilder ?? builder;
 }

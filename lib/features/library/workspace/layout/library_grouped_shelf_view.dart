@@ -60,10 +60,10 @@ class LibraryGroupedShelfView extends StatelessWidget {
   final LibraryGroupItemContextMenuCallback? onItemContextMenu;
   final ValueChanged<Set<String>>? onBoxSelectionChanged;
 
-  bool _isActive(LibraryProjectionItem item) => item.node.id == selectedId;
+  bool _isActive(LibraryProjectionItem item) => item.target.id == selectedId;
 
   bool _isSelected(LibraryProjectionItem item) =>
-      selectedIds.contains(item.node.id);
+      selectedIds.contains(item.target.id);
 
   @override
   Widget build(BuildContext context) {
@@ -219,14 +219,14 @@ class LibraryGroupedShelfView extends StatelessWidget {
                 mainAxisExtent: mainAxisExtent,
                 selectionEnabled: selectionEnabled,
                 selectedIds: selectedIds,
-                itemIdOf: (item) => item.item.node.id,
+                itemIdOf: (item) => item.item.target.id,
                 onSelectionChanged: onBoxSelectionChanged,
                 shrinkWrap: true,
                 scrollable: false,
                 itemBuilder: (context, shelfItem) {
                   final item = shelfItem.item;
                   final child = LibraryCoverTile(
-                    key: ValueKey(item.node.id),
+                    key: ValueKey(item.target.id),
                     item: item,
                     customFieldBadges: item.customFieldBadges,
                     active: _isActive(item),
@@ -234,7 +234,7 @@ class LibraryGroupedShelfView extends StatelessWidget {
                     selectionMode: selectionEnabled,
                     onTap: () => onTapItem(item),
                     onSelectionToggleTap: () =>
-                        onToggleSelectionItem(item.node.id),
+                        onToggleSelectionItem(item.target.id),
                     onDoubleTap: () => onOpenItem(item),
                     onEditTap: () => onEditItem(item),
                     onSecondaryTapUp: onItemContextMenu == null

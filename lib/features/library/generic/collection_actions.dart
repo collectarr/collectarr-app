@@ -4,6 +4,7 @@ import 'package:collectarr_app/features/library/config/library_entry_helpers.dar
 import 'package:collectarr_app/features/library/add/models/library_add_common_draft.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
+import 'package:collectarr_app/features/library/domain/library_target_ref.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -21,10 +22,11 @@ class LibraryCollectionActions {
   final CatalogSnapshotRepository catalogSnapshots;
 
   Future<void> addEntry(LibraryProjectionItem item) async {
-    final catalogRef = item.source.catalogRef;
-    if (catalogRef == null) return;
+    final target = item.target;
+    if (target is! CatalogTargetRef) return;
+    final catalogRef = target.ref;
     final catalogItem =
-        await catalogSnapshots.findCandidateByRef(catalogRef.rootScope);
+        await catalogSnapshots.findCandidateByRef(catalogRef);
     if (catalogItem == null) return;
     final registration =
         libraryKindRegistrationForKind(catalogItem.summary.kind);
@@ -51,8 +53,7 @@ class LibraryCollectionActions {
       libraryEntry: item.source.libraryEntrySummary,
       wishlistItem: item.source.wishlistItem,
     );
-    final catalogRef = targetRef?.toCatalogItemRef() ??
-        item.source.catalogRef?.toCatalogItemRef();
+    final catalogRef = targetRef;
     if (catalogRef == null) return Future<void>.value();
     return wishlistMutations.addToWishlist(catalogRef);
   }
@@ -63,8 +64,7 @@ class LibraryCollectionActions {
       libraryEntry: item.source.libraryEntrySummary,
       wishlistItem: item.source.wishlistItem,
     );
-    final catalogRef = targetRef?.toCatalogItemRef() ??
-        item.source.catalogRef?.toCatalogItemRef();
+    final catalogRef = targetRef;
     return wishlistMutations.removeFromWishlist(
       wishlistItemId: item.source.wishlistItem?.id,
       catalogRef: catalogRef,

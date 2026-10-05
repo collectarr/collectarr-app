@@ -4,11 +4,10 @@ import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/core/repositories/repository_contracts.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_item_cache_repository.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_transport_payload.dart';
-import 'package:collectarr_app/features/library/kinds/comic/domain/comic_ids.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_catalog_item.dart';
 
 final class ComicRepository
-    implements ReadRepository<ComicCatalogItemId, ComicCatalogItem> {
+    implements ReadRepository<CatalogItemRef, ComicCatalogItem> {
   ComicRepository(this._db);
 
   final LocalDatabase _db;
@@ -16,13 +15,14 @@ final class ComicRepository
   CatalogItemCacheRepository get _catalog => CatalogItemCacheRepository(_db);
 
   @override
-  Future<ComicCatalogItem?> findById(ComicCatalogItemId id) =>
+  Future<ComicCatalogItem?> findById(CatalogItemRef id) =>
       getCatalogItem(id);
 
-  Future<ComicCatalogItem?> getCatalogItem(ComicCatalogItemId id) async {
-    final item = await _catalog.find(
-      CatalogItemRef(kind: CatalogMediaKind.comic, id: id.value),
-    );
+  Future<ComicCatalogItem?> getCatalogItem(CatalogItemRef id) async {
+    if (id.kind != CatalogMediaKind.comic) {
+      throw ArgumentError.value(id, 'id', 'Expected a Comic Catalog Item.');
+    }
+    final item = await _catalog.find(id);
     return item == null
         ? null
         : ComicCatalogItem.fromJson(catalogTransportPayloadFor(item));
@@ -50,19 +50,22 @@ final class ComicRepository
       if (sortTitle != 0) return sortTitle;
       final title = left.title.compareTo(right.title);
       if (title != 0) return title;
-      return (left.id?.value ?? '').compareTo(right.id?.value ?? '');
+      return (left.id?.id ?? '').compareTo(right.id?.id ?? '');
     });
     return results;
   }
 
   Future<void> updateCatalogItem(ComicCatalogItem media) async {
-    final id = media.id?.value.trim();
-    if (id == null || id.isEmpty) {
+    final ref = media.id;
+    if (ref == null || ref.id.trim().isEmpty) {
       throw StateError('Cannot update Comic Catalog Item without an id');
+    }
+    if (ref.kind != CatalogMediaKind.comic) {
+      throw ArgumentError.value(ref, 'media.id', 'Expected a Comic reference.');
     }
     final item = CatalogItemDto.fromJson({
       ...media.toJson(),
-      'id': id,
+      'id': ref.id,
       'kind': CatalogMediaKind.comic.apiValue,
     }).replacingKindData(media);
     await _catalog.upsert(item);

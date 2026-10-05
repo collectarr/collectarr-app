@@ -2,7 +2,6 @@ import 'package:drift/drift.dart';
 
 /// Complete TV-collection item state.
 
-
 class TvWatchSessionRows extends Table {
   TextColumn get id => text()();
   TextColumn get libraryEntryId => text()();

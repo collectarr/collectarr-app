@@ -100,8 +100,7 @@ class BookAdminContributor implements LibraryAdminContributor {
           relatedFieldKey: 'tags',
           relatedEntityId: (item) =>
               item.canonicalFieldValues['series_id']?.toString(),
-          read: (item) =>
-              item.canonicalFieldValues['series_tags'],
+          read: (item) => item.canonicalFieldValues['series_tags'],
         ),
         adminUrlListCorrectionField(
           key: 'external_links',

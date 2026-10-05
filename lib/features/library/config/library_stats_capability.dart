@@ -57,12 +57,12 @@ class LibraryStatsMetadataProjection {
 
 abstract interface class LibraryStatsCapability {
   LibraryEntryFinancialSummary buildEntryFinancialSummary(
-      LibraryWorkspaceSource entry);
+      LibraryWorkspaceContext entry);
 
   /// Projects kind-entry metadata into structural facts for the generic stats
   /// renderer. No kind field names or domain objects cross this boundary.
   LibraryStatsMetadataProjection? buildMetadataProjection(
-      LibraryWorkspaceSource entry);
+      LibraryWorkspaceContext entry);
 
   List<LibraryStatsTileDescriptor> buildSummaryTiles(
     ShelfState state,
@@ -81,7 +81,7 @@ class DefaultLibraryStatsCapability implements LibraryStatsCapability {
 
   @override
   LibraryEntryFinancialSummary buildEntryFinancialSummary(
-      LibraryWorkspaceSource entry) {
+      LibraryWorkspaceContext entry) {
     return LibraryEntryFinancialSummary(
       pricePaidCents: entry.pricePaidCents,
       sellPriceCents: entry.sellPriceCents,
@@ -91,7 +91,7 @@ class DefaultLibraryStatsCapability implements LibraryStatsCapability {
 
   @override
   LibraryStatsMetadataProjection? buildMetadataProjection(
-      LibraryWorkspaceSource entry) {
+      LibraryWorkspaceContext entry) {
     final summary = entry.catalogSummary;
     if (summary == null) return null;
     return LibraryStatsMetadataProjection(

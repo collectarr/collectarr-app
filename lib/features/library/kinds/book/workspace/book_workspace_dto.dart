@@ -10,7 +10,7 @@ final class BookWorkspaceDto implements LibraryWorkspaceDto {
   });
 
   final WorkspaceCommonProjection common;
-  final PersonalCopyProjection personal;
+  final PersonalEntryProjection personal;
   final BookCatalogMetadata metadata;
 
   String get title => common.title;

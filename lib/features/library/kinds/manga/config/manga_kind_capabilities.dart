@@ -94,40 +94,34 @@ final mangaKindMetadata = LibraryMetadataCapability(
   searchQueryBuilder: mangaMetadataSearchQuery,
 );
 
-final mangaKindHierarchy = const LibraryHierarchyCapability();
-
-final mangaKindEntityVocabulary = const LibraryEntityVocabulary(
+final mangaKindEntityVocabulary = const LibraryTargetVocabulary(
   catalogItem:
-      LibraryEntityLabel(singular: 'Catalog Item', plural: 'Catalog Items'),
-  libraryEntry: LibraryEntityLabel(singular: 'Entry', plural: 'Entries'),
+      LibraryTargetLabel(singular: 'Catalog Item', plural: 'Catalog Items'),
+  libraryEntry: LibraryTargetLabel(singular: 'Entry', plural: 'Entries'),
 );
 
 final mangaKindTrackingTopology = const LibraryTrackingTopology(
   sessionLabels: LibraryTrackingSessionLabels.read,
-  writableTargets: {LibraryTrackingTargetScope.content},
-  aggregateTargets: {LibraryTrackingTargetScope.catalogItem},
-  contentTargets: {LibraryTrackingTargetScope.content},
+  writableTargets: {LibraryTrackingTarget.content},
+  aggregateTargets: {LibraryTrackingTarget.libraryEntry},
+  contentTargets: {LibraryTrackingTarget.content},
 );
 
-final mangaKindActions = const LibraryEntityActionCapability(
-  catalogItem: LibraryEntityActionSet.catalogItem,
-  libraryEntry: LibraryEntityActionSet.libraryEntry,
+final mangaKindActions = const LibraryTargetActionCapability(
+  catalogItem: LibraryTargetActionSet.catalogItem,
+  libraryEntry: LibraryTargetActionSet.libraryEntry,
 );
 
 final mangaKindInspector = LibraryInspectorCapability(
-  entityRegistry: LibraryEntityInspectorRegistry(
-    contributors: [
-      LibraryEntityInspectorContributor(
-        scope: LibraryEntityScope.catalogItem,
-        heroBuilder: buildMangaWorkInspectorHero,
-        sectionsBuilder: buildMangaWorkInspectorSections,
-      ),
-      LibraryEntityInspectorContributor(
-        scope: LibraryEntityScope.libraryEntry,
-        heroBuilder: buildMangaCopyInspectorHero,
-        sectionsBuilder: buildMangaCopyInspectorSections,
-      ),
-    ],
+  entityRegistry: LibraryTargetInspectorRegistry(
+    catalogItem: LibraryTargetInspectorContributor(
+      heroBuilder: buildMangaCatalogItemInspectorHero,
+      sectionsBuilder: buildMangaCatalogItemInspectorSections,
+    ),
+    libraryEntry: LibraryTargetInspectorContributor(
+      heroBuilder: buildMangaLibraryEntryInspectorHero,
+      sectionsBuilder: buildMangaLibraryEntryInspectorSections,
+    ),
   ),
   showsDefaultPersonalSection: false,
 );

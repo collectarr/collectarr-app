@@ -6,12 +6,11 @@ export 'package:collectarr_app/features/library/add/controllers/library_add_dial
 export 'package:collectarr_app/features/library/add/library_add_ranking.dart';
 export 'package:collectarr_app/features/library/add/models/library_add_advanced_filter.dart';
 export 'package:collectarr_app/features/library/add/models/library_add_search_context.dart';
-export 'package:collectarr_app/features/library/config/library_entity_action_capability.dart';
+export 'package:collectarr_app/features/library/config/library_target_action_capability.dart';
 export 'package:collectarr_app/features/library/config/library_facet_module.dart';
 export 'package:collectarr_app/features/library/config/library_kind_browser_delegate.dart';
 export 'package:collectarr_app/features/library/config/library_page_utilities.dart';
 export 'package:collectarr_app/features/library/config/library_search_target.dart';
-export 'package:collectarr_app/features/library/domain/library_entity_scope.dart';
 export 'package:collectarr_app/features/library/generic/transferable_field.dart';
 export 'package:collectarr_app/features/library/kinds/boardgame/add/boardgame_add_draft.dart';
 export 'package:collectarr_app/features/library/kinds/boardgame/add/boardgame_add_manual_draft.dart';
@@ -35,11 +34,11 @@ export 'package:collectarr_app/features/library/kinds/boardgame/stats/boardgame_
 export 'package:collectarr_app/features/library/kinds/boardgame/tracking/boardgame_tracking_profile.dart';
 export 'package:collectarr_app/features/library/kinds/boardgame/vocabulary/boardgame_vocabularies.dart';
 export 'package:collectarr_app/features/library/kinds/boardgame/workspace/boardgame_workspace.dart';
-export 'package:collectarr_app/features/library/kinds/boardgame/workspace/boardgame_workspace_catalog_data.dart';
+export 'package:collectarr_app/features/library/kinds/boardgame/workspace/boardgame_workspace_data.dart';
 export 'package:collectarr_app/features/library/kinds/boardgame/workspace/boardgame_workspace_dto.dart';
 export 'package:collectarr_app/features/library/kinds/boardgame/workspace/boardgame_workspace_projector.dart';
 export 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
 export 'package:collectarr_app/features/library/kinds/registry/library_kind_workspace.dart';
-export 'package:collectarr_app/features/library/workspace/entry/library_workspace_source.dart';
+export 'package:collectarr_app/features/library/workspace/entry/library_workspace_context.dart';
 export 'package:collectarr_app/features/library/workspace/shared/library_media_adapter_builder.dart';
 export 'package:flutter/material.dart';

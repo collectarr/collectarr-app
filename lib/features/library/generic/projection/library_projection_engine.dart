@@ -54,17 +54,14 @@ class LibraryProjectionEngine {
     final scopedBucketItems = <LibraryProjectionItem>[];
     for (final item in allItems) {
       if (query.constrainedItemIds != null &&
-          !query.constrainedItemIds!.contains(item.node.id)) {
+          !query.constrainedItemIds!.contains(item.target.id)) {
         continue;
       }
       var matchesScope = true;
       for (final filter in query.bucketScopeFilters) {
-        final bucket = index.getGroupBucket(
-          item,
-          filter.groupId,
-          (it, mode) => groupingEngine.getGroupBucketForItem(it, type, mode),
-        );
-        if (bucket != filter.bucket) {
+        if (!groupingEngine
+            .bucketsForItem(item, type, filter.groupId, index: index)
+            .contains(filter.bucket)) {
           matchesScope = false;
           break;
         }
@@ -109,7 +106,7 @@ class LibraryProjectionEngine {
     final groupId = query.groupId ?? fields.defaultGroup;
     if (groupId == null) {
       throw StateError(
-        'Workspace scope ${fields.entityScope.apiValue} has no default group.',
+        'Workspace ${fields.kindNamespace} has no default group.',
       );
     }
     final buckets = overrideBuckets ??

@@ -12,7 +12,7 @@ final class ComicWorkspaceDto implements LibraryWorkspaceDto {
   });
 
   final WorkspaceCommonProjection common;
-  final PersonalCopyProjection personal;
+  final PersonalEntryProjection personal;
   final ComicCatalogItem comic;
   final ComicLibraryEntry? libraryEntry;
 

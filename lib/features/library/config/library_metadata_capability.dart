@@ -2,7 +2,7 @@ import 'package:flutter/widgets.dart';
 import 'package:collectarr_app/core/api/api_client.dart';
 import 'package:collectarr_app/core/api/dto/metadata_search_query.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_workspace_source.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_workspace_context.dart';
 import 'package:dio/dio.dart';
 
 typedef LibraryMetadataCatalogSearchBuilder =
@@ -13,7 +13,7 @@ typedef LibraryMetadataCatalogSearchBuilder =
 });
 
 typedef LibraryMetadataSearchQueryBuilder = MetadataSearchQuery Function({
-  required LibraryWorkspaceSource source,
+  required LibraryWorkspaceContext source,
   required String title,
 });
 
@@ -47,7 +47,7 @@ class LibraryMetadataCapability {
   final bool catalogSearchResultsAreDetailed;
 
   MetadataSearchQuery searchQueryFor({
-    required LibraryWorkspaceSource source,
+    required LibraryWorkspaceContext source,
     required String title,
   }) {
     return searchQueryBuilder?.call(source: source, title: title) ??

@@ -14,7 +14,7 @@ sealed class ShelfPresentationEntry {
 final class ItemShelfEntry extends ShelfPresentationEntry {
   ItemShelfEntry({required this.item})
       : super(
-          id: item.node.id,
+          id: item.target.id,
           label: item.dto.primaryLabel,
         );
 

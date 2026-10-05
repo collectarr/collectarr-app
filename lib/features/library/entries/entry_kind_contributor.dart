@@ -3,7 +3,7 @@ import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_item_cache_repository.dart';
 import 'package:collectarr_app/features/library/entries/library_entry_store.dart';
 import 'package:collectarr_app/features/library/entries/library_entry_record.dart';
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/features/library/config/library_entry_create_payload.dart';
@@ -75,7 +75,7 @@ abstract interface class EntryKindContributor {
   Future<LibraryEntryMutationResult> createLibraryEntry({
     required LocalDatabase database,
     required LibraryEntryCreatePayload payload,
-    required CatalogEntityRef resolvedCatalogRef,
+    required CatalogItemRef resolvedCatalogRef,
     required String id,
     required DateTime createdAt,
     required bool? existingIsDigital,
@@ -154,6 +154,7 @@ final class TypedEntryKindContributor<TItem> implements EntryKindContributor {
     required this.itemId,
     required this.markDeleted,
     required this.updateItemLocation,
+    this.onCreated,
   }) : assert((createItem == null) != (createItemWithCatalog == null));
 
   @override
@@ -171,6 +172,10 @@ final class TypedEntryKindContributor<TItem> implements EntryKindContributor {
   final EntryKindItemId<TItem> itemId;
   final EntryKindMarkDeleted<TItem> markDeleted;
   final EntryKindUpdateLocation<TItem> updateItemLocation;
+
+  /// Kind-owned local activity staged alongside a newly added entry.
+  final Future<void> Function(LocalDatabase database, TItem item,
+      LibraryEntryCreatePayload payload)? onCreated;
 
   LibraryEntryRef _refFor(TItem item) {
     final ref = summary(item).ref;
@@ -209,15 +214,15 @@ final class TypedEntryKindContributor<TItem> implements EntryKindContributor {
   Future<LibraryEntryMutationResult> createLibraryEntry({
     required LocalDatabase database,
     required LibraryEntryCreatePayload payload,
-    required CatalogEntityRef resolvedCatalogRef,
+    required CatalogItemRef resolvedCatalogRef,
     required String id,
     required DateTime createdAt,
     required bool? existingIsDigital,
     required String? ownerUserId,
     required String? ownerLabel,
   }) async {
-    final source = await CatalogItemCacheRepository(database)
-        .find(resolvedCatalogRef.toCatalogItemRef());
+    final source =
+        await CatalogItemCacheRepository(database).find(resolvedCatalogRef);
     if (source == null) {
       throw StateError('The source catalog item is unavailable locally.');
     }
@@ -250,7 +255,10 @@ final class TypedEntryKindContributor<TItem> implements EntryKindContributor {
                   : null))
           ?.toJson(),
     });
-    await upsert(database, item);
+    await database.transaction(() async {
+      await upsert(database, item);
+      await onCreated?.call(database, item, payload);
+    });
     return _mutationResult(database, item);
   }
 

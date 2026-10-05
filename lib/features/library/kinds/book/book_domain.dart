@@ -22,7 +22,7 @@ final class BookPersonalOverlay {
     this.updatedAt,
   });
 
-  factory BookPersonalOverlay.fromShelf(LibraryWorkspaceSource source) {
+  factory BookPersonalOverlay.fromShelf(LibraryWorkspaceContext source) {
     return BookPersonalOverlay(
       libraryEntry: BookLibraryEntryProjection.fromDispatch(
         source.libraryEntryDispatch,

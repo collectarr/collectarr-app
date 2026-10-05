@@ -1,10 +1,9 @@
 import 'package:collectarr_app/features/library/kinds/manga/workspace/manga_ids.dart';
-import 'package:collectarr_app/features/library/kinds/manga/workspace/manga_preference_codec.dart';
 import 'package:collectarr_app/features/library/kinds/manga/workspace/manga_workspace_dto.dart';
 import 'package:collectarr_app/features/library/kinds/manga/workspace/manga_catalog_item_workspace_fields.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/schema/field_factories.dart';
-import 'package:collectarr_app/features/library/workspace/schema/library_entity_workspace_schema.dart';
+import 'package:collectarr_app/features/library/workspace/schema/library_workspace_schema.dart';
 import 'package:flutter/material.dart';
 
 abstract final class MangaCatalogItemWorkspaceFields {
@@ -12,21 +11,18 @@ abstract final class MangaCatalogItemWorkspaceFields {
     id: MangaFieldIds.title,
     label: 'Title',
     getValue: (dto) => dto.title,
-    entityScope: LibraryEntityScope.catalogItem,
   );
 
   static final series = textField<MangaKind, MangaWorkspaceDto>(
     id: MangaFieldIds.series,
     label: 'Series',
     getValue: (dto) => dto.seriesTitle,
-    entityScope: LibraryEntityScope.catalogItem,
   );
 
   static final volumeNumber = textField<MangaKind, MangaWorkspaceDto>(
     id: MangaFieldIds.volumeNumber,
     label: 'Volume Number',
     getValue: (dto) => dto.itemNumber,
-    entityScope: LibraryEntityScope.catalogItem,
   );
 
   static final cover =
@@ -34,98 +30,84 @@ abstract final class MangaCatalogItemWorkspaceFields {
     id: MangaFieldIds.cover,
     label: 'Cover',
     getValue: (context) => context.dto.coverImageUrl,
-    entityScope: LibraryEntityScope.catalogItem,
   );
 
   static final nativeTitle = textField<MangaKind, MangaWorkspaceDto>(
     id: MangaFieldIds.nativeTitle,
     label: 'Native Title',
     getValue: (dto) => dto.metadata?.nativeTitle,
-    entityScope: LibraryEntityScope.catalogItem,
   );
 
   static final romajiTitle = textField<MangaKind, MangaWorkspaceDto>(
     id: MangaFieldIds.romajiTitle,
     label: 'Romaji Title',
     getValue: (dto) => dto.metadata?.romajiTitle,
-    entityScope: LibraryEntityScope.catalogItem,
   );
 
   static final englishTitle = textField<MangaKind, MangaWorkspaceDto>(
     id: MangaFieldIds.englishTitle,
     label: 'English Title',
     getValue: (dto) => dto.metadata?.englishTitle,
-    entityScope: LibraryEntityScope.catalogItem,
   );
 
   static final demographic = textField<MangaKind, MangaWorkspaceDto>(
     id: MangaFieldIds.demographic,
     label: 'Demographic',
     getValue: (dto) => dto.metadata?.demographic.label,
-    entityScope: LibraryEntityScope.catalogItem,
   );
 
   static final serializationPlatform = textField<MangaKind, MangaWorkspaceDto>(
     id: MangaFieldIds.serializationPlatform,
     label: 'Serialization',
     getValue: (dto) => dto.metadata?.serializationPlatform,
-    entityScope: LibraryEntityScope.catalogItem,
   );
 
   static final publicationStatus = textField<MangaKind, MangaWorkspaceDto>(
     id: MangaFieldIds.publicationStatus,
     label: 'Publication Status',
     getValue: (dto) => dto.metadata?.publicationStatus.label,
-    entityScope: LibraryEntityScope.catalogItem,
   );
 
   static final originalPublisher = textField<MangaKind, MangaWorkspaceDto>(
     id: MangaFieldIds.originalPublisher,
     label: 'Original Publisher',
     getValue: (dto) => dto.metadata?.originalPublisher,
-    entityScope: LibraryEntityScope.catalogItem,
   );
 
   static final localizedPublisher = textField<MangaKind, MangaWorkspaceDto>(
     id: MangaFieldIds.localizedPublisher,
     label: 'Localized Publisher',
     getValue: (dto) => dto.metadata?.localizedPublisher,
-    entityScope: LibraryEntityScope.catalogItem,
   );
 
   static final totalVolumes = numberField<MangaKind, MangaWorkspaceDto>(
     id: MangaFieldIds.totalVolumes,
     label: 'Total Volumes',
     getValue: (dto) => dto.metadata?.totalVolumes,
-    entityScope: LibraryEntityScope.catalogItem,
   );
 
   static final chapterCount = numberField<MangaKind, MangaWorkspaceDto>(
     id: MangaFieldIds.chapterCount,
     label: 'Chapter Count',
     getValue: (dto) => dto.metadata?.chapterCount,
-    entityScope: LibraryEntityScope.catalogItem,
   );
 
   static final editionFormat = textField<MangaKind, MangaWorkspaceDto>(
     id: MangaFieldIds.editionFormat,
     label: 'Edition Format',
     getValue: (dto) => dto.metadata?.editionFormat.label,
-    entityScope: LibraryEntityScope.catalogItem,
   );
 
   static final readingDirection = textField<MangaKind, MangaWorkspaceDto>(
     id: MangaFieldIds.readingDirection,
     label: 'Reading Direction',
     getValue: (dto) => dto.metadata?.readingDirection.label,
-    entityScope: LibraryEntityScope.catalogItem,
   );
 
   static final translator = textField<MangaKind, MangaWorkspaceDto>(
     id: MangaFieldIds.translator,
     label: 'Translator',
     getValue: (dto) => dto.metadata?.translator,
-    entityScope: LibraryEntityScope.catalogItem,
   );
 }
 
@@ -296,9 +278,8 @@ final mangaCatalogItemWorkspaceColumnDefinitions = [
 ];
 
 final mangaCatalogItemWorkspaceSchema =
-    LibraryEntityWorkspaceSchema<MangaKind, MangaWorkspaceDto>(
+    LibraryWorkspaceSchema<MangaKind, MangaWorkspaceDto>(
   kindNamespace: 'manga',
-  entityScope: LibraryEntityScope.catalogItem,
   fields: mangaCatalogItemWorkspaceFieldDefinitions,
   columns: mangaCatalogItemWorkspaceColumnDefinitions,
   sorts: mangaCatalogItemWorkspaceSortDefinitions,
@@ -307,5 +288,4 @@ final mangaCatalogItemWorkspaceSchema =
   defaultVisibleColumns: mangaCatalogItemWorkspaceDefaultVisibleColumns,
   defaultSort: MangaSortIds.series,
   defaultGroup: MangaGroupIds.series,
-  preferenceCodec: const MangaPreferenceCodec(),
 );

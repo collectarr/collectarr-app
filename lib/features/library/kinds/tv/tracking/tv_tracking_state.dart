@@ -71,7 +71,6 @@ final class TvTrackingState extends PersonalTrackingBase
   @override
   final String id;
   @override
-  @override
   final LibraryEntryRef libraryEntryRef;
   @override
   final TrackingSourceType? sourceType;

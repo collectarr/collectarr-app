@@ -27,14 +27,12 @@ TransferableField animeTransferField({
   required String? Function(AnimeLibraryEntry item) read,
   required AnimeLibraryEntry Function(AnimeLibraryEntry item, String? value)
       write,
-  LibraryEntityScope scope = LibraryEntityScope.libraryEntry,
 }) {
   return TransferableField.typed<AnimeLibraryEntry>(
     key: key,
     label: label,
     icon: icon,
     type: type,
-    scope: scope,
     decode: (value) => value as AnimeLibraryEntry,
     read: read,
     write: write,
@@ -107,7 +105,6 @@ final animeTransferableFields = <TransferableField>[
     label: 'Features',
     icon: Icons.featured_play_list_outlined,
     type: TransferableFieldType.text,
-    scope: LibraryEntityScope.libraryEntry,
     read: (item) => item.personal.details.features,
     write: (item, value) {
       return item.copyWith(
@@ -120,7 +117,6 @@ final animeTransferableFields = <TransferableField>[
     label: 'Box set name',
     icon: Icons.inventory_outlined,
     type: TransferableFieldType.text,
-    scope: LibraryEntityScope.libraryEntry,
     read: (item) => item.personal.details.boxSetName,
     write: (item, value) {
       return item.copyWith(
@@ -133,7 +129,6 @@ final animeTransferableFields = <TransferableField>[
     label: 'Packaging',
     icon: Icons.inventory_2_outlined,
     type: TransferableFieldType.text,
-    scope: LibraryEntityScope.libraryEntry,
     read: (item) => item.personal.details.packaging,
     write: (item, value) {
       return item.copyWith(
@@ -156,13 +151,13 @@ Iterable<String?> animeLinkedMetadataValues(AnimeMetadata metadata) => [
       ...metadata.genres,
     ];
 
-AnimeMetadata? animeLinkedMetadata(LibraryWorkspaceSource source) {
-  final catalog = source.catalogData;
-  return catalog is AnimeWorkspaceCatalogData ? catalog.metadata : null;
+AnimeMetadata? animeLinkedMetadata(LibraryWorkspaceContext source) {
+  final catalog = source.kindPresentationData;
+  return catalog is AnimeWorkspaceData ? catalog.metadata : null;
 }
 
 MetadataSearchQuery animeMetadataSearchQuery({
-  required LibraryWorkspaceSource source,
+  required LibraryWorkspaceContext source,
   required String title,
 }) {
   final metadata = animeLinkedMetadata(source);

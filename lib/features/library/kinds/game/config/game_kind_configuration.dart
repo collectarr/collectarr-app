@@ -12,14 +12,12 @@ TransferableField gameTransferField({
   required String? Function(GameLibraryEntry item) read,
   required GameLibraryEntry Function(GameLibraryEntry item, String? value)
       write,
-  LibraryEntityScope scope = LibraryEntityScope.libraryEntry,
 }) {
   return TransferableField.typed<GameLibraryEntry>(
     key: key,
     label: label,
     icon: icon,
     type: type,
-    scope: scope,
     decode: (value) => value as GameLibraryEntry,
     read: read,
     write: write,
@@ -98,13 +96,13 @@ Iterable<String?> gameLinkedMetadataValues(GameCatalogMetadata metadata) => [
       ...metadata.genres,
     ];
 
-GameCatalogMetadata? gameLinkedMetadata(LibraryWorkspaceSource source) {
-  final catalog = source.catalogData;
-  return catalog is GameWorkspaceCatalogData ? catalog.metadata : null;
+GameCatalogMetadata? gameLinkedMetadata(LibraryWorkspaceContext source) {
+  final catalog = source.kindPresentationData;
+  return catalog is GameWorkspaceData ? catalog.metadata : null;
 }
 
 MetadataSearchQuery gameMetadataSearchQuery({
-  required LibraryWorkspaceSource source,
+  required LibraryWorkspaceContext source,
   required String title,
 }) {
   final metadata = gameLinkedMetadata(source);

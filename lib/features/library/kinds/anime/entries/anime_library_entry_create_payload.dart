@@ -81,6 +81,9 @@ final class AnimeLibraryEntryCreatePayload
     return AnimeLibraryEntry(
       id: LibraryEntryId(id),
       metadata: AnimeMetadata.fromJson(sourceCatalogItem.kindData),
+      sourceCatalogRef: sourceCatalogItem.origin == CatalogItemOrigin.core
+          ? sourceCatalogItem.catalogItemRef
+          : null,
       personal: AnimePersonalData(
         isDigital: isDigital ?? existingIsDigital,
         details: details.toDetails(),

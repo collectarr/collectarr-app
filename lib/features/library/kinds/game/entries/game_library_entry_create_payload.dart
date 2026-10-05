@@ -80,6 +80,9 @@ final class GameLibraryEntryCreatePayload implements LibraryEntryCreatePayload {
     return GameLibraryEntry(
       id: LibraryEntryId(id),
       metadata: GameCatalogMetadata.fromJson(sourceCatalogItem.kindData),
+      sourceCatalogRef: sourceCatalogItem.origin == CatalogItemOrigin.core
+          ? sourceCatalogItem.catalogItemRef
+          : null,
       personal: GamePersonalData(
         isDigital: isDigital ?? existingIsDigital,
         details: details.toDetails(),

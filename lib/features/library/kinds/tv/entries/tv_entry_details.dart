@@ -34,8 +34,7 @@ final class TvEntryDetails implements JsonEncodable {
         if (distributor != null) 'distributor': distributor,
       };
 
-  factory TvEntryDetails.fromJson(Map<String, dynamic> json) =>
-      TvEntryDetails(
+  factory TvEntryDetails.fromJson(Map<String, dynamic> json) => TvEntryDetails(
         features: json['features'] as String?,
         hdrFormats: _stringList(json['hdr_formats']),
         boxSetId: json['box_set_id'] as String?,

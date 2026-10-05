@@ -40,19 +40,15 @@ final gameKindMetadata = const LibraryMetadataCapability(
   searchQueryBuilder: gameMetadataSearchQuery,
 );
 
-final gameKindHierarchy = const LibraryHierarchyCapability(
-  browserDelegateBuilder: LibraryNoopBrowserDelegate.new,
-);
-
-final gameKindEntityVocabulary = const LibraryEntityVocabulary(
-  catalogItem: LibraryEntityLabel(singular: 'Game', plural: 'Games'),
-  libraryEntry: LibraryEntityLabel(singular: 'Entry', plural: 'Entries'),
+final gameKindEntityVocabulary = const LibraryTargetVocabulary(
+  catalogItem: LibraryTargetLabel(singular: 'Game', plural: 'Games'),
+  libraryEntry: LibraryTargetLabel(singular: 'Entry', plural: 'Entries'),
 );
 
 final gameKindTrackingTopology = const LibraryTrackingTopology(
   sessionLabels: LibraryTrackingSessionLabels.play,
-  writableTargets: {LibraryTrackingTargetScope.catalogItem},
-  aggregateTargets: {LibraryTrackingTargetScope.catalogItem},
+  writableTargets: {LibraryTrackingTarget.libraryEntry},
+  aggregateTargets: {LibraryTrackingTarget.libraryEntry},
 );
 
 final gameKindPersonalFieldContributor = const LibraryPersonalFieldContributor(
@@ -92,25 +88,21 @@ final gameKindPersonalFieldContributor = const LibraryPersonalFieldContributor(
   ],
 );
 
-final gameKindActions = const LibraryEntityActionCapability(
-  catalogItem: LibraryEntityActionSet.catalogItem,
-  libraryEntry: LibraryEntityActionSet.libraryEntry,
+final gameKindActions = const LibraryTargetActionCapability(
+  catalogItem: LibraryTargetActionSet.catalogItem,
+  libraryEntry: LibraryTargetActionSet.libraryEntry,
 );
 
 final gameKindInspector = LibraryInspectorCapability(
-  entityRegistry: LibraryEntityInspectorRegistry(
-    contributors: [
-      LibraryEntityInspectorContributor(
-        scope: LibraryEntityScope.catalogItem,
-        heroBuilder: buildGameWorkInspectorHero,
-        sectionsBuilder: buildGameWorkInspectorSections,
-      ),
-      LibraryEntityInspectorContributor(
-        scope: LibraryEntityScope.libraryEntry,
-        heroBuilder: buildGameCopyInspectorHero,
-        sectionsBuilder: buildGameCopyInspectorSections,
-      ),
-    ],
+  entityRegistry: LibraryTargetInspectorRegistry(
+    catalogItem: LibraryTargetInspectorContributor(
+      heroBuilder: buildGameCatalogItemInspectorHero,
+      sectionsBuilder: buildGameCatalogItemInspectorSections,
+    ),
+    libraryEntry: LibraryTargetInspectorContributor(
+      heroBuilder: buildGameLibraryEntryInspectorHero,
+      sectionsBuilder: buildGameLibraryEntryInspectorSections,
+    ),
   ),
   showsDefaultPersonalSection: false,
 );

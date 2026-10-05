@@ -1,4 +1,7 @@
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
+import 'package:collectarr_app/core/models/catalog_item_ref.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/features/library/domain/library_target_ref.dart';
 import 'package:collectarr_app/features/library/details/library_detail_chip.dart';
 import 'package:collectarr_app/features/library/details/library_detail_field_table.dart';
 import 'package:collectarr_app/features/library/details/library_detail_models.dart';
@@ -22,12 +25,13 @@ class BoardGamePlayStatsSection extends ConsumerWidget {
       return const SizedBox.shrink();
     }
     final metadata = dto.metadata;
-    final sessionStats = ref
-        .watch(boardGamePlayStatsProvider(
-          BoardGameCatalogItemId(request.item.node.catalogItemId),
-        ))
-        .asData
-        ?.value;
+    final catalogRef = switch (request.item.target) {
+      CatalogTargetRef(:final ref) => ref,
+      EntryTargetRef() => request.item.source.sourceCatalogRef,
+    };
+    final sessionStats = catalogRef?.kind == CatalogMediaKind.boardgame
+        ? ref.watch(boardGamePlayStatsProvider(catalogRef!)).asData?.value
+        : null;
     final playCount = sessionStats?.playCount;
     final lastPlayed = sessionStats?.lastPlayed;
     final facts = <LibraryDetailField>[

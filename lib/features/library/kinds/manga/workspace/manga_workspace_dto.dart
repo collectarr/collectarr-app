@@ -12,7 +12,7 @@ final class MangaWorkspaceDto implements LibraryWorkspaceDto {
   });
 
   final WorkspaceCommonProjection common;
-  final PersonalCopyProjection personal;
+  final PersonalEntryProjection personal;
 
   final MangaMetadata? metadata;
   final MangaEntryDetails? entryDetails;

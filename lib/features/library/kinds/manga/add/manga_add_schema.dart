@@ -7,7 +7,8 @@ import 'package:collectarr_app/features/library/kinds/manga/forms/manga_catalog_
 import 'package:collectarr_app/features/library/kinds/manga/forms/manga_catalog_form_values.dart';
 import 'package:collectarr_app/features/library/kinds/manga/vocabulary/manga_vocabularies.dart';
 
-final LibraryFormSchema<MangaAddManualDraft> mangaAddSchema = mangaAddSchemaFor();
+final LibraryFormSchema<MangaAddManualDraft> mangaAddSchema =
+    mangaAddSchemaFor();
 
 LibraryFormSchema<MangaAddManualDraft> mangaAddSchemaFor({
   Set<String>? fieldIds,

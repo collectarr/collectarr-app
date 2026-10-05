@@ -1,12 +1,12 @@
 import 'package:collectarr_app/features/catalog/transport/catalog_import_transport.dart';
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/data/boardgame_library_entry_projection.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/features/collection/csv/collection_csv_kind_profile.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_library_entry.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/integrations/collection_csv/boardgame_collection_csv_import_profile.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/workspace/boardgame_workspace_catalog_data.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/workspace/boardgame_workspace_data.dart';
 
 /// BoardGame's semantic contribution to the generic collection CSV host.
 final class BoardGameCollectionCsvProjection
@@ -112,10 +112,10 @@ final class BoardGameCollectionCsvProjection
   }
 
   @override
-  List<String> catalogCells(LibraryWorkspaceSource entry) {
-    final catalog = entry.catalogData;
+  List<String> catalogCells(LibraryWorkspaceContext entry) {
+    final catalog = entry.kindPresentationData;
     final metadata =
-        catalog is BoardGameWorkspaceCatalogData ? catalog.metadata : null;
+        catalog is BoardGameWorkspaceData ? catalog.metadata : null;
     return [
       entry.itemId,
       CatalogMediaKind.boardgame.apiValue,
@@ -126,13 +126,17 @@ final class BoardGameCollectionCsvProjection
       metadata?.physicalFormat ?? '',
       metadata?.physicalFormatLabel ?? '',
       metadata?.publisher ?? metadata?.publishers.firstOrNull ?? '',
-      _formatDate(entry.catalogData?.releaseDate),
+      _formatDate(metadata?.releaseDate?.asDateTime ??
+          metadata?.releaseDateParts?.asDateTime ??
+          (metadata?.yearPublished == null
+              ? null
+              : DateTime(metadata!.yearPublished!))),
       metadata?.barcode ?? '',
     ];
   }
 
   @override
-  String? entryCollectionValue(LibraryWorkspaceSource entry) {
+  String? entryCollectionValue(LibraryWorkspaceContext entry) {
     final personalState = BoardGameLibraryEntryProjection.fromDispatch(
         entry.libraryEntryDispatch);
     return personalState is BoardGameLibraryEntry
@@ -141,7 +145,7 @@ final class BoardGameCollectionCsvProjection
   }
 
   @override
-  String? entryCondition(LibraryWorkspaceSource entry) {
+  String? entryCondition(LibraryWorkspaceContext entry) {
     final personalState = BoardGameLibraryEntryProjection.fromDispatch(
         entry.libraryEntryDispatch);
     return personalState is BoardGameLibraryEntry
@@ -150,7 +154,7 @@ final class BoardGameCollectionCsvProjection
   }
 
   @override
-  int? entryIndexNumber(LibraryWorkspaceSource entry) {
+  int? entryIndexNumber(LibraryWorkspaceContext entry) {
     final personalState = BoardGameLibraryEntryProjection.fromDispatch(
         entry.libraryEntryDispatch);
     return personalState is BoardGameLibraryEntry
@@ -159,7 +163,7 @@ final class BoardGameCollectionCsvProjection
   }
 
   @override
-  String? entryTags(LibraryWorkspaceSource entry) {
+  String? entryTags(LibraryWorkspaceContext entry) {
     final personalState = BoardGameLibraryEntryProjection.fromDispatch(
         entry.libraryEntryDispatch);
     return personalState is BoardGameLibraryEntry
@@ -169,7 +173,7 @@ final class BoardGameCollectionCsvProjection
 
   @override
   List<String> entryCellsBeforeLocation(
-    LibraryWorkspaceSource entry, {
+    LibraryWorkspaceContext entry, {
     required bool clzFriendly,
   }) {
     return const [];
@@ -177,7 +181,7 @@ final class BoardGameCollectionCsvProjection
 
   @override
   List<String> entryCellsAfterIndex(
-    LibraryWorkspaceSource entry, {
+    LibraryWorkspaceContext entry, {
     required bool clzFriendly,
   }) {
     return List<String>.filled(

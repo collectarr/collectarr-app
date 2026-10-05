@@ -2,7 +2,6 @@ import 'package:drift/drift.dart';
 
 /// Complete Book-collection item state.
 
-
 class BookTrackingUnitRows extends Table {
   TextColumn get id => text()();
   TextColumn get trackingEntryId => text().nullable()();

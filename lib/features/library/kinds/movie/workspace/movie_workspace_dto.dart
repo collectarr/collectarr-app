@@ -13,7 +13,7 @@ final class MovieWorkspaceDto implements LibraryWorkspaceDto {
   });
 
   final WorkspaceCommonProjection common;
-  final PersonalCopyProjection personal;
+  final PersonalEntryProjection personal;
   final MovieCatalogMetadata metadata;
 
   String get title => common.title;

@@ -2,8 +2,7 @@ import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_ids.
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_dto.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/schema/field_factories.dart';
-import 'package:collectarr_app/features/library/workspace/schema/library_entity_workspace_schema.dart';
-import 'package:collectarr_app/features/library/workspace/schema/library_preference_codec.dart';
+import 'package:collectarr_app/features/library/workspace/schema/library_workspace_schema.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_transport_bucket_mutators.dart';
 import 'package:flutter/material.dart';
 
@@ -12,21 +11,18 @@ abstract final class ComicCatalogItemWorkspaceFields {
     id: ComicFieldIds.title,
     label: 'Title',
     getValue: (dto) => dto.title,
-    entityScope: LibraryEntityScope.catalogItem,
   );
 
   static final series = textField<ComicKind, ComicWorkspaceDto>(
     id: ComicFieldIds.series,
     label: 'Series',
     getValue: (dto) => dto.seriesTitle,
-    entityScope: LibraryEntityScope.catalogItem,
   );
 
   static final issueNumber = textField<ComicKind, ComicWorkspaceDto>(
     id: ComicFieldIds.issueNumber,
     label: 'Issue Number',
     getValue: (dto) => dto.itemNumber,
-    entityScope: LibraryEntityScope.catalogItem,
   );
 
   static final cover =
@@ -34,70 +30,60 @@ abstract final class ComicCatalogItemWorkspaceFields {
     id: ComicFieldIds.cover,
     label: 'Cover',
     getValue: (context) => context.dto.coverImageUrl,
-    entityScope: LibraryEntityScope.catalogItem,
   );
 
   static final writer = textField<ComicKind, ComicWorkspaceDto>(
     id: ComicFieldIds.writer,
     label: 'Writer',
     getValue: (dto) => dto.writer,
-    entityScope: LibraryEntityScope.catalogItem,
   );
 
   static final artist = textField<ComicKind, ComicWorkspaceDto>(
     id: ComicFieldIds.artist,
     label: 'Artist',
     getValue: (dto) => dto.artist,
-    entityScope: LibraryEntityScope.catalogItem,
   );
 
   static final coverArtist = textField<ComicKind, ComicWorkspaceDto>(
     id: ComicFieldIds.coverArtist,
     label: 'Cover Artist',
     getValue: (dto) => dto.coverArtist,
-    entityScope: LibraryEntityScope.catalogItem,
   );
 
   static final imprint = textField<ComicKind, ComicWorkspaceDto>(
     id: ComicFieldIds.imprint,
     label: 'Imprint',
     getValue: (dto) => dto.imprint,
-    entityScope: LibraryEntityScope.catalogItem,
   );
 
   static final pageCount = numberField<ComicKind, ComicWorkspaceDto>(
     id: ComicFieldIds.pageCount,
     label: 'Page Count',
     getValue: (dto) => dto.pageCount,
-    entityScope: LibraryEntityScope.catalogItem,
   );
 
   static final publisher = textField<ComicKind, ComicWorkspaceDto>(
     id: ComicFieldIds.publisher,
     label: 'Publisher',
     getValue: (dto) => dto.publisher,
-    entityScope: LibraryEntityScope.catalogItem,
   );
 
   static final releaseDate = dateField<ComicKind, ComicWorkspaceDto>(
     id: ComicFieldIds.releaseDate,
     label: 'Release Date',
     getValue: (dto) => dto.releaseDate,
-    entityScope: LibraryEntityScope.catalogItem,
   );
 
   static final barcode = textField<ComicKind, ComicWorkspaceDto>(
     id: ComicFieldIds.barcode,
     label: 'Barcode',
     getValue: (dto) => dto.barcode,
-    entityScope: LibraryEntityScope.catalogItem,
   );
 
   static final variant = textField<ComicKind, ComicWorkspaceDto>(
     id: ComicFieldIds.variant,
     label: 'Variant',
     getValue: (dto) => dto.variant,
-    entityScope: LibraryEntityScope.catalogItem,
   );
 }
 
@@ -234,9 +220,8 @@ final comicCatalogItemWorkspaceColumnDefinitions = [
 ];
 
 final comicCatalogItemWorkspaceSchema =
-    LibraryEntityWorkspaceSchema<ComicKind, ComicWorkspaceDto>(
+    LibraryWorkspaceSchema<ComicKind, ComicWorkspaceDto>(
   kindNamespace: 'comic',
-  entityScope: LibraryEntityScope.catalogItem,
   fields: comicCatalogItemWorkspaceFieldDefinitions,
   columns: comicCatalogItemWorkspaceColumnDefinitions,
   sorts: comicCatalogItemWorkspaceSortDefinitions,
@@ -245,7 +230,6 @@ final comicCatalogItemWorkspaceSchema =
   defaultVisibleColumns: comicCatalogItemWorkspaceDefaultVisibleColumns,
   defaultSort: ComicSortIds.releaseDate,
   defaultGroup: ComicGroupIds.series,
-  preferenceCodec: const IdentityLibraryWorkspacePreferenceCodec<ComicKind>(),
 );
 
 String _formatDate(DateTime? value) {

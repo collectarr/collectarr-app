@@ -275,7 +275,6 @@ final class AnimeTrackingStateCodec
       deletedAt: row.deletedAt,
     );
   }
-
 }
 
 Map<String, int> _decodeEpisodeRatings(String? raw) {

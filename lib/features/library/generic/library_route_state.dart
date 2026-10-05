@@ -161,14 +161,14 @@ class LibraryRouteState {
     // A persisted group mode may target local entry fields even when the
     // current page starts with canonical Catalog Item fields. Resolve against
     // both field registries without collapsing their identities.
-    final allowedGroupModes = workspace.availableGroupIdsForAllScopes
+    final allowedGroupModes = workspace.availableGroupIdsForAllTargets
         .map((group) => group.value)
         .toSet();
     final filteredFolderPreset = sanitizeLibraryFolderPreset(
       folderPreset,
       allowedModes: allowedGroupModes,
     );
-    final allowedSortColumns = workspace.availableSortColumnIdsForAllScopes;
+    final allowedSortColumns = workspace.availableSortColumnIdsForAllTargets;
     final filteredSortRules = sortRules == null
         ? null
         : [
@@ -177,7 +177,7 @@ class LibraryRouteState {
           ];
     final resolvedGroupId = groupMode == null
         ? null
-        : workspace.resolveGroupIdAcrossScopes(groupMode!);
+        : workspace.resolveGroupIdAcrossTargets(groupMode!);
     final filteredGroupMode = filteredFolderPreset?.primaryMode ??
         (groupMode != null &&
                 (allowedGroupModes.contains(groupMode) ||

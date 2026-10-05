@@ -59,4 +59,3 @@ final class AnimeCustomEpisode {
           'deleted_at': deletedAt!.toUtc().toIso8601String(),
       };
 }
-

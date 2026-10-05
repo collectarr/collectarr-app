@@ -10,7 +10,7 @@ import 'package:collectarr_app/features/pick_lists/pick_list_definition_contribu
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_pick_list_contributors.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_serial_authority_contributors.dart';
 import 'package:collectarr_app/features/library/kinds/movie/domain/movie_metadata.dart';
-import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_workspace_catalog_data.dart';
+import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_workspace_data.dart';
 
 final class MovieCatalogTransportCodec
     implements CatalogKindTransportCodec<MovieCatalogMetadata> {
@@ -24,11 +24,15 @@ final class MovieCatalogTransportCodec
       MovieCatalogMetadata.fromJson(item.kindData);
 
   @override
+  MovieCatalogMetadata decodeKindData(Map<String, dynamic> kindData) =>
+      MovieCatalogMetadata.fromJson(kindData);
+
+  @override
   CatalogDisplaySummary summarize(
     String catalogItemId,
     MovieCatalogMetadata item,
   ) =>
-      CatalogDisplaySummary.root(
+      CatalogDisplaySummary.forCatalogItem(
         kind: kind,
         id: catalogItemId,
         primaryLabel: item.title,
@@ -36,8 +40,14 @@ final class MovieCatalogTransportCodec
       );
 
   @override
-  MovieWorkspaceCatalogData workspaceData(CatalogItemDto item) =>
-      MovieWorkspaceCatalogData.fromTransport(item);
+  MovieWorkspaceData workspaceData(CatalogItemDto item) =>
+      MovieWorkspaceData(metadata: decode(item));
+
+  @override
+  MovieWorkspaceData workspaceDataFromKindData(
+    Map<String, dynamic> kindData,
+  ) =>
+      MovieWorkspaceData(metadata: MovieCatalogMetadata.fromJson(kindData));
 
   @override
   Future<Map<String, int>> countCatalogValues(
@@ -51,9 +61,7 @@ final class MovieCatalogTransportCodec
     return countPickListCatalogValuesByValue(
       contributor: contributor,
       listName: listName,
-      metadata: [
-        for (final item in await listTransport(db)) decode(item),
-      ],
+      metadata: await listCatalogAndEntryMetadata(db),
       normalizedValues: normalizedValues,
     );
   }

@@ -4,7 +4,7 @@ import 'package:collectarr_app/features/library/inspector/sections/personal_stat
 import 'package:collectarr_app/features/library/kinds/manga/presentation_builder.dart';
 import 'package:flutter/material.dart';
 
-Widget buildMangaWorkInspectorHero(
+Widget buildMangaCatalogItemInspectorHero(
   BuildContext context,
   LibraryInspectorRequest request,
 ) {
@@ -16,7 +16,7 @@ Widget buildMangaWorkInspectorHero(
   );
 }
 
-Widget buildMangaReleaseInspectorHero(
+Widget buildMangaLibraryEntryInspectorHero(
   BuildContext context,
   LibraryInspectorRequest request,
 ) {
@@ -28,33 +28,14 @@ Widget buildMangaReleaseInspectorHero(
   );
 }
 
-Widget buildMangaCopyInspectorHero(
-  BuildContext context,
-  LibraryInspectorRequest request,
-) {
-  return LibraryDetailHero(
-    type: request.type,
-    item: request.item,
-    libraryEntry: request.libraryEntry,
-    accent: request.accent,
-  );
-}
-
-List<Widget> buildMangaWorkInspectorSections(
+List<Widget> buildMangaCatalogItemInspectorSections(
   BuildContext context,
   LibraryInspectorRequest request,
 ) {
   return _buildMangaMetadataSections(context, request, showSummary: true);
 }
 
-List<Widget> buildMangaReleaseInspectorSections(
-  BuildContext context,
-  LibraryInspectorRequest request,
-) {
-  return _buildMangaMetadataSections(context, request, showSummary: false);
-}
-
-List<Widget> buildMangaCopyInspectorSections(
+List<Widget> buildMangaLibraryEntryInspectorSections(
   BuildContext context,
   LibraryInspectorRequest request,
 ) {

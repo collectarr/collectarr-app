@@ -2,19 +2,9 @@ import '../tv_module_dependencies.dart';
 import '../entries/tv_transfer_library_entry.dart';
 
 final tvKindEditCapabilities = LibraryEditCapabilitySet(
-  editRegistry: LibraryEntityEditRegistry(contributors: [
-    LibraryEntityEditContributor(
-      scope: LibraryEntityScope.catalogItem,
-      builder: buildTvLibraryEditDialog,
-    ),
-    LibraryEntityEditContributor(
-      scope: LibraryEntityScope.libraryEntry,
-      builder: buildTvLibraryEditDialog,
-    ),
-  ]),
+  editRegistry: LibraryTargetEditRegistry(catalogItem: buildTvLibraryEditDialog, libraryEntry: buildTvLibraryEditDialog),
   vocabularies: StandardKindVocabularyCapability(TvVocabularies.all),
   presentation: tvLibraryEditPresentation,
-  coreCorrectionTargetResolver: resolveStructuralLibraryCoreCorrectionTarget,
   conditions: TvVocabularies.condition.builtIns,
   entryCollectionValueReader: (libraryEntry) => switch (libraryEntry?.value) {
     TvLibraryEntry item => item.personal.grade,

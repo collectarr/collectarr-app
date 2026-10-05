@@ -3,7 +3,6 @@ import 'package:drift/drift.dart';
 /// Complete BoardGame-collection item state. Play sessions are tracking data and
 /// remain in their dedicated table rather than being embedded in a copy.
 
-
 class BoardGamePlaySessionsRows extends Table {
   TextColumn get id => text()();
   TextColumn get boardGameId => text()();

@@ -1,5 +1,4 @@
 export 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_metadata.dart';
-export 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_ids.dart';
 export 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_library_entry.dart';
 export 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_play_session.dart';
 export 'package:collectarr_app/features/library/kinds/boardgame/data/boardgame_play_session_repository.dart';

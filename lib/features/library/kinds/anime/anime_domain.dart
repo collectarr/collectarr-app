@@ -1,5 +1,4 @@
 export 'package:collectarr_app/features/library/kinds/anime/domain/anime_metadata.dart';
-export 'package:collectarr_app/features/library/kinds/anime/domain/anime_hierarchy.dart';
 export 'package:collectarr_app/features/library/kinds/anime/domain/anime_hierarchy_mapper.dart';
 export 'package:collectarr_app/features/library/kinds/anime/domain/anime_ids.dart';
 export 'package:collectarr_app/features/library/kinds/anime/domain/anime_metadata_children.dart';

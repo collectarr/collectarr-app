@@ -36,4 +36,4 @@ String? normalizeLibraryDuplicateIdentifier(Object? value) {
 }
 
 typedef LibraryDuplicateCandidateBuilder = List<LibraryDuplicateCandidate>
-    Function(LibraryWorkspaceSource entry);
+    Function(LibraryWorkspaceContext entry);

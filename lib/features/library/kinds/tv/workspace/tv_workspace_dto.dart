@@ -10,7 +10,7 @@ final class TvWorkspaceDto implements LibraryWorkspaceDto {
   });
 
   final WorkspaceCommonProjection common;
-  final PersonalCopyProjection personal;
+  final PersonalEntryProjection personal;
   final TvMetadata metadata;
 
   String get title => common.title;

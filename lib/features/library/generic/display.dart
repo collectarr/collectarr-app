@@ -1,5 +1,4 @@
 import 'package:collectarr_app/ui/theme/app_theme.dart';
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:flutter/material.dart';
@@ -62,7 +61,7 @@ class LibraryMetaChip extends StatelessWidget {
 }
 
 String genericLibraryStatusLabel(LibraryProjectionView item) {
-  final kind = item.source.catalogRef?.mediaKind ?? CatalogMediaKind.unknown;
+  final kind = item.source.mediaKind;
   final labels = libraryPresentationForKind(kind).statusLabels;
   if (item.source.isEntry) {
     return labels.labelFor('entry', fallback: 'Entry');

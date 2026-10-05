@@ -48,7 +48,7 @@ class LibraryPageCollectionActionCoordinator {
     if (!libraryMetadataForKind(_page.type.kind).supportsServerCompare) {
       return false;
     }
-    final catalogId = item.source.catalogRef?.id ?? item.node.id;
+    final catalogId = item.target.id;
     if (_isNonServerMetadataId(catalogId)) {
       return false;
     }
@@ -84,7 +84,7 @@ class LibraryPageCollectionActionCoordinator {
       return null;
     }
     for (final item in projection.filteredItems) {
-      if (item.node.id == selectedId) {
+      if (item.target.id == selectedId) {
         return item;
       }
     }
@@ -96,17 +96,17 @@ class LibraryPageCollectionActionCoordinator {
     LibraryProjectionItem item,
     Offset position,
   ) async {
-    final contextSelectionIds = <String>{item.node.id};
+    final contextSelectionIds = <String>{item.target.id};
     final selectionChanged =
         contextSelectionIds.length != _page.selection.itemIds.length ||
             !contextSelectionIds.containsAll(_page.selection.itemIds);
-    if (selectionChanged || _page.selectedId != item.node.id) {
+    if (selectionChanged || _page.selectedId != item.target.id) {
       _page.rebuild(() {
         _page.selection = _page.selection.replace(contextSelectionIds);
-        _page.selectedId = item.node.id;
+        _page.selectedId = item.target.id;
         if (_page.selectionAnchorId == null ||
             !_page.selection.itemIds.contains(_page.selectionAnchorId)) {
-          _page.selectionAnchorId = item.node.id;
+          _page.selectionAnchorId = item.target.id;
         }
       });
     }
@@ -242,7 +242,7 @@ class LibraryPageCollectionActionCoordinator {
       return;
     }
     final random = items[_random.nextInt(items.length)];
-    _page.selectItem(random.node.id);
+    _page.selectItem(random.target.id);
   }
 
   Future<void> bulkEditFlow(LibraryProjection? projection) async {

@@ -75,7 +75,6 @@ class LibraryToolbarViewContext {
   final VoidCallback onShowSortFavoritesManagerFlow;
   final ValueChanged<LibraryTableColumnPreset> onApplyColumnFavorite;
   final ValueChanged<LibraryTableColumnPreset> onTogglePinnedColumnFavorite;
-
 }
 
 class LibraryToolbarGroupingContext {
@@ -182,11 +181,10 @@ class LibraryToolbarActionRegistry {
   }) {
     final availability = actionContext.view.type.toolbarActionAvailability;
     final registration = actionContext.view.type;
-    final activeScope = projection != null && projection.allItems.isNotEmpty
-        ? projection.allItems.first.node.scope
-        : LibraryEntityScope.catalogItem;
-    final activeFields = libraryKindWorkspaceForKind(registration.kind)
-        .fieldsForScope(activeScope);
+    final workspace = libraryKindWorkspaceForKind(registration.kind);
+    final activeFields = projection != null && projection.allItems.isNotEmpty
+        ? workspace.fieldsForTarget(projection.allItems.first.target)
+        : workspace.fields;
     final kindToolbarActions =
         libraryToolbarForKind(registration.kind)?.actions ?? const [];
     bool enabled(LibraryToolbarActionId id) => availability.allows(id);

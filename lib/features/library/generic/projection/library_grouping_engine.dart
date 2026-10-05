@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/workspace/schema/library_group_values.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
@@ -20,34 +21,37 @@ class LibraryGroupingEngine {
 
   final LibrarySequenceGapAnalyzer gapAnalyzer;
 
-  String getGroupBucketForItem(
-    LibraryProjectionItem item,
-    LibraryKindRegistration type,
-    LibraryGroupIdRuntime groupId,
-  ) {
+  /// Representative bucket for callers that need a single label.
+  String getGroupBucketForItem(LibraryProjectionItem item,
+          LibraryKindRegistration type, LibraryGroupIdRuntime groupId) =>
+      getGroupBucketsForItem(item, type, groupId).first;
+
+  List<String> getGroupBucketsForItem(LibraryProjectionItem item,
+      LibraryKindRegistration type, LibraryGroupIdRuntime groupId) {
     final workspace = libraryKindWorkspaceForKind(type.kind);
-    final nodeFields = workspace.fieldsForNode(item.node);
-    final groupDefinition = nodeFields.findGroupDefinition(groupId);
-    if (groupDefinition != null) {
-      final value = workspace.groupValue(item, groupDefinition.id);
-      final normalizedValue = value?.toString().trim();
-      if (normalizedValue != null && normalizedValue.isNotEmpty) {
-        return normalizedValue;
-      }
+    final definition =
+        workspace.fieldsForTarget(item.target).findGroupDefinition(groupId);
+    if (definition != null) {
+      final values =
+          libraryGroupBucketValues(workspace.groupValue(item, definition.id));
+      if (values.isNotEmpty) return values;
     }
-    final scopedValue = workspace.groupValueAcrossScopes(item, groupId.value);
-    final normalizedScopedValue = scopedValue?.toString().trim();
-    if (normalizedScopedValue != null && normalizedScopedValue.isNotEmpty) {
-      return normalizedScopedValue;
-    }
-    return libraryPresentationForKind(type.kind).bucketLabelBuilder(
-      LibraryBucketingContext(
-        source: item.source,
-        item: item,
-        groupId: groupId,
-      ),
-    );
+    final values = libraryGroupBucketValues(
+        workspace.groupValueAcrossTargets(item, groupId.value));
+    if (values.isNotEmpty) return values;
+    return [
+      libraryPresentationForKind(type.kind).bucketLabelBuilder(
+          LibraryBucketingContext(
+              source: item.source, item: item, groupId: groupId))
+    ];
   }
+
+  List<String> bucketsForItem(LibraryProjectionItem item,
+          LibraryKindRegistration type, LibraryGroupIdRuntime groupId,
+          {LibraryProjectionIndex? index}) =>
+      index?.getGroupBuckets(item, groupId,
+          (item, id) => getGroupBucketsForItem(item, type, id)) ??
+      getGroupBucketsForItem(item, type, groupId);
 
   List<LibraryBucket> buildBuckets(
     List<LibraryProjectionItem> items,
@@ -70,37 +74,31 @@ class LibraryGroupingEngine {
     final entryNumbers = hasSequence ? <String, Set<int>>{} : null;
 
     for (final item in items) {
-      final bucket = index != null
-          ? index.getGroupBucket(
-              item,
-              groupId,
-              (it, mode) => getGroupBucketForItem(it, type, mode),
-            )
-          : getGroupBucketForItem(item, type, groupId);
-
-      counts[bucket] = (counts[bucket] ?? 0) + 1;
-      final number = hasSequence
-          ? _parseWholeNumber(
-              workspace.groupSequenceValueForEntry(item, groupId),
-            )
-          : null;
-      if (number != null) {
-        bucketNumbers!.putIfAbsent(bucket, () => <int>{}).add(number);
-      }
-      if (hasSequence && item.source.isEntry) {
-        entryCounts![bucket] = (entryCounts[bucket] ?? 0) + 1;
+      for (final bucket in bucketsForItem(item, type, groupId, index: index)) {
+        counts[bucket] = (counts[bucket] ?? 0) + 1;
+        final number = hasSequence
+            ? _parseWholeNumber(
+                workspace.groupSequenceValueForEntry(item, groupId),
+              )
+            : null;
         if (number != null) {
-          entryNumbers!.putIfAbsent(bucket, () => <int>{}).add(number);
+          bucketNumbers!.putIfAbsent(bucket, () => <int>{}).add(number);
         }
-      }
-      if (!coverUrls.containsKey(bucket)) {
-        coverUrls[bucket] = item.dto.imageUrl;
-      }
-      final year = libraryCardPresentationForEntry(item).releaseDate?.year;
-      if (year != null) {
-        final existing = startYears[bucket];
-        if (existing == null || year < existing) {
-          startYears[bucket] = year;
+        if (hasSequence && item.source.isEntry) {
+          entryCounts![bucket] = (entryCounts[bucket] ?? 0) + 1;
+          if (number != null) {
+            entryNumbers!.putIfAbsent(bucket, () => <int>{}).add(number);
+          }
+        }
+        if (!coverUrls.containsKey(bucket)) {
+          coverUrls[bucket] = item.dto.imageUrl;
+        }
+        final year = libraryCardPresentationForEntry(item).releaseDate?.year;
+        if (year != null) {
+          final existing = startYears[bucket];
+          if (existing == null || year < existing) {
+            startYears[bucket] = year;
+          }
         }
       }
     }
@@ -158,14 +156,9 @@ class LibraryGroupingEngine {
         genericGroupPresentationForMode(groupId.value, type);
 
     for (final item in items) {
-      final bucket = index != null
-          ? index.getGroupBucket(
-              item,
-              groupId,
-              (it, mode) => getGroupBucketForItem(it, type, mode),
-            )
-          : getGroupBucketForItem(item, type, groupId);
-      (grouped[bucket] ??= []).add(item);
+      for (final bucket in bucketsForItem(item, type, groupId, index: index)) {
+        (grouped[bucket] ??= []).add(item);
+      }
     }
 
     final sortedBuckets = grouped.keys.toList()..sort();

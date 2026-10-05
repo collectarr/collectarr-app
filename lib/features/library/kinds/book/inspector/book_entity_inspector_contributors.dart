@@ -8,7 +8,7 @@ import 'package:collectarr_app/features/library/kinds/book/detail/book_author_sp
 import 'package:collectarr_app/features/library/kinds/book/presentation_builder.dart';
 import 'package:flutter/material.dart';
 
-Widget buildBookWorkInspectorHero(
+Widget buildBookCatalogItemInspectorHero(
   BuildContext context,
   LibraryInspectorRequest request,
 ) {
@@ -24,7 +24,7 @@ Widget buildBookWorkInspectorHero(
   );
 }
 
-Widget buildBookCopyInspectorHero(
+Widget buildBookLibraryEntryInspectorHero(
   BuildContext context,
   LibraryInspectorRequest request,
 ) {
@@ -40,7 +40,7 @@ Widget buildBookCopyInspectorHero(
   );
 }
 
-List<Widget> buildBookWorkInspectorSections(
+List<Widget> buildBookCatalogItemInspectorSections(
   BuildContext context,
   LibraryInspectorRequest request,
 ) {
@@ -56,7 +56,7 @@ List<Widget> buildBookWorkInspectorSections(
   );
 }
 
-List<Widget> buildBookCopyInspectorSections(
+List<Widget> buildBookLibraryEntryInspectorSections(
   BuildContext context,
   LibraryInspectorRequest request,
 ) {

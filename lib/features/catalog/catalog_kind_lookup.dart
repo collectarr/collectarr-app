@@ -1,4 +1,4 @@
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/core/models/catalog_search_hit.dart';
 
 export 'package:collectarr_app/core/models/catalog_search_hit.dart';
@@ -43,9 +43,8 @@ CatalogSearchHit catalogLookupHit({
   String? subtitle,
 }) {
   return CatalogSearchHit(
-    ref: CatalogEntityRef(
+    ref: CatalogItemRef(
       kind: kind,
-      entityType: CatalogEntityTypeId.catalogItem,
       id: id,
     ),
     kind: kind,

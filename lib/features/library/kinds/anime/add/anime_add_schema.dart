@@ -547,6 +547,7 @@ List<LibraryFormSectionSpec<TDraft>>
           fullWidthFieldIds: section.fullWidthFieldIds,
           fieldColumnSpans: section.fieldColumnSpans,
           rightAlignedFieldIds: section.rightAlignedFieldIds,
+          columns: section.columns,
           visibleWhen: section.visibleWhen,
         ),
   ];

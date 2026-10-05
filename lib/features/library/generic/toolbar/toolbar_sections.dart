@@ -1269,23 +1269,25 @@ class LibraryToolbarChromeRow extends StatelessWidget {
                   initialValue: collectionStatusScope,
                   onSelected: onCollectionStatusScopeChanged!,
                   padding: EdgeInsets.zero,
-                  menuPadding: const EdgeInsets.symmetric(vertical: 4),
+                  menuPadding: EdgeInsets.zero,
                   position: PopupMenuPosition.under,
-                  color: palette.panelRaised,
+                  color: Theme.of(context).brightness == Brightness.dark
+                      ? const Color(0xFF444444)
+                      : palette.panelRaised,
                   surfaceTintColor: Colors.transparent,
                   constraints: const BoxConstraints(
                     minWidth: 0,
                     maxWidth: double.infinity,
                   ).copyWith(minWidth: dropdownWidth, maxWidth: dropdownWidth),
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(4),
+                    borderRadius: BorderRadius.zero,
                     side: BorderSide(color: palette.divider),
                   ),
                   itemBuilder: (context) => [
                     for (final scope in LibraryCollectionStatusScope.values)
                       PopupMenuItem<LibraryCollectionStatusScope>(
                         value: scope,
-                        height: kLibraryToolbarTextDropdownHeight,
+                        height: 24,
                         padding: const EdgeInsets.symmetric(horizontal: 8),
                         child: LibraryCollectionStatusScopeMenuItem(
                           scope: scope,

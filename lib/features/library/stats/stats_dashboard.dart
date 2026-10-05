@@ -303,7 +303,7 @@ class _GenericStatsDashboard extends StatelessWidget {
   }
 
   static Map<String, int> _topSeriesCounts(
-    List<LibraryWorkspaceSource> entries,
+    List<LibraryWorkspaceContext> entries,
     LibraryKindRegistration registration,
   ) {
     return _countBy(
@@ -317,7 +317,7 @@ class _GenericStatsDashboard extends StatelessWidget {
   }
 
   static Map<String, int> _topPublisherCounts(
-    List<LibraryWorkspaceSource> entries,
+    List<LibraryWorkspaceContext> entries,
     LibraryKindRegistration registration,
   ) {
     return _countBy(
@@ -331,7 +331,7 @@ class _GenericStatsDashboard extends StatelessWidget {
   }
 
   static int _missingMetadataCount(
-    List<LibraryWorkspaceSource> entries,
+    List<LibraryWorkspaceContext> entries,
     LibraryKindRegistration registration,
   ) {
     var count = 0;
@@ -350,7 +350,7 @@ class _GenericStatsDashboard extends StatelessWidget {
   }
 
   static Map<String, int> _topInvestedLocations(
-      List<LibraryWorkspaceSource> entries) {
+      List<LibraryWorkspaceContext> entries) {
     return _sumBy(
       entries,
       (entry) => entry.locationPath ?? 'No location',
@@ -359,7 +359,7 @@ class _GenericStatsDashboard extends StatelessWidget {
   }
 
   static Map<String, int> _topInvestedSeries(
-    List<LibraryWorkspaceSource> entries,
+    List<LibraryWorkspaceContext> entries,
     LibraryKindRegistration registration,
   ) {
     return _sumBy(
@@ -373,7 +373,7 @@ class _GenericStatsDashboard extends StatelessWidget {
     );
   }
 
-  static Map<String, int> _topBuyerSales(List<LibraryWorkspaceSource> entries) {
+  static Map<String, int> _topBuyerSales(List<LibraryWorkspaceContext> entries) {
     return _sumBy(
       entries,
       (entry) => entry.soldTo ?? 'Unknown buyer',
@@ -382,7 +382,7 @@ class _GenericStatsDashboard extends StatelessWidget {
   }
 
   static Map<String, int> _topSalesSeries(
-    List<LibraryWorkspaceSource> entries,
+    List<LibraryWorkspaceContext> entries,
     LibraryKindRegistration registration,
   ) {
     return _sumBy(
@@ -397,7 +397,7 @@ class _GenericStatsDashboard extends StatelessWidget {
   }
 
   static Map<String, int> _metadataQualityBands(
-    List<LibraryWorkspaceSource> entries,
+    List<LibraryWorkspaceContext> entries,
     LibraryKindRegistration registration,
   ) {
     final counts = <String, int>{
@@ -414,7 +414,7 @@ class _GenericStatsDashboard extends StatelessWidget {
   }
 
   static Map<String, int> _metadataAlertCounts(
-    List<LibraryWorkspaceSource> entries,
+    List<LibraryWorkspaceContext> entries,
     LibraryKindRegistration type,
     LibraryKindRegistration registration,
   ) {
@@ -455,7 +455,7 @@ class _GenericStatsDashboard extends StatelessWidget {
   }
 
   static String _metadataBand(
-      LibraryWorkspaceSource entry, LibraryKindRegistration registration) {
+      LibraryWorkspaceContext entry, LibraryKindRegistration registration) {
     final projection =
         libraryStatsForKind(registration.kind).buildMetadataProjection(entry);
     if (projection == null) {
@@ -493,8 +493,8 @@ class _GenericStatsDashboard extends StatelessWidget {
   }
 
   static Map<String, int> _countBy(
-    Iterable<LibraryWorkspaceSource> entries,
-    String Function(LibraryWorkspaceSource entry) keyFor,
+    Iterable<LibraryWorkspaceContext> entries,
+    String Function(LibraryWorkspaceContext entry) keyFor,
   ) {
     final counts = <String, int>{};
     for (final entry in entries) {
@@ -506,9 +506,9 @@ class _GenericStatsDashboard extends StatelessWidget {
   }
 
   static Map<String, int> _sumBy(
-    Iterable<LibraryWorkspaceSource> entries,
-    String Function(LibraryWorkspaceSource entry) keyFor,
-    int? Function(LibraryWorkspaceSource entry) amountFor,
+    Iterable<LibraryWorkspaceContext> entries,
+    String Function(LibraryWorkspaceContext entry) keyFor,
+    int? Function(LibraryWorkspaceContext entry) amountFor,
   ) {
     final totals = <String, int>{};
     for (final entry in entries) {
@@ -528,7 +528,7 @@ class _GenericStatsDashboard extends StatelessWidget {
 class _TrackingStatusCard extends StatelessWidget {
   const _TrackingStatusCard({required this.entries});
 
-  final List<LibraryWorkspaceSource> entries;
+  final List<LibraryWorkspaceContext> entries;
 
   @override
   Widget build(BuildContext context) {

@@ -9,7 +9,7 @@ import 'package:collectarr_app/features/library/config/presentation/library_medi
 import 'package:collectarr_app/features/library/generic/display.dart';
 import 'package:collectarr_app/features/library/kinds/book/domain/book_metadata.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
-import 'package:collectarr_app/features/library/kinds/book/workspace/book_workspace_catalog_data.dart';
+import 'package:collectarr_app/features/library/kinds/book/workspace/book_workspace_data.dart';
 import 'package:collectarr_app/features/library/kinds/book/domain/book_library_entry.dart';
 import 'package:collectarr_app/features/library/kinds/book/workspace/book_workspace_dto.dart';
 import 'package:collectarr_app/features/library/hierarchy/ui/hierarchy_children_section.dart';
@@ -84,10 +84,10 @@ class BookLibraryMediaPresentationBuilder
 
   @override
   List<LibraryDuplicateCandidate> buildDuplicateCandidates(
-    LibraryWorkspaceSource entry,
+    LibraryWorkspaceContext entry,
   ) {
-    final catalog = entry.catalogData;
-    if (catalog is! BookWorkspaceCatalogData) return const [];
+    final catalog = entry.kindPresentationData;
+    if (catalog is! BookWorkspaceData) return const [];
     final metadata = catalog.metadata;
     final identifier = normalizeLibraryDuplicateIdentifier(
       metadata.isbn ?? metadata.isbn13 ?? metadata.isbn10 ?? metadata.barcode,
@@ -206,7 +206,7 @@ class BookLibraryMediaPresentationBuilder
       identityFacts: [
         if (includeIdentityFacts) ...[
           LibraryDetailField(label: 'Kind', value: singularLabel),
-          LibraryDetailField(label: 'ID', value: item.node.catalogItemId),
+          LibraryDetailField(label: 'ID', value: item.target.id),
           LibraryDetailField(label: 'Title', value: dto.primaryLabel),
         ],
         if (metadata?.seriesTitle != null)
@@ -294,7 +294,7 @@ class BookLibraryMediaPresentationBuilder
     if (showVolumeHierarchy) {
       sections.add(
         HierarchyChildrenSection(
-          itemId: item.node.catalogItemId,
+          itemId: item.target.id,
           kind: CatalogMediaKind.book,
         ),
       );
@@ -494,6 +494,6 @@ LibraryAddSearchResultDisplay _buildBookSearchResultDisplay(
 }
 
 BookCatalogMetadata? _bookMetadata(LibraryProjectionView item) {
-  final catalog = item.source.catalogData;
-  return catalog is BookWorkspaceCatalogData ? catalog.metadata : null;
+  final catalog = item.source.kindPresentationData;
+  return catalog is BookWorkspaceData ? catalog.metadata : null;
 }

@@ -9,28 +9,24 @@ abstract final class AnimeAdditionalCatalogItemWorkspaceFields {
     id: AnimeFieldIds.publisher,
     label: 'Publisher',
     getValue: (dto) => dto.publisher,
-    entityScope: LibraryEntityScope.catalogItem,
   );
 
   static final releaseDate = dateField<AnimeKind, AnimeWorkspaceDto>(
     id: AnimeFieldIds.releaseDate,
     label: 'Release Date',
     getValue: (dto) => dto.releaseDate,
-    entityScope: LibraryEntityScope.catalogItem,
   );
 
   static final releaseYear = numberField<AnimeKind, AnimeWorkspaceDto>(
     id: AnimeFieldIds.releaseYear,
     label: 'Release Year',
     getValue: (dto) => dto.releaseDate?.year,
-    entityScope: LibraryEntityScope.catalogItem,
   );
 
   static final barcode = textField<AnimeKind, AnimeWorkspaceDto>(
     id: AnimeFieldIds.barcode,
     label: 'UPC / Barcode',
     getValue: (dto) => dto.barcode,
-    entityScope: LibraryEntityScope.catalogItem,
   );
 }
 
@@ -53,7 +49,6 @@ final animeAdditionalCatalogItemWorkspaceSortDefinitions = [
   LibrarySortDefinition<AnimeKind, AnimeWorkspaceDto>(
     id: AnimeSortIds.releaseTitle,
     label: 'Release title',
-    entityScope: LibraryEntityScope.catalogItem,
     compare: (left, right) => left.dto.title.compareTo(right.dto.title),
   ),
   sortFromField<AnimeKind, AnimeWorkspaceDto, String>(
@@ -63,7 +58,8 @@ final animeAdditionalCatalogItemWorkspaceSortDefinitions = [
       defaultAscending: false),
 ];
 
-final animeAdditionalCatalogItemWorkspaceDefaultVisibleColumns = <LibraryFieldIdRuntime>{
+final animeAdditionalCatalogItemWorkspaceDefaultVisibleColumns =
+    <LibraryFieldIdRuntime>{
   AnimeFieldIds.publisher,
   AnimeFieldIds.releaseDate,
   AnimeFieldIds.barcode,

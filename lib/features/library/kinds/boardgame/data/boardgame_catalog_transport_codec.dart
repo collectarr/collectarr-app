@@ -10,7 +10,7 @@ import 'package:collectarr_app/features/pick_lists/pick_list_definition_contribu
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_pick_list_contributors.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_serial_authority_contributors.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_metadata.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/workspace/boardgame_workspace_catalog_data.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/workspace/boardgame_workspace_data.dart';
 
 final class BoardGameCatalogTransportCodec
     implements CatalogKindTransportCodec<BoardGameMetadata> {
@@ -24,11 +24,15 @@ final class BoardGameCatalogTransportCodec
       BoardGameMetadata.fromJson(item.kindData);
 
   @override
+  BoardGameMetadata decodeKindData(Map<String, dynamic> kindData) =>
+      BoardGameMetadata.fromJson(kindData);
+
+  @override
   CatalogDisplaySummary summarize(
     String catalogItemId,
     BoardGameMetadata item,
   ) =>
-      CatalogDisplaySummary.root(
+      CatalogDisplaySummary.forCatalogItem(
         kind: kind,
         id: catalogItemId,
         primaryLabel: item.title,
@@ -36,8 +40,14 @@ final class BoardGameCatalogTransportCodec
       );
 
   @override
-  BoardGameWorkspaceCatalogData workspaceData(CatalogItemDto item) =>
-      BoardGameWorkspaceCatalogData.fromTransport(item);
+  BoardGameWorkspaceData workspaceData(CatalogItemDto item) =>
+      BoardGameWorkspaceData(metadata: decode(item));
+
+  @override
+  BoardGameWorkspaceData workspaceDataFromKindData(
+    Map<String, dynamic> kindData,
+  ) =>
+      BoardGameWorkspaceData(metadata: BoardGameMetadata.fromJson(kindData));
 
   @override
   Future<Map<String, int>> countCatalogValues(
@@ -51,9 +61,7 @@ final class BoardGameCatalogTransportCodec
     return countPickListCatalogValuesByValue(
       contributor: contributor,
       listName: listName,
-      metadata: [
-        for (final item in await listTransport(db)) decode(item),
-      ],
+      metadata: await listCatalogAndEntryMetadata(db),
       normalizedValues: normalizedValues,
     );
   }

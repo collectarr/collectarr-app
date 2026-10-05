@@ -9,8 +9,7 @@ import 'package:collectarr_app/features/library/config/presentation/library_medi
 import 'package:collectarr_app/features/library/generic/display.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/kinds/manga/workspace/manga_workspace_dto.dart';
-import 'package:collectarr_app/features/library/kinds/manga/workspace/manga_workspace_catalog_data.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_workspace_catalog_data.dart';
+import 'package:collectarr_app/features/library/kinds/manga/workspace/manga_workspace_data.dart';
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/features/library/details/library_detail_models.dart';
 import 'package:collectarr_app/features/library/details/library_detail_section.dart';
@@ -60,10 +59,10 @@ class MangaLibraryMediaPresentationBuilder
 
   @override
   List<LibraryDuplicateCandidate> buildDuplicateCandidates(
-    LibraryWorkspaceSource entry,
+    LibraryWorkspaceContext entry,
   ) {
-    final catalog = entry.catalogData;
-    if (catalog is! MangaWorkspaceCatalogData) return const [];
+    final catalog = entry.kindPresentationData;
+    if (catalog is! MangaWorkspaceData) return const [];
     final item = catalog.metadata;
     final candidates = <LibraryDuplicateCandidate>[];
     final volumeNumber = item.volumeNumber?.toString();
@@ -207,9 +206,9 @@ class MangaLibraryMediaPresentationBuilder
     final releaseDate = adapter?.releaseDate;
     final country = adapter?.country;
     final language = adapter?.language;
-    final catalog = item.source.catalogData;
+    final catalog = item.source.kindPresentationData;
     final metadata =
-        catalog is MangaWorkspaceCatalogData ? catalog.metadata : null;
+        catalog is MangaWorkspaceData ? catalog.metadata : null;
     const String? musicCatalogNumber = null;
     const String? musicAlbumStatus = null;
     const String? ageRating = null;
@@ -221,7 +220,7 @@ class MangaLibraryMediaPresentationBuilder
       identityFacts: [
         if (includeIdentityFacts) ...[
           LibraryDetailField(label: 'Kind', value: singularLabel),
-          LibraryDetailField(label: 'ID', value: item.node.catalogItemId),
+          LibraryDetailField(label: 'ID', value: item.target.id),
           LibraryDetailField(label: 'Title', value: dto.primaryLabel),
         ],
         if (metadata?.seriesTitle != null)
@@ -324,7 +323,8 @@ class MangaLibraryMediaPresentationBuilder
     required Color accent,
     ValueChanged<String>? onFilterByValue,
   }) {
-    final synopsis = libraryWorkspaceCatalogSynopsis(item.source.catalogData);
+    final metadata = (item.dto as MangaWorkspaceDto).metadata;
+    final synopsis = metadata?.synopsis ?? metadata?.description;
     if (!showSummary || synopsis == null || synopsis.trim().isEmpty) {
       return const [];
     }
@@ -359,17 +359,14 @@ LibraryAddSearchResultDisplay _buildMangaSearchResultDisplay(
   final metadata = fields.metadata;
   final itemNumber = fields.itemNumber?.trim();
   final subtitle = [
-    if (metadata?.publisher?.trim()
-        case final value? when value.isNotEmpty)
+    if (metadata?.publisher?.trim() case final value? when value.isNotEmpty)
       value,
-    if ((fields.releaseYear ?? fields.releaseDate?.year)
-        case final year?)
+    if ((fields.releaseYear ?? fields.releaseDate?.year) case final year?)
       year.toString(),
     if ((metadata?.physicalFormatLabel ?? metadata?.physicalFormat)?.trim()
         case final value? when value.isNotEmpty)
       value,
-    if (metadata?.barcode?.trim()
-        case final value? when value.isNotEmpty)
+    if (metadata?.barcode?.trim() case final value? when value.isNotEmpty)
       value,
   ].join(' | ');
   return LibraryAddSearchResultDisplay(

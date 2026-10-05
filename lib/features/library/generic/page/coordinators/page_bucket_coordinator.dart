@@ -1,5 +1,5 @@
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_import_transport.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_snapshot_repository.dart';
@@ -63,18 +63,18 @@ class LibraryPageBucketCoordinator {
     final registration = _page.type;
     final workspace = libraryKindWorkspaceForKind(registration.kind);
 
-    final catalogUpdates = <CatalogEntityRef, CatalogImportTransport>{};
+    final catalogUpdates = <CatalogItemRef, CatalogImportTransport>{};
     final entryUpdates = <LibraryEntryRef, UpdateLibraryEntryCommand>{};
     final catalogRefs = [
       for (final item in projection.allItems)
-        if (item.source.catalogRef case final ref?) ref.rootScope,
+        if (item.source.sourceCatalogRef case final ref?) ref,
     ];
     final catalogCandidates = await CatalogSnapshotRepository(
       _page.ref.read(localDatabaseProvider),
     ).findTransportsByRefs(catalogRefs);
     for (final item in projection.allItems) {
-      final fields = workspace.fieldsForGroupModeAcrossScopes(mode) ??
-          workspace.fieldsForNode(item.node);
+      final fields = workspace.fieldsForGroupModeAcrossTargets(mode) ??
+          workspace.fieldsForTarget(item.target);
       final groupId = fields.decodeGroupId(mode);
       final groupDefinition = fields.findGroupDefinition(groupId);
       if (groupDefinition == null ||
@@ -84,8 +84,8 @@ class LibraryPageBucketCoordinator {
         continue;
       }
 
-      final catalogTransport = switch (item.source.catalogRef) {
-        final ref? => catalogCandidates[ref.rootScope],
+      final catalogTransport = switch (item.source.sourceCatalogRef) {
+        final ref? => catalogCandidates[ref],
         null => null,
       };
       if (groupDefinition.bucketValueMutator != null &&

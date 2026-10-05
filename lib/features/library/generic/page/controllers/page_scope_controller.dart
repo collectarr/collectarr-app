@@ -268,25 +268,23 @@ abstract final class _LibraryScopeControllerOps {
         state._searchControllerOps.clearSearch();
       }
       if (state._session.preferences.viewState != null) {
-        final workspaceScope =
-            smartList.entityType == SmartListEntityType.libraryEntry
-                ? LibraryEntityScope.libraryEntry
-                : LibraryEntityScope.catalogItem;
         if (smartList.sortRules != null && smartList.sortRules!.isNotEmpty) {
           state._session.preferences.viewState =
               state._session.preferences.viewState!.withSortRules(
-            state._viewProfile.decodeSortRules(
-              smartList.sortRules!,
-              scope: workspaceScope,
-            ),
+            smartList.target == SmartListCriteriaTarget.catalog
+                ? state._viewProfile.decodeSortRules(smartList.sortRules!)
+                : state._viewProfile
+                    .decodeLibraryEntrySortRules(smartList.sortRules!),
             state._viewProfile,
           );
         } else if (smartList.sortColumn != null) {
           final registration = state.widget.type;
+          final workspace = libraryKindWorkspaceForKind(registration.kind);
           state._session.preferences.viewState =
               state._session.preferences.viewState!.copyWith(
-            sortId: libraryKindWorkspaceForKind(registration.kind)
-                .fieldsForEntityType(smartList.entityType.apiValue)
+            sortId: (smartList.target == SmartListCriteriaTarget.catalog
+                    ? workspace.fields
+                    : workspace.libraryEntryFields)
                 .decodeSortId(smartList.sortColumn!),
             sortAscending: smartList.sortAscending ?? true,
           );

@@ -2,7 +2,6 @@ import 'package:drift/drift.dart';
 
 /// Complete Manga-collection item state.
 
-
 class MangaTrackingUnitRows extends Table {
   TextColumn get id => text()();
   TextColumn get trackingEntryId => text().nullable()();

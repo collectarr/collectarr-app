@@ -3,7 +3,7 @@ import 'package:collectarr_app/features/library/kinds/comic/data/comic_library_e
 
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
-import 'package:collectarr_app/features/library/domain/library_entity_scope.dart';
+import 'package:collectarr_app/features/library/domain/library_target_ref.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_link.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_catalog_item.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_library_entry.dart';
@@ -24,11 +24,9 @@ class ComicInspectorTabsSection extends ConsumerStatefulWidget {
   const ComicInspectorTabsSection({
     super.key,
     required this.request,
-    required this.scope,
   });
 
   final LibraryInspectorRequest request;
-  final LibraryEntityScope scope;
 
   @override
   ConsumerState<ComicInspectorTabsSection> createState() =>
@@ -41,7 +39,7 @@ class _ComicInspectorTabsSectionState
 
   @override
   Widget build(BuildContext context) {
-    final tabs = _comicInspectorTabs(widget.request, widget.scope);
+    final tabs = _comicInspectorTabs(widget.request);
     final selectedTab = tabs[_selectedTabIndex.clamp(0, tabs.length - 1)];
     return LibraryDetailSection(
       title: 'Comic detail',
@@ -83,7 +81,6 @@ class _ComicInspectorTab {
 
 List<_ComicInspectorTab> _comicInspectorTabs(
   LibraryInspectorRequest request,
-  LibraryEntityScope scope,
 ) {
   final item = request.item;
   final catalogItem = item.dto is ComicWorkspaceDto
@@ -271,12 +268,12 @@ List<_ComicInspectorTab> _comicInspectorTabs(
       ),
     ),
   ];
-  return switch (scope) {
-    LibraryEntityScope.catalogItem => [
+  return switch (request.item.target) {
+    CatalogTargetRef() => [
         for (final tab in tabs)
           if (tab.label != 'Value Details') tab,
       ],
-    LibraryEntityScope.libraryEntry => [
+    EntryTargetRef() => [
         for (final tab in tabs)
           if (tab.label == 'Overview' ||
               tab.label == 'Value Details' ||
@@ -307,26 +304,24 @@ Widget _editSectionAction(
   );
 }
 
-List<Widget> buildComicWorkInspectorSections(
+List<Widget> buildComicCatalogItemInspectorSections(
   BuildContext _,
   LibraryInspectorRequest request,
 ) {
   return [
     ComicInspectorTabsSection(
       request: request,
-      scope: LibraryEntityScope.catalogItem,
     ),
   ];
 }
 
-List<Widget> buildComicCopyInspectorSections(
+List<Widget> buildComicLibraryEntryInspectorSections(
   BuildContext _,
   LibraryInspectorRequest request,
 ) {
   return [
     ComicInspectorTabsSection(
       request: request,
-      scope: LibraryEntityScope.libraryEntry,
     ),
   ];
 }

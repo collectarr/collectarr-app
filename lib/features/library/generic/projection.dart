@@ -193,7 +193,7 @@ LibraryGroupDefinition<dynamic, dynamic, Object?>?
 ]) {
   if (type != null) {
     final workspace = libraryKindWorkspaceForKind(type.kind);
-    final fields = workspace.fieldsForGroupModeAcrossScopes(mode);
+    final fields = workspace.fieldsForGroupModeAcrossTargets(mode);
     if (fields == null) {
       return null;
     }
@@ -282,7 +282,7 @@ List<String> libraryGroupModesForType(
 ) {
   return [
     for (final mode
-        in libraryKindWorkspaceForKind(type.kind).availableGroupIdsForAllScopes)
+        in libraryKindWorkspaceForKind(type.kind).availableGroupIdsForAllTargets)
       mode.value,
   ];
 }
@@ -308,7 +308,7 @@ String? libraryGroupModeFromStorageValue(String value,
 
   if (type != null) {
     final workspace = libraryKindWorkspaceForKind(type.kind);
-    final fields = workspace.fieldsForGroupModeAcrossScopes(candidate);
+    final fields = workspace.fieldsForGroupModeAcrossTargets(candidate);
     if (fields == null) {
       return switch (candidate) {
         'title' || 'location' || 'entries' => candidate,
@@ -434,7 +434,7 @@ LibraryProjectionItem? librarySelectedItem(
     return null;
   }
   for (final item in items) {
-    if (item.node.id == selectedItemId) {
+    if (item.target.id == selectedItemId) {
       return item;
     }
   }

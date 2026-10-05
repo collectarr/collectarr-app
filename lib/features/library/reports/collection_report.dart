@@ -21,13 +21,10 @@ enum ReportColumn {
   final double flex;
 
   String extractFrom(LibraryProjectionView item) {
-    final ref = item.source.catalogRef;
     return switch (this) {
       ReportColumn.title => item.dto.primaryLabel,
       ReportColumn.kind => item.source.mediaKind.apiValue,
-      ReportColumn.reference => ref == null
-          ? item.node.id
-          : '${ref.kind.apiValue}:${ref.entityType.apiValue}:${ref.id}',
+      ReportColumn.reference => item.target.stableKey,
       ReportColumn.entry => item.source.isEntry ? 'yes' : 'no',
       ReportColumn.wishlist => item.source.isWishlisted ? 'yes' : 'no',
       ReportColumn.location => item.source.locationPath ?? '',

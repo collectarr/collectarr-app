@@ -56,7 +56,7 @@ class LibraryPageMetadataCoordinator {
     if (projection == null || _page.selection.itemIds.isEmpty) return;
     final selectedEntries = [
       for (final item in projection.filteredItems)
-        if (_page.selection.itemIds.contains(item.node.id)) item,
+        if (_page.selection.itemIds.contains(item.target.id)) item,
     ];
     if (selectedEntries.isEmpty) return;
     final result = await showLibraryMetadataRefreshDialog(
@@ -119,7 +119,7 @@ class LibraryPageMetadataCoordinator {
       );
       return;
     }
-    final catalogRef = targetItem.source.catalogRef;
+    final catalogRef = targetItem.source.sourceCatalogRef;
     if (catalogRef == null) {
       if (!_page.mounted) return;
       ScaffoldMessenger.of(_page.context).showSnackBar(
@@ -129,7 +129,7 @@ class LibraryPageMetadataCoordinator {
     }
     final localItem = await CatalogSnapshotRepository(
       _page.ref.read(localDatabaseProvider),
-    ).findTransportByRef(catalogRef.rootScope);
+    ).findTransportByRef(catalogRef);
     if (localItem == null) {
       if (!_page.mounted) return;
       ScaffoldMessenger.of(_page.context).showSnackBar(
@@ -139,7 +139,7 @@ class LibraryPageMetadataCoordinator {
     }
     await showLibraryMetadataCompareDialog(
       context: _page.context,
-      itemId: targetItem.node.catalogItemId,
+      itemId: targetItem.target.id,
       itemTitle: targetItem.source.catalogSummary?.primaryLabel ?? 'Untitled',
       kind: _page.type.kind,
       localPayload: localItem.payload,

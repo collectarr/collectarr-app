@@ -9,12 +9,11 @@ export 'package:collectarr_app/features/library/add/library_add_kind_filters.dar
 export 'package:collectarr_app/features/library/add/library_add_ranking.dart';
 export 'package:collectarr_app/features/library/add/models/library_add_advanced_filter.dart';
 export 'package:collectarr_app/features/library/add/models/library_add_search_context.dart';
-export 'package:collectarr_app/features/library/config/library_entity_action_capability.dart';
+export 'package:collectarr_app/features/library/config/library_target_action_capability.dart';
 export 'package:collectarr_app/features/library/config/library_facet_module.dart';
 export 'package:collectarr_app/features/library/config/library_page_utilities.dart';
 export 'package:collectarr_app/features/library/config/library_search_target.dart';
 export 'package:collectarr_app/features/library/config/library_tracking_editor_capability.dart';
-export 'package:collectarr_app/features/library/domain/library_entity_scope.dart';
 export 'package:collectarr_app/features/library/generic/transferable_field.dart';
 export 'package:collectarr_app/features/library/hierarchy/domain/library_hierarchy_node.dart';
 export 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
@@ -44,10 +43,10 @@ export 'package:collectarr_app/features/library/kinds/tv/tracking/tv_tracking_pr
 export 'package:collectarr_app/features/library/kinds/tv/tv_physical_media_formats.dart';
 export 'package:collectarr_app/features/library/kinds/tv/vocabulary/tv_vocabularies.dart';
 export 'package:collectarr_app/features/library/kinds/tv/workspace/tv_workspace.dart';
-export 'package:collectarr_app/features/library/kinds/tv/workspace/tv_workspace_catalog_data.dart';
+export 'package:collectarr_app/features/library/kinds/tv/workspace/tv_workspace_data.dart';
 export 'package:collectarr_app/features/library/kinds/tv/workspace/tv_workspace_dto.dart';
 export 'package:collectarr_app/features/library/kinds/tv/workspace/tv_workspace_projector.dart';
 export 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
-export 'package:collectarr_app/features/library/workspace/entry/library_workspace_source.dart';
+export 'package:collectarr_app/features/library/workspace/entry/library_workspace_context.dart';
 export 'package:collectarr_app/features/library/workspace/shared/library_media_adapter_builder.dart';
 export 'package:flutter/material.dart';

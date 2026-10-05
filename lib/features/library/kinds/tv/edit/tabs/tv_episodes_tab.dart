@@ -1,4 +1,4 @@
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/core/models/library_entry_ref.dart';
 import 'package:collectarr_app/core/models/tracking_unit_summary.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
@@ -33,14 +33,13 @@ class TvEpisodesTab extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final seriesRef = CatalogEntityRef(
+    final seriesRef = CatalogItemRef(
       kind: type.kind,
-      entityType: CatalogEntityTypeId.catalogItem,
       id: item.id,
     );
     final entryRef = LibraryEntryRef(
       kind: seriesRef.kind,
-      id: LibraryEntryId(seriesRef.rootScope.id),
+      id: LibraryEntryId(seriesRef.id),
     );
     final customEpisodesAsync =
         ref.watch(tvCustomEpisodesByLibraryEntryRefProvider(entryRef));

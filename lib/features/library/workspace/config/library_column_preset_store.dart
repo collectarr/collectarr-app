@@ -7,13 +7,9 @@ import 'package:collectarr_app/features/library/workspace/schema/library_field_r
 import 'package:shared_preferences/shared_preferences.dart';
 
 class LibraryColumnPresetStore {
-  const LibraryColumnPresetStore(
-    this.config, {
-    this.scope = LibraryEntityScope.catalogItem,
-  });
+  const LibraryColumnPresetStore(this.config);
 
   final LibraryKindRegistration config;
-  final LibraryEntityScope scope;
 
   Future<List<LibraryTableColumnPreset>> read() async {
     final prefs = await SharedPreferences.getInstance();
@@ -124,7 +120,7 @@ class LibraryColumnPresetStore {
   }
 
   LibraryFieldRegistry<LibraryWorkspaceDto> get _fields =>
-      libraryKindWorkspaceForKind(config.kind).fieldsForScope(scope);
+      libraryKindWorkspaceForKind(config.kind).fields;
 
   String _slug(String value) {
     final slug = value

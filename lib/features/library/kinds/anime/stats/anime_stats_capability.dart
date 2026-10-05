@@ -1,9 +1,8 @@
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_metadata.dart';
-import 'package:collectarr_app/features/library/kinds/anime/workspace/anime_workspace_catalog_data.dart';
+import 'package:collectarr_app/features/library/kinds/anime/workspace/anime_workspace_data.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
 import 'package:collectarr_app/features/library/stats/library_stats_cards.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_workspace_catalog_data.dart';
 import 'package:flutter/material.dart';
 
 /// Anime-specific collection statistics.
@@ -16,7 +15,7 @@ final class AnimeStatsCapability implements LibraryStatsCapability {
 
   @override
   LibraryEntryFinancialSummary buildEntryFinancialSummary(
-      LibraryWorkspaceSource entry) {
+      LibraryWorkspaceContext entry) {
     return LibraryEntryFinancialSummary(
       pricePaidCents: entry.pricePaidCents,
       sellPriceCents: entry.sellPriceCents,
@@ -26,21 +25,20 @@ final class AnimeStatsCapability implements LibraryStatsCapability {
 
   @override
   LibraryStatsMetadataProjection? buildMetadataProjection(
-      LibraryWorkspaceSource entry) {
-    final catalog = entry.catalogData;
+      LibraryWorkspaceContext entry) {
     final metadata = _metadata(entry);
-    if (catalog == null || metadata == null) return null;
+    if (metadata == null) return null;
     final secondary =
         (metadata.publisher ?? metadata.studios.firstOrNull)?.trim();
     return LibraryStatsMetadataProjection(
       primaryGroup: (metadata.seriesTitle ?? metadata.title).trim(),
       secondaryGroup: secondary,
-      hasCover: catalog.coverImageUrl?.trim().isNotEmpty == true,
-      hasSynopsis:
-          libraryWorkspaceCatalogSynopsis(catalog)?.trim().isNotEmpty == true,
+      hasCover: metadata.coverImageUrl?.trim().isNotEmpty == true,
+      hasSynopsis: metadata.synopsis?.trim().isNotEmpty == true,
       hasSecondaryMetadata: secondary?.isNotEmpty == true ||
           metadata.physicalFormat?.trim().isNotEmpty == true,
-      hasReleaseDate: metadata.startDate != null || catalog.releaseDate != null,
+      hasReleaseDate:
+          metadata.startDate != null || metadata.releaseDate != null,
       hasItemNumber: metadata.itemNumber?.trim().isNotEmpty == true,
     );
   }
@@ -87,7 +85,7 @@ final class AnimeStatsCapability implements LibraryStatsCapability {
     ];
   }
 
-  static int totalEpisodes(Iterable<LibraryWorkspaceSource> entries) {
+  static int totalEpisodes(Iterable<LibraryWorkspaceContext> entries) {
     return entries.fold<int>(
       0,
       (total, entry) => total + (_metadata(entry)?.episodeCount ?? 0),
@@ -95,32 +93,32 @@ final class AnimeStatsCapability implements LibraryStatsCapability {
   }
 
   static Map<String, int> countGenres(
-      Iterable<LibraryWorkspaceSource> entries) {
+      Iterable<LibraryWorkspaceContext> entries) {
     return _countMany(entries, (metadata) => metadata.genres);
   }
 
   static Map<String, int> countStudios(
-      Iterable<LibraryWorkspaceSource> entries) {
+      Iterable<LibraryWorkspaceContext> entries) {
     return _countMany(entries, (metadata) => metadata.studios);
   }
 
   static Map<String, int> countFormats(
-      Iterable<LibraryWorkspaceSource> entries) {
+      Iterable<LibraryWorkspaceContext> entries) {
     return _countMany(entries, (metadata) => [metadata.format.label]);
   }
 
   static Map<String, int> countSourceMaterial(
-      Iterable<LibraryWorkspaceSource> entries) {
+      Iterable<LibraryWorkspaceContext> entries) {
     return _countMany(entries, (metadata) => [metadata.sourceMaterial.label]);
   }
 
-  static AnimeMetadata? _metadata(LibraryWorkspaceSource entry) {
-    final catalog = entry.catalogData;
-    return catalog is AnimeWorkspaceCatalogData ? catalog.metadata : null;
+  static AnimeMetadata? _metadata(LibraryWorkspaceContext entry) {
+    final catalog = entry.kindPresentationData;
+    return catalog is AnimeWorkspaceData ? catalog.metadata : null;
   }
 
   static Map<String, int> _countMany(
-    Iterable<LibraryWorkspaceSource> entries,
+    Iterable<LibraryWorkspaceContext> entries,
     Iterable<String> Function(AnimeMetadata metadata) valuesFor,
   ) {
     final counts = <String, int>{};

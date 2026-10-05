@@ -1,11 +1,10 @@
 import 'package:collectarr_app/features/library/kinds/book/workspace/book_ids.dart';
 import 'package:collectarr_app/features/library/kinds/book/data/book_library_entry_projection.dart';
-import 'package:collectarr_app/features/library/kinds/book/workspace/book_preference_codec.dart';
 import 'package:collectarr_app/features/library/kinds/book/workspace/book_workspace_dto.dart';
 import 'package:collectarr_app/features/library/kinds/book/domain/book_library_entry.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/schema/field_factories.dart';
-import 'package:collectarr_app/features/library/workspace/schema/library_entity_workspace_schema.dart';
+import 'package:collectarr_app/features/library/workspace/schema/library_workspace_schema.dart';
 import 'package:flutter/material.dart';
 
 abstract final class BookLibraryEntryWorkspaceFields {
@@ -15,36 +14,32 @@ abstract final class BookLibraryEntryWorkspaceFields {
     label: 'Condition',
     getValue: (context) {
       final entry = BookLibraryEntryProjection.fromDispatch(
-          context.source.libraryEntryDispatch);
+          context.item.libraryEntryDispatch);
       return entry is BookLibraryEntry ? entry.personal.condition : null;
     },
-    entityScope: LibraryEntityScope.libraryEntry,
   );
 
   static final location =
       LibraryFieldDefinition<BookKind, BookWorkspaceDto, String?>(
     id: BookFieldIds.location,
     label: 'Location',
-    getValue: (context) => context.source.locationPath,
-    entityScope: LibraryEntityScope.libraryEntry,
+    getValue: (context) => context.personal.locationPath,
   );
 
   static final pricePaid =
       LibraryFieldDefinition<BookKind, BookWorkspaceDto, int?>(
     id: BookFieldIds.pricePaid,
     label: 'Purchase Price',
-    getValue: (context) => context.source.pricePaidCents,
-    entityScope: LibraryEntityScope.libraryEntry,
+    getValue: (context) => context.item.entrySummary?.pricePaidCents,
   );
 
   static final status =
       LibraryFieldDefinition<BookKind, BookWorkspaceDto, String?>(
     id: BookFieldIds.status,
     label: 'Status',
-    getValue: (context) => context.source.isWishlisted
+    getValue: (context) => context.personal.isWishlisted
         ? 'wishlist'
-        : (context.source.isEntry ? 'entry' : null),
-    entityScope: LibraryEntityScope.libraryEntry,
+        : ((context.item.entrySummary != null) ? 'entry' : null),
   );
 
   static final rating =
@@ -52,31 +47,27 @@ abstract final class BookLibraryEntryWorkspaceFields {
     id: BookFieldIds.rating,
     label: 'Rating',
     getValue: (context) => context.dto.personal.rating,
-    entityScope: LibraryEntityScope.libraryEntry,
   );
 
   static final wishlist =
       LibraryFieldDefinition<BookKind, BookWorkspaceDto, bool>(
     id: BookFieldIds.wishlist,
     label: 'Wishlist',
-    getValue: (context) => context.source.isWishlisted,
-    entityScope: LibraryEntityScope.libraryEntry,
+    getValue: (context) => context.personal.isWishlisted,
   );
 
   static final updatedAt =
       LibraryFieldDefinition<BookKind, BookWorkspaceDto, DateTime>(
     id: BookFieldIds.updatedAt,
     label: 'Updated',
-    getValue: (context) => context.source.updatedAt,
-    entityScope: LibraryEntityScope.libraryEntry,
+    getValue: (context) => context.updatedAt,
   );
 
   static final addedAt =
       LibraryFieldDefinition<BookKind, BookWorkspaceDto, DateTime?>(
     id: BookFieldIds.addedAt,
     label: 'Added',
-    getValue: (context) => context.source.addedAt,
-    entityScope: LibraryEntityScope.libraryEntry,
+    getValue: (context) => context.addedAt,
   );
 
   static final readStatus =
@@ -84,7 +75,6 @@ abstract final class BookLibraryEntryWorkspaceFields {
     id: BookFieldIds.readStatus,
     label: 'Read Status',
     getValue: (context) => context.dto.personal.trackingStatus,
-    entityScope: LibraryEntityScope.libraryEntry,
   );
 
   static final signedBy =
@@ -93,10 +83,9 @@ abstract final class BookLibraryEntryWorkspaceFields {
     label: 'Signed By',
     getValue: (context) {
       final entry = BookLibraryEntryProjection.fromDispatch(
-          context.source.libraryEntryDispatch);
+          context.item.libraryEntryDispatch);
       return entry is BookLibraryEntry ? entry.personal.details.signedBy : null;
     },
-    entityScope: LibraryEntityScope.libraryEntry,
   );
 }
 
@@ -129,11 +118,10 @@ final bookLibraryEntryWorkspaceGroupDefinitions = [
 final bookLibraryEntryWorkspaceSortDefinitions = [
   LibrarySortDefinition<BookKind, BookWorkspaceDto>(
     id: BookSortIds.status,
-    entityScope: LibraryEntityScope.libraryEntry,
     compare: (left, right) {
       int rank(LibraryProjectionContext<BookWorkspaceDto> ctx) {
-        if (ctx.source.isEntry) return 0;
-        if (ctx.source.isWishlisted) return 1;
+        if ((ctx.item.entrySummary != null)) return 0;
+        if (ctx.personal.isWishlisted) return 1;
         return 2;
       }
 
@@ -160,9 +148,9 @@ final bookLibraryEntryWorkspaceColumnDefinitions = [
     id: BookFieldIds.status,
     label: 'Status',
     getValue: BookLibraryEntryWorkspaceFields.status.getValue,
-    cellValue: (context) => Text(context.source.isWishlisted
+    cellValue: (context) => Text(context.personal.isWishlisted
         ? 'Wishlist'
-        : (context.source.isEntry ? 'Entry' : '')),
+        : ((context.item.entrySummary != null) ? 'Entry' : '')),
     sortable: false,
     groupable: false,
     defaultWidth: 52,
@@ -192,7 +180,7 @@ final bookLibraryEntryWorkspaceColumnDefinitions = [
   columnFromField<BookKind, BookWorkspaceDto, int?>(
     BookLibraryEntryWorkspaceFields.pricePaid,
     cellValue: (context) =>
-        Text(_formatCents(context.source.pricePaidCents, context.dto.currency)),
+        Text(_formatCents(context.item.entrySummary?.pricePaidCents, context.dto.currency)),
     group: 'Value',
     isNumeric: true,
     defaultWidth: 92,
@@ -207,7 +195,7 @@ final bookLibraryEntryWorkspaceColumnDefinitions = [
     id: BookFieldIds.wishlist,
     label: 'Wishlist',
     getValue: BookLibraryEntryWorkspaceFields.wishlist.getValue,
-    cellValue: (context) => Text(context.source.isWishlisted ? 'Wishlist' : ''),
+    cellValue: (context) => Text(context.personal.isWishlisted ? 'Wishlist' : ''),
     group: 'Personal',
     defaultWidth: 82,
     minWidth: 70,
@@ -216,16 +204,15 @@ final bookLibraryEntryWorkspaceColumnDefinitions = [
     id: BookFieldIds.updatedAt,
     label: 'Updated',
     getValue: BookLibraryEntryWorkspaceFields.updatedAt.getValue,
-    cellValue: (context) => Text(_formatDate(context.source.updatedAt)),
+    cellValue: (context) => Text(_formatDate(context.updatedAt)),
     group: 'Personal',
     defaultWidth: 112,
   ),
 ];
 
 final bookLibraryEntryWorkspaceSchema =
-    LibraryEntityWorkspaceSchema<BookKind, BookWorkspaceDto>(
+    LibraryWorkspaceSchema<BookKind, BookWorkspaceDto>(
   kindNamespace: 'book',
-  entityScope: LibraryEntityScope.libraryEntry,
   fields: bookLibraryEntryWorkspaceFieldDefinitions,
   columns: bookLibraryEntryWorkspaceColumnDefinitions,
   sorts: bookLibraryEntryWorkspaceSortDefinitions,
@@ -234,7 +221,6 @@ final bookLibraryEntryWorkspaceSchema =
   defaultVisibleColumns: bookLibraryEntryWorkspaceDefaultVisibleColumns,
   defaultSort: BookSortIds.status,
   defaultGroup: BookGroupIds.condition,
-  preferenceCodec: const BookPreferenceCodec(),
 );
 
 String _formatDate(DateTime? value) {

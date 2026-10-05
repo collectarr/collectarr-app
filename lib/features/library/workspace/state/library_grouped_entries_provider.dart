@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/workspace/schema/library_group_values.dart';
 import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
@@ -46,7 +47,7 @@ final libraryGroupedEntriesProvider = StreamProvider.autoDispose
     final workspace = libraryKindWorkspaceForKind(key.kind);
     final groupId = filters.groupId;
     final fields =
-        items.isEmpty ? null : workspace.fieldsForNode(items.first.node);
+        items.isEmpty ? null : workspace.fieldsForTarget(items.first.target);
 
     if (groupId == null) {
       controller.add([
@@ -67,8 +68,10 @@ final libraryGroupedEntriesProvider = StreamProvider.autoDispose
     final bucketMap = <String, List<LibraryProjectionView>>{};
     for (final item in items) {
       final raw = workspace.groupValue(item, groupDef.id);
-      final bucketKey = _bucketKeyFor(raw);
-      bucketMap.putIfAbsent(bucketKey, () => []).add(item);
+      final values = libraryGroupBucketValues(raw);
+      for (final bucketKey in values.isEmpty ? [''] : values) {
+        bucketMap.putIfAbsent(bucketKey, () => []).add(item);
+      }
     }
 
     const unknownKey = '';
@@ -117,9 +120,3 @@ final libraryGroupedEntriesProvider = StreamProvider.autoDispose
 
   return controller.stream;
 });
-
-String _bucketKeyFor(Object? raw) {
-  if (raw == null) return '';
-  if (raw is String) return raw.trim().isEmpty ? '' : raw.trim();
-  return raw.toString();
-}

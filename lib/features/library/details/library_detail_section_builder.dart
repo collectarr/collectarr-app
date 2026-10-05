@@ -60,7 +60,7 @@ List<LibraryDetailSectionSpec> buildLibraryDetailSectionSpecs({
       title: 'Contents',
       children: [
         ItemBundleReleaseBrowserSection(
-          itemId: item.node.catalogItemId,
+          itemId: item.target.id,
           accent: accent,
         ),
       ],

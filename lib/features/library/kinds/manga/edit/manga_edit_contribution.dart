@@ -2,18 +2,8 @@ import '../manga_module_dependencies.dart';
 import '../entries/manga_transfer_library_entry.dart';
 
 final mangaKindEditCapabilities = LibraryEditCapabilitySet(
-  editRegistry: LibraryEntityEditRegistry(contributors: [
-    LibraryEntityEditContributor(
-      scope: LibraryEntityScope.catalogItem,
-      builder: buildMangaLibraryEditDialog,
-    ),
-    LibraryEntityEditContributor(
-      scope: LibraryEntityScope.libraryEntry,
-      builder: buildMangaLibraryEditDialog,
-    ),
-  ]),
+  editRegistry: LibraryTargetEditRegistry(catalogItem: buildMangaLibraryEditDialog, libraryEntry: buildMangaLibraryEditDialog),
   presentation: mangaLibraryEditPresentation,
-  coreCorrectionTargetResolver: resolveStructuralLibraryCoreCorrectionTarget,
   conditions: MangaVocabularies.condition.builtIns,
   entryCollectionValueReader: (libraryEntry) => switch (libraryEntry?.value) {
     MangaLibraryEntry item => item.personal.grade,

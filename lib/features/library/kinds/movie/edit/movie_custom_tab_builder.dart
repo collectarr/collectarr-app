@@ -1,5 +1,4 @@
 import 'package:collectarr_app/features/library/edit/draft/library_edit_shell_state.dart';
-import 'package:collectarr_app/features/library/domain/library_entity_scope.dart';
 import 'package:collectarr_app/features/library/kinds/movie/edit/movie_edit_draft_contract.dart';
 import 'package:collectarr_app/features/library/kinds/movie/forms/movie_catalog_field_specs.dart';
 import 'package:collectarr_app/features/library/kinds/movie/forms/movie_catalog_form_edit_tab.dart';
@@ -14,7 +13,6 @@ Widget? buildMovieCustomTabView({
   required BuildContext context,
   required LibraryEditShellState draft,
   required Color accent,
-  required LibraryEntityScope scope,
   required CatalogSearchCandidate item,
   required VoidCallback markDirty,
 }) {
@@ -30,7 +28,9 @@ Widget? buildMovieCustomTabView({
     'edition' => MovieCatalogFormEditTab(
         state: draft,
         values: catalogDraft.catalogValues,
-        itemId: item.reference.id,
+        itemId: draft.target?.id ??
+            item.catalogRef?.id ??
+            (throw StateError('Movie editor requires an explicit target.')),
         fieldIds: movieEditionFieldIds,
         sectionLabel: 'Edition',
         markDirty: markDirty,
@@ -38,7 +38,9 @@ Widget? buildMovieCustomTabView({
     'specs' => MovieCatalogFormEditTab(
         state: draft,
         values: catalogDraft.catalogValues,
-        itemId: item.reference.id,
+        itemId: draft.target?.id ??
+            item.catalogRef?.id ??
+            (throw StateError('Movie editor requires an explicit target.')),
         fieldIds: movieSpecsFieldIds,
         sectionLabel: 'Specs',
         markDirty: markDirty,
@@ -65,7 +67,9 @@ Widget? buildMovieCustomTabView({
     'catalog_item' => MovieCatalogFormEditTab(
         state: draft,
         values: catalogDraft.catalogValues,
-        itemId: item.reference.id,
+        itemId: draft.target?.id ??
+            item.catalogRef?.id ??
+            (throw StateError('Movie editor requires an explicit target.')),
         fieldIds: movieMainFieldIds,
         sectionLabel: 'Main',
         markDirty: markDirty,
@@ -73,7 +77,9 @@ Widget? buildMovieCustomTabView({
     'synopsis' => MovieCatalogFormEditTab(
         state: draft,
         values: catalogDraft.catalogValues,
-        itemId: item.reference.id,
+        itemId: draft.target?.id ??
+            item.catalogRef?.id ??
+            (throw StateError('Movie editor requires an explicit target.')),
         fieldIds: const {'synopsis'},
         sectionLabel: 'Plot',
         markDirty: markDirty,
@@ -81,7 +87,9 @@ Widget? buildMovieCustomTabView({
     'cover' => MovieCatalogFormEditTab(
         state: draft,
         values: catalogDraft.catalogValues,
-        itemId: item.reference.id,
+        itemId: draft.target?.id ??
+            item.catalogRef?.id ??
+            (throw StateError('Movie editor requires an explicit target.')),
         fieldIds: const {movieCoverImageUrlFieldId},
         sectionLabel: 'Covers',
         markDirty: markDirty,

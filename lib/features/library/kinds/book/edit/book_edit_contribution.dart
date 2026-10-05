@@ -2,22 +2,12 @@ import '../book_module_dependencies.dart';
 import '../entries/book_transfer_library_entry.dart';
 
 final bookKindEditCapabilities = LibraryEditCapabilitySet(
-  editRegistry: LibraryEntityEditRegistry(contributors: [
-    LibraryEntityEditContributor(
-      scope: LibraryEntityScope.catalogItem,
-      builder: buildBookLibraryEditDialog,
-    ),
-    LibraryEntityEditContributor(
-      scope: LibraryEntityScope.libraryEntry,
-      builder: buildBookLibraryEditDialog,
-    ),
-  ]),
+  editRegistry: LibraryTargetEditRegistry(catalogItem: buildBookLibraryEditDialog, libraryEntry: buildBookLibraryEditDialog),
   vocabularies: StandardKindVocabularyCapability(BookVocabularies.all),
   presentation: const LibraryEditPresentation(
     builder: BookCatalogItemEditPresentationBuilder(),
     catalogItemBuilder: BookCatalogItemEditPresentationBuilder(),
   ),
-  coreCorrectionTargetResolver: resolveStructuralLibraryCoreCorrectionTarget,
   conditions: BookVocabularies.condition.builtIns,
   entryCollectionValueReader: (libraryEntry) => switch (libraryEntry?.value) {
     BookLibraryEntry item => item.personal.grade,

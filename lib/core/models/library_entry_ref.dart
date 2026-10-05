@@ -1,7 +1,6 @@
 import 'package:flutter/foundation.dart';
 
 import 'catalog_media_kind.dart';
-import 'catalog_entity_ref.dart';
 
 @immutable
 class LibraryEntryId {
@@ -31,9 +30,8 @@ class LibraryEntryId {
 
 /// Stable cross-kind identity for one personal collection entry.
 ///
-/// The entry has its own ID and links to canonical metadata separately.
-/// Duplicated entries can share one Catalog Item reference while retaining
-/// independent personal fields.
+/// The entry has its own ID. Its domain record may separately retain an
+/// optional Catalog Item reference as provenance.
 @immutable
 final class LibraryEntryRef {
   const LibraryEntryRef({
@@ -43,14 +41,6 @@ final class LibraryEntryRef {
 
   final CatalogMediaKind kind;
   final LibraryEntryId id;
-
-  /// The local complete entry's own identity as a Catalog Item-shaped ref.
-  /// This is derived from the entry ID and is never stored as a parent link.
-  CatalogEntityRef get localCatalogItemRef => CatalogEntityRef(
-        kind: kind,
-        entityType: CatalogEntityTypeId.catalogItem,
-        id: id.value,
-      );
 
   String get key => '${kind.apiValue}:${Uri.encodeComponent(id.value)}';
 
@@ -80,6 +70,12 @@ final class LibraryEntryRef {
       };
 
   factory LibraryEntryRef.fromJson(Map<String, Object?> json) {
+    final unexpected = json.keys.where((key) => key != 'kind' && key != 'id');
+    if (unexpected.isNotEmpty) {
+      throw FormatException(
+        'LibraryEntryRef contains unsupported fields: ${unexpected.join(', ')}',
+      );
+    }
     final rawKind = json['kind'];
     final rawId = json['id'];
     if (rawKind is! String ||

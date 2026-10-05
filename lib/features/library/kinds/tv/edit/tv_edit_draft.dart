@@ -18,7 +18,7 @@ import 'package:collectarr_app/features/library/kinds/registry/library_entry_dis
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_library_entry.dart';
 import 'package:collectarr_app/features/library/kinds/tv/entries/tv_entry_details_draft.dart';
 import 'package:collectarr_app/features/library/kinds/tv/entries/tv_library_entry_update_payload.dart';
-import 'package:collectarr_app/features/library/edit/draft/personal_state_draft.dart';
+import 'package:collectarr_app/features/library/edit/draft/library_entry_personal_bindings.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:flutter/material.dart';
 
@@ -73,7 +73,7 @@ class TvEditDraft
       );
 
   @override
-  void initializePersonalState(PersonalStateDraft personal) {
+  void initializePersonalState(LibraryEntryPersonalBindings personal) {
     final item = libraryEntry;
     if (item == null) return;
     personal.ownerLabelController.text = item.personal.ownerLabel ?? '';
@@ -106,7 +106,7 @@ class TvEditDraft
   @override
   TvLibraryEntryUpdatePayload buildEntryUpdatePayload({
     required LibraryEntryRef libraryEntryRef,
-    required PersonalStateDraft personal,
+    required LibraryEntryPersonalBindings personal,
   }) {
     return TvLibraryEntryUpdatePayload(
       isDigital: const Patch.unchanged(),
@@ -162,13 +162,15 @@ class TvEditDraft
   ) {
     return selection.copyWith(
       kindItem: CatalogSearchCandidate.fromItem(
-          selection.kindItem.kindCapability.mapTransport((transport) {
-        return transport.replacingKindData(
-          mediaEdit.applyEpisodeMediaAssignments(
-            metadata.copyWith(title: catalogTitle.trim()),
-          ),
-        );
-      })),
+        selection.kindItem.kindCapability.mapTransport((transport) {
+          return transport.replacingKindData(
+            mediaEdit.applyEpisodeMediaAssignments(
+              metadata.copyWith(title: catalogTitle.trim()),
+            ),
+          );
+        }),
+        basedOn: selection.kindItem,
+      ),
     );
   }
 
@@ -202,6 +204,7 @@ class TvEditDraft
               ),
             ),
           ),
+          basedOn: selection.kindItem,
         ),
       ),
     );

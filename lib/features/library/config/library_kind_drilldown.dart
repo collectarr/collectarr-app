@@ -2,7 +2,6 @@ import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
-import 'package:collectarr_app/features/library/domain/library_entity_scope.dart';
 import 'package:flutter/material.dart';
 
 bool canOpenKindDrilldown(
@@ -37,6 +36,6 @@ Widget? buildLibraryKindDrilldown({
         libraryEntries: libraryEntries,
         wishlistItems: wishlistItems,
         projector: libraryKindWorkspaceForKind(type.kind)
-            .projectorForScope(LibraryEntityScope.catalogItem),
+            .projectorForTarget(selectedItem.target),
       );
 }

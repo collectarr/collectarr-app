@@ -1,9 +1,8 @@
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/kinds/manga/domain/manga_metadata.dart';
-import 'package:collectarr_app/features/library/kinds/manga/workspace/manga_workspace_catalog_data.dart';
+import 'package:collectarr_app/features/library/kinds/manga/workspace/manga_workspace_data.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
 import 'package:collectarr_app/features/library/stats/library_stats_cards.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_workspace_catalog_data.dart';
 import 'package:flutter/material.dart';
 
 class MangaStatsCapability implements LibraryStatsCapability {
@@ -11,7 +10,7 @@ class MangaStatsCapability implements LibraryStatsCapability {
 
   @override
   LibraryEntryFinancialSummary buildEntryFinancialSummary(
-      LibraryWorkspaceSource entry) {
+      LibraryWorkspaceContext entry) {
     return LibraryEntryFinancialSummary(
       pricePaidCents: entry.pricePaidCents,
       sellPriceCents: entry.sellPriceCents,
@@ -21,22 +20,23 @@ class MangaStatsCapability implements LibraryStatsCapability {
 
   @override
   LibraryStatsMetadataProjection? buildMetadataProjection(
-      LibraryWorkspaceSource entry) {
-    final catalog = entry.catalogData;
+      LibraryWorkspaceContext entry) {
     final metadata = _mangaMetadata(entry);
-    if (catalog == null || metadata == null) return null;
-    final primary = (metadata.seriesTitle ?? catalog.title).trim();
+    if (metadata == null) return null;
+    final primary = (metadata.seriesTitle ?? metadata.title).trim();
     final secondary = metadata.publisher?.trim();
     return LibraryStatsMetadataProjection(
       primaryGroup: primary,
       secondaryGroup: secondary,
-      hasCover: catalog.coverImageUrl?.trim().isNotEmpty == true,
-      hasSynopsis:
-          libraryWorkspaceCatalogSynopsis(catalog)?.trim().isNotEmpty == true,
+      hasCover: metadata.coverImageUrl?.trim().isNotEmpty == true,
+      hasSynopsis: (metadata.synopsis ?? metadata.description)
+              ?.trim()
+              .isNotEmpty ==
+          true,
       hasSecondaryMetadata: secondary?.isNotEmpty == true ||
           metadata.physicalFormat?.trim().isNotEmpty == true,
       hasReleaseDate:
-          metadata.releaseDate != null || catalog.releaseDate != null,
+          metadata.releaseDate != null,
       hasItemNumber:
           metadata.itemNumber != null || metadata.volumeNumber != null,
     );
@@ -69,7 +69,7 @@ class MangaStatsCapability implements LibraryStatsCapability {
   }
 
   static Map<String, List<int>> missingVolumeNumbers(
-    Iterable<LibraryWorkspaceSource> entries,
+    Iterable<LibraryWorkspaceContext> entries,
   ) {
     final seriesNumbers = <String, Set<int>>{};
     for (final entry in entries) {
@@ -96,7 +96,7 @@ class MangaStatsCapability implements LibraryStatsCapability {
   }
 
   static _MissingNumberSummary? _bestMissingVolumeSummary(
-    Iterable<LibraryWorkspaceSource> entries,
+    Iterable<LibraryWorkspaceContext> entries,
   ) {
     final missingBySeries = missingVolumeNumbers(entries);
     _MissingNumberSummary? best;
@@ -110,9 +110,9 @@ class MangaStatsCapability implements LibraryStatsCapability {
     return best;
   }
 
-  static MangaMetadata? _mangaMetadata(LibraryWorkspaceSource entry) {
-    final catalog = entry.catalogData;
-    return catalog is MangaWorkspaceCatalogData ? catalog.metadata : null;
+  static MangaMetadata? _mangaMetadata(LibraryWorkspaceContext entry) {
+    final catalog = entry.kindPresentationData;
+    return catalog is MangaWorkspaceData ? catalog.metadata : null;
   }
 
   static String? _seriesTitle(MangaMetadata metadata) {

@@ -2,7 +2,6 @@ import 'package:drift/drift.dart';
 
 /// Complete Anime-collection item state.
 
-
 class AnimeTrackingRows extends Table {
   TextColumn get id => text()();
   TextColumn get libraryEntryRefKey => text()();

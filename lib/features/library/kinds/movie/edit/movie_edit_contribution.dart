@@ -2,19 +2,9 @@ import '../movie_module_dependencies.dart';
 import '../entries/movie_transfer_library_entry.dart';
 
 final movieKindEditCapabilities = LibraryEditCapabilitySet(
-  editRegistry: LibraryEntityEditRegistry(contributors: [
-    LibraryEntityEditContributor(
-      scope: LibraryEntityScope.catalogItem,
-      builder: buildMovieLibraryEditDialog,
-    ),
-    LibraryEntityEditContributor(
-      scope: LibraryEntityScope.libraryEntry,
-      builder: buildMovieLibraryEditDialog,
-    ),
-  ]),
+  editRegistry: LibraryTargetEditRegistry(catalogItem: buildMovieLibraryEditDialog, libraryEntry: buildMovieLibraryEditDialog),
   vocabularies: StandardKindVocabularyCapability(MovieVocabularies.all),
   presentation: movieLibraryEditPresentation,
-  coreCorrectionTargetResolver: resolveStructuralLibraryCoreCorrectionTarget,
   conditions: MovieVocabularies.condition.builtIns,
   entryCollectionValueReader: (libraryEntry) => switch (libraryEntry?.value) {
     MovieLibraryEntry item => item.personal.grade,

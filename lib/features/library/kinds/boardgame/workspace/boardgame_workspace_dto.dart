@@ -10,7 +10,7 @@ final class BoardGameWorkspaceDto implements LibraryWorkspaceDto {
   });
 
   final WorkspaceCommonProjection common;
-  final PersonalCopyProjection personal;
+  final PersonalEntryProjection personal;
   final BoardGameMetadata metadata;
 
   String get title => common.title;

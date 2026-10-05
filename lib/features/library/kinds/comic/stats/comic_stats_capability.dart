@@ -3,9 +3,8 @@ import 'package:collectarr_app/features/library/kinds/comic/data/comic_library_e
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_catalog_item.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_library_entry.dart';
-import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_catalog_data.dart';
+import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_data.dart';
 import 'package:collectarr_app/features/library/stats/library_stats_cards.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_workspace_catalog_data.dart';
 import 'package:flutter/material.dart';
 
 class ComicStatsCapability implements LibraryStatsCapability {
@@ -13,7 +12,7 @@ class ComicStatsCapability implements LibraryStatsCapability {
 
   @override
   LibraryEntryFinancialSummary buildEntryFinancialSummary(
-      LibraryWorkspaceSource entry) {
+      LibraryWorkspaceContext entry) {
     return LibraryEntryFinancialSummary(
       pricePaidCents: entry.pricePaidCents,
       sellPriceCents: entry.sellPriceCents,
@@ -23,22 +22,19 @@ class ComicStatsCapability implements LibraryStatsCapability {
 
   @override
   LibraryStatsMetadataProjection? buildMetadataProjection(
-      LibraryWorkspaceSource entry) {
-    final catalog = entry.catalogData;
+      LibraryWorkspaceContext entry) {
     final metadata = _comicMetadata(entry);
-    if (catalog == null || metadata == null) return null;
-    final primary = (metadata.seriesTitle ?? catalog.title).trim();
+    if (metadata == null) return null;
+    final primary = (metadata.seriesTitle ?? metadata.title).trim();
     final secondary = (metadata.publisher ?? metadata.imprint)?.trim();
     return LibraryStatsMetadataProjection(
       primaryGroup: primary,
       secondaryGroup: secondary,
-      hasCover: catalog.coverImageUrl?.trim().isNotEmpty == true,
-      hasSynopsis: metadata.synopsis?.trim().isNotEmpty == true ||
-          libraryWorkspaceCatalogSynopsis(catalog)?.trim().isNotEmpty == true,
+      hasCover: metadata.coverImageUrl?.trim().isNotEmpty == true,
+      hasSynopsis: metadata.synopsis?.trim().isNotEmpty == true,
       hasSecondaryMetadata: secondary?.isNotEmpty == true ||
           metadata.physicalFormat?.trim().isNotEmpty == true,
-      hasReleaseDate:
-          metadata.releaseDate != null || catalog.releaseDate != null,
+      hasReleaseDate: metadata.releaseDate != null,
       hasItemNumber: metadata.issueNumber?.trim().isNotEmpty == true,
     );
   }
@@ -59,7 +55,7 @@ class ComicStatsCapability implements LibraryStatsCapability {
     ];
   }
 
-  static int countKeyComics(Iterable<LibraryWorkspaceSource> entries) {
+  static int countKeyComics(Iterable<LibraryWorkspaceContext> entries) {
     return entries.where((entry) => entry.isEntry).where((entry) {
       return _comicLibraryEntry(entry)?.personal.details.keyComic == true;
     }).length;
@@ -115,7 +111,7 @@ class ComicStatsCapability implements LibraryStatsCapability {
   }
 
   static Map<String, int> _topCreatorCounts(
-      List<LibraryWorkspaceSource> entries) {
+      List<LibraryWorkspaceContext> entries) {
     return _countMany(
       entries,
       _creatorNames,
@@ -123,7 +119,7 @@ class ComicStatsCapability implements LibraryStatsCapability {
   }
 
   static Map<String, int> _topCharacterCounts(
-      List<LibraryWorkspaceSource> entries) {
+      List<LibraryWorkspaceContext> entries) {
     return _countMany(
       entries,
       (entry) =>
@@ -137,7 +133,7 @@ class ComicStatsCapability implements LibraryStatsCapability {
   }
 
   static Map<String, int> _topStoryArcCounts(
-      List<LibraryWorkspaceSource> entries) {
+      List<LibraryWorkspaceContext> entries) {
     return _countMany(
       entries,
       (entry) =>
@@ -150,7 +146,7 @@ class ComicStatsCapability implements LibraryStatsCapability {
     );
   }
 
-  static Iterable<String> _creatorNames(LibraryWorkspaceSource entry) {
+  static Iterable<String> _creatorNames(LibraryWorkspaceContext entry) {
     final meta = _comicMetadata(entry);
     if (meta == null) {
       return const <String>[];
@@ -162,8 +158,8 @@ class ComicStatsCapability implements LibraryStatsCapability {
   }
 
   static Map<String, int> _countMany(
-    Iterable<LibraryWorkspaceSource> entries,
-    Iterable<String> Function(LibraryWorkspaceSource entry) valuesFor,
+    Iterable<LibraryWorkspaceContext> entries,
+    Iterable<String> Function(LibraryWorkspaceContext entry) valuesFor,
   ) {
     final counts = <String, int>{};
     for (final entry in entries) {
@@ -184,7 +180,7 @@ class ComicStatsCapability implements LibraryStatsCapability {
   }
 
   static _SeriesGapSummary? _seriesGapSummary(
-      List<LibraryWorkspaceSource> entries) {
+      List<LibraryWorkspaceContext> entries) {
     _SeriesGapSummary? best;
     final seriesNumbers = <String, Set<int>>{};
     for (final entry in entries) {
@@ -223,8 +219,8 @@ class ComicStatsCapability implements LibraryStatsCapability {
   }
 
   static _MissingNumberSummary? _numberedGapSummary(
-    List<LibraryWorkspaceSource> entries,
-    int? Function(LibraryWorkspaceSource entry) numberFor,
+    List<LibraryWorkspaceContext> entries,
+    int? Function(LibraryWorkspaceContext entry) numberFor,
   ) {
     _MissingNumberSummary? best;
     final seriesNumbers = <String, Set<int>>{};
@@ -271,13 +267,13 @@ class ComicStatsCapability implements LibraryStatsCapability {
     return match == null ? null : int.tryParse(match.group(1)!);
   }
 
-  static ComicLibraryEntry? _comicLibraryEntry(LibraryWorkspaceSource entry) {
+  static ComicLibraryEntry? _comicLibraryEntry(LibraryWorkspaceContext entry) {
     return ComicLibraryEntryProjection.fromDispatch(entry.libraryEntryDispatch);
   }
 
-  static ComicCatalogItem? _comicMetadata(LibraryWorkspaceSource entry) {
-    final catalog = entry.catalogData;
-    return catalog is ComicWorkspaceCatalogData ? catalog.comic : null;
+  static ComicCatalogItem? _comicMetadata(LibraryWorkspaceContext entry) {
+    final catalog = entry.kindPresentationData;
+    return catalog is ComicWorkspaceData ? catalog.comic : null;
   }
 }
 

@@ -1,7 +1,5 @@
 import 'package:collectarr_app/features/library/edit/draft/library_edit_shell_state.dart';
-import 'package:collectarr_app/features/library/domain/library_entity_scope.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_catalog_item.dart';
-import 'package:collectarr_app/features/library/kinds/comic/domain/comic_ids.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:flutter/material.dart';
 
@@ -15,21 +13,22 @@ Widget? buildComicCustomTabView({
   required BuildContext context,
   required LibraryEditShellState draft,
   required Color accent,
-  required LibraryEntityScope scope,
+
   required CatalogSearchCandidate item,
   required VoidCallback markDirty,
 }) {
   final metadata = item.kindCapability.mapTransport(
       (transport) => ComicCatalogItem.fromJson(transport.kindData));
-  final media = metadata.id?.value == item.reference.id
+  final catalogRef = draft.target?.catalogItemRef ?? item.catalogRef;
+  final media = catalogRef == null || metadata.id == catalogRef
       ? metadata
-      : metadata.copyWith(id: ComicCatalogItemId(item.reference.id));
+      : metadata.copyWith(id: catalogRef);
   final host = ComicEditHostAdapter(
     context: context,
     draft: draft,
     media: media,
     accent: accent,
-    scope: scope,
+
     markDirty: markDirty,
   );
   if (tabId == 'entry') {

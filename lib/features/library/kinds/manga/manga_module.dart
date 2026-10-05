@@ -9,7 +9,6 @@ export 'calendar/manga_calendar_contributor.dart';
 export 'data/manga_catalog_transport_codec.dart';
 export 'integrations/catalog/manga_catalog_lookup.dart';
 export 'integrations/collection_csv/manga_collection_csv_projection.dart';
-export 'integrations/collection_shelf/manga_shelf_extension_contributor.dart';
 export 'entries/manga_entry_contributor.dart';
 export 'page.dart';
 export 'tracking/manga_tracking_state_codec.dart';

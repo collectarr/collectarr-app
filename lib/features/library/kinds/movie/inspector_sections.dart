@@ -8,7 +8,7 @@ import 'package:collectarr_app/features/library/detail/library_detail_hero.dart'
 import 'package:collectarr_app/features/library/details/library_detail_panel_scaffold.dart';
 import 'package:collectarr_app/features/library/details/library_detail_models.dart';
 import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_workspace_dto.dart';
-import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_workspace_catalog_data.dart';
+import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_workspace_data.dart';
 import 'package:flutter/material.dart';
 
 List<Widget> buildMovieInspectorSections(
@@ -22,7 +22,7 @@ List<Widget> buildMovieInspectorSections(
   );
 }
 
-List<Widget> buildMovieCopyInspectorSections(
+List<Widget> buildMovieLibraryEntryInspectorSections(
   BuildContext context,
   LibraryInspectorRequest request,
 ) {
@@ -42,8 +42,8 @@ List<Widget> _buildMovieEntitySections(
   final dto = item.dto;
   final adapter = dto is MovieWorkspaceDto ? dto : null;
   final movieDto = dto is MovieWorkspaceDto ? dto : null;
-  final metadata = item.source.catalogData is MovieWorkspaceCatalogData
-      ? (item.source.catalogData! as MovieWorkspaceCatalogData).metadata
+  final metadata = item.source.kindPresentationData is MovieWorkspaceData
+      ? (item.source.kindPresentationData! as MovieWorkspaceData).metadata
       : null;
   final facts = <LibraryDetailField>[
     LibraryDetailField(label: 'Title', value: dto.primaryLabel),
@@ -119,7 +119,7 @@ Widget buildMovieInspectorHero(
       accent: request.accent,
     );
 
-Widget buildMovieCopyInspectorHero(
+Widget buildMovieLibraryEntryInspectorHero(
   BuildContext context,
   LibraryInspectorRequest request,
 ) =>

@@ -57,38 +57,32 @@ final bookKindMetadata = const LibraryMetadataCapability(
   searchQueryBuilder: bookMetadataSearchQuery,
 );
 
-final bookKindHierarchy = const LibraryHierarchyCapability();
-
-final bookKindEntityVocabulary = const LibraryEntityVocabulary(
-  catalogItem: LibraryEntityLabel(singular: 'Book', plural: 'Books'),
-  libraryEntry: LibraryEntityLabel(singular: 'Entry', plural: 'Entries'),
+final bookKindEntityVocabulary = const LibraryTargetVocabulary(
+  catalogItem: LibraryTargetLabel(singular: 'Book', plural: 'Books'),
+  libraryEntry: LibraryTargetLabel(singular: 'Entry', plural: 'Entries'),
 );
 
 final bookKindTrackingTopology = const LibraryTrackingTopology(
   sessionLabels: LibraryTrackingSessionLabels.read,
-  writableTargets: {LibraryTrackingTargetScope.catalogItem},
-  aggregateTargets: {LibraryTrackingTargetScope.catalogItem},
+  writableTargets: {LibraryTrackingTarget.libraryEntry},
+  aggregateTargets: {LibraryTrackingTarget.libraryEntry},
 );
 
-final bookKindActions = const LibraryEntityActionCapability(
-  catalogItem: LibraryEntityActionSet.catalogItem,
-  libraryEntry: LibraryEntityActionSet.libraryEntry,
+final bookKindActions = const LibraryTargetActionCapability(
+  catalogItem: LibraryTargetActionSet.catalogItem,
+  libraryEntry: LibraryTargetActionSet.libraryEntry,
 );
 
 final bookKindInspector = LibraryInspectorCapability(
-  entityRegistry: LibraryEntityInspectorRegistry(
-    contributors: [
-      LibraryEntityInspectorContributor(
-        scope: LibraryEntityScope.catalogItem,
-        heroBuilder: buildBookWorkInspectorHero,
-        sectionsBuilder: buildBookWorkInspectorSections,
-      ),
-      LibraryEntityInspectorContributor(
-        scope: LibraryEntityScope.libraryEntry,
-        heroBuilder: buildBookCopyInspectorHero,
-        sectionsBuilder: buildBookCopyInspectorSections,
-      ),
-    ],
+  entityRegistry: LibraryTargetInspectorRegistry(
+    catalogItem: LibraryTargetInspectorContributor(
+      heroBuilder: buildBookCatalogItemInspectorHero,
+      sectionsBuilder: buildBookCatalogItemInspectorSections,
+    ),
+    libraryEntry: LibraryTargetInspectorContributor(
+      heroBuilder: buildBookLibraryEntryInspectorHero,
+      sectionsBuilder: buildBookLibraryEntryInspectorSections,
+    ),
   ),
   showsDefaultPersonalSection: true,
   supportsLibraryEntryImages: false,

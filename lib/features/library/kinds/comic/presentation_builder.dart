@@ -11,7 +11,7 @@ import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/kinds/comic/comic_physical_media_formats.dart';
 import 'package:collectarr_app/features/library/widgets/format_badge.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_dto.dart';
-import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_catalog_data.dart';
+import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_data.dart';
 import 'package:collectarr_app/features/library/kinds/comic/comic_group_mode_categories.dart';
 import 'package:collectarr_app/features/library/config/library_group_mode_category_models.dart';
 import 'package:flutter/material.dart';
@@ -52,10 +52,10 @@ class ComicLibraryCatalogItemPresentationBuilder
 
   @override
   List<LibraryDuplicateCandidate> buildDuplicateCandidates(
-    LibraryWorkspaceSource entry,
+    LibraryWorkspaceContext entry,
   ) {
-    final catalog = entry.catalogData;
-    if (catalog is! ComicWorkspaceCatalogData) return const [];
+    final catalog = entry.kindPresentationData;
+    if (catalog is! ComicWorkspaceData) return const [];
     final item = catalog.comic;
     final candidates = <LibraryDuplicateCandidate>[];
     final entryLabel = [
@@ -106,10 +106,10 @@ class ComicLibraryCatalogItemPresentationBuilder
 
   @override
   List<LibraryWorkspaceLinkSummary> buildWorkspaceLinks(
-    LibraryWorkspaceSource entry,
+    LibraryWorkspaceContext entry,
   ) {
-    final catalog = entry.catalogData;
-    if (catalog is! ComicWorkspaceCatalogData) return const [];
+    final catalog = entry.kindPresentationData;
+    if (catalog is! ComicWorkspaceData) return const [];
     return [
       for (final link in catalog.comic.links)
         LibraryWorkspaceLinkSummary(
@@ -227,7 +227,7 @@ class ComicLibraryCatalogItemPresentationBuilder
       identityFacts: [
         if (includeIdentityFacts) ...[
           LibraryDetailField(label: 'Kind', value: singularLabel),
-          LibraryDetailField(label: 'ID', value: item.node.catalogItemId),
+          LibraryDetailField(label: 'ID', value: item.target.id),
           LibraryDetailField(label: 'Title', value: metadata.title),
         ],
         if (metadata.seriesTitle != null)
@@ -364,17 +364,14 @@ LibraryAddSearchResultDisplay _buildComicSearchResultDisplay(
   final metadata = fields.metadata;
   final itemNumber = fields.itemNumber?.trim();
   final subtitle = [
-    if (metadata?.publisher?.trim()
-        case final value? when value.isNotEmpty)
+    if (metadata?.publisher?.trim() case final value? when value.isNotEmpty)
       value,
-    if ((fields.releaseYear ?? fields.releaseDate?.year)
-        case final year?)
+    if ((fields.releaseYear ?? fields.releaseDate?.year) case final year?)
       year.toString(),
-    if (metadata?.physicalFormat?.trim()
-        case final value? when value.isNotEmpty)
+    if (metadata?.physicalFormat?.trim() case final value?
+        when value.isNotEmpty)
       value,
-    if (metadata?.barcode?.trim()
-        case final value? when value.isNotEmpty)
+    if (metadata?.barcode?.trim() case final value? when value.isNotEmpty)
       value,
   ].join(' | ');
   return LibraryAddSearchResultDisplay(

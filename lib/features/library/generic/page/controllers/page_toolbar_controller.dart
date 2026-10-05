@@ -45,7 +45,7 @@ class LibraryPageToolbarController {
       ranked.add((
         score,
         LibraryToolbarSearchSuggestion(
-          id: item.node.id,
+          id: item.target.id,
           title: title,
           subtitle: subtitle,
         ),

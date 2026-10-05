@@ -9,7 +9,7 @@ import 'package:collectarr_app/features/library/kinds/registry/library_kind_capa
 import 'package:collectarr_app/features/library/config/library_search_target.dart';
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
+import 'package:collectarr_app/features/library/domain/library_target_ref.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:flutter/material.dart';
@@ -24,11 +24,11 @@ abstract interface class LibraryItemActionRunner {
   Future<void> refreshMetadata();
   Future<void> share();
   Future<void> unlinkFromCore();
-  List<LibraryEntitySemanticAction> get semanticActions;
+  List<LibraryTargetSemanticAction> get semanticActions;
 }
 
-final class LibraryEntitySemanticAction {
-  const LibraryEntitySemanticAction({
+final class LibraryTargetSemanticAction {
+  const LibraryTargetSemanticAction({
     required this.id,
     required this.label,
     required this.icon,
@@ -43,33 +43,6 @@ final class LibraryEntitySemanticAction {
 
 /// Entity actions are separate from workspace actions such as sorting,
 /// grouping, printing, and column management.
-final class LibraryEntityActionContributor {
-  const LibraryEntityActionContributor({
-    required this.scope,
-    required this.actions,
-  });
-
-  final LibraryEntityScope scope;
-  final LibraryItemActions actions;
-}
-
-final class LibraryEntityActionRegistry {
-  const LibraryEntityActionRegistry({
-    this.contributors = const [],
-  });
-
-  final List<LibraryEntityActionContributor> contributors;
-
-  LibraryItemActions actionsForScope(LibraryEntityScope scope) {
-    for (final contributor in contributors) {
-      if (contributor.scope == scope) return contributor.actions;
-    }
-    throw StateError(
-      'Missing entity action contributor for ${scope.apiValue}.',
-    );
-  }
-}
-
 class LibraryItemActions implements LibraryItemActionRunner {
   const LibraryItemActions({
     this.onOpenDetails,
@@ -94,13 +67,11 @@ class LibraryItemActions implements LibraryItemActionRunner {
   final VoidCallback? onShare;
   final VoidCallback? onUnlinkFromCore;
   @override
-  final List<LibraryEntitySemanticAction> semanticActions;
+  final List<LibraryTargetSemanticAction> semanticActions;
 
-  @override
   @override
   Future<void> openDetails() async => onOpenDetails?.call();
 
-  @override
   @override
   Future<void> toggleEntry() async => onToggleEntry?.call();
 
@@ -154,11 +125,10 @@ class LibraryEditDialogRequest {
   LibraryEditDialogRequest({
     required this.type,
     required CatalogSearchCandidate item,
-    this.node,
+    this.target,
     required this.libraryEntry,
     this.libraryEntryDispatch,
     required this.accent,
-    this.scope,
     this.wishlistItem,
     this.trackingSummary,
     this.wishlistTargetOptions = const [],
@@ -176,22 +146,16 @@ class LibraryEditDialogRequest {
   /// Full candidate retained for the concrete kind edit contribution.
   final CatalogSearchCandidate kindItem;
 
-  /// Structural node being edited. The node identifies either the canonical
-  /// Catalog Item or its independently editable local entry.
-  final LibraryEntityRef? node;
+  /// Catalog or local entry identity selected for editing.
+  final LibraryTargetRef? target;
   final LibraryEntrySummary? libraryEntry;
+
+  bool get isLibraryEntry => target is EntryTargetRef || libraryEntry != null;
 
   /// Concrete kind-entry aggregate, present only after kind dispatch.
   /// Generic edit infrastructure must not decode or inspect this value.
   final LibraryEntryDispatch? libraryEntryDispatch;
   final Color accent;
-  final LibraryEntityScope? scope;
-
-  /// A concrete node is authoritative. Explicit scope is used for actions
-  /// without a node; Catalog Item is the default when neither is available.
-  LibraryEntityScope get resolvedScope =>
-      node?.scope ?? scope ?? LibraryEntityScope.catalogItem;
-
   final WishlistItem? wishlistItem;
   final TrackingSummary? trackingSummary;
   final List<CatalogTargetOption> wishlistTargetOptions;
@@ -206,11 +170,10 @@ class LibraryEditDialogRequest {
   LibraryEditDialogRequest copyWith({
     LibraryKindRegistration? type,
     CatalogSearchCandidate? item,
-    LibraryEntityRef? node,
+    LibraryTargetRef? target,
     LibraryEntrySummary? libraryEntry,
     LibraryEntryDispatch? libraryEntryDispatch,
     Color? accent,
-    LibraryEntityScope? scope,
     WishlistItem? wishlistItem,
     TrackingSummary? trackingSummary,
     List<CatalogTargetOption>? wishlistTargetOptions,
@@ -225,11 +188,10 @@ class LibraryEditDialogRequest {
     return LibraryEditDialogRequest(
       type: type ?? this.type,
       item: item ?? kindItem,
-      node: node ?? this.node,
+      target: target ?? this.target,
       libraryEntry: libraryEntry ?? this.libraryEntry,
       libraryEntryDispatch: libraryEntryDispatch ?? this.libraryEntryDispatch,
       accent: accent ?? this.accent,
-      scope: scope ?? this.scope,
       wishlistItem: wishlistItem ?? this.wishlistItem,
       trackingSummary: trackingSummary ?? this.trackingSummary,
       wishlistTargetOptions:

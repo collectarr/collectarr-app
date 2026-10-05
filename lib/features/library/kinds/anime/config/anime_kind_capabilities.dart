@@ -89,38 +89,34 @@ final animeKindHierarchy = const LibraryHierarchyCapability(
   childrenTitleBuilder: animeChildrenTitle,
 );
 
-final animeKindEntityVocabulary = const LibraryEntityVocabulary(
+final animeKindEntityVocabulary = const LibraryTargetVocabulary(
   catalogItem:
-      LibraryEntityLabel(singular: 'Catalog Item', plural: 'Catalog Items'),
-  libraryEntry: LibraryEntityLabel(singular: 'Entry', plural: 'Entries'),
+      LibraryTargetLabel(singular: 'Catalog Item', plural: 'Catalog Items'),
+  libraryEntry: LibraryTargetLabel(singular: 'Entry', plural: 'Entries'),
 );
 
 final animeKindTrackingTopology = const LibraryTrackingTopology(
   sessionLabels: LibraryTrackingSessionLabels.watch,
-  writableTargets: {LibraryTrackingTargetScope.content},
-  aggregateTargets: {LibraryTrackingTargetScope.catalogItem},
-  contentTargets: {LibraryTrackingTargetScope.content},
+  writableTargets: {LibraryTrackingTarget.content},
+  aggregateTargets: {LibraryTrackingTarget.libraryEntry},
+  contentTargets: {LibraryTrackingTarget.content},
 );
 
-final animeKindActions = const LibraryEntityActionCapability(
-  catalogItem: LibraryEntityActionSet.catalogItem,
-  libraryEntry: LibraryEntityActionSet.libraryEntry,
+final animeKindActions = const LibraryTargetActionCapability(
+  catalogItem: LibraryTargetActionSet.catalogItem,
+  libraryEntry: LibraryTargetActionSet.libraryEntry,
 );
 
 final animeKindInspector = LibraryInspectorCapability(
-  entityRegistry: LibraryEntityInspectorRegistry(
-    contributors: [
-      LibraryEntityInspectorContributor(
-        scope: LibraryEntityScope.catalogItem,
-        heroBuilder: buildAnimeWorkInspectorHero,
-        sectionsBuilder: buildAnimeWorkInspectorSections,
-      ),
-      LibraryEntityInspectorContributor(
-        scope: LibraryEntityScope.libraryEntry,
-        heroBuilder: buildAnimeCopyInspectorHero,
-        sectionsBuilder: buildAnimeCopyInspectorSections,
-      ),
-    ],
+  entityRegistry: LibraryTargetInspectorRegistry(
+    catalogItem: LibraryTargetInspectorContributor(
+      heroBuilder: buildAnimeCatalogItemInspectorHero,
+      sectionsBuilder: buildAnimeCatalogItemInspectorSections,
+    ),
+    libraryEntry: LibraryTargetInspectorContributor(
+      heroBuilder: buildAnimeLibraryEntryInspectorHero,
+      sectionsBuilder: buildAnimeLibraryEntryInspectorSections,
+    ),
   ),
   showsDefaultPersonalSection: false,
   trackingEditor: LibraryTrackingEditorCapability(

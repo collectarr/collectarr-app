@@ -1,5 +1,5 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
-import 'package:collectarr_app/features/library/config/library_entity_vocabulary.dart';
+import 'package:collectarr_app/features/library/config/library_target_vocabulary.dart';
 import 'package:collectarr_app/features/library/config/library_facet_module.dart';
 import 'package:collectarr_app/features/library/config/library_hierarchy_capability.dart';
 import 'package:collectarr_app/features/library/config/library_inspector_capability.dart';
@@ -51,19 +51,14 @@ final Map<CatalogMediaKind, LibraryHierarchyCapability>
     collectarrKindHierarchies =
     Map.unmodifiable(<CatalogMediaKind, LibraryHierarchyCapability>{
   CatalogMediaKind.anime: animeKindHierarchy,
-  CatalogMediaKind.boardgame: boardGameKindHierarchy,
-  CatalogMediaKind.book: bookKindHierarchy,
-  CatalogMediaKind.comic: comicKindHierarchy,
-  CatalogMediaKind.game: gameKindHierarchy,
-  CatalogMediaKind.manga: mangaKindHierarchy,
   CatalogMediaKind.movie: movieKindHierarchy,
   CatalogMediaKind.music: musicKindHierarchy,
   CatalogMediaKind.tv: tvKindHierarchy,
 });
 
-final Map<CatalogMediaKind, LibraryEntityVocabulary>
+final Map<CatalogMediaKind, LibraryTargetVocabulary>
     collectarrKindEntityVocabularies =
-    Map.unmodifiable(<CatalogMediaKind, LibraryEntityVocabulary>{
+    Map.unmodifiable(<CatalogMediaKind, LibraryTargetVocabulary>{
   CatalogMediaKind.anime: animeKindEntityVocabulary,
   CatalogMediaKind.boardgame: boardGameKindEntityVocabulary,
   CatalogMediaKind.book: bookKindEntityVocabulary,

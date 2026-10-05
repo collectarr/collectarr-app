@@ -1,4 +1,3 @@
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:flutter/material.dart';
 
 @immutable
@@ -56,18 +55,14 @@ final class LibraryTrackingSessionLabels {
   );
 }
 
-/// Tracking may target a complete catalog item or one of its contained pieces.
-enum LibraryTrackingTargetScope { catalogItem, content }
+/// Whole-item tracking belongs to the local entry; repeated child progress is
+/// keyed by the same entry plus kind-owned content coordinates.
+enum LibraryTrackingTarget { libraryEntry, content }
 
-enum LibraryTrackingLookupScope {
-  exactCatalog,
-  rootCatalog,
-}
-
-extension LibraryTrackingTargetScopeLabels on LibraryTrackingTargetScope {
+extension LibraryTrackingTargetLabels on LibraryTrackingTarget {
   String get apiValue => switch (this) {
-        LibraryTrackingTargetScope.catalogItem => 'catalog_item',
-        LibraryTrackingTargetScope.content => 'content',
+        LibraryTrackingTarget.libraryEntry => 'library_entry',
+        LibraryTrackingTarget.content => 'content',
       };
 }
 
@@ -78,30 +73,23 @@ extension LibraryTrackingTargetScopeLabels on LibraryTrackingTargetScope {
 @immutable
 final class LibraryTrackingTopology {
   const LibraryTrackingTopology({
-    this.writableTargets = const <LibraryTrackingTargetScope>{},
-    this.aggregateTargets = const <LibraryTrackingTargetScope>{},
-    this.contentTargets = const <LibraryTrackingTargetScope>{},
-    this.lookupScope = LibraryTrackingLookupScope.rootCatalog,
+    this.writableTargets = const <LibraryTrackingTarget>{},
+    this.aggregateTargets = const <LibraryTrackingTarget>{},
+    this.contentTargets = const <LibraryTrackingTarget>{},
     this.sessionLabels = LibraryTrackingSessionLabels.watch,
   });
 
-  final Set<LibraryTrackingTargetScope> writableTargets;
-  final Set<LibraryTrackingTargetScope> aggregateTargets;
-  final Set<LibraryTrackingTargetScope> contentTargets;
-  final LibraryTrackingLookupScope lookupScope;
+  final Set<LibraryTrackingTarget> writableTargets;
+  final Set<LibraryTrackingTarget> aggregateTargets;
+  final Set<LibraryTrackingTarget> contentTargets;
   final LibraryTrackingSessionLabels sessionLabels;
 
-  CatalogEntityRef lookupReferenceFor(CatalogEntityRef ref) =>
-      lookupScope == LibraryTrackingLookupScope.exactCatalog
-          ? ref
-          : ref.rootScope;
-
-  bool canWrite(LibraryTrackingTargetScope target) =>
+  bool canWrite(LibraryTrackingTarget target) =>
       writableTargets.contains(target);
 
-  bool aggregates(LibraryTrackingTargetScope target) =>
+  bool aggregates(LibraryTrackingTarget target) =>
       aggregateTargets.contains(target);
 
-  bool isContentTarget(LibraryTrackingTargetScope target) =>
+  bool isContentTarget(LibraryTrackingTarget target) =>
       contentTargets.contains(target);
 }

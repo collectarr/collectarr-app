@@ -10,21 +10,18 @@ abstract final class MangaAdditionalCatalogItemWorkspaceFields {
     id: MangaFieldIds.publisher,
     label: 'Publisher',
     getValue: (dto) => dto.publisher,
-    entityScope: LibraryEntityScope.catalogItem,
   );
 
   static final releaseDate = dateField<MangaKind, MangaWorkspaceDto>(
     id: MangaFieldIds.releaseDate,
     label: 'Release Date',
     getValue: (dto) => dto.releaseDate,
-    entityScope: LibraryEntityScope.catalogItem,
   );
 
   static final barcode = textField<MangaKind, MangaWorkspaceDto>(
     id: MangaFieldIds.barcode,
     label: 'ISBN / Barcode',
     getValue: (dto) => dto.barcode,
-    entityScope: LibraryEntityScope.catalogItem,
   );
 }
 
@@ -50,7 +47,6 @@ final mangaAdditionalCatalogItemWorkspaceSortDefinitions = [
   LibrarySortDefinition<MangaKind, MangaWorkspaceDto>(
     id: MangaSortIds.releaseTitle,
     label: 'Release title',
-    entityScope: LibraryEntityScope.catalogItem,
     compare: (left, right) => left.dto.title.compareTo(right.dto.title),
   ),
   sortFromField<MangaKind, MangaWorkspaceDto, String>(
@@ -60,7 +56,8 @@ final mangaAdditionalCatalogItemWorkspaceSortDefinitions = [
       defaultAscending: false),
 ];
 
-final mangaAdditionalCatalogItemWorkspaceDefaultVisibleColumns = <LibraryFieldIdRuntime>{
+final mangaAdditionalCatalogItemWorkspaceDefaultVisibleColumns =
+    <LibraryFieldIdRuntime>{
   MangaFieldIds.publisher,
   MangaFieldIds.releaseDate,
   MangaFieldIds.barcode,

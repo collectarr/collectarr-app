@@ -30,7 +30,7 @@ final class ComicCatalogLookup implements CatalogKindLookup {
       if (_matchesBarcode(media, normalized)) {
         return catalogLookupHit(
           kind: kind,
-          id: media.id?.value ?? '',
+          id: media.id?.id ?? '',
           title: media.title,
           subtitle: media.issueNumber,
         );
@@ -57,7 +57,7 @@ final class ComicCatalogLookup implements CatalogKindLookup {
       }
       return catalogLookupHit(
         kind: kind,
-        id: media.id?.value ?? '',
+          id: media.id?.id ?? '',
         title: media.title,
         subtitle: media.issueNumber,
       );

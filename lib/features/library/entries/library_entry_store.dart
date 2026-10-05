@@ -1,13 +1,15 @@
 import 'dart:convert';
 
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_item_ref.dart';
+import 'package:collectarr_app/core/models/library_entry_ref.dart';
 import 'package:collectarr_app/features/library/entries/library_entry_record.dart';
 import 'package:drift/drift.dart';
 
 /// The sole persistence boundary for complete local library entries.
 final class LibraryEntryStore {
+  static const _maxIdsPerQuery = 400;
+
   const LibraryEntryStore(this.database);
   final LocalDatabase database;
 
@@ -27,6 +29,38 @@ final class LibraryEntryStore {
     if (!includeDeleted) query.where((t) => t.deletedAt.isNull());
     query.orderBy([(t) => OrderingTerm.desc(t.updatedAt)]);
     return (await query.get()).map((r) => _decode(r.payloadJson)).toList();
+  }
+
+  Future<Map<LibraryEntryRef, LibraryEntryRecord>> findByRefs(
+    Iterable<LibraryEntryRef> refs,
+  ) async {
+    final wanted = refs.toSet();
+    if (wanted.isEmpty) return const {};
+    final idsByKind = <CatalogMediaKind, Set<String>>{};
+    for (final ref in wanted) {
+      idsByKind.putIfAbsent(ref.kind, () => <String>{}).add(ref.id.value);
+    }
+    final result = <LibraryEntryRef, LibraryEntryRecord>{};
+    for (final entry in idsByKind.entries) {
+      final ids = entry.value.toList(growable: false);
+      for (var offset = 0; offset < ids.length; offset += _maxIdsPerQuery) {
+        final end = (offset + _maxIdsPerQuery).clamp(0, ids.length);
+        final chunk = ids.sublist(offset, end);
+        final rows = await (database.select(database.libraryEntries)
+              ..where((table) =>
+                  table.kind.equals(entry.key.apiValue) & table.id.isIn(chunk)))
+            .get();
+        for (final row in rows) {
+          final record = _decode(row.payloadJson);
+          final ref = LibraryEntryRef(
+            kind: record.kind,
+            id: LibraryEntryId(record.id),
+          );
+          if (wanted.contains(ref)) result[ref] = record;
+        }
+      }
+    }
+    return result;
   }
 
   Future<void> put(LibraryEntryRecord record) async {
@@ -96,21 +130,6 @@ final class LibraryEntryStore {
           ? null
           : DateTime.parse(json['deleted_at'] as String),
     ));
-  }
-
-  Future<bool> updateCatalog(CatalogItemDto item) async {
-    final existing = await find(item.mediaKind, item.id);
-    if (existing == null) return false;
-    await put(LibraryEntryRecord(
-      id: existing.id,
-      kind: existing.kind,
-      catalogData: item.kindData,
-      personalData: existing.personalData,
-      sourceCatalogRef: existing.sourceCatalogRef,
-      updatedAt: DateTime.now().toUtc(),
-      deletedAt: existing.deletedAt,
-    ));
-    return true;
   }
 
   Future<void> updatePersonal(

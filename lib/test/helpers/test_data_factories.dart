@@ -13,7 +13,7 @@ import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_reference_type.dart';
 import 'package:collectarr_app/features/library/kinds/registry/catalog_workspace_data_dispatch.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_workspace_catalog_data.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_workspace_kind_data.dart';
 import 'package:collectarr_app/features/library/kinds/anime/entries/anime_entry_details.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_library_entry.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/entries/boardgame_entry_details.dart';
@@ -150,11 +150,11 @@ extension ShelfCatalogFixture on CatalogItemDto {
   CatalogDisplaySummary get asShelfCatalogSummary =>
       CatalogSearchCandidate.fromItem(this).summary;
 
-  LibraryWorkspaceCatalogData get asShelfCatalogData =>
+  LibraryWorkspaceKindData get asShelfCatalogData =>
       workspaceCatalogDataFromTransport(CatalogImportTransport.fromItem(this));
 }
 
-LibraryWorkspaceCatalogData testWorkspaceCatalogData(CatalogItemDto item) =>
+LibraryWorkspaceKindData testWorkspaceCatalogData(CatalogItemDto item) =>
     workspaceCatalogDataFromTransport(
       CatalogImportTransport.fromItem(item),
     );
@@ -613,12 +613,12 @@ LibraryEntryDispatch testMovieLibraryEntryDispatchFrom(
       value: item,
     );
 
-LibraryWorkspaceSource testLibraryWorkspaceSource({
+LibraryWorkspaceContext testLibraryWorkspaceContext({
   String itemId = 'test-item-1',
   String kind = 'comic',
   String title = 'Test Item',
   CatalogItemDto? catalogItem,
-  LibraryWorkspaceCatalogData? catalogData,
+  LibraryWorkspaceKindData? catalogData,
   TestLibraryEntry? libraryEntry,
   WishlistItem? wishlistItem,
   String? locationPath,
@@ -632,7 +632,7 @@ LibraryWorkspaceSource testLibraryWorkspaceSource({
   final libraryEntryDispatch = libraryEntry == null
       ? null
       : testLibraryEntryDispatchFrom(libraryEntry);
-  return LibraryWorkspaceSource(
+  return LibraryWorkspaceContext(
     itemId: itemId,
     catalogSummary: CatalogSearchCandidate.fromItem(
       testCatalogItemWithKindMetadata(resolvedCatalogItem),

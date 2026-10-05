@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/ui/accent_dialog_header.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
@@ -107,10 +106,8 @@ class _CollectionShareDialog extends StatelessWidget {
     buffer.writeln(title);
     buffer.writeln('─' * title.length);
     for (final item in items) {
-      final ref = item.source.catalogRef;
-      final reference = ref == null ? item.node.id : _referenceLabel(ref);
       buffer.writeln(
-        '${item.dto.primaryLabel} [${item.source.mediaKind.apiValue}: $reference]',
+        '${item.dto.primaryLabel} [${item.target.stableKey}]',
       );
     }
     Clipboard.setData(ClipboardData(text: buffer.toString()));
@@ -265,11 +262,10 @@ ${rows.toString()}</tbody>
   ];
 
   List<String> _structuralRow(LibraryProjectionView item) {
-    final ref = item.source.catalogRef;
     return [
       item.dto.primaryLabel,
       item.source.mediaKind.apiValue,
-      ref == null ? item.node.id : _referenceLabel(ref),
+      item.target.stableKey,
       item.source.isEntry.toString(),
       item.source.isWishlisted.toString(),
       item.source.locationPath ?? '',
@@ -277,19 +273,15 @@ ${rows.toString()}</tbody>
   }
 
   Map<String, Object?> _structuralJson(LibraryProjectionView item) {
-    final ref = item.source.catalogRef;
     return {
       'title': item.dto.primaryLabel,
       'kind': item.source.mediaKind.apiValue,
-      'reference': ref?.toJson() ?? item.node.id,
+      'reference': item.target.stableKey,
       'entry': item.source.isEntry,
       'wishlist': item.source.isWishlisted,
       if (item.source.locationPath case final location?) 'location': location,
     };
   }
-
-  static String _referenceLabel(CatalogEntityRef ref) =>
-      '${ref.kind.apiValue}:${ref.entityType.apiValue}:${ref.id}';
 
   static String _htmlEscape(String text) {
     return text

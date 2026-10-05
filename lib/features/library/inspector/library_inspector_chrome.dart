@@ -80,7 +80,7 @@ class InspectorActionBar extends StatelessWidget {
     required this.onToggleWishlist,
     required this.onEdit,
     required this.onOpenDetails,
-    this.semanticActions = const <LibraryEntitySemanticAction>[],
+    this.semanticActions = const <LibraryTargetSemanticAction>[],
     this.extraActions = const <Widget>[],
   });
 
@@ -90,7 +90,7 @@ class InspectorActionBar extends StatelessWidget {
   final VoidCallback? onToggleWishlist;
   final VoidCallback? onEdit;
   final VoidCallback onOpenDetails;
-  final List<LibraryEntitySemanticAction> semanticActions;
+  final List<LibraryTargetSemanticAction> semanticActions;
   final List<Widget> extraActions;
 
   @override

@@ -17,7 +17,7 @@ import 'package:collectarr_app/features/library/kinds/registry/library_entry_dis
 import 'package:collectarr_app/features/library/kinds/book/domain/book_library_entry.dart';
 import 'package:collectarr_app/features/library/kinds/book/entries/book_entry_details_draft.dart';
 import 'package:collectarr_app/features/library/kinds/book/entries/book_library_entry_update_payload.dart';
-import 'package:collectarr_app/features/library/edit/draft/personal_state_draft.dart';
+import 'package:collectarr_app/features/library/edit/draft/library_entry_personal_bindings.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 
 class BookEditDraft
@@ -68,7 +68,7 @@ class BookEditDraft
       );
 
   @override
-  void initializePersonalState(PersonalStateDraft personal) {
+  void initializePersonalState(LibraryEntryPersonalBindings personal) {
     final item = libraryEntry;
     if (item == null) return;
     personal.ownerLabelController.text = item.personal.ownerLabel ?? '';
@@ -101,7 +101,7 @@ class BookEditDraft
   @override
   BookLibraryEntryUpdatePayload buildEntryUpdatePayload({
     required LibraryEntryRef libraryEntryRef,
-    required PersonalStateDraft personal,
+    required LibraryEntryPersonalBindings personal,
   }) {
     return BookLibraryEntryUpdatePayload(
       isDigital: const Patch.unchanged(),
@@ -208,6 +208,7 @@ class BookEditDraft
     final updatedCandidate = selection.kindItem.kindCapability.mapTransport(
       (transport) => CatalogSearchCandidate.fromItem(
         transport.replacingKindData(updatedMetadata),
+        basedOn: selection.kindItem,
       ),
     );
     return selection.copyWith(kindItem: updatedCandidate);

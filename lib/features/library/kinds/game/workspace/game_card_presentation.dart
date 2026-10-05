@@ -2,7 +2,7 @@ import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/kinds/game/data/game_library_entry_projection.dart';
 import 'package:collectarr_app/features/library/kinds/game/workspace/game_workspace_dto.dart';
 import 'package:collectarr_app/features/library/kinds/game/domain/game_library_entry.dart';
-import 'package:collectarr_app/features/library/kinds/game/workspace/game_workspace_catalog_data.dart';
+import 'package:collectarr_app/features/library/kinds/game/workspace/game_workspace_data.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_card_presentation.dart';
 import 'package:flutter/material.dart';
 
@@ -37,8 +37,8 @@ List<LibraryCardBadge> _gameCompactBadges(LibraryProjectionView item) {
   final badges = <LibraryCardBadge>[];
   final releasePlatform = gameDto?.referenceFormatLabel?.trim();
   final developer = gameDto?.publisher?.trim();
-  final gameCatalog = item.source.catalogData;
-  final ageRating = gameCatalog is GameWorkspaceCatalogData
+  final gameCatalog = item.source.kindPresentationData;
+  final ageRating = gameCatalog is GameWorkspaceData
       ? gameCatalog.metadata.ageRating?.trim()
       : null;
   final entry =

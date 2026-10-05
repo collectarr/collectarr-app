@@ -1,9 +1,8 @@
 import 'package:collectarr_app/features/library/kinds/game/workspace/game_ids.dart';
-import 'package:collectarr_app/features/library/kinds/game/workspace/game_preference_codec.dart';
 import 'package:collectarr_app/features/library/kinds/game/workspace/game_workspace_dto.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/schema/field_factories.dart';
-import 'package:collectarr_app/features/library/workspace/schema/library_entity_workspace_schema.dart';
+import 'package:collectarr_app/features/library/workspace/schema/library_workspace_schema.dart';
 import 'package:flutter/material.dart';
 
 abstract final class GameCatalogItemWorkspaceFields {
@@ -11,49 +10,42 @@ abstract final class GameCatalogItemWorkspaceFields {
     id: GameFieldIds.title,
     label: 'Title',
     getValue: (dto) => dto.title,
-    entityScope: LibraryEntityScope.catalogItem,
   );
 
   static final platform = textField<GameKind, GameWorkspaceDto>(
     id: GameFieldIds.platform,
     label: 'Platform',
     getValue: (dto) => dto.platform,
-    entityScope: LibraryEntityScope.catalogItem,
   );
 
   static final developer = textField<GameKind, GameWorkspaceDto>(
     id: GameFieldIds.developer,
     label: 'Developer',
     getValue: (dto) => dto.developer,
-    entityScope: LibraryEntityScope.catalogItem,
   );
 
   static final publisher = textField<GameKind, GameWorkspaceDto>(
     id: GameFieldIds.publisher,
     label: 'Publisher',
     getValue: (dto) => dto.publisher,
-    entityScope: LibraryEntityScope.catalogItem,
   );
 
   static final releaseDate = dateField<GameKind, GameWorkspaceDto>(
     id: GameFieldIds.releaseDate,
     label: 'Release Date',
     getValue: (dto) => dto.releaseDate,
-    entityScope: LibraryEntityScope.catalogItem,
   );
 
   static final barcode = textField<GameKind, GameWorkspaceDto>(
     id: GameFieldIds.barcode,
     label: 'Barcode',
     getValue: (dto) => dto.barcode,
-    entityScope: LibraryEntityScope.catalogItem,
   );
 
   static final edition = textField<GameKind, GameWorkspaceDto>(
     id: GameFieldIds.edition,
     label: 'Edition',
     getValue: (dto) => dto.edition,
-    entityScope: LibraryEntityScope.catalogItem,
   );
 
   static final cover =
@@ -61,56 +53,48 @@ abstract final class GameCatalogItemWorkspaceFields {
     id: GameFieldIds.cover,
     label: 'Cover',
     getValue: (context) => context.dto.coverImageUrl,
-    entityScope: LibraryEntityScope.catalogItem,
   );
 
   static final franchise = textField<GameKind, GameWorkspaceDto>(
     id: GameFieldIds.franchise,
     label: 'Franchise',
     getValue: (dto) => dto.franchise,
-    entityScope: LibraryEntityScope.catalogItem,
   );
 
   static final series = textField<GameKind, GameWorkspaceDto>(
     id: GameFieldIds.series,
     label: 'Series',
     getValue: (dto) => dto.seriesTitle,
-    entityScope: LibraryEntityScope.catalogItem,
   );
 
   static final ageRating = textField<GameKind, GameWorkspaceDto>(
     id: GameFieldIds.ageRating,
     label: 'Age Rating',
     getValue: (dto) => dto.ageRating,
-    entityScope: LibraryEntityScope.catalogItem,
   );
 
   static final loosePrice = numberField<GameKind, GameWorkspaceDto>(
     id: GameFieldIds.loosePrice,
     label: 'Loose Price',
     getValue: (dto) => dto.loosePrice,
-    entityScope: LibraryEntityScope.catalogItem,
   );
 
   static final cibPrice = numberField<GameKind, GameWorkspaceDto>(
     id: GameFieldIds.cibPrice,
     label: 'CIB Price',
     getValue: (dto) => dto.cibPrice,
-    entityScope: LibraryEntityScope.catalogItem,
   );
 
   static final newPrice = numberField<GameKind, GameWorkspaceDto>(
     id: GameFieldIds.newPrice,
     label: 'New/Sealed Price',
     getValue: (dto) => dto.newPrice,
-    entityScope: LibraryEntityScope.catalogItem,
   );
 
   static final gradedPrice = numberField<GameKind, GameWorkspaceDto>(
     id: GameFieldIds.gradedPrice,
     label: 'Graded Price',
     getValue: (dto) => dto.gradedPrice,
-    entityScope: LibraryEntityScope.catalogItem,
   );
 }
 
@@ -247,9 +231,8 @@ final gameCatalogItemWorkspaceColumnDefinitions = [
 ];
 
 final gameCatalogItemWorkspaceSchema =
-  LibraryEntityWorkspaceSchema<GameKind, GameWorkspaceDto>(
+    LibraryWorkspaceSchema<GameKind, GameWorkspaceDto>(
   kindNamespace: 'game',
-  entityScope: LibraryEntityScope.catalogItem,
   fields: gameCatalogItemWorkspaceFieldDefinitions,
   columns: gameCatalogItemWorkspaceColumnDefinitions,
   sorts: gameCatalogItemWorkspaceSortDefinitions,
@@ -258,7 +241,6 @@ final gameCatalogItemWorkspaceSchema =
   defaultVisibleColumns: gameCatalogItemWorkspaceDefaultVisibleColumns,
   defaultSort: GameSortIds.platform,
   defaultGroup: GameGroupIds.platform,
-  preferenceCodec: const GamePreferenceCodec(),
 );
 
 String _formatCents(int? cents, String? currency) {

@@ -1,7 +1,6 @@
 import 'package:collectarr_app/core/models/item_image.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_edit_shell_state.dart';
 import 'package:collectarr_app/features/library/edit/sections/item_images_edit_section.dart';
-import 'package:collectarr_app/features/library/domain/library_entity_scope.dart';
 import 'package:collectarr_app/features/library/kinds/comic/comic_module.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_catalog_item.dart';
 import 'package:collectarr_app/features/library/kinds/comic/edit/comic_edit_draft.dart';
@@ -26,7 +25,7 @@ class ComicEditHostAdapter implements ComicEditHost {
     required this.draft,
     required this.media,
     required this.accent,
-    required this.scope,
+
     required this.markDirty,
   });
 
@@ -34,7 +33,7 @@ class ComicEditHostAdapter implements ComicEditHost {
   final LibraryEditShellState draft;
   final ComicCatalogItem media;
   final Color accent;
-  final LibraryEntityScope scope;
+
   final VoidCallback markDirty;
 
   ComicEditDraft get _comicDraft {
@@ -534,7 +533,6 @@ class ComicEditHostAdapter implements ComicEditHost {
   TextEditingController get comicIndexNumberController =>
       draft.personal.indexNumberController;
 
-  @override
   @override
   String? get comicCollectionStatus => draft.personal.collectionStatus;
 

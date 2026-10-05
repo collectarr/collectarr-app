@@ -261,9 +261,8 @@ class LibraryWorkspacePreferences {
     );
   }
 
-  // The v1 cutover intentionally starts from a fresh preference namespace.
-  // Older layout and scope formats remain untouched and are never decoded by
-  // this release.
+  // The v1 baseline reads and writes only its own preference keys. It does not
+  // decode earlier layout or scope formats.
   String _key(String suffix) =>
       'library.workspace.v1.${registration.identity.preferenceKey(suffix)}';
 

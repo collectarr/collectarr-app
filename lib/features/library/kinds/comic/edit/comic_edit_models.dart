@@ -59,6 +59,7 @@ LibraryEditSelection applyComicSelectionEdits(
   final updatedItem = selection.kindItem.kindCapability.mapTransport(
     (transport) => CatalogSearchCandidate.fromItem(
       transport.replacingKindData(updatedMetadata),
+      basedOn: selection.kindItem,
     ),
   );
   return selection.copyWith(kindItem: updatedItem);

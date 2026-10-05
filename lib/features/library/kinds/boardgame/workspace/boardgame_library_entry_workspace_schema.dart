@@ -1,11 +1,10 @@
 import 'package:collectarr_app/features/library/kinds/boardgame/workspace/boardgame_ids.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/data/boardgame_library_entry_projection.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/workspace/boardgame_preference_codec.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/workspace/boardgame_workspace_dto.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_library_entry.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/schema/field_factories.dart';
-import 'package:collectarr_app/features/library/workspace/schema/library_entity_workspace_schema.dart';
+import 'package:collectarr_app/features/library/workspace/schema/library_workspace_schema.dart';
 import 'package:flutter/material.dart';
 
 abstract final class BoardGameLibraryEntryWorkspaceFields {
@@ -15,36 +14,32 @@ abstract final class BoardGameLibraryEntryWorkspaceFields {
     label: 'Condition',
     getValue: (context) {
       final entry = BoardGameLibraryEntryProjection.fromDispatch(
-          context.source.libraryEntryDispatch);
+          context.item.libraryEntryDispatch);
       return entry is BoardGameLibraryEntry ? entry.personal.condition : null;
     },
-    entityScope: LibraryEntityScope.libraryEntry,
   );
 
   static final location =
       LibraryFieldDefinition<BoardGameKind, BoardGameWorkspaceDto, String?>(
     id: BoardGameFieldIds.location,
     label: 'Location',
-    getValue: (context) => context.source.locationPath,
-    entityScope: LibraryEntityScope.libraryEntry,
+    getValue: (context) => context.personal.locationPath,
   );
 
   static final pricePaid =
       LibraryFieldDefinition<BoardGameKind, BoardGameWorkspaceDto, int?>(
     id: BoardGameFieldIds.pricePaid,
     label: 'Purchase Price',
-    getValue: (context) => context.source.pricePaidCents,
-    entityScope: LibraryEntityScope.libraryEntry,
+    getValue: (context) => context.item.entrySummary?.pricePaidCents,
   );
 
   static final status =
       LibraryFieldDefinition<BoardGameKind, BoardGameWorkspaceDto, String?>(
     id: BoardGameFieldIds.status,
     label: 'Status',
-    getValue: (context) => context.source.isWishlisted
+    getValue: (context) => context.personal.isWishlisted
         ? 'wishlist'
-        : (context.source.isEntry ? 'entry' : null),
-    entityScope: LibraryEntityScope.libraryEntry,
+        : ((context.item.entrySummary != null) ? 'entry' : null),
   );
 
   static final rating =
@@ -52,31 +47,27 @@ abstract final class BoardGameLibraryEntryWorkspaceFields {
     id: BoardGameFieldIds.rating,
     label: 'Rating',
     getValue: (context) => context.dto.personal.rating,
-    entityScope: LibraryEntityScope.libraryEntry,
   );
 
   static final wishlist =
       LibraryFieldDefinition<BoardGameKind, BoardGameWorkspaceDto, bool>(
     id: BoardGameFieldIds.wishlist,
     label: 'Wishlist',
-    getValue: (context) => context.source.isWishlisted,
-    entityScope: LibraryEntityScope.libraryEntry,
+    getValue: (context) => context.personal.isWishlisted,
   );
 
   static final updatedAt =
       LibraryFieldDefinition<BoardGameKind, BoardGameWorkspaceDto, DateTime>(
     id: BoardGameFieldIds.updatedAt,
     label: 'Updated',
-    getValue: (context) => context.source.updatedAt,
-    entityScope: LibraryEntityScope.libraryEntry,
+    getValue: (context) => context.updatedAt,
   );
 
   static final addedAt =
       LibraryFieldDefinition<BoardGameKind, BoardGameWorkspaceDto, DateTime?>(
     id: BoardGameFieldIds.addedAt,
     label: 'Added',
-    getValue: (context) => context.source.addedAt,
-    entityScope: LibraryEntityScope.libraryEntry,
+    getValue: (context) => context.addedAt,
   );
 }
 
@@ -107,11 +98,10 @@ final boardgameLibraryEntryWorkspaceGroupDefinitions = [
 final boardgameLibraryEntryWorkspaceSortDefinitions = [
   LibrarySortDefinition<BoardGameKind, BoardGameWorkspaceDto>(
     id: BoardGameSortIds.status,
-    entityScope: LibraryEntityScope.libraryEntry,
     compare: (left, right) {
       int rank(LibraryProjectionContext<BoardGameWorkspaceDto> ctx) {
-        if (ctx.source.isEntry) return 0;
-        if (ctx.source.isWishlisted) return 1;
+        if ((ctx.item.entrySummary != null)) return 0;
+        if (ctx.personal.isWishlisted) return 1;
         return 2;
       }
 
@@ -138,9 +128,9 @@ final boardgameLibraryEntryWorkspaceColumnDefinitions = [
     id: BoardGameFieldIds.status,
     label: 'Status',
     getValue: BoardGameLibraryEntryWorkspaceFields.status.getValue,
-    cellValue: (context) => Text(context.source.isWishlisted
+    cellValue: (context) => Text(context.personal.isWishlisted
         ? 'Wishlist'
-        : (context.source.isEntry ? 'Entry' : '')),
+        : ((context.item.entrySummary != null) ? 'Entry' : '')),
     sortable: false,
     groupable: false,
     defaultWidth: 52,
@@ -150,7 +140,7 @@ final boardgameLibraryEntryWorkspaceColumnDefinitions = [
     id: BoardGameFieldIds.wishlist,
     label: 'Wishlist',
     getValue: BoardGameLibraryEntryWorkspaceFields.wishlist.getValue,
-    cellValue: (context) => Text(context.source.isWishlisted ? 'Wishlist' : ''),
+    cellValue: (context) => Text(context.personal.isWishlisted ? 'Wishlist' : ''),
     group: 'Personal',
     defaultWidth: 82,
     minWidth: 70,
@@ -159,7 +149,7 @@ final boardgameLibraryEntryWorkspaceColumnDefinitions = [
     id: BoardGameFieldIds.updatedAt,
     label: 'Updated',
     getValue: BoardGameLibraryEntryWorkspaceFields.updatedAt.getValue,
-    cellValue: (context) => Text(_formatDate(context.source.updatedAt)),
+    cellValue: (context) => Text(_formatDate(context.updatedAt)),
     group: 'Personal',
     defaultWidth: 112,
   ),
@@ -167,7 +157,7 @@ final boardgameLibraryEntryWorkspaceColumnDefinitions = [
     id: BoardGameFieldIds.addedAt,
     label: 'Added',
     getValue: BoardGameLibraryEntryWorkspaceFields.addedAt.getValue,
-    cellValue: (context) => Text(_formatDate(context.source.addedAt)),
+    cellValue: (context) => Text(_formatDate(context.addedAt)),
     group: 'Personal',
     defaultWidth: 112,
   ),
@@ -184,7 +174,7 @@ final boardgameLibraryEntryWorkspaceColumnDefinitions = [
   columnFromField<BoardGameKind, BoardGameWorkspaceDto, int?>(
     BoardGameLibraryEntryWorkspaceFields.pricePaid,
     cellValue: (context) =>
-        Text(_formatCents(context.source.pricePaidCents, context.dto.currency)),
+        Text(_formatCents(context.item.entrySummary?.pricePaidCents, context.dto.currency)),
     group: 'Value',
     isNumeric: true,
     defaultWidth: 92,
@@ -200,9 +190,8 @@ final boardgameLibraryEntryWorkspaceColumnDefinitions = [
 ];
 
 final boardgameLibraryEntryWorkspaceSchema =
-    LibraryEntityWorkspaceSchema<BoardGameKind, BoardGameWorkspaceDto>(
+    LibraryWorkspaceSchema<BoardGameKind, BoardGameWorkspaceDto>(
   kindNamespace: 'boardgame',
-  entityScope: LibraryEntityScope.libraryEntry,
   fields: boardgameLibraryEntryWorkspaceFieldDefinitions,
   columns: boardgameLibraryEntryWorkspaceColumnDefinitions,
   sorts: boardgameLibraryEntryWorkspaceSortDefinitions,
@@ -211,7 +200,6 @@ final boardgameLibraryEntryWorkspaceSchema =
   defaultVisibleColumns: boardgameLibraryEntryWorkspaceDefaultVisibleColumns,
   defaultSort: BoardGameSortIds.status,
   defaultGroup: BoardGameGroupIds.condition,
-  preferenceCodec: const BoardGamePreferenceCodec(),
 );
 
 String _formatDate(DateTime? value) {

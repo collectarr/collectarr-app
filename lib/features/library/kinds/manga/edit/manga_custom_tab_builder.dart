@@ -1,6 +1,5 @@
 import 'package:collectarr_app/features/library/edit/draft/library_edit_shell_state.dart';
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
-import 'package:collectarr_app/features/library/domain/library_entity_scope.dart';
 import 'package:collectarr_app/features/library/edit/schema/edit_schema_renderer.dart';
 import 'package:collectarr_app/features/library/kinds/manga/edit/manga_catalog_edit_schema.dart';
 import 'package:collectarr_app/features/library/kinds/manga/edit/manga_edit_draft.dart';
@@ -16,7 +15,7 @@ Widget? buildMangaCustomTabView({
   required BuildContext context,
   required LibraryEditShellState draft,
   required Color accent,
-  required LibraryEntityScope scope,
+
   required CatalogSearchCandidate item,
   required VoidCallback markDirty,
 }) {

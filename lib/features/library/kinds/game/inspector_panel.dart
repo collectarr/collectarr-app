@@ -11,7 +11,7 @@ import 'package:collectarr_app/features/library/detail/library_detail_hero.dart'
 import 'package:collectarr_app/features/library/kinds/game/domain/game_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/game/domain/game_library_entry.dart';
 import 'package:collectarr_app/features/library/kinds/game/workspace/game_workspace_dto.dart';
-import 'package:collectarr_app/features/library/kinds/game/workspace/game_workspace_catalog_data.dart';
+import 'package:collectarr_app/features/library/kinds/game/workspace/game_workspace_data.dart';
 import 'package:collectarr_app/features/library/details/library_detail_models.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
@@ -26,7 +26,7 @@ Widget buildGameInspectorPanel(
   return GameInspectorPanel(request: request);
 }
 
-List<Widget> buildGameWorkInspectorSections(
+List<Widget> buildGameCatalogItemInspectorSections(
   BuildContext context,
   LibraryInspectorRequest inspector,
 ) {
@@ -37,7 +37,7 @@ List<Widget> buildGameWorkInspectorSections(
   );
 }
 
-List<Widget> buildGameCopyInspectorSections(
+List<Widget> buildGameLibraryEntryInspectorSections(
   BuildContext context,
   LibraryInspectorRequest inspector,
 ) {
@@ -63,7 +63,7 @@ List<Widget> _buildGameEntitySections(
   ];
 }
 
-Widget buildGameWorkInspectorHero(
+Widget buildGameCatalogItemInspectorHero(
   BuildContext context,
   LibraryInspectorRequest request,
 ) =>
@@ -74,7 +74,7 @@ Widget buildGameWorkInspectorHero(
       accent: request.accent,
     );
 
-Widget buildGameCopyInspectorHero(
+Widget buildGameLibraryEntryInspectorHero(
   BuildContext context,
   LibraryInspectorRequest request,
 ) =>
@@ -432,8 +432,8 @@ class _GameInspectorDetailsPersonal extends StatelessWidget {
 }
 
 GameCatalogMetadata? _gameMetadata(LibraryProjectionView item) {
-  final catalog = item.source.catalogData;
-  return catalog is GameWorkspaceCatalogData ? catalog.metadata : null;
+  final catalog = item.source.kindPresentationData;
+  return catalog is GameWorkspaceData ? catalog.metadata : null;
 }
 
 class _GameInspectorFactRows extends StatelessWidget {

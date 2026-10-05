@@ -1,4 +1,4 @@
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/features/library/entries/typed_library_entry_repository.dart';
 import 'package:collectarr_app/features/library/kinds/manga/domain/manga_library_entry.dart';
 

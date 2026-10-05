@@ -2,7 +2,7 @@ import 'package:collectarr_app/core/models/calendar_event.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/config/library_calendar_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/comic/data/comic_repository.dart';
-import 'package:collectarr_app/features/library/kinds/comic/domain/comic_ids.dart';
+import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_catalog_item.dart';
 
 /// Comic owns the meaning of a catalog release date for calendar projection.
@@ -47,6 +47,8 @@ final class ComicCalendarContributor implements LibraryCalendarContributor {
     if (database == null) {
       throw StateError('Comic calendar contribution requires a database');
     }
-    return ComicRepository(database).getCatalogItem(ComicCatalogItemId(id));
+    return ComicRepository(database).getCatalogItem(
+      CatalogItemRef(kind: CatalogMediaKind.comic, id: id),
+    );
   }
 }

@@ -6,7 +6,8 @@ import 'package:collectarr_app/features/library/kinds/movie/forms/movie_catalog_
 import 'package:collectarr_app/features/library/kinds/movie/forms/movie_catalog_form_schema.dart';
 import 'package:collectarr_app/features/library/kinds/movie/vocabulary/movie_vocabularies.dart';
 
-final LibraryFormSchema<MovieAddManualDraft> movieAddSchema = movieAddSchemaFor();
+final LibraryFormSchema<MovieAddManualDraft> movieAddSchema =
+    movieAddSchemaFor();
 
 final LibraryFormSchema<MovieAddManualDraft> movieCoverAddSchema =
     movieCoverAddSchemaFor();

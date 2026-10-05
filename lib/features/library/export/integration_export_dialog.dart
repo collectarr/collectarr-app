@@ -1,13 +1,17 @@
 import 'dart:convert';
 
 import 'package:collectarr_app/features/collection/csv/collection_csv_codec.dart';
+import 'package:collectarr_app/core/models/library_entry_ref.dart';
+import 'package:collectarr_app/features/library/entries/library_entry_record.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
+import 'package:collectarr_app/features/library/entries/library_entry_store.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 import 'package:flutter/services.dart';
 
@@ -39,7 +43,7 @@ Future<void> showIntegrationExportDialog({
   );
 }
 
-class _IntegrationExportDialog extends StatelessWidget {
+class _IntegrationExportDialog extends ConsumerWidget {
   const _IntegrationExportDialog({
     required this.type,
     required this.shelfState,
@@ -49,7 +53,7 @@ class _IntegrationExportDialog extends StatelessWidget {
   final ShelfState shelfState;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final palette = appPalette(context);
     return AccentAlertDialog(
       backgroundColor: palette.panel,
@@ -73,7 +77,7 @@ class _IntegrationExportDialog extends StatelessWidget {
             for (final format in ExportFormat.values) ...[
               _ExportFormatTile(
                 format: format,
-                onTap: () => _export(context, format),
+                onTap: () => _export(context, ref, format),
               ),
               if (format != ExportFormat.values.last) const SizedBox(height: 8),
             ],
@@ -89,9 +93,21 @@ class _IntegrationExportDialog extends StatelessWidget {
     );
   }
 
-  void _export(BuildContext context, ExportFormat format) {
+  Future<void> _export(
+    BuildContext context,
+    WidgetRef ref,
+    ExportFormat format,
+  ) async {
+    final entryRecordsByRef = await LibraryEntryStore(
+      ref.read(localDatabaseProvider),
+    ).findByRefs(
+      shelfState.entries
+          .map((entry) => entry.libraryEntryRef)
+          .whereType<LibraryEntryRef>(),
+    );
+    if (!context.mounted) return;
     final data = switch (format) {
-      ExportFormat.csv => _toCsv(type),
+      ExportFormat.csv => _toCsv(entryRecordsByRef),
       ExportFormat.json => _toJson(),
       ExportFormat.xml => _toXml(),
       ExportFormat.markdown => _toMarkdown(type),
@@ -103,9 +119,10 @@ class _IntegrationExportDialog extends StatelessWidget {
     Navigator.pop(context);
   }
 
-  String _toCsv(LibraryKindRegistration registration) {
+  String _toCsv(Map<LibraryEntryRef, LibraryEntryRecord> entryRecordsByRef) {
     return CollectionCsvCodec(profiles: collectionCsvKindProfiles).exportShelf(
       shelfState.entries,
+      entryRecordsByRef: entryRecordsByRef,
     );
   }
 
@@ -113,7 +130,8 @@ class _IntegrationExportDialog extends StatelessWidget {
     final items = shelfState.entries
         .map(
           (entry) => {
-            'id': entry.catalogRef?.id ?? entry.itemId,
+            'id': entry.target.id,
+            'ref': entry.target.stableKey,
             'kind': entry.mediaKind.apiValue,
             'title': entry.title,
             'entry': entry.isEntry,
@@ -136,7 +154,7 @@ class _IntegrationExportDialog extends StatelessWidget {
         '<collection name="${_escapeXml(type.identity.title)}" count="${shelfState.entries.length}">');
     for (final entry in shelfState.entries) {
       buffer.writeln(
-          '  <item id="${_escapeXml(entry.catalogRef?.id ?? entry.itemId)}" kind="${entry.mediaKind.apiValue}">');
+          '  <item id="${_escapeXml(entry.target.id)}" ref="${_escapeXml(entry.target.stableKey)}" kind="${entry.mediaKind.apiValue}">');
       buffer.writeln('    <title>${_escapeXml(entry.title)}</title>');
       buffer.writeln('    <entry>${entry.isEntry}</entry>');
       buffer.writeln('    <wishlist>${entry.isWishlisted}</wishlist>');
@@ -155,16 +173,10 @@ class _IntegrationExportDialog extends StatelessWidget {
     for (final entry in shelfState.entries) {
       final projection = libraryKindWorkspaceForKind(registration.kind).project(
         source: entry,
-        node: LibraryCatalogItemNodeRef(
-          catalogItemId: entry.catalogRef?.id ?? entry.itemId,
-        ),
       );
       final card = libraryCardPresentationForEntry(
         LibraryProjectionItem(
           source: entry,
-          node: LibraryCatalogItemNodeRef(
-            catalogItemId: entry.catalogRef?.id ?? entry.itemId,
-          ),
           dto: projection.dto,
         ),
       );

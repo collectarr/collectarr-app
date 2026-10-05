@@ -14,14 +14,12 @@ TransferableField mangaTransferField({
   required String? Function(MangaLibraryEntry item) read,
   required MangaLibraryEntry Function(MangaLibraryEntry item, String? value)
       write,
-  LibraryEntityScope scope = LibraryEntityScope.libraryEntry,
 }) {
   return TransferableField.typed<MangaLibraryEntry>(
     key: key,
     label: label,
     icon: icon,
     type: type,
-    scope: scope,
     decode: (value) => value as MangaLibraryEntry,
     read: read,
     write: write,
@@ -131,7 +129,6 @@ final mangaTransferableFields = <TransferableField>[
     label: 'Dust jacket',
     icon: Icons.book_outlined,
     type: TransferableFieldType.boolean,
-    scope: LibraryEntityScope.libraryEntry,
     read: (item) => item.personal.details.dustJacketPresent ? 'true' : null,
     write: (item, value) {
       return item.copyWith(
@@ -146,7 +143,6 @@ final mangaTransferableFields = <TransferableField>[
     label: 'Obi strip',
     icon: Icons.bookmark_border,
     type: TransferableFieldType.boolean,
-    scope: LibraryEntityScope.libraryEntry,
     read: (item) => item.personal.details.obiStripPresent ? 'true' : null,
     write: (item, value) {
       return item.copyWith(
@@ -172,13 +168,13 @@ Iterable<String?> mangaLinkedMetadataValues(MangaMetadata metadata) => [
       ...metadata.genres,
     ];
 
-MangaMetadata? mangaLinkedMetadata(LibraryWorkspaceSource source) {
-  final catalog = source.catalogData;
-  return catalog is MangaWorkspaceCatalogData ? catalog.metadata : null;
+MangaMetadata? mangaLinkedMetadata(LibraryWorkspaceContext source) {
+  final catalog = source.kindPresentationData;
+  return catalog is MangaWorkspaceData ? catalog.metadata : null;
 }
 
 MetadataSearchQuery mangaMetadataSearchQuery({
-  required LibraryWorkspaceSource source,
+  required LibraryWorkspaceContext source,
   required String title,
 }) {
   final metadata = mangaLinkedMetadata(source);

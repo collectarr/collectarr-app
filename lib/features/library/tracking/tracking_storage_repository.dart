@@ -9,7 +9,6 @@ import 'package:collectarr_app/core/models/tracking_summary.dart';
 import 'package:collectarr_app/core/models/structural_ref_validation.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_codec.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_import.dart';
-import 'package:collectarr_app/features/library/kinds/registry/library_kind_workspace_contributors.dart';
 
 /// Orchestrates tracking-entry lifecycle across kind-entry persistence codecs.
 ///
@@ -228,10 +227,7 @@ class TrackingStorageRepository {
     final wanted = libraryEntryRefs.toSet();
     if (wanted.isEmpty) return const [];
     return (await listActiveStorageRecords())
-        .where((entry) {
-          final ref = entry.libraryEntryRef;
-          return ref != null && wanted.contains(ref);
-        })
+        .where((entry) => wanted.contains(entry.libraryEntryRef))
         .toList(growable: false);
   }
 

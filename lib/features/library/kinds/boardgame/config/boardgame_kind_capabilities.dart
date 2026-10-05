@@ -46,40 +46,32 @@ final boardGameKindMetadata = const LibraryMetadataCapability(
   searchQueryBuilder: boardGameMetadataSearchQuery,
 );
 
-final boardGameKindHierarchy = const LibraryHierarchyCapability(
-  browserDelegateBuilder: LibraryNoopBrowserDelegate.new,
-);
-
-final boardGameKindEntityVocabulary = const LibraryEntityVocabulary(
-  catalogItem: LibraryEntityLabel(singular: 'Game', plural: 'Games'),
-  libraryEntry: LibraryEntityLabel(singular: 'Entry', plural: 'Entries'),
+final boardGameKindEntityVocabulary = const LibraryTargetVocabulary(
+  catalogItem: LibraryTargetLabel(singular: 'Game', plural: 'Games'),
+  libraryEntry: LibraryTargetLabel(singular: 'Entry', plural: 'Entries'),
 );
 
 final boardGameKindTrackingTopology = const LibraryTrackingTopology(
   sessionLabels: LibraryTrackingSessionLabels.play,
-  writableTargets: {LibraryTrackingTargetScope.catalogItem},
-  aggregateTargets: {LibraryTrackingTargetScope.catalogItem},
+  writableTargets: {LibraryTrackingTarget.libraryEntry},
+  aggregateTargets: {LibraryTrackingTarget.libraryEntry},
 );
 
-final boardGameKindActions = const LibraryEntityActionCapability(
-  catalogItem: LibraryEntityActionSet.catalogItem,
-  libraryEntry: LibraryEntityActionSet.libraryEntry,
+final boardGameKindActions = const LibraryTargetActionCapability(
+  catalogItem: LibraryTargetActionSet.catalogItem,
+  libraryEntry: LibraryTargetActionSet.libraryEntry,
 );
 
 final boardGameKindInspector = LibraryInspectorCapability(
-  entityRegistry: LibraryEntityInspectorRegistry(
-    contributors: [
-      LibraryEntityInspectorContributor(
-        scope: LibraryEntityScope.catalogItem,
-        heroBuilder: buildBoardGameCatalogItemInspectorHero,
-        sectionsBuilder: buildBoardGameCatalogItemInspectorSections,
-      ),
-      LibraryEntityInspectorContributor(
-        scope: LibraryEntityScope.libraryEntry,
-        heroBuilder: buildBoardGameCopyInspectorHero,
-        sectionsBuilder: buildBoardGameCopyInspectorSections,
-      ),
-    ],
+  entityRegistry: LibraryTargetInspectorRegistry(
+    catalogItem: LibraryTargetInspectorContributor(
+      heroBuilder: buildBoardGameCatalogItemInspectorHero,
+      sectionsBuilder: buildBoardGameCatalogItemInspectorSections,
+    ),
+    libraryEntry: LibraryTargetInspectorContributor(
+      heroBuilder: buildBoardGameLibraryEntryInspectorHero,
+      sectionsBuilder: buildBoardGameLibraryEntryInspectorSections,
+    ),
   ),
   showsDefaultPersonalSection: false,
 );

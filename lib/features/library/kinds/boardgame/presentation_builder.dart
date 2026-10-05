@@ -10,7 +10,7 @@ import 'package:collectarr_app/features/library/generic/display.dart';
 import 'package:collectarr_app/features/library/details/library_detail_models.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/workspace/boardgame_workspace_dto.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/workspace/boardgame_workspace_catalog_data.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/workspace/boardgame_workspace_data.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/boardgame_physical_media_formats.dart';
 import 'package:collectarr_app/features/library/widgets/format_badge.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_card_presentation.dart';
@@ -67,10 +67,10 @@ class BoardGameLibraryMediaPresentationBuilder
 
   @override
   List<LibraryDuplicateCandidate> buildDuplicateCandidates(
-    LibraryWorkspaceSource entry,
+    LibraryWorkspaceContext entry,
   ) {
-    final catalog = entry.catalogData;
-    if (catalog is! BoardGameWorkspaceCatalogData) return const [];
+    final catalog = entry.kindPresentationData;
+    if (catalog is! BoardGameWorkspaceData) return const [];
     final metadata = catalog.metadata;
     final identifier = normalizeLibraryDuplicateIdentifier(metadata.barcode);
     if (identifier == null) return const [];
@@ -181,15 +181,15 @@ class BoardGameLibraryMediaPresentationBuilder
     final country = adapter?.country;
     final language = adapter?.language;
 
-    final metadata = item.source.catalogData is BoardGameWorkspaceCatalogData
-        ? (item.source.catalogData! as BoardGameWorkspaceCatalogData).metadata
+    final metadata = item.source.kindPresentationData is BoardGameWorkspaceData
+        ? (item.source.kindPresentationData! as BoardGameWorkspaceData).metadata
         : null;
     return LibraryMetadataPresentation(
       labels: metadataLabels,
       identityFacts: [
         if (includeIdentityFacts) ...[
           LibraryDetailField(label: 'Kind', value: singularLabel),
-          LibraryDetailField(label: 'ID', value: item.node.catalogItemId),
+          LibraryDetailField(label: 'ID', value: item.target.id),
           LibraryDetailField(label: 'Title', value: dto.primaryLabel),
         ],
         if (metadata?.seriesTitle != null)

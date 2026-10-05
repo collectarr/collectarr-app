@@ -1,9 +1,8 @@
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_metadata.dart';
-import 'package:collectarr_app/features/library/kinds/tv/workspace/tv_workspace_catalog_data.dart';
+import 'package:collectarr_app/features/library/kinds/tv/workspace/tv_workspace_data.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
 import 'package:collectarr_app/features/library/stats/library_stats_cards.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_workspace_catalog_data.dart';
 import 'package:flutter/material.dart';
 
 class TvStatsCapability implements LibraryStatsCapability {
@@ -11,7 +10,7 @@ class TvStatsCapability implements LibraryStatsCapability {
 
   @override
   LibraryEntryFinancialSummary buildEntryFinancialSummary(
-      LibraryWorkspaceSource entry) {
+      LibraryWorkspaceContext entry) {
     return LibraryEntryFinancialSummary(
       pricePaidCents: entry.pricePaidCents,
       sellPriceCents: entry.sellPriceCents,
@@ -21,23 +20,21 @@ class TvStatsCapability implements LibraryStatsCapability {
 
   @override
   LibraryStatsMetadataProjection? buildMetadataProjection(
-      LibraryWorkspaceSource entry) {
-    final catalog = entry.catalogData;
+      LibraryWorkspaceContext entry) {
     final metadata = _metadata(entry);
-    if (catalog == null || metadata == null) return null;
+    if (metadata == null) return null;
     final secondary =
         (metadata.publisher ?? metadata.network ?? metadata.streamingService)
             ?.trim();
     return LibraryStatsMetadataProjection(
       primaryGroup: (metadata.seriesTitle ?? metadata.title).trim(),
       secondaryGroup: secondary,
-      hasCover: catalog.coverImageUrl?.trim().isNotEmpty == true,
-      hasSynopsis: metadata.synopsis?.trim().isNotEmpty == true ||
-          libraryWorkspaceCatalogSynopsis(catalog)?.trim().isNotEmpty == true,
+      hasCover: metadata.coverImageUrl?.trim().isNotEmpty == true,
+      hasSynopsis: metadata.synopsis?.trim().isNotEmpty == true,
       hasSecondaryMetadata: secondary?.isNotEmpty == true ||
           metadata.physicalFormat?.trim().isNotEmpty == true,
       hasReleaseDate:
-          metadata.firstAirDate != null || catalog.releaseDate != null,
+          metadata.firstAirDate != null || metadata.releaseDate != null,
       hasItemNumber: metadata.itemNumber?.trim().isNotEmpty == true,
     );
   }
@@ -72,8 +69,8 @@ class TvStatsCapability implements LibraryStatsCapability {
   }
 
   static _MissingNumberSummary? _numberedGapSummary(
-    List<LibraryWorkspaceSource> entries,
-    int? Function(LibraryWorkspaceSource entry) numberFor,
+    List<LibraryWorkspaceContext> entries,
+    int? Function(LibraryWorkspaceContext entry) numberFor,
   ) {
     _MissingNumberSummary? best;
     final seriesNumbers = <String, Set<int>>{};
@@ -104,12 +101,12 @@ class TvStatsCapability implements LibraryStatsCapability {
     return best;
   }
 
-  static TvMetadata? _metadata(LibraryWorkspaceSource entry) {
-    final catalog = entry.catalogData;
-    return catalog is TvWorkspaceCatalogData ? catalog.metadata : null;
+  static TvMetadata? _metadata(LibraryWorkspaceContext entry) {
+    final catalog = entry.kindPresentationData;
+    return catalog is TvWorkspaceData ? catalog.metadata : null;
   }
 
-  static int? _seasonNumber(LibraryWorkspaceSource entry) {
+  static int? _seasonNumber(LibraryWorkspaceContext entry) {
     final metadata = _metadata(entry);
     return metadata?.seasonNumber;
   }

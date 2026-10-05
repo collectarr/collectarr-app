@@ -1,5 +1,5 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/collection/commands/library_entry_commands.dart';
@@ -27,7 +27,7 @@ class LibraryBulkActions {
   final CatalogSnapshotRepository catalogSnapshots;
 
   Future<void> editSelected({
-    required List<LibraryWorkspaceSource> entries,
+    required List<LibraryWorkspaceContext> entries,
     required LibraryBulkEditSelection selection,
   }) async {
     final entryEntries = [
@@ -37,9 +37,8 @@ class LibraryBulkActions {
     for (var index = 0; index < entryEntries.length; index++) {
       final entry = entryEntries[index];
       final libraryEntry = entry.libraryEntrySummary!;
-      final catalogRef = libraryEntry.ref.localCatalogItemRef;
       final registration = libraryKindRegistrationForKind(
-        catalogRef.mediaKind,
+        libraryEntry.ref.kind,
       );
       final updateCmd =
           libraryEntryEditForKind(registration.kind).buildBulkUpdateCommand(
@@ -61,7 +60,7 @@ class LibraryBulkActions {
   }
 
   Future<void> moveSelectedToEntry(
-    List<LibraryWorkspaceSource> entries, {
+    List<LibraryWorkspaceContext> entries, {
     String? defaultCondition,
     String? defaultLocationId,
     String? defaultReadStatus,
@@ -83,25 +82,21 @@ class LibraryBulkActions {
     }
     for (var index = 0; index < entriesToOwn.length; index++) {
       final entry = entriesToOwn[index];
-      final resolvedKind = entry.mediaKind == CatalogMediaKind.unknown
-          ? entry.wishlistItem?.catalogRef.kind ??
-              entry.trackingSummary?.libraryEntryRef.kind ??
-              CatalogMediaKind.unknown
-          : entry.mediaKind;
+      final resolvedKind = entry.mediaKind;
       final common = LibraryAddCommonDraft(
         condition: defaultCondition,
         locationId: defaultLocationId,
         tags: defaultTags,
       );
-      final catalogRef = entry.catalogRef;
+      final catalogRef =
+          entry.target.catalogItemRef ?? entry.wishlistCatalogRef;
       if (catalogRef == null || resolvedKind == CatalogMediaKind.unknown) {
         throw StateError(
           'Cannot add selected item without a typed catalog kind: '
           '${entry.itemId}',
         );
       }
-      final catalogItem =
-          await catalogSnapshots.findCandidateByRef(catalogRef.rootScope);
+      final catalogItem = await catalogSnapshots.findCandidateByRef(catalogRef);
       if (catalogItem == null) {
         throw StateError(
           'Cannot add selected item without a persisted catalog snapshot: '
@@ -121,11 +116,10 @@ class LibraryBulkActions {
   }
 
   Future<void> moveSelectedToWishlist(
-      List<LibraryWorkspaceSource> entries) async {
+      List<LibraryWorkspaceContext> entries) async {
     for (var index = 0; index < entries.length; index++) {
       final entry = entries[index];
-      final catalogItemRef =
-          entry.libraryEntrySummary?.sourceCatalogRef ??
+      final catalogItemRef = entry.libraryEntrySummary?.sourceCatalogRef ??
           entry.wishlistItem?.catalogRef;
       if (catalogItemRef == null) {
         throw StateError(
@@ -147,7 +141,7 @@ class LibraryBulkActions {
     }
   }
 
-  Future<int> duplicateSelected(List<LibraryWorkspaceSource> entries) async {
+  Future<int> duplicateSelected(List<LibraryWorkspaceContext> entries) async {
     final entryEntries = [
       for (final entry in entries)
         if (entry.libraryEntrySummary != null) entry,
@@ -177,7 +171,7 @@ class LibraryBulkActions {
     return entryEntries.length;
   }
 
-  Future<void> removeSelected(List<LibraryWorkspaceSource> entries) async {
+  Future<void> removeSelected(List<LibraryWorkspaceContext> entries) async {
     final entryEntries = [
       for (final entry in entries)
         if (entry.libraryEntrySummary != null) entry,
@@ -209,7 +203,7 @@ class LibraryBulkActions {
   }
 }
 
-List<LibraryWorkspaceSource> selectedShelfEntries(
+List<LibraryWorkspaceContext> selectedShelfEntries(
   List<LibraryProjectionItem> visibleItems,
   Set<String> selectedItemIds,
 ) {

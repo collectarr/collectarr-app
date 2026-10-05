@@ -9,7 +9,7 @@ import 'package:collectarr_app/features/library/config/presentation/library_medi
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/details/library_detail_models.dart';
 import 'package:collectarr_app/features/library/kinds/game/workspace/game_workspace_dto.dart';
-import 'package:collectarr_app/features/library/kinds/game/workspace/game_workspace_catalog_data.dart';
+import 'package:collectarr_app/features/library/kinds/game/workspace/game_workspace_data.dart';
 import 'package:collectarr_app/features/library/kinds/game/game_physical_media_formats.dart';
 import 'package:collectarr_app/features/library/widgets/format_badge.dart';
 
@@ -42,10 +42,10 @@ class GameLibraryMediaPresentationBuilder
 
   @override
   List<LibraryDuplicateCandidate> buildDuplicateCandidates(
-    LibraryWorkspaceSource entry,
+    LibraryWorkspaceContext entry,
   ) {
-    final catalog = entry.catalogData;
-    if (catalog is! GameWorkspaceCatalogData) return const [];
+    final catalog = entry.kindPresentationData;
+    if (catalog is! GameWorkspaceData) return const [];
     final metadata = catalog.metadata;
     final identifier = normalizeLibraryDuplicateIdentifier(metadata.barcode);
     if (identifier == null) return const [];
@@ -153,15 +153,15 @@ class GameLibraryMediaPresentationBuilder
     final publisher = gameDto?.publisher;
     final releaseDate = adapter?.releaseDate;
 
-    final metadata = item.source.catalogData is GameWorkspaceCatalogData
-        ? (item.source.catalogData! as GameWorkspaceCatalogData).metadata
+    final metadata = item.source.kindPresentationData is GameWorkspaceData
+        ? (item.source.kindPresentationData! as GameWorkspaceData).metadata
         : null;
     return LibraryMetadataPresentation(
       labels: metadataLabels,
       identityFacts: [
         if (includeIdentityFacts) ...[
           LibraryDetailField(label: 'Kind', value: singularLabel),
-          LibraryDetailField(label: 'ID', value: item.node.catalogItemId),
+          LibraryDetailField(label: 'ID', value: item.target.id),
           LibraryDetailField(label: 'Title', value: dto.primaryLabel),
         ],
         if (variant != null)

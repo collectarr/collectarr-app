@@ -1,6 +1,6 @@
+import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/data/local/boardgame_local_mapper.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_ids.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_play_session.dart';
 import 'package:drift/drift.dart';
 
@@ -10,11 +10,18 @@ final class BoardGamePlaySessionRepository {
   final LocalDatabase _db;
 
   Future<List<BoardGamePlaySession>> listForBoardGame(
-    BoardGameCatalogItemId boardGameId,
+    CatalogItemRef boardGameRef,
   ) async {
-    if (boardGameId.value.isEmpty) return const <BoardGamePlaySession>[];
+    if (boardGameRef.kind != CatalogMediaKind.boardgame) {
+      throw ArgumentError.value(
+        boardGameRef,
+        'boardGameRef',
+        'Expected a Board Game Catalog Item reference.',
+      );
+    }
+    if (boardGameRef.id.isEmpty) return const <BoardGamePlaySession>[];
     final rows = await (_db.select(_db.boardGamePlaySessionsRows)
-          ..where((table) => table.boardGameId.equals(boardGameId.value))
+          ..where((table) => table.boardGameId.equals(boardGameRef.id))
           ..orderBy([
             (table) => OrderingTerm.desc(table.date),
             (table) => OrderingTerm.asc(table.id),

@@ -11,7 +11,7 @@ import 'package:collectarr_app/features/pick_lists/pick_list_definition_contribu
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_pick_list_contributors.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_serial_authority_contributors.dart';
 import 'package:collectarr_app/features/library/kinds/book/domain/book_metadata.dart';
-import 'package:collectarr_app/features/library/kinds/book/workspace/book_workspace_catalog_data.dart';
+import 'package:collectarr_app/features/library/kinds/book/workspace/book_workspace_data.dart';
 
 final class BookCatalogTransportCodec
     implements CatalogKindTransportCodec<BookCatalogMetadata> {
@@ -25,11 +25,15 @@ final class BookCatalogTransportCodec
       BookCatalogMetadata.fromJson(catalogTransportPayloadFor(item));
 
   @override
+  BookCatalogMetadata decodeKindData(Map<String, dynamic> kindData) =>
+      BookCatalogMetadata.fromJson(kindData);
+
+  @override
   CatalogDisplaySummary summarize(
     String catalogItemId,
     BookCatalogMetadata item,
   ) =>
-      CatalogDisplaySummary.root(
+      CatalogDisplaySummary.forCatalogItem(
         kind: kind,
         id: catalogItemId,
         primaryLabel: item.title,
@@ -37,8 +41,14 @@ final class BookCatalogTransportCodec
       );
 
   @override
-  BookWorkspaceCatalogData workspaceData(CatalogItemDto item) =>
-      BookWorkspaceCatalogData.fromTransport(item);
+  BookWorkspaceData workspaceData(CatalogItemDto item) =>
+      BookWorkspaceData(metadata: decode(item));
+
+  @override
+  BookWorkspaceData workspaceDataFromKindData(
+    Map<String, dynamic> kindData,
+  ) =>
+      BookWorkspaceData(metadata: BookCatalogMetadata.fromJson(kindData));
 
   @override
   Future<Map<String, int>> countCatalogValues(
@@ -52,9 +62,7 @@ final class BookCatalogTransportCodec
     return countPickListCatalogValuesByValue(
       contributor: contributor,
       listName: listName,
-      metadata: [
-        for (final item in await listTransport(db)) _catalogMetadata(item),
-      ],
+      metadata: await listCatalogAndEntryMetadata(db),
       normalizedValues: normalizedValues,
     );
   }

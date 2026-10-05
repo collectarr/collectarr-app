@@ -1,9 +1,7 @@
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/core/models/library_entry_ref.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_catalog_item.dart';
-import 'package:collectarr_app/features/library/kinds/comic/domain/comic_ids.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_personal_data.dart';
 import 'package:flutter/foundation.dart';
 
@@ -27,12 +25,6 @@ final class ComicLibraryEntry implements JsonEncodable {
   final CatalogItemRef? sourceCatalogRef;
   final ComicPersonalData personal;
 
-  CatalogItemDto get catalogItem => CatalogItemDto.raw(
-        id: id.value,
-        mediaKind: CatalogMediaKind.comic,
-        kindData: metadata.toJson(),
-        origin: CatalogItemOrigin.privateLocal,
-      );
   final DateTime? createdAt;
   final DateTime updatedAt;
   final DateTime? deletedAt;
@@ -73,7 +65,7 @@ final class ComicLibraryEntry implements JsonEncodable {
       id: id,
       metadata: ComicCatalogItem.fromJson(
         Map<String, dynamic>.from(rawCatalogData),
-      ).copyWith(id: ComicCatalogItemId(id.value)),
+      ),
       personal: ComicPersonalData.fromJson(json),
       sourceCatalogRef: json['source_catalog_ref'] is Map
           ? CatalogItemRef.fromJson(

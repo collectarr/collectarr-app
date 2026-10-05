@@ -1,12 +1,10 @@
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
-import 'package:collectarr_app/features/library/workspace/schema/library_preference_codec.dart';
 
 /// Strongly typed registry owning column, sort, group, and default definitions for [TDto].
 final class LibraryFieldRegistry<TDto extends LibraryWorkspaceDto> {
   LibraryFieldRegistry({
     required this.kindNamespace,
-    required this.entityScope,
     this.fields = const [],
     required this.columns,
     required this.sorts,
@@ -15,13 +13,11 @@ final class LibraryFieldRegistry<TDto extends LibraryWorkspaceDto> {
     required this.defaultVisibleColumns,
     required this.defaultSort,
     this.defaultGroup,
-    required this.preferenceCodec,
   }) {
     _validate();
   }
 
   final String kindNamespace;
-  final LibraryEntityScope entityScope;
   final List<LibraryFieldDefinition<dynamic, TDto, Object?>> fields;
   final List<LibraryColumnDefinition<dynamic, TDto, Object?>> columns;
   final List<LibrarySortDefinition<dynamic, TDto>> sorts;
@@ -31,8 +27,6 @@ final class LibraryFieldRegistry<TDto extends LibraryWorkspaceDto> {
   final Set<LibraryFieldIdRuntime> defaultVisibleColumns;
   final LibrarySortIdRuntime defaultSort;
   final LibraryGroupIdRuntime? defaultGroup;
-
-  final LibraryWorkspacePreferenceCodec<dynamic> preferenceCodec;
 
   /// Returns the registry view exposed to generic workspace code.
   ///
@@ -45,21 +39,19 @@ final class LibraryFieldRegistry<TDto extends LibraryWorkspaceDto> {
       LibraryProjectionContext<LibraryWorkspaceDto> context,
     ) {
       return LibraryProjectionContext<TDto>(
-        source: context.source,
-        node: context.node,
+        item: context.item,
+        personal: context.personal,
         dto: context.dto as TDto,
       );
     }
 
     return LibraryFieldRegistry<LibraryWorkspaceDto>(
       kindNamespace: kindNamespace,
-      entityScope: entityScope,
       fields: [
         for (final field in fields)
           LibraryFieldDefinition<dynamic, LibraryWorkspaceDto, Object?>(
             id: field.id,
             label: field.label,
-            entityScope: field.entityScope,
             origin: field.origin,
             sortable: field.sortable,
             groupable: field.groupable,
@@ -72,7 +64,6 @@ final class LibraryFieldRegistry<TDto extends LibraryWorkspaceDto> {
           LibraryColumnDefinition<dynamic, LibraryWorkspaceDto, Object?>(
             id: column.id,
             label: column.label,
-            entityScope: column.entityScope,
             group: column.group,
             displayName: column.displayName,
             sortable: column.sortable,
@@ -95,7 +86,6 @@ final class LibraryFieldRegistry<TDto extends LibraryWorkspaceDto> {
             label: sort.label,
             group: sort.group,
             defaultAscending: sort.defaultAscending,
-            entityScope: sort.entityScope,
             compare: (left, right) => sort.compare(
               typedContext(left),
               typedContext(right),
@@ -122,7 +112,6 @@ final class LibraryFieldRegistry<TDto extends LibraryWorkspaceDto> {
             drilldownChildId: group.drilldownChildId,
             folderSetLabel: group.folderSetLabel,
             category: group.category,
-            entityScope: group.entityScope,
             bucketValueMutator: group.bucketValueMutator,
             entryBucketValueMutator: group.entryBucketValueMutator,
             getValue: (context) => group.getValue(typedContext(context)),
@@ -132,7 +121,6 @@ final class LibraryFieldRegistry<TDto extends LibraryWorkspaceDto> {
       defaultVisibleColumns: defaultVisibleColumns,
       defaultSort: defaultSort,
       defaultGroup: defaultGroup,
-      preferenceCodec: preferenceCodec,
     );
   }
 
@@ -233,83 +221,28 @@ final class LibraryFieldRegistry<TDto extends LibraryWorkspaceDto> {
     final sortDef = findSortDefinition(sortId);
     if (sortDef == null) return 0;
     final leftContext = LibraryProjectionContext<TDto>(
-      source: left.source,
-      node: left.node,
+      item: left.source.item,
+      personal: left.source.personal,
       dto: left.dto as TDto,
     );
     final rightContext = LibraryProjectionContext<TDto>(
-      source: right.source,
-      node: right.node,
+      item: right.source.item,
+      personal: right.source.personal,
       dto: right.dto as TDto,
     );
     return sortDef.compare(leftContext, rightContext);
   }
 
   LibrarySortIdRuntime decodeSortId(String raw) {
-    final decoded = preferenceCodec.decodeSort(raw, entityScope);
-    final direct =
-        decoded == null ? null : _findSortDefinitionByValue(decoded.value);
-    if (direct != null) return direct.id;
-    final canonical = _findSortDefinitionByValue(raw);
-    if (canonical != null) return canonical.id;
-    final trimmed = raw.trim();
-    final normalized = trimmed.startsWith('sort.')
-        ? trimmed.substring('sort.'.length)
-        : trimmed;
-    final namespaced = _findSortDefinitionByValue('$kindNamespace.$normalized');
-    if (namespaced != null) return namespaced.id;
-    return DynamicLibrarySortId(raw);
+    return _findSortDefinitionByValue(raw)?.id ?? DynamicLibrarySortId(raw);
   }
 
   LibraryGroupIdRuntime decodeGroupId(String raw) {
-    final decoded = preferenceCodec.decodeGroup(raw, entityScope);
-    final canonical =
-        decoded == null ? null : _findGroupDefinitionByValue(decoded.value);
-    if (canonical != null) return canonical.id;
-    final trimmed = raw.trim();
-    final normalized = trimmed.startsWith('group.')
-        ? trimmed.substring('group.'.length)
-        : trimmed;
-    // Prefer the kind-entry definition before collapsing a namespaced
-    // semantic alias to the structural shared ID. A book.location group must
-    // resolve to the Book registry entry, not the generic `location` ID.
-    final direct = _findGroupDefinitionByValue(normalized);
-    if (direct != null) return direct.id;
-    // Older route/query payloads may omit the kind namespace. Resolve that
-    // spelling against the owning registry before treating it as a shared
-    // structural identifier (for example `publisher` -> `book.publisher`).
-    final namespaced =
-        _findGroupDefinitionByValue('$kindNamespace.$normalized');
-    if (namespaced != null) return namespaced.id;
-    final sharedGroup = switch (normalized) {
-      'title' => LibraryStandardGroupIds.title,
-      'location' => LibraryStandardGroupIds.location,
-      'entries' => LibraryStandardGroupIds.entries,
-      _ when normalized == '$kindNamespace.location' =>
-        LibraryStandardGroupIds.location,
-      _ => null,
-    };
-    if (sharedGroup != null) {
-      return sharedGroup;
-    }
-    return DynamicLibraryGroupId(raw);
+    return _findGroupDefinitionByValue(raw)?.id ?? DynamicLibraryGroupId(raw);
   }
 
   LibraryFieldIdRuntime decodeColumnId(String raw) {
-    final decoded = preferenceCodec.decodeColumn(raw, entityScope);
-    final direct =
-        decoded == null ? null : _findColumnDefinitionByValue(decoded.value);
-    if (direct != null) return direct.id;
-    final canonical = _findColumnDefinitionByValue(raw);
-    if (canonical != null) return canonical.id;
-    final trimmed = raw.trim();
-    final normalized = trimmed.startsWith('field.')
-        ? trimmed.substring('field.'.length)
-        : trimmed;
-    final namespaced =
-        _findColumnDefinitionByValue('$kindNamespace.$normalized');
-    if (namespaced != null) return namespaced.id;
-    return DynamicLibraryFieldId(raw);
+    return _findColumnDefinitionByValue(raw)?.id ?? DynamicLibraryFieldId(raw);
   }
 
   Object? getGroupValue(
@@ -319,8 +252,8 @@ final class LibraryFieldRegistry<TDto extends LibraryWorkspaceDto> {
     final groupDef = findGroupDefinition(groupId);
     if (groupDef == null) return null;
     final context = LibraryProjectionContext<TDto>(
-      source: item.source,
-      node: item.node,
+      item: item.source.item,
+      personal: item.source.personal,
       dto: item.dto as TDto,
     );
     return groupDef.getValue(context);
@@ -336,8 +269,8 @@ final class LibraryFieldRegistry<TDto extends LibraryWorkspaceDto> {
       return null;
     }
     final context = LibraryProjectionContext<TDto>(
-      source: item.source,
-      node: item.node,
+      item: item.source.item,
+      personal: item.source.personal,
       dto: item.dto as TDto,
     );
     return sequenceValue(context);
@@ -350,8 +283,8 @@ final class LibraryFieldRegistry<TDto extends LibraryWorkspaceDto> {
     final columnDef = findColumnDefinition(columnId);
     if (columnDef == null) return null;
     final context = LibraryProjectionContext<TDto>(
-      source: item.source,
-      node: item.node,
+      item: item.source.item,
+      personal: item.source.personal,
       dto: item.dto as TDto,
     );
     return columnDef.getValue(context);
@@ -366,13 +299,13 @@ final class LibraryFieldRegistry<TDto extends LibraryWorkspaceDto> {
 
     items.sort((l, r) {
       final leftContext = LibraryProjectionContext<TDto>(
-        source: l.source,
-        node: l.node,
+        item: l.source.item,
+        personal: l.source.personal,
         dto: l.dto as TDto,
       );
       final rightContext = LibraryProjectionContext<TDto>(
-        source: r.source,
-        node: r.node,
+        item: r.source.item,
+        personal: r.source.personal,
         dto: r.dto as TDto,
       );
       final result = sortDef.compare(leftContext, rightContext);
@@ -381,7 +314,7 @@ final class LibraryFieldRegistry<TDto extends LibraryWorkspaceDto> {
       }
       final titleCmp = l.dto.primaryLabel.compareTo(r.dto.primaryLabel);
       if (titleCmp != 0) return titleCmp;
-      return l.node.id.compareTo(r.node.id);
+      return l.target.id.compareTo(r.target.id);
     });
   }
 
@@ -411,24 +344,8 @@ final class LibraryFieldRegistry<TDto extends LibraryWorkspaceDto> {
   }
 
   void _validate() {
-    for (final field in fields) {
-      if (field.entityScope != entityScope) {
-        throw StateError(
-          'Field ${field.id.value} is scoped to '
-          '${field.entityScope.apiValue}, but registered for '
-          '${entityScope.apiValue} in $kindNamespace.',
-        );
-      }
-    }
     final columnIds = <String>{};
     for (final col in columns) {
-      if (col.entityScope != null && col.entityScope != entityScope) {
-        throw StateError(
-          'Column ${col.id.value} is scoped to '
-          '${col.entityScope!.apiValue}, but registered for '
-          '${entityScope.apiValue} in $kindNamespace.',
-        );
-      }
       if (!col.id.value.startsWith('$kindNamespace.')) {
         throw StateError(
             'Column ID ${col.id.value} does not match kind namespace $kindNamespace.');
@@ -441,13 +358,6 @@ final class LibraryFieldRegistry<TDto extends LibraryWorkspaceDto> {
 
     final sortIds = <String>{};
     for (final sort in sorts) {
-      if (sort.entityScope != null && sort.entityScope != entityScope) {
-        throw StateError(
-          'Sort ${sort.id.value} is scoped to '
-          '${sort.entityScope!.apiValue}, but registered for '
-          '${entityScope.apiValue} in $kindNamespace.',
-        );
-      }
       if (!sort.id.value.startsWith('$kindNamespace.')) {
         throw StateError(
             'Sort ID ${sort.id.value} does not match kind namespace $kindNamespace.');
@@ -460,13 +370,6 @@ final class LibraryFieldRegistry<TDto extends LibraryWorkspaceDto> {
 
     final groupIds = <String>{};
     for (final grp in groups) {
-      if (grp.entityScope != null && grp.entityScope != entityScope) {
-        throw StateError(
-          'Group ${grp.id.value} is scoped to '
-          '${grp.entityScope!.apiValue}, but registered for '
-          '${entityScope.apiValue} in $kindNamespace.',
-        );
-      }
       if (!grp.id.value.startsWith('$kindNamespace.')) {
         throw StateError(
             'Group ID ${grp.id.value} does not match kind namespace $kindNamespace.');
@@ -487,7 +390,7 @@ final class LibraryFieldRegistry<TDto extends LibraryWorkspaceDto> {
     if (!columnIds.contains(primaryColumn.value)) {
       throw StateError(
         'Primary column ${primaryColumn.value} is missing from column '
-        'definitions for $kindNamespace/${entityScope.apiValue}.',
+        'definitions for $kindNamespace.',
       );
     }
 

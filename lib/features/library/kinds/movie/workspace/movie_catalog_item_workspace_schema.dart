@@ -1,18 +1,16 @@
 import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_ids.dart';
-import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_preference_codec.dart';
 import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_workspace_dto.dart';
 import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_catalog_identity_workspace_fields.dart';
 import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_catalog_edition_workspace_fields.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
-import 'package:collectarr_app/features/library/workspace/schema/library_entity_workspace_schema.dart';
+import 'package:collectarr_app/features/library/workspace/schema/library_workspace_schema.dart';
 
 /// One field set for a concrete Movie catalog item.
 ///
 /// Identity and edition details are projected together as one Catalog Item.
 final movieCatalogItemWorkspaceSchema =
-    LibraryEntityWorkspaceSchema<MovieKind, MovieWorkspaceDto>(
+    LibraryWorkspaceSchema<MovieKind, MovieWorkspaceDto>(
   kindNamespace: 'movie',
-  entityScope: LibraryEntityScope.catalogItem,
   fields: [
     ...movieCatalogIdentityFieldDefinitions,
     ...movieCatalogEditionFieldDefinitions,
@@ -36,5 +34,4 @@ final movieCatalogItemWorkspaceSchema =
   },
   defaultSort: MovieSortIds.director,
   defaultGroup: MovieGroupIds.director,
-  preferenceCodec: const MoviePreferenceCodec(),
 );

@@ -4,7 +4,7 @@ import 'package:collectarr_app/features/library/config/library_tracking_editor_c
 import 'package:collectarr_app/features/library/details/library_detail_models.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_entry_dispatch.dart';
-import 'package:collectarr_app/features/library/domain/library_entity_scope.dart';
+import 'package:collectarr_app/features/library/domain/library_target_ref.dart';
 import 'package:flutter/material.dart';
 
 typedef LibraryPersonalDetailFieldsBuilder = List<LibraryDetailField> Function({
@@ -16,41 +16,40 @@ typedef LibraryPersonalDetailFieldsBuilder = List<LibraryDetailField> Function({
 });
 
 /// Kind-entry inspector contribution for one structural entity boundary.
-final class LibraryEntityInspectorContributor {
-  const LibraryEntityInspectorContributor({
-    required this.scope,
+final class LibraryTargetInspectorContributor {
+  const LibraryTargetInspectorContributor({
     this.heroBuilder,
     this.sectionsBuilder,
     this.detailPageBuilder,
   });
 
-  final LibraryEntityScope scope;
   final LibraryInspectorHeroBuilder? heroBuilder;
   final LibraryDetailSectionsBuilder? sectionsBuilder;
   final LibraryDetailPageBuilder? detailPageBuilder;
 }
 
-final class LibraryEntityInspectorRegistry {
-  const LibraryEntityInspectorRegistry({
-    this.contributors = const [],
+final class LibraryTargetInspectorRegistry {
+  const LibraryTargetInspectorRegistry({
+    this.catalogItem,
+    this.libraryEntry,
   });
 
-  final List<LibraryEntityInspectorContributor> contributors;
+  final LibraryTargetInspectorContributor? catalogItem;
+  final LibraryTargetInspectorContributor? libraryEntry;
 
-  LibraryEntityInspectorContributor? contributorForScope(
-    LibraryEntityScope scope,
-  ) {
-    for (final contributor in contributors) {
-      if (contributor.scope == scope) return contributor;
-    }
-    return null;
-  }
+  LibraryTargetInspectorContributor? contributorForTarget(
+    LibraryTargetRef target,
+  ) =>
+      switch (target) {
+        CatalogTargetRef() => catalogItem,
+        EntryTargetRef() => libraryEntry,
+      };
 }
 
 /// Encapsulates inspector header, sections, and detail presentation for a media kind.
 class LibraryInspectorCapability {
   const LibraryInspectorCapability({
-    this.entityRegistry = const LibraryEntityInspectorRegistry(),
+    this.entityRegistry = const LibraryTargetInspectorRegistry(),
     this.mediaDetailContributionBuilder,
     this.showsDefaultPersonalSection = true,
     this.supportsLibraryEntryImages = true,
@@ -58,20 +57,20 @@ class LibraryInspectorCapability {
     this.personalDetailFieldsBuilder,
   });
 
-  final LibraryEntityInspectorRegistry entityRegistry;
+  final LibraryTargetInspectorRegistry entityRegistry;
   final LibraryMediaDetailContributionBuilder? mediaDetailContributionBuilder;
   final bool showsDefaultPersonalSection;
   final bool supportsLibraryEntryImages;
   final LibraryTrackingEditorCapability? trackingEditor;
   final LibraryPersonalDetailFieldsBuilder? personalDetailFieldsBuilder;
 
-  LibraryInspectorHeroBuilder? heroBuilderForScope(LibraryEntityScope scope) =>
-      entityRegistry.contributorForScope(scope)?.heroBuilder;
+  LibraryInspectorHeroBuilder? heroBuilderForTarget(LibraryTargetRef target) =>
+      entityRegistry.contributorForTarget(target)?.heroBuilder;
 
-  LibraryDetailPageBuilder? detailPageBuilderForScope(
-    LibraryEntityScope scope,
+  LibraryDetailPageBuilder? detailPageBuilderForTarget(
+    LibraryTargetRef target,
   ) =>
-      entityRegistry.contributorForScope(scope)?.detailPageBuilder;
+      entityRegistry.contributorForTarget(target)?.detailPageBuilder;
 
   List<LibraryDetailField> buildPersonalDetailFields({
     required BuildContext context,
@@ -94,7 +93,7 @@ class LibraryInspectorCapability {
     BuildContext context,
     LibraryInspectorRequest request,
   ) {
-    final scoped = entityRegistry.contributorForScope(request.item.node.scope);
+    final scoped = entityRegistry.contributorForTarget(request.item.target);
     return scoped?.sectionsBuilder?.call(context, request) ?? const [];
   }
 }

@@ -8,9 +8,9 @@ import 'package:collectarr_app/features/library/workspace/entry/library_workspac
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_workspace.dart';
 
 LibraryHierarchyCapability libraryHierarchyForKind(CatalogMediaKind kind) =>
-    collectarrKindHierarchies[kind]!;
+    collectarrKindHierarchies[kind] ?? const LibraryHierarchyCapability();
 
-LibraryEntityVocabulary libraryEntityVocabularyForKind(CatalogMediaKind kind) =>
+LibraryTargetVocabulary libraryEntityVocabularyForKind(CatalogMediaKind kind) =>
     collectarrKindEntityVocabularies[kind]!;
 
 LibraryTrackingTopology libraryTrackingTopologyForKind(CatalogMediaKind kind) =>

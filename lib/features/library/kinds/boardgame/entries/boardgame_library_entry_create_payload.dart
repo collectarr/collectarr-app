@@ -82,6 +82,9 @@ final class BoardgameLibraryEntryCreatePayload
     return BoardGameLibraryEntry(
       id: LibraryEntryId(id),
       metadata: BoardGameMetadata.fromJson(sourceCatalogItem.kindData),
+      sourceCatalogRef: sourceCatalogItem.origin == CatalogItemOrigin.core
+          ? sourceCatalogItem.catalogItemRef
+          : null,
       personal: BoardGamePersonalData(
         isDigital: isDigital ?? existingIsDigital,
         details: details.toDetails(),

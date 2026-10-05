@@ -6,7 +6,6 @@ import 'package:collectarr_app/features/library/kinds/comic/entries/comic_entry_
 export 'package:collectarr_app/features/library/kinds/comic/domain/comic_link.dart';
 export 'package:collectarr_app/features/library/domain/valuation_snapshot.dart';
 export 'package:collectarr_app/features/library/kinds/comic/domain/comic_catalog_item.dart';
-export 'package:collectarr_app/features/library/kinds/comic/domain/comic_ids.dart';
 export 'package:collectarr_app/features/library/kinds/comic/domain/comic_library_entry.dart';
 export 'package:collectarr_app/features/library/kinds/comic/domain/comic_reading_state.dart';
 export 'package:collectarr_app/features/library/kinds/comic/entries/comic_entry_details.dart';
@@ -30,7 +29,7 @@ final class ComicPersonalOverlay {
     this.updatedAt,
   });
 
-  factory ComicPersonalOverlay.fromShelf(LibraryWorkspaceSource source) {
+  factory ComicPersonalOverlay.fromShelf(LibraryWorkspaceContext source) {
     final libraryEntry =
         ComicLibraryEntryProjection.fromDispatch(source.libraryEntryDispatch);
     return ComicPersonalOverlay(

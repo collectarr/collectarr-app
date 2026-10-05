@@ -32,7 +32,7 @@ final class BookTrackingStateCodec
         TrackingStorageRead(
           trackingStorageRowFromColumns(
             id: row.id,
-                        libraryEntryRefKey: row.libraryEntryRefKey,
+            libraryEntryRefKey: row.libraryEntryRefKey,
             sourceType: row.sourceType,
             status: row.status,
             rating: row.rating,
@@ -80,7 +80,7 @@ final class BookTrackingStateCodec
         fromStorageRow(
           trackingStorageRowFromColumns(
             id: row.id,
-                        libraryEntryRefKey: row.libraryEntryRefKey,
+            libraryEntryRefKey: row.libraryEntryRefKey,
             sourceType: row.sourceType,
             status: row.status,
             rating: row.rating,
@@ -113,7 +113,7 @@ final class BookTrackingStateCodec
     return fromStorageRow(
       trackingStorageRowFromColumns(
         id: row.id,
-                libraryEntryRefKey: row.libraryEntryRefKey,
+        libraryEntryRefKey: row.libraryEntryRefKey,
         sourceType: row.sourceType,
         status: row.status,
         rating: row.rating,
@@ -139,7 +139,7 @@ final class BookTrackingStateCodec
     await db.into(db.bookTrackingRows).insertOnConflictUpdate(
           BookTrackingRowsCompanion.insert(
             id: entry.id,
-                        libraryEntryRefKey: entry.libraryEntryRef.key,
+            libraryEntryRefKey: entry.libraryEntryRef.key,
             sourceType: Value(entry.sourceTypeApiValue),
             status: Value(entry.statusStorageValue),
             rating: Value(entry.rating),
@@ -271,7 +271,6 @@ final class BookTrackingStateCodec
       deletedAt: row.deletedAt,
     );
   }
-
 }
 
 int? _int(Object? value) {

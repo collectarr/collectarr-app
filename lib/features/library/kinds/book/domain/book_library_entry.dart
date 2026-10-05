@@ -1,4 +1,3 @@
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/core/models/library_entry_ref.dart';
@@ -24,12 +23,6 @@ final class BookLibraryEntry implements JsonEncodable {
   final CatalogItemRef? sourceCatalogRef;
   final BookPersonalData personal;
 
-  CatalogItemDto get catalogItem => CatalogItemDto.raw(
-        id: id.value,
-        mediaKind: CatalogMediaKind.book,
-        kindData: metadata.toJson(),
-        origin: CatalogItemOrigin.privateLocal,
-      );
   final DateTime? createdAt;
   final DateTime updatedAt;
   final DateTime? deletedAt;

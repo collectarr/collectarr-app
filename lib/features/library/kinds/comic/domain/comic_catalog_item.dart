@@ -1,7 +1,7 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/core/models/partial_date.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_link.dart';
-import 'package:collectarr_app/features/library/kinds/comic/domain/comic_ids.dart';
 import 'package:flutter/foundation.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
 
@@ -395,7 +395,7 @@ class ComicCatalogItem implements JsonEncodable {
 
   final String title;
   final String? displayTitle;
-  final ComicCatalogItemId? id;
+  final CatalogItemRef? id;
   final String? sortTitle;
   final String? seriesTitle;
   final String? seriesId;
@@ -471,7 +471,7 @@ class ComicCatalogItem implements JsonEncodable {
     ];
     final payload = <String, dynamic>{
       'kind': CatalogMediaKind.comic.apiValue,
-      if (id != null) 'id': id!.value,
+      if (id != null) 'id': id!.id,
       'title': title,
       if (displayTitle != null) 'display_title': displayTitle,
       if (sortTitle != null) 'sort_key': sortTitle,
@@ -553,7 +553,7 @@ class ComicCatalogItem implements JsonEncodable {
   }
 
   ComicCatalogItem copyWith({
-    ComicCatalogItemId? id,
+    CatalogItemRef? id,
     String? title,
     String? displayTitle,
     String? sortTitle,
@@ -671,7 +671,10 @@ class ComicCatalogItem implements JsonEncodable {
   factory ComicCatalogItem.fromJson(Map<String, dynamic> json) {
     return ComicCatalogItem(
       id: json['id'] is String && (json['id'] as String).isNotEmpty
-          ? ComicCatalogItemId(json['id'] as String)
+          ? CatalogItemRef(
+              kind: CatalogMediaKind.comic,
+              id: json['id'] as String,
+            )
           : null,
       title: (json['title'] as String?) ?? '',
       displayTitle: json['display_title'] as String?,

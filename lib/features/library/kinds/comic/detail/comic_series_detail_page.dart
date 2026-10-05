@@ -75,7 +75,7 @@ class _ComicSeriesDetailBody extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final entryCatalogRefs =
-        ref.watch(collectionByCatalogRefProvider).keys.toSet();
+        ref.watch(collectionBySourceCatalogRefProvider).keys.toSet();
     bool isEntryId(String? id) =>
         id != null &&
         entryCatalogRefs.any(

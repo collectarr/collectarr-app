@@ -1,12 +1,12 @@
 import 'package:collectarr_app/features/catalog/transport/catalog_import_transport.dart';
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/features/library/kinds/tv/data/tv_library_entry_projection.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/features/collection/csv/collection_csv_kind_profile.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_library_entry.dart';
 import 'package:collectarr_app/features/library/kinds/tv/integrations/collection_csv/tv_collection_csv_import_profile.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
-import 'package:collectarr_app/features/library/kinds/tv/workspace/tv_workspace_catalog_data.dart';
+import 'package:collectarr_app/features/library/kinds/tv/workspace/tv_workspace_data.dart';
 
 /// TV's semantic contribution to the generic collection CSV host.
 ///
@@ -116,10 +116,10 @@ final class TvCollectionCsvProjection
   }
 
   @override
-  List<String> catalogCells(LibraryWorkspaceSource entry) {
-    final catalog = entry.catalogData;
+  List<String> catalogCells(LibraryWorkspaceContext entry) {
+    final catalog = entry.kindPresentationData;
     final metadata =
-        catalog is TvWorkspaceCatalogData ? catalog.metadata : null;
+        catalog is TvWorkspaceData ? catalog.metadata : null;
     return [
       entry.itemId,
       CatalogMediaKind.tv.apiValue,
@@ -136,14 +136,13 @@ final class TvCollectionCsvProjection
           '',
       metadata?.releaseDateParts?.isoString ??
           _formatDate(metadata?.releaseDate ??
-              metadata?.firstAirDate ??
-              entry.catalogData?.releaseDate),
+              metadata?.firstAirDate),
       metadata?.barcode ?? '',
     ];
   }
 
   @override
-  String? entryCollectionValue(LibraryWorkspaceSource entry) {
+  String? entryCollectionValue(LibraryWorkspaceContext entry) {
     final personalState =
         TvLibraryEntryProjection.fromDispatch(entry.libraryEntryDispatch);
     return personalState is TvLibraryEntry
@@ -152,7 +151,7 @@ final class TvCollectionCsvProjection
   }
 
   @override
-  String? entryCondition(LibraryWorkspaceSource entry) {
+  String? entryCondition(LibraryWorkspaceContext entry) {
     final personalState =
         TvLibraryEntryProjection.fromDispatch(entry.libraryEntryDispatch);
     return personalState is TvLibraryEntry
@@ -161,7 +160,7 @@ final class TvCollectionCsvProjection
   }
 
   @override
-  int? entryIndexNumber(LibraryWorkspaceSource entry) {
+  int? entryIndexNumber(LibraryWorkspaceContext entry) {
     final personalState =
         TvLibraryEntryProjection.fromDispatch(entry.libraryEntryDispatch);
     return personalState is TvLibraryEntry
@@ -170,7 +169,7 @@ final class TvCollectionCsvProjection
   }
 
   @override
-  String? entryTags(LibraryWorkspaceSource entry) {
+  String? entryTags(LibraryWorkspaceContext entry) {
     final personalState =
         TvLibraryEntryProjection.fromDispatch(entry.libraryEntryDispatch);
     return personalState is TvLibraryEntry ? personalState.personal.tags : null;
@@ -178,7 +177,7 @@ final class TvCollectionCsvProjection
 
   @override
   List<String> entryCellsBeforeLocation(
-    LibraryWorkspaceSource entry, {
+    LibraryWorkspaceContext entry, {
     required bool clzFriendly,
   }) {
     return const [];
@@ -186,7 +185,7 @@ final class TvCollectionCsvProjection
 
   @override
   List<String> entryCellsAfterIndex(
-    LibraryWorkspaceSource entry, {
+    LibraryWorkspaceContext entry, {
     required bool clzFriendly,
   }) {
     return List<String>.filled(

@@ -78,14 +78,8 @@ mixin TrackingStorageRecordBehavior on PersonalTrackingBase
 
   @override
   Map<String, dynamic> toSyncPayload() {
-    final localEntryRef = libraryEntryRef;
-    if (localEntryRef == null) {
-      throw StateError(
-        'Tracking records must be attached to a local library entry.',
-      );
-    }
     return {
-      'library_entry_ref': localEntryRef.toJson(),
+      'library_entry_ref': libraryEntryRef.toJson(),
       'source_type': trackingSourceApiValue,
       'status': statusStorageValue,
       'rating': rating,

@@ -1,4 +1,3 @@
-import 'package:collectarr_app/core/models/catalog_display_summary.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/kinds/game/domain/game_metadata.dart';
 
@@ -6,7 +5,7 @@ import 'package:collectarr_app/features/library/kinds/game/domain/game_metadata.
 final class GameCatalogFields {
   const GameCatalogFields._(this.summary, this.metadata);
 
-  final CatalogDisplaySummary summary;
+  final CatalogCandidateSummary summary;
   final GameCatalogMetadata? metadata;
 
   String get title => metadata?.title ?? summary.primaryLabel;

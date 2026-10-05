@@ -14,14 +14,12 @@ TransferableField bookTransferField({
   required String? Function(BookLibraryEntry item) read,
   required BookLibraryEntry Function(BookLibraryEntry item, String? value)
       write,
-  LibraryEntityScope scope = LibraryEntityScope.libraryEntry,
 }) {
   return TransferableField.typed<BookLibraryEntry>(
     key: key,
     label: label,
     icon: icon,
     type: type,
-    scope: scope,
     decode: (value) => value as BookLibraryEntry,
     read: read,
     write: write,
@@ -114,7 +112,6 @@ final bookTransferableFields = <TransferableField>[
     label: 'Dust jacket',
     icon: Icons.book_outlined,
     type: TransferableFieldType.boolean,
-    scope: LibraryEntityScope.libraryEntry,
     read: (item) => item.personal.details.dustJacketPresent ? 'true' : null,
     write: (item, value) {
       return item.copyWith(
@@ -131,7 +128,6 @@ final bookTransferableFields = <TransferableField>[
     label: 'Dust jacket condition',
     icon: Icons.grade_outlined,
     type: TransferableFieldType.text,
-    scope: LibraryEntityScope.libraryEntry,
     read: (item) => item.personal.details.dustJacketCondition,
     write: (item, value) {
       return item.copyWith(
@@ -157,13 +153,13 @@ Iterable<String?> bookLinkedMetadataValues(BookCatalogMetadata metadata) => [
       ...metadata.genres,
     ];
 
-BookCatalogMetadata? bookLinkedMetadata(LibraryWorkspaceSource source) {
-  final catalog = source.catalogData;
-  return catalog is BookWorkspaceCatalogData ? catalog.metadata : null;
+BookCatalogMetadata? bookLinkedMetadata(LibraryWorkspaceContext source) {
+  final catalog = source.kindPresentationData;
+  return catalog is BookWorkspaceData ? catalog.metadata : null;
 }
 
 MetadataSearchQuery bookMetadataSearchQuery({
-  required LibraryWorkspaceSource source,
+  required LibraryWorkspaceContext source,
   required String title,
 }) {
   final metadata = bookLinkedMetadata(source);

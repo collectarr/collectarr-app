@@ -53,7 +53,7 @@ Map<String, int> overdueLoanCountsByKind(
   for (final entry in state.entries) {
     final kind = entry.mediaKind.apiValue;
     final libraryEntryRef = entry.libraryEntrySummary?.ref;
-    if (kind == null || kind.isEmpty || libraryEntryRef == null) {
+    if (kind.isEmpty || libraryEntryRef == null) {
       continue;
     }
     if (!overdueLibraryEntryRefs.contains(libraryEntryRef)) {

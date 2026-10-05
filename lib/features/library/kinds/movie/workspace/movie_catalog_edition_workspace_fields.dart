@@ -10,56 +10,48 @@ abstract final class MovieCatalogEditionWorkspaceFields {
     id: MovieFieldIds.publisher,
     label: 'Studio / Publisher',
     getValue: (dto) => dto.publisher,
-    entityScope: LibraryEntityScope.catalogItem,
   );
 
   static final releaseDate = dateField<MovieKind, MovieWorkspaceDto>(
     id: MovieFieldIds.releaseDate,
     label: 'Release Date',
     getValue: (dto) => dto.releaseDate,
-    entityScope: LibraryEntityScope.catalogItem,
   );
 
   static final barcode = textField<MovieKind, MovieWorkspaceDto>(
     id: MovieFieldIds.barcode,
     label: 'UPC / Barcode',
     getValue: (dto) => dto.barcode,
-    entityScope: LibraryEntityScope.catalogItem,
   );
 
   static final format = textField<MovieKind, MovieWorkspaceDto>(
     id: MovieFieldIds.format,
     label: 'Format',
     getValue: (dto) => dto.format,
-    entityScope: LibraryEntityScope.catalogItem,
   );
 
   static final releaseYear = numberField<MovieKind, MovieWorkspaceDto>(
     id: MovieFieldIds.releaseYear,
     label: 'Release Year',
     getValue: (dto) => dto.releaseDate?.year,
-    entityScope: LibraryEntityScope.catalogItem,
   );
 
   static final edition = textField<MovieKind, MovieWorkspaceDto>(
     id: MovieFieldIds.edition,
     label: 'Edition',
     getValue: (dto) => dto.title,
-    entityScope: LibraryEntityScope.catalogItem,
   );
 
   static final audioTracks = textField<MovieKind, MovieWorkspaceDto>(
     id: MovieFieldIds.audioTracks,
     label: 'Audio Tracks',
     getValue: (dto) => dto.metadata.audioTracks,
-    entityScope: LibraryEntityScope.catalogItem,
   );
 
   static final editionReleaseDate = dateField<MovieKind, MovieWorkspaceDto>(
     id: MovieFieldIds.editionReleaseDate,
     label: 'Edition Release Date',
     getValue: (dto) => dto.releaseDate,
-    entityScope: LibraryEntityScope.catalogItem,
   );
 }
 
@@ -110,7 +102,6 @@ final movieCatalogEditionSortDefinitions = [
   LibrarySortDefinition<MovieKind, MovieWorkspaceDto>(
     id: MovieSortIds.releaseTitle,
     label: 'Release title',
-    entityScope: LibraryEntityScope.catalogItem,
     compare: (left, right) => left.dto.title.compareTo(right.dto.title),
   ),
   sortFromField<MovieKind, MovieWorkspaceDto, String>(

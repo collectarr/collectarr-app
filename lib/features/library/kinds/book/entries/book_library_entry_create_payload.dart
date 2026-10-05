@@ -80,6 +80,9 @@ final class BookLibraryEntryCreatePayload implements LibraryEntryCreatePayload {
     return BookLibraryEntry(
       id: LibraryEntryId(id),
       metadata: BookCatalogMetadata.fromJson(sourceCatalogItem.kindData),
+      sourceCatalogRef: sourceCatalogItem.origin == CatalogItemOrigin.core
+          ? sourceCatalogItem.catalogItemRef
+          : null,
       personal: BookPersonalData(
         isDigital: isDigital ?? existingIsDigital,
         details: details.toDetails(),

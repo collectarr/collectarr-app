@@ -4,7 +4,7 @@ import 'package:collectarr_app/features/library/inspector/sections/personal_stat
 import 'package:collectarr_app/features/library/kinds/anime/presentation.dart';
 import 'package:flutter/material.dart';
 
-Widget buildAnimeWorkInspectorHero(
+Widget buildAnimeCatalogItemInspectorHero(
   BuildContext context,
   LibraryInspectorRequest request,
 ) {
@@ -16,7 +16,7 @@ Widget buildAnimeWorkInspectorHero(
   );
 }
 
-Widget buildAnimeReleaseInspectorHero(
+Widget buildAnimeLibraryEntryInspectorHero(
   BuildContext context,
   LibraryInspectorRequest request,
 ) {
@@ -28,33 +28,14 @@ Widget buildAnimeReleaseInspectorHero(
   );
 }
 
-Widget buildAnimeCopyInspectorHero(
-  BuildContext context,
-  LibraryInspectorRequest request,
-) {
-  return LibraryDetailHero(
-    type: request.type,
-    item: request.item,
-    libraryEntry: request.libraryEntry,
-    accent: request.accent,
-  );
-}
-
-List<Widget> buildAnimeWorkInspectorSections(
+List<Widget> buildAnimeCatalogItemInspectorSections(
   BuildContext context,
   LibraryInspectorRequest request,
 ) {
   return _buildAnimeMetadataSections(context, request);
 }
 
-List<Widget> buildAnimeReleaseInspectorSections(
-  BuildContext context,
-  LibraryInspectorRequest request,
-) {
-  return _buildAnimeMetadataSections(context, request);
-}
-
-List<Widget> buildAnimeCopyInspectorSections(
+List<Widget> buildAnimeLibraryEntryInspectorSections(
   BuildContext context,
   LibraryInspectorRequest request,
 ) {

@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:collectarr_app/core/logging/recoverable_error.dart';
 import 'package:collectarr_app/ui/error_card.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/collection/commands/library_entry_commands.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
@@ -17,7 +16,8 @@ import 'package:collectarr_app/features/library/config/library_search_target.dar
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/core/models/item_image.dart';
 import 'package:collectarr_app/core/models/library_entry_projection.dart';
-import 'package:collectarr_app/core/models/smart_list.dart';
+import 'package:collectarr_app/core/models/smart_list_criteria.dart';
+import 'package:collectarr_app/features/library/generic/smart_list.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/library/detail/library_detail_launcher.dart';
 import 'package:collectarr_app/features/library/detail/library_detail_hydration_service.dart';
@@ -60,7 +60,7 @@ import 'package:collectarr_app/features/library/workspace/config/library_column_
 import 'package:collectarr_app/features/library/workspace/chrome/library_workspace_search.dart';
 import 'package:collectarr_app/features/library/workspace/layout/library_alpha_jump_bar.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
+import 'package:collectarr_app/features/library/domain/library_target_ref.dart';
 import 'package:collectarr_app/features/library/workspace/layout/library_layout_snapshot.dart';
 import 'package:collectarr_app/features/library/workspace/layout/library_layout_snapshot_provider.dart';
 import 'package:collectarr_app/features/library/workspace/layout/library_bucket_sidebar.dart';
@@ -144,8 +144,6 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
   final _searchStateKey = const Uuid().v4();
   final _searchController = TextEditingController();
   WidgetRef get _pageRef => ref;
-
-  LibraryEntityScope get activeEntityScope => LibraryEntityScope.catalogItem;
 
   final _detailHydrationInFlight = <String>{};
   final _detailHydrationService = const LibraryDetailHydrationService();
@@ -569,7 +567,7 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
     }
     return projection.filteredItems.any(
       (item) =>
-          _session.selection.value.itemIds.contains(item.node.id) &&
+          _session.selection.value.itemIds.contains(item.target.id) &&
           item.source.libraryEntryRef != null,
     );
   }
@@ -579,7 +577,7 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
       return false;
     }
     return projection.filteredItems.any(
-      (item) => _session.selection.value.itemIds.contains(item.node.id),
+      (item) => _session.selection.value.itemIds.contains(item.target.id),
     );
   }
 
@@ -589,7 +587,7 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
     }
     return projection.filteredItems.any(
       (item) =>
-          _session.selection.value.itemIds.contains(item.node.id) &&
+          _session.selection.value.itemIds.contains(item.target.id) &&
           item.source.libraryEntryRef != null &&
           !_activeLoanLibraryEntryIds.contains(item.source.libraryEntryRef),
     );
@@ -601,7 +599,7 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
     }
     return projection.filteredItems.any(
       (item) =>
-          _session.selection.value.itemIds.contains(item.node.id) &&
+          _session.selection.value.itemIds.contains(item.target.id) &&
           !item.source.isEntry,
     );
   }
@@ -614,7 +612,7 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
     }
     return projection.filteredItems.any(
       (item) =>
-          _session.selection.value.itemIds.contains(item.node.id) &&
+          _session.selection.value.itemIds.contains(item.target.id) &&
           !item.source.isWishlisted,
     );
   }
@@ -625,7 +623,7 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
     }
     return projection.filteredItems.any(
       (item) =>
-          _session.selection.value.itemIds.contains(item.node.id) &&
+          _session.selection.value.itemIds.contains(item.target.id) &&
           (item.source.libraryEntryRef != null ||
               item.source.isWishlisted ||
               item.source.isTracked),
@@ -827,11 +825,11 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
       return;
     }
     final currentIndex = items
-        .indexWhere((item) => item.node.id == _session.selection.selectedId);
+        .indexWhere((item) => item.target.id == _session.selection.selectedId);
     final nextIndex = currentIndex < 0
         ? (delta < 0 ? items.length - 1 : 0)
         : (currentIndex + delta).clamp(0, items.length - 1);
-    _activateItem(items[nextIndex].node.id);
+    _activateItem(items[nextIndex].target.id);
   }
 
   void _handleKeyboardEscape() {
@@ -954,7 +952,8 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
                 entry.libraryEntryRef?.key == itemId || entry.itemId == itemId,
           )
           .firstOrNull;
-      final catalogItemId = selectedEntry?.catalogRef?.id ?? itemId;
+      final catalogItemId = selectedEntry?.sourceCatalogRef?.id;
+      if (catalogItemId == null) return;
       await _detailHydrationService.hydrate(
         api: ref.read(apiClientProvider),
         database: ref.read(localDatabaseProvider),

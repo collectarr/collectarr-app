@@ -112,7 +112,7 @@ abstract final class _LibraryFacetControllerOps {
   ) async {
     final loadKey = facetLoadKey(state, facetId, signature);
     final shelfItems = libraryItemsForShelf(shelf, state.widget.type);
-    final shelfItemIds = {for (final item in shelfItems) item.node.id};
+    final shelfItemIds = {for (final item in shelfItems) item.target.id};
     try {
       final buckets = await const LibraryFacetBucketService()
           .load(
@@ -197,7 +197,7 @@ abstract final class _LibraryFacetControllerOps {
   ) {
     return libraryShelfSignature([
       for (final item in libraryItemsForShelf(shelf, state.widget.type))
-        item.node.id,
+        item.target.id,
     ]);
   }
 }

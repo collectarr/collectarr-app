@@ -90,36 +90,32 @@ final movieKindHierarchy = LibraryHierarchyCapability(
   browserDelegateBuilder: buildMovieBrowserDelegate,
 );
 
-final movieKindEntityVocabulary = const LibraryEntityVocabulary(
-  catalogItem: LibraryEntityLabel(singular: 'Movie', plural: 'Movies'),
-  libraryEntry: LibraryEntityLabel(singular: 'Entry', plural: 'Entries'),
+final movieKindEntityVocabulary = const LibraryTargetVocabulary(
+  catalogItem: LibraryTargetLabel(singular: 'Movie', plural: 'Movies'),
+  libraryEntry: LibraryTargetLabel(singular: 'Entry', plural: 'Entries'),
 );
 
 final movieKindTrackingTopology = const LibraryTrackingTopology(
   sessionLabels: LibraryTrackingSessionLabels.watch,
-  writableTargets: {LibraryTrackingTargetScope.catalogItem},
-  aggregateTargets: {LibraryTrackingTargetScope.catalogItem},
+  writableTargets: {LibraryTrackingTarget.libraryEntry},
+  aggregateTargets: {LibraryTrackingTarget.libraryEntry},
 );
 
-final movieKindActions = const LibraryEntityActionCapability(
-  catalogItem: LibraryEntityActionSet.catalogItem,
-  libraryEntry: LibraryEntityActionSet.libraryEntry,
+final movieKindActions = const LibraryTargetActionCapability(
+  catalogItem: LibraryTargetActionSet.catalogItem,
+  libraryEntry: LibraryTargetActionSet.libraryEntry,
 );
 
 final movieKindInspector = LibraryInspectorCapability(
-  entityRegistry: LibraryEntityInspectorRegistry(
-    contributors: [
-      LibraryEntityInspectorContributor(
-        scope: LibraryEntityScope.catalogItem,
-        heroBuilder: buildMovieInspectorHero,
-        sectionsBuilder: buildMovieInspectorSections,
-      ),
-      LibraryEntityInspectorContributor(
-        scope: LibraryEntityScope.libraryEntry,
-        heroBuilder: buildMovieCopyInspectorHero,
-        sectionsBuilder: buildMovieCopyInspectorSections,
-      ),
-    ],
+  entityRegistry: LibraryTargetInspectorRegistry(
+    catalogItem: LibraryTargetInspectorContributor(
+      heroBuilder: buildMovieInspectorHero,
+      sectionsBuilder: buildMovieInspectorSections,
+    ),
+    libraryEntry: LibraryTargetInspectorContributor(
+      heroBuilder: buildMovieLibraryEntryInspectorHero,
+      sectionsBuilder: buildMovieLibraryEntryInspectorSections,
+    ),
   ),
   showsDefaultPersonalSection: false,
 );

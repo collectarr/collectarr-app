@@ -12,8 +12,7 @@ import 'package:flutter/material.dart';
 import 'package:collectarr_app/features/library/details/library_detail_models.dart';
 import 'package:collectarr_app/features/library/details/library_detail_section.dart';
 import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_workspace_dto.dart';
-import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_workspace_catalog_data.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_workspace_catalog_data.dart';
+import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_workspace_data.dart';
 import 'package:collectarr_app/features/library/kinds/movie/movie_physical_media_formats.dart';
 import 'package:collectarr_app/features/library/widgets/format_badge.dart';
 
@@ -48,10 +47,10 @@ class MovieLibraryMediaPresentationBuilder
 
   @override
   List<LibraryDuplicateCandidate> buildDuplicateCandidates(
-    LibraryWorkspaceSource entry,
+    LibraryWorkspaceContext entry,
   ) {
-    final catalog = entry.catalogData;
-    if (catalog is! MovieWorkspaceCatalogData) return const [];
+    final catalog = entry.kindPresentationData;
+    if (catalog is! MovieWorkspaceData) return const [];
     final metadata = catalog.metadata;
     final identifier = normalizeLibraryDuplicateIdentifier(metadata.barcode);
     if (identifier == null) return const [];
@@ -67,10 +66,10 @@ class MovieLibraryMediaPresentationBuilder
 
   @override
   List<LibraryWorkspaceLinkSummary> buildWorkspaceLinks(
-    LibraryWorkspaceSource entry,
+    LibraryWorkspaceContext entry,
   ) {
-    final catalog = entry.catalogData;
-    if (catalog is! MovieWorkspaceCatalogData) return const [];
+    final catalog = entry.kindPresentationData;
+    if (catalog is! MovieWorkspaceData) return const [];
     return [
       for (final link in catalog.metadata.links)
         if (link.url.trim() case final url when url.isNotEmpty)
@@ -180,8 +179,8 @@ class MovieLibraryMediaPresentationBuilder
     final country = adapter?.country;
     final language = adapter?.language;
 
-    final metadata = item.source.catalogData is MovieWorkspaceCatalogData
-        ? (item.source.catalogData! as MovieWorkspaceCatalogData).metadata
+    final metadata = item.source.kindPresentationData is MovieWorkspaceData
+        ? (item.source.kindPresentationData! as MovieWorkspaceData).metadata
         : null;
     final runtime = metadata?.runtimeMinutes;
     final screenRatio = metadata?.screenRatio?.trim();
@@ -192,7 +191,7 @@ class MovieLibraryMediaPresentationBuilder
       identityFacts: [
         if (includeIdentityFacts) ...[
           LibraryDetailField(label: 'Kind', value: singularLabel),
-          LibraryDetailField(label: 'ID', value: item.node.catalogItemId),
+          LibraryDetailField(label: 'ID', value: item.target.id),
           LibraryDetailField(label: 'Title', value: dto.primaryLabel),
         ],
         if (metadata?.editionTitle != null)
@@ -284,7 +283,7 @@ class MovieLibraryMediaPresentationBuilder
     required Color accent,
     ValueChanged<String>? onFilterByValue,
   }) {
-    final synopsis = libraryWorkspaceCatalogSynopsis(item.source.catalogData);
+    final synopsis = (item.dto as MovieWorkspaceDto).metadata.synopsis;
     if (!showSummary || synopsis == null || synopsis.trim().isEmpty) {
       return const [];
     }

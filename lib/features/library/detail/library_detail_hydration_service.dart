@@ -26,7 +26,7 @@ final class LibraryDetailHydrationService {
             summaryBuilder: summarizeCatalogTransport,
           );
     await CatalogTransportRepository(database)
-        .upsertTransports([candidate.kindCapability.toImportTransport()]);
+        .upsertTransports([candidate.toImportTransport()]);
   }
 
   CatalogSearchCandidate _musicCandidate(Map<String, dynamic> json) {

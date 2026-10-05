@@ -1,4 +1,4 @@
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/features/library/kinds/tv/provider/tv_seasons_provider.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
@@ -13,7 +13,7 @@ class TvUpcomingEpisodesSection extends ConsumerWidget {
     this.maxVisible = 5,
   });
 
-  final CatalogEntityRef seriesRef;
+  final CatalogItemRef seriesRef;
   final Color accent;
   final String title;
   final int maxVisible;

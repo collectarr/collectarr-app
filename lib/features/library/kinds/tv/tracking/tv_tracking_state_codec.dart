@@ -60,7 +60,7 @@ final class TvTrackingStateCodec
         TrackingStorageRead(
           trackingStorageRowFromColumns(
             id: row.id,
-                        libraryEntryRefKey: row.libraryEntryRefKey,
+            libraryEntryRefKey: row.libraryEntryRefKey,
             sourceType: row.sourceType,
             status: row.status,
             rating: row.rating,
@@ -175,7 +175,7 @@ final class TvTrackingStateCodec
     await db.into(db.tvTrackingRows).insertOnConflictUpdate(
           TvTrackingRowsCompanion.insert(
             id: entry.id,
-                        libraryEntryRefKey: entry.libraryEntryRef.key,
+            libraryEntryRefKey: entry.libraryEntryRef.key,
             sourceType: Value(entry.sourceTypeApiValue),
             status: Value(entry.statusStorageValue),
             rating: Value(entry.rating),
@@ -275,7 +275,6 @@ final class TvTrackingStateCodec
       deletedAt: row.deletedAt,
     );
   }
-
 }
 
 Map<String, int> _decodeEpisodeRatings(String? raw) {

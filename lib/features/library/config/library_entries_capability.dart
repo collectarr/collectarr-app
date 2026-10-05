@@ -1,6 +1,6 @@
-import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
+import 'package:collectarr_app/features/library/domain/library_target_ref.dart';
 
-typedef LibraryCopyCreationPolicy = bool Function(LibraryEntityRef node);
+typedef LibraryCopyCreationPolicy = bool Function(LibraryTargetRef target);
 
 /// Kind-entry policy for creating a local library record from a Catalog Item.
 final class LibraryEntryPolicyCapability {
@@ -11,7 +11,7 @@ final class LibraryEntryPolicyCapability {
 
   final LibraryCopyCreationPolicy copyCreationPolicy;
 
-  bool canCreateCopyAt(LibraryEntityRef node) => copyCreationPolicy(node);
+  bool canCreateCopyAt(LibraryTargetRef target) => copyCreationPolicy(target);
 }
 
-bool _allowEverywhere(LibraryEntityRef node) => true;
+bool _allowEverywhere(LibraryTargetRef target) => true;

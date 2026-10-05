@@ -51,6 +51,7 @@ abstract final class LibraryPageShellPresenter {
       content: content,
       bottomBar: LibraryCollectionTabBar(
         mediaKind: state.widget.type.kind.apiValue,
+        target: SmartListCriteriaTarget.catalog,
         activeSmartListId: state._session.preferences.activeSmartListId,
         onSmartListSelected: state._applySmartList,
         onAllSelected: state._clearSmartList,
@@ -83,11 +84,10 @@ abstract final class LibraryPageShellPresenter {
     required List<WishlistItem> allWishlistItems,
   }) {
     final registration = state.widget.type;
-    final activeScope = projection.allItems.isNotEmpty
-        ? projection.allItems.first.node.scope
-        : LibraryEntityScope.catalogItem;
-    final activeFields = libraryKindWorkspaceForKind(registration.kind)
-        .fieldsForScope(activeScope);
+    final workspace = libraryKindWorkspaceForKind(registration.kind);
+    final activeFields = projection.allItems.isNotEmpty
+        ? workspace.fieldsForTarget(projection.allItems.first.target)
+        : workspace.fields;
     final workspaceOverride = state.buildWorkspaceOverride(
       projection,
       viewState,
@@ -97,9 +97,9 @@ abstract final class LibraryPageShellPresenter {
     if (state._session.selection.selectedId != null &&
         projection.filteredItems.isNotEmpty &&
         !projection.filteredItems.any(
-          (item) => item.node.id == state._session.selection.selectedId,
+          (item) => item.target.id == state._session.selection.selectedId,
         )) {
-      final firstVisibleId = projection.filteredItems.first.node.id;
+      final firstVisibleId = projection.filteredItems.first.target.id;
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (!state.mounted ||
             state._session.selection.selectedId == firstVisibleId) {
@@ -117,7 +117,7 @@ abstract final class LibraryPageShellPresenter {
         state._session.selection.selectedId == null &&
         state._session.selection.value.itemIds.isEmpty &&
         projection.filteredItems.isNotEmpty) {
-      final firstVisibleId = projection.filteredItems.first.node.id;
+      final firstVisibleId = projection.filteredItems.first.target.id;
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (!state.mounted ||
             state._session.selection.selectedId != null ||

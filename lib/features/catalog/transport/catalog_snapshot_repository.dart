@@ -1,6 +1,5 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_item_cache_repository.dart';
 import 'package:collectarr_app/features/catalog/catalog_display_summary_repository.dart';
@@ -18,15 +17,15 @@ final class CatalogSnapshotRepository {
 
   final LocalDatabase _db;
 
-  Future<Map<CatalogEntityRef, CatalogItemDto>> findByRefs(
-    Iterable<CatalogEntityRef> refs,
+  Future<Map<CatalogItemRef, CatalogItemDto>> findByRefs(
+    Iterable<CatalogItemRef> refs,
   ) async {
     final wanted = refs.toSet();
     if (wanted.isEmpty) return const {};
-    final result = <CatalogEntityRef, CatalogItemDto>{};
-    final requestedByItem = <CatalogItemRef, List<CatalogEntityRef>>{};
+    final result = <CatalogItemRef, CatalogItemDto>{};
+    final requestedByItem = <CatalogItemRef, List<CatalogItemRef>>{};
     for (final ref in wanted) {
-      final root = ref.rootScope;
+      final root = ref;
       final itemRef = CatalogItemRef(kind: root.kind, id: root.id);
       requestedByItem.putIfAbsent(itemRef, () => []).add(ref);
     }
@@ -35,21 +34,21 @@ final class CatalogSnapshotRepository {
     for (final item in items) {
       final itemRef = CatalogItemRef(kind: item.mediaKind, id: item.id);
       for (final requestedRef
-          in requestedByItem[itemRef] ?? const <CatalogEntityRef>[]) {
+          in requestedByItem[itemRef] ?? const <CatalogItemRef>[]) {
         result[requestedRef] = item;
       }
     }
     return result;
   }
 
-  Future<CatalogItemDto?> findByRef(CatalogEntityRef ref) async {
+  Future<CatalogItemDto?> findByRef(CatalogItemRef ref) async {
     return (await findByRefs([ref]))[ref];
   }
 
   /// Reads a catalog item for a mixed/global host without leaking the
   /// generated Core DTO outside this transport boundary.
-  Future<Map<CatalogEntityRef, CatalogSearchCandidate>> findCandidatesByRefs(
-    Iterable<CatalogEntityRef> refs,
+  Future<Map<CatalogItemRef, CatalogSearchCandidate>> findCandidatesByRefs(
+    Iterable<CatalogItemRef> refs,
   ) async {
     final items = await findByRefs(refs);
     if (items.isEmpty) return const {};
@@ -70,15 +69,15 @@ final class CatalogSnapshotRepository {
   }
 
   Future<CatalogSearchCandidate?> findCandidateByRef(
-    CatalogEntityRef ref,
+    CatalogItemRef ref,
   ) async {
     return (await findCandidatesByRefs([ref]))[ref];
   }
 
   /// Reads complete schema-v1 transport without promoting it to a search
   /// candidate. Generic mutation hosts use this for payload-only edits.
-  Future<Map<CatalogEntityRef, CatalogImportTransport>> findTransportsByRefs(
-    Iterable<CatalogEntityRef> refs,
+  Future<Map<CatalogItemRef, CatalogImportTransport>> findTransportsByRefs(
+    Iterable<CatalogItemRef> refs,
   ) async {
     final items = await findByRefs(refs);
     return items.map(
@@ -87,7 +86,7 @@ final class CatalogSnapshotRepository {
   }
 
   Future<CatalogImportTransport?> findTransportByRef(
-    CatalogEntityRef ref,
+    CatalogItemRef ref,
   ) async {
     final item = await findByRef(ref);
     return item == null ? null : CatalogImportTransport.fromItem(item);

@@ -26,7 +26,7 @@ final class AnimeTrackingUnitCodec implements TrackingUnitStorageCodec {
         fromStorageRow(
           trackingUnitStorageRowFromColumns(
             id: row.id,
-                        trackingEntryId: row.trackingEntryId,
+            trackingEntryId: row.trackingEntryId,
             libraryEntryRefKey: row.libraryEntryRefKey,
             completedAt: row.completedAt,
             updatedAt: row.updatedAt,
@@ -51,7 +51,7 @@ final class AnimeTrackingUnitCodec implements TrackingUnitStorageCodec {
     return fromStorageRow(
       trackingUnitStorageRowFromColumns(
         id: row.id,
-                trackingEntryId: row.trackingEntryId,
+        trackingEntryId: row.trackingEntryId,
         libraryEntryRefKey: row.libraryEntryRefKey,
         completedAt: row.completedAt,
         updatedAt: row.updatedAt,
@@ -88,7 +88,7 @@ final class AnimeTrackingUnitCodec implements TrackingUnitStorageCodec {
       await db.into(db.animeTrackingUnitRows).insertOnConflictUpdate(
             AnimeTrackingUnitRowsCompanion.insert(
               id: unit.id,
-                            trackingEntryId: Value(unit.trackingEntryId),
+              trackingEntryId: Value(unit.trackingEntryId),
               libraryEntryRefKey: unit.libraryEntryRef.key,
               completedAt: unit.completedAt,
               updatedAt: unit.updatedAt,
@@ -133,7 +133,7 @@ final class AnimeTrackingUnitCodec implements TrackingUnitStorageCodec {
         : const _AnimeCoordinates();
     return AnimeTrackingUnit(
       id: row.id,
-            trackingEntryId: row.trackingEntryId,
+      trackingEntryId: row.trackingEntryId,
       libraryEntryRef: row.libraryEntryRef,
       seasonNumber: typedCoordinates.seasonNumber,
       episodeNumber: typedCoordinates.episodeNumber,

@@ -21,7 +21,7 @@ class LibraryPageReportCoordinator {
     if (projection == null || _page.selection.itemIds.isEmpty) return;
     final items = [
       for (final item in projection.filteredItems)
-        if (_page.selection.itemIds.contains(item.node.id)) item,
+        if (_page.selection.itemIds.contains(item.target.id)) item,
     ];
     if (items.isEmpty) return;
     printCollectionReport(

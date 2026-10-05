@@ -12,7 +12,7 @@ final class GameWorkspaceDto implements LibraryWorkspaceDto {
   });
 
   final WorkspaceCommonProjection common;
-  final PersonalCopyProjection personal;
+  final PersonalEntryProjection personal;
   final GameCatalogMetadata metadata;
   final GameValuationSet? valuations;
 

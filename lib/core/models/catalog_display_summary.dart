@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
 
-import 'catalog_entity_ref.dart';
+import 'catalog_item_ref.dart';
 
 /// Minimal catalog projection for mixed-kind/global hosts.
 ///
@@ -16,7 +16,7 @@ final class CatalogDisplaySummary {
     this.imageUrl,
   });
 
-  factory CatalogDisplaySummary.root({
+  factory CatalogDisplaySummary.forCatalogItem({
     required CatalogMediaKind kind,
     required String id,
     required String primaryLabel,
@@ -24,9 +24,8 @@ final class CatalogDisplaySummary {
     String? imageUrl,
   }) {
     return CatalogDisplaySummary(
-      ref: CatalogEntityRef(
+      ref: CatalogItemRef(
         kind: kind,
-        entityType: CatalogEntityTypeId.catalogItem,
         id: id,
       ),
       kind: kind,
@@ -36,7 +35,7 @@ final class CatalogDisplaySummary {
     );
   }
 
-  final CatalogEntityRef ref;
+  final CatalogItemRef ref;
   final CatalogMediaKind kind;
 
   /// UI label supplied by the owning kind; it is not a canonical field.

@@ -9,7 +9,6 @@ import 'package:collectarr_app/core/api/dto/media_catalog.dart';
 import 'package:collectarr_app/core/api/dto/metadata_search_query.dart';
 import 'package:collectarr_app/core/models/library_relation_node.dart';
 import 'package:collectarr_app/core/models/partial_date.dart';
-import 'package:collectarr_app/core/api/generated/collectarr_api.models.dart';
 import 'package:collectarr_app/core/api/generated/collectarr_api.client.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';

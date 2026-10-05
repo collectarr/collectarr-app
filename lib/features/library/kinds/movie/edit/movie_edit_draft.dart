@@ -19,7 +19,7 @@ import 'package:collectarr_app/features/library/kinds/registry/library_entry_dis
 import 'package:collectarr_app/features/library/kinds/movie/domain/movie_library_entry.dart';
 import 'package:collectarr_app/features/library/kinds/movie/entries/movie_entry_details_draft.dart';
 import 'package:collectarr_app/features/library/kinds/movie/entries/movie_library_entry_update_payload.dart';
-import 'package:collectarr_app/features/library/edit/draft/personal_state_draft.dart';
+import 'package:collectarr_app/features/library/edit/draft/library_entry_personal_bindings.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:flutter/material.dart';
 
@@ -87,7 +87,7 @@ class MovieEditDraft
       );
 
   @override
-  void initializePersonalState(PersonalStateDraft personal) {
+  void initializePersonalState(LibraryEntryPersonalBindings personal) {
     final item = libraryEntry;
     if (item == null) return;
     personal.ownerLabelController.text = item.personal.ownerLabel ?? '';
@@ -120,7 +120,7 @@ class MovieEditDraft
   @override
   MovieLibraryEntryUpdatePayload buildEntryUpdatePayload({
     required LibraryEntryRef libraryEntryRef,
-    required PersonalStateDraft personal,
+    required LibraryEntryPersonalBindings personal,
   }) {
     return MovieLibraryEntryUpdatePayload(
       isDigital: const Patch.unchanged(),
@@ -285,6 +285,7 @@ class MovieEditDraft
       kindItem: selection.kindItem.kindCapability.mapTransport(
         (transport) => CatalogSearchCandidate.fromItem(
           transport.replacingKindData(updatedMeta),
+          basedOn: selection.kindItem,
         ),
       ),
     );

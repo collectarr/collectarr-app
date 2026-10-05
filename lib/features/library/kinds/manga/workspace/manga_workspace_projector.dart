@@ -1,61 +1,54 @@
 import 'package:collectarr_app/features/library/kinds/manga/data/manga_library_entry_projection.dart';
-import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/kinds/manga/domain/manga_library_entry.dart';
 import 'package:collectarr_app/features/library/kinds/manga/domain/manga_metadata.dart';
-import 'package:collectarr_app/features/library/kinds/manga/workspace/manga_workspace_catalog_data.dart';
+import 'package:collectarr_app/features/library/kinds/manga/workspace/manga_workspace_data.dart';
 import 'package:collectarr_app/features/library/kinds/manga/workspace/manga_workspace_dto.dart';
-import 'package:collectarr_app/features/library/workspace/config/library_entity_workspace_projector.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_target_workspace_projector.dart';
+import 'package:collectarr_app/features/library/workspace/entry/personal_overlay.dart';
+import 'package:collectarr_app/features/library/workspace/entry/workspace_item.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 
 final class MangaWorkspaceProjector
-    implements LibraryEntityWorkspaceProjector<MangaWorkspaceDto> {
-  const MangaWorkspaceProjector({this.expectedScope});
-
-  final LibraryEntityScope? expectedScope;
+    implements LibraryTargetWorkspaceProjector<MangaWorkspaceDto> {
+  const MangaWorkspaceProjector();
 
   @override
   MangaWorkspaceDto project({
-    required LibraryWorkspaceSource source,
-    required LibraryEntityRef entity,
+    required WorkspaceItem item,
+    required PersonalOverlay personal,
   }) {
-    requireEntityBelongsToSource(source, entity);
-    requireEntityScope(entity, expectedScope ?? entity.scope);
-    final catalog = _catalogFor(source);
+    final catalog = _catalogFor(item);
     final metadata = catalog.metadata;
     final entry =
-        MangaLibraryEntryProjection.fromDispatch(source.libraryEntryDispatch);
+        MangaLibraryEntryProjection.fromDispatch(item.libraryEntryDispatch);
     final entryDetails =
         entry is MangaLibraryEntry ? entry.personal.details : null;
 
     return MangaWorkspaceDto(
-      common: _mangaCommonProjection(source, entity, metadata),
-      personal: PersonalCopyProjection.fromShelf(
-        source,
-      ),
+      common: _mangaCommonProjection(item, metadata),
+      personal: PersonalEntryProjection.fromShelf(item, personal),
       metadata: metadata,
       entryDetails: entryDetails,
     );
   }
 }
 
-MangaWorkspaceCatalogData _catalogFor(LibraryWorkspaceSource source) {
-  final data = source.catalogData;
-  if (data case final MangaWorkspaceCatalogData catalog) return catalog;
-  throw StateError('Expected MangaWorkspaceCatalogData for manga workspace');
+MangaWorkspaceData _catalogFor(WorkspaceItem item) {
+  final data = item.kindPresentationData;
+  if (data case final MangaWorkspaceData catalog) return catalog;
+  throw StateError('Expected MangaWorkspaceData for manga workspace');
 }
 
 WorkspaceCommonProjection _mangaCommonProjection(
-  LibraryWorkspaceSource source,
-  LibraryEntityRef node,
+  WorkspaceItem item,
   MangaMetadata? metadata,
 ) {
-  return WorkspaceCommonProjection.fromStructuralShelf(
-    source,
-    node,
-    overrideTitle: metadata?.title,
-    overrideReleaseDate:
+  return WorkspaceCommonProjection.fromKindPresentation(
+    item,
+    title: metadata?.title ?? item.title,
+    synopsis: metadata?.synopsis ?? metadata?.description,
+    releaseDate:
         metadata?.localizedReleaseDate ?? metadata?.originalPublicationDate,
-    overrideCoverImageUrl: metadata?.coverImageUrl,
+    coverImageUrl: metadata?.coverImageUrl,
   );
 }

@@ -80,6 +80,9 @@ final class TvLibraryEntryCreatePayload implements LibraryEntryCreatePayload {
     return TvLibraryEntry(
       id: LibraryEntryId(id),
       metadata: TvMetadata.fromJson(sourceCatalogItem.kindData),
+      sourceCatalogRef: sourceCatalogItem.origin == CatalogItemOrigin.core
+          ? sourceCatalogItem.catalogItemRef
+          : null,
       personal: TvPersonalData(
         isDigital: isDigital ?? existingIsDigital,
         details: details.toDetails(),

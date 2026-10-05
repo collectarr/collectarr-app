@@ -18,7 +18,7 @@ import 'package:collectarr_app/features/library/kinds/anime/domain/anime_library
 import 'package:collectarr_app/features/library/kinds/anime/tracking/anime_tracking_state.dart';
 import 'package:collectarr_app/features/library/kinds/anime/entries/anime_entry_details_draft.dart';
 import 'package:collectarr_app/features/library/kinds/anime/entries/anime_library_entry_update_payload.dart';
-import 'package:collectarr_app/features/library/edit/draft/personal_state_draft.dart';
+import 'package:collectarr_app/features/library/edit/draft/library_entry_personal_bindings.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:flutter/material.dart';
 
@@ -94,7 +94,7 @@ class AnimeEditDraft
       );
 
   @override
-  void initializePersonalState(PersonalStateDraft personal) {
+  void initializePersonalState(LibraryEntryPersonalBindings personal) {
     final item = libraryEntry;
     if (item == null) return;
     personal.ownerLabelController.text = item.personal.ownerLabel ?? '';
@@ -127,7 +127,7 @@ class AnimeEditDraft
   @override
   AnimeLibraryEntryUpdatePayload buildEntryUpdatePayload({
     required LibraryEntryRef libraryEntryRef,
-    required PersonalStateDraft personal,
+    required LibraryEntryPersonalBindings personal,
   }) {
     return AnimeLibraryEntryUpdatePayload(
       isDigital: const Patch.unchanged(),
@@ -188,67 +188,69 @@ class AnimeEditDraft
     final characters = metadata.characters;
     return selection.copyWith(
       kindItem: CatalogSearchCandidate.fromItem(
-          selection.kindItem.kindCapability.mapTransport((transport) {
-        final edited = metadata.copyWith(
-          title: catalogTitle.trim(),
-          physicalFormat: physicalFormatId,
-          creators: animeEdit.buildUpdatedCreators(),
-          characters: characters,
-          links: animeEdit.buildUpdatedTrailerUrls(
-            metadata.links,
-            preserveManualLinks: libraryEntry == null,
-          ),
-        );
-        final updated = AnimeMetadata.fromJson(applyJsonFieldPatch(edited, {
-          'display_title': metadata.displayTitle,
-          'original_title': metadata.originalTitle,
-          'localized_title': metadata.localizedTitle,
-          'search_aliases': aliases,
-          'synopsis': metadata.synopsis,
-          'cover_image_url': metadata.coverImageUrl,
-          'thumbnail_image_url': metadata.thumbnailImageUrl,
-          'sort_key': metadata.sortKey,
-          'episode_runtime_minutes': metadata.episodeRuntimeMinutes,
-          'genres': metadata.genres,
-          'themes': metadata.themes,
-          'format': metadata.format.name,
-          'season': metadata.season?.name,
-          'source_material': metadata.sourceMaterial.name,
-          'airing_status': metadata.airingStatus.name,
-          'season_year': metadata.seasonYear,
-          'episode_count': metadata.episodeCount,
-          'start_date': metadata.startDate?.toIso8601String(),
-          'end_date': metadata.endDate?.toIso8601String(),
-          'studios': metadata.studios,
-          'producers': metadata.producers,
-          'licensors': metadata.licensors,
-          'country': metadata.country,
-          'language': metadata.language,
-          'alternate_titles': metadata.alternateTitles,
-          'native_title': metadata.nativeTitle,
-          'romaji_title': metadata.romajiTitle,
-          'english_title': metadata.englishTitle,
-          'characters':
-              characters.map((character) => character.toJsonValue()).toList(),
-          'edition_title': metadata.editionTitle,
-          'variant_name': metadata.variant,
-          'barcode': metadata.barcode,
-          'physical_format': physicalFormatId,
-          'physical_format_label': metadata.physicalFormatLabel,
-          'publisher': metadata.publisher,
-          'release_date_parts': metadata.releaseDateParts?.toJson(),
-          'release_year': metadata.releaseYear,
-          'age_rating': metadata.ageRating,
-          'audience_rating': metadata.audienceRating,
-          'audio_tracks': metadata.audioTracks,
-          'subtitles': metadata.subtitles,
-          'screen_ratio': metadata.screenRatio,
-          'layers': metadata.layers,
-          'color': metadata.color,
-          'nr_discs': metadata.nrDiscs,
-        }));
-        return transport.replacingKindData(updated);
-      })),
+        selection.kindItem.kindCapability.mapTransport((transport) {
+          final edited = metadata.copyWith(
+            title: catalogTitle.trim(),
+            physicalFormat: physicalFormatId,
+            creators: animeEdit.buildUpdatedCreators(),
+            characters: characters,
+            links: animeEdit.buildUpdatedTrailerUrls(
+              metadata.links,
+              preserveManualLinks: libraryEntry == null,
+            ),
+          );
+          final updated = AnimeMetadata.fromJson(applyJsonFieldPatch(edited, {
+            'display_title': metadata.displayTitle,
+            'original_title': metadata.originalTitle,
+            'localized_title': metadata.localizedTitle,
+            'search_aliases': aliases,
+            'synopsis': metadata.synopsis,
+            'cover_image_url': metadata.coverImageUrl,
+            'thumbnail_image_url': metadata.thumbnailImageUrl,
+            'sort_key': metadata.sortKey,
+            'episode_runtime_minutes': metadata.episodeRuntimeMinutes,
+            'genres': metadata.genres,
+            'themes': metadata.themes,
+            'format': metadata.format.name,
+            'season': metadata.season?.name,
+            'source_material': metadata.sourceMaterial.name,
+            'airing_status': metadata.airingStatus.name,
+            'season_year': metadata.seasonYear,
+            'episode_count': metadata.episodeCount,
+            'start_date': metadata.startDate?.toIso8601String(),
+            'end_date': metadata.endDate?.toIso8601String(),
+            'studios': metadata.studios,
+            'producers': metadata.producers,
+            'licensors': metadata.licensors,
+            'country': metadata.country,
+            'language': metadata.language,
+            'alternate_titles': metadata.alternateTitles,
+            'native_title': metadata.nativeTitle,
+            'romaji_title': metadata.romajiTitle,
+            'english_title': metadata.englishTitle,
+            'characters':
+                characters.map((character) => character.toJsonValue()).toList(),
+            'edition_title': metadata.editionTitle,
+            'variant_name': metadata.variant,
+            'barcode': metadata.barcode,
+            'physical_format': physicalFormatId,
+            'physical_format_label': metadata.physicalFormatLabel,
+            'publisher': metadata.publisher,
+            'release_date_parts': metadata.releaseDateParts?.toJson(),
+            'release_year': metadata.releaseYear,
+            'age_rating': metadata.ageRating,
+            'audience_rating': metadata.audienceRating,
+            'audio_tracks': metadata.audioTracks,
+            'subtitles': metadata.subtitles,
+            'screen_ratio': metadata.screenRatio,
+            'layers': metadata.layers,
+            'color': metadata.color,
+            'nr_discs': metadata.nrDiscs,
+          }));
+          return transport.replacingKindData(updated);
+        }),
+        basedOn: selection.kindItem,
+      ),
     );
   }
 

@@ -15,7 +15,7 @@ extension _PageKindHooks on GenericLibraryPageState {
   List<String> get _scopeAvailableGroupModes {
     return [
       for (final groupId in libraryKindWorkspaceForKind(widget.type.kind)
-          .availableGroupIdsForScope(LibraryEntityScope.catalogItem))
+          .availableGroupIds)
         groupId.value,
     ];
   }
@@ -23,7 +23,7 @@ extension _PageKindHooks on GenericLibraryPageState {
   List<String> get _scopeAvailableSortColumns {
     return [
       for (final sortId in libraryKindWorkspaceForKind(widget.type.kind)
-          .availableSortIdsForScope(LibraryEntityScope.catalogItem))
+          .fields.sorts.map((definition) => definition.id))
         sortId.value,
     ];
   }

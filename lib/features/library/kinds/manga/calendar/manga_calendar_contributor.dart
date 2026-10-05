@@ -1,8 +1,7 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/calendar_event.dart';
-import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/features/library/config/library_calendar_contributor.dart';
-import 'package:collectarr_app/features/catalog/transport/catalog_item_cache_repository.dart';
+import 'package:collectarr_app/features/library/entries/library_entry_store.dart';
 import 'package:collectarr_app/features/library/kinds/manga/domain/manga_metadata.dart';
 
 /// Manga owns the mapping from catalog publication metadata to calendar time.
@@ -22,10 +21,16 @@ final class MangaCalendarContributor implements LibraryCalendarContributor {
     for (final ref in context.libraryEntryRefs) {
       if (ref.kind != kind) continue;
       final id = ref.id.value;
-      final item =
-          loadItem != null ? await loadItem!(id) : await _loadItem(context, id);
-      if (item == null) continue;
-      final metadata = MangaMetadata.fromJson(item.kindData);
+      final Map<String, dynamic>? catalogData;
+      if (loadItem case final loader?) {
+        final item = await loader(id);
+        if (item == null) continue;
+        catalogData = item.kindData;
+      } else {
+        catalogData = await _loadCatalogData(context, id);
+      }
+      if (catalogData == null) continue;
+      final metadata = MangaMetadata.fromJson(catalogData);
       final date = metadata.releaseDate?.asDateTime ??
           metadata.originalPublicationDate ??
           metadata.localizedReleaseDate;
@@ -34,14 +39,14 @@ final class MangaCalendarContributor implements LibraryCalendarContributor {
         kind: CalendarEventKind.releaseDate,
         date: DateTime.utc(date.year, date.month, date.day),
         title: metadata.title,
-        eventId: 'manga-item:${item.id}',
+        eventId: 'manga-entry:$id',
         libraryEntryRef: ref,
       ));
     }
     return events;
   }
 
-  Future<CatalogItemDto?> _loadItem(
+  Future<Map<String, dynamic>?> _loadCatalogData(
     LibraryCalendarContext context,
     String id,
   ) {
@@ -49,9 +54,8 @@ final class MangaCalendarContributor implements LibraryCalendarContributor {
     if (database == null) {
       throw StateError('Manga calendar contribution requires a database');
     }
-    return CatalogItemCacheRepository(database).find(
-      CatalogItemRef(kind: kind, id: id),
-    );
+    return LibraryEntryStore(database)
+        .find(kind, id)
+        .then((entry) => entry?.catalogData);
   }
-
 }

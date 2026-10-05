@@ -19,14 +19,14 @@ class LibraryDuplicateGroup {
   final String label;
   final String reason;
   final int confidenceScore;
-  final List<LibraryWorkspaceSource> entries;
-  final Map<LibraryWorkspaceSource, String> entryLabels;
+  final List<LibraryWorkspaceContext> entries;
+  final Map<LibraryWorkspaceContext, String> entryLabels;
 
   int get count => entries.length;
 }
 
 List<LibraryDuplicateGroup> findDuplicateShelfGroups(
-  List<LibraryWorkspaceSource> entries,
+  List<LibraryWorkspaceContext> entries,
 ) {
   final candidatesByKey = <String, List<_CandidateEntry>>{};
   for (final entry in entries) {
@@ -42,7 +42,7 @@ List<LibraryDuplicateGroup> findDuplicateShelfGroups(
   }
 
   final buckets = <String, _DuplicateBucket>{};
-  final occupiedByStrongerMatch = <LibraryWorkspaceSource>{};
+  final occupiedByStrongerMatch = <LibraryWorkspaceContext>{};
   final orderedCandidates = candidatesByKey.values.toList()
     ..sort((left, right) =>
         _candidateScore(right).compareTo(_candidateScore(left)));
@@ -292,7 +292,7 @@ class _DuplicateInfoChip extends StatelessWidget {
 class _DuplicateEntryRow extends StatelessWidget {
   const _DuplicateEntryRow({required this.entry, required this.label});
 
-  final LibraryWorkspaceSource entry;
+  final LibraryWorkspaceContext entry;
   final String label;
 
   @override
@@ -368,15 +368,15 @@ class _DuplicateBucket {
   final String label;
   final String reason;
   int confidenceScore;
-  final List<LibraryWorkspaceSource> entries = [];
-  final Map<LibraryWorkspaceSource, String> entryLabels = {};
+  final List<LibraryWorkspaceContext> entries = [];
+  final Map<LibraryWorkspaceContext, String> entryLabels = {};
 }
 
 final class _CandidateEntry {
   const _CandidateEntry(this.candidate, this.entry);
 
   final LibraryDuplicateCandidate candidate;
-  final LibraryWorkspaceSource entry;
+  final LibraryWorkspaceContext entry;
 }
 
 int _candidateScore(List<_CandidateEntry> candidates) {
@@ -390,7 +390,7 @@ int _candidateScore(List<_CandidateEntry> candidates) {
 void _addToBucket(
   Map<String, _DuplicateBucket> buckets, {
   required LibraryDuplicateCandidate candidate,
-  required LibraryWorkspaceSource entry,
+  required LibraryWorkspaceContext entry,
 }) {
   final bucket = buckets.putIfAbsent(
     candidate.key,
@@ -437,8 +437,8 @@ int _duplicateConfidenceScore(_DuplicateBucket bucket) {
   return score.clamp(0, 99);
 }
 
-List<LibraryWorkspaceSource> _sortedEntries(
-    List<LibraryWorkspaceSource> entries) {
+List<LibraryWorkspaceContext> _sortedEntries(
+    List<LibraryWorkspaceContext> entries) {
   return entries.toList(growable: false)
     ..sort((a, b) {
       final title = a.title.toLowerCase().compareTo(b.title.toLowerCase());
@@ -449,7 +449,7 @@ List<LibraryWorkspaceSource> _sortedEntries(
     });
 }
 
-String _entrySubtitle(LibraryWorkspaceSource entry) {
+String _entrySubtitle(LibraryWorkspaceContext entry) {
   final pieces = <String>[
     if (entry.isEntry) 'Entry',
     if (entry.isWishlisted) 'Wishlist',

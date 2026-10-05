@@ -96,7 +96,7 @@ void main() {
         listenedAt: DateTime.utc(2026, 2, 5),
       ),
     ];
-    final summary = MusicCatalogItemListeningSummary.fromEvents(
+    final summary = MusicEntryListeningSummary.fromEvents(
       catalogItemId: catalog.music.id.value,
       events: events,
     );

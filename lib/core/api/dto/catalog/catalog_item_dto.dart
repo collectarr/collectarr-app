@@ -1,8 +1,6 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_envelope_dto.dart';
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
-import 'package:collectarr_app/features/library/models/library_item_identity.dart';
 import 'package:flutter/foundation.dart';
 
 export 'package:collectarr_app/core/api/dto/catalog/catalog_item_envelope_dto.dart';
@@ -17,13 +15,13 @@ enum CatalogItemOrigin {
 @immutable
 final class CatalogItemDto {
   factory CatalogItemDto({
-    required LibraryItemIdentity identity,
+    required CatalogItemRef ref,
     required JsonEncodable kindData,
     CatalogItemOrigin origin = CatalogItemOrigin.core,
   }) =>
       CatalogItemDto.raw(
-        id: identity.id,
-        mediaKind: identity.mediaKind,
+        id: ref.id,
+        mediaKind: ref.kind,
         kindData: kindData.toJson(),
         origin: origin,
       );
@@ -71,18 +69,9 @@ final class CatalogItemDto {
         'kind': mediaKind.apiValue,
       };
 
-  LibraryItemIdentity get identity =>
-      LibraryItemIdentity(id: id, mediaKind: mediaKind);
-
   String get kind => mediaKind.apiValue;
 
   CatalogItemRef get catalogItemRef => CatalogItemRef(kind: mediaKind, id: id);
-
-  CatalogEntityRef get catalogRef => CatalogEntityRef(
-        kind: mediaKind,
-        entityType: CatalogEntityTypeId.catalogItem,
-        id: id,
-      );
 
   factory CatalogItemDto.fromEnvelope(CatalogItemEnvelopeDto envelope) {
     return CatalogItemDto.raw(

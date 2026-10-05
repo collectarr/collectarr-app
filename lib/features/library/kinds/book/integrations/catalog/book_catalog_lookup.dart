@@ -46,7 +46,8 @@ final class BookCatalogLookup implements CatalogKindLookup {
         ? null
         : normalizeCatalogLookupValue(rawIdentifier);
     for (final item in await _items()) {
-      if (normalizeCatalogLookupTitle(_metadata(item).title) != normalizedTitle) {
+      if (normalizeCatalogLookupTitle(_metadata(item).title) !=
+          normalizedTitle) {
         continue;
       }
       if (normalizedIdentifier != null &&
@@ -92,8 +93,7 @@ final class BookCatalogLookup implements CatalogKindLookup {
   }
 
   String? _firstIdentifier(CatalogItemDto item) =>
-      _metadata(item).itemNumber ??
-      _identifierValues(item).firstOrNull;
+      _metadata(item).itemNumber ?? _identifierValues(item).firstOrNull;
 
   BookCatalogMetadata _metadata(CatalogItemDto item) =>
       BookCatalogMetadata.fromJson(item.kindData);

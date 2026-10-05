@@ -11,7 +11,7 @@ import 'package:collectarr_app/features/pick_lists/pick_list_definition_contribu
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_pick_list_contributors.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_serial_authority_contributors.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_catalog_item.dart';
-import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_catalog_data.dart';
+import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_data.dart';
 
 final class ComicCatalogTransportCodec
     implements CatalogKindTransportCodec<ComicCatalogItem> {
@@ -25,13 +25,23 @@ final class ComicCatalogTransportCodec
       ComicCatalogItem.fromJson(catalogTransportPayloadFor(item));
 
   @override
+  ComicCatalogItem decodeKindData(Map<String, dynamic> kindData) =>
+      ComicCatalogItem.fromJson(kindData);
+
+  @override
   CatalogDisplaySummary summarize(
           String catalogItemId, ComicCatalogItem item) =>
       _comicSummary(catalogItemId, item);
 
   @override
-  ComicWorkspaceCatalogData workspaceData(CatalogItemDto item) =>
-      ComicWorkspaceCatalogData.fromTransport(item);
+  ComicWorkspaceData workspaceData(CatalogItemDto item) =>
+      ComicWorkspaceData(comic: decode(item));
+
+  @override
+  ComicWorkspaceData workspaceDataFromKindData(
+    Map<String, dynamic> kindData,
+  ) =>
+      ComicWorkspaceData(comic: ComicCatalogItem.fromJson(kindData));
 
   @override
   Future<Map<String, int>> countCatalogValues(
@@ -45,9 +55,7 @@ final class ComicCatalogTransportCodec
     return countPickListCatalogValuesByValue(
       contributor: contributor,
       listName: listName,
-      metadata: [
-        for (final item in await listTransport(db)) decode(item),
-      ],
+      metadata: await listCatalogAndEntryMetadata(db),
       normalizedValues: normalizedValues,
     );
   }
@@ -120,7 +128,7 @@ int? _replacementValueFromPayload(CatalogItemDto item) {
 CatalogDisplaySummary _comicSummary(
     String catalogItemId, ComicCatalogItem item) {
   final issue = item.issueNumber?.trim();
-  return CatalogDisplaySummary.root(
+  return CatalogDisplaySummary.forCatalogItem(
     kind: CatalogMediaKind.comic,
     id: catalogItemId,
     primaryLabel:

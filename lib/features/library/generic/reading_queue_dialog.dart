@@ -1,12 +1,12 @@
 import 'dart:async';
 
 import 'package:collectarr_app/core/db/local_database.dart';
-import 'package:collectarr_app/core/models/catalog_display_summary.dart';
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/library_entry_projection.dart';
+import 'package:collectarr_app/core/models/library_entry_ref.dart';
 import 'package:collectarr_app/core/models/tracking_summary.dart';
 import 'package:collectarr_app/features/collection/repositories/reading_queue_repository.dart';
 import 'package:collectarr_app/features/library/entries/library_entries_repository.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_workspace_kind_data.dart';
 import 'package:collectarr_app/features/library/ui/library_dialog_scaffold.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
@@ -17,7 +17,8 @@ Future<void> showReadingQueueDialog({
   required String mediaKind,
   required Iterable<LibraryEntrySummary> libraryEntries,
   Iterable<TrackingSummary> trackingSummaries = const [],
-  required Map<CatalogEntityRef, CatalogDisplaySummary> catalogSummariesByRef,
+  required Map<LibraryEntryRef, LibraryWorkspaceKindData>
+      kindPresentationByEntryRef,
   ValueChanged<String>? onSelectItem,
 }) {
   return showDialog<void>(
@@ -27,7 +28,7 @@ Future<void> showReadingQueueDialog({
       mediaKind: mediaKind,
       libraryEntries: libraryEntries.toList(growable: false),
       trackingSummaries: trackingSummaries.toList(growable: false),
-      catalogSummariesByRef: catalogSummariesByRef,
+      kindPresentationByEntryRef: kindPresentationByEntryRef,
       onSelectItem: onSelectItem,
     ),
   );
@@ -39,7 +40,7 @@ class _ReadingQueueDialog extends StatefulWidget {
     required this.mediaKind,
     required this.libraryEntries,
     required this.trackingSummaries,
-    required this.catalogSummariesByRef,
+    required this.kindPresentationByEntryRef,
     this.onSelectItem,
   });
 
@@ -47,7 +48,7 @@ class _ReadingQueueDialog extends StatefulWidget {
   final String mediaKind;
   final List<LibraryEntrySummary> libraryEntries;
   final List<TrackingSummary> trackingSummaries;
-  final Map<CatalogEntityRef, CatalogDisplaySummary> catalogSummariesByRef;
+  final Map<LibraryEntryRef, LibraryWorkspaceKindData> kindPresentationByEntryRef;
   final ValueChanged<String>? onSelectItem;
 
   @override
@@ -87,19 +88,14 @@ class _ReadingQueueDialogState extends State<_ReadingQueueDialog> {
       if (summary == null) {
         continue;
       }
-      final catalogRef = summary.ref.localCatalogItemRef;
-      if (catalogRef == null) {
-        continue;
-      }
-      final catalogSummary = widget.catalogSummariesByRef[catalogRef];
-      if (catalogSummary == null ||
-          catalogSummary.kind.apiValue != widget.mediaKind) {
+      final kindPresentation = widget.kindPresentationByEntryRef[summary.ref];
+      if (kindPresentation == null || kindPresentation.kind.apiValue != widget.mediaKind) {
         continue;
       }
       entries.add(
         _ReadingQueueDialogEntry(
           summary: summary,
-          catalogSummary: catalogSummary,
+          kindPresentation: kindPresentation,
           trackingSummary: trackingByLibraryEntryRef[summary.ref],
         ),
       );
@@ -170,7 +166,7 @@ class _ReadingQueueDialogState extends State<_ReadingQueueDialog> {
 
   void _openItem(_ReadingQueueDialogEntry entry) {
     Navigator.of(context).pop();
-    widget.onSelectItem?.call(entry.catalogSummary.id);
+    widget.onSelectItem?.call(entry.summary.ref.id.value);
   }
 
   List<_ReadingQueueDialogEntry> get _filteredEntries {
@@ -353,15 +349,15 @@ class _ReadingQueueDialogState extends State<_ReadingQueueDialog> {
 class _ReadingQueueDialogEntry {
   const _ReadingQueueDialogEntry({
     required this.summary,
-    required this.catalogSummary,
+    required this.kindPresentation,
     this.trackingSummary,
   });
 
   final LibraryEntrySummary summary;
-  final CatalogDisplaySummary catalogSummary;
+  final LibraryWorkspaceKindData kindPresentation;
   final TrackingSummary? trackingSummary;
 
   String get label {
-    return catalogSummary.primaryLabel;
+    return kindPresentation.displayLabel;
   }
 }

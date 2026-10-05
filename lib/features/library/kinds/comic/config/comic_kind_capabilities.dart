@@ -45,18 +45,16 @@ final comicKindMetadata = LibraryMetadataCapability(
 
 // A Comic Catalog Item already represents one concrete issue or edition.
 // There is no Work -> issue -> variant child tree to fetch.
-final comicKindHierarchy = const LibraryHierarchyCapability();
-
-final comicKindEntityVocabulary = const LibraryEntityVocabulary(
-  catalogItem: LibraryEntityLabel(singular: 'Issue', plural: 'Issues'),
-  libraryEntry: LibraryEntityLabel(singular: 'Entry', plural: 'Entries'),
+final comicKindEntityVocabulary = const LibraryTargetVocabulary(
+  catalogItem: LibraryTargetLabel(singular: 'Issue', plural: 'Issues'),
+  libraryEntry: LibraryTargetLabel(singular: 'Entry', plural: 'Entries'),
 );
 
 final comicKindTrackingTopology = const LibraryTrackingTopology(
   sessionLabels: LibraryTrackingSessionLabels.read,
-  writableTargets: {LibraryTrackingTargetScope.content},
-  aggregateTargets: {LibraryTrackingTargetScope.catalogItem},
-  contentTargets: {LibraryTrackingTargetScope.content},
+  writableTargets: {LibraryTrackingTarget.content},
+  aggregateTargets: {LibraryTrackingTarget.libraryEntry},
+  contentTargets: {LibraryTrackingTarget.content},
 );
 
 final comicKindPersonalFieldContributor = const LibraryPersonalFieldContributor(
@@ -139,35 +137,29 @@ final comicKindPersonalFieldContributor = const LibraryPersonalFieldContributor(
   ],
 );
 
-final comicKindActions = const LibraryEntityActionCapability(
-  catalogItem: LibraryEntityActionSet.catalogItem,
-  libraryEntry: LibraryEntityActionSet.libraryEntry,
-  semanticActions: {
-    LibraryEntityScope.catalogItem: [
-      LibraryEntitySemanticActionDefinition(
-        id: 'comic.missing_issues',
-        label: 'Missing issues',
-        icon: Icons.find_in_page_outlined,
-        invoke: runComicMissingIssuesAction,
-      ),
-    ],
-  },
+final comicKindActions = const LibraryTargetActionCapability(
+  catalogItem: LibraryTargetActionSet.catalogItem,
+  libraryEntry: LibraryTargetActionSet.libraryEntry,
+  catalogItemSemanticActions: [
+    LibraryTargetSemanticActionDefinition(
+      id: 'comic.missing_issues',
+      label: 'Missing issues',
+      icon: Icons.find_in_page_outlined,
+      invoke: runComicMissingIssuesAction,
+    ),
+  ],
 );
 
 final comicKindInspector = LibraryInspectorCapability(
-  entityRegistry: LibraryEntityInspectorRegistry(
-    contributors: [
-      LibraryEntityInspectorContributor(
-        scope: LibraryEntityScope.catalogItem,
-        heroBuilder: buildComicWorkInspectorHero,
-        sectionsBuilder: buildComicWorkInspectorSections,
-      ),
-      LibraryEntityInspectorContributor(
-        scope: LibraryEntityScope.libraryEntry,
-        heroBuilder: buildComicCopyInspectorHero,
-        sectionsBuilder: buildComicCopyInspectorSections,
-      ),
-    ],
+  entityRegistry: LibraryTargetInspectorRegistry(
+    catalogItem: LibraryTargetInspectorContributor(
+      heroBuilder: buildComicCatalogItemInspectorHero,
+      sectionsBuilder: buildComicCatalogItemInspectorSections,
+    ),
+    libraryEntry: LibraryTargetInspectorContributor(
+      heroBuilder: buildComicLibraryEntryInspectorHero,
+      sectionsBuilder: buildComicLibraryEntryInspectorSections,
+    ),
   ),
   showsDefaultPersonalSection: false,
   personalDetailFieldsBuilder: buildComicPersonalDetailFields,

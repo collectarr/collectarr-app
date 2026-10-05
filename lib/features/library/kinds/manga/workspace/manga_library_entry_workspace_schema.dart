@@ -1,11 +1,10 @@
 import 'package:collectarr_app/features/library/kinds/manga/workspace/manga_ids.dart';
 import 'package:collectarr_app/features/library/kinds/manga/data/manga_library_entry_projection.dart';
-import 'package:collectarr_app/features/library/kinds/manga/workspace/manga_preference_codec.dart';
 import 'package:collectarr_app/features/library/kinds/manga/workspace/manga_workspace_dto.dart';
 import 'package:collectarr_app/features/library/kinds/manga/domain/manga_library_entry.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/schema/field_factories.dart';
-import 'package:collectarr_app/features/library/workspace/schema/library_entity_workspace_schema.dart';
+import 'package:collectarr_app/features/library/workspace/schema/library_workspace_schema.dart';
 import 'package:flutter/material.dart';
 
 abstract final class MangaLibraryEntryWorkspaceFields {
@@ -15,36 +14,32 @@ abstract final class MangaLibraryEntryWorkspaceFields {
     label: 'Condition',
     getValue: (context) {
       final entry = MangaLibraryEntryProjection.fromDispatch(
-          context.source.libraryEntryDispatch);
+          context.item.libraryEntryDispatch);
       return entry is MangaLibraryEntry ? entry.personal.condition : null;
     },
-    entityScope: LibraryEntityScope.libraryEntry,
   );
 
   static final location =
       LibraryFieldDefinition<MangaKind, MangaWorkspaceDto, String?>(
     id: MangaFieldIds.location,
     label: 'Location',
-    getValue: (context) => context.source.locationPath,
-    entityScope: LibraryEntityScope.libraryEntry,
+    getValue: (context) => context.personal.locationPath,
   );
 
   static final pricePaid =
       LibraryFieldDefinition<MangaKind, MangaWorkspaceDto, int?>(
     id: MangaFieldIds.pricePaid,
     label: 'Purchase Price',
-    getValue: (context) => context.source.pricePaidCents,
-    entityScope: LibraryEntityScope.libraryEntry,
+    getValue: (context) => context.item.entrySummary?.pricePaidCents,
   );
 
   static final status =
       LibraryFieldDefinition<MangaKind, MangaWorkspaceDto, String?>(
     id: MangaFieldIds.status,
     label: 'Status',
-    getValue: (context) => context.source.isWishlisted
+    getValue: (context) => context.personal.isWishlisted
         ? 'wishlist'
-        : (context.source.isEntry ? 'entry' : null),
-    entityScope: LibraryEntityScope.libraryEntry,
+        : ((context.item.entrySummary != null) ? 'entry' : null),
   );
 
   static final rating =
@@ -52,31 +47,27 @@ abstract final class MangaLibraryEntryWorkspaceFields {
     id: MangaFieldIds.rating,
     label: 'Rating',
     getValue: (context) => context.dto.personal.rating,
-    entityScope: LibraryEntityScope.libraryEntry,
   );
 
   static final wishlist =
       LibraryFieldDefinition<MangaKind, MangaWorkspaceDto, bool>(
     id: MangaFieldIds.wishlist,
     label: 'Wishlist',
-    getValue: (context) => context.source.isWishlisted,
-    entityScope: LibraryEntityScope.libraryEntry,
+    getValue: (context) => context.personal.isWishlisted,
   );
 
   static final updatedAt =
       LibraryFieldDefinition<MangaKind, MangaWorkspaceDto, DateTime>(
     id: MangaFieldIds.updatedAt,
     label: 'Updated',
-    getValue: (context) => context.source.updatedAt,
-    entityScope: LibraryEntityScope.libraryEntry,
+    getValue: (context) => context.updatedAt,
   );
 
   static final addedAt =
       LibraryFieldDefinition<MangaKind, MangaWorkspaceDto, DateTime?>(
     id: MangaFieldIds.addedAt,
     label: 'Added',
-    getValue: (context) => context.source.addedAt,
-    entityScope: LibraryEntityScope.libraryEntry,
+    getValue: (context) => context.addedAt,
   );
 
   static final obiStripPresent =
@@ -84,7 +75,6 @@ abstract final class MangaLibraryEntryWorkspaceFields {
     id: MangaFieldIds.obiStripPresent,
     label: 'Obi Strip Present',
     getValue: (context) => context.dto.entryDetails?.obiStripPresent ?? false,
-    entityScope: LibraryEntityScope.libraryEntry,
   );
 
   static final slipcoverPresent =
@@ -92,7 +82,6 @@ abstract final class MangaLibraryEntryWorkspaceFields {
     id: MangaFieldIds.slipcoverPresent,
     label: 'Slipcover Present',
     getValue: (context) => context.dto.entryDetails?.slipcoverPresent ?? false,
-    entityScope: LibraryEntityScope.libraryEntry,
   );
 
   static final dustJacketPresent =
@@ -100,7 +89,6 @@ abstract final class MangaLibraryEntryWorkspaceFields {
     id: MangaFieldIds.dustJacketPresent,
     label: 'Dust Jacket Present',
     getValue: (context) => context.dto.entryDetails?.dustJacketPresent ?? false,
-    entityScope: LibraryEntityScope.libraryEntry,
   );
 
   static final dustJacketCondition =
@@ -108,7 +96,6 @@ abstract final class MangaLibraryEntryWorkspaceFields {
     id: MangaFieldIds.dustJacketCondition,
     label: 'Dust Jacket Condition',
     getValue: (context) => context.dto.entryDetails?.dustJacketCondition,
-    entityScope: LibraryEntityScope.libraryEntry,
   );
 
   static final boxSetOuterCondition =
@@ -116,7 +103,6 @@ abstract final class MangaLibraryEntryWorkspaceFields {
     id: MangaFieldIds.boxSetOuterCondition,
     label: 'Box Set Outer Condition',
     getValue: (context) => context.dto.entryDetails?.boxSetOuterCondition,
-    entityScope: LibraryEntityScope.libraryEntry,
   );
 
   static final insertsPresent =
@@ -124,7 +110,6 @@ abstract final class MangaLibraryEntryWorkspaceFields {
     id: MangaFieldIds.insertsPresent,
     label: 'Inserts Present',
     getValue: (context) => context.dto.entryDetails?.insertsPresent ?? false,
-    entityScope: LibraryEntityScope.libraryEntry,
   );
 
   static final printing =
@@ -132,7 +117,6 @@ abstract final class MangaLibraryEntryWorkspaceFields {
     id: MangaFieldIds.printing,
     label: 'Printing',
     getValue: (context) => context.dto.entryDetails?.printing,
-    entityScope: LibraryEntityScope.libraryEntry,
   );
 
   static final localizedEdition =
@@ -140,7 +124,6 @@ abstract final class MangaLibraryEntryWorkspaceFields {
     id: MangaFieldIds.localizedEdition,
     label: 'Localized Edition',
     getValue: (context) => context.dto.entryDetails?.localizedEdition,
-    entityScope: LibraryEntityScope.libraryEntry,
   );
 
   static final signedBy =
@@ -148,7 +131,6 @@ abstract final class MangaLibraryEntryWorkspaceFields {
     id: MangaFieldIds.signedBy,
     label: 'Signed By',
     getValue: (context) => context.dto.entryDetails?.signedBy,
-    entityScope: LibraryEntityScope.libraryEntry,
   );
 }
 
@@ -188,11 +170,10 @@ final mangaLibraryEntryWorkspaceGroupDefinitions = [
 final mangaLibraryEntryWorkspaceSortDefinitions = [
   LibrarySortDefinition<MangaKind, MangaWorkspaceDto>(
     id: MangaSortIds.status,
-    entityScope: LibraryEntityScope.libraryEntry,
     compare: (left, right) {
       int rank(LibraryProjectionContext<MangaWorkspaceDto> ctx) {
-        if (ctx.source.isEntry) return 0;
-        if (ctx.source.isWishlisted) return 1;
+        if ((ctx.item.entrySummary != null)) return 0;
+        if (ctx.personal.isWishlisted) return 1;
         return 2;
       }
 
@@ -218,9 +199,9 @@ final mangaLibraryEntryWorkspaceColumnDefinitions = [
     id: MangaFieldIds.status,
     label: 'Status',
     getValue: MangaLibraryEntryWorkspaceFields.status.getValue,
-    cellValue: (context) => Text(context.source.isWishlisted
+    cellValue: (context) => Text(context.personal.isWishlisted
         ? 'Wishlist'
-        : (context.source.isEntry ? 'Entry' : '')),
+        : ((context.item.entrySummary != null) ? 'Entry' : '')),
     sortable: false,
     groupable: false,
     defaultWidth: 52,
@@ -230,7 +211,7 @@ final mangaLibraryEntryWorkspaceColumnDefinitions = [
     id: MangaFieldIds.wishlist,
     label: 'Wishlist',
     getValue: MangaLibraryEntryWorkspaceFields.wishlist.getValue,
-    cellValue: (context) => Text(context.source.isWishlisted ? 'Wishlist' : ''),
+    cellValue: (context) => Text(context.personal.isWishlisted ? 'Wishlist' : ''),
     group: 'Personal',
     defaultWidth: 82,
     minWidth: 70,
@@ -239,7 +220,7 @@ final mangaLibraryEntryWorkspaceColumnDefinitions = [
     id: MangaFieldIds.updatedAt,
     label: 'Updated',
     getValue: MangaLibraryEntryWorkspaceFields.updatedAt.getValue,
-    cellValue: (context) => Text(_formatDate(context.source.updatedAt)),
+    cellValue: (context) => Text(_formatDate(context.updatedAt)),
     group: 'Personal',
     defaultWidth: 112,
   ),
@@ -247,7 +228,7 @@ final mangaLibraryEntryWorkspaceColumnDefinitions = [
     id: MangaFieldIds.addedAt,
     label: 'Added',
     getValue: MangaLibraryEntryWorkspaceFields.addedAt.getValue,
-    cellValue: (context) => Text(_formatDate(context.source.addedAt)),
+    cellValue: (context) => Text(_formatDate(context.addedAt)),
     group: 'Personal',
     defaultWidth: 112,
   ),
@@ -264,7 +245,7 @@ final mangaLibraryEntryWorkspaceColumnDefinitions = [
   columnFromField<MangaKind, MangaWorkspaceDto, int?>(
     MangaLibraryEntryWorkspaceFields.pricePaid,
     cellValue: (context) =>
-        Text(_formatCents(context.source.pricePaidCents, context.dto.currency)),
+        Text(_formatCents(context.item.entrySummary?.pricePaidCents, context.dto.currency)),
     group: 'Value',
     isNumeric: true,
     defaultWidth: 92,
@@ -325,9 +306,8 @@ final mangaLibraryEntryWorkspaceColumnDefinitions = [
 ];
 
 final mangaLibraryEntryWorkspaceSchema =
-    LibraryEntityWorkspaceSchema<MangaKind, MangaWorkspaceDto>(
+    LibraryWorkspaceSchema<MangaKind, MangaWorkspaceDto>(
   kindNamespace: 'manga',
-  entityScope: LibraryEntityScope.libraryEntry,
   fields: mangaLibraryEntryWorkspaceFieldDefinitions,
   columns: mangaLibraryEntryWorkspaceColumnDefinitions,
   sorts: mangaLibraryEntryWorkspaceSortDefinitions,
@@ -336,7 +316,6 @@ final mangaLibraryEntryWorkspaceSchema =
   defaultVisibleColumns: mangaLibraryEntryWorkspaceDefaultVisibleColumns,
   defaultSort: MangaSortIds.status,
   defaultGroup: MangaGroupIds.condition,
-  preferenceCodec: const MangaPreferenceCodec(),
 );
 
 String _formatDate(DateTime? value) {

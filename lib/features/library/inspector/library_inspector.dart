@@ -21,7 +21,7 @@ import 'package:collectarr_app/features/library/sharing/collection_share_dialog.
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/features/collection/commands/library_entry_commands.dart';
-import 'package:collectarr_app/features/library/config/library_entity_action_capability.dart';
+import 'package:collectarr_app/features/library/config/library_target_action_capability.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_tokens.dart';
@@ -104,7 +104,7 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
       activeLibraryEntry,
     );
     final canAddEntry = libraryEntryPolicyForKind(widget.type.kind)
-        .canCreateCopyAt(selected.node);
+        .canCreateCopyAt(selected.target);
     final onToggleEntry = selected.source.isEntry
         ? activeLibraryEntry == null
             ? widget.onRemoveEntry
@@ -149,8 +149,8 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
       );
     }
 
-    final actionRegistry = libraryEntityActionsForKind(widget.type.kind).build(
-      LibraryEntityActionContext(
+    scopedActions = libraryEntityActionsForKind(widget.type.kind).build(
+      LibraryTargetActionContext(
         type: widget.type,
         buildContext: context,
         projection: widget.projection,
@@ -168,9 +168,6 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
         accent: widget.accent,
       ),
     );
-    final resolvedActions = actionRegistry.actionsForScope(selected.node.scope);
-    scopedActions = resolvedActions;
-
     return _buildContent(
       context,
       ref,
@@ -214,18 +211,17 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
   }) {
     final registration = widget.type;
     final inspectorCapability = libraryInspectorForKind(registration.kind);
-    final hero =
-        inspectorCapability.heroBuilderForScope(selected.node.scope)?.call(
-                  context,
-                  inspectorRequest,
-                ) ??
-            InspectorHero(
-              type: widget.type,
-              item: selected,
-              libraryEntry: activeLibraryEntry,
-              accent: widget.accent,
-              contextLabel: widget.contextLabel,
-            );
+    final hero = inspectorCapability.heroBuilderForTarget(selected.target)?.call(
+              context,
+              inspectorRequest,
+            ) ??
+        InspectorHero(
+          type: widget.type,
+          item: selected,
+          libraryEntry: activeLibraryEntry,
+          accent: widget.accent,
+          contextLabel: widget.contextLabel,
+        );
     final primarySections = inspectorCapability.buildSections(
       context,
       inspectorRequest,

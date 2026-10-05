@@ -1,5 +1,4 @@
 import 'package:collectarr_app/features/library/edit/draft/library_edit_shell_state.dart';
-import 'package:collectarr_app/features/library/domain/library_entity_scope.dart';
 import 'package:collectarr_app/features/library/kinds/tv/edit/tabs/tv_episodes_tab.dart';
 import 'package:collectarr_app/features/library/kinds/tv/edit/tabs/tv_catalog_media_tab.dart';
 import 'package:collectarr_app/features/library/kinds/tv/edit/tabs/tv_episode_media_map_tab.dart';
@@ -17,7 +16,6 @@ Widget? buildTvMediaCustomTabView({
   required BuildContext context,
   required LibraryEditShellState draft,
   required Color accent,
-  required LibraryEntityScope scope,
   required CatalogSearchCandidate item,
   required VoidCallback markDirty,
 }) {
@@ -50,7 +48,9 @@ Widget? buildTvMediaCustomTabView({
     'media' => TvCatalogFormEditTab(
         state: draft,
         draft: entryDraft,
-        itemId: item.reference.id,
+        itemId: draft.target?.id ??
+            item.catalogRef?.id ??
+            (throw StateError('TV editor requires an explicit target.')),
         fieldIds: tvMainFieldIds,
         sectionLabel: 'Main',
         markDirty: markDirty,
@@ -58,7 +58,9 @@ Widget? buildTvMediaCustomTabView({
     'edition' => TvCatalogFormEditTab(
         state: draft,
         draft: entryDraft,
-        itemId: item.reference.id,
+        itemId: draft.target?.id ??
+            item.catalogRef?.id ??
+            (throw StateError('TV editor requires an explicit target.')),
         fieldIds: tvEditionFieldIds,
         sectionLabel: 'Edition',
         markDirty: markDirty,
@@ -66,7 +68,9 @@ Widget? buildTvMediaCustomTabView({
     'specs' => TvCatalogFormEditTab(
         state: draft,
         draft: entryDraft,
-        itemId: item.reference.id,
+        itemId: draft.target?.id ??
+            item.catalogRef?.id ??
+            (throw StateError('TV editor requires an explicit target.')),
         fieldIds: tvSpecsFieldIds,
         sectionLabel: 'Specs',
         markDirty: markDirty,
@@ -74,7 +78,9 @@ Widget? buildTvMediaCustomTabView({
     'synopsis' => TvCatalogFormEditTab(
         state: draft,
         draft: entryDraft,
-        itemId: item.reference.id,
+        itemId: draft.target?.id ??
+            item.catalogRef?.id ??
+            (throw StateError('TV editor requires an explicit target.')),
         fieldIds: const {'synopsis'},
         sectionLabel: 'Plot',
         markDirty: markDirty,
@@ -82,7 +88,9 @@ Widget? buildTvMediaCustomTabView({
     'cover' => TvCatalogFormEditTab(
         state: draft,
         draft: entryDraft,
-        itemId: item.reference.id,
+        itemId: draft.target?.id ??
+            item.catalogRef?.id ??
+            (throw StateError('TV editor requires an explicit target.')),
         fieldIds: const {'cover_image_url'},
         sectionLabel: 'Covers',
         markDirty: markDirty,
@@ -91,7 +99,9 @@ Widget? buildTvMediaCustomTabView({
         accent: accent,
         state: draft,
         draft: entryDraft,
-        itemId: item.reference.id,
+        itemId: draft.target?.id ??
+            item.catalogRef?.id ??
+            (throw StateError('TV editor requires an explicit target.')),
         markDirty: markDirty,
       ),
     'crew' => TvEditCrewTab(

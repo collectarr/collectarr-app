@@ -1,8 +1,7 @@
 import 'package:collectarr_app/core/models/activity_event.dart';
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/core/models/loan.dart';
 import 'package:collectarr_app/core/models/library_entry_projection.dart';
-import 'package:collectarr_app/core/models/tracking_summary.dart';
 import 'package:collectarr_app/core/models/tracking_activity_summary.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
@@ -23,7 +22,7 @@ class ActivityTimelineSection extends ConsumerStatefulWidget {
     required this.accent,
   });
 
-  final CatalogEntityRef itemRef;
+  final CatalogItemRef itemRef;
 
   /// All entry-item references for this catalog item (needed for loan lookup).
   final List<LibraryEntryRef> libraryEntryRefs;
@@ -85,7 +84,7 @@ class _ActivityTimelineSectionState
         ...ref.watch(watchSessionsByLibraryEntryRefProvider(entryRef)),
     ];
     final wishlistItems = ref.watch(
-            wishlistByCatalogRefProvider)[widget.itemRef.toCatalogItemRef()] ??
+            wishlistByCatalogRefProvider)[widget.itemRef] ??
         const <WishlistItem>[];
 
     final events = ActivityEventAggregator.aggregate(

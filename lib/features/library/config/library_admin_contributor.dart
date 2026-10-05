@@ -378,14 +378,10 @@ List<LibraryAdminCorrectionField> adminCorrectionFieldsForKind({
   };
   final fields = <LibraryAdminCorrectionField>[];
   for (final spec in schema.fieldsForKind(kind.apiValue)) {
-    final entries = spec.entriesByKind[kind.apiValue];
-    if (!spec.editable || entries == null) continue;
-    if (entries.writeTarget != MetadataWriteTarget.coreCanonical &&
-        entries.writeTarget != MetadataWriteTarget.coreCanonicalRelation) {
-      continue;
-    }
-    if (entries.scope == MetadataFieldScope.libraryEntry ||
-        entries.scope == MetadataFieldScope.trackingRecord) {
+    final writeTarget = spec.writeTargetForKind(kind.apiValue);
+    if (!spec.editable || writeTarget == null) continue;
+    if (writeTarget != MetadataWriteTarget.coreCanonical &&
+        writeTarget != MetadataWriteTarget.coreCanonicalRelation) {
       continue;
     }
     final presentation = _adminCorrectionPresentationFromSchema(spec);

@@ -15,14 +15,12 @@ TransferableField boardGameTransferField({
     BoardGameLibraryEntry item,
     String? value,
   ) write,
-  LibraryEntityScope scope = LibraryEntityScope.libraryEntry,
 }) {
   return TransferableField.typed<BoardGameLibraryEntry>(
     key: key,
     label: label,
     icon: icon,
     type: type,
-    scope: scope,
     decode: (value) => value as BoardGameLibraryEntry,
     read: read,
     write: write,
@@ -133,13 +131,13 @@ Iterable<String?> boardGameLinkedMetadataValues(
       ...metadata.credits.map((credit) => credit.name),
     ];
 
-BoardGameMetadata? boardGameLinkedMetadata(LibraryWorkspaceSource source) {
-  final catalog = source.catalogData;
-  return catalog is BoardGameWorkspaceCatalogData ? catalog.metadata : null;
+BoardGameMetadata? boardGameLinkedMetadata(LibraryWorkspaceContext source) {
+  final catalog = source.kindPresentationData;
+  return catalog is BoardGameWorkspaceData ? catalog.metadata : null;
 }
 
 MetadataSearchQuery boardGameMetadataSearchQuery({
-  required LibraryWorkspaceSource source,
+  required LibraryWorkspaceContext source,
   required String title,
 }) {
   final metadata = boardGameLinkedMetadata(source);

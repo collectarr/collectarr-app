@@ -28,7 +28,7 @@ class LibraryFilterEngine {
       return false;
     }
     if (query.constrainedItemIds != null &&
-        !query.constrainedItemIds!.contains(item.node.id)) {
+        !query.constrainedItemIds!.contains(item.target.id)) {
       return false;
     }
     if (!_matchesBucketScopeFilters(
@@ -69,14 +69,9 @@ class LibraryFilterEngine {
     LibraryProjectionIndex? index,
   ) {
     if (selectedBucket == null) return true;
-    final bucket = index != null
-        ? index.getGroupBucket(
-            item,
-            groupId,
-            (it, mode) => groupingEngine.getGroupBucketForItem(it, type, mode),
-          )
-        : groupingEngine.getGroupBucketForItem(item, type, groupId);
-    return bucket == selectedBucket;
+    return groupingEngine
+        .bucketsForItem(item, type, groupId, index: index)
+        .contains(selectedBucket);
   }
 
   bool _matchesBucketScopeFilters(
@@ -86,15 +81,9 @@ class LibraryFilterEngine {
     LibraryProjectionIndex? index,
   ) {
     for (final filter in filters) {
-      final bucket = index != null
-          ? index.getGroupBucket(
-              item,
-              filter.groupId,
-              (it, mode) =>
-                  groupingEngine.getGroupBucketForItem(it, type, mode),
-            )
-          : groupingEngine.getGroupBucketForItem(item, type, filter.groupId);
-      if (bucket != filter.bucket) {
+      if (!groupingEngine
+          .bucketsForItem(item, type, filter.groupId, index: index)
+          .contains(filter.bucket)) {
         return false;
       }
     }

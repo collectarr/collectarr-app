@@ -2,7 +2,6 @@ import 'package:drift/drift.dart';
 
 /// Complete Game-collection item state.
 
-
 class GameTrackingRows extends Table {
   TextColumn get id => text()();
   TextColumn get libraryEntryRefKey => text()();

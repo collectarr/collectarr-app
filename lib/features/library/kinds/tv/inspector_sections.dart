@@ -1,6 +1,6 @@
 import 'package:collectarr_app/features/library/kinds/tv/data/tv_library_entry_projection.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/features/library/detail/library_detail_hero.dart';
 import 'package:collectarr_app/features/library/detail/library_detail_user_links_section.dart';
@@ -17,7 +17,7 @@ import 'package:collectarr_app/features/library/inspector/library_inspector_chro
 import 'package:collectarr_app/features/library/details/library_detail_panel_scaffold.dart';
 import 'package:collectarr_app/features/library/details/library_detail_models.dart';
 import 'package:collectarr_app/features/library/kinds/tv/workspace/tv_workspace_dto.dart';
-import 'package:collectarr_app/features/library/kinds/tv/workspace/tv_workspace_catalog_data.dart';
+import 'package:collectarr_app/features/library/kinds/tv/workspace/tv_workspace_data.dart';
 import 'package:flutter/material.dart';
 
 List<Widget> buildTvCatalogItemInspectorSections(
@@ -32,7 +32,7 @@ List<Widget> buildTvCatalogItemInspectorSections(
   );
 }
 
-List<Widget> buildTvCopyInspectorSections(
+List<Widget> buildTvLibraryEntryInspectorSections(
   BuildContext context,
   LibraryInspectorRequest request,
 ) {
@@ -74,7 +74,7 @@ Widget buildTvCatalogItemInspectorHero(
       accent: request.accent,
     );
 
-Widget buildTvCopyInspectorHero(
+Widget buildTvLibraryEntryInspectorHero(
   BuildContext context,
   LibraryInspectorRequest request,
 ) =>
@@ -93,11 +93,10 @@ List<LibraryDetailSectionSpec> _buildTvInspectorSectionSpecs(
 }) {
   final item = request.item;
   final dto = item.dto;
-  final catalog = item.source.catalogData;
-  final metadata = catalog is TvWorkspaceCatalogData ? catalog.metadata : null;
-  final catalogRef = CatalogEntityRef(
+  final catalog = item.source.kindPresentationData;
+  final metadata = catalog is TvWorkspaceData ? catalog.metadata : null;
+  final catalogRef = CatalogItemRef(
     kind: request.type.kind,
-    entityType: CatalogEntityTypeId.catalogItem,
     id: item.source.itemId,
   );
 

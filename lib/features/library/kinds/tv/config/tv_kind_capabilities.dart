@@ -95,38 +95,34 @@ final tvKindHierarchy = const LibraryHierarchyCapability(
   childrenTitleBuilder: tvChildrenTitle,
 );
 
-final tvKindEntityVocabulary = const LibraryEntityVocabulary(
+final tvKindEntityVocabulary = const LibraryTargetVocabulary(
   catalogItem:
-      LibraryEntityLabel(singular: 'Season release', plural: 'Season releases'),
-  libraryEntry: LibraryEntityLabel(singular: 'Entry', plural: 'Entries'),
+      LibraryTargetLabel(singular: 'Season release', plural: 'Season releases'),
+  libraryEntry: LibraryTargetLabel(singular: 'Entry', plural: 'Entries'),
 );
 
 final tvKindTrackingTopology = const LibraryTrackingTopology(
   sessionLabels: LibraryTrackingSessionLabels.watch,
-  writableTargets: {LibraryTrackingTargetScope.content},
-  aggregateTargets: {LibraryTrackingTargetScope.catalogItem},
-  contentTargets: {LibraryTrackingTargetScope.content},
+  writableTargets: {LibraryTrackingTarget.content},
+  aggregateTargets: {LibraryTrackingTarget.libraryEntry},
+  contentTargets: {LibraryTrackingTarget.content},
 );
 
-final tvKindActions = const LibraryEntityActionCapability(
-  catalogItem: LibraryEntityActionSet.catalogItem,
-  libraryEntry: LibraryEntityActionSet.libraryEntry,
+final tvKindActions = const LibraryTargetActionCapability(
+  catalogItem: LibraryTargetActionSet.catalogItem,
+  libraryEntry: LibraryTargetActionSet.libraryEntry,
 );
 
 final tvKindInspector = LibraryInspectorCapability(
-  entityRegistry: LibraryEntityInspectorRegistry(
-    contributors: [
-      LibraryEntityInspectorContributor(
-        scope: LibraryEntityScope.catalogItem,
-        heroBuilder: buildTvCatalogItemInspectorHero,
-        sectionsBuilder: buildTvCatalogItemInspectorSections,
-      ),
-      LibraryEntityInspectorContributor(
-        scope: LibraryEntityScope.libraryEntry,
-        heroBuilder: buildTvCopyInspectorHero,
-        sectionsBuilder: buildTvCopyInspectorSections,
-      ),
-    ],
+  entityRegistry: LibraryTargetInspectorRegistry(
+    catalogItem: LibraryTargetInspectorContributor(
+      heroBuilder: buildTvCatalogItemInspectorHero,
+      sectionsBuilder: buildTvCatalogItemInspectorSections,
+    ),
+    libraryEntry: LibraryTargetInspectorContributor(
+      heroBuilder: buildTvLibraryEntryInspectorHero,
+      sectionsBuilder: buildTvLibraryEntryInspectorSections,
+    ),
   ),
   mediaDetailContributionBuilder: buildTvVideoDetailContribution,
   showsDefaultPersonalSection: false,

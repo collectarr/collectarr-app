@@ -1,6 +1,6 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_import_transport.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_item_cache_repository.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_kind_transport_codec.dart';
@@ -41,15 +41,14 @@ final class CatalogTransportRepository {
     return CatalogItemDto.fromJson({...payload, 'id': id});
   }
 
-  Future<CatalogItemDto?> findCatalogItem(CatalogEntityRef ref) {
-    return CatalogItemCacheRepository(_db).find(ref.toCatalogItemRef());
+  Future<CatalogItemDto?> findCatalogItem(CatalogItemRef ref) {
+    return CatalogItemCacheRepository(_db).find(ref);
   }
 
   /// Cleans up a transient private Add candidate once its full catalog data is
   /// owned by a local Library Entry.
-  Future<void> removePrivateCandidate(CatalogEntityRef ref) =>
-      CatalogItemCacheRepository(_db)
-          .removePrivateCandidate(ref.toCatalogItemRef());
+  Future<void> removePrivateCandidate(CatalogItemRef ref) =>
+      CatalogItemCacheRepository(_db).removePrivateCandidate(ref);
 
   CatalogImportTransport transportFromSyncPayload({
     required String id,
@@ -74,6 +73,27 @@ final class CatalogTransportRepository {
     if (captureDerivedData) {
       await _captureDerivedData(catalogItems);
     }
+  }
+
+  /// Refreshes kind-owned derived vocabulary from local-entry metadata. The
+  /// local record is persisted by LibraryEntriesRepository; this method only
+  /// updates indexes derived from the kind document and never creates a
+  /// Catalog Item DTO from the local entry ID.
+  Future<void> captureEntryDerivedData({
+    required CatalogMediaKind kind,
+    required Map<String, dynamic> kindData,
+  }) async {
+    final codec = _codecs[kind];
+    if (codec is! CatalogKindTransportCodec<dynamic>) {
+      throw StateError('No typed metadata codec is registered for $kind.');
+    }
+    final pickLists = PickListRepository(_db);
+    final serialAuthority = SerialAuthorityRepository(_db);
+    await _db.transaction(() => codec.captureDerivedDataTyped(
+          pickLists,
+          serialAuthority,
+          codec.decodeKindData(kindData),
+        ));
   }
 
   /// Captures only derived infrastructure values from already typed catalog

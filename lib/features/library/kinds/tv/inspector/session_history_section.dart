@@ -1,4 +1,4 @@
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/features/library/tracking/session_history_section.dart';
@@ -12,14 +12,14 @@ class InspectorSessionHistorySection extends StatelessWidget {
   });
 
   final LibraryInspectorRequest request;
-  final CatalogEntityRef catalogRef;
+  final CatalogItemRef catalogRef;
 
   @override
   Widget build(BuildContext context) {
     return WatchHistorySection(
       libraryEntryRef: request.libraryEntry?.ref ??
           LibraryEntryRef(
-            kind: catalogRef.mediaKind,
+            kind: catalogRef.kind,
             id: LibraryEntryId(request.item.source.itemId),
           ),
       accent: request.accent,

@@ -1,6 +1,6 @@
 import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/core/models/library_entry_ref.dart';
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/tracking_summary.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
@@ -8,6 +8,7 @@ import 'package:collectarr_app/features/library/config/library_media_presentatio
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_card_presentation.dart';
+import 'package:collectarr_app/features/library/domain/library_target_ref.dart';
 
 String? libraryHierarchyContractDiagnosticLabel(LibraryProjectionView item) {
   final kind = item.source.mediaKind;
@@ -74,23 +75,26 @@ LibraryEntryRef? resolveLibraryEntrySummaryRef(
   return libraryEntry?.ref ?? item.source.libraryEntryRef;
 }
 
-CatalogEntityRef? resolveLibraryMutationTargetFromSummary({
+CatalogItemRef? resolveLibraryMutationTargetFromSummary({
   LibraryProjectionView? item,
   LibraryEntrySummary? libraryEntry,
   WishlistItem? wishlistItem,
 }) {
   if (libraryEntry != null) {
-    return libraryEntry.ref.localCatalogItemRef;
+    return libraryEntry.sourceCatalogRef;
   }
   final wishlistTarget = wishlistItem?.catalogRef;
   if (wishlistTarget != null) {
-    return CatalogEntityRef(
+    return CatalogItemRef(
       kind: wishlistTarget.kind,
-      entityType: CatalogEntityTypeId.catalogItem,
       id: wishlistTarget.id,
     );
   }
-  return item?.source.catalogRef;
+  return switch (item?.target) {
+    CatalogTargetRef(:final ref) => ref,
+    EntryTargetRef() => item?.source.sourceCatalogRef,
+    null => null,
+  };
 }
 
 TrackingSummary? resolveActiveTrackingSummary(

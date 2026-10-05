@@ -1,48 +1,41 @@
-import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
-import 'package:collectarr_app/features/library/kinds/game/workspace/game_workspace_catalog_data.dart';
+import 'package:collectarr_app/features/library/kinds/game/workspace/game_workspace_data.dart';
 import 'package:collectarr_app/features/library/kinds/game/workspace/game_workspace_dto.dart';
 import 'package:collectarr_app/features/library/kinds/game/data/game_library_entry_projection.dart';
-import 'package:collectarr_app/features/library/workspace/config/library_entity_workspace_projector.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_target_workspace_projector.dart';
+import 'package:collectarr_app/features/library/workspace/entry/personal_overlay.dart';
+import 'package:collectarr_app/features/library/workspace/entry/workspace_item.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 
 /// Projects a concrete Game Catalog Item and its App-collection item state.
 final class GameWorkspaceProjector
-    implements LibraryEntityWorkspaceProjector<GameWorkspaceDto> {
-  const GameWorkspaceProjector({this.expectedScope});
-
-  final LibraryEntityScope? expectedScope;
+    implements LibraryTargetWorkspaceProjector<GameWorkspaceDto> {
+  const GameWorkspaceProjector();
 
   @override
   GameWorkspaceDto project({
-    required LibraryWorkspaceSource source,
-    required LibraryEntityRef entity,
+    required WorkspaceItem item,
+    required PersonalOverlay personal,
   }) {
-    requireEntityBelongsToSource(source, entity);
-    requireEntityScope(entity, expectedScope ?? entity.scope);
-    final catalog = _catalogFor(source);
+    final catalog = _catalogFor(item);
     return GameWorkspaceDto(
-      common: WorkspaceCommonProjection.fromStructuralShelf(
-        source,
-        entity,
-        overrideTitle: catalog.metadata.title,
-        overrideSynopsis: catalog.metadata.synopsis,
-        overrideReleaseDate: catalog.metadata.releaseDate,
-        overrideCoverImageUrl: catalog.metadata.coverImageUrl,
+      common: WorkspaceCommonProjection.fromKindPresentation(
+        item,
+        title: catalog.metadata.title,
+        synopsis: catalog.metadata.synopsis,
+        releaseDate: catalog.metadata.releaseDate,
+        coverImageUrl: catalog.metadata.coverImageUrl,
       ),
-      personal: PersonalCopyProjection.fromShelf(
-        source,
-      ),
+      personal: PersonalEntryProjection.fromShelf(item, personal),
       metadata: catalog.metadata,
       valuations: GameLibraryEntryProjection.fromDispatch(
-        source.libraryEntryDispatch,
+        item.libraryEntryDispatch,
       )?.personal.details.valuations,
     );
   }
 }
 
-GameWorkspaceCatalogData _catalogFor(LibraryWorkspaceSource source) {
-  final data = source.catalogData;
-  if (data case final GameWorkspaceCatalogData catalog) return catalog;
-  throw StateError('Expected GameWorkspaceCatalogData for game workspace');
+GameWorkspaceData _catalogFor(WorkspaceItem item) {
+  final data = item.kindPresentationData;
+  if (data case final GameWorkspaceData catalog) return catalog;
+  throw StateError('Expected GameWorkspaceData for game workspace');
 }

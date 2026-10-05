@@ -8,9 +8,11 @@ import 'package:collectarr_app/features/library/kinds/book/forms/book_catalog_fo
 import 'package:collectarr_app/features/library/kinds/book/forms/book_person_credits_field.dart';
 import 'package:collectarr_app/features/library/kinds/book/vocabulary/book_vocabularies.dart';
 
-final LibraryFormSchema<BookCatalogFormDraft> bookAddSchema = bookAddSchemaFor();
+final LibraryFormSchema<BookCatalogFormDraft> bookAddSchema =
+    bookAddSchemaFor();
 
-LibraryFormSchema<TDraft> bookAddSchemaFor<TDraft extends BookCatalogFormDraft>({
+LibraryFormSchema<TDraft>
+    bookAddSchemaFor<TDraft extends BookCatalogFormDraft>({
   Set<String>? fieldIds,
   Map<String, String> sectionLabels = const {},
   Iterable<String>? publisherOptions,
@@ -206,6 +208,7 @@ List<LibraryFormSectionSpec<TDraft>> _filterSections<TDraft>(
           fullWidthFieldIds: section.fullWidthFieldIds,
           fieldColumnSpans: section.fieldColumnSpans,
           rightAlignedFieldIds: section.rightAlignedFieldIds,
+          columns: section.columns,
           visibleWhen: section.visibleWhen,
         ),
   ];

@@ -1,8 +1,7 @@
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/calendar_event.dart';
-import 'package:collectarr_app/core/models/catalog_item_ref.dart';
-import 'package:collectarr_app/features/catalog/transport/catalog_item_cache_repository.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/config/library_calendar_contributor.dart';
+import 'package:collectarr_app/features/library/entries/library_entry_store.dart';
 import 'package:collectarr_app/features/library/kinds/movie/domain/movie_metadata.dart';
 
 /// Movie owns the mapping from Catalog Item release dates to calendar events.
@@ -19,9 +18,9 @@ final class MovieCalendarContributor implements LibraryCalendarContributor {
     final events = <CalendarEvent>[];
     for (final ref in context.libraryEntryRefs) {
       if (ref.kind != kind) continue;
-      final item = await _loadItem(context, ref.id.value);
-      if (item == null) continue;
-      final metadata = MovieCatalogMetadata.fromJson(item.kindData);
+      final catalogData = await _loadCatalogData(context, ref.id.value);
+      if (catalogData == null) continue;
+      final metadata = MovieCatalogMetadata.fromJson(catalogData);
       final date =
           metadata.releaseDate ?? metadata.releaseDateParts?.asDateTime;
       if (date == null) continue;
@@ -32,14 +31,14 @@ final class MovieCalendarContributor implements LibraryCalendarContributor {
             metadata.localizedTitle ??
             metadata.originalTitle ??
             metadata.title,
-        eventId: 'movie-catalog-item:${item.id}',
+        eventId: 'movie-entry:${ref.id.value}',
         libraryEntryRef: ref,
       ));
     }
     return events;
   }
 
-  Future<CatalogItemDto?> _loadItem(
+  Future<Map<String, dynamic>?> _loadCatalogData(
     LibraryCalendarContext context,
     String id,
   ) {
@@ -47,8 +46,8 @@ final class MovieCalendarContributor implements LibraryCalendarContributor {
     if (database == null) {
       throw StateError('Movie calendar contribution requires a database');
     }
-    return CatalogItemCacheRepository(database).find(
-      CatalogItemRef(kind: CatalogMediaKind.movie, id: id),
-    );
+    return LibraryEntryStore(database)
+        .find(CatalogMediaKind.movie, id)
+        .then((entry) => entry?.catalogData);
   }
 }

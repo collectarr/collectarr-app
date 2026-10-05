@@ -11,7 +11,7 @@ import 'package:collectarr_app/features/pick_lists/pick_list_definition_contribu
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_pick_list_contributors.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_serial_authority_contributors.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_metadata.dart';
-import 'package:collectarr_app/features/library/kinds/tv/workspace/tv_workspace_catalog_data.dart';
+import 'package:collectarr_app/features/library/kinds/tv/workspace/tv_workspace_data.dart';
 
 final class TvCatalogTransportCodec
     implements CatalogKindTransportCodec<TvMetadata> {
@@ -25,11 +25,15 @@ final class TvCatalogTransportCodec
       TvMetadata.fromJson(catalogTransportPayloadFor(item));
 
   @override
+  TvMetadata decodeKindData(Map<String, dynamic> kindData) =>
+      TvMetadata.fromJson(kindData);
+
+  @override
   CatalogDisplaySummary summarize(
     String catalogItemId,
     TvMetadata item,
   ) =>
-      CatalogDisplaySummary.root(
+      CatalogDisplaySummary.forCatalogItem(
         kind: kind,
         id: catalogItemId,
         primaryLabel: item.title,
@@ -37,8 +41,14 @@ final class TvCatalogTransportCodec
       );
 
   @override
-  TvWorkspaceCatalogData workspaceData(CatalogItemDto item) =>
-      TvWorkspaceCatalogData.fromTransport(item);
+  TvWorkspaceData workspaceData(CatalogItemDto item) =>
+      TvWorkspaceData(metadata: decode(item));
+
+  @override
+  TvWorkspaceData workspaceDataFromKindData(
+    Map<String, dynamic> kindData,
+  ) =>
+      TvWorkspaceData(metadata: TvMetadata.fromJson(kindData));
 
   @override
   Future<Map<String, int>> countCatalogValues(
@@ -52,9 +62,7 @@ final class TvCatalogTransportCodec
     return countPickListCatalogValuesByValue(
       contributor: contributor,
       listName: listName,
-      metadata: [
-        for (final item in await listTransport(db)) decode(item),
-      ],
+      metadata: await listCatalogAndEntryMetadata(db),
       normalizedValues: normalizedValues,
     );
   }

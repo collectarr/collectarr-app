@@ -1,11 +1,10 @@
 import 'package:collectarr_app/features/library/kinds/anime/workspace/anime_ids.dart';
 import 'package:collectarr_app/features/library/kinds/anime/data/anime_library_entry_projection.dart';
-import 'package:collectarr_app/features/library/kinds/anime/workspace/anime_preference_codec.dart';
 import 'package:collectarr_app/features/library/kinds/anime/workspace/anime_workspace_dto.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_library_entry.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/schema/field_factories.dart';
-import 'package:collectarr_app/features/library/workspace/schema/library_entity_workspace_schema.dart';
+import 'package:collectarr_app/features/library/workspace/schema/library_workspace_schema.dart';
 import 'package:flutter/material.dart';
 
 abstract final class AnimeLibraryEntryWorkspaceFields {
@@ -15,36 +14,32 @@ abstract final class AnimeLibraryEntryWorkspaceFields {
     label: 'Condition',
     getValue: (context) {
       final entry = AnimeLibraryEntryProjection.fromDispatch(
-          context.source.libraryEntryDispatch);
+          context.item.libraryEntryDispatch);
       return entry is AnimeLibraryEntry ? entry.personal.condition : null;
     },
-    entityScope: LibraryEntityScope.libraryEntry,
   );
 
   static final location =
       LibraryFieldDefinition<AnimeKind, AnimeWorkspaceDto, String?>(
     id: AnimeFieldIds.location,
     label: 'Location',
-    getValue: (context) => context.source.locationPath,
-    entityScope: LibraryEntityScope.libraryEntry,
+    getValue: (context) => context.personal.locationPath,
   );
 
   static final pricePaid =
       LibraryFieldDefinition<AnimeKind, AnimeWorkspaceDto, int?>(
     id: AnimeFieldIds.pricePaid,
     label: 'Purchase Price',
-    getValue: (context) => context.source.pricePaidCents,
-    entityScope: LibraryEntityScope.libraryEntry,
+    getValue: (context) => context.item.entrySummary?.pricePaidCents,
   );
 
   static final status =
       LibraryFieldDefinition<AnimeKind, AnimeWorkspaceDto, String?>(
     id: AnimeFieldIds.status,
     label: 'Status',
-    getValue: (context) => context.source.isWishlisted
+    getValue: (context) => context.personal.isWishlisted
         ? 'wishlist'
-        : (context.source.isEntry ? 'entry' : null),
-    entityScope: LibraryEntityScope.libraryEntry,
+        : ((context.item.entrySummary != null) ? 'entry' : null),
   );
 
   static final rating =
@@ -52,31 +47,27 @@ abstract final class AnimeLibraryEntryWorkspaceFields {
     id: AnimeFieldIds.rating,
     label: 'Rating',
     getValue: (context) => context.dto.personal.rating,
-    entityScope: LibraryEntityScope.libraryEntry,
   );
 
   static final wishlist =
       LibraryFieldDefinition<AnimeKind, AnimeWorkspaceDto, bool>(
     id: AnimeFieldIds.wishlist,
     label: 'Wishlist',
-    getValue: (context) => context.source.isWishlisted,
-    entityScope: LibraryEntityScope.libraryEntry,
+    getValue: (context) => context.personal.isWishlisted,
   );
 
   static final updatedAt =
       LibraryFieldDefinition<AnimeKind, AnimeWorkspaceDto, DateTime>(
     id: AnimeFieldIds.updatedAt,
     label: 'Updated',
-    getValue: (context) => context.source.updatedAt,
-    entityScope: LibraryEntityScope.libraryEntry,
+    getValue: (context) => context.updatedAt,
   );
 
   static final addedAt =
       LibraryFieldDefinition<AnimeKind, AnimeWorkspaceDto, DateTime?>(
     id: AnimeFieldIds.addedAt,
     label: 'Added',
-    getValue: (context) => context.source.addedAt,
-    entityScope: LibraryEntityScope.libraryEntry,
+    getValue: (context) => context.addedAt,
   );
 
   static final watchStatus =
@@ -84,7 +75,6 @@ abstract final class AnimeLibraryEntryWorkspaceFields {
     id: AnimeFieldIds.watchStatus,
     label: 'Watch Status',
     getValue: (context) => context.dto.personal.trackingStatus,
-    entityScope: LibraryEntityScope.libraryEntry,
   );
 }
 
@@ -110,11 +100,10 @@ final animeLibraryEntryWorkspaceGroupDefinitions = [
 final animeLibraryEntryWorkspaceSortDefinitions = [
   LibrarySortDefinition<AnimeKind, AnimeWorkspaceDto>(
     id: AnimeSortIds.status,
-    entityScope: LibraryEntityScope.libraryEntry,
     compare: (left, right) {
       int rank(LibraryProjectionContext<AnimeWorkspaceDto> ctx) {
-        if (ctx.source.isEntry) return 0;
-        if (ctx.source.isWishlisted) return 1;
+        if ((ctx.item.entrySummary != null)) return 0;
+        if (ctx.personal.isWishlisted) return 1;
         return 2;
       }
 
@@ -140,9 +129,9 @@ final animeLibraryEntryWorkspaceColumnDefinitions = [
     id: AnimeFieldIds.status,
     label: 'Status',
     getValue: AnimeLibraryEntryWorkspaceFields.status.getValue,
-    cellValue: (context) => Text(context.source.isWishlisted
+    cellValue: (context) => Text(context.personal.isWishlisted
         ? 'Wishlist'
-        : (context.source.isEntry ? 'Entry' : '')),
+        : ((context.item.entrySummary != null) ? 'Entry' : '')),
     sortable: false,
     groupable: false,
     defaultWidth: 52,
@@ -152,7 +141,7 @@ final animeLibraryEntryWorkspaceColumnDefinitions = [
     id: AnimeFieldIds.wishlist,
     label: 'Wishlist',
     getValue: AnimeLibraryEntryWorkspaceFields.wishlist.getValue,
-    cellValue: (context) => Text(context.source.isWishlisted ? 'Wishlist' : ''),
+    cellValue: (context) => Text(context.personal.isWishlisted ? 'Wishlist' : ''),
     group: 'Personal',
     defaultWidth: 82,
     minWidth: 70,
@@ -161,7 +150,7 @@ final animeLibraryEntryWorkspaceColumnDefinitions = [
     id: AnimeFieldIds.updatedAt,
     label: 'Updated',
     getValue: AnimeLibraryEntryWorkspaceFields.updatedAt.getValue,
-    cellValue: (context) => Text(_formatDate(context.source.updatedAt)),
+    cellValue: (context) => Text(_formatDate(context.updatedAt)),
     group: 'Personal',
     defaultWidth: 112,
   ),
@@ -169,7 +158,7 @@ final animeLibraryEntryWorkspaceColumnDefinitions = [
     id: AnimeFieldIds.addedAt,
     label: 'Added',
     getValue: AnimeLibraryEntryWorkspaceFields.addedAt.getValue,
-    cellValue: (context) => Text(_formatDate(context.source.addedAt)),
+    cellValue: (context) => Text(_formatDate(context.addedAt)),
     group: 'Personal',
     defaultWidth: 112,
   ),
@@ -186,7 +175,7 @@ final animeLibraryEntryWorkspaceColumnDefinitions = [
   columnFromField<AnimeKind, AnimeWorkspaceDto, int?>(
     AnimeLibraryEntryWorkspaceFields.pricePaid,
     cellValue: (context) =>
-        Text(_formatCents(context.source.pricePaidCents, context.dto.currency)),
+        Text(_formatCents(context.item.entrySummary?.pricePaidCents, context.dto.currency)),
     group: 'Value',
     isNumeric: true,
     defaultWidth: 92,
@@ -202,9 +191,8 @@ final animeLibraryEntryWorkspaceColumnDefinitions = [
 ];
 
 final animeLibraryEntryWorkspaceSchema =
-    LibraryEntityWorkspaceSchema<AnimeKind, AnimeWorkspaceDto>(
+    LibraryWorkspaceSchema<AnimeKind, AnimeWorkspaceDto>(
   kindNamespace: 'anime',
-  entityScope: LibraryEntityScope.libraryEntry,
   fields: animeLibraryEntryWorkspaceFieldDefinitions,
   columns: animeLibraryEntryWorkspaceColumnDefinitions,
   sorts: animeLibraryEntryWorkspaceSortDefinitions,
@@ -213,7 +201,6 @@ final animeLibraryEntryWorkspaceSchema =
   defaultVisibleColumns: animeLibraryEntryWorkspaceDefaultVisibleColumns,
   defaultSort: AnimeSortIds.status,
   defaultGroup: AnimeGroupIds.condition,
-  preferenceCodec: const AnimePreferenceCodec(),
 );
 
 String _formatDate(DateTime? value) {

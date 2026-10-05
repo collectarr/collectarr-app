@@ -2,18 +2,8 @@ import '../anime_module_dependencies.dart';
 import '../entries/anime_transfer_library_entry.dart';
 
 final animeKindEditCapabilities = LibraryEditCapabilitySet(
-  editRegistry: LibraryEntityEditRegistry(contributors: [
-    LibraryEntityEditContributor(
-      scope: LibraryEntityScope.catalogItem,
-      builder: buildAnimeLibraryEditDialog,
-    ),
-    LibraryEntityEditContributor(
-      scope: LibraryEntityScope.libraryEntry,
-      builder: buildAnimeLibraryEditDialog,
-    ),
-  ]),
+  editRegistry: LibraryTargetEditRegistry(catalogItem: buildAnimeLibraryEditDialog, libraryEntry: buildAnimeLibraryEditDialog),
   presentation: animeLibraryEditPresentation,
-  coreCorrectionTargetResolver: resolveStructuralLibraryCoreCorrectionTarget,
   conditions: AnimeVocabularies.condition.builtIns,
   entryCollectionValueReader: (libraryEntry) => switch (libraryEntry?.value) {
     AnimeLibraryEntry item => item.personal.grade,

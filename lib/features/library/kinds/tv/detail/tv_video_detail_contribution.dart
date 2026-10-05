@@ -1,4 +1,4 @@
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
@@ -10,7 +10,7 @@ import 'package:collectarr_app/features/library/kinds/tv/provider/tv_seasons_pro
 import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_episode_rating_section.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_progress_section.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_season_tracking_section.dart';
-import 'package:collectarr_app/features/library/kinds/tv/workspace/tv_workspace_catalog_data.dart';
+import 'package:collectarr_app/features/library/kinds/tv/workspace/tv_workspace_data.dart';
 import 'package:collectarr_app/features/library/tracking/session_history_section.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -33,9 +33,8 @@ final class TvVideoDetailContribution extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final request = this.request;
-    final catalogRef = CatalogEntityRef(
+    final catalogRef = CatalogItemRef(
       kind: request.type.kind,
-      entityType: CatalogEntityTypeId.catalogItem,
       id: request.item.source.itemId,
     );
     final seasonsAsync = ref.watch(tvSeasonsByCatalogRefProvider(catalogRef));
@@ -44,8 +43,8 @@ final class TvVideoDetailContribution extends ConsumerWidget {
       catalogRef: catalogRef,
       seasonsAsync: seasonsAsync,
     );
-    final catalog = request.item.source.catalogData;
-    final links = catalog is TvWorkspaceCatalogData
+    final catalog = request.item.source.kindPresentationData;
+    final links = catalog is TvWorkspaceData
         ? catalog.metadata.links
         : const <TrailerLinkDto>[];
     return Column(
@@ -86,7 +85,7 @@ final class TvVideoDetailContribution extends ConsumerWidget {
         WatchHistorySection(
           libraryEntryRef: request.libraryEntrySummary?.ref ??
               LibraryEntryRef(
-                kind: catalogRef.mediaKind,
+                kind: catalogRef.kind,
                 id: LibraryEntryId(request.item.source.itemId),
               ),
           accent: request.accent,
@@ -99,7 +98,7 @@ final class TvVideoDetailContribution extends ConsumerWidget {
 
 List<WatchHistoryTargetOption> _watchHistoryTargets({
   required LibraryDetailPageRequest request,
-  required CatalogEntityRef catalogRef,
+  required CatalogItemRef catalogRef,
   required AsyncValue<List<TvSeasonMetadata>> seasonsAsync,
 }) =>
     [

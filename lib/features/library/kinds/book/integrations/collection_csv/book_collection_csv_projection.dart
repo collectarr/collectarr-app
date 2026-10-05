@@ -1,12 +1,12 @@
 import 'package:collectarr_app/features/catalog/transport/catalog_import_transport.dart';
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/features/library/kinds/book/data/book_library_entry_projection.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/features/collection/csv/collection_csv_kind_profile.dart';
 import 'package:collectarr_app/features/library/kinds/book/domain/book_library_entry.dart';
 import 'package:collectarr_app/features/library/kinds/book/integrations/collection_csv/book_collection_csv_import_profile.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
-import 'package:collectarr_app/features/library/kinds/book/workspace/book_workspace_catalog_data.dart';
+import 'package:collectarr_app/features/library/kinds/book/workspace/book_workspace_data.dart';
 
 /// Book's semantic contribution to the generic collection CSV host.
 final class BookCollectionCsvProjection
@@ -112,10 +112,10 @@ final class BookCollectionCsvProjection
   }
 
   @override
-  List<String> catalogCells(LibraryWorkspaceSource entry) {
-    final catalog = entry.catalogData;
+  List<String> catalogCells(LibraryWorkspaceContext entry) {
+    final catalog = entry.kindPresentationData;
     final metadata =
-        catalog is BookWorkspaceCatalogData ? catalog.metadata : null;
+        catalog is BookWorkspaceData ? catalog.metadata : null;
     return [
       entry.itemId,
       CatalogMediaKind.book.apiValue,
@@ -127,8 +127,7 @@ final class BookCollectionCsvProjection
       metadata?.physicalFormatLabel ?? '',
       metadata?.publisher ?? '',
       _formatDate(metadata?.releaseDate ??
-          metadata?.releaseDateParts?.asDateTime ??
-          entry.catalogData?.releaseDate),
+          metadata?.releaseDateParts?.asDateTime),
       metadata?.isbn ??
           metadata?.isbn13 ??
           metadata?.isbn10 ??
@@ -138,7 +137,7 @@ final class BookCollectionCsvProjection
   }
 
   @override
-  String? entryCollectionValue(LibraryWorkspaceSource entry) {
+  String? entryCollectionValue(LibraryWorkspaceContext entry) {
     final personalState =
         BookLibraryEntryProjection.fromDispatch(entry.libraryEntryDispatch);
     return personalState is BookLibraryEntry
@@ -147,7 +146,7 @@ final class BookCollectionCsvProjection
   }
 
   @override
-  String? entryCondition(LibraryWorkspaceSource entry) {
+  String? entryCondition(LibraryWorkspaceContext entry) {
     final personalState =
         BookLibraryEntryProjection.fromDispatch(entry.libraryEntryDispatch);
     return personalState is BookLibraryEntry
@@ -156,7 +155,7 @@ final class BookCollectionCsvProjection
   }
 
   @override
-  int? entryIndexNumber(LibraryWorkspaceSource entry) {
+  int? entryIndexNumber(LibraryWorkspaceContext entry) {
     final personalState =
         BookLibraryEntryProjection.fromDispatch(entry.libraryEntryDispatch);
     return personalState is BookLibraryEntry
@@ -165,7 +164,7 @@ final class BookCollectionCsvProjection
   }
 
   @override
-  String? entryTags(LibraryWorkspaceSource entry) {
+  String? entryTags(LibraryWorkspaceContext entry) {
     final personalState =
         BookLibraryEntryProjection.fromDispatch(entry.libraryEntryDispatch);
     return personalState is BookLibraryEntry
@@ -175,7 +174,7 @@ final class BookCollectionCsvProjection
 
   @override
   List<String> entryCellsBeforeLocation(
-    LibraryWorkspaceSource entry, {
+    LibraryWorkspaceContext entry, {
     required bool clzFriendly,
   }) {
     return const [];
@@ -183,7 +182,7 @@ final class BookCollectionCsvProjection
 
   @override
   List<String> entryCellsAfterIndex(
-    LibraryWorkspaceSource entry, {
+    LibraryWorkspaceContext entry, {
     required bool clzFriendly,
   }) {
     return List<String>.filled(

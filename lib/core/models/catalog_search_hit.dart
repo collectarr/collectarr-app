@@ -1,4 +1,4 @@
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:flutter/foundation.dart';
 
 /// The intentionally small result shape used when a search crosses kinds.
@@ -29,17 +29,7 @@ final class CatalogSearchHit {
     }
 
     return CatalogSearchHit(
-      ref: CatalogEntityRef(
-        kind: kind,
-        entityType: json['entity_type'] == null
-            ? CatalogEntityTypeId.catalogItem
-            : CatalogEntityTypeId.fromApiValue(
-                json['entity_type']?.toString(),
-              ),
-        id: id,
-        rootId: _nullableString(json['root_id']),
-        parentId: _nullableString(json['parent_id']),
-      ),
+      ref: CatalogItemRef(kind: kind, id: id),
       kind: kind,
       title: title,
       subtitle: _nullableString(json['subtitle'] ?? json['summary']),
@@ -47,7 +37,7 @@ final class CatalogSearchHit {
     );
   }
 
-  final CatalogEntityRef ref;
+  final CatalogItemRef ref;
   final CatalogMediaKind kind;
   final String title;
   final String? subtitle;
@@ -57,10 +47,7 @@ final class CatalogSearchHit {
     return {
       'id': ref.id,
       'kind': kind.apiValue,
-      'entity_type': ref.entityType.apiValue,
       'title': title,
-      if (ref.rootId != null) 'root_id': ref.rootId,
-      if (ref.parentId != null) 'parent_id': ref.parentId,
       if (subtitle != null) 'subtitle': subtitle,
       if (imageUrl != null) 'image_url': imageUrl,
     };

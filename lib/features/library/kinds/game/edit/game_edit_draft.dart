@@ -19,7 +19,7 @@ import 'package:collectarr_app/features/library/kinds/registry/library_entry_dis
 import 'package:collectarr_app/features/library/kinds/game/domain/game_library_entry.dart';
 import 'package:collectarr_app/features/library/kinds/game/entries/game_entry_details_draft.dart';
 import 'package:collectarr_app/features/library/kinds/game/entries/game_library_entry_update_payload.dart';
-import 'package:collectarr_app/features/library/edit/draft/personal_state_draft.dart';
+import 'package:collectarr_app/features/library/edit/draft/library_entry_personal_bindings.dart';
 import 'package:collectarr_app/features/library/edit/fields/library_external_links_table.dart';
 
 class GameEditDraft
@@ -129,7 +129,7 @@ class GameEditDraft
       );
 
   @override
-  void initializePersonalState(PersonalStateDraft personal) {
+  void initializePersonalState(LibraryEntryPersonalBindings personal) {
     final item = libraryEntry;
     if (item == null) return;
     personal.ownerLabelController.text = item.personal.ownerLabel ?? '';
@@ -162,7 +162,7 @@ class GameEditDraft
   @override
   GameLibraryEntryUpdatePayload buildEntryUpdatePayload({
     required LibraryEntryRef libraryEntryRef,
-    required PersonalStateDraft personal,
+    required LibraryEntryPersonalBindings personal,
   }) {
     return GameLibraryEntryUpdatePayload(
       isDigital: const Patch.unchanged(),
@@ -248,6 +248,7 @@ class GameEditDraft
     final candidate = selection.kindItem.kindCapability.mapTransport(
       (transport) => CatalogSearchCandidate.fromItem(
         transport.replacingKindData(updated),
+        basedOn: selection.kindItem,
       ),
     );
     return selection.copyWith(kindItem: candidate);

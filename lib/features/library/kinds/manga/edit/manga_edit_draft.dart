@@ -17,7 +17,7 @@ import 'package:collectarr_app/features/library/kinds/registry/library_entry_dis
 import 'package:collectarr_app/features/library/kinds/manga/domain/manga_library_entry.dart';
 import 'package:collectarr_app/features/library/kinds/manga/entries/manga_entry_details_draft.dart';
 import 'package:collectarr_app/features/library/kinds/manga/entries/manga_library_entry_update_payload.dart';
-import 'package:collectarr_app/features/library/edit/draft/personal_state_draft.dart';
+import 'package:collectarr_app/features/library/edit/draft/library_entry_personal_bindings.dart';
 import 'package:collectarr_app/features/library/edit/fields/library_external_links_table.dart';
 
 enum MangaCanonicalEditField {
@@ -159,7 +159,7 @@ class MangaEditDraft
       );
 
   @override
-  void initializePersonalState(PersonalStateDraft personal) {
+  void initializePersonalState(LibraryEntryPersonalBindings personal) {
     final item = libraryEntry;
     if (item == null) return;
     personal.ownerLabelController.text = item.personal.ownerLabel ?? '';
@@ -192,7 +192,7 @@ class MangaEditDraft
   @override
   MangaLibraryEntryUpdatePayload buildEntryUpdatePayload({
     required LibraryEntryRef libraryEntryRef,
-    required PersonalStateDraft personal,
+    required LibraryEntryPersonalBindings personal,
   }) {
     return MangaLibraryEntryUpdatePayload(
       isDigital: const Patch.unchanged(),
@@ -518,6 +518,7 @@ class MangaEditDraft
             updatedMetadata,
           ),
         ),
+        basedOn: selection.kindItem,
       ),
     );
     return selection.copyWith(kindItem: updatedItem);

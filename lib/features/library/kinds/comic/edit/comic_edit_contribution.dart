@@ -2,19 +2,9 @@ import '../comic_module_dependencies.dart';
 import '../entries/comic_transfer_library_entry.dart';
 
 final comicKindEditCapabilities = LibraryEditCapabilitySet(
-  editRegistry: LibraryEntityEditRegistry(contributors: [
-    LibraryEntityEditContributor(
-      scope: LibraryEntityScope.catalogItem,
-      builder: buildComicLibraryEditDialog,
-    ),
-    LibraryEntityEditContributor(
-      scope: LibraryEntityScope.libraryEntry,
-      builder: buildComicCatalogItemLibraryEditDialog,
-    ),
-  ]),
+  editRegistry: LibraryTargetEditRegistry(catalogItem: buildComicLibraryEditDialog, libraryEntry: buildComicCatalogItemLibraryEditDialog),
   vocabularies: StandardKindVocabularyCapability(ComicVocabularies.all),
   presentation: comicsLibraryEditPresentation,
-  coreCorrectionTargetResolver: resolveStructuralLibraryCoreCorrectionTarget,
   conditions: ComicVocabularies.condition.builtIns,
   collectionValueOptions: ComicVocabularies.grade.builtIns,
   entryCollectionValueReader: (libraryEntry) => switch (libraryEntry?.value) {

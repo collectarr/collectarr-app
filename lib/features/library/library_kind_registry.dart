@@ -11,11 +11,9 @@ import 'package:collectarr_app/features/library/config/library_barcode_resolver.
 import 'package:collectarr_app/features/collection/csv/collection_csv_kind_profile.dart';
 import 'package:collectarr_app/features/library/config/library_export_preview_contributor.dart';
 import 'package:collectarr_app/features/library/config/library_facet_module.dart';
-import 'package:collectarr_app/features/library/config/library_shelf_extension_contributor.dart';
 import 'package:collectarr_app/features/barcode/scanned_code.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_workspace.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 export 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
@@ -72,11 +70,6 @@ final Map<CatalogMediaKind, CollectionCsvKindProfile>
 
 Iterable<CollectionCsvKindProfile> get collectionCsvKindProfiles =>
     _collectionCsvProjections.values;
-
-final Map<CatalogMediaKind, LibraryShelfExtensionContributor>
-    _shelfExtensionContributors = Map.unmodifiable(
-  collectionShelfExtensionsByKind,
-);
 
 final Map<CatalogMediaKind, LibraryExportPreviewContributor>
     _exportPreviewContributors = Map.unmodifiable(
@@ -191,23 +184,6 @@ CollectionCsvKindProfile? collectionCsvKindProfileFor(
   return _collectionCsvProjections[kind];
 }
 
-/// Composition-root dispatch for kind-entry extensions on the mixed Shelf.
-///
-/// The Collection feature owns the slot and row lifecycle. The kind registry
-/// only looks up a structural contributor; it does not encode kind branches.
-Widget? libraryShelfExtensionForEntry(
-  LibraryWorkspaceSource entry, {
-  required bool expanded,
-  required VoidCallback onToggle,
-}) {
-  final kind = entry.catalogSummary?.kind ?? CatalogMediaKind.unknown;
-  return _shelfExtensionContributors[kind]?.build(
-    entry,
-    expanded: expanded,
-    onToggle: onToggle,
-  );
-}
-
 final libraryKindRegistryProvider = Provider<LibraryKindRegistry>((ref) {
   return defaultLibraryKindRegistry;
 });
@@ -258,7 +234,7 @@ bool libraryGroupModeSupportsCompletion(
 /// The registry may assemble kind implementations; callers receive only the
 /// structural artifact contract and never import a concrete kind.
 List<ExportPreviewArtifact> libraryExportPreviewArtifacts(
-  Iterable<LibraryWorkspaceSource> entries,
+  Iterable<LibraryWorkspaceContext> entries,
 ) {
   return [
     for (final contributor in _exportPreviewContributors.values)

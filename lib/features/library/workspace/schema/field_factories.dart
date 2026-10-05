@@ -7,13 +7,11 @@ LibraryFieldDefinition<TKind, TDto, String?>
   required LibraryFieldId<TKind, String?> id,
   required String label,
   required String? Function(TDto dto) getValue,
-  required LibraryEntityScope entityScope,
 }) {
   return LibraryFieldDefinition<TKind, TDto, String?>(
     id: id,
     label: label,
     getValue: (context) => getValue(context.dto),
-    entityScope: entityScope,
   );
 }
 
@@ -22,13 +20,11 @@ LibraryFieldDefinition<TKind, TDto, num?>
   required LibraryFieldId<TKind, num?> id,
   required String label,
   required num? Function(TDto dto) getValue,
-  required LibraryEntityScope entityScope,
 }) {
   return LibraryFieldDefinition<TKind, TDto, num?>(
     id: id,
     label: label,
     getValue: (context) => getValue(context.dto),
-    entityScope: entityScope,
   );
 }
 
@@ -37,13 +33,11 @@ LibraryFieldDefinition<TKind, TDto, DateTime?>
   required LibraryFieldId<TKind, DateTime?> id,
   required String label,
   required DateTime? Function(TDto dto) getValue,
-  required LibraryEntityScope entityScope,
 }) {
   return LibraryFieldDefinition<TKind, TDto, DateTime?>(
     id: id,
     label: label,
     getValue: (context) => getValue(context.dto),
-    entityScope: entityScope,
   );
 }
 
@@ -52,13 +46,11 @@ LibraryFieldDefinition<TKind, TDto, int?>
   required LibraryFieldId<TKind, int?> id,
   required String label,
   required int? Function(TDto dto) getValue,
-  required LibraryEntityScope entityScope,
 }) {
   return LibraryFieldDefinition<TKind, TDto, int?>(
     id: id,
     label: label,
     getValue: (context) => getValue(context.dto),
-    entityScope: entityScope,
   );
 }
 
@@ -85,7 +77,6 @@ LibraryColumnDefinition<TKind, TDto, V>
     maxWidth: maxWidth,
     sortable: sortable,
     groupable: groupable,
-    entityScope: field.entityScope,
     isNumeric: isNumeric,
   );
 }
@@ -102,7 +93,6 @@ LibrarySortDefinition<TKind, TDto> sortFromField<TKind,
     label: field.label,
     group: group,
     defaultAscending: defaultAscending,
-    entityScope: field.entityScope,
     compare: (left, right) {
       final a = field.getValue(left);
       final b = field.getValue(right);
@@ -147,6 +137,5 @@ LibraryGroupDefinition<TKind, TDto, V>
     subgroupKey: subgroupKey,
     bucketValueMutator: bucketValueMutator,
     entryBucketValueMutator: entryBucketValueMutator,
-    entityScope: field.entityScope,
   );
 }

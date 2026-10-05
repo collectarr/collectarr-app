@@ -15,7 +15,7 @@ import 'package:collectarr_app/features/library/kinds/comic/entries/comic_entry_
 import 'package:collectarr_app/features/library/kinds/comic/edit/entry/comic_entry_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/comic/entries/comic_entry_details_draft.dart';
 import 'package:collectarr_app/features/library/kinds/comic/entries/comic_library_entry_update_payload.dart';
-import 'package:collectarr_app/features/library/edit/draft/personal_state_draft.dart';
+import 'package:collectarr_app/features/library/edit/draft/library_entry_personal_bindings.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:flutter/material.dart';
 
@@ -79,7 +79,7 @@ class ComicEditDraft
   JsonEncodable toDetailsDraft() => entryEdit.toDetailsDraft();
 
   @override
-  void initializePersonalState(PersonalStateDraft personal) {
+  void initializePersonalState(LibraryEntryPersonalBindings personal) {
     final item = libraryEntry;
     if (item == null) return;
     personal.ownerLabelController.text = item.personal.ownerLabel ?? '';
@@ -112,7 +112,7 @@ class ComicEditDraft
   @override
   ComicLibraryEntryUpdatePayload buildEntryUpdatePayload({
     required LibraryEntryRef libraryEntryRef,
-    required PersonalStateDraft personal,
+    required LibraryEntryPersonalBindings personal,
   }) {
     return ComicLibraryEntryUpdatePayload(
       isDigital: const Patch.unchanged(),
@@ -175,53 +175,56 @@ class ComicEditDraft
         .toList();
     return selection.copyWith(
       kindItem: CatalogSearchCandidate.fromItem(
-          selection.kindItem.kindCapability.mapTransport((transport) {
-        final metadata = ComicCatalogItem.fromJson(transport.kindData);
-        final edited = metadata.copyWith(
-          title: fields.controller(ComicCanonicalEditField.title).text.trim(),
-          displayTitle: emptyToNull(
-              fields.controller(ComicCanonicalEditField.displayTitle).text),
-          originalTitle: emptyToNull(
-              fields.controller(ComicCanonicalEditField.originalTitle).text),
-          localizedTitle: emptyToNull(
-              fields.controller(ComicCanonicalEditField.localizedTitle).text),
-          searchAliases: aliases.isEmpty ? null : aliases,
-          synopsis: emptyToNull(
-              fields.controller(ComicCanonicalEditField.synopsis).text),
-          coverImageUrl: emptyToNull(
-              fields.controller(ComicCanonicalEditField.coverImage).text),
-          thumbnailImageUrl: emptyToNull(
-              fields.controller(ComicCanonicalEditField.thumbnailImage).text),
-          sortTitle: emptyToNull(
-            fields.controller(ComicCanonicalEditField.sortTitle).text,
-          ),
-        );
-        final updated = ComicCatalogItem.fromJson(applyJsonFieldPatch(edited, {
-          'display_title': emptyToNull(
-            fields.controller(ComicCanonicalEditField.displayTitle).text,
-          ),
-          'original_title': emptyToNull(
-            fields.controller(ComicCanonicalEditField.originalTitle).text,
-          ),
-          'localized_title': emptyToNull(
-            fields.controller(ComicCanonicalEditField.localizedTitle).text,
-          ),
-          'search_aliases': aliases,
-          'synopsis': emptyToNull(
-            fields.controller(ComicCanonicalEditField.synopsis).text,
-          ),
-          'cover_image_url': emptyToNull(
-            fields.controller(ComicCanonicalEditField.coverImage).text,
-          ),
-          'thumbnail_image_url': emptyToNull(
-            fields.controller(ComicCanonicalEditField.thumbnailImage).text,
-          ),
-          'sort_key': emptyToNull(
-            fields.controller(ComicCanonicalEditField.sortTitle).text,
-          ),
-        }));
-        return transport.replacingKindData(updated);
-      })),
+        selection.kindItem.kindCapability.mapTransport((transport) {
+          final metadata = ComicCatalogItem.fromJson(transport.kindData);
+          final edited = metadata.copyWith(
+            title: fields.controller(ComicCanonicalEditField.title).text.trim(),
+            displayTitle: emptyToNull(
+                fields.controller(ComicCanonicalEditField.displayTitle).text),
+            originalTitle: emptyToNull(
+                fields.controller(ComicCanonicalEditField.originalTitle).text),
+            localizedTitle: emptyToNull(
+                fields.controller(ComicCanonicalEditField.localizedTitle).text),
+            searchAliases: aliases.isEmpty ? null : aliases,
+            synopsis: emptyToNull(
+                fields.controller(ComicCanonicalEditField.synopsis).text),
+            coverImageUrl: emptyToNull(
+                fields.controller(ComicCanonicalEditField.coverImage).text),
+            thumbnailImageUrl: emptyToNull(
+                fields.controller(ComicCanonicalEditField.thumbnailImage).text),
+            sortTitle: emptyToNull(
+              fields.controller(ComicCanonicalEditField.sortTitle).text,
+            ),
+          );
+          final updated =
+              ComicCatalogItem.fromJson(applyJsonFieldPatch(edited, {
+            'display_title': emptyToNull(
+              fields.controller(ComicCanonicalEditField.displayTitle).text,
+            ),
+            'original_title': emptyToNull(
+              fields.controller(ComicCanonicalEditField.originalTitle).text,
+            ),
+            'localized_title': emptyToNull(
+              fields.controller(ComicCanonicalEditField.localizedTitle).text,
+            ),
+            'search_aliases': aliases,
+            'synopsis': emptyToNull(
+              fields.controller(ComicCanonicalEditField.synopsis).text,
+            ),
+            'cover_image_url': emptyToNull(
+              fields.controller(ComicCanonicalEditField.coverImage).text,
+            ),
+            'thumbnail_image_url': emptyToNull(
+              fields.controller(ComicCanonicalEditField.thumbnailImage).text,
+            ),
+            'sort_key': emptyToNull(
+              fields.controller(ComicCanonicalEditField.sortTitle).text,
+            ),
+          }));
+          return transport.replacingKindData(updated);
+        }),
+        basedOn: selection.kindItem,
+      ),
     );
   }
 

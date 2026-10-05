@@ -1,7 +1,6 @@
 import 'package:collectarr_app/core/models/library_entry_ref.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_catalog_item.dart';
-import 'package:collectarr_app/features/library/kinds/comic/domain/comic_ids.dart';
 import 'package:collectarr_app/features/library/config/library_entry_create_payload.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_library_entry.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_personal_data.dart';
@@ -86,10 +85,10 @@ final class ComicLibraryEntryCreatePayload
     }
     return ComicLibraryEntry(
       id: LibraryEntryId(id),
-      metadata: ComicCatalogItem.fromJson({
-        ...sourceCatalogItem.kindData,
-        'id': sourceCatalogItem.id,
-      }).copyWith(id: ComicCatalogItemId(id)),
+      metadata: ComicCatalogItem.fromJson(sourceCatalogItem.kindData),
+      sourceCatalogRef: sourceCatalogItem.origin == CatalogItemOrigin.core
+          ? sourceCatalogItem.catalogItemRef
+          : null,
       createdAt: createdAt,
       personal: ComicPersonalData(
         isDigital: isDigital ?? existingIsDigital,

@@ -2,7 +2,7 @@ import 'package:collectarr_app/features/library/config/library_item_actions.dart
 import 'package:collectarr_app/features/library/details/library_inspector_info_line.dart';
 import 'package:collectarr_app/features/library/details/library_inspector_title_card.dart';
 import 'package:collectarr_app/features/library/details/library_detail_models.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/workspace/boardgame_workspace_catalog_data.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/workspace/boardgame_workspace_data.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/workspace/boardgame_workspace_dto.dart';
 import 'package:collectarr_app/features/library/details/library_detail_panel_scaffold.dart';
 import 'package:collectarr_app/features/library/detail/library_detail_hero.dart';
@@ -33,7 +33,7 @@ List<Widget> buildBoardGameCatalogItemInspectorSections(
   ];
 }
 
-List<Widget> buildBoardGameCopyInspectorSections(
+List<Widget> buildBoardGameLibraryEntryInspectorSections(
   BuildContext context,
   LibraryInspectorRequest inspector,
 ) {
@@ -63,7 +63,7 @@ Widget buildBoardGameCatalogItemInspectorHero(
       accent: request.accent,
     );
 
-Widget buildBoardGameCopyInspectorHero(
+Widget buildBoardGameLibraryEntryInspectorHero(
   BuildContext context,
   LibraryInspectorRequest request,
 ) =>
@@ -156,8 +156,8 @@ class _BoardGameInspectorMain extends StatelessWidget {
     final dto = item.dto;
     final adapter = dto is BoardGameWorkspaceDto ? dto : null;
     final bgDto = dto is BoardGameWorkspaceDto ? dto : null;
-    final metadata = item.source.catalogData is BoardGameWorkspaceCatalogData
-        ? (item.source.catalogData! as BoardGameWorkspaceCatalogData).metadata
+    final metadata = item.source.kindPresentationData is BoardGameWorkspaceData
+        ? (item.source.kindPresentationData! as BoardGameWorkspaceData).metadata
         : null;
     final palette = appPalette(context);
     final releaseYear = adapter?.releaseDate?.year.toString();

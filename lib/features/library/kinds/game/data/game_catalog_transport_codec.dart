@@ -10,7 +10,7 @@ import 'package:collectarr_app/features/pick_lists/pick_list_definition_contribu
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_pick_list_contributors.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_serial_authority_contributors.dart';
 import 'package:collectarr_app/features/library/kinds/game/domain/game_metadata.dart';
-import 'package:collectarr_app/features/library/kinds/game/workspace/game_workspace_catalog_data.dart';
+import 'package:collectarr_app/features/library/kinds/game/workspace/game_workspace_data.dart';
 
 final class GameCatalogTransportCodec
     implements CatalogKindTransportCodec<GameCatalogMetadata> {
@@ -24,11 +24,15 @@ final class GameCatalogTransportCodec
       GameCatalogMetadata.fromJson(item.kindData);
 
   @override
+  GameCatalogMetadata decodeKindData(Map<String, dynamic> kindData) =>
+      GameCatalogMetadata.fromJson(kindData);
+
+  @override
   CatalogDisplaySummary summarize(
     String catalogItemId,
     GameCatalogMetadata item,
   ) =>
-      CatalogDisplaySummary.root(
+      CatalogDisplaySummary.forCatalogItem(
         kind: kind,
         id: catalogItemId,
         primaryLabel: item.title,
@@ -36,8 +40,14 @@ final class GameCatalogTransportCodec
       );
 
   @override
-  GameWorkspaceCatalogData workspaceData(CatalogItemDto item) =>
-      GameWorkspaceCatalogData.fromTransport(item);
+  GameWorkspaceData workspaceData(CatalogItemDto item) =>
+      GameWorkspaceData(metadata: decode(item));
+
+  @override
+  GameWorkspaceData workspaceDataFromKindData(
+    Map<String, dynamic> kindData,
+  ) =>
+      GameWorkspaceData(metadata: GameCatalogMetadata.fromJson(kindData));
 
   @override
   Future<Map<String, int>> countCatalogValues(
@@ -51,9 +61,7 @@ final class GameCatalogTransportCodec
     return countPickListCatalogValuesByValue(
       contributor: contributor,
       listName: listName,
-      metadata: [
-        for (final item in await listTransport(db)) decode(item),
-      ],
+      metadata: await listCatalogAndEntryMetadata(db),
       normalizedValues: normalizedValues,
     );
   }

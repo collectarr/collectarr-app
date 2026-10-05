@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
 import 'library_workspace_query.dart';
 
 abstract class LibraryWorkspaceRepository {
@@ -37,7 +36,7 @@ class LocalLibraryWorkspaceRepository implements LibraryWorkspaceRepository {
   }
 
   List<LibraryProjectionView> _processEntries(
-    List<LibraryWorkspaceSource> shelfEntries,
+    List<LibraryWorkspaceContext> shelfEntries,
     LibraryWorkspaceQuery query,
   ) {
     final registration = libraryKindRegistrationForKind(query.kind);
@@ -45,10 +44,8 @@ class LocalLibraryWorkspaceRepository implements LibraryWorkspaceRepository {
 
     final items = <LibraryProjectionView>[];
     for (final source in shelfEntries) {
-      final catalogRef = source.catalogRef;
-      if (catalogRef?.mediaKind == query.kind) {
-        final node = LibraryCatalogItemNodeRef(catalogItemId: catalogRef!.id);
-        items.add(workspace.project(source: source, node: node));
+      if (source.mediaKind == query.kind) {
+        items.add(workspace.project(source: source));
       }
     }
 

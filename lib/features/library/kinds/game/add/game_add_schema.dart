@@ -6,9 +6,11 @@ import 'package:collectarr_app/features/library/kinds/game/forms/game_catalog_fo
 import 'package:collectarr_app/features/library/kinds/game/forms/game_catalog_field_specs.dart';
 import 'package:collectarr_app/features/library/kinds/game/forms/game_catalog_form_values.dart';
 
-final LibraryFormSchema<GameCatalogFormDraft> gameAddSchema = gameAddSchemaFor();
+final LibraryFormSchema<GameCatalogFormDraft> gameAddSchema =
+    gameAddSchemaFor();
 
-LibraryFormSchema<TDraft> gameAddSchemaFor<TDraft extends GameCatalogFormDraft>({
+LibraryFormSchema<TDraft>
+    gameAddSchemaFor<TDraft extends GameCatalogFormDraft>({
   Set<String>? fieldIds,
   Map<String, String> sectionLabels = const {},
   Iterable<String>? platformOptions,
@@ -111,6 +113,7 @@ List<LibraryFormSectionSpec<TDraft>> _filterSections<TDraft>(
           fullWidthFieldIds: section.fullWidthFieldIds,
           fieldColumnSpans: section.fieldColumnSpans,
           rightAlignedFieldIds: section.rightAlignedFieldIds,
+          columns: section.columns,
           visibleWhen: section.visibleWhen,
         ),
   ];

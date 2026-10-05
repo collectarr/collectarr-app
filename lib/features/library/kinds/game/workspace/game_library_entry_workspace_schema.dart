@@ -1,11 +1,10 @@
 import 'package:collectarr_app/features/library/kinds/game/workspace/game_ids.dart';
 import 'package:collectarr_app/features/library/kinds/game/data/game_library_entry_projection.dart';
-import 'package:collectarr_app/features/library/kinds/game/workspace/game_preference_codec.dart';
 import 'package:collectarr_app/features/library/kinds/game/workspace/game_workspace_dto.dart';
 import 'package:collectarr_app/features/library/kinds/game/domain/game_library_entry.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/schema/field_factories.dart';
-import 'package:collectarr_app/features/library/workspace/schema/library_entity_workspace_schema.dart';
+import 'package:collectarr_app/features/library/workspace/schema/library_workspace_schema.dart';
 import 'package:flutter/material.dart';
 
 abstract final class GameLibraryEntryWorkspaceFields {
@@ -15,36 +14,32 @@ abstract final class GameLibraryEntryWorkspaceFields {
     label: 'Condition',
     getValue: (context) {
       final entry = GameLibraryEntryProjection.fromDispatch(
-          context.source.libraryEntryDispatch);
+          context.item.libraryEntryDispatch);
       return entry is GameLibraryEntry ? entry.personal.condition : null;
     },
-    entityScope: LibraryEntityScope.libraryEntry,
   );
 
   static final location =
       LibraryFieldDefinition<GameKind, GameWorkspaceDto, String?>(
     id: GameFieldIds.location,
     label: 'Location',
-    getValue: (context) => context.source.locationPath,
-    entityScope: LibraryEntityScope.libraryEntry,
+    getValue: (context) => context.personal.locationPath,
   );
 
   static final pricePaid =
       LibraryFieldDefinition<GameKind, GameWorkspaceDto, int?>(
     id: GameFieldIds.pricePaid,
     label: 'Purchase Price',
-    getValue: (context) => context.source.pricePaidCents,
-    entityScope: LibraryEntityScope.libraryEntry,
+    getValue: (context) => context.item.entrySummary?.pricePaidCents,
   );
 
   static final status =
       LibraryFieldDefinition<GameKind, GameWorkspaceDto, String?>(
     id: GameFieldIds.status,
     label: 'Status',
-    getValue: (context) => context.source.isWishlisted
+    getValue: (context) => context.personal.isWishlisted
         ? 'wishlist'
-        : (context.source.isEntry ? 'entry' : null),
-    entityScope: LibraryEntityScope.libraryEntry,
+        : ((context.item.entrySummary != null) ? 'entry' : null),
   );
 
   static final rating =
@@ -52,31 +47,27 @@ abstract final class GameLibraryEntryWorkspaceFields {
     id: GameFieldIds.rating,
     label: 'Rating',
     getValue: (context) => context.dto.personal.rating,
-    entityScope: LibraryEntityScope.libraryEntry,
   );
 
   static final wishlist =
       LibraryFieldDefinition<GameKind, GameWorkspaceDto, bool>(
     id: GameFieldIds.wishlist,
     label: 'Wishlist',
-    getValue: (context) => context.source.isWishlisted,
-    entityScope: LibraryEntityScope.libraryEntry,
+    getValue: (context) => context.personal.isWishlisted,
   );
 
   static final updatedAt =
       LibraryFieldDefinition<GameKind, GameWorkspaceDto, DateTime>(
     id: GameFieldIds.updatedAt,
     label: 'Updated',
-    getValue: (context) => context.source.updatedAt,
-    entityScope: LibraryEntityScope.libraryEntry,
+    getValue: (context) => context.updatedAt,
   );
 
   static final addedAt =
       LibraryFieldDefinition<GameKind, GameWorkspaceDto, DateTime?>(
     id: GameFieldIds.addedAt,
     label: 'Added',
-    getValue: (context) => context.source.addedAt,
-    entityScope: LibraryEntityScope.libraryEntry,
+    getValue: (context) => context.addedAt,
   );
 
   static final completionStatus =
@@ -85,10 +76,9 @@ abstract final class GameLibraryEntryWorkspaceFields {
     label: 'Completion',
     getValue: (context) {
       final entry = GameLibraryEntryProjection.fromDispatch(
-          context.source.libraryEntryDispatch);
+          context.item.libraryEntryDispatch);
       return entry is GameLibraryEntry ? entry.personal.collectionStatus : null;
     },
-    entityScope: LibraryEntityScope.libraryEntry,
   );
 
   static final completeness =
@@ -97,12 +87,11 @@ abstract final class GameLibraryEntryWorkspaceFields {
     label: 'Completeness',
     getValue: (context) {
       final entry = GameLibraryEntryProjection.fromDispatch(
-          context.source.libraryEntryDispatch);
+          context.item.libraryEntryDispatch);
       return entry is GameLibraryEntry
           ? entry.personal.details.completeness
           : null;
     },
-    entityScope: LibraryEntityScope.libraryEntry,
   );
 
   static final hasBox =
@@ -111,10 +100,9 @@ abstract final class GameLibraryEntryWorkspaceFields {
     label: 'Has Box',
     getValue: (context) {
       final entry = GameLibraryEntryProjection.fromDispatch(
-          context.source.libraryEntryDispatch);
+          context.item.libraryEntryDispatch);
       return entry is GameLibraryEntry ? entry.personal.details.hasBox : null;
     },
-    entityScope: LibraryEntityScope.libraryEntry,
   );
 
   static final hasManual =
@@ -123,12 +111,11 @@ abstract final class GameLibraryEntryWorkspaceFields {
     label: 'Has Manual',
     getValue: (context) {
       final entry = GameLibraryEntryProjection.fromDispatch(
-          context.source.libraryEntryDispatch);
+          context.item.libraryEntryDispatch);
       return entry is GameLibraryEntry
           ? entry.personal.details.hasManual
           : null;
     },
-    entityScope: LibraryEntityScope.libraryEntry,
   );
 
   static final priceChartingId =
@@ -137,12 +124,11 @@ abstract final class GameLibraryEntryWorkspaceFields {
     label: 'PriceCharting ID',
     getValue: (context) {
       final entry = GameLibraryEntryProjection.fromDispatch(
-          context.source.libraryEntryDispatch);
+          context.item.libraryEntryDispatch);
       return entry is GameLibraryEntry
           ? entry.personal.details.priceChartingId
           : null;
     },
-    entityScope: LibraryEntityScope.libraryEntry,
   );
 
   static final coreRegion =
@@ -151,13 +137,12 @@ abstract final class GameLibraryEntryWorkspaceFields {
     label: 'Region',
     getValue: (context) {
       final entry = GameLibraryEntryProjection.fromDispatch(
-        context.source.libraryEntryDispatch,
+        context.item.libraryEntryDispatch,
       );
       return entry is GameLibraryEntry
           ? entry.personal.details.coreRegion
           : null;
     },
-    entityScope: LibraryEntityScope.libraryEntry,
   );
 
   static final valueLocked =
@@ -166,12 +151,11 @@ abstract final class GameLibraryEntryWorkspaceFields {
     label: 'Value Locked',
     getValue: (context) {
       final entry = GameLibraryEntryProjection.fromDispatch(
-          context.source.libraryEntryDispatch);
+          context.item.libraryEntryDispatch);
       return entry is GameLibraryEntry
           ? entry.personal.details.valueIsLocked
           : null;
     },
-    entityScope: LibraryEntityScope.libraryEntry,
   );
 }
 
@@ -214,11 +198,10 @@ final gameLibraryEntryWorkspaceGroupDefinitions = [
 final gameLibraryEntryWorkspaceSortDefinitions = [
   LibrarySortDefinition<GameKind, GameWorkspaceDto>(
     id: GameSortIds.status,
-    entityScope: LibraryEntityScope.libraryEntry,
     compare: (left, right) {
       int rank(LibraryProjectionContext<GameWorkspaceDto> ctx) {
-        if (ctx.source.isEntry) return 0;
-        if (ctx.source.isWishlisted) return 1;
+        if ((ctx.item.entrySummary != null)) return 0;
+        if (ctx.personal.isWishlisted) return 1;
         return 2;
       }
 
@@ -244,9 +227,9 @@ final gameLibraryEntryWorkspaceColumnDefinitions = [
     id: GameFieldIds.status,
     label: 'Status',
     getValue: GameLibraryEntryWorkspaceFields.status.getValue,
-    cellValue: (context) => Text(context.source.isWishlisted
+    cellValue: (context) => Text(context.personal.isWishlisted
         ? 'Wishlist'
-        : (context.source.isEntry ? 'Entry' : '')),
+        : ((context.item.entrySummary != null) ? 'Entry' : '')),
     sortable: false,
     groupable: false,
     defaultWidth: 52,
@@ -256,7 +239,7 @@ final gameLibraryEntryWorkspaceColumnDefinitions = [
     id: GameFieldIds.wishlist,
     label: 'Wishlist',
     getValue: GameLibraryEntryWorkspaceFields.wishlist.getValue,
-    cellValue: (context) => Text(context.source.isWishlisted ? 'Wishlist' : ''),
+    cellValue: (context) => Text(context.personal.isWishlisted ? 'Wishlist' : ''),
     group: 'Personal',
     defaultWidth: 82,
     minWidth: 70,
@@ -265,7 +248,7 @@ final gameLibraryEntryWorkspaceColumnDefinitions = [
     id: GameFieldIds.updatedAt,
     label: 'Updated',
     getValue: GameLibraryEntryWorkspaceFields.updatedAt.getValue,
-    cellValue: (context) => Text(_formatDate(context.source.updatedAt)),
+    cellValue: (context) => Text(_formatDate(context.updatedAt)),
     group: 'Personal',
     defaultWidth: 112,
   ),
@@ -273,7 +256,7 @@ final gameLibraryEntryWorkspaceColumnDefinitions = [
     id: GameFieldIds.addedAt,
     label: 'Added',
     getValue: GameLibraryEntryWorkspaceFields.addedAt.getValue,
-    cellValue: (context) => Text(_formatDate(context.source.addedAt)),
+    cellValue: (context) => Text(_formatDate(context.addedAt)),
     group: 'Personal',
     defaultWidth: 112,
   ),
@@ -290,7 +273,7 @@ final gameLibraryEntryWorkspaceColumnDefinitions = [
   columnFromField<GameKind, GameWorkspaceDto, int?>(
     GameLibraryEntryWorkspaceFields.pricePaid,
     cellValue: (context) =>
-        Text(_formatCents(context.source.pricePaidCents, context.dto.currency)),
+        Text(_formatCents(context.item.entrySummary?.pricePaidCents, context.dto.currency)),
     group: 'Value',
     isNumeric: true,
     defaultWidth: 92,
@@ -306,9 +289,8 @@ final gameLibraryEntryWorkspaceColumnDefinitions = [
 ];
 
 final gameLibraryEntryWorkspaceSchema =
-    LibraryEntityWorkspaceSchema<GameKind, GameWorkspaceDto>(
+    LibraryWorkspaceSchema<GameKind, GameWorkspaceDto>(
   kindNamespace: 'game',
-  entityScope: LibraryEntityScope.libraryEntry,
   fields: gameLibraryEntryWorkspaceFieldDefinitions,
   columns: gameLibraryEntryWorkspaceColumnDefinitions,
   sorts: gameLibraryEntryWorkspaceSortDefinitions,
@@ -317,7 +299,6 @@ final gameLibraryEntryWorkspaceSchema =
   defaultVisibleColumns: gameLibraryEntryWorkspaceDefaultVisibleColumns,
   defaultSort: GameSortIds.status,
   defaultGroup: GameGroupIds.condition,
-  preferenceCodec: const GamePreferenceCodec(),
 );
 
 String _formatDate(DateTime? value) {

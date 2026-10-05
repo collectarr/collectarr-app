@@ -6,20 +6,18 @@ import 'package:collectarr_app/features/library/config/library_edit_presentation
 import 'package:collectarr_app/features/library/config/library_kind_vocabulary_capability.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/features/library/config/library_entry_semantics.dart';
-import 'package:collectarr_app/features/library/config/library_core_correction_capability.dart';
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_edit_shell_state.dart';
 import 'package:collectarr_app/features/library/edit/draft/text_controller_group.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_entry_dispatch.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
-import 'package:collectarr_app/features/library/domain/library_entity_scope.dart';
+import 'package:collectarr_app/features/library/domain/library_target_ref.dart';
 
 export 'package:collectarr_app/features/library/config/library_chrome_config.dart';
 export 'package:collectarr_app/features/library/config/library_edit_presentation_models.dart';
 export 'package:collectarr_app/features/library/config/library_kind_vocabulary_capability.dart';
 export 'package:collectarr_app/features/library/config/library_entry_update_payload.dart';
 export 'package:collectarr_app/features/library/config/library_entry_semantics.dart';
-export 'package:collectarr_app/features/library/config/library_core_correction_capability.dart';
 
 typedef LibraryEditSessionFactory = LibraryEditSessionBundle Function({
   required CatalogSearchCandidate item,
@@ -28,11 +26,12 @@ typedef LibraryEditSessionFactory = LibraryEditSessionBundle Function({
   required TextControllerGroup textControllers,
 });
 
-typedef LibraryEntryIndexUpdatePayloadBuilder = LibraryEntryUpdatePayload Function(
-    LibraryEntryRef libraryEntryRef, int indexNumber);
+typedef LibraryEntryIndexUpdatePayloadBuilder = LibraryEntryUpdatePayload
+    Function(LibraryEntryRef libraryEntryRef, int indexNumber);
 
-typedef LibraryEntryConditionValueUpdatePayloadBuilder = LibraryEntryUpdatePayload
-    Function(LibraryEntryRef libraryEntryRef, String? condition, String? collectionValue);
+typedef LibraryEntryConditionValueUpdatePayloadBuilder
+    = LibraryEntryUpdatePayload Function(LibraryEntryRef libraryEntryRef,
+        String? condition, String? collectionValue);
 
 typedef LibraryEntryCollectionValueReader = String? Function(
   LibraryEntryDispatch? libraryEntry,
@@ -44,7 +43,8 @@ typedef LibraryEntryFormatHintResolver = LibraryEntryFormatHint Function(
   CatalogSearchCandidate item,
 );
 
-typedef LibraryEntryBulkUpdatePayloadBuilder = LibraryEntryUpdatePayload Function(
+typedef LibraryEntryBulkUpdatePayloadBuilder = LibraryEntryUpdatePayload
+    Function(
   LibraryEntryRef libraryEntryRef,
   String? condition,
   String? collectionValue,
@@ -52,8 +52,8 @@ typedef LibraryEntryBulkUpdatePayloadBuilder = LibraryEntryUpdatePayload Functio
   String? tags,
 );
 
-typedef LibraryEntryPersonalDetailsUpdatePayloadBuilder = LibraryEntryUpdatePayload
-    Function(
+typedef LibraryEntryPersonalDetailsUpdatePayloadBuilder
+    = LibraryEntryUpdatePayload Function(
   LibraryEntryRef libraryEntryRef,
   DateTime? purchaseDate,
   int? pricePaidCents,
@@ -73,29 +73,17 @@ typedef LibraryEntryTransferUpdatePayloadBuilder = LibraryEntryUpdatePayload
 typedef LibraryEntryDetailsResetPayloadBuilder = LibraryEntryUpdatePayload
     Function();
 
-final class LibraryEntityEditContributor {
-  const LibraryEntityEditContributor({
-    required this.scope,
-    required this.builder,
+final class LibraryTargetEditRegistry {
+  const LibraryTargetEditRegistry({
+    required this.catalogItem,
+    required this.libraryEntry,
   });
 
-  final LibraryEntityScope scope;
-  final LibraryEditDialogBuilder builder;
-}
+  final LibraryEditDialogBuilder catalogItem;
+  final LibraryEditDialogBuilder libraryEntry;
 
-final class LibraryEntityEditRegistry {
-  const LibraryEntityEditRegistry({
-    required this.contributors,
-  });
-
-  final List<LibraryEntityEditContributor> contributors;
-
-  LibraryEditDialogBuilder? builderForScope(LibraryEntityScope scope) {
-    for (final contributor in contributors) {
-      if (contributor.scope == scope) return contributor.builder;
-    }
-    return null;
-  }
+  LibraryEditDialogBuilder builderForTarget(LibraryTargetRef? target) =>
+      target is EntryTargetRef ? libraryEntry : catalogItem;
 }
 
 /// Presentation-only configuration for the shared edit host.
@@ -113,7 +101,7 @@ final class LibraryEditPresentationCapability {
     required this.defaultCollectionValue,
   });
 
-  final LibraryEntityEditRegistry editRegistry;
+  final LibraryTargetEditRegistry editRegistry;
   final LibraryEditPresentation presentation;
   final LibraryEditChromeConfig editChrome;
   final LibraryKindVocabularyCapability? vocabularies;
@@ -169,8 +157,7 @@ final class LibraryEntryEditCapability {
       entryFormatHintResolver(item);
 
   bool? resolveEntryDigitalFlag(
-    LibraryEntrySummary? libraryEntry,
-    {
+    LibraryEntrySummary? libraryEntry, {
     String? fallbackFormat,
     String? fallbackLabel,
     Iterable<PhysicalMediaFormat> formats = const [],
@@ -300,9 +287,8 @@ final class LibraryEntryEditCapability {
 /// narrow capabilities; this type is never exposed by the public registry.
 final class LibraryEditCapabilitySet {
   LibraryEditCapabilitySet({
-    required LibraryEntityEditRegistry editRegistry,
+    required LibraryTargetEditRegistry editRegistry,
     required LibraryEditPresentation presentation,
-    required this.coreCorrectionTargetResolver,
     LibraryEditSessionFactory? createSession,
     required LibraryEntryCollectionValueReader entryCollectionValueReader,
     required LibraryEntryDigitalFlagResolver entryDigitalFlagResolver,
@@ -348,6 +334,5 @@ final class LibraryEditCapabilitySet {
 
   final LibraryEditPresentationCapability presentationCapability;
   final LibraryEditSessionCapability session;
-  final LibraryCoreCorrectionTargetResolver coreCorrectionTargetResolver;
   final LibraryEntryEditCapability entry;
 }

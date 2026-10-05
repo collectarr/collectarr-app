@@ -1,14 +1,12 @@
 import 'dart:convert';
 
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 
 const libraryEntrySyncImagesKey = '__sync_item_images';
 const libraryEntrySyncCustomFieldsKey = '__sync_custom_fields';
 const libraryEntrySyncLoansKey = '__sync_loans';
 const libraryEntrySyncFolderMembershipsKey = '__sync_folder_memberships';
-const libraryEntrySyncReadingQueuePositionKey =
-    '__sync_reading_queue_position';
+const libraryEntrySyncReadingQueuePositionKey = '__sync_reading_queue_position';
 const libraryEntrySyncExternalLinksKey = '__sync_external_links';
 const libraryEntryCsvFolderDefinitionsKey = '__csv_folder_definitions';
 
@@ -55,13 +53,6 @@ final class LibraryEntryRecord {
   final CatalogItemRef? sourceCatalogRef;
   final DateTime updatedAt;
   final DateTime? deletedAt;
-
-  CatalogItemDto get catalogItem => CatalogItemDto.raw(
-        id: id,
-        mediaKind: kind,
-        kindData: catalogData,
-        origin: CatalogItemOrigin.privateLocal,
-      );
 
   Map<String, dynamic> toJson() => {
         'id': id,

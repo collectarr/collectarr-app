@@ -1,5 +1,4 @@
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
-import 'package:collectarr_app/features/library/domain/library_entity_scope.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/generic/library_sort_preset_store.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
@@ -15,7 +14,6 @@ Future<List<LibrarySortRule>?> showLibrarySortDialog({
   required List<LibrarySortRule> currentRules,
   bool Function(String column)? defaultAscendingForColumn,
   List<String>? availableColumns,
-  LibraryEntityScope scope = LibraryEntityScope.catalogItem,
 }) {
   return showDialog<List<LibrarySortRule>>(
     context: context,
@@ -24,7 +22,6 @@ Future<List<LibrarySortRule>?> showLibrarySortDialog({
       currentRules: currentRules,
       defaultAscendingForColumn: defaultAscendingForColumn,
       availableColumns: availableColumns,
-      scope: scope,
     ),
   );
 }
@@ -35,14 +32,12 @@ class _LibrarySortDialog extends StatefulWidget {
     required this.currentRules,
     this.defaultAscendingForColumn,
     this.availableColumns,
-    required this.scope,
   });
 
   final LibraryKindRegistration type;
   final List<LibrarySortRule> currentRules;
   final bool Function(String column)? defaultAscendingForColumn;
   final List<String>? availableColumns;
-  final LibraryEntityScope scope;
 
   @override
   State<_LibrarySortDialog> createState() => _LibrarySortDialogState();
@@ -67,7 +62,7 @@ class _LibrarySortDialogState extends State<_LibrarySortDialog> {
   void initState() {
     super.initState();
     _presetNameController = TextEditingController();
-    _presetStore = LibrarySortPresetStore(widget.type, scope: widget.scope);
+    _presetStore = LibrarySortPresetStore(widget.type);
     _rules = widget.currentRules.isEmpty
         ? [_defaultRule()]
         : List<LibrarySortRule>.from(widget.currentRules);
@@ -159,7 +154,6 @@ class _LibrarySortDialogState extends State<_LibrarySortDialog> {
                                             summary: _sortRuleSummary(
                                               widget.type,
                                               _rules,
-                                              widget.scope,
                                             ),
                                             accent: accent,
                                             selected: true,
@@ -177,7 +171,6 @@ class _LibrarySortDialogState extends State<_LibrarySortDialog> {
                                             summary: _sortRuleSummary(
                                               widget.type,
                                               preset.rules,
-                                              widget.scope,
                                             ),
                                             accent: accent,
                                             icon: preset.icon,
@@ -336,9 +329,7 @@ class _LibrarySortDialogState extends State<_LibrarySortDialog> {
                                                                   _sortColumnLabel(
                                                                       widget
                                                                           .type,
-                                                                      column,
-                                                                      widget
-                                                                          .scope),
+                                                                      column),
                                                               directionLabel:
                                                                   _defaultAscending(
                                                                           column)
@@ -414,8 +405,7 @@ class _LibrarySortDialogState extends State<_LibrarySortDialog> {
                                               ),
                                               title: _sortColumnLabel(
                                                   widget.type,
-                                                  col,
-                                                  widget.scope),
+                                                  col),
                                               ascending: rule.ascending,
                                               canMoveUp: index > 0,
                                               canMoveDown:
@@ -524,7 +514,7 @@ class _LibrarySortDialogState extends State<_LibrarySortDialog> {
 
   LibrarySortRule _defaultRule() {
     final column = libraryKindWorkspaceForKind(widget.type.kind)
-        .fieldsForScope(widget.scope)
+        .fields
         .defaultSort
         .value;
     return LibrarySortRule(
@@ -583,7 +573,7 @@ class _LibrarySortDialogState extends State<_LibrarySortDialog> {
     final available = widget.availableColumns ??
         [
           for (final def in libraryKindWorkspaceForKind(widget.type.kind)
-              .fieldsForScope(widget.scope)
+              .fields
               .sorts)
             def.id.value,
         ];
@@ -591,7 +581,7 @@ class _LibrarySortDialogState extends State<_LibrarySortDialog> {
       if (query.isEmpty) {
         return true;
       }
-      return _sortColumnLabel(widget.type, column, widget.scope)
+      return _sortColumnLabel(widget.type, column)
           .toLowerCase()
           .contains(query);
     }).toList(growable: false);
@@ -603,13 +593,13 @@ class _LibrarySortDialogState extends State<_LibrarySortDialog> {
   ) {
     return [
       for (final column in columns)
-        if (_sortFieldGroup(widget.type, column, widget.scope) == group) column,
+        if (_sortFieldGroup(widget.type, column) == group) column,
     ];
   }
 
   bool _defaultAscending(String column) {
     return widget.defaultAscendingForColumn?.call(column) ??
-        _defaultSortAscending(widget.type, column, widget.scope);
+        _defaultSortAscending(widget.type, column);
   }
 
   void _toggleColumn(String column) {
@@ -1154,12 +1144,11 @@ bool _sameSortRules(List<LibrarySortRule> first, List<LibrarySortRule> second) {
 String _sortRuleSummary(
   LibraryKindRegistration type,
   List<LibrarySortRule> rules,
-  LibraryEntityScope scope,
 ) {
   return rules
       .map(
         (rule) =>
-            '${_sortColumnLabel(type, rule.column, scope)} ${rule.ascending ? 'ASC' : 'DESC'}',
+            '${_sortColumnLabel(type, rule.column)} ${rule.ascending ? 'ASC' : 'DESC'}',
       )
       .join('  |  ');
 }
@@ -1167,9 +1156,8 @@ String _sortRuleSummary(
 LibraryTableColumnGroup _sortFieldGroup(
   LibraryKindRegistration type,
   String column,
-  LibraryEntityScope scope,
 ) {
-  final fields = libraryKindWorkspaceForKind(type.kind).fieldsForScope(scope);
+  final fields = libraryKindWorkspaceForKind(type.kind).fields;
   final groupStr =
       fields.sortDefinitionFor(fields.decodeSortId(column)).group.toLowerCase();
   return LibraryTableColumnGroup.values.firstWhere(
@@ -1190,9 +1178,8 @@ String _groupLabel(LibraryTableColumnGroup group) {
 bool _defaultSortAscending(
   LibraryKindRegistration type,
   String column,
-  LibraryEntityScope scope,
 ) {
-  final fields = libraryKindWorkspaceForKind(type.kind).fieldsForScope(scope);
+  final fields = libraryKindWorkspaceForKind(type.kind).fields;
   return fields.sortDefinitionFor(fields.decodeSortId(column)).defaultAscending;
 }
 
@@ -1210,10 +1197,9 @@ List<LibrarySortRule> _dedupeRules(List<LibrarySortRule> rules) {
 String _sortColumnLabel(
   LibraryKindRegistration type,
   String column,
-  LibraryEntityScope scope,
 ) {
   try {
-    final fields = libraryKindWorkspaceForKind(type.kind).fieldsForScope(scope);
+    final fields = libraryKindWorkspaceForKind(type.kind).fields;
     return fields.sortDefinitionFor(fields.decodeSortId(column)).label;
   } on StateError {
     return librarySortColumnFallbackLabel(column);

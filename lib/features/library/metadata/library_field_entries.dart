@@ -34,6 +34,8 @@ class PersonalLibraryFieldSpec {
     required this.label,
     required this.group,
     this.syncable = false,
+    this.minimum,
+    this.defaultInteger,
     this.editor,
     this.area,
     this.editOrder,
@@ -47,6 +49,8 @@ class PersonalLibraryFieldSpec {
   final String label;
   final String group;
   final bool syncable;
+  final int? minimum;
+  final int? defaultInteger;
   final PersonalLibraryFieldEditor? editor;
   final PersonalLibraryFieldArea? area;
   final int? editOrder;
@@ -55,3 +59,20 @@ class PersonalLibraryFieldSpec {
   final String? currencyFieldKey;
   final List<String> options;
 }
+
+PersonalLibraryFieldSpec relabelPersonalLibraryField(
+        PersonalLibraryFieldSpec field, String label) =>
+    PersonalLibraryFieldSpec(
+        key: field.key,
+        label: label,
+        group: field.group,
+        syncable: field.syncable,
+        editor: field.editor,
+        area: field.area,
+        editOrder: field.editOrder,
+        manualAddOrder: field.manualAddOrder,
+        vocabularyListName: field.vocabularyListName,
+        currencyFieldKey: field.currencyFieldKey,
+        options: field.options,
+        minimum: field.minimum,
+        defaultInteger: field.defaultInteger);

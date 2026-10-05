@@ -4,13 +4,12 @@ import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:drift/drift.dart';
-import 'package:collectarr_app/features/library/entries/library_entry_store.dart';
 
-/// Stores Core and private local Catalog Items as complete, kind-entry payloads.
+/// Stores Core snapshots and short-lived private Add candidates.
 ///
-/// This cache is the local transport source for catalog reads. Personal
-/// Collection Items and activity live in their separate App-entry tables;
-/// source origin is stored beside the payload and never sent to Core.
+/// Complete local Library Entries live in LibraryEntryStore and are never
+/// read through a Core Catalog Item reference. Private candidates are removed
+/// from this cache after Add persists the independent local entry.
 final class CatalogItemCacheRepository {
   static const _maxIdsPerQuery = 400;
   static const _maxCachedCoreItems = 5000;
@@ -20,7 +19,6 @@ final class CatalogItemCacheRepository {
   final LocalDatabase _db;
 
   Future<void> upsert(CatalogItemDto item, {bool force = false}) async {
-    if (await LibraryEntryStore(_db).updateCatalog(item)) return;
     final existing = await find(item.catalogItemRef);
     if (!_acceptIncoming(item, existing, force: force)) return;
     final envelope = item.toEnvelope();
@@ -39,10 +37,8 @@ final class CatalogItemCacheRepository {
   /// Removes a transient private candidate after Add has copied its catalog
   /// fields into the complete local Library Entry record.
   ///
-  /// Core-owned rows and rows that have already become local entries are never
-  /// removed by this operation.
+  /// Core-owned rows are never removed by this operation.
   Future<void> removePrivateCandidate(CatalogItemRef ref) async {
-    if (await LibraryEntryStore(_db).find(ref.kind, ref.id) != null) return;
     await (_db.delete(_db.catalogItemsCache)
           ..where((row) =>
               row.catalogKind.equals(ref.kind.apiValue) &
@@ -56,9 +52,7 @@ final class CatalogItemCacheRepository {
     bool force = false,
   }) async {
     final snapshot = <CatalogItemDto>[];
-    for (final item in items) {
-      if (!await LibraryEntryStore(_db).updateCatalog(item)) snapshot.add(item);
-    }
+    snapshot.addAll(items);
     if (snapshot.isEmpty) return;
     final cachedItems = await findByRefs(
       snapshot.map((item) => item.catalogItemRef),
@@ -96,8 +90,6 @@ final class CatalogItemCacheRepository {
   }
 
   Future<CatalogItemDto?> find(CatalogItemRef ref) async {
-    final entry = await LibraryEntryStore(_db).find(ref.kind, ref.id);
-    if (entry != null) return entry.catalogItem;
     final row = await (_db.select(_db.catalogItemsCache)
           ..where((table) =>
               table.catalogKind.equals(ref.kind.apiValue) &
@@ -127,17 +119,7 @@ final class CatalogItemCacheRepository {
         result.addAll(rows.map((row) => _decode(row.payloadJson, row.origin)));
       }
     }
-    final local = await LibraryEntryStore(_db).list(includeDeleted: true);
-    final localByRef = {
-      for (final entry in local)
-        if (wanted.contains(entry.catalogItem.catalogItemRef))
-          entry.catalogItem.catalogItemRef: entry.catalogItem,
-    };
-    return [
-      for (final item in result)
-        if (!localByRef.containsKey(item.catalogItemRef)) item,
-      ...localByRef.values,
-    ];
+    return result;
   }
 
   Future<List<CatalogItemDto>> findAll({CatalogMediaKind? kind}) async {
@@ -149,8 +131,7 @@ final class CatalogItemCacheRepository {
     final cached = rows
         .map((row) => _decode(row.payloadJson, row.origin))
         .toList(growable: false);
-    final local = await LibraryEntryStore(_db).list(kind: kind);
-    return [...cached, for (final entry in local) entry.catalogItem];
+    return cached;
   }
 
   CatalogItemDto _decode(String payloadJson, String origin) {

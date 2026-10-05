@@ -16,7 +16,7 @@ class LibraryCollectionValueSummary {
 
 abstract interface class LibraryValueCapability {
   LibraryCollectionValueSummary? resolveCollectionValueSummary(
-    Iterable<LibraryWorkspaceSource> entries,
+    Iterable<LibraryWorkspaceContext> entries,
   );
 }
 
@@ -25,7 +25,7 @@ class DefaultLibraryValueCapability implements LibraryValueCapability {
 
   @override
   LibraryCollectionValueSummary? resolveCollectionValueSummary(
-    Iterable<LibraryWorkspaceSource> entries,
+    Iterable<LibraryWorkspaceContext> entries,
   ) =>
       null;
 }

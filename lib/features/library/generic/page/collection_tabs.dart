@@ -1,4 +1,5 @@
-import 'package:collectarr_app/core/models/smart_list.dart';
+import 'package:collectarr_app/core/models/smart_list_criteria.dart';
+import 'package:collectarr_app/features/library/generic/smart_list.dart';
 import 'package:collectarr_app/features/collection/repositories/smart_list_repository.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
@@ -10,12 +11,14 @@ class LibraryCollectionTabBar extends ConsumerStatefulWidget {
   const LibraryCollectionTabBar({
     super.key,
     required this.mediaKind,
+    required this.target,
     required this.activeSmartListId,
     required this.onSmartListSelected,
     required this.onAllSelected,
   });
 
   final String mediaKind;
+  final SmartListCriteriaTarget target;
   final String? activeSmartListId;
   final ValueChanged<SmartList> onSmartListSelected;
   final VoidCallback onAllSelected;
@@ -38,7 +41,8 @@ class _LibraryCollectionTabBarState
   @override
   void didUpdateWidget(LibraryCollectionTabBar oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.mediaKind != widget.mediaKind) {
+    if (oldWidget.mediaKind != widget.mediaKind ||
+        oldWidget.target != widget.target) {
       _loadSmartLists();
     }
   }
@@ -47,7 +51,8 @@ class _LibraryCollectionTabBarState
     final mediaKind = widget.mediaKind;
     final db = ref.read(localDatabaseProvider);
     final repo = SmartListRepository(db);
-    final lists = await repo.getAll(mediaKind: mediaKind);
+    final lists =
+        await repo.getAll(mediaKind: mediaKind, target: widget.target);
     if (mounted && widget.mediaKind == mediaKind) {
       setState(() => _smartLists = lists);
     }

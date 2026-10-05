@@ -57,7 +57,8 @@ final class BoardGameCatalogLookup implements CatalogKindLookup {
   Future<List<CatalogItemDto>> _items() async {
     final items = await CatalogItemCacheRepository(_db).findAll(kind: kind);
     return items
-      ..sort((left, right) => _metadata(left).title.compareTo(_metadata(right).title));
+      ..sort((left, right) =>
+          _metadata(left).title.compareTo(_metadata(right).title));
   }
 
   CatalogSearchHit _hit(CatalogItemDto item) {
@@ -72,8 +73,8 @@ final class BoardGameCatalogLookup implements CatalogKindLookup {
   bool _matchesBarcode(CatalogItemDto item, String normalized) {
     final metadata = _metadata(item);
     return _same(_text(metadata.barcode), normalized) ||
-        metadata.identifiers.any((identifier) =>
-            _same(_text(identifier.value), normalized));
+        metadata.identifiers
+            .any((identifier) => _same(_text(identifier.value), normalized));
   }
 
   String? _itemNumber(CatalogItemDto item) {

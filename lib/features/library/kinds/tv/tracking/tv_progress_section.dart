@@ -1,4 +1,4 @@
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/core/models/library_entry_ref.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/library/details/library_detail_models.dart';
@@ -18,7 +18,7 @@ class VideoProgressSection extends ConsumerWidget {
     this.title = 'TV progress',
   });
 
-  final CatalogEntityRef seriesRef;
+  final CatalogItemRef seriesRef;
   final Color accent;
   final String title;
 
@@ -27,7 +27,7 @@ class VideoProgressSection extends ConsumerWidget {
     final seasonsAsync = ref.watch(tvSeasonsByCatalogRefProvider(seriesRef));
     final entryRef = LibraryEntryRef(
       kind: seriesRef.kind,
-      id: LibraryEntryId(seriesRef.rootScope.id),
+      id: LibraryEntryId(seriesRef.id),
     );
     final trackedUnits =
         ref.watch(trackingUnitsByLibraryEntryRefProvider(entryRef));

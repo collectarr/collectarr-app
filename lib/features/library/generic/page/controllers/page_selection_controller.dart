@@ -89,7 +89,7 @@ final class LibraryPageSelectionController {
             .where((item) => LibraryAlphaJumpBar.matchesLetter(
                 item.dto.primaryLabel, letter))
             .toList(growable: false);
-    return visibleItems.map((item) => item.node.id).toSet();
+    return visibleItems.map((item) => item.target.id).toSet();
   }
 
   bool _isTextInputFocused() {

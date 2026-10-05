@@ -1,12 +1,12 @@
 import 'package:collectarr_app/features/catalog/transport/catalog_import_transport.dart';
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/features/library/kinds/movie/data/movie_library_entry_projection.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/features/collection/csv/collection_csv_kind_profile.dart';
 import 'package:collectarr_app/features/library/kinds/movie/domain/movie_library_entry.dart';
 import 'package:collectarr_app/features/library/kinds/movie/integrations/collection_csv/movie_collection_csv_import_profile.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
-import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_workspace_catalog_data.dart';
+import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_workspace_data.dart';
 import 'package:collectarr_app/features/library/kinds/movie/movie_physical_media_formats.dart';
 
 /// Movie's semantic contribution to the collection CSV host.
@@ -115,10 +115,10 @@ final class MovieCollectionCsvProjection
   }
 
   @override
-  List<String> catalogCells(LibraryWorkspaceSource entry) {
-    final catalog = entry.catalogData;
+  List<String> catalogCells(LibraryWorkspaceContext entry) {
+    final catalog = entry.kindPresentationData;
     final metadata =
-        catalog is MovieWorkspaceCatalogData ? catalog.metadata : null;
+        catalog is MovieWorkspaceData ? catalog.metadata : null;
     return [
       entry.itemId,
       CatalogMediaKind.movie.apiValue,
@@ -130,14 +130,13 @@ final class MovieCollectionCsvProjection
       moviePhysicalMediaFormatLabel(metadata?.physicalFormat) ?? '',
       metadata?.studio ?? metadata?.publisher ?? '',
       _formatDate(metadata?.releaseDate ??
-          metadata?.releaseDateParts?.asDateTime ??
-          entry.catalogData?.releaseDate),
+          metadata?.releaseDateParts?.asDateTime),
       metadata?.barcode ?? '',
     ];
   }
 
   @override
-  String? entryCollectionValue(LibraryWorkspaceSource entry) {
+  String? entryCollectionValue(LibraryWorkspaceContext entry) {
     final personalState =
         MovieLibraryEntryProjection.fromDispatch(entry.libraryEntryDispatch);
     return personalState is MovieLibraryEntry
@@ -146,7 +145,7 @@ final class MovieCollectionCsvProjection
   }
 
   @override
-  String? entryCondition(LibraryWorkspaceSource entry) {
+  String? entryCondition(LibraryWorkspaceContext entry) {
     final personalState =
         MovieLibraryEntryProjection.fromDispatch(entry.libraryEntryDispatch);
     return personalState is MovieLibraryEntry
@@ -155,7 +154,7 @@ final class MovieCollectionCsvProjection
   }
 
   @override
-  int? entryIndexNumber(LibraryWorkspaceSource entry) {
+  int? entryIndexNumber(LibraryWorkspaceContext entry) {
     final personalState =
         MovieLibraryEntryProjection.fromDispatch(entry.libraryEntryDispatch);
     return personalState is MovieLibraryEntry
@@ -164,7 +163,7 @@ final class MovieCollectionCsvProjection
   }
 
   @override
-  String? entryTags(LibraryWorkspaceSource entry) {
+  String? entryTags(LibraryWorkspaceContext entry) {
     final personalState =
         MovieLibraryEntryProjection.fromDispatch(entry.libraryEntryDispatch);
     return personalState is MovieLibraryEntry
@@ -174,7 +173,7 @@ final class MovieCollectionCsvProjection
 
   @override
   List<String> entryCellsBeforeLocation(
-    LibraryWorkspaceSource entry, {
+    LibraryWorkspaceContext entry, {
     required bool clzFriendly,
   }) {
     return const [];
@@ -182,7 +181,7 @@ final class MovieCollectionCsvProjection
 
   @override
   List<String> entryCellsAfterIndex(
-    LibraryWorkspaceSource entry, {
+    LibraryWorkspaceContext entry, {
     required bool clzFriendly,
   }) {
     return List<String>.filled(

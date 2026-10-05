@@ -10,7 +10,7 @@ final class AnimeWorkspaceDto implements LibraryWorkspaceDto {
   });
 
   final WorkspaceCommonProjection common;
-  final PersonalCopyProjection personal;
+  final PersonalEntryProjection personal;
   final AnimeMetadata metadata;
 
   String get title => common.title;

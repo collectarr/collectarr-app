@@ -82,13 +82,13 @@ Iterable<String?> comicLinkedMetadataValues(ComicCatalogItem metadata) => [
       ...metadata.genres,
     ];
 
-ComicCatalogItem? comicLinkedMetadata(LibraryWorkspaceSource source) {
-  final catalog = source.catalogData;
-  return catalog is ComicWorkspaceCatalogData ? catalog.comic : null;
+ComicCatalogItem? comicLinkedMetadata(LibraryWorkspaceContext source) {
+  final catalog = source.kindPresentationData;
+  return catalog is ComicWorkspaceData ? catalog.comic : null;
 }
 
 MetadataSearchQuery comicMetadataSearchQuery({
-  required LibraryWorkspaceSource source,
+  required LibraryWorkspaceContext source,
   required String title,
 }) {
   final metadata = comicLinkedMetadata(source);

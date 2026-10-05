@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
+import 'package:collectarr_app/features/library/domain/library_target_ref.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_card_presentation.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/generic/toolbar/toolbar_auxiliary_controls.dart';
@@ -79,7 +79,7 @@ class LibraryWorkspaceCard extends StatelessWidget {
       coverFocused: coverFocused,
     );
 
-    final strongSelection = selected && item.node is! LibraryCatalogItemNodeRef;
+    final strongSelection = selected && item.target is! CatalogTargetRef;
     final coverCacheWidth = _targetCacheWidth(context);
 
     if (cardLayout == LibraryCardLayout.vertical) {
@@ -227,7 +227,7 @@ class LibraryWorkspaceCard extends StatelessWidget {
                             const SizedBox(height: 4),
                             Text(
                               [
-                                if (item.node is! LibraryCatalogItemNodeRef &&
+                                if (item.target is! CatalogTargetRef &&
                                     presentation.variant != null &&
                                     presentation.variant!.isNotEmpty)
                                   presentation.variant,
@@ -306,7 +306,7 @@ class LibraryWorkspaceCard extends StatelessWidget {
                               ],
                             ),
                             const Spacer(),
-                            if (item.node is! LibraryCatalogItemNodeRef) ...[
+                            if (item.target is! CatalogTargetRef) ...[
                               Builder(
                                 builder: (context) {
                                   final format = presentation.format;
@@ -394,7 +394,7 @@ class LibraryWorkspaceCard extends StatelessWidget {
     final releaseDate = presentation.releaseDate;
     final format = presentation.format;
     final subtitle = [
-      if (item.node is! LibraryCatalogItemNodeRef &&
+      if (item.target is! CatalogTargetRef &&
           variant != null &&
           variant.isNotEmpty)
         variant,

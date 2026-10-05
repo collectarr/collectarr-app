@@ -1,11 +1,10 @@
 import 'package:collectarr_app/features/library/kinds/anime/workspace/anime_ids.dart';
-import 'package:collectarr_app/features/library/kinds/anime/workspace/anime_preference_codec.dart';
 import 'package:collectarr_app/features/library/kinds/anime/workspace/anime_workspace_dto.dart';
 import 'package:collectarr_app/features/library/kinds/anime/workspace/anime_catalog_item_workspace_fields.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_transport_bucket_mutators.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/schema/field_factories.dart';
-import 'package:collectarr_app/features/library/workspace/schema/library_entity_workspace_schema.dart';
+import 'package:collectarr_app/features/library/workspace/schema/library_workspace_schema.dart';
 import 'package:flutter/material.dart';
 
 abstract final class AnimeCatalogItemWorkspaceFields {
@@ -13,14 +12,12 @@ abstract final class AnimeCatalogItemWorkspaceFields {
     id: AnimeFieldIds.title,
     label: 'Title',
     getValue: (dto) => dto.title,
-    entityScope: LibraryEntityScope.catalogItem,
   );
 
   static final studio = textField<AnimeKind, AnimeWorkspaceDto>(
     id: AnimeFieldIds.studio,
     label: 'Studio',
     getValue: (dto) => dto.studio ?? dto.publisher,
-    entityScope: LibraryEntityScope.catalogItem,
   );
 
   static final cover =
@@ -28,56 +25,48 @@ abstract final class AnimeCatalogItemWorkspaceFields {
     id: AnimeFieldIds.cover,
     label: 'Cover',
     getValue: (context) => context.dto.coverImageUrl,
-    entityScope: LibraryEntityScope.catalogItem,
   );
 
   static final nativeTitle = textField<AnimeKind, AnimeWorkspaceDto>(
     id: AnimeFieldIds.nativeTitle,
     label: 'Native Title',
     getValue: (dto) => dto.metadata.nativeTitle,
-    entityScope: LibraryEntityScope.catalogItem,
   );
 
   static final romajiTitle = textField<AnimeKind, AnimeWorkspaceDto>(
     id: AnimeFieldIds.romajiTitle,
     label: 'Romaji Title',
     getValue: (dto) => dto.metadata.romajiTitle,
-    entityScope: LibraryEntityScope.catalogItem,
   );
 
   static final englishTitle = textField<AnimeKind, AnimeWorkspaceDto>(
     id: AnimeFieldIds.englishTitle,
     label: 'English Title',
     getValue: (dto) => dto.metadata.englishTitle,
-    entityScope: LibraryEntityScope.catalogItem,
   );
 
   static final format = textField<AnimeKind, AnimeWorkspaceDto>(
     id: AnimeFieldIds.format,
     label: 'Format',
     getValue: (dto) => dto.animeType,
-    entityScope: LibraryEntityScope.catalogItem,
   );
 
   static final season = textField<AnimeKind, AnimeWorkspaceDto>(
     id: AnimeFieldIds.season,
     label: 'Season',
     getValue: (dto) => dto.metadata.season?.label,
-    entityScope: LibraryEntityScope.catalogItem,
   );
 
   static final seasonYear = numberField<AnimeKind, AnimeWorkspaceDto>(
     id: AnimeFieldIds.seasonYear,
     label: 'Season Year',
     getValue: (dto) => dto.metadata.seasonYear,
-    entityScope: LibraryEntityScope.catalogItem,
   );
 
   static final episodeCount = numberField<AnimeKind, AnimeWorkspaceDto>(
     id: AnimeFieldIds.episodeCount,
     label: 'Episode Count',
     getValue: (dto) => dto.episodeCount,
-    entityScope: LibraryEntityScope.catalogItem,
   );
 
   static final episodeRuntimeMinutes =
@@ -85,21 +74,18 @@ abstract final class AnimeCatalogItemWorkspaceFields {
     id: AnimeFieldIds.episodeRuntimeMinutes,
     label: 'Episode Runtime (m)',
     getValue: (dto) => dto.metadata.episodeRuntimeMinutes,
-    entityScope: LibraryEntityScope.catalogItem,
   );
 
   static final airingStatus = textField<AnimeKind, AnimeWorkspaceDto>(
     id: AnimeFieldIds.airingStatus,
     label: 'Airing Status',
     getValue: (dto) => dto.airingStatus,
-    entityScope: LibraryEntityScope.catalogItem,
   );
 
   static final sourceMaterial = textField<AnimeKind, AnimeWorkspaceDto>(
     id: AnimeFieldIds.sourceMaterial,
     label: 'Source Material',
     getValue: (dto) => dto.metadata.sourceMaterial.label,
-    entityScope: LibraryEntityScope.catalogItem,
   );
 }
 
@@ -254,9 +240,8 @@ final animeCatalogItemWorkspaceColumnDefinitions = [
 ];
 
 final animeCatalogItemWorkspaceSchema =
-    LibraryEntityWorkspaceSchema<AnimeKind, AnimeWorkspaceDto>(
+    LibraryWorkspaceSchema<AnimeKind, AnimeWorkspaceDto>(
   kindNamespace: 'anime',
-  entityScope: LibraryEntityScope.catalogItem,
   fields: animeCatalogItemWorkspaceFieldDefinitions,
   columns: animeCatalogItemWorkspaceColumnDefinitions,
   sorts: animeCatalogItemWorkspaceSortDefinitions,
@@ -265,5 +250,4 @@ final animeCatalogItemWorkspaceSchema =
   defaultVisibleColumns: animeCatalogItemWorkspaceDefaultVisibleColumns,
   defaultSort: AnimeSortIds.studio,
   defaultGroup: AnimeGroupIds.studio,
-  preferenceCodec: const AnimePreferenceCodec(),
 );

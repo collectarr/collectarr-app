@@ -1,7 +1,7 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_transport_payload.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_metadata.dart';
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/state/api_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -22,8 +22,8 @@ final tvSeasonsByCatalogItemIdProvider = FutureProvider.autoDispose
 
 /// Typed TV hierarchy access at the generic catalog reference boundary.
 final tvSeasonsByCatalogRefProvider = FutureProvider.autoDispose
-    .family<List<TvSeasonMetadata>, CatalogEntityRef>((ref, catalogRef) async {
-  if (catalogRef.mediaKind != CatalogMediaKind.tv) {
+    .family<List<TvSeasonMetadata>, CatalogItemRef>((ref, catalogRef) async {
+  if (catalogRef.kind != CatalogMediaKind.tv) {
     return const <TvSeasonMetadata>[];
   }
   return ref.watch(tvSeasonsByCatalogItemIdProvider(catalogRef.id).future);

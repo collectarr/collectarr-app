@@ -23,9 +23,9 @@ extension LibraryCollectionStatusScopeUi on LibraryCollectionStatusScope {
   String get label {
     return switch (this) {
       LibraryCollectionStatusScope.all => 'All',
-      LibraryCollectionStatusScope.inCollection => 'In collection',
-      LibraryCollectionStatusScope.forSale => 'For sale',
-      LibraryCollectionStatusScope.wishList => 'Wish List',
+      LibraryCollectionStatusScope.inCollection => 'In Collection',
+      LibraryCollectionStatusScope.forSale => 'For Sale',
+      LibraryCollectionStatusScope.wishList => 'On Wish List',
       LibraryCollectionStatusScope.onOrder => 'On Order',
       LibraryCollectionStatusScope.sold => 'Sold',
       LibraryCollectionStatusScope.notInCollection => 'Not in Collection',
@@ -34,14 +34,13 @@ extension LibraryCollectionStatusScopeUi on LibraryCollectionStatusScope {
 
   IconData get icon {
     return switch (this) {
-      LibraryCollectionStatusScope.all => Icons.select_all,
-      LibraryCollectionStatusScope.inCollection => Icons.inventory_2_outlined,
-      LibraryCollectionStatusScope.forSale => Icons.sell_outlined,
-      LibraryCollectionStatusScope.wishList => Icons.star_border,
-      LibraryCollectionStatusScope.onOrder => Icons.local_shipping_outlined,
-      LibraryCollectionStatusScope.sold => Icons.paid_outlined,
-      LibraryCollectionStatusScope.notInCollection =>
-        Icons.hide_source_outlined,
+      LibraryCollectionStatusScope.all => Icons.inventory_2,
+      LibraryCollectionStatusScope.inCollection => Icons.check,
+      LibraryCollectionStatusScope.forSale => Icons.attach_money,
+      LibraryCollectionStatusScope.wishList => Icons.list_alt,
+      LibraryCollectionStatusScope.onOrder => Icons.shopping_cart_outlined,
+      LibraryCollectionStatusScope.sold => Icons.gavel,
+      LibraryCollectionStatusScope.notInCollection => Icons.close,
     };
   }
 }

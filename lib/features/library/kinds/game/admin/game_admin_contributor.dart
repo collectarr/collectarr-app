@@ -56,8 +56,7 @@ class GameAdminContributor implements LibraryAdminContributor {
         ),
         adminCorrectionFieldValueOverride(
           key: 'release_date',
-          read: (item) =>
-              item.canonicalFieldValues['release_date'],
+          read: (item) => item.canonicalFieldValues['release_date'],
         ),
         adminCorrectionFieldValueOverride(
           key: 'publisher',

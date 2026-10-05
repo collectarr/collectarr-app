@@ -11,7 +11,7 @@ import 'package:collectarr_app/features/library/details/library_detail_models.da
 import 'package:collectarr_app/features/library/details/library_detail_section.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_widgets.dart';
-import 'package:collectarr_app/features/library/workspace/config/library_entity_workspace_projector.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_target_workspace_projector.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_link_summary.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_card_presentation.dart';
@@ -151,7 +151,7 @@ abstract class LibraryMediaPresentationBuilder {
   const LibraryMediaPresentationBuilder();
 
   List<LibraryDuplicateCandidate> buildDuplicateCandidates(
-    LibraryWorkspaceSource entry,
+    LibraryWorkspaceContext entry,
   ) =>
       const [];
 
@@ -163,7 +163,7 @@ abstract class LibraryMediaPresentationBuilder {
   /// This is intentionally a small read projection. Add/search continues to
   /// use their kind-owned candidate mappers at the add boundary, while workspace
   List<LibraryWorkspaceLinkSummary> buildWorkspaceLinks(
-    LibraryWorkspaceSource entry,
+    LibraryWorkspaceContext entry,
   ) =>
       const [];
 
@@ -256,7 +256,7 @@ abstract class LibraryMediaPresentationBuilder {
     required VoidCallback onOpenTitleDetails,
     required List<LibraryEntrySummary> libraryEntries,
     required List<WishlistItem> wishlistItems,
-    required LibraryEntityWorkspaceProjector projector,
+    required LibraryTargetWorkspaceProjector projector,
   }) =>
       null;
 

@@ -113,7 +113,7 @@ final class LibraryFacetBucketService {
     return [
       for (final item in items)
         for (final value in getFacetValues(item, facetId))
-          LibraryFacetRow(name: value, itemIds: [item.node.id]),
+          LibraryFacetRow(name: value, itemIds: [item.target.id]),
     ];
   }
 }

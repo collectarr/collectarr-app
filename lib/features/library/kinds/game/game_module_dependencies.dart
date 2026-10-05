@@ -7,12 +7,11 @@ export 'package:collectarr_app/features/library/add/controllers/library_add_dial
 export 'package:collectarr_app/features/library/add/library_add_ranking.dart';
 export 'package:collectarr_app/features/library/add/models/library_add_advanced_filter.dart';
 export 'package:collectarr_app/features/library/add/models/library_add_search_context.dart';
-export 'package:collectarr_app/features/library/config/library_entity_action_capability.dart';
+export 'package:collectarr_app/features/library/config/library_target_action_capability.dart';
 export 'package:collectarr_app/features/library/config/library_facet_module.dart';
 export 'package:collectarr_app/features/library/config/library_kind_browser_delegate.dart';
 export 'package:collectarr_app/features/library/config/library_page_utilities.dart';
 export 'package:collectarr_app/features/library/config/library_search_target.dart';
-export 'package:collectarr_app/features/library/domain/library_entity_scope.dart';
 export 'package:collectarr_app/features/library/generic/transferable_field.dart';
 export 'package:collectarr_app/features/library/kinds/game/add/game_add_draft.dart';
 export 'package:collectarr_app/features/library/kinds/game/add/game_add_manual_draft.dart';
@@ -37,11 +36,11 @@ export 'package:collectarr_app/features/library/kinds/game/tracking/game_trackin
 export 'package:collectarr_app/features/library/kinds/game/tracking/game_tracking_state_codec.dart';
 export 'package:collectarr_app/features/library/kinds/game/vocabulary/game_vocabularies.dart';
 export 'package:collectarr_app/features/library/kinds/game/workspace/game_workspace.dart';
-export 'package:collectarr_app/features/library/kinds/game/workspace/game_workspace_catalog_data.dart';
+export 'package:collectarr_app/features/library/kinds/game/workspace/game_workspace_data.dart';
 export 'package:collectarr_app/features/library/kinds/game/workspace/game_workspace_dto.dart';
 export 'package:collectarr_app/features/library/kinds/game/workspace/game_workspace_projector.dart';
 export 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
 export 'package:collectarr_app/features/library/kinds/registry/library_kind_workspace.dart';
-export 'package:collectarr_app/features/library/workspace/entry/library_workspace_source.dart';
+export 'package:collectarr_app/features/library/workspace/entry/library_workspace_context.dart';
 export 'package:collectarr_app/features/library/workspace/shared/library_media_adapter_builder.dart';
 export 'package:flutter/material.dart';

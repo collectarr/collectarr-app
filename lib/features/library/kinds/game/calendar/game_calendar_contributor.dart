@@ -1,8 +1,7 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/calendar_event.dart';
-import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/features/library/config/library_calendar_contributor.dart';
-import 'package:collectarr_app/features/catalog/transport/catalog_item_cache_repository.dart';
+import 'package:collectarr_app/features/library/entries/library_entry_store.dart';
 import 'package:collectarr_app/features/library/kinds/game/domain/game_metadata.dart';
 
 /// Game owns the mapping from game releases to calendar dates.
@@ -22,10 +21,16 @@ final class GameCalendarContributor implements LibraryCalendarContributor {
     for (final ref in context.libraryEntryRefs) {
       if (ref.kind != kind) continue;
       final id = ref.id.value;
-      final item =
-          loadItem != null ? await loadItem!(id) : await _loadItem(context, id);
-      if (item == null) continue;
-      final metadata = GameCatalogMetadata.fromJson(item.kindData);
+      final Map<String, dynamic>? catalogData;
+      if (loadItem case final loader?) {
+        final item = await loader(id);
+        if (item == null) continue;
+        catalogData = item.kindData;
+      } else {
+        catalogData = await _loadCatalogData(context, id);
+      }
+      if (catalogData == null) continue;
+      final metadata = GameCatalogMetadata.fromJson(catalogData);
       final date = metadata.releaseDate;
       if (date == null) continue;
       events.add(CalendarEvent(
@@ -39,7 +44,7 @@ final class GameCalendarContributor implements LibraryCalendarContributor {
     return events;
   }
 
-  Future<CatalogItemDto?> _loadItem(
+  Future<Map<String, dynamic>?> _loadCatalogData(
     LibraryCalendarContext context,
     String id,
   ) {
@@ -47,8 +52,8 @@ final class GameCalendarContributor implements LibraryCalendarContributor {
     if (database == null) {
       throw StateError('Game calendar contribution requires a database');
     }
-    return CatalogItemCacheRepository(database).find(
-      CatalogItemRef(kind: kind, id: id),
-    );
+    return LibraryEntryStore(database)
+        .find(kind, id)
+        .then((entry) => entry?.catalogData);
   }
 }

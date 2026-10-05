@@ -2,10 +2,12 @@ import 'package:flutter/foundation.dart';
 
 import 'catalog_media_kind.dart';
 
+export 'catalog_media_kind.dart';
+
 /// Identity of one concrete canonical Catalog Item.
 ///
-/// Catalog Items are kind roots. This reference intentionally has no Work,
-/// Release, edition, variant, parent, or fallback identity.
+/// This reference intentionally has no Work, Release, parent, or fallback
+/// identity.
 @immutable
 final class CatalogItemRef {
   const CatalogItemRef({required this.kind, required this.id});

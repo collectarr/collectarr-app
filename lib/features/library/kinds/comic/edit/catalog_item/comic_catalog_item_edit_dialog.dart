@@ -96,6 +96,7 @@ class _ComicCatalogItemEditDialogState
         coreCorrectionSourceBuilder: () =>
             LibraryCoreCorrectionSource.fromTypedFields(
           request: widget.request,
+          coreCatalogRef: coreCatalogRefForEditRequest(widget.request),
           originalFields: _media.toJson(),
           proposedFields: _editedMedia().toJson(),
         ),
@@ -107,6 +108,7 @@ class _ComicCatalogItemEditDialogState
           final updated = widget.request.kindItem.kindCapability.mapTransport(
             (transport) => CatalogSearchCandidate.fromItem(
               transport.replacingKindData(updatedMedia),
+              basedOn: widget.request.kindItem,
             ),
           );
           await commitLibraryEdit(

@@ -6,7 +6,21 @@ class LibraryProjectionIndex {
   final LibrarySearchIndex _searchIndex = LibrarySearchIndex();
   final Map<String, Map<LibraryGroupIdRuntime, String>> _itemGroupBucketCache =
       {};
+  final Map<String, Map<LibraryGroupIdRuntime, List<String>>>
+      _itemGroupBucketsCache = {};
   int extractorCallCount = 0;
+
+  List<String> getGroupBuckets(
+      LibraryProjectionItem item,
+      LibraryGroupIdRuntime groupId,
+      List<String> Function(LibraryProjectionItem, LibraryGroupIdRuntime)
+          extractor) {
+    final cache = _itemGroupBucketsCache.putIfAbsent(item.target.id, () => {});
+    return cache.putIfAbsent(groupId, () {
+      extractorCallCount++;
+      return extractor(item, groupId);
+    });
+  }
 
   LibrarySearchDocument getSearchDocument(
     LibraryProjectionItem item, [
@@ -21,7 +35,8 @@ class LibraryProjectionIndex {
     String Function(LibraryProjectionItem item, LibraryGroupIdRuntime groupId)
         extractor,
   ) {
-    final itemCache = _itemGroupBucketCache.putIfAbsent(item.node.id, () => {});
+    final itemCache =
+        _itemGroupBucketCache.putIfAbsent(item.target.id, () => {});
     final existing = itemCache[groupId];
     if (existing != null) return existing;
 
@@ -34,6 +49,7 @@ class LibraryProjectionIndex {
   void clear() {
     _searchIndex.clear();
     _itemGroupBucketCache.clear();
+    _itemGroupBucketsCache.clear();
     extractorCallCount = 0;
   }
 }

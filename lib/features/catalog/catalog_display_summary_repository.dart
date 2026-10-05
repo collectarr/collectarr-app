@@ -1,6 +1,6 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_display_summary.dart';
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/features/catalog/catalog_kind_summary_reader.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.dart';
 import 'package:collectarr_app/core/models/structural_ref_validation.dart';
@@ -32,24 +32,20 @@ final class CatalogDisplaySummaryRepository {
     return summaries;
   }
 
-  Future<Map<CatalogEntityRef, CatalogDisplaySummary>> findByRefs(
-    Iterable<CatalogEntityRef> refs,
+  Future<Map<CatalogItemRef, CatalogDisplaySummary>> findByRefs(
+    Iterable<CatalogItemRef> refs,
   ) async {
     final wanted = refs.toSet();
     if (wanted.isEmpty) return const {};
     for (final ref in wanted) {
-      requireKnownCatalogRef(ref, 'catalogSummary.ref');
+      requireKnownCatalogItemRef(ref, 'catalogSummary.ref');
     }
 
-    final result = <CatalogEntityRef, CatalogDisplaySummary>{};
+    final result = <CatalogItemRef, CatalogDisplaySummary>{};
     for (final reader in _readers) {
       for (final summary in await reader.listSummaries(_db)) {
         for (final ref in wanted) {
-          // A mixed host may hold a release/edition ref while the catalog
-          // summary is intentionally projected at the owning root. Matching
-          // root scope is structural and preserves the caller's complete ref
-          // as the map key; no kind-specific entity type is inferred here.
-          if (summary.ref == ref || summary.ref == ref.rootScope) {
+          if (summary.ref == ref) {
             result[ref] = summary;
           }
         }
@@ -58,7 +54,7 @@ final class CatalogDisplaySummaryRepository {
     return result;
   }
 
-  Future<CatalogDisplaySummary?> findByRef(CatalogEntityRef ref) async {
+  Future<CatalogDisplaySummary?> findByRef(CatalogItemRef ref) async {
     return (await findByRefs([ref]))[ref];
   }
 }

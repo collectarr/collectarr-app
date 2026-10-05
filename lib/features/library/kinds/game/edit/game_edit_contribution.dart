@@ -2,16 +2,7 @@ import '../game_module_dependencies.dart';
 import '../entries/game_transfer_library_entry.dart';
 
 final gameKindEditCapabilities = LibraryEditCapabilitySet(
-  editRegistry: LibraryEntityEditRegistry(contributors: [
-    LibraryEntityEditContributor(
-      scope: LibraryEntityScope.catalogItem,
-      builder: buildGameLibraryEditDialog,
-    ),
-    LibraryEntityEditContributor(
-      scope: LibraryEntityScope.libraryEntry,
-      builder: buildGameLibraryEditDialog,
-    ),
-  ]),
+  editRegistry: LibraryTargetEditRegistry(catalogItem: buildGameLibraryEditDialog, libraryEntry: buildGameLibraryEditDialog),
   vocabularies: StandardKindVocabularyCapability(GameVocabularies.all),
   conditions: GameVocabularies.condition.builtIns,
   entryCollectionValueReader: (libraryEntry) => switch (libraryEntry?.value) {
@@ -21,7 +12,6 @@ final gameKindEditCapabilities = LibraryEditCapabilitySet(
   defaultCondition: 'Near Mint',
   defaultCollectionValue: 'Ungraded',
   presentation: gameLibraryEditPresentation,
-  coreCorrectionTargetResolver: resolveStructuralLibraryCoreCorrectionTarget,
   createSession: createGameEditDraft,
   entryDigitalFlagResolver: resolveGameEntryDigitalFlag,
   entryFormatHintResolver: resolveGameEntryFormatHint,

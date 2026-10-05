@@ -33,7 +33,7 @@ class LibrarySearchIndex {
     LibraryProjectionItem item, [
     Map<String, List<String>> customFieldValuesByItem = const {},
   ]) {
-    final existing = _documents[item.node.id];
+    final existing = _documents[item.target.id];
     // Custom field values are supplied by the caller and may change between
     // executions while the projection engine is reused. Rebuild in that case
     // instead of returning a document that was indexed without the new values.
@@ -51,6 +51,7 @@ class LibrarySearchIndex {
     }
 
     add(dto.primaryLabel);
+    add(source.title);
     add(source.catalogSummary?.primaryLabel);
     add(source.catalogSummary?.subtitle);
     for (final token in source.catalogSearchTokens) {
@@ -70,7 +71,7 @@ class LibrarySearchIndex {
 
     for (final targetId in customFieldTargetIds(
       source: source,
-      node: item.node,
+      target: item.target,
     )) {
       final cfValues = customFieldValuesByItem[targetId];
       if (cfValues == null) continue;
@@ -80,10 +81,10 @@ class LibrarySearchIndex {
     }
 
     final doc = LibrarySearchDocument(
-      itemId: item.node.id,
+      itemId: item.target.id,
       normalizedTokens: List<String>.unmodifiable(tokens),
     );
-    _documents[item.node.id] = doc;
+    _documents[item.target.id] = doc;
     return doc;
   }
 
