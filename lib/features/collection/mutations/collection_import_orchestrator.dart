@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/core/models/custom_field.dart';
@@ -73,7 +72,7 @@ final class CollectionImportOrchestrator {
     final existingCatalogSummaries = await catalogSummaries.findByRefs(rowRefs);
     final importedCatalogItems = <CatalogImportTransport>[];
     final importedCatalogItemsByRef =
-        <CatalogEntityRef, CatalogImportTransport>{};
+        <CatalogItemRef, CatalogImportTransport>{};
     for (final row in resolvedRows) {
       final rowRef = _catalogRefForRow(row);
       if (rowRef == null) continue;
@@ -94,7 +93,7 @@ final class CollectionImportOrchestrator {
     final now = DateTime.now().toUtc();
     final existingWishlist = {
       for (final item in await wishlist.findActiveByCatalogRefs(
-        rowRefs.map((ref) => ref.toCatalogItemRef()),
+        rowRefs.map((ref) => ref),
       ))
         item.catalogRef: item,
     };
@@ -117,7 +116,7 @@ final class CollectionImportOrchestrator {
       final rowRef = _catalogRefForRow(row);
       if (rowRef == null) continue;
       final wishlistCatalogRef = _wishlistCatalogRefForRow(row) ?? rowRef;
-      final wishlistRef = wishlistCatalogRef.toCatalogItemRef();
+      final wishlistRef = wishlistCatalogRef;
 
       imported++;
       final catalogKind = importedCatalogItemsByRef[rowRef]?.ref.kind ??
@@ -282,7 +281,7 @@ final class CollectionImportOrchestrator {
           if (matched != null) {
             row = row.copyWith(
               itemId: matched.ref.id,
-              catalogItemRef: matched.ref.toCatalogItemRef(),
+              catalogItemRef: matched.ref,
               mediaKind: matched.kind,
               title: matched.title,
               kindDisplayTitle: matched.title,
@@ -303,7 +302,7 @@ final class CollectionImportOrchestrator {
           if (matched != null) {
             row = row.copyWith(
               itemId: matched.ref.id,
-              catalogItemRef: matched.ref.toCatalogItemRef(),
+              catalogItemRef: matched.ref,
               mediaKind: matched.kind,
               title: matched.title,
               kindDisplayTitle: matched.title,
@@ -325,7 +324,7 @@ final class CollectionImportOrchestrator {
 
     final validRows = candidateRows;
 
-    final seenRefs = <CatalogEntityRef>{};
+    final seenRefs = <CatalogItemRef>{};
     final uniqueRows = <CollectionImportRow>[];
     final duplicateRows = <CollectionImportRow>[];
 
@@ -344,7 +343,7 @@ final class CollectionImportOrchestrator {
     }
 
     final uniqueRefs =
-        uniqueRows.map(_catalogRefForRow).whereType<CatalogEntityRef>().toSet();
+        uniqueRows.map(_catalogRefForRow).whereType<CatalogItemRef>().toSet();
     final existingEntryMap = _entrySummariesByTarget(
       await libraryEntries.listActiveSummaries(),
       uniqueRefs,
@@ -372,33 +371,30 @@ final class CollectionImportOrchestrator {
     );
   }
 
-  CatalogEntityRef? _catalogRefForRow(CollectionImportRow row) {
+  CatalogItemRef? _catalogRefForRow(CollectionImportRow row) {
     final completeEntry = row.fullEntryPayload;
     if (completeEntry != null) {
       final id = completeEntry['id'];
       if (id is! String || id.trim().isEmpty || row.mediaKind.isUnknown) {
         return null;
       }
-      return CatalogEntityRef(
+      return CatalogItemRef(
         kind: row.mediaKind,
-        entityType: CatalogEntityTypeId.catalogItem,
         id: id,
       );
     }
     final importedRef = row.catalogItemRef;
     if (importedRef != null) {
-      return CatalogEntityRef(
+      return CatalogItemRef(
         kind: importedRef.kind,
-        entityType: CatalogEntityTypeId.catalogItem,
         id: importedRef.id,
       );
     }
     if (row.mediaKind.isUnknown || row.itemId.trim().isEmpty) {
       return null;
     }
-    return CatalogEntityRef(
+    return CatalogItemRef(
       kind: row.mediaKind,
-      entityType: CatalogEntityTypeId.catalogItem,
       id: row.itemId,
     );
   }
@@ -406,12 +402,11 @@ final class CollectionImportOrchestrator {
   /// Entry envelopes use their local ID for entry matching. Wishlist state is
   /// a separate Catalog Item relationship, so recover it from the explicit
   /// CSV reference or Core provenance instead of reusing the local entry ID.
-  CatalogEntityRef? _wishlistCatalogRefForRow(CollectionImportRow row) {
+  CatalogItemRef? _wishlistCatalogRefForRow(CollectionImportRow row) {
     final explicitRef = row.catalogItemRef;
     if (explicitRef != null) {
-      return CatalogEntityRef(
+      return CatalogItemRef(
         kind: explicitRef.kind,
-        entityType: CatalogEntityTypeId.catalogItem,
         id: explicitRef.id,
       );
     }
@@ -419,9 +414,8 @@ final class CollectionImportOrchestrator {
     if (rawSource is! Map) return null;
     final source =
         CatalogItemRef.fromJson(Map<String, Object?>.from(rawSource));
-    return CatalogEntityRef(
+    return CatalogItemRef(
       kind: source.kind,
-      entityType: CatalogEntityTypeId.catalogItem,
       id: source.id,
     );
   }
@@ -515,7 +509,6 @@ final class CollectionImportOrchestrator {
         ),
       );
     }
-    final existingLocalRef = existingSummary?.ref.localCatalogItemRef;
     final personal = row.personal;
     final projection = _profileForKind(kind);
     if (projection != null) {
@@ -542,9 +535,9 @@ final class CollectionImportOrchestrator {
           soldAt: personal.soldAt,
           sellPriceCents: personal.sellPriceCents,
           soldTo: personal.soldTo,
+          quantity: personal.quantity,
           kindEntryCells: row.kindEntryCells,
           catalogData: catalogData,
-          quantity: personal.quantity,
         ),
       );
       return (
@@ -557,8 +550,8 @@ final class CollectionImportOrchestrator {
 
   Future<JsonMap> _catalogDataForEntryImport(
     CollectionImportRow row,
-    CatalogEntityRef ref,
-    Map<CatalogEntityRef, CatalogImportTransport> imported,
+    CatalogItemRef ref,
+    Map<CatalogItemRef, CatalogImportTransport> imported,
   ) async {
     final complete = row.fullEntryPayload?['catalog_data'];
     if (complete is Map) return Map<String, dynamic>.from(complete);
@@ -621,30 +614,28 @@ final class CollectionImportOrchestrator {
   CollectionCsvKindProfile? _profileForKind(CatalogMediaKind kind) =>
       _csvProfiles[kind];
 
-  Map<CatalogEntityRef, LibraryEntrySummary> _entrySummariesByTarget(
+  Map<CatalogItemRef, LibraryEntrySummary> _entrySummariesByTarget(
       Iterable<LibraryEntrySummary> summaries,
-      Iterable<CatalogEntityRef> targets,
+      Iterable<CatalogItemRef> targets,
       {required bool includeRootScope}) {
     final targetSet = targets.toSet();
-    final targetRoots = {for (final target in targetSet) target.rootScope};
-    final result = <CatalogEntityRef, LibraryEntrySummary>{};
+    final targetRoots = {for (final target in targetSet) target};
+    final result = <CatalogItemRef, LibraryEntrySummary>{};
     for (final summary in summaries) {
-      final localRef = CatalogEntityRef(
+      final localRef = CatalogItemRef(
         kind: summary.ref.kind,
-        entityType: CatalogEntityTypeId.catalogItem,
         id: summary.ref.id.value,
       );
       final sourceRef = summary.sourceCatalogRef == null
           ? null
-          : CatalogEntityRef(
+          : CatalogItemRef(
               kind: summary.sourceCatalogRef!.kind,
-              entityType: CatalogEntityTypeId.catalogItem,
               id: summary.sourceCatalogRef!.id,
             );
       final candidates = [localRef, if (sourceRef != null) sourceRef];
       for (final candidate in candidates) {
         if (!targetSet.contains(candidate) &&
-            !targetRoots.contains(candidate.rootScope)) {
+            !targetRoots.contains(candidate)) {
           continue;
         }
         // CSV may identify a local record by either its local identity or its
@@ -653,8 +644,8 @@ final class CollectionImportOrchestrator {
         result[localRef] = summary;
         result[candidate] = summary;
         if (includeRootScope) {
-          result[localRef.rootScope] = summary;
-          result[candidate.rootScope] = summary;
+          result[localRef] = summary;
+          result[candidate] = summary;
         }
       }
     }

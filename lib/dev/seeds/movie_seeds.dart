@@ -974,7 +974,7 @@ List<MovieLibraryEntry> movieSeedLibraryEntries(DateTime now) {
       metadata: metadataById['seed-movie-01'] ??
           (throw StateError('Missing Movie seed catalog item: seed-movie-01')),
       sourceCatalogRef: seedCatalogRef(CatalogMediaKind.movie, 'seed-movie-01')
-          .toCatalogItemRef(),
+          ,
       createdAt: now.subtract(const Duration(days: 420)),
       updatedAt: now,
       personal: MoviePersonalData(
@@ -998,7 +998,7 @@ List<MovieLibraryEntry> movieSeedLibraryEntries(DateTime now) {
       metadata: metadataById['seed-movie-02'] ??
           (throw StateError('Missing Movie seed catalog item: seed-movie-02')),
       sourceCatalogRef: seedCatalogRef(CatalogMediaKind.movie, 'seed-movie-02')
-          .toCatalogItemRef(),
+          ,
       createdAt: now.subtract(const Duration(days: 380)),
       updatedAt: now,
       personal: MoviePersonalData(
@@ -1022,7 +1022,7 @@ List<MovieLibraryEntry> movieSeedLibraryEntries(DateTime now) {
       metadata: metadataById['seed-movie-03'] ??
           (throw StateError('Missing Movie seed catalog item: seed-movie-03')),
       sourceCatalogRef: seedCatalogRef(CatalogMediaKind.movie, 'seed-movie-03')
-          .toCatalogItemRef(),
+          ,
       createdAt: now.subtract(const Duration(days: 350)),
       updatedAt: now,
       personal: MoviePersonalData(
@@ -1048,7 +1048,7 @@ List<MovieLibraryEntry> movieSeedLibraryEntries(DateTime now) {
       metadata: metadataById['seed-movie-04'] ??
           (throw StateError('Missing Movie seed catalog item: seed-movie-04')),
       sourceCatalogRef: seedCatalogRef(CatalogMediaKind.movie, 'seed-movie-04')
-          .toCatalogItemRef(),
+          ,
       createdAt: now.subtract(const Duration(days: 280)),
       updatedAt: now,
       personal: MoviePersonalData(
@@ -1075,7 +1075,7 @@ List<MovieLibraryEntry> movieSeedLibraryEntries(DateTime now) {
       metadata: metadataById['seed-movie-05'] ??
           (throw StateError('Missing Movie seed catalog item: seed-movie-05')),
       sourceCatalogRef: seedCatalogRef(CatalogMediaKind.movie, 'seed-movie-05')
-          .toCatalogItemRef(),
+          ,
       createdAt: now.subtract(const Duration(days: 200)),
       updatedAt: now,
       personal: MoviePersonalData(
@@ -1102,7 +1102,7 @@ List<MovieLibraryEntry> movieSeedLibraryEntries(DateTime now) {
       metadata: metadataById['seed-movie-06'] ??
           (throw StateError('Missing Movie seed catalog item: seed-movie-06')),
       sourceCatalogRef: seedCatalogRef(CatalogMediaKind.movie, 'seed-movie-06')
-          .toCatalogItemRef(),
+          ,
       createdAt: now.subtract(const Duration(days: 500)),
       updatedAt: now,
       personal: MoviePersonalData(
@@ -1128,7 +1128,7 @@ List<MovieLibraryEntry> movieSeedLibraryEntries(DateTime now) {
       metadata: metadataById['seed-movie-07'] ??
           (throw StateError('Missing Movie seed catalog item: seed-movie-07')),
       sourceCatalogRef: seedCatalogRef(CatalogMediaKind.movie, 'seed-movie-07')
-          .toCatalogItemRef(),
+          ,
       createdAt: now.subtract(const Duration(days: 340)),
       updatedAt: now,
       personal: MoviePersonalData(
@@ -1154,7 +1154,7 @@ List<MovieLibraryEntry> movieSeedLibraryEntries(DateTime now) {
       metadata: metadataById['seed-movie-08'] ??
           (throw StateError('Missing Movie seed catalog item: seed-movie-08')),
       sourceCatalogRef: seedCatalogRef(CatalogMediaKind.movie, 'seed-movie-08')
-          .toCatalogItemRef(),
+          ,
       createdAt: now.subtract(const Duration(days: 240)),
       updatedAt: now,
       personal: MoviePersonalData(
@@ -1178,7 +1178,7 @@ List<MovieLibraryEntry> movieSeedLibraryEntries(DateTime now) {
       metadata: metadataById['seed-movie-09'] ??
           (throw StateError('Missing Movie seed catalog item: seed-movie-09')),
       sourceCatalogRef: seedCatalogRef(CatalogMediaKind.movie, 'seed-movie-09')
-          .toCatalogItemRef(),
+          ,
       createdAt: now.subtract(const Duration(days: 230)),
       updatedAt: now,
       personal: MoviePersonalData(
@@ -1204,7 +1204,7 @@ List<MovieLibraryEntry> movieSeedLibraryEntries(DateTime now) {
       metadata: metadataById['seed-movie-10'] ??
           (throw StateError('Missing Movie seed catalog item: seed-movie-10')),
       sourceCatalogRef: seedCatalogRef(CatalogMediaKind.movie, 'seed-movie-10')
-          .toCatalogItemRef(),
+          ,
       createdAt: now.subtract(const Duration(days: 150)),
       updatedAt: now,
       personal: MoviePersonalData(
@@ -1229,7 +1229,7 @@ List<MovieLibraryEntry> movieSeedLibraryEntries(DateTime now) {
       metadata: metadataById['seed-movie-11'] ??
           (throw StateError('Missing Movie seed catalog item: seed-movie-11')),
       sourceCatalogRef: seedCatalogRef(CatalogMediaKind.movie, 'seed-movie-11')
-          .toCatalogItemRef(),
+          ,
       createdAt: now.subtract(const Duration(days: 90)),
       updatedAt: now,
       personal: MoviePersonalData(
@@ -1255,7 +1255,7 @@ List<MovieLibraryEntry> movieSeedLibraryEntries(DateTime now) {
       metadata: metadataById['seed-movie-12'] ??
           (throw StateError('Missing Movie seed catalog item: seed-movie-12')),
       sourceCatalogRef: seedCatalogRef(CatalogMediaKind.movie, 'seed-movie-12')
-          .toCatalogItemRef(),
+          ,
       createdAt: now.subtract(const Duration(days: 60)),
       updatedAt: now,
       personal: MoviePersonalData(
@@ -1281,7 +1281,7 @@ List<MovieLibraryEntry> movieSeedLibraryEntries(DateTime now) {
       metadata: metadataById['seed-movie-13'] ??
           (throw StateError('Missing Movie seed catalog item: seed-movie-13')),
       sourceCatalogRef: seedCatalogRef(CatalogMediaKind.movie, 'seed-movie-13')
-          .toCatalogItemRef(),
+          ,
       createdAt: now.subtract(const Duration(days: 30)),
       updatedAt: now,
       personal: MoviePersonalData(
@@ -1307,7 +1307,7 @@ List<MovieLibraryEntry> movieSeedLibraryEntries(DateTime now) {
       metadata: metadataById['seed-movie-14'] ??
           (throw StateError('Missing Movie seed catalog item: seed-movie-14')),
       sourceCatalogRef: seedCatalogRef(CatalogMediaKind.movie, 'seed-movie-14')
-          .toCatalogItemRef(),
+          ,
       createdAt: now.subtract(const Duration(days: 45)),
       updatedAt: now,
       personal: MoviePersonalData(
@@ -1333,7 +1333,7 @@ List<MovieLibraryEntry> movieSeedLibraryEntries(DateTime now) {
       metadata: metadataById['seed-movie-15'] ??
           (throw StateError('Missing Movie seed catalog item: seed-movie-15')),
       sourceCatalogRef: seedCatalogRef(CatalogMediaKind.movie, 'seed-movie-15')
-          .toCatalogItemRef(),
+          ,
       createdAt: now.subtract(const Duration(days: 20)),
       updatedAt: now,
       personal: MoviePersonalData(

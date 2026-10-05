@@ -12,7 +12,8 @@ class UserExternalLinksCacheRepository {
   Future<List<UserExternalLink>> listByLibraryEntryRef(
     LibraryEntryRef libraryEntryRef,
   ) async {
-    requireKnownLibraryEntryRef(libraryEntryRef, 'externalLink.libraryEntryRef');
+    requireKnownLibraryEntryRef(
+        libraryEntryRef, 'externalLink.libraryEntryRef');
     final rows = await (_db.select(_db.userExternalLinksCache)
           ..where((row) => row.libraryEntryRefKey.equals(libraryEntryRef.key))
           ..orderBy([
@@ -50,12 +51,14 @@ class UserExternalLinksCacheRepository {
     LibraryEntryRef libraryEntryRef,
     Iterable<UserExternalLink> links,
   ) async {
-    requireKnownLibraryEntryRef(libraryEntryRef, 'externalLink.libraryEntryRef');
+    requireKnownLibraryEntryRef(
+        libraryEntryRef, 'externalLink.libraryEntryRef');
     final normalized = links
         .where((link) => link.url.trim().isNotEmpty)
         .toList(growable: false);
     for (final link in normalized) {
-      requireKnownLibraryEntryRef(link.libraryEntryRef, 'externalLink.libraryEntryRef');
+      requireKnownLibraryEntryRef(
+          link.libraryEntryRef, 'externalLink.libraryEntryRef');
       if (link.libraryEntryRef != libraryEntryRef) {
         throw ArgumentError(
           'External link ${link.id} targets a different library entry.',
@@ -64,7 +67,8 @@ class UserExternalLinksCacheRepository {
     }
     await _db.transaction(() async {
       await (_db.delete(_db.userExternalLinksCache)
-            ..where((row) => row.libraryEntryRefKey.equals(libraryEntryRef.key)))
+            ..where(
+                (row) => row.libraryEntryRefKey.equals(libraryEntryRef.key)))
           .go();
       for (final link in normalized) {
         await _db.into(_db.userExternalLinksCache).insert(

@@ -520,7 +520,7 @@ List<BoardGameLibraryEntry> boardgameSeedLibraryEntries(DateTime now) {
         sourceCatalogRef: seedCatalogRef(
           CatalogMediaKind.boardgame,
           'seed-boardgame-${seedOrdinal2(i)}',
-        ).toCatalogItemRef(),
+        ),
         createdAt: now.subtract(Duration(days: 600 - (i * 25))),
         updatedAt: now,
         personal: BoardGamePersonalData(

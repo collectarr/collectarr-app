@@ -1,14 +1,14 @@
 import 'package:collectarr_app/core/models/loan.dart';
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/catalog_display_summary.dart';
+import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/core/utils/app_toast.dart';
 import 'package:collectarr_app/features/barcode/barcode_batch_scan_sheet.dart';
 import 'package:collectarr_app/features/catalog/catalog_lookup_repository.dart';
-import 'package:collectarr_app/features/catalog/catalog_display_summary_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/loan_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
 import 'package:collectarr_app/features/library/entries/library_entries_repository.dart';
+import 'package:collectarr_app/features/library/kinds/registry/catalog_workspace_data_repository.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_workspace_kind_data.dart';
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:collectarr_app/ui/accent_alert_dialog.dart';
@@ -33,8 +33,9 @@ class _LoanManagerPageState extends ConsumerState<LoanManagerPage> {
   var _loading = true;
   List<Loan> _loans = const [];
   Map<LibraryEntryRef, LibraryEntrySummary> _entryByRef = const {};
-  Map<LibraryEntryRef, CatalogDisplaySummary> _catalogByEntryRef = const {};
-  Map<CatalogEntityRef, List<LibraryEntrySummary>> _entryByCatalogRef =
+  Map<LibraryEntryRef, LibraryWorkspaceKindData> _kindPresentationByEntryRef =
+      const {};
+  Map<CatalogItemRef, List<LibraryEntrySummary>> _entryByCatalogRef =
       const {};
 
   @override
@@ -61,9 +62,8 @@ class _LoanManagerPageState extends ConsumerState<LoanManagerPage> {
 
     final loans = await loansRepo.getAllLoans();
     final libraryEntries = await entryRepo.listActiveSummaries();
-    final catalogRefs = libraryEntries.map((item) => item.ref.localCatalogItemRef);
-    final catalogByRef =
-        await CatalogDisplaySummaryRepository(db).findByRefs(catalogRefs);
+    final kindPresentationByEntryRef = await CatalogWorkspaceDataRepository(db)
+        .findEntries(libraryEntries.map((item) => item.ref));
     final locations = await locationRepo.getAll();
     final locationLabelsById = {
       for (final location in locations)
@@ -77,9 +77,10 @@ class _LoanManagerPageState extends ConsumerState<LoanManagerPage> {
               : locationLabelsById[item.locationLabel!],
         ),
     ];
-    final entryByCatalogRef = <CatalogEntityRef, List<LibraryEntrySummary>>{};
+    final entryByCatalogRef = <CatalogItemRef, List<LibraryEntrySummary>>{};
     for (final item in summaries) {
-      final localItemRef = item.ref.localCatalogItemRef;
+      final localItemRef = item.sourceCatalogRef;
+      if (localItemRef == null) continue;
       entryByCatalogRef
           .putIfAbsent(localItemRef, () => <LibraryEntrySummary>[])
           .add(item);
@@ -92,11 +93,7 @@ class _LoanManagerPageState extends ConsumerState<LoanManagerPage> {
       _entryByRef = {
         for (final item in summaries) item.ref: item,
       };
-      _catalogByEntryRef = {
-        for (final item in summaries)
-          if (item.ref.localCatalogItemRef case final catalogRef)
-            if (catalogByRef[catalogRef] case final summary?) item.ref: summary,
-      };
+      _kindPresentationByEntryRef = kindPresentationByEntryRef;
       _entryByCatalogRef = entryByCatalogRef;
       _loading = false;
     });
@@ -366,8 +363,7 @@ class _LoanManagerPageState extends ConsumerState<LoanManagerPage> {
   }
 
   String _catalogTitleFor(LibraryEntrySummary item) =>
-      _catalogByEntryRef[item.ref]?.primaryLabel ??
-      'Catalog item ${item.ref.id.value}';
+      _kindPresentationByEntryRef[item.ref]?.displayLabel ?? 'Unknown title';
 }
 
 class _LoanSummaryRow extends StatelessWidget {

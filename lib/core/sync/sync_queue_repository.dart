@@ -4,7 +4,6 @@ import 'package:collectarr_app/features/library/entries/library_entry_record.dar
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/logging/recoverable_error.dart';
 import 'package:collectarr_app/core/models/catalog_item_ref.dart';
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/core/sync/sync_change.dart';
 import 'package:drift/drift.dart';
@@ -32,7 +31,13 @@ class SyncQueueRepository {
   /// ID and original stored values.
   Future<SyncQueueReadResult> readPending() async {
     final rows = await (_db.select(_db.syncQueue)
-          ..orderBy([(row) => OrderingTerm.asc(row.clientChangedAt)]))
+          ..orderBy([
+            (row) => OrderingTerm.asc(row.clientChangedAt),
+            // SQLite timestamps can have coarser precision than DateTime.
+            // Create owners before their activity when timestamps tie.
+            (_) => OrderingTerm.asc(const CustomExpression<int>(
+                "CASE WHEN entity_type = 'library_entry' AND action = 'upsert' THEN 0 ELSE 1 END")),
+          ]))
         .get();
     final changes = <SyncChange>[];
     final invalidRows = <InvalidSyncQueueRow>[];

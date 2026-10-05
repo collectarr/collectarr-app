@@ -2,7 +2,7 @@ part of 'collection_page.dart';
 
 
 
-// Shelf header, distribution, stats, entry row, volumes, cover, chip
+// Shelf header, distribution, stats, entry row, cover, chip
 
 
 
@@ -592,9 +592,9 @@ class _ShelfStatCard extends StatelessWidget {
 
 
 
-class _LibraryWorkspaceSourceRow extends ConsumerStatefulWidget {
+class _LibraryWorkspaceContextRow extends StatefulWidget {
 
-  const _LibraryWorkspaceSourceRow({
+  const _LibraryWorkspaceContextRow({
 
     required this.entry,
 
@@ -606,7 +606,7 @@ class _LibraryWorkspaceSourceRow extends ConsumerStatefulWidget {
 
 
 
-  final LibraryWorkspaceSource entry;
+  final LibraryWorkspaceContext entry;
 
   final VoidCallback onRemoveEntry;
 
@@ -616,19 +616,19 @@ class _LibraryWorkspaceSourceRow extends ConsumerStatefulWidget {
 
   @override
 
-  ConsumerState<_LibraryWorkspaceSourceRow> createState() =>
+  State<_LibraryWorkspaceContextRow> createState() =>
 
-      _LibraryWorkspaceSourceRowState();
+      _LibraryWorkspaceContextRowState();
 
 }
 
 
 
-class _LibraryWorkspaceSourceRowState
+class _LibraryWorkspaceContextRowState
 
-    extends ConsumerState<_LibraryWorkspaceSourceRow> {
+    extends State<_LibraryWorkspaceContextRow> {
 
-  bool _volumesExpanded = false;
+
 
 
 
@@ -643,16 +643,6 @@ class _LibraryWorkspaceSourceRowState
     final personalState = entry.libraryEntrySummary;
 
     final wishlist = entry.wishlistItem;
-
-    final kindShelfExtension = libraryShelfExtensionForEntry(
-
-      entry,
-
-      expanded: _volumesExpanded,
-
-      onToggle: () => setState(() => _volumesExpanded = !_volumesExpanded),
-
-    );
 
     return Material(
 
@@ -876,14 +866,6 @@ class _LibraryWorkspaceSourceRowState
 
             ),
 
-            if (kindShelfExtension != null) ...[
-
-              const SizedBox(height: 6),
-
-              kindShelfExtension,
-
-            ],
-
           ],
 
         ),
@@ -908,7 +890,7 @@ class _ShelfCover extends StatelessWidget {
 
 
 
-  final LibraryWorkspaceSource entry;
+  final LibraryWorkspaceContext entry;
 
 
 

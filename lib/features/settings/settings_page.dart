@@ -3,6 +3,7 @@ import 'dart:convert';
 
 import 'package:collectarr_app/core/device/device_identity.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/core/models/library_entry_ref.dart';
 import 'package:collectarr_app/core/api/dto/media_catalog.dart';
 import 'package:collectarr_app/core/routing/app_router.dart';
 import 'package:collectarr_app/core/settings/connection_pairing.dart';
@@ -22,6 +23,7 @@ import 'package:collectarr_app/features/settings/settings_proposal_history.dart'
 import 'package:collectarr_app/features/settings/database_backup.dart';
 import 'package:collectarr_app/features/settings/local_database_maintenance.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
+import 'package:collectarr_app/features/library/entries/library_entry_store.dart';
 import 'package:collectarr_app/features/library/config/library_kind_style.dart';
 import 'package:collectarr_app/features/library/providers/library_nav_preferences.dart';
 import 'package:collectarr_app/features/library/providers/media_catalog_provider.dart';
@@ -1108,17 +1110,24 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     final cfRepo = CustomFieldRepository(db);
     final cfDefs = await cfRepo.listDefinitions();
     final cfValues = await cfRepo.listAllValues();
+    final entryRecordsByRef = await LibraryEntryStore(db).findByRefs(
+      state.entries
+          .map((entry) => entry.libraryEntryRef)
+          .whereType<LibraryEntryRef>(),
+    );
     final csv = CollectionCsvCodec(profiles: collectionCsvKindProfiles);
     final data = clzFriendly
         ? csv.exportClzFriendlyShelf(
             state.entries,
             customFieldDefinitions: cfDefs,
             customFieldValuesByItem: cfValues,
+            entryRecordsByRef: entryRecordsByRef,
           )
         : csv.exportShelf(
             state.entries,
             customFieldDefinitions: cfDefs,
             customFieldValuesByItem: cfValues,
+            entryRecordsByRef: entryRecordsByRef,
           );
     await Clipboard.setData(ClipboardData(text: data));
     if (!mounted) {
@@ -1138,6 +1147,11 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     final cfRepo = CustomFieldRepository(db);
     final cfDefs = await cfRepo.listDefinitions();
     final cfValues = await cfRepo.listAllValues();
+    final entryRecordsByRef = await LibraryEntryStore(db).findByRefs(
+      state.entries
+          .map((entry) => entry.libraryEntryRef)
+          .whereType<LibraryEntryRef>(),
+    );
     if (!mounted) {
       return;
     }
@@ -1149,6 +1163,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
         initialIndex: initialIndex,
         customFieldDefinitions: cfDefs,
         customFieldValuesByItem: cfValues,
+        entryRecordsByRef: entryRecordsByRef,
       ),
     );
     if (imported != null && mounted) {

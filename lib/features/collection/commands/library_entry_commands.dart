@@ -1,4 +1,4 @@
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
@@ -100,7 +100,7 @@ final class AddLibraryEntryCommand {
     this.tracking,
   });
 
-  final CatalogEntityRef catalogRef;
+  final CatalogItemRef catalogRef;
   final LibraryEntryCreatePayload typedPayload;
 
   final LibraryEntryTrackingDraft? tracking;

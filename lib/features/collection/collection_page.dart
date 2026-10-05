@@ -7,6 +7,8 @@ import 'package:collectarr_app/features/collection/csv/collection_csv_codec.dart
 import 'package:collectarr_app/features/collection/csv/import_export/import_export_wizard.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/library/generic/skeleton_grid.dart';
+import 'package:collectarr_app/features/library/entries/library_entry_store.dart';
+import 'package:collectarr_app/core/models/library_entry_ref.dart';
 import 'package:collectarr_app/ui/error_card.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
@@ -164,7 +166,7 @@ class _CollectionPageState extends ConsumerState<CollectionPage> {
                     itemCount: entries.length,
                     separatorBuilder: (_, __) => const SizedBox(height: 8),
                     itemBuilder: (context, index) {
-                      return _LibraryWorkspaceSourceRow(
+                      return _LibraryWorkspaceContextRow(
                         entry: entries[index],
                         onRemoveEntry: () => _removeEntry(entries[index]),
                         onRemoveWishlist: () => _removeWishlist(entries[index]),
@@ -183,8 +185,8 @@ class _CollectionPageState extends ConsumerState<CollectionPage> {
     );
   }
 
-  List<LibraryWorkspaceSource> _filteredEntries(
-    List<LibraryWorkspaceSource> entries,
+  List<LibraryWorkspaceContext> _filteredEntries(
+    List<LibraryWorkspaceContext> entries,
     Set<LibraryEntryRef> overdueLibraryEntryRefs,
   ) {
     return switch (filter) {
@@ -202,7 +204,7 @@ class _CollectionPageState extends ConsumerState<CollectionPage> {
     };
   }
 
-  Future<void> _removeEntry(LibraryWorkspaceSource entry) async {
+  Future<void> _removeEntry(LibraryWorkspaceContext entry) async {
     final libraryEntryRef = entry.libraryEntrySummary?.ref;
     if (libraryEntryRef == null) {
       return;
@@ -211,25 +213,30 @@ class _CollectionPageState extends ConsumerState<CollectionPage> {
     ref.invalidate(shelfProvider);
   }
 
-  Future<void> _removeWishlist(LibraryWorkspaceSource entry) async {
-    final catalogRef = entry.catalogRef;
+  Future<void> _removeWishlist(LibraryWorkspaceContext entry) async {
+    final catalogRef = entry.wishlistCatalogRef;
     if (!entry.isWishlisted || catalogRef == null) {
       return;
     }
     await ref
         .read(wishlistMutationsProvider)
-        .removeFromWishlist(catalogRef: catalogRef.toCatalogItemRef());
+        .removeFromWishlist(catalogRef: catalogRef);
     ref.invalidate(shelfProvider);
   }
 
   Future<void> _showImportExportWizard(
-    List<LibraryWorkspaceSource> entries, {
+    List<LibraryWorkspaceContext> entries, {
     required int initialIndex,
   }) async {
     final db = ref.read(localDatabaseProvider);
     final cfRepo = CustomFieldRepository(db);
     final cfDefs = await cfRepo.listDefinitions();
     final cfValues = await cfRepo.listAllValues();
+    final entryRecordsByRef = await LibraryEntryStore(db).findByRefs(
+      entries
+          .map((entry) => entry.libraryEntryRef)
+          .whereType<LibraryEntryRef>(),
+    );
     if (!mounted) {
       return;
     }
@@ -241,6 +248,7 @@ class _CollectionPageState extends ConsumerState<CollectionPage> {
         initialIndex: initialIndex,
         customFieldDefinitions: cfDefs,
         customFieldValuesByItem: cfValues,
+        entryRecordsByRef: entryRecordsByRef,
         additionalExports: libraryExportPreviewArtifacts(entries),
       ),
     );

@@ -11,6 +11,7 @@ import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/collection/repositories/loan_repository.dart';
 import 'package:collectarr_app/features/library/entries/library_entry_store.dart';
 import 'package:collectarr_app/features/library/detail/activity_event_aggregator.dart';
+import 'package:collectarr_app/features/library/kinds/registry/catalog_workspace_data_dispatch.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -62,7 +63,8 @@ final globalActivityProvider =
       LibraryEntryRef(
         kind: record.kind,
         id: LibraryEntryId(record.id),
-      ): summarizeCatalogTransportPayload(record.catalogItem).primaryLabel,
+      ): workspaceKindDataFromKindData(record.kind, record.catalogData)
+          .displayLabel,
   };
 
   final sourceEntryByCatalogRef = <CatalogItemRef, LibraryEntryRef>{};

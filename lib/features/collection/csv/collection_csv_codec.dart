@@ -1,11 +1,13 @@
 export 'collection_csv_models.dart';
 
 import 'package:collectarr_app/core/models/custom_field.dart';
+import 'package:collectarr_app/core/models/library_entry_ref.dart';
 import 'package:collectarr_app/features/collection/csv/collection_csv_exporter.dart';
 import 'package:collectarr_app/features/collection/csv/collection_csv_importer.dart';
 import 'package:collectarr_app/features/collection/csv/collection_csv_kind_profile.dart';
 import 'package:collectarr_app/features/collection/csv/collection_csv_models.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
+import 'package:collectarr_app/features/library/entries/library_entry_record.dart';
 
 /// Stable schema-v1 facade for collection CSV callers.
 ///
@@ -20,26 +22,30 @@ final class CollectionCsvCodec {
   final CollectionCsvImporter _importer;
 
   String exportShelf(
-    List<LibraryWorkspaceSource> entries, {
+    List<LibraryWorkspaceContext> entries, {
     List<CustomFieldDefinition> customFieldDefinitions = const [],
     Map<String, List<CustomFieldValue>> customFieldValuesByItem = const {},
+    Map<LibraryEntryRef, LibraryEntryRecord> entryRecordsByRef = const {},
   }) {
     return _exporter.exportShelf(
       entries,
       customFieldDefinitions: customFieldDefinitions,
       customFieldValuesByItem: customFieldValuesByItem,
+      entryRecordsByRef: entryRecordsByRef,
     );
   }
 
   String exportClzFriendlyShelf(
-    List<LibraryWorkspaceSource> entries, {
+    List<LibraryWorkspaceContext> entries, {
     List<CustomFieldDefinition> customFieldDefinitions = const [],
     Map<String, List<CustomFieldValue>> customFieldValuesByItem = const {},
+    Map<LibraryEntryRef, LibraryEntryRecord> entryRecordsByRef = const {},
   }) {
     return _exporter.exportClzFriendlyShelf(
       entries,
       customFieldDefinitions: customFieldDefinitions,
       customFieldValuesByItem: customFieldValuesByItem,
+      entryRecordsByRef: entryRecordsByRef,
     );
   }
 

@@ -4173,12 +4173,6 @@ class $SmartListsCacheTable extends SmartListsCache
   late final GeneratedColumn<String> name = GeneratedColumn<String>(
       'name', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
-  static const VerificationMeta _mediaKindMeta =
-      const VerificationMeta('mediaKind');
-  @override
-  late final GeneratedColumn<String> mediaKind = GeneratedColumn<String>(
-      'media_kind', aliasedName, true,
-      type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _criteriaJsonMeta =
       const VerificationMeta('criteriaJson');
   @override
@@ -4192,8 +4186,7 @@ class $SmartListsCacheTable extends SmartListsCache
       'created_at', aliasedName, false,
       type: DriftSqlType.dateTime, requiredDuringInsert: true);
   @override
-  List<GeneratedColumn> get $columns =>
-      [id, name, mediaKind, criteriaJson, createdAt];
+  List<GeneratedColumn> get $columns => [id, name, criteriaJson, createdAt];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -4215,10 +4208,6 @@ class $SmartListsCacheTable extends SmartListsCache
           _nameMeta, name.isAcceptableOrUnknown(data['name']!, _nameMeta));
     } else if (isInserting) {
       context.missing(_nameMeta);
-    }
-    if (data.containsKey('media_kind')) {
-      context.handle(_mediaKindMeta,
-          mediaKind.isAcceptableOrUnknown(data['media_kind']!, _mediaKindMeta));
     }
     if (data.containsKey('criteria_json')) {
       context.handle(
@@ -4247,8 +4236,6 @@ class $SmartListsCacheTable extends SmartListsCache
           .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
       name: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}name'])!,
-      mediaKind: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}media_kind']),
       criteriaJson: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}criteria_json'])!,
       createdAt: attachedDatabase.typeMapping
@@ -4266,13 +4253,11 @@ class SmartListsCacheData extends DataClass
     implements Insertable<SmartListsCacheData> {
   final String id;
   final String name;
-  final String? mediaKind;
   final String criteriaJson;
   final DateTime createdAt;
   const SmartListsCacheData(
       {required this.id,
       required this.name,
-      this.mediaKind,
       required this.criteriaJson,
       required this.createdAt});
   @override
@@ -4280,9 +4265,6 @@ class SmartListsCacheData extends DataClass
     final map = <String, Expression>{};
     map['id'] = Variable<String>(id);
     map['name'] = Variable<String>(name);
-    if (!nullToAbsent || mediaKind != null) {
-      map['media_kind'] = Variable<String>(mediaKind);
-    }
     map['criteria_json'] = Variable<String>(criteriaJson);
     map['created_at'] = Variable<DateTime>(createdAt);
     return map;
@@ -4292,9 +4274,6 @@ class SmartListsCacheData extends DataClass
     return SmartListsCacheCompanion(
       id: Value(id),
       name: Value(name),
-      mediaKind: mediaKind == null && nullToAbsent
-          ? const Value.absent()
-          : Value(mediaKind),
       criteriaJson: Value(criteriaJson),
       createdAt: Value(createdAt),
     );
@@ -4306,7 +4285,6 @@ class SmartListsCacheData extends DataClass
     return SmartListsCacheData(
       id: serializer.fromJson<String>(json['id']),
       name: serializer.fromJson<String>(json['name']),
-      mediaKind: serializer.fromJson<String?>(json['mediaKind']),
       criteriaJson: serializer.fromJson<String>(json['criteriaJson']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
     );
@@ -4317,7 +4295,6 @@ class SmartListsCacheData extends DataClass
     return <String, dynamic>{
       'id': serializer.toJson<String>(id),
       'name': serializer.toJson<String>(name),
-      'mediaKind': serializer.toJson<String?>(mediaKind),
       'criteriaJson': serializer.toJson<String>(criteriaJson),
       'createdAt': serializer.toJson<DateTime>(createdAt),
     };
@@ -4326,13 +4303,11 @@ class SmartListsCacheData extends DataClass
   SmartListsCacheData copyWith(
           {String? id,
           String? name,
-          Value<String?> mediaKind = const Value.absent(),
           String? criteriaJson,
           DateTime? createdAt}) =>
       SmartListsCacheData(
         id: id ?? this.id,
         name: name ?? this.name,
-        mediaKind: mediaKind.present ? mediaKind.value : this.mediaKind,
         criteriaJson: criteriaJson ?? this.criteriaJson,
         createdAt: createdAt ?? this.createdAt,
       );
@@ -4340,7 +4315,6 @@ class SmartListsCacheData extends DataClass
     return SmartListsCacheData(
       id: data.id.present ? data.id.value : this.id,
       name: data.name.present ? data.name.value : this.name,
-      mediaKind: data.mediaKind.present ? data.mediaKind.value : this.mediaKind,
       criteriaJson: data.criteriaJson.present
           ? data.criteriaJson.value
           : this.criteriaJson,
@@ -4353,7 +4327,6 @@ class SmartListsCacheData extends DataClass
     return (StringBuffer('SmartListsCacheData(')
           ..write('id: $id, ')
           ..write('name: $name, ')
-          ..write('mediaKind: $mediaKind, ')
           ..write('criteriaJson: $criteriaJson, ')
           ..write('createdAt: $createdAt')
           ..write(')'))
@@ -4361,14 +4334,13 @@ class SmartListsCacheData extends DataClass
   }
 
   @override
-  int get hashCode => Object.hash(id, name, mediaKind, criteriaJson, createdAt);
+  int get hashCode => Object.hash(id, name, criteriaJson, createdAt);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is SmartListsCacheData &&
           other.id == this.id &&
           other.name == this.name &&
-          other.mediaKind == this.mediaKind &&
           other.criteriaJson == this.criteriaJson &&
           other.createdAt == this.createdAt);
 }
@@ -4376,14 +4348,12 @@ class SmartListsCacheData extends DataClass
 class SmartListsCacheCompanion extends UpdateCompanion<SmartListsCacheData> {
   final Value<String> id;
   final Value<String> name;
-  final Value<String?> mediaKind;
   final Value<String> criteriaJson;
   final Value<DateTime> createdAt;
   final Value<int> rowid;
   const SmartListsCacheCompanion({
     this.id = const Value.absent(),
     this.name = const Value.absent(),
-    this.mediaKind = const Value.absent(),
     this.criteriaJson = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.rowid = const Value.absent(),
@@ -4391,7 +4361,6 @@ class SmartListsCacheCompanion extends UpdateCompanion<SmartListsCacheData> {
   SmartListsCacheCompanion.insert({
     required String id,
     required String name,
-    this.mediaKind = const Value.absent(),
     required String criteriaJson,
     required DateTime createdAt,
     this.rowid = const Value.absent(),
@@ -4402,7 +4371,6 @@ class SmartListsCacheCompanion extends UpdateCompanion<SmartListsCacheData> {
   static Insertable<SmartListsCacheData> custom({
     Expression<String>? id,
     Expression<String>? name,
-    Expression<String>? mediaKind,
     Expression<String>? criteriaJson,
     Expression<DateTime>? createdAt,
     Expression<int>? rowid,
@@ -4410,7 +4378,6 @@ class SmartListsCacheCompanion extends UpdateCompanion<SmartListsCacheData> {
     return RawValuesInsertable({
       if (id != null) 'id': id,
       if (name != null) 'name': name,
-      if (mediaKind != null) 'media_kind': mediaKind,
       if (criteriaJson != null) 'criteria_json': criteriaJson,
       if (createdAt != null) 'created_at': createdAt,
       if (rowid != null) 'rowid': rowid,
@@ -4420,14 +4387,12 @@ class SmartListsCacheCompanion extends UpdateCompanion<SmartListsCacheData> {
   SmartListsCacheCompanion copyWith(
       {Value<String>? id,
       Value<String>? name,
-      Value<String?>? mediaKind,
       Value<String>? criteriaJson,
       Value<DateTime>? createdAt,
       Value<int>? rowid}) {
     return SmartListsCacheCompanion(
       id: id ?? this.id,
       name: name ?? this.name,
-      mediaKind: mediaKind ?? this.mediaKind,
       criteriaJson: criteriaJson ?? this.criteriaJson,
       createdAt: createdAt ?? this.createdAt,
       rowid: rowid ?? this.rowid,
@@ -4442,9 +4407,6 @@ class SmartListsCacheCompanion extends UpdateCompanion<SmartListsCacheData> {
     }
     if (name.present) {
       map['name'] = Variable<String>(name.value);
-    }
-    if (mediaKind.present) {
-      map['media_kind'] = Variable<String>(mediaKind.value);
     }
     if (criteriaJson.present) {
       map['criteria_json'] = Variable<String>(criteriaJson.value);
@@ -4463,7 +4425,6 @@ class SmartListsCacheCompanion extends UpdateCompanion<SmartListsCacheData> {
     return (StringBuffer('SmartListsCacheCompanion(')
           ..write('id: $id, ')
           ..write('name: $name, ')
-          ..write('mediaKind: $mediaKind, ')
           ..write('criteriaJson: $criteriaJson, ')
           ..write('createdAt: $createdAt, ')
           ..write('rowid: $rowid')
@@ -21031,7 +20992,6 @@ typedef $$SmartListsCacheTableCreateCompanionBuilder = SmartListsCacheCompanion
     Function({
   required String id,
   required String name,
-  Value<String?> mediaKind,
   required String criteriaJson,
   required DateTime createdAt,
   Value<int> rowid,
@@ -21040,7 +21000,6 @@ typedef $$SmartListsCacheTableUpdateCompanionBuilder = SmartListsCacheCompanion
     Function({
   Value<String> id,
   Value<String> name,
-  Value<String?> mediaKind,
   Value<String> criteriaJson,
   Value<DateTime> createdAt,
   Value<int> rowid,
@@ -21060,9 +21019,6 @@ class $$SmartListsCacheTableFilterComposer
 
   ColumnFilters<String> get name => $composableBuilder(
       column: $table.name, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get mediaKind => $composableBuilder(
-      column: $table.mediaKind, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get criteriaJson => $composableBuilder(
       column: $table.criteriaJson, builder: (column) => ColumnFilters(column));
@@ -21086,9 +21042,6 @@ class $$SmartListsCacheTableOrderingComposer
   ColumnOrderings<String> get name => $composableBuilder(
       column: $table.name, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get mediaKind => $composableBuilder(
-      column: $table.mediaKind, builder: (column) => ColumnOrderings(column));
-
   ColumnOrderings<String> get criteriaJson => $composableBuilder(
       column: $table.criteriaJson,
       builder: (column) => ColumnOrderings(column));
@@ -21111,9 +21064,6 @@ class $$SmartListsCacheTableAnnotationComposer
 
   GeneratedColumn<String> get name =>
       $composableBuilder(column: $table.name, builder: (column) => column);
-
-  GeneratedColumn<String> get mediaKind =>
-      $composableBuilder(column: $table.mediaKind, builder: (column) => column);
 
   GeneratedColumn<String> get criteriaJson => $composableBuilder(
       column: $table.criteriaJson, builder: (column) => column);
@@ -21152,7 +21102,6 @@ class $$SmartListsCacheTableTableManager extends RootTableManager<
           updateCompanionCallback: ({
             Value<String> id = const Value.absent(),
             Value<String> name = const Value.absent(),
-            Value<String?> mediaKind = const Value.absent(),
             Value<String> criteriaJson = const Value.absent(),
             Value<DateTime> createdAt = const Value.absent(),
             Value<int> rowid = const Value.absent(),
@@ -21160,7 +21109,6 @@ class $$SmartListsCacheTableTableManager extends RootTableManager<
               SmartListsCacheCompanion(
             id: id,
             name: name,
-            mediaKind: mediaKind,
             criteriaJson: criteriaJson,
             createdAt: createdAt,
             rowid: rowid,
@@ -21168,7 +21116,6 @@ class $$SmartListsCacheTableTableManager extends RootTableManager<
           createCompanionCallback: ({
             required String id,
             required String name,
-            Value<String?> mediaKind = const Value.absent(),
             required String criteriaJson,
             required DateTime createdAt,
             Value<int> rowid = const Value.absent(),
@@ -21176,7 +21123,6 @@ class $$SmartListsCacheTableTableManager extends RootTableManager<
               SmartListsCacheCompanion.insert(
             id: id,
             name: name,
-            mediaKind: mediaKind,
             criteriaJson: criteriaJson,
             createdAt: createdAt,
             rowid: rowid,

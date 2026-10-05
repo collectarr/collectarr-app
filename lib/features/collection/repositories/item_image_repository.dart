@@ -11,7 +11,8 @@ class ItemImageRepository {
 
   final LocalDatabase _db;
 
-  Future<List<ItemImage>> listForLibraryEntryRef(LibraryEntryRef libraryEntryRef) async {
+  Future<List<ItemImage>> listForLibraryEntryRef(
+      LibraryEntryRef libraryEntryRef) async {
     requireKnownLibraryEntryRef(libraryEntryRef);
     final rows = await (_db.select(_db.itemImagesCache)
           ..where((row) => row.libraryEntryRefKey.equals(libraryEntryRef.key))
@@ -33,8 +34,7 @@ class ItemImageRepository {
     final keys = refs.map((ref) => ref.key).toList(growable: false);
     final rows = <ItemImagesCacheData>[];
     for (var start = 0; start < keys.length; start += _refQueryChunkSize) {
-      final end =
-          (start + _refQueryChunkSize).clamp(0, keys.length).toInt();
+      final end = (start + _refQueryChunkSize).clamp(0, keys.length).toInt();
       rows.addAll(
         await (_db.select(_db.itemImagesCache)
               ..where((row) => row.libraryEntryRefKey.isIn(
@@ -112,7 +112,8 @@ class ItemImageRepository {
     final count = _db.itemImagesCache.id.count();
     final query = _db.selectOnly(_db.itemImagesCache)
       ..addColumns([count])
-      ..where(_db.itemImagesCache.libraryEntryRefKey.equals(libraryEntryRef.key));
+      ..where(
+          _db.itemImagesCache.libraryEntryRefKey.equals(libraryEntryRef.key));
     final row = await query.getSingle();
     return row.read(count) ?? 0;
   }

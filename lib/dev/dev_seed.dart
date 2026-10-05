@@ -10,7 +10,7 @@ library;
 
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_record.dart';
 import 'package:collectarr_app/core/models/tracking_unit_summary.dart';
@@ -57,8 +57,8 @@ const devSeedCatalogCounts = <CatalogMediaKind, int>{
 
 /// Minimum typed catalog-storage coverage expected from the fixture set.
 ///
-/// Some fixtures intentionally contain multiple editions/tracks, so these
-/// are lower bounds rather than exact totals.
+/// Some fixtures intentionally contain multiple seasons, episodes, or tracks,
+/// so these are lower bounds rather than exact totals.
 const devSeedTypedGraphMinimumCounts = <String, int>{
   'comic.catalog_item': 15,
   'comic.reading': 15,
@@ -66,17 +66,12 @@ const devSeedTypedGraphMinimumCounts = <String, int>{
   'book.catalog_item': 15,
   'game.catalog_item': 15,
   'boardgame.catalog_item': 15,
-  'boardgame.edition_data': 15,
   'movie.catalog_item': 15,
   'tv.catalog_item': 15,
   'tv.season': 15,
   'tv.episode': 30,
-  'tv.release': 15,
-  'tv.release_media': 15,
-  'tv.release_episode_map': 15,
   'anime.catalog_item': 15,
   'anime.episode_data': 30,
-  'anime.release_data': 15,
   'music.item': 15,
   'music.disc': 15,
   'music.track': 15,
@@ -176,13 +171,6 @@ Future<Map<String, int>> devSeedTypedGraphCounts(LocalDatabase db) async {
             .findAll(kind: CatalogMediaKind.game))
         .length,
     'boardgame.catalog_item': boardGameCatalogItems.length,
-    'boardgame.edition_data': boardGameCatalogItems.fold<int>(
-      0,
-      (count, item) {
-        final editions = item.payload['editions'];
-        return count + (editions is Iterable ? editions.length : 0);
-      },
-    ),
     'movie.catalog_item': (await CatalogItemCacheRepository(db)
             .findAll(kind: CatalogMediaKind.movie))
         .length,
@@ -196,34 +184,12 @@ Future<Map<String, int>> devSeedTypedGraphCounts(LocalDatabase db) async {
       (count, item) =>
           count + _countNestedObjects(item.payload['seasons'], 'episodes'),
     ),
-    'tv.release': tvCatalogItems.fold<int>(
-      0,
-      (count, item) => count + _countObjects(item.payload['releases']),
-    ),
-    'tv.release_media': tvCatalogItems.fold<int>(
-      0,
-      (count, item) =>
-          count + _countNestedObjects(item.payload['releases'], 'media'),
-    ),
-    'tv.release_episode_map': tvCatalogItems.fold<int>(
-      0,
-      (count, item) =>
-          count +
-          _countNestedObjects(item.payload['releases'], 'episode_mappings'),
-    ),
     'anime.catalog_item': animeCatalogItems.length,
     'anime.episode_data': animeCatalogItems.fold<int>(
       0,
       (count, item) {
         final episodes = item.payload['episodes'];
         return count + (episodes is Iterable ? episodes.length : 0);
-      },
-    ),
-    'anime.release_data': animeCatalogItems.fold<int>(
-      0,
-      (count, item) {
-        final releases = item.payload['releases'] ?? item.payload['editions'];
-        return count + (releases is Iterable ? releases.length : 0);
       },
     ),
     'music.item': musicCatalogItems.length,
@@ -283,24 +249,16 @@ Future<List<String>> devSeedTypedGraphIntegrityIssues(LocalDatabase db) async {
     kind: CatalogMediaKind.boardgame,
   );
   for (final item in boardGameItems.where((item) => isSeed(item.id))) {
-    final editions = item.payload['editions'];
     if (seedTitle(item).trim().isEmpty) {
       issues.add('BoardGame Catalog Item ${item.id} has an empty title');
     }
-    if (editions is! Iterable || editions.isEmpty) {
-      issues.add('BoardGame Catalog Item ${item.id} has no edition details');
-      continue;
-    }
-    for (final edition in editions) {
-      if (edition is! Map) continue;
-      final minPlayers = edition['min_players'];
-      final maxPlayers = edition['max_players'];
-      final playingTime = edition['playing_time_minutes'];
-      if (minPlayers is! num || maxPlayers is! num || playingTime is! num) {
-        issues.add(
-          'BoardGame Catalog Item ${item.id} has incomplete player/time data',
-        );
-      }
+    final minPlayers = item.payload['min_players'];
+    final maxPlayers = item.payload['max_players'];
+    final playingTime = item.payload['playing_time_minutes'];
+    if (minPlayers is! num || maxPlayers is! num || playingTime is! num) {
+      issues.add(
+        'BoardGame Catalog Item ${item.id} has incomplete player/time data',
+      );
     }
   }
 
@@ -319,41 +277,17 @@ Future<List<String>> devSeedTypedGraphIntegrityIssues(LocalDatabase db) async {
     kind: CatalogMediaKind.tv,
   );
   for (final item in tvItems.where((item) => isSeed(item.id))) {
+    final seasonIds = <String>{};
     final episodeIds = <String>{};
     for (final season in _objectMaps(item.payload['seasons'])) {
       final seasonId = season['id']?.toString() ?? '';
-      if (seasonId.isEmpty || season['series_id']?.toString() != item.id) {
-        issues
-            .add('TV Catalog Item ${item.id} has an invalid season reference');
+      if (seasonId.isEmpty || !seasonIds.add(seasonId)) {
+        issues.add('TV Catalog Item ${item.id} has an invalid season ID');
       }
       for (final episode in _objectMaps(season['episodes'])) {
         final episodeId = episode['id']?.toString() ?? '';
-        if (episodeId.isEmpty ||
-            episode['series_id']?.toString() != item.id ||
-            episode['season_id']?.toString() != seasonId) {
-          issues.add(
-              'TV Catalog Item ${item.id} has an invalid episode reference');
-        }
-        episodeIds.add(episodeId);
-      }
-    }
-    for (final release in _objectMaps(item.payload['releases'])) {
-      final releaseId = release['id']?.toString() ?? '';
-      if (releaseId.isEmpty || release['series_id']?.toString() != item.id) {
-        issues
-            .add('TV Catalog Item ${item.id} has an invalid release reference');
-      }
-      final mediaIds = {
-        for (final media in _objectMaps(release['media']))
-          media['id']?.toString() ?? '',
-      };
-      for (final mapping in _objectMaps(release['episode_mappings'])) {
-        if (mapping['release_id']?.toString() != releaseId ||
-            !mediaIds.contains(mapping['media_id']?.toString()) ||
-            !episodeIds.contains(mapping['episode_id']?.toString())) {
-          issues.add(
-            'TV Catalog Item ${item.id} has an invalid release episode mapping',
-          );
+        if (episodeId.isEmpty || !episodeIds.add(episodeId)) {
+          issues.add('TV Catalog Item ${item.id} has an invalid episode ID');
         }
       }
     }
@@ -371,12 +305,6 @@ Future<List<String>> devSeedTypedGraphIntegrityIssues(LocalDatabase db) async {
         : const <Object?>[]) {
       if (entry is! Map || entry['id']?.toString().trim().isEmpty == true) {
         issues.add('Anime Catalog Item ${item.id} has an invalid episode');
-      }
-    }
-    final releases = item.payload['releases'] ?? item.payload['editions'];
-    for (final entry in releases is Iterable ? releases : const <Object?>[]) {
-      if (entry is! Map || entry['id']?.toString().trim().isEmpty == true) {
-        issues.add('Anime Catalog Item ${item.id} has an invalid release');
       }
     }
   }
@@ -906,35 +834,12 @@ Future<DevSeedVerificationReport> verifyDevSeedDatabase(
           .findAll(kind: CatalogMediaKind.boardgame))
       .where((item) => item.id.startsWith('seed-'));
   require(
-    boardGameItems.every((item) {
-      final editions = item.payload['editions'];
-      if (editions is! Iterable || editions.isEmpty) return false;
-      return editions.whereType<Map<Object?, Object?>>().every(
-            (edition) =>
-                edition['work_id'] == item.id &&
-                edition['edition_title']?.toString().trim().isNotEmpty ==
-                    true &&
-                edition['min_players'] is num &&
-                edition['max_players'] is num &&
-                edition['playing_time_minutes'] is num,
-          );
-    }),
-    'BoardGame seed Catalog Items are missing typed edition metadata',
-  );
-  final tvReleases = [
-    for (final item in (await CatalogItemCacheRepository(db)
-            .findAll(kind: CatalogMediaKind.tv))
-        .where((item) => item.id.startsWith('seed-')))
-      ..._objectMaps(item.payload['releases']),
-  ];
-  require(
-    tvReleases.every(
-      (release) =>
-          release['series_id']?.toString().startsWith('seed-tv-') == true &&
-          release['title']?.toString().trim().isNotEmpty == true &&
-          release['episode_count'] == 2,
-    ),
-    'TV seed Catalog Items are missing release/episode metadata',
+    boardGameItems.every((item) =>
+        item.payload['title']?.toString().trim().isNotEmpty == true &&
+        item.payload['min_players'] is num &&
+        item.payload['max_players'] is num &&
+        item.payload['playing_time_minutes'] is num),
+    'Board Game seed Catalog Items are missing edition-level data',
   );
   final musicItems = await CatalogItemCacheRepository(db).findAll(
     kind: CatalogMediaKind.music,

@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_record.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
@@ -62,7 +62,7 @@ Iterable<String> seedIds(CatalogMediaKind kind, int count) sync* {
   }
 }
 
-CatalogEntityRef seedCatalogRef(CatalogMediaKind kind, String itemId) {
+CatalogItemRef seedCatalogRef(CatalogMediaKind kind, String itemId) {
   final expectedPrefix = 'seed-${kind.apiValue}-';
   if (!itemId.startsWith(expectedPrefix)) {
     throw ArgumentError.value(
@@ -71,9 +71,8 @@ CatalogEntityRef seedCatalogRef(CatalogMediaKind kind, String itemId) {
       'Seed catalog IDs for ${kind.apiValue} must start with $expectedPrefix',
     );
   }
-  return CatalogEntityRef(
+  return CatalogItemRef(
     kind: kind,
-    entityType: CatalogEntityTypeId.catalogItem,
     id: itemId,
   );
 }

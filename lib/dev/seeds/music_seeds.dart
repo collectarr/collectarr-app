@@ -1286,7 +1286,7 @@ List<MusicLibraryEntry> musicSeedLibraryEntries(DateTime now) {
         id: LibraryEntryId('seed-entry-$itemId'),
         metadata: metadataById[itemId]!,
         sourceCatalogRef:
-            seedCatalogRef(CatalogMediaKind.music, itemId).toCatalogItemRef(),
+            seedCatalogRef(CatalogMediaKind.music, itemId),
         personal: MusicPersonalData(
           isDigital: false,
           condition: 'Mint',

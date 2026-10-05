@@ -1,4 +1,3 @@
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/core/models/library_entry_ref.dart';
@@ -16,7 +15,6 @@ import 'package:collectarr_app/features/collection/repositories/user_metadata_ov
 import 'package:collectarr_app/features/library/tracking/watch_sessions_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/wishlist_items_cache_repository.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.dart';
-import 'package:collectarr_app/features/library/tracking/watch_session_codec.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -25,15 +23,16 @@ final collectionProvider = FutureProvider<List<LibraryEntrySummary>>((ref) async
   return cache.listActiveSummaries();
 });
 
-final collectionByCatalogRefProvider =
-    Provider<Map<CatalogEntityRef, LibraryEntrySummary>>((ref) {
+final collectionBySourceCatalogRefProvider =
+    Provider<Map<CatalogItemRef, LibraryEntrySummary>>((ref) {
   final collection = ref.watch(collectionSummariesProvider);
   return collection.maybeWhen(
     data: (items) => {
       for (final item in items)
-        if (!item.isDeleted) item.ref.localCatalogItemRef: item,
+        if (!item.isDeleted && item.sourceCatalogRef != null)
+          item.sourceCatalogRef!: item,
     },
-    orElse: () => const <CatalogEntityRef, LibraryEntrySummary>{},
+    orElse: () => const <CatalogItemRef, LibraryEntrySummary>{},
   );
 });
 

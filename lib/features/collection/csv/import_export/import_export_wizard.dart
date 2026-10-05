@@ -1,8 +1,10 @@
 import 'package:collectarr_app/core/models/custom_field.dart';
+import 'package:collectarr_app/core/models/library_entry_ref.dart';
 import 'package:collectarr_app/features/collection/csv/collection_csv_codec.dart';
 import 'package:collectarr_app/features/collection/csv/collection_csv_kind_profile.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
+import 'package:collectarr_app/features/library/entries/library_entry_record.dart';
 import 'package:collectarr_app/features/library/actions/import_export_actions.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/ui/theme/theme_primitives.dart';
@@ -19,14 +21,16 @@ class ImportExportWizardDialog extends ConsumerStatefulWidget {
     this.initialIndex = 0,
     this.customFieldDefinitions = const [],
     this.customFieldValuesByItem = const {},
+    this.entryRecordsByRef = const {},
     this.additionalExports = const [],
   });
 
-  final List<LibraryWorkspaceSource> entries;
+  final List<LibraryWorkspaceContext> entries;
   final Iterable<CollectionCsvKindProfile> profiles;
   final int initialIndex;
   final List<CustomFieldDefinition> customFieldDefinitions;
   final Map<String, List<CustomFieldValue>> customFieldValuesByItem;
+  final Map<LibraryEntryRef, LibraryEntryRecord> entryRecordsByRef;
   final List<ExportPreviewArtifact> additionalExports;
 
   @override
@@ -89,6 +93,7 @@ class _ImportExportWizardDialogState
                       profiles: widget.profiles,
                       customFieldDefinitions: widget.customFieldDefinitions,
                       customFieldValuesByItem: widget.customFieldValuesByItem,
+                      entryRecordsByRef: widget.entryRecordsByRef,
                       additionalExports: widget.additionalExports,
                     ),
                     _ImportWizardPane(
@@ -182,13 +187,15 @@ class _ExportWizardPane extends StatelessWidget {
     required this.profiles,
     this.customFieldDefinitions = const [],
     this.customFieldValuesByItem = const {},
+    this.entryRecordsByRef = const {},
     this.additionalExports = const [],
   });
 
-  final List<LibraryWorkspaceSource> entries;
+  final List<LibraryWorkspaceContext> entries;
   final Iterable<CollectionCsvKindProfile> profiles;
   final List<CustomFieldDefinition> customFieldDefinitions;
   final Map<String, List<CustomFieldValue>> customFieldValuesByItem;
+  final Map<LibraryEntryRef, LibraryEntryRecord> entryRecordsByRef;
   final List<ExportPreviewArtifact> additionalExports;
 
   @override
@@ -198,11 +205,13 @@ class _ExportWizardPane extends StatelessWidget {
       entries,
       customFieldDefinitions: customFieldDefinitions,
       customFieldValuesByItem: customFieldValuesByItem,
+      entryRecordsByRef: entryRecordsByRef,
     );
     final clz = csv.exportClzFriendlyShelf(
       entries,
       customFieldDefinitions: customFieldDefinitions,
       customFieldValuesByItem: customFieldValuesByItem,
+      entryRecordsByRef: entryRecordsByRef,
     );
     final exports = <ExportPreviewArtifact>[
       ExportPreviewArtifact(

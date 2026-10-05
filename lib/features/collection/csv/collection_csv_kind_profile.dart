@@ -1,5 +1,4 @@
 import 'package:collectarr_app/core/models/json_encodable.dart';
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_import_transport.dart';
 import 'package:collectarr_app/core/models/library_entry_projection.dart';
@@ -65,31 +64,31 @@ abstract interface class CollectionCsvKindProfile {
 
   Map<String, List<String>> get columnAliases;
 
-  List<String> catalogCells(LibraryWorkspaceSource entry);
+  List<String> catalogCells(LibraryWorkspaceContext entry);
 
   /// Serializes the owning kind's collection-value column at the CSV boundary.
   ///
   /// The collection row intentionally has no canonical grade field. A kind
   /// decides whether and how its Entry aggregate contributes this column.
-  String? entryCollectionValue(LibraryWorkspaceSource entry);
+  String? entryCollectionValue(LibraryWorkspaceContext entry);
 
   /// Schema-v1 personal cells whose meaning is entry by the selected kind.
   /// The Collection host only places these values in the wire row.
-  String? entryCondition(LibraryWorkspaceSource entry);
+  String? entryCondition(LibraryWorkspaceContext entry);
 
-  int? entryIndexNumber(LibraryWorkspaceSource entry);
+  int? entryIndexNumber(LibraryWorkspaceContext entry);
 
-  String? entryTags(LibraryWorkspaceSource entry);
+  String? entryTags(LibraryWorkspaceContext entry);
 
   /// Kind-entry values positioned after price and before location in the
   /// CLZ-friendly layout, such as a Comic cover price.
   List<String> entryCellsBeforeLocation(
-    LibraryWorkspaceSource entry, {
+    LibraryWorkspaceContext entry, {
     required bool clzFriendly,
   });
 
   List<String> entryCellsAfterIndex(
-    LibraryWorkspaceSource entry, {
+    LibraryWorkspaceContext entry, {
     required bool clzFriendly,
   });
 }

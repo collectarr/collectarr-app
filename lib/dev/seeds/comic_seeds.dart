@@ -12,7 +12,6 @@ import 'package:collectarr_app/features/library/kinds/comic/entries/comic_entry_
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/features/library/kinds/comic/data/comic_entry_repository.dart';
 import 'package:collectarr_app/features/library/kinds/comic/data/comic_library_entry_projection.dart';
-import 'package:collectarr_app/features/library/kinds/comic/domain/comic_ids.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_reading_state.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_library_entry.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_personal_data.dart';
@@ -757,7 +756,12 @@ List<ComicLibraryEntry> comicSeedLibraryEntries(DateTime now) {
       item.id: ComicCatalogItem.fromJson({
         ...item.kindData,
         'id': 'seed-entry-${item.id}',
-      }).copyWith(id: ComicCatalogItemId('seed-entry-${item.id}')),
+      }).copyWith(
+        id: CatalogItemRef(
+          kind: CatalogMediaKind.comic,
+          id: 'seed-entry-${item.id}',
+        ),
+      ),
   };
   return [
     for (final itemId in seedIds(CatalogMediaKind.comic, 15))
@@ -766,7 +770,7 @@ List<ComicLibraryEntry> comicSeedLibraryEntries(DateTime now) {
         metadata: metadataById[itemId] ??
             (throw StateError('Missing Comic seed catalog item: $itemId')),
         sourceCatalogRef:
-            seedCatalogRef(CatalogMediaKind.comic, itemId).toCatalogItemRef(),
+            seedCatalogRef(CatalogMediaKind.comic, itemId),
         createdAt: now.subtract(const Duration(days: 260)),
         updatedAt: now,
         personal: ComicPersonalData(

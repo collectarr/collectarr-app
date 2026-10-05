@@ -164,10 +164,10 @@ class _ImportCsvDialogState extends ConsumerState<_ImportCsvDialog> {
       return;
     }
     await CatalogTransportRepository(ref.read(localDatabaseProvider))
-        .upsertTransports([item.kindCapability.toImportTransport()]);
+        .upsertTransports([item.toImportTransport()]);
     final resolvedRow = row.copyWith(
       itemId: item.reference.id,
-      catalogItemRef: item.reference.toCatalogItemRef(),
+      catalogItemRef: item.reference,
       mediaKind: item.summary.kind,
       title: item.summary.primaryLabel,
       kindDisplayTitle: item.summary.primaryLabel,
@@ -216,7 +216,7 @@ class _ImportCsvDialogState extends ConsumerState<_ImportCsvDialog> {
         resolvedRows.add(
           row.copyWith(
             itemId: match.reference.id,
-            catalogItemRef: match.reference.toCatalogItemRef(),
+            catalogItemRef: match.reference,
             mediaKind: match.summary.kind,
             title: match.summary.primaryLabel,
             kindDisplayTitle: match.summary.primaryLabel,
@@ -227,7 +227,7 @@ class _ImportCsvDialogState extends ConsumerState<_ImportCsvDialog> {
       }
       await CatalogTransportRepository(ref.read(localDatabaseProvider))
           .upsertTransports(
-        resolvedItems.map((item) => item.kindCapability.toImportTransport()),
+        resolvedItems.map((item) => item.toImportTransport()),
       );
       if (!mounted) {
         return;

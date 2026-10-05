@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/core/models/item_image.dart';
 import 'package:collectarr_app/core/models/library_entry_projection.dart';
@@ -105,7 +104,8 @@ final class LibraryEntryMutations {
         final externalLinks = UserExternalLinksCacheRepository(
           libraryEntries.database,
         );
-        final sourceLinks = await externalLinks.listByLibraryEntryRef(sourceRef);
+        final sourceLinks =
+            await externalLinks.listByLibraryEntryRef(sourceRef);
         await externalLinks.replaceForLibraryEntry(
           duplicateRef,
           [
@@ -153,7 +153,7 @@ final class LibraryEntryMutations {
   }) async {
     final now = DateTime.now().toUtc();
     final catalogRef = command.catalogRef;
-    final wishlistTargetRef = catalogRef.toCatalogItemRef();
+    final wishlistTargetRef = catalogRef;
 
     final existingWishlist =
         await wishlist.findActiveByCatalogRef(wishlistTargetRef);
@@ -165,16 +165,16 @@ final class LibraryEntryMutations {
     final libraryEntryRef = await mutationRunner.run(
       action: () async {
         final resolvedCatalogRef = existingCatalog?.ref ?? catalogRef;
-        if (resolvedCatalogRef.entityType != CatalogEntityTypeId.catalogItem ||
-            !resolvedCatalogRef.isKnown) {
+        if (resolvedCatalogRef.kind.isUnknown ||
+            resolvedCatalogRef.id.trim().isEmpty) {
           throw StateError(
             'Collection items require a concrete Catalog Item reference; '
-            'received ${resolvedCatalogRef.entityType.apiValue}:'
+            'received ${resolvedCatalogRef.kind.apiValue}:'
             '${resolvedCatalogRef.id}',
           );
         }
 
-        final mediaKind = catalogRef.mediaKind;
+        final mediaKind = catalogRef.kind;
         final persisted = await libraryEntries.createLibraryEntry(
           kind: mediaKind,
           payload: command.typedPayload,
@@ -211,7 +211,7 @@ final class LibraryEntryMutations {
       eventsToEmit: [
         LibraryEntryAdded(
           LibraryEntryRef(
-            kind: catalogRef.mediaKind,
+            kind: catalogRef.kind,
             id: LibraryEntryId(newItemId),
           ),
         ),
@@ -255,6 +255,30 @@ final class LibraryEntryMutations {
     );
 
     return updated;
+  }
+
+  Future<void> updateCatalogData(
+    LibraryEntryRef ref,
+    Map<String, dynamic> catalogData,
+  ) async {
+    final now = DateTime.now().toUtc();
+    await mutationRunner.run(
+      action: () async {
+        final persisted = await libraryEntries.updateCatalogData(
+          ref: ref,
+          catalogData: catalogData,
+          updatedAt: now,
+        );
+        await syncQueue.enqueue(
+          libraryEntries.syncChangeForMutation(
+            persisted,
+            action: 'upsert',
+            changedAt: now,
+          ),
+        );
+      },
+      eventsToEmit: [LibraryEntryUpdated(ref)],
+    );
   }
 
   Future<void> removeItem(LibraryEntryRef ref) async {

@@ -1043,7 +1043,7 @@ List<TvLibraryEntry> tvSeedLibraryEntries(DateTime now) {
         metadata: metadataById[itemId] ??
             (throw StateError('Missing TV seed catalog item: $itemId')),
         sourceCatalogRef:
-            seedCatalogRef(CatalogMediaKind.tv, itemId).toCatalogItemRef(),
+            seedCatalogRef(CatalogMediaKind.tv, itemId),
         createdAt: now.subtract(const Duration(days: 280)),
         updatedAt: now,
         personal: TvPersonalData(

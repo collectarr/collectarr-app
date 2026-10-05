@@ -1,5 +1,4 @@
 import 'package:flutter/foundation.dart';
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/core/models/library_entry_projection.dart';
 
@@ -55,7 +54,7 @@ final class LibraryEntryRemoved extends CollectionEvent {
 
 final class CatalogItemChanged extends CollectionEvent {
   const CatalogItemChanged(this.catalogRef);
-  final CatalogEntityRef catalogRef;
+  final CatalogItemRef catalogRef;
 
   @override
   bool operator ==(Object other) =>

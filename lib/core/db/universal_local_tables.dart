@@ -163,7 +163,6 @@ class LocationsCache extends Table {
 class SmartListsCache extends Table {
   TextColumn get id => text()();
   TextColumn get name => text()();
-  TextColumn get mediaKind => text().nullable()();
   TextColumn get criteriaJson => text()();
   DateTimeColumn get createdAt => dateTime()();
 
