@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/pick_list_field_button.dart';
 import 'package:collectarr_app/features/library/workspace/layout/library_folder_row.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
 import 'package:collectarr_app/features/library/generic/library_group_mode_menu.dart';
@@ -89,6 +90,7 @@ class LibrarySidebarHeader extends StatelessWidget {
           tooltip:
               'Manage ${genericGroupModeSidebarTitle(groupMode, type).toLowerCase()}',
           icon: Icons.format_list_bulleted,
+          isPickList: true,
           onPressed: manageBuckets,
         ),
       if (onFolderDisplayModeChanged != null)
@@ -144,7 +146,9 @@ class LibrarySidebarHeader extends StatelessWidget {
             final selectorWidth = compact ? 52.0 : 100.0;
             final loadingWidth = groupLoading && width >= 140 ? 22.0 : 0.0;
             final available = width - selectorWidth - loadingWidth;
-            final slots = (available / 34).floor().clamp(0, actions.length);
+            final slots = (available / (PickListFieldButton.width + 4))
+                .floor()
+                .clamp(0, actions.length);
             final primaryCount = manageBuckets != null &&
                     libraryGroupModeSupportsBucketManagement(type, groupMode)
                 ? 1
@@ -196,7 +200,11 @@ class LibrarySidebarHeader extends StatelessWidget {
                 ],
                 for (final action in actions.take(visibleCount)) ...[
                   const SizedBox(width: 4),
-                  SizedBox(width: 30, height: 30, child: action),
+                  SizedBox(
+                      width: action.isPickList ? PickListFieldButton.width : 30,
+                      height:
+                          action.isPickList ? PickListFieldButton.height : 30,
+                      child: action),
                 ],
                 if (overflow && slots > 0) ...[
                   const SizedBox(width: 4),
@@ -238,6 +246,7 @@ class _LibrarySidebarToolbarButton extends StatelessWidget {
     required this.icon,
     required this.onPressed,
     this.active = false,
+    this.isPickList = false,
     this.activeColor,
   });
 
@@ -245,10 +254,14 @@ class _LibrarySidebarToolbarButton extends StatelessWidget {
   final IconData icon;
   final VoidCallback onPressed;
   final bool active;
+  final bool isPickList;
   final Color? activeColor;
 
   @override
   Widget build(BuildContext context) {
+    if (isPickList) {
+      return PickListFieldButton(tooltip: tooltip, onPressed: onPressed);
+    }
     final palette = appPalette(context);
     final resolvedActiveColor = activeColor ?? palette.textPrimary;
     return Tooltip(

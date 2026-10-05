@@ -1,4 +1,5 @@
 import 'dart:math' as math;
+import 'library_chip_input_layout.dart';
 
 import 'package:collectarr_app/ui/pick_list_field_button.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_form_controls.dart';
@@ -171,19 +172,7 @@ class _LibraryMultiValuePickFieldState<TValue>
   Widget _entry(double availableWidth) {
     final textStyle =
         TextStyle(fontSize: 14, color: appPalette(context).textPrimary);
-    final measured = TextPainter(
-        text: TextSpan(
-            text: _entryController.text.isEmpty
-                ? widget.hintText ?? ''
-                : _entryController.text,
-            style: textStyle),
-        textDirection: Directionality.of(context),
-        textScaler: MediaQuery.textScalerOf(context))
-      ..layout();
-    final width = math.min(availableWidth, math.max(28.0, measured.width + 18));
-    measured.dispose();
     return SizedBox(
-        width: width,
         height: 28,
         child: RawAutocomplete<LibraryFieldOption<TValue>>(
           textEditingController: _entryController,
@@ -217,8 +206,16 @@ class _LibraryMultiValuePickFieldState<TValue>
                 enabled: widget.enabled,
                 style: textStyle,
                 textInputAction: TextInputAction.done,
-                decoration:
-                    InputDecoration.collapsed(hintText: widget.hintText),
+                decoration: InputDecoration(
+                    hintText: widget.hintText,
+                    isCollapsed: true,
+                    isDense: true,
+                    filled: false,
+                    contentPadding: EdgeInsets.zero,
+                    border: InputBorder.none,
+                    enabledBorder: InputBorder.none,
+                    focusedBorder: InputBorder.none,
+                    disabledBorder: InputBorder.none),
                 onSubmitted: (_) {
                   submit();
                   _commitEntry();
@@ -265,59 +262,61 @@ class _LibraryMultiValuePickFieldState<TValue>
         ));
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return LibraryFormField(
-        label: widget.label,
-        child: InputDecorator(
-            isFocused: _entryFocusNode.hasFocus || _pickerOpen,
-            decoration: InputDecoration(
-                errorText: widget.errorText,
-                enabled: widget.enabled,
-                constraints:
-                    const BoxConstraints(minHeight: kLibraryFormControlHeight),
-                contentPadding: EdgeInsets.zero),
-            child: Stack(children: [
-              Padding(
-                  padding: const EdgeInsets.fromLTRB(3, 3, 38, 3),
-                  child: LayoutBuilder(
-                      builder: (context, constraints) => GestureDetector(
-                          behavior: HitTestBehavior.translucent,
-                          onTap: widget.enabled
-                              ? _entryFocusNode.requestFocus
-                              : null,
-                          child: ConstrainedBox(
-                              constraints: const BoxConstraints(minHeight: 26),
-                              child: SizedBox(
-                                  width: double.infinity,
-                                  child: Wrap(
-                                      spacing: 3,
-                                      runSpacing: 3,
-                                      crossAxisAlignment:
-                                          WrapCrossAlignment.center,
-                                      children: [
-                                        for (final value in _value)
-                                          ConstrainedBox(
-                                              constraints: BoxConstraints(
-                                                  maxWidth:
-                                                      constraints.maxWidth),
-                                              child: LibraryValueChip(
-                                                  label: _labelFor(value),
-                                                  onDeleted: widget.enabled
-                                                      ? () => _remove(value)
-                                                      : null)),
-                                        if (TValue == String)
-                                          _entry(constraints.maxWidth),
-                                      ])))))),
-              Positioned(
-                  top: 0,
-                  bottom: 0,
-                  right: 0,
-                  child: PickListFieldButton(
-                      height: null,
-                      tooltip: 'Select ${widget.label.toLowerCase()}',
-                      onPressed:
-                          widget.enabled && !_pickerOpen ? _openPicker : null)),
-            ])));
+  double _minimumEditorWidth(double availableWidth) {
+    // An empty editor must not create an otherwise empty second chip row.
+    if (_entryController.text.isEmpty) return 0;
+    final measured = TextPainter(
+        text: TextSpan(
+            text: _entryController.text,
+            style:
+                Theme.of(context).textTheme.bodyMedium?.copyWith(fontSize: 14)),
+        textDirection: Directionality.of(context),
+        textScaler: MediaQuery.textScalerOf(context))
+      ..layout();
+    final width = math.min(availableWidth, math.max(16.0, measured.width + 14));
+    measured.dispose();
+    return width;
   }
+
+  @override
+  Widget build(BuildContext context) => LibraryFormField(
+      label: widget.label,
+      child: InputDecorator(
+          isFocused: _entryFocusNode.hasFocus || _pickerOpen,
+          decoration: InputDecoration(
+              errorText: widget.errorText,
+              enabled: widget.enabled,
+              constraints:
+                  const BoxConstraints(minHeight: kLibraryFormControlHeight),
+              contentPadding: EdgeInsets.zero,
+              suffixIconConstraints: const BoxConstraints.tightFor(
+                  width: PickListFieldButton.width,
+                  height: kLibraryFormControlHeight - 2),
+              suffixIcon: PickListFieldButton(
+                  tooltip: 'Select ${widget.label.toLowerCase()}',
+                  onPressed:
+                      widget.enabled && !_pickerOpen ? _openPicker : null)),
+          child: Padding(
+              padding: const EdgeInsets.all(3),
+              child: LayoutBuilder(
+                  builder: (context, constraints) => GestureDetector(
+                      behavior: HitTestBehavior.translucent,
+                      onTap:
+                          widget.enabled ? _entryFocusNode.requestFocus : null,
+                      child: ConstrainedBox(
+                          constraints: const BoxConstraints(minHeight: 26),
+                          child: LibraryChipInputLayout(
+                              hasEditor: TValue == String,
+                              minimumEditorWidth:
+                                  _minimumEditorWidth(constraints.maxWidth),
+                              children: [
+                                for (final value in _value)
+                                  LibraryValueChip(
+                                      label: _labelFor(value),
+                                      onDeleted: widget.enabled
+                                          ? () => _remove(value)
+                                          : null),
+                                if (TValue == String)
+                                  _entry(constraints.maxWidth),
+                              ])))))));
 }

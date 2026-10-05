@@ -8,15 +8,12 @@ class PickListFieldButton extends StatelessWidget {
     super.key,
     required this.tooltip,
     required this.onPressed,
-    this.height = kLibraryFormControlHeight - 2,
   });
 
   static const double width = 33;
+  static const double height = kLibraryFormControlHeight - 2;
   final String tooltip;
   final VoidCallback? onPressed;
-
-  /// Null lets a positioned button fill a multiple-line chip field.
-  final double? height;
 
   @override
   Widget build(BuildContext context) {
