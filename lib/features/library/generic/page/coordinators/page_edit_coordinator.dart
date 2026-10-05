@@ -279,18 +279,16 @@ class LibraryPageEditCoordinator {
         context: _s.context,
         request: initialTarget.request,
         requestListenable: requestListenable,
-        onCommit: (result) => _s.ref
-            .read(localDatabaseProvider)
-            .transaction(() => _persistEditResult(
-                  result,
-                  target: activeTarget.item.target,
-                  entry: activeTarget.entry,
-                  wishlist: activeTarget.wishlist,
-                  activeTrackingSummary: activeTarget.activeTrackingSummary,
-                  catalogItem: activeTarget.catalogItem,
-                  customFieldRepo: customFieldRepo,
-                  itemImageRepo: itemImageRepo,
-                )),
+        onCommit: (result) => _persistEditResult(
+          result,
+          target: activeTarget.item.target,
+          entry: activeTarget.entry,
+          wishlist: activeTarget.wishlist,
+          activeTrackingSummary: activeTarget.activeTrackingSummary,
+          catalogItem: activeTarget.catalogItem,
+          customFieldRepo: customFieldRepo,
+          itemImageRepo: itemImageRepo,
+        ),
       );
       dialogClosed = true;
       if (result == null || !_s.mounted) {
@@ -388,39 +386,6 @@ class LibraryPageEditCoordinator {
           await LibraryEntryStore(database).updatePersonal(
               entry.ref.kind, entry.ref.id.value, result.entryPersonalData!);
         }
-        final tracking = result.tracking;
-        if (tracking != null || activeTrackingSummary != null) {
-          await trackingMutations.syncEntryTrackingState(
-            entry.ref,
-            status: tracking == null
-                ? activeTrackingSummary?.status
-                : mediaTrackingStatusFromValue(tracking.readStatus),
-            rating: tracking == null
-                ? activeTrackingSummary?.rating
-                : tracking.rating,
-            startedAt: tracking == null
-                ? activeTrackingSummary?.startedAt
-                : tracking.startedAt,
-            finishedAt: tracking == null
-                ? activeTrackingSummary?.completedAt
-                : tracking.finishedAt,
-            progressCurrent: tracking == null
-                ? activeTrackingSummary?.progress.current
-                : tracking.progressCurrent,
-            progressTotal: tracking == null
-                ? activeTrackingSummary?.progress.total
-                : tracking.progressTotal,
-            timesCompleted: tracking == null
-                ? activeTrackingSummary?.progress.timesCompleted
-                : tracking.timesCompleted,
-            notes: tracking == null
-                ? activeTrackingSummary?.notes
-                : tracking.notes,
-            sourceType: activeTrackingSummary?.sourceType,
-            kindPatch: result.trackingKindPatch,
-            replaceNullableFields: tracking != null,
-          );
-        }
         if (result.customFieldEdits.isNotEmpty) {
           await _persistCustomFieldEdits(
             result.customFieldEdits,
@@ -495,6 +460,7 @@ class LibraryPageEditCoordinator {
           timesCompleted: result.tracking!.timesCompleted,
           notes: result.tracking!.notes,
           kindPatch: result.trackingKindPatch,
+          replaceNullableFields: true,
           notify: false,
         );
       }

@@ -189,5 +189,6 @@ final collectionCommandCoordinatorProvider =
   return CollectionCommandCoordinator(
     entryMutations: ref.watch(libraryEntryMutationsProvider),
     trackingMutations: ref.watch(trackingMutationsProvider),
+    mutationRunner: ref.watch(collectionMutationRunnerProvider),
   );
 });
