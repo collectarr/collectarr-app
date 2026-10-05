@@ -482,8 +482,10 @@ class _MusicInspectorMain extends ConsumerWidget {
         padding: const EdgeInsets.all(10),
         child: LayoutBuilder(
           builder: (context, constraints) {
-            final showBothCovers = constraints.maxWidth >= 720;
-            final coverWidth = showBothCovers ? 236.0 : 164.0;
+            final hasBackCover = releaseBackCover?.imageData != null ||
+                (music.localBackImagePath?.trim().isNotEmpty ?? false);
+            final showBothCovers = constraints.maxWidth >= 720 && hasBackCover;
+            final coverWidth = showBothCovers ? 334.0 : 164.0;
             return Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -860,12 +862,16 @@ final class _MusicInspectorCoverState extends State<_MusicInspectorCover> {
   Uint8List? get _back => widget.backCoverBytes ?? _backBytes;
   bool get _hasBack => _back?.isNotEmpty == true;
 
-  Widget _cover({required bool back}) => LibraryInteractiveCover(
-        title: '${widget.title} ${back ? 'back cover' : 'front cover'}',
-        imageUrl: back ? null : widget.imageUrl,
-        localBytes: back ? _back : _front,
-        fit: BoxFit.contain,
-        accentColor: widget.accent,
+  Widget _cover({required bool back}) => AspectRatio(
+        aspectRatio: 1.0,
+        child: LibraryInteractiveCover(
+          title: '${widget.title} ${back ? 'back cover' : 'front cover'}',
+          imageUrl: back ? null : widget.imageUrl,
+          localBytes: back ? _back : _front,
+          fallbackAspectRatio: 1.0,
+          fit: BoxFit.contain,
+          accentColor: widget.accent,
+        ),
       );
 
   Widget _selectorDot(bool back) => Tooltip(
@@ -1499,6 +1505,7 @@ class _MusicCoverCard extends StatelessWidget {
                     title: title,
                     imageUrl: coverUrl,
                     localBytes: localBytes,
+                    fallbackAspectRatio: 1.0,
                     accentColor: accent,
                     enableSecondaryControl: false,
                   ),

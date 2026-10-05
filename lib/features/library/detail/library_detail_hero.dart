@@ -4,6 +4,7 @@ import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
 import 'package:collectarr_app/features/library/ui/library_info_chip.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_kind_workspace_contributors.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
 import 'package:flutter/material.dart';
 
@@ -103,6 +104,8 @@ class LibraryDetailHero extends StatelessWidget {
                     context,
                     coverWidth: 140,
                   ),
+                  fallbackAspectRatio:
+                      1 / libraryViewProfileForKind(type.kind).coverGridHeightFactor,
                   libraryEntryRef: resolvedLibraryEntryRef,
                   enableHoverCue: false,
                 ),
