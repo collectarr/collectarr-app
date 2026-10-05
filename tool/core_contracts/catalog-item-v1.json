@@ -2,13 +2,13 @@
   "$id": "https://schemas.collectarr.app/catalog-item/v1",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "contractVersion": "1.0.0",
-  "coreCommit": "937a06b00bdb0ee13b16f07fac5a506dd18d47db",
+  "coreCommit": "9a139567e577be9e5ef073410b3627d77fe368f8",
   "description": "Source-neutral Catalog Item documents. Fields are validated and projected using the schema owned by the declared kind.",
   "fieldStatus": {
     "music": "grounded_in_saved_clz_music_edit_form",
     "other_kinds": "provisional_clz_parity_unverified_without_edit_form_captures"
   },
-  "generatedAt": "2026-10-05T08:44:21.659769Z",
+  "generatedAt": "2026-10-05T10:58:17.777305Z",
   "kinds": {
     "anime": {
       "additionalProperties": false,
@@ -213,16 +213,6 @@
                   {
                     "additionalProperties": false,
                     "properties": {
-                      "artist_id": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
-                      },
                       "credited_name": {
                         "type": "string"
                       },
@@ -237,12 +227,6 @@
                         ]
                       },
                       "image_url": {
-                        "type": "string"
-                      },
-                      "instrument": {
-                        "type": "string"
-                      },
-                      "join_phrase": {
                         "type": "string"
                       },
                       "name": {
@@ -320,16 +304,6 @@
                   {
                     "additionalProperties": false,
                     "properties": {
-                      "artist_id": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
-                      },
                       "credited_name": {
                         "type": "string"
                       },
@@ -344,12 +318,6 @@
                         ]
                       },
                       "image_url": {
-                        "type": "string"
-                      },
-                      "instrument": {
-                        "type": "string"
-                      },
-                      "join_phrase": {
                         "type": "string"
                       },
                       "name": {
@@ -1708,16 +1676,6 @@
                   {
                     "additionalProperties": false,
                     "properties": {
-                      "artist_id": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
-                      },
                       "credited_name": {
                         "type": "string"
                       },
@@ -1732,12 +1690,6 @@
                         ]
                       },
                       "image_url": {
-                        "type": "string"
-                      },
-                      "instrument": {
-                        "type": "string"
-                      },
-                      "join_phrase": {
                         "type": "string"
                       },
                       "name": {
@@ -2575,16 +2527,6 @@
                   {
                     "additionalProperties": false,
                     "properties": {
-                      "artist_id": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
-                      },
                       "credited_name": {
                         "type": "string"
                       },
@@ -2599,12 +2541,6 @@
                         ]
                       },
                       "image_url": {
-                        "type": "string"
-                      },
-                      "instrument": {
-                        "type": "string"
-                      },
-                      "join_phrase": {
                         "type": "string"
                       },
                       "name": {
@@ -2686,16 +2622,6 @@
                   {
                     "additionalProperties": false,
                     "properties": {
-                      "artist_id": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
-                      },
                       "credited_name": {
                         "type": "string"
                       },
@@ -2710,12 +2636,6 @@
                         ]
                       },
                       "image_url": {
-                        "type": "string"
-                      },
-                      "instrument": {
-                        "type": "string"
-                      },
-                      "join_phrase": {
                         "type": "string"
                       },
                       "name": {
@@ -3730,16 +3650,6 @@
                   {
                     "additionalProperties": false,
                     "properties": {
-                      "artist_id": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
-                      },
                       "credited_name": {
                         "type": "string"
                       },
@@ -3756,11 +3666,15 @@
                       "image_url": {
                         "type": "string"
                       },
-                      "instrument": {
-                        "type": "string"
-                      },
                       "join_phrase": {
-                        "type": "string"
+                        "anyOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
                       },
                       "name": {
                         "type": "string"
@@ -3876,16 +3790,6 @@
                   {
                     "additionalProperties": false,
                     "properties": {
-                      "artist_id": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
-                      },
                       "credited_name": {
                         "type": "string"
                       },
@@ -3902,11 +3806,15 @@
                       "image_url": {
                         "type": "string"
                       },
-                      "instrument": {
-                        "type": "string"
-                      },
                       "join_phrase": {
-                        "type": "string"
+                        "anyOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
                       },
                       "name": {
                         "type": "string"
@@ -4679,16 +4587,6 @@
                   {
                     "additionalProperties": false,
                     "properties": {
-                      "artist_id": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
-                      },
                       "credited_name": {
                         "type": "string"
                       },
@@ -4703,12 +4601,6 @@
                         ]
                       },
                       "image_url": {
-                        "type": "string"
-                      },
-                      "instrument": {
-                        "type": "string"
-                      },
-                      "join_phrase": {
                         "type": "string"
                       },
                       "name": {
@@ -4786,16 +4678,6 @@
                   {
                     "additionalProperties": false,
                     "properties": {
-                      "artist_id": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
-                      },
                       "credited_name": {
                         "type": "string"
                       },
@@ -4810,12 +4692,6 @@
                         ]
                       },
                       "image_url": {
-                        "type": "string"
-                      },
-                      "instrument": {
-                        "type": "string"
-                      },
-                      "join_phrase": {
                         "type": "string"
                       },
                       "name": {
@@ -5691,16 +5567,6 @@
                   {
                     "additionalProperties": false,
                     "properties": {
-                      "artist_id": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
-                      },
                       "credited_name": {
                         "type": "string"
                       },
@@ -5715,12 +5581,6 @@
                         ]
                       },
                       "image_url": {
-                        "type": "string"
-                      },
-                      "instrument": {
-                        "type": "string"
-                      },
-                      "join_phrase": {
                         "type": "string"
                       },
                       "name": {
@@ -5798,16 +5658,6 @@
                   {
                     "additionalProperties": false,
                     "properties": {
-                      "artist_id": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
-                      },
                       "credited_name": {
                         "type": "string"
                       },
@@ -5822,12 +5672,6 @@
                         ]
                       },
                       "image_url": {
-                        "type": "string"
-                      },
-                      "instrument": {
-                        "type": "string"
-                      },
-                      "join_phrase": {
                         "type": "string"
                       },
                       "name": {
@@ -6409,135 +6253,6 @@
             }
           ]
         },
-        "character_details": {
-          "anyOf": [
-            {
-              "items": {
-                "additionalProperties": false,
-                "properties": {
-                  "aliases": {
-                    "anyOf": [
-                      {
-                        "items": {
-                          "type": "string"
-                        },
-                        "type": "array"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "character_id": {
-                    "anyOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "description": {
-                    "type": "string"
-                  },
-                  "id": {
-                    "anyOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "image_url": {
-                    "type": "string"
-                  },
-                  "name": {
-                    "type": "string"
-                  },
-                  "role": {
-                    "type": "string"
-                  }
-                },
-                "type": "object"
-              },
-              "type": "array"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        },
-        "characters": {
-          "anyOf": [
-            {
-              "items": {
-                "anyOf": [
-                  {
-                    "type": "string"
-                  },
-                  {
-                    "additionalProperties": false,
-                    "properties": {
-                      "aliases": {
-                        "anyOf": [
-                          {
-                            "items": {
-                              "type": "string"
-                            },
-                            "type": "array"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
-                      },
-                      "character_id": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
-                      },
-                      "description": {
-                        "type": "string"
-                      },
-                      "id": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
-                      },
-                      "image_url": {
-                        "type": "string"
-                      },
-                      "name": {
-                        "type": "string"
-                      },
-                      "role": {
-                        "type": "string"
-                      }
-                    },
-                    "type": "object"
-                  }
-                ]
-              },
-              "type": "array"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        },
         "color": {
           "anyOf": [
             {
@@ -6559,16 +6274,6 @@
                   {
                     "additionalProperties": false,
                     "properties": {
-                      "artist_id": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
-                      },
                       "character": {
                         "anyOf": [
                           {
@@ -6593,12 +6298,6 @@
                         ]
                       },
                       "image_url": {
-                        "type": "string"
-                      },
-                      "instrument": {
-                        "type": "string"
-                      },
-                      "join_phrase": {
                         "type": "string"
                       },
                       "name": {
@@ -6676,16 +6375,6 @@
                   {
                     "additionalProperties": false,
                     "properties": {
-                      "artist_id": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
-                      },
                       "character": {
                         "anyOf": [
                           {
@@ -6710,12 +6399,6 @@
                         ]
                       },
                       "image_url": {
-                        "type": "string"
-                      },
-                      "instrument": {
-                        "type": "string"
-                      },
-                      "join_phrase": {
                         "type": "string"
                       },
                       "name": {
@@ -8745,135 +8428,6 @@
             }
           ]
         },
-        "character_details": {
-          "anyOf": [
-            {
-              "items": {
-                "additionalProperties": false,
-                "properties": {
-                  "aliases": {
-                    "anyOf": [
-                      {
-                        "items": {
-                          "type": "string"
-                        },
-                        "type": "array"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "character_id": {
-                    "anyOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "description": {
-                    "type": "string"
-                  },
-                  "id": {
-                    "anyOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "image_url": {
-                    "type": "string"
-                  },
-                  "name": {
-                    "type": "string"
-                  },
-                  "role": {
-                    "type": "string"
-                  }
-                },
-                "type": "object"
-              },
-              "type": "array"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        },
-        "characters": {
-          "anyOf": [
-            {
-              "items": {
-                "anyOf": [
-                  {
-                    "type": "string"
-                  },
-                  {
-                    "additionalProperties": false,
-                    "properties": {
-                      "aliases": {
-                        "anyOf": [
-                          {
-                            "items": {
-                              "type": "string"
-                            },
-                            "type": "array"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
-                      },
-                      "character_id": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
-                      },
-                      "description": {
-                        "type": "string"
-                      },
-                      "id": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
-                      },
-                      "image_url": {
-                        "type": "string"
-                      },
-                      "name": {
-                        "type": "string"
-                      },
-                      "role": {
-                        "type": "string"
-                      }
-                    },
-                    "type": "object"
-                  }
-                ]
-              },
-              "type": "array"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        },
         "color": {
           "anyOf": [
             {
@@ -8895,16 +8449,6 @@
                   {
                     "additionalProperties": false,
                     "properties": {
-                      "artist_id": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
-                      },
                       "character": {
                         "anyOf": [
                           {
@@ -8929,12 +8473,6 @@
                         ]
                       },
                       "image_url": {
-                        "type": "string"
-                      },
-                      "instrument": {
-                        "type": "string"
-                      },
-                      "join_phrase": {
                         "type": "string"
                       },
                       "name": {
@@ -9012,16 +8550,6 @@
                   {
                     "additionalProperties": false,
                     "properties": {
-                      "artist_id": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
-                      },
                       "character": {
                         "anyOf": [
                           {
@@ -9046,12 +8574,6 @@
                         ]
                       },
                       "image_url": {
-                        "type": "string"
-                      },
-                      "instrument": {
-                        "type": "string"
-                      },
-                      "join_phrase": {
                         "type": "string"
                       },
                       "name": {

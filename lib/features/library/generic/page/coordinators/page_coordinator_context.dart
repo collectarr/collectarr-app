@@ -311,7 +311,8 @@ class LibraryPageCoordinatorContext {
   set scopeHistory(List<LibrarySidebarScopeSnapshot> value) =>
       _setScopeHistory(value);
 
-  Set<LibraryEntryRef> get activeLoanLibraryEntryIds => _getActiveLoanLibraryEntryIds();
+  Set<LibraryEntryRef> get activeLoanLibraryEntryIds =>
+      _getActiveLoanLibraryEntryIds();
 
   Set<String> get pinnedSortFavoriteIds => _getPinnedSortFavoriteIds();
   set pinnedSortFavoriteIds(Set<String> value) =>

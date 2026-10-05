@@ -313,7 +313,8 @@ class _LibraryFlowCarouselState extends State<LibraryFlowCarousel> {
     if (selectedId == null) {
       return _currentIndex.clamp(0, widget.items.length - 1);
     }
-    final index = widget.items.indexWhere((item) => item.target.id == selectedId);
+    final index =
+        widget.items.indexWhere((item) => item.target.id == selectedId);
     return index >= 0 ? index : 0;
   }
 
@@ -677,8 +678,7 @@ class _FlowCarouselCardState extends State<_FlowCarouselCard> {
                             title: title,
                             itemNumber: itemNumber,
                             imageUrl: dto.imageUrl,
-                            libraryEntryRef:
-                                widget.item.source.libraryEntryRef,
+                            libraryEntryRef: widget.item.source.libraryEntryRef,
                             accentColor: widget.accent,
                             enableFullscreen: false,
                             enableSecondaryControl: false,

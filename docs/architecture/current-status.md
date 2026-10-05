@@ -23,6 +23,13 @@ run.
   links, CSV import/export, and the v1 Shelf are connected to the flat local
   entry model. User proposals remain available; provider ingestion is not an
   active Add flow.
+- Edit dialog Save commits catalog transport, entry metadata and personal data,
+  tracking state, images, custom fields, wishlist changes, and the entry sync
+  outbox in one local transaction. Nested mutation calls join the same unit of
+  work; sync scheduling and projection invalidation run after commit.
+- Add search consumes the paged Core search contract (`items`, `next_offset`,
+  `has_more`). Music keeps its detailed disc and track payload while using the
+  same page shape.
 - Smart List persistence is a strict v2 contract with an explicit target and a
   list of kinds. The UI can create and edit multi-kind lists. Kind-specific
   fields are resolved against each active kind schema, and unavailable fields
@@ -60,28 +67,32 @@ run.
 
 ## Remaining work and limits
 
-- Some App edit and activity controls still write through repositories outside
-  the shared entry transaction. Audit those paths and complete busy/error,
-  cancel, and repeat-submit handling before claiming every edit is atomic.
+- Standalone activity controls remain separate commands and transactions.
+  Edit-dialog Save is atomic, but busy/error, cancel, and repeat-submit
+  handling still need a separate UI pass.
 - App's Drift source now defines schema version 1 with only `onCreate`; there is
-  no upgrade chain or external-links repair hook. Existing database files were
-  not opened, reset, migrated, or deleted during this work. Start this baseline
-  with an empty app data directory.
-- The Core contract snapshot still reflects Core's current export. Core-side
-  registry simplification, obsolete metadata field scope removal, indexed
-  identifier lookup, and paginated catalog search require changes in the Core
-  repository and a regenerated pinned contract.
-- Production-source analysis reports no errors. Its only warnings are in the
-  generated API client/model files (`collectarr_api.client.dart` and
-  `collectarr_api.models.dart`). Architecture guards, the Windows build, and
-  tests remain deferred until implementation work is complete, as requested.
+  no upgrade chain or external-links repair hook. This build intentionally
+  does not support the previous database or backup formats. Existing database
+  files were not opened, reset, migrated, or deleted during this work. Keep any
+  previous file and backups separately, then start this baseline with a new,
+  empty app data directory so `collectarr-library.sqlite` is created fresh.
+- Core's kind registry now composes routes, documents, models, response schemas,
+  proposal writers, and kind-owned field declarations. Its field-schema wire
+  shape no longer exposes redundant root ownership metadata. The Core bundle
+  and App pin were regenerated together after this contract change.
+- Core catalog search now pages shared and kind-specific endpoints with stable
+  ordering. Identifier predicates use indexed scalar columns or JSONB
+  containment. PostgreSQL planner verification remains deferred to the final
+  checks.
+- Architecture guards, the Windows build, and tests remain deferred until
+  implementation work is complete, as requested.
 
 ## Local data
 
 The local SQLite database is `collectarr-library.sqlite`. No database was
-deleted, reset, or migrated as part of this documentation update. Existing
-database and backup compatibility must be described with the coordinated
-release procedure before a clean schema baseline is shipped.
+deleted, reset, or migrated as part of this work. Previous database and backup
+formats are unsupported by the v1 baseline; keep old files outside the new app
+data directory and create a fresh database for this build.
 
 See [`flattened-catalog-baseline.md`](flattened-catalog-baseline.md),
 [`music-catalog-field-inventory.md`](music-catalog-field-inventory.md), and the

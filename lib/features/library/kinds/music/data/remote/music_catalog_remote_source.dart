@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/api/api_client.dart';
+import 'package:collectarr_app/core/api/dto/catalog_search_page.dart';
 import 'package:collectarr_app/features/library/kinds/music/catalog/music_catalog_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_album.dart';
 import 'package:dio/dio.dart';
@@ -22,7 +23,32 @@ final class MusicCatalogRemoteSource {
     int offset = 0,
     CancelToken? cancelToken,
   }) async {
-    final rows = await _api.getJsonList(
+    final page = await searchPage(
+      query: query,
+      barcode: barcode,
+      artist: artist,
+      label: label,
+      year: year,
+      limit: limit,
+      offset: offset,
+      cancelToken: cancelToken,
+    );
+    return [
+      for (final row in page.items) MusicCatalogMapper.fromCatalogPayload(row)
+    ];
+  }
+
+  Future<CatalogSearchPage> searchPage({
+    String? query,
+    String? barcode,
+    String? artist,
+    String? label,
+    int? year,
+    int limit = 25,
+    int offset = 0,
+    CancelToken? cancelToken,
+  }) async {
+    final json = await _api.getJsonObject(
       '/api/v1/metadata/music/items',
       queryParameters: {
         if (query != null && query.trim().isNotEmpty) 'q': query.trim(),
@@ -36,7 +62,7 @@ final class MusicCatalogRemoteSource {
       },
       cancelToken: cancelToken,
     );
-    return [for (final row in rows) MusicCatalogMapper.fromCatalogPayload(row)];
+    return CatalogSearchPage.fromJson(json);
   }
 
   Future<MusicAlbum> getById(

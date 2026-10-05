@@ -281,8 +281,8 @@ List<String> libraryGroupModesForType(
   LibraryKindRegistration type,
 ) {
   return [
-    for (final mode
-        in libraryKindWorkspaceForKind(type.kind).availableGroupIdsForAllTargets)
+    for (final mode in libraryKindWorkspaceForKind(type.kind)
+        .availableGroupIdsForAllTargets)
       mode.value,
   ];
 }

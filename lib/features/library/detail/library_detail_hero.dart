@@ -30,17 +30,21 @@ class LibraryDetailHero extends StatelessWidget {
     final palette = appPalette(context);
     final dto = item.dto;
     final presentation = libraryCardPresentationForEntry(item);
-    final resolvedLibraryEntryRef = resolveLibraryEntrySummaryRef(item, libraryEntry);
+    final resolvedLibraryEntryRef =
+        resolveLibraryEntrySummaryRef(item, libraryEntry);
     final resolvedIsEntry =
         isEntry ?? (libraryEntry != null || item.source.isEntry);
     final referenceLabel = presentation.format;
     final summaryFacts = <({String label, String value})>[
-      (label: 'Status', value: resolvedIsEntry ? 'In collection' : 'Not collected'),
+      (
+        label: 'Status',
+        value: resolvedIsEntry ? 'In collection' : 'Not collected'
+      ),
       (
         label: 'Updated',
-        value:
-            formatNullableDate(libraryEntry?.updatedAt ?? item.source.updatedAt) ??
-                '-',
+        value: formatNullableDate(
+                libraryEntry?.updatedAt ?? item.source.updatedAt) ??
+            '-',
       ),
     ];
     final primaryChips = <Widget>[

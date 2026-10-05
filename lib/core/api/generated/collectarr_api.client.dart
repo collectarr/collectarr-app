@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/api/dto/bundle_release.dart';
+import 'package:collectarr_app/core/api/dto/catalog_search_page.dart';
 import 'package:collectarr_app/core/api/dto/media_catalog.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/api/dto/metadata_search_query.dart';
@@ -41,16 +42,28 @@ class CollectarrApiClient {
   Future<List<Map<String, dynamic>>> searchMetadata(
     MetadataSearchQuery query, {
     CancelToken? cancelToken,
+  }) async =>
+      (await searchMetadataPage(
+        query,
+        cancelToken: cancelToken,
+      ))
+          .items;
+
+  Future<CatalogSearchPage> searchMetadataPage(
+    MetadataSearchQuery query, {
+    CancelToken? cancelToken,
   }) async {
-    final response = await _dio.get<List<dynamic>>(
+    final response = await _dio.get<Map<String, dynamic>>(
       '/api/v1/search',
       queryParameters: query.toQueryParameters(),
       cancelToken: cancelToken,
     );
-    return response.data!
-        .cast<Map<String, dynamic>>()
-        .map(_resolveImageUrls)
-        .toList(growable: false);
+    final page = CatalogSearchPage.fromJson(response.data!);
+    return CatalogSearchPage(
+      items: page.items.map(_resolveImageUrls).toList(growable: false),
+      nextOffset: page.nextOffset,
+      hasMore: page.hasMore,
+    );
   }
 
   /// Fetches one flattened, kind-entry Catalog Item response.

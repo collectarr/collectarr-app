@@ -18,7 +18,8 @@ typedef _InspectorItemImagesRequest = ({
 final _inspectorItemImagesProvider = FutureProvider.autoDispose
     .family<List<ItemImage>, _InspectorItemImagesRequest>(
   (ref, request) async {
-    return ItemImageRepository(request.db).listForLibraryEntryRef(request.libraryEntryRef);
+    return ItemImageRepository(request.db)
+        .listForLibraryEntryRef(request.libraryEntryRef);
   },
 );
 
@@ -116,8 +117,8 @@ class InspectorItemImagesSection extends ConsumerWidget {
       libraryEntryRef: libraryEntryRef,
     );
     if (savedType != null && context.mounted) {
-      ref.invalidate(
-          _inspectorItemImagesProvider((db: db, libraryEntryRef: libraryEntryRef)));
+      ref.invalidate(_inspectorItemImagesProvider(
+          (db: db, libraryEntryRef: libraryEntryRef)));
     }
   }
 
@@ -147,7 +148,8 @@ class InspectorItemImagesSection extends ConsumerWidget {
 
     final repo = ItemImagesCacheRepository(db);
     await repo.deleteById(imageId);
-    ref.invalidate(_inspectorItemImagesProvider((db: db, libraryEntryRef: libraryEntryRef)));
+    ref.invalidate(_inspectorItemImagesProvider(
+        (db: db, libraryEntryRef: libraryEntryRef)));
   }
 }
 

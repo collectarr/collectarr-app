@@ -148,7 +148,7 @@ class _GenericStatsDashboard extends StatelessWidget {
                           if (state.soldCount > 0)
                             LibraryStatsTile(
                               icon: Icons.local_offer_outlined,
-                            label: 'Sold entries',
+                              label: 'Sold entries',
                               value: state.soldCount.toString(),
                             ),
                           if (netValue != null)
@@ -373,7 +373,8 @@ class _GenericStatsDashboard extends StatelessWidget {
     );
   }
 
-  static Map<String, int> _topBuyerSales(List<LibraryWorkspaceContext> entries) {
+  static Map<String, int> _topBuyerSales(
+      List<LibraryWorkspaceContext> entries) {
     return _sumBy(
       entries,
       (entry) => entry.soldTo ?? 'Unknown buyer',
@@ -445,10 +446,6 @@ class _GenericStatsDashboard extends StatelessWidget {
       if (projection.primaryGroup == null ||
           projection.primaryGroup!.trim().isEmpty) {
         counts[missingSeriesLabel] = (counts[missingSeriesLabel] ?? 0) + 1;
-      }
-      if (entry.itemId.startsWith('provider:')) {
-        counts['Provider placeholder'] =
-            (counts['Provider placeholder'] ?? 0) + 1;
       }
     }
     return counts;

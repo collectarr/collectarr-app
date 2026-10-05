@@ -39,9 +39,7 @@ class LibraryPageCollectionActionCoordinator {
 
   bool _isNonServerMetadataId(String id) {
     final normalized = id.trim().toLowerCase();
-    return normalized.startsWith('preview-') ||
-        normalized.startsWith('local-') ||
-        normalized.startsWith('provider:');
+    return normalized.startsWith('preview-') || normalized.startsWith('local-');
   }
 
   bool canCompareMetadataWithServerItem(LibraryProjectionItem item) {

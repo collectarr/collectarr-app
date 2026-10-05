@@ -378,12 +378,7 @@ List<LibraryAdminCorrectionField> adminCorrectionFieldsForKind({
   };
   final fields = <LibraryAdminCorrectionField>[];
   for (final spec in schema.fieldsForKind(kind.apiValue)) {
-    final writeTarget = spec.writeTargetForKind(kind.apiValue);
-    if (!spec.editable || writeTarget == null) continue;
-    if (writeTarget != MetadataWriteTarget.coreCanonical &&
-        writeTarget != MetadataWriteTarget.coreCanonicalRelation) {
-      continue;
-    }
+    if (!spec.editable) continue;
     final presentation = _adminCorrectionPresentationFromSchema(spec);
     final override = overrides.remove(spec.key);
     if (override != null) {

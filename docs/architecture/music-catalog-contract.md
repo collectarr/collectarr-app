@@ -1,6 +1,6 @@
 # Music Catalog Contract
 
-Core exposes one `CatalogMusicItemResponse` for each concrete album edition at `/api/v1/metadata/music/items`. The response contains the edition fields and its discs and tracks. Search and detail reads do not expose a Release Group → Release hierarchy.
+Core exposes one `CatalogMusicItemResponse` for each concrete album edition at `/api/v1/metadata/music/items/{id}`. The search endpoint `/api/v1/metadata/music/items` returns a page (`items`, `next_offset`, `has_more`) whose items include album fields, discs, and tracks. Search and detail reads do not expose a Release Group → Release hierarchy.
 
 Core response models in `app/schemas/catalog_music_item.py` define the wire schema. `scripts/export_contract_bundle.py` exports them as `contracts/music-catalog-v1.json` and pins the artifact hash in the contract manifest. App copies the bundle with `tool/update_core_contracts.ps1`; the pinned file is `tool/core_contracts/music-catalog-v1.json`.
 

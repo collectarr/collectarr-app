@@ -404,8 +404,7 @@ class _LibrarySortDialogState extends State<_LibrarySortDialog> {
                                                 'selected-sort-$col-handle',
                                               ),
                                               title: _sortColumnLabel(
-                                                  widget.type,
-                                                  col),
+                                                  widget.type, col),
                                               ascending: rule.ascending,
                                               canMoveUp: index > 0,
                                               canMoveDown:
@@ -513,10 +512,8 @@ class _LibrarySortDialogState extends State<_LibrarySortDialog> {
   }
 
   LibrarySortRule _defaultRule() {
-    final column = libraryKindWorkspaceForKind(widget.type.kind)
-        .fields
-        .defaultSort
-        .value;
+    final column =
+        libraryKindWorkspaceForKind(widget.type.kind).fields.defaultSort.value;
     return LibrarySortRule(
       column: column,
       ascending: _defaultAscending(column),
@@ -572,9 +569,8 @@ class _LibrarySortDialogState extends State<_LibrarySortDialog> {
     final query = _query.trim().toLowerCase();
     final available = widget.availableColumns ??
         [
-          for (final def in libraryKindWorkspaceForKind(widget.type.kind)
-              .fields
-              .sorts)
+          for (final def
+              in libraryKindWorkspaceForKind(widget.type.kind).fields.sorts)
             def.id.value,
         ];
     return available.where((column) {

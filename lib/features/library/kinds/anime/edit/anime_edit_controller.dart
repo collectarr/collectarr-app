@@ -72,7 +72,7 @@ class AnimeEditController {
               link.isTrailerLink && (link.isAutomatic || preserveManualLinks),
         )
         .toList(growable: false);
-    final providerExternalLinks = existing
+    final preservedExternalLinks = existing
         .where(
           (link) =>
               link.isExternalLink && (link.isAutomatic || preserveManualLinks),
@@ -80,7 +80,7 @@ class AnimeEditController {
         .toList(growable: false);
     final merged = <TrailerLinkDto>[
       ...preservedTrailers,
-      ...providerExternalLinks,
+      ...preservedExternalLinks,
     ];
     return merged.isEmpty ? null : List<TrailerLinkDto>.unmodifiable(merged);
   }

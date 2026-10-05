@@ -91,7 +91,7 @@ The labels below describe field ownership only. They do not imply separate edita
 | `barcode`, `ageRating`, `languages` | Catalog Item Metadata | Package identifiers and rating |
 | `completeness` (Loose, CIB, New, Sealed) | Personal Data | Packaging completeness |
 | `hasBox`, `hasManual`, `valueLocked` | Personal Data | Box/manual presence and valuation lock |
-| `valuations` | Personal Data | User-owned multi-tier valuation snapshots; external provider IDs are excluded from the v1 model |
+| `priceChartingId`, `valuations` | Personal Data | A user-owned valuation snapshot and its optional PriceCharting reference. The reference is stored locally with the entry; Collectarr does not query or ingest PriceCharting data. |
 
 ### 6. Board Game
 | Field | Scope | Description |

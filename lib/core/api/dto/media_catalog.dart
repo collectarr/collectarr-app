@@ -2,29 +2,6 @@ import 'dart:convert';
 
 import '../../models/catalog_media_kind.dart';
 
-enum MetadataWriteTarget {
-  coreCanonical('core_canonical'),
-  coreCanonicalRelation('core_canonical_relation'),
-  readonlyComputed('readonly_computed');
-
-  const MetadataWriteTarget(this.apiValue);
-
-  final String apiValue;
-
-  static MetadataWriteTarget fromApiValue(String? value) {
-    final normalized = value?.trim().toLowerCase();
-    if (normalized == null || normalized.isEmpty) {
-      throw FormatException('Metadata write target is required.');
-    }
-    for (final target in MetadataWriteTarget.values) {
-      if (target.apiValue == normalized) {
-        return target;
-      }
-    }
-    throw FormatException('Unknown metadata write target: $value');
-  }
-}
-
 class CatalogPhysicalFormat {
   const CatalogPhysicalFormat({
     required this.id,
@@ -169,29 +146,21 @@ class MetadataFieldSpec {
     required this.key,
     required this.valueType,
     required this.label,
-    required this.common,
-    required this.typed,
-    required this.normalized,
     required this.editable,
     required this.section,
     required this.input,
     required this.kinds,
     this.required = false,
-    this.writeTargetsByKind = const {},
   });
 
   final String key;
   final String valueType;
   final String label;
-  final bool common;
-  final bool typed;
-  final bool normalized;
   final bool editable;
   final bool required;
   final String section;
   final String input;
   final List<String> kinds;
-  final Map<String, MetadataWriteTarget> writeTargetsByKind;
 
   factory MetadataFieldSpec.fromJson(Map<String, dynamic> json) {
     final key = _requiredString(json, 'key');
@@ -199,14 +168,8 @@ class MetadataFieldSpec {
     final label = _requiredString(json, 'label');
     final section = _requiredString(json, 'section');
     final input = _requiredString(json, 'input');
-    final common = json['common'];
-    final typed = json['typed'];
-    final normalized = json['normalized'];
     final editable = json['editable'];
-    if (common is! bool ||
-        typed is! bool ||
-        normalized is! bool ||
-        editable is! bool) {
+    if (editable is! bool) {
       throw FormatException('Metadata field "$key" has invalid flags.');
     }
     final required = json['required'];
@@ -218,41 +181,20 @@ class MetadataFieldSpec {
         (rawKinds is! List || rawKinds.any((kind) => kind is! String))) {
       throw FormatException('Metadata field "$key" has invalid kinds.');
     }
-    final rawOwnership = json['ownership_by_kind'];
-    if (rawOwnership != null && rawOwnership is! Map<String, dynamic>) {
-      throw FormatException(
-        'Metadata field "$key" has invalid ownership_by_kind.',
-      );
-    }
     return MetadataFieldSpec(
       key: key,
       valueType: valueType,
       label: label,
-      common: common,
-      typed: typed,
-      normalized: normalized,
       editable: editable,
       required: required as bool? ?? false,
       section: section,
       input: input,
       kinds: [
-        for (final value in (rawKinds as List<dynamic>? ?? const [])) value as String,
+        for (final value in (rawKinds as List<dynamic>? ?? const []))
+          value as String,
       ],
-      writeTargetsByKind: {
-        for (final entry
-            in (rawOwnership as Map<String, dynamic>? ?? const {}).entries)
-          entry.key: MetadataWriteTarget.fromApiValue(
-            _requiredString(
-              _requiredMap(entry.value, 'ownership_by_kind.${entry.key}'),
-              'write_target',
-            ),
-          ),
-      },
     );
   }
-
-  MetadataWriteTarget? writeTargetForKind(String kind) =>
-      writeTargetsByKind[kind];
 }
 
 /// The unified field schema returned by `GET /api/v1/metadata/field-schema`.
@@ -274,9 +216,7 @@ class MetadataFieldSchema {
     final keys = kindFields[kind]?.toSet() ?? const <String>{};
     return [
       for (final field in fields)
-        if (field.common ||
-            (field.kinds.contains(kind) && keys.contains(field.key)))
-          field,
+        if (field.kinds.contains(kind) && keys.contains(field.key)) field,
     ];
   }
 
@@ -336,9 +276,8 @@ class MetadataFieldSchema {
     Map<String, dynamic> json,
   ) {
     final version = json['contractVersion'];
-    final match = version is String
-        ? RegExp(r'^(\d+)\.').firstMatch(version)
-        : null;
+    final match =
+        version is String ? RegExp(r'^(\d+)\.').firstMatch(version) : null;
     final rows = json['fields'];
     if (match == null || rows is! List) {
       throw const FormatException(
@@ -351,7 +290,8 @@ class MetadataFieldSchema {
     for (var index = 0; index < rows.length; index++) {
       final raw = rows[index];
       if (raw is! Map<String, dynamic>) {
-        throw FormatException('Metadata field contract fields[$index] is invalid.');
+        throw FormatException(
+            'Metadata field contract fields[$index] is invalid.');
       }
       final kind = raw['kind'];
       final key = raw['key'];
@@ -370,14 +310,8 @@ class MetadataFieldSchema {
           'Metadata field contract fields[$index] requires kind, key, valueType, and label.',
         );
       }
-      final common = raw['common'];
-      final typed = raw['typed'];
-      final normalized = raw['normalized'];
       final editable = raw['editable'];
-      if (common is! bool ||
-          typed is! bool ||
-          normalized is! bool ||
-          editable is! bool) {
+      if (editable is! bool) {
         throw FormatException(
           'Metadata field contract fields[$index] has invalid boolean flags.',
         );
@@ -399,28 +333,23 @@ class MetadataFieldSchema {
         key,
         valueType,
         label,
-        common,
-        typed,
-        normalized,
         editable,
         required == true,
         section,
         input,
       ]);
-      final spec = grouped.putIfAbsent(signature, () => {
-            'key': key,
-            'value_type': valueType,
-            'label': label,
-            'common': common,
-            'typed': typed,
-            'normalized': normalized,
-            'editable': editable,
-            'required': required == true,
-            'section': section,
-            'input': input,
-            'kinds': <String>[],
-            'ownership_by_kind': <String, dynamic>{},
-          });
+      final spec = grouped.putIfAbsent(
+          signature,
+          () => {
+                'key': key,
+                'value_type': valueType,
+                'label': label,
+                'editable': editable,
+                'required': required == true,
+                'section': section,
+                'input': input,
+                'kinds': <String>[],
+              });
       final kindsForSpec = spec['kinds'] as List<String>;
       if (kindsForSpec.contains(kind)) {
         throw FormatException(
@@ -429,21 +358,10 @@ class MetadataFieldSchema {
       }
       kindsForSpec.add(kind);
       kindFields.putIfAbsent(kind, () => <String>{}).add(key);
-
-      final writeTarget = raw['writeTarget'];
-      if (writeTarget is! String) {
-        throw FormatException(
-          'Metadata field contract fields[$index] is missing writeTarget.',
-        );
-      }
-      (spec['ownership_by_kind'] as Map<String, dynamic>)[kind] = {
-        'write_target': writeTarget,
-      };
     }
 
     final fields = [
-      for (final raw in grouped.values)
-        MetadataFieldSpec.fromJson(raw),
+      for (final raw in grouped.values) MetadataFieldSpec.fromJson(raw),
     ];
     final sections = <String>{
       for (final field in fields)

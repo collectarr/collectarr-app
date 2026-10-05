@@ -10,6 +10,7 @@ import 'package:collectarr_app/core/api/dto/metadata_search_query.dart';
 import 'package:collectarr_app/core/models/library_relation_node.dart';
 import 'package:collectarr_app/core/models/partial_date.dart';
 import 'package:collectarr_app/core/api/generated/collectarr_api.client.dart';
+import 'package:collectarr_app/core/api/dto/catalog_search_page.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 
@@ -153,6 +154,13 @@ class ApiClient {
   Future<List<Map<String, dynamic>>> searchMetadata(MetadataSearchQuery query,
       {CancelToken? cancelToken}) async {
     return _catalogApi.searchMetadata(query, cancelToken: cancelToken);
+  }
+
+  Future<CatalogSearchPage> searchMetadataPage(
+    MetadataSearchQuery query, {
+    CancelToken? cancelToken,
+  }) async {
+    return _catalogApi.searchMetadataPage(query, cancelToken: cancelToken);
   }
 
   /// Fetches an untyped JSON object for a kind-entry remote data source.

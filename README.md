@@ -108,10 +108,9 @@ create a second canonical catalog. Proposals contain the same kind-owned
 catalog fields as manual Add/Edit and contain no provider IDs or personal data.
 
 After kind dispatch, app code keeps the concrete kind-owned type for field
-semantics. Cross-kind screens use local-entry references and summaries. The
-workspace still distinguishes Core Catalog Item rows from local entries while
-the remaining derived-reference adapters are consolidated; see the
-[current status](docs/architecture/current-status.md) for the exact limits.
+semantics. Cross-kind screens use explicit Core Catalog Item and local-entry
+references, with personal state overlaid on workspace rows. See the
+[current status](docs/architecture/current-status.md) for the remaining limits.
 
 ## 🗺️ Roadmap
 

@@ -13,10 +13,14 @@ class LibraryAddCoreSearchResult {
   const LibraryAddCoreSearchResult({
     required this.items,
     required this.rawItemCount,
+    this.nextOffset,
+    this.hasMore = false,
   });
 
   final List<CatalogSearchCandidate> items;
   final int rawItemCount;
+  final int? nextOffset;
+  final bool hasMore;
 }
 
 Future<LibraryAddCoreSearchResult> runLibraryAddCoreSearch({
@@ -29,7 +33,7 @@ Future<LibraryAddCoreSearchResult> runLibraryAddCoreSearch({
   required LibraryAddSearchContext searchContext,
   CancelToken? cancelToken,
 }) async {
-  final items = await searchAndCacheLibraryMetadata(
+  final page = await searchAndCacheLibraryMetadataPage(
     api: api,
     kind: type.kind,
     catalog: catalog,
@@ -37,7 +41,7 @@ Future<LibraryAddCoreSearchResult> runLibraryAddCoreSearch({
     cancelToken: cancelToken,
   ).timeout(timeout);
   final rankedItems = ranking.rankMetadata(
-    items,
+    page.items,
     searchContext,
   );
   final filteredItems = libraryAddForKind(type.kind)
@@ -46,7 +50,9 @@ Future<LibraryAddCoreSearchResult> runLibraryAddCoreSearch({
       .filterResults(rankedItems, searchContext);
   return LibraryAddCoreSearchResult(
     items: filteredItems,
-    rawItemCount: items.length,
+    rawItemCount: page.items.length,
+    nextOffset: page.nextOffset,
+    hasMore: page.hasMore,
   );
 }
 

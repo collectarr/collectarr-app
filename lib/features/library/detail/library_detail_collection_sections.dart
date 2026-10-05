@@ -43,7 +43,8 @@ class LibraryDetailPersonalSection extends StatelessWidget {
       libraryEntrySummary?.currency,
     );
     final currency = libraryEntrySummary?.currency ?? item.source.currency;
-    final sellPrice = formatMoney(libraryEntrySummary?.sellPriceCents, currency);
+    final sellPrice =
+        formatMoney(libraryEntrySummary?.sellPriceCents, currency);
     final kindRegistration = type;
     final kindPersonalFields = kindRegistration == null
         ? const <LibraryDetailField>[]
@@ -95,7 +96,8 @@ class LibraryDetailPersonalSection extends StatelessWidget {
                 value: genericLibraryDash(libraryEntrySummary?.soldTo)),
             LibraryDetailField(
                 label: 'Updated',
-                value: formatNullableDate(libraryEntrySummary?.updatedAt) ?? '-'),
+                value:
+                    formatNullableDate(libraryEntrySummary?.updatedAt) ?? '-'),
             LibraryDetailField(
                 label: 'Read status',
                 value: genericLibraryDash(trackingStatus)),

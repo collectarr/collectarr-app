@@ -1,15 +1,15 @@
 {
   "contractVersion": "1.0.0",
-  "generatedAt": "2026-10-05T08:44:21.659769Z",
+  "generatedAt": "2026-10-05T10:58:17.777305Z",
   "kinds": [
-    "comic",
-    "manga",
     "anime",
-    "movie",
-    "tv",
-    "game",
     "boardgame",
     "book",
-    "music"
+    "comic",
+    "game",
+    "manga",
+    "movie",
+    "music",
+    "tv"
   ]
 }

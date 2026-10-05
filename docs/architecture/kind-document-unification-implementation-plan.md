@@ -326,11 +326,12 @@ slice. This is progress, not completion of this plan:
   singular-platform and plural-publisher aliases. Partial release dates are
   preserved through the App model. Core and App now also expose and pin
   `toy_subtype` and `toy_type`, which the Game inspector already displayed.
-  The Add field schema exposes those two values. The PriceCharting reference and
-  tiered valuation snapshots are App-local Game entry details, not canonical
-  Core metadata. They now serialize with the local entry and remain available
-  to Game workspace valuation columns; edits preserve existing snapshots. The
-  current form exposes the PriceCharting reference but has no snapshot editor.
+  The Add field schema exposes those two values. PriceCharting references and
+  tiered amounts are a user-owned valuation snapshot on the local Game entry,
+  not canonical Core metadata or an import identity. They serialize with the
+  personal entry for backup and sync, and remain available to Game workspace
+  local-entry workspace valuation columns; edits preserve existing snapshots.
+  The current form exposes the reference but has no snapshot editor.
   The duplicate metadata copy and unused tier wrapper have been removed.
 - Removed the empty Game local mapper after the production reference search
   found only its own export. The active Game entry repository remains in use.
@@ -397,10 +398,13 @@ declares a clean schema-v1 baseline without upgrade or repair hooks; no existing
 database or backup was opened, changed, or deleted.
 
 Remaining limits: exact CLZ parity is confirmed only for Music; Core-side
-registry simplification and catalog search/index work require the Core
-repository; atomicity still needs review for activity and auxiliary edit
-controls; and the final analyzer/build/tests are deferred until implementation
-work is complete. See `current-status.md` for the actively maintained summary.
+parity for the other eight kinds remains unverified because their Edit-form
+captures are unavailable. Edit-dialog Save now commits entry/catalog metadata,
+personal fields, tracking, images, custom fields, local changes, wishlist, and
+the Sync outbox atomically. Core registry and paginated-search work is complete;
+PostgreSQL planner confirmation and final analyzer/build/tests remain deferred
+until the implementation pass is complete. See `current-status.md` for the
+actively maintained summary.
 
 ## Architectural decisions
 

@@ -1,12 +1,13 @@
 import 'package:flutter/widgets.dart';
 import 'package:collectarr_app/core/api/api_client.dart';
+import 'package:collectarr_app/core/api/dto/catalog_search_page.dart';
 import 'package:collectarr_app/core/api/dto/metadata_search_query.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_context.dart';
 import 'package:dio/dio.dart';
 
-typedef LibraryMetadataCatalogSearchBuilder =
-    Future<List<Map<String, dynamic>>> Function({
+typedef LibraryMetadataCatalogSearchBuilder = Future<CatalogSearchPage>
+    Function({
   required ApiClient api,
   required MetadataSearchQuery query,
   CancelToken? cancelToken,

@@ -231,8 +231,8 @@ mixin _LibraryAddSearchFlow on ValueNotifier<LibraryAddSessionState> {
           search: state.search.copyWith(
             results: searchResult.items,
             isSearching: false,
-            nextOffset: searchResult.rawItemCount,
-            hasMoreResults: searchResult.rawItemCount >= _coreSearchPageSize,
+            nextOffset: searchResult.nextOffset ?? searchResult.rawItemCount,
+            hasMoreResults: searchResult.hasMore,
           ),
         );
       }
@@ -312,8 +312,8 @@ mixin _LibraryAddSearchFlow on ValueNotifier<LibraryAddSessionState> {
         search: state.search.copyWith(
           results: nextItems,
           isLoadingMoreResults: false,
-          nextOffset: offset + page.rawItemCount,
-          hasMoreResults: page.rawItemCount >= _coreSearchPageSize,
+          nextOffset: page.nextOffset ?? offset + page.rawItemCount,
+          hasMoreResults: page.hasMore,
         ),
       );
     } catch (error) {

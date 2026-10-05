@@ -2848,6 +2848,28 @@
             ],
             "title": "Categories"
           },
+          "characters": {
+            "anyOf": [
+              {
+                "items": {
+                  "anyOf": [
+                    {
+                      "additionalProperties": true,
+                      "type": "object"
+                    },
+                    {
+                      "type": "string"
+                    }
+                  ]
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Characters"
+          },
           "contributors": {
             "anyOf": [
               {
@@ -4465,17 +4487,6 @@
       "CatalogComicCreatorResponse": {
         "additionalProperties": false,
         "properties": {
-          "artist_id": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Artist Id"
-          },
           "credited_name": {
             "anyOf": [
               {
@@ -4508,17 +4519,6 @@
               }
             ],
             "title": "Image Url"
-          },
-          "instrument": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Instrument"
           },
           "join_phrase": {
             "anyOf": [
@@ -6178,6 +6178,278 @@
           "revision"
         ],
         "title": "CatalogGameItemResponse",
+        "type": "object"
+      },
+      "CatalogItemPage_CatalogAnimeItemResponse_": {
+        "additionalProperties": false,
+        "properties": {
+          "has_more": {
+            "title": "Has More",
+            "type": "boolean"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/CatalogAnimeItemResponse"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "next_offset": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Offset"
+          }
+        },
+        "required": [
+          "items",
+          "next_offset",
+          "has_more"
+        ],
+        "title": "CatalogItemPage[CatalogAnimeItemResponse]",
+        "type": "object"
+      },
+      "CatalogItemPage_CatalogBoardGameItemResponse_": {
+        "additionalProperties": false,
+        "properties": {
+          "has_more": {
+            "title": "Has More",
+            "type": "boolean"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/CatalogBoardGameItemResponse"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "next_offset": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Offset"
+          }
+        },
+        "required": [
+          "items",
+          "next_offset",
+          "has_more"
+        ],
+        "title": "CatalogItemPage[CatalogBoardGameItemResponse]",
+        "type": "object"
+      },
+      "CatalogItemPage_CatalogBookItemResponse_": {
+        "additionalProperties": false,
+        "properties": {
+          "has_more": {
+            "title": "Has More",
+            "type": "boolean"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/CatalogBookItemResponse"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "next_offset": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Offset"
+          }
+        },
+        "required": [
+          "items",
+          "next_offset",
+          "has_more"
+        ],
+        "title": "CatalogItemPage[CatalogBookItemResponse]",
+        "type": "object"
+      },
+      "CatalogItemPage_CatalogComicItemResponse_": {
+        "additionalProperties": false,
+        "properties": {
+          "has_more": {
+            "title": "Has More",
+            "type": "boolean"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/CatalogComicItemResponse"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "next_offset": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Offset"
+          }
+        },
+        "required": [
+          "items",
+          "next_offset",
+          "has_more"
+        ],
+        "title": "CatalogItemPage[CatalogComicItemResponse]",
+        "type": "object"
+      },
+      "CatalogItemPage_CatalogGameItemResponse_": {
+        "additionalProperties": false,
+        "properties": {
+          "has_more": {
+            "title": "Has More",
+            "type": "boolean"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/CatalogGameItemResponse"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "next_offset": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Offset"
+          }
+        },
+        "required": [
+          "items",
+          "next_offset",
+          "has_more"
+        ],
+        "title": "CatalogItemPage[CatalogGameItemResponse]",
+        "type": "object"
+      },
+      "CatalogItemPage_CatalogMangaItemResponse_": {
+        "additionalProperties": false,
+        "properties": {
+          "has_more": {
+            "title": "Has More",
+            "type": "boolean"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/CatalogMangaItemResponse"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "next_offset": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Offset"
+          }
+        },
+        "required": [
+          "items",
+          "next_offset",
+          "has_more"
+        ],
+        "title": "CatalogItemPage[CatalogMangaItemResponse]",
+        "type": "object"
+      },
+      "CatalogItemPage_CatalogMovieItemResponse_": {
+        "additionalProperties": false,
+        "properties": {
+          "has_more": {
+            "title": "Has More",
+            "type": "boolean"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/CatalogMovieItemResponse"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "next_offset": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Offset"
+          }
+        },
+        "required": [
+          "items",
+          "next_offset",
+          "has_more"
+        ],
+        "title": "CatalogItemPage[CatalogMovieItemResponse]",
+        "type": "object"
+      },
+      "CatalogItemPage_CatalogTvItemResponse_": {
+        "additionalProperties": false,
+        "properties": {
+          "has_more": {
+            "title": "Has More",
+            "type": "boolean"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/CatalogTvItemResponse"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "next_offset": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Offset"
+          }
+        },
+        "required": [
+          "items",
+          "next_offset",
+          "has_more"
+        ],
+        "title": "CatalogItemPage[CatalogTvItemResponse]",
         "type": "object"
       },
       "CatalogItemProposalCreate": {
@@ -8201,6 +8473,41 @@
         "title": "CatalogMusicItemResponse",
         "type": "object"
       },
+      "CatalogMusicItemSearchPage": {
+        "additionalProperties": false,
+        "description": "A stable page of detailed Music Catalog Item search results.",
+        "properties": {
+          "has_more": {
+            "title": "Has More",
+            "type": "boolean"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/CatalogMusicItemResponse"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "next_offset": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Offset"
+          }
+        },
+        "required": [
+          "items",
+          "next_offset",
+          "has_more"
+        ],
+        "title": "CatalogMusicItemSearchPage",
+        "type": "object"
+      },
       "CatalogMusicTrackResponse": {
         "properties": {
           "artist": {
@@ -8305,6 +8612,41 @@
           "kind_data"
         ],
         "title": "CatalogSearchItemEnvelope",
+        "type": "object"
+      },
+      "CatalogSearchPage": {
+        "additionalProperties": false,
+        "description": "A stable page of flattened Catalog Item search results.",
+        "properties": {
+          "has_more": {
+            "title": "Has More",
+            "type": "boolean"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/CatalogSearchItemEnvelope"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "next_offset": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Offset"
+          }
+        },
+        "required": [
+          "items",
+          "next_offset",
+          "has_more"
+        ],
+        "title": "CatalogSearchPage",
         "type": "object"
       },
       "CatalogTvItemEpisodeResponse": {
@@ -9534,15 +9876,6 @@
         "title": "FacetEntityIdsRequest",
         "type": "object"
       },
-      "GroupingModel": {
-        "enum": [
-          "book_series",
-          "catalog_item",
-          "series_episode"
-        ],
-        "title": "GroupingModel",
-        "type": "string"
-      },
       "HTTPValidationError": {
         "properties": {
           "detail": {
@@ -9683,9 +10016,6 @@
       },
       "MediaTypeResponse": {
         "properties": {
-          "grouping_model": {
-            "$ref": "#/components/schemas/GroupingModel"
-          },
           "is_top_level": {
             "default": true,
             "title": "Is Top Level",
@@ -9721,39 +10051,9 @@
           "kind",
           "singular_label",
           "plural_label",
-          "route_segments",
-          "grouping_model"
+          "route_segments"
         ],
         "title": "MediaTypeResponse",
-        "type": "object"
-      },
-      "MetadataFieldOwnershipResponse": {
-        "description": "The authoritative source boundary for one kind-specific field view.",
-        "properties": {
-          "scope": {
-            "title": "Scope",
-            "type": "string"
-          },
-          "source_entity_type": {
-            "title": "Source Entity Type",
-            "type": "string"
-          },
-          "source_table": {
-            "title": "Source Table",
-            "type": "string"
-          },
-          "write_target": {
-            "title": "Write Target",
-            "type": "string"
-          }
-        },
-        "required": [
-          "scope",
-          "source_entity_type",
-          "source_table",
-          "write_target"
-        ],
-        "title": "MetadataFieldOwnershipResponse",
         "type": "object"
       },
       "MetadataFieldSchemaResponse": {
@@ -9802,10 +10102,6 @@
       "MetadataFieldSpecResponse": {
         "description": "A single editable canonical metadata field, rendered from the registry.",
         "properties": {
-          "common": {
-            "title": "Common",
-            "type": "boolean"
-          },
           "editable": {
             "title": "Editable",
             "type": "boolean"
@@ -9829,27 +10125,9 @@
             "title": "Label",
             "type": "string"
           },
-          "normalized": {
-            "title": "Normalized",
-            "type": "boolean"
-          },
-          "ownership_by_kind": {
-            "additionalProperties": {
-              "$ref": "#/components/schemas/MetadataFieldOwnershipResponse"
-            },
-            "propertyNames": {
-              "$ref": "#/components/schemas/ItemKind"
-            },
-            "title": "Ownership By Kind",
-            "type": "object"
-          },
           "section": {
             "title": "Section",
             "type": "string"
-          },
-          "typed": {
-            "title": "Typed",
-            "type": "boolean"
           },
           "value_type": {
             "title": "Value Type",
@@ -9860,9 +10138,6 @@
           "key",
           "value_type",
           "label",
-          "common",
-          "typed",
-          "normalized",
           "editable",
           "section",
           "input"
@@ -12724,11 +12999,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "items": {
-                    "$ref": "#/components/schemas/CatalogAnimeItemResponse"
-                  },
-                  "title": "Response Search Anime Items Api V1 Metadata Anime Items Get",
-                  "type": "array"
+                  "$ref": "#/components/schemas/CatalogItemPage_CatalogAnimeItemResponse_"
                 }
               }
             },
@@ -12863,11 +13134,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "items": {
-                    "$ref": "#/components/schemas/CatalogBoardGameItemResponse"
-                  },
-                  "title": "Response Search Boardgame Items Api V1 Metadata Boardgames Items Get",
-                  "type": "array"
+                  "$ref": "#/components/schemas/CatalogItemPage_CatalogBoardGameItemResponse_"
                 }
               }
             },
@@ -13002,11 +13269,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "items": {
-                    "$ref": "#/components/schemas/CatalogBookItemResponse"
-                  },
-                  "title": "Response Search Book Items Api V1 Metadata Books Items Get",
-                  "type": "array"
+                  "$ref": "#/components/schemas/CatalogItemPage_CatalogBookItemResponse_"
                 }
               }
             },
@@ -13141,11 +13404,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "items": {
-                    "$ref": "#/components/schemas/CatalogComicItemResponse"
-                  },
-                  "title": "Response Search Comic Items Api V1 Metadata Comics Items Get",
-                  "type": "array"
+                  "$ref": "#/components/schemas/CatalogItemPage_CatalogComicItemResponse_"
                 }
               }
             },
@@ -13476,11 +13735,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "items": {
-                    "$ref": "#/components/schemas/CatalogGameItemResponse"
-                  },
-                  "title": "Response Search Game Items Api V1 Metadata Games Items Get",
-                  "type": "array"
+                  "$ref": "#/components/schemas/CatalogItemPage_CatalogGameItemResponse_"
                 }
               }
             },
@@ -13615,11 +13870,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "items": {
-                    "$ref": "#/components/schemas/CatalogMangaItemResponse"
-                  },
-                  "title": "Response Search Manga Items Api V1 Metadata Manga Items Get",
-                  "type": "array"
+                  "$ref": "#/components/schemas/CatalogItemPage_CatalogMangaItemResponse_"
                 }
               }
             },
@@ -13776,11 +14027,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "items": {
-                    "$ref": "#/components/schemas/CatalogMovieItemResponse"
-                  },
-                  "title": "Response Search Movie Items Api V1 Metadata Movies Items Get",
-                  "type": "array"
+                  "$ref": "#/components/schemas/CatalogItemPage_CatalogMovieItemResponse_"
                 }
               }
             },
@@ -14018,11 +14265,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "items": {
-                    "$ref": "#/components/schemas/CatalogMusicItemResponse"
-                  },
-                  "title": "Response Search Music Items Api V1 Metadata Music Items Get",
-                  "type": "array"
+                  "$ref": "#/components/schemas/CatalogMusicItemSearchPage"
                 }
               }
             },
@@ -14226,11 +14469,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "items": {
-                    "$ref": "#/components/schemas/CatalogTvItemResponse"
-                  },
-                  "title": "Response Search Tv Items Api V1 Metadata Tv Items Get",
-                  "type": "array"
+                  "$ref": "#/components/schemas/CatalogItemPage_CatalogTvItemResponse_"
                 }
               }
             },
@@ -14586,11 +14825,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "items": {
-                    "$ref": "#/components/schemas/CatalogSearchItemEnvelope"
-                  },
-                  "title": "Response Search Api V1 Search Get",
-                  "type": "array"
+                  "$ref": "#/components/schemas/CatalogSearchPage"
                 }
               }
             },

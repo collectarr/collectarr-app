@@ -35,7 +35,24 @@ Future<List<CatalogSearchCandidate>> searchAndCacheLibraryMetadata({
   required MetadataSearchQuery input,
   CancelToken? cancelToken,
 }) async {
-  final items = await searchLibraryMetadata(
+  return (await searchAndCacheLibraryMetadataPage(
+    api: api,
+    kind: kind,
+    catalog: catalog,
+    input: input,
+    cancelToken: cancelToken,
+  ))
+      .items;
+}
+
+Future<LibraryMetadataSearchPage> searchAndCacheLibraryMetadataPage({
+  required ApiClient api,
+  required CatalogMediaKind kind,
+  required CatalogTransportRepository catalog,
+  required MetadataSearchQuery input,
+  CancelToken? cancelToken,
+}) async {
+  final page = await searchLibraryMetadataPage(
     api,
     kind,
     query: input.query,
@@ -49,9 +66,9 @@ Future<List<CatalogSearchCandidate>> searchAndCacheLibraryMetadata({
     cancelToken: cancelToken,
   );
   await catalog.upsertTransports(
-    items.map((item) => item.toImportTransport()),
+    page.items.map((item) => item.toImportTransport()),
   );
-  return items;
+  return page;
 }
 
 Future<List<LibraryBarcodeLookupResult>> lookupAndCacheLibraryBarcodes({

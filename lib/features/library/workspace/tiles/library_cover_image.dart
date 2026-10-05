@@ -628,7 +628,8 @@ class _LibraryInteractiveCoverState extends State<LibraryInteractiveCover> {
                           localBytes: showBackOnly
                               ? widget.secondaryLocalBytes
                               : widget.localBytes,
-                          libraryEntryRef: showBackOnly ? null : widget.libraryEntryRef,
+                          libraryEntryRef:
+                              showBackOnly ? null : widget.libraryEntryRef,
                         );
 
                         return ConstrainedBox(
@@ -661,7 +662,8 @@ class _LibraryInteractiveCoverState extends State<LibraryInteractiveCover> {
                                                     imageUrl: widget.imageUrl,
                                                     localBytes:
                                                         widget.localBytes,
-                                                    libraryEntryRef: widget.libraryEntryRef,
+                                                    libraryEntryRef:
+                                                        widget.libraryEntryRef,
                                                   ),
                                                 ),
                                                 const SizedBox(width: 12),

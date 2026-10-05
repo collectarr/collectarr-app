@@ -43,6 +43,47 @@ Future<List<CatalogSearchCandidate>> searchLibraryMetadata(
   int? offset,
   CancelToken? cancelToken,
 }) async {
+  return (await searchLibraryMetadataPage(
+    api,
+    kind,
+    query: query,
+    series: series,
+    issueNumber: issueNumber,
+    publisher: publisher,
+    year: year,
+    barcode: barcode,
+    limit: limit,
+    offset: offset,
+    cancelToken: cancelToken,
+  ))
+      .items;
+}
+
+final class LibraryMetadataSearchPage {
+  const LibraryMetadataSearchPage({
+    required this.items,
+    required this.nextOffset,
+    required this.hasMore,
+  });
+
+  final List<CatalogSearchCandidate> items;
+  final int? nextOffset;
+  final bool hasMore;
+}
+
+Future<LibraryMetadataSearchPage> searchLibraryMetadataPage(
+  ApiClient api,
+  CatalogMediaKind kind, {
+  String? query,
+  String? series,
+  String? issueNumber,
+  String? publisher,
+  int? year,
+  String? barcode,
+  int? limit,
+  int? offset,
+  CancelToken? cancelToken,
+}) async {
   final capability = libraryMetadataForKind(kind);
   final input = libraryMetadataSearchQuery(
     kind,
@@ -55,22 +96,30 @@ Future<List<CatalogSearchCandidate>> searchLibraryMetadata(
     limit: limit,
     offset: offset,
   );
-  final rows = capability.catalogSearchBuilder == null
-      ? await api.searchMetadata(input, cancelToken: cancelToken)
+  final requestedOffset = input.offset ?? 0;
+  final page = capability.catalogSearchBuilder == null
+      ? await api.searchMetadataPage(input, cancelToken: cancelToken)
       : await capability.catalogSearchBuilder!(
           api: api,
           query: input,
           cancelToken: cancelToken,
         );
   final decoder = capability.catalogMetadataDecoder;
-  return [
-    for (final row in rows)
+  final items = [
+    for (final row in page.items)
       CatalogSearchCandidate.fromApiJson(
         json: row,
         metadataDecoder: decoder,
         summaryBuilder: summarizeCatalogTransport,
       ),
   ];
+  return LibraryMetadataSearchPage(
+    items: items,
+    nextOffset: page.hasMore
+        ? (page.nextOffset ?? requestedOffset + page.items.length)
+        : null,
+    hasMore: page.hasMore,
+  );
 }
 
 /// Searches the Core transport and immediately projects results into the
@@ -128,6 +177,7 @@ Future<CatalogSearchCandidate> lookupLibraryBarcode(
           ),
           cancelToken: cancelToken,
         ))
+          .items
           .firstOrNull;
   if (row == null) {
     throw StateError(
