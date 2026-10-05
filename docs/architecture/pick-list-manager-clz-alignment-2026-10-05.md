@@ -11,15 +11,18 @@ live CLZ server behavior; mutation semantics below are Collectarr's contract.
 
 - Shared manager width is 720 px, with available-height constraints and scrolling.
 - The header follows the selected dictionary and uses the App accent with its
-  contrast-adjusted foreground. Header height is 38 px.
+  contrast-adjusted foreground. Header height is 38 px; its title is 18 px Bold.
+  Close is a plain cross rather than an outlined square button.
 - Search filters values and sort names, with integrated clear/search control.
-- The toolbar shows result count and a list selector. Controls wrap on narrow
-  windows. Technical keys, scope chips, kind sidebar and the global-values switch
+- Standalone management shows Search on the left, a count badge in the center
+  and the 200 px list selector on the right. Selection instead shows Search on
+  the left and New / Manage together on the right; it has no count badge or list
+  selector. Controls wrap by group on narrow windows. Technical keys, scope chips, kind sidebar and the global-values switch
   have been removed from the manager.
 - One table renders manage, single-selection, multiple-selection and merge modes.
   Name, Sort Name and Count have actual ascending/descending sorting. Name and
   Count use 14 px Medium; the secondary Sort Name uses 12 px Medium. Icon columns
-  are 36 px and Count is 68 px. The table header is 48 px, matching the snapshot's
+  are 36 px and Count is 68 px, with thin cell and row borders. The table header is 48 px, matching the snapshot's
   measured approximately 47.6 px. Rows grow with content and text scaling.
 - Edit uses a muted pencil before the name; remove uses a muted cross. The name
   cell also opens editing. Icon buttons have transparent normal backgrounds.
@@ -27,6 +30,17 @@ live CLZ server behavior; mutation semantics below are Collectarr's contract.
   menu containing selected values. Merge confirmation states the number of
   affected local entries. The destination action and selections use App accent.
 - New-value creation remains in selection mode, matching its role in CLZ.
+- Manage from a selector changes the existing dialog body, rather than opening
+  another manager route. This mode hides the count and list switcher. Back is
+  on the left of the footer and restores selection mode, preserving pending
+  choices and applying any dictionary replacements.
+- Footer padding is 10 px. Actions are 32 px high, at least 100 px wide and
+  grouped with a 5 px gap. Standalone management has Merge Mode on the right;
+  multiple selection has only Save on the right. Merge has a message on the
+  left and neutral Cancel / accent Merge to on the right, with the destination
+  menu opening upwards. Editor Cancel / Save use the same footer dimensions.
+- Shared pick-list chrome defines the shell, header, grouped toolbar, counter
+  and button style. Other modal headers keep their existing default title style.
 - Errors have Retry and mutations disable competing actions with progress.
 
 ## Dictionaries and form wiring
@@ -90,7 +104,10 @@ without losing user data. Core document schemas remain unchanged.
 
 An isolated Web preview rendered the actual manager with the snapshot's Artist
 names and usage counts (4, 12, 4, 9, 8), including a 380 px viewport. Reference
-HTML/CSS were rendered locally and measured. The App uses Collectarr Sans and
+HTML/CSS were rendered locally and measured. Follow-up captures also compare
+selection, management entered from a selector, the upward merge destination
+menu, New, and return to pending selection via Back. No runtime exceptions
+were reported during those preview interactions. The App uses Collectarr Sans and
 Material icons, so glyph shapes differ from licensed Gilroy/Font Awesome. The
 configured accent and contrast policy are intentional differences.
 

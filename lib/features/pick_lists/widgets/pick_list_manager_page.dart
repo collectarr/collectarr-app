@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/features/collection/repositories/custom_field_repository.dart';
-import 'package:collectarr_app/ui/accent_dialog_header.dart';
 import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import '../models/pick_list_definition.dart';
@@ -55,21 +54,12 @@ Future<PickListManagerChanges?> showPickListManagerDialog(
     showDialog<PickListManagerChanges>(
       context: context,
       barrierDismissible: false,
-      builder: (context) => Dialog(
-          insetPadding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-          alignment: Alignment.topCenter,
-          backgroundColor: appPalette(context).panel,
-          shape: const RoundedRectangleBorder(),
-          clipBehavior: Clip.antiAlias,
-          child: ConstrainedBox(
-              constraints: BoxConstraints(
-                  maxWidth: 720,
-                  maxHeight: MediaQuery.sizeOf(context).height - 24),
-              child: PickListManagerPage(
-                  db: db,
-                  registry: registry,
-                  initialListName: initialListName,
-                  initialMediaKind: initialMediaKind))),
+      builder: (context) => PickListDialog(
+          child: PickListManagerPage(
+              db: db,
+              registry: registry,
+              initialListName: initialListName,
+              initialMediaKind: initialMediaKind)),
     );
 
 class PickListManagerPage extends StatefulWidget {
@@ -78,11 +68,17 @@ class PickListManagerPage extends StatefulWidget {
       required this.db,
       required this.registry,
       this.initialListName,
-      this.initialMediaKind});
+      this.initialMediaKind,
+      this.onBack,
+      this.onClose});
   final LocalDatabase db;
   final PickListRegistry registry;
   final String? initialListName;
   final String? initialMediaKind;
+
+  /// When entered from a selector, CLZ hides the list switcher and offers Back.
+  final ValueChanged<PickListManagerChanges>? onBack;
+  final ValueChanged<PickListManagerChanges>? onClose;
   @override
   State<PickListManagerPage> createState() => _PickListManagerPageState();
 }
@@ -326,6 +322,16 @@ class _PickListManagerPageState extends State<PickListManagerPage> {
     });
   }
 
+  void _close() {
+    if (_busy) return;
+    final close = widget.onClose;
+    if (close != null) {
+      close(_changes);
+    } else {
+      Navigator.pop(context, _changes);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final definition = _definition;
@@ -337,10 +343,11 @@ class _PickListManagerPageState extends State<PickListManagerPage> {
             normalizePickListValue(value.effectiveSortName).contains(query))
         .toList();
     final palette = appPalette(context);
+    final fromSelection = widget.onBack != null;
     return PopScope(
         canPop: false,
         onPopInvokedWithResult: (didPop, result) {
-          if (!didPop && !_busy) Navigator.pop(context, _changes);
+          if (!didPop) _close();
         },
         child: Material(
             color: pickListSurface(context),
@@ -351,129 +358,70 @@ class _PickListManagerPageState extends State<PickListManagerPage> {
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      AccentDialogHeader(
-                          minHeight: 38,
+                      PickListHeader(
                           title: 'Manage ${pickListPluralLabel(label)}',
-                          onClose: _busy
+                          onClose: _busy ? null : _close),
+                      PickListToolbar(
+                          search: TextField(
+                              controller: _search,
+                              onChanged: (_) => setState(() {}),
+                              style: const TextStyle(
+                                  fontSize: 14, fontWeight: FontWeight.w500),
+                              decoration: pickListInputDecoration(context,
+                                  hintText: 'Search...',
+                                  suffixIcon: IconButton(
+                                      style: IconButton.styleFrom(
+                                          backgroundColor: Colors.transparent,
+                                          disabledBackgroundColor:
+                                              Colors.transparent,
+                                          side: BorderSide.none),
+                                      padding: EdgeInsets.zero,
+                                      iconSize: 18,
+                                      icon: Icon(query.isEmpty
+                                          ? Icons.search
+                                          : Icons.close),
+                                      onPressed: () =>
+                                          setState(() => _search.clear())))),
+                          middle: fromSelection
                               ? null
-                              : () => Navigator.pop(context, _changes)),
-                      Container(
-                          color: pickListToolbar(context),
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 5, vertical: 6),
-                          child: LayoutBuilder(
-                              builder: (context, constraints) => Wrap(
-                                      spacing: 8,
-                                      runSpacing: 6,
-                                      alignment: WrapAlignment.spaceBetween,
-                                      crossAxisAlignment:
-                                          WrapCrossAlignment.center,
-                                      children: [
-                                        SizedBox(
-                                            width: math.min(
-                                                200, constraints.maxWidth),
-                                            height: 32,
-                                            child: TextField(
-                                                controller: _search,
-                                                onChanged: (_) =>
-                                                    setState(() {}),
-                                                style: const TextStyle(
-                                                    fontSize: 14,
-                                                    fontWeight:
-                                                        FontWeight.w500),
-                                                decoration: pickListInputDecoration(
-                                                    context,
-                                                    hintText: 'Search...',
-                                                    suffixIcon: IconButton(
-                                                        padding:
-                                                            EdgeInsets.zero,
-                                                        iconSize: 18,
-                                                        icon: Icon(query.isEmpty
-                                                            ? Icons.search
-                                                            : Icons.close),
-                                                        onPressed: () => setState(
-                                                            () => _search
-                                                                .clear()))))),
-                                        Container(
-                                            height: 30,
-                                            padding: const EdgeInsets.symmetric(
-                                                horizontal: 6),
-                                            decoration: BoxDecoration(
-                                                color: palette.textMuted,
-                                                borderRadius:
-                                                    BorderRadius.circular(4)),
-                                            child: Row(
-                                                mainAxisSize: MainAxisSize.min,
-                                                children: [
-                                                  Container(
-                                                      padding:
-                                                          const EdgeInsets
-                                                              .symmetric(
-                                                              horizontal: 5,
-                                                              vertical: 3),
-                                                      decoration: BoxDecoration(
-                                                          color:
-                                                              pickListSurface(
-                                                                  context),
-                                                          borderRadius:
-                                                              BorderRadius
-                                                                  .circular(4)),
-                                                      child: Text(
-                                                          '${visible.length}',
-                                                          style: TextStyle(
-                                                              fontSize: 12,
-                                                              color: palette
-                                                                  .textPrimary))),
-                                                  const SizedBox(width: 5),
-                                                  Text(
-                                                      pickListPluralLabel(label)
-                                                          .toLowerCase(),
-                                                      style: TextStyle(
-                                                          fontSize: 16,
-                                                          color:
-                                                              palette.panel)),
-                                                ])),
-                                        SizedBox(
-                                            width: math.min(
-                                                200, constraints.maxWidth),
-                                            height: 32,
-                                            child: DropdownButtonFormField<
-                                                    String>(
-                                                initialValue: _selectedListName,
-                                                isExpanded: true,
-                                                isDense: true,
-                                                decoration:
-                                                    pickListInputDecoration(
-                                                        context),
-                                                style: TextStyle(
-                                                    fontSize: 14,
-                                                    fontWeight: FontWeight.w500,
-                                                    color: palette.textPrimary),
-                                                items: [
-                                                  for (final item
-                                                      in _definitions)
-                                                    DropdownMenuItem(
-                                                        value: item.listName,
-                                                        child: Text(
-                                                            '${item.label} list',
-                                                            overflow:
-                                                                TextOverflow
-                                                                    .ellipsis))
-                                                ],
-                                                onChanged: _busy
-                                                    ? null
-                                                    : (value) {
-                                                        setState(() {
-                                                          _selectedListName =
-                                                              value;
-                                                          _loading = true;
-                                                          _mergeMode = false;
-                                                          _selected.clear();
-                                                          _search.clear();
-                                                        });
-                                                        unawaited(_load());
-                                                      })),
-                                      ]))),
+                              : PickListCount(
+                                  count: visible.length,
+                                  label: pickListPluralLabel(label)),
+                          trailing: fromSelection
+                              ? null
+                              : SizedBox(
+                                  width: 200,
+                                  height: 32,
+                                  child: DropdownButtonFormField<String>(
+                                      initialValue: _selectedListName,
+                                      isExpanded: true,
+                                      isDense: true,
+                                      decoration:
+                                          pickListInputDecoration(context),
+                                      style: TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w500,
+                                          color: palette.textPrimary),
+                                      items: [
+                                        for (final item in _definitions)
+                                          DropdownMenuItem(
+                                              value: item.listName,
+                                              child: Text('${item.label} list',
+                                                  overflow:
+                                                      TextOverflow.ellipsis))
+                                      ],
+                                      onChanged: _busy
+                                          ? null
+                                          : (value) {
+                                              setState(() {
+                                                _selectedListName = value;
+                                                _loading = true;
+                                                _mergeMode = false;
+                                                _selected.clear();
+                                                _search.clear();
+                                              });
+                                              unawaited(_load());
+                                            }))),
                       if (_busy) const LinearProgressIndicator(minHeight: 2),
                       if (_error != null)
                         MaterialBanner(content: Text(_error!), actions: [
@@ -486,13 +434,15 @@ class _PickListManagerPageState extends State<PickListManagerPage> {
                             height: 45,
                             color: pickListToolbar(context),
                             alignment: Alignment.centerLeft,
-                            padding: const EdgeInsets.symmetric(horizontal: 8),
+                            padding: const EdgeInsets.symmetric(horizontal: 5),
                             child: Text(
-                                'Checkbox the ${pickListPluralLabel(label)} you want to merge:')),
+                                'Checkbox the ${pickListPluralLabel(label)} you want to merge:',
+                                style: const TextStyle(
+                                    fontWeight: FontWeight.w700))),
                       Flexible(
                           fit: FlexFit.loose,
                           child: SizedBox(
-                              height: math.max(1, _values.length) * 48.0 + 48,
+                              height: math.max(1, visible.length) * 48.0 + 48,
                               child: _loading
                                   ? const Center(
                                       child: CircularProgressIndicator())
@@ -512,22 +462,32 @@ class _PickListManagerPageState extends State<PickListManagerPage> {
                                           }),
                                       onEdit: _edit,
                                       onDelete: _delete))),
-                      Container(
-                          padding: const EdgeInsets.all(8),
-                          decoration: BoxDecoration(
-                              color: pickListSurface(context),
-                              border: Border(
-                                  top: BorderSide(color: palette.divider))),
+                      Padding(
+                          padding: const EdgeInsets.all(10),
                           child: Row(children: [
                             if (_mergeMode)
                               Expanded(
-                                  child: Text('${_selected.length} selected',
-                                      style:
-                                          TextStyle(color: palette.textMuted)))
-                            else
+                                  child: Padding(
+                                      padding: const EdgeInsets.only(left: 26),
+                                      child: Text(
+                                          '${_selected.length} selected',
+                                          style: const TextStyle(
+                                              fontWeight: FontWeight.w700))))
+                            else ...[
+                              if (fromSelection)
+                                FilledButton(
+                                    style: pickListButtonStyle(context,
+                                        primary: false, footer: true),
+                                    onPressed: _busy
+                                        ? null
+                                        : () => widget.onBack!(_changes),
+                                    child: const Text('Back')),
                               const Spacer(),
+                            ],
                             if (_mergeMode) ...[
-                              TextButton(
+                              FilledButton(
+                                  style: pickListButtonStyle(context,
+                                      primary: false, footer: true),
                                   onPressed: _busy
                                       ? null
                                       : () => setState(() {
@@ -535,69 +495,60 @@ class _PickListManagerPageState extends State<PickListManagerPage> {
                                             _selected.clear();
                                           }),
                                   child: const Text('Cancel')),
-                              const SizedBox(width: 8),
-                              PopupMenuButton<PickListValue>(
-                                  enabled: !_busy && _selected.length > 1,
-                                  tooltip: 'Choose destination',
-                                  position: PopupMenuPosition.over,
-                                  onSelected: _mergeInto,
-                                  itemBuilder: (_) => [
-                                        for (final value in _values.where(
-                                            (value) =>
-                                                _selected.contains(value.id)))
-                                          PopupMenuItem(
-                                              value: value,
-                                              child: Text(value.effectiveLabel))
-                                      ],
-                                  child: Semantics(
-                                      button: true,
-                                      enabled: !_busy && _selected.length > 1,
-                                      child: Container(
-                                          height: 32,
-                                          padding: const EdgeInsets.symmetric(
-                                              horizontal: 12),
-                                          decoration: BoxDecoration(
-                                              color:
-                                                  !_busy && _selected.length > 1
-                                                      ? palette.accent
-                                                      : palette.surface,
-                                              borderRadius:
-                                                  BorderRadius.circular(2)),
-                                          child: Row(
-                                              mainAxisSize: MainAxisSize.min,
-                                              children: [
-                                                Text('Merge to',
-                                                    style: TextStyle(
-                                                        color: !_busy &&
-                                                                _selected
-                                                                        .length >
-                                                                    1
-                                                            ? Theme.of(context)
-                                                                .colorScheme
-                                                                .onPrimary
-                                                            : palette
-                                                                .textMuted)),
-                                                Icon(Icons.arrow_drop_down,
-                                                    size: 18,
-                                                    color: !_busy &&
-                                                            _selected.length > 1
-                                                        ? Theme.of(context)
-                                                            .colorScheme
-                                                            .onPrimary
-                                                        : palette.textMuted),
-                                              ])))),
+                              const SizedBox(width: 5),
+                              _mergeButton(context),
                             ] else
                               FilledButton(
                                   onPressed: _busy ||
                                           definition?.allowMerge != true
                                       ? null
                                       : () => setState(() => _mergeMode = true),
-                                  style: FilledButton.styleFrom(
-                                      minimumSize: const Size(0, 32),
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 12)),
+                                  style: pickListButtonStyle(context,
+                                      footer: true),
                                   child: const Text('Merge Mode')),
                           ])),
                     ]))));
+  }
+
+  Widget _mergeButton(BuildContext context) {
+    final enabled = !_busy && _selected.length > 1;
+    final palette = appPalette(context);
+    return PopupMenuButton<PickListValue>(
+        enabled: enabled,
+        tooltip: 'Choose destination',
+        position: PopupMenuPosition.over,
+        offset: Offset(0, -34.0 * _selected.length),
+        menuPadding: EdgeInsets.zero,
+        constraints: const BoxConstraints(minWidth: 220, maxWidth: 320),
+        onSelected: _mergeInto,
+        itemBuilder: (_) => [
+              for (final value
+                  in _values.where((v) => _selected.contains(v.id)))
+                PopupMenuItem(
+                    value: value, height: 34, child: Text(value.effectiveLabel))
+            ],
+        child: Semantics(
+            button: true,
+            enabled: enabled,
+            child: Container(
+                constraints: const BoxConstraints(minWidth: 100),
+                height: 32,
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+                decoration: BoxDecoration(
+                    color: enabled ? palette.accent : palette.surface,
+                    borderRadius: BorderRadius.circular(4)),
+                child: Row(mainAxisSize: MainAxisSize.min, children: [
+                  Text('Merge to',
+                      style: TextStyle(
+                          fontSize: 14,
+                          color: enabled
+                              ? Theme.of(context).colorScheme.onPrimary
+                              : palette.textMuted)),
+                  Icon(Icons.arrow_drop_down,
+                      size: 18,
+                      color: enabled
+                          ? Theme.of(context).colorScheme.onPrimary
+                          : palette.textMuted),
+                ]))));
   }
 }

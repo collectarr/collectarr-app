@@ -13,10 +13,12 @@ class AccentDialogHeader extends StatelessWidget {
     this.onClose,
     this.trailing,
     this.minHeight,
+    this.titleStyle,
   });
 
   final String title;
   final double? minHeight;
+  final TextStyle? titleStyle;
 
   final IconData? icon;
 
@@ -53,7 +55,7 @@ class AccentDialogHeader extends StatelessWidget {
                 color: foreground,
                 fontSize: 15,
                 fontWeight: FontWeight.w700,
-              ),
+              ).merge(titleStyle),
             ),
           ),
           if (trailing != null) trailing!,

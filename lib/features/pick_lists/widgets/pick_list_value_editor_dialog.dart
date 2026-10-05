@@ -1,7 +1,6 @@
+import 'pick_list_chrome.dart';
 import 'package:uuid/uuid.dart';
 import 'package:collectarr_app/features/pick_lists/models/pick_list_value.dart';
-import 'package:collectarr_app/ui/accent_alert_dialog.dart';
-import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
 Future<PickListValue?> showPickListValueEditorDialog({
@@ -92,48 +91,62 @@ class _PickListValueEditorDialogState
 
   @override
   Widget build(BuildContext context) {
-    return AccentAlertDialog(
-      backgroundColor: appPalette(context).panel,
-      headerOnClose: () => Navigator.of(context).pop(),
-      title: Text(widget.title ??
-          (widget.existing == null
-              ? 'Add ${widget.label} value'
-              : 'Edit ${widget.label} value')),
-      content: SizedBox(
-        width: 520,
-        child: Column(mainAxisSize: MainAxisSize.min, children: [
-          TextField(
-            controller: _controller,
-            autofocus: true,
-            textInputAction: TextInputAction.done,
-            onSubmitted: (_) => _submit(),
-            decoration: InputDecoration(
-              labelText: widget.valueFieldLabel,
-              errorText: _nameError,
-              border: const OutlineInputBorder(),
-            ),
-          ),
-          const SizedBox(height: 12),
-          TextField(
-              controller: _sortName,
-              textInputAction: TextInputAction.done,
-              onSubmitted: (_) => _submit(),
-              decoration: const InputDecoration(
-                  labelText: 'Sort Name',
-                  hintText: 'Defaults to Name',
-                  border: OutlineInputBorder())),
-        ]),
-      ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.of(context).pop(),
-          child: const Text('Cancel'),
-        ),
-        FilledButton(
-          onPressed: _submit,
-          child: const Text('Save'),
-        ),
-      ],
-    );
+    return PickListDialog(
+        child: Material(
+            color: pickListSurface(context),
+            child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  PickListHeader(
+                      onClose: () => Navigator.of(context).pop(),
+                      title: widget.title ??
+                          (widget.existing == null
+                              ? 'Add ${widget.label} value'
+                              : 'Edit ${widget.label} value')),
+                  Padding(
+                    padding: const EdgeInsets.all(15),
+                    child: Column(mainAxisSize: MainAxisSize.min, children: [
+                      TextField(
+                        controller: _controller,
+                        autofocus: true,
+                        textInputAction: TextInputAction.done,
+                        onSubmitted: (_) => _submit(),
+                        decoration: InputDecoration(
+                          labelText: widget.valueFieldLabel,
+                          errorText: _nameError,
+                          border: const OutlineInputBorder(),
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      TextField(
+                          controller: _sortName,
+                          textInputAction: TextInputAction.done,
+                          onSubmitted: (_) => _submit(),
+                          decoration: const InputDecoration(
+                              labelText: 'Sort Name',
+                              hintText: 'Defaults to Name',
+                              border: OutlineInputBorder())),
+                    ]),
+                  ),
+                  Padding(
+                      padding: const EdgeInsets.all(10),
+                      child: Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            FilledButton(
+                              style: pickListButtonStyle(context,
+                                  primary: false, footer: true),
+                              onPressed: () => Navigator.of(context).pop(),
+                              child: const Text('Cancel'),
+                            ),
+                            const SizedBox(width: 5),
+                            FilledButton(
+                              style: pickListButtonStyle(context, footer: true),
+                              onPressed: _submit,
+                              child: const Text('Save'),
+                            ),
+                          ])),
+                ])));
   }
 }

@@ -78,31 +78,34 @@ class _PickListValuesTableState extends State<PickListValuesTable> {
         return _descending ? -stable : stable;
       });
     return Column(children: [
-      Container(
-          height: 48,
-          decoration: BoxDecoration(
-              color: pickListToolbar(context),
-              border: Border(bottom: BorderSide(color: palette.divider))),
-          child: Row(children: [
-            const SizedBox(width: 36),
-            Expanded(
-                child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 5),
-                    child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          _heading('Name', PickListTableSort.name),
-                          _heading('Sort Name', PickListTableSort.sortName,
-                              secondary: true)
-                        ]))),
-            SizedBox(
-                width: 68,
-                child: Align(
-                    alignment: Alignment.centerRight,
-                    child: _heading('Count', PickListTableSort.count))),
-            SizedBox(width: selecting ? 5 : 36),
-          ])),
+      CustomPaint(
+          foregroundPainter: _PickListGrid(pickListDivider(context), selecting),
+          child: Container(
+              height: 48,
+              decoration: BoxDecoration(
+                  color: pickListToolbar(context),
+                  border: Border(
+                      bottom: BorderSide(color: pickListDivider(context)))),
+              child: Row(children: [
+                const SizedBox(width: 36),
+                Expanded(
+                    child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 5),
+                        child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              _heading('Name', PickListTableSort.name),
+                              _heading('Sort Name', PickListTableSort.sortName,
+                                  secondary: true)
+                            ]))),
+                SizedBox(
+                    width: 68,
+                    child: Align(
+                        alignment: Alignment.centerRight,
+                        child: _heading('Count', PickListTableSort.count))),
+                if (!selecting) const SizedBox(width: 36),
+              ]))),
       Expanded(
           child: values.isEmpty
               ? const Center(child: Text('No Result'))
@@ -114,116 +117,146 @@ class _PickListValuesTableState extends State<PickListValuesTable> {
                     final onTap = widget.enabled
                         ? (selecting ? widget.onSelect : widget.onEdit)
                         : null;
-                    return Material(
-                        color: selected
-                            ? palette.selection.withValues(alpha: 0.32)
-                            : pickListRow(context, index),
-                        child: InkWell(
-                            onTap: onTap == null ? null : () => onTap(value),
-                            mouseCursor: WidgetStateMouseCursor.clickable,
-                            child: ConstrainedBox(
-                                constraints:
-                                    const BoxConstraints(minHeight: 42),
-                                child: Row(children: [
-                                  SizedBox(
-                                      width: 36,
-                                      child: selecting
-                                          ? (widget.mode ==
-                                                  PickListTableMode.singleSelect
-                                              ? Icon(
-                                                  selected
-                                                      ? Icons
-                                                          .radio_button_checked
-                                                      : Icons
-                                                          .radio_button_unchecked,
-                                                  size: 18,
-                                                  color: selected
-                                                      ? palette.accent
-                                                      : palette.textMuted)
-                                              : Checkbox(
-                                                  value: selected,
-                                                  onChanged: onTap == null
+                    return CustomPaint(
+                        foregroundPainter:
+                            _PickListGrid(pickListDivider(context), selecting),
+                        child: Material(
+                            color: selected
+                                ? palette.selection.withValues(alpha: 0.32)
+                                : pickListRow(context, index),
+                            child: InkWell(
+                                onTap:
+                                    onTap == null ? null : () => onTap(value),
+                                mouseCursor: WidgetStateMouseCursor.clickable,
+                                child: ConstrainedBox(
+                                    constraints:
+                                        const BoxConstraints(minHeight: 48),
+                                    child: Row(children: [
+                                      SizedBox(
+                                          width: 36,
+                                          child: selecting
+                                              ? (widget.mode ==
+                                                      PickListTableMode
+                                                          .singleSelect
+                                                  ? Icon(selected ? Icons.radio_button_checked : Icons.radio_button_unchecked,
+                                                      size: 18,
+                                                      color: selected
+                                                          ? palette.accent
+                                                          : palette.textMuted)
+                                                  : Checkbox(
+                                                      value: selected,
+                                                      onChanged: onTap == null
+                                                          ? null
+                                                          : (_) => onTap(value),
+                                                      visualDensity: VisualDensity
+                                                          .compact))
+                                              : IconButton(
+                                                  style: IconButton.styleFrom(
+                                                      backgroundColor:
+                                                          Colors.transparent,
+                                                      disabledBackgroundColor:
+                                                          Colors.transparent,
+                                                      side: BorderSide.none),
+                                                  tooltip:
+                                                      'Edit ${value.effectiveLabel}',
+                                                  onPressed: onTap == null
                                                       ? null
-                                                      : (_) => onTap(value),
-                                                  visualDensity:
-                                                      VisualDensity.compact))
-                                          : IconButton(
-                                              style: IconButton.styleFrom(
-                                                  backgroundColor:
-                                                      Colors.transparent,
-                                                  disabledBackgroundColor:
-                                                      Colors.transparent,
-                                                  side: BorderSide.none),
-                                              tooltip:
-                                                  'Edit ${value.effectiveLabel}',
-                                              onPressed: onTap == null
-                                                  ? null
-                                                  : () => onTap(value),
-                                              icon: const Icon(Icons.edit_outlined,
-                                                  size: 16),
-                                              color: palette.textMuted,
-                                              padding: EdgeInsets.zero,
-                                              constraints: const BoxConstraints.tightFor(width: 36, height: 36))),
-                                  Expanded(
-                                      child: Padding(
-                                          padding: const EdgeInsets.symmetric(
-                                              horizontal: 5, vertical: 5),
-                                          child: Column(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              children: [
-                                                Text(value.effectiveLabel,
-                                                    style: const TextStyle(
-                                                        fontSize: 14,
-                                                        fontWeight:
-                                                            FontWeight.w500)),
-                                                Text(value.effectiveSortName,
-                                                    style: TextStyle(
-                                                        fontSize: 12,
-                                                        fontWeight:
-                                                            FontWeight.w500,
-                                                        color:
-                                                            palette.textMuted)),
-                                              ]))),
-                                  SizedBox(
-                                      width: 68,
-                                      child: Padding(
-                                          padding:
-                                              const EdgeInsets.only(right: 5),
-                                          child: Text(
-                                              '${widget.usageCounts[value.id] ?? 0}',
-                                              textAlign: TextAlign.right,
-                                              style: const TextStyle(
-                                                  fontSize: 14,
-                                                  fontWeight:
-                                                      FontWeight.w500)))),
-                                  if (!selecting)
-                                    SizedBox(
-                                        width: 36,
-                                        child: IconButton(
-                                            style: IconButton.styleFrom(
-                                                backgroundColor:
-                                                    Colors.transparent,
-                                                disabledBackgroundColor:
-                                                    Colors.transparent,
-                                                side: BorderSide.none),
-                                            tooltip:
-                                                'Remove ${value.effectiveLabel}',
-                                            onPressed: widget.enabled &&
-                                                    widget.onDelete != null
-                                                ? () => widget.onDelete!(value)
-                                                : null,
-                                            icon: const Icon(Icons.close,
-                                                size: 18),
-                                            color: palette.textMuted,
-                                            padding: EdgeInsets.zero,
-                                            constraints:
-                                                const BoxConstraints.tightFor(
+                                                      : () => onTap(value),
+                                                  icon: const Icon(Icons.edit_outlined,
+                                                      size: 16),
+                                                  color: palette.textMuted,
+                                                  padding: EdgeInsets.zero,
+                                                  constraints:
+                                                      const BoxConstraints.tightFor(
+                                                          width: 36,
+                                                          height: 36))),
+                                      Expanded(
+                                          child: Padding(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                      horizontal: 5,
+                                                      vertical: 5),
+                                              child: Column(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  children: [
+                                                    Text(value.effectiveLabel,
+                                                        style: const TextStyle(
+                                                            fontSize: 14,
+                                                            fontWeight:
+                                                                FontWeight
+                                                                    .w500)),
+                                                    Text(
+                                                        value.effectiveSortName,
+                                                        style: TextStyle(
+                                                            fontSize: 12,
+                                                            fontWeight:
+                                                                FontWeight.w500,
+                                                            color: palette
+                                                                .textMuted)),
+                                                  ]))),
+                                      SizedBox(
+                                          width: 68,
+                                          child: Padding(
+                                              padding: const EdgeInsets.only(
+                                                  right: 5),
+                                              child: Text(
+                                                  '${widget.usageCounts[value.id] ?? 0}',
+                                                  textAlign: TextAlign.right,
+                                                  style: const TextStyle(
+                                                      fontSize: 14,
+                                                      fontWeight:
+                                                          FontWeight.w500)))),
+                                      if (!selecting)
+                                        SizedBox(
+                                            width: 36,
+                                            child: IconButton(
+                                                style: IconButton.styleFrom(
+                                                    backgroundColor:
+                                                        Colors.transparent,
+                                                    disabledBackgroundColor:
+                                                        Colors.transparent,
+                                                    side: BorderSide.none),
+                                                tooltip:
+                                                    'Remove ${value.effectiveLabel}',
+                                                onPressed: widget.enabled &&
+                                                        widget.onDelete != null
+                                                    ? () =>
+                                                        widget.onDelete!(value)
+                                                    : null,
+                                                icon: const Icon(Icons.close,
+                                                    size: 18),
+                                                color: palette.textMuted,
+                                                padding: EdgeInsets.zero,
+                                                constraints: const BoxConstraints
+                                                    .tightFor(
                                                     width: 36, height: 36)))
-                                  else
-                                    const SizedBox(width: 5),
-                                ]))));
+                                    ])))));
                   })),
     ]);
   }
+}
+
+/// Paint the reference grid without changing cell widths or hit targets.
+class _PickListGrid extends CustomPainter {
+  const _PickListGrid(this.color, this.selecting);
+  final Color color;
+  final bool selecting;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = color
+      ..strokeWidth = 1;
+    final countEnd = size.width - (selecting ? 0 : 36);
+    for (final x in [36.0, countEnd - 68, if (!selecting) countEnd]) {
+      canvas.drawLine(Offset(x, 0), Offset(x, size.height), paint);
+    }
+    canvas.drawLine(Offset(0, size.height - .5),
+        Offset(size.width, size.height - .5), paint);
+  }
+
+  @override
+  bool shouldRepaint(_PickListGrid oldDelegate) =>
+      oldDelegate.color != color || oldDelegate.selecting != selecting;
 }
