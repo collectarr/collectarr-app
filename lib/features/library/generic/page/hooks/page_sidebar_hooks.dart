@@ -79,10 +79,6 @@ extension _PageSidebarHooks on GenericLibraryPageState {
       _session.preferences.activeSmartListId != null ||
       _session.selection.filterSelection.hasActiveFilters;
 
-  void _setGroupMode(String mode) {
-    _setFolderPreset(LibraryFolderPreset.single(mode));
-  }
-
   void _setFolderPreset(LibraryFolderPreset preset) {
     final sanitized = sanitizeLibraryFolderPreset(
       preset,

@@ -81,6 +81,48 @@ class LibrarySidebarHeader extends StatelessWidget {
     final navigateBack = onNavigateBack;
     final clearFilter = onClearFilter;
     final hideSidebar = onHideSidebar;
+    final actions = <_LibrarySidebarToolbarButton>[
+      if (onFolderDisplayModeChanged != null)
+        _LibrarySidebarToolbarButton(
+          tooltip: folderDisplayMode == LibraryFolderDisplayMode.drilldown
+              ? 'Switch to tree view'
+              : 'Switch to drilldown view',
+          icon: folderDisplayMode == LibraryFolderDisplayMode.drilldown
+              ? Icons.account_tree_outlined
+              : Icons.segment_outlined,
+          onPressed: () => onFolderDisplayModeChanged!(
+            folderDisplayMode == LibraryFolderDisplayMode.drilldown
+                ? LibraryFolderDisplayMode.tree
+                : LibraryFolderDisplayMode.drilldown,
+          ),
+          active: folderDisplayMode == LibraryFolderDisplayMode.tree,
+          activeColor: accent,
+        ),
+      if (manageBuckets != null &&
+          libraryGroupModeSupportsBucketManagement(type, groupMode))
+        _LibrarySidebarToolbarButton(
+          tooltip:
+              'Manage ${genericGroupModeSidebarTitle(groupMode, type).toLowerCase()}',
+          icon: Icons.edit_outlined,
+          onPressed: manageBuckets,
+        ),
+      if (navigateBack != null || (!isRootScope && clearFilter != null))
+        _LibrarySidebarToolbarButton(
+          tooltip: navigateBack != null
+              ? 'Back to previous scope'
+              : 'Back to all ${type.identity.pluralLabel.toLowerCase()}',
+          icon: Icons.arrow_back,
+          onPressed: navigateBack ?? clearFilter!,
+          active: true,
+          activeColor: accent,
+        ),
+      if (hideSidebar != null)
+        _LibrarySidebarToolbarButton(
+          tooltip: 'Hide folders panel',
+          icon: Icons.menu_open,
+          onPressed: hideSidebar,
+        ),
+    ];
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 4),
       decoration: BoxDecoration(
@@ -91,107 +133,89 @@ class LibrarySidebarHeader extends StatelessWidget {
         height: kLibraryToolbarBandHeight,
         child: LayoutBuilder(
           builder: (context, constraints) {
-            // During the library-switch fade the sidebar is briefly constrained
-            // to a few pixels wide; the Expanded group menu plus fixed-width
-            // action buttons can't fit there, so skip the toolbar row until it
-            // has a usable width. No effect at normal sidebar widths.
-            if (!constraints.hasBoundedWidth || constraints.maxWidth < 220) {
+            final width = constraints.maxWidth;
+            if (!constraints.hasBoundedWidth || width <= 0) {
               return const SizedBox.shrink();
+            }
+            // Retain the label until controls have moved into overflow. Only
+            // the narrow rail uses the compact grouping trigger.
+            final compact = width < 140;
+            final selectorWidth = compact ? 52.0 : 100.0;
+            final loadingWidth = groupLoading && width >= 140 ? 22.0 : 0.0;
+            final available = width - selectorWidth - loadingWidth;
+            final slots = (available / 34).floor().clamp(0, actions.length);
+            final overflow = slots < actions.length;
+            final visibleCount =
+                overflow ? (slots - 1).clamp(0, actions.length) : slots;
+            final hiddenActions = actions.skip(visibleCount).toList();
+            final selector = DecoratedBox(
+              decoration: BoxDecoration(
+                color: palette.surface,
+                border: Border.all(color: palette.divider),
+                borderRadius: BorderRadius.circular(2),
+              ),
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: compact ? 0 : 3),
+                child: LibraryGroupModeMenuButton(
+                  type: type,
+                  folderPreset:
+                      folderPreset ?? LibraryFolderPreset.single(groupMode),
+                  availableModes: availableGroupModes,
+                  accent: accent,
+                  icon: icon,
+                  onChanged: onChanged,
+                  iconOnly: compact,
+                  sidebarVisible: true,
+                  onSidebarVisibilityChanged: onSidebarVisibilityChanged,
+                  pinnedFolderPresets: pinnedFolderPresets,
+                  onPinnedPresetsChanged: onPinnedFolderPresetsChanged,
+                ),
+              ),
+            );
+            if (width < selectorWidth) {
+              return FittedBox(
+                fit: BoxFit.scaleDown,
+                alignment: Alignment.centerLeft,
+                child: SizedBox(width: selectorWidth, child: selector),
+              );
             }
             return Row(
               children: [
-                Expanded(
-                  child: DecoratedBox(
-                    decoration: BoxDecoration(
-                      color: palette.surface,
-                      border: Border.all(color: palette.divider),
-                      borderRadius: BorderRadius.circular(2),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 3),
-                      child: LibraryGroupModeMenuButton(
-                        type: type,
-                        folderPreset: folderPreset ??
-                            LibraryFolderPreset.single(groupMode),
-                        availableModes: availableGroupModes,
-                        accent: accent,
-                        icon: icon,
-                        onChanged: onChanged,
-                        sidebarVisible: true,
-                        onSidebarVisibilityChanged: onSidebarVisibilityChanged,
-                        pinnedFolderPresets: pinnedFolderPresets,
-                        onPinnedPresetsChanged: onPinnedFolderPresetsChanged,
-                      ),
-                    ),
-                  ),
-                ),
-                if (groupLoading) ...[
+                Expanded(child: selector),
+                if (loadingWidth > 0) ...[
                   const SizedBox(width: 6),
                   const SizedBox(
-                    width: 16,
-                    height: 16,
-                    child: CircularProgressIndicator(strokeWidth: 2),
-                  ),
+                      width: 16,
+                      height: 16,
+                      child: CircularProgressIndicator(strokeWidth: 2)),
                 ],
-                if (onFolderDisplayModeChanged != null) ...[
+                for (final action in actions.take(visibleCount)) ...[
                   const SizedBox(width: 4),
-                  _LibrarySidebarToolbarButton(
-                    tooltip:
-                        folderDisplayMode == LibraryFolderDisplayMode.drilldown
-                            ? 'Switch to tree view'
-                            : 'Switch to drilldown view',
-                    icon:
-                        folderDisplayMode == LibraryFolderDisplayMode.drilldown
-                            ? Icons.account_tree_outlined
-                            : Icons.segment_outlined,
-                    onPressed: () => onFolderDisplayModeChanged!(
-                      folderDisplayMode == LibraryFolderDisplayMode.drilldown
-                          ? LibraryFolderDisplayMode.tree
-                          : LibraryFolderDisplayMode.drilldown,
+                  SizedBox(width: 30, height: 30, child: action),
+                ],
+                if (overflow && slots > 0) ...[
+                  const SizedBox(width: 4),
+                  SizedBox(
+                    width: 30,
+                    height: 30,
+                    child: PopupMenuButton<int>(
+                      tooltip: 'More folder actions',
+                      padding: EdgeInsets.zero,
+                      icon: Icon(Icons.more_horiz,
+                          size: 16, color: palette.textMuted),
+                      onSelected: (index) => hiddenActions[index].onPressed(),
+                      itemBuilder: (context) => [
+                        for (var i = 0; i < hiddenActions.length; i++)
+                          PopupMenuItem<int>(
+                            value: i,
+                            child: Row(children: [
+                              Icon(hiddenActions[i].icon, size: 16),
+                              const SizedBox(width: 8),
+                              Text(hiddenActions[i].tooltip),
+                            ]),
+                          ),
+                      ],
                     ),
-                    active: folderDisplayMode == LibraryFolderDisplayMode.tree,
-                    activeColor: accent,
-                  ),
-                ],
-                if (manageBuckets != null &&
-                    libraryGroupModeSupportsBucketManagement(
-                        type, groupMode)) ...[
-                  const SizedBox(width: 4),
-                  _LibrarySidebarToolbarButton(
-                    tooltip:
-                        'Manage ${genericGroupModeSidebarTitle(groupMode, type).toLowerCase()}',
-                    icon: Icons.edit_outlined,
-                    onPressed: manageBuckets,
-                    active: false,
-                  ),
-                ],
-                if (navigateBack != null) ...[
-                  const SizedBox(width: 4),
-                  _LibrarySidebarToolbarButton(
-                    tooltip: 'Back to previous scope',
-                    icon: Icons.arrow_back,
-                    onPressed: navigateBack,
-                    active: true,
-                    activeColor: accent,
-                  ),
-                ] else if (!isRootScope && clearFilter != null) ...[
-                  const SizedBox(width: 4),
-                  _LibrarySidebarToolbarButton(
-                    tooltip:
-                        'Back to all ${type.identity.pluralLabel.toLowerCase()}',
-                    icon: Icons.arrow_back,
-                    onPressed: clearFilter,
-                    active: true,
-                    activeColor: accent,
-                  ),
-                ],
-                if (hideSidebar != null) ...[
-                  const SizedBox(width: 4),
-                  _LibrarySidebarToolbarButton(
-                    tooltip: 'Hide folders panel',
-                    icon: Icons.menu_open,
-                    onPressed: hideSidebar,
-                    active: false,
                   ),
                 ],
               ],
