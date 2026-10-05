@@ -1,5 +1,6 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/library_entry_ref.dart';
+import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_record.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
@@ -88,7 +89,7 @@ List<String> validateComicSeedCatalogGraph(CatalogItemDto item) {
 
 List<String> validateComicSeedEntry(ComicLibraryEntry item) {
   final issues = <String>[];
-  final prefix = '${item.catalogItem.kind}/${item.id}';
+  final prefix = 'comic/${item.id}';
   final details = item.personal.details;
   seedRequireText(issues, prefix, 'comic.raw_or_slabbed', details.rawOrSlabbed);
   seedRequireText(issues, prefix, 'comic.page_quality', details.pageQuality);
@@ -769,8 +770,7 @@ List<ComicLibraryEntry> comicSeedLibraryEntries(DateTime now) {
         id: LibraryEntryId('seed-entry-$itemId'),
         metadata: metadataById[itemId] ??
             (throw StateError('Missing Comic seed catalog item: $itemId')),
-        sourceCatalogRef:
-            seedCatalogRef(CatalogMediaKind.comic, itemId),
+        sourceCatalogRef: seedCatalogRef(CatalogMediaKind.comic, itemId),
         createdAt: now.subtract(const Duration(days: 260)),
         updatedAt: now,
         personal: ComicPersonalData(

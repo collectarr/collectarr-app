@@ -77,7 +77,7 @@ List<String> validateMangaSeedCatalogGraph(CatalogItemDto item) {
 
 List<String> validateMangaSeedEntry(MangaLibraryEntry item) {
   final issues = <String>[];
-  final prefix = '${item.catalogItem.kind}/${item.id}';
+  final prefix = 'manga/${item.id}';
   final details = item.personal.details;
   seedRequireText(issues, prefix, 'manga.printing', details.printing);
   seedRequireText(

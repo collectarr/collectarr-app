@@ -98,7 +98,7 @@ List<String> validateAnimeSeedCatalogGraph(CatalogItemDto item) {
 
 List<String> validateAnimeSeedEntry(AnimeLibraryEntry item) {
   final issues = <String>[];
-  final prefix = '${item.catalogItem.kind}/${item.id}';
+  final prefix = 'anime/${item.id}';
   final details = item.personal.details;
   seedRequireText(issues, prefix, 'anime.region', details.region);
   seedRequireText(issues, prefix, 'anime.packaging', details.packaging);

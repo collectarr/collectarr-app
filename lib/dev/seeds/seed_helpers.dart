@@ -209,8 +209,6 @@ void validateSeedCatalogQuality(
   for (final item in items) {
     final prefix = '${item.kind}/${item.id}';
     final mediaKind = catalogMediaKindFromApiValue(item.kind);
-    final payload = item.payload;
-
     final barcodeValidator = barcodeValidators[mediaKind];
     if (barcodeValidator == null) {
       seedValidateStandardBarcode(issues, prefix, seedBarcode(item));
@@ -390,28 +388,6 @@ void _requireText(
 ) {
   if (value is! String || value.trim().isEmpty) {
     issues.add('$prefix: $field must be a non-empty string');
-  }
-}
-
-void _requireSeedImageUrl(
-  List<String> issues,
-  String prefix,
-  String field,
-  String? value,
-) {
-  _requireText(issues, prefix, field, value);
-  if (value == null || value.trim().isEmpty) {
-    return;
-  }
-  final uri = Uri.tryParse(value.trim());
-  if (uri == null ||
-      !const {'http', 'https'}.contains(uri.scheme.toLowerCase()) ||
-      uri.host.isEmpty) {
-    issues.add('$prefix: $field must be an absolute HTTP(S) URL');
-  }
-  if (uri != null && uri.host == 'placehold.co') {
-    issues.add(
-        '$prefix: $field must point to a real seed cover, not a placeholder');
   }
 }
 

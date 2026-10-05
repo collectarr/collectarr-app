@@ -101,7 +101,7 @@ List<String> validateMusicSeedCatalogGraph(CatalogItemDto item) {
 
 List<String> validateMusicSeedEntry(MusicLibraryEntry item) {
   final issues = <String>[];
-  final prefix = '${item.catalogItem.kind}/${item.id}';
+  final prefix = 'music/${item.id}';
   final details = item.personal.details;
   if (details.media.isEmpty) {
     issues.add('$prefix: music.media must not be empty');

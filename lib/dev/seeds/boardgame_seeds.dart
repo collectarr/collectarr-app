@@ -99,7 +99,7 @@ void enrichBoardgameSeedPayload(
         .releaseDate
         ?.asDateTime
         ?.toUtc()
-        ?.toIso8601String(),
+        .toIso8601String(),
   );
   payload.putIfAbsent('favorite_player_count', () => 4);
   payload.putIfAbsent('min_players', () => 1);
@@ -153,7 +153,7 @@ List<String> validateBoardgameSeedCatalogGraph(CatalogItemDto item) {
 
 List<String> validateBoardgameSeedEntry(BoardGameLibraryEntry item) {
   final issues = <String>[];
-  final prefix = '${item.catalogItem.kind}/${item.id}';
+  final prefix = 'boardgame/${item.id}';
   final details = item.personal.details;
   seedRequireText(
       issues, prefix, 'boardgame.edition_language', details.editionLanguage);
