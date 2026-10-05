@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/pick_lists/models/universal_vocabularies.dart';
 import 'package:collectarr_app/features/library/kinds/music/vocabulary/music_vocabularies.dart';
 import 'package:collectarr_app/features/pick_lists/models/vocabulary_id.dart';
 import 'package:collectarr_app/core/models/partial_date.dart';
@@ -108,6 +109,14 @@ enum MusicGroupingField {
 
   VocabularyId<String>? get bucketVocabulary => switch (this) {
         artist => MusicVocabularyIds.artist,
+        boxSet => MusicVocabularyIds.boxSet,
+        extra => MusicVocabularyIds.extra,
+        spars => MusicVocabularyIds.spars,
+        imageType => MusicVocabularyIds.imageType,
+        owner => UniversalVocabularyIds.owners,
+        location => const VocabularyId<String>('locations'),
+        tags => UniversalVocabularyIds.tags,
+        purchaseStore => UniversalVocabularyIds.purchaseStore,
         format => MusicVocabularyIds.format,
         genre => MusicVocabularyIds.genre,
         publisher => MusicVocabularyIds.recordLabel,
@@ -212,7 +221,7 @@ Object? _groupValue(MusicGroupingField field,
     MusicGroupingField.releaseYear => album.releaseDateParts?.year,
     MusicGroupingField.boxSet => album.boxSet,
     MusicGroupingField.country => album.countryCode,
-    MusicGroupingField.extra => album.extra,
+    MusicGroupingField.extra => album.extra?.split('||'),
     MusicGroupingField.instrument =>
       album.contributions.expand((credit) => _split(credit.instrument)),
     MusicGroupingField.isLive => _yesNo(album.isLive == true),

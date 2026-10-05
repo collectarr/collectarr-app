@@ -13,9 +13,15 @@ class PickListRegistry {
 
   static const _universalDefinitions = <PickListDefinition>[
     PickListDefinition(
+        id: 'locations',
+        listName: 'locations',
+        label: 'Location',
+        scope: PickListScope.libraryEntry,
+        valueMode: PickListValueMode.single),
+    PickListDefinition(
       id: 'tags',
       listName: 'tags',
-      label: 'Tags',
+      label: 'Tag',
       scope: PickListScope.libraryEntry,
       valueMode: PickListValueMode.multi,
       controlType: PickListControlType.tagList,
@@ -39,7 +45,7 @@ class PickListRegistry {
     PickListDefinition(
       id: 'purchase_store',
       listName: 'purchase_store',
-      label: 'Purchase store',
+      label: 'Purchase Store',
       scope: PickListScope.libraryEntry,
       valueMode: PickListValueMode.single,
     ),
@@ -53,7 +59,7 @@ class PickListRegistry {
     PickListDefinition(
       id: 'borrower',
       listName: 'borrower',
-      label: 'Borrower',
+      label: 'Loaned To',
       scope: PickListScope.trackingRecord,
       valueMode: PickListValueMode.single,
     ),

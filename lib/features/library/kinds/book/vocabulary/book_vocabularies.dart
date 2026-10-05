@@ -15,17 +15,18 @@ abstract final class BookVocabularyIds {
 }
 
 abstract final class BookVocabularies {
-  static Future<int> countEntryValue(
-    LocalDatabase db,
-    String semanticName,
-    String normalizedValue,
-  ) {
-    return countPickListEntryValues(
-      items: BookEntryRepository(db).listActive(),
-      normalizedValue: normalizedValue,
-      valuesFrom: (item) => _entryValues(item, semanticName),
-    );
+  static Future<List<String>> entryOptions(
+      LocalDatabase db, String semanticName) async {
+    return [
+      for (final item in await BookEntryRepository(db).listActive())
+        ..._entryValues(item, semanticName)
+            .whereType<String>()
+            .where((value) => value.trim().isNotEmpty)
+    ];
   }
+
+  static Future<Map<String, int>> entryUsageCounts(LocalDatabase db, String semanticName) =>
+    countPickListEntryUsages(items: BookEntryRepository(db).listActive(), valuesFrom: (item) => _entryValues(item, semanticName));
 
   static Future<PickListEntryMergeResult> previewEntryMerge(
     LocalDatabase db,
@@ -124,6 +125,11 @@ abstract final class BookVocabularies {
     }
     if (semanticName == 'signed_by') {
       yield item.personal.details.signedBy;
+    }
+    for (final vocabulary in all) {
+      if (vocabulary.key.split('.').last == semanticName) {
+        yield* vocabulary.valuesFrom?.call(item.metadata) ?? const <String>[];
+      }
     }
   }
 

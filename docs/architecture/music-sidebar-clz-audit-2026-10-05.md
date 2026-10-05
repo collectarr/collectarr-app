@@ -78,12 +78,12 @@ or favorites dialog is introduced.
 Music mappings cover Artist, Format, Genre, Label, Country, Instrument,
 Package/Sleeve Condition, Media Condition, Packaging, Sound, Storage Device,
 Studio, Vinyl Color, Signed by, and the existing people/classical role lists.
+Box Set, Extra, SPARS, Image Type, Location, Owner, Tag and Purchase Store are also mapped.
 Dates and computed flags do not expose a dictionary manager.
 
 The coordinator selects the corresponding list and Music scope in the shared
-manager and invalidates the shelf when it closes. The dictionary's existing
-editing semantics are retained; this change does not add a new bulk metadata
-rename/delete mechanism. Favorites management remains in the grouping menu.
+manager and invalidates the shelf when it closes. The shared manager now updates referenced local values on rename, delete and merge;
+see `pick-list-manager-clz-alignment-2026-10-05.md` for its storage and UI contract. Favorites management remains in the grouping menu.
 
 ## Remaining intentional or unverified differences
 

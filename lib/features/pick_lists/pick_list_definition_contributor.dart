@@ -4,12 +4,6 @@ import 'package:collectarr_app/features/pick_lists/models/pick_list_definition.d
 import 'package:collectarr_app/features/pick_lists/models/pick_list_value.dart';
 import 'package:collectarr_app/features/pick_lists/models/vocabulary_definition.dart';
 
-typedef PickListEntryValueCounter = Future<int> Function(
-  LocalDatabase db,
-  String semanticName,
-  String normalizedValue,
-);
-
 typedef PickListEntryMergePreviewer = Future<PickListEntryMergeResult> Function(
   LocalDatabase db,
   String semanticName,
@@ -33,27 +27,22 @@ final class PickListEntryMergeResult {
   final List<String> sampleValues;
 }
 
-/// Counts a semantic value from a kind-entry collection.
-///
-/// The host owns only matching mechanics. The [valuesFrom] callback remains
-/// inside the kind and is the only code that knows how its entry model stores
-/// a value.
-Future<int> countPickListEntryValues<T>({
+Future<Map<String, int>> countPickListEntryUsages<T>({
   required Future<List<T>> items,
-  required String normalizedValue,
   required Iterable<String?> Function(T item) valuesFrom,
 }) async {
-  var count = 0;
+  final counts = <String, int>{};
   for (final item in await items) {
-    final values = valuesFrom(item);
-    if (values.any(
-      (value) =>
-          value != null && normalizePickListValue(value) == normalizedValue,
-    )) {
-      count++;
+    final values = valuesFrom(item)
+        .whereType<String>()
+        .map(normalizePickListValue)
+        .where((value) => value.isNotEmpty)
+        .toSet();
+    for (final value in values) {
+      counts[value] = (counts[value] ?? 0) + 1;
     }
   }
-  return count;
+  return counts;
 }
 
 Future<PickListEntryMergeResult> previewPickListEntryMerge<T>({
@@ -118,8 +107,11 @@ String? replacePickListDelimitedValue(
                 ? targetValue
                 : value,
       )
-      .toList(growable: false);
-  final replaced = values.join(', ');
+      .where((value) => value.trim().isNotEmpty);
+  final seen = <String>{};
+  final replaced = values
+      .where((value) => seen.add(normalizePickListValue(value)))
+      .join(', ');
   return replaced == raw ? raw : replaced;
 }
 
@@ -146,13 +138,13 @@ Iterable<String?> pickListTextValues(Object? value) sync* {
 abstract interface class PickListDefinitionContributor {
   CatalogMediaKind get kind;
 
-  Iterable<PickListDefinition> get definitions;
+  Future<List<String>> entryOptions(LocalDatabase db, String semanticName);
+  Future<Map<String, int>> entryUsageCounts(
+      LocalDatabase db, String semanticName);
+  Future<void> updateSortName(
+      LocalDatabase db, String semanticName, String value, String? sortName);
 
-  Future<int> countEntryValue(
-    LocalDatabase db,
-    String semanticName,
-    String normalizedValue,
-  );
+  Iterable<PickListDefinition> get definitions;
 
   Future<PickListEntryMergeResult> previewEntryMerge(
     LocalDatabase db,
@@ -217,7 +209,9 @@ final class VocabularyPickListDefinitionContributor
   const VocabularyPickListDefinitionContributor({
     required this.kind,
     required this.vocabularies,
-    this.entryValueCounter,
+    required this.entryOptionLoader,
+    required this.entryUsageCounter,
+    this.entrySortNameUpdater,
     required this.entryMergePreviewer,
     required this.entryMerger,
   });
@@ -227,19 +221,28 @@ final class VocabularyPickListDefinitionContributor
 
   final List<VocabularyDefinition<dynamic>> vocabularies;
 
-  final PickListEntryValueCounter? entryValueCounter;
-  final PickListEntryMergePreviewer entryMergePreviewer;
-  final PickListEntryMerger entryMerger;
+  final Future<List<String>> Function(LocalDatabase db, String semanticName)
+      entryOptionLoader;
 
   @override
-  Future<int> countEntryValue(
-    LocalDatabase db,
-    String semanticName,
-    String normalizedValue,
-  ) {
-    return entryValueCounter?.call(db, semanticName, normalizedValue) ??
-        Future.value(0);
+  Future<List<String>> entryOptions(LocalDatabase db, String semanticName) =>
+      entryOptionLoader(db, semanticName);
+  final Future<Map<String, int>> Function(LocalDatabase db, String semanticName)
+      entryUsageCounter;
+  final Future<void> Function(LocalDatabase db, String semanticName,
+      String value, String? sortName)? entrySortNameUpdater;
+  @override
+  Future<Map<String, int>> entryUsageCounts(
+          LocalDatabase db, String semanticName) =>
+      entryUsageCounter(db, semanticName);
+  @override
+  Future<void> updateSortName(LocalDatabase db, String semanticName,
+      String value, String? sortName) async {
+    await entrySortNameUpdater?.call(db, semanticName, value, sortName);
   }
+
+  final PickListEntryMergePreviewer entryMergePreviewer;
+  final PickListEntryMerger entryMerger;
 
   @override
   Future<PickListEntryMergeResult> previewEntryMerge(

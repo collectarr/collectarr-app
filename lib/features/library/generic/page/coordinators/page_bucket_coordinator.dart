@@ -27,15 +27,21 @@ class LibraryPageBucketCoordinator {
     final definition = fields.findGroupDefinition(fields.decodeGroupId(mode));
     final vocabulary = definition?.bucketVocabulary;
     if (vocabulary != null) {
-      await showPickListManagerDialog(
+      final changes = await showPickListManagerDialog(
         context: _page.context,
         db: _page.ref.read(localDatabaseProvider),
         registry: defaultPickListRegistry,
         initialListName: vocabulary.value,
         initialMediaKind: _page.type.kind.apiValue,
-        title: 'Manage ${definition!.resolvedSidebarTitle}',
       );
-      if (_page.mounted) _page.invalidateShelf();
+      if (_page.mounted) {
+        final selected = _page.selectedBucket;
+        if (changes != null && selected != null) {
+          _page.rebuild(() =>
+              _page.selectedBucket = changes.apply(vocabulary.value, selected));
+        }
+        _page.invalidateShelf();
+      }
       return;
     }
     final allBucketLabel = genericAllBucketLabel(_page.type);

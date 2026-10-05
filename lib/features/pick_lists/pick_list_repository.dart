@@ -1,9 +1,12 @@
+import 'package:collectarr_app/core/models/library_entry_ref.dart';
+import 'package:collectarr_app/features/library/entries/library_entry_store.dart';
+import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
+import 'pick_list_references.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/sync/sync_change.dart';
 import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.dart';
 import 'package:drift/drift.dart';
 import 'package:uuid/uuid.dart';
 
@@ -26,6 +29,7 @@ class PickListRepository {
     required String listName,
     String? mediaKind,
     bool includeGlobal = true,
+    bool includeHidden = false,
   }) async {
     final rows = await _rowsForList(
       listName,
@@ -49,7 +53,9 @@ class PickListRepository {
         merged[normalized] = _fromRow(row);
       }
     }
-    final values = merged.values.toList(growable: false)
+    final values = merged.values
+        .where((value) => includeHidden || !value.isHidden)
+        .toList(growable: false)
       ..sort(
         (left, right) {
           final sortOrder = left.sortOrder.compareTo(right.sortOrder);
@@ -63,6 +69,43 @@ class PickListRepository {
       );
     return values;
   }
+
+  Future<List<String>> entryOptions(String listName,
+      {String? mediaKind}) async {
+    if (listName.startsWith('customField:')) {
+      return (await _customFieldUsages(listName, mediaKind)).$2.values.toList();
+    }
+    if (PickListReferences(_db).handles(listName)) {
+      return (await PickListReferences(_db).usages(listName, mediaKind))
+          .keys
+          .toList();
+    }
+    final kind = _requestedKind(listName: listName, mediaKind: mediaKind);
+    return [
+      for (final contributor in _contributors)
+        if (kind == null || contributor.kind == kind)
+          ...await contributor.entryOptions(_db, pickListSemanticName(listName))
+    ];
+  }
+
+  Future<Set<String>> hiddenValues(String listName, {String? mediaKind}) async {
+    final values = await valuesForList(
+        listName: listName, mediaKind: mediaKind, includeHidden: true);
+    return {
+      for (final value in values)
+        if (value.isHidden) value.effectiveNormalizedValue
+    };
+  }
+
+  Future<void> hideValue(PickListValue value) => upsertValue(PickListValue(
+        id: value.id,
+        listName: value.listName,
+        mediaKind: value.mediaKind,
+        value: value.value,
+        sortName: value.sortName,
+        sortOrder: value.sortOrder,
+        isHidden: true,
+      ));
 
   Future<List<String>> getValues(String listName, {String? mediaKind}) async {
     final rows = await valuesForList(
@@ -88,7 +131,15 @@ class PickListRepository {
       includeGlobal: false,
     );
     if (duplicate != null) {
-      return false;
+      if (!duplicate.isHidden) return false;
+      await upsertValue(PickListValue(
+          id: duplicate.id,
+          listName: listName,
+          mediaKind: mediaKind,
+          value: value.trim(),
+          sortName: duplicate.sortName,
+          sortOrder: duplicate.sortOrder));
+      return true;
     }
     final maxSort = await _maxSortOrder(listName, mediaKind: mediaKind);
     await _insertValue(
@@ -111,18 +162,21 @@ class PickListRepository {
       mediaKind: value.mediaKind,
       includeGlobal: false,
     );
-    if (existing != null && existing.id != value.id) {
-      await _db.into(_db.pickListValuesCache).insert(
-            PickListValuesCacheCompanion.insert(
-              id: existing.id,
-              listName: value.listName,
-              mediaKind: Value(value.mediaKind),
-              value: value.value.trim(),
-              sortOrder: Value(value.sortOrder),
-            ),
-            mode: InsertMode.insertOrReplace,
-          );
-      return;
+    if (normalized.isEmpty) throw ArgumentError('Name cannot be empty.');
+    if (existing != null && existing.id != value.id && !existing.isHidden) {
+      throw StateError(
+          'This name already exists. Use Merge Mode to combine values.');
+    }
+    if (existing != null && existing.id != value.id && existing.isHidden) {
+      await deleteValue(existing.id);
+    }
+    if (value.listName == 'locations' && !value.isHidden) {
+      final locations = LocationRepository(_db);
+      if (!(await locations.getAll()).any((location) =>
+          normalizePickListValue(location.name) ==
+          value.effectiveNormalizedValue)) {
+        await locations.create(name: value.value.trim());
+      }
     }
     await _db.into(_db.pickListValuesCache).insert(
           PickListValuesCacheCompanion.insert(
@@ -131,6 +185,8 @@ class PickListRepository {
             mediaKind: Value(value.mediaKind),
             value: value.value.trim(),
             sortOrder: Value(value.sortOrder),
+            sortName: Value(value.sortName),
+            isHidden: Value(value.isHidden),
           ),
           mode: InsertMode.insertOrReplace,
         );
@@ -139,6 +195,8 @@ class PickListRepository {
       'media_kind': value.mediaKind,
       'value': value.value.trim(),
       'sort_order': value.sortOrder,
+      'sort_name': value.sortName,
+      'is_hidden': value.isHidden,
     });
   }
 
@@ -158,29 +216,6 @@ class PickListRepository {
       'media_kind': row.mediaKind,
       'value': row.value,
     });
-  }
-
-  Future<void> reorderValues({
-    required String listName,
-    required String? mediaKind,
-    required List<String> orderedIds,
-  }) async {
-    final rows = await _rowsForList(
-      listName,
-      mediaKind: mediaKind,
-      includeGlobal: false,
-    );
-    final byId = {for (final row in rows) row.id: row};
-    final finalOrder = <String>[
-      ...orderedIds.where(byId.containsKey),
-      ...byId.keys.where((id) => !orderedIds.contains(id)),
-    ];
-    for (var index = 0; index < finalOrder.length; index++) {
-      final id = finalOrder[index];
-      await (_db.update(_db.pickListValuesCache)
-            ..where((table) => table.id.equals(id)))
-          .write(PickListValuesCacheCompanion(sortOrder: Value(index)));
-    }
   }
 
   Future<List<String>> listNames() async {
@@ -231,74 +266,37 @@ class PickListRepository {
     final counts = {for (final value in normalizedValues) value: 0};
     if (counts.isEmpty) return counts;
 
+    if (PickListReferences(_db).handles(listName)) {
+      final refsByValue = <String, Set<LibraryEntryRef>>{};
+      for (final entry
+          in (await PickListReferences(_db).usages(listName, mediaKind))
+              .entries) {
+        refsByValue
+            .putIfAbsent(
+                normalizePickListValue(entry.key), () => <LibraryEntryRef>{})
+            .addAll(entry.value);
+      }
+      return {
+        for (final value in normalizedValues)
+          value: refsByValue[value]?.length ?? 0
+      };
+    }
+    if (listName.startsWith('customField:')) {
+      final usages = (await _customFieldUsages(listName, mediaKind)).$1;
+      return {for (final value in normalizedValues) value: usages[value] ?? 0};
+    }
     final semanticName = pickListSemanticName(listName);
     final requestedKind =
         _requestedKind(listName: listName, mediaKind: mediaKind);
     for (final contributor in _contributors) {
       if (requestedKind != null && contributor.kind != requestedKind) continue;
+      final usages = await contributor.entryUsageCounts(_db, semanticName);
       for (final normalized in normalizedValues) {
-        counts[normalized] = counts[normalized]! +
-            await contributor.countEntryValue(_db, semanticName, normalized);
+        counts[normalized] = counts[normalized]! + (usages[normalized] ?? 0);
       }
     }
 
-    if (listName.contains('.')) {
-      for (final codec in libraryCatalogTransportCodecs) {
-        if (requestedKind != null && codec.kind != requestedKind) continue;
-        final catalogCounts = await codec.countCatalogValues(
-          _db,
-          listName,
-          normalizedValues,
-        );
-        for (final entry in catalogCounts.entries) {
-          counts[entry.key] = (counts[entry.key] ?? 0) + entry.value;
-        }
-      }
-    }
-
-    for (final normalized in normalizedValues) {
-      counts[normalized] = counts[normalized]! +
-          await _countCustomFieldValues(
-            listName: listName,
-            normalizedValue: normalized,
-            mediaKind: mediaKind,
-          );
-    }
     return counts;
-  }
-
-  /// Removes unreferenced custom values from one list while preserving built-in
-  /// options supplied by the kind's vocabulary definitions.
-  Future<int> deleteUnusedCustomValues({
-    required String listName,
-    Iterable<String> builtInValues = const [],
-  }) async {
-    final builtIns = {
-      for (final value in builtInValues) normalizePickListValue(value),
-      for (final contributor in _contributors)
-        for (final definition in contributor.definitions)
-          if (definition.listName == listName)
-            for (final value in definition.builtInValues)
-              normalizePickListValue(value),
-    };
-    final rows = await (_db.select(_db.pickListValuesCache)
-          ..where((row) => row.listName.equals(listName)))
-        .get();
-    var deletedCount = 0;
-    for (final row in rows) {
-      if (builtIns.contains(normalizePickListValue(row.value))) {
-        continue;
-      }
-      final usage = await _usageCountForValue(
-        row.listName,
-        row.value,
-        mediaKind: row.mediaKind,
-      );
-      if (usage != 0) continue;
-      await deleteValue(row.id);
-      deletedCount++;
-    }
-    return deletedCount;
   }
 
   Future<void> captureValues(
@@ -333,9 +331,10 @@ class PickListRepository {
       listName: listName,
       mediaKind: mediaKind,
       includeGlobal: false,
+      includeHidden: true,
     );
     final existing = {
-      for (final row in existingValues) row.effectiveNormalizedValue: row,
+      for (final row in existingValues) row.effectiveNormalizedValue
     };
     var nextSortOrder = existingValues.fold<int>(
       0,
@@ -344,7 +343,7 @@ class PickListRepository {
     );
     for (final value in normalizedValues) {
       final normalized = normalizePickListValue(value);
-      if (existing.containsKey(normalized)) {
+      if (existing.contains(normalized)) {
         continue;
       }
       await _insertValue(
@@ -356,6 +355,7 @@ class PickListRepository {
           sortOrder: nextSortOrder,
         ),
       );
+      existing.add(normalized);
       nextSortOrder += 1;
     }
   }
@@ -441,6 +441,8 @@ class PickListRepository {
             mediaKind: Value(value.mediaKind),
             value: value.value.trim(),
             sortOrder: Value(value.sortOrder),
+            sortName: Value(value.sortName),
+            isHidden: Value(value.isHidden),
           ),
           mode: InsertMode.insertOrReplace,
         );
@@ -449,6 +451,8 @@ class PickListRepository {
       'media_kind': value.mediaKind,
       'value': value.value.trim(),
       'sort_order': value.sortOrder,
+      'sort_name': value.sortName,
+      'is_hidden': value.isHidden,
     });
   }
 
@@ -482,48 +486,9 @@ class PickListRepository {
       mediaKind: row.mediaKind,
       value: row.value,
       sortOrder: row.sortOrder,
+      sortName: row.sortName,
+      isHidden: row.isHidden,
     );
-  }
-
-  Future<int> _usageCountForValue(
-    String listName,
-    String value, {
-    required String? mediaKind,
-  }) async {
-    final normalized = normalizePickListValue(value);
-    if (normalized.isEmpty) {
-      return 0;
-    }
-    final semanticName = pickListSemanticName(listName);
-    var total = 0;
-    final requestedKind =
-        _requestedKind(listName: listName, mediaKind: mediaKind);
-    for (final contributor in _contributors) {
-      if (requestedKind != null && contributor.kind != requestedKind) {
-        continue;
-      }
-      total += await contributor.countEntryValue(
-        _db,
-        semanticName,
-        normalized,
-      );
-    }
-    if (listName.contains('.')) {
-      for (final codec in libraryCatalogTransportCodecs) {
-        if (requestedKind != null && codec.kind != requestedKind) {
-          continue;
-        }
-        total += (await codec
-                .countCatalogValues(_db, listName, [normalized]))[normalized] ??
-            0;
-      }
-    }
-    total += await _countCustomFieldValues(
-      listName: listName,
-      normalizedValue: normalized,
-      mediaKind: mediaKind,
-    );
-    return total;
   }
 
   CatalogMediaKind? _requestedKind({
@@ -538,13 +503,12 @@ class PickListRepository {
     return fromMediaKind.isUnknown ? null : fromMediaKind;
   }
 
-  Future<int> _countCustomFieldValues({
-    required String listName,
-    required String normalizedValue,
-    required String? mediaKind,
-  }) async {
+  Future<(Map<String, int>, Map<String, String>)> _customFieldUsages(
+      String listName, String? mediaKind) async {
     const customFieldPrefix = 'customField:';
-    if (!listName.startsWith(customFieldPrefix)) return 0;
+    if (!listName.startsWith(customFieldPrefix)) {
+      return (<String, int>{}, <String, String>{});
+    }
     final fieldId = listName.substring(customFieldPrefix.length);
     final definition = await (_db.select(_db.customFieldDefinitionsCache)
           ..where((row) => row.id.equals(fieldId))
@@ -554,26 +518,41 @@ class PickListRepository {
         (mediaKind != null &&
             definition.mediaKind != null &&
             definition.mediaKind != mediaKind)) {
-      return 0;
+      return (<String, int>{}, <String, String>{});
     }
     final rows = await (_db.select(_db.customFieldValuesCache)
           ..where((row) => row.fieldDefinitionId.equals(fieldId)))
         .get();
     final isMultiValue =
         CustomFieldValueType.fromApiValue(definition.fieldType).isMultiValue;
-    var count = 0;
+    final active = {
+      for (final entry in await LibraryEntryStore(_db).list())
+        if (mediaKind == null || entry.kind.apiValue == mediaKind)
+          LibraryEntryRef(kind: entry.kind, id: LibraryEntryId(entry.id)).key
+    };
+    final used = <String, Set<String>>{};
+    final labels = <String, String>{};
     for (final row in rows) {
       final rawValue = row.value;
-      if (rawValue == null) continue;
+      if (rawValue == null ||
+          row.targetScope != CustomFieldTargetScope.libraryEntry.apiValue ||
+          !active.contains(row.targetId)) {
+        continue;
+      }
       final values =
           isMultiValue ? parseCustomFieldMultiValues(rawValue) : [rawValue];
-      if (values.any(
-        (value) => normalizePickListValue(value) == normalizedValue,
-      )) {
-        count++;
+      for (final value in values) {
+        final normalized = normalizePickListValue(value);
+        if (normalized.isNotEmpty) {
+          labels.putIfAbsent(normalized, () => value.trim());
+          used.putIfAbsent(normalized, () => <String>{}).add(row.targetId);
+        }
       }
     }
-    return count;
+    return (
+      {for (final entry in used.entries) entry.key: entry.value.length},
+      labels
+    );
   }
 
   Future<void> _enqueueChange(

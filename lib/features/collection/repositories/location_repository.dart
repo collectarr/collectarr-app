@@ -131,7 +131,7 @@ class LocationRepository {
         .write(const LocationsCacheCompanion(parentId: Value(null)));
     final entryRepository = LibraryEntriesRepository(_db);
     final libraryEntries = await entryRepository.listActiveSummaries();
-    for (final item in libraryEntries.where((item) => item.locationLabel == id)) {
+    for (final item in libraryEntries.where((item) => item.locationId == id)) {
       await entryRepository.updateLocation(item.ref, null);
     }
     await (_db.delete(_db.locationsCache)..where((t) => t.id.equals(id))).go();

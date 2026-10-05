@@ -21,17 +21,18 @@ abstract final class MovieVocabularyIds {
 }
 
 abstract final class MovieVocabularies {
-  static Future<int> countEntryValue(
-    LocalDatabase db,
-    String semanticName,
-    String normalizedValue,
-  ) {
-    return countPickListEntryValues(
-      items: MovieEntryRepository(db).listActive(),
-      normalizedValue: normalizedValue,
-      valuesFrom: (item) => _entryValues(item, semanticName),
-    );
+  static Future<List<String>> entryOptions(
+      LocalDatabase db, String semanticName) async {
+    return [
+      for (final item in await MovieEntryRepository(db).listActive())
+        ..._entryValues(item, semanticName)
+            .whereType<String>()
+            .where((value) => value.trim().isNotEmpty)
+    ];
   }
+
+  static Future<Map<String, int>> entryUsageCounts(LocalDatabase db, String semanticName) =>
+    countPickListEntryUsages(items: MovieEntryRepository(db).listActive(), valuesFrom: (item) => _entryValues(item, semanticName));
 
   static Future<PickListEntryMergeResult> previewEntryMerge(
     LocalDatabase db,
@@ -138,6 +139,11 @@ abstract final class MovieVocabularies {
     };
     if (key != null) {
       yield* pickListTextValues(item.personal.details.toJson()[key]);
+    }
+    for (final vocabulary in all) {
+      if (vocabulary.key.split('.').last == semanticName) {
+        yield* vocabulary.valuesFrom?.call(item.metadata) ?? const <String>[];
+      }
     }
   }
 

@@ -5302,6 +5302,22 @@ class $PickListValuesCacheTable extends PickListValuesCache
   late final GeneratedColumn<String> value = GeneratedColumn<String>(
       'value', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _sortNameMeta =
+      const VerificationMeta('sortName');
+  @override
+  late final GeneratedColumn<String> sortName = GeneratedColumn<String>(
+      'sort_name', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _isHiddenMeta =
+      const VerificationMeta('isHidden');
+  @override
+  late final GeneratedColumn<bool> isHidden = GeneratedColumn<bool>(
+      'is_hidden', aliasedName, false,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('CHECK ("is_hidden" IN (0, 1))'),
+      defaultValue: const Constant(false));
   static const VerificationMeta _sortOrderMeta =
       const VerificationMeta('sortOrder');
   @override
@@ -5312,7 +5328,7 @@ class $PickListValuesCacheTable extends PickListValuesCache
       defaultValue: const Constant(0));
   @override
   List<GeneratedColumn> get $columns =>
-      [id, listName, mediaKind, value, sortOrder];
+      [id, listName, mediaKind, value, sortName, isHidden, sortOrder];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -5345,6 +5361,14 @@ class $PickListValuesCacheTable extends PickListValuesCache
     } else if (isInserting) {
       context.missing(_valueMeta);
     }
+    if (data.containsKey('sort_name')) {
+      context.handle(_sortNameMeta,
+          sortName.isAcceptableOrUnknown(data['sort_name']!, _sortNameMeta));
+    }
+    if (data.containsKey('is_hidden')) {
+      context.handle(_isHiddenMeta,
+          isHidden.isAcceptableOrUnknown(data['is_hidden']!, _isHiddenMeta));
+    }
     if (data.containsKey('sort_order')) {
       context.handle(_sortOrderMeta,
           sortOrder.isAcceptableOrUnknown(data['sort_order']!, _sortOrderMeta));
@@ -5367,6 +5391,10 @@ class $PickListValuesCacheTable extends PickListValuesCache
           .read(DriftSqlType.string, data['${effectivePrefix}media_kind']),
       value: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}value'])!,
+      sortName: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}sort_name']),
+      isHidden: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}is_hidden'])!,
       sortOrder: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}sort_order'])!,
     );
@@ -5384,12 +5412,16 @@ class PickListValuesCacheData extends DataClass
   final String listName;
   final String? mediaKind;
   final String value;
+  final String? sortName;
+  final bool isHidden;
   final int sortOrder;
   const PickListValuesCacheData(
       {required this.id,
       required this.listName,
       this.mediaKind,
       required this.value,
+      this.sortName,
+      required this.isHidden,
       required this.sortOrder});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -5400,6 +5432,10 @@ class PickListValuesCacheData extends DataClass
       map['media_kind'] = Variable<String>(mediaKind);
     }
     map['value'] = Variable<String>(value);
+    if (!nullToAbsent || sortName != null) {
+      map['sort_name'] = Variable<String>(sortName);
+    }
+    map['is_hidden'] = Variable<bool>(isHidden);
     map['sort_order'] = Variable<int>(sortOrder);
     return map;
   }
@@ -5412,6 +5448,10 @@ class PickListValuesCacheData extends DataClass
           ? const Value.absent()
           : Value(mediaKind),
       value: Value(value),
+      sortName: sortName == null && nullToAbsent
+          ? const Value.absent()
+          : Value(sortName),
+      isHidden: Value(isHidden),
       sortOrder: Value(sortOrder),
     );
   }
@@ -5424,6 +5464,8 @@ class PickListValuesCacheData extends DataClass
       listName: serializer.fromJson<String>(json['listName']),
       mediaKind: serializer.fromJson<String?>(json['mediaKind']),
       value: serializer.fromJson<String>(json['value']),
+      sortName: serializer.fromJson<String?>(json['sortName']),
+      isHidden: serializer.fromJson<bool>(json['isHidden']),
       sortOrder: serializer.fromJson<int>(json['sortOrder']),
     );
   }
@@ -5435,6 +5477,8 @@ class PickListValuesCacheData extends DataClass
       'listName': serializer.toJson<String>(listName),
       'mediaKind': serializer.toJson<String?>(mediaKind),
       'value': serializer.toJson<String>(value),
+      'sortName': serializer.toJson<String?>(sortName),
+      'isHidden': serializer.toJson<bool>(isHidden),
       'sortOrder': serializer.toJson<int>(sortOrder),
     };
   }
@@ -5444,12 +5488,16 @@ class PickListValuesCacheData extends DataClass
           String? listName,
           Value<String?> mediaKind = const Value.absent(),
           String? value,
+          Value<String?> sortName = const Value.absent(),
+          bool? isHidden,
           int? sortOrder}) =>
       PickListValuesCacheData(
         id: id ?? this.id,
         listName: listName ?? this.listName,
         mediaKind: mediaKind.present ? mediaKind.value : this.mediaKind,
         value: value ?? this.value,
+        sortName: sortName.present ? sortName.value : this.sortName,
+        isHidden: isHidden ?? this.isHidden,
         sortOrder: sortOrder ?? this.sortOrder,
       );
   PickListValuesCacheData copyWithCompanion(PickListValuesCacheCompanion data) {
@@ -5458,6 +5506,8 @@ class PickListValuesCacheData extends DataClass
       listName: data.listName.present ? data.listName.value : this.listName,
       mediaKind: data.mediaKind.present ? data.mediaKind.value : this.mediaKind,
       value: data.value.present ? data.value.value : this.value,
+      sortName: data.sortName.present ? data.sortName.value : this.sortName,
+      isHidden: data.isHidden.present ? data.isHidden.value : this.isHidden,
       sortOrder: data.sortOrder.present ? data.sortOrder.value : this.sortOrder,
     );
   }
@@ -5469,13 +5519,16 @@ class PickListValuesCacheData extends DataClass
           ..write('listName: $listName, ')
           ..write('mediaKind: $mediaKind, ')
           ..write('value: $value, ')
+          ..write('sortName: $sortName, ')
+          ..write('isHidden: $isHidden, ')
           ..write('sortOrder: $sortOrder')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(id, listName, mediaKind, value, sortOrder);
+  int get hashCode => Object.hash(
+      id, listName, mediaKind, value, sortName, isHidden, sortOrder);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -5484,6 +5537,8 @@ class PickListValuesCacheData extends DataClass
           other.listName == this.listName &&
           other.mediaKind == this.mediaKind &&
           other.value == this.value &&
+          other.sortName == this.sortName &&
+          other.isHidden == this.isHidden &&
           other.sortOrder == this.sortOrder);
 }
 
@@ -5493,6 +5548,8 @@ class PickListValuesCacheCompanion
   final Value<String> listName;
   final Value<String?> mediaKind;
   final Value<String> value;
+  final Value<String?> sortName;
+  final Value<bool> isHidden;
   final Value<int> sortOrder;
   final Value<int> rowid;
   const PickListValuesCacheCompanion({
@@ -5500,6 +5557,8 @@ class PickListValuesCacheCompanion
     this.listName = const Value.absent(),
     this.mediaKind = const Value.absent(),
     this.value = const Value.absent(),
+    this.sortName = const Value.absent(),
+    this.isHidden = const Value.absent(),
     this.sortOrder = const Value.absent(),
     this.rowid = const Value.absent(),
   });
@@ -5508,6 +5567,8 @@ class PickListValuesCacheCompanion
     required String listName,
     this.mediaKind = const Value.absent(),
     required String value,
+    this.sortName = const Value.absent(),
+    this.isHidden = const Value.absent(),
     this.sortOrder = const Value.absent(),
     this.rowid = const Value.absent(),
   })  : id = Value(id),
@@ -5518,6 +5579,8 @@ class PickListValuesCacheCompanion
     Expression<String>? listName,
     Expression<String>? mediaKind,
     Expression<String>? value,
+    Expression<String>? sortName,
+    Expression<bool>? isHidden,
     Expression<int>? sortOrder,
     Expression<int>? rowid,
   }) {
@@ -5526,6 +5589,8 @@ class PickListValuesCacheCompanion
       if (listName != null) 'list_name': listName,
       if (mediaKind != null) 'media_kind': mediaKind,
       if (value != null) 'value': value,
+      if (sortName != null) 'sort_name': sortName,
+      if (isHidden != null) 'is_hidden': isHidden,
       if (sortOrder != null) 'sort_order': sortOrder,
       if (rowid != null) 'rowid': rowid,
     });
@@ -5536,6 +5601,8 @@ class PickListValuesCacheCompanion
       Value<String>? listName,
       Value<String?>? mediaKind,
       Value<String>? value,
+      Value<String?>? sortName,
+      Value<bool>? isHidden,
       Value<int>? sortOrder,
       Value<int>? rowid}) {
     return PickListValuesCacheCompanion(
@@ -5543,6 +5610,8 @@ class PickListValuesCacheCompanion
       listName: listName ?? this.listName,
       mediaKind: mediaKind ?? this.mediaKind,
       value: value ?? this.value,
+      sortName: sortName ?? this.sortName,
+      isHidden: isHidden ?? this.isHidden,
       sortOrder: sortOrder ?? this.sortOrder,
       rowid: rowid ?? this.rowid,
     );
@@ -5563,6 +5632,12 @@ class PickListValuesCacheCompanion
     if (value.present) {
       map['value'] = Variable<String>(value.value);
     }
+    if (sortName.present) {
+      map['sort_name'] = Variable<String>(sortName.value);
+    }
+    if (isHidden.present) {
+      map['is_hidden'] = Variable<bool>(isHidden.value);
+    }
     if (sortOrder.present) {
       map['sort_order'] = Variable<int>(sortOrder.value);
     }
@@ -5579,6 +5654,8 @@ class PickListValuesCacheCompanion
           ..write('listName: $listName, ')
           ..write('mediaKind: $mediaKind, ')
           ..write('value: $value, ')
+          ..write('sortName: $sortName, ')
+          ..write('isHidden: $isHidden, ')
           ..write('sortOrder: $sortOrder, ')
           ..write('rowid: $rowid')
           ..write(')'))
@@ -21647,6 +21724,8 @@ typedef $$PickListValuesCacheTableCreateCompanionBuilder
   required String listName,
   Value<String?> mediaKind,
   required String value,
+  Value<String?> sortName,
+  Value<bool> isHidden,
   Value<int> sortOrder,
   Value<int> rowid,
 });
@@ -21656,6 +21735,8 @@ typedef $$PickListValuesCacheTableUpdateCompanionBuilder
   Value<String> listName,
   Value<String?> mediaKind,
   Value<String> value,
+  Value<String?> sortName,
+  Value<bool> isHidden,
   Value<int> sortOrder,
   Value<int> rowid,
 });
@@ -21680,6 +21761,12 @@ class $$PickListValuesCacheTableFilterComposer
 
   ColumnFilters<String> get value => $composableBuilder(
       column: $table.value, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get sortName => $composableBuilder(
+      column: $table.sortName, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<bool> get isHidden => $composableBuilder(
+      column: $table.isHidden, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<int> get sortOrder => $composableBuilder(
       column: $table.sortOrder, builder: (column) => ColumnFilters(column));
@@ -21706,6 +21793,12 @@ class $$PickListValuesCacheTableOrderingComposer
   ColumnOrderings<String> get value => $composableBuilder(
       column: $table.value, builder: (column) => ColumnOrderings(column));
 
+  ColumnOrderings<String> get sortName => $composableBuilder(
+      column: $table.sortName, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<bool> get isHidden => $composableBuilder(
+      column: $table.isHidden, builder: (column) => ColumnOrderings(column));
+
   ColumnOrderings<int> get sortOrder => $composableBuilder(
       column: $table.sortOrder, builder: (column) => ColumnOrderings(column));
 }
@@ -21730,6 +21823,12 @@ class $$PickListValuesCacheTableAnnotationComposer
 
   GeneratedColumn<String> get value =>
       $composableBuilder(column: $table.value, builder: (column) => column);
+
+  GeneratedColumn<String> get sortName =>
+      $composableBuilder(column: $table.sortName, builder: (column) => column);
+
+  GeneratedColumn<bool> get isHidden =>
+      $composableBuilder(column: $table.isHidden, builder: (column) => column);
 
   GeneratedColumn<int> get sortOrder =>
       $composableBuilder(column: $table.sortOrder, builder: (column) => column);
@@ -21769,6 +21868,8 @@ class $$PickListValuesCacheTableTableManager extends RootTableManager<
             Value<String> listName = const Value.absent(),
             Value<String?> mediaKind = const Value.absent(),
             Value<String> value = const Value.absent(),
+            Value<String?> sortName = const Value.absent(),
+            Value<bool> isHidden = const Value.absent(),
             Value<int> sortOrder = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
@@ -21777,6 +21878,8 @@ class $$PickListValuesCacheTableTableManager extends RootTableManager<
             listName: listName,
             mediaKind: mediaKind,
             value: value,
+            sortName: sortName,
+            isHidden: isHidden,
             sortOrder: sortOrder,
             rowid: rowid,
           ),
@@ -21785,6 +21888,8 @@ class $$PickListValuesCacheTableTableManager extends RootTableManager<
             required String listName,
             Value<String?> mediaKind = const Value.absent(),
             required String value,
+            Value<String?> sortName = const Value.absent(),
+            Value<bool> isHidden = const Value.absent(),
             Value<int> sortOrder = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
@@ -21793,6 +21898,8 @@ class $$PickListValuesCacheTableTableManager extends RootTableManager<
             listName: listName,
             mediaKind: mediaKind,
             value: value,
+            sortName: sortName,
+            isHidden: isHidden,
             sortOrder: sortOrder,
             rowid: rowid,
           ),

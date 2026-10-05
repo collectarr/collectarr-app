@@ -1,11 +1,11 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:collectarr_app/features/library/kinds/music/vocabulary/music_vocabularies.dart';
+import 'package:collectarr_app/features/library/ui/primitives/library_managed_vocabulary_field.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_image_intake.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_form_controls.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'dart:typed_data';
 
-import 'package:collectarr_app/features/library/ui/primitives/library_dropdown_pick_field.dart';
-import 'package:collectarr_app/features/library/schema/library_field_spec.dart';
-import 'package:collectarr_app/features/pick_lists/widgets/pick_list_select_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_album_image.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit/music_cover_crop_editor.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit/music_album_edit_draft.dart';
@@ -582,7 +582,7 @@ final class _MusicAlbumMyImagesEditorState
   }
 }
 
-final class _PersonalImageRow extends StatefulWidget {
+final class _PersonalImageRow extends ConsumerStatefulWidget {
   const _PersonalImageRow({
     super.key,
     required this.image,
@@ -597,10 +597,10 @@ final class _PersonalImageRow extends StatefulWidget {
   final VoidCallback onDelete;
 
   @override
-  State<_PersonalImageRow> createState() => _PersonalImageRowState();
+  ConsumerState<_PersonalImageRow> createState() => _PersonalImageRowState();
 }
 
-final class _PersonalImageRowState extends State<_PersonalImageRow> {
+final class _PersonalImageRowState extends ConsumerState<_PersonalImageRow> {
   late final TextEditingController _description;
 
   @override
@@ -648,27 +648,13 @@ final class _PersonalImageRowState extends State<_PersonalImageRow> {
             Expanded(
               child: Column(
                 children: [
-                  LibraryDropdownPickField<String>(
-                    label: 'Image type',
+                  LibraryManagedVocabularyField(
+                    label: 'Image Type',
+                    listName: MusicVocabularyIds.imageType.value,
+                    mediaKind: 'music',
                     value: widget.image.imageType,
-                    options: const [
-                      LibraryFieldOption(value: 'booklet', label: 'Booklet'),
-                      LibraryFieldOption(
-                          value: 'signature', label: 'Signature'),
-                      LibraryFieldOption(value: 'label', label: 'Label'),
-                      LibraryFieldOption(value: 'disc', label: 'Disc'),
-                      LibraryFieldOption(value: 'other', label: 'Other'),
-                    ],
-                    openPicker: (
-                            {required label,
-                            required selectedValue,
-                            required options}) =>
-                        showPickListSelectDialog(
-                      context: context,
-                      label: label,
-                      options: options,
-                      selectedValue: selectedValue,
-                    ),
+                    builtIns: MusicVocabularies.imageType.builtIns,
+                    optionLabel: MusicVocabularies.imageType.optionLabel,
                     onChanged: (value) {
                       if (value != null) {
                         widget

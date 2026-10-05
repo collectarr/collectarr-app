@@ -15,12 +15,14 @@ class LibraryManagedVocabularyField extends ConsumerWidget {
       required this.value,
       required this.onChanged,
       this.builtIns = const [],
+      this.optionLabel,
       this.enabled = true});
   final String label;
   final String listName;
   final String mediaKind;
   final String? value;
   final List<String> builtIns;
+  final String Function(String value)? optionLabel;
   final bool enabled;
   final ValueChanged<String?> onChanged;
   @override
@@ -37,7 +39,8 @@ class LibraryManagedVocabularyField extends ConsumerWidget {
           allowCustomValue: true,
           options: [
             for (final choice in choices)
-              LibraryFieldOption(value: choice, label: choice)
+              LibraryFieldOption(
+                  value: choice, label: optionLabel?.call(choice) ?? choice)
           ],
           onChanged: onChanged,
           openPicker: (

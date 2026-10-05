@@ -12,9 +12,11 @@ class AccentDialogHeader extends StatelessWidget {
     this.icon,
     this.onClose,
     this.trailing,
+    this.minHeight,
   });
 
   final String title;
+  final double? minHeight;
 
   final IconData? icon;
 
@@ -31,6 +33,7 @@ class AccentDialogHeader extends StatelessWidget {
     final foreground = colorScheme.onPrimary;
     return LibraryPanelHeader(
       backgroundColor: bg,
+      minHeight: minHeight,
       foregroundColor: foreground,
       borderColor: bg.withValues(alpha: 0.92),
       onClose: onClose,

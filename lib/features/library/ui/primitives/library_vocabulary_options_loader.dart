@@ -57,7 +57,7 @@ class _LibraryVocabularyOptionsLoaderState
         builder: (context, snapshot) =>
             Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
           widget.builder(mergePickListValues(
-              builtInValues: widget.builtIns,
+              builtInValues: snapshot.hasData ? const [] : widget.builtIns,
               customValues: snapshot.data ?? const [],
               selectedValues: widget.selected)),
           if (snapshot.hasError)

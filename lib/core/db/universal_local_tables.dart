@@ -82,8 +82,7 @@ class UserExternalLinksCache extends Table {
   TextColumn get id => text()();
 
   /// Personal links belong to one local entry, not the shared Core catalog.
-  TextColumn get libraryEntryRefKey =>
-      text().withDefault(const Constant(''))();
+  TextColumn get libraryEntryRefKey => text().withDefault(const Constant(''))();
   TextColumn get label => text()();
   TextColumn get url => text()();
   TextColumn get kind => text()();
@@ -205,6 +204,8 @@ class PickListValuesCache extends Table {
   TextColumn get listName => text()();
   TextColumn get mediaKind => text().nullable()();
   TextColumn get value => text()();
+  TextColumn get sortName => text().nullable()();
+  BoolColumn get isHidden => boolean().withDefault(const Constant(false))();
   IntColumn get sortOrder => integer().withDefault(const Constant(0))();
 
   @override

@@ -256,7 +256,7 @@ List<LibraryFieldSpec<TDraft>> musicAlbumFields<TDraft>({
         id: 'extra',
         label: 'Extra',
         pluralLabel: 'Extras',
-        pickListKey: 'extra',
+        pickListKey: MusicVocabularyIds.extra.value,
         options: const [],
         values: (draft) => values(draft)
             .extra
@@ -271,7 +271,8 @@ List<LibraryFieldSpec<TDraft>> musicAlbumFields<TDraft>({
         label: 'SPARS',
         value: (draft) => _nullable(values(draft).spars),
         setValue: (draft, value) => values(draft).spars = value ?? '',
-        options: _options(const ['AAD', 'ADD', 'DAD', 'DDD']),
+        options: _options(MusicVocabularies.spars.builtIns),
+        pickListKey: MusicVocabularyIds.spars.value,
       ),
       LibraryVocabularyFieldSpec<TDraft, String>(
         id: 'country',
@@ -301,7 +302,7 @@ List<LibraryFieldSpec<TDraft>> musicAlbumFields<TDraft>({
         value: (draft) => _nullable(values(draft).boxSet),
         setValue: (draft, value) => values(draft).boxSet = value ?? '',
         options: const [],
-        pickListKey: 'box_set',
+        pickListKey: MusicVocabularyIds.boxSet.value,
       ),
     ], include);
 

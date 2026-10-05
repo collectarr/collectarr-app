@@ -1,3 +1,10 @@
+import 'package:collectarr_app/features/library/entries/library_entry_record.dart';
+import 'dart:convert';
+import 'package:collectarr_app/core/models/custom_field.dart';
+import 'package:collectarr_app/core/models/library_entry_ref.dart';
+import 'package:collectarr_app/features/library/entries/library_entry_store.dart';
+import 'package:collectarr_app/features/library/entries/library_entries_repository.dart';
+import 'pick_list_references.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/pick_lists/models/pick_list_value.dart';
@@ -24,164 +31,264 @@ class PickListMergePreview {
 }
 
 class PickListMergeService {
-  PickListMergeService(
-    this._db, {
-    PickListRepository? repository,
-    Iterable<PickListDefinitionContributor> contributors = const [],
-  })  : repository =
+  PickListMergeService(this._db,
+      {PickListRepository? repository,
+      Iterable<PickListDefinitionContributor> contributors = const []})
+      : repository =
             repository ?? PickListRepository(_db, contributors: contributors),
         _contributors = contributors.toList(growable: false);
-
   final LocalDatabase _db;
   final PickListRepository repository;
   final List<PickListDefinitionContributor> _contributors;
 
-  Future<PickListMergePreview> previewMerge({
-    required String listName,
-    required List<String> sourceValues,
-    required String targetValue,
-    required String? mediaKind,
-  }) async {
-    final normalizedSources = {
-      for (final value in sourceValues) normalizePickListValue(value),
-    };
-    var affected = 0;
-    final samples = <String>[];
-    final semanticName = pickListSemanticName(listName);
-    final requestedKind =
-        mediaKind == null ? null : catalogMediaKindFromApiValue(mediaKind);
-    for (final contributor in _contributors) {
-      if (requestedKind != null && contributor.kind != requestedKind) {
-        continue;
-      }
-      final result = await contributor.previewEntryMerge(
-        _db,
-        semanticName,
-        normalizedSources,
-      );
-      affected += result.affectedCount;
-      for (final sample in result.sampleValues) {
-        if (samples.length >= 5) break;
-        samples.add(sample);
-      }
-    }
-    final customRows = await _db.select(_db.customFieldValuesCache).get();
-    final customDefinitions = {
-      for (final definition
-          in await _db.select(_db.customFieldDefinitionsCache).get())
-        definition.id: definition,
-    };
-    for (final row in customRows) {
-      if (!_customFieldApplies(
-        customDefinitions[row.fieldDefinitionId],
-        mediaKind,
-      )) {
-        continue;
-      }
-      final rowValue = normalizePickListValue(row.value ?? '');
-      if (normalizedSources.contains(rowValue)) {
-        affected += 1;
-        if (samples.length < 5) {
-          samples.add(row.id);
+  CatalogMediaKind? _kind(String listName, String? mediaKind) {
+    final kind = catalogMediaKindFromApiValue(
+        listName.contains('.') ? listName.split('.').first : mediaKind);
+    return kind.isUnknown ? null : kind;
+  }
+
+  Future<PickListMergePreview> previewMerge(
+      {required String listName,
+      required List<String> sourceValues,
+      required String targetValue,
+      required String? mediaKind}) async {
+    final sources = sourceValues.map(normalizePickListValue).toSet()
+      ..remove(normalizePickListValue(targetValue));
+    final refs = <String>{};
+    var affectedCount = 0;
+    if (PickListReferences(_db).handles(listName)) {
+      for (final entry
+          in (await PickListReferences(_db).usages(listName, mediaKind))
+              .entries) {
+        if (sources.contains(normalizePickListValue(entry.key))) {
+          refs.addAll(entry.value.map((ref) => ref.key));
         }
+      }
+    } else if (listName.startsWith('customField:')) {
+      for (final row in await _customRows(listName, mediaKind)) {
+        if (row.$2
+            .any((value) => sources.contains(normalizePickListValue(value)))) {
+          refs.add(row.$1.targetId);
+        }
+      }
+    } else {
+      final kind = _kind(listName, mediaKind);
+      for (final contributor in _contributors) {
+        if (kind != null && contributor.kind != kind) continue;
+        final result = await contributor.previewEntryMerge(
+            _db, pickListSemanticName(listName), sources);
+        affectedCount += result.affectedCount;
+        refs.addAll(result.sampleValues.take(5));
       }
     }
     return PickListMergePreview(
-      listName: listName,
-      mediaKind: mediaKind,
-      sourceValues: sourceValues,
-      targetValue: targetValue,
-      affectedCount: affected,
-      sampleValues: samples,
-    );
+        listName: listName,
+        mediaKind: mediaKind,
+        sourceValues: sourceValues,
+        targetValue: targetValue,
+        affectedCount: affectedCount > 0 ? affectedCount : refs.length,
+        sampleValues: refs.take(5).toList());
   }
 
-  Future<void> applyMerge(PickListMergePreview preview) async {
-    final sourceSet = {
-      for (final value in preview.sourceValues) normalizePickListValue(value),
-    };
-    final target = preview.targetValue.trim();
+  Future<void> rename(PickListValue original, PickListValue replacement,
+      {String? mediaKind}) async {
+    final values = await repository.valuesForList(
+        listName: original.listName, mediaKind: mediaKind);
+    if (values.any((value) =>
+        value.id != original.id &&
+        value.effectiveNormalizedValue ==
+            replacement.effectiveNormalizedValue)) {
+      throw StateError(
+          'This name already exists. Use Merge Mode to combine values.');
+    }
     await _db.transaction(() async {
-      await _mergeLibraryEntries(
-        preview.listName,
-        preview.mediaKind,
-        sourceSet,
-        target,
-      );
-      await _mergeCustomFieldValues(
-        sourceSet,
-        target,
-        mediaKind: preview.mediaKind,
-      );
-      final rows = await repository.valuesForList(
-        listName: preview.listName,
-        mediaKind: preview.mediaKind,
-      );
-      for (final row in rows) {
-        if (sourceSet.contains(row.effectiveNormalizedValue)) {
-          await repository.deleteValue(row.id);
+      await _replaceReferences(original.listName, mediaKind,
+          {original.effectiveNormalizedValue}, replacement.value.trim());
+      if (original.effectiveNormalizedValue !=
+          replacement.effectiveNormalizedValue) {
+        await _hide(original, mediaKind);
+      }
+      await repository.upsertValue(replacement);
+      if (original.sortName == replacement.sortName) return;
+      final kind = _kind(original.listName, mediaKind);
+      for (final contributor in _contributors) {
+        if (kind == null || contributor.kind == kind) {
+          await contributor.updateSortName(
+              _db,
+              pickListSemanticName(original.listName),
+              replacement.value,
+              replacement.sortName);
         }
       }
-      await repository.addValue(preview.listName, target,
-          mediaKind: preview.mediaKind);
     });
   }
 
-  Future<void> _mergeLibraryEntries(
-    String listName,
-    String? mediaKind,
-    Set<String> sourceSet,
-    String target,
-  ) async {
-    final semanticName = pickListSemanticName(listName);
-    final requestedKind =
-        mediaKind == null ? null : catalogMediaKindFromApiValue(mediaKind);
-    for (final contributor in _contributors) {
-      if (requestedKind != null && contributor.kind != requestedKind) {
-        continue;
-      }
-      await contributor.applyEntryMerge(
-        _db,
-        semanticName,
-        sourceSet,
-        target,
-      );
-    }
+  Future<void> remove(PickListValue value, {String? mediaKind}) async {
+    await _db.transaction(() async {
+      await _replaceReferences(
+          value.listName, mediaKind, {value.effectiveNormalizedValue}, '');
+      await _hide(value, mediaKind);
+    });
   }
 
-  Future<void> _mergeCustomFieldValues(Set<String> sourceSet, String target,
-      {required String? mediaKind}) async {
-    final rows = await _db.select(_db.customFieldValuesCache).get();
-    final definitions = {
-      for (final definition
-          in await _db.select(_db.customFieldDefinitionsCache).get())
-        definition.id: definition,
+  Future<void> _hide(PickListValue value, String? mediaKind) async {
+    final stored = await repository.valuesForList(
+        listName: value.listName, mediaKind: mediaKind);
+    for (final row in stored) {
+      if (row.mediaKind == mediaKind &&
+          row.effectiveNormalizedValue == value.effectiveNormalizedValue) {
+        await repository.deleteValue(row.id);
+      }
+    }
+    await repository.hideValue(PickListValue(
+        id: 'hidden:${mediaKind ?? 'global'}:${value.listName}:${value.effectiveNormalizedValue}',
+        listName: value.listName,
+        mediaKind: mediaKind,
+        value: value.value,
+        sortName: value.sortName,
+        sortOrder: value.sortOrder));
+  }
+
+  Future<void> applyMerge(PickListMergePreview preview) async {
+    final target = preview.targetValue.trim();
+    if (target.isEmpty) throw ArgumentError('Choose a merge target.');
+    final sources = preview.sourceValues.map(normalizePickListValue).toSet()
+      ..remove(normalizePickListValue(target));
+    if (sources.isEmpty) return;
+    await _db.transaction(() async {
+      await _replaceReferences(
+          preview.listName, preview.mediaKind, sources, target);
+      final rows = await repository.valuesForList(
+          listName: preview.listName, mediaKind: preview.mediaKind);
+      for (final source in preview.sourceValues) {
+        final normalized = normalizePickListValue(source);
+        if (!sources.contains(normalized)) continue;
+        final row = rows
+            .where((value) => value.effectiveNormalizedValue == normalized)
+            .firstOrNull;
+        await _hide(
+            row ??
+                PickListValue(
+                    id: 'option:${preview.listName}:$normalized',
+                    listName: preview.listName,
+                    mediaKind: preview.mediaKind,
+                    value: source),
+            preview.mediaKind);
+      }
+      // Keep an existing destination's identity, sort name and position.
+      if (!rows.any((row) =>
+          row.effectiveNormalizedValue == normalizePickListValue(target))) {
+        await repository.addValue(preview.listName, target,
+            mediaKind: preview.mediaKind);
+      }
+    });
+  }
+
+  Future<void> _replaceReferences(String listName, String? mediaKind,
+      Set<String> sources, String target) async {
+    if (PickListReferences(_db).handles(listName)) {
+      await PickListReferences(_db)
+          .replace(listName, mediaKind, sources, target);
+      return;
+    }
+    if (listName.startsWith('customField:')) {
+      for (final item in await _customRows(listName, mediaKind)) {
+        final row = item.$1;
+        if (!item.$2
+            .any((value) => sources.contains(normalizePickListValue(value)))) {
+          continue;
+        }
+        final seen = <String>{};
+        final replaced = item.$2
+            .map((value) => sources.contains(normalizePickListValue(value))
+                ? target
+                : value)
+            .where((value) =>
+                value.isNotEmpty && seen.add(normalizePickListValue(value)))
+            .toList();
+        await (_db.update(_db.customFieldValuesCache)
+              ..where((t) => t.id.equals(row.id)))
+            .write(CustomFieldValuesCacheCompanion(
+                value: Value(item.$3
+                    ? encodeCustomFieldMultiValues(replaced)
+                    : replaced.firstOrNull),
+                updatedAt: Value(DateTime.now().toUtc())));
+        if (row.targetScope == CustomFieldTargetScope.libraryEntry.apiValue) {
+          await enqueueLibraryEntrySnapshot(
+              _db, LibraryEntryRef.fromKey(row.targetId));
+        }
+      }
+      return;
+    }
+    final kind = _kind(listName, mediaKind);
+    final before = {
+      for (final entry in await LibraryEntryStore(_db).list(kind: kind))
+        '${entry.kind.apiValue}:${entry.id}': jsonEncode(entry.toJson())
     };
-    for (final row in rows) {
-      if (!_customFieldApplies(
-        definitions[row.fieldDefinitionId],
-        mediaKind,
-      )) {
+    for (final contributor in _contributors) {
+      if (kind != null && contributor.kind != kind) continue;
+      await contributor.applyEntryMerge(
+          _db, pickListSemanticName(listName), sources, target);
+      final remaining = sources.difference({normalizePickListValue(target)});
+      if (remaining.isNotEmpty) {
+        final result = await contributor.previewEntryMerge(
+            _db, pickListSemanticName(listName), remaining);
+        if (result.affectedCount > 0) {
+          throw StateError(
+              'This field does not yet support updating referenced values. No changes were saved.');
+        }
+      }
+    }
+    for (final entry in await LibraryEntryStore(_db).list(kind: kind)) {
+      if (before['${entry.kind.apiValue}:${entry.id}'] ==
+          jsonEncode(entry.toJson())) {
         continue;
       }
-      if (!sourceSet.contains(normalizePickListValue(row.value ?? ''))) {
-        continue;
-      }
-      await (_db.update(_db.customFieldValuesCache)
-            ..where((table) => table.id.equals(row.id)))
-          .write(
-        CustomFieldValuesCacheCompanion(value: Value(target)),
-      );
+      await LibraryEntryStore(_db).put(LibraryEntryRecord(
+          id: entry.id,
+          kind: entry.kind,
+          catalogData: entry.catalogData,
+          personalData: entry.personalData,
+          sourceCatalogRef: entry.sourceCatalogRef,
+          deletedAt: entry.deletedAt,
+          updatedAt: DateTime.now().toUtc()));
+      await enqueueLibraryEntrySnapshot(
+          _db, LibraryEntryRef(kind: entry.kind, id: LibraryEntryId(entry.id)));
     }
   }
 
-  bool _customFieldApplies(
-    CustomFieldDefinitionsCacheData? definition,
-    String? mediaKind,
-  ) {
-    if (mediaKind == null) return true;
-    return definition == null ||
-        definition.mediaKind == null ||
-        definition.mediaKind == mediaKind;
+  Future<List<(CustomFieldValuesCacheData, List<String>, bool)>> _customRows(
+      String listName, String? mediaKind) async {
+    final fieldId = listName.substring('customField:'.length);
+    final definition = await (_db.select(_db.customFieldDefinitionsCache)
+          ..where((t) => t.id.equals(fieldId)))
+        .getSingleOrNull();
+    if (definition == null ||
+        (mediaKind != null &&
+            definition.mediaKind != null &&
+            definition.mediaKind != mediaKind)) {
+      return [];
+    }
+    final multi =
+        CustomFieldValueType.fromApiValue(definition.fieldType).isMultiValue;
+    final active = {
+      for (final entry in await LibraryEntryStore(_db).list())
+        if (mediaKind == null || entry.kind.apiValue == mediaKind)
+          LibraryEntryRef(kind: entry.kind, id: LibraryEntryId(entry.id)).key
+    };
+    return [
+      for (final row in await (_db.select(_db.customFieldValuesCache)
+            ..where((t) => t.fieldDefinitionId.equals(fieldId)))
+          .get())
+        if (row.targetScope == CustomFieldTargetScope.libraryEntry.apiValue &&
+            active.contains(row.targetId))
+          (
+            row,
+            multi
+                ? parseCustomFieldMultiValues(row.value)
+                : [if (row.value != null) row.value!],
+            multi
+          )
+    ];
   }
 }

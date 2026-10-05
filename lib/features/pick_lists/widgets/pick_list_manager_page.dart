@@ -1,125 +1,139 @@
+import 'pick_list_chrome.dart';
 import 'dart:async';
-
+import 'dart:math' as math;
+import 'package:flutter/material.dart';
+import 'package:uuid/uuid.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/features/collection/repositories/custom_field_repository.dart';
-import 'package:collectarr_app/features/pick_lists/models/pick_list_definition.dart';
-import 'package:collectarr_app/features/pick_lists/models/pick_list_scope.dart';
-import 'package:collectarr_app/features/pick_lists/models/pick_list_value.dart';
-import 'package:collectarr_app/features/pick_lists/pick_list_registry.dart';
-import 'package:collectarr_app/features/pick_lists/pick_list_repository.dart';
-import 'package:collectarr_app/features/pick_lists/widgets/pick_list_value_editor_dialog.dart';
-import 'package:collectarr_app/features/pick_lists/widgets/pick_list_values_table.dart';
+import 'package:collectarr_app/ui/accent_dialog_header.dart';
 import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
-import 'package:flutter/material.dart';
-import 'package:collectarr_app/ui/compact_search_dropdown_form_field.dart';
+import '../models/pick_list_definition.dart';
+import '../models/pick_list_scope.dart';
+import '../models/pick_list_value.dart';
+import '../pick_list_registry.dart';
+import '../pick_list_repository.dart';
+import '../pick_list_merge_service.dart';
+import 'pick_list_value_editor_dialog.dart';
+import 'pick_list_values_table.dart';
 
-Future<void> showPickListManagerDialog({
-  required BuildContext context,
-  required LocalDatabase db,
-  required PickListRegistry registry,
-  String? initialListName,
-  String? initialMediaKind,
-  String? title,
-}) {
-  return showDialog<void>(
-    context: context,
-    barrierDismissible: false,
-    builder: (context) => AccentAlertDialog(
-      backgroundColor: appPalette(context).panel,
-      title: Text(title ?? 'Manage pick lists'),
-      headerOnClose: () => Navigator.of(context).pop(),
-      content: SizedBox(
-        width: 1240,
-        height: 760,
-        child: PickListManagerPage(
-          db: db,
-          registry: registry,
-          initialListName: initialListName,
-          initialMediaKind: initialMediaKind,
-        ),
-      ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.of(context).pop(),
-          child: const Text('Close'),
-        ),
-      ],
-    ),
-  );
+String pickListPluralLabel(String label) => switch (label) {
+      'Country' => 'Countries',
+      'Chorus' => 'Choruses',
+      'Extra' => 'Extras',
+      'SPARS' => 'SPARS',
+      'Packaging' => 'Packaging',
+      'Collection status' => 'Collection Statuses',
+      'Sold to' => 'Sold To',
+      'Loaned To' => 'Loaned To',
+      'Package/Sleeve Condition' => 'Package/Sleeve Conditions',
+      _ => label.endsWith('s') ? label : '${label}s',
+    };
+
+final class PickListManagerChanges {
+  final Map<String, String?> replacements = {};
+  String? apply(String listName, String value) {
+    var current = value;
+    final seen = <String>{};
+    while (seen.add(normalizePickListValue(current))) {
+      final normalized = '$listName:${normalizePickListValue(current)}';
+      if (!replacements.containsKey(normalized)) return current;
+      final replacement = replacements[normalized];
+      if (replacement == null) return null;
+      current = replacement;
+    }
+    return current;
+  }
 }
 
-class PickListManagerPage extends StatefulWidget {
-  const PickListManagerPage({
-    super.key,
-    required this.db,
-    required this.registry,
-    this.initialListName,
-    this.initialMediaKind,
-  });
+Future<PickListManagerChanges?> showPickListManagerDialog(
+        {required BuildContext context,
+        required LocalDatabase db,
+        required PickListRegistry registry,
+        String? initialListName,
+        String? initialMediaKind}) =>
+    showDialog<PickListManagerChanges>(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => Dialog(
+          insetPadding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+          alignment: Alignment.topCenter,
+          backgroundColor: appPalette(context).panel,
+          shape: const RoundedRectangleBorder(),
+          clipBehavior: Clip.antiAlias,
+          child: ConstrainedBox(
+              constraints: BoxConstraints(
+                  maxWidth: 720,
+                  maxHeight: MediaQuery.sizeOf(context).height - 24),
+              child: PickListManagerPage(
+                  db: db,
+                  registry: registry,
+                  initialListName: initialListName,
+                  initialMediaKind: initialMediaKind))),
+    );
 
+class PickListManagerPage extends StatefulWidget {
+  const PickListManagerPage(
+      {super.key,
+      required this.db,
+      required this.registry,
+      this.initialListName,
+      this.initialMediaKind});
   final LocalDatabase db;
   final PickListRegistry registry;
   final String? initialListName;
   final String? initialMediaKind;
-
   @override
   State<PickListManagerPage> createState() => _PickListManagerPageState();
 }
 
 class _PickListManagerPageState extends State<PickListManagerPage> {
-  final _searchController = TextEditingController();
-  late final PickListRegistry _registry;
-  late final PickListRepository _repo = PickListRepository(
-    widget.db,
-    contributors: widget.registry.contributors,
-  );
-  late final CustomFieldRepository _customFieldRepo =
-      CustomFieldRepository(widget.db);
-
-  String? _selectedKind;
+  final _search = TextEditingController();
+  final _changes = PickListManagerChanges();
+  late final _repo =
+      PickListRepository(widget.db, contributors: widget.registry.contributors);
+  late final _merger = PickListMergeService(widget.db,
+      repository: _repo, contributors: widget.registry.contributors);
+  List<PickListDefinition> _definitions = [];
+  List<PickListValue> _values = [];
+  Map<String, int> _counts = {};
   String? _selectedListName;
-  bool _includeGlobalValues = true;
   bool _loading = true;
-  List<PickListDefinition> _definitions = const [];
-  List<PickListValue> _values = const [];
-  Map<String, int> _usageCounts = const {};
-  final Set<String> _cleanedLists = {};
-  int _loadGeneration = 0;
+  bool _busy = false;
+  bool _mergeMode = false;
+  final Set<String> _selected = {};
+  String? _error;
+  int _generation = 0;
+  PickListDefinition? get _definition => _definitions
+      .where((item) => item.listName == _selectedListName)
+      .firstOrNull;
+  String? get _scopeKind => _selectedListName == 'locations'
+      ? null
+      : _definition?.mediaKind ?? widget.initialMediaKind;
 
   @override
   void initState() {
     super.initState();
-    _registry = widget.registry;
-    _selectedKind = widget.initialMediaKind ?? 'all';
     _selectedListName = widget.initialListName;
-    _searchController.addListener(_reload);
-    _load();
+    unawaited(_load());
   }
 
   @override
   void dispose() {
-    _searchController.removeListener(_reload);
-    _searchController.dispose();
+    _search.dispose();
     super.dispose();
   }
 
   Future<void> _load() async {
-    final generation = ++_loadGeneration;
-    final selectedKind = _selectedKind;
-    final selectedListName = _selectedListName;
-    final includeGlobalValues = _includeGlobalValues;
-    final query = _searchController.text.trim().toLowerCase();
-    final kind = selectedKind == 'all' ? null : selectedKind;
-    final defs = _registry.definitionsForKind(kind);
-    final customFields = await _customFieldRepo.listDefinitions(
-      mediaKind: kind,
-    );
-    if (!mounted || generation != _loadGeneration) return;
-    final customDefinitions = [
-      for (final field in customFields)
-        if (field.supportsOptions)
-          PickListDefinition(
+    final generation = ++_generation;
+    try {
+      final definitions = [
+        ...widget.registry.definitionsForKind(widget.initialMediaKind)
+      ];
+      for (final field in await CustomFieldRepository(widget.db)
+          .listDefinitions(mediaKind: widget.initialMediaKind)) {
+        if (!field.supportsOptions) continue;
+        definitions.add(PickListDefinition(
             id: 'customField:${field.id}',
             listName: 'customField:${field.id}',
             label: field.name,
@@ -128,372 +142,462 @@ class _PickListManagerPageState extends State<PickListManagerPage> {
             valueMode: field.valueType.isMultiValue
                 ? PickListValueMode.multi
                 : PickListValueMode.single,
-            controlType: PickListControlType.dropdown,
-            builtInValues: field.optionValues,
-            allowMerge: true,
-          ),
-    ];
-    final filtered = [...defs, ...customDefinitions];
-    final visible = query.isEmpty
-        ? filtered
-        : filtered.where((definition) {
-            return definition.label.toLowerCase().contains(query) ||
-                definition.listName.toLowerCase().contains(query);
-          }).toList(growable: false);
-    PickListDefinition? selectedDefinition;
-    if (visible.isNotEmpty) {
-      selectedDefinition = selectedListName == null
-          ? visible.first
-          : visible.firstWhere(
-              (definition) => definition.listName == selectedListName,
-              orElse: () => visible.first,
-            );
+            builtInValues: field.optionValues));
+      }
+      definitions.removeWhere(
+          (definition) => definition.listName == 'collection_status');
+      definitions.sort(
+          (a, b) => a.label.toLowerCase().compareTo(b.label.toLowerCase()));
+      final definition = definitions
+              .where((item) => item.listName == _selectedListName)
+              .firstOrNull ??
+          definitions.firstOrNull;
+      final kind = definition?.listName == 'locations'
+          ? null
+          : definition?.mediaKind ?? widget.initialMediaKind;
+      final stored = definition == null
+          ? <PickListValue>[]
+          : await _repo.valuesForList(
+              listName: definition.listName, mediaKind: kind);
+      final hidden = definition == null
+          ? <String>{}
+          : await _repo.hiddenValues(definition.listName, mediaKind: kind);
+      final options = <String, PickListValue>{
+        for (final value in stored)
+          value.effectiveNormalizedValue: PickListValue(
+              id: value.id,
+              listName: value.listName,
+              mediaKind: value.mediaKind,
+              value: value.value,
+              sortName: value.sortName,
+              sortOrder: value.sortOrder,
+              isSystem: value.isSystem,
+              displayLabel: definition?.optionLabel?.call(value.value))
+      };
+      if (definition != null) {
+        final derived =
+            await _repo.entryOptions(definition.listName, mediaKind: kind);
+        for (final value in [...definition.builtInValues, ...derived]) {
+          final normalized = normalizePickListValue(value);
+          if (normalized.isEmpty || hidden.contains(normalized)) continue;
+          options.putIfAbsent(
+              normalized,
+              () => PickListValue(
+                  id: 'option:${definition.listName}:$normalized',
+                  listName: definition.listName,
+                  mediaKind: kind,
+                  value: value.trim(),
+                  displayLabel: definition.optionLabel?.call(value.trim()),
+                  isSystem: definition.builtInValues.contains(value)));
+        }
+      }
+      final counts = definition == null
+          ? <String, int>{}
+          : await _repo.usageCountsByValue(
+              listName: definition.listName,
+              mediaKind: kind,
+              values: options.values.map((value) => value.value));
+      if (!mounted || generation != _generation) return;
+      setState(() {
+        _definitions = definitions;
+        _selectedListName = definition?.listName;
+        _values = options.values.toList();
+        _counts = {
+          for (final value in _values)
+            value.id: counts[value.effectiveNormalizedValue] ?? 0
+        };
+        _selected.removeWhere((id) => !_values.any((value) => value.id == id));
+        _loading = false;
+        _error = null;
+      });
+    } catch (error) {
+      if (!mounted || generation != _generation) return;
+      setState(() {
+        _loading = false;
+        _error = error.toString();
+      });
     }
-    if (selectedDefinition != null &&
-        _cleanedLists.add(selectedDefinition.listName)) {
-      await _repo.deleteUnusedCustomValues(
-        listName: selectedDefinition.listName,
-        builtInValues: selectedDefinition.builtInValues,
-      );
-      if (!mounted || generation != _loadGeneration) return;
-    }
-    final values = selectedDefinition == null
-        ? const <PickListValue>[]
-        : await _repo.valuesForList(
-            listName: selectedDefinition.listName,
-            mediaKind: selectedDefinition.mediaKind,
-            includeGlobal: includeGlobalValues,
-          );
-    final usageCounts = selectedDefinition == null
-        ? const <String, int>{}
-        : await _repo.usageCounts(
-            listName: selectedDefinition.listName,
-            mediaKind: selectedDefinition.mediaKind,
-          );
-    if (!mounted) {
-      return;
-    }
-    if (generation != _loadGeneration) return;
+  }
+
+  Future<void> _run(Future<void> Function() operation) async {
+    if (_busy) return;
     setState(() {
-      _definitions = visible;
-      _values = values;
-      _usageCounts = usageCounts;
-      _selectedListName = selectedDefinition?.listName;
-      _loading = false;
+      _busy = true;
+      _error = null;
+    });
+    try {
+      await operation();
+      await _load();
+    } catch (error) {
+      if (mounted) setState(() => _error = error.toString());
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  Future<bool> _confirm(String title, String message, String action) async =>
+      await showDialog<bool>(
+          context: context,
+          builder: (context) => AccentAlertDialog(
+                  title: Text(title),
+                  headerOnClose: () => Navigator.pop(context, false),
+                  content: SizedBox(width: 440, child: Text(message)),
+                  actions: [
+                    TextButton(
+                        onPressed: () => Navigator.pop(context, false),
+                        child: const Text('Cancel')),
+                    FilledButton(
+                        onPressed: () => Navigator.pop(context, true),
+                        child: Text(action)),
+                  ])) ??
+      false;
+
+  Future<void> _edit(PickListValue value) async {
+    final definition = _definition;
+    if (definition == null || _busy) return;
+    final edited = await showPickListValueEditorDialog(
+        context: context,
+        listName: definition.listName,
+        label: definition.label,
+        existing: value,
+        mediaKind: _scopeKind);
+    if (edited == null || !mounted) return;
+    final result = PickListValue(
+        id: value.mediaKind == _scopeKind && !value.id.startsWith('option:')
+            ? value.id
+            : const Uuid().v4(),
+        listName: value.listName,
+        mediaKind: _scopeKind,
+        value: edited.value,
+        sortName: edited.sortName,
+        sortOrder: value.sortOrder);
+    await _run(() async {
+      await _merger.rename(value, result, mediaKind: _scopeKind);
+      _changes.replacements[
+          '${value.listName}:${value.effectiveNormalizedValue}'] = result.value;
     });
   }
 
-  void _reload() {
-    unawaited(_load());
+  Future<void> _delete(PickListValue value) async {
+    final count = _counts[value.id] ?? 0;
+    final confirmed = await _confirm(
+        'Remove ${value.effectiveLabel}',
+        'Remove this value from the list${count == 0 ? '?' : ' and clear it from $count local entries?'}'
+            '${value.listName.endsWith('.image_type') ? '\nImages will be kept; their type will be cleared.' : ''}',
+        'Remove');
+    if (!confirmed || !mounted) return;
+    await _run(() async {
+      await _merger.remove(value, mediaKind: _scopeKind);
+      _changes.replacements[
+          '${value.listName}:${value.effectiveNormalizedValue}'] = null;
+    });
   }
 
-  Future<void> _addValue() async {
-    final definition = _selectedDefinition;
-    if (definition == null) {
-      return;
-    }
-    final result = await showPickListValueEditorDialog(
-      context: context,
-      listName: definition.listName,
-      label: definition.label,
-      mediaKind: definition.mediaKind,
-    );
-    if (result == null) {
-      return;
-    }
-    await _repo.upsertValue(result);
-    await _load();
-  }
-
-  Future<void> _editValue(PickListValue value) async {
-    final definition = _selectedDefinition;
-    if (definition == null) {
-      return;
-    }
-    final result = await showPickListValueEditorDialog(
-      context: context,
-      listName: definition.listName,
-      label: definition.label,
-      mediaKind: definition.mediaKind,
-      existing: value,
-    );
-    if (result == null) {
-      return;
-    }
-    await _repo.upsertValue(result);
-    await _load();
-  }
-
-  Future<void> _deleteValue(PickListValue value) async {
-    await _repo.deleteValue(value.id);
-    await _load();
-  }
-
-  Future<void> _reorder(List<String> orderedIds) async {
-    final definition = _selectedDefinition;
-    if (definition == null) {
-      return;
-    }
-    await _repo.reorderValues(
-      listName: definition.listName,
-      mediaKind: definition.mediaKind,
-      orderedIds: orderedIds,
-    );
-    await _load();
-  }
-
-  PickListDefinition? get _selectedDefinition {
-    final selected = _selectedListName;
-    if (selected == null) {
-      return null;
-    }
-    for (final definition in _definitions) {
-      if (definition.listName == selected) {
-        return definition;
+  Future<void> _mergeInto(PickListValue target) async {
+    final definition = _definition;
+    if (definition == null) return;
+    final sources =
+        _values.where((value) => _selected.contains(value.id)).toList();
+    await _run(() async {
+      final preview = await _merger.previewMerge(
+          listName: definition.listName,
+          mediaKind: _scopeKind,
+          sourceValues: sources.map((value) => value.value).toList(),
+          targetValue: target.value);
+      if (!mounted) return;
+      final confirmed = await _confirm(
+          'Merge ${pickListPluralLabel(definition.label)}',
+          'Merge ${sources.length} selected values into ${target.effectiveLabel}?\n'
+              'This updates ${preview.affectedCount} local entries and removes the other values.',
+          'Merge');
+      if (!confirmed) return;
+      await _merger.applyMerge(preview);
+      for (final source in sources) {
+        _changes.replacements[
+                '${source.listName}:${source.effectiveNormalizedValue}'] =
+            target.value;
       }
-    }
-    return _definitions.isEmpty ? null : _definitions.first;
+      if (mounted) {
+        setState(() {
+          _mergeMode = false;
+          _selected.clear();
+        });
+      }
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    if (_loading) {
-      return const Center(child: CircularProgressIndicator());
-    }
-    final definition = _selectedDefinition;
+    final definition = _definition;
+    final label = definition?.label ?? 'Pick List';
+    final query = normalizePickListValue(_search.text);
+    final visible = _values
+        .where((value) =>
+            normalizePickListValue(value.effectiveLabel).contains(query) ||
+            normalizePickListValue(value.effectiveSortName).contains(query))
+        .toList();
     final palette = appPalette(context);
-    return Material(
-      color: palette.panel,
-      child: Row(
-        children: [
-          SizedBox(
-            width: 320,
-            child: Material(
-              color: palette.panelRaised,
-              child: Container(
-                decoration: BoxDecoration(
-                  border: Border(right: BorderSide(color: palette.divider)),
-                ),
+    return PopScope(
+        canPop: false,
+        onPopInvokedWithResult: (didPop, result) {
+          if (!didPop && !_busy) Navigator.pop(context, _changes);
+        },
+        child: Material(
+            color: pickListSurface(context),
+            child: DefaultTextStyle.merge(
+                style:
+                    const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.all(12),
-                      child: TextField(
-                        controller: _searchController,
-                        decoration: const InputDecoration(
-                          labelText: 'Search lists',
-                          prefixIcon: Icon(Icons.search),
-                        ),
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 12),
-                      child: CompactSearchDropdownFormField<String>(
-                        initialValue: _selectedKind,
-                        decoration: const InputDecoration(labelText: 'Kind'),
-                        items: const [
-                          DropdownMenuItem(
-                            value: 'all',
-                            child: Text('All kinds'),
-                          ),
-                          DropdownMenuItem(
-                            value: 'comic',
-                            child: Text('Comics'),
-                          ),
-                          DropdownMenuItem(
-                            value: 'manga',
-                            child: Text('Manga'),
-                          ),
-                          DropdownMenuItem(
-                            value: 'anime',
-                            child: Text('Anime'),
-                          ),
-                          DropdownMenuItem(
-                            value: 'book',
-                            child: Text('Books'),
-                          ),
-                          DropdownMenuItem(
-                            value: 'game',
-                            child: Text('Games'),
-                          ),
-                          DropdownMenuItem(
-                            value: 'boardgame',
-                            child: Text('Board games'),
-                          ),
-                          DropdownMenuItem(
-                            value: 'movie',
-                            child: Text('Movies'),
-                          ),
-                          DropdownMenuItem(
-                            value: 'tv',
-                            child: Text('TV'),
-                          ),
-                          DropdownMenuItem(
-                            value: 'music',
-                            child: Text('Music'),
-                          ),
-                        ],
-                        onChanged: (value) {
-                          setState(() {
-                            _selectedKind = value ?? 'all';
-                            _selectedListName = null;
-                          });
-                          unawaited(_load());
-                        },
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 4,
-                      ),
-                      child: Row(
-                        children: [
-                          Expanded(child: const Text('Include global values')),
-                          Switch(
-                            value: _includeGlobalValues,
-                            onChanged: (value) {
-                              setState(() => _includeGlobalValues = value);
-                              unawaited(_load());
-                            },
-                          ),
-                        ],
-                      ),
-                    ),
-                    const Divider(height: 1),
-                    Expanded(
-                      child: ListView.builder(
-                        itemCount: _definitions.length,
-                        itemBuilder: (context, index) {
-                          final item = _definitions[index];
-                          final selected =
-                              item.listName == definition?.listName;
-                          return InkWell(
-                            mouseCursor: WidgetStateMouseCursor.clickable,
-                            onTap: () {
-                              setState(() => _selectedListName = item.listName);
-                              unawaited(_load());
-                            },
-                            child: Container(
-                              color: selected
-                                  ? palette.surface
-                                  : Colors.transparent,
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 16,
-                                vertical: 12,
-                              ),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    item.label,
-                                    style: TextStyle(
-                                      fontWeight: selected
-                                          ? FontWeight.w800
-                                          : FontWeight.w600,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 2),
-                                  Text(
-                                    item.listName,
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .bodySmall
-                                        ?.copyWith(
-                                          color: palette.textMuted,
-                                        ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.all(12),
-              child: definition == null
-                  ? const Center(child: Text('No pick list selected'))
-                  : Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        Row(
-                          children: [
-                            Expanded(
-                              child: Text(
-                                definition.label,
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .titleLarge
-                                    ?.copyWith(fontWeight: FontWeight.w900),
-                              ),
-                            ),
-                            OutlinedButton.icon(
-                              onPressed: _addValue,
-                              icon: const Icon(Icons.add),
-                              label: const Text('Add value'),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 8),
-                        Wrap(
-                          spacing: 8,
-                          runSpacing: 8,
-                          children: [
-                            _PickListMetaChip(label: definition.scope.name),
-                            _PickListMetaChip(
-                              label: definition.mediaKind == null
-                                  ? 'Global'
-                                  : definition.mediaKind!,
-                            ),
-                            _PickListMetaChip(
-                              label: definition.valueMode.name,
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 12),
-                        Expanded(
-                          child: PickListValuesTable(
-                            values: _values,
-                            usageCounts: _usageCounts,
-                            onReorder: _reorder,
-                            onEdit: _editValue,
-                            onDelete: _deleteValue,
-                          ),
-                        ),
-                      ],
-                    ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _PickListMetaChip extends StatelessWidget {
-  const _PickListMetaChip({required this.label});
-
-  final String label;
-
-  @override
-  Widget build(BuildContext context) {
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: appPalette(context).panelRaised,
-        border: Border.all(color: appPalette(context).divider),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-        child: Text(label),
-      ),
-    );
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      AccentDialogHeader(
+                          minHeight: 38,
+                          title: 'Manage ${pickListPluralLabel(label)}',
+                          onClose: _busy
+                              ? null
+                              : () => Navigator.pop(context, _changes)),
+                      Container(
+                          color: pickListToolbar(context),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 5, vertical: 6),
+                          child: LayoutBuilder(
+                              builder: (context, constraints) => Wrap(
+                                      spacing: 8,
+                                      runSpacing: 6,
+                                      alignment: WrapAlignment.spaceBetween,
+                                      crossAxisAlignment:
+                                          WrapCrossAlignment.center,
+                                      children: [
+                                        SizedBox(
+                                            width: math.min(
+                                                200, constraints.maxWidth),
+                                            height: 32,
+                                            child: TextField(
+                                                controller: _search,
+                                                onChanged: (_) =>
+                                                    setState(() {}),
+                                                style: const TextStyle(
+                                                    fontSize: 14,
+                                                    fontWeight:
+                                                        FontWeight.w500),
+                                                decoration: pickListInputDecoration(
+                                                    context,
+                                                    hintText: 'Search...',
+                                                    suffixIcon: IconButton(
+                                                        padding:
+                                                            EdgeInsets.zero,
+                                                        iconSize: 18,
+                                                        icon: Icon(query.isEmpty
+                                                            ? Icons.search
+                                                            : Icons.close),
+                                                        onPressed: () => setState(
+                                                            () => _search
+                                                                .clear()))))),
+                                        Container(
+                                            height: 30,
+                                            padding: const EdgeInsets.symmetric(
+                                                horizontal: 6),
+                                            decoration: BoxDecoration(
+                                                color: palette.textMuted,
+                                                borderRadius:
+                                                    BorderRadius.circular(4)),
+                                            child: Row(
+                                                mainAxisSize: MainAxisSize.min,
+                                                children: [
+                                                  Container(
+                                                      padding:
+                                                          const EdgeInsets
+                                                              .symmetric(
+                                                              horizontal: 5,
+                                                              vertical: 3),
+                                                      decoration: BoxDecoration(
+                                                          color:
+                                                              pickListSurface(
+                                                                  context),
+                                                          borderRadius:
+                                                              BorderRadius
+                                                                  .circular(4)),
+                                                      child: Text(
+                                                          '${visible.length}',
+                                                          style: TextStyle(
+                                                              fontSize: 12,
+                                                              color: palette
+                                                                  .textPrimary))),
+                                                  const SizedBox(width: 5),
+                                                  Text(
+                                                      pickListPluralLabel(label)
+                                                          .toLowerCase(),
+                                                      style: TextStyle(
+                                                          fontSize: 16,
+                                                          color:
+                                                              palette.panel)),
+                                                ])),
+                                        SizedBox(
+                                            width: math.min(
+                                                200, constraints.maxWidth),
+                                            height: 32,
+                                            child: DropdownButtonFormField<
+                                                    String>(
+                                                initialValue: _selectedListName,
+                                                isExpanded: true,
+                                                isDense: true,
+                                                decoration:
+                                                    pickListInputDecoration(
+                                                        context),
+                                                style: TextStyle(
+                                                    fontSize: 14,
+                                                    fontWeight: FontWeight.w500,
+                                                    color: palette.textPrimary),
+                                                items: [
+                                                  for (final item
+                                                      in _definitions)
+                                                    DropdownMenuItem(
+                                                        value: item.listName,
+                                                        child: Text(
+                                                            '${item.label} list',
+                                                            overflow:
+                                                                TextOverflow
+                                                                    .ellipsis))
+                                                ],
+                                                onChanged: _busy
+                                                    ? null
+                                                    : (value) {
+                                                        setState(() {
+                                                          _selectedListName =
+                                                              value;
+                                                          _loading = true;
+                                                          _mergeMode = false;
+                                                          _selected.clear();
+                                                          _search.clear();
+                                                        });
+                                                        unawaited(_load());
+                                                      })),
+                                      ]))),
+                      if (_busy) const LinearProgressIndicator(minHeight: 2),
+                      if (_error != null)
+                        MaterialBanner(content: Text(_error!), actions: [
+                          TextButton(
+                              onPressed: _busy ? null : _load,
+                              child: const Text('Retry'))
+                        ]),
+                      if (_mergeMode)
+                        Container(
+                            height: 45,
+                            color: pickListToolbar(context),
+                            alignment: Alignment.centerLeft,
+                            padding: const EdgeInsets.symmetric(horizontal: 8),
+                            child: Text(
+                                'Checkbox the ${pickListPluralLabel(label)} you want to merge:')),
+                      Flexible(
+                          fit: FlexFit.loose,
+                          child: SizedBox(
+                              height: math.max(1, _values.length) * 48.0 + 48,
+                              child: _loading
+                                  ? const Center(
+                                      child: CircularProgressIndicator())
+                                  : PickListValuesTable(
+                                      key: ValueKey(_selectedListName),
+                                      values: visible,
+                                      usageCounts: _counts,
+                                      mode: _mergeMode
+                                          ? PickListTableMode.merge
+                                          : PickListTableMode.manage,
+                                      selectedIds: _selected,
+                                      enabled: !_busy,
+                                      onSelect: (value) => setState(() {
+                                            if (!_selected.add(value.id)) {
+                                              _selected.remove(value.id);
+                                            }
+                                          }),
+                                      onEdit: _edit,
+                                      onDelete: _delete))),
+                      Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                              color: pickListSurface(context),
+                              border: Border(
+                                  top: BorderSide(color: palette.divider))),
+                          child: Row(children: [
+                            if (_mergeMode)
+                              Expanded(
+                                  child: Text('${_selected.length} selected',
+                                      style:
+                                          TextStyle(color: palette.textMuted)))
+                            else
+                              const Spacer(),
+                            if (_mergeMode) ...[
+                              TextButton(
+                                  onPressed: _busy
+                                      ? null
+                                      : () => setState(() {
+                                            _mergeMode = false;
+                                            _selected.clear();
+                                          }),
+                                  child: const Text('Cancel')),
+                              const SizedBox(width: 8),
+                              PopupMenuButton<PickListValue>(
+                                  enabled: !_busy && _selected.length > 1,
+                                  tooltip: 'Choose destination',
+                                  position: PopupMenuPosition.over,
+                                  onSelected: _mergeInto,
+                                  itemBuilder: (_) => [
+                                        for (final value in _values.where(
+                                            (value) =>
+                                                _selected.contains(value.id)))
+                                          PopupMenuItem(
+                                              value: value,
+                                              child: Text(value.effectiveLabel))
+                                      ],
+                                  child: Semantics(
+                                      button: true,
+                                      enabled: !_busy && _selected.length > 1,
+                                      child: Container(
+                                          height: 32,
+                                          padding: const EdgeInsets.symmetric(
+                                              horizontal: 12),
+                                          decoration: BoxDecoration(
+                                              color:
+                                                  !_busy && _selected.length > 1
+                                                      ? palette.accent
+                                                      : palette.surface,
+                                              borderRadius:
+                                                  BorderRadius.circular(2)),
+                                          child: Row(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                Text('Merge to',
+                                                    style: TextStyle(
+                                                        color: !_busy &&
+                                                                _selected
+                                                                        .length >
+                                                                    1
+                                                            ? Theme.of(context)
+                                                                .colorScheme
+                                                                .onPrimary
+                                                            : palette
+                                                                .textMuted)),
+                                                Icon(Icons.arrow_drop_down,
+                                                    size: 18,
+                                                    color: !_busy &&
+                                                            _selected.length > 1
+                                                        ? Theme.of(context)
+                                                            .colorScheme
+                                                            .onPrimary
+                                                        : palette.textMuted),
+                                              ])))),
+                            ] else
+                              FilledButton(
+                                  onPressed: _busy ||
+                                          definition?.allowMerge != true
+                                      ? null
+                                      : () => setState(() => _mergeMode = true),
+                                  style: FilledButton.styleFrom(
+                                      minimumSize: const Size(0, 32),
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 12)),
+                                  child: const Text('Merge Mode')),
+                          ])),
+                    ]))));
   }
 }

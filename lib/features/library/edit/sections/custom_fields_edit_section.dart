@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/ui/primitives/library_vocabulary_options_loader.dart';
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/features/library/config/library_dialog_tokens.dart';
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
@@ -78,6 +79,22 @@ class _CustomFieldsEditSectionState extends State<CustomFieldsEditSection> {
 
   Widget _buildField(CustomFieldDefinition def) {
     final value = _values[def.id];
+    final mediaKind = def.mediaKind ?? widget.mediaKind;
+    if (def.supportsOptions && mediaKind != null) {
+      return LibraryVocabularyOptionsLoader(
+          listName: 'customField:${def.id}',
+          mediaKind: mediaKind,
+          builtIns: def.optionValues,
+          selected: def.valueType.isMultiValue
+              ? parseCustomFieldMultiValues(value)
+              : [if (value != null) value],
+          builder: (options) => _buildFieldWithOptions(def, value, options));
+    }
+    return _buildFieldWithOptions(def, value, def.optionValues);
+  }
+
+  Widget _buildFieldWithOptions(
+      CustomFieldDefinition def, String? value, List<String> choices) {
     return switch (def.valueType) {
       CustomFieldValueType.boolean => LibrarySwitchField(
           value: value == 'true',
@@ -88,7 +105,7 @@ class _CustomFieldsEditSectionState extends State<CustomFieldsEditSection> {
           label: def.name,
           value: value,
           options: [
-            for (final option in def.optionValues)
+            for (final option in choices)
               LibraryFieldOption<String>(value: option, label: option),
           ],
           clearOptionLabel: '—',
@@ -128,7 +145,7 @@ class _CustomFieldsEditSectionState extends State<CustomFieldsEditSection> {
       CustomFieldValueType.multiSelect => _MultiSelectCustomField(
           label: def.name,
           helperText: _scopeLabel(def.targetScope),
-          options: def.optionValues,
+          options: choices,
           value: value,
           onChanged: (v) => _update(def.id, v),
         ),
