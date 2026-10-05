@@ -1,5 +1,4 @@
 import 'package:collectarr_app/ui/theme/app_theme.dart';
-import 'package:collectarr_app/features/library/generic/filter_dialog.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/generic/sidebar/sidebar_header.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
@@ -36,10 +35,6 @@ class LibrarySidebar extends StatelessWidget {
     this.linkedMetadataFilterLabel,
     this.selectedLetter,
     this.bucketStatusSummary,
-    this.filterSelection = LibraryFilterSelection.none,
-    this.hasActiveFilters = false,
-    this.onEditFilters,
-    this.onClearFilters,
     this.onCollectionStatusScopeChanged,
     this.onBucketCompletionScopeChanged,
     required this.onClearFilter,
@@ -82,10 +77,6 @@ class LibrarySidebar extends StatelessWidget {
   final String? linkedMetadataFilterLabel;
   final String? selectedLetter;
   final LibraryBucketStatusSummary? bucketStatusSummary;
-  final LibraryFilterSelection filterSelection;
-  final bool hasActiveFilters;
-  final VoidCallback? onEditFilters;
-  final VoidCallback? onClearFilters;
   final ValueChanged<LibraryCollectionStatusScope>?
       onCollectionStatusScopeChanged;
   final ValueChanged<LibraryBucketCompletionScope>?
@@ -151,10 +142,6 @@ class LibrarySidebar extends StatelessWidget {
         linkedMetadataFilterLabel: linkedMetadataFilterLabel,
         selectedLetter: selectedLetter,
         bucketStatusSummary: bucketStatusSummary,
-        filterSelection: filterSelection,
-        hasActiveFilters: hasActiveFilters,
-        onEditFilters: onEditFilters,
-        onClearFilters: onClearFilters,
         onCollectionStatusScopeChanged: onCollectionStatusScopeChanged,
         onClearFilter: onClearFilter,
         onHideSidebar: onHideSidebar,

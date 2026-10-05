@@ -45,8 +45,6 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
     required this.hasActiveFilters,
     required this.onQuickViewSelected,
     required this.onClearFilters,
-    this.onEditFilters,
-    this.activeFilterCount = 0,
     this.onEditSort,
     this.activeSortFavoriteId,
     this.sortFavorites = const [],
@@ -103,8 +101,6 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
   final bool hasActiveFilters;
   final ValueChanged<LibraryQuickView> onQuickViewSelected;
   final VoidCallback onClearFilters;
-  final VoidCallback? onEditFilters;
-  final int activeFilterCount;
   final String? activeSortFavoriteId;
   final List<LibrarySortFavorite> sortFavorites;
   final ValueChanged<LibrarySortFavorite>? onSortFavoriteSelected;
@@ -291,11 +287,6 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
                     LibraryToolbarScopeChip(
                       label: selectedBucket!,
                       onClear: onClearBucket,
-                    ),
-                  if (onEditFilters != null)
-                    LibraryFilterButton(
-                      activeCount: activeFilterCount,
-                      onPressed: onEditFilters!,
                     ),
                   if (folderPreset != null && onGroupModeChanged != null)
                     _LibraryFolderPresetChip(
@@ -881,8 +872,6 @@ class LibraryCompactToolbarContent extends StatelessWidget {
     required this.hasActiveFilters,
     required this.onClearFilters,
     required this.onClearBucket,
-    this.onEditFilters,
-    this.activeFilterCount = 0,
     this.onRandomPick,
     this.onDownloadAllCovers,
     this.onSmartLists,
@@ -949,8 +938,6 @@ class LibraryCompactToolbarContent extends StatelessWidget {
   final bool hasActiveFilters;
   final VoidCallback onClearFilters;
   final VoidCallback onClearBucket;
-  final VoidCallback? onEditFilters;
-  final int activeFilterCount;
   final VoidCallback? onRandomPick;
   final VoidCallback? onDownloadAllCovers;
   final VoidCallback? onSmartLists;
@@ -1117,11 +1104,6 @@ class LibraryCompactToolbarContent extends StatelessWidget {
                         ),
                       ),
                     ),
-                    if (onEditFilters != null)
-                      LibraryFilterButton(
-                        activeCount: activeFilterCount,
-                        onPressed: onEditFilters!,
-                      ),
                     if (selectedBucket != null)
                       LibraryToolbarScopeChip(
                         label: selectedBucket!,

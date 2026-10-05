@@ -80,8 +80,6 @@ class LibraryToolbar extends StatelessWidget {
     this.onJumpToNumberSubmitted,
     required this.hasActiveFilters,
     required this.onClearFilters,
-    this.onEditFilters,
-    this.activeFilterCount = 0,
     this.onRandomPick,
     this.onScanCover,
     this.onDownloadAllCovers,
@@ -172,8 +170,6 @@ class LibraryToolbar extends StatelessWidget {
         onJumpToNumberSubmitted = actions.onJumpToNumberSubmitted,
         hasActiveFilters = state.hasActiveFilters,
         onClearFilters = actions.onClearFilters,
-        onEditFilters = actions.onEditFilters,
-        activeFilterCount = state.activeFilterCount,
         onRandomPick = actions.onRandomPick,
         onScanCover = actions.onScanCover,
         onDownloadAllCovers = actions.onDownloadAllCovers,
@@ -258,8 +254,6 @@ class LibraryToolbar extends StatelessWidget {
   final ValueChanged<String>? onJumpToNumberSubmitted;
   final bool hasActiveFilters;
   final VoidCallback onClearFilters;
-  final VoidCallback? onEditFilters;
-  final int activeFilterCount;
   final VoidCallback? onRandomPick;
   final VoidCallback? onScanCover;
   final VoidCallback? onDownloadAllCovers;
@@ -362,8 +356,6 @@ class LibraryToolbar extends StatelessWidget {
                   hasActiveFilters: hasActiveFilters,
                   onClearFilters: onClearFilters,
                   onClearBucket: onClearBucket,
-                  onEditFilters: onEditFilters,
-                  activeFilterCount: activeFilterCount,
                   onRandomPick: onRandomPick,
                   onDownloadAllCovers: onDownloadAllCovers,
                   onSmartLists: onSmartLists,
@@ -444,8 +436,6 @@ class LibraryToolbar extends StatelessWidget {
                       hasActiveFilters: hasActiveFilters,
                       onQuickViewSelected: onQuickViewSelected,
                       onClearFilters: onClearFilters,
-                      onEditFilters: onEditFilters,
-                      activeFilterCount: activeFilterCount,
                       onRandomPick: onRandomPick,
                       onDownloadAllCovers: onDownloadAllCovers,
                       shelfState: shelfState,

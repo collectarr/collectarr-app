@@ -2,7 +2,7 @@ import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
-import 'package:collectarr_app/features/library/generic/filter_dialog.dart';
+import 'package:collectarr_app/features/library/generic/library_filters.dart';
 import 'package:collectarr_app/features/library/generic/projection/library_folder_tree_builder.dart';
 import 'package:collectarr_app/features/library/generic/projection/library_grouping_engine.dart';
 import 'package:collectarr_app/features/library/generic/projection/library_projection_engine.dart';

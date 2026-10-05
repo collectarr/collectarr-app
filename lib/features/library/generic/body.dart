@@ -5,7 +5,7 @@ import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_contributors.dart';
-import 'package:collectarr_app/features/library/generic/filter_dialog.dart';
+import 'package:collectarr_app/features/library/generic/library_filters.dart';
 import 'package:collectarr_app/features/library/inspector/library_inspector.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
@@ -89,7 +89,6 @@ class LibraryBody extends StatelessWidget {
     required this.hasActiveFilter,
     required this.onAdd,
     required this.onClearFilters,
-    required this.onEditFilters,
     required this.selectionEnabled,
     required this.selectedItemIds,
     required this.onApplySelection,
@@ -171,7 +170,6 @@ class LibraryBody extends StatelessWidget {
   final bool hasActiveFilter;
   final VoidCallback onAdd;
   final VoidCallback onClearFilters;
-  final VoidCallback onEditFilters;
   final bool selectionEnabled;
   final Set<String> selectedItemIds;
   final void Function(Set<String> ids, String focusedId) onApplySelection;
@@ -216,8 +214,8 @@ class LibraryBody extends StatelessWidget {
   final ValueChanged<LibraryProjectionItem> onRemoveEntry;
   final ValueChanged<LibraryProjectionItem> onAddWishlist;
   final ValueChanged<LibraryProjectionItem> onRemoveWishlist;
-  final void Function(LibraryProjectionItem item, LibraryEntrySummary? libraryEntry)
-      onEditItem;
+  final void Function(
+      LibraryProjectionItem item, LibraryEntrySummary? libraryEntry) onEditItem;
   final Widget? workspaceOverride;
   final LibraryItemContextMenuCallback? onItemContextMenu;
   final ValueChanged<String>? onFilterByValue;
@@ -438,10 +436,6 @@ class LibraryBody extends StatelessWidget {
           linkedMetadataFilterLabel: linkedMetadataFilterLabel,
           selectedLetter: sidebarSelectedLetter,
           bucketStatusSummary: bucketStatusSummary,
-          filterSelection: filterSelection,
-          hasActiveFilters: hasActiveFilter,
-          onEditFilters: onEditFilters,
-          onClearFilters: onClearFilters,
           onCollectionStatusScopeChanged: onCollectionStatusScopeChanged,
           onBucketCompletionScopeChanged: onBucketCompletionScopeChanged,
           onClearFilter:

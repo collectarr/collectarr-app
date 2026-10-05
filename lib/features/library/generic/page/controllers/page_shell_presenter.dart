@@ -157,8 +157,6 @@ abstract final class LibraryPageShellPresenter {
       hasActiveFilter: state._hasActiveFilter,
       onAdd: () => state._dialogCoordinator.showAddDialogFlow(),
       onClearFilters: state._clearFilters,
-      onEditFilters: () =>
-          state._dialogCoordinator.showFilterDialogFlow(projection),
       selectionEnabled: state._session.selection.value.enabled &&
           viewState.viewMode != LibraryViewMode.cardFlow,
       selectedItemIds: state._session.selection.value.itemIds,
@@ -328,10 +326,6 @@ abstract final class LibraryPageShellPresenter {
         onQuickViewSelected: (view) => state._setQuickView(
             state._session.facets.quickView == view ? null : view),
         onClearFilters: state._clearFilters,
-        onEditFilters: () =>
-            state._dialogCoordinator.showFilterDialogFlow(projection),
-        activeFilterCount:
-            state._session.selection.filterSelection.activeFilterCount,
         onRandomPick: projection.filteredItems.isNotEmpty
             ? () => state._collectionActionCoordinator
                 .pickRandomItemFlow(projection)

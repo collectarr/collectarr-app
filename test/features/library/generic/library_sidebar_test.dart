@@ -87,48 +87,6 @@ void main() {
     expect(find.text('Studios'), findsNothing);
   });
 
-  testWidgets('sidebar header exposes a separate favorites manager button', (
-    tester,
-  ) async {
-    await tester.pumpWidget(
-      ProviderScope(
-        child: MaterialApp(
-          home: Scaffold(
-            body: SizedBox(
-              width: 320,
-              height: 420,
-              child: LibrarySidebar(
-                type: const MovieRegistration(),
-                accent: Colors.cyan,
-                buckets: const [
-                  LibraryBucket(title: 'All Movies', count: 12),
-                ],
-                groupMode: 'release_year',
-                folderPreset: LibraryFolderPreset.single('release_year'),
-                selectedBucket: 'All Movies',
-                onSelected: (_) {},
-                onGroupModeChanged: (_) {},
-                collectionStatusScope: LibraryCollectionStatusScope.all,
-                onClearFilter: () {},
-                pinnedFolderPresets: [
-                  LibraryFolderPreset.single('director'),
-                ],
-                onPinnedFolderPresetsChanged: (_) {},
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-
-    expect(find.byTooltip('Manage favorites'), findsOneWidget);
-
-    await tester.tap(find.byTooltip('Manage favorites'));
-    await tester.pumpAndSettle();
-
-    expect(find.text('Manage Folder Favorites'), findsOneWidget);
-  });
-
   testWidgets('sidebar shows a manage button for editable group buckets', (
     tester,
   ) async {

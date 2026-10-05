@@ -113,8 +113,6 @@ class LibraryPageToolbarController {
             _s._session.preferences.pinnedColumnFavoriteKeys,
         canJumpToNumber: _s._canJumpToKindDrilldown(projection),
         hasActiveFilters: _s._hasActiveFilter,
-        activeFilterCount:
-            _s._session.selection.filterSelection.activeFilterCount,
         shelfState: shelfState,
         groupMode: _s._activeSidebarGroupMode,
         folderPreset: _s._activeFolderPreset,
@@ -171,8 +169,6 @@ class LibraryPageToolbarController {
           ),
           grouping: LibraryToolbarGroupingContext(
             onClearFilters: _s._clearFilters,
-            onEditFilters: (value) =>
-                _s._dialogCoordinator.showFilterDialogFlow(value),
             onRandomPick: (value) {
               if (value == null) return;
               _s._collectionActionCoordinator.pickRandomItemFlow(value);

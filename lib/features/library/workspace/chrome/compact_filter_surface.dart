@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/library/generic/filter_dialog.dart';
+import 'package:collectarr_app/features/library/generic/library_filters.dart';
 import 'package:collectarr_app/features/library/config/presentation/library_filter_presentation.dart';
 import 'package:collectarr_app/features/library/config/presentation/library_sort_presentation.dart';
 import 'package:collectarr_app/ui/library_accent_scope.dart';

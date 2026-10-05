@@ -33,7 +33,6 @@ class LibraryToolbarState {
     this.pinnedColumnFavoriteKeys = const <String>{},
     this.canJumpToNumber = false,
     required this.hasActiveFilters,
-    this.activeFilterCount = 0,
     this.shelfState,
     this.groupMode,
     this.folderPreset,
@@ -68,7 +67,6 @@ class LibraryToolbarState {
   final Set<String> pinnedColumnFavoriteKeys;
   final bool canJumpToNumber;
   final bool hasActiveFilters;
-  final int activeFilterCount;
   final ShelfState? shelfState;
   final String? groupMode;
   final LibraryFolderPreset? folderPreset;

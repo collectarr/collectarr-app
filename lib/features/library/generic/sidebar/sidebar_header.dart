@@ -1,5 +1,4 @@
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
-import 'package:collectarr_app/features/library/generic/filter_dialog.dart';
 import 'package:collectarr_app/features/library/generic/library_group_mode_menu.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/generic/sidebar/sidebar_bucket_manager_dialog.dart';
@@ -30,10 +29,6 @@ class LibrarySidebarHeader extends StatelessWidget {
     this.linkedMetadataFilterLabel,
     this.selectedLetter,
     this.bucketStatusSummary,
-    this.filterSelection = LibraryFilterSelection.none,
-    this.hasActiveFilters = false,
-    this.onEditFilters,
-    this.onClearFilters,
     this.onCollectionStatusScopeChanged,
     this.groupLoading = false,
     this.availableGroupModes,
@@ -65,10 +60,6 @@ class LibrarySidebarHeader extends StatelessWidget {
   final String? linkedMetadataFilterLabel;
   final String? selectedLetter;
   final LibraryBucketStatusSummary? bucketStatusSummary;
-  final LibraryFilterSelection filterSelection;
-  final bool hasActiveFilters;
-  final VoidCallback? onEditFilters;
-  final VoidCallback? onClearFilters;
   final ValueChanged<LibraryCollectionStatusScope>?
       onCollectionStatusScopeChanged;
   final bool groupLoading;
@@ -87,12 +78,9 @@ class LibrarySidebarHeader extends StatelessWidget {
     final palette = appPalette(context);
     final isRootScope = onClearFilter == null;
     final manageBuckets = onManageBuckets;
-    final editFilters = onEditFilters;
-    final clearFilters = onClearFilters;
     final navigateBack = onNavigateBack;
     final clearFilter = onClearFilter;
     final hideSidebar = onHideSidebar;
-    final manageFavorites = onPinnedFolderPresetsChanged;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 4),
       decoration: BoxDecoration(
@@ -145,27 +133,6 @@ class LibrarySidebarHeader extends StatelessWidget {
                     child: CircularProgressIndicator(strokeWidth: 2),
                   ),
                 ],
-                if (manageFavorites != null) ...[
-                  const SizedBox(width: 4),
-                  _LibrarySidebarToolbarButton(
-                    tooltip: 'Manage favorites',
-                    icon: Icons.list_alt_outlined,
-                    onPressed: () async {
-                      final updated = await showLibraryFolderFavoritesDialog(
-                        context: context,
-                        type: type,
-                        availableModes: availableGroupModes ??
-                            libraryGroupModesForType(type),
-                        initialFavorites: pinnedFolderPresets,
-                      );
-                      if (updated != null && context.mounted) {
-                        manageFavorites(updated);
-                      }
-                    },
-                    active: pinnedFolderPresets.isNotEmpty,
-                    activeColor: accent,
-                  ),
-                ],
                 if (onFolderDisplayModeChanged != null) ...[
                   const SizedBox(width: 4),
                   _LibrarySidebarToolbarButton(
@@ -195,33 +162,6 @@ class LibrarySidebarHeader extends StatelessWidget {
                         'Manage ${genericGroupModeSidebarTitle(groupMode, type).toLowerCase()}',
                     icon: Icons.edit_outlined,
                     onPressed: manageBuckets,
-                    active: false,
-                  ),
-                ],
-                if (editFilters != null) ...[
-                  const SizedBox(width: 4),
-                  _LibrarySidebarToolbarButton(
-                    tooltip: hasActiveFilters
-                        ? 'Edit filters (${filterSelection.activeFilterCount} active)'
-                        : 'Edit filters',
-                    icon: hasActiveFilters
-                        ? Icons.filter_alt
-                        : Icons.filter_alt_outlined,
-                    onPressed: editFilters,
-                    active: hasActiveFilters ||
-                        searchQuery?.trim().isNotEmpty == true ||
-                        activeSmartListName?.trim().isNotEmpty == true ||
-                        linkedMetadataFilterLabel != null ||
-                        selectedLetter != null,
-                    activeColor: accent,
-                  ),
-                ],
-                if (hasActiveFilters && clearFilters != null) ...[
-                  const SizedBox(width: 4),
-                  _LibrarySidebarToolbarButton(
-                    tooltip: 'Clear filters',
-                    icon: Icons.filter_alt_off,
-                    onPressed: clearFilters,
                     active: false,
                   ),
                 ],

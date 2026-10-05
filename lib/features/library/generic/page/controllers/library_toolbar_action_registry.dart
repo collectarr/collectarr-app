@@ -80,7 +80,6 @@ class LibraryToolbarViewContext {
 class LibraryToolbarGroupingContext {
   const LibraryToolbarGroupingContext({
     required this.onClearFilters,
-    required this.onEditFilters,
     required this.onRandomPick,
     required this.onSmartLists,
     required this.onShowUserFoldersFlow,
@@ -88,7 +87,6 @@ class LibraryToolbarGroupingContext {
   });
 
   final VoidCallback onClearFilters;
-  final ValueChanged<LibraryProjection?> onEditFilters;
   final ValueChanged<LibraryProjection?> onRandomPick;
   final ValueChanged<ShelfState?> onSmartLists;
   final VoidCallback onShowUserFoldersFlow;
@@ -286,9 +284,6 @@ class LibraryToolbarActionRegistry {
           : (String value) =>
               actionContext.metadata.onJumpToNumberSubmitted(projection, value),
       onClearFilters: actionContext.grouping.onClearFilters,
-      onEditFilters: projection == null
-          ? null
-          : () => actionContext.grouping.onEditFilters(projection),
       onRandomPick: projection == null
           ? null
           : () => actionContext.grouping.onRandomPick(projection),

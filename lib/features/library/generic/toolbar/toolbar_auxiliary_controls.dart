@@ -227,7 +227,7 @@ class LibraryToolbarSortButton extends StatelessWidget {
                           style:
                               Theme.of(context).textTheme.labelLarge?.copyWith(
                                     color: palette.textPrimary,
-                                    fontWeight: FontWeight.w800,
+                                    fontWeight: FontWeight.w700,
                                     letterSpacing: 0.1,
                                   ),
                         ),
@@ -340,7 +340,7 @@ class _LibraryToolbarSortMenuRow extends StatelessWidget {
           child: Text(
             label,
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  fontWeight: active ? FontWeight.w700 : FontWeight.w500,
+                  fontWeight: FontWeight.w500,
                 ),
           ),
         ),
@@ -428,7 +428,7 @@ class _SortFavoritesManagerDialogState
                 child: Text(
                   '${_allFavorites.length} total',
                   style: theme.textTheme.labelMedium?.copyWith(
-                    fontWeight: FontWeight.w800,
+                    fontWeight: FontWeight.w700,
                   ),
                 ),
               ),
@@ -648,7 +648,7 @@ class _SortFavoritesPaneFrame extends StatelessWidget {
                       Text(
                         title,
                         style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                              fontWeight: FontWeight.w800,
+                              fontWeight: FontWeight.w700,
                               color: palette.accent,
                             ),
                       ),
@@ -667,7 +667,7 @@ class _SortFavoritesPaneFrame extends StatelessWidget {
                   child: Text(
                     '$count',
                     style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                          fontWeight: FontWeight.w800,
+                          fontWeight: FontWeight.w700,
                         ),
                   ),
                 ),
@@ -1118,7 +1118,7 @@ class LibraryToolbarAlphabetRow extends StatelessWidget {
                 label,
                 style: TextStyle(
                   fontSize: 12,
-                  fontWeight: selected ? FontWeight.w800 : FontWeight.w600,
+                  fontWeight: selected ? FontWeight.w700 : FontWeight.w600,
                   color: foreground,
                 ),
               ),
@@ -1330,50 +1330,6 @@ void showLibraryCompactCoverSizeSheet(
       ),
     ),
   );
-}
-
-class LibraryFilterButton extends StatelessWidget {
-  const LibraryFilterButton({
-    super.key,
-    required this.activeCount,
-    required this.onPressed,
-  });
-
-  final int activeCount;
-  final VoidCallback onPressed;
-
-  @override
-  Widget build(BuildContext context) {
-    return Badge(
-      isLabelVisible: activeCount > 0,
-      largeSize: 14,
-      padding: const EdgeInsets.symmetric(horizontal: 4),
-      label: Text(
-        activeCount.toString(),
-        style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w800),
-      ),
-      child: DecoratedBox(
-        decoration: libraryToolbarDropdownDecoration(context),
-        child: SizedBox.square(
-          dimension: kLibraryToolbarControlHeight,
-          child: IconButton(
-            visualDensity: VisualDensity.compact,
-            padding: EdgeInsets.zero,
-            constraints: const BoxConstraints.tightFor(
-              width: kLibraryToolbarControlHeight,
-              height: kLibraryToolbarControlHeight,
-            ),
-            icon: Icon(
-              activeCount > 0 ? Icons.filter_alt : Icons.filter_alt_outlined,
-              size: 17,
-            ),
-            tooltip: 'Edit filters',
-            onPressed: onPressed,
-          ),
-        ),
-      ),
-    );
-  }
 }
 
 class LibraryItemCountLabel extends StatelessWidget {

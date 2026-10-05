@@ -39,7 +39,6 @@ class LibraryToolbarActions {
     this.onTogglePinnedColumnFavorite,
     this.onJumpToNumberSubmitted,
     required this.onClearFilters,
-    this.onEditFilters,
     this.onRandomPick,
     this.onScanCover,
     this.onDownloadAllCovers,
@@ -91,7 +90,6 @@ class LibraryToolbarActions {
   final ValueChanged<LibraryTableColumnPreset>? onTogglePinnedColumnFavorite;
   final ValueChanged<String>? onJumpToNumberSubmitted;
   final VoidCallback onClearFilters;
-  final VoidCallback? onEditFilters;
   final VoidCallback? onRandomPick;
   final VoidCallback? onScanCover;
   final VoidCallback? onDownloadAllCovers;

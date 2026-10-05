@@ -15,7 +15,7 @@ import 'package:collectarr_app/features/library/add/library_add_launcher.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_target.dart';
 import 'package:collectarr_app/features/library/generic/library_custom_field_cache.dart';
 import 'package:collectarr_app/features/library/generic/column_chooser.dart';
-import 'package:collectarr_app/features/library/generic/filter_dialog.dart';
+import 'package:collectarr_app/features/library/generic/library_filters.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'package:collectarr_app/features/library/generic/dialogs/batch_loan_dialog.dart';
 import 'package:collectarr_app/features/library/generic/page/coordinators/page_coordinator_context.dart';
@@ -35,7 +35,7 @@ import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 
-/// Dialog launchers for the library page: add, filters, smart lists, sort,
+/// Dialog launchers for the library page: add, smart lists, sort,
 /// reading queue, pick-list editors, column chooser, user folders, transfer,
 /// loans, and index reassignment.
 class LibraryPageDialogCoordinator {
@@ -129,47 +129,6 @@ class LibraryPageDialogCoordinator {
   // Filter / smart lists / sort
   // ---------------------------------------------------------------------------
 
-  Future<void> showFilterDialogFlow(
-    LibraryProjection? projection,
-  ) async {
-    final context = _page.context;
-    await _page.loadActiveLoanIds();
-    if (!_page.mounted) {
-      return;
-    }
-    final customFieldCache = await _page.ref.read(
-      libraryCustomFieldCacheProvider(_page.type.kind.apiValue).future,
-    );
-    if (!_page.mounted) {
-      return;
-    }
-    final allEntries = projection?.allItems ?? const [];
-    final options = LibraryFilterOptions.fromEntries(
-      allEntries,
-      filterDefinitions:
-          libraryPresentationForKind(_page.type.kind).filterDefinitions,
-      customFieldDefinitions: customFieldCache.definitions,
-      customFieldValuesByDefinitionByItem:
-          customFieldCache.valuesByDefinitionByItem,
-    );
-    if (!context.mounted) {
-      return;
-    }
-    final result = await showLibraryFilterDialog(
-      context: context,
-      type: _page.type,
-      current: _page.filterSelection,
-      options: options,
-    );
-    if (result != null && _page.mounted && context.mounted) {
-      _page.mutateSidebarScope(() {
-        _page.filterSelection = result;
-        _page.activeSmartListId = null;
-        _page.activeSmartListName = null;
-      });
-    }
-  }
-
   Future<void> showSmartListsFlow(ShelfState? ignoredShelfState) async {
     final context = _page.context;
     final db = _page.ref.read(localDatabaseProvider);
@@ -257,11 +216,12 @@ class LibraryPageDialogCoordinator {
             ascending: rule.ascending,
           ),
       ],
-      defaultAscendingForColumn: (column) => _page.viewProfile
-          .initialSortAscending(
-            libraryKindWorkspaceForKind(registration.kind)
-                .fields.decodeSortId(column),
-          ),
+      defaultAscendingForColumn: (column) =>
+          _page.viewProfile.initialSortAscending(
+        libraryKindWorkspaceForKind(registration.kind)
+            .fields
+            .decodeSortId(column),
+      ),
       availableColumns: _page.scopeAvailableSortColumns,
     );
     if (sortRules != null && _page.mounted) {
