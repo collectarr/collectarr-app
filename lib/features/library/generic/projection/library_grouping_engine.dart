@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/workspace/schema/library_identifier_types.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_group_values.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
@@ -34,11 +35,14 @@ class LibraryGroupingEngine {
     if (definition != null) {
       final values =
           libraryGroupBucketValues(workspace.groupValue(item, definition.id));
-      if (values.isNotEmpty) return values;
+      return values.isEmpty ? const [libraryEmptyGroupLabel] : values;
     }
     final values = libraryGroupBucketValues(
         workspace.groupValueAcrossTargets(item, groupId.value));
     if (values.isNotEmpty) return values;
+    if (groupId.semantic == LibraryGroupSemantic.value) {
+      return const [libraryEmptyGroupLabel];
+    }
     return [
       libraryPresentationForKind(type.kind).bucketLabelBuilder(
           LibraryBucketingContext(
@@ -138,7 +142,7 @@ class LibraryGroupingEngine {
       if (b.title == allBucketLabel) {
         return 1;
       }
-      return a.title.compareTo(b.title);
+      return compareLibraryGroupBuckets(a.title, b.title);
     });
 
     return buckets;
@@ -161,7 +165,8 @@ class LibraryGroupingEngine {
       }
     }
 
-    final sortedBuckets = grouped.keys.toList()..sort();
+    final sortedBuckets = grouped.keys.toList()
+      ..sort(compareLibraryGroupBuckets);
     return [
       for (final bucket in sortedBuckets)
         GroupShelfEntry(

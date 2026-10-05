@@ -35,7 +35,7 @@ class LibraryGroupBucket {
 /// - Groups items according to [LibraryFilterState.groupId].
 /// - Falls back to a single "All" bucket when no group is active or the group
 ///   definition is not found.
-/// - Known groups are sorted lexicographically; "Unknown" appended at end.
+/// - Empty values form a "[None]" bucket before the named groups.
 /// - Re-emits whenever [libraryDisplayListProvider] re-emits (data or filter
 ///   change).
 final libraryGroupedEntriesProvider = StreamProvider.autoDispose
@@ -69,23 +69,18 @@ final libraryGroupedEntriesProvider = StreamProvider.autoDispose
     for (final item in items) {
       final raw = workspace.groupValue(item, groupDef.id);
       final values = libraryGroupBucketValues(raw);
-      for (final bucketKey in values.isEmpty ? [''] : values) {
+      for (final bucketKey
+          in values.isEmpty ? const [libraryEmptyGroupLabel] : values) {
         bucketMap.putIfAbsent(bucketKey, () => []).add(item);
       }
     }
 
-    const unknownKey = '';
-    final sortedKeys = bucketMap.keys
-        .where((k) => k != unknownKey)
-        .toList(growable: false)
-      ..sort();
+    final sortedKeys = bucketMap.keys.toList(growable: false)
+      ..sort(compareLibraryGroupBuckets);
 
     final buckets = <LibraryGroupBucket>[
-      for (final k in sortedKeys)
-        LibraryGroupBucket(key: k, label: k, entries: bucketMap[k]!),
-      if (bucketMap.containsKey(unknownKey))
-        LibraryGroupBucket(
-            key: unknownKey, label: 'Unknown', entries: bucketMap[unknownKey]!),
+      for (final key in sortedKeys)
+        LibraryGroupBucket(key: key, label: key, entries: bucketMap[key]!),
     ];
 
     controller.add(buckets);

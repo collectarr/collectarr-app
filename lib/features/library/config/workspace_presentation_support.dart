@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/workspace/schema/library_group_values.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_identifier_types.dart';
 
@@ -39,13 +40,13 @@ String _unqualifiedGroupMode(String mode) {
 String _locationBucket(String? location) {
   final normalized = location?.trim();
   if (normalized == null || normalized.isEmpty) {
-    return 'No location';
+    return libraryEmptyGroupLabel;
   }
   return normalized;
 }
 
 String _titleBucket(LibraryBucketingContext context) {
   final trimmed = context.item.dto.primaryLabel.trim();
-  if (trimmed.isEmpty) return 'Unknown';
+  if (trimmed.isEmpty) return libraryEmptyGroupLabel;
   return trimmed.substring(0, 1).toUpperCase();
 }
