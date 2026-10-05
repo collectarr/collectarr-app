@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:collectarr_app/features/library/config/library_group_mode_category.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/generic/library_folder_reorder_row.dart';
+import 'package:collectarr_app/features/library/generic/library_folder_reorder_list.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_workspace_controls.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_workspace_menus.dart';
@@ -937,13 +938,12 @@ class _GroupModeFavoritesDialogState extends State<_GroupModeFavoritesDialog> {
                                 color: libraryToolbarMenuMutedText(context))),
                       ),
                     )
-                  : ReorderableListView.builder(
+                  : LibraryFolderReorderList(
                       padding: EdgeInsets.zero,
-                      buildDefaultDragHandles: false,
-                      clipBehavior: Clip.none,
-                      proxyDecorator: LibraryFolderReorderRow.dragProxy,
+                      placeholderColor: const Color(0xff808080),
+                      rowSpacing: 5,
                       itemCount: _favoritePresets.length,
-                      onReorderItem: (oldIndex, newIndex) => setState(() {
+                      onReorder: (oldIndex, newIndex) => setState(() {
                         final preset = _favoritePresets.removeAt(oldIndex);
                         _favoritePresets.insert(newIndex, preset);
                       }),
@@ -957,50 +957,46 @@ class _GroupModeFavoritesDialogState extends State<_GroupModeFavoritesDialog> {
 
   Widget _buildFavorite(BuildContext context, int index) {
     final preset = _favoritePresets[index];
-    return ReorderableDragStartListener(
-      key: ValueKey('folderFavorite-${preset.storageValue}'),
-      index: index,
-      child: LibraryFolderReorderRow(
-        color: _fieldColor(context),
-        hoverColor: _fieldColor(context),
-        borderColor: _fieldBorder(context),
-        minHeight: 44,
-        padding: const EdgeInsets.all(5),
-        bottomSpacing: 5,
-        child: Row(children: [
-          Padding(
-            padding: const EdgeInsets.only(right: 5),
-            child: Icon(Icons.menu,
-                size: 16, color: libraryToolbarMenuMutedText(context)),
+    return LibraryFolderReorderRow(
+      color: _fieldColor(context),
+      hoverColor: _fieldColor(context),
+      borderColor: _fieldBorder(context),
+      minHeight: 44,
+      padding: const EdgeInsets.all(5),
+      bottomSpacing: 5,
+      child: Row(children: [
+        Padding(
+          padding: const EdgeInsets.only(right: 5),
+          child: Icon(Icons.menu,
+              size: 16, color: libraryToolbarMenuMutedText(context)),
+        ),
+        Expanded(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 5),
+            child: Text(genericFolderPresetLabel(preset, widget.type)),
           ),
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 5),
-              child: Text(genericFolderPresetLabel(preset, widget.type)),
+        ),
+        FilledButton.icon(
+          onPressed: () => _startEditFavorite(index),
+          style: pickListButtonStyle(context, primary: false),
+          icon: const Icon(Icons.edit, size: 14),
+          label: const Text('Edit'),
+        ),
+        const SizedBox(width: 5),
+        Tooltip(
+          message: 'Delete favorite',
+          child: FilledButton(
+            onPressed: () => setState(() => _favoritePresets.removeAt(index)),
+            style: pickListButtonStyle(context).copyWith(
+              backgroundColor:
+                  WidgetStatePropertyAll(Theme.of(context).colorScheme.error),
+              foregroundColor:
+                  WidgetStatePropertyAll(Theme.of(context).colorScheme.onError),
             ),
+            child: const Icon(Icons.delete, size: 16),
           ),
-          FilledButton.icon(
-            onPressed: () => _startEditFavorite(index),
-            style: pickListButtonStyle(context, primary: false),
-            icon: const Icon(Icons.edit, size: 14),
-            label: const Text('Edit'),
-          ),
-          const SizedBox(width: 5),
-          Tooltip(
-            message: 'Delete favorite',
-            child: FilledButton(
-              onPressed: () => setState(() => _favoritePresets.removeAt(index)),
-              style: pickListButtonStyle(context).copyWith(
-                backgroundColor:
-                    WidgetStatePropertyAll(Theme.of(context).colorScheme.error),
-                foregroundColor: WidgetStatePropertyAll(
-                    Theme.of(context).colorScheme.onError),
-              ),
-              child: const Icon(Icons.delete, size: 16),
-            ),
-          ),
-        ]),
-      ),
+        ),
+      ]),
     );
   }
 
@@ -1082,57 +1078,51 @@ class _GroupModeFavoritesDialogState extends State<_GroupModeFavoritesDialog> {
           color: _insetColor(context),
           borderRadius: BorderRadius.circular(4),
         ),
-        child: ReorderableListView.builder(
+        child: LibraryFolderReorderList(
           padding: const EdgeInsets.all(10),
-          buildDefaultDragHandles: false,
-          clipBehavior: Clip.none,
-          proxyDecorator: LibraryFolderReorderRow.dragProxy,
+          placeholderColor: const Color(0xff808080),
           itemCount: _draftModes.length,
-          onReorderItem: (oldIndex, newIndex) => setState(() {
+          onReorder: (oldIndex, newIndex) => setState(() {
             final mode = _draftModes.removeAt(oldIndex);
             _draftModes.insert(newIndex, mode);
           }),
           itemBuilder: (context, index) {
             final mode = _draftModes[index];
-            return ReorderableDragStartListener(
-              key: ValueKey('folderFavoriteSelected-$mode'),
-              index: index,
-              child: LibraryFolderReorderRow(
-                selectedField: true,
-                height: 28,
-                color: _fieldColor(context),
-                hoverColor: _fieldBorder(context),
-                borderColor: _fieldBorder(context),
-                child: Row(children: [
-                  const SizedBox(width: 26, child: Icon(Icons.menu, size: 16)),
-                  Expanded(
-                      child: Text(genericGroupModeLabel(mode, widget.type),
-                          maxLines: 1, overflow: TextOverflow.ellipsis)),
-                  IconButton(
-                    tooltip: 'Remove field',
-                    onPressed: () => _toggleDraftMode(mode),
-                    style: IconButton.styleFrom(
-                      padding: EdgeInsets.zero,
-                      backgroundColor: Colors.transparent,
-                      disabledBackgroundColor: Colors.transparent,
-                      overlayColor: Colors.transparent,
-                      shadowColor: Colors.transparent,
-                      surfaceTintColor: Colors.transparent,
-                      side: BorderSide.none,
-                      elevation: 0,
-                      minimumSize: const Size(28, 26),
-                      maximumSize: const Size(28, 26),
-                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                    ).copyWith(
-                      foregroundColor: WidgetStateProperty.resolveWith(
-                          (states) => states.contains(WidgetState.hovered)
-                              ? Theme.of(context).colorScheme.error
-                              : appPalette(context).textPrimary),
-                    ),
-                    icon: const Icon(Icons.close, size: 16),
+            return LibraryFolderReorderRow(
+              selectedField: true,
+              height: 28,
+              color: _fieldColor(context),
+              hoverColor: _fieldColor(context),
+              borderColor: _fieldBorder(context),
+              child: Row(children: [
+                const SizedBox(width: 26, child: Icon(Icons.menu, size: 16)),
+                Expanded(
+                    child: Text(genericGroupModeLabel(mode, widget.type),
+                        maxLines: 1, overflow: TextOverflow.ellipsis)),
+                IconButton(
+                  tooltip: 'Remove field',
+                  onPressed: () => _toggleDraftMode(mode),
+                  style: IconButton.styleFrom(
+                    padding: EdgeInsets.zero,
+                    backgroundColor: Colors.transparent,
+                    disabledBackgroundColor: Colors.transparent,
+                    overlayColor: Colors.transparent,
+                    shadowColor: Colors.transparent,
+                    surfaceTintColor: Colors.transparent,
+                    side: BorderSide.none,
+                    elevation: 0,
+                    minimumSize: const Size(28, 26),
+                    maximumSize: const Size(28, 26),
+                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  ).copyWith(
+                    foregroundColor: WidgetStateProperty.resolveWith((states) =>
+                        states.contains(WidgetState.hovered)
+                            ? Theme.of(context).colorScheme.error
+                            : appPalette(context).textPrimary),
                   ),
-                ]),
-              ),
+                  icon: const Icon(Icons.close, size: 16),
+                ),
+              ]),
             );
           },
         ),
