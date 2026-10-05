@@ -2,13 +2,13 @@
   "$id": "https://schemas.collectarr.app/catalog-item/v1",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "contractVersion": "1.0.0",
-  "coreCommit": "9a139567e577be9e5ef073410b3627d77fe368f8",
+  "coreCommit": "1ab2055a5dfd99d65a412bf72344fa4055457cfe",
   "description": "Source-neutral Catalog Item documents. Fields are validated and projected using the schema owned by the declared kind.",
   "fieldStatus": {
     "music": "grounded_in_saved_clz_music_edit_form",
     "other_kinds": "provisional_clz_parity_unverified_without_edit_form_captures"
   },
-  "generatedAt": "2026-10-05T10:58:17.777305Z",
+  "generatedAt": "2026-10-05T20:45:16.827735Z",
   "kinds": {
     "anime": {
       "additionalProperties": false,
@@ -7426,6 +7426,16 @@
                   "disc_number": {
                     "type": "integer"
                   },
+                  "format": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
                   "id": {
                     "anyOf": [
                       {
@@ -7447,6 +7457,32 @@
                     ]
                   },
                   "matrix_number_side_b": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "rpm": {
+                    "anyOf": [
+                      {
+                        "type": "integer"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "sound_types": {
+                    "items": {
+                      "type": "string"
+                    },
+                    "type": "array"
+                  },
+                  "spars": {
                     "anyOf": [
                       {
                         "type": "string"
@@ -7556,6 +7592,26 @@
                           "type": "object"
                         },
                         "type": "array"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "vinyl_color": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "vinyl_weight": {
+                    "anyOf": [
+                      {
+                        "type": "string"
                       },
                       {
                         "type": "null"

@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_ordered_pick_list_field.dart';
 import 'package:collectarr_app/features/library/kinds/music/forms/music_title_formatting.dart';
@@ -164,16 +165,54 @@ List<LibraryFieldSpec<TDraft>> musicAlbumFields<TDraft>({
             values(draft).genres = next.toList(growable: false),
         options: _options(genreOptions ?? MusicVocabularies.genre.builtIns),
       ),
-      LibraryVocabularyFieldSpec<TDraft, String>(
+      LibraryCustomFieldSpec<TDraft>(
         id: 'format',
         label: 'Format',
-        value: (draft) => _nullable(values(draft).format),
-        setValue: (draft, value) {
-          values(draft).format = value ?? '';
+        builder: (context, draft) {
+          final fmt = values(draft).format.trim();
+          final display = fmt.isNotEmpty ? fmt : 'Not specified';
+          return LibraryFormField(
+            label: 'Format',
+            child: Container(
+              height: 38,
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              alignment: Alignment.centerLeft,
+              decoration: BoxDecoration(
+                color: appPalette(context).panelRaised.withValues(alpha: 0.5),
+                borderRadius: BorderRadius.circular(4),
+                border: Border.all(
+                  color: appPalette(context).divider,
+                ),
+              ),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      display,
+                      style: TextStyle(
+                        color: fmt.isNotEmpty
+                            ? appPalette(context).textPrimary
+                            : appPalette(context).textSecondary,
+                        fontSize: 13,
+                        fontWeight:
+                            fmt.isNotEmpty ? FontWeight.w500 : FontWeight.normal,
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                  Tooltip(
+                    message: 'Format is derived from discs in the Tracks tab',
+                    child: Icon(
+                      Icons.auto_awesome,
+                      size: 14,
+                      color: appPalette(context).accent,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
         },
-        options: _options(formatOptions ?? MusicVocabularies.format.builtIns),
-        pickListKey: MusicVocabularyIds.format.value,
-        onManage: onManageFormat == null ? null : (_) => onManageFormat(),
       ),
       LibraryPartialDateFieldSpec<TDraft>(
         id: 'release_date',

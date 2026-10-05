@@ -734,6 +734,15 @@ class _MusicDiscDetailsCard extends StatelessWidget {
     final rows = <(String, String)>[
       ('Tracks', playableTracks.toString()),
       if (disc.title?.trim().isNotEmpty == true) ('Title', disc.title!.trim()),
+      if (disc.format?.trim().isNotEmpty == true)
+        ('Format', disc.format!.trim()),
+      if (disc.soundTypes.isNotEmpty) ('Sound', disc.soundTypes.join(', ')),
+      if (disc.spars?.trim().isNotEmpty == true) ('SPARS', disc.spars!.trim()),
+      if (disc.vinylColor?.trim().isNotEmpty == true)
+        ('Vinyl color', disc.vinylColor!.trim()),
+      if (disc.vinylWeight?.trim().isNotEmpty == true)
+        ('Vinyl weight', '${disc.vinylWeight!.trim()} g'),
+      if (disc.rpm != null) ('RPM', disc.rpm.toString()),
       if (disc.matrixNumberSideA?.trim().isNotEmpty == true)
         ('Matrix side A', disc.matrixNumberSideA!.trim()),
       if (disc.matrixNumberSideB?.trim().isNotEmpty == true)

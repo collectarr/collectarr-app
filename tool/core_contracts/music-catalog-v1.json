@@ -7,6 +7,17 @@
           "title": "Disc Number",
           "type": "integer"
         },
+        "format": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Format"
+        },
         "id": {
           "format": "uuid",
           "title": "Id",
@@ -34,6 +45,35 @@
           ],
           "title": "Matrix Number Side B"
         },
+        "rpm": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Rpm"
+        },
+        "sound_types": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Sound Types",
+          "type": "array"
+        },
+        "spars": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Spars"
+        },
         "title": {
           "anyOf": [
             {
@@ -51,6 +91,28 @@
           },
           "title": "Tracks",
           "type": "array"
+        },
+        "vinyl_color": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Vinyl Color"
+        },
+        "vinyl_weight": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Vinyl Weight"
         }
       },
       "required": [
@@ -598,8 +660,8 @@
   "$id": "https://schemas.collectarr.app/music-catalog/v1",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "contractVersion": "1.0.0",
-  "coreCommit": "9a139567e577be9e5ef073410b3627d77fe368f8",
-  "generatedAt": "2026-10-05T10:58:17.777305Z",
+  "coreCommit": "1ab2055a5dfd99d65a412bf72344fa4055457cfe",
+  "generatedAt": "2026-10-05T20:45:16.827735Z",
   "roots": {
     "disc": {
       "$ref": "#/$defs/CatalogMusicDiscResponse"

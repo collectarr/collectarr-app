@@ -31,7 +31,7 @@ final class MusicAlbum implements JsonEncodable {
     this.barcode,
     this.catalogNumber,
     this.packaging,
-    this.format,
+    String? format,
     this.coverImageUrl,
     this.coverImageKey,
     this.backCoverImageUrl,
@@ -41,10 +41,10 @@ final class MusicAlbum implements JsonEncodable {
     this.localThumbnailImagePath,
     this.extra,
     List<String> soundTypes = const [],
-    this.vinylColor,
-    this.vinylWeight,
-    this.rpm,
-    this.spars,
+    String? vinylColor,
+    String? vinylWeight,
+    int? rpm,
+    String? spars,
     this.externalLinks = const [],
     this.boxSet,
     this.contributions = const [],
@@ -53,9 +53,14 @@ final class MusicAlbum implements JsonEncodable {
     this.revision = 1,
     DateTime? createdAt,
     DateTime? updatedAt,
-  })  : studios = List<String>.unmodifiable(studios),
+  })  : _explicitFormat = format,
+        _explicitSoundTypes = List<String>.unmodifiable(soundTypes),
+        _explicitVinylColor = vinylColor,
+        _explicitVinylWeight = vinylWeight,
+        _explicitRpm = rpm,
+        _explicitSpars = spars,
+        studios = List<String>.unmodifiable(studios),
         genres = List<String>.unmodifiable(genres),
-        soundTypes = List<String>.unmodifiable(soundTypes),
         createdAt =
             createdAt ?? DateTime.fromMillisecondsSinceEpoch(0, isUtc: true),
         updatedAt =
@@ -82,8 +87,17 @@ final class MusicAlbum implements JsonEncodable {
   final String? catalogNumber;
   final String? packaging;
 
-  /// Catalog-level format label returned by Core, independent of disc rows.
-  final String? format;
+  final String? _explicitFormat;
+  final List<String> _explicitSoundTypes;
+  final String? _explicitVinylColor;
+  final String? _explicitVinylWeight;
+  final int? _explicitRpm;
+  final String? _explicitSpars;
+
+  /// Catalog-level format label derived from discs, falling back to explicit value.
+  String? get format =>
+      formatAlbumDiscsSummary(discs, fallback: _explicitFormat);
+
   final String? coverImageUrl;
   final String? coverImageKey;
   final String? backCoverImageUrl;
@@ -92,11 +106,30 @@ final class MusicAlbum implements JsonEncodable {
   final String? localBackImagePath;
   final String? localThumbnailImagePath;
   final String? extra;
-  final List<String> soundTypes;
-  final String? vinylColor;
-  final String? vinylWeight;
-  final int? rpm;
-  final String? spars;
+
+  List<String> get soundTypes {
+    final discSoundTypes = [
+      for (final disc in discs) ...disc.soundTypes,
+    ];
+    if (discSoundTypes.isNotEmpty) {
+      return List<String>.unmodifiable(discSoundTypes.toSet().toList());
+    }
+    return _explicitSoundTypes;
+  }
+
+  String? get vinylColor =>
+      discs.where((d) => d.vinylColor != null).firstOrNull?.vinylColor ??
+      _explicitVinylColor;
+
+  String? get vinylWeight =>
+      discs.where((d) => d.vinylWeight != null).firstOrNull?.vinylWeight ??
+      _explicitVinylWeight;
+
+  int? get rpm =>
+      discs.where((d) => d.rpm != null).firstOrNull?.rpm ?? _explicitRpm;
+
+  String? get spars =>
+      discs.where((d) => d.spars != null).firstOrNull?.spars ?? _explicitSpars;
   final List<MusicExternalLink> externalLinks;
   final String? boxSet;
   final List<MusicAlbumContribution> contributions;
@@ -119,8 +152,37 @@ final class MusicAlbum implements JsonEncodable {
       ];
 
   factory MusicAlbum.fromJson(Map<String, dynamic> json) {
-    final discs =
+    var discs =
         _maps(json['discs']).map(MusicDisc.fromJson).toList(growable: false);
+    final rawFormat = _text(json['format']);
+    final rawSoundTypes = _strings(json['sound_types']);
+    final rawVinylColor = _text(json['vinyl_color']);
+    final rawVinylWeight = _text(json['vinyl_weight']);
+    final rawRpm = _int(json['rpm']);
+    final rawSpars = _text(json['spars']);
+    if (discs.isNotEmpty &&
+        discs.every((d) => d.format == null && d.vinylColor == null)) {
+      discs = [
+        for (var i = 0; i < discs.length; i++)
+          if (i == 0)
+            MusicDisc(
+              id: discs[i].id,
+              discNumber: discs[i].discNumber,
+              title: discs[i].title,
+              format: rawFormat,
+              soundTypes: rawSoundTypes,
+              vinylColor: rawVinylColor,
+              vinylWeight: rawVinylWeight,
+              rpm: rawRpm,
+              spars: rawSpars,
+              matrixNumberSideA: discs[i].matrixNumberSideA,
+              matrixNumberSideB: discs[i].matrixNumberSideB,
+              tracks: discs[i].tracks,
+            )
+          else
+            discs[i],
+      ];
+    }
     return MusicAlbum(
       id: switch (_text(json['id'])) {
         final id? => CatalogItemRef(kind: CatalogMediaKind.music, id: id),

@@ -7966,6 +7966,17 @@
             "title": "Disc Number",
             "type": "integer"
           },
+          "format": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Format"
+          },
           "id": {
             "format": "uuid",
             "title": "Id",
@@ -7993,6 +8004,35 @@
             ],
             "title": "Matrix Number Side B"
           },
+          "rpm": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rpm"
+          },
+          "sound_types": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Sound Types",
+            "type": "array"
+          },
+          "spars": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Spars"
+          },
           "title": {
             "anyOf": [
               {
@@ -8010,6 +8050,28 @@
             },
             "title": "Tracks",
             "type": "array"
+          },
+          "vinyl_color": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vinyl Color"
+          },
+          "vinyl_weight": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vinyl Weight"
           }
         },
         "required": [

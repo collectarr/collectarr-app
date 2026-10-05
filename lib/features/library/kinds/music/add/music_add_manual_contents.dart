@@ -29,14 +29,27 @@ final class MusicAddManualDisc {
   MusicAddManualDisc({
     String? id,
     this.title = '',
+    this.format = '',
+    List<String> soundTypes = const [],
+    this.vinylColor = '',
+    this.vinylWeight = '',
+    this.rpm,
+    this.spars = '',
     this.matrixNumberSideA = '',
     this.matrixNumberSideB = '',
     List<MusicAddManualTrack> tracks = const [],
   })  : id = id ?? const Uuid().v4(),
+        soundTypes = List.of(soundTypes),
         tracks = List.of(tracks);
 
   final String id;
   String title;
+  String format;
+  List<String> soundTypes;
+  String vinylColor;
+  String vinylWeight;
+  int? rpm;
+  String spars;
   String matrixNumberSideA;
   String matrixNumberSideB;
   final List<MusicAddManualTrack> tracks;
@@ -45,6 +58,12 @@ final class MusicAddManualDisc {
         'id': id,
         'disc_number': discNumber,
         if (title.trim().isNotEmpty) 'title': title.trim(),
+        if (format.trim().isNotEmpty) 'format': format.trim(),
+        if (soundTypes.isNotEmpty) 'sound_types': soundTypes,
+        if (vinylColor.trim().isNotEmpty) 'vinyl_color': vinylColor.trim(),
+        if (vinylWeight.trim().isNotEmpty) 'vinyl_weight': vinylWeight.trim(),
+        if (rpm != null) 'rpm': rpm,
+        if (spars.trim().isNotEmpty) 'spars': spars.trim(),
         if (matrixNumberSideA.trim().isNotEmpty)
           'matrix_number_side_a': matrixNumberSideA.trim(),
         if (matrixNumberSideB.trim().isNotEmpty)

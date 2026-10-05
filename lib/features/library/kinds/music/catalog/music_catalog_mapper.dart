@@ -104,6 +104,12 @@ final class MusicCatalogMapper {
               'id': disc.id.value,
               'disc_number': disc.discNumber,
               if (disc.title != null) 'title': disc.title,
+              if (disc.format != null) 'format': disc.format,
+              if (disc.soundTypes.isNotEmpty) 'sound_types': disc.soundTypes,
+              if (disc.vinylColor != null) 'vinyl_color': disc.vinylColor,
+              if (disc.vinylWeight != null) 'vinyl_weight': disc.vinylWeight,
+              if (disc.rpm != null) 'rpm': disc.rpm,
+              if (disc.spars != null) 'spars': disc.spars,
               if (disc.matrixNumberSideA != null)
                 'matrix_number_side_a': disc.matrixNumberSideA,
               if (disc.matrixNumberSideB != null)
@@ -246,6 +252,12 @@ final class MusicCatalogMapper {
       'id',
       'disc_number',
       'title',
+      'format',
+      'sound_types',
+      'vinyl_color',
+      'vinyl_weight',
+      'rpm',
+      'spars',
       'matrix_number_side_a',
       'matrix_number_side_b',
       'tracks',
@@ -257,6 +269,9 @@ final class MusicCatalogMapper {
       'title',
       'artist',
       'duration_ms',
+      'is_header',
+      'parent_header_id',
+      'indent_level',
     };
     for (final disc in discs) {
       final unsupportedDiscFields = disc.keys.where(

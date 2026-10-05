@@ -19,7 +19,22 @@ final class MusicAlbumEditDraft {
         discs = [
           for (final disc in album.discs) _copyDisc(disc),
         ],
-        externalLinks = List.of(album.externalLinks);
+        externalLinks = List.of(album.externalLinks) {
+    if (discs.isNotEmpty &&
+        discs.every((d) => d.format == null && d.vinylColor == null)) {
+      discs[0] = _copyDisc(
+        discs[0],
+        format: album.format,
+        soundTypes: album.soundTypes,
+        vinylColor: album.vinylColor,
+        vinylWeight: album.vinylWeight,
+        rpm: album.rpm,
+        spars: album.spars,
+      );
+    }
+    values.format =
+        formatAlbumDiscsSummary(discs, fallback: album.format) ?? '';
+  }
 
   final MusicAlbum original;
   final MusicAlbumFormValues values;
@@ -68,20 +83,24 @@ final class MusicAlbumEditDraft {
     );
   }
 
-  void addDisc() {
+  void addDisc({String? format}) {
     final nextNumber = discs.fold<int>(
           0,
           (largest, disc) =>
               disc.discNumber > largest ? disc.discNumber : largest,
         ) +
         1;
+    final defaultFormat =
+        format ?? (discs.isNotEmpty ? discs.first.format : null);
     discs.add(
       MusicDisc(
         id: MusicDiscId(const Uuid().v4()),
         discNumber: nextNumber,
+        format: defaultFormat,
         tracks: const [],
       ),
     );
+    values.format = formatAlbumDiscsSummary(discs) ?? '';
   }
 
   void removeDisc(MusicDiscId discId) {
@@ -92,6 +111,7 @@ final class MusicAlbumEditDraft {
     }
     discs.removeAt(index);
     _renumberDiscs();
+    values.format = formatAlbumDiscsSummary(discs) ?? '';
   }
 
   void reorderDisc(int oldIndex, int newIndex) {
@@ -103,6 +123,7 @@ final class MusicAlbumEditDraft {
     final disc = discs.removeAt(oldIndex);
     discs.insert(newIndex, disc);
     _renumberDiscs();
+    values.format = formatAlbumDiscsSummary(discs) ?? '';
   }
 
   void _renumberDiscs() {
@@ -121,6 +142,59 @@ final class MusicAlbumEditDraft {
       discs[index],
       title: _text(title),
       replaceTitle: true,
+    );
+  }
+
+  void updateDiscFormat(MusicDiscId discId, String? format) {
+    final index = discs.indexWhere((disc) => disc.id == discId);
+    if (index < 0) return;
+    discs[index] = _copyDisc(
+      discs[index],
+      format: _text(format),
+      replaceFormat: true,
+    );
+    values.format = formatAlbumDiscsSummary(discs) ?? '';
+  }
+
+  void updateDiscSoundTypes(MusicDiscId discId, List<String> soundTypes) {
+    final index = discs.indexWhere((disc) => disc.id == discId);
+    if (index < 0) return;
+    discs[index] = _copyDisc(
+      discs[index],
+      soundTypes: soundTypes,
+      replaceSoundTypes: true,
+    );
+  }
+
+  void updateDiscVinylDetails(
+    MusicDiscId discId, {
+    String? vinylColor,
+    bool replaceVinylColor = false,
+    String? vinylWeight,
+    bool replaceVinylWeight = false,
+    int? rpm,
+    bool replaceRpm = false,
+  }) {
+    final index = discs.indexWhere((disc) => disc.id == discId);
+    if (index < 0) return;
+    discs[index] = _copyDisc(
+      discs[index],
+      vinylColor: vinylColor,
+      replaceVinylColor: replaceVinylColor,
+      vinylWeight: vinylWeight,
+      replaceVinylWeight: replaceVinylWeight,
+      rpm: rpm,
+      replaceRpm: replaceRpm,
+    );
+  }
+
+  void updateDiscSpars(MusicDiscId discId, String? spars) {
+    final index = discs.indexWhere((disc) => disc.id == discId);
+    if (index < 0) return;
+    discs[index] = _copyDisc(
+      discs[index],
+      spars: _text(spars),
+      replaceSpars: true,
     );
   }
 
@@ -418,15 +492,19 @@ final class MusicAlbumEditDraft {
     );
   }
 
-  MusicAlbum toAlbum() => MusicAlbumFormAdapter.update(
-        original,
-        values,
-        discs: discs,
-        externalLinks: externalLinks
-            .where((link) => link.url.trim().isNotEmpty)
-            .toList(growable: false),
-        contributions: contributions,
-      );
+  MusicAlbum toAlbum() {
+    values.format =
+        formatAlbumDiscsSummary(discs, fallback: values.format) ?? '';
+    return MusicAlbumFormAdapter.update(
+      original,
+      values,
+      discs: discs,
+      externalLinks: externalLinks
+          .where((link) => link.url.trim().isNotEmpty)
+          .toList(growable: false),
+      contributions: contributions,
+    );
+  }
 }
 
 MusicTrack musicTrackWithEdits(
@@ -471,6 +549,18 @@ MusicDisc _copyDisc(
   int? discNumber,
   String? title,
   bool replaceTitle = false,
+  String? format,
+  bool replaceFormat = false,
+  List<String>? soundTypes,
+  bool replaceSoundTypes = false,
+  String? vinylColor,
+  bool replaceVinylColor = false,
+  String? vinylWeight,
+  bool replaceVinylWeight = false,
+  int? rpm,
+  bool replaceRpm = false,
+  String? spars,
+  bool replaceSpars = false,
   String? matrixNumberSideA,
   bool replaceMatrixNumberSideA = false,
   String? matrixNumberSideB,
@@ -481,6 +571,15 @@ MusicDisc _copyDisc(
     id: disc.id,
     discNumber: discNumber ?? disc.discNumber,
     title: replaceTitle ? title : title ?? disc.title,
+    format: replaceFormat ? format : format ?? disc.format,
+    soundTypes: replaceSoundTypes
+        ? (soundTypes ?? const [])
+        : (soundTypes ?? disc.soundTypes),
+    vinylColor: replaceVinylColor ? vinylColor : vinylColor ?? disc.vinylColor,
+    vinylWeight:
+        replaceVinylWeight ? vinylWeight : vinylWeight ?? disc.vinylWeight,
+    rpm: replaceRpm ? rpm : rpm ?? disc.rpm,
+    spars: replaceSpars ? spars : spars ?? disc.spars,
     matrixNumberSideA: replaceMatrixNumberSideA
         ? matrixNumberSideA
         : matrixNumberSideA ?? disc.matrixNumberSideA,

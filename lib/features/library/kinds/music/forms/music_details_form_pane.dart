@@ -64,13 +64,9 @@ class MusicDetailsFormPane<TDraft> extends StatelessWidget {
         const SizedBox(width: 14),
         Expanded(child: _fields(['is_live'])),
       ]),
-      _fields(['sound_types']),
     ]);
     final right = _stack([
-      LibraryFormGroup(
-          title: 'Vinyl',
-          child: _fields(['vinyl_color', 'vinyl_weight', 'rpm'])),
-      _fields(['extra', 'spars', 'box_set']),
+      _fields(['extra', 'box_set']),
     ]);
     return LayoutBuilder(
         builder: (context, constraints) => constraints.maxWidth >= 720
