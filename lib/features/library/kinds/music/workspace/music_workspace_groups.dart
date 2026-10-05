@@ -1,3 +1,5 @@
+import 'package:collectarr_app/features/library/kinds/music/vocabulary/music_vocabularies.dart';
+import 'package:collectarr_app/features/pick_lists/models/vocabulary_id.dart';
 import 'package:collectarr_app/core/models/partial_date.dart';
 import 'package:collectarr_app/features/library/kinds/music/data/music_library_entry_projection.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_personal_data.dart';
@@ -103,6 +105,34 @@ enum MusicGroupingField {
   final String label;
   final String category;
   final bool localOnly;
+
+  VocabularyId<String>? get bucketVocabulary => switch (this) {
+        artist => MusicVocabularyIds.artist,
+        format => MusicVocabularyIds.format,
+        genre => MusicVocabularyIds.genre,
+        publisher => MusicVocabularyIds.recordLabel,
+        country => MusicVocabularyIds.country,
+        instrument => MusicVocabularyIds.instrument,
+        mediaCondition => MusicVocabularyIds.mediaCondition,
+        condition => MusicVocabularyIds.condition,
+        packaging => MusicVocabularyIds.packaging,
+        sound => MusicVocabularyIds.soundType,
+        storage => MusicVocabularyIds.storageDevice,
+        studio => MusicVocabularyIds.studio,
+        vinylColor => MusicVocabularyIds.vinylColor,
+        signedBy => MusicVocabularyIds.signedBy,
+        chorus ||
+        composer ||
+        composition ||
+        conductor ||
+        orchestra ||
+        engineer ||
+        musician ||
+        producer ||
+        songwriter =>
+          MusicVocabularyIds.creditNames(name),
+        _ => null,
+      };
 }
 
 List<LibraryGroupDefinition<MusicKind, MusicWorkspaceProjection, Object?>>
@@ -115,6 +145,7 @@ List<LibraryGroupDefinition<MusicKind, MusicWorkspaceProjection, Object?>>
                           ? LibraryGroupSemantic.location
                           : LibraryGroupSemantic.value),
                   label: field.label,
+                  bucketVocabulary: field.bucketVocabulary,
                   sidebarTitle: field.label,
                   category: field.category,
                   icon: switch (field.category) {

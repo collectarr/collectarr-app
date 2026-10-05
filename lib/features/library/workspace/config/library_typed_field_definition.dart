@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/pick_lists/models/vocabulary_id.dart';
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/features/collection/commands/library_entry_commands.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_transport_bucket_mutators.dart';
@@ -105,7 +106,8 @@ class LibraryGroupDefinition<TKind, TDto extends LibraryWorkspaceDto, TValue> {
     this.sidebarTitle,
     this.icon,
     this.presentation = LibraryGroupPresentation.inlineHeaders,
-    this.supportsBucketManagement = false,
+    bool supportsBucketManagement = false,
+    this.bucketVocabulary,
     this.supportsJump = false,
     this.sequenceValue,
     this.bucketManagerListLabel,
@@ -115,7 +117,9 @@ class LibraryGroupDefinition<TKind, TDto extends LibraryWorkspaceDto, TValue> {
     this.category,
     this.bucketValueMutator,
     this.entryBucketValueMutator,
-  })  : hasSequenceValue = sequenceValue != null,
+  })  : supportsBucketManagement =
+            supportsBucketManagement || bucketVocabulary != null,
+        hasSequenceValue = sequenceValue != null,
         hasSubgroupKey = subgroupKey != null;
 
   final LibraryGroupId<TKind, TValue> id;
@@ -125,6 +129,9 @@ class LibraryGroupDefinition<TKind, TDto extends LibraryWorkspaceDto, TValue> {
   final IconData? icon;
   final LibraryGroupPresentation presentation;
   final bool supportsBucketManagement;
+
+  /// Existing pick-list manager for this grouping field, when available.
+  final VocabularyId<String>? bucketVocabulary;
   final bool supportsJump;
   final bool hasSequenceValue;
   final bool hasSubgroupKey;
@@ -151,6 +158,7 @@ class LibraryGroupDefinition<TKind, TDto extends LibraryWorkspaceDto, TValue> {
     IconData? icon,
     LibraryGroupPresentation? presentation,
     bool? supportsBucketManagement,
+    VocabularyId<String>? bucketVocabulary,
     bool? supportsJump,
     String? Function(LibraryProjectionContext<TDto> context)? sequenceValue,
     String? bucketManagerListLabel,
@@ -170,6 +178,7 @@ class LibraryGroupDefinition<TKind, TDto extends LibraryWorkspaceDto, TValue> {
       presentation: presentation ?? this.presentation,
       supportsBucketManagement:
           supportsBucketManagement ?? this.supportsBucketManagement,
+      bucketVocabulary: bucketVocabulary ?? this.bucketVocabulary,
       supportsJump: supportsJump ?? this.supportsJump,
       sequenceValue: sequenceValue ?? this.sequenceValue,
       bucketManagerListLabel:

@@ -1,3 +1,5 @@
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_pick_list_contributors.dart';
+import 'package:collectarr_app/features/pick_lists/widgets/pick_list_manager_page.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/core/models/library_entry_projection.dart';
@@ -19,6 +21,23 @@ class LibraryPageBucketCoordinator {
     LibraryProjection projection, {
     required String mode,
   }) async {
+    final workspace = libraryKindWorkspaceForKind(_page.type.kind);
+    final fields =
+        workspace.fieldsForGroupModeAcrossTargets(mode) ?? workspace.fields;
+    final definition = fields.findGroupDefinition(fields.decodeGroupId(mode));
+    final vocabulary = definition?.bucketVocabulary;
+    if (vocabulary != null) {
+      await showPickListManagerDialog(
+        context: _page.context,
+        db: _page.ref.read(localDatabaseProvider),
+        registry: defaultPickListRegistry,
+        initialListName: vocabulary.value,
+        initialMediaKind: _page.type.kind.apiValue,
+        title: 'Manage ${definition!.resolvedSidebarTitle}',
+      );
+      if (_page.mounted) _page.invalidateShelf();
+      return;
+    }
     final allBucketLabel = genericAllBucketLabel(_page.type);
     final entries = [
       for (final bucket in projection.buckets)
@@ -108,7 +127,8 @@ class LibraryPageBucketCoordinator {
           replacement: replacement,
         );
         if (entryUpdate != null) {
-          entryUpdates.putIfAbsent(entryUpdate.libraryEntryRef, () => entryUpdate);
+          entryUpdates.putIfAbsent(
+              entryUpdate.libraryEntryRef, () => entryUpdate);
         }
       }
     }
