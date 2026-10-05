@@ -209,14 +209,9 @@ class _LibraryBucketSidebarState extends ConsumerState<LibraryBucketSidebar> {
   List<LibraryFolderTreeNode> _sortTreeNodes(
       List<LibraryFolderTreeNode> nodes) {
     final sorted = nodes.toList(growable: true);
-    switch (_sortMode) {
-      case _SidebarSortMode.alphabetical:
-        sorted.sort((a, b) => a.label.compareTo(b.label));
-        break;
-      case _SidebarSortMode.byCount:
-        sorted.sort((a, b) => b.cumulativeCount.compareTo(a.cumulativeCount));
-        break;
-    }
+    sorted.sort((a, b) => _compareFolders(
+      a.label, a.cumulativeCount, b.label, b.cumulativeCount,
+    ));
     return [
       for (final node in sorted)
         node.copyWith(children: _sortTreeNodes(node.children)),
