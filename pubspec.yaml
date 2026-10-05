@@ -54,6 +54,7 @@ flutter:
   uses-material-design: true
   assets:
     - assets/logos/
+    - assets/collection_status/
     - assets/fonts/CollectarrSans-OFL.txt
   fonts:
     - family: Collectarr Sans
