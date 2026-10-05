@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/kinds/music/forms/music_personal_form_layout.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_entry_edit_draft.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
@@ -25,10 +26,8 @@ import 'package:collectarr_app/features/library/kinds/music/edit/music_signed_by
 import 'package:collectarr_app/features/library/edit/sections/item_images_edit_section.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit/music_listening_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/music/data/music_listening_repository.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_listening.dart';
 import 'package:collectarr_app/features/library/edit/core_correction/library_core_correction.dart';
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
-import 'package:collectarr_app/core/models/library_entry_ref.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -88,18 +87,18 @@ final class _MusicAlbumEditDialogState
   Future<void> _loadReleaseImages() async {
     final images = await MusicAlbumImageRepository(
       ref.read(localDatabaseProvider),
-    ).listForAlbum(_album.id.value);
-    final listeningRef = LibraryEntryRef(
-      kind: CatalogMediaKind.music,
-      id: LibraryEntryId(_album.id.value),
-    );
-    final events =
-        await MusicListeningRepository(ref.read(localDatabaseProvider))
+    ).listForAlbum(_libraryItemId);
+    final listeningRef = widget.request.libraryEntry?.ref;
+    final events = listeningRef == null
+        ? const <MusicListenEvent>[]
+        : await MusicListeningRepository(ref.read(localDatabaseProvider))
             .listForLibraryEntry(listeningRef);
     if (!mounted) return;
     setState(() {
       _originalImageIds = images.map((image) => image.id).toSet();
-      _listening = MusicListeningEditDraft(listeningRef, events);
+      _listening = listeningRef == null
+          ? null
+          : MusicListeningEditDraft(listeningRef, events);
       _albumImages = images;
       _albumImagesReady = true;
     });
@@ -108,190 +107,198 @@ final class _MusicAlbumEditDialogState
   @override
   Widget build(BuildContext context) {
     final personal = LibraryEntryEditScope.maybeOf(context);
-    return
-      LibraryEditSchemaDialog<MusicAlbum, MusicAlbumEditDraft>(
-        schema: musicAlbumEditSchema,
-        model: _album,
-        draft: _draft,
-        title: musicEditHeaderTitle(
-          title: _album.title,
-          artist: _album.artist,
+    return LibraryEditSchemaDialog<MusicAlbum, MusicAlbumEditDraft>(
+      schema: musicAlbumEditSchema,
+      model: _album,
+      draft: _draft,
+      title: musicEditHeaderTitle(
+        title: _album.title,
+        artist: _album.artist,
+      ),
+      icon: widget.request.type.identity.icon,
+      mediaKind: widget.request.type.kind.apiValue,
+      accent: widget.request.accent,
+      tabOrderKey: 'library_edit_tabs_music_album_v2',
+      coreCorrectionSourceBuilder: () =>
+          LibraryCoreCorrectionSource.fromTypedFields(
+        request: widget.request,
+        coreCatalogRef: coreCatalogRefForEditRequest(widget.request),
+        originalFields: _album.toJson(),
+        proposedFields: _draft.toAlbum().toJson(),
+      ),
+      onCancel: () => Navigator.of(context).pop(),
+      onPrevious: widget.request.onPrevious,
+      onNext: widget.request.onNext,
+      extraTabs: [
+        EditSchemaExtraTab(
+          id: 'classical',
+          label: 'Classical',
+          icon: Icons.queue_music_outlined,
+          validate: () => _creditsEditor.hasIncompleteContributions(
+            classical: true,
+          )
+              ? 'Complete or remove each unfinished music credit'
+              : null,
+          content: MusicAlbumCreditsTab(
+            editor: _creditsEditor,
+            classical: true,
+            accent: widget.request.accent,
+          ),
         ),
-        icon: widget.request.type.identity.icon,
-        mediaKind: widget.request.type.kind.apiValue,
-        accent: widget.request.accent,
-        tabOrderKey: 'library_edit_tabs_music_album_v2',
-        coreCorrectionSourceBuilder: () =>
-            LibraryCoreCorrectionSource.fromTypedFields(
-          request: widget.request,
-          originalFields: _album.toJson(),
-          proposedFields: _draft.toAlbum().toJson(),
+        EditSchemaExtraTab(
+          id: 'people',
+          label: 'People',
+          icon: Icons.people_outline,
+          validate: () => _creditsEditor.hasIncompleteContributions(
+            classical: false,
+          )
+              ? 'Complete or remove each unfinished music credit'
+              : null,
+          content: MusicAlbumCreditsTab(
+            editor: _creditsEditor,
+            classical: false,
+            accent: widget.request.accent,
+          ),
         ),
-        onCancel: () => Navigator.of(context).pop(),
-        onPrevious: widget.request.onPrevious,
-        onNext: widget.request.onNext,
-        extraTabs: [
-          EditSchemaExtraTab(
-            id: 'classical',
-            label: 'Classical',
-            icon: Icons.queue_music_outlined,
-            validate: () => _creditsEditor.hasIncompleteContributions(
-              classical: true,
-            )
-                ? 'Complete or remove each unfinished music credit'
-                : null,
-            content: MusicAlbumCreditsTab(
-              editor: _creditsEditor,
-              classical: true,
-              accent: widget.request.accent,
-            ),
+        EditSchemaExtraTab(
+          id: 'tracks',
+          label: 'Tracks',
+          icon: Icons.format_list_numbered,
+          validate: () => _draft.hasInvalidTrackDurationInput
+              ? 'Track lengths must use seconds, MM:SS, or HH:MM:SS'
+              : null,
+          content: MusicAlbumStructureTab(
+            draft: _draft,
+            accent: widget.request.accent,
           ),
-          EditSchemaExtraTab(
-            id: 'people',
-            label: 'People',
-            icon: Icons.people_outline,
-            validate: () => _creditsEditor.hasIncompleteContributions(
-              classical: false,
-            )
-                ? 'Complete or remove each unfinished music credit'
-                : null,
-            content: MusicAlbumCreditsTab(
-              editor: _creditsEditor,
-              classical: false,
-              accent: widget.request.accent,
-            ),
+        ),
+        EditSchemaExtraTab(
+          id: 'personal',
+          label: 'Personal',
+          icon: Icons.headphones_outlined,
+          content: _personalSection(context),
+        ),
+        EditSchemaExtraTab(
+          id: 'custom_fields',
+          label: 'Custom Fields',
+          icon: Icons.tune_outlined,
+          content: CustomFieldsEditSection(
+            definitions: widget.request.customFieldDefinitions,
+            values: _customFieldEdits,
+            accent: widget.request.accent,
+            mediaKind: widget.request.type.kind.apiValue,
+            onChanged: (values) => setState(() {
+              _customFieldEdits = Map.of(values);
+            }),
+            onCustomValueChanged: (fieldDefinitionId, value) {
+              final normalized = value?.trim();
+              if (normalized == null || normalized.isEmpty) {
+                _pendingCustomFieldVocabularyValues.remove(fieldDefinitionId);
+                return;
+              }
+              final definition = widget.request.customFieldDefinitions
+                  .where((item) => item.id == fieldDefinitionId)
+                  .firstOrNull;
+              _pendingCustomFieldVocabularyValues[fieldDefinitionId] = (
+                listName: 'customField:$fieldDefinitionId',
+                value: normalized,
+                mediaKind:
+                    definition?.mediaKind ?? widget.request.type.kind.apiValue,
+              );
+            },
           ),
-          EditSchemaExtraTab(
-            id: 'tracks',
-            label: 'Tracks',
-            icon: Icons.format_list_numbered,
-            validate: () => _draft.hasInvalidTrackDurationInput
-                ? 'Track lengths must use seconds, MM:SS, or HH:MM:SS'
-                : null,
-            content: MusicAlbumStructureTab(
-              draft: _draft,
-              accent: widget.request.accent,
-            ),
+        ),
+        EditSchemaExtraTab(
+          id: 'covers',
+          label: 'Covers',
+          icon: Icons.photo_camera_outlined,
+          content: _albumImagesReady
+              ? MusicAlbumCoversTab(
+                  albumId: _libraryItemId,
+                  draft: _draft,
+                  images: _albumImages,
+                  onImagesChanged: (images) => setState(() {
+                    _albumImages = images;
+                    _albumImagesDirty = true;
+                  }),
+                )
+              : const Center(child: CircularProgressIndicator()),
+        ),
+        EditSchemaExtraTab(
+          id: 'my_images',
+          label: 'My Images',
+          icon: Icons.collections_outlined,
+          content: _albumImagesReady
+              ? MusicAlbumMyImagesTab(
+                  albumId: _libraryItemId,
+                  images: _albumImages,
+                  accent: widget.request.accent,
+                  onImagesChanged: (images) => setState(() {
+                    _albumImages = images;
+                    _albumImagesDirty = true;
+                  }),
+                )
+              : const Center(child: CircularProgressIndicator()),
+        ),
+        EditSchemaExtraTab(
+          id: 'links',
+          label: 'Links',
+          icon: Icons.public,
+          content: MusicAlbumLinksTab(
+            draft: _draft,
+            accent: widget.request.accent,
           ),
-          EditSchemaExtraTab(
-            id: 'personal',
-            label: 'Personal',
-            icon: Icons.headphones_outlined,
-            content: _personalSection(context),
+        ),
+      ],
+      onSave: (_) async {
+        await _imagesLoaded;
+        final updatedAlbum = _draft.toAlbum();
+        if (!mounted || !context.mounted) return;
+        final candidate = personal == null
+            ? CatalogSearchCandidate.fromItem(
+                MusicCatalogMapper.toCatalogItemDto(
+                  updatedAlbum,
+                  ref: widget.request.target?.catalogItemRef,
+                ),
+                basedOn: widget.request.kindItem,
+              )
+            : widget.request.kindItem.kindCapability
+                .replacingKindData(updatedAlbum);
+        await commitLibraryEdit(
+          context,
+          LibraryEditSelection(
+            kindItem: candidate,
+            customFieldEdits: Map.unmodifiable(_customFieldEdits),
+            itemImageEdits: _albumImagesDirty
+                ? [
+                    for (final id in _originalImageIds)
+                      if (!_albumImages.any((image) => image.id == id))
+                        ItemImageEdit(id: id, deleted: true),
+                    for (final image in _albumImages)
+                      ItemImageEdit(
+                        id: image.id,
+                        imageData: image.imageData,
+                        caption: image.description,
+                        imageType: image.purpose == MusicAlbumImagePurpose.cover
+                            ? image.imageType
+                            : 'personal:${image.imageType}',
+                        sortOrder: image.sortOrder,
+                        createdAt: image.createdAt,
+                      ),
+                  ]
+                : const [],
+            localChanges: [
+              if (_listening != null && personal != null) _listening!,
+              LibraryVocabularyEditChange(_draft
+                  .pendingDetailVocabularyValues.values
+                  .expand((values) => values)),
+              LibraryVocabularyEditChange(
+                  _pendingCustomFieldVocabularyValues.values),
+            ],
           ),
-          EditSchemaExtraTab(
-            id: 'custom_fields',
-            label: 'Custom Fields',
-            icon: Icons.tune_outlined,
-            content: CustomFieldsEditSection(
-              definitions: widget.request.customFieldDefinitions,
-              values: _customFieldEdits,
-              accent: widget.request.accent,
-              mediaKind: widget.request.type.kind.apiValue,
-              onChanged: (values) => setState(() {
-                _customFieldEdits = Map.of(values);
-              }),
-              onCustomValueChanged: (fieldDefinitionId, value) {
-                final normalized = value?.trim();
-                if (normalized == null || normalized.isEmpty) {
-                  _pendingCustomFieldVocabularyValues.remove(fieldDefinitionId);
-                  return;
-                }
-                final definition = widget.request.customFieldDefinitions
-                    .where((item) => item.id == fieldDefinitionId)
-                    .firstOrNull;
-                _pendingCustomFieldVocabularyValues[fieldDefinitionId] = (
-                  listName: 'customField:$fieldDefinitionId',
-                  value: normalized,
-                  mediaKind: definition?.mediaKind ??
-                      widget.request.type.kind.apiValue,
-                );
-              },
-            ),
-          ),
-          EditSchemaExtraTab(
-            id: 'covers',
-            label: 'Covers',
-            icon: Icons.photo_camera_outlined,
-            content: _albumImagesReady
-                ? MusicAlbumCoversTab(
-                    albumId: _album.id.value,
-                    draft: _draft,
-                    images: _albumImages,
-                    onImagesChanged: (images) => setState(() {
-                      _albumImages = images;
-                      _albumImagesDirty = true;
-                    }),
-                  )
-                : const Center(child: CircularProgressIndicator()),
-          ),
-          EditSchemaExtraTab(
-            id: 'my_images',
-            label: 'My Images',
-            icon: Icons.collections_outlined,
-            content: _albumImagesReady
-                ? MusicAlbumMyImagesTab(
-                    albumId: _album.id.value,
-                    images: _albumImages,
-                    accent: widget.request.accent,
-                    onImagesChanged: (images) => setState(() {
-                      _albumImages = images;
-                      _albumImagesDirty = true;
-                    }),
-                  )
-                : const Center(child: CircularProgressIndicator()),
-          ),
-          EditSchemaExtraTab(
-            id: 'links',
-            label: 'Links',
-            icon: Icons.public,
-            content: MusicAlbumLinksTab(
-              draft: _draft,
-              accent: widget.request.accent,
-            ),
-          ),
-        ],
-        onSave: (_) async {
-          await _imagesLoaded;
-          final updatedAlbum = _draft.toAlbum();
-          if (!mounted || !context.mounted) return;
-          final candidate = CatalogSearchCandidate.fromItem(
-            MusicCatalogMapper.toCatalogItemDto(updatedAlbum),
-          );
-          await commitLibraryEdit(
-            context,
-            LibraryEditSelection(
-              kindItem: candidate,
-              scope: LibraryEntityScope.catalogItem,
-              customFieldEdits: Map.unmodifiable(_customFieldEdits),
-              itemImageEdits: _albumImagesDirty
-                  ? [
-                      for (final id in _originalImageIds)
-                        if (!_albumImages.any((image) => image.id == id))
-                          ItemImageEdit(id: id, deleted: true),
-                      for (final image in _albumImages)
-                        ItemImageEdit(
-                          id: image.id,
-                          imageData: image.imageData,
-                          caption: image.description,
-                          imageType:
-                              image.purpose == MusicAlbumImagePurpose.cover
-                                  ? image.imageType
-                                  : 'personal:${image.imageType}',
-                          sortOrder: image.sortOrder,
-                          createdAt: image.createdAt,
-                        ),
-                    ]
-                  : const [],
-              localChanges: [
-                if (_listening != null && personal != null) _listening!,
-                LibraryVocabularyEditChange(
-                    _pendingCustomFieldVocabularyValues.values),
-              ],
-            ),
-          );
-        },
-      );
+        );
+      },
+    );
   }
 
   Widget _personalSection(BuildContext context) {
@@ -301,50 +308,56 @@ final class _MusicAlbumEditDialogState
     }
     personal.used = true;
     return LibraryEntryPersonalSection(
-        draft: personal,
-        kindSpecificFields: [
-          MusicGradeField(
-            value: personal.text('grade'),
-            onChanged: (value) {
-              personal.set('grade', value ?? '');
-              final normalized = value?.trim();
-              final vocabularyChangeKey =
-                  'vocabulary:${MusicVocabularies.grade.key}';
-              if (normalized == null ||
-                  normalized.isEmpty ||
-                  normalized == 'Ungraded') {
-                personal.pendingChanges.remove(vocabularyChangeKey);
-              } else {
-                personal.pendingChanges[vocabularyChangeKey] =
-                    LibraryVocabularyEditChange([
-                  (
-                    listName: MusicVocabularies.grade.key,
-                    value: normalized,
-                    mediaKind: 'music',
-                  ),
-                ]);
-              }
-            },
-          ),
-          MusicSignedByPersonalField(
-            value: personal.text('signed_by'),
-            onChanged: (value) {
-              personal.set('signed_by', value ?? '');
-              personal.pendingChanges['vocabulary:music.signed_by'] =
+      draft: personal,
+      layoutBuilder: musicPersonalFormLayout,
+      additionalFields: {
+        'grade': MusicGradeField(
+          value: personal.text('grade'),
+          onChanged: (value) {
+            personal.set('grade', value ?? '');
+            final normalized = value?.trim();
+            final vocabularyChangeKey =
+                'vocabulary:${MusicVocabularies.grade.key}';
+            if (normalized == null ||
+                normalized.isEmpty ||
+                normalized == 'Ungraded') {
+              personal.pendingChanges.remove(vocabularyChangeKey);
+            } else {
+              personal.pendingChanges[vocabularyChangeKey] =
                   LibraryVocabularyEditChange([
-                for (final signer in splitPickListValues(value ?? ''))
-                  (
-                    listName: 'music.signed_by',
-                    value: signer,
-                    mediaKind: 'music',
-                  ),
+                (
+                  listName: MusicVocabularies.grade.key,
+                  value: normalized,
+                  mediaKind: 'music',
+                ),
               ]);
-            },
-          ),
-        ],
-        history: _listening == null
-            ? const LinearProgressIndicator()
-            : MusicListeningDraftSection(draft: _listening!),
-      );
+            }
+          },
+        ),
+        'signed_by': MusicSignedByPersonalField(
+          value: personal.text('signed_by'),
+          onChanged: (value) {
+            personal.set('signed_by', value ?? '');
+            personal.pendingChanges['vocabulary:music.signed_by'] =
+                LibraryVocabularyEditChange([
+              for (final signer in splitPickListValues(value ?? ''))
+                (
+                  listName: 'music.signed_by',
+                  value: signer,
+                  mediaKind: 'music',
+                ),
+            ]);
+          },
+        ),
+      },
+      history: _listening == null
+          ? const LinearProgressIndicator()
+          : MusicListeningDraftSection(draft: _listening!),
+    );
   }
+
+  String get _libraryItemId =>
+      widget.request.target?.id ??
+      widget.request.kindItem.catalogRef?.id ??
+      (throw StateError('Music editing requires an explicit target.'));
 }

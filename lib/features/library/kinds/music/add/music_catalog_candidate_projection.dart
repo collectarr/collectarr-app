@@ -36,6 +36,6 @@ MusicAlbum musicCatalogItemFromCandidate(
   CatalogSearchCandidate item,
 ) {
   return item.kindCapability.mapTransport((transport) {
-    return MusicCatalogMapper.fromCatalogPayload(transport.payload);
+    return MusicCatalogMapper.mapMetadataItemToMusic(transport);
   });
 }

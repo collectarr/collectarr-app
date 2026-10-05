@@ -1,7 +1,10 @@
+import 'package:collectarr_app/features/library/kinds/music/domain/music_listening.dart';
+import 'package:collectarr_app/core/models/partial_date.dart';
 import 'package:collectarr_app/core/models/library_entry_ref.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/config/library_entry_create_payload.dart';
 import 'package:collectarr_app/features/library/kinds/music/catalog/music_catalog_mapper.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_album.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_library_entry.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_personal_data.dart';
 import 'package:collectarr_app/features/library/kinds/music/entries/music_entry_details_codec.dart';
@@ -10,7 +13,12 @@ import 'package:collectarr_app/features/library/kinds/music/entries/music_entry_
 final class MusicLibraryEntryCreatePayload
     implements LibraryEntryCreatePayload {
   const MusicLibraryEntryCreatePayload({
-    required this.details,
+      required this.details,
+      this.initialListens = const [],
+      this.quantity = 1,
+    this.rating,
+    this.mediaCondition,
+    this.purchaseDateParts,
     this.condition,
     this.grade,
     this.purchaseDate,
@@ -35,6 +43,10 @@ final class MusicLibraryEntryCreatePayload
   ) {
     return MusicLibraryEntryCreatePayload(
       details: MusicEntryDetailsCodec().draftFromDetails(item.personal.details),
+      quantity: item.personal.quantity,
+      rating: item.personal.rating,
+      mediaCondition: item.personal.mediaCondition,
+      purchaseDateParts: item.personal.purchaseDateParts,
       condition: item.personal.condition,
       grade: item.personal.grade,
       purchaseDate: item.personal.purchaseDate,
@@ -56,9 +68,14 @@ final class MusicLibraryEntryCreatePayload
   }
 
   final MusicEntryDetailsDraft details;
+  final List<MusicListenEvent> initialListens;
 
   @override
   MusicEntryDetailsDraft get detailsDraft => details;
+  final int quantity;
+  final int? rating;
+  final String? mediaCondition;
+  final PartialDate? purchaseDateParts;
   final String? condition;
   final String? grade;
   final DateTime? purchaseDate;
@@ -93,17 +110,26 @@ final class MusicLibraryEntryCreatePayload
         'Music entries require a Music catalog item.',
       );
     }
-    final localCatalogItem = CatalogItemDto.raw(
-      id: id,
-      mediaKind: CatalogMediaKind.music,
-      kindData: sourceCatalogItem.kindData,
-      origin: CatalogItemOrigin.privateLocal,
-    );
+    final sourceMetadata =
+        MusicCatalogMapper.mapMetadataItemToMusic(sourceCatalogItem);
+    final localMetadata = Map<String, dynamic>.from(sourceMetadata.toJson())
+      ..remove('id')
+      ..remove('kind');
     final item = MusicLibraryEntry(
       id: LibraryEntryId(id),
-      metadata: MusicCatalogMapper.mapMetadataItemToMusic(localCatalogItem),
+      metadata: MusicAlbum.fromJson(localMetadata),
+      sourceCatalogRef: sourceCatalogItem.origin == CatalogItemOrigin.core
+          ? sourceCatalogItem.catalogItemRef
+          : null,
       personal: MusicPersonalData(
         isDigital: isDigital ?? existingIsDigital,
+        quantity: quantity,
+        rating: rating,
+        mediaCondition: mediaCondition,
+        purchaseDateParts: purchaseDateParts ??
+            (purchaseDate == null
+                ? null
+                : PartialDate.fromDateTime(purchaseDate!)),
         condition: condition,
         grade: grade,
         purchaseDate: purchaseDate,

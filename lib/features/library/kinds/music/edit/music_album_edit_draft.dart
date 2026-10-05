@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/kinds/music/forms/music_title_formatting.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_external_link.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_disc.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_album.dart';
@@ -24,6 +25,8 @@ final class MusicAlbumEditDraft {
   List<MusicAlbumContribution> contributions;
   final List<MusicDisc> discs;
   List<MusicExternalLink> externalLinks;
+  final Map<String, List<({String listName, String value, String? mediaKind})>>
+      pendingDetailVocabularyValues = {};
   final Map<String, String> _rawTrackDurationInputs = {};
 
   bool get hasInvalidTrackDurationInput => _rawTrackDurationInputs.values.any(
@@ -74,7 +77,8 @@ final class MusicAlbumEditDraft {
     discs.add(
       MusicDisc(
         id: MusicDiscId(
-          '${original.id.value}:disc:${DateTime.now().microsecondsSinceEpoch}',
+          '${original.id?.id ?? 'music-draft'}:disc:'
+          '${DateTime.now().microsecondsSinceEpoch}',
         ),
         discNumber: nextNumber,
         tracks: const [],
@@ -317,7 +321,7 @@ final class MusicAlbumEditDraft {
         if (trackIds.contains(track.id.value) && !track.isHeader)
           musicTrackWithEdits(
             track,
-            title: _autocapTrackTitle(track.title),
+            title: autocapMusicTitle(track.title),
             position: track.position,
             artist: track.artist ?? '',
             durationMs: track.durationMs,
@@ -565,52 +569,4 @@ List<MusicTrack> _linkHeaderParents(List<MusicTrack> tracks) {
     }
   }
   return result;
-}
-
-String _autocapTrackTitle(String value) {
-  const minorWords = {
-    'a',
-    'an',
-    'and',
-    'as',
-    'at',
-    'but',
-    'by',
-    'for',
-    'from',
-    'in',
-    'into',
-    'nor',
-    'of',
-    'on',
-    'or',
-    'over',
-    'per',
-    'the',
-    'to',
-    'up',
-    'via',
-    'with',
-  };
-  final wordPattern = RegExp(
-    r"[A-Za-zÀ-ÖØ-öø-ÿ0-9]+(?:['’][A-Za-zÀ-ÖØ-öø-ÿ0-9]+)*",
-  );
-  final words = wordPattern.allMatches(value).toList(growable: false);
-  var index = 0;
-  return value.replaceAllMapped(wordPattern, (match) {
-    final source = match.group(0)!;
-    final wordIndex = index++;
-    final normalized = source.toLowerCase();
-    final letters = source.replaceAll(RegExp(r'[^A-Za-z]'), '');
-    final shortAcronym = letters.length > 1 &&
-        letters.length <= 4 &&
-        letters == letters.toUpperCase();
-    if (shortAcronym) return source;
-    if (minorWords.contains(normalized) &&
-        wordIndex > 0 &&
-        wordIndex < words.length - 1) {
-      return normalized;
-    }
-    return normalized[0].toUpperCase() + normalized.substring(1);
-  });
 }

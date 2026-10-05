@@ -1,4 +1,3 @@
-import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/edit/fields/library_external_links_draft_editor.dart';
 import 'package:collectarr_app/features/library/edit/fields/library_external_links_table.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_external_link.dart';
@@ -55,15 +54,12 @@ final class _MusicAlbumLinksTabState extends State<MusicAlbumLinksTab> {
   }
 
   @override
-  Widget build(BuildContext context) => EditSection(
-        title: 'Release links',
+  Widget build(BuildContext context) => LibraryExternalLinksDraftEditor(
+        links: _rows,
         accent: widget.accent,
-        child: LibraryExternalLinksDraftEditor(
-          links: _rows,
-          accent: widget.accent,
-          addLabel: 'New Link',
-          onChanged: _syncDraft,
-        ),
+        addLabel: 'New Link',
+        showTitleColumn: false,
+        onChanged: _syncDraft,
       );
 }
 

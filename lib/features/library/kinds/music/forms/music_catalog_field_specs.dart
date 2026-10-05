@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:collectarr_app/features/library/ui/primitives/library_ordered_pick_list_field.dart';
+import 'package:collectarr_app/features/library/kinds/music/forms/music_title_formatting.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_ordered_names_field.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_form_controls.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_album_relations.dart';
@@ -11,6 +13,14 @@ import 'package:collectarr_app/features/library/schema/library_field_spec.dart';
 
 typedef MusicAlbumValuesReader<TDraft> = MusicAlbumFormValues Function(
     TDraft draft);
+
+const musicTitleActions = [
+  LibraryTextFieldAction(
+    label: 'Autocap',
+    icon: Icons.text_fields,
+    transform: autocapMusicTitle,
+  ),
+];
 
 List<LibraryFieldSpec<TDraft>> musicAlbumFields<TDraft>({
   required MusicAlbumValuesReader<TDraft> values,
@@ -33,6 +43,7 @@ List<LibraryFieldSpec<TDraft>> musicAlbumFields<TDraft>({
         label: 'Title',
         read: (draft) => values(draft).title,
         write: (draft, value) => values(draft).title = value,
+        actions: musicTitleActions,
       ),
       _text<TDraft>(
         id: 'sort_title',
@@ -59,8 +70,12 @@ List<LibraryFieldSpec<TDraft>> musicAlbumFields<TDraft>({
                     MusicArtistCredit(
                         id: 'artist-main', creditedName: form.artist),
                 ];
-          return LibraryOrderedNamesField(
+          return LibraryOrderedPickListField(
             label: 'Artist',
+            listName: MusicVocabularyIds.artist.value,
+            mediaKind: 'music',
+            loadOptions: (db) => MusicVocabularies.nameOptions(
+                db, MusicVocabularyIds.artist.value),
             values: [
               for (final credit in credits)
                 LibraryNamedValue(
@@ -107,15 +122,24 @@ List<LibraryFieldSpec<TDraft>> musicAlbumFields<TDraft>({
         value: (draft) => values(draft).recordingDateParts,
         setValue: (draft, value) => values(draft).recordingDateParts = value,
       ),
-      LibraryMultiVocabularyFieldSpec<TDraft, String>(
+      LibraryCustomFieldSpec<TDraft>(
         id: 'studios',
         label: 'Studio',
-        pickListKey: MusicVocabularyIds.studio.value,
-        pluralLabel: 'Studios',
-        values: (draft) => values(draft).studios.toSet(),
-        setValues: (draft, next) =>
-            values(draft).studios = next.toList(growable: false),
-        options: _options(studioOptions ?? MusicVocabularies.studio.builtIns),
+        builder: (context, draft) => StatefulBuilder(
+            builder: (context, refresh) => LibraryOrderedPickListField(
+                  label: 'Studio',
+                  listName: MusicVocabularyIds.studio.value,
+                  mediaKind: 'music',
+                  options: [...?studioOptions],
+                  loadOptions: (db) => MusicVocabularies.nameOptions(
+                      db, MusicVocabularyIds.studio.value),
+                  values: [
+                    for (final studio in values(draft).studios)
+                      LibraryNamedValue(id: studio, name: studio)
+                  ],
+                  onChanged: (names) => refresh(() => values(draft).studios =
+                      names.map((value) => value.name).toList()),
+                )),
       ),
       LibraryCustomFieldSpec<TDraft>(
         id: 'is_live',
@@ -294,12 +318,14 @@ LibraryTextFieldSpec<TDraft> _text<TDraft>({
   required String label,
   required String Function(TDraft draft) read,
   required void Function(TDraft draft, String value) write,
+  List<LibraryTextFieldAction> actions = const [],
 }) =>
     LibraryTextFieldSpec<TDraft>(
       id: id,
       label: label,
       value: read,
       setValue: write,
+      actions: actions,
     );
 
 String? _nullable(String value) {

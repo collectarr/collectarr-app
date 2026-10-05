@@ -1,4 +1,5 @@
 import '../music_module_dependencies.dart';
+import 'package:collectarr_app/core/models/partial_date.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_album.dart';
 
 const musicArtistFilterId = musicAddArtistFilterId;
@@ -13,14 +14,12 @@ TransferableField musicTransferField({
   required String? Function(MusicLibraryEntry item) read,
   required MusicLibraryEntry Function(MusicLibraryEntry item, String? value)
       write,
-  LibraryEntityScope scope = LibraryEntityScope.libraryEntry,
 }) {
   return TransferableField.typed<MusicLibraryEntry>(
     key: key,
     label: label,
     icon: icon,
     type: type,
-    scope: scope,
     decode: (value) => value as MusicLibraryEntry,
     read: read,
     write: write,
@@ -74,6 +73,7 @@ final musicUniversalTransferableFields =
   writePurchaseDate: (item, value) => item.copyWith(
     personal: item.personal.copyWith(
       purchaseDate: value == null ? null : DateTime.tryParse(value),
+      purchaseDateParts: PartialDate.tryParse(value),
     ),
   ),
   readSoldAt: (item) => item.personal.soldAt?.toIso8601String(),
@@ -96,12 +96,7 @@ final musicTransferableFields = <TransferableField>[
   ),
 ];
 
-const musicAddChrome = LibraryAddChromeConfig(
-  mediaReferenceLabel: 'Album',
-  trackScopeSummary: 'Tracks and listening activity belong to this album.',
-  mediaReferenceHelperLabel: 'Track or save the album itself.',
-  editionReferenceHelperLabel: 'Add this album to your library.',
-);
+const musicAddChrome = LibraryAddChromeConfig();
 
 Iterable<String?> musicLinkedMetadataValues(MusicAlbum music) => [
       music.artist,
@@ -111,13 +106,13 @@ Iterable<String?> musicLinkedMetadataValues(MusicAlbum music) => [
       ...music.genres,
     ];
 
-MusicAlbum? musicLinkedMetadata(LibraryWorkspaceSource source) {
-  final catalog = source.catalogData;
-  return catalog is MusicWorkspaceCatalogData ? catalog.music : null;
+MusicAlbum? musicLinkedMetadata(LibraryWorkspaceContext source) {
+  final catalog = source.kindPresentationData;
+  return catalog is MusicWorkspaceData ? catalog.music : null;
 }
 
 MetadataSearchQuery musicMetadataSearchQuery({
-  required LibraryWorkspaceSource source,
+  required LibraryWorkspaceContext source,
   required String title,
 }) {
   final metadata = musicLinkedMetadata(source);

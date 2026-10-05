@@ -51,7 +51,6 @@ final class MusicArtistCredit implements JsonEncodable {
 final class MusicAlbumContribution implements JsonEncodable {
   MusicAlbumContribution({
     required this.id,
-    required this.albumId,
     required this.personId,
     required this.role,
     this.roleId,
@@ -68,7 +67,6 @@ final class MusicAlbumContribution implements JsonEncodable {
             updatedAt ?? DateTime.fromMillisecondsSinceEpoch(0, isUtc: true);
 
   final MusicAlbumContributionId id;
-  final MusicAlbumId albumId;
   final String personId;
   final String role;
   final String? roleId;
@@ -83,7 +81,6 @@ final class MusicAlbumContribution implements JsonEncodable {
   factory MusicAlbumContribution.fromJson(Map<String, dynamic> json) {
     return MusicAlbumContribution(
       id: MusicAlbumContributionId(_text(json['id']) ?? ''),
-      albumId: MusicAlbumId(_text(json['album_id']) ?? ''),
       personId: _text(json['person_id']) ?? '',
       role: _text(json['role']) ?? 'Artist',
       roleId: _text(json['role_id']),
@@ -100,7 +97,6 @@ final class MusicAlbumContribution implements JsonEncodable {
   @override
   Map<String, dynamic> toJson() => {
         'id': id.value,
-        'album_id': albumId.value,
         'person_id': personId,
         'role': role,
         'created_at': createdAt.toIso8601String(),

@@ -5,7 +5,8 @@ import 'package:collectarr_app/features/library/add/schema/library_add_catalog_t
 import 'package:collectarr_app/features/library/kinds/music/add/music_add_manual_draft.dart';
 import 'package:collectarr_app/features/library/kinds/music/forms/music_catalog_field_specs.dart';
 
-final LibraryFormSchema<MusicAddManualDraft> musicAddSchema = musicAddSchemaFor();
+final LibraryFormSchema<MusicAddManualDraft> musicAddSchema =
+    musicAddSchemaFor();
 
 LibraryFormSchema<MusicAddManualDraft> musicAddSchemaFor({
   Iterable<String>? formatOptions,
@@ -56,7 +57,8 @@ LibraryFormSchema<MusicAddManualDraft> musicAddSchemaFor({
         label: 'Album details',
         fullWidthFieldIds: const {'catalog_title'},
         fields: [
-          libraryAddCatalogTitleField<MusicAddManualDraft>(),
+          libraryAddCatalogTitleField<MusicAddManualDraft>(
+              actions: musicTitleActions),
           for (final field in sharedFields)
             if (field.id != 'title' &&
                 field.id != 'cover_image_url' &&

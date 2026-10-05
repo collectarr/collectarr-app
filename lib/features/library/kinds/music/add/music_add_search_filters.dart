@@ -23,8 +23,7 @@ enum MusicAddDiscFilter {
 }
 
 MusicAddDiscFilter musicAddDiscFilterFor(LibraryAddSearchContext context) {
-  return musicAddDiscFilterFromValue(
-      context.valueFor(musicAddDiscFilterId));
+  return musicAddDiscFilterFromValue(context.valueFor(musicAddDiscFilterId));
 }
 
 MusicAddDiscFilter musicAddDiscFilterFromValue(

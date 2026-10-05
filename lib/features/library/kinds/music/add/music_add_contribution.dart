@@ -14,7 +14,14 @@ final musicKindAdd = StandardLibraryAddCapability<MusicAddDraft>(
   entryPayloadBuilder: (item, common, draft, details, {kindValue}) =>
       MusicLibraryEntryCreatePayload(
     details: details as MusicEntryDetailsDraft,
+    initialListens: draft.initialListens,
+    quantity: draft.quantity,
     condition: common.condition,
+    rating: draft.rating,
+    mediaCondition: draft.mediaCondition,
+    purchaseDateParts: draft.purchaseDateParts,
+    indexNumber: draft.indexNumber,
+    marketValueCents: draft.marketValueCents,
     grade: kindValue ?? draft.grade,
     purchaseDate: common.purchaseDate,
     pricePaidCents: common.pricePaidCents,
@@ -102,7 +109,10 @@ Future<List<LibraryHierarchyNode>> fetchMusicTracks({
   final item = await MusicCatalogRemoteSource(api)
       .getById(itemId)
       .timeout(const Duration(seconds: 60));
-  return MusicCatalogItemHierarchyMapper.toLibraryNodes(item);
+  return MusicCatalogItemHierarchyMapper.toLibraryNodes(
+    item,
+    catalogItemId: itemId,
+  );
 }
 
 List<LibraryAddAdvancedFilterField<String>> buildMusicAddAdvancedFilterFields(

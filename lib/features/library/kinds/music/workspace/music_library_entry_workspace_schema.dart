@@ -1,18 +1,15 @@
+import 'music_workspace_groups.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_ids.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_library_entry_workspace_fields.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_dto.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_schema_support.dart';
 import 'package:collectarr_app/features/library/workspace/schema/field_factories.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_identifier_types.dart';
-import 'package:collectarr_app/features/library/workspace/schema/library_entity_workspace_schema.dart';
-import 'package:collectarr_app/features/library/workspace/schema/library_preference_codec.dart';
-import 'package:collectarr_app/features/library/domain/library_entity_scope.dart';
-import 'package:flutter/material.dart';
+import 'package:collectarr_app/features/library/workspace/schema/library_workspace_schema.dart';
 
 final musicLibraryEntryWorkspaceSchema =
-    LibraryEntityWorkspaceSchema<MusicKind, MusicWorkspaceProjection>(
+    LibraryWorkspaceSchema<MusicKind, MusicWorkspaceProjection>(
   kindNamespace: 'music',
-  entityScope: LibraryEntityScope.libraryEntry,
   fields: [
     MusicLibraryEntryWorkspaceFields.title,
     MusicLibraryEntryWorkspaceFields.artist,
@@ -138,41 +135,7 @@ final musicLibraryEntryWorkspaceSchema =
       defaultAscending: false,
     ),
   ],
-  groups: [
-    groupFromField<MusicKind, MusicWorkspaceProjection, String?>(
-      MusicLibraryEntryWorkspaceFields.artist,
-      sidebarTitle: 'Artists',
-      icon: Icons.person_outline,
-    ),
-    groupFromField<MusicKind, MusicWorkspaceProjection, String?>(
-      MusicLibraryEntryWorkspaceFields.publisher,
-      sidebarTitle: 'Labels',
-      icon: Icons.business_outlined,
-    ),
-    groupFromField<MusicKind, MusicWorkspaceProjection, String?>(
-      MusicLibraryEntryWorkspaceFields.condition,
-      sidebarTitle: 'Conditions',
-      icon: Icons.verified_outlined,
-      supportsBucketManagement: true,
-      entryBucketValueMutator:
-          MusicLibraryEntryWorkspaceFields.conditionBucketValueMutator(),
-    ),
-    groupFromField<MusicKind, MusicWorkspaceProjection, String?>(
-      MusicLibraryEntryWorkspaceFields.grade,
-      sidebarTitle: 'Grades',
-      icon: Icons.stars_outlined,
-    ),
-    groupFromField<MusicKind, MusicWorkspaceProjection, String?>(
-      MusicLibraryEntryWorkspaceFields.location,
-      sidebarTitle: 'Locations',
-      icon: Icons.place_outlined,
-    ),
-    groupFromField<MusicKind, MusicWorkspaceProjection, String?>(
-      MusicLibraryEntryWorkspaceFields.storage,
-      sidebarTitle: 'Storage',
-      icon: Icons.shelves,
-    ),
-  ],
+  groups: musicWorkspaceGroupDefinitions(includePersonal: true),
   primaryColumn: MusicLibraryEntryWorkspaceFields.title.id,
   defaultVisibleColumns: {
     MusicFieldIds.status,
@@ -192,5 +155,4 @@ final musicLibraryEntryWorkspaceSchema =
   },
   defaultSort: MusicSortIds.artist,
   defaultGroup: MusicGroupIds.artist,
-  preferenceCodec: const IdentityLibraryWorkspacePreferenceCodec<MusicKind>(),
 );

@@ -14,12 +14,11 @@ LibraryColumnDefinition<MusicKind, MusicWorkspaceProjection, String?>
     id: field.id,
     label: 'Status',
     getValue: field.getValue,
-    cellValue: (context) => Text(context.source.isWishlisted
+    cellValue: (context) => Text(context.personal.isWishlisted
         ? 'Wishlist'
-        : (context.source.isEntry ? 'Entry' : '')),
+        : ((context.item.entrySummary != null) ? 'Entry' : '')),
     sortable: false,
     groupable: false,
-    entityScope: field.entityScope,
     defaultWidth: 52,
     minWidth: 44,
   );
@@ -48,7 +47,6 @@ LibraryColumnDefinition<MusicKind, MusicWorkspaceProjection, String?>
           ),
     sortable: false,
     groupable: false,
-    entityScope: field.entityScope,
     defaultWidth: 42,
     minWidth: 44,
   );
@@ -76,9 +74,9 @@ LibraryColumnDefinition<MusicKind, MusicWorkspaceProjection, bool>
     id: field.id,
     label: 'Wishlist',
     getValue: field.getValue,
-    cellValue: (context) => Text(context.source.isWishlisted ? 'Wishlist' : ''),
+    cellValue: (context) =>
+        Text(context.personal.isWishlisted ? 'Wishlist' : ''),
     group: 'Personal',
-    entityScope: field.entityScope,
     defaultWidth: 82,
     minWidth: 70,
   );
@@ -95,7 +93,6 @@ LibraryColumnDefinition<MusicKind, MusicWorkspaceProjection, DateTime>
     getValue: field.getValue,
     cellValue: (context) => Text(_formatDate(field.getValue(context))),
     group: 'Personal',
-    entityScope: field.entityScope,
     defaultWidth: 112,
   );
 }
@@ -113,7 +110,6 @@ LibraryColumnDefinition<MusicKind, MusicWorkspaceProjection, DateTime?>
     getValue: field.getValue,
     cellValue: (context) => Text(_formatDate(field.getValue(context))),
     group: 'Personal',
-    entityScope: field.entityScope,
     defaultWidth: 112,
   );
 }
@@ -126,7 +122,8 @@ LibraryColumnDefinition<MusicKind, MusicWorkspaceProjection, int?>
   return columnFromField<MusicKind, MusicWorkspaceProjection, int?>(
     field,
     cellValue: (context) => Text(
-      _formatCents(context.source.pricePaidCents, context.dto.currency),
+      _formatCents(
+          context.item.entrySummary?.pricePaidCents, context.dto.currency),
     ),
     group: 'Value',
     isNumeric: true,
@@ -146,7 +143,6 @@ LibraryColumnDefinition<MusicKind, MusicWorkspaceProjection, int?>
     getValue: field.getValue,
     cellValue: (context) => Text(field.getValue(context)?.toString() ?? ''),
     group: 'Personal',
-    entityScope: field.entityScope,
     defaultWidth: 80,
   );
 }
@@ -197,7 +193,8 @@ LibraryColumnDefinition<MusicKind, MusicWorkspaceProjection, int?>
   return columnFromField<MusicKind, MusicWorkspaceProjection, int?>(
     field,
     cellValue: (context) => Text(
-      _formatCents(context.source.marketValueCents, context.dto.currency),
+      _formatCents(
+          context.item.entrySummary?.marketValueCents, context.dto.currency),
     ),
     group: 'Value',
     isNumeric: true,
@@ -210,8 +207,8 @@ LibrarySortDefinition<MusicKind, MusicWorkspaceProjection> musicStatusSort() {
     id: MusicSortIds.status,
     compare: (left, right) {
       int rank(LibraryProjectionContext<MusicWorkspaceProjection> context) {
-        if (context.source.isEntry) return 0;
-        if (context.source.isWishlisted) return 1;
+        if ((context.item.entrySummary != null)) return 0;
+        if (context.personal.isWishlisted) return 1;
         return 2;
       }
 

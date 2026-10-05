@@ -32,7 +32,7 @@ final class MusicCatalogLookup implements CatalogKindLookup {
     )) {
       final item = MusicCatalogMapper.mapMetadataItemToMusic(dto);
       if (_same(item.barcode, normalized)) {
-        return _hit(item);
+        return _hit(dto.id, item);
       }
     }
     return null;
@@ -57,15 +57,15 @@ final class MusicCatalogLookup implements CatalogKindLookup {
           item.catalogNumber?.trim() != normalizedItemNumber) {
         continue;
       }
-      return _hit(item);
+      return _hit(dto.id, item);
     }
     return null;
   }
 
-  CatalogSearchHit _hit(MusicAlbum item) {
+  CatalogSearchHit _hit(String id, MusicAlbum item) {
     return catalogLookupHit(
       kind: kind,
-      id: item.id.value,
+      id: id,
       title: item.title,
       subtitle: item.catalogNumber,
     );

@@ -8,13 +8,22 @@ import 'package:collectarr_app/features/library/kinds/music/domain/music_track.d
 final class MusicCatalogItemHierarchyMapper {
   const MusicCatalogItemHierarchyMapper._();
 
-  static List<LibraryHierarchyNode> toLibraryNodes(MusicAlbum item) {
+  static List<LibraryHierarchyNode> toLibraryNodes(
+    MusicAlbum item, {
+    required String catalogItemId,
+  }) {
     final discs = [...item.discs]
       ..sort((left, right) => left.discNumber.compareTo(right.discNumber));
-    return [for (final disc in discs) _discNode(item, disc)];
+    return [
+      for (final disc in discs) _discNode(item, disc, catalogItemId),
+    ];
   }
 
-  static LibraryHierarchyNode _discNode(MusicAlbum item, MusicDisc disc) {
+  static LibraryHierarchyNode _discNode(
+    MusicAlbum item,
+    MusicDisc disc,
+    String catalogItemId,
+  ) {
     final tracks = [...disc.tracks]..sort((left, right) {
         final order =
             (left.positionOrder ?? 0).compareTo(right.positionOrder ?? 0);
@@ -27,18 +36,20 @@ final class MusicCatalogItemHierarchyMapper {
 
     return LibraryHierarchyNode(
       id: disc.id.value,
-      label:
-          title == null || title.isEmpty ? 'Disc ${disc.discNumber}' : title,
+      label: title == null || title.isEmpty ? 'Disc ${disc.discNumber}' : title,
       secondaryLabel: details,
       level: tracks.isEmpty
           ? LibraryHierarchyLevel.leaf
           : LibraryHierarchyLevel.container,
       imageUrl: item.coverImageUrl,
       totalCount: tracks.isEmpty ? null : tracks.length,
-      children: [for (final track in tracks) _trackNode(item, disc, track)],
+      children: [
+        for (final track in tracks)
+          _trackNode(item, disc, track, catalogItemId),
+      ],
       extras: {
         'kind': 'music_item_disc',
-        'catalogItemId': item.id.value,
+        'catalogItemId': catalogItemId,
         'discId': disc.id.value,
         'discNumber': disc.discNumber,
       },
@@ -49,6 +60,7 @@ final class MusicCatalogItemHierarchyMapper {
     MusicAlbum item,
     MusicDisc disc,
     MusicTrack track,
+    String catalogItemId,
   ) {
     final position = track.position.trim();
     final details = <String>[];
@@ -67,7 +79,7 @@ final class MusicCatalogItemHierarchyMapper {
       imageUrl: item.coverImageUrl,
       extras: {
         'kind': 'music_item_track',
-        'catalogItemId': item.id.value,
+        'catalogItemId': catalogItemId,
         'discId': disc.id.value,
         'trackId': track.id.value,
         'position': position,

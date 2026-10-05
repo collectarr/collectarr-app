@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_transport_payload.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_album.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_track.dart';
@@ -11,9 +12,16 @@ final class MusicCatalogMapper {
 
   /// Encodes the local Music item using Core's flattened catalog document.
   /// Local-only fields such as file paths and timestamps are not sent to Core.
-  static CatalogItemDto toCatalogItemDto(MusicAlbum album) {
+  static CatalogItemDto toCatalogItemDto(
+    MusicAlbum album, {
+    CatalogItemRef? ref,
+  }) {
+    final itemRef = ref ?? album.id;
+    if (itemRef == null || itemRef.kind != CatalogMediaKind.music) {
+      throw StateError('Encoding a Music Catalog Item requires its Core ID.');
+    }
     final music = <String, dynamic>{
-      'id': album.id.value,
+      'id': itemRef.id,
       'kind': CatalogMediaKind.music.apiValue,
       'revision': album.revision,
       'title': album.title,
@@ -110,8 +118,8 @@ final class MusicCatalogMapper {
     };
 
     return CatalogItemDto.raw(
-      id: album.id.value,
-      mediaKind: CatalogMediaKind.music,
+      id: itemRef.id,
+      mediaKind: itemRef.kind,
       kindData: music,
     );
   }
@@ -131,10 +139,40 @@ final class MusicCatalogMapper {
   static MusicAlbum mapDtoToMusic(CatalogItemDto dto) =>
       mapMetadataItemToMusic(dto);
 
-  static MusicAlbum mapMetadataItemToMusic(CatalogItemDto item) =>
-      fromCatalogPayload(catalogTransportPayloadFor(item));
+  /// Local entries retain the complete domain snapshot, including timestamps,
+  /// track headers and local artwork. Core documents use the API field names.
+  static MusicAlbum mapMetadataItemToMusic(CatalogItemDto item) {
+    final payload = catalogTransportPayloadFor(item);
+    return switch (item.origin) {
+      CatalogItemOrigin.privateLocal => MusicAlbum.fromJson(
+          Map<String, dynamic>.from(payload)
+            ..remove('id')
+            ..remove('kind'),
+        ),
+      CatalogItemOrigin.core => fromCatalogPayload(payload),
+    };
+  }
 
-  /// Decodes the flat Core Music item or the domain's own serialized shape.
+  static CatalogItemDto toLocalCatalogItemDto(
+    MusicAlbum album, {
+    String? id,
+  }) {
+    final localId = id ?? album.id?.id;
+    if (localId == null || localId.trim().isEmpty) {
+      throw StateError('Encoding a local Music item requires its entry ID.');
+    }
+    final localData = Map<String, dynamic>.from(album.toJson())
+      ..remove('id')
+      ..remove('kind');
+    return CatalogItemDto.raw(
+      id: localId,
+      mediaKind: CatalogMediaKind.music,
+      kindData: localData,
+      origin: CatalogItemOrigin.privateLocal,
+    );
+  }
+
+  /// Decodes the flat Core Music item. Local snapshots use MusicAlbum.fromJson.
   /// `discs` → `discs` is the only structural API/domain translation.
   static MusicAlbum fromCatalogPayload(Map<String, dynamic> payload) {
     final catalogPayload = Map<String, dynamic>.from(payload);

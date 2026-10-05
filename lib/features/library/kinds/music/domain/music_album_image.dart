@@ -38,7 +38,7 @@ final class MusicAlbumImage {
   MusicAlbumImage copyWith({
     String? imageType,
     Uint8List? imageData,
-    String? description,
+    Object? description = _unsetImageDescription,
     int? sortOrder,
   }) =>
       MusicAlbumImage(
@@ -47,8 +47,12 @@ final class MusicAlbumImage {
         purpose: purpose,
         imageType: imageType ?? this.imageType,
         imageData: imageData ?? this.imageData,
-        description: description ?? this.description,
+        description: identical(description, _unsetImageDescription)
+            ? this.description
+            : description as String?,
         sortOrder: sortOrder ?? this.sortOrder,
         createdAt: createdAt,
       );
 }
+
+const Object _unsetImageDescription = Object();

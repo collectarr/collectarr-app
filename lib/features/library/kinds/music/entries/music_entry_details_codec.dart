@@ -19,6 +19,7 @@ final class MusicEntryDetailsCodec {
         media: details.media,
         signedBy: details.signedBy,
         lastCleanedDate: details.lastCleanedDate,
+        lastCleanedDateParts: details.lastCleanedDateParts,
       );
 
   MusicEntryDetailsDraft defaultDraft() => const MusicEntryDetailsDraft();

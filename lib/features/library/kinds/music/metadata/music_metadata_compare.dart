@@ -133,12 +133,10 @@ List<MetadataDiffEntry> _discEntries(
   final localValues = _discs(local);
   final serverValues = _discs(server);
   final localByNumber = <int, Map<String, dynamic>>{
-    for (final disc in localValues)
-      _int(disc['disc_number']) ?? 0: disc,
+    for (final disc in localValues) _int(disc['disc_number']) ?? 0: disc,
   };
   final serverByNumber = <int, Map<String, dynamic>>{
-    for (final disc in serverValues)
-      _int(disc['disc_number']) ?? 0: disc,
+    for (final disc in serverValues) _int(disc['disc_number']) ?? 0: disc,
   };
   final numbers = <int>{...localByNumber.keys, ...serverByNumber.keys}.toList()
     ..sort();

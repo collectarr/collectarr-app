@@ -13,13 +13,14 @@ import 'package:collectarr_app/features/library/kinds/registry/collectarr_serial
 import 'package:collectarr_app/features/library/kinds/music/catalog/music_catalog_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/music/data/music_listening_repository.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_album.dart';
-import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_catalog_data.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_workspace_catalog_data.dart';
+import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_data.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_workspace_kind_data.dart';
 
 final class MusicCatalogTransportCodec
     implements
         CatalogKindTransportCodec<MusicAlbum>,
-        CatalogWorkspaceDataEnricher {
+        CatalogWorkspaceDataEnricher,
+        CatalogWorkspaceDataBatchEnricher {
   const MusicCatalogTransportCodec();
 
   @override
@@ -30,8 +31,12 @@ final class MusicCatalogTransportCodec
       MusicCatalogMapper.mapMetadataItemToMusic(item);
 
   @override
+  MusicAlbum decodeKindData(Map<String, dynamic> kindData) =>
+      MusicAlbum.fromJson(kindData);
+
+  @override
   CatalogDisplaySummary summarize(String catalogItemId, MusicAlbum item) =>
-      CatalogDisplaySummary.root(
+      CatalogDisplaySummary.forCatalogItem(
         kind: kind,
         id: catalogItemId,
         primaryLabel: item.title,
@@ -39,25 +44,45 @@ final class MusicCatalogTransportCodec
       );
 
   @override
-  MusicWorkspaceCatalogData workspaceData(CatalogItemDto item) =>
-      MusicWorkspaceCatalogData.fromMusic(
-        decode(item),
-        ref: item.catalogRef,
-      );
+  MusicWorkspaceData workspaceData(CatalogItemDto item) =>
+      MusicWorkspaceData.fromMusic(decode(item));
 
   @override
-  Future<LibraryWorkspaceCatalogData> enrichWorkspaceData(
+  MusicWorkspaceData workspaceDataFromKindData(
+    Map<String, dynamic> kindData,
+  ) =>
+      MusicWorkspaceData.fromMusic(MusicAlbum.fromJson(kindData));
+
+  @override
+  Future<LibraryWorkspaceKindData> enrichWorkspaceData(
     LocalDatabase db,
-    CatalogItemDto item,
-    LibraryWorkspaceCatalogData data, {
+    LibraryWorkspaceKindData data, {
     LibraryEntryRef? libraryEntryRef,
   }) async {
-    if (data is! MusicWorkspaceCatalogData || libraryEntryRef == null) {
+    if (data is! MusicWorkspaceData || libraryEntryRef == null) {
       return data;
     }
     final summary =
         await MusicListeningRepository(db).getSummary(libraryEntryRef);
     return data.copyWith(listeningSummary: summary);
+  }
+
+  @override
+  Future<Map<LibraryEntryRef, LibraryWorkspaceKindData>>
+      enrichWorkspaceDataForEntries(
+    LocalDatabase db,
+    Map<LibraryEntryRef, LibraryWorkspaceKindData> dataByEntry,
+  ) async {
+    final summaries =
+        await MusicListeningRepository(db).getSummaries(dataByEntry.keys);
+    return {
+      for (final entry in dataByEntry.entries)
+        entry.key: entry.value is MusicWorkspaceData
+            ? (entry.value as MusicWorkspaceData).copyWith(
+                listeningSummary: summaries[entry.key],
+              )
+            : entry.value,
+    };
   }
 
   @override
@@ -72,7 +97,7 @@ final class MusicCatalogTransportCodec
     return countPickListCatalogValuesByValue(
       contributor: contributor,
       listName: listName,
-      metadata: [for (final item in await listTransport(db)) decode(item)],
+      metadata: await listCatalogAndEntryMetadata(db),
       normalizedValues: normalizedValues,
     );
   }

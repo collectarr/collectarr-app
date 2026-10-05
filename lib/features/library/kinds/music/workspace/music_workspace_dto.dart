@@ -6,9 +6,9 @@ import 'package:collectarr_app/features/library/workspace/schema/library_workspa
 abstract interface class MusicWorkspaceProjection
     implements LibraryWorkspaceDto {
   WorkspaceCommonProjection get common;
-  PersonalCopyProjection get personal;
+  PersonalEntryProjection get personal;
   MusicAlbum get music;
-  MusicCatalogItemListeningSummary? get listeningSummary;
+  MusicEntryListeningSummary? get listeningSummary;
 
   String? get currency;
   String? get artist;
@@ -44,11 +44,11 @@ abstract class MusicWorkspaceProjectionValues
   @override
   final WorkspaceCommonProjection common;
   @override
-  final PersonalCopyProjection personal;
+  final PersonalEntryProjection personal;
   @override
   final MusicAlbum music;
   @override
-  final MusicCatalogItemListeningSummary? listeningSummary;
+  final MusicEntryListeningSummary? listeningSummary;
 
   String get title => common.title;
 
@@ -92,7 +92,6 @@ abstract class MusicWorkspaceProjectionValues
   String? get referenceFormatLabel => format;
 
   @override
-  @override
   String? get packaging => music.packaging;
 
   @override
@@ -117,7 +116,6 @@ abstract class MusicWorkspaceProjectionValues
   String? get country => music.countryCode;
 
   @override
-  @override
   int? get listenCount => listeningSummary?.totalListenCount;
 
   @override
@@ -131,7 +129,6 @@ abstract class MusicWorkspaceProjectionValues
   @override
   int? get trackCount => music.trackCount;
 
-  @override
   @override
   bool? get isLive => music.isLive;
 

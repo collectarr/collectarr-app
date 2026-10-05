@@ -1,4 +1,3 @@
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/core/models/library_entry_ref.dart';
@@ -27,12 +26,6 @@ final class MusicLibraryEntry implements JsonEncodable {
   final CatalogItemRef? sourceCatalogRef;
   final MusicPersonalData personal;
 
-  CatalogItemDto get catalogItem => CatalogItemDto.raw(
-        id: id.value,
-        mediaKind: CatalogMediaKind.music,
-        kindData: _catalogData(metadata),
-        origin: CatalogItemOrigin.privateLocal,
-      );
   final DateTime? createdAt;
   final DateTime updatedAt;
   final DateTime? deletedAt;
@@ -71,11 +64,9 @@ final class MusicLibraryEntry implements JsonEncodable {
     }
     final item = MusicLibraryEntry(
       id: id,
-      metadata: MusicAlbum.fromJson({
-        ...Map<String, dynamic>.from(rawCatalogData),
-        'id': id.value,
-        'kind': CatalogMediaKind.music.apiValue,
-      }),
+      metadata: MusicAlbum.fromJson(
+        Map<String, dynamic>.from(rawCatalogData),
+      ),
       personal: MusicPersonalData.fromJson(json),
       sourceCatalogRef: json['source_catalog_ref'] is Map
           ? CatalogItemRef.fromJson(

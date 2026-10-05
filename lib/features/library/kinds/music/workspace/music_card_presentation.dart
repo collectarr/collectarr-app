@@ -2,7 +2,7 @@ import 'package:collectarr_app/features/library/config/library_media_presentatio
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_album.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_album_relations.dart';
-import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_catalog_data.dart';
+import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_data.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_dto.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_card_presentation.dart';
@@ -102,8 +102,8 @@ int? musicCardTrackCount(LibraryProjectionView item) {
 }
 
 MusicAlbum? _musicCatalogItem(LibraryProjectionView item) {
-  final catalog = item.source.catalogData;
-  return catalog is MusicWorkspaceCatalogData ? catalog.music : null;
+  final catalog = item.source.kindPresentationData;
+  return catalog is MusicWorkspaceData ? catalog.music : null;
 }
 
 LibraryMetadataPresentation? _metadataPresentationForEntry(

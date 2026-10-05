@@ -8,59 +8,51 @@ abstract final class MusicCatalogItemWorkspaceFields {
     id: MusicFieldIds.title,
     label: 'Title',
     getValue: (dto) => dto.primaryLabel,
-    entityScope: LibraryEntityScope.catalogItem,
   );
 
   static final artist = textField<MusicKind, MusicWorkspaceProjection>(
     id: MusicFieldIds.artist,
     label: 'Artist',
     getValue: (dto) => dto.artist,
-    entityScope: LibraryEntityScope.catalogItem,
   );
 
   static final genre = textField<MusicKind, MusicWorkspaceProjection>(
     id: MusicFieldIds.genre,
     label: 'Genre',
     getValue: (dto) => dto.genre,
-    entityScope: LibraryEntityScope.catalogItem,
   );
 
   static final releaseDate = dateField<MusicKind, MusicWorkspaceProjection>(
     id: MusicFieldIds.releaseDate,
     label: 'Release Date',
     getValue: (dto) => dto.releaseDate,
-    entityScope: LibraryEntityScope.catalogItem,
   );
 
   static final trackCount = numberField<MusicKind, MusicWorkspaceProjection>(
     id: MusicFieldIds.trackCount,
     label: 'Track count',
     getValue: (dto) => dto.trackCount,
-    entityScope: LibraryEntityScope.catalogItem,
   );
 
   static final listenCount = numberField<MusicKind, MusicWorkspaceProjection>(
     id: MusicFieldIds.listenCount,
     label: 'Listen count',
     getValue: (dto) => dto.listenCount,
-    entityScope: LibraryEntityScope.catalogItem,
   );
 
   static final lastListened = dateField<MusicKind, MusicWorkspaceProjection>(
     id: MusicFieldIds.lastListened,
     label: 'Last listened',
     getValue: (dto) => dto.lastListened,
-    entityScope: LibraryEntityScope.catalogItem,
   );
 
   static final status =
       LibraryFieldDefinition<MusicKind, MusicWorkspaceProjection, String?>(
     id: MusicFieldIds.status,
     label: 'Status',
-    getValue: (context) => context.source.isWishlisted
+    getValue: (context) => context.personal.isWishlisted
         ? 'wishlist'
-        : (context.source.isEntry ? 'entry' : null),
-    entityScope: LibraryEntityScope.catalogItem,
+        : ((context.item.entrySummary != null) ? 'entry' : null),
   );
 
   static final cover =
@@ -68,6 +60,5 @@ abstract final class MusicCatalogItemWorkspaceFields {
     id: MusicFieldIds.cover,
     label: 'Cover',
     getValue: (context) => context.dto.imageUrl,
-    entityScope: LibraryEntityScope.catalogItem,
   );
 }

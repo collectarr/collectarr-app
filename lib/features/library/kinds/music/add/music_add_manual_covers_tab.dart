@@ -1,123 +1,74 @@
+import 'package:collectarr_app/features/library/add/controllers/library_add_dialog_requests.dart';
+import 'package:collectarr_app/features/library/kinds/music/add/music_add_images_pane.dart';
 import 'package:collectarr_app/features/library/kinds/music/add/music_add_manual_draft.dart';
-import 'package:collectarr_app/features/library/ui/primitives/library_form_controls.dart';
-import 'package:collectarr_app/ui/theme/app_theme.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_album_image.dart';
+import 'package:collectarr_app/features/library/kinds/music/edit/music_album_images_tabs.dart';
 import 'package:flutter/material.dart';
 
-/// Manual Add inputs for the two catalog cover images.
-final class MusicAddManualCoversTab extends StatelessWidget {
-  const MusicAddManualCoversTab({
-    super.key,
-    required this.draft,
-  });
-
+/// Both modes use the same upload, remove/restore, and crop/rotate cover controls.
+class MusicAddManualCoversTab extends StatefulWidget {
+  const MusicAddManualCoversTab(
+      {super.key, required this.draft, required this.request});
   final MusicAddManualDraft draft;
+  final LibraryAddManualPaneRequest request;
+  @override
+  State<MusicAddManualCoversTab> createState() =>
+      _MusicAddManualCoversTabState();
+}
 
+class _MusicAddManualCoversTabState extends State<MusicAddManualCoversTab> {
+  late final String _originalFront = widget.draft.coverImageUrl;
+  late final String _originalBack = widget.draft.backCoverImageUrl;
   @override
   Widget build(BuildContext context) {
-    final palette = appPalette(context);
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final covers = [
-          _coverField(
-            context,
-            label: 'Front Cover',
-            value: draft.coverImageUrl,
-            onChanged: (value) => draft.coverImageUrl = value,
-          ),
-          _coverField(
-            context,
-            label: 'Back Cover',
-            value: draft.backCoverImageUrl,
-            onChanged: (value) => draft.backCoverImageUrl = value,
-          ),
-        ];
-        final content = constraints.maxWidth < 720
-            ? Column(
-                children: [
-                  for (var index = 0; index < covers.length; index++) ...[
-                    if (index > 0) const SizedBox(height: 12),
-                    covers[index],
-                  ],
-                ],
-              )
-            : Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  for (var index = 0; index < covers.length; index++) ...[
-                    if (index > 0) const SizedBox(width: 14),
-                    Expanded(child: covers[index]),
-                  ],
-                ],
-              );
-        return Container(
-          padding: const EdgeInsets.all(10),
-          decoration: BoxDecoration(
-            color: palette.surface,
-            border: Border.all(color: palette.divider),
-            borderRadius: BorderRadius.circular(3),
-          ),
-          child: content,
-        );
-      },
-    );
-  }
-
-  Widget _coverField(
-    BuildContext context, {
-    required String label,
-    required String value,
-    required ValueChanged<String> onChanged,
-  }) =>
-      Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Text(label, style: const TextStyle(fontWeight: FontWeight.w700)),
-          const SizedBox(height: 6),
-          AspectRatio(
-            aspectRatio: 1,
-            child: DecoratedBox(
-              decoration: BoxDecoration(
-                color: appPalette(context).panel,
-                border: Border.all(color: appPalette(context).divider),
-              ),
-              child: _coverPreview(context, value),
-            ),
-          ),
-          const SizedBox(height: 8),
-          LibraryFormField(
-            label: '$label URL',
-            child: LibraryTextFormControl(
-              key: ValueKey('music-add-cover-$label'),
-              initialValue: value,
-              keyboardType: TextInputType.url,
-              decoration: const InputDecoration(isDense: true),
-              onChanged: onChanged,
-            ),
-          ),
-        ],
-      );
-
-  Widget _coverPreview(BuildContext context, String value) {
-    final uri = Uri.tryParse(value.trim());
-    if (uri == null || (uri.scheme != 'http' && uri.scheme != 'https')) {
-      return Center(
-        child: Icon(
-          Icons.album_outlined,
-          size: 44,
-          color: appPalette(context).textMuted,
-        ),
-      );
+    final images = musicAddImages(widget.request.itemImages);
+    Widget cover(bool back) {
+      final type = back ? 'back_cover' : 'front_cover';
+      return MusicCoverEditor(
+          title: back ? 'Back Cover' : 'Front Cover',
+          albumId: 'manual-music',
+          image: images
+              .where((image) =>
+                  image.purpose == MusicAlbumImagePurpose.cover &&
+                  image.imageType == type)
+              .firstOrNull,
+          coreCoverUrl: back
+              ? widget.draft.backCoverImageUrl
+              : widget.draft.coverImageUrl,
+          restoreCoreCoverUrl: back ? _originalBack : _originalFront,
+          onRestoreCoreCover: () => setState(() {
+                if (back) {
+                  widget.draft.backCoverImageUrl = _originalBack;
+                } else {
+                  widget.draft.coverImageUrl = _originalFront;
+                }
+              }),
+          onRemoveCoreCover: () => setState(() {
+                if (back) {
+                  widget.draft.backCoverImageUrl = '';
+                } else {
+                  widget.draft.coverImageUrl = '';
+                }
+              }),
+          onChanged: (image) => updateMusicAddImages(widget.request, [
+                ...images.where((image) =>
+                    image.purpose != MusicAlbumImagePurpose.cover ||
+                    image.imageType != type),
+                if (image != null) image,
+              ]));
     }
-    return Image.network(
-      uri.toString(),
-      fit: BoxFit.contain,
-      errorBuilder: (context, error, stackTrace) => Center(
-        child: Icon(
-          Icons.broken_image_outlined,
-          size: 40,
-          color: appPalette(context).textMuted,
-        ),
-      ),
-    );
+
+    return LayoutBuilder(
+        builder: (context, constraints) => constraints.maxWidth >= 680
+            ? Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                Expanded(child: cover(false)),
+                const SizedBox(width: 12),
+                Expanded(child: cover(true))
+              ])
+            : Column(children: [
+                cover(false),
+                const SizedBox(height: 12),
+                cover(true)
+              ]));
   }
 }

@@ -1,27 +1,23 @@
-import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
-import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_catalog_data.dart';
+import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_data.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_dto.dart';
-import 'package:collectarr_app/features/library/workspace/config/library_entity_workspace_projector.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_target_workspace_projector.dart';
+import 'package:collectarr_app/features/library/workspace/entry/personal_overlay.dart';
+import 'package:collectarr_app/features/library/workspace/entry/workspace_item.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 
 final class MusicCatalogItemWorkspaceProjector
-    implements LibraryEntityWorkspaceProjector<MusicWorkspaceProjection> {
+    implements LibraryTargetWorkspaceProjector<MusicWorkspaceProjection> {
   const MusicCatalogItemWorkspaceProjector();
 
   @override
   MusicCatalogItemWorkspaceDto project({
-    required LibraryWorkspaceSource source,
-    required LibraryEntityRef entity,
+    required WorkspaceItem item,
+    required PersonalOverlay personal,
   }) {
-    requireEntityBelongsToSource(source, entity);
-    requireEntityScope(entity, LibraryEntityScope.catalogItem);
-    final catalog = _catalogFor(source);
+    final catalog = _catalogFor(item);
     return MusicCatalogItemWorkspaceDto(
-      common: _musicCommonProjection(source, entity, catalog),
-      personal: PersonalCopyProjection.fromShelf(
-        source,
-      ),
+      common: _musicCommonProjection(item, catalog),
+      personal: PersonalEntryProjection.fromShelf(item, personal),
       music: catalog.music,
       listeningSummary: catalog.listeningSummary,
     );
@@ -29,43 +25,37 @@ final class MusicCatalogItemWorkspaceProjector
 }
 
 final class MusicLibraryEntryWorkspaceProjector
-    implements LibraryEntityWorkspaceProjector<MusicWorkspaceProjection> {
+    implements LibraryTargetWorkspaceProjector<MusicWorkspaceProjection> {
   const MusicLibraryEntryWorkspaceProjector();
 
   @override
   MusicLibraryEntryWorkspaceDto project({
-    required LibraryWorkspaceSource source,
-    required LibraryEntityRef entity,
+    required WorkspaceItem item,
+    required PersonalOverlay personal,
   }) {
-    requireEntityBelongsToSource(source, entity);
-    requireEntityScope(entity, LibraryEntityScope.libraryEntry);
-    final catalog = _catalogFor(source);
+    final catalog = _catalogFor(item);
     return MusicLibraryEntryWorkspaceDto(
-      common: _musicCommonProjection(source, entity, catalog),
-      personal: PersonalCopyProjection.fromShelf(
-        source,
-      ),
+      common: _musicCommonProjection(item, catalog),
+      personal: PersonalEntryProjection.fromShelf(item, personal),
       music: catalog.music,
       listeningSummary: catalog.listeningSummary,
     );
   }
 }
 
-MusicWorkspaceCatalogData _catalogFor(LibraryWorkspaceSource source) {
-  final data = source.catalogData;
-  if (data case final MusicWorkspaceCatalogData catalog) return catalog;
-  throw StateError('Expected MusicWorkspaceCatalogData for music workspace');
+MusicWorkspaceData _catalogFor(WorkspaceItem item) {
+  final data = item.kindPresentationData;
+  if (data case final MusicWorkspaceData catalog) return catalog;
+  throw StateError('Expected MusicWorkspaceData for music workspace');
 }
 
 WorkspaceCommonProjection _musicCommonProjection(
-  LibraryWorkspaceSource source,
-  LibraryEntityRef node,
-  MusicWorkspaceCatalogData catalog,
+  WorkspaceItem item,
+  MusicWorkspaceData catalog,
 ) =>
-    WorkspaceCommonProjection.fromStructuralShelf(
-      source,
-      node,
-      overrideTitle: catalog.music.title,
-      overrideReleaseDate: catalog.music.releaseDate,
-      overrideCoverImageUrl: catalog.music.coverImageUrl,
+    WorkspaceCommonProjection.fromKindPresentation(
+      item,
+      title: catalog.music.title,
+      releaseDate: catalog.music.releaseDate,
+      coverImageUrl: catalog.music.coverImageUrl,
     );

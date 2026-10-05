@@ -65,31 +65,52 @@ final class MusicListeningEditDraft extends ChangeNotifier
   }
 }
 
-class MusicListeningDraftSection extends StatelessWidget {
+class MusicListeningDraftSection extends StatefulWidget {
   const MusicListeningDraftSection({super.key, required this.draft});
   final MusicListeningEditDraft draft;
+  @override
+  State<MusicListeningDraftSection> createState() =>
+      _MusicListeningDraftSectionState();
+}
+
+class _MusicListeningDraftSectionState
+    extends State<MusicListeningDraftSection> {
+  DateTime _selectedDate = DateTime.now();
+  MusicListeningEditDraft get draft => widget.draft;
   @override
   Widget build(BuildContext context) => ListenableBuilder(
       listenable: draft,
       builder: (context, _) {
         final history = draft.history;
         return LibraryFormGroup(
-            title: 'Played History',
+            title: 'Played History (Total Plays: ${history.length})',
             child: Column(children: [
-              Row(children: [
-                Expanded(
-                    child: Text(
-                        '${history.length} ${history.length == 1 ? 'listen' : 'listens'}')),
-                OutlinedButton.icon(
-                    onPressed: () => _edit(context),
-                    icon: const Icon(Icons.headphones_outlined, size: 16),
-                    label: const Text('Mark as listened')),
-              ]),
+              Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  children: [
+                    OutlinedButton.icon(
+                        onPressed: () => draft.save(date: _selectedDate),
+                        icon: const Icon(Icons.headphones_outlined, size: 16),
+                        label: const Text('Mark as listened')),
+                    SizedBox(
+                        width: 170,
+                        child: LibraryDateFieldButton(
+                            label: 'Listen Date',
+                            showLabel: false,
+                            value: _selectedDate,
+                            onChanged: (date) {
+                              if (date != null) {
+                                setState(() => _selectedDate = date);
+                              }
+                            })),
+                  ]),
               for (final event in history)
                 Row(children: [
                   Expanded(
                       child: Text(
-                          '${formatDate(event.listenedAt)}${event.notes?.isNotEmpty == true ? ' ? ${event.notes}' : ''}')),
+                          '${formatDate(event.listenedAt)}${event.notes?.isNotEmpty == true ? ' — ${event.notes}' : ''}')),
                   IconButton(
                       tooltip: 'Edit listen',
                       onPressed: () => _edit(context, event),

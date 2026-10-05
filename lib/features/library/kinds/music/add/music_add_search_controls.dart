@@ -49,8 +49,7 @@ class MusicAddSearchControls extends StatelessWidget {
                 for (final value in MusicAddDiscFilter.values)
                   (value, value.label),
               ],
-              onSelected: (value) =>
-                  _update(musicAddDiscFilterId, value.value),
+              onSelected: (value) => _update(musicAddDiscFilterId, value.value),
             ),
           ],
         ),

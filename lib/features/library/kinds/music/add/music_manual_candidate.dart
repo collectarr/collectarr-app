@@ -1,5 +1,5 @@
+import 'package:collectarr_app/features/library/kinds/music/domain/music_album.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/add/models/library_kind_add_draft.dart';
 import 'package:collectarr_app/features/library/kinds/music/add/music_add_manual_draft.dart';
 import 'package:collectarr_app/features/library/kinds/music/add/music_add_manual_contents.dart';
@@ -32,11 +32,11 @@ CatalogSearchCandidate? buildMusicManualCandidate(
     'artist': _textOrNull(draft.artist),
     'revision': 1,
     ...proposal,
-    'discs': _candidateDiscs(draft, id),
   };
   final musicItem = MusicCatalogMapper.fromCatalogPayload(itemJson);
-  final item = MusicCatalogMapper.toCatalogItemDto(musicItem)
-      .withOrigin(CatalogItemOrigin.privateLocal);
+  final localMusic = MusicAlbum.fromJson(
+      {...musicItem.toJson(), 'discs': _candidateDiscs(draft)});
+  final item = MusicCatalogMapper.toLocalCatalogItemDto(localMusic);
   return CatalogSearchCandidate.fromItem(item);
 }
 
@@ -141,23 +141,21 @@ Map<String, Object?>? buildMusicManualProposalData(
 
 List<Map<String, dynamic>> _candidateDiscs(
   MusicAddManualDraft draft,
-  String itemId,
 ) =>
     [
       for (var discIndex = 0; discIndex < draft.discs.length; discIndex++)
-        _candidateDisc(draft.discs[discIndex], itemId, discIndex),
+        _candidateDisc(draft.discs[discIndex], discIndex),
     ];
 
 Map<String, dynamic> _candidateDisc(
   MusicAddManualDisc disc,
-  String itemId,
   int discIndex,
 ) {
   final tracks = disc.tracks
       .where((track) => track.title.trim().isNotEmpty)
       .toList(growable: false);
   return {
-    'id': '$itemId:disc:${discIndex + 1}',
+    'id': disc.id,
     'disc_number': discIndex + 1,
     if (disc.title.trim().isNotEmpty) 'title': disc.title.trim(),
     if (disc.matrixNumberSideA.trim().isNotEmpty)
@@ -167,9 +165,15 @@ Map<String, dynamic> _candidateDisc(
     'tracks': [
       for (var trackIndex = 0; trackIndex < tracks.length; trackIndex++)
         {
-          'id': '$itemId:disc:${discIndex + 1}:track:${trackIndex + 1}',
-          'position': '${trackIndex + 1}',
-          'position_order': trackIndex,
+          'id': tracks[trackIndex].id,
+          'position': tracks[trackIndex].position.isEmpty
+              ? '${trackIndex + 1}'
+              : tracks[trackIndex].position,
+          'position_order': trackIndex + 1,
+          'is_header': tracks[trackIndex].isHeader,
+          'indent_level': tracks[trackIndex].indentLevel,
+          if (tracks[trackIndex].parentHeaderId != null)
+            'parent_header_id': tracks[trackIndex].parentHeaderId,
           'title': tracks[trackIndex].title.trim(),
           if (tracks[trackIndex].artist.trim().isNotEmpty)
             'artist': tracks[trackIndex].artist.trim(),

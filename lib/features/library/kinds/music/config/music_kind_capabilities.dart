@@ -5,10 +5,44 @@ import '../add/music_add_contribution.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_album.dart';
 import 'package:collectarr_app/features/library/metadata/common_personal_library_fields.dart';
 
-final musicKindPersonalFieldContributor = const LibraryPersonalFieldContributor(
+final musicKindPersonalFieldContributor = LibraryPersonalFieldContributor(
   kind: CatalogMediaKind.music,
   fields: [
-    ...commonPersonalLibraryFields,
+    for (final field in commonPersonalLibraryFields)
+      relabelPersonalLibraryField(
+          field,
+          switch (field.key) {
+            'market_value_cents' => 'Current Value',
+            'owner_label' => 'Owner',
+            'rating' => 'My Rating',
+            'collection_status' => 'Collection Status',
+            _ => field.label,
+          }),
+    const PersonalLibraryFieldSpec(
+        key: 'quantity',
+        label: 'Quantity',
+        group: 'Collection state',
+        syncable: true,
+        editor: PersonalLibraryFieldEditor.integer,
+        area: PersonalLibraryFieldArea.statusStrip,
+        editOrder: 2,
+        minimum: 1,
+        defaultInteger: 1),
+    const PersonalLibraryFieldSpec(
+        key: 'media_condition',
+        label: 'Media Condition',
+        group: 'Collection state',
+        syncable: true),
+    const PersonalLibraryFieldSpec(
+        key: 'purchase_date_parts',
+        label: 'Purchase Date',
+        group: 'Acquisition',
+        syncable: true),
+    const PersonalLibraryFieldSpec(
+        key: 'last_cleaned_date_parts',
+        label: 'Last Cleaned Date',
+        group: 'Maintenance',
+        syncable: true),
     PersonalLibraryFieldSpec(
       key: 'storage_device',
       label: 'Storage device',
@@ -21,7 +55,7 @@ final musicKindPersonalFieldContributor = const LibraryPersonalFieldContributor(
     ),
     PersonalLibraryFieldSpec(
       key: 'last_cleaned_date',
-      label: 'Last cleaned date',
+      label: 'Last Cleaned Date',
       group: 'Maintenance',
       editor: PersonalLibraryFieldEditor.partialDate,
       area: PersonalLibraryFieldArea.personalFields,
@@ -84,52 +118,45 @@ final musicKindHierarchy = const LibraryHierarchyCapability(
   fetchChildrenCallback: fetchMusicTracks,
 );
 
-final musicKindEntityVocabulary = const LibraryEntityVocabulary(
-  catalogItem: LibraryEntityLabel(singular: 'Album', plural: 'Albums'),
-  libraryEntry: LibraryEntityLabel(singular: 'Entry', plural: 'Entries'),
+final musicKindEntityVocabulary = const LibraryTargetVocabulary(
+  catalogItem: LibraryTargetLabel(singular: 'Album', plural: 'Albums'),
+  libraryEntry: LibraryTargetLabel(singular: 'Entry', plural: 'Entries'),
 );
 
 final musicKindTrackingTopology = const LibraryTrackingTopology(
   sessionLabels: LibraryTrackingSessionLabels.listen,
-  writableTargets: {LibraryTrackingTargetScope.catalogItem},
-  aggregateTargets: {LibraryTrackingTargetScope.catalogItem},
-  lookupScope: LibraryTrackingLookupScope.exactCatalog,
+  writableTargets: {LibraryTrackingTarget.libraryEntry},
+  aggregateTargets: {LibraryTrackingTarget.libraryEntry},
 );
 
 final musicKindEntryPolicy =
     const LibraryEntryPolicyCapability.allowEverywhere();
 
-final musicKindActions = const LibraryEntityActionCapability(
-  catalogItem: LibraryEntityActionSet.catalogItem,
-  libraryEntry: LibraryEntityActionSet.libraryEntry,
-  semanticActions: {
+final musicKindActions = const LibraryTargetActionCapability(
+  catalogItem: LibraryTargetActionSet.catalogItem,
+  libraryEntry: LibraryTargetActionSet.libraryEntry,
+  catalogItemSemanticActions: [
     // Listening history belongs to the concrete catalog item, matching the
     // Music tracking topology and listening-event storage.
-    LibraryEntityScope.catalogItem: [
-      LibraryEntitySemanticActionDefinition(
-        id: 'music.log_listen',
-        label: 'Log listen',
-        icon: Icons.headphones_outlined,
-        invoke: runMusicLogListenAction,
-      ),
-    ],
-  },
+    LibraryTargetSemanticActionDefinition(
+      id: 'music.log_listen',
+      label: 'Log listen',
+      icon: Icons.headphones_outlined,
+      invoke: runMusicLogListenAction,
+    ),
+  ],
 );
 
 final musicKindInspector = LibraryInspectorCapability(
-  entityRegistry: LibraryEntityInspectorRegistry(
-    contributors: [
-      LibraryEntityInspectorContributor(
-        scope: LibraryEntityScope.catalogItem,
-        heroBuilder: buildMusicWorkInspectorHero,
-        sectionsBuilder: buildMusicWorkInspectorSections,
-      ),
-      LibraryEntityInspectorContributor(
-        scope: LibraryEntityScope.libraryEntry,
-        heroBuilder: buildMusicCopyInspectorHero,
-        sectionsBuilder: buildMusicCopyInspectorSections,
-      ),
-    ],
+  entityRegistry: LibraryTargetInspectorRegistry(
+    catalogItem: LibraryTargetInspectorContributor(
+      heroBuilder: buildMusicCatalogItemInspectorHero,
+      sectionsBuilder: buildMusicCatalogItemInspectorSections,
+    ),
+    libraryEntry: LibraryTargetInspectorContributor(
+      heroBuilder: buildMusicLibraryEntryInspectorHero,
+      sectionsBuilder: buildMusicLibraryEntryInspectorSections,
+    ),
   ),
   showsDefaultPersonalSection: false,
   personalDetailFieldsBuilder: buildMusicPersonalDetailFields,

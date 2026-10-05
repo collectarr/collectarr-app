@@ -1,9 +1,10 @@
 import 'package:collectarr_app/features/library/ui/primitives/library_form_controls.dart';
-import 'package:collectarr_app/ui/theme/app_theme.dart';
+import 'package:collectarr_app/features/library/ui/primitives/library_ordered_names_field.dart';
 import 'package:flutter/material.dart';
-import 'package:uuid/uuid.dart';
-
-const _musicCreditIdGenerator = Uuid();
+import 'package:collectarr_app/features/library/ui/primitives/library_ordered_pick_list_field.dart';
+import 'package:collectarr_app/features/library/ui/primitives/library_pick_list_tags.dart';
+import 'package:collectarr_app/features/pick_lists/pick_list_options.dart';
+import 'package:collectarr_app/features/library/kinds/music/vocabulary/music_vocabularies.dart';
 
 @immutable
 final class MusicCreditFieldValue {
@@ -54,9 +55,11 @@ final class MusicContributionGroupsField extends StatefulWidget {
     required this.columns,
     required this.accent,
     required this.onChanged,
+    this.columnLabels = const [],
   });
 
   final List<List<MusicCreditFieldGroup>> columns;
+  final List<String> columnLabels;
   final Color accent;
   final ValueChanged<MusicCreditFieldGroup> onChanged;
 
@@ -98,179 +101,67 @@ final class _MusicContributionGroupsFieldState
     if (changed case final group?) widget.onChanged(group);
   }
 
-  void _add(MusicCreditFieldGroup group) => _replace(
-        group.role,
-        [
-          ...group.values,
-          MusicCreditFieldValue(
-            id: _musicCreditIdGenerator.v4(),
-            name: '',
-          ),
-        ],
+  Widget _group(MusicCreditFieldGroup group) => Padding(
+        padding: const EdgeInsets.only(bottom: 12),
+        child: LibraryOrderedPickListField(
+          listName: MusicVocabularyIds.creditNames(group.role).value,
+          mediaKind: 'music',
+          loadOptions: (db) => MusicVocabularies.nameOptions(
+              db, MusicVocabularyIds.creditNames(group.role).value),
+          label: group.label,
+          values: [
+            for (final value in group.values)
+              LibraryNamedValue(
+                  id: value.id, name: value.name, sortName: value.sortName),
+          ],
+          rowTrailingBuilder: group.hasInstrument
+              ? (value) => SizedBox(
+                    width: 210,
+                    child: LibraryPickListTags(
+                      label: 'Instrument',
+                      listName: MusicVocabularyIds.instrument.value,
+                      mediaKind: 'music',
+                      key: ValueKey('music-credit-instrument-${value.id}'),
+                      loadOptions: (db) => MusicVocabularies.nameOptions(
+                          db, MusicVocabularyIds.instrument.value),
+                      values: splitPickListValues(group.values
+                          .firstWhere((row) => row.id == value.id)
+                          .instrument),
+                      onChanged: (instrument) => _replace(group.role, [
+                        for (final row in group.values)
+                          row.id == value.id
+                              ? row.copyWith(
+                                  instrument:
+                                      joinPickListValues(instrument) ?? '')
+                              : row,
+                      ]),
+                    ),
+                  )
+              : null,
+          onChanged: (names) => _replace(group.role, [
+            for (final name in names)
+              MusicCreditFieldValue(
+                id: name.id,
+                name: name.name,
+                sortName: name.sortName ?? '',
+                instrument: group.values
+                        .where((row) => row.id == name.id)
+                        .firstOrNull
+                        ?.instrument ??
+                    '',
+              ),
+          ]),
+        ),
       );
 
-  Widget _group(MusicCreditFieldGroup group) {
-    final palette = appPalette(context);
-    return Container(
-      width: double.infinity,
-      margin: const EdgeInsets.only(bottom: 10),
-      padding: const EdgeInsets.all(9),
-      decoration: BoxDecoration(
-        color: palette.surface,
-        border: Border.all(color: palette.divider),
-        borderRadius: BorderRadius.circular(3),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Row(
-            children: [
-              Expanded(
-                child: Text(
-                  group.label,
-                  style: const TextStyle(fontWeight: FontWeight.w700),
-                ),
-              ),
-              IconButton(
-                tooltip: 'Add ${group.label}',
-                visualDensity: VisualDensity.compact,
-                onPressed: () => _add(group),
-                icon: Icon(Icons.add, color: widget.accent, size: 19),
-              ),
-            ],
-          ),
-          if (group.values.isEmpty)
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 5),
-              child: Text(
-                'No ${group.label.toLowerCase()} entries',
-                style: TextStyle(color: palette.textMuted),
-              ),
-            )
-          else
-            ReorderableListView.builder(
-              shrinkWrap: true,
-              primary: false,
-              physics: const NeverScrollableScrollPhysics(),
-              buildDefaultDragHandles: false,
-              itemCount: group.values.length,
-              onReorderItem: (oldIndex, newIndex) {
-                final values = [...group.values];
-                values.insert(newIndex, values.removeAt(oldIndex));
-                _replace(group.role, values);
-              },
-              itemBuilder: (context, index) {
-                final value = group.values[index];
-                final nameField = LibraryFormField(
-                  label: group.label,
-                  child: LibraryTextFormControl(
-                    key: ValueKey('music-credit-name-${value.id}'),
-                    initialValue: value.name,
-                    decoration: const InputDecoration(isDense: true),
-                    onChanged: (text) => _replace(
-                      group.role,
-                      [
-                        for (final candidate in group.values)
-                          if (candidate.id == value.id)
-                            candidate.copyWith(name: text)
-                          else
-                            candidate,
-                      ],
-                    ),
-                  ),
-                );
-                final sortNameField = LibraryFormField(
-                  label: 'Sort Name',
-                  child: LibraryTextFormControl(
-                    key: ValueKey('music-credit-sort-name-${value.id}'),
-                    initialValue: value.sortName,
-                    decoration: const InputDecoration(isDense: true),
-                    onChanged: (text) => _replace(
-                      group.role,
-                      [
-                        for (final candidate in group.values)
-                          if (candidate.id == value.id)
-                            candidate.copyWith(sortName: text)
-                          else
-                            candidate,
-                      ],
-                    ),
-                  ),
-                );
-                return Padding(
-                  key: ValueKey(value.id),
-                  padding: const EdgeInsets.symmetric(vertical: 4),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      ReorderableDragStartListener(
-                        index: index,
-                        child: const Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 5),
-                          child: Icon(Icons.drag_handle, size: 18),
-                        ),
-                      ),
-                      Expanded(
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Expanded(
-                              child: Column(
-                                children: [
-                                  nameField,
-                                  const SizedBox(height: 6),
-                                  sortNameField,
-                                ],
-                              ),
-                            ),
-                            if (group.hasInstrument) ...[
-                              const SizedBox(width: 8),
-                              Expanded(
-                                child: LibraryFormField(
-                                  label: 'Instrument',
-                                  child: LibraryTextFormControl(
-                                    key: ValueKey(
-                                      'music-credit-instrument-${value.id}',
-                                    ),
-                                    initialValue: value.instrument,
-                                    decoration:
-                                        const InputDecoration(isDense: true),
-                                    onChanged: (text) => _replace(
-                                      group.role,
-                                      [
-                                        for (final candidate in group.values)
-                                          if (candidate.id == value.id)
-                                            candidate.copyWith(instrument: text)
-                                          else
-                                            candidate,
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ],
-                        ),
-                      ),
-                      IconButton(
-                        tooltip: 'Remove ${group.label.toLowerCase()}',
-                        visualDensity: VisualDensity.compact,
-                        onPressed: () => _replace(
-                          group.role,
-                          group.values
-                              .where((candidate) => candidate.id != value.id)
-                              .toList(growable: false),
-                        ),
-                        icon: const Icon(Icons.close, size: 18),
-                      ),
-                    ],
-                  ),
-                );
-              },
-            ),
-        ],
-      ),
+  Widget _column(int index) {
+    final child = Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [for (final group in _columns[index]) _group(group)],
     );
+    return index < widget.columnLabels.length
+        ? LibraryFormGroup(title: widget.columnLabels[index], child: child)
+        : child;
   }
 
   @override
@@ -279,8 +170,10 @@ final class _MusicContributionGroupsFieldState
           if (constraints.maxWidth < 720 || _columns.length < 2) {
             return Column(
               children: [
-                for (final group in _columns.expand((value) => value))
-                  _group(group)
+                for (var index = 0; index < _columns.length; index++) ...[
+                  if (index > 0) const SizedBox(height: 12),
+                  _column(index),
+                ]
               ],
             );
           }
@@ -290,11 +183,7 @@ final class _MusicContributionGroupsFieldState
               for (var index = 0; index < _columns.length; index++) ...[
                 if (index > 0) const SizedBox(width: 14),
                 Expanded(
-                  child: Column(
-                    children: [
-                      for (final group in _columns[index]) _group(group)
-                    ],
-                  ),
+                  child: _column(index),
                 ),
               ],
             ],

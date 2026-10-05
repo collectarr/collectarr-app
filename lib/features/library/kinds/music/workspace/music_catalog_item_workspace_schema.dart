@@ -1,19 +1,16 @@
+import 'music_workspace_groups.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_ids.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_catalog_item_workspace_fields.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_dto.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_schema_support.dart';
-import 'package:collectarr_app/features/catalog/transport/catalog_transport_bucket_mutators.dart';
 import 'package:collectarr_app/features/library/workspace/schema/field_factories.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_identifier_types.dart';
-import 'package:collectarr_app/features/library/workspace/schema/library_entity_workspace_schema.dart';
-import 'package:collectarr_app/features/library/workspace/schema/library_preference_codec.dart';
-import 'package:collectarr_app/features/library/domain/library_entity_scope.dart';
+import 'package:collectarr_app/features/library/workspace/schema/library_workspace_schema.dart';
 import 'package:flutter/material.dart';
 
 final musicCatalogItemWorkspaceSchema =
-    LibraryEntityWorkspaceSchema<MusicKind, MusicWorkspaceProjection>(
+    LibraryWorkspaceSchema<MusicKind, MusicWorkspaceProjection>(
   kindNamespace: 'music',
-  entityScope: LibraryEntityScope.catalogItem,
   fields: [
     MusicCatalogItemWorkspaceFields.title,
     MusicCatalogItemWorkspaceFields.artist,
@@ -84,20 +81,7 @@ final musicCatalogItemWorkspaceSchema =
       defaultAscending: false,
     ),
   ],
-  groups: [
-    groupFromField<MusicKind, MusicWorkspaceProjection, String?>(
-      MusicCatalogItemWorkspaceFields.artist,
-      sidebarTitle: 'Artists',
-      icon: Icons.person_outline,
-      supportsBucketManagement: true,
-      bucketValueMutator: catalogTransportStringBucketValueMutator(['artist']),
-    ),
-    groupFromField<MusicKind, MusicWorkspaceProjection, String?>(
-      MusicCatalogItemWorkspaceFields.genre,
-      sidebarTitle: 'Genres',
-      icon: Icons.local_offer_outlined,
-    ),
-  ],
+  groups: musicWorkspaceGroupDefinitions(includePersonal: false),
   primaryColumn: MusicCatalogItemWorkspaceFields.title.id,
   defaultVisibleColumns: {
     MusicFieldIds.status,
@@ -112,5 +96,4 @@ final musicCatalogItemWorkspaceSchema =
   },
   defaultSort: MusicSortIds.artist,
   defaultGroup: MusicGroupIds.artist,
-  preferenceCodec: const IdentityLibraryWorkspacePreferenceCodec<MusicKind>(),
 );

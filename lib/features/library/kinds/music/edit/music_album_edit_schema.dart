@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/kinds/music/forms/music_main_form_section.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit/music_album_details_pane.dart';
 import 'package:collectarr_app/features/library/edit/schema/edit_schema.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_album.dart';
@@ -21,33 +22,9 @@ final EditSchema<MusicAlbum, MusicAlbumEditDraft> musicAlbumEditSchema =
       label: 'Main',
       icon: Icons.music_note_outlined,
       sections: [
-        LibraryFormSectionSpec<MusicAlbumEditDraft>(
-          id: 'catalog_item',
-          label: '',
-          maxColumns: 4,
-          fieldColumnSpans: const {
-            'title': 2,
-            'sort_title': 2,
-            'subtitle': 2,
-            'artist': 2,
-            'catalog_number': 2,
-            'genres': 2,
-          },
-          rightAlignedFieldIds: const {'genres'},
-          fields: _fields([
-            'title',
-            'release_date',
-            'original_release_date',
-            'sort_title',
-            'record_label',
-            'recording_date',
-            'subtitle',
-            'format',
-            'barcode',
-            'artist',
-            'catalog_number',
-            'genres',
-          ]),
+        musicMainFormSection<MusicAlbumEditDraft>(
+          fields: musicAlbumFields<MusicAlbumEditDraft>(
+              values: (draft) => draft.values),
         ),
       ],
     ),
@@ -72,11 +49,3 @@ final EditSchema<MusicAlbum, MusicAlbumEditDraft> musicAlbumEditSchema =
     ),
   ],
 );
-
-List<LibraryFieldSpec<MusicAlbumEditDraft>> _fields(List<String> ids) {
-  final all = musicAlbumFields<MusicAlbumEditDraft>(
-    values: (draft) => draft.values,
-  );
-  final fieldsById = {for (final field in all) field.id: field};
-  return [for (final id in ids) fieldsById[id]!];
-}

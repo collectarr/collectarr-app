@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/collection/commands/library_entry_commands.dart';
+import 'package:collectarr_app/core/models/partial_date.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_library_entry.dart';
 import 'package:collectarr_app/features/library/kinds/music/entries/music_entry_details_codec.dart';
 import 'package:collectarr_app/features/library/kinds/music/entries/music_entry_details_draft.dart';
@@ -121,6 +122,11 @@ final class MusicLibraryEntryUpdatePayload
       purchaseDate: purchaseDate.when(
         unchanged: () => existingPersonal.purchaseDate,
         set: (value) => value,
+        clear: () => null,
+      ),
+      purchaseDateParts: purchaseDate.when(
+        unchanged: () => existingPersonal.purchaseDateParts,
+        set: (value) => value == null ? null : PartialDate.fromDateTime(value),
         clear: () => null,
       ),
       pricePaidCents: pricePaidCents.when(

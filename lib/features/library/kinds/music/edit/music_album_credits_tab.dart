@@ -23,8 +23,8 @@ final class MusicAlbumCreditsEditor {
   List<List<MusicCreditFieldGroup>> columnsFor({required bool classical}) {
     final roles = classical
         ? const [
-            ['Composer', 'Conductor'],
-            ['Chorus', 'Composition', 'Orchestra'],
+            ['Composer', 'Conductor', 'Chorus'],
+            ['Composition', 'Orchestra'],
           ]
         : const [
             ['Songwriter', 'Producer', 'Engineer'],
@@ -97,7 +97,6 @@ final class MusicAlbumCreditsEditor {
         if (_rows[index].name.trim().isNotEmpty)
           MusicAlbumContribution(
             id: MusicAlbumContributionId(_rows[index].id),
-            albumId: _draft.original.id,
             personId: _personIdFor(_rows[index]),
             role: _rows[index].role,
             roleId: _rows[index].previous?.roleId,
@@ -134,6 +133,8 @@ class _MusicAlbumCreditsTabState extends State<MusicAlbumCreditsTab> {
   Widget build(BuildContext context) => MusicContributionGroupsField(
         columns: widget.editor.columnsFor(classical: widget.classical),
         accent: widget.accent,
+        columnLabels:
+            widget.classical ? const [] : const ['Credits', 'Musicians'],
         onChanged: (group) => setState(
           () => widget.editor.replace(group.role, group.values),
         ),

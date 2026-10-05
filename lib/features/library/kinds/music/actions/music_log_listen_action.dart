@@ -1,5 +1,5 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
-import 'package:collectarr_app/features/library/config/library_entity_action_capability.dart';
+import 'package:collectarr_app/features/library/config/library_target_action_capability.dart';
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart'
     show LibraryEditTextField;
 import 'package:collectarr_app/features/library/kinds/music/data/music_listening_providers.dart';
@@ -10,7 +10,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 Future<void> runMusicLogListenAction(
-  LibraryEntityActionContext action,
+  LibraryTargetActionContext action,
 ) async {
   final projection = action.item.dto;
   if (projection is! MusicWorkspaceProjection) return;
@@ -63,8 +63,7 @@ Future<void> runMusicLogListenAction(
           ),
         );
     container.invalidate(musicListeningEventsProvider(libraryEntryRef));
-    container
-        .invalidate(musicCatalogItemListeningSummaryProvider(libraryEntryRef));
+    container.invalidate(musicEntryListeningSummaryProvider(libraryEntryRef));
   } finally {
     notesController.dispose();
   }

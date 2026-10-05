@@ -9,7 +9,7 @@ import 'package:collectarr_app/features/library/kinds/music/inspector/music_insp
 import 'package:collectarr_app/features/library/kinds/music/presentation.dart';
 import 'package:flutter/material.dart';
 
-Widget buildMusicWorkInspectorHero(
+Widget buildMusicCatalogItemInspectorHero(
   BuildContext context,
   LibraryInspectorRequest request,
 ) {
@@ -33,7 +33,7 @@ Widget buildMusicAlbumInspectorHero(
   );
 }
 
-Widget buildMusicCopyInspectorHero(
+Widget buildMusicLibraryEntryInspectorHero(
   BuildContext context,
   LibraryInspectorRequest request,
 ) {
@@ -45,7 +45,7 @@ Widget buildMusicCopyInspectorHero(
   );
 }
 
-List<Widget> buildMusicWorkInspectorSections(
+List<Widget> buildMusicCatalogItemInspectorSections(
   BuildContext context,
   LibraryInspectorRequest request,
 ) {
@@ -59,7 +59,7 @@ List<Widget> buildMusicAlbumInspectorSections(
   return _buildMusicInspectorSections(context, request);
 }
 
-List<Widget> buildMusicCopyInspectorSections(
+List<Widget> buildMusicLibraryEntryInspectorSections(
   BuildContext context,
   LibraryInspectorRequest request,
 ) {

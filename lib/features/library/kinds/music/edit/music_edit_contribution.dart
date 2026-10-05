@@ -2,19 +2,11 @@ import '../music_module_dependencies.dart';
 import '../entries/music_transfer_library_entry.dart';
 
 final musicKindEditCapabilities = LibraryEditCapabilitySet(
-  editRegistry: LibraryEntityEditRegistry(contributors: [
-    LibraryEntityEditContributor(
-      scope: LibraryEntityScope.catalogItem,
-      builder: buildMusicAlbumLibraryEditDialog,
-    ),
-    LibraryEntityEditContributor(
-      scope: LibraryEntityScope.libraryEntry,
-      builder: buildMusicAlbumLibraryEditDialog,
-    ),
-  ]),
+  editRegistry: LibraryTargetEditRegistry(
+      catalogItem: buildMusicAlbumLibraryEditDialog,
+      libraryEntry: buildMusicAlbumLibraryEditDialog),
   vocabularies: StandardKindVocabularyCapability(MusicVocabularies.all),
   presentation: musicTypedEditPresentation,
-  coreCorrectionTargetResolver: resolveMusicCatalogItemCoreCorrectionTarget,
   conditions: MusicVocabularies.condition.builtIns,
   entryCollectionValueReader: (libraryEntry) => switch (libraryEntry?.value) {
     MusicLibraryEntry item => item.personal.grade,
@@ -90,15 +82,3 @@ final musicKindEditCapabilities = LibraryEditCapabilitySet(
   entryDetailsResetPayloadBuilder: () =>
       MusicLibraryEntryUpdatePayload.partial(details: const Patch.clear()),
 );
-
-LibraryCoreCorrectionTarget resolveMusicCatalogItemCoreCorrectionTarget({
-  required LibraryEntityRef? node,
-  required LibraryEntityScope? requestedScope,
-  required CatalogEntityRef catalogRef,
-}) {
-  final id = catalogRef.id.trim();
-  if (catalogRef.mediaKind != CatalogMediaKind.music || id.isEmpty) {
-    throw StateError('Music correction requires a concrete Catalog Item.');
-  }
-  return LibraryCoreCorrectionTarget(scope: 'catalog_item', entityId: id);
-}

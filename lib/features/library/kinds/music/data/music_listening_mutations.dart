@@ -3,6 +3,7 @@ import 'package:collectarr_app/core/sync/sync_change.dart';
 import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
 import 'package:collectarr_app/features/library/kinds/music/data/music_listening_repository.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_listening.dart';
+import 'package:collectarr_app/features/library/kinds/music/data/music_entry_repository.dart';
 
 /// Persists Music listening activity and its personal Sync change atomically.
 final class MusicListeningMutations {
@@ -17,7 +18,7 @@ final class MusicListeningMutations {
   Future<void> upsert(MusicListenEvent event) async {
     await _db.transaction(() async {
       await _repository.upsert(event);
-      await _syncQueue.enqueue(_changeFor(event));
+      await _enqueueForCoreEntry(event);
     });
   }
 
@@ -36,8 +37,15 @@ final class MusicListeningMutations {
     );
     await _db.transaction(() async {
       await _repository.upsert(deleted);
-      await _syncQueue.enqueue(_changeFor(deleted));
+      await _enqueueForCoreEntry(deleted);
     });
+  }
+
+  Future<void> _enqueueForCoreEntry(MusicListenEvent event) async {
+    final entry =
+        await MusicEntryRepository(_db).findById(event.libraryEntryRef.id);
+    if (entry?.sourceCatalogRef == null) return;
+    await _syncQueue.enqueue(_changeFor(event));
   }
 
   SyncChange _changeFor(MusicListenEvent event) {

@@ -1,4 +1,6 @@
+import 'package:collectarr_app/features/library/kinds/music/entries/music_entry_details.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
+import 'package:collectarr_app/features/pick_lists/models/pick_list_value.dart';
 import 'package:collectarr_app/features/library/kinds/music/data/music_entry_repository.dart';
 import 'package:collectarr_app/features/pick_lists/models/vocabulary_definition.dart';
 import 'package:collectarr_app/features/pick_lists/models/vocabulary_id.dart';
@@ -8,8 +10,15 @@ import 'package:collectarr_app/features/library/kinds/music/domain/music_library
 import 'package:collectarr_app/features/library/kinds/music/music_country_name.dart';
 
 abstract final class MusicVocabularyIds {
+  static const artist = VocabularyId<String>('music.artist');
+  static const instrument = VocabularyId<String>('music.instrument');
+  static const signedBy = VocabularyId<String>('music.signed_by');
+  static VocabularyId<String> creditNames(String role) => VocabularyId<String>(
+      'music.${role.trim().toLowerCase().replaceAll(' ', '_')}');
   static const condition = VocabularyId<String>('music.condition');
   static const grade = VocabularyId<String>('music.grade');
+  static const mediaCondition = VocabularyId<String>('music.media_condition');
+  static const storageDevice = VocabularyId<String>('music.storage_device');
   static const format = VocabularyId<String>('music.format');
   static const packaging = VocabularyId<String>('music.packaging');
   static const recordLabel = VocabularyId<String>('music.record_label');
@@ -22,6 +31,46 @@ abstract final class MusicVocabularyIds {
 }
 
 abstract final class MusicVocabularies {
+  /// Include existing local metadata even before a name is saved in a pick list.
+  static Future<List<String>> nameOptions(
+      LocalDatabase db, String listName) async {
+    final semanticName = listName.substring(listName.lastIndexOf('.') + 1);
+    final items = await MusicEntryRepository(db).listActive();
+    return [
+      for (final item in items)
+        ..._nameValues(item, semanticName)
+            .whereType<String>()
+            .where((value) => value.trim().isNotEmpty)
+    ];
+  }
+
+  static Iterable<String?> _nameValues(
+      MusicLibraryEntry item, String semanticName) sync* {
+    if (semanticName == 'signed_by') {
+      yield* item.personal.details.signedBy?.split(',') ?? const <String>[];
+    } else {
+      yield* metadataNames(item.metadata, semanticName);
+    }
+  }
+
+  static Iterable<String?> metadataNames(
+      MusicAlbum item, String semanticName) sync* {
+    if (semanticName == 'artist') {
+      if (item.artistCredits.isEmpty) yield item.artist;
+      yield* item.artistCredits.map((credit) => credit.creditedName);
+    } else if (semanticName == 'studio') {
+      yield* item.studios;
+    } else if (semanticName == 'instrument') {
+      yield* item.contributions.expand(
+          (credit) => credit.instrument?.split(',') ?? const <String>[]);
+    } else {
+      yield* item.contributions
+          .where((credit) =>
+              credit.role.toLowerCase().replaceAll(' ', '_') == semanticName)
+          .map((credit) => credit.displayName);
+    }
+  }
+
   static Future<int> countEntryValue(
     LocalDatabase db,
     String semanticName,
@@ -75,6 +124,24 @@ abstract final class MusicVocabularies {
         return item.copyWith(
           personal: item.personal.copyWith(condition: targetValue),
         );
+      case 'storage_device':
+        return item.copyWith(
+            personal: item.personal.copyWith(
+                details: item.personal.details.copyWith(
+          media: [
+            for (final row in item.personal.details.media)
+              MusicEntryDiscDetails(
+                  discId: row.discId,
+                  storageSlot: row.storageSlot,
+                  storageDevice: normalizedSourceValues
+                          .contains(row.storageDevice?.trim().toLowerCase())
+                      ? targetValue
+                      : row.storageDevice)
+          ],
+        )));
+      case 'media_condition':
+        return item.copyWith(
+            personal: item.personal.copyWith(mediaCondition: targetValue));
       case 'grade':
         return item.copyWith(
             personal: item.personal.copyWith(grade: targetValue));
@@ -102,9 +169,52 @@ abstract final class MusicVocabularies {
       case 'signed_by':
         return item.copyWith(
           personal: item.personal.copyWith(
-            details: item.personal.details.copyWith(signedBy: targetValue),
+            details: item.personal.details.copyWith(
+                signedBy: replacePickListDelimitedValue(
+                    item.personal.details.signedBy,
+                    normalizedSourceValues,
+                    targetValue)),
           ),
         );
+    }
+    if (semanticName == 'studio' ||
+        semanticName == 'artist' ||
+        semanticName == 'instrument' ||
+        _creditNameRoles.contains(semanticName)) {
+      String? replace(String? value) => value != null &&
+              normalizedSourceValues.contains(normalizePickListValue(value))
+          ? targetValue
+          : value;
+      // Preserve the full document, including IDs, order and unrelated credits.
+      final data = item.metadata.toJson();
+      if (semanticName == 'studio') {
+        data['studios'] = [
+          for (final value in item.metadata.studios) replace(value)
+        ];
+      } else if (semanticName == 'artist') {
+        final credits = [
+          for (final credit in item.metadata.artistCredits)
+            {...credit.toJson(), 'credited_name': replace(credit.creditedName)}
+        ];
+        data['artist_credits'] = credits;
+        data['artist'] = credits.isEmpty
+            ? replace(item.metadata.artist)
+            : credits.map((credit) => credit['credited_name']).join(' / ');
+      } else {
+        data['contributions'] = [
+          for (final credit in item.metadata.contributions)
+            {
+              ...credit.toJson(),
+              if (semanticName == 'instrument')
+                'instrument': replacePickListDelimitedValue(
+                    credit.instrument, normalizedSourceValues, targetValue)
+              else if (credit.role.toLowerCase().replaceAll(' ', '_') ==
+                  semanticName)
+                'name': replace(credit.displayName)
+            }
+        ];
+      }
+      return item.copyWith(metadata: MusicAlbum.fromJson(data));
     }
     return item;
   }
@@ -115,6 +225,7 @@ abstract final class MusicVocabularies {
   ) sync* {
     final standard = switch (semanticName) {
       'condition' => item.personal.condition,
+      'media_condition' => item.personal.mediaCondition,
       'grade' => item.personal.grade,
       'purchase_store' => item.personal.purchaseStore,
       'sold_to' => item.personal.soldTo,
@@ -125,18 +236,24 @@ abstract final class MusicVocabularies {
       yield standard;
       return;
     }
+    if (semanticName == 'storage_device') {
+      yield* item.personal.details.media.map((row) => row.storageDevice);
+      return;
+    }
     if (semanticName == 'tags') {
       yield* item.personal.tags?.split(',') ?? const <String>[];
       return;
     }
     if (semanticName == 'signed_by') {
-      yield item.personal.details.signedBy;
+      yield* item.personal.details.signedBy?.split(',') ?? const <String>[];
+      return;
     }
+    yield* metadataNames(item.metadata, semanticName);
   }
 
   static const condition = VocabularyDefinition<String>(
     id: MusicVocabularyIds.condition,
-    label: 'Condition',
+    label: 'Package/Sleeve Condition',
     builtIns: [
       'Mint',
       'Near Mint',
@@ -148,6 +265,24 @@ abstract final class MusicVocabularies {
     ],
   );
 
+  static const mediaCondition = VocabularyDefinition<String>(
+    id: MusicVocabularyIds.mediaCondition,
+    label: 'Media Condition',
+    builtIns: [
+      'Mint',
+      'Near Mint',
+      'Excellent',
+      'Very Good',
+      'Good',
+      'Fair',
+      'Poor'
+    ],
+  );
+  static const storageDevice = VocabularyDefinition<String>(
+    id: MusicVocabularyIds.storageDevice,
+    label: 'Storage Device',
+    builtIns: [],
+  );
   static const grade = VocabularyDefinition<String>(
     id: MusicVocabularyIds.grade,
     label: 'Grade',
@@ -271,8 +406,97 @@ abstract final class MusicVocabularies {
     builtIns: ['Mono', 'Stereo', 'Quadraphonic', 'Dolby Atmos'],
   );
 
+  static const _creditNameRoles = {
+    'composer',
+    'conductor',
+    'chorus',
+    'composition',
+    'orchestra',
+    'songwriter',
+    'producer',
+    'engineer',
+    'musician'
+  };
+
+  static const orderedNames = <VocabularyDefinition<String>>[
+    VocabularyDefinition<String>(
+      id: VocabularyId<String>('music.artist'),
+      label: 'Artist',
+      multiValue: true,
+      valuesFrom: _MusicNameProjector('artist'),
+    ),
+    VocabularyDefinition<String>(
+      id: VocabularyId<String>('music.composer'),
+      label: 'Composer',
+      multiValue: true,
+      valuesFrom: _MusicNameProjector('composer'),
+    ),
+    VocabularyDefinition<String>(
+      id: VocabularyId<String>('music.conductor'),
+      label: 'Conductor',
+      multiValue: true,
+      valuesFrom: _MusicNameProjector('conductor'),
+    ),
+    VocabularyDefinition<String>(
+      id: VocabularyId<String>('music.chorus'),
+      label: 'Chorus',
+      multiValue: true,
+      valuesFrom: _MusicNameProjector('chorus'),
+    ),
+    VocabularyDefinition<String>(
+      id: VocabularyId<String>('music.composition'),
+      label: 'Composition',
+      multiValue: true,
+      valuesFrom: _MusicNameProjector('composition'),
+    ),
+    VocabularyDefinition<String>(
+      id: VocabularyId<String>('music.orchestra'),
+      label: 'Orchestra',
+      multiValue: true,
+      valuesFrom: _MusicNameProjector('orchestra'),
+    ),
+    VocabularyDefinition<String>(
+      id: VocabularyId<String>('music.songwriter'),
+      label: 'Songwriter',
+      multiValue: true,
+      valuesFrom: _MusicNameProjector('songwriter'),
+    ),
+    VocabularyDefinition<String>(
+      id: VocabularyId<String>('music.producer'),
+      label: 'Producer',
+      multiValue: true,
+      valuesFrom: _MusicNameProjector('producer'),
+    ),
+    VocabularyDefinition<String>(
+      id: VocabularyId<String>('music.engineer'),
+      label: 'Engineer',
+      multiValue: true,
+      valuesFrom: _MusicNameProjector('engineer'),
+    ),
+    VocabularyDefinition<String>(
+      id: VocabularyId<String>('music.musician'),
+      label: 'Musician',
+      multiValue: true,
+      valuesFrom: _MusicNameProjector('musician'),
+    ),
+    VocabularyDefinition<String>(
+      id: VocabularyId<String>('music.instrument'),
+      label: 'Instrument',
+      multiValue: true,
+      valuesFrom: _MusicNameProjector('instrument'),
+    ),
+    VocabularyDefinition<String>(
+      id: VocabularyId<String>('music.signed_by'),
+      label: 'Signed By',
+      multiValue: true,
+    ),
+  ];
+
   static const all = <VocabularyDefinition<dynamic>>[
+    ...orderedNames,
     condition,
+    mediaCondition,
+    storageDevice,
     grade,
     format,
     packaging,
@@ -321,4 +545,14 @@ Iterable<String?> _countryValues(MusicAlbum item) {
 
 Iterable<String?> _vinylColorValues(MusicAlbum item) sync* {
   yield* vocabularyValues([item.vinylColor]);
+}
+
+/// One projector for all ordered name vocabularies; field semantics stay in Music.
+final class _MusicNameProjector implements VocabularyCatalogValueProjector {
+  const _MusicNameProjector(this.semanticName);
+  final String semanticName;
+  @override
+  Iterable<String?> call(Object? metadata) => metadata is MusicAlbum
+      ? MusicVocabularies.metadataNames(metadata, semanticName)
+      : const [];
 }

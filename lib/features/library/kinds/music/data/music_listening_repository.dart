@@ -6,6 +6,8 @@ import 'package:drift/drift.dart';
 
 /// Local persistence for App-entry Music listening activity.
 final class MusicListeningRepository {
+  static const _maxEntriesPerQuery = 400;
+
   const MusicListeningRepository(this._db);
 
   final LocalDatabase _db;
@@ -35,14 +37,43 @@ final class MusicListeningRepository {
     return [for (final row in rows) _fromRow(row)];
   }
 
-  Future<MusicCatalogItemListeningSummary> getSummary(
+  Future<MusicEntryListeningSummary> getSummary(
     LibraryEntryRef libraryEntryRef,
   ) async {
-    final events = await listForLibraryEntry(libraryEntryRef);
-    return MusicCatalogItemListeningSummary.fromEvents(
-      catalogItemId: libraryEntryRef.id.value,
-      events: events,
-    );
+    return (await getSummaries([libraryEntryRef]))[libraryEntryRef]!;
+  }
+
+  Future<Map<LibraryEntryRef, MusicEntryListeningSummary>> getSummaries(
+    Iterable<LibraryEntryRef> libraryEntryRefs,
+  ) async {
+    final wanted = libraryEntryRefs.toSet();
+    if (wanted.isEmpty) return const {};
+    for (final ref in wanted) {
+      _validateLibraryEntry(ref);
+    }
+
+    final eventsByEntry = <LibraryEntryRef, List<MusicListenEvent>>{};
+    final keys = [for (final ref in wanted) ref.key];
+    for (var offset = 0; offset < keys.length; offset += _maxEntriesPerQuery) {
+      final end = (offset + _maxEntriesPerQuery).clamp(0, keys.length);
+      final rows = await (_db.select(_db.musicListenEventsRows)
+            ..where((table) =>
+                table.libraryEntryRefKey.isIn(keys.sublist(offset, end)) &
+                table.deletedAt.isNull()))
+          .get();
+      for (final row in rows) {
+        final event = _fromRow(row);
+        eventsByEntry.putIfAbsent(event.libraryEntryRef, () => []).add(event);
+      }
+    }
+
+    return {
+      for (final ref in wanted)
+        ref: MusicEntryListeningSummary.fromEvents(
+          libraryEntryRef: ref,
+          events: eventsByEntry[ref] ?? const <MusicListenEvent>[],
+        ),
+    };
   }
 
   Future<void> upsert(MusicListenEvent event) async {

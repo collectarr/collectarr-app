@@ -1,4 +1,7 @@
+import 'package:collectarr_app/features/library/config/library_group_mode_category_models.dart';
+import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_groups.dart';
 import 'package:collectarr_app/features/library/kinds/music/catalog/music_catalog_fields.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/config/library_duplicate_presentation.dart';
@@ -14,7 +17,7 @@ import 'package:collectarr_app/features/library/kinds/music/catalog/music_catalo
 import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/features/library/kinds/music/music_country_name.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_album_relations.dart';
-import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_catalog_data.dart';
+import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_data.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/kinds/music/music_physical_media_formats.dart';
 import 'package:collectarr_app/features/library/widgets/format_badge.dart';
@@ -28,6 +31,26 @@ class MusicLibraryMediaPresentationBuilder
   });
 
   final LibraryMetadataLabels metadataLabels;
+
+  @override
+  List<LibraryGroupModeCategory> buildGroupModeCategories(List<String> modes) =>
+      [
+        for (final category in const [
+          'Images',
+          'Main',
+          'Details',
+          'Classical',
+          'People',
+          'Personal'
+        ])
+          if (MusicGroupingField.values.any((field) =>
+              field.category == category && modes.contains(field.id)))
+            LibraryGroupModeCategory(category, [
+              for (final field in MusicGroupingField.values)
+                if (field.category == category && modes.contains(field.id))
+                  field.id,
+            ]),
+      ];
 
   @override
   String? buildAddPreviewItemNumber({
@@ -46,10 +69,10 @@ class MusicLibraryMediaPresentationBuilder
 
   @override
   List<LibraryDuplicateCandidate> buildDuplicateCandidates(
-    LibraryWorkspaceSource entry,
+    LibraryWorkspaceContext entry,
   ) {
-    final catalog = entry.catalogData;
-    if (catalog is! MusicWorkspaceCatalogData) return const [];
+    final catalog = entry.kindPresentationData;
+    if (catalog is! MusicWorkspaceData) return const [];
     final item = catalog.music;
     final identifier = normalizeLibraryDuplicateIdentifier(
       item.barcode,
@@ -84,7 +107,15 @@ class MusicLibraryMediaPresentationBuilder
           'cover_image_url': coverImageUrl,
           'thumbnail_image_url': thumbnailImageUrl,
         }));
-        return transport.replacingKindData(updated);
+        return transport.origin == CatalogItemOrigin.privateLocal
+            ? MusicCatalogMapper.toLocalCatalogItemDto(
+                updated,
+                id: transport.id,
+              )
+            : MusicCatalogMapper.toCatalogItemDto(
+                updated,
+                ref: transport.catalogItemRef,
+              );
       }),
     );
   }
@@ -181,7 +212,7 @@ class MusicLibraryMediaPresentationBuilder
       identityFacts: [
         if (includeIdentityFacts) ...[
           LibraryDetailField(label: 'Kind', value: singularLabel),
-          LibraryDetailField(label: 'ID', value: item.node.catalogItemId),
+          LibraryDetailField(label: 'ID', value: item.target.id),
           LibraryDetailField(label: 'Title', value: dto.primaryLabel),
         ],
         if (artist != null)
@@ -283,8 +314,8 @@ class MusicLibraryMediaPresentationBuilder
 }
 
 MusicAlbum? _musicCatalogItem(LibraryProjectionView item) {
-  final catalog = item.source.catalogData;
-  return catalog is MusicWorkspaceCatalogData ? catalog.music : null;
+  final catalog = item.source.kindPresentationData;
+  return catalog is MusicWorkspaceData ? catalog.music : null;
 }
 
 String _musicDuration(MusicAlbum item) {

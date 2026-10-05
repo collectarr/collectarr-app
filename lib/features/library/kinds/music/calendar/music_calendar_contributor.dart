@@ -1,9 +1,7 @@
 import 'package:collectarr_app/core/models/calendar_event.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
-import 'package:collectarr_app/core/models/catalog_item_ref.dart';
-import 'package:collectarr_app/features/catalog/transport/catalog_item_cache_repository.dart';
 import 'package:collectarr_app/features/library/config/library_calendar_contributor.dart';
-import 'package:collectarr_app/features/library/kinds/music/catalog/music_catalog_mapper.dart';
+import 'package:collectarr_app/features/library/entries/library_entry_store.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_album.dart';
 
 /// Music owns the mapping from a selected release's date to calendar time.
@@ -33,7 +31,7 @@ final class MusicCalendarContributor implements LibraryCalendarContributor {
         kind: CalendarEventKind.releaseDate,
         date: DateTime.utc(date.year, date.month, date.day),
         title: album.title,
-        eventId: 'music-album:${album.id.value}',
+        eventId: 'music-album:$id',
         libraryEntryRef: ref,
       ));
     }
@@ -48,10 +46,10 @@ final class MusicCalendarContributor implements LibraryCalendarContributor {
     if (database == null) {
       throw StateError('Music calendar contribution requires a database');
     }
-    return CatalogItemCacheRepository(database)
-        .find(CatalogItemRef(kind: kind, id: id))
-        .then((item) => item == null
+    return LibraryEntryStore(database)
+        .find(kind, id)
+        .then((entry) => entry == null
             ? null
-            : MusicCatalogMapper.mapMetadataItemToMusic(item));
+            : MusicAlbum.fromJson(entry.catalogData));
   }
 }

@@ -1,7 +1,7 @@
 import 'package:collectarr_app/core/models/json_encodable.dart';
+import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:flutter/foundation.dart';
 
-import 'music_ids.dart';
 import 'music_disc.dart';
 import 'package:collectarr_app/core/models/partial_date.dart';
 import 'music_external_link.dart';
@@ -15,7 +15,7 @@ import 'music_track.dart';
 @immutable
 final class MusicAlbum implements JsonEncodable {
   MusicAlbum({
-    required this.id,
+    this.id,
     required this.title,
     this.sortTitle,
     this.subtitle,
@@ -61,7 +61,9 @@ final class MusicAlbum implements JsonEncodable {
         updatedAt =
             updatedAt ?? DateTime.fromMillisecondsSinceEpoch(0, isUtc: true);
 
-  final MusicAlbumId id;
+  /// Core identity is carried by [CatalogItemDto], not kind-owned metadata.
+  /// This is present only while decoding a canonical transport item.
+  final CatalogItemRef? id;
   final String title;
   final String? sortTitle;
   final String? subtitle;
@@ -108,8 +110,8 @@ final class MusicAlbum implements JsonEncodable {
   DateTime? get recordingDate => recordingDateParts?.asDateTime;
   DateTime? get releaseDate => releaseDateParts?.asDateTime;
 
-  int get trackCount => discs.fold<int>(
-      0, (total, disc) => total + disc.effectiveTrackCount);
+  int get trackCount =>
+      discs.fold<int>(0, (total, disc) => total + disc.effectiveTrackCount);
   List<MusicTrack> get tracks => [
         for (final disc in discs)
           for (final track in disc.tracks)
@@ -117,11 +119,13 @@ final class MusicAlbum implements JsonEncodable {
       ];
 
   factory MusicAlbum.fromJson(Map<String, dynamic> json) {
-    final discs = _maps(json['discs'])
-        .map(MusicDisc.fromJson)
-        .toList(growable: false);
+    final discs =
+        _maps(json['discs']).map(MusicDisc.fromJson).toList(growable: false);
     return MusicAlbum(
-      id: MusicAlbumId(_text(json['id']) ?? ''),
+      id: switch (_text(json['id'])) {
+        final id? => CatalogItemRef(kind: CatalogMediaKind.music, id: id),
+        null => null,
+      },
       title: _text(json['title']) ?? 'Untitled album',
       sortTitle: _text(json['sort_title']),
       subtitle: _text(json['subtitle']),
@@ -176,8 +180,8 @@ final class MusicAlbum implements JsonEncodable {
 
   @override
   Map<String, dynamic> toJson() => {
-        'id': id.value,
-        'kind': 'music',
+        if (id != null) 'id': id!.id,
+        if (id != null) 'kind': id!.kind.apiValue,
         'revision': revision,
         'created_at': createdAt.toIso8601String(),
         'updated_at': updatedAt.toIso8601String(),

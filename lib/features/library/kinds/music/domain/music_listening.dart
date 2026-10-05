@@ -103,33 +103,33 @@ final class MusicListeningStats {
   }
 }
 
-/// Read-only listening projection for one Catalog Item.
+/// Read-only listening projection for one local Music entry.
 @immutable
-final class MusicCatalogItemListeningSummary {
-  const MusicCatalogItemListeningSummary({
-    required this.catalogItemId,
+final class MusicEntryListeningSummary {
+  const MusicEntryListeningSummary({
+    required this.libraryEntryRef,
     required this.totalListenCount,
     this.firstListened,
     this.lastListened,
     this.recentEvents = const [],
   });
 
-  final String catalogItemId;
+  final LibraryEntryRef libraryEntryRef;
   final int totalListenCount;
   final DateTime? firstListened;
   final DateTime? lastListened;
   final List<MusicListenEvent> recentEvents;
 
-  factory MusicCatalogItemListeningSummary.fromEvents({
-    required String catalogItemId,
+  factory MusicEntryListeningSummary.fromEvents({
+    required LibraryEntryRef libraryEntryRef,
     required Iterable<MusicListenEvent> events,
   }) {
     final sorted = events.toList(growable: false)
       ..sort((a, b) => b.listenedAt.compareTo(a.listenedAt));
     final listenedTimes = [for (final event in sorted) event.listenedAt]
       ..sort();
-    return MusicCatalogItemListeningSummary(
-      catalogItemId: catalogItemId,
+    return MusicEntryListeningSummary(
+      libraryEntryRef: libraryEntryRef,
       totalListenCount: sorted.length,
       firstListened: listenedTimes.firstOrNull,
       lastListened: sorted.firstOrNull?.listenedAt,

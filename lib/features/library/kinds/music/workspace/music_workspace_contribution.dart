@@ -2,20 +2,13 @@ import '../music_module_dependencies.dart';
 import '../config/music_kind_capabilities.dart';
 
 final musicKindWorkspace = TypedLibraryKindWorkspace<MusicWorkspaceProjection>(
-  entityWorkspaces: {
-    LibraryEntityScope.catalogItem:
-        TypedLibraryEntityWorkspace<MusicWorkspaceProjection>(
-      scope: LibraryEntityScope.catalogItem,
-      fields: musicCatalogItemWorkspaceSchema.toRegistry(),
-      projector: const MusicCatalogItemWorkspaceProjector(),
-    ),
-    LibraryEntityScope.libraryEntry:
-        TypedLibraryEntityWorkspace<MusicWorkspaceProjection>(
-      scope: LibraryEntityScope.libraryEntry,
-      fields: musicLibraryEntryWorkspaceSchema.toRegistry(),
-      projector: const MusicLibraryEntryWorkspaceProjector(),
-    ),
-  },
-  hierarchy: musicKindHierarchy,
+  catalogItemWorkspace: TypedLibraryTargetWorkspace<MusicWorkspaceProjection>(
+    fields: musicCatalogItemWorkspaceSchema.toRegistry(),
+    projector: const MusicCatalogItemWorkspaceProjector(),
+  ),
+  libraryEntryWorkspace: TypedLibraryTargetWorkspace<MusicWorkspaceProjection>(
+    fields: musicLibraryEntryWorkspaceSchema.toRegistry(),
+    projector: const MusicLibraryEntryWorkspaceProjector(),
+  ),
   trackingTopology: musicKindTrackingTopology,
 );

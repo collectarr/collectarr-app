@@ -1,3 +1,6 @@
+import 'package:collectarr_app/features/library/kinds/music/data/music_listening_mutations.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_listening.dart';
+import 'package:uuid/uuid.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/library_entry_ref.dart';
 import 'package:collectarr_app/features/library/kinds/music/data/music_library_entry_projection.dart';
@@ -12,6 +15,25 @@ final musicEntryContributor = TypedEntryKindContributor<MusicLibraryEntry>(
   findById: (database, id) =>
       MusicEntryRepository(database).findById(LibraryEntryId(id)),
   upsert: (database, item) => MusicEntryRepository(database).upsert(item),
+  onCreated: (database, item, payload) async {
+    if (payload is! MusicLibraryEntryCreatePayload) {
+      throw ArgumentError.value(payload, 'payload');
+    }
+    final mutations = MusicListeningMutations(database);
+    final ref = LibraryEntryRef(kind: CatalogMediaKind.music, id: item.id);
+    for (final event in payload.initialListens) {
+      await mutations.upsert(MusicListenEvent(
+          id: const Uuid().v4(),
+          libraryEntryRef: ref,
+          listenedAt: event.listenedAt,
+          notes: event.notes,
+          location: event.location,
+          startedAt: event.startedAt,
+          finishedAt: event.finishedAt,
+          createdAt: item.createdAt,
+          updatedAt: item.updatedAt));
+    }
+  },
   listActive: (database) => MusicEntryRepository(database).listActive(),
   createItemWithCatalog: ({
     required payload,

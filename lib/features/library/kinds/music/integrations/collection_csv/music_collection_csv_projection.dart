@@ -1,12 +1,12 @@
 import 'package:collectarr_app/features/catalog/transport/catalog_import_transport.dart';
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/features/library/kinds/music/data/music_library_entry_projection.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/features/collection/csv/collection_csv_kind_profile.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_library_entry.dart';
 import 'package:collectarr_app/features/library/kinds/music/integrations/collection_csv/music_collection_csv_import_profile.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
-import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_catalog_data.dart';
+import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_data.dart';
 
 /// Music's semantic contribution to the generic collection CSV host.
 ///
@@ -114,10 +114,10 @@ final class MusicCollectionCsvProjection
   }
 
   @override
-  List<String> catalogCells(LibraryWorkspaceSource entry) {
-    final catalog = entry.catalogData;
-    final music = catalog is MusicWorkspaceCatalogData ? catalog.music : null;
-    final release = catalog is MusicWorkspaceCatalogData ? catalog.music : null;
+  List<String> catalogCells(LibraryWorkspaceContext entry) {
+    final catalog = entry.kindPresentationData;
+    final music = catalog is MusicWorkspaceData ? catalog.music : null;
+    final release = catalog is MusicWorkspaceData ? catalog.music : null;
     final format = release?.format ?? '';
     return [
       entry.itemId,
@@ -132,15 +132,14 @@ final class MusicCollectionCsvProjection
       _formatDate(
         music?.originalReleaseDate ??
             release?.releaseDate ??
-            music?.releaseDate ??
-            entry.catalogData?.releaseDate,
+            music?.releaseDate,
       ),
       release?.barcode ?? '',
     ];
   }
 
   @override
-  String? entryCollectionValue(LibraryWorkspaceSource entry) {
+  String? entryCollectionValue(LibraryWorkspaceContext entry) {
     final personalState =
         MusicLibraryEntryProjection.fromDispatch(entry.libraryEntryDispatch);
     return personalState is MusicLibraryEntry
@@ -149,7 +148,7 @@ final class MusicCollectionCsvProjection
   }
 
   @override
-  String? entryCondition(LibraryWorkspaceSource entry) {
+  String? entryCondition(LibraryWorkspaceContext entry) {
     final personalState =
         MusicLibraryEntryProjection.fromDispatch(entry.libraryEntryDispatch);
     return personalState is MusicLibraryEntry
@@ -158,7 +157,7 @@ final class MusicCollectionCsvProjection
   }
 
   @override
-  int? entryIndexNumber(LibraryWorkspaceSource entry) {
+  int? entryIndexNumber(LibraryWorkspaceContext entry) {
     final personalState =
         MusicLibraryEntryProjection.fromDispatch(entry.libraryEntryDispatch);
     return personalState is MusicLibraryEntry
@@ -167,7 +166,7 @@ final class MusicCollectionCsvProjection
   }
 
   @override
-  String? entryTags(LibraryWorkspaceSource entry) {
+  String? entryTags(LibraryWorkspaceContext entry) {
     final personalState =
         MusicLibraryEntryProjection.fromDispatch(entry.libraryEntryDispatch);
     return personalState is MusicLibraryEntry
@@ -177,7 +176,7 @@ final class MusicCollectionCsvProjection
 
   @override
   List<String> entryCellsBeforeLocation(
-    LibraryWorkspaceSource entry, {
+    LibraryWorkspaceContext entry, {
     required bool clzFriendly,
   }) {
     return const [];
@@ -185,7 +184,7 @@ final class MusicCollectionCsvProjection
 
   @override
   List<String> entryCellsAfterIndex(
-    LibraryWorkspaceSource entry, {
+    LibraryWorkspaceContext entry, {
     required bool clzFriendly,
   }) {
     return List<String>.filled(

@@ -43,9 +43,9 @@ final class MusicAddManualCreditsTab extends StatelessWidget {
             [
               _group('Composer', draft.composers),
               _group('Conductor', draft.conductors),
+              _group('Chorus', draft.choruses),
             ],
             [
-              _group('Chorus', draft.choruses),
               _group('Composition', draft.compositions),
               _group('Orchestra', draft.orchestras),
             ],
@@ -64,6 +64,7 @@ final class MusicAddManualCreditsTab extends StatelessWidget {
     return MusicContributionGroupsField(
       columns: columns,
       accent: accent,
+      columnLabels: classical ? const [] : const ['Credits', 'Musicians'],
       onChanged: (group) {
         final target = switch (group.role.toLowerCase()) {
           'composer' => draft.composers,

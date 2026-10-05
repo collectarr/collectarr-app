@@ -1,5 +1,5 @@
 import 'package:collectarr_app/features/library/kinds/music/domain/music_external_link.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_ids.dart';
+import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_disc.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_album.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_album_relations.dart';
@@ -8,7 +8,7 @@ import 'package:collectarr_app/features/library/kinds/music/forms/music_album_fo
 abstract final class MusicAlbumFormAdapter {
   static MusicAlbum create(
     MusicAlbumFormValues values, {
-    required MusicAlbumId id,
+    required CatalogItemRef id,
     List<MusicDisc> discs = const [],
   }) =>
       MusicAlbum(

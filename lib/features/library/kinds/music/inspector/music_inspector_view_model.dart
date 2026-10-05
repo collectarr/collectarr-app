@@ -1,13 +1,10 @@
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/library/kinds/music/data/music_library_entry_projection.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_disc.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_library_entry.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_album.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_ids.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_track_list_entry.dart';
-import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_catalog_data.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_workspace_source.dart';
+import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_data.dart';
 
 /// Fully typed read model used by the Music inspector.
 ///
@@ -22,9 +19,12 @@ final class MusicInspectorViewModel {
   });
 
   factory MusicInspectorViewModel.from(LibraryProjectionView item) {
-    final catalog = item.source.catalogData is MusicWorkspaceCatalogData
-        ? item.source.catalogData! as MusicWorkspaceCatalogData
-        : _fallbackMusicCatalog(item.source);
+    final catalog = item.source.kindPresentationData;
+    if (catalog is! MusicWorkspaceData) {
+      throw StateError(
+        'Music entry ${item.source.target.id} has no typed Music projection.',
+      );
+    }
 
     final music = catalog.music;
     final detailReleases = [music];
@@ -38,7 +38,7 @@ final class MusicInspectorViewModel {
             MusicTrackListEntry(
               discNumber: disc.discNumber,
               track: track,
-              albumId: releaseEntry.id.value,
+              albumId: item.target.id,
               albumTitle: releaseEntry.title,
               catalogNumber: releaseEntry.catalogNumber,
             ),
@@ -75,29 +75,6 @@ final class MusicInspectorViewModel {
     }
     return MusicEntryDiscStorageView(discNumber: discNumber);
   }
-}
-
-MusicWorkspaceCatalogData _fallbackMusicCatalog(
-  LibraryWorkspaceSource source,
-) {
-  final sourceRef = source.catalogRef;
-  final rootId = (sourceRef?.kind == CatalogMediaKind.music
-          ? sourceRef!.rootScope.id
-          : source.itemId)
-      .trim();
-  final ref = CatalogEntityRef(
-    kind: CatalogMediaKind.music,
-    entityType: CatalogEntityTypeId.catalogItem,
-    id: rootId.isEmpty ? 'unknown-music-item' : rootId,
-  );
-  return MusicWorkspaceCatalogData.fromMusic(
-    MusicAlbum(
-      id: MusicAlbumId(ref.id),
-      title: source.title,
-      coverImageUrl: source.catalogSummary?.imageUrl,
-    ),
-    ref: ref,
-  );
 }
 
 final class MusicEntryDiscStorageView {

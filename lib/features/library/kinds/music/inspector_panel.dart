@@ -25,7 +25,7 @@ import 'package:collectarr_app/features/library/kinds/music/domain/music_album_i
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_listening.dart';
 import 'package:collectarr_app/core/models/library_entry_ref.dart';
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/ui/accent_alert_dialog.dart';
@@ -173,7 +173,7 @@ class _MusicListeningSection extends ConsumerWidget {
       id: LibraryEntryId(entry.id.value),
     );
     final summary = ref.watch(
-      musicCatalogItemListeningSummaryProvider(libraryEntryRef),
+      musicEntryListeningSummaryProvider(libraryEntryRef),
     );
     return summary.when(
       loading: () => const LinearProgressIndicator(minHeight: 2),
@@ -264,7 +264,7 @@ class _MusicListeningSection extends ConsumerWidget {
             ),
           );
       ref.invalidate(musicListeningEventsProvider(libraryEntryRef));
-      ref.invalidate(musicCatalogItemListeningSummaryProvider(libraryEntryRef));
+      ref.invalidate(musicEntryListeningSummaryProvider(libraryEntryRef));
       ref.invalidate(shelfProvider);
     } finally {
       notesController.dispose();
@@ -414,7 +414,7 @@ class _MusicListenEventTile extends ConsumerWidget {
     ref.invalidate(shelfProvider);
     ref.invalidate(musicListeningEventsProvider(event.libraryEntryRef));
     ref.invalidate(
-      musicCatalogItemListeningSummaryProvider(event.libraryEntryRef),
+      musicEntryListeningSummaryProvider(event.libraryEntryRef),
     );
   }
 }
@@ -454,11 +454,12 @@ class _MusicInspectorMain extends ConsumerWidget {
     final totalDuration = _formatTotalDuration(tracks);
     final dto = inspector.item.dto;
     final coverUrl = release.coverImageUrl ?? music.coverImageUrl;
-    final releaseImages =
-        ref.watch(musicAlbumImagesProvider(release.id.value)).maybeWhen(
-              data: (images) => images,
-              orElse: () => const <MusicAlbumImage>[],
-            );
+    final releaseImages = ref
+        .watch(musicAlbumImagesProvider(inspector.item.source.target.id))
+        .maybeWhen(
+          data: (images) => images,
+          orElse: () => const <MusicAlbumImage>[],
+        );
     final releaseFrontCover = releaseImages
         .where((image) =>
             image.purpose == MusicAlbumImagePurpose.cover &&

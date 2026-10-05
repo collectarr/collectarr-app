@@ -1,4 +1,4 @@
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/features/collection/commands/library_entry_commands.dart';
 import 'package:collectarr_app/features/library/kinds/music/data/music_library_entry_projection.dart';
@@ -15,21 +15,18 @@ abstract final class MusicLibraryEntryWorkspaceFields {
     id: MusicFieldIds.title,
     label: 'Title',
     getValue: (dto) => dto.primaryLabel,
-    entityScope: LibraryEntityScope.libraryEntry,
   );
 
   static final artist = textField<MusicKind, MusicWorkspaceProjection>(
     id: MusicFieldIds.artist,
     label: 'Artist',
     getValue: (dto) => dto.artist,
-    entityScope: LibraryEntityScope.libraryEntry,
   );
 
   static final publisher = textField<MusicKind, MusicWorkspaceProjection>(
     id: MusicFieldIds.publisher,
     label: 'Label',
     getValue: (dto) => dto.publisher,
-    entityScope: LibraryEntityScope.libraryEntry,
   );
 
   static final condition =
@@ -38,37 +35,33 @@ abstract final class MusicLibraryEntryWorkspaceFields {
     label: 'Condition',
     getValue: (context) {
       final entry = MusicLibraryEntryProjection.fromDispatch(
-        context.source.libraryEntryDispatch,
+        context.item.libraryEntryDispatch,
       );
       return entry is MusicLibraryEntry ? entry.personal.condition : null;
     },
-    entityScope: LibraryEntityScope.libraryEntry,
   );
 
   static final location =
       LibraryFieldDefinition<MusicKind, MusicWorkspaceProjection, String?>(
     id: MusicFieldIds.location,
     label: 'Location',
-    getValue: (context) => context.source.locationPath,
-    entityScope: LibraryEntityScope.libraryEntry,
+    getValue: (context) => context.personal.locationPath,
   );
 
   static final pricePaid =
       LibraryFieldDefinition<MusicKind, MusicWorkspaceProjection, int?>(
     id: MusicFieldIds.pricePaid,
     label: 'Purchase Price',
-    getValue: (context) => context.source.pricePaidCents,
-    entityScope: LibraryEntityScope.libraryEntry,
+    getValue: (context) => context.item.entrySummary?.pricePaidCents,
   );
 
   static final status =
       LibraryFieldDefinition<MusicKind, MusicWorkspaceProjection, String?>(
     id: MusicFieldIds.status,
     label: 'Status',
-    getValue: (context) => context.source.isWishlisted
+    getValue: (context) => context.personal.isWishlisted
         ? 'wishlist'
-        : (context.source.isEntry ? 'entry' : null),
-    entityScope: LibraryEntityScope.libraryEntry,
+        : ((context.item.entrySummary != null) ? 'entry' : null),
   );
 
   static final cover =
@@ -76,7 +69,6 @@ abstract final class MusicLibraryEntryWorkspaceFields {
     id: MusicFieldIds.cover,
     label: 'Cover',
     getValue: (context) => context.dto.imageUrl,
-    entityScope: LibraryEntityScope.libraryEntry,
   );
 
   static final rating =
@@ -84,31 +76,27 @@ abstract final class MusicLibraryEntryWorkspaceFields {
     id: MusicFieldIds.rating,
     label: 'Rating',
     getValue: (context) => context.dto.personal.rating,
-    entityScope: LibraryEntityScope.libraryEntry,
   );
 
   static final wishlist =
       LibraryFieldDefinition<MusicKind, MusicWorkspaceProjection, bool>(
     id: MusicFieldIds.wishlist,
     label: 'Wishlist',
-    getValue: (context) => context.source.isWishlisted,
-    entityScope: LibraryEntityScope.libraryEntry,
+    getValue: (context) => context.personal.isWishlisted,
   );
 
   static final updatedAt =
       LibraryFieldDefinition<MusicKind, MusicWorkspaceProjection, DateTime>(
     id: MusicFieldIds.updatedAt,
     label: 'Updated',
-    getValue: (context) => context.source.updatedAt,
-    entityScope: LibraryEntityScope.libraryEntry,
+    getValue: (context) => context.updatedAt,
   );
 
   static final addedAt =
       LibraryFieldDefinition<MusicKind, MusicWorkspaceProjection, DateTime?>(
     id: MusicFieldIds.addedAt,
     label: 'Added',
-    getValue: (context) => context.source.addedAt,
-    entityScope: LibraryEntityScope.libraryEntry,
+    getValue: (context) => context.addedAt,
   );
 
   static final signedBy =
@@ -117,13 +105,12 @@ abstract final class MusicLibraryEntryWorkspaceFields {
     label: 'Signed By',
     getValue: (context) {
       final entry = MusicLibraryEntryProjection.fromDispatch(
-        context.source.libraryEntryDispatch,
+        context.item.libraryEntryDispatch,
       );
       return entry is MusicLibraryEntry
           ? entry.personal.details.signedBy
           : null;
     },
-    entityScope: LibraryEntityScope.libraryEntry,
   );
 
   static final grade =
@@ -132,11 +119,10 @@ abstract final class MusicLibraryEntryWorkspaceFields {
     label: 'Grade',
     getValue: (context) {
       final entry = MusicLibraryEntryProjection.fromDispatch(
-        context.source.libraryEntryDispatch,
+        context.item.libraryEntryDispatch,
       );
       return entry is MusicLibraryEntry ? entry.personal.grade : null;
     },
-    entityScope: LibraryEntityScope.libraryEntry,
   );
 
   static final storage =
@@ -145,7 +131,7 @@ abstract final class MusicLibraryEntryWorkspaceFields {
     label: 'Storage',
     getValue: (context) {
       final entry = MusicLibraryEntryProjection.fromDispatch(
-        context.source.libraryEntryDispatch,
+        context.item.libraryEntryDispatch,
       );
       if (entry is! MusicLibraryEntry) return null;
       final values = [
@@ -158,23 +144,20 @@ abstract final class MusicLibraryEntryWorkspaceFields {
       ];
       return values.isEmpty ? null : values.join(' / ');
     },
-    entityScope: LibraryEntityScope.libraryEntry,
   );
 
   static final purchaseDate =
       LibraryFieldDefinition<MusicKind, MusicWorkspaceProjection, DateTime?>(
     id: MusicFieldIds.purchaseDate,
     label: 'Purchase date',
-    getValue: (context) => context.source.purchaseDate,
-    entityScope: LibraryEntityScope.libraryEntry,
+    getValue: (context) => context.item.entrySummary?.purchaseDate,
   );
 
   static final marketValue =
       LibraryFieldDefinition<MusicKind, MusicWorkspaceProjection, int?>(
     id: MusicFieldIds.marketValue,
     label: 'Market value',
-    getValue: (context) => context.source.marketValueCents,
-    entityScope: LibraryEntityScope.libraryEntry,
+    getValue: (context) => context.item.entrySummary?.marketValueCents,
   );
 
   static final indexNumber =
@@ -183,11 +166,10 @@ abstract final class MusicLibraryEntryWorkspaceFields {
     label: 'Index number',
     getValue: (context) {
       final entry = MusicLibraryEntryProjection.fromDispatch(
-        context.source.libraryEntryDispatch,
+        context.item.libraryEntryDispatch,
       );
       return entry is MusicLibraryEntry ? entry.personal.indexNumber : null;
     },
-    entityScope: LibraryEntityScope.libraryEntry,
   );
 
   static final lastCleaned =
@@ -196,13 +178,12 @@ abstract final class MusicLibraryEntryWorkspaceFields {
     label: 'Last cleaned',
     getValue: (context) {
       final entry = MusicLibraryEntryProjection.fromDispatch(
-        context.source.libraryEntryDispatch,
+        context.item.libraryEntryDispatch,
       );
       return entry is MusicLibraryEntry
           ? entry.personal.details.lastCleanedDate
           : null;
     },
-    entityScope: LibraryEntityScope.libraryEntry,
   );
 
   static LibraryEntryGroupBucketValueMutator conditionBucketValueMutator() {

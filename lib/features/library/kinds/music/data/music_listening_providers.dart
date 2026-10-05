@@ -20,8 +20,8 @@ final musicListeningEventsProvider =
       .listForLibraryEntry(libraryEntryRef),
 );
 
-final musicCatalogItemListeningSummaryProvider =
-    FutureProvider.family<MusicCatalogItemListeningSummary, LibraryEntryRef>(
+final musicEntryListeningSummaryProvider =
+    FutureProvider.family<MusicEntryListeningSummary, LibraryEntryRef>(
   (ref, libraryEntryRef) =>
       ref.watch(musicListeningRepositoryProvider).getSummary(libraryEntryRef),
 );

@@ -26,11 +26,12 @@ final class MusicAddManualNamedCredit {
 
 final class MusicAddManualDisc {
   MusicAddManualDisc({
+    String? id,
     this.title = '',
     this.matrixNumberSideA = '',
     this.matrixNumberSideB = '',
     List<MusicAddManualTrack> tracks = const [],
-  })  : id = _nextId('disc'),
+  })  : id = id ?? _nextId('disc'),
         tracks = List.of(tracks);
 
   final String id;
@@ -47,8 +48,10 @@ final class MusicAddManualDisc {
         if (matrixNumberSideB.trim().isNotEmpty)
           'matrix_number_side_b': matrixNumberSideB.trim(),
         'tracks': [
-          for (final (index, track)
-              in tracks.where((track) => track.title.trim().isNotEmpty).indexed)
+          for (final (index, track) in tracks
+              .where(
+                  (track) => !track.isHeader && track.title.trim().isNotEmpty)
+              .indexed)
             track.toProposalData(index + 1),
         ],
       };
@@ -56,18 +59,28 @@ final class MusicAddManualDisc {
 
 final class MusicAddManualTrack {
   MusicAddManualTrack({
+    String? id,
+    this.position = '',
+    this.isHeader = false,
+    this.indentLevel = 0,
+    this.parentHeaderId,
     this.title = '',
     this.artist = '',
     this.duration = '',
-  }) : id = _nextId('track');
+  }) : id = id ?? _nextId('track');
 
   final String id;
   String title;
   String artist;
   String duration;
+  String position;
+  bool isHeader;
+  int indentLevel;
+  String? parentHeaderId;
 
   Map<String, Object?> toProposalData(int positionOrder) => {
-        'position': '$positionOrder',
+        'position':
+            position.trim().isEmpty ? '$positionOrder' : position.trim(),
         'title': title.trim(),
         if (artist.trim().isNotEmpty) 'artist': artist.trim(),
         if (parseMusicTrackDurationMs(duration) case final durationMs?)

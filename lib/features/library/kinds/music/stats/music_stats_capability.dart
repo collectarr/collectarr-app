@@ -1,7 +1,7 @@
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/kinds/music/data/music_library_entry_projection.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_album.dart';
-import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_catalog_data.dart';
+import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_data.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
 import 'package:collectarr_app/features/library/stats/library_stats_cards.dart';
 import 'package:flutter/material.dart';
@@ -12,7 +12,7 @@ final class MusicStatsCapability implements LibraryStatsCapability {
 
   @override
   LibraryEntryFinancialSummary buildEntryFinancialSummary(
-      LibraryWorkspaceSource entry) {
+      LibraryWorkspaceContext entry) {
     return LibraryEntryFinancialSummary(
       pricePaidCents: entry.pricePaidCents,
       sellPriceCents: entry.sellPriceCents,
@@ -22,19 +22,18 @@ final class MusicStatsCapability implements LibraryStatsCapability {
 
   @override
   LibraryStatsMetadataProjection? buildMetadataProjection(
-      LibraryWorkspaceSource entry) {
-    final catalog = entry.catalogData;
+      LibraryWorkspaceContext entry) {
     final music = _music(entry);
-    if (catalog == null || music == null) return null;
+    if (music == null) return null;
     final secondary = music.publisher?.trim();
     return LibraryStatsMetadataProjection(
       primaryGroup: music.artist?.trim(),
       secondaryGroup: secondary,
-      hasCover: catalog.coverImageUrl?.trim().isNotEmpty == true,
+      hasCover: music.coverImageUrl?.trim().isNotEmpty == true,
       hasSecondaryMetadata: secondary?.isNotEmpty == true ||
           music.format?.trim().isNotEmpty == true,
       hasReleaseDate:
-          music.originalReleaseDate != null || catalog.releaseDate != null,
+          music.originalReleaseDate != null || music.releaseDate != null,
     );
   }
 
@@ -125,7 +124,7 @@ final class MusicStatsCapability implements LibraryStatsCapability {
     ];
   }
 
-  static int totalListens(Iterable<LibraryWorkspaceSource> entries) {
+  static int totalListens(Iterable<LibraryWorkspaceContext> entries) {
     return entries.fold<int>(
       0,
       (total, entry) =>
@@ -134,7 +133,7 @@ final class MusicStatsCapability implements LibraryStatsCapability {
   }
 
   static Map<String, int> countMostListenedItems(
-    Iterable<LibraryWorkspaceSource> entries,
+    Iterable<LibraryWorkspaceContext> entries,
   ) {
     final counts = <String, int>{};
     for (final entry in entries) {
@@ -150,7 +149,7 @@ final class MusicStatsCapability implements LibraryStatsCapability {
   }
 
   static Map<String, int> countListeningByMonth(
-    Iterable<LibraryWorkspaceSource> entries,
+    Iterable<LibraryWorkspaceContext> entries,
   ) {
     final counts = <String, int>{};
     for (final entry in entries) {
@@ -166,7 +165,7 @@ final class MusicStatsCapability implements LibraryStatsCapability {
   }
 
   static Map<String, int> countNeverListenedItems(
-    Iterable<LibraryWorkspaceSource> entries,
+    Iterable<LibraryWorkspaceContext> entries,
   ) {
     final counts = <String, int>{};
     for (final entry in entries) {
@@ -180,32 +179,32 @@ final class MusicStatsCapability implements LibraryStatsCapability {
     return counts;
   }
 
-  static int totalTracks(Iterable<LibraryWorkspaceSource> entries) {
+  static int totalTracks(Iterable<LibraryWorkspaceContext> entries) {
     return entries.fold<int>(
       0,
       (total, entry) => total + (_music(entry)?.trackCount ?? 0),
     );
   }
 
-  static int totalCatalogItems(Iterable<LibraryWorkspaceSource> entries) {
+  static int totalCatalogItems(Iterable<LibraryWorkspaceContext> entries) {
     return entries.where((entry) => _music(entry) != null).length;
   }
 
-  static int totalEntryCopies(Iterable<LibraryWorkspaceSource> entries) {
+  static int totalEntryCopies(Iterable<LibraryWorkspaceContext> entries) {
     return entries.fold<int>(
       0,
       (total, entry) => total + (entry.libraryEntrySummary == null ? 0 : 1),
     );
   }
 
-  static int totalMedia(Iterable<LibraryWorkspaceSource> entries) {
+  static int totalMedia(Iterable<LibraryWorkspaceContext> entries) {
     return entries.fold<int>(
       0,
       (total, entry) => total + (_music(entry)?.discs.length ?? 0),
     );
   }
 
-  static int totalSignedCopies(Iterable<LibraryWorkspaceSource> entries) {
+  static int totalSignedCopies(Iterable<LibraryWorkspaceContext> entries) {
     return entries.fold<int>(
       0,
       (total, entry) {
@@ -221,7 +220,7 @@ final class MusicStatsCapability implements LibraryStatsCapability {
   }
 
   static Map<String, int> countArtists(
-      Iterable<LibraryWorkspaceSource> entries) {
+      Iterable<LibraryWorkspaceContext> entries) {
     return _countMany(
         entries,
         (music) => [
@@ -230,12 +229,12 @@ final class MusicStatsCapability implements LibraryStatsCapability {
   }
 
   static Map<String, int> countGenres(
-      Iterable<LibraryWorkspaceSource> entries) {
+      Iterable<LibraryWorkspaceContext> entries) {
     return _countMany(entries, (music) => music.genres);
   }
 
   static Map<String, int> countFormats(
-      Iterable<LibraryWorkspaceSource> entries) {
+      Iterable<LibraryWorkspaceContext> entries) {
     return _countMany(
       entries,
       (music) => [if (music.format != null) music.format!],
@@ -243,26 +242,26 @@ final class MusicStatsCapability implements LibraryStatsCapability {
   }
 
   static Map<String, int> countLabels(
-      Iterable<LibraryWorkspaceSource> entries) {
+      Iterable<LibraryWorkspaceContext> entries) {
     return _countMany(
       entries,
       (music) => [if (music.publisher != null) music.publisher!],
     );
   }
 
-  static MusicAlbum? _music(LibraryWorkspaceSource entry) {
+  static MusicAlbum? _music(LibraryWorkspaceContext entry) {
     return _catalog(entry)?.music;
   }
 
-  static MusicWorkspaceCatalogData? _catalog(
-    LibraryWorkspaceSource entry,
+  static MusicWorkspaceData? _catalog(
+    LibraryWorkspaceContext entry,
   ) {
-    final catalog = entry.catalogData;
-    return catalog is MusicWorkspaceCatalogData ? catalog : null;
+    final catalog = entry.kindPresentationData;
+    return catalog is MusicWorkspaceData ? catalog : null;
   }
 
   static Map<String, int> _countMany(
-    Iterable<LibraryWorkspaceSource> entries,
+    Iterable<LibraryWorkspaceContext> entries,
     Iterable<String> Function(MusicAlbum music) valuesFor,
   ) {
     final counts = <String, int>{};
