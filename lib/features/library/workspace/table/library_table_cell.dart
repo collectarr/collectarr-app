@@ -4,7 +4,7 @@ class LibraryTableCellText extends StatelessWidget {
   const LibraryTableCellText(
     this.value, {
     this.emptyText = '-',
-    this.fontSize = 12,
+    this.fontSize = 14,
     super.key,
   });
 
@@ -19,9 +19,11 @@ class LibraryTableCellText extends StatelessWidget {
       isEmpty ? emptyText : value!,
       maxLines: 1,
       overflow: TextOverflow.ellipsis,
-      style: isEmpty
-          ? TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)
-          : TextStyle(fontSize: fontSize),
+      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+            fontSize: fontSize,
+            color:
+                isEmpty ? Theme.of(context).colorScheme.onSurfaceVariant : null,
+          ),
     );
   }
 }

@@ -215,7 +215,7 @@ class LibraryWorkspaceCard extends StatelessWidget {
                                         .titleSmall
                                         ?.copyWith(
                                           color: kLibraryCardTitleColor,
-                                          fontWeight: FontWeight.w800,
+                                          fontWeight: FontWeight.w700,
                                         ),
                                   ),
                                 ),
@@ -488,7 +488,7 @@ class LibraryWorkspaceCard extends StatelessWidget {
                                   .titleSmall
                                   ?.copyWith(
                                     color: titleColor,
-                                    fontWeight: FontWeight.w800,
+                                    fontWeight: FontWeight.w700,
                                   ),
                             ),
                             if (subtitle.isNotEmpty) ...[
@@ -694,7 +694,7 @@ class _LibraryIssuePill extends StatelessWidget {
           label,
           style: TextStyle(
             color: palette.issueForeground,
-            fontSize: 12,
+            fontSize: 13,
             fontWeight: FontWeight.w700,
           ),
         ),

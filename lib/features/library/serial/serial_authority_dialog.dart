@@ -629,7 +629,7 @@ class _SeriesHeaderLabel extends StatelessWidget {
       style: TextStyle(
         color: palette.textMuted,
         fontSize: 12,
-        fontWeight: FontWeight.w800,
+        fontWeight: FontWeight.w700,
         letterSpacing: 0.6,
       ),
     );
@@ -785,7 +785,7 @@ class _SeriesRowText extends StatelessWidget {
       style: TextStyle(
         color: muted ? palette.textMuted : palette.textPrimary,
         fontSize: 13,
-        fontWeight: emphasized ? FontWeight.w800 : FontWeight.w600,
+        fontWeight: emphasized ? FontWeight.w700 : FontWeight.w600,
       ),
     );
   }
@@ -822,7 +822,7 @@ class _SeriesCountChip extends StatelessWidget {
           style: TextStyle(
             color: textColor ?? color,
             fontSize: 12,
-            fontWeight: FontWeight.w800,
+            fontWeight: FontWeight.w700,
           ),
         ),
       ),
@@ -860,7 +860,7 @@ class _SeriesEmptyState extends StatelessWidget {
               style: TextStyle(
                 color: palette.textPrimary,
                 fontSize: 15,
-                fontWeight: FontWeight.w800,
+                fontWeight: FontWeight.w700,
               ),
             ),
             const SizedBox(height: 6),

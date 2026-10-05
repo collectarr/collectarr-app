@@ -78,7 +78,7 @@ class InspectorItemImagesSection extends ConsumerWidget {
                   itemImageTypeLabels[entry.key] ?? entry.key,
                   style: Theme.of(context).textTheme.labelSmall?.copyWith(
                         color: accent.withValues(alpha: 0.8),
-                        fontWeight: FontWeight.w800,
+                        fontWeight: FontWeight.w700,
                         letterSpacing: 0.2,
                       ),
                 ),

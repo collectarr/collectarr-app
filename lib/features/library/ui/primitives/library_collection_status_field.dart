@@ -14,8 +14,8 @@ List<PopupMenuEntry<LibraryCollectionStatusScope>>
           child: Text(label,
               style: TextStyle(
                   color: appPalette(context).textMuted,
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600)));
+                  fontSize: 13,
+                  fontWeight: FontWeight.w700)));
   PopupMenuEntry<LibraryCollectionStatusScope> item(
           LibraryCollectionStatusScope status) =>
       PopupMenuItem(
@@ -30,7 +30,7 @@ List<PopupMenuEntry<LibraryCollectionStatusScope>>
                     style: TextStyle(
                         color: appPalette(context).textPrimary,
                         fontSize: 14,
-                        fontWeight: FontWeight.w600)))
+                        fontWeight: FontWeight.w500)))
           ]));
   return [
     heading('Collection'),

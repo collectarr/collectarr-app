@@ -49,7 +49,7 @@ class AccentDialogHeader extends StatelessWidget {
               style: TextStyle(
                 color: foreground,
                 fontSize: 15,
-                fontWeight: FontWeight.w800,
+                fontWeight: FontWeight.w700,
               ),
             ),
           ),

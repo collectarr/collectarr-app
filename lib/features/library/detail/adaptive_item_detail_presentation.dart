@@ -105,7 +105,7 @@ Future<void> showAdaptiveItemDetail({
                         style: Theme.of(sheetContext)
                             .textTheme
                             .libraryDetailTitle
-                            .copyWith(fontWeight: FontWeight.w800),
+                            .copyWith(fontWeight: FontWeight.w700),
                       ),
                     ),
                     IconButton(

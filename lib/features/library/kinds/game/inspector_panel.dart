@@ -241,7 +241,7 @@ class _GameInspectorMain extends StatelessWidget {
                         if (releaseYear != null) '($releaseYear)',
                       ].join(' '),
                       style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                            fontWeight: FontWeight.w800,
+                            fontWeight: FontWeight.w700,
                           ),
                     ),
                   if (genreText != null) ...[

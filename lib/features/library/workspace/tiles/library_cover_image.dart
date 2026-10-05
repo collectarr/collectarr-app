@@ -400,7 +400,7 @@ class SlabFrameOverlay extends StatelessWidget {
                     style: TextStyle(
                       color: appContrastingTextColor(_labelColor),
                       fontSize: 12,
-                      fontWeight: FontWeight.w800,
+                      fontWeight: FontWeight.w700,
                       letterSpacing: 0.3,
                     ),
                   ),
@@ -878,7 +878,7 @@ class _LibraryInteractiveCoverState extends State<LibraryInteractiveCover> {
                                               style: TextStyle(
                                                 color: controlForeground,
                                                 fontSize: 12,
-                                                fontWeight: FontWeight.w800,
+                                                fontWeight: FontWeight.w700,
                                               ),
                                             ),
                                           ],
@@ -1031,7 +1031,7 @@ class LibraryGeneratedCover extends StatelessWidget {
                     style: TextStyle(
                       color: palette.$3,
                       fontSize: 20,
-                      fontWeight: FontWeight.w800,
+                      fontWeight: FontWeight.w700,
                       height: 0.95,
                     ),
                   ),
@@ -1057,7 +1057,7 @@ class LibraryGeneratedCover extends StatelessWidget {
                             ? kAppPanel
                             : palette.$3,
                         fontSize: 12,
-                        fontWeight: FontWeight.w800,
+                        fontWeight: FontWeight.w700,
                       ),
                     ),
                   ),

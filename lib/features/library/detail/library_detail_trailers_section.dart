@@ -32,7 +32,7 @@ class LibraryDetailTrailersSection extends StatelessWidget {
               Text(
                 'Trailers',
                 style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                      fontWeight: FontWeight.w800,
+                      fontWeight: FontWeight.w700,
                       color: accent,
                     ),
               ),

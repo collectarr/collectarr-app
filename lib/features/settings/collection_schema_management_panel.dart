@@ -326,7 +326,7 @@ class _CollectionSchemaCard extends StatelessWidget {
                     style: Theme.of(context)
                         .textTheme
                         .titleMedium
-                        ?.copyWith(fontWeight: FontWeight.w800),
+                        ?.copyWith(fontWeight: FontWeight.w700),
                   ),
                 ),
               ],
@@ -572,7 +572,7 @@ class _SchemaExplorerCardState extends ConsumerState<_SchemaExplorerCard> {
                     style: Theme.of(context)
                         .textTheme
                         .titleMedium
-                        ?.copyWith(fontWeight: FontWeight.w800),
+                        ?.copyWith(fontWeight: FontWeight.w700),
                   ),
                 ),
                 TextButton.icon(
@@ -909,7 +909,7 @@ class _SchemaTableDetailPane extends StatelessWidget {
                     style: Theme.of(context)
                         .textTheme
                         .titleMedium
-                        ?.copyWith(fontWeight: FontWeight.w800),
+                        ?.copyWith(fontWeight: FontWeight.w700),
                   ),
                 ),
                 _MiniBadge(

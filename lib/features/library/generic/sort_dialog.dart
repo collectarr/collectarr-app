@@ -737,7 +737,7 @@ class _PaneFrame extends StatelessWidget {
                       Text(
                         title,
                         style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                              fontWeight: FontWeight.w800,
+                              fontWeight: FontWeight.w700,
                               color: accent,
                             ),
                       ),
@@ -755,7 +755,7 @@ class _PaneFrame extends StatelessWidget {
                     child: Text(
                       '$count',
                       style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                            fontWeight: FontWeight.w800,
+                            fontWeight: FontWeight.w700,
                           ),
                     ),
                   ),
@@ -841,7 +841,7 @@ class _SortPresetTile extends StatelessWidget {
                                 .bodyMedium
                                 ?.copyWith(
                                   fontWeight: selected
-                                      ? FontWeight.w800
+                                      ? FontWeight.w700
                                       : FontWeight.w600,
                                 ),
                           ),
@@ -854,7 +854,7 @@ class _SortPresetTile extends StatelessWidget {
                                 .labelSmall
                                 ?.copyWith(
                                   color: palette.textMuted,
-                                  fontWeight: FontWeight.w800,
+                                  fontWeight: FontWeight.w700,
                                 ),
                           ),
                       ],
@@ -926,7 +926,7 @@ class _SortFieldGroupPanel extends StatelessWidget {
                     child: Text(
                       title,
                       style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                            fontWeight: FontWeight.w800,
+                            fontWeight: FontWeight.w700,
                             color: accent,
                           ),
                     ),
@@ -1001,7 +1001,7 @@ class _AvailableSortFieldTile extends StatelessWidget {
                 directionLabel,
                 style: Theme.of(context).textTheme.labelSmall?.copyWith(
                       color: palette.textMuted,
-                      fontWeight: FontWeight.w800,
+                      fontWeight: FontWeight.w700,
                     ),
               ),
             ],

@@ -108,12 +108,14 @@ class _LibraryDenseButtonState extends State<LibraryDenseButton> {
             child: DefaultTextStyle(
               style: Theme.of(context).textTheme.labelLarge?.copyWith(
                         color: foreground,
-                        fontWeight: FontWeight.w700,
+                        fontWeight: FontWeight.w500,
+                        fontSize: 14,
                         letterSpacing: 0.1,
                       ) ??
                   TextStyle(
                     color: foreground,
-                    fontWeight: FontWeight.w700,
+                    fontWeight: FontWeight.w500,
+                    fontSize: 14,
                     letterSpacing: 0.1,
                   ),
               child: Row(
@@ -419,8 +421,8 @@ class _LibraryDenseMenuItemRow<T> extends StatelessWidget {
             entry.label,
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                   color: foreground,
-                  fontWeight: entry.active ? FontWeight.w800 : FontWeight.w600,
-                  fontSize: 13,
+                  fontWeight: FontWeight.w500,
+                  fontSize: 14,
                 ),
           ),
         ),
@@ -431,7 +433,7 @@ class _LibraryDenseMenuItemRow<T> extends StatelessWidget {
             style: Theme.of(context).textTheme.labelSmall?.copyWith(
                   color: palette.textMuted,
                   fontWeight: FontWeight.w700,
-                  fontSize: 12,
+                  fontSize: 13,
                 ),
           ),
         ],

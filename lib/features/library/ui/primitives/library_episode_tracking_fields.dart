@@ -24,7 +24,7 @@ final class LibraryEpisodeTrackingFields extends StatelessWidget {
             'Episode tracking',
             style: Theme.of(context).textTheme.labelMedium?.copyWith(
                   color: accent,
-                  fontWeight: FontWeight.w800,
+                  fontWeight: FontWeight.w700,
                 ),
           ),
           const SizedBox(height: 6),

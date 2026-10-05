@@ -158,7 +158,7 @@ class _LibraryGroupModeMenuButtonState
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                              fontWeight: FontWeight.w800,
+                              fontWeight: FontWeight.w700,
                               color: triggerColor,
                             ),
                       ),
@@ -260,7 +260,7 @@ class _LibraryGroupModeMenuButtonState
     final textScaler = MediaQuery.textScalerOf(context);
     final textDirection = Directionality.of(context);
     final textStyle = Theme.of(context).textTheme.titleSmall?.copyWith(
-          fontWeight: FontWeight.w800,
+          fontWeight: FontWeight.w700,
         );
     final categories = libraryGroupModeCategories(widget.type, modes);
     final labels = <String>[
@@ -427,7 +427,7 @@ class _LibraryGroupModeDropdownMenuState
                           style: Theme.of(context)
                               .textTheme
                               .titleSmall
-                              ?.copyWith(fontWeight: FontWeight.w800),
+                              ?.copyWith(fontWeight: FontWeight.w700),
                         ),
                       ),
                       const SizedBox(width: 8),
@@ -613,7 +613,8 @@ class _LibraryGroupModeDropdownMenuState
         padding: const EdgeInsets.fromLTRB(10, 6, 10, 6),
         backgroundColor: selectedBackground,
         textStyle: TextStyle(
-          fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+          fontWeight: FontWeight.w500,
+          fontSize: 14,
           color: libraryToolbarMenuText(context),
         ),
       ),
@@ -633,7 +634,8 @@ class _LibraryGroupModeDropdownMenuState
         padding: const EdgeInsets.fromLTRB(10, 6, 10, 6),
         backgroundColor: selectedBackground,
         textStyle: TextStyle(
-          fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+          fontWeight: FontWeight.w500,
+          fontSize: 14,
           color: libraryToolbarMenuText(context),
         ),
       ),
@@ -941,7 +943,7 @@ class _GroupModeFavoritesDialogState extends State<_GroupModeFavoritesDialog> {
                                             'Folder Favorites',
                                             style: theme.textTheme.titleSmall
                                                 ?.copyWith(
-                                              fontWeight: FontWeight.w800,
+                                              fontWeight: FontWeight.w700,
                                             ),
                                           ),
                                         ),
@@ -1235,7 +1237,7 @@ class _GroupModeFavoritesDialogState extends State<_GroupModeFavoritesDialog> {
                                                 style: theme
                                                     .textTheme.titleMedium
                                                     ?.copyWith(
-                                                  fontWeight: FontWeight.w800,
+                                                  fontWeight: FontWeight.w700,
                                                 ),
                                               ),
                                             ],

@@ -97,7 +97,7 @@ class LibraryAlphaJumpBar extends StatelessWidget {
               letter,
               style: TextStyle(
                 fontSize: isAll ? 10 : 11,
-                fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
+                fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600,
                 color: isSelected
                     ? accent
                     : isAvailable

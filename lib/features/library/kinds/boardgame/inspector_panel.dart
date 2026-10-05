@@ -206,7 +206,7 @@ class _BoardGameInspectorMain extends StatelessWidget {
                         if (releaseYear != null) '($releaseYear)',
                       ].join(' '),
                       style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                            fontWeight: FontWeight.w800,
+                            fontWeight: FontWeight.w700,
                           ),
                     ),
                   const SizedBox(height: 8),

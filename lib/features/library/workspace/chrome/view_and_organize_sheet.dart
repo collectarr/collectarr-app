@@ -132,7 +132,7 @@ class _ViewAndOrganizeSheetState extends State<ViewAndOrganizeSheet> {
                   'View & Organize',
                   style: TextStyle(
                     fontSize: 16,
-                    fontWeight: FontWeight.w800,
+                    fontWeight: FontWeight.w700,
                     color: palette.textPrimary,
                   ),
                 ),
@@ -385,7 +385,7 @@ class _ViewAndOrganizeSheetState extends State<ViewAndOrganizeSheet> {
       title.toUpperCase(),
       style: TextStyle(
         fontSize: 12,
-        fontWeight: FontWeight.w800,
+        fontWeight: FontWeight.w700,
         letterSpacing: 0.8,
         color: palette.textMuted,
       ),
@@ -434,7 +434,7 @@ class _ViewAndOrganizeSheetState extends State<ViewAndOrganizeSheet> {
                 label,
                 style: TextStyle(
                   fontSize: 13,
-                  fontWeight: selected ? FontWeight.w800 : FontWeight.w600,
+                  fontWeight: selected ? FontWeight.w700 : FontWeight.w600,
                   color: selected ? accent : palette.textPrimary,
                 ),
               ),

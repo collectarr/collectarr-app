@@ -525,7 +525,7 @@ class _RefreshTargetList extends StatelessWidget {
                 row.entry.dto.primaryLabel,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: const TextStyle(fontWeight: FontWeight.w800),
+                style: const TextStyle(fontWeight: FontWeight.w700),
               ),
               subtitle: Text(
                 row.message,
@@ -569,7 +569,7 @@ class _RefreshStat extends StatelessWidget {
               style: TextStyle(
                 color: palette.textMuted,
                 fontSize: 12,
-                fontWeight: FontWeight.w800,
+                fontWeight: FontWeight.w700,
               ),
             ),
             const SizedBox(width: 6),

@@ -238,7 +238,7 @@ class _DefinitionTile extends StatelessWidget {
                       Text(
                         kindLabel,
                         style:
-                            TextStyle(color: palette.textMuted, fontSize: 12),
+                            TextStyle(color: palette.textMuted, fontSize: 13),
                       ),
                     ],
                   ),
@@ -290,7 +290,7 @@ class _DefinitionTile extends StatelessWidget {
                               kindLabel,
                               style: TextStyle(
                                 color: palette.textMuted,
-                                fontSize: 12,
+                                fontSize: 13,
                               ),
                             ),
                           ],
@@ -521,4 +521,3 @@ String _mediaKindLabel(String? kind) {
   }
   return kind.trim();
 }
-

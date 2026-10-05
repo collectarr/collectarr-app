@@ -174,7 +174,7 @@ class _DetailStarRating extends StatelessWidget {
           'Rating  ',
           style: Theme.of(context).textTheme.libraryMeta.copyWith(
                 color: appPalette(context).textMuted,
-                fontWeight: FontWeight.w800,
+                fontWeight: FontWeight.w700,
               ),
         ),
         for (var i = 0; i < starCount; i++)

@@ -80,7 +80,7 @@ class CompactLibraryKindPicker extends StatelessWidget {
                     '$count',
                     style: TextStyle(
                       fontSize: 12,
-                      fontWeight: FontWeight.w800,
+                      fontWeight: FontWeight.w700,
                       color: accentData.accent,
                     ),
                   ),
@@ -131,7 +131,7 @@ class CompactLibraryKindPicker extends StatelessWidget {
                     'Switch Library',
                     style: TextStyle(
                       fontSize: 16,
-                      fontWeight: FontWeight.w800,
+                      fontWeight: FontWeight.w700,
                       color: palette.textPrimary,
                     ),
                   ),
@@ -163,7 +163,7 @@ class CompactLibraryKindPicker extends StatelessWidget {
                           style: TextStyle(
                             fontSize: 14,
                             fontWeight:
-                                isCurrent ? FontWeight.w800 : FontWeight.w600,
+                                isCurrent ? FontWeight.w700 : FontWeight.w600,
                             color: isCurrent ? kindAccent : palette.textPrimary,
                           ),
                         ),

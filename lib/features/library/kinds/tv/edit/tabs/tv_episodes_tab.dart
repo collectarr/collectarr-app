@@ -94,7 +94,7 @@ class TvEpisodesTab extends ConsumerWidget {
                           style: Theme.of(context)
                               .textTheme
                               .labelLarge
-                              ?.copyWith(fontWeight: FontWeight.w800),
+                              ?.copyWith(fontWeight: FontWeight.w700),
                         ),
                       ),
                       OutlinedButton.icon(
@@ -314,7 +314,7 @@ Widget _buildSeasonCard(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(seasonTitle,
-                style: const TextStyle(fontWeight: FontWeight.w800)),
+                style: const TextStyle(fontWeight: FontWeight.w700)),
             const SizedBox(height: 10),
             if (episodes.isEmpty)
               Text(

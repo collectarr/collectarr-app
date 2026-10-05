@@ -45,9 +45,9 @@ class LibrarySectionPanel extends StatelessWidget {
             DefaultTextStyle(
               style: Theme.of(context).textTheme.titleSmall?.copyWith(
                         color: palette.textPrimary,
-                        fontWeight: FontWeight.w800,
+                        fontWeight: FontWeight.w700,
                       ) ??
-                  const TextStyle(fontWeight: FontWeight.w800),
+                  const TextStyle(fontWeight: FontWeight.w700),
               child: title ?? const SizedBox.shrink(),
             ),
             if (subtitle != null && subtitle!.trim().isNotEmpty) ...[

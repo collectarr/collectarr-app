@@ -276,7 +276,7 @@ class _LibraryBucketSidebarState extends ConsumerState<LibraryBucketSidebar> {
                                 .textTheme
                                 .labelLarge
                                 ?.copyWith(
-                                  fontWeight: FontWeight.w800,
+                                  fontWeight: FontWeight.w500,
                                   letterSpacing: 0.12,
                                 ),
                           ),
@@ -434,18 +434,19 @@ class _SidebarSearchAndSort extends StatelessWidget {
                                 ),
                                 child: TextField(
                                   controller: controller,
+                                  textAlignVertical: TextAlignVertical.center,
                                   onChanged: (_) => onChanged(),
-                                  style: const TextStyle(fontSize: 12),
+                                  style: const TextStyle(fontSize: 14),
                                   decoration: InputDecoration(
                                     hintText: searchPlaceholder,
                                     hintStyle: TextStyle(
-                                      fontSize: 12,
+                                      fontSize: 14,
                                       color: mutedTextColor,
                                     ),
                                     isDense: true,
                                     contentPadding: const EdgeInsets.symmetric(
                                       horizontal: 8,
-                                      vertical: 8,
+                                      vertical: 0,
                                     ),
                                     border: InputBorder.none,
                                   ),
@@ -829,9 +830,9 @@ class _FolderTreeNodeView extends StatelessWidget {
                     child: Text(
                       node.count.toString(),
                       textAlign: TextAlign.left,
-                      style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                             color: isSelected ? selectedCountColor : badgeColor,
-                            fontWeight: FontWeight.w700,
+                            fontWeight: FontWeight.w500,
                           ),
                     ),
                   ),
@@ -854,12 +855,10 @@ class _FolderTreeNodeView extends StatelessWidget {
                             overflow: TextOverflow.ellipsis,
                             style: Theme.of(context)
                                 .textTheme
-                                .bodySmall
+                                .bodyMedium
                                 ?.copyWith(
                                   color: isSelected ? selectedTextColor : null,
-                                  fontWeight: isSelected
-                                      ? FontWeight.w700
-                                      : FontWeight.w600,
+                                  fontWeight: FontWeight.w500,
                                 ),
                           ),
                         ),
@@ -996,9 +995,9 @@ class _LibrarySeriesRowState extends State<_LibrarySeriesRow> {
                           widget.bucket.count.toString(),
                           textAlign: TextAlign.left,
                           style:
-                              Theme.of(context).textTheme.labelSmall?.copyWith(
+                              Theme.of(context).textTheme.bodyMedium?.copyWith(
                                     color: countTextColor,
-                                    fontWeight: FontWeight.w700,
+                                    fontWeight: FontWeight.w500,
                                   ),
                         ),
                       ),
@@ -1010,13 +1009,11 @@ class _LibrarySeriesRowState extends State<_LibrarySeriesRow> {
                           overflow: TextOverflow.ellipsis,
                           style: Theme.of(context)
                               .textTheme
-                              .bodySmall
+                              .bodyMedium
                               ?.copyWith(
                                 color:
                                     widget.selected ? selectedTextColor : null,
-                                fontWeight: widget.selected
-                                    ? FontWeight.w700
-                                    : FontWeight.w600,
+                                fontWeight: FontWeight.w500,
                               ),
                         ),
                       ),
@@ -1084,7 +1081,7 @@ class _SidebarAncestorScopeRow extends StatelessWidget {
                       overflow: TextOverflow.ellipsis,
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
                             color: mutedTextColor,
-                            fontWeight: FontWeight.w700,
+                            fontWeight: FontWeight.w500,
                           ),
                     ),
                   ),

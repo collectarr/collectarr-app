@@ -35,7 +35,7 @@ final class MusicInspectorTrackList extends StatelessWidget {
           '$playableCount ${playableCount == 1 ? 'track' : 'tracks'}',
           style: Theme.of(context).textTheme.titleSmall?.copyWith(
                 color: palette.textPrimary,
-                fontWeight: FontWeight.w800,
+                fontWeight: FontWeight.w700,
               ),
         ),
         const SizedBox(height: 8),
@@ -103,7 +103,7 @@ final class _MusicInspectorDisc extends StatelessWidget {
               'Disc #$discNumber',
               style: Theme.of(context).textTheme.labelLarge?.copyWith(
                     color: palette.textPrimary,
-                    fontWeight: FontWeight.w800,
+                    fontWeight: FontWeight.w700,
                   ),
             ),
             if (duration != null) ...[
@@ -184,7 +184,7 @@ final class _MusicInspectorTrackRow extends StatelessWidget {
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
                         color: track.isHeader ? accent : palette.textPrimary,
                         fontWeight:
-                            track.isHeader ? FontWeight.w800 : FontWeight.w600,
+                            track.isHeader ? FontWeight.w700 : FontWeight.w600,
                       ),
                 ),
                 if (!track.isHeader && artist != null && artist.isNotEmpty)

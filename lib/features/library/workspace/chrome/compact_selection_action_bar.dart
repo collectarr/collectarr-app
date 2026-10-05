@@ -63,7 +63,7 @@ class CompactSelectionActionBar extends StatelessWidget {
                 '$selectedCount selected',
                 style: TextStyle(
                   fontSize: 14,
-                  fontWeight: FontWeight.w800,
+                  fontWeight: FontWeight.w700,
                   color: palette.textPrimary,
                 ),
               ),
@@ -79,7 +79,7 @@ class CompactSelectionActionBar extends StatelessWidget {
                   child: Text(
                     isAllSelected ? 'Deselect all' : 'Select all',
                     style: TextStyle(
-                      fontSize: 12,
+                      fontSize: 13,
                       fontWeight: FontWeight.w700,
                       color: accentData.accent,
                     ),

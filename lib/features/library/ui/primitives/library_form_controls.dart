@@ -22,7 +22,7 @@ class LibraryFormField extends StatelessWidget {
                     style: TextStyle(
                       color: appPalette(context).textMuted,
                       fontSize: 13,
-                      fontWeight: FontWeight.w600,
+                      fontWeight: FontWeight.w700,
                       height: 20 / 14,
                       letterSpacing: 0,
                     ))),
@@ -101,7 +101,7 @@ class LibraryTextFormControl extends StatelessWidget {
         obscureText: obscureText,
         enabled: enabled,
         readOnly: readOnly,
-        style: style,
+        style: style ?? context.libraryTextTheme.controlText,
         textAlign: textAlign,
         textCapitalization: textCapitalization,
         textInputAction: textInputAction,
@@ -136,7 +136,7 @@ class LibraryFormGroup extends StatelessWidget {
                   child: Text(title,
                       style: TextStyle(
                           color: appPalette(context).textMuted,
-                          fontWeight: FontWeight.w600,
+                          fontWeight: FontWeight.w700,
                           fontSize: 16.8,
                           height: 24 / 16.8))),
             )),

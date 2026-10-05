@@ -54,14 +54,14 @@ class LibraryCollectionStatusScopeDropdown extends StatelessWidget {
     final menuMuted = libraryToolbarMenuMutedText(context);
     final dropdownTextStyle = Theme.of(context).textTheme.bodyMedium?.copyWith(
           height: 1,
-          fontWeight: FontWeight.w700,
+          fontWeight: FontWeight.w500,
           color: palette.textPrimary,
         );
     final menuWidth = measureLibraryToolbarDropdownWidth(
       context,
       labels: LibraryCollectionStatusScope.values.map((scope) => scope.label),
       textStyle: dropdownTextStyle?.copyWith(
-          fontSize: 13, fontWeight: FontWeight.w600),
+          fontSize: 14, fontWeight: FontWeight.w500),
       leadingWidth: 20,
       leadingSpacing: 6,
       trailingWidth: 0,

@@ -838,7 +838,7 @@ class _FlowCarouselFooterState extends State<_FlowCarouselFooter> {
                         style:
                             Theme.of(context).textTheme.labelMedium?.copyWith(
                                   color: widget.accent,
-                                  fontWeight: FontWeight.w800,
+                                  fontWeight: FontWeight.w700,
                                   letterSpacing: 0.6,
                                 ),
                       ),
@@ -883,7 +883,7 @@ class _FlowCarouselFooterState extends State<_FlowCarouselFooter> {
                       '#$itemNumber',
                       style: Theme.of(context).textTheme.labelLarge?.copyWith(
                             color: palette.textPrimary,
-                            fontWeight: FontWeight.w800,
+                            fontWeight: FontWeight.w700,
                           ),
                     ),
                   ),

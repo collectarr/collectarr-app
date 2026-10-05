@@ -178,7 +178,7 @@ class _LibraryBucketManagerDialogState
                   child: Text(
                     '${widget.entries.length} ${genericGroupModeSidebarTitle(widget.groupMode, widget.type).toUpperCase()}',
                     style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                          fontWeight: FontWeight.w800,
+                          fontWeight: FontWeight.w700,
                         ),
                   ),
                 ),
@@ -221,7 +221,7 @@ class _LibraryBucketManagerDialogState
                     child: Text(
                       'Name',
                       style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                            fontWeight: FontWeight.w800,
+                            fontWeight: FontWeight.w700,
                           ),
                     ),
                   ),
@@ -231,7 +231,7 @@ class _LibraryBucketManagerDialogState
                       'Count',
                       textAlign: TextAlign.right,
                       style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                            fontWeight: FontWeight.w800,
+                            fontWeight: FontWeight.w700,
                           ),
                     ),
                   ),

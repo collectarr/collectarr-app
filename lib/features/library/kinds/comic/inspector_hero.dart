@@ -389,7 +389,7 @@ class _ComicInspectorHeroState extends ConsumerState<ComicInspectorHero> {
               'Plot',
               style: Theme.of(context).textTheme.labelSmall?.copyWith(
                     color: muted,
-                    fontWeight: FontWeight.w800,
+                    fontWeight: FontWeight.w700,
                   ),
             ),
             const SizedBox(height: 3),
@@ -504,7 +504,7 @@ class _ComicHeroBlock extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
                 style: Theme.of(context).textTheme.labelLarge?.copyWith(
                       color: accent,
-                      fontWeight: FontWeight.w800,
+                      fontWeight: FontWeight.w700,
                     ),
               ),
               const SizedBox(height: 4),
@@ -519,7 +519,7 @@ class _ComicHeroBlock extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
                           color: appPalette(context).textPrimary,
-                          fontWeight: FontWeight.w800,
+                          fontWeight: FontWeight.w700,
                         ),
                   ),
                 ),
@@ -587,7 +587,7 @@ class _ComicMetaBadge extends StatelessWidget {
         );
     final valueStyle = Theme.of(context).textTheme.labelSmall?.copyWith(
           color: palette.textPrimary,
-          fontWeight: FontWeight.w800,
+          fontWeight: FontWeight.w700,
           fontSize: 12,
           letterSpacing: 0.08,
         );
@@ -656,7 +656,7 @@ class _ComicCoverToggleCheckbox extends StatelessWidget {
               label,
               style: Theme.of(context).textTheme.labelSmall?.copyWith(
                     color: palette.textMuted,
-                    fontWeight: FontWeight.w800,
+                    fontWeight: FontWeight.w700,
                     fontSize: 12,
                   ),
             ),
@@ -756,7 +756,7 @@ class _ComicKeyReasonBanner extends StatelessWidget {
               reason,
               style: Theme.of(context).textTheme.labelSmall?.copyWith(
                     color: palette.textPrimary,
-                    fontWeight: FontWeight.w800,
+                    fontWeight: FontWeight.w700,
                     fontSize: 12,
                   ),
             ),
@@ -830,7 +830,7 @@ class _ComicEbayCard extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
                 style: Theme.of(context).textTheme.labelSmall?.copyWith(
                       color: palette.textPrimary,
-                      fontWeight: FontWeight.w800,
+                      fontWeight: FontWeight.w700,
                     ),
               ),
             ),
@@ -899,7 +899,7 @@ class _ComicDetailLine extends StatelessWidget {
               label,
               style: Theme.of(context).textTheme.labelSmall?.copyWith(
                     color: palette.textMuted,
-                    fontWeight: FontWeight.w800,
+                    fontWeight: FontWeight.w700,
                     letterSpacing: 0.16,
                     height: 1,
                   ),

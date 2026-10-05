@@ -294,7 +294,7 @@ class _MusicListenEventTile extends ConsumerWidget {
                 Text(
                   formatDate(event.listenedAt),
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        fontWeight: FontWeight.w800,
+                        fontWeight: FontWeight.w700,
                       ),
                 ),
                 if (event.location?.trim().isNotEmpty == true ||
@@ -639,7 +639,7 @@ class _MusicInspectorTracks extends StatelessWidget {
               '${tracks.where((track) => !track.isHeader).length} ${tracks.where((track) => !track.isHeader).length == 1 ? 'track' : 'tracks'}',
               style: Theme.of(context).textTheme.labelSmall?.copyWith(
                     color: palette.textMuted,
-                    fontWeight: FontWeight.w800,
+                    fontWeight: FontWeight.w700,
                   ),
             ),
             TextButton.icon(
@@ -755,7 +755,7 @@ class _MusicDiscDetailsCard extends StatelessWidget {
               'Disc #${disc.discNumber}',
               style: Theme.of(context).textTheme.labelLarge?.copyWith(
                     color: palette.textPrimary,
-                    fontWeight: FontWeight.w800,
+                    fontWeight: FontWeight.w700,
                   ),
             ),
             const SizedBox(height: 4),
@@ -1096,7 +1096,7 @@ class _MusicDiscTable extends StatelessWidget {
             Text(
               'Disc #$discNumber',
               style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                    fontWeight: FontWeight.w800,
+                    fontWeight: FontWeight.w700,
                   ),
             ),
             if (discDuration != null) ...[
@@ -1184,7 +1184,7 @@ class _MusicTrackRow extends StatelessWidget {
                               ? palette.accent
                               : palette.textPrimary,
                           fontWeight: track.isHeader
-                              ? FontWeight.w800
+                              ? FontWeight.w700
                               : FontWeight.w600,
                         ),
                   ),
@@ -1423,7 +1423,7 @@ class _MusicDiscCard extends StatelessWidget {
             Text(
               'Disc #$discNumber',
               style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                    fontWeight: FontWeight.w800,
+                    fontWeight: FontWeight.w700,
                   ),
             ),
             const SizedBox(height: 2),
@@ -1464,7 +1464,7 @@ class _MusicCoverCard extends StatelessWidget {
         Text(
           title,
           style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                fontWeight: FontWeight.w800,
+                fontWeight: FontWeight.w700,
               ),
         ),
         const SizedBox(height: 6),

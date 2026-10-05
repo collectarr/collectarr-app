@@ -102,7 +102,7 @@ class AccentAlertDialog extends StatelessWidget {
         style: TextStyle(
           color: accentForeground,
           fontSize: 14,
-          fontWeight: FontWeight.w800,
+          fontWeight: FontWeight.w700,
         ),
         child: IconTheme(
           data: IconThemeData(color: accentForeground),

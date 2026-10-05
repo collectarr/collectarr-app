@@ -25,7 +25,7 @@ class LibraryViewModeDropdown extends StatelessWidget {
     final menuMuted = libraryToolbarMenuMutedText(context);
     final dropdownTextStyle = Theme.of(context).textTheme.bodyMedium?.copyWith(
           height: 1,
-          fontWeight: FontWeight.w700,
+          fontWeight: FontWeight.w500,
           color: menuText,
         );
     final menuWidth = _measureViewDropdownWidth(
@@ -110,7 +110,7 @@ class LibraryDetailsLayoutDropdown extends StatelessWidget {
     final menuMuted = libraryToolbarMenuMutedText(context);
     final dropdownTextStyle = Theme.of(context).textTheme.bodyMedium?.copyWith(
           height: 1,
-          fontWeight: FontWeight.w700,
+          fontWeight: FontWeight.w500,
           color: menuText,
         );
     final detailsMenuWidth = _measureDetailsDropdownWidth(
@@ -379,7 +379,7 @@ class LibraryWorkspaceDensityDropdown extends StatelessWidget {
     final menuMuted = libraryToolbarMenuMutedText(context);
     final dropdownTextStyle = Theme.of(context).textTheme.bodyMedium?.copyWith(
           height: 1,
-          fontWeight: FontWeight.w700,
+          fontWeight: FontWeight.w500,
           color: menuText,
         );
     final menuWidth = _measureDensityDropdownWidth(
@@ -550,7 +550,7 @@ double _measureSplitTriggerWidth(
         fontWeight: FontWeight.w700,
       );
   final valueStyle = Theme.of(context).textTheme.labelLarge?.copyWith(
-        fontWeight: FontWeight.w800,
+        fontWeight: FontWeight.w700,
       );
   final labelPainter = TextPainter(
     text: TextSpan(text: leadingLabel, style: labelStyle),
@@ -621,7 +621,7 @@ class _LibraryToolbarSplitLabelTrigger extends StatelessWidget {
                 valueLabel,
                 style: Theme.of(context).textTheme.labelLarge?.copyWith(
                       color: libraryToolbarControlText(context),
-                      fontWeight: FontWeight.w800,
+                      fontWeight: FontWeight.w700,
                     ),
               ),
               const SizedBox(width: 6),

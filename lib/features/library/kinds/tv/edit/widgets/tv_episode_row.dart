@@ -71,7 +71,7 @@ class TvEpisodeRow extends StatelessWidget {
                   children: [
                     Text(
                       '$code • $title',
-                      style: const TextStyle(fontWeight: FontWeight.w800),
+                      style: const TextStyle(fontWeight: FontWeight.w700),
                     ),
                     const SizedBox(height: 4),
                     Wrap(

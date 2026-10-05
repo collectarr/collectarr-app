@@ -43,7 +43,7 @@ class LibraryInfoChip extends StatelessWidget {
               label,
               style: theme.textTheme.libraryCaption.copyWith(
                 color: resolvedForeground,
-                fontWeight: FontWeight.w800,
+                fontWeight: FontWeight.w700,
               ),
             ),
           ],

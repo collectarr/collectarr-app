@@ -288,7 +288,7 @@ class _LocationPickerDialogState extends State<_LocationPickerDialog> {
                               'No locations yet',
                               style: TextStyle(
                                 fontSize: 16,
-                                fontWeight: FontWeight.w800,
+                                fontWeight: FontWeight.w700,
                               ),
                             ),
                           ),

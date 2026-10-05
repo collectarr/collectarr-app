@@ -58,9 +58,9 @@ class CompactFilterSurface extends StatelessWidget {
                         ? 'Filters (${selection.activeFilterCount})'
                         : 'Filters',
                     style: TextStyle(
-                      fontSize: 12,
+                      fontSize: 13,
                       fontWeight: selection.hasActiveFilters
-                          ? FontWeight.w800
+                          ? FontWeight.w700
                           : FontWeight.w600,
                       color: selection.hasActiveFilters
                           ? accentData.accent
@@ -238,8 +238,8 @@ class CompactFilterSurface extends StatelessWidget {
         label: Text(
           label,
           style: TextStyle(
-            fontSize: 12,
-            fontWeight: selected ? FontWeight.w800 : FontWeight.w600,
+            fontSize: 13,
+            fontWeight: selected ? FontWeight.w700 : FontWeight.w600,
             color: selected ? accent : palette.textPrimary,
           ),
         ),
@@ -270,7 +270,7 @@ class CompactFilterSurface extends StatelessWidget {
         label: Text(
           label,
           style: TextStyle(
-            fontSize: 12,
+            fontSize: 13,
             fontWeight: FontWeight.w700,
             color: accent,
           ),

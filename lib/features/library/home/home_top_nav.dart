@@ -294,7 +294,7 @@ class _MediaLibraryTitle extends StatelessWidget {
                   style: TextStyle(
                     color: titleColor,
                     fontSize: 13,
-                    fontWeight: FontWeight.w800,
+                    fontWeight: FontWeight.w700,
                   ),
                 ),
               ),

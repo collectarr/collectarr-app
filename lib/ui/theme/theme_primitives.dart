@@ -1,8 +1,9 @@
+import 'package:collectarr_app/ui/theme/app_typography.dart';
 import 'package:collectarr_app/ui/theme/date_picker_theme.dart';
 import 'package:collectarr_app/ui/theme/theme_palette.dart';
 import 'package:flutter/material.dart';
 
-const String kClzPrimaryFontFamily = 'Inter';
+const String kClzPrimaryFontFamily = kAppFontFamily;
 const String kClzMonospaceFontFamily = 'JetBrains Mono';
 const List<String> kClzFontFallback = ['Segoe UI', 'Roboto'];
 const List<String> kClzMonospaceFontFallback = ['Consolas', 'Courier New'];
@@ -58,8 +59,17 @@ InputDecorationTheme buildAppInputDecorationTheme(
     fillColor: fillColor ?? palette.field,
     isDense: true,
     contentPadding: contentPadding,
-    labelStyle: labelStyle,
-    hintStyle: hintStyle,
+    labelStyle: (labelStyle ?? TextStyle(color: palette.textMuted)).copyWith(
+      fontFamily: kAppFontFamily,
+      fontSize: kAppCaptionFontSize,
+      fontWeight: kAppBoldFontWeight,
+    ),
+    hintStyle: (hintStyle ?? TextStyle(color: palette.textMuted)).copyWith(
+      fontFamily: kAppFontFamily,
+      fontSize: kAppBodyFontSize,
+      fontWeight: kAppNormalFontWeight,
+      height: 16 / 14,
+    ),
     border: OutlineInputBorder(
       borderSide: BorderSide(color: palette.divider),
     ),
@@ -83,10 +93,16 @@ DialogThemeData buildAppDialogTheme(AppThemePalette palette) {
     ),
     titleTextStyle: TextStyle(
       color: palette.textPrimary,
+      fontFamily: kAppFontFamily,
       fontSize: 18,
-      fontWeight: FontWeight.w800,
+      fontWeight: kAppBoldFontWeight,
     ),
-    contentTextStyle: TextStyle(color: palette.textPrimary),
+    contentTextStyle: TextStyle(
+      color: palette.textPrimary,
+      fontFamily: kAppFontFamily,
+      fontSize: kAppBodyFontSize,
+      fontWeight: kAppNormalFontWeight,
+    ),
   );
 }
 
@@ -94,7 +110,12 @@ PopupMenuThemeData buildAppPopupMenuTheme(AppThemePalette palette) {
   return PopupMenuThemeData(
     color: palette.panelRaised,
     surfaceTintColor: Colors.transparent,
-    textStyle: TextStyle(color: palette.textPrimary),
+    textStyle: TextStyle(
+      color: palette.textPrimary,
+      fontFamily: kAppFontFamily,
+      fontSize: kAppBodyFontSize,
+      fontWeight: kAppNormalFontWeight,
+    ),
     elevation: 12,
     mouseCursor: appClickableMouseCursor,
     shape: RoundedRectangleBorder(
@@ -126,7 +147,12 @@ DropdownMenuThemeData buildAppDropdownMenuTheme(
   Color? inputFillColor,
 }) {
   return DropdownMenuThemeData(
-    textStyle: TextStyle(color: palette.textPrimary),
+    textStyle: TextStyle(
+      color: palette.textPrimary,
+      fontFamily: kAppFontFamily,
+      fontSize: kAppBodyFontSize,
+      fontWeight: kAppNormalFontWeight,
+    ),
     menuStyle: MenuStyle(
       mouseCursor: appClickableMouseCursor,
       backgroundColor: WidgetStatePropertyAll(palette.panelRaised),
@@ -214,7 +240,12 @@ SearchBarThemeData buildAppSearchBarTheme(AppThemePalette palette) {
     hintStyle: WidgetStatePropertyAll(
       TextStyle(color: palette.textMuted),
     ),
-    textStyle: WidgetStatePropertyAll(TextStyle(color: palette.textPrimary)),
+    textStyle: WidgetStatePropertyAll(TextStyle(
+      color: palette.textPrimary,
+      fontFamily: kAppFontFamily,
+      fontSize: kAppBodyFontSize,
+      fontWeight: kAppNormalFontWeight,
+    )),
     elevation: const WidgetStatePropertyAll(0),
     shape: WidgetStatePropertyAll(
       RoundedRectangleBorder(
@@ -233,7 +264,12 @@ ChipThemeData buildAppChipTheme(ThemeData base, AppThemePalette palette) {
     backgroundColor:
         palette.isDark ? const Color(0xFF343434) : palette.surfaceSubtle,
     selectedColor: palette.selection,
-    labelStyle: TextStyle(color: palette.textPrimary),
+    labelStyle: TextStyle(
+      color: palette.textPrimary,
+      fontFamily: kAppFontFamily,
+      fontSize: kAppBodyFontSize,
+      fontWeight: kAppNormalFontWeight,
+    ),
     side: BorderSide(color: palette.divider),
     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(3)),
   );
@@ -294,53 +330,6 @@ ThemeData applySharedSurfaceTheme(
     searchBarTheme: buildAppSearchBarTheme(palette),
     chipTheme: buildAppChipTheme(base, palette),
     datePickerTheme: buildAppDatePickerTheme(palette: palette),
-    textTheme: base.textTheme
-        .apply(
-          fontFamily: kClzPrimaryFontFamily,
-          fontFamilyFallback: kClzFontFallback,
-          bodyColor: palette.textPrimary,
-          displayColor: palette.textPrimary,
-        )
-        .copyWith(
-          titleLarge: base.textTheme.titleLarge?.copyWith(
-            fontWeight: FontWeight.w800,
-            letterSpacing: -0.2,
-          ),
-          titleMedium: base.textTheme.titleMedium?.copyWith(
-            fontWeight: FontWeight.w700,
-            letterSpacing: -0.1,
-          ),
-          titleSmall: base.textTheme.titleSmall?.copyWith(
-            fontWeight: FontWeight.w700,
-            letterSpacing: -0.05,
-          ),
-          bodyLarge: base.textTheme.bodyLarge?.copyWith(
-            fontSize: 15,
-            height: 1.35,
-          ),
-          bodyMedium: base.textTheme.bodyMedium?.copyWith(
-            fontSize: 14,
-            height: 1.3,
-          ),
-          bodySmall: base.textTheme.bodySmall?.copyWith(
-            fontSize: 13,
-            height: 1.25,
-          ),
-          labelLarge: base.textTheme.labelLarge?.copyWith(
-            fontSize: 13,
-            fontWeight: FontWeight.w700,
-            letterSpacing: 0.15,
-          ),
-          labelMedium: base.textTheme.labelMedium?.copyWith(
-            fontSize: 13,
-            fontWeight: FontWeight.w600,
-            letterSpacing: 0.05,
-          ),
-          labelSmall: base.textTheme.labelSmall?.copyWith(
-            fontSize: 13,
-            fontWeight: FontWeight.w600,
-            letterSpacing: 0.04,
-          ),
-        ),
+    textTheme: buildAppTextTheme(base.textTheme, palette.textPrimary),
   );
 }

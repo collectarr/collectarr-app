@@ -128,7 +128,7 @@ class _SyncSettingsDialogState extends State<SyncSettingsDialog> {
             field.group,
             style: TextStyle(
               fontSize: 12,
-              fontWeight: FontWeight.w800,
+              fontWeight: FontWeight.w700,
               color: kAppHighlight,
               letterSpacing: 0.5,
             ),

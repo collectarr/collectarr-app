@@ -396,7 +396,7 @@ class _RailSyncButton extends ConsumerWidget {
                         style: TextStyle(
                           fontSize: 12,
                           color: pendingBadgeForeground,
-                          fontWeight: FontWeight.w800,
+                          fontWeight: FontWeight.w700,
                         ),
                       ),
                     ),

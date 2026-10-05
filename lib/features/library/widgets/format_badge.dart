@@ -103,7 +103,7 @@ class FormatBadge extends StatelessWidget {
                   style: TextStyle(
                     color: foreground,
                     fontSize: 12,
-                    fontWeight: FontWeight.w800,
+                    fontWeight: FontWeight.w700,
                     letterSpacing: 0.3,
                   ),
                 ),

@@ -188,7 +188,7 @@ class BundleReleaseContentsCard extends StatelessWidget {
           children: [
             Text(
               detail.title,
-              style: const TextStyle(fontWeight: FontWeight.w800),
+              style: const TextStyle(fontWeight: FontWeight.w700),
             ),
             if (summaryParts.isNotEmpty) ...[
               const SizedBox(height: 4),
@@ -249,7 +249,7 @@ class _BundleReleaseMembersSection extends StatelessWidget {
               'Members',
               style: TextStyle(
                 color: accent,
-                fontWeight: FontWeight.w800,
+                fontWeight: FontWeight.w700,
               ),
             ),
             const SizedBox(height: 8),

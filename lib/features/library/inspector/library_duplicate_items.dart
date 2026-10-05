@@ -211,7 +211,7 @@ class _DuplicateGroupTile extends StatelessWidget {
                                 .textTheme
                                 .titleSmall
                                 ?.copyWith(
-                                  fontWeight: FontWeight.w800,
+                                  fontWeight: FontWeight.w700,
                                 ),
                           ),
                           const SizedBox(height: 4),

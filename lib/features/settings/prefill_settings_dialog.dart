@@ -120,7 +120,7 @@ class _PrefillSettingsDialogState extends ConsumerState<PrefillSettingsDialog> {
                       child: Text(
                         'Default values applied when adding new items to your collection.',
                         style: TextStyle(
-                          fontSize: 12,
+                          fontSize: 13,
                           color: appPalette(context).textMuted,
                         ),
                       ),
@@ -153,7 +153,7 @@ class _PrefillSettingsDialogState extends ConsumerState<PrefillSettingsDialog> {
         },
         child: const Text(
           'Clear all',
-          style: TextStyle(fontSize: 12, color: Colors.white),
+          style: TextStyle(fontSize: 13, color: Colors.white),
         ),
       ),
     );
@@ -267,7 +267,7 @@ class _PrefillSettingsDialogState extends ConsumerState<PrefillSettingsDialog> {
             decoration: InputDecoration(
               hintText: hint,
               hintStyle:
-                  TextStyle(fontSize: 12, color: appPalette(context).textMuted),
+                  TextStyle(fontSize: 13, color: appPalette(context).textMuted),
               contentPadding:
                   const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
               filled: true,

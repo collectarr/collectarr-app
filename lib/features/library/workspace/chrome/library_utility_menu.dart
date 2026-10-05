@@ -100,7 +100,7 @@ class LibraryUtilityMenu<T> extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 4),
       label: Text(
         badgeCount.toString(),
-        style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w800),
+        style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700),
       ),
       child: PopupMenuButton<Object>(
         tooltip: tooltip,
@@ -174,7 +174,7 @@ class LibraryUtilityMenu<T> extends StatelessWidget {
                   : Text(
                       action.description!,
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            fontSize: 12,
+                            fontSize: 13,
                           ),
                     ),
               trailing: action.trailing,

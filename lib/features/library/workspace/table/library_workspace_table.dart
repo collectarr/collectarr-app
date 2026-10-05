@@ -410,8 +410,8 @@ class _LibraryWorkspaceTableHeaderCell extends StatelessWidget {
                             overflow: TextOverflow.ellipsis,
                             style: TextStyle(
                               color: headerTextColor,
-                              fontWeight: FontWeight.w800,
-                              fontSize: 12,
+                              fontWeight: FontWeight.w700,
+                              fontSize: 13,
                             ),
                           ),
                         ),
@@ -433,7 +433,7 @@ class _LibraryWorkspaceTableHeaderCell extends StatelessWidget {
                             style: TextStyle(
                               color:
                                   sorted ? accentColor : headerMutedTextColor,
-                              fontSize: 12,
+                              fontSize: 13,
                               fontWeight: FontWeight.w700,
                             ),
                           ),
@@ -540,8 +540,8 @@ class _LibraryColumnDragHandle extends StatelessWidget {
                   feedbackLabel,
                   style: TextStyle(
                     color: labelColor,
-                    fontWeight: FontWeight.w800,
-                    fontSize: 12,
+                    fontWeight: FontWeight.w700,
+                    fontSize: 13,
                   ),
                 ),
               ),

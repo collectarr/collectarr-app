@@ -57,9 +57,9 @@ double resolveLibrarySidebarMinWidth(
   required int ancestorScopeDepth,
 }) {
   final labelStyle = Theme.of(context).textTheme.bodySmall?.copyWith(
-            fontWeight: FontWeight.w800,
+            fontWeight: FontWeight.w700,
           ) ??
-      const TextStyle(fontSize: 12, fontWeight: FontWeight.w800);
+      const TextStyle(fontSize: 12, fontWeight: FontWeight.w700);
   final textPainter = TextPainter(
     text: TextSpan(text: selectedBucketLabel, style: labelStyle),
     maxLines: 1,

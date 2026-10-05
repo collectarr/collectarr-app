@@ -182,7 +182,7 @@ class _InspectorLoanSectionState extends State<InspectorLoanSection> {
               'History',
               style: Theme.of(context).textTheme.labelMedium?.copyWith(
                     color: widget.accent.withValues(alpha: 0.8),
-                    fontWeight: FontWeight.w800,
+                    fontWeight: FontWeight.w700,
                     letterSpacing: 0.2,
                   ),
             ),

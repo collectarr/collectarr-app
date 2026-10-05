@@ -1,7 +1,8 @@
+import 'package:collectarr_app/ui/theme/app_typography.dart';
 import 'package:flutter/material.dart';
 
-/// The bundled OFL geometric face shared by Library editors.
-const kLibraryEditorFontFamily = 'Collectarr Sans';
+/// The bundled OFL geometric face shared by the entire application.
+const kLibraryEditorFontFamily = kAppFontFamily;
 
 /// Semantic text roles for Library UI.
 extension LibraryTextTheme on TextTheme {
@@ -20,8 +21,8 @@ extension LibraryTextTheme on TextTheme {
   /// Metadata field labels, key-value captions, and input field hints/headers.
   TextStyle get metadataLabel => (labelMedium ?? const TextStyle()).copyWith(
         fontSize: 13,
-        fontWeight: FontWeight.w600,
-        letterSpacing: 0.05,
+        fontWeight: kAppBoldFontWeight,
+        letterSpacing: 0,
       );
 
   /// Labels attached to editable fields and controls.
@@ -30,7 +31,8 @@ extension LibraryTextTheme on TextTheme {
   /// Text shown inside editable controls and their selected values.
   TextStyle get controlText => (bodyMedium ?? const TextStyle()).copyWith(
         fontSize: 14,
-        fontWeight: FontWeight.w500,
+        fontWeight: kAppNormalFontWeight,
+        height: 16 / 14,
       );
 
   /// Supporting, explanatory, helper, or footnote text.
@@ -45,8 +47,8 @@ extension LibraryTextTheme on TextTheme {
   /// Table column headers and uppercase badge / metric labels.
   TextStyle get tableHeader => (labelSmall ?? const TextStyle()).copyWith(
         fontSize: 13,
-        fontWeight: FontWeight.w600,
-        letterSpacing: 0.2,
+        fontWeight: kAppBoldFontWeight,
+        letterSpacing: 0,
       );
 
   /// Add-dialog title and other prominent Library chrome labels.

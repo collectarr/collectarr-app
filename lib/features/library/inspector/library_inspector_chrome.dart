@@ -113,7 +113,7 @@ class InspectorActionBar extends StatelessWidget {
               'Quick actions',
               style: Theme.of(context).textTheme.labelSmall?.copyWith(
                     color: palette.textMuted,
-                    fontWeight: FontWeight.w800,
+                    fontWeight: FontWeight.w700,
                     letterSpacing: 0.35,
                   ),
             ),

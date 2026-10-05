@@ -83,7 +83,7 @@ class LibraryPanelHeader extends StatelessWidget {
         child: DefaultTextStyle(
           style: theme.textTheme.titleSmall?.copyWith(
                 color: fg,
-                fontWeight: FontWeight.w800,
+                fontWeight: FontWeight.w700,
               ) ??
               theme.textTheme.libraryChromeTitle.copyWith(color: fg),
           child: Row(
@@ -136,7 +136,7 @@ class LibraryPanelHeader extends StatelessWidget {
           overflow: TextOverflow.ellipsis,
           style: Theme.of(context).textTheme.libraryChromeTitle.copyWith(
                 color: foregroundColor,
-                fontWeight: FontWeight.w800,
+                fontWeight: FontWeight.w700,
               ),
         ),
         if (subtitleText != null && subtitleText.isNotEmpty)

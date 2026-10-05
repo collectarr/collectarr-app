@@ -41,8 +41,8 @@ class LibraryToolbarPrimaryActions extends ConsumerWidget {
                 foregroundColor: addForegroundColor,
                 padding: const EdgeInsets.symmetric(horizontal: 9),
                 textStyle: const TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w900,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w700,
                 ),
               ),
               icon: const Icon(Icons.add, size: 17),
