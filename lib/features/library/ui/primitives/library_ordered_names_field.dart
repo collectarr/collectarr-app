@@ -138,6 +138,7 @@ class _LibraryOrderedNamesFieldState extends State<LibraryOrderedNamesField> {
             width: 24,
             height: 20,
             child: IconButton(
+              mouseCursor: SystemMouseCursors.click,
               tooltip: 'Add ${widget.label}',
               padding: EdgeInsets.zero,
               onPressed: _picking ? null : _add,

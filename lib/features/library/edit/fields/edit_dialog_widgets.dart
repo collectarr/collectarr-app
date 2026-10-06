@@ -9,6 +9,7 @@ import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 // ---------------------------------------------------------------------------
 // Shared edit-dialog building blocks used across library edit dialogs.
@@ -364,17 +365,39 @@ class EditSectionLoadingState extends StatelessWidget {
 // ---------------------------------------------------------------------------
 
 class EditTab extends StatelessWidget {
-  const EditTab({super.key, required this.icon, required this.label});
+  const EditTab({
+    super.key,
+    this.icon,
+    this.svgAsset,
+    required this.label,
+  }) : assert(icon != null || svgAsset != null, 'Either icon or svgAsset must be provided.');
 
-  final IconData icon;
+  final IconData? icon;
+  final String? svgAsset;
   final String label;
 
   @override
   Widget build(BuildContext context) {
+    final iconWidget = svgAsset != null
+        ? Builder(
+            builder: (context) {
+              final iconTheme = IconTheme.of(context);
+              return SvgPicture.asset(
+                svgAsset!,
+                width: iconTheme.size ?? 16,
+                height: iconTheme.size ?? 16,
+                colorFilter: iconTheme.color != null
+                    ? ColorFilter.mode(iconTheme.color!, BlendMode.srcIn)
+                    : null,
+              );
+            },
+          )
+        : Icon(icon, size: 16);
+
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(icon, size: 16),
+        iconWidget,
         const SizedBox(width: 3),
         Text(label),
       ],
@@ -790,6 +813,7 @@ class _LibraryDateFieldButtonState extends State<LibraryDateFieldButton> {
                 child: Row(
                   children: [
                     Expanded(
+                      flex: 3,
                       child: _datePartField(
                         palette: palette,
                         key: _partKey('year'),
@@ -800,6 +824,7 @@ class _LibraryDateFieldButtonState extends State<LibraryDateFieldButton> {
                     ),
                     _dateConnector(palette),
                     Expanded(
+                      flex: 2,
                       child: _datePartField(
                         palette: palette,
                         key: _partKey('month'),
@@ -809,6 +834,7 @@ class _LibraryDateFieldButtonState extends State<LibraryDateFieldButton> {
                     ),
                     _dateConnector(palette),
                     Expanded(
+                      flex: 2,
                       child: _datePartField(
                         palette: palette,
                         key: _partKey('day'),

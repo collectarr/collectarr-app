@@ -59,21 +59,26 @@ class LibraryCollectionStatusField extends StatelessWidget {
     final status = libraryCollectionStatusFromValue(value);
     return LibraryFormField(
         label: label,
-        child: PopupMenuButton<LibraryCollectionStatusScope>(
-          tooltip: 'Choose collection status',
-          itemBuilder: libraryCollectionStatusMenuItems,
-          onSelected: (value) => onChanged(libraryCollectionStatusValue(value)),
-          child: InputDecorator(
-              decoration: const InputDecoration(
-                  contentPadding:
-                      EdgeInsets.symmetric(horizontal: 8, vertical: 5),
-                  constraints: BoxConstraints(minHeight: 34)),
-              child: Row(children: [
-                LibraryCollectionStatusIcon(status: status, size: 24),
-                const SizedBox(width: 8),
-                Expanded(child: Text(status.label)),
-                const Icon(Icons.arrow_drop_down, size: 20),
-              ])),
+        child: LayoutBuilder(
+          builder: (context, constraints) =>
+              PopupMenuButton<LibraryCollectionStatusScope>(
+            tooltip: 'Choose collection status',
+            constraints: BoxConstraints(minWidth: constraints.maxWidth),
+            itemBuilder: libraryCollectionStatusMenuItems,
+            onSelected: (value) =>
+                onChanged(libraryCollectionStatusValue(value)),
+            child: InputDecorator(
+                decoration: const InputDecoration(
+                    contentPadding:
+                        EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+                    constraints: BoxConstraints(minHeight: 34)),
+                child: Row(children: [
+                  LibraryCollectionStatusIcon(status: status, size: 24),
+                  const SizedBox(width: 8),
+                  Expanded(child: Text(status.label)),
+                  const Icon(Icons.arrow_drop_down, size: 20),
+                ])),
+          ),
         ));
   }
 }

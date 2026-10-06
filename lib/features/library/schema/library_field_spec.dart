@@ -97,12 +97,15 @@ final class LibraryTextFieldSpec<TDraft> extends LibraryFieldSpec<TDraft> {
 final class LibraryTextFieldAction {
   const LibraryTextFieldAction({
     required this.label,
-    required this.icon,
+    this.icon,
+    this.iconText,
     required this.transform,
-  });
+  }) : assert(icon != null || iconText != null,
+            'Either icon or iconText must be provided');
 
   final String label;
-  final IconData icon;
+  final IconData? icon;
+  final String? iconText;
   final String Function(String value) transform;
 }
 

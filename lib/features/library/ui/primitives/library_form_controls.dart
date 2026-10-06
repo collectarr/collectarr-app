@@ -16,18 +16,21 @@ class LibraryFormField extends StatelessWidget {
   Widget build(BuildContext context) => Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Row(children: [
-            Expanded(
-                child: Text(label,
-                    style: TextStyle(
-                      color: appPalette(context).textMuted,
-                      fontSize: 13,
-                      fontWeight: FontWeight.w700,
-                      height: 20 / 14,
-                      letterSpacing: 0,
-                    ))),
-            if (action != null) action!,
-          ]),
+          SizedBox(
+            height: 20,
+            child: Row(children: [
+              Expanded(
+                  child: Text(label,
+                      style: TextStyle(
+                        color: appPalette(context).textMuted,
+                        fontSize: 13,
+                        fontWeight: FontWeight.w700,
+                        height: 20 / 14,
+                        letterSpacing: 0,
+                      ))),
+              if (action != null) action!,
+            ]),
+          ),
           const SizedBox(height: 1),
           child,
         ],
@@ -207,7 +210,12 @@ class _LibraryPartialDateInputState extends State<LibraryPartialDateInput> {
   @override
   Widget build(BuildContext context) => Row(children: [
         for (var i = 0; i < 3; i++) ...[
-          if (i > 0) const SizedBox(width: 6),
+          if (i > 0)
+            Container(
+              width: 8,
+              height: 1,
+              color: appPalette(context).divider,
+            ),
           Expanded(
               flex: i == 0 ? 3 : 2,
               child: LibraryTextFormControl(
@@ -215,12 +223,15 @@ class _LibraryPartialDateInputState extends State<LibraryPartialDateInput> {
                 focusNode: i == 0 ? widget.focusNode : null,
                 textAlign: TextAlign.center,
                 keyboardType: TextInputType.number,
-                minimumHeight: kLibraryFormControlHeight,
+                minimumHeight: 0,
                 inputFormatters: [
                   FilteringTextInputFormatter.digitsOnly,
                   LengthLimitingTextInputFormatter(i == 0 ? 4 : 2)
                 ],
-                decoration: InputDecoration(hintText: ['YYYY', 'MM', 'DD'][i]),
+                decoration: InputDecoration(
+                  hintText: ['YYYY', 'MM', 'DD'][i],
+                  constraints: const BoxConstraints(),
+                ),
                 validator: (raw) {
                   if (raw == null || raw.isEmpty) return null;
                   final value = int.tryParse(raw);

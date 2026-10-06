@@ -2,6 +2,7 @@ import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_ordered_pick_list_field.dart';
 import 'package:collectarr_app/features/library/kinds/music/forms/music_title_formatting.dart';
+import 'package:collectarr_app/features/library/config/library_dialog_tokens.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_ordered_names_field.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_form_controls.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_album_relations.dart';
@@ -18,7 +19,7 @@ typedef MusicAlbumValuesReader<TDraft> = MusicAlbumFormValues Function(
 const musicTitleActions = [
   LibraryTextFieldAction(
     label: 'Autocap',
-    icon: Icons.text_fields,
+    iconText: 'Aa',
     transform: autocapMusicTitle,
   ),
 ];
@@ -174,11 +175,11 @@ List<LibraryFieldSpec<TDraft>> musicAlbumFields<TDraft>({
           return LibraryFormField(
             label: 'Format',
             child: Container(
-              height: 38,
-              padding: const EdgeInsets.symmetric(horizontal: 12),
+              height: kLibraryFormControlHeight,
+              padding: const EdgeInsets.symmetric(horizontal: 10),
               alignment: Alignment.centerLeft,
               decoration: BoxDecoration(
-                color: appPalette(context).panelRaised.withValues(alpha: 0.5),
+                color: appPalette(context).field,
                 borderRadius: BorderRadius.circular(4),
                 border: Border.all(
                   color: appPalette(context).divider,
