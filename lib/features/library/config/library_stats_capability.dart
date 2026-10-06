@@ -39,6 +39,9 @@ class LibraryStatsMetadataProjection {
   const LibraryStatsMetadataProjection({
     this.primaryGroup,
     this.secondaryGroup,
+    this.format,
+    this.releaseYear,
+    this.genres = const [],
     this.hasCover = false,
     this.hasSynopsis,
     this.hasSecondaryMetadata = false,
@@ -48,6 +51,9 @@ class LibraryStatsMetadataProjection {
 
   final String? primaryGroup;
   final String? secondaryGroup;
+  final String? format;
+  final int? releaseYear;
+  final List<String> genres;
   final bool hasCover;
   final bool? hasSynopsis;
   final bool hasSecondaryMetadata;
@@ -70,6 +76,18 @@ abstract interface class LibraryStatsCapability {
   );
 
   List<Widget> buildCustomCards(
+    BuildContext context,
+    ShelfState state,
+    LibraryKindRegistration type,
+  );
+
+  Widget? buildCustomHeader(
+    BuildContext context,
+    ShelfState state,
+    LibraryKindRegistration type,
+  );
+
+  Widget? buildCustomStatsPage(
     BuildContext context,
     ShelfState state,
     LibraryKindRegistration type,
@@ -115,4 +133,20 @@ class DefaultLibraryStatsCapability implements LibraryStatsCapability {
     LibraryKindRegistration type,
   ) =>
       const [];
+
+  @override
+  Widget? buildCustomHeader(
+    BuildContext context,
+    ShelfState state,
+    LibraryKindRegistration type,
+  ) =>
+      null;
+
+  @override
+  Widget? buildCustomStatsPage(
+    BuildContext context,
+    ShelfState state,
+    LibraryKindRegistration type,
+  ) =>
+      null;
 }

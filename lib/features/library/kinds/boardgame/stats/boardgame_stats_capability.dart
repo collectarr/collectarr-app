@@ -95,6 +95,22 @@ class BoardGameStatsCapability implements LibraryStatsCapability {
     ];
   }
 
+  @override
+  Widget? buildCustomHeader(
+    BuildContext context,
+    ShelfState state,
+    LibraryKindRegistration type,
+  ) =>
+      null;
+
+  @override
+  Widget? buildCustomStatsPage(
+    BuildContext context,
+    ShelfState state,
+    LibraryKindRegistration type,
+  ) =>
+      null;
+
   static double? averageBggRating(Iterable<LibraryWorkspaceContext> entries) {
     var total = 0.0;
     var count = 0;

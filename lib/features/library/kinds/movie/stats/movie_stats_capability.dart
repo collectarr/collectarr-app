@@ -27,6 +27,10 @@ class MovieStatsCapability implements LibraryStatsCapability {
     return LibraryStatsMetadataProjection(
       primaryGroup: (metadata.seriesTitle ?? metadata.title).trim(),
       secondaryGroup: secondary,
+      format: metadata.physicalFormat?.trim(),
+      releaseYear:
+          metadata.releaseDate?.year ?? metadata.releaseDateParts?.year,
+      genres: metadata.genres,
       hasCover: metadata.coverImageUrl?.trim().isNotEmpty == true,
       hasSynopsis: metadata.synopsis?.trim().isNotEmpty == true,
       hasSecondaryMetadata: secondary?.isNotEmpty == true ||
@@ -93,6 +97,22 @@ class MovieStatsCapability implements LibraryStatsCapability {
         ),
     ];
   }
+
+  @override
+  Widget? buildCustomHeader(
+    BuildContext context,
+    ShelfState state,
+    LibraryKindRegistration type,
+  ) =>
+      null;
+
+  @override
+  Widget? buildCustomStatsPage(
+    BuildContext context,
+    ShelfState state,
+    LibraryKindRegistration type,
+  ) =>
+      null;
 
   static _MissingNumberSummary? _numberedGapSummary(
     List<LibraryWorkspaceContext> entries,

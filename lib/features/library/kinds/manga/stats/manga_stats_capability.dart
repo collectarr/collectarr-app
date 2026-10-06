@@ -68,6 +68,22 @@ class MangaStatsCapability implements LibraryStatsCapability {
     ];
   }
 
+  @override
+  Widget? buildCustomHeader(
+    BuildContext context,
+    ShelfState state,
+    LibraryKindRegistration type,
+  ) =>
+      null;
+
+  @override
+  Widget? buildCustomStatsPage(
+    BuildContext context,
+    ShelfState state,
+    LibraryKindRegistration type,
+  ) =>
+      null;
+
   static Map<String, List<int>> missingVolumeNumbers(
     Iterable<LibraryWorkspaceContext> entries,
   ) {

@@ -54,6 +54,22 @@ class GameStatsCapability implements LibraryStatsCapability {
   ) =>
       const [];
 
+  @override
+  Widget? buildCustomHeader(
+    BuildContext context,
+    ShelfState state,
+    LibraryKindRegistration type,
+  ) =>
+      null;
+
+  @override
+  Widget? buildCustomStatsPage(
+    BuildContext context,
+    ShelfState state,
+    LibraryKindRegistration type,
+  ) =>
+      null;
+
   static GameCatalogMetadata? _metadata(LibraryWorkspaceContext entry) {
     final catalog = entry.kindPresentationData;
     return catalog is GameWorkspaceData ? catalog.metadata : null;

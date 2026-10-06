@@ -4,6 +4,7 @@ import 'package:collectarr_app/features/library/kinds/music/domain/music_album.d
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_data.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
 import 'package:collectarr_app/features/library/stats/library_stats_cards.dart';
+import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
 /// Music-specific collection aggregates: tracks, formats, artists, and labels.
@@ -26,9 +27,14 @@ final class MusicStatsCapability implements LibraryStatsCapability {
     final music = _music(entry);
     if (music == null) return null;
     final secondary = music.publisher?.trim();
+    final releaseYear =
+        music.releaseDate?.year ?? music.originalReleaseDate?.year;
     return LibraryStatsMetadataProjection(
       primaryGroup: music.artist?.trim(),
       secondaryGroup: secondary,
+      format: music.format?.trim(),
+      releaseYear: releaseYear,
+      genres: music.genres,
       hasCover: music.coverImageUrl?.trim().isNotEmpty == true,
       hasSecondaryMetadata: secondary?.isNotEmpty == true ||
           music.format?.trim().isNotEmpty == true,
@@ -122,6 +128,129 @@ final class MusicStatsCapability implements LibraryStatsCapability {
           values: neverListened,
         ),
     ];
+  }
+
+  @override
+  Widget? buildCustomHeader(
+    BuildContext context,
+    ShelfState state,
+    LibraryKindRegistration type,
+  ) {
+    final albums = totalCatalogItems(state.entries);
+    final artists = countArtists(state.entries).length;
+    final discs = totalMedia(state.entries);
+    final tracks = totalTracks(state.entries);
+    final runtimeSec = totalRuntimeSeconds(state.entries);
+    final runtimeFormatted = formatRuntime(runtimeSec);
+    final palette = appPalette(context);
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+      decoration: BoxDecoration(
+        color: palette.panel,
+        borderRadius: BorderRadius.circular(6),
+        border: Border.all(color: palette.cardBorder),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text.rich(
+            TextSpan(
+              style: TextStyle(
+                fontSize: 19,
+                color: palette.textPrimary,
+              ),
+              children: [
+                TextSpan(
+                  text: '$albums ',
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                ),
+                const TextSpan(text: 'albums and '),
+                TextSpan(
+                  text: '$artists ',
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                ),
+                const TextSpan(text: 'Artists'),
+              ],
+            ),
+          ),
+          const SizedBox(height: 6),
+          Text.rich(
+            TextSpan(
+              style: TextStyle(
+                fontSize: 15,
+                color: palette.textSecondary,
+              ),
+              children: [
+                TextSpan(
+                  text: '$discs ',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: palette.textPrimary,
+                  ),
+                ),
+                const TextSpan(text: 'discs, '),
+                TextSpan(
+                  text: '$tracks ',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: palette.textPrimary,
+                  ),
+                ),
+                const TextSpan(text: 'tracks / total runtime: '),
+                TextSpan(
+                  text: runtimeFormatted,
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: palette.textPrimary,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  @override
+  Widget? buildCustomStatsPage(
+    BuildContext context,
+    ShelfState state,
+    LibraryKindRegistration type,
+  ) =>
+      null;
+
+  static int totalRuntimeSeconds(Iterable<LibraryWorkspaceContext> entries) {
+    var totalSeconds = 0;
+    for (final entry in entries) {
+      final music = _music(entry);
+      if (music == null) continue;
+      for (final disc in music.discs) {
+        for (final track in disc.tracks) {
+          if (!track.isHeader &&
+              track.durationMs != null &&
+              track.durationMs! > 0) {
+            totalSeconds += (track.durationMs! / 1000).round();
+          }
+        }
+      }
+    }
+    return totalSeconds;
+  }
+
+  static String formatRuntime(int totalSeconds) {
+    if (totalSeconds <= 0) return '0 minutes';
+    final duration = Duration(seconds: totalSeconds);
+    final days = duration.inDays;
+    final hours = duration.inHours % 24;
+    final minutes = duration.inMinutes % 60;
+    final parts = <String>[];
+    if (days > 0) parts.add('$days day${days == 1 ? '' : 's'}');
+    if (hours > 0 || days > 0) parts.add('$hours hour${hours == 1 ? '' : 's'}');
+    parts.add('$minutes minute${minutes == 1 ? '' : 's'}');
+    return parts.join(', ');
   }
 
   static int totalListens(Iterable<LibraryWorkspaceContext> entries) {

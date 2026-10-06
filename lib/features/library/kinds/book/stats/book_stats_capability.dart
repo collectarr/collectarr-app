@@ -67,6 +67,22 @@ class BookStatsCapability implements LibraryStatsCapability {
     ];
   }
 
+  @override
+  Widget? buildCustomHeader(
+    BuildContext context,
+    ShelfState state,
+    LibraryKindRegistration type,
+  ) =>
+      null;
+
+  @override
+  Widget? buildCustomStatsPage(
+    BuildContext context,
+    ShelfState state,
+    LibraryKindRegistration type,
+  ) =>
+      null;
+
   static BookCatalogMetadata? _metadata(LibraryWorkspaceContext entry) {
     final catalog = entry.kindPresentationData;
     return catalog is BookWorkspaceData ? catalog.metadata : null;

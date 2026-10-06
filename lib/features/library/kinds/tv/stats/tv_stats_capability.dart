@@ -68,6 +68,22 @@ class TvStatsCapability implements LibraryStatsCapability {
     ];
   }
 
+  @override
+  Widget? buildCustomHeader(
+    BuildContext context,
+    ShelfState state,
+    LibraryKindRegistration type,
+  ) =>
+      null;
+
+  @override
+  Widget? buildCustomStatsPage(
+    BuildContext context,
+    ShelfState state,
+    LibraryKindRegistration type,
+  ) =>
+      null;
+
   static _MissingNumberSummary? _numberedGapSummary(
     List<LibraryWorkspaceContext> entries,
     int? Function(LibraryWorkspaceContext entry) numberFor,

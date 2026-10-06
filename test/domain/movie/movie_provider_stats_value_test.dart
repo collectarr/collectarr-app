@@ -18,8 +18,8 @@ void main() {
             'runtime_minutes': 116,
             'audience_rating': '8.0',
             'genres': ['Drama', 'Sci-Fi'],
-            'directors': [
-              {'name': 'Denis Villeneuve'},
+            'creators': [
+              {'name': 'Denis Villeneuve', 'role': 'director'},
             ],
             'physical_format': 'blu-ray',
           },
@@ -36,10 +36,10 @@ void main() {
             'runtime_minutes': 155,
             'audience_rating': '8.5',
             'genres': ['Drama', 'Sci-Fi'],
-            'directors': [
-              {'name': 'Denis Villeneuve'},
+            'creators': [
+              {'name': 'Denis Villeneuve', 'role': 'director'},
             ],
-            'physical_format_label': '4K UHD',
+            'physical_format': '4K UHD',
           },
         )),
       ),
