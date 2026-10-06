@@ -3,6 +3,7 @@ import 'package:collectarr_app/features/library/edit/sections/custom_fields_edit
 import 'package:collectarr_app/features/library/kinds/music/add/music_add_personal_pane.dart';
 import 'package:collectarr_app/features/library/kinds/music/add/music_add_status_strip.dart';
 import 'package:collectarr_app/features/library/kinds/music/forms/music_details_form_pane.dart';
+import 'package:collectarr_app/features/library/kinds/music/add/music_add_manual_details_pane.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_managed_vocabulary_field.dart';
 import 'package:collectarr_app/features/library/kinds/music/forms/music_main_form_section.dart';
 import 'package:collectarr_app/features/library/add/controllers/library_add_dialog_requests.dart';
@@ -50,7 +51,7 @@ class MusicAddManualPane extends StatelessWidget {
         LibraryAddManualPaneTab.fromSchema<MusicAddManualDraft>(
           id: 'main',
           label: 'Main',
-          icon: Icons.music_note_outlined,
+          svgAsset: 'assets/tab_icons/music.svg',
           schema: mainSchema,
           draft: draft,
           mediaKind: request.kind.apiValue,
@@ -62,49 +63,53 @@ class MusicAddManualPane extends StatelessWidget {
         LibraryAddManualPaneTab.fromForm<MusicAddManualDraft>(
           id: 'details',
           label: 'Details',
-          icon: Icons.info_outline,
+          svgAsset: 'assets/tab_icons/circle-info.svg',
           schema: musicAddSchema,
           draft: draft,
-          content: MusicDetailsFormPane<MusicAddManualDraft>(
+          content: MusicAddManualDetailsPane(
             draft: draft,
-            values: (draft) => draft.values,
-            onChanged: request.onManualDraftChanged,
-            onVocabularyValueChanged: request.onVocabularyValueChanged,
-            onVocabularyValuesChanged: request.onVocabularyValuesChanged,
-            packageCondition: LibraryManagedVocabularyField(
-                label: 'Package/Sleeve Condition',
-                listName: MusicVocabularies.condition.key,
-                mediaKind: 'music',
-                value: request.commonDraft?.condition,
-                builtIns: MusicVocabularies.condition.builtIns,
-                onChanged: (value) {
-                  request.onCommonDraftChanged?.call(
-                      request.commonDraft!.copyWith(condition: value ?? ''));
-                  request.onVocabularyValueChanged?.call(
-                      fieldId: 'condition',
-                      listName: MusicVocabularies.condition.key,
-                      value: value);
-                }),
-            mediaCondition: LibraryManagedVocabularyField(
-                label: 'Media Condition',
-                listName: MusicVocabularies.mediaCondition.key,
-                mediaKind: 'music',
-                value: personalDraft.mediaCondition,
-                builtIns: MusicVocabularies.mediaCondition.builtIns,
-                onChanged: (value) {
-                  request.onKindDraftChanged
-                      ?.call(personalDraft.copyWith(mediaCondition: value));
-                  request.onVocabularyValueChanged?.call(
-                      fieldId: 'media_condition',
-                      listName: MusicVocabularies.mediaCondition.key,
-                      value: value);
-                }),
+            request: request,
+            generalContent: MusicDetailsFormPane<MusicAddManualDraft>(
+              draft: draft,
+              values: (draft) => draft.values,
+              onChanged: request.onManualDraftChanged,
+              onVocabularyValueChanged: request.onVocabularyValueChanged,
+              onVocabularyValuesChanged: request.onVocabularyValuesChanged,
+              packageCondition: LibraryManagedVocabularyField(
+                  label: 'Package/Sleeve Condition',
+                  listName: MusicVocabularies.condition.key,
+                  mediaKind: 'music',
+                  value: request.commonDraft?.condition,
+                  builtIns: MusicVocabularies.condition.builtIns,
+                  onChanged: (value) {
+                    request.onCommonDraftChanged?.call(
+                        request.commonDraft!.copyWith(condition: value ?? ''));
+                    request.onVocabularyValueChanged?.call(
+                        fieldId: 'condition',
+                        listName: MusicVocabularies.condition.key,
+                        value: value);
+                  }),
+              mediaCondition: LibraryManagedVocabularyField(
+                  label: 'Media Condition',
+                  listName: MusicVocabularies.mediaCondition.key,
+                  mediaKind: 'music',
+                  value: personalDraft.mediaCondition,
+                  builtIns: MusicVocabularies.mediaCondition.builtIns,
+                  onChanged: (value) {
+                    request.onKindDraftChanged
+                        ?.call(personalDraft.copyWith(mediaCondition: value));
+                    request.onVocabularyValueChanged?.call(
+                        fieldId: 'media_condition',
+                        listName: MusicVocabularies.mediaCondition.key,
+                        value: value);
+                  }),
+            ),
           ),
         ),
         LibraryAddManualPaneTab(
           id: 'classical',
           label: 'Classical',
-          icon: Icons.queue_music_outlined,
+          svgAsset: 'assets/tab_icons/violin.svg',
           validate: (_) => _validateCredits(draft, classical: true),
           content: MusicAddManualCreditsTab(
             draft: draft,
@@ -115,7 +120,7 @@ class MusicAddManualPane extends StatelessWidget {
         LibraryAddManualPaneTab(
           id: 'people',
           label: 'People',
-          icon: Icons.people_outline,
+          svgAsset: 'assets/tab_icons/users.svg',
           validate: (_) => _validateCredits(draft, classical: false),
           content: MusicAddManualCreditsTab(
             draft: draft,
@@ -126,7 +131,7 @@ class MusicAddManualPane extends StatelessWidget {
         LibraryAddManualPaneTab(
           id: 'tracks',
           label: 'Tracks',
-          icon: Icons.format_list_numbered,
+          svgAsset: 'assets/tab_icons/list-ol.svg',
           validate: (_) => _validateTrackDurations(draft),
           content: MusicAddManualTracksTab(
             request: request,
@@ -137,13 +142,13 @@ class MusicAddManualPane extends StatelessWidget {
         LibraryAddManualPaneTab(
           id: 'personal',
           label: 'Personal',
-          icon: Icons.person_outline,
+          svgAsset: 'assets/tab_icons/user.svg',
           content: MusicAddPersonalPane(request: request),
         ),
         LibraryAddManualPaneTab(
             id: 'custom_fields',
             label: 'Custom Fields',
-            icon: Icons.tune_outlined,
+            svgAsset: 'assets/tab_icons/pen-to-square.svg',
             content: CustomFieldsEditSection(
                 definitions: request.customFieldDefinitions,
                 values: request.customFieldValues,
@@ -159,18 +164,18 @@ class MusicAddManualPane extends StatelessWidget {
         LibraryAddManualPaneTab(
           id: 'covers',
           label: 'Covers',
-          icon: Icons.photo_camera_outlined,
+          svgAsset: 'assets/tab_icons/camera.svg',
           content: MusicAddManualCoversTab(draft: draft, request: request),
         ),
         LibraryAddManualPaneTab(
             id: 'my_images',
             label: 'My Images',
-            icon: Icons.collections_outlined,
+            svgAsset: 'assets/tab_icons/image.svg',
             content: MusicAddImagesPane(request: request)),
         LibraryAddManualPaneTab(
           id: 'links',
           label: 'Links',
-          icon: Icons.public,
+          svgAsset: 'assets/tab_icons/globe.svg',
           content: MusicAddManualLinksTab(
             draft: draft,
             accent: request.accent,

@@ -1,0 +1,401 @@
+import 'package:collectarr_app/features/library/edit/contracts/library_vocabulary_edit_change.dart';
+import 'package:collectarr_app/features/library/edit/draft/library_entry_edit_draft.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_disc.dart';
+import 'package:collectarr_app/features/library/kinds/music/edit/music_album_edit_draft.dart';
+import 'package:collectarr_app/features/library/kinds/music/forms/music_disc_text_field.dart';
+import 'package:collectarr_app/features/library/kinds/music/vocabulary/music_vocabularies.dart';
+import 'package:collectarr_app/features/library/schema/library_field_spec.dart';
+import 'package:collectarr_app/features/library/ui/primitives/library_form_controls.dart';
+import 'package:collectarr_app/features/library/ui/primitives/library_managed_vocabulary_field.dart';
+import 'package:collectarr_app/features/library/ui/primitives/library_multi_value_options_dialog.dart';
+import 'package:collectarr_app/features/library/ui/primitives/library_multi_value_pick_field.dart';
+import 'package:collectarr_app/features/library/ui/primitives/library_vocabulary_options_loader.dart';
+import 'package:flutter/material.dart';
+
+/// Form section holding physical, technical, and storage metadata for one disc.
+class MusicDiscDetailsView extends StatefulWidget {
+  const MusicDiscDetailsView({
+    super.key,
+    required this.disc,
+    required this.draft,
+    this.onChanged,
+    this.discPersonalFieldBuilder,
+  });
+
+  final MusicDisc disc;
+  final MusicAlbumEditDraft draft;
+  final VoidCallback? onChanged;
+  final Widget Function(MusicDisc disc, String label, String key)?
+      discPersonalFieldBuilder;
+
+  @override
+  State<MusicDiscDetailsView> createState() => _MusicDiscDetailsViewState();
+}
+
+class _MusicDiscDetailsViewState extends State<MusicDiscDetailsView> {
+  MusicDisc get disc => widget.disc;
+  MusicAlbumEditDraft get draft => widget.draft;
+
+  void _notify() {
+    setState(() {});
+    widget.onChanged?.call();
+  }
+
+  List<Map<String, dynamic>> _discDetails(LibraryEntryEditDraft entry) {
+    final raw = entry.values['media'];
+    return raw is List
+        ? [
+            for (final row in raw)
+              if (row is Map && row['disc_id'] is String)
+                Map<String, dynamic>.from(row),
+          ]
+        : <Map<String, dynamic>>[];
+  }
+
+  Widget _discPersonalField(MusicDisc disc, String label, String key) {
+    final entry = LibraryEntryEditScope.maybeOf(context);
+    final rows = entry == null ? <Map<String, dynamic>>[] : _discDetails(entry);
+    final row =
+        rows.where((row) => row['disc_id'] == disc.id.value).firstOrNull;
+    if (widget.discPersonalFieldBuilder != null) {
+      return widget.discPersonalFieldBuilder!(disc, label, key);
+    }
+    void save(String? value) {
+      if (entry == null) return;
+      final next = _discDetails(entry);
+      final details =
+          next.where((row) => row['disc_id'] == disc.id.value).firstOrNull;
+      final normalized = value?.trim();
+      if (details != null) {
+        details[key] = normalized?.isEmpty == true ? null : normalized;
+      } else {
+        next.add({
+          'disc_id': disc.id.value,
+          key: normalized?.isEmpty == true ? null : normalized
+        });
+      }
+      entry.set('media', next);
+      if (key == 'storage_device') {
+        final listName = MusicVocabularies.storageDevice.key;
+        entry.pendingChanges['vocabulary:$listName'] =
+            LibraryVocabularyEditChange([
+          if (normalized?.isNotEmpty == true)
+            (listName: listName, value: normalized!, mediaKind: 'music'),
+        ]);
+      }
+      _notify();
+    }
+
+    if (key == 'storage_device') {
+      return LibraryManagedVocabularyField(
+        label: label,
+        listName: MusicVocabularies.storageDevice.key,
+        mediaKind: 'music',
+        value: row?[key]?.toString(),
+        enabled: entry != null,
+        onChanged: save,
+      );
+    }
+    return LibraryFormField(
+      label: label,
+      child: LibraryTextFormControl(
+        key: ValueKey('${disc.id.value}:$key'),
+        initialValue: row?[key]?.toString() ?? '',
+        enabled: entry != null,
+        onChanged: save,
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final formatLower = (disc.format ?? '').toLowerCase();
+    final isVinyl = formatLower.contains('vinyl') ||
+        formatLower == 'lp' ||
+        formatLower.contains('7"') ||
+        formatLower.contains('12"') ||
+        formatLower.contains('10"');
+    final isCassette =
+        formatLower.contains('cassette') || formatLower.contains('tape');
+
+    final titleAndFormatRow = LayoutBuilder(
+      builder: (context, constraints) {
+        final wide = constraints.maxWidth >= 600;
+        final title = MusicDiscTextField(
+          id: 'music-disc-title-${disc.id.value}',
+          label: 'Disc Title',
+          initialValue: disc.title ?? '',
+          onChanged: (value) {
+            draft.updateDiscTitle(disc.id, value);
+            widget.onChanged?.call();
+          },
+        );
+        final format = SizedBox(
+          width: wide ? 240 : double.infinity,
+          child: LibraryManagedVocabularyField(
+            label: 'Format',
+            listName: MusicVocabularyIds.format.value,
+            mediaKind: 'music',
+            value: disc.format,
+            builtIns: MusicVocabularies.format.builtIns,
+            onChanged: (value) {
+              draft.updateDiscFormat(disc.id, value);
+              _notify();
+            },
+          ),
+        );
+        if (!wide) {
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [title, const SizedBox(height: 8), format],
+          );
+        }
+        return Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(child: title),
+            const SizedBox(width: 12),
+            format,
+          ],
+        );
+      },
+    );
+
+    final soundField = LibraryVocabularyOptionsLoader(
+      listName: MusicVocabularyIds.soundType.value,
+      mediaKind: 'music',
+      builtIns: MusicVocabularies.soundType.builtIns,
+      selected: disc.soundTypes,
+      builder: (options) => LibraryMultiValuePickField<String>(
+        label: 'Sound',
+        value: disc.soundTypes.toSet(),
+        options: [
+          for (final option in options)
+            LibraryFieldOption(value: option, label: option),
+        ],
+        onChanged: (values) {
+          draft.updateDiscSoundTypes(disc.id, values.toList());
+          _notify();
+        },
+        onOpenPicker: ({
+          required label,
+          required selectedValues,
+          required options,
+          searchHint,
+          customValueHint,
+        }) =>
+            showLibraryMultiValueOptionsDialog<String>(
+          context: context,
+          label: label,
+          options: options,
+          selectedValues: selectedValues,
+        ),
+      ),
+    );
+
+    final sparsField = LibraryManagedVocabularyField(
+      label: 'SPARS',
+      listName: MusicVocabularyIds.spars.value,
+      mediaKind: 'music',
+      value: disc.spars,
+      builtIns: MusicVocabularies.spars.builtIns,
+      onChanged: (value) {
+        draft.updateDiscSpars(disc.id, value);
+        _notify();
+      },
+    );
+
+    final matrixA = MusicDiscTextField(
+      id: 'music-disc-matrix-a-${disc.id.value}',
+      label: isVinyl ? 'Matrix No. Side A' : 'Matrix No. Side A / Runout',
+      initialValue: disc.matrixNumberSideA ?? '',
+      onChanged: (value) {
+        draft.updateDiscTechnicalDetails(
+          disc.id,
+          matrixNumberSideA: value,
+          replaceMatrixNumberSideA: true,
+        );
+        widget.onChanged?.call();
+      },
+    );
+
+    final matrixB = MusicDiscTextField(
+      id: 'music-disc-matrix-b-${disc.id.value}',
+      label: 'Matrix No. Side B',
+      initialValue: disc.matrixNumberSideB ?? '',
+      onChanged: (value) {
+        draft.updateDiscTechnicalDetails(
+          disc.id,
+          matrixNumberSideB: value,
+          replaceMatrixNumberSideB: true,
+        );
+        widget.onChanged?.call();
+      },
+    );
+
+    final storage = _discPersonalField(disc, 'Storage Device', 'storage_device');
+    final slot = _discPersonalField(disc, 'Slot', 'storage_slot');
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        titleAndFormatRow,
+        const SizedBox(height: 10),
+        if (isVinyl) ...[
+          LibraryFormGroup(
+            title: 'Vinyl',
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                final wide = constraints.maxWidth >= 600;
+                final color = LibraryManagedVocabularyField(
+                  label: 'Color',
+                  listName: MusicVocabularyIds.vinylColor.value,
+                  mediaKind: 'music',
+                  value: disc.vinylColor,
+                  builtIns: MusicVocabularies.vinylColor.builtIns,
+                  onChanged: (value) {
+                    draft.updateDiscVinylDetails(
+                      disc.id,
+                      vinylColor: value,
+                      replaceVinylColor: true,
+                    );
+                    _notify();
+                  },
+                );
+                final weight = LibraryFormField(
+                  label: 'Weight (g)',
+                  child: LibraryTextFormControl(
+                    key: ValueKey('vinyl-weight-${disc.id.value}'),
+                    initialValue: disc.vinylWeight ?? '',
+                    keyboardType: TextInputType.number,
+                    onChanged: (value) {
+                      draft.updateDiscVinylDetails(
+                        disc.id,
+                        vinylWeight: value,
+                        replaceVinylWeight: true,
+                      );
+                      widget.onChanged?.call();
+                    },
+                  ),
+                );
+                final rpm = LibraryFormField(
+                  label: 'RPM',
+                  child: LibrarySegmentedField<int>(
+                    value: disc.rpm ?? 0,
+                    options: const {0: 'N/A', 33: '33', 45: '45', 78: '78'},
+                    onChanged: (value) {
+                      draft.updateDiscVinylDetails(
+                        disc.id,
+                        rpm: value == 0 ? null : value,
+                        replaceRpm: true,
+                      );
+                      _notify();
+                    },
+                  ),
+                );
+                if (!wide) {
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      color,
+                      const SizedBox(height: 8),
+                      weight,
+                      const SizedBox(height: 8),
+                      rpm,
+                    ],
+                  );
+                }
+                return Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(flex: 3, child: color),
+                    const SizedBox(width: 10),
+                    Expanded(flex: 2, child: weight),
+                    const SizedBox(width: 10),
+                    Expanded(flex: 3, child: rpm),
+                  ],
+                );
+              },
+            ),
+          ),
+          const SizedBox(height: 10),
+        ],
+        LayoutBuilder(
+          builder: (context, constraints) {
+            final wide = constraints.maxWidth >= 600;
+            if (!isVinyl && !isCassette) {
+              if (!wide) {
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    soundField,
+                    const SizedBox(height: 8),
+                    sparsField,
+                  ],
+                );
+              }
+              return Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(flex: 3, child: soundField),
+                  const SizedBox(width: 12),
+                  Expanded(flex: 2, child: sparsField),
+                ],
+              );
+            } else {
+              return soundField;
+            }
+          },
+        ),
+        if (!isCassette) ...[
+          const SizedBox(height: 10),
+          LayoutBuilder(
+            builder: (context, constraints) {
+              final wide = constraints.maxWidth >= 600;
+              if (!wide) {
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    matrixA,
+                    const SizedBox(height: 8),
+                    matrixB,
+                  ],
+                );
+              }
+              return Row(
+                children: [
+                  Expanded(child: matrixA),
+                  const SizedBox(width: 12),
+                  Expanded(child: matrixB),
+                ],
+              );
+            },
+          ),
+        ],
+        const SizedBox(height: 10),
+        LayoutBuilder(
+          builder: (context, constraints) {
+            final wide = constraints.maxWidth >= 600;
+            if (!wide) {
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  storage,
+                  const SizedBox(height: 8),
+                  slot,
+                ],
+              );
+            }
+            return Row(
+              children: [
+                Expanded(flex: 3, child: storage),
+                const SizedBox(width: 12),
+                Expanded(flex: 2, child: slot),
+              ],
+            );
+          },
+        ),
+      ],
+    );
+  }
+}

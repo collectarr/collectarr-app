@@ -133,7 +133,7 @@ final class _MusicAlbumEditDialogState
         EditSchemaExtraTab(
           id: 'classical',
           label: 'Classical',
-          icon: Icons.queue_music_outlined,
+          svgAsset: 'assets/tab_icons/violin.svg',
           validate: () => _creditsEditor.hasIncompleteContributions(
             classical: true,
           )
@@ -148,7 +148,7 @@ final class _MusicAlbumEditDialogState
         EditSchemaExtraTab(
           id: 'people',
           label: 'People',
-          icon: Icons.people_outline,
+          svgAsset: 'assets/tab_icons/users.svg',
           validate: () => _creditsEditor.hasIncompleteContributions(
             classical: false,
           )
@@ -163,7 +163,7 @@ final class _MusicAlbumEditDialogState
         EditSchemaExtraTab(
           id: 'tracks',
           label: 'Tracks',
-          icon: Icons.format_list_numbered,
+          svgAsset: 'assets/tab_icons/list-ol.svg',
           validate: () => _draft.hasInvalidTrackDurationInput
               ? 'Track lengths must use seconds, MM:SS, or HH:MM:SS'
               : null,
@@ -175,13 +175,13 @@ final class _MusicAlbumEditDialogState
         EditSchemaExtraTab(
           id: 'personal',
           label: 'Personal',
-          icon: Icons.headphones_outlined,
+          svgAsset: 'assets/tab_icons/user.svg',
           content: _personalSection(context),
         ),
         EditSchemaExtraTab(
           id: 'custom_fields',
           label: 'Custom Fields',
-          icon: Icons.tune_outlined,
+          svgAsset: 'assets/tab_icons/pen-to-square.svg',
           content: CustomFieldsEditSection(
             definitions: widget.request.customFieldDefinitions,
             values: _customFieldEdits,
@@ -211,7 +211,7 @@ final class _MusicAlbumEditDialogState
         EditSchemaExtraTab(
           id: 'covers',
           label: 'Covers',
-          icon: Icons.photo_camera_outlined,
+          svgAsset: 'assets/tab_icons/camera.svg',
           content: _albumImagesReady
               ? MusicAlbumCoversTab(
                   albumId: _libraryItemId,
@@ -227,7 +227,7 @@ final class _MusicAlbumEditDialogState
         EditSchemaExtraTab(
           id: 'my_images',
           label: 'My Images',
-          icon: Icons.collections_outlined,
+          svgAsset: 'assets/tab_icons/image.svg',
           content: _albumImagesReady
               ? MusicAlbumMyImagesTab(
                   albumId: _libraryItemId,
@@ -243,7 +243,7 @@ final class _MusicAlbumEditDialogState
         EditSchemaExtraTab(
           id: 'links',
           label: 'Links',
-          icon: Icons.public,
+          svgAsset: 'assets/tab_icons/globe.svg',
           content: MusicAlbumLinksTab(
             draft: _draft,
             accent: widget.request.accent,
