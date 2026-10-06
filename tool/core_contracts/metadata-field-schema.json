@@ -1758,15 +1758,6 @@
     },
     {
       "editable": true,
-      "input": "text",
-      "key": "physical_format_label",
-      "kind": "boardgame",
-      "label": "Format label",
-      "section": "publishing",
-      "valueType": "string"
-    },
-    {
-      "editable": true,
       "input": "list",
       "key": "themes",
       "kind": "boardgame",
@@ -1780,7 +1771,16 @@
       "key": "languages",
       "kind": "boardgame",
       "label": "Languages",
-      "section": "item",
+      "section": "regional",
+      "valueType": "string_list"
+    },
+    {
+      "editable": true,
+      "input": "list",
+      "key": "languages",
+      "kind": "game",
+      "label": "Languages",
+      "section": "regional",
       "valueType": "string_list"
     },
     {
@@ -1798,7 +1798,34 @@
       "key": "original_language",
       "kind": "boardgame",
       "label": "Original language",
-      "section": "item",
+      "section": "regional",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "original_language",
+      "kind": "book",
+      "label": "Original language",
+      "section": "regional",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "original_language",
+      "kind": "game",
+      "label": "Original language",
+      "section": "regional",
+      "valueType": "string"
+    },
+    {
+      "editable": true,
+      "input": "text",
+      "key": "original_language",
+      "kind": "movie",
+      "label": "Original language",
+      "section": "regional",
       "valueType": "string"
     },
     {
@@ -1965,24 +1992,6 @@
     },
     {
       "editable": true,
-      "input": "text",
-      "key": "original_language",
-      "kind": "book",
-      "label": "Original language",
-      "section": "regional",
-      "valueType": "string"
-    },
-    {
-      "editable": true,
-      "input": "text",
-      "key": "original_language",
-      "kind": "game",
-      "label": "Original language",
-      "section": "regional",
-      "valueType": "string"
-    },
-    {
-      "editable": true,
       "input": "date",
       "key": "first_publication_date",
       "kind": "book",
@@ -2136,29 +2145,11 @@
     },
     {
       "editable": true,
-      "input": "list",
-      "key": "languages",
-      "kind": "game",
-      "label": "Languages",
-      "section": "regional",
-      "valueType": "string_list"
-    },
-    {
-      "editable": true,
       "input": "text",
       "key": "display_title",
       "kind": "movie",
       "label": "Display title",
       "section": "item",
-      "valueType": "string"
-    },
-    {
-      "editable": true,
-      "input": "text",
-      "key": "original_language",
-      "kind": "movie",
-      "label": "Original language",
-      "section": "publishing",
       "valueType": "string"
     },
     {
@@ -4394,5 +4385,5 @@
       "valueType": "link_list"
     }
   ],
-  "generatedAt": "2026-10-05T20:45:16.827735Z"
+  "generatedAt": "2026-10-06T14:27:18.779838Z"
 }

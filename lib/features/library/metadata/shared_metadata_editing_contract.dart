@@ -103,20 +103,28 @@ const Map<String, ({String? hint, int minLines, int maxLines})>
 /// This is the single source of truth shared by the app edit dialog and the
 /// admin metadata correction panel; re-run
 /// `python -m scripts.export_app_edit_fields` in collectarr-core to refresh.
-final List<SharedMetadataFieldDescriptor> kAdminMetadataScalarFields = [
-  for (final field in kGeneratedMetadataFields)
-    SharedMetadataFieldDescriptor(
-      key: field.key,
-      label: field.label,
-      tab: _tabFromSection(field.section),
-      inputType: _inputTypeFromName(field.inputType),
-      valueType: _valueTypeFromName(field.valueType),
-      normalizedValueType: field.normalizedValueType,
-      hintText: _kFieldPresentation[field.key]?.hint,
-      minLines: _kFieldPresentation[field.key]?.minLines ?? 1,
-      maxLines: _kFieldPresentation[field.key]?.maxLines ?? 1,
-    ),
-];
+final List<SharedMetadataFieldDescriptor> kAdminMetadataScalarFields = () {
+  final seen = <String>{};
+  final result = <SharedMetadataFieldDescriptor>[];
+  for (final field in kGeneratedMetadataFields) {
+    if (seen.add(field.key)) {
+      result.add(
+        SharedMetadataFieldDescriptor(
+          key: field.key,
+          label: field.label,
+          tab: _tabFromSection(field.section),
+          inputType: _inputTypeFromName(field.inputType),
+          valueType: _valueTypeFromName(field.valueType),
+          normalizedValueType: field.normalizedValueType,
+          hintText: _kFieldPresentation[field.key]?.hint,
+          minLines: _kFieldPresentation[field.key]?.minLines ?? 1,
+          maxLines: _kFieldPresentation[field.key]?.maxLines ?? 1,
+        ),
+      );
+    }
+  }
+  return List<SharedMetadataFieldDescriptor>.unmodifiable(result);
+}();
 
 /// Canonical metadata fields entry by Core.
 final List<SharedMetadataFieldDescriptor> kCanonicalMetadataFields =
@@ -134,6 +142,8 @@ final List<String> kLibraryEditableFieldKeys = [
   ..._kAdminMetadataScalarFieldKeys,
   // App-rendered physical format control that still maps to a Core field.
   'physical_format',
+  // App-rendered structured tracks/discs control that maps to a Core field.
+  'tracks',
 ];
 
 final List<String> _kAdminMetadataScalarFieldKeys = [

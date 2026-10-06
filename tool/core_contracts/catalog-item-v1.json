@@ -2,13 +2,13 @@
   "$id": "https://schemas.collectarr.app/catalog-item/v1",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "contractVersion": "1.0.0",
-  "coreCommit": "1ab2055a5dfd99d65a412bf72344fa4055457cfe",
+  "coreCommit": "20d806bf5ae3b159eb9070339697b501c450dfc7",
   "description": "Source-neutral Catalog Item documents. Fields are validated and projected using the schema owned by the declared kind.",
   "fieldStatus": {
     "music": "grounded_in_saved_clz_music_edit_form",
     "other_kinds": "provisional_clz_parity_unverified_without_edit_form_captures"
   },
-  "generatedAt": "2026-10-05T20:45:16.827735Z",
+  "generatedAt": "2026-10-06T14:27:18.779838Z",
   "kinds": {
     "anime": {
       "additionalProperties": false,
@@ -1388,7 +1388,6 @@
           ]
         },
         "title": {
-          "maxLength": 255,
           "minLength": 1,
           "type": "string"
         },
@@ -2099,16 +2098,6 @@
             }
           ]
         },
-        "physical_format_label": {
-          "anyOf": [
-            {
-              "type": "string"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        },
         "platforms": {
           "anyOf": [
             {
@@ -2335,7 +2324,6 @@
           ]
         },
         "title": {
-          "maxLength": 255,
           "minLength": 1,
           "type": "string"
         },
@@ -3397,7 +3385,6 @@
           ]
         },
         "title": {
-          "maxLength": 255,
           "minLength": 1,
           "type": "string"
         },
@@ -4450,7 +4437,6 @@
           ]
         },
         "title": {
-          "maxLength": 255,
           "minLength": 1,
           "type": "string"
         },
@@ -5179,7 +5165,6 @@
           ]
         },
         "title": {
-          "maxLength": 255,
           "minLength": 1,
           "type": "string"
         },
@@ -6150,7 +6135,6 @@
           ]
         },
         "title": {
-          "maxLength": 255,
           "minLength": 1,
           "type": "string"
         },
@@ -6967,7 +6951,6 @@
           ]
         },
         "title": {
-          "maxLength": 255,
           "minLength": 1,
           "type": "string"
         },
@@ -8401,7 +8384,6 @@
           ]
         },
         "title": {
-          "maxLength": 255,
           "minLength": 1,
           "type": "string"
         },
@@ -9760,7 +9742,6 @@
           ]
         },
         "title": {
-          "maxLength": 255,
           "minLength": 1,
           "type": "string"
         },

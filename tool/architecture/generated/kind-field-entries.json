@@ -3164,9 +3164,7 @@
       "workspaceIdSources": [
         "lib/features/library/kinds/game/workspace/game_ids.dart"
       ],
-      "mapperSources": [
-        "lib/features/library/kinds/game/data/local/game_library_entry_local_mapper.dart"
-      ],
+      "mapperSources": [],
       "fields": {
         "addedAt": {
           "symbols": [
@@ -3817,9 +3815,7 @@
       "workspaceIdSources": [
         "lib/features/library/kinds/manga/workspace/manga_ids.dart"
       ],
-      "mapperSources": [
-        "lib/features/library/kinds/manga/data/local/manga_library_entry_local_mapper.dart"
-      ],
+      "mapperSources": [],
       "fields": {
         "addedAt": {
           "symbols": [
@@ -5403,17 +5399,6 @@
             "music.index_number"
           ]
         },
-        "language": {
-          "symbols": [
-            "language"
-          ],
-          "databaseColumns": [],
-          "databaseTables": [],
-          "sqlNames": [],
-          "workspaceFieldIds": [
-            "music.language"
-          ]
-        },
         "lastCleaned": {
           "symbols": [
             "lastCleaned",
@@ -5633,30 +5618,6 @@
           "sqlNames": [],
           "workspaceFieldIds": [
             "music.release_date"
-          ]
-        },
-        "releaseStatus": {
-          "symbols": [
-            "releaseStatus",
-            "release_status"
-          ],
-          "databaseColumns": [],
-          "databaseTables": [],
-          "sqlNames": [],
-          "workspaceFieldIds": [
-            "music.release_status"
-          ]
-        },
-        "releaseType": {
-          "symbols": [
-            "releaseType",
-            "release_type"
-          ],
-          "databaseColumns": [],
-          "databaseTables": [],
-          "sqlNames": [],
-          "workspaceFieldIds": [
-            "music.release_type"
           ]
         },
         "signedBy": {
@@ -6037,9 +5998,7 @@
       "workspaceIdSources": [
         "lib/features/library/kinds/tv/workspace/tv_ids.dart"
       ],
-      "mapperSources": [
-        "lib/features/library/kinds/tv/data/local/tv_local_mapper.dart"
-      ],
+      "mapperSources": [],
       "fields": {
         "addedAt": {
           "symbols": [

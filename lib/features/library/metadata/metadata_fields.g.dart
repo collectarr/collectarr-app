@@ -36,7 +36,6 @@ const List<GeneratedMetadataField> kGeneratedMetadataFields = [
   (key: 'designers', label: 'Designers', section: 'relations', valueType: 'stringList', inputType: 'text', normalizedValueType: null),
   (key: 'artists', label: 'Artists', section: 'relations', valueType: 'stringList', inputType: 'text', normalizedValueType: null),
   (key: 'publishers', label: 'Publishers', section: 'publishing', valueType: 'stringList', inputType: 'text', normalizedValueType: null),
-  (key: 'physical_format_label', label: 'Format label', section: 'publishing', valueType: 'text', inputType: 'text', normalizedValueType: 'string'),
   (key: 'themes', label: 'Themes', section: 'relations', valueType: 'stringList', inputType: 'text', normalizedValueType: null),
   (key: 'languages', label: 'Languages', section: 'item', valueType: 'stringList', inputType: 'text', normalizedValueType: null),
   (key: 'characters', label: 'Characters', section: 'relations', valueType: 'stringList', inputType: 'text', normalizedValueType: null),
