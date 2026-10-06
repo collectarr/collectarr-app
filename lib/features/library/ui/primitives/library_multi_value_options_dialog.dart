@@ -3,6 +3,7 @@ import 'package:collectarr_app/features/library/ui/primitives/library_form_contr
 import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 import 'package:collectarr_app/ui/accent_dialog_header.dart';
 import 'package:collectarr_app/ui/adaptive/window_class.dart';
+import 'package:collectarr_app/ui/app_dialog.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
@@ -15,7 +16,7 @@ Future<Set<TValue>?> showLibraryMultiValueOptionsDialog<TValue>({
   String? searchHint,
   String customValueHint = 'Add value',
 }) {
-  return showDialog<Set<TValue>>(
+  return showAppDialog<Set<TValue>>(
     context: context,
     barrierDismissible: false,
     builder: (context) => _LibraryMultiValueOptionsDialog<TValue>(

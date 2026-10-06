@@ -10,6 +10,7 @@ import 'package:flutter/foundation.dart' show ValueListenable;
 import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 
 import 'package:collectarr_app/ui/adaptive/window_class.dart';
+import 'package:collectarr_app/ui/app_dialog.dart';
 
 typedef LibraryEditDialogRequestLoader = Future<LibraryEditDialogRequest>
     Function();
@@ -80,7 +81,7 @@ Future<LibraryEditSelection?> showLibraryEditDialog({
         ),
       );
     } else {
-      result = await showDialog<LibraryEditSelection>(
+      result = await showAppDialog<LibraryEditSelection>(
         context: context,
         barrierDismissible: false,
         builder: widgetBuilder,

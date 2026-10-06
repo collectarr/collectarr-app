@@ -238,8 +238,7 @@ class LibraryEditReorderableTabStrip extends StatelessWidget {
               for (var index = 0; index < tabs.length; index++)
                 enabled && allowReorder && onReorderItem != null
                     ? DragTarget<_LibraryEditTabDrag>(
-                        key: tabs[index].key ??
-                            ValueKey<String>('library-edit-tab-$index'),
+                        key: ValueKey<String>('library-edit-tab-slot-$index'),
                         onMove: (details) {
                           final drag = details.data;
                           if (drag.currentIndex == index) return;

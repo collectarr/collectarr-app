@@ -2,6 +2,7 @@ import 'package:collectarr_app/features/library/add/library_add_dialog.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
 import 'package:collectarr_app/ui/adaptive/window_class.dart';
+import 'package:collectarr_app/ui/app_dialog.dart';
 import 'package:flutter/material.dart';
 
 Future<LibraryAddDialogResult?> showLibraryAddDialog({
@@ -42,8 +43,9 @@ Future<LibraryAddDialogResult?> _showDefaultLibraryAddDialog(
       ),
     );
   }
-  return showDialog<LibraryAddDialogResult>(
+  return showAppDialog<LibraryAddDialogResult>(
     context: context,
+    barrierDismissible: false,
     builder: (context) => LibraryAddDialog(
       type: request.type,
       accent: request.accent,

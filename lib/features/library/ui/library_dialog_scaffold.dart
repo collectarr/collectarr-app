@@ -3,6 +3,7 @@ import 'package:collectarr_app/features/library/ui/library_density_scope.dart';
 import 'package:collectarr_app/features/library/ui/library_panel_header.dart';
 import 'package:collectarr_app/features/library/ui/library_resizable_surface.dart';
 import 'package:collectarr_app/ui/adaptive/window_class.dart';
+import 'package:collectarr_app/ui/app_dialog.dart';
 import 'package:collectarr_app/ui/library_accent_scope.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
@@ -88,6 +89,7 @@ class LibraryDialogScaffold extends StatelessWidget {
     final resolvedAccent = accent ?? LibraryAccentScope.accentOf(context);
     final headerAccent = palette.accent;
     final windowClass = AppWindowClass.of(context);
+    final currentDepth = ModalDialogDepthScope.of(context);
     final effectiveBody = body ?? const SizedBox.shrink();
     final effectivePadding =
         padding ?? (body != null ? EdgeInsets.zero : const EdgeInsets.all(12));
@@ -167,10 +169,16 @@ class LibraryDialogScaffold extends StatelessWidget {
             )
           : scaffoldColumn;
 
+      final resolvedAlignment = alignment ??
+          Alignment(
+            0.0,
+            (0.12 + currentDepth * 0.20).clamp(-1.0, 0.85),
+          );
+
       result = Dialog(
         backgroundColor: palette.panel,
         shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
-        alignment: alignment,
+        alignment: resolvedAlignment,
         insetPadding: insetPadding ??
             EdgeInsets.symmetric(
               horizontal: windowClass.isMedium ? 16 : 32,
@@ -192,9 +200,12 @@ class LibraryDialogScaffold extends StatelessWidget {
       result = Theme(data: themeData!, child: result);
     }
 
-    return LibraryDensityScope(
-      density: density,
-      child: result,
+    return ModalDialogDepthScope(
+      depth: currentDepth + 1,
+      child: LibraryDensityScope(
+        density: density,
+        child: result,
+      ),
     );
   }
 }

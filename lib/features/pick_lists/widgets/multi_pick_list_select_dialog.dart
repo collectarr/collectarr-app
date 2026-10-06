@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'pick_list_selection_dialog.dart';
@@ -13,7 +14,7 @@ Future<Set<String>?> showMultiPickListSelectDialog({
   bool allowUserValues = true,
   LocalDatabase? db,
 }) =>
-    showDialog<Set<String>>(
+    showAppDialog<Set<String>>(
         context: context,
         barrierDismissible: false,
         builder: (_) => PickListSelectionDialog(

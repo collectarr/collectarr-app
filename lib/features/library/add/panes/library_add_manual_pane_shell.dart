@@ -219,7 +219,12 @@ class _LibraryAddManualPaneShellState extends State<LibraryAddManualPaneShell>
       badges: badges,
       tabController: _tabController,
       tabs: [
-        for (final tab in tabs) EditTab(icon: tab.icon, label: tab.label),
+        for (final tab in tabs)
+          EditTab(
+            icon: tab.icon,
+            svgAsset: tab.svgAsset,
+            label: tab.label,
+          ),
       ],
       tabIds: [for (final tab in tabs) tab.id],
       isBusy: request.isAdding,
@@ -266,15 +271,17 @@ final class LibraryAddManualPaneTab {
   const LibraryAddManualPaneTab({
     required this.id,
     required this.label,
-    required this.icon,
+    this.icon,
+    this.svgAsset,
     required this.content,
     this.validate,
-  });
+  }) : assert(icon != null || svgAsset != null, 'Either icon or svgAsset must be provided.');
 
   static LibraryAddManualPaneTab fromForm<TDraft>({
     required String id,
     required String label,
-    required IconData icon,
+    IconData? icon,
+    String? svgAsset,
     required LibraryFormSchema<TDraft> schema,
     required TDraft draft,
     required Widget content,
@@ -284,6 +291,7 @@ final class LibraryAddManualPaneTab {
         id: id,
         label: label,
         icon: icon,
+        svgAsset: svgAsset,
         content: content,
         validate: (controllers) => firstLibraryFormValidationIssue(
           schema: schema,
@@ -296,7 +304,8 @@ final class LibraryAddManualPaneTab {
   static LibraryAddManualPaneTab fromSchema<TDraft>({
     required String id,
     required String label,
-    required IconData icon,
+    IconData? icon,
+    String? svgAsset,
     required LibraryFormSchema<TDraft> schema,
     required TDraft draft,
     required String mediaKind,
@@ -309,6 +318,7 @@ final class LibraryAddManualPaneTab {
         id: id,
         label: label,
         icon: icon,
+        svgAsset: svgAsset,
         schema: schema,
         draft: draft,
         validateSchema: validateSchema,
@@ -324,7 +334,8 @@ final class LibraryAddManualPaneTab {
 
   final String id;
   final String label;
-  final IconData icon;
+  final IconData? icon;
+  final String? svgAsset;
   final Widget content;
   final LibraryFormValidationIssue? Function(
     LibrarySchemaTextControllerStore controllers,

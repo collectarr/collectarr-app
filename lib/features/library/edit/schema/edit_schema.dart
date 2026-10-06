@@ -23,12 +23,14 @@ final class EditTabSpec<TDraft> {
     required this.label,
     required this.sections,
     this.icon,
+    this.svgAsset,
     this.visibleWhen,
   });
 
   final String id;
   final String label;
   final IconData? icon;
+  final String? svgAsset;
   final List<LibraryFormSectionSpec<TDraft>> sections;
   final LibraryFieldVisibility<TDraft>? visibleWhen;
 

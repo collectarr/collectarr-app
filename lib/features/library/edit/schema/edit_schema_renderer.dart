@@ -23,13 +23,15 @@ final class EditSchemaExtraTab {
     required this.id,
     required this.label,
     required this.content,
-    this.icon = Icons.extension_outlined,
+    this.icon,
+    this.svgAsset,
     this.validate,
-  });
+  }) : assert(icon != null || svgAsset != null, 'Either icon or svgAsset must be provided.');
 
   final String id;
   final String label;
-  final IconData icon;
+  final IconData? icon;
+  final String? svgAsset;
   final Widget content;
 
   /// Validates an extra tab even when it has not been mounted yet.
@@ -497,7 +499,8 @@ class EditSchemaRendererState<TModel, TDraft>
       final tab = widget.schema.tabs[index];
       return EditTab(
         key: ValueKey<String>('schema-tab-${tab.id}'),
-        icon: tab.icon ?? Icons.edit_outlined,
+        icon: tab.svgAsset == null ? (tab.icon ?? Icons.edit_outlined) : null,
+        svgAsset: tab.svgAsset,
         label: tab.label,
       );
     }
@@ -505,7 +508,8 @@ class EditSchemaRendererState<TModel, TDraft>
     final tab = widget.extraTabs[extraIndex];
     return EditTab(
       key: ValueKey<String>('extra-tab-${tab.id}'),
-      icon: tab.icon,
+      icon: tab.svgAsset == null ? tab.icon : null,
+      svgAsset: tab.svgAsset,
       label: tab.label,
     );
   }
