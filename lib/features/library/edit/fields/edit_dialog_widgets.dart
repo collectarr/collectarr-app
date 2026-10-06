@@ -697,7 +697,10 @@ class LibraryCurrencyField extends StatelessWidget {
           enabled: enabled,
           options: [
             for (final code in items)
-              LibraryFieldOption<String>(value: code, label: code),
+              LibraryFieldOption<String>(
+                value: code,
+                label: '${libraryCurrencySymbol(code)} $code',
+              ),
           ],
           openPicker: (
                   {required label, required selectedValue, required options}) =>

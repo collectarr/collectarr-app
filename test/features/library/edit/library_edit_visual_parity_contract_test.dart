@@ -1,8 +1,8 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
-import 'package:collectarr_app/features/library/domain/library_entity_scope.dart';
+import 'package:collectarr_app/features/library/config/library_edit_presentation_models.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.dart';
-import 'package:collectarr_app/features/library/ui/library_chrome_tokens.dart';
 import 'package:collectarr_app/features/library/ui/library_density_scope.dart';
+import 'package:collectarr_app/features/library/ui/library_metrics.dart';
 import 'package:collectarr_app/features/library/ui/library_section_panel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -16,7 +16,6 @@ const _editContexts = <LibraryEditPresentationContext>[
     isDigitalFormat: false,
     hasPhysicalFormats: true,
     hasCustomFields: true,
-    scope: LibraryEntityScope.catalogItem,
   ),
   LibraryEditPresentationContext(
     isEntry: false,
@@ -26,7 +25,6 @@ const _editContexts = <LibraryEditPresentationContext>[
     isDigitalFormat: true,
     hasPhysicalFormats: false,
     hasCustomFields: false,
-    scope: LibraryEntityScope.catalogItem,
   ),
   LibraryEditPresentationContext(
     isEntry: false,
@@ -36,7 +34,6 @@ const _editContexts = <LibraryEditPresentationContext>[
     isDigitalFormat: false,
     hasPhysicalFormats: true,
     hasCustomFields: true,
-    scope: LibraryEntityScope.catalogItem,
   ),
 ];
 
@@ -53,9 +50,7 @@ void main() {
       for (final context in _editContexts) {
         final builder = libraryEditPresentationForKind(runtime.kind)
             .presentation
-            .builderForScope(
-              context.scope,
-            );
+            .builderForTarget(context.isEntry);
         final tabs = builder.buildTabs(context: context);
         final state = builder.build(context: context);
 

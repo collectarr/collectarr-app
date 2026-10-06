@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
+import 'package:collectarr_app/ui/single_value_pick_field.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -19,18 +20,15 @@ void main() {
       ),
     );
 
-    expect(find.text(r'$'), findsOneWidget);
-    expect(find.text('USD'), findsOneWidget);
+    expect(find.text(r'$ USD'), findsOneWidget);
 
-    final currencyField = find.byWidgetPredicate((widget) =>
-        widget is DropdownButtonFormField &&
-        (widget.decoration as InputDecoration?)?.labelText == 'Currency');
-    final fieldWidget =
-        tester.widget<DropdownButtonFormField<String>>(currencyField);
-    fieldWidget.onChanged?.call('EUR');
+    final pickField = find.byType(SingleValuePickField);
+    expect(pickField, findsOneWidget);
+    final fieldWidget = tester.widget<SingleValuePickField>(pickField);
+    fieldWidget.onChanged?.call('€ EUR');
     await tester.pumpAndSettle();
 
     expect(controller.text, 'EUR');
-    expect(find.text('€'), findsOneWidget);
+    expect(find.text('€ EUR'), findsOneWidget);
   });
 }
