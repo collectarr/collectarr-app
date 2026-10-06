@@ -172,6 +172,34 @@ void main() {
       expect(find.text('SPARS'), findsNothing);
       expect(find.text('Matrix No. Side A'), findsNothing);
       expect(find.text('Storage Device'), findsNothing);
+
+      // CLZ Disc Title and Add Disc button must be present
+      expect(find.text('Disc Title'), findsOneWidget);
+      expect(find.text('Add Disc'), findsOneWidget);
+      expect(find.text('Tracks'), findsOneWidget);
+
+      // Table header must show Title, Artist, Length when nothing is selected
+      expect(find.text('Title'), findsAtLeastNWidgets(1));
+      expect(find.text('Artist'), findsAtLeastNWidgets(1));
+      expect(find.text('Length'), findsOneWidget);
+      expect(find.text('Cancel'), findsNothing);
+      expect(find.text('Autocap'), findsNothing);
+
+      // Tap on the track selection checkbox to select track
+      final trackCheckboxFinder = find.byWidgetPredicate(
+        (widget) => widget is Container && widget.decoration is BoxDecoration && (widget.decoration as BoxDecoration).color == Colors.transparent,
+      );
+      if (trackCheckboxFinder.evaluate().isNotEmpty) {
+        await tester.tap(trackCheckboxFinder.first);
+        await tester.pumpAndSettle();
+
+        // Selection toolbar should now be visible with Cancel, All, Autocap, Remove
+        expect(find.text('Cancel'), findsOneWidget);
+        expect(find.text('All'), findsOneWidget);
+        expect(find.text('Autocap'), findsOneWidget);
+        expect(find.text('Remove'), findsOneWidget);
+        expect(find.text('1 of 1'), findsOneWidget);
+      }
     });
   });
 }
