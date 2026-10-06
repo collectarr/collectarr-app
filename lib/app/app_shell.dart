@@ -31,6 +31,7 @@ import 'package:collectarr_app/ui/library_accent_scope.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 
 class AppShell extends ConsumerStatefulWidget {
@@ -175,7 +176,7 @@ class _AppShellState extends ConsumerState<AppShell> {
             const SizedBox(width: 4),
           ],
         ),
-        drawer: _AppNavigationDrawer(
+        drawer: AppNavigationDrawer(
           currentBranch: widget.navigationShell.currentIndex,
           isAdmin: auth.isAdmin,
           accent: accent,
@@ -220,25 +221,25 @@ class _AppShellState extends ConsumerState<AppShell> {
   }
 
   void _handleDrawerAction(
-    _DrawerAction action, {
+    DrawerAction action, {
     required LibraryKindRegistration type,
     required Color accent,
   }) {
     switch (action) {
-      case _DrawerAction.addFromCore:
+      case DrawerAction.addFromCore:
         showLibraryAddDialog(context: context, type: type, accent: accent);
         return;
-      case _DrawerAction.managePickLists:
+      case DrawerAction.managePickLists:
         showPickListManagerDialog(
           context: context,
           db: ref.read(localDatabaseProvider),
           registry: defaultPickListRegistry,
         );
         return;
-      case _DrawerAction.manageCollections:
+      case DrawerAction.manageCollections:
         _goToBranch(_AppShellState._branchShelf);
         return;
-      case _DrawerAction.printToPdf:
+      case DrawerAction.printToPdf:
         _withShelf((shelf) {
           final items = libraryItemsForShelf(shelf, type);
           return printCollectionReport(
@@ -248,7 +249,7 @@ class _AppShellState extends ConsumerState<AppShell> {
           );
         });
         return;
-      case _DrawerAction.statistics:
+      case DrawerAction.statistics:
         _withShelf((shelf) {
           return showStatsDashboardDialog(
             context,
@@ -257,7 +258,7 @@ class _AppShellState extends ConsumerState<AppShell> {
           );
         });
         return;
-      case _DrawerAction.findDuplicates:
+      case DrawerAction.findDuplicates:
         _withShelf((shelf) {
           final entries = shelf.entries
               .where((entry) => entry.mediaKind == type.kind)
@@ -268,57 +269,57 @@ class _AppShellState extends ConsumerState<AppShell> {
           );
         });
         return;
-      case _DrawerAction.loanManager:
+      case DrawerAction.loanManager:
         _goToBranch(_AppShellState._branchLoans);
         return;
-      case _DrawerAction.manageCustomFields:
+      case DrawerAction.manageCustomFields:
         showCustomFieldsManagementDialog(
           context: context,
           db: ref.read(localDatabaseProvider),
         );
         return;
-      case _DrawerAction.cloudSharing:
+      case DrawerAction.cloudSharing:
         _goToSettingsSection(SettingsSection.connection);
         return;
-      case _DrawerAction.prefillSettings:
+      case DrawerAction.prefillSettings:
         showPrefillSettingsDialog(context: context, accent: accent);
         return;
-      case _DrawerAction.settings:
+      case DrawerAction.settings:
         _goToSettingsSection(SettingsSection.connection);
         return;
-      case _DrawerAction.libraries:
+      case DrawerAction.libraries:
         _goToBranch(_AppShellState._branchLibraries);
         return;
-      case _DrawerAction.calendar:
+      case DrawerAction.calendar:
         _goToBranch(_AppShellState._branchCalendar);
         return;
-      case _DrawerAction.admin:
+      case DrawerAction.admin:
         _goToBranch(_AppShellState._branchAdmin);
         return;
-      case _DrawerAction.reassignIndex:
-      case _DrawerAction.transferFieldData:
+      case DrawerAction.reassignIndex:
+      case DrawerAction.transferFieldData:
         _openLibraryTool(action);
         return;
-      case _DrawerAction.backupRestore:
-      case _DrawerAction.clearDatabase:
+      case DrawerAction.backupRestore:
+      case DrawerAction.clearDatabase:
         _goToSettingsSection(SettingsSection.data);
         return;
-      case _DrawerAction.exportCsv:
+      case DrawerAction.exportCsv:
         _openShelfImportExport(initialIndex: 0);
         return;
-      case _DrawerAction.exportXml:
+      case DrawerAction.exportXml:
         _openShelfImportExport(initialIndex: 0);
         return;
-      case _DrawerAction.importData:
+      case DrawerAction.importData:
         _openShelfImportExport(initialIndex: 1);
         return;
-      case _DrawerAction.linkAlbums:
+      case DrawerAction.linkAlbums:
         _showUnavailableAction(
           'Link Albums',
           'Album linking is not available in Collectarr yet.',
         );
         return;
-      case _DrawerAction.keyboardShortcuts:
+      case DrawerAction.keyboardShortcuts:
         showKeyboardShortcutsDialog(context);
         return;
     }
@@ -331,9 +332,9 @@ class _AppShellState extends ConsumerState<AppShell> {
     );
   }
 
-  void _openLibraryTool(_DrawerAction action) {
+  void _openLibraryTool(DrawerAction action) {
     _goToBranch(_AppShellState._branchLibraries);
-    final toolName = action == _DrawerAction.reassignIndex
+    final toolName = action == DrawerAction.reassignIndex
         ? 'Re-Assign Index Values'
         : 'Transfer Field Data';
     ScaffoldMessenger.of(context).showSnackBar(
@@ -440,7 +441,7 @@ class _AppShellState extends ConsumerState<AppShell> {
   }
 }
 
-enum _DrawerAction {
+enum DrawerAction {
   addFromCore,
   managePickLists,
   manageCollections,
@@ -466,8 +467,9 @@ enum _DrawerAction {
   keyboardShortcuts,
 }
 
-class _AppNavigationDrawer extends StatelessWidget {
-  const _AppNavigationDrawer({
+class AppNavigationDrawer extends StatefulWidget {
+  const AppNavigationDrawer({
+    super.key,
     required this.currentBranch,
     required this.isAdmin,
     required this.accent,
@@ -479,12 +481,28 @@ class _AppNavigationDrawer extends StatelessWidget {
   final bool isAdmin;
   final Color accent;
   final String addLabel;
-  final void Function(BuildContext context, _DrawerAction action) onSelected;
+  final void Function(BuildContext context, DrawerAction action) onSelected;
+
+  @override
+  State<AppNavigationDrawer> createState() => _AppNavigationDrawerState();
+}
+
+class _AppNavigationDrawerState extends State<AppNavigationDrawer> {
+  bool _maintenanceExpanded = true;
+  bool _importExportExpanded = true;
+  bool _helpExpanded = true;
 
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
+    final drawerBg =
+        palette.isDark ? const Color(0xFF383838) : palette.surface;
+    final sectionHeaderColor = palette.isDark
+        ? Colors.white.withValues(alpha: 0.4)
+        : palette.textMuted;
+
     return Drawer(
+      backgroundColor: drawerBg,
       width: (MediaQuery.sizeOf(context).width * 0.86)
           .clamp(0.0, 320.0)
           .toDouble(),
@@ -492,16 +510,33 @@ class _AppNavigationDrawer extends StatelessWidget {
         child: Column(
           children: [
             Container(
-              height: 46,
+              height: 38,
               width: double.infinity,
-              padding: const EdgeInsets.symmetric(horizontal: 18),
-              color: libraryAccentChromeFallbackColor(accent),
-              child: const Row(
+              padding: const EdgeInsets.symmetric(horizontal: 10),
+              color: libraryAccentChromeFallbackColor(widget.accent),
+              child: Row(
                 children: [
-                  Icon(Icons.library_music_outlined,
-                      color: Colors.white, size: 22),
-                  SizedBox(width: 10),
-                  Text(
+                  InkWell(
+                    onTap: () => Navigator.of(context).pop(),
+                    borderRadius: BorderRadius.circular(18),
+                    child: SizedBox(
+                      width: 36,
+                      height: 36,
+                      child: Center(
+                        child: SvgPicture.asset(
+                          'assets/sidebar_icons/bars.svg',
+                          width: 18,
+                          height: 18,
+                          colorFilter: const ColorFilter.mode(
+                            Colors.white,
+                            BlendMode.srcIn,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  const Text(
                     'Collectarr',
                     style: TextStyle(
                       color: Colors.white,
@@ -514,81 +549,209 @@ class _AppNavigationDrawer extends StatelessWidget {
             ),
             Expanded(
               child: ListView(
-                padding: const EdgeInsets.symmetric(vertical: 10),
+                padding: const EdgeInsets.symmetric(vertical: 6),
                 children: [
-                  _DrawerSectionLabel('Collection', color: palette.textMuted),
+                  _DrawerSectionLabel('Collection', color: sectionHeaderColor),
                   _action(
-                      context, addLabel, Icons.add, _DrawerAction.addFromCore),
-                  _action(context, 'Manage Pick Lists',
-                      Icons.view_list_outlined, _DrawerAction.managePickLists),
-                  _action(context, 'Manage Collections', Icons.storage_outlined,
-                      _DrawerAction.manageCollections,
-                      branch: _AppShellState._branchShelf),
-                  _action(context, 'Libraries', Icons.apps_outlined,
-                      _DrawerAction.libraries,
-                      branch: _AppShellState._branchLibraries),
-                  const Divider(height: 12),
-                  _DrawerSectionLabel('Tools', color: palette.textMuted),
-                  _action(context, 'Print to PDF', Icons.print_outlined,
-                      _DrawerAction.printToPdf),
-                  _action(context, 'Statistics', Icons.bar_chart_outlined,
-                      _DrawerAction.statistics),
-                  _action(context, 'Find Duplicates', Icons.copy_outlined,
-                      _DrawerAction.findDuplicates),
-                  _action(context, 'Loan Manager', Icons.schedule_outlined,
-                      _DrawerAction.loanManager,
-                      branch: _AppShellState._branchLoans),
-                  _action(context, 'Calendar', Icons.calendar_month_outlined,
-                      _DrawerAction.calendar,
-                      branch: _AppShellState._branchCalendar),
-                  if (isAdmin) ...[
-                    const Divider(height: 18),
-                    _DrawerSectionLabel('Administration',
-                        color: palette.textMuted),
+                    context,
+                    widget.addLabel,
+                    'assets/sidebar_icons/plus.svg',
+                    DrawerAction.addFromCore,
+                  ),
+                  _action(
+                    context,
+                    'Manage Pick Lists',
+                    'assets/sidebar_icons/rectangle-list.svg',
+                    DrawerAction.managePickLists,
+                  ),
+                  _action(
+                    context,
+                    'Manage Collections',
+                    'assets/sidebar_icons/coins.svg',
+                    DrawerAction.manageCollections,
+                    branch: _AppShellState._branchShelf,
+                  ),
+                  _action(
+                    context,
+                    'Libraries',
+                    'assets/sidebar_icons/table-cells-large.svg',
+                    DrawerAction.libraries,
+                    branch: _AppShellState._branchLibraries,
+                  ),
+                  const _DrawerDivider(),
+                  _DrawerSectionLabel('Tools', color: sectionHeaderColor),
+                  _action(
+                    context,
+                    'Print to PDF',
+                    'assets/sidebar_icons/print.svg',
+                    DrawerAction.printToPdf,
+                  ),
+                  _action(
+                    context,
+                    'Statistics',
+                    'assets/sidebar_icons/chart-column.svg',
+                    DrawerAction.statistics,
+                  ),
+                  _action(
+                    context,
+                    'Find Duplicates',
+                    'assets/sidebar_icons/clone.svg',
+                    DrawerAction.findDuplicates,
+                  ),
+                  _action(
+                    context,
+                    'Loan Manager',
+                    'assets/sidebar_icons/clock.svg',
+                    DrawerAction.loanManager,
+                    branch: _AppShellState._branchLoans,
+                  ),
+                  _action(
+                    context,
+                    'Calendar',
+                    'assets/sidebar_icons/calendar-days.svg',
+                    DrawerAction.calendar,
+                    branch: _AppShellState._branchCalendar,
+                  ),
+                  if (widget.isAdmin) ...[
+                    const _DrawerDivider(),
+                    _DrawerSectionLabel(
+                      'Administration',
+                      color: sectionHeaderColor,
+                    ),
                     _action(
-                        context,
-                        'Admin',
-                        Icons.admin_panel_settings_outlined,
-                        _DrawerAction.admin,
-                        branch: _AppShellState._branchAdmin),
+                      context,
+                      'Admin',
+                      'assets/sidebar_icons/shield-halved.svg',
+                      DrawerAction.admin,
+                      branch: _AppShellState._branchAdmin,
+                    ),
                   ],
-                  const Divider(height: 12),
-                  _DrawerSectionLabel('Customization',
-                      color: palette.textMuted),
-                  _action(context, 'Manage Custom Fields', Icons.edit_note,
-                      _DrawerAction.manageCustomFields),
-                  _action(context, 'Cloud Sync & Sharing', Icons.cloud_outlined,
-                      _DrawerAction.cloudSharing),
-                  _action(context, 'Pre-fill Settings', Icons.note_add_outlined,
-                      _DrawerAction.prefillSettings),
-                  _action(context, 'Settings', Icons.settings_outlined,
-                      _DrawerAction.settings,
-                      branch: _AppShellState._branchSettings),
-                  const Divider(height: 12),
-                  _DrawerSectionLabel('Maintenance', color: palette.textMuted),
-                  _action(context, 'Re-Assign Index Values',
-                      Icons.format_list_numbered, _DrawerAction.reassignIndex),
-                  _action(context, 'Backup / Restore', Icons.backup_outlined,
-                      _DrawerAction.backupRestore),
-                  _action(context, 'Clear Database', Icons.delete_outline,
-                      _DrawerAction.clearDatabase),
-                  _action(context, 'Transfer Field Data', Icons.swap_horiz,
-                      _DrawerAction.transferFieldData),
-                  const Divider(height: 12),
-                  _DrawerSectionLabel('Import / Export',
-                      color: palette.textMuted),
-                  _action(context, 'Export to CSV / TXT',
-                      Icons.file_download_outlined, _DrawerAction.exportCsv),
-                  _action(context, 'Export to XML', Icons.description_outlined,
-                      _DrawerAction.exportXml),
-                  _action(context, 'Import Data', Icons.file_upload_outlined,
-                      _DrawerAction.importData),
-                  _action(context, 'Link Albums', Icons.link_outlined,
-                      _DrawerAction.linkAlbums),
-                  const Divider(height: 12),
-                  _DrawerSectionLabel('Help', color: palette.textMuted),
-                  _action(context, 'Keyboard Shortcuts',
-                      Icons.keyboard_outlined, _DrawerAction.keyboardShortcuts),
+                  const _DrawerDivider(),
+                  _DrawerSectionLabel(
+                    'Customization',
+                    color: sectionHeaderColor,
+                  ),
+                  _action(
+                    context,
+                    'Manage Custom Fields',
+                    'assets/sidebar_icons/pen-to-square.svg',
+                    DrawerAction.manageCustomFields,
+                  ),
+                  _action(
+                    context,
+                    'Cloud Sync & Sharing',
+                    'assets/sidebar_icons/share-nodes.svg',
+                    DrawerAction.cloudSharing,
+                  ),
+                  _action(
+                    context,
+                    'Pre-fill Settings',
+                    'assets/sidebar_icons/file-signature.svg',
+                    DrawerAction.prefillSettings,
+                  ),
+                  _action(
+                    context,
+                    'Settings',
+                    'assets/sidebar_icons/gear.svg',
+                    DrawerAction.settings,
+                    branch: _AppShellState._branchSettings,
+                  ),
+                  const _DrawerDivider(),
+                  _DrawerCollapsibleSectionLabel(
+                    'Maintenance',
+                    color: sectionHeaderColor,
+                    isExpanded: _maintenanceExpanded,
+                    onTap: () => setState(
+                      () => _maintenanceExpanded = !_maintenanceExpanded,
+                    ),
+                  ),
+                  _DrawerCollapsibleSection(
+                    isExpanded: _maintenanceExpanded,
+                    children: [
+                      _action(
+                        context,
+                        'Re-Assign Index Values',
+                        'assets/sidebar_icons/arrow-down-1-9.svg',
+                        DrawerAction.reassignIndex,
+                      ),
+                      _action(
+                        context,
+                        'Backup / Restore',
+                        'assets/sidebar_icons/hard-drive.svg',
+                        DrawerAction.backupRestore,
+                      ),
+                      _action(
+                        context,
+                        'Clear Database',
+                        'assets/sidebar_icons/trash.svg',
+                        DrawerAction.clearDatabase,
+                      ),
+                      _action(
+                        context,
+                        'Transfer Field Data',
+                        'assets/sidebar_icons/arrows-turn-right.svg',
+                        DrawerAction.transferFieldData,
+                      ),
+                    ],
+                  ),
+                  const _DrawerDivider(),
+                  _DrawerCollapsibleSectionLabel(
+                    'Import / Export',
+                    color: sectionHeaderColor,
+                    isExpanded: _importExportExpanded,
+                    onTap: () => setState(
+                      () => _importExportExpanded = !_importExportExpanded,
+                    ),
+                  ),
+                  _DrawerCollapsibleSection(
+                    isExpanded: _importExportExpanded,
+                    children: [
+                      _action(
+                        context,
+                        'Export to CSV / TXT',
+                        'assets/sidebar_icons/file-export.svg',
+                        DrawerAction.exportCsv,
+                      ),
+                      _action(
+                        context,
+                        'Export to XML',
+                        'assets/sidebar_icons/file-export.svg',
+                        DrawerAction.exportXml,
+                      ),
+                      _action(
+                        context,
+                        'Import Data',
+                        'assets/sidebar_icons/file-import.svg',
+                        DrawerAction.importData,
+                      ),
+                      _action(
+                        context,
+                        'Link Albums',
+                        'assets/sidebar_icons/link.svg',
+                        DrawerAction.linkAlbums,
+                      ),
+                    ],
+                  ),
+                  const _DrawerDivider(),
+                  _DrawerCollapsibleSectionLabel(
+                    'Help',
+                    color: sectionHeaderColor,
+                    isExpanded: _helpExpanded,
+                    onTap: () => setState(
+                      () => _helpExpanded = !_helpExpanded,
+                    ),
+                  ),
+                  _DrawerCollapsibleSection(
+                    isExpanded: _helpExpanded,
+                    children: [
+                      _action(
+                        context,
+                        'Keyboard Shortcuts',
+                        'assets/sidebar_icons/keyboard.svg',
+                        DrawerAction.keyboardShortcuts,
+                      ),
+                    ],
+                  ),
                 ],
               ),
             ),
@@ -601,31 +764,54 @@ class _AppNavigationDrawer extends StatelessWidget {
   Widget _action(
     BuildContext context,
     String label,
-    IconData icon,
-    _DrawerAction action, {
+    String svgAsset,
+    DrawerAction action, {
     int? branch,
   }) {
     final palette = appPalette(context);
-    final selected = branch == currentBranch;
-    return ListTile(
-      dense: true,
-      visualDensity: VisualDensity.compact,
-      selected: selected,
-      selectedTileColor: accent.withValues(alpha: palette.isDark ? 0.2 : 0.1),
-      leading: Icon(
-        icon,
-        size: 19,
-        color: selected ? accent : palette.textSecondary,
-      ),
-      title: Text(
-        label,
-        style: TextStyle(
-          fontSize: 13,
-          fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
-          color: selected ? palette.textPrimary : null,
+    final selected = branch == widget.currentBranch;
+    final itemColor = selected
+        ? widget.accent
+        : (palette.isDark ? Colors.white : palette.textPrimary);
+
+    return InkWell(
+      onTap: () => widget.onSelected(context, action),
+      hoverColor: palette.isDark ? const Color(0x26FFFFFF) : null,
+      child: Container(
+        color: selected
+            ? widget.accent.withValues(alpha: palette.isDark ? 0.2 : 0.1)
+            : Colors.transparent,
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
+        child: Row(
+          children: [
+            SizedBox(
+              width: 20,
+              height: 18,
+              child: Center(
+                child: SvgPicture.asset(
+                  svgAsset,
+                  width: 16,
+                  height: 16,
+                  colorFilter: ColorFilter.mode(itemColor, BlendMode.srcIn),
+                ),
+              ),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Text(
+                label,
+                style: TextStyle(
+                  fontFamily: kAppFontFamily,
+                  fontFamilyFallback: kAppFontFamilyFallback,
+                  fontSize: 14,
+                  fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
+                  color: itemColor,
+                ),
+              ),
+            ),
+          ],
         ),
       ),
-      onTap: () => onSelected(context, action),
     );
   }
 }
@@ -639,13 +825,122 @@ class _DrawerSectionLabel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(18, 7, 12, 5),
+      padding: const EdgeInsets.fromLTRB(14, 8, 14, 4),
       child: Text(
         label,
         style: TextStyle(
+          fontFamily: kAppFontFamily,
+          fontFamilyFallback: kAppFontFamilyFallback,
           color: color,
-          fontSize: 12,
+          fontSize: 14,
           fontWeight: FontWeight.w700,
+        ),
+      ),
+    );
+  }
+}
+
+class _DrawerCollapsibleSectionLabel extends StatelessWidget {
+  const _DrawerCollapsibleSectionLabel(
+    this.label, {
+    required this.color,
+    required this.isExpanded,
+    required this.onTap,
+  });
+
+  final String label;
+  final Color color;
+  final bool isExpanded;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      hoverColor: const Color(0x26FFFFFF),
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(14, 8, 14, 4),
+        child: Row(
+          children: [
+            Expanded(
+              child: Text(
+                label,
+                style: TextStyle(
+                  fontFamily: kAppFontFamily,
+                  fontFamilyFallback: kAppFontFamilyFallback,
+                  color: color,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ),
+            AnimatedRotation(
+              turns: isExpanded ? 0.5 : 0.0,
+              duration: const Duration(milliseconds: 150),
+              curve: Curves.easeInOut,
+              child: SvgPicture.asset(
+                'assets/sidebar_icons/chevron-down.svg',
+                width: 12,
+                height: 12,
+                colorFilter: ColorFilter.mode(color, BlendMode.srcIn),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _DrawerCollapsibleSection extends StatelessWidget {
+  const _DrawerCollapsibleSection({
+    required this.isExpanded,
+    required this.children,
+  });
+
+  final bool isExpanded;
+  final List<Widget> children;
+
+  @override
+  Widget build(BuildContext context) {
+    return ClipRect(
+      child: AnimatedSize(
+        duration: const Duration(milliseconds: 350),
+        curve: Curves.easeInOut,
+        alignment: Alignment.topCenter,
+        child: isExpanded
+            ? Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: children,
+              )
+            : const SizedBox(
+                width: double.infinity,
+                height: 0,
+              ),
+      ),
+    );
+  }
+}
+
+class _DrawerDivider extends StatelessWidget {
+  const _DrawerDivider();
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = appPalette(context).isDark;
+    return Container(
+      margin: const EdgeInsets.symmetric(vertical: 2),
+      decoration: BoxDecoration(
+        border: Border(
+          top: BorderSide(
+            color: isDark ? const Color(0x33000000) : const Color(0x1F000000),
+            width: 1,
+          ),
+          bottom: BorderSide(
+            color: isDark ? const Color(0x1AFFFFFF) : const Color(0x33FFFFFF),
+            width: 1,
+          ),
         ),
       ),
     );

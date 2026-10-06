@@ -1,3 +1,4 @@
+export 'app_typography.dart';
 export 'date_picker_theme.dart';
 export 'library_text_theme.dart';
 export 'library_theme.dart';

@@ -55,6 +55,7 @@ flutter:
   assets:
     - assets/logos/
     - assets/collection_status/
+    - assets/sidebar_icons/
     - assets/fonts/CollectarrSans-OFL.txt
   fonts:
     - family: Collectarr Sans
@@ -67,6 +68,8 @@ flutter:
           weight: 600
         - asset: assets/fonts/CollectarrSans-Bold.ttf
           weight: 700
+        - asset: assets/fonts/CollectarrSans-ExtraBold.ttf
+          weight: 800
     - family: Inter
       fonts:
         - asset: assets/fonts/Inter-Variable.ttf
