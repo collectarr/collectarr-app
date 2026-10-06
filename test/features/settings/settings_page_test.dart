@@ -67,7 +67,7 @@ void main() {
     expect(find.text('Reset connection defaults'), findsOneWidget);
 
     await _openSettingsTab(tester, 'Libraries');
-    expect(find.text('Library navigation'), findsOneWidget);
+    expect(find.text('Library customization'), findsOneWidget);
     expect(find.text('Keyboard shortcuts'), findsOneWidget);
     expect(find.text('View shortcuts'), findsOneWidget);
 
@@ -198,7 +198,7 @@ void main() {
     await pumpUntilSettled(tester);
 
     await _openSettingsTab(tester, 'Libraries');
-    expect(find.text('Library navigation'), findsOneWidget);
+    expect(find.text('Library customization'), findsOneWidget);
     expect(find.text('Keyboard shortcuts'), findsNothing);
     expect(find.text('View shortcuts'), findsNothing);
   });

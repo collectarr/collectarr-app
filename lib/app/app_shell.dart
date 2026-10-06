@@ -100,7 +100,9 @@ class _AppShellState extends ConsumerState<AppShell> {
       accent: accent,
       animationsEnabled: uiPreferences.animationsEnabled,
       child: Scaffold(
-        appBar: AppBar(
+        appBar: widget.navigationShell.currentIndex == _branchSettings
+            ? null
+            : AppBar(
           toolbarHeight: 40,
           automaticallyImplyLeading: false,
           leadingWidth: 44,
@@ -570,6 +572,7 @@ class _AppNavigationDrawerState extends State<AppNavigationDrawer> {
                     'assets/sidebar_icons/coins.svg',
                     DrawerAction.manageCollections,
                     branch: _AppShellState._branchShelf,
+                    key: const Key('nav.shelf'),
                   ),
                   _action(
                     context,
@@ -577,6 +580,7 @@ class _AppNavigationDrawerState extends State<AppNavigationDrawer> {
                     'assets/sidebar_icons/table-cells-large.svg',
                     DrawerAction.libraries,
                     branch: _AppShellState._branchLibraries,
+                    key: const Key('nav.library'),
                   ),
                   const _DrawerDivider(),
                   _DrawerSectionLabel('Tools', color: sectionHeaderColor),
@@ -604,6 +608,7 @@ class _AppNavigationDrawerState extends State<AppNavigationDrawer> {
                     'assets/sidebar_icons/clock.svg',
                     DrawerAction.loanManager,
                     branch: _AppShellState._branchLoans,
+                    key: const Key('nav.more'),
                   ),
                   _action(
                     context,
@@ -611,6 +616,7 @@ class _AppNavigationDrawerState extends State<AppNavigationDrawer> {
                     'assets/sidebar_icons/calendar-days.svg',
                     DrawerAction.calendar,
                     branch: _AppShellState._branchCalendar,
+                    key: const Key('nav.calendar'),
                   ),
                   if (widget.isAdmin) ...[
                     const _DrawerDivider(),
@@ -767,6 +773,7 @@ class _AppNavigationDrawerState extends State<AppNavigationDrawer> {
     String svgAsset,
     DrawerAction action, {
     int? branch,
+    Key? key,
   }) {
     final palette = appPalette(context);
     final selected = branch == widget.currentBranch;
@@ -775,6 +782,7 @@ class _AppNavigationDrawerState extends State<AppNavigationDrawer> {
         : (palette.isDark ? Colors.white : palette.textPrimary);
 
     return InkWell(
+      key: key,
       onTap: () => widget.onSelected(context, action),
       hoverColor: palette.isDark ? const Color(0x26FFFFFF) : null,
       child: Container(

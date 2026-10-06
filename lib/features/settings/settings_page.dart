@@ -18,7 +18,6 @@ import 'package:collectarr_app/features/collection/repositories/shelf_controller
 import 'package:collectarr_app/features/settings/app_log_viewer_panel.dart';
 import 'package:collectarr_app/features/settings/settings_connection_widgets.dart';
 import 'package:collectarr_app/features/settings/settings_connection_diagnostics.dart';
-import 'package:collectarr_app/features/settings/settings_library_nav_widgets.dart';
 import 'package:collectarr_app/features/settings/settings_proposal_history.dart';
 import 'package:collectarr_app/features/settings/database_backup.dart';
 import 'package:collectarr_app/features/settings/local_database_maintenance.dart';
@@ -179,7 +178,9 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
         child: Scaffold(
           appBar: AppBar(
             leading: _buildBackButton(context),
-            title: const Text('Settings'),
+            title: const Text('Settings', style: TextStyle(color: Colors.white)),
+            foregroundColor: Colors.white,
+            iconTheme: const IconThemeData(color: Colors.white),
             backgroundColor: libraryAccentChromeFallbackColor(accent),
             surfaceTintColor: Colors.transparent,
             flexibleSpace: LibraryAccentChrome(
@@ -208,7 +209,17 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                         data: buildLibraryAccentTheme(Theme.of(ctx), accent),
                         child: Scaffold(
                           appBar: AppBar(
-                            title: Text(section.title),
+                            leading: const BackButton(
+                              color: Colors.white,
+                              style: ButtonStyle(
+                                backgroundColor:
+                                    WidgetStatePropertyAll(Colors.transparent),
+                              ),
+                            ),
+                            title: Text(section.title,
+                                style: const TextStyle(color: Colors.white)),
+                            foregroundColor: Colors.white,
+                            iconTheme: const IconThemeData(color: Colors.white),
                             backgroundColor:
                                 libraryAccentChromeFallbackColor(accent),
                             surfaceTintColor: Colors.transparent,
@@ -237,7 +248,9 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
         child: Scaffold(
           appBar: AppBar(
             leading: _buildBackButton(context),
-            title: const Text('Settings'),
+            title: const Text('Settings', style: TextStyle(color: Colors.white)),
+            foregroundColor: Colors.white,
+            iconTheme: const IconThemeData(color: Colors.white),
             backgroundColor: libraryAccentChromeFallbackColor(accent),
             surfaceTintColor: Colors.transparent,
             flexibleSpace: LibraryAccentChrome(
@@ -293,7 +306,9 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
         child: Scaffold(
           appBar: AppBar(
             leading: _buildBackButton(context),
-            title: const Text('Settings'),
+            title: const Text('Settings', style: TextStyle(color: Colors.white)),
+            foregroundColor: Colors.white,
+            iconTheme: const IconThemeData(color: Colors.white),
             backgroundColor: libraryAccentChromeFallbackColor(accent),
             surfaceTintColor: Colors.transparent,
             flexibleSpace: LibraryAccentChrome(
@@ -304,6 +319,9 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
             bottom: TabBar(
               isScrollable: false,
               tabAlignment: TabAlignment.fill,
+              labelColor: Colors.white,
+              unselectedLabelColor: Colors.white70,
+              indicatorColor: Colors.white,
               tabs: SettingsSection.values
                   .map((s) => Tab(icon: Icon(s.icon), text: s.title))
                   .toList(),
@@ -321,8 +339,12 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     return IconButton(
       key: const Key('settings.back'),
       tooltip: 'Back to library',
+      style: IconButton.styleFrom(
+        foregroundColor: Colors.white,
+        backgroundColor: Colors.transparent,
+      ),
       onPressed: () => context.go(AppRoutes.libraries),
-      icon: const Icon(Icons.arrow_back),
+      icon: const Icon(Icons.arrow_back, color: Colors.white),
     );
   }
 
@@ -603,25 +625,6 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
   ) {
     return _SettingsTabBody(
       children: [
-        _SettingsPanel(
-          icon: Icons.view_comfy_alt_outlined,
-          title: 'Library navigation',
-          child: SettingsLibraryNavigationPanel(
-            catalog: mediaCatalog,
-            preferences: navPreferences,
-            onOrderChanged: (order) => ref
-                .read(libraryNavPreferencesProvider.notifier)
-                .setOrder(order),
-            onVisibilityChanged: (kind, visible) => ref
-                .read(libraryNavPreferencesProvider.notifier)
-                .setKindVisible(kind, visible),
-            onAccentChanged: (kind, color) => ref
-                .read(libraryNavPreferencesProvider.notifier)
-                .setKindAccent(kind, color),
-            onReset: () =>
-                ref.read(libraryNavPreferencesProvider.notifier).reset(),
-          ),
-        ),
         _SettingsPanel(
           icon: Icons.view_list_outlined,
           title: 'Library customization',
