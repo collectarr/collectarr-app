@@ -102,7 +102,7 @@ class _SyncSettingsDialogState extends State<SyncSettingsDialog> {
       icon: Icons.sync,
       trailing: TextButton(
         style: TextButton.styleFrom(
-          foregroundColor: appContrastingTextColor(appPalette(context).accent),
+          foregroundColor: Colors.white,
         ),
         onPressed: () {
           setState(() {

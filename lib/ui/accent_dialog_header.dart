@@ -13,19 +13,26 @@ class AccentDialogHeader extends StatelessWidget {
     required this.title,
     this.icon,
     this.onClose,
+    this.showCloseButton = true,
     this.trailing,
     this.minHeight,
     this.titleStyle,
+    this.accent,
   });
 
   final String title;
   final double? minHeight;
   final TextStyle? titleStyle;
+  final Color? accent;
 
   final IconData? icon;
 
-  /// Called when the close button is tapped. If null, no close button is shown.
+  /// Called when the close button is tapped. If null and [showCloseButton] is true,
+  /// tapping the close button will dismiss the dialog via [Navigator.maybePop].
   final VoidCallback? onClose;
+
+  /// Whether to show the close button. Defaults to true.
+  final bool showCloseButton;
 
   /// Optional widget shown between the title and the close button.
   final Widget? trailing;
@@ -33,10 +40,15 @@ class AccentDialogHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    final accent = LibraryAccentScope.accentOf(context, fallback: colorScheme.primary);
+    final resolvedAccent = accent ??
+        LibraryAccentScope.accentOf(context, fallback: colorScheme.primary);
     const foreground = Colors.white;
+    final effectiveOnClose = showCloseButton
+        ? (onClose ?? () => Navigator.of(context).maybePop())
+        : null;
+
     return AnimatedLibraryChromeGradient(
-      accent: accent,
+      accent: resolvedAccent,
       begin: Alignment.centerLeft,
       end: Alignment.centerRight,
       borderBuilder: (animatedAccent, _) => Border(
@@ -52,12 +64,13 @@ class AccentDialogHeader extends StatelessWidget {
         minHeight: minHeight,
         foregroundColor: foreground,
         borderColor: Colors.transparent,
-        onClose: onClose,
+        onClose: effectiveOnClose,
+        trailing: trailing,
         padding: const EdgeInsets.symmetric(horizontal: 14),
         child: Row(
           children: [
             if (icon != null) ...[
-              Icon(icon, size: 20),
+              Icon(icon, size: 20, color: foreground),
               const SizedBox(width: 10),
             ],
             Expanded(
@@ -73,7 +86,6 @@ class AccentDialogHeader extends StatelessWidget {
                 ).merge(titleStyle),
               ),
             ),
-            if (trailing != null) trailing!,
           ],
         ),
       ),

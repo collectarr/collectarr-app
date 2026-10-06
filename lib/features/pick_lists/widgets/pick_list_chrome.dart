@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/ui/accent_dialog_header.dart';
-import 'package:collectarr_app/ui/theme/app_typography.dart';
 
 /// One shell for selection and management, so changing modes keeps its position.
 class PickListDialog extends StatelessWidget {
@@ -34,19 +33,7 @@ class PickListHeader extends StatelessWidget {
           fontFamily: kAppFontFamily,
           fontSize: 18,
           fontWeight: FontWeight.w700),
-      trailing: IconButton(
-          tooltip: 'Close',
-          onPressed: onClose,
-          style: IconButton.styleFrom(
-              backgroundColor: Colors.transparent,
-              disabledBackgroundColor: Colors.transparent,
-              side: BorderSide.none,
-              foregroundColor: Theme.of(context).colorScheme.onPrimary,
-              padding: EdgeInsets.zero,
-              minimumSize: const Size(24, 24),
-              maximumSize: const Size(24, 24),
-              tapTargetSize: MaterialTapTargetSize.shrinkWrap),
-          icon: const Icon(Icons.close, size: 20)));
+      onClose: onClose);
 }
 
 ButtonStyle pickListButtonStyle(BuildContext context,

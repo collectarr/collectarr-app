@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/config/library_kind_style.dart';
 import 'package:collectarr_app/features/library/ui/library_chrome_tokens.dart';
 import 'package:collectarr_app/features/library/ui/library_density_scope.dart';
 import 'package:collectarr_app/features/library/ui/library_panel_header.dart';
@@ -87,7 +88,6 @@ class LibraryDialogScaffold extends StatelessWidget {
   Widget build(BuildContext context) {
     final palette = appPalette(context);
     final resolvedAccent = accent ?? LibraryAccentScope.accentOf(context);
-    final headerAccent = palette.accent;
     final windowClass = AppWindowClass.of(context);
     final currentDepth = ModalDialogDepthScope.of(context);
     final effectiveBody = body ?? const SizedBox.shrink();
@@ -96,14 +96,37 @@ class LibraryDialogScaffold extends StatelessWidget {
 
     final effectiveHeader = header ??
         (title != null
-            ? LibraryPanelHeader(
-                backgroundColor: headerAccent,
-                foregroundColor: appContrastingTextColor(headerAccent),
-                borderColor: headerAccent.withValues(alpha: 0.92),
-                onClose: onClose,
-                padding: const EdgeInsets.fromLTRB(12, 12, 12, 8),
-                density: density,
-                child: title!,
+            ? AnimatedLibraryChromeGradient(
+                accent: resolvedAccent,
+                begin: Alignment.centerLeft,
+                end: Alignment.centerRight,
+                borderBuilder: (animatedAccent, _) => Border(
+                  bottom: BorderSide(
+                    color: Color.alphaBlend(
+                      Colors.white.withValues(alpha: 0.12),
+                      animatedAccent,
+                    ),
+                  ),
+                ),
+                child: LibraryPanelHeader(
+                  backgroundColor: Colors.transparent,
+                  foregroundColor: Colors.white,
+                  borderColor: Colors.transparent,
+                  onClose: onClose ?? () => Navigator.of(context).maybePop(),
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                  density: density,
+                  child: DefaultTextStyle.merge(
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 15,
+                      fontWeight: FontWeight.w700,
+                    ),
+                    child: IconTheme(
+                      data: const IconThemeData(color: Colors.white),
+                      child: title!,
+                    ),
+                  ),
+                ),
               )
             : null);
 

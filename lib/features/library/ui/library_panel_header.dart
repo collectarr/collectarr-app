@@ -1,5 +1,4 @@
 import 'package:collectarr_app/features/library/ui/library_chrome_tokens.dart';
-import 'package:collectarr_app/ui/library_square_close_button.dart';
 import 'package:collectarr_app/ui/theme/library_text_theme.dart';
 import 'package:flutter/material.dart';
 
@@ -107,11 +106,21 @@ class LibraryPanelHeader extends StatelessWidget {
               ],
               if (onClose != null) ...[
                 const SizedBox(width: 10),
-                LibrarySquareCloseButton(
+                IconButton(
                   tooltip: 'Close',
                   onPressed: onClose!,
-                  borderColor: fg.withValues(alpha: 0.8),
-                  foregroundColor: fg,
+                  constraints:
+                      const BoxConstraints.tightFor(width: 24, height: 24),
+                  padding: EdgeInsets.zero,
+                  visualDensity: VisualDensity.standard,
+                  style: IconButton.styleFrom(
+                    foregroundColor: fg,
+                    padding: EdgeInsets.zero,
+                    minimumSize: const Size(24, 24),
+                    maximumSize: const Size(24, 24),
+                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  ),
+                  icon: const Icon(Icons.close, size: 18),
                 ),
               ],
             ],

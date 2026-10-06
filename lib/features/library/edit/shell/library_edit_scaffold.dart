@@ -5,6 +5,7 @@ import 'package:collectarr_app/features/library/ui/library_chrome_tokens.dart';
 import 'package:collectarr_app/features/library/ui/library_action_footer.dart';
 import 'package:collectarr_app/features/library/ui/library_dialog_scaffold.dart';
 import 'package:collectarr_app/features/library/ui/library_panel_header.dart';
+import 'package:collectarr_app/features/library/config/library_kind_style.dart';
 import 'package:collectarr_app/features/library/schema/library_schema_text_controller_store.dart';
 import 'package:collectarr_app/ui/adaptive/window_class.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
@@ -411,53 +412,73 @@ class _LibraryEditTitleBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final isWideDesktop =
         chromeVariant == LibraryEditChromeVariant.movieDesktop;
-    final headerMinHeight = 38.0;
-    final foreground = appContrastingTextColor(accent);
-    return LibraryPanelHeader(
-      backgroundColor: accent,
-      foregroundColor: foreground,
-      borderColor: accent.withValues(alpha: 0.92),
-      trailing: IconButton(
-        tooltip: 'Close',
-        onPressed: isBusy ? null : onClose,
-        constraints: const BoxConstraints.tightFor(width: 24, height: 24),
-        padding: EdgeInsets.zero,
-        visualDensity: VisualDensity.standard,
-        icon: const Icon(Icons.close, size: 18),
-      ),
-      minHeight: headerMinHeight,
-      padding: const EdgeInsets.fromLTRB(15, 6, 10, 6),
-      child: Row(
-        children: [
-          Expanded(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontWeight: FontWeight.w700,
-                    fontSize: isWideDesktop ? 16 : 18,
-                    height: 1,
-                    letterSpacing: 0,
-                    color: foreground,
-                  ),
-                ),
-                if (badges.isNotEmpty) ...[
-                  const SizedBox(height: 2),
-                  Wrap(
-                    spacing: 4,
-                    runSpacing: 2,
-                    children: badges,
-                  ),
-                ],
-              ],
-            ),
+    const headerMinHeight = 38.0;
+    const foreground = Colors.white;
+    return AnimatedLibraryChromeGradient(
+      accent: accent,
+      begin: Alignment.centerLeft,
+      end: Alignment.centerRight,
+      borderBuilder: (animatedAccent, _) => Border(
+        bottom: BorderSide(
+          color: Color.alphaBlend(
+            Colors.white.withValues(alpha: 0.12),
+            animatedAccent,
           ),
-        ],
+        ),
+      ),
+      child: LibraryPanelHeader(
+        backgroundColor: Colors.transparent,
+        foregroundColor: foreground,
+        borderColor: Colors.transparent,
+        trailing: IconButton(
+          tooltip: 'Close',
+          onPressed: isBusy ? null : onClose,
+          constraints: const BoxConstraints.tightFor(width: 24, height: 24),
+          padding: EdgeInsets.zero,
+          visualDensity: VisualDensity.standard,
+          style: IconButton.styleFrom(
+            foregroundColor: Colors.white,
+            padding: EdgeInsets.zero,
+            minimumSize: const Size(24, 24),
+            maximumSize: const Size(24, 24),
+            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+          ),
+          icon: const Icon(Icons.close, size: 18, color: Colors.white),
+        ),
+        minHeight: headerMinHeight,
+        padding: const EdgeInsets.fromLTRB(15, 6, 10, 6),
+        child: Row(
+          children: [
+            Expanded(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontWeight: FontWeight.w700,
+                      fontSize: isWideDesktop ? 16 : 18,
+                      height: 1,
+                      letterSpacing: 0,
+                      color: Colors.white,
+                    ),
+                  ),
+                  if (badges.isNotEmpty) ...[
+                    const SizedBox(height: 2),
+                    Wrap(
+                      spacing: 4,
+                      runSpacing: 2,
+                      children: badges,
+                    ),
+                  ],
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
