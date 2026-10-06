@@ -47,7 +47,10 @@ Future<void> recordLibraryMetadataProposalResponse({
 }
 
 String? _proposalTitle(JsonMap item) {
-  final title = item['title'] ?? item['name'];
+  final title = item['primary_label'] ??
+      item['primaryLabel'] ??
+      item['title'] ??
+      item['name'];
   final trimmed = title is String ? title.trim() : '';
   return trimmed.isEmpty ? null : trimmed;
 }

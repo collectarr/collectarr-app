@@ -18,6 +18,7 @@ class LibraryColumnChooserDialog extends StatefulWidget {
     this.presets = const [],
     this.savedPresets = const [],
     this.pinnedFavoriteKeys = const {},
+    this.primaryColumn,
     this.onTogglePinnedFavorite,
     this.onSavePreset,
     this.onDeletePreset,
@@ -29,6 +30,7 @@ class LibraryColumnChooserDialog extends StatefulWidget {
   final Set<String> defaultColumns;
   final String Function(String column) columnLabel;
   final Color? accent;
+  final String? primaryColumn;
   final String? Function(String column)? columnDescription;
   final LibraryTableColumnGroup Function(String column)? columnGroup;
   final String Function(LibraryTableColumnGroup group)? groupLabel;
@@ -58,8 +60,13 @@ class _LibraryColumnChooserDialogState
       TextEditingController(text: _activePreset?.label ?? '');
   String _query = '';
 
+  String? get _effectivePrimaryColumn =>
+      widget.primaryColumn ??
+      (widget.availableColumns.contains('title') ? 'title' : null);
+
   LibraryTableColumnPreset? get _activePreset {
-    final selected = {..._selected, 'title'};
+    final primary = _effectivePrimaryColumn;
+    final selected = {..._selected, if (primary != null) primary};
     for (final preset in _allPresets) {
       if (_sameColumnSet(preset.columns, selected)) {
         return preset;
@@ -274,7 +281,10 @@ class _LibraryColumnChooserDialogState
                                             'selected-column-$column',
                                           ),
                                           title: widget.columnLabel(column),
-                                          removable: column != 'title',
+                                          removable:
+                                              _effectivePrimaryColumn == null ||
+                                                  column !=
+                                                      _effectivePrimaryColumn,
                                           onRemove: () => setState(
                                             () => _selected.remove(column),
                                           ),
@@ -317,7 +327,10 @@ class _LibraryColumnChooserDialogState
                     const SizedBox(width: 8),
                     LibraryDenseButton(
                       onPressed: () {
-                        final result = Set<String>.of(_selected)..add('title');
+                        final result = Set<String>.of(_selected);
+                        if (_effectivePrimaryColumn != null) {
+                          result.add(_effectivePrimaryColumn!);
+                        }
                         Navigator.of(context).pop(result);
                       },
                       label: 'Save',
@@ -347,7 +360,7 @@ class _LibraryColumnChooserDialogState
     setState(() {
       _selected = {
         ...preset.columns,
-        'title',
+        if (_effectivePrimaryColumn != null) _effectivePrimaryColumn!,
       };
       _presetNameController.text = preset.label;
     });
@@ -411,7 +424,8 @@ class _LibraryColumnChooserDialogState
   Widget _columnCheckbox(String column) {
     final palette = appPalette(context);
     final selected = _selected.contains(column);
-    final locked = column == 'title';
+    final locked =
+        _effectivePrimaryColumn != null && column == _effectivePrimaryColumn;
     return Material(
       color: Colors.transparent,
       child: InkWell(
@@ -462,12 +476,14 @@ class _LibraryColumnChooserDialogState
   }
 
   void _toggleGroupColumns(List<String> columns) {
+    final primary = _effectivePrimaryColumn;
     final allSelected = columns.every(
-      (column) => column == 'title' || _selected.contains(column),
+      (column) =>
+          (primary != null && column == primary) || _selected.contains(column),
     );
     setState(() {
       for (final column in columns) {
-        if (column == 'title') {
+        if (primary != null && column == primary) {
           _selected.add(column);
           continue;
         }

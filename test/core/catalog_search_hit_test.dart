@@ -1,4 +1,4 @@
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/core/models/catalog_search_hit.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -14,15 +14,15 @@ void main() {
     });
 
     expect(hit.ref.kind, CatalogMediaKind.movie);
-    expect(hit.ref.entityType, CatalogEntityTypeId.catalogItem);
     expect(hit.ref.id, 'movie-1');
     expect(hit.kind, CatalogMediaKind.movie);
+    expect(hit.primaryLabel, 'Arrival');
     expect(hit.title, 'Arrival');
     expect(hit.subtitle, 'A linguist meets visitors.');
     expect(hit.toJson(), {
       'id': 'movie-1',
       'kind': 'movie',
-      'entity_type': 'catalog_item',
+      'primary_label': 'Arrival',
       'title': 'Arrival',
       'subtitle': 'A linguist meets visitors.',
       'image_url': 'https://example.test/arrival.jpg',
@@ -30,11 +30,10 @@ void main() {
     expect(hit.toJson().containsKey('payload'), isFalse);
   });
 
-  test('keeps a typed work reference in the structural projection', () {
+  test('keeps a typed item reference in the structural projection', () {
     final hit = CatalogSearchHit(
-      ref: const CatalogEntityRef(
+      ref: const CatalogItemRef(
         kind: CatalogMediaKind.book,
-        entityType: CatalogEntityTypeId.catalogItem,
         id: 'book-1',
       ),
       kind: CatalogMediaKind.book,
@@ -43,10 +42,11 @@ void main() {
       imageUrl: 'https://example.test/dune.jpg',
     );
 
-    expect(hit.ref, isA<CatalogEntityRef>());
+    expect(hit.ref, isA<CatalogItemRef>());
     expect(hit.ref.kind, CatalogMediaKind.book);
-    expect(hit.ref.entityType, CatalogEntityTypeId.catalogItem);
     expect(hit.ref.id, 'book-1');
+    expect(hit.primaryLabel, 'Dune');
+    expect(hit.title, 'Dune');
     expect(hit.subtitle, '1');
     expect(hit.imageUrl, 'https://example.test/dune.jpg');
   });
@@ -56,32 +56,19 @@ void main() {
       () => CatalogSearchHit.fromJson({'kind': 'book', 'title': 'Dune'}),
       throwsFormatException,
     );
-    expect(
-      () => CatalogSearchHit.fromJson({'id': 'book-1', 'kind': 'book'}),
-      throwsFormatException,
-    );
   });
 
-  test('round-trips the complete structural reference', () {
-    final hit = CatalogSearchHit.fromJson({
-      'id': 'edition-1',
+  test('allows hits without title by falling back to primaryLabel or id', () {
+    final hitWithLabel = CatalogSearchHit.fromJson({
+      'id': 'spec-1',
       'kind': 'book',
-      'entity_type': 'edition',
-      'root_id': 'book-1',
-      'parent_id': 'series-1',
-      'title': 'Dune edition',
+      'primary_label': 'SPEC-101',
     });
+    expect(hitWithLabel.primaryLabel, 'SPEC-101');
+    expect(hitWithLabel.title, 'SPEC-101');
 
-    expect(
-        hit.ref,
-        const CatalogEntityRef(
-          kind: CatalogMediaKind.book,
-          entityType: CatalogEntityTypeId('edition'),
-          id: 'edition-1',
-          rootId: 'book-1',
-          parentId: 'series-1',
-        ));
-    expect(hit.toJson()['root_id'], 'book-1');
-    expect(hit.toJson()['parent_id'], 'series-1');
+    final hitOnlyId = CatalogSearchHit.fromJson({'id': 'item-1', 'kind': 'book'});
+    expect(hitOnlyId.primaryLabel, 'item-1');
+    expect(hitOnlyId.title, 'item-1');
   });
 }

@@ -7,13 +7,14 @@ import 'package:flutter/foundation.dart';
 /// must be loaded by the repository entry by [kind] after dispatch.
 @immutable
 final class CatalogSearchHit {
-  const CatalogSearchHit({
+  CatalogSearchHit({
     required this.ref,
     required this.kind,
-    required this.title,
+    String? title,
+    String? primaryLabel,
     this.subtitle,
     this.imageUrl,
-  });
+  }) : primaryLabel = primaryLabel ?? title ?? ref.id;
 
   factory CatalogSearchHit.fromJson(Map<String, Object?> json) {
     final id = json['id']?.toString().trim() ?? '';
@@ -23,15 +24,19 @@ final class CatalogSearchHit {
 
     final rawKind = json['kind']?.toString().trim() ?? '';
     final kind = catalogMediaKindFromValue(rawKind);
-    final title = json['title']?.toString().trim() ?? '';
-    if (title.isEmpty) {
-      throw const FormatException('Catalog search hit is missing title');
-    }
+    final label = _nullableString(
+          json['primary_label'] ??
+              json['primaryLabel'] ??
+              json['title'] ??
+              json['display_title'] ??
+              json['name'],
+        ) ??
+        id;
 
     return CatalogSearchHit(
       ref: CatalogItemRef(kind: kind, id: id),
       kind: kind,
-      title: title,
+      primaryLabel: label,
       subtitle: _nullableString(json['subtitle'] ?? json['summary']),
       imageUrl: _nullableString(json['image_url']),
     );
@@ -39,7 +44,8 @@ final class CatalogSearchHit {
 
   final CatalogItemRef ref;
   final CatalogMediaKind kind;
-  final String title;
+  final String primaryLabel;
+  String get title => primaryLabel;
   final String? subtitle;
   final String? imageUrl;
 
@@ -47,7 +53,8 @@ final class CatalogSearchHit {
     return {
       'id': ref.id,
       'kind': kind.apiValue,
-      'title': title,
+      'primary_label': primaryLabel,
+      'title': primaryLabel,
       if (subtitle != null) 'subtitle': subtitle,
       if (imageUrl != null) 'image_url': imageUrl,
     };
@@ -59,7 +66,7 @@ final class CatalogSearchHit {
         other is CatalogSearchHit &&
             ref == other.ref &&
             kind == other.kind &&
-            title == other.title &&
+            primaryLabel == other.primaryLabel &&
             subtitle == other.subtitle &&
             imageUrl == other.imageUrl;
   }
@@ -68,7 +75,7 @@ final class CatalogSearchHit {
   int get hashCode => Object.hash(
         ref,
         kind,
-        title,
+        primaryLabel,
         subtitle,
         imageUrl,
       );
