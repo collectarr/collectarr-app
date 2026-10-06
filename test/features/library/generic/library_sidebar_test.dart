@@ -10,10 +10,10 @@ import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_r
 void main() {
   testWidgets('group mode dropdown shows expandable folders sections',
       (tester) async {
-    var selectedMode = 'release_year';
+    var selectedMode = 'movie.release_year';
     var selectedPreset = LibraryFolderPreset.single(selectedMode);
     final pinnedPresets = <LibraryFolderPreset>[
-      LibraryFolderPreset.single('director'),
+      LibraryFolderPreset.single('movie.director'),
     ];
 
     await tester.pumpWidget(
@@ -33,9 +33,9 @@ void main() {
                 folderPreset: selectedPreset,
                 selectedBucket: 'All Movies',
                 onSelected: (_) {},
-                onGroupModeChanged: (value) {
-                  selectedPreset = LibraryFolderPreset.single(value);
-                  selectedMode = value;
+                onGroupModeChanged: (preset) {
+                  selectedPreset = preset;
+                  selectedMode = preset.primaryMode;
                 },
                 collectionStatusScope: LibraryCollectionStatusScope.all,
                 onClearFilter: () {},
@@ -82,9 +82,9 @@ void main() {
     expect(find.text('Director'), findsWidgets);
     expect(find.text('Format'), findsNothing);
     expect(find.text('Release Year'), findsWidgets);
-    expect(find.text('Audience Rating'), findsNothing);
-    expect(find.text('Movie / TV Series'), findsNothing);
-    expect(find.text('Studios'), findsNothing);
+    expect(find.text('Audience Rating'), findsWidgets);
+    expect(find.text('Movie / TV Series'), findsWidgets);
+    expect(find.text('Studios'), findsWidgets);
   });
 
   testWidgets('sidebar shows a manage button for editable group buckets', (
@@ -106,7 +106,7 @@ void main() {
                   LibraryBucket(title: '[All Movies]', count: 12),
                   LibraryBucket(title: 'Action', count: 8),
                 ],
-                groupMode: 'genre',
+                groupMode: 'movie.genre',
                 selectedBucket: '[All Movies]',
                 onSelected: (_) {},
                 onGroupModeChanged: (_) {},

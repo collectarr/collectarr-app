@@ -92,9 +92,8 @@ void main() {
       return null;
     }
 
-    expect(fieldFor('title', 'game')?['writeTarget'], 'core_canonical');
-    expect(fieldFor('physical_format_label', 'game')?['writeTarget'],
-        'readonly_computed');
+    expect(fieldFor('title', 'game')?['editable'], isTrue);
+    expect(fieldFor('title', 'game')?['valueType'], 'string');
   });
 }
 

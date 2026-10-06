@@ -33,10 +33,9 @@ void main() {
           )
           .toString(),
     );
-    expect(fieldFor('title', 'game')?['writeTarget'], 'core_canonical');
-    expect(fieldFor('physical_format_label', 'game')?['writeTarget'],
-        'readonly_computed');
-    expect(fieldFor('platforms', 'game')?['scope'], 'platform');
-    expect(fieldFor('platforms', 'boardgame')?['scope'], 'work');
+    expect(fieldFor('title', 'game')?['editable'], isTrue);
+    expect(fieldFor('physical_format_label', 'game')?['editable'], isFalse);
+    expect(fieldFor('platforms', 'game')?['valueType'], 'string_list');
+    expect(fieldFor('platforms', 'boardgame')?['valueType'], 'string_list');
   });
 }

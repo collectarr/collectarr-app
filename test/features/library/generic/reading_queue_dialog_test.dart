@@ -7,6 +7,8 @@ import 'package:collectarr_app/core/models/tracking_summary.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/features/collection/repositories/reading_queue_repository.dart';
 import 'package:collectarr_app/features/library/generic/reading_queue_dialog.dart';
+import 'package:collectarr_app/features/library/kinds/book/domain/book_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/book/workspace/book_workspace_data.dart';
 import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -56,16 +58,14 @@ void main() {
                         kind: CatalogMediaKind.book,
                         id: LibraryEntryId('entry-1'),
                       ),
-                      title: 'Dune',
-                      catalogRef: testCatalogRef('book-1', kind: 'book'),
+                      sourceCatalogRef: testCatalogRef('book-1', kind: 'book'),
                     ),
                     LibraryEntrySummary(
                       ref: const LibraryEntryRef(
                         kind: CatalogMediaKind.book,
                         id: LibraryEntryId('entry-2'),
                       ),
-                      title: 'Foundation',
-                      catalogRef: testCatalogRef('book-2', kind: 'book'),
+                      sourceCatalogRef: testCatalogRef('book-2', kind: 'book'),
                       notes: 'Signed copy',
                       hasNotes: true,
                     ),
@@ -73,24 +73,23 @@ void main() {
                   trackingSummaries: [
                     TrackingSummary(
                       id: 'tracking-1',
-                      catalogRef: testCatalogRef('book-1', kind: 'book'),
                       libraryEntryRef: LibraryEntryRef.fromKey('book:entry-1'),
                       status: MediaTrackingStatus.inProgress,
                       updatedAt: DateTime.utc(2026, 1, 1),
                     ),
                   ],
-                  catalogSummariesByRef: {
-                    testCatalogRef('book-1', kind: 'book'):
-                        CatalogDisplaySummary.root(
-                      id: 'book-1',
+                  kindPresentationByEntryRef: {
+                    const LibraryEntryRef(
                       kind: CatalogMediaKind.book,
-                      primaryLabel: 'Dune',
+                      id: LibraryEntryId('entry-1'),
+                    ): BookWorkspaceData(
+                      metadata: const BookCatalogMetadata(title: 'Dune'),
                     ),
-                    testCatalogRef('book-2', kind: 'book'):
-                        CatalogDisplaySummary.root(
-                      id: 'book-2',
+                    const LibraryEntryRef(
                       kind: CatalogMediaKind.book,
-                      primaryLabel: 'Foundation',
+                      id: LibraryEntryId('entry-2'),
+                    ): BookWorkspaceData(
+                      metadata: const BookCatalogMetadata(title: 'Foundation'),
                     ),
                   },
                   onSelectItem: (itemId) => selectedItemId = itemId,
@@ -120,6 +119,6 @@ void main() {
     await tester.tap(find.text('Foundation'));
     await pumpUntilSettled(tester);
 
-    expect(selectedItemId, 'book-2');
+    expect(selectedItemId, 'entry-2');
   });
 }

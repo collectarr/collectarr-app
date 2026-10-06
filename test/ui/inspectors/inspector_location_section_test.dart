@@ -61,7 +61,7 @@ void main() {
 
     final entry = (await ComicEntryRepository(db).listActive()).single;
 
-    expect(entry.locationId, 'loc-1');
+    expect(entry.personal.locationId, 'loc-1');
     expect(find.text('Office Shelf'), findsOneWidget);
   });
 }

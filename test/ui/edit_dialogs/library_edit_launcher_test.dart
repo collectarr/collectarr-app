@@ -51,7 +51,7 @@ void main() {
     await tester.pump();
 
     expect(find.byType(CircularProgressIndicator), findsOneWidget);
-    expect(find.text('Opening editor for The Return of the King...'),
+    expect(find.text('Loading edit data for The Return of the King...'),
         findsOneWidget);
 
     completer.complete(request);

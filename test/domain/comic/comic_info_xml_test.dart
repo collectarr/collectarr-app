@@ -40,7 +40,7 @@ void main() {
       synopsis: 'A public synopsis',
       publisher: 'Marvel Comics',
       releaseDate: DateTime(1962, 8, 10),
-      physicalFormatLabel: 'Softcover',
+      physicalFormat: 'Softcover',
     );
 
     final xml = const ComicInfoXml().serialize(metadata);

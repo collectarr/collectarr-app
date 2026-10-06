@@ -20,6 +20,7 @@ import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_r
 import 'package:collectarr_app/features/library/tracking/watch_sessions_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/wishlist_items_cache_repository.dart';
 import 'package:collectarr_app/features/collection/runner/collection_mutation_runner.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_item_cache_repository.dart';
 import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -36,9 +37,15 @@ void main() {
   late WishlistMutations wishlistMutations;
   late TrackingMutations trackingMutations;
 
-  setUp(() {
+  setUp(() async {
     SharedPreferences.setMockInitialValues({});
     db = LocalDatabase(NativeDatabase.memory());
+    await CatalogItemCacheRepository(db).upsert(
+      testCatalogItem(id: 'movie-100', kind: 'movie', title: 'Movie 100'),
+    );
+    await CatalogItemCacheRepository(db).upsert(
+      testCatalogItem(id: 'movie-200', kind: 'movie', title: 'Movie 200'),
+    );
     eventBus = CollectionEventBus();
     runner = CollectionMutationRunner(
       database: db,
@@ -160,8 +167,12 @@ void main() {
   });
 
   test('remove tracking emits TrackingChanged only', () async {
+    const entryRef = LibraryEntryRef(
+      kind: CatalogMediaKind.book,
+      id: LibraryEntryId('book-300'),
+    );
     await trackingMutations.upsertTrackingState(
-      TrackingTarget.catalog(testCatalogRef('book-300', kind: 'book')),
+      entryRef,
       sourceType: TrackingSourceType.digital,
       status: MediaTrackingStatus.inProgress,
     );
@@ -169,8 +180,8 @@ void main() {
     final entries = await TrackingStorageRepository(
       db,
       codecs: libraryTrackingStorageCodecs,
-    ).findActiveStorageRecordsByCatalogRoots([
-      testCatalogRef('book-300', kind: 'book'),
+    ).findActiveStorageRecordsByLibraryEntryRefs([
+      entryRef,
     ]);
     final trackingRecord = entries.single;
 
@@ -179,7 +190,7 @@ void main() {
 
     await trackingMutations.removeTrackingByRef(
       TrackingStateRef(
-        kind: trackingRecord.catalogRef.mediaKind,
+        kind: trackingRecord.libraryEntryRef.kind,
         id: trackingRecord.id,
       ),
     );

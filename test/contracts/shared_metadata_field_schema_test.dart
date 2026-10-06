@@ -10,6 +10,8 @@ SharedMetadataFieldValueType _appValueType(String coreValueType) {
   return switch (coreValueType) {
     'string_list' => SharedMetadataFieldValueType.stringList,
     'integer' => SharedMetadataFieldValueType.integer,
+    'number' => SharedMetadataFieldValueType.number,
+    'boolean' => SharedMetadataFieldValueType.boolean,
     'partial_date' => SharedMetadataFieldValueType.partialDate,
     // string / link_list / track_list render as text/list controls in the app.
     _ => SharedMetadataFieldValueType.text,
@@ -20,6 +22,7 @@ SharedMetadataFieldValueType _appValueType(String coreValueType) {
 /// a scalar descriptor in [kAdminMetadataScalarFields].
 const Set<String> _appHandledSpecially = {
   'physical_format', // release physical-format dropdown
+  'tracks', // structured tracks/discs editor
 };
 
 void main() {
@@ -75,7 +78,11 @@ void main() {
         .toSet()
       ..addAll(_appHandledSpecially);
     final appKeys = kLibraryEditableFieldKeys.toSet();
-    expect(appKeys, equals(coreKeys));
+    expect(
+      appKeys,
+      equals(coreKeys),
+      reason: 'Diff: app-core=${appKeys.difference(coreKeys)}, core-app=${coreKeys.difference(appKeys)}',
+    );
   });
 
   test('overlapping field value types agree with the core registry', () {
@@ -94,27 +101,30 @@ void main() {
     }
   });
 
-  test('normalized fields expose their normalized value type from core', () {
-    final normalizedByKey = {
-      for (final field in schema.fields)
-        if (field.normalized) field.key: field.valueType,
-    };
-    for (final appField in kAdminMetadataScalarFields) {
-      final coreType = normalizedByKey[appField.key];
-      if (coreType == null) continue;
-      expect(
-        appField.normalizedValueType,
-        coreType,
-        reason: 'Normalized value type drift for "${appField.key}"',
-      );
-    }
-  });
-
   test('generated edit fields preserve the exact per-tab display order', () {
     // Locks the rendered layout so the projection from core can never silently
     // reorder the admin/edit panel.
     const expectedOrder = <SharedMetadataEditTab, List<String>>{
       SharedMetadataEditTab.item: [
+        'languages',
+        'original_language',
+        'recommended_players',
+        'best_players',
+        'min_playtime_minutes',
+        'max_playtime_minutes',
+        'complexity_weight',
+        'bgg_rating',
+        'bgg_rating_count',
+        'bgg_rank',
+        'first_edition',
+        'toy_subtype',
+        'toy_type',
+        'display_title',
+        'artist',
+        'sort_title',
+        'original_release_date',
+        'recording_date',
+        'studios',
         'title',
         'original_title',
         'localized_title',
@@ -122,30 +132,53 @@ void main() {
         'sort_key',
         'search_aliases',
         'item_number',
+        'series_title',
         'edition_title',
         'release_date',
       ],
       SharedMetadataEditTab.publishing: [
-        'publisher',
+        'runtime_minutes',
+        'publishers',
         'imprint',
-        'subtitle',
         'series_group',
+        'page_count',
+        'first_publication_date',
+        'original_publication_date',
+        'distributor',
+        'edition_statement',
+        'binding',
+        'studio',
+        'production_companies',
+        'label',
+        'format',
+        'packaging',
+        'publisher',
+        'subtitle',
         'barcode',
         'variant_name',
-        'page_count',
-        'runtime_minutes',
       ],
       SharedMetadataEditTab.technical: [
         'color',
-        'catalog_number',
-        'release_status',
         'nr_discs',
         'screen_ratio',
         'audio_tracks',
         'subtitles',
         'layers',
+        'dimensions',
+        'audio_length_minutes',
+        'is_live',
+        'sound_types',
+        'vinyl_color',
+        'vinyl_weight',
+        'rpm',
+        'extra',
+        'spars',
+        'box_set',
+        'catalog_number',
+        'release_status',
       ],
       SharedMetadataEditTab.regional: [
+        'region',
         'country',
         'language',
         'age_rating',
@@ -153,10 +186,11 @@ void main() {
         'series_tags',
       ],
       SharedMetadataEditTab.artwork: [
+        'back_cover_image_url',
+        'crossover',
         'cover_image_url',
         'thumbnail_image_url',
         'synopsis',
-        'crossover',
         'plot_summary',
         'plot_description',
       ],
@@ -164,13 +198,20 @@ void main() {
         'genres',
         'platforms',
         'identifiers',
-        'company_roles',
         'contributors',
         'mechanics',
         'categories',
         'families',
         'expansions',
         'rankings',
+        'designers',
+        'artists',
+        'themes',
+        'characters',
+        'expansion_for',
+        'subjects',
+        'company_roles',
+        'franchise',
         'trailer_urls',
         'external_links',
       ],

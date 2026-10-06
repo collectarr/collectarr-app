@@ -1,3 +1,4 @@
+import 'package:collectarr_app/core/models/library_entry_ref.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/features/library/kinds/movie/tracking/movie_tracking_state.dart';
 import 'package:collectarr_app/features/library/inspector/inspector_personal_details.dart';
@@ -89,7 +90,7 @@ void main() {
     await pumpUntilSettled(tester);
 
     final updated = (await MovieEntryRepository(db).listActive()).single;
-    expect(updated.locationId, 'loc-b');
+    expect(updated.personal.locationId, 'loc-b');
   });
 
   testWidgets('tracking details editor saves tracked-only entries',
@@ -102,11 +103,20 @@ void main() {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
 
+    await MovieEntryRepository(db).upsert(
+      testMovieLibraryEntryFrom(testLibraryEntry(
+        id: 'movie-1',
+        itemId: 'movie-1',
+        kind: 'movie',
+        updatedAt: DateTime.utc(2026, 5, 23),
+      )),
+    );
+
     final trackingRepository = trackingRecordTestRepository(db);
     await trackingRepository.upsertStorageRecord(
       trackingRepository.create(
         id: 'tracking-1',
-        catalogRef: testCatalogRef('movie-1', kind: 'movie'),
+        libraryEntryRef: LibraryEntryRef.fromKey('movie:movie-1'),
         sourceType: 'digital',
         status: 'Plan to watch',
         rating: 7,
@@ -124,7 +134,7 @@ void main() {
               trackingSummary: trackingSummaryFromRecord(
                 MovieTrackingState(
                   id: 'tracking-1',
-                  catalogRef: testCatalogRef('movie-1', kind: 'movie'),
+                  libraryEntryRef: LibraryEntryRef.fromKey('movie:movie-1'),
                   sourceType: 'digital',
                   status: 'Plan to watch',
                   rating: 7,
@@ -151,7 +161,7 @@ void main() {
     final updated = await readSingleTrackingState(db);
     expect(updated.sourceTypeApiValue, 'digital');
     expect(updated.rating, 7);
-    expect(updated.catalogRef.id, 'movie-1');
+    expect(updated.libraryEntryRef.id.value, 'movie-1');
     expect(updated.updatedAt.isAfter(DateTime.utc(2026, 5, 23)), isTrue);
   });
 }

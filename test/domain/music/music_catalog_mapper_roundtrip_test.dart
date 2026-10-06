@@ -85,10 +85,7 @@ void main() {
       'discs': [],
     });
     final original = MusicCatalogMapper.mapMetadataItemToMusic(source);
-    final values = MusicAlbumFormValues.fromAlbum(original)
-      ..physicalFormat = 'CD'
-      ..physicalFormatLabel = 'CD';
-
+    final values = MusicAlbumFormValues.fromAlbum(original)..format = 'CD';
     final edited = MusicAlbumFormAdapter.update(original, values);
     final encoded = MusicCatalogMapper.toCatalogItemDto(edited);
 

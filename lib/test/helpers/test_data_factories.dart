@@ -1,19 +1,21 @@
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/core/models/catalog_display_summary.dart';
 import 'package:collectarr_app/test/helpers/test_library_entry_fixture.dart';
 
 export 'test_library_entry_fixture.dart';
 import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
+import 'package:collectarr_app/features/library/domain/library_target_ref.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_record.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/collection/commands/library_entry_commands.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
-import 'package:collectarr_app/features/library/add/models/library_add_reference_type.dart';
 import 'package:collectarr_app/features/library/kinds/registry/catalog_workspace_data_dispatch.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_kind_data.dart';
+import 'package:collectarr_app/features/library/workspace/entry/personal_overlay.dart';
+import 'package:collectarr_app/features/library/workspace/entry/workspace_item.dart';
 import 'package:collectarr_app/features/library/kinds/anime/entries/anime_entry_details.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_library_entry.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/entries/boardgame_entry_details.dart';
@@ -79,13 +81,13 @@ CatalogItemDto testCatalogItem({
   List<String>? characters,
   List<String>? storyArcs,
   List<Map<String, dynamic>>? creators,
-  List<CatalogEditionDto>? editions,
-  List<TrailerLinkDto>? trailerUrls,
-  CatalogSeriesDetailsDto? series,
+  List<Map<String, dynamic>>? editions,
+  List<Map<String, dynamic>>? trailerUrls,
+  dynamic series,
   dynamic video,
   dynamic music,
   dynamic game,
-  CatalogPublishingDetailsDto? publishing,
+  dynamic publishing,
   Map<String, dynamic>? payload,
 }) {
   final mergedPayload = <String, dynamic>{
@@ -107,11 +109,14 @@ CatalogItemDto testCatalogItem({
     if (characters != null) 'characters': characters,
     if (storyArcs != null) 'story_arcs': storyArcs,
     if (creators != null) 'creators': creators,
-    if (series != null) 'series': series.toJson(),
+    if (series != null)
+      'series': series is Map ? series : (series as dynamic).toJson(),
     if (video != null) 'video': video,
     if (music != null) 'music': music,
     if (game != null) 'game': game,
-    if (publishing != null) 'publishing': publishing.toJson(),
+    if (publishing != null)
+      'publishing':
+          publishing is Map ? publishing : (publishing as dynamic).toJson(),
     if (payload != null) ...payload,
   };
   final kindData = <String, dynamic>{
@@ -128,10 +133,8 @@ CatalogItemDto testCatalogItem({
     if (sortKey != null) 'sort_key': sortKey,
     if (releaseDate != null) 'release_date': releaseDate.toIso8601String(),
     if (releaseYear != null) 'release_year': releaseYear,
-    if (editions?.isNotEmpty ?? false)
-      'editions': editions!.map((edition) => edition.toJson()).toList(),
-    if (trailerUrls?.isNotEmpty ?? false)
-      'trailer_urls': trailerUrls!.map((link) => link.toJson()).toList(),
+    if (editions != null) 'editions': editions,
+    if (trailerUrls != null) 'trailer_urls': trailerUrls,
     ...mergedPayload,
   };
   return CatalogItemDto.raw(
@@ -147,8 +150,13 @@ extension ShelfCatalogFixture on CatalogItemDto {
   CatalogSearchCandidate get asSearchCandidate =>
       CatalogSearchCandidate.fromItem(this);
 
-  CatalogDisplaySummary get asShelfCatalogSummary =>
-      CatalogSearchCandidate.fromItem(this).summary;
+  CatalogDisplaySummary get asShelfCatalogSummary => CatalogDisplaySummary(
+        ref: catalogItemRef,
+        kind: mediaKind,
+        primaryLabel: (kindData['title'] as String?) ?? id,
+        imageUrl: (kindData['cover_image_url'] as String?) ??
+            (kindData['thumbnail_image_url'] as String?),
+      );
 
   LibraryWorkspaceKindData get asShelfCatalogData =>
       workspaceCatalogDataFromTransport(CatalogImportTransport.fromItem(this));
@@ -167,20 +175,18 @@ CatalogItemDto testCatalogItemWithKindMetadata(CatalogItemDto item) {
   return item;
 }
 
-CatalogEntityRef testCatalogRef(
+CatalogItemRef testCatalogRef(
   String id, {
   String kind = 'unknown',
-  CatalogEntityTypeId entityType = CatalogEntityTypeId.catalogItem,
 }) {
-  return CatalogEntityRef(
+  return CatalogItemRef(
     kind: catalogMediaKindFromApiValue(kind),
-    entityType: entityType,
     id: id,
   );
 }
 
 AddLibraryEntryCommand typedAddLibraryEntryCommand({
-  required CatalogEntityRef catalogRef,
+  required CatalogItemRef catalogRef,
   required LibraryAddCommonDraft common,
   required JsonEncodable details,
   String? grade,
@@ -194,7 +200,7 @@ AddLibraryEntryCommand typedAddLibraryEntryCommand({
       tracking: tracking,
     );
   }
-  final add = libraryAddForKind(catalogRef.mediaKind);
+  final add = libraryAddForKind(catalogRef.kind);
   return add.buildCommandFromDetails(
     CatalogSearchCandidate.fromItem(
       testCatalogItem(
@@ -215,7 +221,7 @@ AddLibraryEntryCommand typedAddLibraryEntryCommand({
       isDigital: common.isDigital,
     ),
     details,
-    draft: _addDraftWithGrade(catalogRef.mediaKind, grade),
+    draft: _addDraftWithGrade(catalogRef.kind, grade),
     tracking: LibraryAddTrackingDraft(
       readStatus: mediaTrackingStatusToStorageValue(tracking?.status),
       rating: tracking?.rating,
@@ -246,11 +252,11 @@ TestLibraryEntry testLibraryEntry({
   String id = 'entry-1',
   String itemId = 'test-item-1',
   String kind = 'comic',
-  CatalogEntityRef? catalogRef,
+  CatalogItemRef? catalogRef,
   DateTime? createdAt,
   DateTime? updatedAt,
   bool? isDigital,
-  CatalogEntityRef? targetRef,
+  CatalogItemRef? targetRef,
   String? editionId,
   String? variantId,
   String? bundleReleaseId,
@@ -308,13 +314,12 @@ TestLibraryEntry testLibraryEntry({
   bool? gameValueIsLocked,
 }) {
   final resolvedCatalogRef = catalogRef ??
-      CatalogEntityRef(
+      CatalogItemRef(
         kind: catalogMediaKindFromApiValue(kind),
-        entityType: CatalogEntityTypeId.catalogItem,
         id: itemId,
       );
 
-  final details = switch (resolvedCatalogRef.mediaKind) {
+  final details = switch (resolvedCatalogRef.kind) {
     CatalogMediaKind.comic => ComicEntryDetails(
         rawOrSlabbed: rawOrSlabbed,
         gradingCompany: gradingCompany,
@@ -382,8 +387,8 @@ TestLibraryEntry testLibraryEntry({
       ),
     CatalogMediaKind.music => MusicEntryDetails(
         media: [
-          MusicEntryMediumDetails(
-            mediumIndex: 1,
+          MusicEntryDiscDetails(
+            discId: 'disc-1',
             storageDevice: storageDevice,
             storageSlot: storageSlot,
           ),
@@ -396,25 +401,7 @@ TestLibraryEntry testLibraryEntry({
         'Test collection item requires a registered kind: $kind'),
   };
 
-  final resolvedTargetRef = targetRef ??
-      (resolvedCatalogRef.mediaKind == CatalogMediaKind.music &&
-              editionId == null &&
-              variantId == null &&
-              bundleReleaseId == null
-          ? CatalogEntityRef(
-              kind: CatalogMediaKind.music,
-              entityType: const CatalogEntityTypeId('release'),
-              id: '${resolvedCatalogRef.rootScope.id}:release',
-              rootId: resolvedCatalogRef.rootScope.id,
-            )
-          : ((editionId == null && variantId == null && bundleReleaseId == null)
-              ? null
-              : _testTargetRef(
-                  resolvedCatalogRef,
-                  editionId: editionId,
-                  variantId: variantId,
-                  bundleReleaseId: bundleReleaseId,
-                )));
+  final resolvedTargetRef = targetRef;
 
   return TestLibraryEntry(
     id: id,
@@ -445,32 +432,10 @@ TestLibraryEntry testLibraryEntry({
   );
 }
 
-CatalogEntityRef _testTargetRef(
-  CatalogEntityRef root, {
-  String? editionId,
-  String? variantId,
-  String? bundleReleaseId,
-}) {
-  final referenceType = bundleReleaseId != null
-      ? LibraryAddReferenceType.bundleRelease
-      : editionId != null || variantId != null
-          ? LibraryAddReferenceType.edition
-          : LibraryAddReferenceType.media;
-  return libraryCatalogTargetForKind(root.kind).resolve(
-    root,
-    LibraryCatalogTargetSelection(
-      referenceType: referenceType,
-      firstId: editionId,
-      secondId: variantId,
-      groupId: bundleReleaseId,
-    ),
-  );
-}
-
 LibraryEntrySummary testLibraryEntrySummary(TestLibraryEntry item) {
   return LibraryEntrySummary(
     ref: item.ref,
-    catalogRef: item.catalogRef,
+    sourceCatalogRef: item.catalogRef,
     isDigital: item.isDigital,
     createdAt: item.createdAt,
     updatedAt: item.updatedAt,
@@ -484,6 +449,7 @@ LibraryEntrySummary testLibraryEntrySummary(TestLibraryEntry item) {
     sellPriceCents: item.sellPriceCents,
     marketValueCents: item.marketValueCents,
     ownerLabel: item.ownerLabel,
+    locationId: item.locationId,
     locationLabel: item.locationId,
     notes: item.personalNotes,
     hasNotes: item.personalNotes?.trim().isNotEmpty == true,
@@ -520,7 +486,7 @@ TvLibraryEntry testTvLibraryEntryFrom(TestLibraryEntry item) =>
 
 LibraryEntryDispatch testLibraryEntryDispatchFrom(
     TestLibraryEntry item) {
-  return switch (item.catalogRef.mediaKind) {
+  return switch (item.catalogRef.kind) {
     CatalogMediaKind.anime => OpaqueLibraryEntryDispatch(
         kind: CatalogMediaKind.anime,
         ref: item.ref,
@@ -567,25 +533,18 @@ LibraryEntryDispatch testLibraryEntryDispatchFrom(
         value: testTvLibraryEntryFrom(item),
       ),
     CatalogMediaKind.unknown => throw ArgumentError.value(
-        item.catalogRef.mediaKind,
+        item.catalogRef.kind,
         'item',
         'Test Entry fixture requires an active kind',
       ),
   };
 }
 
-LibraryEntryRef _testLibraryEntryRef(
-        CatalogEntityRef catalogRef, String id) =>
-    LibraryEntryRef(
-      kind: catalogRef.mediaKind,
-      id: LibraryEntryId(id),
-    );
-
 LibraryEntryDispatch testComicLibraryEntryDispatchFrom(
         ComicLibraryEntry item) =>
     OpaqueLibraryEntryDispatch(
       kind: CatalogMediaKind.comic,
-      ref: _testLibraryEntryRef(item.catalogRef, item.id.value),
+      ref: LibraryEntryRef(kind: CatalogMediaKind.comic, id: item.id),
       value: item,
     );
 
@@ -593,7 +552,7 @@ LibraryEntryDispatch testGameLibraryEntryDispatchFrom(
         GameLibraryEntry item) =>
     OpaqueLibraryEntryDispatch(
       kind: CatalogMediaKind.game,
-      ref: _testLibraryEntryRef(item.catalogRef, item.id.value),
+      ref: LibraryEntryRef(kind: CatalogMediaKind.game, id: item.id),
       value: item,
     );
 
@@ -601,7 +560,7 @@ LibraryEntryDispatch testMangaLibraryEntryDispatchFrom(
         MangaLibraryEntry item) =>
     OpaqueLibraryEntryDispatch(
       kind: CatalogMediaKind.manga,
-      ref: _testLibraryEntryRef(item.catalogRef, item.id.value),
+      ref: LibraryEntryRef(kind: CatalogMediaKind.manga, id: item.id),
       value: item,
     );
 
@@ -609,7 +568,7 @@ LibraryEntryDispatch testMovieLibraryEntryDispatchFrom(
         MovieLibraryEntry item) =>
     OpaqueLibraryEntryDispatch(
       kind: CatalogMediaKind.movie,
-      ref: _testLibraryEntryRef(item.catalogRef, item.id.value),
+      ref: LibraryEntryRef(kind: CatalogMediaKind.movie, id: item.id),
       value: item,
     );
 
@@ -629,33 +588,129 @@ LibraryWorkspaceContext testLibraryWorkspaceContext({
         kind: kind,
         title: title,
       );
+  final mediaKind = catalogMediaKindFromApiValue(kind);
   final libraryEntryDispatch = libraryEntry == null
       ? null
       : testLibraryEntryDispatchFrom(libraryEntry);
   return LibraryWorkspaceContext(
-    itemId: itemId,
-    catalogSummary: CatalogSearchCandidate.fromItem(
-      testCatalogItemWithKindMetadata(resolvedCatalogItem),
-    ).summary,
-    catalogData: catalogData ??
-        workspaceCatalogDataFromTransport(
-          CatalogImportTransport.fromItem(
-            testCatalogItemWithKindMetadata(resolvedCatalogItem),
+    item: WorkspaceItem(
+      target: CatalogTargetRef(CatalogItemRef(kind: mediaKind, id: itemId)),
+      presentation: CatalogDisplaySummary(
+        ref: CatalogItemRef(kind: mediaKind, id: itemId),
+        kind: mediaKind,
+        primaryLabel: (resolvedCatalogItem.kindData['title'] as String?) ?? title,
+      ),
+      kindPresentationData: catalogData ??
+          workspaceCatalogDataFromTransport(
+            CatalogImportTransport.fromItem(
+              testCatalogItemWithKindMetadata(resolvedCatalogItem),
+            ),
           ),
-        ),
-    libraryEntrySummary: libraryEntry == null
-        ? null
-        : testLibraryEntrySummary(libraryEntry),
-    libraryEntryDispatch: libraryEntryDispatch,
-    wishlistItem: wishlistItem,
-    locationPath: locationPath,
+      entrySummary: libraryEntry == null
+          ? null
+          : testLibraryEntrySummary(libraryEntry),
+      libraryEntryDispatch: libraryEntryDispatch,
+    ),
+    personal: PersonalOverlay(
+      wishlist: wishlistItem,
+      locationPath: locationPath,
+    ),
+  );
+}
+
+LibraryWorkspaceContext testLibraryWorkspaceSource({
+  String itemId = 'test-item-1',
+  String kind = 'comic',
+  String title = 'Test Item',
+  CatalogItemDto? catalogItem,
+  LibraryWorkspaceKindData? catalogData,
+  TestLibraryEntry? libraryEntry,
+  LibraryEntrySummary? libraryEntrySummary,
+  WishlistItem? wishlistItem,
+  String? locationPath,
+}) =>
+    LibraryWorkspaceSource(
+      itemId: itemId,
+      kind: kind,
+      title: title,
+      catalogItem: catalogItem,
+      catalogData: catalogData,
+      libraryEntry: libraryEntry,
+      libraryEntrySummary: libraryEntrySummary,
+      wishlistItem: wishlistItem,
+      locationPath: locationPath,
+    );
+
+LibraryWorkspaceContext LibraryWorkspaceSource({
+  required String itemId,
+  String kind = 'comic',
+  String title = 'Test Item',
+  CatalogItemDto? catalogItem,
+  LibraryWorkspaceKindData? catalogData,
+  TestLibraryEntry? libraryEntry,
+  LibraryEntrySummary? libraryEntrySummary,
+  WishlistItem? wishlistItem,
+  String? locationPath,
+}) {
+  final resolvedCatalogItem = catalogItem ??
+      testCatalogItem(
+        id: itemId,
+        kind: kind,
+        title: title,
+      );
+  final mediaKind = catalogMediaKindFromApiValue(kind);
+  final libraryEntryDispatch = libraryEntry == null
+      ? null
+      : testLibraryEntryDispatchFrom(libraryEntry);
+  return LibraryWorkspaceContext(
+    item: WorkspaceItem(
+      target: CatalogTargetRef(CatalogItemRef(kind: mediaKind, id: itemId)),
+      presentation: CatalogDisplaySummary(
+        ref: CatalogItemRef(kind: mediaKind, id: itemId),
+        kind: mediaKind,
+        primaryLabel:
+            (resolvedCatalogItem.kindData['title'] as String?) ?? title,
+      ),
+      kindPresentationData: catalogData ??
+          workspaceCatalogDataFromTransport(
+            CatalogImportTransport.fromItem(
+              testCatalogItemWithKindMetadata(resolvedCatalogItem),
+            ),
+          ),
+      entrySummary: libraryEntrySummary ??
+          (libraryEntry == null
+              ? null
+              : testLibraryEntrySummary(libraryEntry)),
+      libraryEntryDispatch: libraryEntryDispatch,
+    ),
+    personal: PersonalOverlay(
+      wishlist: wishlistItem,
+      locationPath: locationPath,
+    ),
+  );
+}
+
+WishlistItem testWishlistItem({
+  String id = 'wish-1',
+  required String itemId,
+  String kind = 'comic',
+  DateTime? updatedAt,
+}) {
+  final dt = updatedAt ?? DateTime.utc(2026, 1, 1);
+  return WishlistItem(
+    id: id,
+    catalogRef: CatalogItemRef(
+      kind: catalogMediaKindFromApiValue(kind),
+      id: itemId,
+    ),
+    createdAt: dt,
+    updatedAt: dt,
   );
 }
 
 TrackingSummary trackingSummaryFromRecord(TrackingStorageRecord record) {
   return TrackingSummary(
     id: record.id,
-    catalogRef: record.catalogRef,
     libraryEntryRef: record.libraryEntryRef,
     sourceType: record.sourceType,
     status: record.status ?? MediaTrackingStatus.none,

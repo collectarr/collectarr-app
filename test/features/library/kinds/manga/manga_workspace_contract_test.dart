@@ -56,7 +56,7 @@ void main() {
       common: const WorkspaceCommonProjection(
         title: 'Vagabond',
       ),
-      personal: PersonalCopyProjection(),
+      personal: PersonalEntryProjection(),
       metadata: const MangaMetadata(
         publisher: 'VIZ Media',
         genres: ['Adventure'],

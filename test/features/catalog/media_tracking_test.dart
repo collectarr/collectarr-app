@@ -28,7 +28,6 @@ void main() {
   test('tracking entry exposes reusable media tracking view', () {
     final trackingRecord = ComicTrackingState(
       id: 'tracking-1',
-      catalogRef: testCatalogRef('comic-1', kind: 'comic'),
       libraryEntryRef: LibraryEntryRef.fromKey('comic:entry-1'),
       rating: 5,
       status: MediaTrackingStatus.completed,
@@ -40,7 +39,7 @@ void main() {
 
     final tracking = TrackingSummary(
       id: trackingRecord.id,
-      catalogRef: trackingRecord.catalogRef,
+      libraryEntryRef: trackingRecord.libraryEntryRef,
       status: trackingRecord.status ?? MediaTrackingStatus.none,
       rating: trackingRecord.rating,
       startedAt: trackingRecord.startedAt,

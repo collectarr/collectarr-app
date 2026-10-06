@@ -25,11 +25,7 @@ void main() {
     expect(comicCatalogItemEditSchema.tabs.map((tab) => tab.id), [
       'main',
       'details',
-      'creators',
-      'characters',
-      'links',
-      'cover',
-      'photos',
+      'covers',
     ]);
     expect(
       [
@@ -43,11 +39,14 @@ void main() {
       comicCatalogItemEditSchema.tabs.first.sections.first.fields
           .map((field) => field.id),
       [
+        'title',
         'series',
         'issue_number',
         'variant',
         'edition_title',
         'barcode',
+        'isbn',
+        'upc',
         'physical_format',
         'cover_date',
         'release_date',
@@ -57,18 +56,19 @@ void main() {
 
   test('binds Comic vocabularies and preserves typed media values', () {
     final original = const ComicCatalogItem(
-      title: 'Batman',
+      title: 'Batman #1',
+      seriesTitle: 'Batman',
       publisher: 'DC Comics',
       issueNumber: '1',
       pageCount: 32,
-      physicalFormatLabel: 'Single Issue',
+      physicalFormat: 'single_issue',
     );
     final draft = comicCatalogItemFormValuesFrom(original);
 
     expect(draft.seriesTitle, 'Batman');
     expect(draft.publisher, 'DC Comics');
     expect(draft.pageCount, 32);
-    expect(draft.physicalFormatLabel, 'Single Issue');
+    expect(draft.physicalFormatLabel, 'single_issue');
     expect(comicCatalogItemEditSchema.validate!(original, draft), isNull);
 
     final format = _field('physical_format')

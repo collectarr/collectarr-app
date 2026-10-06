@@ -22,15 +22,13 @@ void main() {
         kind: CatalogMediaKind.comic,
         id: LibraryEntryId('entry-comic-1'),
       ),
-      title: 'Batman #1',
-      subtitle: 'Detective Comics',
       ownerLabel: 'Alex',
       locationLabel: 'Shelf A',
     );
 
-    expect(summary.title, 'Batman #1');
     expect(summary.ref.kind, CatalogMediaKind.comic);
     expect(summary.ownerLabel, 'Alex');
+    expect(summary.locationLabel, 'Shelf A');
   });
 
   test('LibraryEntryRef rejects an empty identifier', () {

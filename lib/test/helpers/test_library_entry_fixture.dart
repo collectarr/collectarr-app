@@ -1,6 +1,6 @@
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
-import 'package:collectarr_app/core/models/library_entry_projection.dart';
+import 'package:collectarr_app/core/models/library_entry_ref.dart';
 
 /// Test-only fixture used by mixed-kind tests while constructing the concrete
 /// kind aggregate is not the subject of the test.
@@ -37,10 +37,10 @@ final class TestLibraryEntry {
   });
 
   final String id;
-  final CatalogEntityRef catalogRef;
+  final CatalogItemRef catalogRef;
   final DateTime? createdAt;
   final bool? isDigital;
-  final CatalogEntityRef? targetRef;
+  final CatalogItemRef? targetRef;
   final String? condition;
   final String? collectionValue;
   final DateTime? purchaseDate;
@@ -65,7 +65,7 @@ final class TestLibraryEntry {
   String get itemId => catalogRef.id;
 
   LibraryEntryRef get ref => LibraryEntryRef(
-        kind: catalogRef.mediaKind,
+        kind: catalogRef.kind,
         id: LibraryEntryId(id),
       );
 
@@ -97,10 +97,12 @@ final class TestLibraryEntry {
 
   JsonMap toJson() => {
         'id': id,
-        'catalog_ref': catalogRef.toJson(),
+        'catalog_data': <String, dynamic>{
+          'title': 'Test Item',
+        },
+        'source_catalog_ref': catalogRef.toJson(),
         'created_at': createdAt?.toUtc().toIso8601String(),
         'is_digital': isDigital,
-        'target_ref': targetRef?.toJson(),
         'condition': condition,
         'grade': collectionValue,
         'purchase_date': purchaseDate?.toUtc().toIso8601String(),

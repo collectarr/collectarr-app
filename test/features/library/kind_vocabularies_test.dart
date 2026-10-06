@@ -106,18 +106,17 @@ void main() {
 
     test('typed projectors preserve nested catalog fields', () {
       expect(
-        MovieVocabularies.distributor.valuesFrom!(
+        MovieVocabularies.screenRatio.valuesFrom!(
           const MovieCatalogMetadata(
             title: 'Typed Movie',
-            distributor: 'Criterion Collection',
+            screenRatio: '1.85:1',
           ),
         ),
-        contains('Criterion Collection'),
+        contains('1.85:1'),
       );
       expect(
         MusicVocabularies.packaging.valuesFrom!(
           MusicAlbum(
-            id: const MusicAlbumId('vocab-album'),
             title: 'Typed Album',
             packaging: 'Digipak',
           ),
@@ -126,7 +125,7 @@ void main() {
       );
       expect(
         TvVocabularies.screenRatio.valuesFrom!(
-          const TvSeriesMetadata(
+          const TvMetadata(
             title: 'Typed Series',
             screenRatio: '1.78:1 (16:9)',
           ),

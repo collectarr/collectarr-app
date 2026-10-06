@@ -19,15 +19,15 @@ void main() {
     final kinds = manifest['kinds'] as Map<String, dynamic>;
     final comic = kinds['comic'] as Map<String, dynamic>;
     final fields = comic['fields'] as Map<String, dynamic>;
-    final storyArcs = fields['storyArcs'] as Map<String, dynamic>;
+    final issueNumber = fields['issueNumber'] as Map<String, dynamic>;
     final comicTables =
         (comic['tables'] as List<dynamic>).cast<Map<String, dynamic>>();
     final comicTableNames = comicTables.map((table) => table['name']).toSet();
     final series = fields['series'] as Map<String, dynamic>;
 
-    expect(storyArcs['databaseColumns'], contains('storyArcsJson'));
-    expect(storyArcs['symbols'], contains('story_arcs'));
-    expect(comicTableNames, contains('ComicLibraryEntriesRows'));
+    expect(issueNumber['databaseColumns'], contains('issueNumber'));
+    expect(issueNumber['symbols'], contains('issue_number'));
+    expect(comicTableNames, contains('ComicTrackingRows'));
     expect(comicTableNames, isNot(contains('ComicMediaRows')));
     expect(comicTableNames, isNot(contains('ComicReleaseRows')));
     expect(series['workspaceFieldIds'], contains('comic.series'));
@@ -38,12 +38,12 @@ void main() {
   test('inferred kind fields flag declarations and generic map keys', () {
     const code = '''
 class SharedCatalogView {
-  final String? seriesTitle;
-  const SharedCatalogView(this.seriesTitle);
+  final String? coverArtist;
+  const SharedCatalogView(this.coverArtist);
 }
 
-String? series(Map<String, dynamic> value) => value['series_title'] as String?;
-final storyArc = <String, Object?>{'story_arcs': const <String>[]};
+String? coverArtistFunc(Map<String, dynamic> value) => value['cover_artist'] as String?;
+final nativeTitle = <String, Object?>{'native_title': 'test'};
 ''';
     final visitor = _visitorForArchitectureTest(
       code: code,
@@ -54,21 +54,21 @@ final storyArc = <String, Object?>{'story_arcs': const <String>[]};
 
     expect(
       visitor.visitor.violations,
-      contains(contains('Kind-entry field "seriesTitle"')),
+      contains(contains('Kind-entry field "coverArtist"')),
     );
     expect(
       visitor.visitor.violations,
-      contains(contains('Kind-entry field "series_title"')),
+      contains(contains('Kind-entry field "cover_artist"')),
     );
     expect(
       visitor.visitor.violations,
-      contains(contains('Kind-entry field "story_arcs"')),
+      contains(contains('Kind-entry field "native_title"')),
     );
   });
 
   test('provider protocol fields stay outside the generic semantic scan', () {
     const code = '''
-String? providerValue(Map<String, dynamic> raw) => raw['series_title'] as String?;
+String? providerValue(Map<String, dynamic> raw) => raw['cover_artist'] as String?;
 ''';
     final visitor = _visitorForArchitectureTest(
       code: code,
@@ -280,6 +280,7 @@ String label(ActivityEventKind kind) => switch (kind) {
       () {
     final repoRoot = Directory.current.path;
     const testCode = '''
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_catalog_item.dart';
 
 class TestValue {}
 ''';
@@ -589,6 +590,7 @@ class CalendarHost {}
       'whole-repository boundary checker rejects Core DTOs from generic mappers',
       () {
     const testCode = '''
+import 'package:collectarr_app/core/api/generated/collectarr_api.models.dart';
 
 class GenericMapper {}
 ''';

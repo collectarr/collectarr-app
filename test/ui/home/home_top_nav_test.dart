@@ -3,6 +3,7 @@ import 'package:collectarr_app/core/api/dto/media_catalog.dart';
 import 'package:collectarr_app/features/library/home/home_nav_button.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/sync/state/sync_controller.dart';
+import 'package:collectarr_app/features/sync/presentation/sync_action_button.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -83,23 +84,9 @@ void main() {
             () => _FakeSyncController(),
           ),
         ],
-        child: MaterialApp(
+        child: const MaterialApp(
           home: Scaffold(
-            body: MediaLibraryNav(
-              types: const [
-                CatalogMediaType(
-                  kind: 'comic',
-                  singularLabel: 'Comic',
-                  pluralLabel: 'Comics',
-                  routeSegments: ['comics'],
-                ),
-              ],
-              counts: const {},
-              selectedLabel: 'Libraries',
-              registry: defaultLibraryKindRegistry,
-              selectedKind: 'comic',
-              onSelected: (_) {},
-            ),
+            body: SyncActionButton(style: ButtonStyle()),
           ),
         ),
       ),

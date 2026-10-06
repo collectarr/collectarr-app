@@ -49,6 +49,6 @@ void main() {
     final decodedItem = envelope.decodeCatalogItem();
 
     expect(decodedItem.mediaKind, CatalogMediaKind.book);
-    expect(decodedItem.title, 'A book');
+    expect(decodedItem.kindData['title'], 'A book');
   });
 }

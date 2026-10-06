@@ -22,7 +22,6 @@ void main() {
       expect(
         libraryEntryEditForKind(type.kind).resolveEntryDigitalFlag(
           testLibraryEntrySummary(digital),
-          const [],
         ),
         isTrue,
         reason: type.kind.apiValue,
@@ -30,7 +29,6 @@ void main() {
       expect(
         libraryEntryEditForKind(type.kind).resolveEntryDigitalFlag(
           testLibraryEntrySummary(physical),
-          const [],
         ),
         isFalse,
         reason: type.kind.apiValue,

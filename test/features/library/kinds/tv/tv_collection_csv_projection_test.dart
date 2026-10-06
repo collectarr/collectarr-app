@@ -97,7 +97,7 @@ void main() {
     ]);
     expect(
       projection.entryCellsAfterIndex(entry, clzFriendly: true),
-      hasLength(8),
+      hasLength(9),
     );
   });
 }

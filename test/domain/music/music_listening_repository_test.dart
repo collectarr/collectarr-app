@@ -12,85 +12,112 @@ void main() {
   late LocalDatabase db;
   late MusicListeningRepository repository;
 
-  setUp(() {
+  setUp(() async {
     db = LocalDatabase(NativeDatabase.memory());
     repository = MusicListeningRepository(db);
+    await db.into(db.libraryEntries).insert(
+      LibraryEntriesCompanion.insert(
+        id: 'entry-1',
+        kind: 'music',
+        payloadJson: '{}',
+        updatedAt: DateTime.utc(2026, 8, 1),
+      ),
+    );
+    await db.into(db.libraryEntries).insert(
+      LibraryEntriesCompanion.insert(
+        id: 'entry-2',
+        kind: 'music',
+        payloadJson: '{}',
+        updatedAt: DateTime.utc(2026, 8, 1),
+      ),
+    );
   });
 
   tearDown(() => db.close());
 
-  test('persists history against one Catalog Item and optional collection item',
-      () async {
-    final album = _musicRef('album-1');
+  test('persists history against a collection library entry', () async {
+    const entry1 = LibraryEntryRef(
+      kind: CatalogMediaKind.music,
+      id: LibraryEntryId('entry-1'),
+    );
+    const entry2 = LibraryEntryRef(
+      kind: CatalogMediaKind.music,
+      id: LibraryEntryId('entry-2'),
+    );
     final older = MusicListenEvent(
       id: 'listen-older',
-      catalogRef: album,
+      libraryEntryRef: entry1,
       listenedAt: DateTime.utc(2026, 8, 1),
     );
     final newer = MusicListenEvent(
       id: 'listen-newer',
-      catalogRef: album,
-      libraryEntryRef: const LibraryEntryRef(
-        kind: CatalogMediaKind.music,
-        id: LibraryEntryId('entry-1'),
-      ),
+      libraryEntryRef: entry1,
       listenedAt: DateTime.utc(2026, 8, 2),
       notes: 'First pressing',
     );
 
     await repository.upsertAll([older, newer]);
 
-    final events = await repository.listForCatalogItem(album);
+    final events = await repository.listForLibraryEntry(entry1);
     expect(events.map((event) => event.id), ['listen-newer', 'listen-older']);
-    expect(events.first.catalogRef, album);
-    expect(events.first.libraryEntryRef?.key, 'music:entry-1');
+    expect(events.first.libraryEntryRef, entry1);
     expect(events.first.notes, 'First pressing');
     expect(
       MusicListeningStats.fromSessions(events).lastListened?.toUtc(),
       DateTime.utc(2026, 8, 2),
     );
     expect(
-      await repository.listForCatalogItem(_musicRef('album-2')),
+      await repository.listForLibraryEntry(entry2),
       isEmpty,
     );
   });
 
-  test('deleted events stay out of active Catalog Item history', () async {
-    final album = _musicRef('album-1');
+  test('deleted events stay out of active history', () async {
+    const entry = LibraryEntryRef(
+      kind: CatalogMediaKind.music,
+      id: LibraryEntryId('entry-1'),
+    );
     final event = MusicListenEvent(
       id: 'listen-deleted',
-      catalogRef: album,
+      libraryEntryRef: entry,
       listenedAt: DateTime.utc(2026, 8, 1),
     );
     await repository.upsert(event);
     await repository.markDeleted(event, DateTime.utc(2026, 8, 3));
 
-    expect(await repository.listForCatalogItem(album), isEmpty);
+    expect(await repository.listForLibraryEntry(entry), isEmpty);
     expect((await repository.findById(event.id))?.isDeleted, isTrue);
   });
 
-  test('Catalog Item summary aggregates its event history', () async {
-    final album = _musicRef('album-1');
+  test('Library entry summary aggregates its event history', () async {
+    const entry1 = LibraryEntryRef(
+      kind: CatalogMediaKind.music,
+      id: LibraryEntryId('entry-1'),
+    );
+    const entry2 = LibraryEntryRef(
+      kind: CatalogMediaKind.music,
+      id: LibraryEntryId('entry-2'),
+    );
     await repository.upsertAll([
       MusicListenEvent(
         id: 'listen-one',
-        catalogRef: album,
+        libraryEntryRef: entry1,
         listenedAt: DateTime.utc(2026, 8, 1),
       ),
       MusicListenEvent(
         id: 'listen-two',
-        catalogRef: album,
+        libraryEntryRef: entry1,
         listenedAt: DateTime.utc(2026, 8, 2),
       ),
       MusicListenEvent(
         id: 'listen-other-album',
-        catalogRef: _musicRef('album-2'),
+        libraryEntryRef: entry2,
         listenedAt: DateTime.utc(2026, 8, 3),
       ),
     ]);
 
-    final summary = await repository.getSummary(album);
-    expect(summary.catalogItemId, 'album-1');
+    final summary = await repository.getSummary(entry1);
+    expect(summary.libraryEntryRef, entry1);
     expect(summary.totalListenCount, 2);
     expect(summary.firstListened?.toUtc(), DateTime.utc(2026, 8, 1));
     expect(summary.lastListened?.toUtc(), DateTime.utc(2026, 8, 2));
@@ -100,8 +127,3 @@ void main() {
     ]);
   });
 }
-
-CatalogItemRef _musicRef(String id) => CatalogItemRef(
-      kind: CatalogMediaKind.music,
-      id: id,
-    );

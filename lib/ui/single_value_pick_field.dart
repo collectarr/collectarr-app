@@ -150,12 +150,7 @@ class _SingleValuePickFieldState extends State<SingleValuePickField> {
     final fieldOffset =
         fieldBox.localToGlobal(Offset.zero, ancestor: overlayBox);
     final currentValue = _emptyToNull(widget.controller.text);
-    final query = widget.readOnly ? null : currentValue?.toLowerCase();
-    final matchingOptions = query == null
-        ? options
-        : options
-            .where((option) => option.toLowerCase().contains(query))
-            .toList(growable: false);
+    final matchingOptions = options;
     final popupItems = matchingOptions.isEmpty
         ? const <PopupMenuEntry<String>>[
             PopupMenuItem<String>(

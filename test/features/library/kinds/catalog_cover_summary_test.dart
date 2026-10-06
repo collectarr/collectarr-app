@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_kind_transport_codec.dart';
 import 'package:collectarr_app/features/library/kinds/anime/data/anime_catalog_transport_codec.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/data/boardgame_catalog_transport_codec.dart';
 import 'package:collectarr_app/features/library/kinds/book/data/book_catalog_transport_codec.dart';
@@ -23,73 +24,55 @@ void main() {
       (
         kind: CatalogMediaKind.anime,
         readSummaryCover: (item) => const AnimeCatalogTransportCodec()
-            .summarize(
-              const AnimeCatalogTransportCodec().decode(item),
-            )
+            .summarizeTransport(item)
             .imageUrl,
       ),
       (
         kind: CatalogMediaKind.boardgame,
         readSummaryCover: (item) => const BoardGameCatalogTransportCodec()
-            .summarize(
-              const BoardGameCatalogTransportCodec().decode(item),
-            )
+            .summarizeTransport(item)
             .imageUrl,
       ),
       (
         kind: CatalogMediaKind.book,
         readSummaryCover: (item) => const BookCatalogTransportCodec()
-            .summarize(
-              const BookCatalogTransportCodec().decode(item),
-            )
+            .summarizeTransport(item)
             .imageUrl,
       ),
       (
         kind: CatalogMediaKind.comic,
         readSummaryCover: (item) => const ComicCatalogTransportCodec()
-            .summarize(
-              const ComicCatalogTransportCodec().decode(item),
-            )
+            .summarizeTransport(item)
             .imageUrl,
       ),
       (
         kind: CatalogMediaKind.game,
         readSummaryCover: (item) => const GameCatalogTransportCodec()
-            .summarize(
-              const GameCatalogTransportCodec().decode(item),
-            )
+            .summarizeTransport(item)
             .imageUrl,
       ),
       (
         kind: CatalogMediaKind.manga,
         readSummaryCover: (item) => const MangaCatalogTransportCodec()
-            .summarize(
-              const MangaCatalogTransportCodec().decode(item),
-            )
+            .summarizeTransport(item)
             .imageUrl,
       ),
       (
         kind: CatalogMediaKind.movie,
         readSummaryCover: (item) => const MovieCatalogTransportCodec()
-            .summarize(
-              const MovieCatalogTransportCodec().decode(item),
-            )
+            .summarizeTransport(item)
             .imageUrl,
       ),
       (
         kind: CatalogMediaKind.music,
         readSummaryCover: (item) => const MusicCatalogTransportCodec()
-            .summarize(
-              const MusicCatalogTransportCodec().decode(item),
-            )
+            .summarizeTransport(item)
             .imageUrl,
       ),
       (
         kind: CatalogMediaKind.tv,
         readSummaryCover: (item) => const TvCatalogTransportCodec()
-            .summarize(
-              const TvCatalogTransportCodec().decode(item),
-            )
+            .summarizeTransport(item)
             .imageUrl,
       ),
     ];

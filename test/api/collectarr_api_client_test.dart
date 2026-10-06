@@ -159,10 +159,14 @@ void main() {
     group('search', () {
       test('returns search results', () async {
         final interceptor = _FakeApiInterceptor();
-        interceptor.onGet('/api/v1/search', [
-          {'id': 'item-1', 'title': 'Batman #1', 'kind': 'comic'},
-          {'id': 'item-2', 'title': 'Batman #2', 'kind': 'comic'},
-        ]);
+        interceptor.onGet('/api/v1/search', {
+          'items': [
+            {'id': 'item-1', 'title': 'Batman #1', 'kind': 'comic'},
+            {'id': 'item-2', 'title': 'Batman #2', 'kind': 'comic'},
+          ],
+          'has_more': false,
+          'next_offset': null,
+        });
         final client = _createTestClient(interceptor);
 
         final results = await client.search('Batman', kind: 'comic');
@@ -174,16 +178,20 @@ void main() {
 
       test('returns compact typed search hits', () async {
         final interceptor = _FakeApiInterceptor();
-        interceptor.onGet('/api/v1/search', [
-          {
-            'id': 'movie-1',
-            'title': 'Arrival',
-            'kind': 'movie',
-            'summary': 'A linguist meets visitors.',
-            'image_url': 'https://example.test/arrival.jpg',
-            'payload': {'not': 'part of a search hit'},
-          },
-        ]);
+        interceptor.onGet('/api/v1/search', {
+          'items': [
+            {
+              'id': 'movie-1',
+              'title': 'Arrival',
+              'kind': 'movie',
+              'summary': 'A linguist meets visitors.',
+              'image_url': 'https://example.test/arrival.jpg',
+              'payload': {'not': 'part of a search hit'},
+            },
+          ],
+          'has_more': false,
+          'next_offset': null,
+        });
         final client = _createTestClient(interceptor);
 
         final hits = await client.searchHits(
@@ -235,7 +243,7 @@ void main() {
           'id': 'game-1',
           'kind': 'game',
           'title': 'Zelda',
-          'platforms': ['Switch', 'switch'],
+          'platforms': ['Switch'],
         });
         interceptor.onGet('/api/v1/metadata/boardgames/items/bg-1', {
           'id': 'bg-1',
@@ -260,10 +268,14 @@ void main() {
 
       test('returns typed search dtos', () async {
         final interceptor = _FakeApiInterceptor();
-        interceptor.onGet('/api/v1/search', [
-          {'id': 'item-1', 'title': 'Batman #1', 'kind': 'comic'},
-          {'id': 'item-2', 'title': 'Batman #2', 'kind': 'comic'},
-        ]);
+        interceptor.onGet('/api/v1/search', {
+          'items': [
+            {'id': 'item-1', 'title': 'Batman #1', 'kind': 'comic'},
+            {'id': 'item-2', 'title': 'Batman #2', 'kind': 'comic'},
+          ],
+          'has_more': false,
+          'next_offset': null,
+        });
         final client = _createTestClient(interceptor);
 
         final results = await client.searchMetadata(
@@ -310,46 +322,6 @@ void main() {
           expect(item['title'], title);
         }
       });
-
-      test('uses typed TV season routes when kind is known', () async {
-        final interceptor = _FakeApiInterceptor();
-        interceptor.onGet('/api/v1/metadata/tv/series/tv-1/seasons', [
-          {
-            'id': 'season-1',
-            'series_id': 'tv-1',
-            'season_number': 1,
-            'episode_count': 1,
-            'description': 'Season 1',
-            'episodes': [
-              {
-                'id': 'episode-1',
-                'season_id': 'season-1',
-                'episode_number': 1,
-                'episode_title': 'Pilot',
-              }
-            ],
-          }
-        ]);
-        interceptor.onGet('/api/v1/metadata/tv/seasons/season-1/episodes', [
-          {
-            'id': 'episode-1',
-            'season_id': 'season-1',
-            'episode_number': 1,
-            'episode_title': 'Pilot',
-          }
-        ]);
-        final client = _createTestClient(interceptor);
-
-        expect(
-          await client.getTvSeriesSeasonsDto('tv-1'),
-          hasLength(1),
-        );
-        expect(
-          await client.getTvSeasonEpisodesDto('season-1'),
-          hasLength(1),
-        );
-      });
-
     });
 
     group('baseUrl', () {

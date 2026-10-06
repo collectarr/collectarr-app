@@ -52,9 +52,9 @@ void main() {
     final watchSession = _read('lib/core/models/watch_session.dart');
     final trackingUnit = _read('lib/core/models/tracking_unit_summary.dart');
 
-    expect(tvCustomEpisode, contains("'catalog_ref'"));
+    expect(tvCustomEpisode, contains("'library_entry_ref'"));
     expect(tvCustomEpisode, isNot(contains("'item_id'")));
-    expect(animeCustomEpisode, contains("'catalog_ref'"));
+    expect(animeCustomEpisode, contains("'library_entry_ref'"));
     expect(animeCustomEpisode, isNot(contains("'item_id'")));
     expect(_extractSyncPayloadBody(watchSession), isNot(contains("'item_id'")));
     expect(_extractSyncPayloadBody(trackingUnit), isNot(contains("'item_id'")));

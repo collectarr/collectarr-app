@@ -1,3 +1,4 @@
+import 'package:collectarr_app/core/models/library_entry_ref.dart';
 import 'package:collectarr_app/features/library/config/library_tracking_editor_capability.dart';
 import 'package:collectarr_app/features/library/kinds/anime/anime_module.dart';
 import 'package:collectarr_app/features/library/kinds/anime/tracking/anime_tracking_state.dart';
@@ -20,7 +21,7 @@ void main() {
   ) async {
     final entry = TvTrackingState(
       id: 'tv-tracking-1',
-      catalogRef: testCatalogRef('tv-1', kind: 'tv'),
+      libraryEntryRef: LibraryEntryRef.fromKey('tv:tv-1'),
       coordinates: TvTrackingCoordinates(
         seasonNumber: 1,
         episodeNumber: 2,
@@ -32,7 +33,7 @@ void main() {
     addTearDown(db.close);
     final summary = TrackingSummary(
       id: entry.id,
-      catalogRef: entry.catalogRef,
+      libraryEntryRef: entry.libraryEntryRef,
       status: entry.status ?? MediaTrackingStatus.planned,
       updatedAt: entry.updatedAt,
       progress: entry.progress,
@@ -77,7 +78,7 @@ void main() {
   ) async {
     final entry = AnimeTrackingState(
       id: 'anime-tracking-1',
-      catalogRef: testCatalogRef('anime-1', kind: 'anime'),
+      libraryEntryRef: LibraryEntryRef.fromKey('anime:anime-1'),
       coordinates: AnimeTrackingCoordinates(),
       updatedAt: DateTime.utc(2026, 6, 1),
     );
@@ -86,7 +87,7 @@ void main() {
     addTearDown(db.close);
     final summary = TrackingSummary(
       id: entry.id,
-      catalogRef: entry.catalogRef,
+      libraryEntryRef: entry.libraryEntryRef,
       status: entry.status ?? MediaTrackingStatus.planned,
       updatedAt: entry.updatedAt,
       progress: entry.progress,

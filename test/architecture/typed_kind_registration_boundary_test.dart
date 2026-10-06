@@ -123,7 +123,7 @@ void main() {
       'catalog transport registry stores behavior boundaries, not erased values',
       () {
     final catalogRegistrySource =
-        File('lib/features/catalog/library_catalog_registry.dart')
+        File('lib/features/catalog/catalog_transport_summary_registry.dart')
             .readAsStringSync();
 
     expect(
@@ -224,7 +224,10 @@ void main() {
     final erasedWorkspaceFiles = <String>[];
     final workspaceProperty = RegExp(r'\.\s*workspace\b');
     for (final file in productionFiles) {
-      if (workspaceProperty.hasMatch(file.readAsStringSync())) {
+      final codeWithoutStrings = file
+          .readAsStringSync()
+          .replaceAll(RegExp(r"'[^']*'|" r'"[^"]*"'), '');
+      if (workspaceProperty.hasMatch(codeWithoutStrings)) {
         erasedWorkspaceFiles.add(file.path);
       }
     }

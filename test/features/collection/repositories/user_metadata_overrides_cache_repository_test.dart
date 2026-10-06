@@ -1,6 +1,6 @@
 import 'package:collectarr_app/core/db/local_database.dart';
-import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/core/models/metadata_field_id.dart';
 import 'package:collectarr_app/core/models/user_metadata_override.dart';
 import 'package:collectarr_app/features/collection/repositories/user_metadata_overrides_cache_repository.dart';
@@ -8,19 +8,19 @@ import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  test('round-trips an opaque Catalog Item target without semantic columns',
+  test('round-trips an opaque LibraryEntryRef target without semantic columns',
       () async {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
     final repository = UserMetadataOverridesCacheRepository(db);
-    const target = CatalogItemRef(
+    const target = LibraryEntryRef(
       kind: CatalogMediaKind.book,
-      id: 'edition-1',
+      id: LibraryEntryId('edition-1'),
     );
     final updatedAt = DateTime.utc(2026, 9, 7, 12);
     final override = UserMetadataOverride(
       id: 'override-1',
-      catalogRef: target,
+      libraryEntryRef: target,
       fieldId: const MetadataFieldId(
         kind: CatalogMediaKind.book,
         value: 'publisher',
@@ -33,7 +33,7 @@ void main() {
     await repository.upsert(override);
 
     final row = await db.select(db.userMetadataOverridesCache).getSingle();
-    expect(row.catalogRefJson, contains('edition-1'));
+    expect(row.libraryEntryRefKey, contains('edition-1'));
     final restored = await repository.findByField(
       target,
       const MetadataFieldId(
@@ -41,30 +41,30 @@ void main() {
         value: 'publisher',
       ),
     );
-    expect(restored?.catalogRef.kind, CatalogMediaKind.book);
-    expect(restored?.catalogRef.id, 'edition-1');
+    expect(restored?.libraryEntryRef.kind, CatalogMediaKind.book);
+    expect(restored?.libraryEntryRef.id.value, 'edition-1');
     expect(restored?.overrideValue, 'Corrected');
     expect(restored?.toSyncPayload(),
-        containsPair('catalog_ref', target.toJson()));
+        containsPair('library_entry_ref', target.toJson()));
   });
 
-  test('filters active overrides by their kind and Catalog Item ID', () async {
+  test('filters active overrides by their kind and LibraryEntry ID', () async {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
     final repository = UserMetadataOverridesCacheRepository(db);
-    const bookTarget = CatalogItemRef(
+    const bookTarget = LibraryEntryRef(
       kind: CatalogMediaKind.book,
-      id: 'shared-id',
+      id: LibraryEntryId('shared-id'),
     );
-    const comicTarget = CatalogItemRef(
+    const comicTarget = LibraryEntryRef(
       kind: CatalogMediaKind.comic,
-      id: 'shared-id',
+      id: LibraryEntryId('shared-id'),
     );
 
     await repository.upsertAll([
       UserMetadataOverride(
         id: 'book-override',
-        catalogRef: bookTarget,
+        libraryEntryRef: bookTarget,
         fieldId: const MetadataFieldId(
           kind: CatalogMediaKind.book,
           value: 'publisher',
@@ -74,7 +74,7 @@ void main() {
       ),
       UserMetadataOverride(
         id: 'comic-override',
-        catalogRef: comicTarget,
+        libraryEntryRef: comicTarget,
         fieldId: const MetadataFieldId(
           kind: CatalogMediaKind.comic,
           value: 'publisher',
@@ -94,9 +94,9 @@ void main() {
     final repository = UserMetadataOverridesCacheRepository(db);
     final unknownTarget = UserMetadataOverride(
       id: 'invalid-target',
-      catalogRef: const CatalogItemRef(
+      libraryEntryRef: const LibraryEntryRef(
         kind: CatalogMediaKind.unknown,
-        id: '',
+        id: LibraryEntryId(''),
       ),
       fieldId: const MetadataFieldId(
         kind: CatalogMediaKind.unknown,
@@ -109,9 +109,9 @@ void main() {
 
     final emptyValue = UserMetadataOverride(
       id: 'empty-value',
-      catalogRef: const CatalogItemRef(
+      libraryEntryRef: const LibraryEntryRef(
         kind: CatalogMediaKind.book,
-        id: 'book-1',
+        id: LibraryEntryId('book-1'),
       ),
       fieldId: const MetadataFieldId(
         kind: CatalogMediaKind.book,

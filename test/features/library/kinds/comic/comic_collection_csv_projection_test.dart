@@ -48,14 +48,6 @@ void main() {
 
   test('projects Comic catalog and entry cells at the CSV boundary', () {
     final projection = const ComicCollectionCsvProjection();
-    final entry = testLibraryEntry(
-      id: 'entry-1',
-      itemId: 'comic-1',
-      coverPriceCents: 399,
-      rawOrSlabbed: 'Raw',
-      keyComic: true,
-      updatedAt: DateTime.utc(2026, 5, 12),
-    );
     final entry = LibraryWorkspaceSource(
       itemId: 'comic-1',
       catalogData: testWorkspaceCatalogData(
@@ -72,9 +64,13 @@ void main() {
         releaseDate: DateTime.utc(1963, 3, 1),
         barcode: '071486024576',
       )).asShelfCatalogItem),
-      libraryEntrySummary: testLibraryEntrySummary(entry),
-      libraryEntryDispatch: testComicLibraryEntryDispatchFrom(
-        testComicLibraryEntryFrom(entry),
+      libraryEntry: testLibraryEntry(
+        id: 'entry-1',
+        itemId: 'comic-1',
+        coverPriceCents: 399,
+        rawOrSlabbed: 'Raw',
+        keyComic: true,
+        updatedAt: DateTime.utc(2026, 5, 12),
       ),
     );
 

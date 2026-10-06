@@ -12,6 +12,7 @@ import 'package:collectarr_app/features/catalog/transport/catalog_search_candida
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:drift/native.dart';
+import 'package:collectarr_app/features/library/ui/primitives/library_form_controls.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -20,7 +21,6 @@ void main() {
   test('music edit header uses album and artist without an Edit prefix', () {
     final title = musicAlbumEditSchema.title!(
       MusicAlbum(
-        id: const MusicAlbumId('album-edit'),
         title: 'Test Album',
         artist: 'Test Artist',
       ),
@@ -99,11 +99,8 @@ void main() {
     expect(
       find.byWidgetPredicate(
         (widget) =>
-            widget is TextFormField &&
-            widget.key is ValueKey<String> &&
-            (widget.key as ValueKey<String>)
-                .value
-                .startsWith('musicAlbumLinkUrl_'),
+            widget is LibraryTextFormControl &&
+            widget.decoration?.hintText == 'https://example.com',
       ),
       findsOneWidget,
     );
