@@ -5,6 +5,7 @@ import 'package:collectarr_app/features/library/kinds/registry/library_kind_capa
 import 'package:collectarr_app/features/library/config/library_search_target.dart';
 import 'package:collectarr_app/features/library/generic/library_group_mode_menu.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
+import 'package:collectarr_app/features/library/config/library_kind_style.dart';
 import 'package:collectarr_app/features/library/generic/toolbar/toolbar_auxiliary_controls.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'package:collectarr_app/features/library/generic/tools_menu.dart';
@@ -17,6 +18,7 @@ import 'package:collectarr_app/features/library/workspace/chrome/library_dense_c
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_view_state.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 const double _kLibraryToolbarBandVerticalPadding = 2;
 const double _kLibraryToolbarBandHorizontalPadding = 4;
@@ -64,6 +66,7 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
     this.onTransferFieldData,
     this.onReassignIndex,
     this.onPrintReport,
+    this.onExportCsvTxt,
     this.onShareCollection,
     this.onCompareMetadataWithServer,
     this.extraActions = const [],
@@ -119,6 +122,7 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
   final VoidCallback? onTransferFieldData;
   final VoidCallback? onReassignIndex;
   final VoidCallback? onPrintReport;
+  final VoidCallback? onExportCsvTxt;
   final VoidCallback? onShareCollection;
   final VoidCallback? onCompareMetadataWithServer;
   final List<LibraryUtilityMenuAction> extraActions;
@@ -150,6 +154,16 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
           preset,
     ];
     final selectionMode = selectionCallbacks != null && selectedCount > 0;
+    if (selectionMode) {
+      return LibrarySelectionToolbarBand(
+        selectedCount: selectedCount,
+        totalSelectableCount: totalSelectableCount,
+        callbacks: selectionCallbacks!,
+        accent: type.identity.accent,
+        itemPluralLabel: type.identity.pluralLabel,
+        showBottomBorder: showBottomBorder,
+      );
+    }
     return DecoratedBox(
       decoration: BoxDecoration(
         color: palette.toolbar,
@@ -167,16 +181,10 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
           child: Row(
             children: [
               Expanded(
-                child: selectionMode
-                    ? _LibraryDesktopInlineSelectionToolbar(
-                        selectedCount: selectedCount,
-                        totalSelectableCount: totalSelectableCount,
-                        callbacks: selectionCallbacks!,
-                      )
-                    : SingleChildScrollView(
-                        scrollDirection: Axis.horizontal,
-                        child: Row(
-                          children: [
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Row(
+                    children: [
                             if (!viewState.isSidebarVisible &&
                                 onGroupModeChanged != null) ...[
                               LibraryGroupModeMenuButton(
@@ -316,6 +324,7 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
                     onTransferFieldData: onTransferFieldData,
                     onReassignIndex: onReassignIndex,
                     onPrintReport: onPrintReport,
+                    onExportCsvTxt: onExportCsvTxt,
                     onShareCollection: onShareCollection,
                     onCompareMetadataWithServer: onCompareMetadataWithServer,
                     extraActions: extraActions,
@@ -330,111 +339,6 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
   }
 }
 
-class _LibraryDesktopInlineSelectionToolbar extends StatelessWidget {
-  const _LibraryDesktopInlineSelectionToolbar({
-    required this.selectedCount,
-    required this.totalSelectableCount,
-    required this.callbacks,
-  });
-
-  final int selectedCount;
-  final int totalSelectableCount;
-  final LibrarySelectionCallbacks callbacks;
-
-  @override
-  Widget build(BuildContext context) {
-    final palette = appPalette(context);
-    final secondaryButtonStyle = TextButton.styleFrom(
-      visualDensity: VisualDensity.compact,
-      foregroundColor: palette.textPrimary,
-      backgroundColor: librarySelectionToolbarSecondaryAction(context),
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(6),
-        side: BorderSide(color: librarySelectionToolbarBorder(context)),
-      ),
-    );
-    final primaryButtonStyle = TextButton.styleFrom(
-      visualDensity: VisualDensity.compact,
-      foregroundColor: palette.textPrimary,
-      backgroundColor: librarySelectionToolbarPrimaryAction(context),
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(6),
-        side: BorderSide(
-          color: librarySelectionToolbarBorder(context).withValues(alpha: 0.82),
-        ),
-      ),
-    );
-    return SizedBox(
-      height: 34,
-      child: DecoratedBox(
-        decoration: BoxDecoration(
-          color: librarySelectionToolbarSurface(context),
-          borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: librarySelectionToolbarBorder(context)),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 6),
-          child: Row(
-            children: [
-              TextButton(
-                onPressed: callbacks.onClearSelection,
-                style: secondaryButtonStyle,
-                child: const Text('Cancel'),
-              ),
-              const SizedBox(width: 4),
-              Tooltip(
-                message: 'Select all visible items',
-                child: TextButton(
-                  onPressed: callbacks.onSelectAll,
-                  style: primaryButtonStyle,
-                  child: const Text('Select all'),
-                ),
-              ),
-              Container(
-                width: 1,
-                height: 18,
-                margin: const EdgeInsets.symmetric(horizontal: 6),
-                color: librarySelectionToolbarBorder(context),
-              ),
-              Expanded(
-                child: SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: LibrarySelectionControls(
-                    callbacks: callbacks,
-                  ),
-                ),
-              ),
-              const SizedBox(width: 8),
-              DecoratedBox(
-                decoration: BoxDecoration(
-                  color: librarySelectionToolbarCountChip(context),
-                  borderRadius: BorderRadius.circular(999),
-                  border: Border.all(
-                    color: librarySelectionToolbarBorder(context)
-                        .withValues(alpha: 0.86),
-                  ),
-                ),
-                child: Padding(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                  child: Text(
-                    '$selectedCount of $totalSelectableCount selected',
-                    style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                          fontWeight: FontWeight.w700,
-                          color: palette.textPrimary,
-                        ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
 
 class _LibraryDesktopToolbarSection extends StatelessWidget {
   const _LibraryDesktopToolbarSection({
@@ -720,103 +624,179 @@ class LibrarySelectionToolbarBand extends StatelessWidget {
     required this.selectedCount,
     required this.totalSelectableCount,
     required this.callbacks,
+    this.accent,
+    this.itemPluralLabel,
     this.showBottomBorder = true,
   });
 
   final int selectedCount;
   final int totalSelectableCount;
   final LibrarySelectionCallbacks callbacks;
+  final Color? accent;
+  final String? itemPluralLabel;
   final bool showBottomBorder;
 
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
-    final secondaryButtonStyle = TextButton.styleFrom(
+    final effectiveAccent = accent ?? palette.accent;
+
+    final borderTop = Color.lerp(effectiveAccent, Colors.white, 0.28)!;
+    final borderBottom = Color.lerp(effectiveAccent, Colors.black, 0.22)!;
+    final badgeBg = Color.lerp(effectiveAccent, Colors.black, 0.20)!;
+    final badgeBorder = Color.lerp(effectiveAccent, Colors.white, 0.28)!;
+    final dividerLeft = Color.lerp(effectiveAccent, Colors.black, 0.09)!;
+    final dividerRight = Color.lerp(effectiveAccent, Colors.white, 0.11)!;
+
+    final actionButtonStyle = TextButton.styleFrom(
       visualDensity: VisualDensity.compact,
-      foregroundColor: palette.textPrimary,
-      backgroundColor: librarySelectionToolbarSecondaryAction(context),
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+      foregroundColor: Colors.white,
+      backgroundColor: Colors.transparent,
+      overlayColor: Colors.white.withValues(alpha: 0.15),
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 0),
+      minimumSize: Size.zero,
+      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+      textStyle: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(6),
-        side: BorderSide(color: librarySelectionToolbarBorder(context)),
+        borderRadius: BorderRadius.circular(4),
       ),
     );
-    final primaryButtonStyle = TextButton.styleFrom(
-      visualDensity: VisualDensity.compact,
-      foregroundColor: palette.textPrimary,
-      backgroundColor: librarySelectionToolbarPrimaryAction(context),
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(6),
-        side: BorderSide(
-          color: librarySelectionToolbarBorder(context).withValues(alpha: 0.82),
-        ),
+
+    final isAllSelected =
+        selectedCount == totalSelectableCount && totalSelectableCount > 0;
+
+    final mergeLabel = itemPluralLabel != null &&
+            itemPluralLabel!.toLowerCase() == 'music'
+        ? 'Merge Albums'
+        : 'Merge ${itemPluralLabel ?? 'Albums'}';
+
+    return AnimatedLibraryChromeGradient(
+      accent: effectiveAccent,
+      begin: Alignment.centerLeft,
+      end: Alignment.centerRight,
+      borderBuilder: (animatedAccent, _) => Border(
+        top: BorderSide(color: borderTop),
+        bottom: showBottomBorder
+            ? BorderSide(color: borderBottom)
+            : BorderSide.none,
       ),
-    );
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-      decoration: BoxDecoration(
-        color: librarySelectionToolbarSurface(context),
-        borderRadius: BorderRadius.circular(8),
-        border: Border(
-          bottom: showBottomBorder
-              ? BorderSide(color: librarySelectionToolbarBorder(context))
-              : BorderSide.none,
-        ),
-      ),
-      child: Row(
-        children: [
-          TextButton(
-            onPressed: callbacks.onClearSelection,
-            style: secondaryButtonStyle,
-            child: const Text('Cancel'),
-          ),
-          const SizedBox(width: 4),
-          Tooltip(
-            message: 'Select all visible items',
-            child: TextButton(
-              onPressed: callbacks.onSelectAll,
-              style: primaryButtonStyle,
-              child: const Text('Select all'),
-            ),
-          ),
-          Container(
-            width: 1,
-            height: 20,
-            margin: const EdgeInsets.symmetric(horizontal: 8),
-            color: librarySelectionToolbarBorder(context),
-          ),
-          Expanded(
-            child: SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: LibrarySelectionControls(
-                callbacks: callbacks,
-              ),
-            ),
-          ),
-          const SizedBox(width: 12),
-          DecoratedBox(
-            decoration: BoxDecoration(
-              color: librarySelectionToolbarCountChip(context),
-              borderRadius: BorderRadius.circular(999),
-              border: Border.all(
-                color: librarySelectionToolbarBorder(context)
-                    .withValues(alpha: 0.86),
-              ),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-              child: Text(
-                '$selectedCount of $totalSelectableCount selected',
-                style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                      fontWeight: FontWeight.w700,
-                      color: palette.textPrimary,
+      child: SizedBox(
+        width: double.infinity,
+        height: kLibraryToolbarBandHeight,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 3),
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final leftOptions = Row(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  TextButton.icon(
+                    onPressed: callbacks.onClearSelection,
+                    style: actionButtonStyle,
+                    icon: SvgPicture.asset(
+                      'assets/sidebar_icons/xmark.svg',
+                      width: 13,
+                      height: 13,
+                      colorFilter: const ColorFilter.mode(
+                        Colors.white,
+                        BlendMode.srcIn,
+                      ),
                     ),
-              ),
-            ),
+                    label: const Text('Cancel'),
+                  ),
+                  LibrarySelectionToolbarDivider(
+                    dividerLeft: dividerLeft,
+                    dividerRight: dividerRight,
+                  ),
+                  Tooltip(
+                    message: 'Select all visible items',
+                    child: TextButton.icon(
+                      onPressed: callbacks.onSelectAll,
+                      style: actionButtonStyle,
+                      icon: SvgPicture.asset(
+                        isAllSelected
+                            ? 'assets/sidebar_icons/square-check.svg'
+                            : 'assets/sidebar_icons/square.svg',
+                        width: 14,
+                        height: 14,
+                        colorFilter: const ColorFilter.mode(
+                          Colors.white,
+                          BlendMode.srcIn,
+                        ),
+                      ),
+                      label: const Text('All'),
+                    ),
+                  ),
+                ],
+              );
+
+              final centerActions = LibrarySelectionControls(
+                callbacks: callbacks,
+                onAccent: true,
+                accent: effectiveAccent,
+                mergeLabel: mergeLabel,
+              );
+
+              final rightCountPill = DecoratedBox(
+                decoration: BoxDecoration(
+                  color: badgeBg,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: badgeBorder),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 3,
+                  ),
+                  child: Text(
+                    '$selectedCount of $totalSelectableCount selected',
+                    style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                          fontWeight: FontWeight.w700,
+                          fontSize: 13,
+                          color: Colors.white,
+                        ),
+                  ),
+                ),
+              );
+
+              const minWidthForSpacedLayout = 880.0;
+              final useSpacedLayout = constraints.hasBoundedWidth &&
+                  constraints.maxWidth >= minWidthForSpacedLayout;
+
+              if (useSpacedLayout) {
+                return Row(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    leftOptions,
+                    const Spacer(),
+                    centerActions,
+                    const Spacer(),
+                    Center(child: rightCountPill),
+                  ],
+                );
+              }
+
+              return SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: SizedBox(
+                  height: kLibraryToolbarBandHeight - 6,
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      leftOptions,
+                      const SizedBox(width: 12),
+                      centerActions,
+                      const SizedBox(width: 16),
+                      Center(child: rightCountPill),
+                    ],
+                  ),
+                ),
+              );
+            },
           ),
-        ],
+        ),
       ),
     );
   }
@@ -1118,6 +1098,8 @@ class LibraryCompactToolbarContent extends StatelessWidget {
             selectedCount: selectedCount,
             totalSelectableCount: totalSelectableCount,
             callbacks: selectionCallbacks!,
+            accent: accent,
+            itemPluralLabel: type.identity.pluralLabel,
             showBottomBorder: !showChromeRow,
           ),
         ],

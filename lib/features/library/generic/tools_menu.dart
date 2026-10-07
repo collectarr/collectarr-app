@@ -33,6 +33,7 @@ class LibraryToolsButton extends StatelessWidget {
     this.onReassignIndex,
     this.onTransferFieldData,
     this.onPrintReport,
+    this.onExportCsvTxt,
     this.onShareCollection,
     this.onCompareMetadataWithServer,
     this.extraActions = const [],
@@ -58,6 +59,7 @@ class LibraryToolsButton extends StatelessWidget {
   final VoidCallback? onReassignIndex;
   final VoidCallback? onTransferFieldData;
   final VoidCallback? onPrintReport;
+  final VoidCallback? onExportCsvTxt;
   final VoidCallback? onShareCollection;
   final VoidCallback? onCompareMetadataWithServer;
   final List<LibraryUtilityMenuAction> extraActions;
@@ -232,6 +234,13 @@ class LibraryToolsButton extends StatelessWidget {
             label: 'Print / PDF report',
             section: 'Share',
             onSelected: onPrintReport!,
+          ),
+        if (onExportCsvTxt != null)
+          LibraryUtilityMenuAction(
+            icon: Icons.table_view_outlined,
+            label: 'Export to CSV / TXT',
+            section: 'Share',
+            onSelected: onExportCsvTxt!,
           ),
         if (onShareCollection != null)
           LibraryUtilityMenuAction(

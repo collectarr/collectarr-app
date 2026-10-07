@@ -12,6 +12,7 @@ import 'package:collectarr_app/features/library/inspector/library_duplicate_item
 import 'package:collectarr_app/features/library/keyboard/library_keyboard_shortcuts.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/reports/collection_report.dart';
+import 'package:collectarr_app/features/library/reports/collection_export_csv_txt.dart';
 import 'package:collectarr_app/features/library/stats/stats_dashboard.dart';
 import 'package:collectarr_app/features/pick_lists/widgets/pick_list_manager_page.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_pick_list_contributors.dart';
@@ -309,7 +310,16 @@ class _AppShellState extends ConsumerState<AppShell> {
         _goToSettingsSection(SettingsSection.data);
         return;
       case DrawerAction.exportCsv:
-        _openShelfImportExport(initialIndex: 0);
+        _withShelf((shelf) {
+          final items = libraryItemsForShelf(shelf, type);
+          return exportCollectionCsvTxt(
+            context: context,
+            title: type.identity.title,
+            items: items,
+            type: type,
+            allShelfEntries: shelf.entries,
+          );
+        });
         return;
       case DrawerAction.exportXml:
         _openShelfImportExport(initialIndex: 0);

@@ -97,6 +97,7 @@ class LibraryToolbar extends StatelessWidget {
     this.onTransferFieldData,
     this.onReassignIndex,
     this.onPrintReport,
+    this.onExportCsvTxt,
     this.onShareCollection,
     this.onCompareMetadataWithServer,
     this.extraUtilityActions = const [],
@@ -187,6 +188,7 @@ class LibraryToolbar extends StatelessWidget {
         onTransferFieldData = actions.onTransferFieldData,
         onReassignIndex = actions.onReassignIndex,
         onPrintReport = actions.onPrintReport,
+        onExportCsvTxt = actions.onExportCsvTxt,
         onShareCollection = actions.onShareCollection,
         onCompareMetadataWithServer = actions.onCompareMetadataWithServer,
         extraUtilityActions = actions.extraUtilityActions,
@@ -271,6 +273,7 @@ class LibraryToolbar extends StatelessWidget {
   final VoidCallback? onTransferFieldData;
   final VoidCallback? onReassignIndex;
   final VoidCallback? onPrintReport;
+  final VoidCallback? onExportCsvTxt;
   final VoidCallback? onShareCollection;
   final VoidCallback? onCompareMetadataWithServer;
   final List<LibraryUtilityMenuAction> extraUtilityActions;
@@ -448,6 +451,7 @@ class LibraryToolbar extends StatelessWidget {
                       onTransferFieldData: onTransferFieldData,
                       onReassignIndex: effectiveReassignIndex,
                       onPrintReport: onPrintReport,
+                      onExportCsvTxt: onExportCsvTxt,
                       onShareCollection: onShareCollection,
                       onCompareMetadataWithServer: onCompareMetadataWithServer,
                       extraActions: extraUtilityActions,

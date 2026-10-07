@@ -51,6 +51,7 @@ class LibraryToolbarActions {
     this.onTransferFieldData,
     this.onReassignIndex,
     this.onPrintReport,
+    this.onExportCsvTxt,
     this.onShareCollection,
     this.onCompareMetadataWithServer,
     this.onPinnedFolderPresetsChanged,
@@ -102,6 +103,7 @@ class LibraryToolbarActions {
   final VoidCallback? onTransferFieldData;
   final VoidCallback? onReassignIndex;
   final VoidCallback? onPrintReport;
+  final VoidCallback? onExportCsvTxt;
   final VoidCallback? onShareCollection;
   final VoidCallback? onCompareMetadataWithServer;
   final ValueChanged<List<LibraryFolderPreset>>? onPinnedFolderPresetsChanged;

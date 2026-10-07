@@ -363,6 +363,9 @@ abstract final class LibraryPageShellPresenter {
         onPrintReport: projection.filteredItems.isNotEmpty
             ? () => state._reportCoordinator.printReportFlow(projection)
             : null,
+        onExportCsvTxt: projection.filteredItems.isNotEmpty
+            ? () => state._sharingCoordinator.exportCsvTxtFlow(projection)
+            : null,
         onShareCollection: projection.filteredItems.isNotEmpty
             ? () => state._sharingCoordinator.shareCollectionFlow(projection)
             : null,
@@ -427,7 +430,7 @@ abstract final class LibraryPageShellPresenter {
           : null,
       onExportCsvTxt: state._hasSelectedItemsInSelection(projection)
           ? () =>
-              state._sharingCoordinator.shareSelectedCollectionFlow(projection)
+              state._sharingCoordinator.exportSelectedCsvTxtFlow(projection)
           : null,
       onBulkDuplicate: state._hasLibraryEntriesInSelection(projection)
           ? () =>

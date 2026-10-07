@@ -202,6 +202,10 @@ class LibraryPageToolbarController {
               if (value == null) return;
               _s._reportCoordinator.printReportFlow(value);
             },
+            onExportCsvTxt: (value) {
+              if (value == null) return;
+              _s._sharingCoordinator.exportCsvTxtFlow(value);
+            },
             onMissingSequenceReport: (value) {
               if (value == null) return;
               _s._reportCoordinator.showMissingSequenceReportFlow(value);

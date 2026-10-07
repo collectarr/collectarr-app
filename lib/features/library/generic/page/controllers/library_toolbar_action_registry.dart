@@ -117,6 +117,7 @@ class LibraryToolbarCollectionActionsContext {
     required this.onTransferFieldData,
     required this.onReassignIndex,
     required this.onPrintReport,
+    required this.onExportCsvTxt,
     required this.onShareCollection,
     required this.onCompareMetadataWithServer,
     required this.onMissingSequenceReport,
@@ -125,6 +126,7 @@ class LibraryToolbarCollectionActionsContext {
   final ValueChanged<LibraryProjection?> onTransferFieldData;
   final ValueChanged<LibraryProjection?> onReassignIndex;
   final ValueChanged<LibraryProjection?> onPrintReport;
+  final ValueChanged<LibraryProjection?> onExportCsvTxt;
   final ValueChanged<LibraryProjection?> onShareCollection;
   final Future<void> Function(
     LibraryProjection projection, {
@@ -319,6 +321,9 @@ class LibraryToolbarActionRegistry {
           : () => actionContext.collectionActions.onReassignIndex(projection),
       onPrintReport: projection != null && projection.filteredItems.isNotEmpty
           ? () => actionContext.collectionActions.onPrintReport(projection)
+          : null,
+      onExportCsvTxt: projection != null && projection.filteredItems.isNotEmpty
+          ? () => actionContext.collectionActions.onExportCsvTxt(projection)
           : null,
       onShareCollection: projection != null &&
               projection.filteredItems.isNotEmpty

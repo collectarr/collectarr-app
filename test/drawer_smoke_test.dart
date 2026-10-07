@@ -59,6 +59,10 @@ void main() {
     await tester.pump();
     expect(selectedAction, DrawerAction.manageCollections);
 
+    await tester.tap(find.text('Export to CSV / TXT'));
+    await tester.pump();
+    expect(selectedAction, DrawerAction.exportCsv);
+
     // Test collapsible toggle animation for Maintenance
     await tester.tap(find.text('Maintenance'));
     await tester.pump();
