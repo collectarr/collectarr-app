@@ -49,28 +49,44 @@ void main() {
     );
 
     expect(find.text('Cancel'), findsOneWidget);
-    expect(find.text('Select all'), findsOneWidget);
+    expect(find.text('All'), findsOneWidget);
     expect(find.text('3 of 12 selected'), findsOneWidget);
     expect(find.text('Edit'), findsOneWidget);
     expect(find.text('Remove'), findsOneWidget);
-    expect(find.text('Duplicate'), findsOneWidget);
-    expect(find.text('Loan'), findsOneWidget);
-    expect(find.text('Move to entry'), findsOneWidget);
-    expect(find.text('Move to wishlist'), findsOneWidget);
     expect(find.text('Print to PDF'), findsOneWidget);
-    expect(find.text('Update values'), findsOneWidget);
+    expect(find.text('Duplicate'), findsNothing);
+    expect(find.text('Loan'), findsNothing);
+    expect(find.text('Move to entry'), findsNothing);
+    expect(find.text('Move to wishlist'), findsNothing);
+    expect(find.text('Update values'), findsNothing);
 
-    final bandContainer = tester.widget<Container>(
+    // Verify full-height dividers: 1 after Cancel, 1 before Print to PDF, 1 before More.
+    expect(find.byType(LibrarySelectionToolbarDivider), findsNWidgets(3));
+
+    final bandDecoratedBox = tester.widget<DecoratedBox>(
       find
           .descendant(
             of: find.byType(LibrarySelectionToolbarBand),
-            matching: find.byType(Container),
+            matching: find.byType(DecoratedBox),
           )
           .first,
     );
-    final decoration = bandContainer.decoration as BoxDecoration;
+    final decoration = bandDecoratedBox.decoration as BoxDecoration;
     final border = decoration.border as Border;
-    expect(border.top, BorderSide.none);
+    expect(border.top, isNot(BorderSide.none));
+    expect(decoration.gradient, isNotNull);
+
+    // Tap more menu to verify CLZ overflow options
+    await tester.ensureVisible(find.byType(LibrarySelectionMoreIcon));
+    await tester.tap(find.byType(LibrarySelectionMoreIcon));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Duplicate'), findsOneWidget);
+    expect(find.text('Merge Albums'), findsOneWidget);
+    expect(find.text('Loan'), findsOneWidget);
+    expect(find.text('Transfer Field Data'), findsOneWidget);
+    expect(find.text('Move to other collection'), findsOneWidget);
+    expect(find.text('Update from Core'), findsOneWidget);
   });
 
   testWidgets('selection toolbar overflow exposes CLZ-like action labels', (
@@ -280,4 +296,59 @@ void main() {
     expect(find.text('HELP'), findsOneWidget);
     expect(find.text('Keyboard shortcuts'), findsOneWidget);
   });
+
+  testWidgets('selection toolbar band on desktop width uses spaced layout',
+      (tester) async {
+    tester.view.physicalSize = const Size(1280, 800);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(() {
+      tester.view.resetPhysicalSize();
+      tester.view.resetDevicePixelRatio();
+    });
+
+    final callbacks = (
+      onClearSelection: () {},
+      onSelectAll: () {},
+      onBulkEdit: () {},
+      onPrintToPdf: () {},
+      onExportCsvTxt: () {},
+      onBulkDuplicate: () {},
+      onBulkLoan: () {},
+      onTransferFieldData: () {},
+      onBulkUpdateValues: null,
+      onBulkUpdateKeyInfo: null,
+      onBulkMoveToEntry: null,
+      onBulkMoveToWishlist: null,
+      onBulkRemove: () {},
+      onBulkRefreshMetadata: () {},
+    );
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: LibrarySelectionToolbarBand(
+            selectedCount: 5,
+            totalSelectableCount: 20,
+            callbacks: callbacks,
+          ),
+        ),
+      ),
+    );
+
+    expect(find.text('Cancel'), findsOneWidget);
+    expect(find.text('All'), findsOneWidget);
+    expect(find.text('Edit'), findsOneWidget);
+    expect(find.text('Remove'), findsOneWidget);
+    expect(find.text('Print to PDF'), findsOneWidget);
+    expect(find.text('5 of 20 selected'), findsOneWidget);
+
+    final cancelPos = tester.getTopLeft(find.text('Cancel'));
+    final editPos = tester.getTopLeft(find.text('Edit'));
+    final countPos = tester.getTopLeft(find.text('5 of 20 selected'));
+
+    // Cancel is at the left, Edit is in the middle, Count is on the right
+    expect(cancelPos.dx < editPos.dx, isTrue);
+    expect(editPos.dx < countPos.dx, isTrue);
+  });
 }
+
