@@ -289,13 +289,6 @@ class _LibraryEditDialogScaffoldState extends State<LibraryEditDialogScaffold> {
             maxWidth: maxWidth,
             minHeight: 0,
             maxHeight: maxHeight,
-            alignment: Alignment.topCenter,
-            insetPadding: EdgeInsets.fromLTRB(
-              windowClass.isMedium ? 16 : 32,
-              10,
-              windowClass.isMedium ? 16 : 32,
-              16,
-            ),
             density: LibraryDensity.comfortable,
             expandBody: false,
             body: ConstrainedBox(

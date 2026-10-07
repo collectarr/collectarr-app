@@ -90,12 +90,9 @@ class _LibraryMultiValueOptionsDialogState<TValue>
         .toList(growable: false);
     return AccentAlertDialog(
       backgroundColor: palette.panel,
-      alignment: Alignment.topCenter,
-      insetPadding: EdgeInsets.fromLTRB(
-        windowClass.isMedium ? 16 : 32,
-        8,
-        windowClass.isMedium ? 16 : 32,
-        16,
+      insetPadding: EdgeInsets.symmetric(
+        horizontal: windowClass.isMedium ? 16 : 32,
+        vertical: 24,
       ),
       title: AccentDialogHeader(
         title: 'Select ${widget.label}',

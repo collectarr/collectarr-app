@@ -12,7 +12,9 @@ class MusicAddStatusStrip extends StatelessWidget {
   final LibraryAddManualPaneRequest request;
   @override
   Widget build(BuildContext context) {
-    final draft = request.kindDraft as MusicAddDraft;
+    final draft = (request.kindDraft is MusicAddDraft)
+        ? request.kindDraft as MusicAddDraft
+        : const MusicAddDraft();
     return LibraryResponsiveFieldLayout(maxColumns: 8, columnSpans: const {
       0: 2,
       3: 4

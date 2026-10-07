@@ -6,6 +6,7 @@ import 'package:uuid/uuid.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/features/collection/repositories/custom_field_repository.dart';
 import 'package:collectarr_app/ui/accent_alert_dialog.dart';
+import 'package:collectarr_app/ui/app_dialog.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import '../models/pick_list_definition.dart';
 import '../models/pick_list_scope.dart';
@@ -51,7 +52,7 @@ Future<PickListManagerChanges?> showPickListManagerDialog(
         required PickListRegistry registry,
         String? initialListName,
         String? initialMediaKind}) =>
-    showDialog<PickListManagerChanges>(
+    showAppDialog<PickListManagerChanges>(
       context: context,
       barrierDismissible: false,
       builder: (context) => PickListDialog(

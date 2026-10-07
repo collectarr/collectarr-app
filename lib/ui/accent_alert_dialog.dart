@@ -1,6 +1,7 @@
 import 'package:collectarr_app/features/library/config/library_kind_style.dart';
 import 'package:collectarr_app/features/library/ui/library_panel_header.dart';
 import 'package:collectarr_app/ui/accent_dialog_header.dart';
+import 'package:collectarr_app/ui/app_dialog.dart';
 import 'package:collectarr_app/ui/library_accent_scope.dart';
 import 'package:flutter/material.dart';
 
@@ -55,29 +56,39 @@ class AccentAlertDialog extends StatelessWidget {
   Widget build(BuildContext context) {
     final titleWidget = _buildTitle(context);
     final hasAccentHeader = titleWidget != null;
+    final currentDepth = ModalDialogDepthScope.of(context);
+    final inheritedAlignment = ModalDialogDepthScope.parentAlignmentOf(context);
+    final resolvedAlignment = alignment ??
+        (currentDepth > 0
+            ? Alignment.center
+            : (inheritedAlignment ?? kDefaultDialogAlignment));
 
-    return AlertDialog(
-      icon: icon,
-      iconPadding: iconPadding,
-      iconColor: iconColor,
-      title: titleWidget,
-      content: content,
-      actions: actions,
-      titlePadding: hasAccentHeader ? EdgeInsets.zero : titlePadding,
-      contentPadding: contentPadding,
-      actionsPadding: actionsPadding,
-      buttonPadding: buttonPadding,
-      backgroundColor: backgroundColor,
-      surfaceTintColor: surfaceTintColor,
-      insetPadding: insetPadding,
-      clipBehavior: clipBehavior ?? Clip.antiAlias,
-      shape: shape ??
-          RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(_defaultRadius),
-          ),
-      alignment: alignment,
-      semanticLabel: semanticLabel,
-      scrollable: scrollable,
+    return ModalDialogDepthScope(
+      depth: currentDepth + 1,
+      parentAlignment: resolvedAlignment,
+      child: AlertDialog(
+        icon: icon,
+        iconPadding: iconPadding,
+        iconColor: iconColor,
+        title: titleWidget,
+        content: content,
+        actions: actions,
+        titlePadding: hasAccentHeader ? EdgeInsets.zero : titlePadding,
+        contentPadding: contentPadding,
+        actionsPadding: actionsPadding,
+        buttonPadding: buttonPadding,
+        backgroundColor: backgroundColor,
+        surfaceTintColor: surfaceTintColor,
+        insetPadding: insetPadding,
+        clipBehavior: clipBehavior ?? Clip.antiAlias,
+        shape: shape ??
+            RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(_defaultRadius),
+            ),
+        alignment: resolvedAlignment,
+        semanticLabel: semanticLabel,
+        scrollable: scrollable,
+      ),
     );
   }
 

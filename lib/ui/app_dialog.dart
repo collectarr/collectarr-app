@@ -1,14 +1,21 @@
 import 'package:flutter/material.dart';
 
-/// Tracks modal dialog nesting depth to place child modals lower than parent modals.
-class ModalDialogDepthScope extends InheritedWidget {
+/// Default alignment for dialogs: positioned ~2/3 of the screen from the bottom
+/// (a bit above the middle of the screen).
+const Alignment kDefaultDialogAlignment = Alignment(0.0, -0.08);
+
+/// Tracks modal dialog nesting depth and alignment to ensure child dialogs open
+/// centered on their parent dialog.
+class ModalDialogDepthScope extends InheritedTheme {
   const ModalDialogDepthScope({
     super.key,
     required this.depth,
+    this.parentAlignment,
     required super.child,
   });
 
   final int depth;
+  final AlignmentGeometry? parentAlignment;
 
   static int of(BuildContext context) {
     final scope =
@@ -16,9 +23,25 @@ class ModalDialogDepthScope extends InheritedWidget {
     return scope?.depth ?? 0;
   }
 
+  static AlignmentGeometry? parentAlignmentOf(BuildContext context) {
+    final scope =
+        context.dependOnInheritedWidgetOfExactType<ModalDialogDepthScope>();
+    return scope?.parentAlignment;
+  }
+
+  @override
+  Widget wrap(BuildContext context, Widget child) {
+    return ModalDialogDepthScope(
+      depth: depth,
+      parentAlignment: parentAlignment,
+      child: child,
+    );
+  }
+
   @override
   bool updateShouldNotify(ModalDialogDepthScope oldWidget) =>
-      depth != oldWidget.depth;
+      depth != oldWidget.depth ||
+      parentAlignment != oldWidget.parentAlignment;
 }
 
 /// A dialog route that silences the Windows error beep when clicking outside

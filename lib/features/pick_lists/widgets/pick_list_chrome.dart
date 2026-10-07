@@ -1,23 +1,38 @@
+import 'package:collectarr_app/ui/app_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/ui/accent_dialog_header.dart';
 
 /// One shell for selection and management, so changing modes keeps its position.
 class PickListDialog extends StatelessWidget {
-  const PickListDialog({super.key, required this.child});
+  const PickListDialog({super.key, required this.child, this.alignment});
   final Widget child;
+  final AlignmentGeometry? alignment;
 
   @override
-  Widget build(BuildContext context) => Dialog(
-      insetPadding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-      alignment: Alignment.topCenter,
-      backgroundColor: pickListSurface(context),
-      shape: const RoundedRectangleBorder(),
-      clipBehavior: Clip.antiAlias,
-      child: ConstrainedBox(
+  Widget build(BuildContext context) {
+    final currentDepth = ModalDialogDepthScope.of(context);
+    final resolvedAlignment = alignment ?? Alignment.center;
+
+    return ModalDialogDepthScope(
+      depth: currentDepth + 1,
+      parentAlignment: resolvedAlignment,
+      child: Dialog(
+        insetPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
+        alignment: resolvedAlignment,
+        backgroundColor: pickListSurface(context),
+        shape: const RoundedRectangleBorder(),
+        clipBehavior: Clip.antiAlias,
+        child: ConstrainedBox(
           constraints: BoxConstraints(
-              maxWidth: 720, maxHeight: MediaQuery.sizeOf(context).height - 24),
-          child: child));
+            maxWidth: 720,
+            maxHeight: MediaQuery.sizeOf(context).height - 48,
+          ),
+          child: child,
+        ),
+      ),
+    );
+  }
 }
 
 class PickListHeader extends StatelessWidget {

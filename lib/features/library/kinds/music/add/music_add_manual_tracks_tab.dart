@@ -122,7 +122,9 @@ class _MusicAddManualTracksTabState extends State<MusicAddManualTracksTab> {
   }
 
   Widget _personalField(MusicDisc disc, String label, String key) {
-    final personal = widget.request.kindDraft as MusicAddDraft;
+    final personal = (widget.request.kindDraft is MusicAddDraft)
+        ? widget.request.kindDraft as MusicAddDraft
+        : const MusicAddDraft();
     final details =
         personal.media.where((row) => row.discId == disc.id.value).firstOrNull;
     final value =
@@ -168,7 +170,9 @@ class _MusicAddManualTracksTabState extends State<MusicAddManualTracksTab> {
       onChanged: _sync,
       discPersonalFieldBuilder: _personalField,
       onDiscRemoved: (id) {
-        final personal = widget.request.kindDraft as MusicAddDraft;
+        final personal = (widget.request.kindDraft is MusicAddDraft)
+            ? widget.request.kindDraft as MusicAddDraft
+            : const MusicAddDraft();
         widget.request.onKindDraftChanged?.call(personal.copyWith(media: [
           for (final row in personal.media)
             if (row.discId != id) row

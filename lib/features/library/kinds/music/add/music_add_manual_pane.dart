@@ -28,10 +28,9 @@ class MusicAddManualPane extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final draft = request.manualDraftAs<MusicAddManualDraft>();
-    final personalDraft = request.kindDraft;
-    if (personalDraft is! MusicAddDraft) {
-      throw StateError('Music Manual Add requires a MusicAddDraft.');
-    }
+    final personalDraft = (request.kindDraft is MusicAddDraft)
+        ? request.kindDraft as MusicAddDraft
+        : const MusicAddDraft();
     final fieldsById = {
       for (final section in musicAddSchema.sections)
         for (final field in section.fields) field.id: field,

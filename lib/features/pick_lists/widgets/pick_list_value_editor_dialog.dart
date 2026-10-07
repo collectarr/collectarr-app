@@ -1,6 +1,7 @@
 import 'pick_list_chrome.dart';
 import 'package:uuid/uuid.dart';
 import 'package:collectarr_app/features/pick_lists/models/pick_list_value.dart';
+import 'package:collectarr_app/ui/app_dialog.dart';
 import 'package:flutter/material.dart';
 
 Future<PickListValue?> showPickListValueEditorDialog({
@@ -12,7 +13,7 @@ Future<PickListValue?> showPickListValueEditorDialog({
   String? title,
   String valueFieldLabel = 'Name',
 }) {
-  return showDialog<PickListValue>(
+  return showAppDialog<PickListValue>(
     context: context,
     barrierDismissible: false,
     builder: (context) => _PickListValueEditorDialog(

@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_dialog.dart';
 import 'package:collectarr_app/ui/theme/app_typography.dart';
 import 'package:collectarr_app/ui/theme/date_picker_theme.dart';
 import 'package:collectarr_app/ui/theme/theme_palette.dart';
@@ -84,6 +85,7 @@ InputDecorationTheme buildAppInputDecorationTheme(
 
 DialogThemeData buildAppDialogTheme(AppThemePalette palette) {
   return DialogThemeData(
+    alignment: kDefaultDialogAlignment,
     backgroundColor: palette.panel,
     surfaceTintColor: Colors.transparent,
     clipBehavior: Clip.antiAlias,

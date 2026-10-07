@@ -93,8 +93,8 @@ final musicKindViewProfile = standardMediaWorkspaceViewProfile(
 
 final musicKindIdentity = const LibraryKindIdentity(
   kind: CatalogMediaKind.music,
-  singularLabel: 'Music',
-  pluralLabel: 'Music',
+  singularLabel: 'Album',
+  pluralLabel: 'Albums',
   title: 'Music',
   icon: Icons.music_note,
   accent: Color(0xFFF2932F),

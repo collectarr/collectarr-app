@@ -25,7 +25,9 @@ class MusicAddPersonalPane extends StatefulWidget {
 class _MusicAddPersonalPaneState extends State<MusicAddPersonalPane> {
   late final TextEditingController _rating;
   late final MusicListeningEditDraft _listening;
-  MusicAddDraft get draft => widget.request.kindDraft as MusicAddDraft;
+  MusicAddDraft get draft => (widget.request.kindDraft is MusicAddDraft)
+      ? widget.request.kindDraft as MusicAddDraft
+      : const MusicAddDraft();
   void update(MusicAddDraft value) => widget.request.onKindDraftChanged!(value);
   @override
   void initState() {

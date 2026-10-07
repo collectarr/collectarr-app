@@ -9,24 +9,28 @@ void main() {
       item: testCatalogItemFromJson({
         'id': 'music-search-1',
         'kind': 'music',
-        'title': 'Kinesis - Deluxe Edition',
-        'physical_format_label': 'CD',
+        'title': 'Kinesis',
+        'artist': 'Ad Infinitum',
+        'format': 'CD',
         'barcode': '1234567890',
-        'series': {
-          'series_title': 'Ad Infinitum',
-          'volume_name': 'Deluxe Edition',
-        },
-        'music': {
-          'track_count': 3,
-          'catalog_number': 'KDCD 1022',
-        },
+        'catalog_number': 'KDCD 1022',
+        'discs': [
+          {
+            'id': 'd1',
+            'disc_number': 1,
+            'tracks': [
+              {'id': 't1', 'title': 'T1'},
+              {'id': 't2', 'title': 'T2'},
+              {'id': 't3', 'title': 'T3'},
+            ],
+          }
+        ],
       }).asSearchCandidate,
     );
 
     expect(display, isNotNull);
     expect(display!.title, 'Kinesis');
     expect(display.secondaryLine, 'Ad Infinitum');
-    expect(display.detailLine,
-        'Deluxe Edition - CD - 3 tracks - 1234567890 - KDCD 1022');
+    expect(display.detailLine, 'CD - 3 tracks - 1234567890 - KDCD 1022');
   });
 }

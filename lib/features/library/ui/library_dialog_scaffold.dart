@@ -163,6 +163,13 @@ class LibraryDialogScaffold extends StatelessWidget {
       ],
     );
 
+    final inheritedAlignment =
+        ModalDialogDepthScope.parentAlignmentOf(context);
+    final resolvedAlignment = alignment ??
+        (currentDepth > 0
+            ? Alignment.center
+            : (inheritedAlignment ?? kDefaultDialogAlignment));
+
     Widget result;
 
     if (windowClass.isCompact) {
@@ -192,12 +199,6 @@ class LibraryDialogScaffold extends StatelessWidget {
             )
           : scaffoldColumn;
 
-      final resolvedAlignment = alignment ??
-          Alignment(
-            0.0,
-            (0.12 + currentDepth * 0.20).clamp(-1.0, 0.85),
-          );
-
       result = Dialog(
         backgroundColor: palette.panel,
         shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
@@ -225,6 +226,7 @@ class LibraryDialogScaffold extends StatelessWidget {
 
     return ModalDialogDepthScope(
       depth: currentDepth + 1,
+      parentAlignment: resolvedAlignment,
       child: LibraryDensityScope(
         density: density,
         child: result,
