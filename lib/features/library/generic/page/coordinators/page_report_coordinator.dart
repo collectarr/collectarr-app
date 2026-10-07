@@ -9,25 +9,25 @@ class LibraryPageReportCoordinator {
   final LibraryPageCoordinatorContext _page;
 
   void printReportFlow(LibraryProjection projection) {
-    final items = projection.filteredItems;
     printCollectionReport(
       context: _page.context,
       title: _page.type.identity.title,
-      items: items,
+      items: projection.filteredItems,
+      type: _page.type,
+      allItems: projection.allItems,
+      selectedItemIds: _page.selection.itemIds,
     );
   }
 
   void printSelectedReportFlow(LibraryProjection? projection) {
     if (projection == null || _page.selection.itemIds.isEmpty) return;
-    final items = [
-      for (final item in projection.filteredItems)
-        if (_page.selection.itemIds.contains(item.target.id)) item,
-    ];
-    if (items.isEmpty) return;
     printCollectionReport(
       context: _page.context,
       title: _page.type.identity.title,
-      items: items,
+      items: projection.filteredItems,
+      type: _page.type,
+      allItems: projection.allItems,
+      selectedItemIds: _page.selection.itemIds,
     );
   }
 

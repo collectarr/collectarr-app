@@ -248,6 +248,8 @@ class _AppShellState extends ConsumerState<AppShell> {
             context: context,
             title: type.identity.title,
             items: items,
+            type: type,
+            allShelfEntries: shelf.entries,
           );
         });
         return;
