@@ -57,6 +57,7 @@ flutter:
     - assets/collection_status/
     - assets/sidebar_icons/
     - assets/tab_icons/
+    - assets/import_logos/
     - assets/fonts/CollectarrSans-OFL.txt
   fonts:
     - family: Collectarr Sans

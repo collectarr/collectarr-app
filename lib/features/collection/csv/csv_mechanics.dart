@@ -7,15 +7,18 @@ import 'package:csv/csv.dart' as csv;
 final class CsvReader {
   const CsvReader({
     this.fieldDelimiter = ',',
+    this.textDelimiter,
     this.dynamicTyping = false,
   });
 
   final String fieldDelimiter;
+  final String? textDelimiter;
   final bool dynamicTyping;
 
   List<List<String>> read(String source) {
     final rows = csv.CsvDecoder(
       fieldDelimiter: fieldDelimiter,
+      quoteCharacter: textDelimiter ?? '"',
       dynamicTyping: dynamicTyping,
     ).convert(source);
     final normalized = [

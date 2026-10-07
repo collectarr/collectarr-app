@@ -18,4 +18,6 @@ export 'package:collectarr_app/features/library/metadata/library_field_entries.d
 export 'package:collectarr_app/features/library/metadata/library_personal_field_contributor.dart';
 export 'package:collectarr_app/features/library/tracking/library_tracking_topology.dart';
 export 'package:collectarr_app/features/library/edit/contracts/library_edit_kind_draft.dart';
+export 'package:collectarr_app/features/library/config/library_import_capability.dart';
+export 'package:collectarr_app/features/library/kinds/registry/library_kind_import_contributors.dart';
 export 'package:collectarr_app/features/library/kinds/registry/library_kind_registration.dart';

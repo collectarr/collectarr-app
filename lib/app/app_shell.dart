@@ -13,6 +13,7 @@ import 'package:collectarr_app/features/library/keyboard/library_keyboard_shortc
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/reports/collection_report.dart';
 import 'package:collectarr_app/features/library/reports/collection_export_csv_txt.dart';
+import 'package:collectarr_app/features/library/reports/collection_import_data.dart';
 import 'package:collectarr_app/features/library/stats/stats_dashboard.dart';
 import 'package:collectarr_app/features/pick_lists/widgets/pick_list_manager_page.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_pick_list_contributors.dart';
@@ -325,7 +326,13 @@ class _AppShellState extends ConsumerState<AppShell> {
         _openShelfImportExport(initialIndex: 0);
         return;
       case DrawerAction.importData:
-        _openShelfImportExport(initialIndex: 1);
+        _withShelf((shelf) {
+          return importCollectionData(
+            context: context,
+            type: type,
+            allShelfEntries: shelf.entries,
+          );
+        });
         return;
       case DrawerAction.linkAlbums:
         _showUnavailableAction(
