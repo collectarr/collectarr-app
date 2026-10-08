@@ -1187,11 +1187,6 @@
       "symbol": "startedAt"
     },
     {
-      "path": "lib/features/library/edit/shell/library_edit_dialog.dart",
-      "surface": "member-access",
-      "symbol": "soldAt"
-    },
-    {
       "path": "lib/features/library/export/integration_export_dialog.dart",
       "surface": "map-key",
       "symbol": "quantity"

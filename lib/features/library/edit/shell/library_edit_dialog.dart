@@ -13,6 +13,7 @@ import 'package:collectarr_app/core/models/tracking_summary.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
 import 'package:collectarr_app/features/library/config/library_dialog_tokens.dart';
+import 'package:collectarr_app/features/library/config/library_edit_tab_order.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/edit/sections/custom_fields_edit_section.dart';
@@ -179,10 +180,12 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
 
     _links = [];
 
-    _tabSpecs = libraryEditPresentationForKind(widget.type.kind)
-        .presentation
-        .builderForTarget(widget.isEntryTarget)
-        .buildTabs(context: _editPresentationContext);
+    _tabSpecs = LibraryEditTabOrder.instance.orderTabs(
+      libraryEditPresentationForKind(widget.type.kind).presentation.buildTabs(
+            context: _editPresentationContext,
+            isEntry: widget.isEntryTarget,
+          ),
+    );
 
     _tabController = TabController(
       length: _tabSpecs.length,

@@ -60,37 +60,10 @@ const _movieCatalogItemTabs = [
     label: 'Covers',
     sectionIds: ['cover_images'],
   ),
-  LibraryEditTabSpec(
-    id: 'photos',
-    icon: Icons.image,
-    label: 'Images',
-    sectionIds: ['photos'],
-  ),
 ];
 
 const _movieLibraryEntryTabs = [
   ..._movieCatalogItemTabs,
-  LibraryEditTabSpec(
-    id: 'personal',
-    icon: Icons.person,
-    label: 'Personal',
-    sectionIds: [
-      'entries_fields',
-      'purchase_fields',
-      'sold_fields',
-      'wishlist_reference',
-      'entry_notes',
-      'collection_fields_info',
-      'entries_reference',
-      'entry_grading',
-    ],
-  ),
-  LibraryEditTabSpec(
-    id: 'custom',
-    icon: Icons.edit_note,
-    label: 'User Defined',
-    sectionIds: ['custom_fields'],
-  ),
 ];
 
 class MovieLibraryCatalogItemEditPresentationBuilder
@@ -134,6 +107,46 @@ class MovieLibraryEntryEditPresentationBuilder
 const movieLibraryEditPresentation = LibraryEditPresentation(
   builder: MovieLibraryCatalogItemEditPresentationBuilder(),
   entryBuilder: MovieLibraryEntryEditPresentationBuilder(),
+  sharedTabs: [
+    LibraryEditTabContribution(
+      tab: LibraryEditTabSpec(
+        id: 'photos',
+        icon: Icons.image,
+        label: 'Images',
+        sectionIds: ['photos'],
+      ),
+      afterTabId: 'cover',
+    ),
+    LibraryEditTabContribution(
+      tab: LibraryEditTabSpec(
+        id: 'personal',
+        icon: Icons.person,
+        label: 'Personal',
+        sectionIds: [
+          'entries_fields',
+          'purchase_fields',
+          'sold_fields',
+          'wishlist_reference',
+          'entry_notes',
+          'collection_fields_info',
+          'entries_reference',
+          'entry_grading',
+        ],
+      ),
+      scope: LibraryEditTabTargetScope.libraryEntry,
+      afterTabId: 'photos',
+    ),
+    LibraryEditTabContribution(
+      tab: LibraryEditTabSpec(
+        id: 'custom',
+        icon: Icons.edit_note,
+        label: 'User Defined',
+        sectionIds: ['custom_fields'],
+      ),
+      scope: LibraryEditTabTargetScope.libraryEntry,
+      afterTabId: 'personal',
+    ),
+  ],
 );
 
 class MovieLibraryEditDialog extends StatelessWidget {

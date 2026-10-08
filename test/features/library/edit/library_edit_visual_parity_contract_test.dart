@@ -1,5 +1,6 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/config/library_edit_presentation_models.dart';
+import 'package:collectarr_app/features/library/config/library_edit_tab_order.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.dart';
 import 'package:collectarr_app/features/library/ui/library_density_scope.dart';
 import 'package:collectarr_app/features/library/ui/library_metrics.dart';
@@ -48,10 +49,15 @@ void main() {
       // not participate in the retired generic edit-tab renderer.
       if (runtime.kind == CatalogMediaKind.music) continue;
       for (final context in _editContexts) {
-        final builder = libraryEditPresentationForKind(runtime.kind)
-            .presentation
-            .builderForTarget(context.isEntry);
-        final tabs = builder.buildTabs(context: context);
+        final presentation =
+            libraryEditPresentationForKind(runtime.kind).presentation;
+        final builder = presentation.builderForTarget(context.isEntry);
+        final tabs = LibraryEditTabOrder.instance.orderTabs(
+          presentation.buildTabs(
+            context: context,
+            isEntry: context.isEntry,
+          ),
+        );
         final state = builder.build(context: context);
 
         expect(tabs, isNotEmpty, reason: '${runtime.kind} has no edit tabs');
@@ -73,11 +79,12 @@ void main() {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                for (final sectionId
-                                    in builder.buildTabSectionIds(
-                                  context: context,
-                                  tabId: tab.id,
-                                ))
+                                for (final sectionId in tab.sectionIds.isEmpty
+                                    ? builder.buildTabSectionIds(
+                                        context: context,
+                                        tabId: tab.id,
+                                      )
+                                    : tab.sectionIds)
                                   Text(sectionId),
                               ],
                             ),

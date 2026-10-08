@@ -41,12 +41,6 @@ const _gameMediaSecondaryTabs = [
     label: 'Covers',
     sectionIds: ['cover_images'],
   ),
-  LibraryEditTabSpec(
-    id: 'photos',
-    icon: Icons.image_outlined,
-    label: 'My Images',
-    sectionIds: ['photos'],
-  ),
 ];
 
 const _gamePersonalAndValueTabs = [
@@ -55,23 +49,6 @@ const _gamePersonalAndValueTabs = [
     icon: Icons.attach_money,
     label: 'Value',
     sectionIds: ['purchase', 'value_summary', 'sold_status', 'profit_loss'],
-  ),
-  LibraryEditTabSpec(
-    id: 'personal',
-    icon: Icons.person_outline,
-    label: 'Personal',
-    sectionIds: [
-      'tracking_personal',
-      'wishlist_reference',
-      'entry_notes',
-      'collection_fields_info',
-    ],
-  ),
-  LibraryEditTabSpec(
-    id: 'custom',
-    icon: Icons.edit_note,
-    label: 'Custom Fields',
-    sectionIds: ['custom_fields'],
   ),
 ];
 
@@ -111,4 +88,38 @@ class GameLibraryCombinedEditPresentationBuilder
 
 const gameLibraryEditPresentation = LibraryEditPresentation(
   builder: GameLibraryCombinedEditPresentationBuilder(),
+  sharedTabs: [
+    LibraryEditTabContribution(
+      tab: LibraryEditTabSpec(
+        id: 'photos',
+        icon: Icons.image_outlined,
+        label: 'My Images',
+        sectionIds: ['photos'],
+      ),
+      afterTabId: 'cover',
+    ),
+    LibraryEditTabContribution(
+      tab: LibraryEditTabSpec(
+        id: 'personal',
+        icon: Icons.person_outline,
+        label: 'Personal',
+        sectionIds: [
+          'tracking_personal',
+          'wishlist_reference',
+          'entry_notes',
+          'collection_fields_info',
+        ],
+      ),
+      afterTabId: 'value',
+    ),
+    LibraryEditTabContribution(
+      tab: LibraryEditTabSpec(
+        id: 'custom',
+        icon: Icons.edit_note,
+        label: 'Custom Fields',
+        sectionIds: ['custom_fields'],
+      ),
+      afterTabId: 'personal',
+    ),
+  ],
 );

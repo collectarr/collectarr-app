@@ -141,3 +141,9 @@ supplies its image vocabulary, labels, count, and tab copy; cover-source selecti
 and its square crop workflow remain kind-specific. The Music image repository
 still adapts the shared item-image store and is tracked for the remaining image
 storage consolidation.
+
+Shared edit presentations can now contribute standard tab specs with target
+scope and placement around kind tabs. Game and Movie use this for Personal,
+Custom Fields, and My Images, so their presentation builders no longer repeat
+those specs across catalog and entry tab lists. Their kind-owned tabs and custom
+field editors remain in the kind modules; the broader migration is still open.

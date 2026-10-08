@@ -41,6 +41,33 @@ class LibraryEditTabSpec {
       sectionIdsForContext;
 }
 
+enum LibraryEditTabTargetScope {
+  all,
+  catalogItem,
+  libraryEntry,
+}
+
+/// Declares a shared tab that the library edit host can compose around
+/// kind-owned tabs without asking the kind to build its lifecycle widget.
+class LibraryEditTabContribution {
+  const LibraryEditTabContribution({
+    required this.tab,
+    this.scope = LibraryEditTabTargetScope.all,
+    this.afterTabId,
+  });
+
+  final LibraryEditTabSpec tab;
+  final LibraryEditTabTargetScope scope;
+  final String? afterTabId;
+
+  bool isAvailableFor(LibraryEditPresentationContext context) =>
+      switch (scope) {
+        LibraryEditTabTargetScope.all => true,
+        LibraryEditTabTargetScope.catalogItem => !context.isEntry,
+        LibraryEditTabTargetScope.libraryEntry => context.isEntry,
+      };
+}
+
 class LibraryEditPresentationState {
   const LibraryEditPresentationState({
     required this.usesEntryMainArtworkLayout,
@@ -97,12 +124,37 @@ class LibraryEditPresentation {
     required this.builder,
     this.catalogItemBuilder,
     this.entryBuilder,
+    this.sharedTabs = const [],
   });
 
   final LibraryEditPresentationBuilder builder;
   final LibraryEditPresentationBuilder? catalogItemBuilder;
   final LibraryEditPresentationBuilder? entryBuilder;
+  final List<LibraryEditTabContribution> sharedTabs;
 
   LibraryEditPresentationBuilder builderForTarget(bool isEntry) =>
       isEntry ? entryBuilder ?? builder : catalogItemBuilder ?? builder;
+
+  List<LibraryEditTabSpec> buildTabs({
+    required LibraryEditPresentationContext context,
+    required bool isEntry,
+  }) {
+    final tabs = [
+      ...builderForTarget(isEntry).buildTabs(context: context),
+    ];
+    for (final contribution in sharedTabs) {
+      if (!contribution.isAvailableFor(context) ||
+          tabs.any((tab) => tab.id == contribution.tab.id)) {
+        continue;
+      }
+      final anchorIndex = contribution.afterTabId == null
+          ? -1
+          : tabs.indexWhere((tab) => tab.id == contribution.afterTabId);
+      tabs.insert(
+        anchorIndex < 0 ? tabs.length : anchorIndex + 1,
+        contribution.tab,
+      );
+    }
+    return tabs;
+  }
 }
