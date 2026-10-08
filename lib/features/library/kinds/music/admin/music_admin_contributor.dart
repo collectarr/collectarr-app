@@ -324,7 +324,7 @@ class MusicAdminContributor implements LibraryAdminContributor {
         adminUrlListCorrectionField(
           key: 'external_links',
           label: 'External links',
-          linkKind: 'external',
+          linkKind: null,
           read: (item) => item.canonicalFieldValues['external_links'],
         ),
       ];

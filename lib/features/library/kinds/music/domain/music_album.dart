@@ -282,10 +282,17 @@ List<Map<String, dynamic>> _maps(Object? value) => value is Iterable
 
 List<MusicExternalLink> _externalLinks(Map<String, dynamic> json) {
   final raw = json['external_links'];
+  if (raw == null) return const [];
+  if (raw is! Iterable) {
+    throw const FormatException('Music external_links must be a list.');
+  }
   return [
-    for (final value in _maps(raw))
-      if (MusicExternalLink.fromJson(value) case final link
-          when link.url.isNotEmpty)
-        link,
+    for (final (index, value) in raw.indexed)
+      if (value is Map)
+        MusicExternalLink.fromJson(Map<String, dynamic>.from(value))
+      else
+        throw FormatException(
+          'Music external_links entry ${index + 1} must be an object.',
+        ),
   ];
 }

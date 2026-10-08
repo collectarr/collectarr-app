@@ -178,7 +178,7 @@ LibraryAdminCorrectionField adminUrlListCorrectionField({
   required String key,
   required String label,
   required LibraryAdminCorrectionValueReader read,
-  required String linkKind,
+  required String? linkKind,
 }) {
   return adminCorrectionField(
     key: key,
@@ -198,7 +198,10 @@ LibraryAdminCorrectionField adminUrlListCorrectionField({
         if (uri == null || !uri.hasScheme || !uri.hasAuthority) {
           throw FormatException('Invalid URL in $label: $url');
         }
-        links.add({'url': url, 'kind': linkKind});
+        links.add({
+          'url': url,
+          if (linkKind != null) 'kind': linkKind,
+        });
       }
       return links;
     },

@@ -20,14 +20,21 @@ final class MusicExternalLink {
         'url': url,
         if (title != null) 'title': title,
         if (description != null) 'description': description,
-        'kind': 'external',
       };
 
   factory MusicExternalLink.fromJson(Map<String, dynamic> json) {
+    const fields = {'url', 'title', 'description'};
+    final unsupported = json.keys.where((key) => !fields.contains(key));
+    if (unsupported.isNotEmpty) {
+      throw FormatException(
+        'Unrecognized Music external link field "${unsupported.first}".',
+      );
+    }
+    final url = _requiredText(json['url'], 'url');
     return MusicExternalLink(
-      url: _text(json['url']) ?? '',
-      title: _text(json['title']),
-      description: _text(json['description']),
+      url: url,
+      title: _optionalText(json['title'], 'title'),
+      description: _optionalText(json['description'], 'description'),
     );
   }
 
@@ -43,7 +50,16 @@ final class MusicExternalLink {
   int get hashCode => Object.hash(url, title, description);
 }
 
-String? _text(Object? value) {
-  final text = value?.toString().trim();
-  return text == null || text.isEmpty ? null : text;
+String _requiredText(Object? value, String field) {
+  if (value is! String || value.isEmpty || value != value.trim()) {
+    throw FormatException(
+      'Music external link $field must be non-empty trimmed text.',
+    );
+  }
+  return value;
+}
+
+String? _optionalText(Object? value, String field) {
+  if (value == null) return null;
+  return _requiredText(value, field);
 }
