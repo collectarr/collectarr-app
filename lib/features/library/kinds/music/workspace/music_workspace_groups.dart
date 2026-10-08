@@ -5,6 +5,7 @@ import 'package:collectarr_app/core/models/partial_date.dart';
 import 'package:collectarr_app/features/library/kinds/music/data/music_library_entry_projection.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_album_image.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_personal_data.dart';
+import 'package:collectarr_app/features/library/kinds/music/config/music_field_identities.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_dto.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
@@ -17,10 +18,17 @@ enum MusicGroupingField {
   hasBack('music.has_back', 'Has Back', 'Images', localOnly: false),
   hasFront('music.has_front', 'Has Front', 'Images', localOnly: false),
   imageType('music.image_type', 'Image Type', 'Images', localOnly: true),
-  artist('music.artist', 'Artist', 'Main', localOnly: false),
-  format('music.format', 'Format', 'Main', localOnly: false),
-  genre('music.genre', 'Genre', 'Main', localOnly: false),
-  publisher('music.publisher', 'Label', 'Main', localOnly: false),
+  artist(
+      MusicFieldIdentities.artistId, MusicFieldIdentities.artistLabel, 'Main',
+      localOnly: false),
+  format(
+      MusicFieldIdentities.formatId, MusicFieldIdentities.formatLabel, 'Main',
+      localOnly: false),
+  genre(MusicFieldIdentities.genreId, MusicFieldIdentities.genreLabel, 'Main',
+      localOnly: false),
+  publisher(MusicFieldIdentities.publisherId,
+      MusicFieldIdentities.publisherLabel, 'Main',
+      localOnly: false),
   originalReleaseDate(
       'music.original_release_date', 'Original Release Date', 'Main',
       localOnly: false),
@@ -36,12 +44,18 @@ enum MusicGroupingField {
       localOnly: false),
   recordingYear('music.recording_year', 'Recording Year', 'Main',
       localOnly: false),
-  releaseDate('music.release_date', 'Release Date', 'Main', localOnly: false),
+  releaseDate(MusicFieldIdentities.releaseDateId,
+      MusicFieldIdentities.releaseDateLabel, 'Main',
+      localOnly: false),
   releaseMonth('music.release_month', 'Release Month', 'Main',
       localOnly: false),
   releaseYear('music.release_year', 'Release Year', 'Main', localOnly: false),
-  boxSet('music.box_set', 'Box Set', 'Details', localOnly: false),
-  country('music.country', 'Country', 'Details', localOnly: false),
+  boxSet(MusicFieldIdentities.boxSetId, MusicFieldIdentities.boxSetLabel,
+      'Details',
+      localOnly: false),
+  country(MusicFieldIdentities.countryId, MusicFieldIdentities.countryLabel,
+      'Details',
+      localOnly: false),
   extra('music.extra', 'Extra', 'Details', localOnly: false),
   instrument('music.instrument', 'Instrument', 'Details', localOnly: false),
   isLive('music.is_live', 'Is Live', 'Details', localOnly: false),
@@ -49,7 +63,9 @@ enum MusicGroupingField {
       localOnly: true),
   condition('music.condition', 'Package/Sleeve Condition', 'Details',
       localOnly: true),
-  packaging('music.packaging', 'Packaging', 'Details', localOnly: false),
+  packaging(MusicFieldIdentities.packagingId,
+      MusicFieldIdentities.packagingLabel, 'Details',
+      localOnly: false),
   rpm('music.rpm', 'RPM', 'Details', localOnly: false),
   spars('music.spars', 'SPARS', 'Details', localOnly: false),
   sound('music.sound', 'Sound', 'Details', localOnly: false),
@@ -230,8 +246,7 @@ Object? _groupValue(MusicGroupingField field,
     MusicGroupingField.rpm =>
       album.discs.map((disc) => disc.rpm).whereType<String>(),
     MusicGroupingField.spars => album.sparsCode,
-    MusicGroupingField.sound =>
-      album.discs.expand((disc) => disc.soundTypes),
+    MusicGroupingField.sound => album.discs.expand((disc) => disc.soundTypes),
     MusicGroupingField.storage =>
       personal?.details.media.map((disc) => disc.storageDevice),
     MusicGroupingField.studio => album.studios,

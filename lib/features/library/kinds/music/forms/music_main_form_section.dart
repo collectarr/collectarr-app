@@ -1,23 +1,24 @@
 import 'package:collectarr_app/features/library/forms/library_form_schema.dart';
+import 'package:collectarr_app/features/library/kinds/music/config/music_field_identities.dart';
 
 /// CLZ Main composition shared by Music Manual Add and Edit.
 LibraryFormSectionSpec<TDraft> musicMainFormSection<TDraft>({
   required Iterable<LibraryFieldSpec<TDraft>> fields,
-  String titleFieldId = 'title',
+  String titleFieldId = MusicFieldIdentities.titleId,
 }) {
   final columns = [
     LibraryFormColumnSpec(rows: [
       [titleFieldId],
       ['sort_title'],
       ['subtitle'],
-      ['artist'],
+      [MusicFieldIdentities.artistId],
     ]),
     const LibraryFormColumnSpec(rows: [
-      ['release_date', 'original_release_date'],
-      ['record_label', 'recording_date'],
-      ['format', 'barcode'],
-      ['catalog_number'],
-      ['genres'],
+      [MusicFieldIdentities.releaseDateId, 'original_release_date'],
+      [MusicFieldIdentities.publisherId, 'recording_date'],
+      [MusicFieldIdentities.formatId, MusicFieldIdentities.barcodeId],
+      [MusicFieldIdentities.catalogNumberId],
+      [MusicFieldIdentities.genreId],
     ]),
   ];
   final fieldsById = {for (final field in fields) field.id: field};

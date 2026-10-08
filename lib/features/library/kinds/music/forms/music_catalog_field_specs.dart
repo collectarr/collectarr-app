@@ -13,6 +13,7 @@ import 'package:collectarr_app/features/library/kinds/music/forms/music_album_fo
 import 'package:collectarr_app/features/library/kinds/music/music_country_name.dart';
 import 'package:collectarr_app/features/library/kinds/music/vocabulary/music_vocabularies.dart';
 import 'package:collectarr_app/features/library/forms/library_field_spec.dart';
+import 'package:collectarr_app/features/library/kinds/music/config/music_field_identities.dart';
 
 typedef MusicAlbumValuesReader<TDraft> = MusicAlbumFormValues Function(
     TDraft draft);
@@ -43,8 +44,8 @@ List<LibraryFieldSpec<TDraft>> musicAlbumFields<TDraft>({
 }) =>
     _included<TDraft>([
       _text<TDraft>(
-        id: 'title',
-        label: 'Title',
+        id: MusicFieldIdentities.titleId,
+        label: MusicFieldIdentities.titleLabel,
         read: (draft) => values(draft).title,
         write: (draft, value) => values(draft).title = value,
         actions: musicTitleActions,
@@ -62,8 +63,8 @@ List<LibraryFieldSpec<TDraft>> musicAlbumFields<TDraft>({
         write: (draft, value) => values(draft).subtitle = value,
       ),
       LibraryCustomFieldSpec<TDraft>(
-        id: 'artist',
-        label: 'Artist',
+        id: MusicFieldIdentities.artistId,
+        label: MusicFieldIdentities.artistLabel,
         builder: (context, draft) =>
             StatefulBuilder(builder: (context, refresh) {
           final form = values(draft);
@@ -162,8 +163,8 @@ List<LibraryFieldSpec<TDraft>> musicAlbumFields<TDraft>({
                 )),
       ),
       LibraryMultiVocabularyFieldSpec<TDraft, String>(
-        id: 'genres',
-        label: 'Genre',
+        id: MusicFieldIdentities.genreId,
+        label: MusicFieldIdentities.genreLabel,
         pickListKey: MusicVocabularyIds.genre.value,
         pluralLabel: 'Genres',
         values: (draft) => values(draft).genres.toSet(),
@@ -172,8 +173,8 @@ List<LibraryFieldSpec<TDraft>> musicAlbumFields<TDraft>({
         options: _options(genreOptions ?? MusicVocabularies.genre.builtIns),
       ),
       LibraryCustomFieldSpec<TDraft>(
-        id: 'format',
-        label: 'Format',
+        id: MusicFieldIdentities.formatId,
+        label: MusicFieldIdentities.formatLabel,
         builder: (context, draft) {
           final fmt = (formatSummary?.call(draft) ??
                   (draft is MusicAlbumEditDraft
@@ -227,14 +228,14 @@ List<LibraryFieldSpec<TDraft>> musicAlbumFields<TDraft>({
         },
       ),
       LibraryPartialDateFieldSpec<TDraft>(
-        id: 'release_date',
-        label: 'Release Date',
+        id: MusicFieldIdentities.releaseDateId,
+        label: MusicFieldIdentities.releaseDateLabel,
         value: (draft) => values(draft).releaseDateParts,
         setValue: (draft, value) => values(draft).releaseDateParts = value,
       ),
       LibraryVocabularyFieldSpec<TDraft, String>(
-        id: 'record_label',
-        label: 'Label',
+        id: MusicFieldIdentities.publisherId,
+        label: MusicFieldIdentities.publisherLabel,
         value: (draft) => _nullable(values(draft).publisher),
         setValue: (draft, value) => values(draft).publisher = value ?? '',
         options: _options(
@@ -245,14 +246,14 @@ List<LibraryFieldSpec<TDraft>> musicAlbumFields<TDraft>({
             onManageRecordLabel == null ? null : (_) => onManageRecordLabel(),
       ),
       _text<TDraft>(
-        id: 'catalog_number',
-        label: 'Cat No',
+        id: MusicFieldIdentities.catalogNumberId,
+        label: MusicFieldIdentities.catalogNumberLabel,
         read: (draft) => values(draft).catalogNumber,
         write: (draft, value) => values(draft).catalogNumber = value,
       ),
       _text<TDraft>(
-        id: 'barcode',
-        label: 'Barcode',
+        id: MusicFieldIdentities.barcodeId,
+        label: MusicFieldIdentities.barcodeLabel,
         read: (draft) => values(draft).barcode,
         write: (draft, value) => values(draft).barcode = value,
       ),
@@ -281,8 +282,8 @@ List<LibraryFieldSpec<TDraft>> musicAlbumFields<TDraft>({
         pickListKey: MusicVocabularyIds.spars.value,
       ),
       LibraryVocabularyFieldSpec<TDraft, String>(
-        id: 'country',
-        label: 'Country',
+        id: MusicFieldIdentities.countryId,
+        label: MusicFieldIdentities.countryLabel,
         value: (draft) => _nullable(values(draft).countryCode),
         setValue: (draft, value) => values(draft).countryCode = value ?? '',
         options: _countryOptions(
@@ -292,8 +293,8 @@ List<LibraryFieldSpec<TDraft>> musicAlbumFields<TDraft>({
         onManage: onManageCountry == null ? null : (_) => onManageCountry(),
       ),
       LibraryVocabularyFieldSpec<TDraft, String>(
-        id: 'packaging',
-        label: 'Packaging',
+        id: MusicFieldIdentities.packagingId,
+        label: MusicFieldIdentities.packagingLabel,
         value: (draft) => _nullable(values(draft).packaging),
         setValue: (draft, value) => values(draft).packaging = value ?? '',
         options: _options(
@@ -303,8 +304,8 @@ List<LibraryFieldSpec<TDraft>> musicAlbumFields<TDraft>({
         onManage: onManagePackaging == null ? null : (_) => onManagePackaging(),
       ),
       LibraryVocabularyFieldSpec<TDraft, String>(
-        id: 'box_set',
-        label: 'Box Set',
+        id: MusicFieldIdentities.boxSetId,
+        label: MusicFieldIdentities.boxSetLabel,
         value: (draft) => _nullable(values(draft).boxSet),
         setValue: (draft, value) => values(draft).boxSet = value ?? '',
         options: const [],

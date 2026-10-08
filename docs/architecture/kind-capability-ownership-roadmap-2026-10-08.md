@@ -108,6 +108,12 @@ Music's item export columns now reuse the catalog workspace definitions for
 artist, title, format, barcode, catalog number, release date, track count, and
 label. Their shared field IDs and labels line up with workspace metadata while
 CSV/PDF formatting, visibility, and ordering remain export-specific.
+Music fields shared by edit forms and workspace now take canonical IDs and
+labels from one kind-owned definition. The typed workspace field, sort, group,
+and facet identifiers, workspace labels, form fields, and form layouts reuse
+those values. Draft readers, writers, validation, and vocabulary behavior stay
+in the edit form specs; the broader cross-kind field metadata consolidation is
+still open.
 Music release, original release, and recording dates now have one canonical
 `{year, month, day}` representation across the Core model, API, correction
 flow, search projection, App mapper, and pinned contract. Core rejects legacy

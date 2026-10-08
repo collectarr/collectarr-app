@@ -5,6 +5,7 @@ import 'package:collectarr_app/features/library/add/schema/library_add_catalog_t
 import 'package:collectarr_app/features/library/kinds/music/add/music_add_manual_draft.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_disc.dart';
 import 'package:collectarr_app/features/library/kinds/music/forms/music_catalog_field_specs.dart';
+import 'package:collectarr_app/features/library/kinds/music/config/music_field_identities.dart';
 
 final LibraryFormSchema<MusicAddManualDraft> musicAddSchema =
     musicAddSchemaFor();
@@ -63,7 +64,7 @@ LibraryFormSchema<MusicAddManualDraft> musicAddSchemaFor({
           libraryAddCatalogTitleField<MusicAddManualDraft>(
               actions: musicTitleActions),
           for (final field in sharedFields)
-            if (field.id != 'title' &&
+            if (field.id != MusicFieldIdentities.titleId &&
                 field.id != 'cover_image_url' &&
                 field.id != 'back_cover_image_url')
               field,

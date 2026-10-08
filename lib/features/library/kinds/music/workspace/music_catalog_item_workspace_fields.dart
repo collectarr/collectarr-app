@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_ids.dart';
+import 'package:collectarr_app/features/library/kinds/music/config/music_field_identities.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_dto.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/schema/field_factories.dart';
@@ -6,54 +7,54 @@ import 'package:collectarr_app/features/library/workspace/schema/field_factories
 abstract final class MusicCatalogItemWorkspaceFields {
   static final title = textField<MusicKind, MusicWorkspaceProjection>(
     id: MusicFieldIds.title,
-    label: 'Title',
+    label: MusicFieldIdentities.titleLabel,
     getValue: (dto) => dto.primaryLabel,
   );
 
   static final artist = textField<MusicKind, MusicWorkspaceProjection>(
     id: MusicFieldIds.artist,
-    label: 'Artist',
+    label: MusicFieldIdentities.artistLabel,
     getValue: (dto) => dto.artist,
     searchable: true,
   );
 
   static final publisher = textField<MusicKind, MusicWorkspaceProjection>(
     id: MusicFieldIds.publisher,
-    label: 'Label',
+    label: MusicFieldIdentities.publisherLabel,
     getValue: (dto) => dto.publisher,
     searchable: true,
   );
 
   static final barcode = textField<MusicKind, MusicWorkspaceProjection>(
     id: MusicFieldIds.barcode,
-    label: 'Barcode',
+    label: MusicFieldIdentities.barcodeLabel,
     getValue: (dto) => dto.barcode,
     searchable: true,
   );
 
   static final catalogNumber = textField<MusicKind, MusicWorkspaceProjection>(
     id: MusicFieldIds.catalogNumber,
-    label: 'Catalog Number',
+    label: MusicFieldIdentities.catalogNumberLabel,
     getValue: (dto) => dto.catalogNumber,
     searchable: true,
   );
 
   static final genre = textField<MusicKind, MusicWorkspaceProjection>(
     id: MusicFieldIds.genre,
-    label: 'Genre',
+    label: MusicFieldIdentities.genreLabel,
     getValue: (dto) => dto.genre,
     searchable: true,
   );
 
   static final format = textField<MusicKind, MusicWorkspaceProjection>(
     id: MusicFieldIds.format,
-    label: 'Format',
+    label: MusicFieldIdentities.formatLabel,
     getValue: (dto) => dto.format,
   );
 
   static final releaseDate = dateField<MusicKind, MusicWorkspaceProjection>(
     id: MusicFieldIds.releaseDate,
-    label: 'Release Date',
+    label: MusicFieldIdentities.releaseDateLabel,
     getValue: (dto) => dto.releaseDate,
   );
 

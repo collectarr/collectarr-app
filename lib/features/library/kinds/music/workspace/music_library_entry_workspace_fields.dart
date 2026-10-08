@@ -5,6 +5,7 @@ import 'package:collectarr_app/features/library/kinds/music/data/music_library_e
 import 'package:collectarr_app/features/library/kinds/music/domain/music_library_entry.dart';
 import 'package:collectarr_app/features/library/kinds/music/entries/music_library_entry_update_payload.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_ids.dart';
+import 'package:collectarr_app/features/library/kinds/music/config/music_field_identities.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_dto.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_entry_dispatch.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
@@ -13,19 +14,19 @@ import 'package:collectarr_app/features/library/workspace/schema/field_factories
 abstract final class MusicLibraryEntryWorkspaceFields {
   static final title = textField<MusicKind, MusicWorkspaceProjection>(
     id: MusicFieldIds.title,
-    label: 'Title',
+    label: MusicFieldIdentities.titleLabel,
     getValue: (dto) => dto.primaryLabel,
   );
 
   static final artist = textField<MusicKind, MusicWorkspaceProjection>(
     id: MusicFieldIds.artist,
-    label: 'Artist',
+    label: MusicFieldIdentities.artistLabel,
     getValue: (dto) => dto.artist,
   );
 
   static final publisher = textField<MusicKind, MusicWorkspaceProjection>(
     id: MusicFieldIds.publisher,
-    label: 'Label',
+    label: MusicFieldIdentities.publisherLabel,
     getValue: (dto) => dto.publisher,
   );
 

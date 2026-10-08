@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/library/kinds/music/forms/music_catalog_field_specs.dart';
+import 'package:collectarr_app/features/library/kinds/music/config/music_field_identities.dart';
 import 'package:collectarr_app/features/library/forms/library_form_schema.dart';
 import 'package:collectarr_app/features/library/forms/library_field_spec_renderer.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_form_controls.dart';
@@ -54,19 +55,19 @@ class MusicDetailsFormPane<TDraft> extends StatelessWidget {
       LibraryFormGroup(
           title: 'Packaging',
           child: _stack([
-            _fields(['packaging']),
+            _fields([MusicFieldIdentities.packagingId]),
             packageCondition,
             mediaCondition,
           ])),
       _fields(['studios']),
       Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Expanded(child: _fields(['country'])),
+        Expanded(child: _fields([MusicFieldIdentities.countryId])),
         const SizedBox(width: 14),
         Expanded(child: _fields(['is_live'])),
       ]),
     ]);
     final right = _stack([
-      _fields(['extra', 'spars_code', 'box_set']),
+      _fields(['extra', 'spars_code', MusicFieldIdentities.boxSetId]),
     ]);
     return LayoutBuilder(
         builder: (context, constraints) => constraints.maxWidth >= 720
