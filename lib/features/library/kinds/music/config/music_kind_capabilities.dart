@@ -2,6 +2,7 @@ import '../music_module_dependencies.dart';
 import 'music_kind_configuration.dart';
 import '../actions/music_log_listen_action.dart';
 import '../add/music_add_contribution.dart';
+import '../reports/music_export_capability.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_album.dart';
 import 'package:collectarr_app/features/library/metadata/common_personal_library_fields.dart';
 
@@ -178,5 +179,7 @@ final musicKindTransfer = LibraryTransferCapability(
     ...musicTransferableFields,
   ],
 );
+
+final musicKindExport = musicExportCapability;
 
 final musicKindStats = const MusicStatsCapability();

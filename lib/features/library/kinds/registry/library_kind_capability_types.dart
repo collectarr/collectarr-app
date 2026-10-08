@@ -1,6 +1,7 @@
 export 'package:collectarr_app/features/library/kinds/registry/library_entry_dispatch.dart';
 
 export 'package:collectarr_app/features/library/config/library_edit_capability.dart';
+export 'package:collectarr_app/features/library/config/library_export_capability.dart';
 export 'package:collectarr_app/features/library/config/library_kind_identity.dart';
 export 'package:collectarr_app/features/library/config/library_metadata_capability.dart';
 export 'package:collectarr_app/features/library/config/library_hierarchy_capability.dart';

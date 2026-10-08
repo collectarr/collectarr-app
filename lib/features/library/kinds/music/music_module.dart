@@ -2,6 +2,7 @@ export 'add/music_add_contribution.dart';
 export 'edit/music_edit_contribution.dart';
 export 'config/music_kind_capabilities.dart';
 export 'config/music_import_sources.dart';
+export 'reports/music_export_capability.dart';
 export 'config/music_kind_configuration.dart';
 export 'workspace/music_workspace_contribution.dart';
 export 'admin/music_admin_contributor.dart';

@@ -10,9 +10,11 @@ import 'package:collectarr_app/features/library/config/library_admin_contributor
 import 'package:collectarr_app/features/library/config/library_barcode_resolver.dart';
 import 'package:collectarr_app/features/collection/csv/collection_csv_kind_profile.dart';
 import 'package:collectarr_app/features/library/config/library_export_preview_contributor.dart';
+import 'package:collectarr_app/features/library/config/library_export_capability.dart';
 import 'package:collectarr_app/features/library/config/library_facet_module.dart';
 import 'package:collectarr_app/features/barcode/scanned_code.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_export_registry.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_workspace.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -182,6 +184,13 @@ CollectionCsvKindProfile? collectionCsvKindProfileFor(
   CatalogMediaKind kind,
 ) {
   return _collectionCsvProjections[kind];
+}
+
+/// Returns the semantic fields and optional child-row mode for report export.
+LibraryExportCapability? libraryExportCapabilityForKind(
+  CatalogMediaKind kind,
+) {
+  return collectarrKindExportCapabilities[kind];
 }
 
 final libraryKindRegistryProvider = Provider<LibraryKindRegistry>((ref) {

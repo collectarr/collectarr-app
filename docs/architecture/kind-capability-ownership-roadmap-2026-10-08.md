@@ -24,7 +24,7 @@ registration and files under `features/library/kinds/<kind>/`.
 - [ ] Finish the strict Music contract: one canonical representation for
   dates, extras, format data, and other duplicated fields; keep import
   normalization separate from canonical write validation.
-- [ ] Move CSV/TXT export field definitions and default columns to kind-owned
+- [x] Move CSV/TXT export field definitions and default columns to kind-owned
   contributions while keeping encoding, file handling, and column selection
   shared.
 - [ ] Audit central kind switches across actions, reports, search, folders,
@@ -66,6 +66,8 @@ registration and files under `features/library/kinds/<kind>/`.
 
 The repository already has per-kind modules, CSV import/projection profiles,
 and several capability registries. Implementation should extend those
-boundaries instead of introducing a second ownership system. The first code
-stage will inspect the active CSV/TXT export page and Music cutover artifacts,
-then land the smallest cohesive P0 change supported by the current contracts.
+boundaries instead of introducing a second ownership system. The CSV/TXT
+export page now consumes a structural export capability; Music owns its item
+fields, child rows, labels, and default filenames. The shared page owns column
+selection, sorting, quoting, preview, and file handling. Remaining P0 work is
+tracked above.

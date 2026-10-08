@@ -1,15 +1,11 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
+import 'package:collectarr_app/features/library/config/library_export_capability.dart';
 import 'package:collectarr_app/features/library/config/library_kind_style.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_album.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_track.dart';
-import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_data.dart';
-import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_dto.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/ui/library_accent_scope.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
@@ -20,7 +16,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 
 enum ExportSubset { all, currentList, checkboxed }
 
-enum ExportMode { albumList, trackList }
+enum ExportMode { itemList, childList }
 
 enum ExportFileType { csv, txt }
 
@@ -43,34 +39,6 @@ enum FieldEnclosure {
   const FieldEnclosure(this.label, this.char);
   final String label;
   final String char;
-}
-
-class ExportColumnDefinition {
-  const ExportColumnDefinition({
-    required this.id,
-    required this.label,
-    required this.getValue,
-    this.defaultVisible = true,
-  });
-
-  final String id;
-  final String label;
-  final String Function(LibraryProjectionView item) getValue;
-  final bool defaultVisible;
-}
-
-class ExportTrackColumnDefinition {
-  const ExportTrackColumnDefinition({
-    required this.id,
-    required this.label,
-    required this.getValue,
-    this.defaultVisible = true,
-  });
-
-  final String id;
-  final String label;
-  final String Function(MusicTrack track, MusicAlbum album) getValue;
-  final bool defaultVisible;
 }
 
 /// Full-page Export to CSV / TXT view matching the CLZ Web layout 1:1.
@@ -99,7 +67,7 @@ class LibraryExportCsvTxtPage extends StatefulWidget {
 
 class _LibraryExportCsvTxtPageState extends State<LibraryExportCsvTxtPage> {
   ExportSubset _subset = ExportSubset.all;
-  ExportMode _exportMode = ExportMode.albumList;
+  ExportMode _exportMode = ExportMode.itemList;
   ExportFileType _fileType = ExportFileType.csv;
   FieldDelimiter _delimiter = FieldDelimiter.comma;
   FieldEnclosure _enclosure = FieldEnclosure.doubleQuote;
@@ -110,8 +78,8 @@ class _LibraryExportCsvTxtPageState extends State<LibraryExportCsvTxtPage> {
   late List<ExportColumnDefinition> _availableAlbumColumns;
   late List<String> _selectedAlbumColumnIds;
 
-  late List<ExportTrackColumnDefinition> _availableTrackColumns;
-  late List<String> _selectedTrackColumnIds;
+  late List<LibraryExportChildColumnDefinition> _availableChildColumns;
+  late List<String> _selectedChildColumnIds;
 
   String _sortColumnId = 'artist';
   bool _sortAscending = true;
@@ -120,17 +88,31 @@ class _LibraryExportCsvTxtPageState extends State<LibraryExportCsvTxtPage> {
   String? _generatedContent;
   String? _generatedFileSize;
 
-  bool get _isMusic => widget.type.kind == CatalogMediaKind.music;
+  LibraryExportCapability? get _exportCapability =>
+      libraryExportCapabilityForKind(widget.type.kind);
+
+  bool get _supportsChildList => _exportCapability?.supportsChildList ?? false;
+
+  String get _itemListLabel =>
+      _exportCapability?.itemLabel ?? widget.type.identity.pluralLabel;
+
+  String get _itemModeLabel =>
+      _exportCapability?.itemModeLabel ?? widget.type.identity.pluralLabel;
+
+  String get _activeListLabel =>
+      _supportsChildList && _exportMode == ExportMode.childList
+          ? _exportCapability!.childLabel!
+          : _itemListLabel;
 
   @override
   void initState() {
     super.initState();
-    if (widget.selectedItemIds != null &&
-        widget.selectedItemIds!.isNotEmpty) {
+    if (widget.selectedItemIds != null && widget.selectedItemIds!.isNotEmpty) {
       _subset = ExportSubset.checkboxed;
     }
     _filenameController = TextEditingController(
-      text: _isMusic ? 'export_albums' : 'export_${widget.type.identity.pluralLabel.toLowerCase()}',
+      text: _exportCapability?.itemFileName ??
+          'export_${widget.type.identity.pluralLabel.toLowerCase()}',
     );
     _initColumns();
   }
@@ -142,280 +124,92 @@ class _LibraryExportCsvTxtPageState extends State<LibraryExportCsvTxtPage> {
   }
 
   void _initColumns() {
-    if (_isMusic) {
-      _availableAlbumColumns = [
-        ExportColumnDefinition(
-          id: 'artist',
-          label: 'Artist',
-          getValue: (item) =>
-              _musicAlbum(item)?.artist ?? item.dto.secondaryLabel ?? '',
-        ),
-        ExportColumnDefinition(
-          id: 'artist_sort',
-          label: 'Artist Sort',
-          getValue: (item) =>
-              _musicAlbum(item)?.artist ?? item.dto.secondaryLabel ?? '',
-        ),
-        ExportColumnDefinition(
-          id: 'title',
-          label: 'Title',
-          getValue: (item) => item.dto.primaryLabel,
-        ),
-        ExportColumnDefinition(
-          id: 'format',
-          label: 'Format',
-          getValue: (item) => _musicAlbum(item)?.formatSummary ?? '',
-        ),
-        ExportColumnDefinition(
-          id: 'barcode',
-          label: 'Barcode',
-          getValue: (item) => _musicAlbum(item)?.barcode ?? '',
-          defaultVisible: false,
-        ),
-        ExportColumnDefinition(
-          id: 'cat_no',
-          label: 'Cat No',
-          getValue: (item) => _musicAlbum(item)?.catalogNumber ?? '',
-          defaultVisible: false,
-        ),
-        ExportColumnDefinition(
-          id: 'release_date',
-          label: 'Release Date',
-          getValue: (item) {
-            final d = _musicAlbum(item)?.releaseDate;
-            if (d == null) return '';
-            return d.year.toString();
-          },
-        ),
-        ExportColumnDefinition(
-          id: 'orig_year',
-          label: 'Original Year',
-          getValue: (item) =>
-              _musicAlbum(item)?.originalReleaseDate?.year.toString() ?? '',
-          defaultVisible: false,
-        ),
-        ExportColumnDefinition(
-          id: 'discs',
-          label: 'Discs',
-          getValue: (item) =>
-              _musicAlbum(item)?.discs.length.toString() ?? '1',
-        ),
-        ExportColumnDefinition(
-          id: 'tracks',
-          label: 'Tracks',
-          getValue: (item) =>
-              _musicAlbum(item)?.trackCount.toString() ?? '',
-        ),
-        ExportColumnDefinition(
-          id: 'length',
-          label: 'Length',
-          getValue: (item) {
-            final tracks = _musicAlbum(item)?.tracks;
-            if (tracks == null || tracks.isEmpty) return '';
-            final ms = tracks.fold<int>(0, (sum, t) => sum + (t.durationMs ?? 0));
-            if (ms <= 0) return '';
-            final sec = (ms / 1000).round();
-            final h = sec ~/ 3600;
-            final m = (sec % 3600) ~/ 60;
-            final s = sec % 60;
-            if (h > 0) {
-              return '$h:${m.toString().padLeft(2, '0')}:${s.toString().padLeft(2, '0')}';
-            }
-            return '$m:${s.toString().padLeft(2, '0')}';
-          },
-        ),
-        ExportColumnDefinition(
-          id: 'genre',
-          label: 'Genre',
-          getValue: (item) => _musicAlbum(item)?.genres.join(' | ') ?? '',
-        ),
-        ExportColumnDefinition(
-          id: 'label',
-          label: 'Label',
-          getValue: (item) => _musicAlbum(item)?.publisher ?? '',
-        ),
-        ExportColumnDefinition(
-          id: 'added_date',
-          label: 'Added Date',
-          getValue: (item) {
-            final d = item.source.addedAt;
-            if (d == null) return '';
-            return '${_monthAbbr(d.month)} ${d.day.toString().padLeft(2, '0')}, ${d.year}';
-          },
-        ),
-        ExportColumnDefinition(
-          id: 'condition',
-          label: 'Condition',
-          getValue: (item) {
-            if (item.dto case MusicWorkspaceProjection musicDto) {
-              return musicDto.personal.condition ?? '';
-            }
-            return '';
-          },
-          defaultVisible: false,
-        ),
-        ExportColumnDefinition(
-          id: 'rating',
-          label: 'Rating',
-          getValue: (item) => item.source.trackingRating?.toString() ?? '',
-          defaultVisible: false,
-        ),
-        ExportColumnDefinition(
-          id: 'location',
-          label: 'Location',
-          getValue: (item) => item.source.locationPath ?? '',
-          defaultVisible: false,
-        ),
-        ExportColumnDefinition(
-          id: 'price_paid',
-          label: 'Price Paid',
-          getValue: (item) => item.source.pricePaidCents != null
-              ? formatMoney(item.source.pricePaidCents, item.source.currency)
-              : '',
-          defaultVisible: false,
-        ),
-        ExportColumnDefinition(
-          id: 'value',
-          label: 'Value',
-          getValue: (item) => item.source.marketValueCents != null
-              ? formatMoney(item.source.marketValueCents, item.source.currency)
-              : '',
-          defaultVisible: false,
-        ),
-      ];
+    final capability = _exportCapability;
+    _availableAlbumColumns = capability?.itemColumns ??
+        [
+          ExportColumnDefinition(
+            id: 'title',
+            label: 'Title',
+            getValue: (item) => item.dto.primaryLabel,
+          ),
+          ExportColumnDefinition(
+            id: 'secondary',
+            label: 'Creator / Series',
+            getValue: (item) => item.dto.secondaryLabel ?? '',
+          ),
+          ExportColumnDefinition(
+            id: 'format',
+            label: 'Format',
+            getValue: (item) => item.source.catalogSummary?.subtitle ?? '',
+          ),
+          ExportColumnDefinition(
+            id: 'status',
+            label: 'Status',
+            getValue: (item) => item.source.trackingStatusLabel,
+          ),
+          ExportColumnDefinition(
+            id: 'added_date',
+            label: 'Added Date',
+            getValue: (item) {
+              final date = item.source.addedAt;
+              if (date == null) return '';
+              return '${_monthAbbr(date.month)} ${date.day.toString().padLeft(2, '0')}, ${date.year}';
+            },
+          ),
+          ExportColumnDefinition(
+            id: 'location',
+            label: 'Location',
+            getValue: (item) => item.source.locationPath ?? '',
+            defaultVisible: false,
+          ),
+          ExportColumnDefinition(
+            id: 'price_paid',
+            label: 'Price Paid',
+            getValue: (item) => item.source.pricePaidCents != null
+                ? formatMoney(item.source.pricePaidCents, item.source.currency)
+                : '',
+            defaultVisible: false,
+          ),
+          ExportColumnDefinition(
+            id: 'value',
+            label: 'Value',
+            getValue: (item) => item.source.marketValueCents != null
+                ? formatMoney(
+                    item.source.marketValueCents, item.source.currency)
+                : '',
+            defaultVisible: false,
+          ),
+        ];
+    _selectedAlbumColumnIds = _availableAlbumColumns
+        .where((column) => column.defaultVisible)
+        .map((column) => column.id)
+        .toList();
 
-      _selectedAlbumColumnIds = _availableAlbumColumns
-          .where((col) => col.defaultVisible)
-          .map((col) => col.id)
-          .toList();
-
-      _availableTrackColumns = [
-        ExportTrackColumnDefinition(
-          id: 'pos',
-          label: '#',
-          getValue: (track, _) => track.position,
-        ),
-        ExportTrackColumnDefinition(
-          id: 'track_title',
-          label: 'Track Title',
-          getValue: (track, _) => track.title,
-        ),
-        ExportTrackColumnDefinition(
-          id: 'track_artist',
-          label: 'Artist',
-          getValue: (track, album) => track.artist ?? album.artist ?? '',
-        ),
-        ExportTrackColumnDefinition(
-          id: 'track_album',
-          label: 'Album',
-          getValue: (_, album) => album.title,
-        ),
-        ExportTrackColumnDefinition(
-          id: 'duration',
-          label: 'Duration',
-          getValue: (track, _) {
-            final ms = track.durationMs;
-            if (ms == null || ms <= 0) return '';
-            final sec = (ms / 1000).round();
-            final m = sec ~/ 60;
-            final s = sec % 60;
-            return '$m:${s.toString().padLeft(2, '0')}';
-          },
-        ),
-        ExportTrackColumnDefinition(
-          id: 'format',
-          label: 'Format',
-          getValue: (_, album) => album.formatSummary ?? '',
-        ),
-        ExportTrackColumnDefinition(
-          id: 'genre',
-          label: 'Genre',
-          getValue: (_, album) => album.genres.join(' | '),
-        ),
-      ];
-
-      _selectedTrackColumnIds = _availableTrackColumns
-          .where((col) => col.defaultVisible)
-          .map((col) => col.id)
-          .toList();
-    } else {
-      _availableAlbumColumns = [
-        ExportColumnDefinition(
-          id: 'title',
-          label: 'Title',
-          getValue: (item) => item.dto.primaryLabel,
-        ),
-        ExportColumnDefinition(
-          id: 'secondary',
-          label: 'Creator / Series',
-          getValue: (item) => item.dto.secondaryLabel ?? '',
-        ),
-        ExportColumnDefinition(
-          id: 'format',
-          label: 'Format',
-          getValue: (item) => item.source.catalogSummary?.subtitle ?? '',
-        ),
-        ExportColumnDefinition(
-          id: 'status',
-          label: 'Status',
-          getValue: (item) => item.source.trackingStatusLabel,
-        ),
-        ExportColumnDefinition(
-          id: 'added_date',
-          label: 'Added Date',
-          getValue: (item) {
-            final d = item.source.addedAt;
-            if (d == null) return '';
-            return '${_monthAbbr(d.month)} ${d.day.toString().padLeft(2, '0')}, ${d.year}';
-          },
-        ),
-        ExportColumnDefinition(
-          id: 'location',
-          label: 'Location',
-          getValue: (item) => item.source.locationPath ?? '',
-          defaultVisible: false,
-        ),
-        ExportColumnDefinition(
-          id: 'price_paid',
-          label: 'Price Paid',
-          getValue: (item) => item.source.pricePaidCents != null
-              ? formatMoney(item.source.pricePaidCents, item.source.currency)
-              : '',
-          defaultVisible: false,
-        ),
-        ExportColumnDefinition(
-          id: 'value',
-          label: 'Value',
-          getValue: (item) => item.source.marketValueCents != null
-              ? formatMoney(item.source.marketValueCents, item.source.currency)
-              : '',
-          defaultVisible: false,
-        ),
-      ];
-
-      _selectedAlbumColumnIds = _availableAlbumColumns
-          .where((col) => col.defaultVisible)
-          .map((col) => col.id)
-          .toList();
-
-      _availableTrackColumns = const [];
-      _selectedTrackColumnIds = const [];
-      _sortColumnId = 'title';
-    }
+    _availableChildColumns = capability?.childColumns ?? const [];
+    _selectedChildColumnIds = _availableChildColumns
+        .where((column) => column.defaultVisible)
+        .map((column) => column.id)
+        .toList();
+    _sortColumnId = capability?.defaultSortColumnId ?? 'title';
   }
 
   static String _monthAbbr(int month) {
     const months = [
-      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec'
     ];
     if (month >= 1 && month <= 12) return months[month - 1];
     return '';
-  }
-
-  static MusicAlbum? _musicAlbum(LibraryProjectionView item) {
-    final data = item.source.kindPresentationData;
-    return data is MusicWorkspaceData ? data.music : null;
   }
 
   List<LibraryProjectionView> get _allList => widget.allItems ?? widget.items;
@@ -447,21 +241,8 @@ class _LibraryExportCsvTxtPageState extends State<LibraryExportCsvTxtPage> {
     return sorted;
   }
 
-  List<({MusicTrack track, MusicAlbum album})> get _activeTracks {
-    final rows = <({MusicTrack track, MusicAlbum album})>[];
-    for (final item in _activeItems) {
-      final album = _musicAlbum(item);
-      if (album == null) continue;
-      for (final disc in album.discs) {
-        for (final track in disc.tracks) {
-          if (!track.isHeader) {
-            rows.add((track: track, album: album));
-          }
-        }
-      }
-    }
-    return rows;
-  }
+  List<LibraryExportChildRow> get _activeChildRows =>
+      _exportCapability?.childRowsFor(_activeItems) ?? const [];
 
   void _onFileTypeChanged(ExportFileType type) {
     setState(() {
@@ -510,24 +291,24 @@ class _LibraryExportCsvTxtPageState extends State<LibraryExportCsvTxtPage> {
 
   List<String> _buildPreviewLines({int limit = 30}) {
     final lines = <String>[];
-    final isTrack = _isMusic && _exportMode == ExportMode.trackList;
+    final isChildList =
+        _supportsChildList && _exportMode == ExportMode.childList;
 
-    if (isTrack) {
-      final activeColumns = _availableTrackColumns
-          .where((col) => _selectedTrackColumnIds.contains(col.id))
+    if (isChildList) {
+      final activeColumns = _availableChildColumns
+          .where((col) => _selectedChildColumnIds.contains(col.id))
           .toList();
 
       if (_includeHeaderRow) {
-        lines.add(_generateRowString(activeColumns.map((c) => c.label).toList()));
+        lines.add(
+            _generateRowString(activeColumns.map((c) => c.label).toList()));
       }
 
-      final tracks = _activeTracks;
+      final tracks = _activeChildRows;
       final previewCount = tracks.length > limit ? limit : tracks.length;
       for (var i = 0; i < previewCount; i++) {
         final pair = tracks[i];
-        final cells = activeColumns
-            .map((col) => col.getValue(pair.track, pair.album))
-            .toList();
+        final cells = activeColumns.map((col) => col.getValue(pair)).toList();
         lines.add(_generateRowString(cells));
       }
     } else {
@@ -536,7 +317,8 @@ class _LibraryExportCsvTxtPageState extends State<LibraryExportCsvTxtPage> {
           .toList();
 
       if (_includeHeaderRow) {
-        lines.add(_generateRowString(activeColumns.map((c) => c.label).toList()));
+        lines.add(
+            _generateRowString(activeColumns.map((c) => c.label).toList()));
       }
 
       final items = _activeItems;
@@ -553,21 +335,21 @@ class _LibraryExportCsvTxtPageState extends State<LibraryExportCsvTxtPage> {
 
   String _generateFullExportContent() {
     final buffer = StringBuffer();
-    final isTrack = _isMusic && _exportMode == ExportMode.trackList;
+    final isChildList =
+        _supportsChildList && _exportMode == ExportMode.childList;
 
-    if (isTrack) {
-      final activeColumns = _availableTrackColumns
-          .where((col) => _selectedTrackColumnIds.contains(col.id))
+    if (isChildList) {
+      final activeColumns = _availableChildColumns
+          .where((col) => _selectedChildColumnIds.contains(col.id))
           .toList();
 
       if (_includeHeaderRow) {
-        buffer.writeln(_generateRowString(activeColumns.map((c) => c.label).toList()));
+        buffer.writeln(
+            _generateRowString(activeColumns.map((c) => c.label).toList()));
       }
 
-      for (final pair in _activeTracks) {
-        final cells = activeColumns
-            .map((col) => col.getValue(pair.track, pair.album))
-            .toList();
+      for (final pair in _activeChildRows) {
+        final cells = activeColumns.map((col) => col.getValue(pair)).toList();
         buffer.writeln(_generateRowString(cells));
       }
     } else {
@@ -576,7 +358,8 @@ class _LibraryExportCsvTxtPageState extends State<LibraryExportCsvTxtPage> {
           .toList();
 
       if (_includeHeaderRow) {
-        buffer.writeln(_generateRowString(activeColumns.map((c) => c.label).toList()));
+        buffer.writeln(
+            _generateRowString(activeColumns.map((c) => c.label).toList()));
       }
 
       for (final item in _activeItems) {
@@ -617,7 +400,9 @@ class _LibraryExportCsvTxtPageState extends State<LibraryExportCsvTxtPage> {
         suggestedName: suggestedName,
         acceptedTypeGroups: [
           XTypeGroup(
-            label: _fileType == ExportFileType.csv ? 'CSV (*.csv)' : 'Text (*.txt)',
+            label: _fileType == ExportFileType.csv
+                ? 'CSV (*.csv)'
+                : 'Text (*.txt)',
             extensions: [ext],
           ),
         ],
@@ -652,9 +437,7 @@ class _LibraryExportCsvTxtPageState extends State<LibraryExportCsvTxtPage> {
     final accent = libraryAccentForKind(widget.type.kind);
     final palette = appPalette(context);
 
-    final itemLabel = _isMusic
-        ? (_exportMode == ExportMode.albumList ? 'Albums' : 'Tracks')
-        : widget.type.identity.pluralLabel;
+    final itemLabel = _activeListLabel;
 
     return Scaffold(
       backgroundColor: palette.surface,
@@ -676,7 +459,8 @@ class _LibraryExportCsvTxtPageState extends State<LibraryExportCsvTxtPage> {
               'assets/sidebar_icons/file-export.svg',
               width: 18,
               height: 18,
-              colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
+              colorFilter:
+                  const ColorFilter.mode(Colors.white, BlendMode.srcIn),
             ),
             const SizedBox(width: 8),
             const Text(
@@ -766,9 +550,10 @@ class _LibraryExportCsvTxtPageState extends State<LibraryExportCsvTxtPage> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Expanded(child: _buildSubsetSection(palette, accent)),
-                      if (_isMusic) ...[
+                      if (_supportsChildList) ...[
                         const SizedBox(width: 16),
-                        Expanded(child: _buildMusicModeSection(palette, accent)),
+                        Expanded(
+                            child: _buildExportModeSection(palette, accent)),
                       ],
                     ],
                   ),
@@ -793,9 +578,9 @@ class _LibraryExportCsvTxtPageState extends State<LibraryExportCsvTxtPage> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               _buildSubsetSection(palette, accent),
-              if (_isMusic) ...[
+              if (_supportsChildList) ...[
                 const SizedBox(height: 16),
-                _buildMusicModeSection(palette, accent),
+                _buildExportModeSection(palette, accent),
               ],
               const SizedBox(height: 16),
               _buildVisibleColumnsSection(palette, accent),
@@ -817,7 +602,7 @@ class _LibraryExportCsvTxtPageState extends State<LibraryExportCsvTxtPage> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Text(
-          'Which ${_isMusic ? 'Albums' : widget.type.identity.pluralLabel}',
+          'Which $_itemListLabel',
           style: TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.bold,
@@ -836,7 +621,7 @@ class _LibraryExportCsvTxtPageState extends State<LibraryExportCsvTxtPage> {
               _buildRadioOption(
                 palette: palette,
                 accent: accent,
-                title: 'All ${_isMusic ? 'Albums' : widget.type.identity.pluralLabel}',
+                title: 'All $_itemListLabel',
                 count: allCount,
                 selected: _subset == ExportSubset.all,
                 enabled: true,
@@ -884,9 +669,9 @@ class _LibraryExportCsvTxtPageState extends State<LibraryExportCsvTxtPage> {
     );
   }
 
-  Widget _buildMusicModeSection(AppThemePalette palette, Color accent) {
+  Widget _buildExportModeSection(AppThemePalette palette, Color accent) {
     final albumCount = _activeItems.length;
-    final trackCount = _activeTracks.length;
+    final childCount = _activeChildRows.length;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -911,14 +696,14 @@ class _LibraryExportCsvTxtPageState extends State<LibraryExportCsvTxtPage> {
               _buildRadioOption(
                 palette: palette,
                 accent: accent,
-                title: 'Album list',
+                title: _itemModeLabel,
                 count: albumCount,
-                selected: _exportMode == ExportMode.albumList,
+                selected: _exportMode == ExportMode.itemList,
                 enabled: true,
                 onTap: () {
                   setState(() {
-                    _exportMode = ExportMode.albumList;
-                    _filenameController.text = 'export_albums';
+                    _exportMode = ExportMode.itemList;
+                    _filenameController.text = _exportCapability!.itemFileName;
                     _invalidateGenerated();
                   });
                 },
@@ -927,14 +712,16 @@ class _LibraryExportCsvTxtPageState extends State<LibraryExportCsvTxtPage> {
               _buildRadioOption(
                 palette: palette,
                 accent: accent,
-                title: 'Track list',
-                count: trackCount,
-                selected: _exportMode == ExportMode.trackList,
+                title: _exportCapability!.childModeLabel ??
+                    '${_exportCapability!.childLabel} list',
+                count: childCount,
+                selected: _exportMode == ExportMode.childList,
                 enabled: true,
                 onTap: () {
                   setState(() {
-                    _exportMode = ExportMode.trackList;
-                    _filenameController.text = 'export_tracks';
+                    _exportMode = ExportMode.childList;
+                    _filenameController.text =
+                        _exportCapability!.childFileName!;
                     _invalidateGenerated();
                   });
                 },
@@ -964,16 +751,16 @@ class _LibraryExportCsvTxtPageState extends State<LibraryExportCsvTxtPage> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
         decoration: BoxDecoration(
-          color: selected
-              ? accent.withValues(alpha: 0.18)
-              : Colors.transparent,
+          color: selected ? accent.withValues(alpha: 0.18) : Colors.transparent,
         ),
         child: Row(
           children: [
             Icon(
               selected ? Icons.radio_button_checked : Icons.radio_button_off,
               size: 16,
-              color: enabled ? (selected ? accent : palette.textMuted) : palette.textMuted.withValues(alpha: 0.5),
+              color: enabled
+                  ? (selected ? accent : palette.textMuted)
+                  : palette.textMuted.withValues(alpha: 0.5),
             ),
             const SizedBox(width: 8),
             Expanded(
@@ -989,9 +776,7 @@ class _LibraryExportCsvTxtPageState extends State<LibraryExportCsvTxtPage> {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
               decoration: BoxDecoration(
-                color: selected
-                    ? accent
-                    : palette.cardBorder,
+                color: selected ? accent : palette.cardBorder,
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Text(
@@ -1010,10 +795,11 @@ class _LibraryExportCsvTxtPageState extends State<LibraryExportCsvTxtPage> {
   }
 
   Widget _buildVisibleColumnsSection(AppThemePalette palette, Color accent) {
-    final isTrack = _isMusic && _exportMode == ExportMode.trackList;
-    final columnNames = isTrack
-        ? _availableTrackColumns
-            .where((col) => _selectedTrackColumnIds.contains(col.id))
+    final isChildList =
+        _supportsChildList && _exportMode == ExportMode.childList;
+    final columnNames = isChildList
+        ? _availableChildColumns
+            .where((col) => _selectedChildColumnIds.contains(col.id))
             .map((c) => c.label)
             .join(', ')
         : _availableAlbumColumns
@@ -1040,7 +826,8 @@ class _LibraryExportCsvTxtPageState extends State<LibraryExportCsvTxtPage> {
                 visualDensity: VisualDensity.compact,
                 foregroundColor: palette.textPrimary,
                 side: BorderSide(color: palette.cardBorder),
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
               ),
               onPressed: () => _showManageColumnsDialog(context),
               child: const Row(
@@ -1115,7 +902,8 @@ class _LibraryExportCsvTxtPageState extends State<LibraryExportCsvTxtPage> {
                 visualDensity: VisualDensity.compact,
                 foregroundColor: palette.textPrimary,
                 side: BorderSide(color: palette.cardBorder),
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
               ),
               onPressed: () => _showManageSortDialog(context),
               child: const Row(
@@ -1597,7 +1385,9 @@ class _LibraryExportCsvTxtPageState extends State<LibraryExportCsvTxtPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    for (int index = 0; index < previewLines.length; index++) ...[
+                    for (int index = 0;
+                        index < previewLines.length;
+                        index++) ...[
                       if (index > 0)
                         const Divider(
                           height: 1,
@@ -1758,19 +1548,24 @@ class _LibraryExportCsvTxtPageState extends State<LibraryExportCsvTxtPage> {
   void _showManageColumnsDialog(BuildContext context) {
     final palette = appPalette(context);
     final accent = libraryAccentForKind(widget.type.kind);
-    final isTrack = _isMusic && _exportMode == ExportMode.trackList;
+    final isChildList =
+        _supportsChildList && _exportMode == ExportMode.childList;
 
-    final tempSelectedIds = isTrack
-        ? List<String>.from(_selectedTrackColumnIds)
+    final tempSelectedIds = isChildList
+        ? List<String>.from(_selectedChildColumnIds)
         : List<String>.from(_selectedAlbumColumnIds);
 
     showDialog<void>(
       context: context,
       builder: (dialogCtx) => StatefulBuilder(
         builder: (context, setModalState) {
-          final allColumns = isTrack
-              ? _availableTrackColumns.map((c) => (id: c.id, label: c.label)).toList()
-              : _availableAlbumColumns.map((c) => (id: c.id, label: c.label)).toList();
+          final allColumns = isChildList
+              ? _availableChildColumns
+                  .map((c) => (id: c.id, label: c.label))
+                  .toList()
+              : _availableAlbumColumns
+                  .map((c) => (id: c.id, label: c.label))
+                  .toList();
 
           return AlertDialog(
             backgroundColor: palette.panel,
@@ -1843,8 +1638,8 @@ class _LibraryExportCsvTxtPageState extends State<LibraryExportCsvTxtPage> {
                 ),
                 onPressed: () {
                   setState(() {
-                    if (isTrack) {
-                      _selectedTrackColumnIds = tempSelectedIds;
+                    if (isChildList) {
+                      _selectedChildColumnIds = tempSelectedIds;
                     } else {
                       _selectedAlbumColumnIds = tempSelectedIds;
                     }
