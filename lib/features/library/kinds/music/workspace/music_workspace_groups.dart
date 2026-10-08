@@ -6,6 +6,7 @@ import 'package:collectarr_app/features/library/kinds/music/data/music_library_e
 import 'package:collectarr_app/features/library/kinds/music/domain/music_album_image.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_personal_data.dart';
 import 'package:collectarr_app/features/library/kinds/music/config/music_field_identities.dart';
+import 'package:collectarr_app/features/library/config/library_kind_field_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_dto.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
@@ -124,6 +125,18 @@ enum MusicGroupingField {
   final String category;
   final bool localOnly;
 
+  LibraryKindFieldMetadata? get fieldMetadata => switch (this) {
+        artist => MusicFieldIdentities.artist,
+        format => MusicFieldIdentities.format,
+        genre => MusicFieldIdentities.genre,
+        publisher => MusicFieldIdentities.publisher,
+        releaseDate => MusicFieldIdentities.releaseDate,
+        boxSet => MusicFieldIdentities.boxSet,
+        country => MusicFieldIdentities.country,
+        packaging => MusicFieldIdentities.packaging,
+        _ => null,
+      };
+
   VocabularyId<String>? get bucketVocabulary => switch (this) {
         artist => MusicVocabularyIds.artist,
         boxSet => MusicVocabularyIds.boxSet,
@@ -165,24 +178,25 @@ List<LibraryGroupDefinition<MusicKind, MusicWorkspaceProjection, Object?>>
     musicWorkspaceGroupDefinitions({required bool includePersonal}) => [
           for (final field in MusicGroupingField.values)
             if (includePersonal || !field.localOnly)
-              LibraryGroupDefinition(
-                  id: LibraryGroupId<MusicKind, Object?>(field.id,
-                      semantic: field == MusicGroupingField.location
-                          ? LibraryGroupSemantic.location
-                          : LibraryGroupSemantic.value),
-                  label: field.label,
-                  bucketVocabulary: field.bucketVocabulary,
-                  sidebarTitle: field.label,
-                  category: field.category,
-                  icon: switch (field.category) {
-                    'Images' => Icons.image_outlined,
-                    'Classical' => Icons.music_note_outlined,
-                    'People' => Icons.people_outline,
-                    'Personal' => Icons.person_outline,
-                    'Details' => Icons.info_outline,
-                    _ => Icons.folder_outlined,
-                  },
-                  getValue: (context) => _groupValue(field, context)),
+              if (field.fieldMetadata?.groupable ?? true)
+                LibraryGroupDefinition(
+                    id: LibraryGroupId<MusicKind, Object?>(field.id,
+                        semantic: field == MusicGroupingField.location
+                            ? LibraryGroupSemantic.location
+                            : LibraryGroupSemantic.value),
+                    label: field.label,
+                    bucketVocabulary: field.bucketVocabulary,
+                    sidebarTitle: field.label,
+                    category: field.category,
+                    icon: switch (field.category) {
+                      'Images' => Icons.image_outlined,
+                      'Classical' => Icons.music_note_outlined,
+                      'People' => Icons.people_outline,
+                      'Personal' => Icons.person_outline,
+                      'Details' => Icons.info_outline,
+                      _ => Icons.folder_outlined,
+                    },
+                    getValue: (context) => _groupValue(field, context)),
         ];
 
 Object? _groupValue(MusicGroupingField field,

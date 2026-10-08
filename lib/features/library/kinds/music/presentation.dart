@@ -56,14 +56,15 @@ const musicLibraryGroupLabels = LibraryPresentationLabels(
 const musicLibraryBucketLabelOverrides = LibraryPresentationLabels();
 
 final musicLibraryFilterDefinitions = <LibraryFilterDefinition<Object?>>[
-  LibraryFilterDefinition<Object?>(
-    id: MusicFieldIdentities.artistId,
-    label: MusicFieldIdentities.artistLabel,
-    anyLabel: 'Any artist',
-    value: (item) => (item.dto is MusicWorkspaceProjection)
-        ? (item.dto as MusicWorkspaceProjection).artist
-        : null,
-  ),
+  if (MusicFieldIdentities.artist.filterable)
+    LibraryFilterDefinition<Object?>(
+      id: MusicFieldIdentities.artistId,
+      label: MusicFieldIdentities.artistLabel,
+      anyLabel: 'Any artist',
+      value: (item) => (item.dto is MusicWorkspaceProjection)
+          ? (item.dto as MusicWorkspaceProjection).artist
+          : null,
+    ),
   LibraryFilterDefinition<Object?>(
     id: 'location',
     label: 'Location',
@@ -78,14 +79,15 @@ final musicLibraryFilterDefinitions = <LibraryFilterDefinition<Object?>>[
       item.source.libraryEntryDispatch,
     )?.personal.tags?.split(','),
   ),
-  LibraryFilterDefinition<Object?>(
-    id: MusicFieldIdentities.publisherId,
-    label: MusicFieldIdentities.publisherLabel,
-    anyLabel: 'Any label',
-    value: (item) => (item.dto is MusicWorkspaceProjection)
-        ? (item.dto as MusicWorkspaceProjection).publisher
-        : null,
-  ),
+  if (MusicFieldIdentities.publisher.filterable)
+    LibraryFilterDefinition<Object?>(
+      id: MusicFieldIdentities.publisherId,
+      label: MusicFieldIdentities.publisherLabel,
+      anyLabel: 'Any label',
+      value: (item) => (item.dto is MusicWorkspaceProjection)
+          ? (item.dto as MusicWorkspaceProjection).publisher
+          : null,
+    ),
   LibraryFilterDefinition<Object?>(
     id: 'year',
     label: 'Year',
@@ -102,38 +104,42 @@ final musicLibraryFilterDefinitions = <LibraryFilterDefinition<Object?>>[
       item.source.libraryEntryDispatch,
     )?.personal.condition,
   ),
-  LibraryFilterDefinition<Object?>(
-    id: MusicFieldIdentities.countryId,
-    label: MusicFieldIdentities.countryLabel,
-    anyLabel: 'Any country',
-    value: (item) => (item.dto is MusicWorkspaceProjection)
-        ? (item.dto as MusicWorkspaceProjection).country
-        : null,
-  ),
-  LibraryFilterDefinition<Object?>(
-    id: MusicFieldIdentities.formatId,
-    label: MusicFieldIdentities.formatLabel,
-    anyLabel: 'Any format',
-    value: (item) => (item.dto is MusicWorkspaceProjection)
-        ? (item.dto as MusicWorkspaceProjection).format
-        : null,
-  ),
-  LibraryFilterDefinition<Object?>(
-    id: MusicFieldIdentities.packagingId,
-    label: MusicFieldIdentities.packagingLabel,
-    anyLabel: 'Any packaging',
-    value: (item) => _musicAlbumsFor(item)
-        .map((release) => release.packaging)
-        .whereType<String>(),
-  ),
-  LibraryFilterDefinition<Object?>(
-    id: MusicFieldIdentities.genreId,
-    label: MusicFieldIdentities.genreLabel,
-    anyLabel: 'Any genre',
-    value: (item) => (item.dto is MusicWorkspaceProjection)
-        ? (item.dto as MusicWorkspaceProjection).genres
-        : const <String>[],
-  ),
+  if (MusicFieldIdentities.country.filterable)
+    LibraryFilterDefinition<Object?>(
+      id: MusicFieldIdentities.countryId,
+      label: MusicFieldIdentities.countryLabel,
+      anyLabel: 'Any country',
+      value: (item) => (item.dto is MusicWorkspaceProjection)
+          ? (item.dto as MusicWorkspaceProjection).country
+          : null,
+    ),
+  if (MusicFieldIdentities.format.filterable)
+    LibraryFilterDefinition<Object?>(
+      id: MusicFieldIdentities.formatId,
+      label: MusicFieldIdentities.formatLabel,
+      anyLabel: 'Any format',
+      value: (item) => (item.dto is MusicWorkspaceProjection)
+          ? (item.dto as MusicWorkspaceProjection).format
+          : null,
+    ),
+  if (MusicFieldIdentities.packaging.filterable)
+    LibraryFilterDefinition<Object?>(
+      id: MusicFieldIdentities.packagingId,
+      label: MusicFieldIdentities.packagingLabel,
+      anyLabel: 'Any packaging',
+      value: (item) => _musicAlbumsFor(item)
+          .map((release) => release.packaging)
+          .whereType<String>(),
+    ),
+  if (MusicFieldIdentities.genre.filterable)
+    LibraryFilterDefinition<Object?>(
+      id: MusicFieldIdentities.genreId,
+      label: MusicFieldIdentities.genreLabel,
+      anyLabel: 'Any genre',
+      value: (item) => (item.dto is MusicWorkspaceProjection)
+          ? (item.dto as MusicWorkspaceProjection).genres
+          : const <String>[],
+    ),
   LibraryFilterDefinition<Object?>(
     id: 'studios',
     label: 'Studio',

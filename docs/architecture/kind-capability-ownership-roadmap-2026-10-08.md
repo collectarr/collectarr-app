@@ -151,9 +151,17 @@ fallbacks; volume number and edition format also represent different values.
 Music filters now use the canonical artist, label, country, format, packaging,
 and genre identities already shared by its forms and workspace fields.
 The field identity audit covers all nine registered kinds. It deliberately
-stops at IDs and labels for now: typed value kinds, catalog paths, capability
-flags, and vocabulary references still belong to separate form, workspace,
-filter, and export definitions, so the P1 field metadata item remains open.
+shares exact IDs and labels across forms and workspace fields, and filters
+where their value semantics match. Typed value kinds, catalog paths, capability
+flags, and vocabulary references still need to be audited across the remaining
+kinds and surfaces, so the P1 field metadata item remains open.
+The first full metadata descriptor is now in place for Music's overlapping
+catalog fields. It records value type, canonical catalog path, derived origin,
+search/filter/sort/group/export/edit capabilities, and vocabulary binding next
+to the canonical field ID and label. Music filters, workspace sorts and groups,
+and export columns consume those capability flags; edit forms keep using the
+same primitive const IDs and labels. This is a pilot only: equivalent
+descriptors and surface adoption remain to be audited across the other kinds.
 The P2 interaction audit found existing shared tab, list, and selection
 primitives across kinds. Music's track hierarchy table and bulk editing stay
 Music-owned until another kind has the same structural interaction.

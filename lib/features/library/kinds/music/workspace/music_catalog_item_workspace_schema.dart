@@ -1,5 +1,6 @@
 import 'music_workspace_groups.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_ids.dart';
+import 'package:collectarr_app/features/library/kinds/music/config/music_field_identities.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_catalog_item_workspace_fields.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_dto.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_schema_support.dart';
@@ -62,16 +63,19 @@ final musicCatalogItemWorkspaceSchema =
     ),
   ],
   sorts: [
-    sortFromField<MusicKind, MusicWorkspaceProjection, String>(
-      MusicCatalogItemWorkspaceFields.artist,
-    ),
-    sortFromField<MusicKind, MusicWorkspaceProjection, String>(
-      MusicCatalogItemWorkspaceFields.title,
-    ),
-    sortFromField<MusicKind, MusicWorkspaceProjection, DateTime>(
-      MusicCatalogItemWorkspaceFields.releaseDate,
-      defaultAscending: false,
-    ),
+    if (MusicFieldIdentities.artist.sortable)
+      sortFromField<MusicKind, MusicWorkspaceProjection, String>(
+        MusicCatalogItemWorkspaceFields.artist,
+      ),
+    if (MusicFieldIdentities.title.sortable)
+      sortFromField<MusicKind, MusicWorkspaceProjection, String>(
+        MusicCatalogItemWorkspaceFields.title,
+      ),
+    if (MusicFieldIdentities.releaseDate.sortable)
+      sortFromField<MusicKind, MusicWorkspaceProjection, DateTime>(
+        MusicCatalogItemWorkspaceFields.releaseDate,
+        defaultAscending: false,
+      ),
     sortFromField<MusicKind, MusicWorkspaceProjection, num>(
       MusicCatalogItemWorkspaceFields.trackCount,
       defaultAscending: false,

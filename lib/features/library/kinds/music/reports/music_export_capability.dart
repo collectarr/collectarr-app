@@ -3,6 +3,7 @@ import 'package:collectarr_app/features/library/config/library_export_capability
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_album.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_track.dart';
+import 'package:collectarr_app/features/library/kinds/music/config/music_field_identities.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_ids.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_catalog_item_workspace_fields.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_data.dart';
@@ -16,12 +17,13 @@ final musicExportCapability = LibraryExportCapability(
   pdfItemTitle: 'My Albums',
   pdfChildTitle: 'My Tracks',
   itemColumns: [
-    exportColumnFromWorkspaceField(
-      field: MusicCatalogItemWorkspaceFields.artist,
-      valueFormatter: (value) => value ?? '',
-      pdfWidthFlex: 2.0,
-      pdfOrder: 0,
-    ),
+    if (MusicFieldIdentities.artist.exportable)
+      exportColumnFromWorkspaceField(
+        field: MusicCatalogItemWorkspaceFields.artist,
+        valueFormatter: (value) => value ?? '',
+        pdfWidthFlex: 2.0,
+        pdfOrder: 0,
+      ),
     ExportColumnDefinition(
       id: 'artist_sort',
       label: 'Artist Sort',
@@ -29,42 +31,47 @@ final musicExportCapability = LibraryExportCapability(
           _musicAlbum(item)?.artist ?? item.dto.secondaryLabel ?? '',
       includeInPdf: false,
     ),
-    exportColumnFromWorkspaceField(
-      field: MusicCatalogItemWorkspaceFields.title,
-      valueFormatter: (value) => value ?? '',
-      pdfWidthFlex: 2.5,
-      pdfOrder: 1,
-    ),
-    exportColumnFromWorkspaceField(
-      field: MusicCatalogItemWorkspaceFields.format,
-      valueFormatter: (value) => value ?? '',
-      pdfWidthFlex: 1.2,
-      pdfOrder: 2,
-    ),
-    exportColumnFromWorkspaceField(
-      field: MusicCatalogItemWorkspaceFields.barcode,
-      valueFormatter: (value) => value ?? '',
-      defaultVisible: false,
-      pdfWidthFlex: 1.5,
-      pdfDefaultVisible: true,
-      pdfOrder: 3,
-    ),
-    exportColumnFromWorkspaceField(
-      field: MusicCatalogItemWorkspaceFields.catalogNumber,
-      valueFormatter: (value) => value ?? '',
-      defaultVisible: false,
-      pdfLabel: 'Cat No',
-      pdfWidthFlex: 1.5,
-      pdfDefaultVisible: true,
-      pdfOrder: 4,
-    ),
-    exportColumnFromWorkspaceField(
-      field: MusicCatalogItemWorkspaceFields.releaseDate,
-      valueFormatter: (value) => value?.year.toString() ?? '',
-      pdfLabel: 'Release Year',
-      pdfWidthFlex: 1.0,
-      pdfOrder: 7,
-    ),
+    if (MusicFieldIdentities.title.exportable)
+      exportColumnFromWorkspaceField(
+        field: MusicCatalogItemWorkspaceFields.title,
+        valueFormatter: (value) => value ?? '',
+        pdfWidthFlex: 2.5,
+        pdfOrder: 1,
+      ),
+    if (MusicFieldIdentities.format.exportable)
+      exportColumnFromWorkspaceField(
+        field: MusicCatalogItemWorkspaceFields.format,
+        valueFormatter: (value) => value ?? '',
+        pdfWidthFlex: 1.2,
+        pdfOrder: 2,
+      ),
+    if (MusicFieldIdentities.barcode.exportable)
+      exportColumnFromWorkspaceField(
+        field: MusicCatalogItemWorkspaceFields.barcode,
+        valueFormatter: (value) => value ?? '',
+        defaultVisible: false,
+        pdfWidthFlex: 1.5,
+        pdfDefaultVisible: true,
+        pdfOrder: 3,
+      ),
+    if (MusicFieldIdentities.catalogNumber.exportable)
+      exportColumnFromWorkspaceField(
+        field: MusicCatalogItemWorkspaceFields.catalogNumber,
+        valueFormatter: (value) => value ?? '',
+        defaultVisible: false,
+        pdfLabel: 'Cat No',
+        pdfWidthFlex: 1.5,
+        pdfDefaultVisible: true,
+        pdfOrder: 4,
+      ),
+    if (MusicFieldIdentities.releaseDate.exportable)
+      exportColumnFromWorkspaceField(
+        field: MusicCatalogItemWorkspaceFields.releaseDate,
+        valueFormatter: (value) => value?.year.toString() ?? '',
+        pdfLabel: 'Release Year',
+        pdfWidthFlex: 1.0,
+        pdfOrder: 7,
+      ),
     ExportColumnDefinition(
       id: 'orig_year',
       label: 'Original Year',
@@ -97,20 +104,22 @@ final musicExportCapability = LibraryExportCapability(
       getValue: (item) => _albumLength(_musicAlbum(item)),
       includeInPdf: false,
     ),
-    ExportColumnDefinition(
-      id: 'genre',
-      label: 'Genre',
-      getValue: (item) => _musicAlbum(item)?.genres.join(' | ') ?? '',
-      pdfGetValue: (item) => _musicAlbum(item)?.genres.join(', ') ?? '',
-      pdfWidthFlex: 2.0,
-      pdfOrder: 5,
-    ),
-    exportColumnFromWorkspaceField(
-      field: MusicCatalogItemWorkspaceFields.publisher,
-      valueFormatter: (value) => value ?? '',
-      pdfWidthFlex: 1.8,
-      pdfOrder: 6,
-    ),
+    if (MusicFieldIdentities.genre.exportable)
+      ExportColumnDefinition(
+        id: MusicFieldIdentities.genreId,
+        label: MusicFieldIdentities.genreLabel,
+        getValue: (item) => _musicAlbum(item)?.genres.join(' | ') ?? '',
+        pdfGetValue: (item) => _musicAlbum(item)?.genres.join(', ') ?? '',
+        pdfWidthFlex: 2.0,
+        pdfOrder: 5,
+      ),
+    if (MusicFieldIdentities.publisher.exportable)
+      exportColumnFromWorkspaceField(
+        field: MusicCatalogItemWorkspaceFields.publisher,
+        valueFormatter: (value) => value ?? '',
+        pdfWidthFlex: 1.8,
+        pdfOrder: 6,
+      ),
     ExportColumnDefinition(
       id: 'added_date',
       label: 'Added Date',

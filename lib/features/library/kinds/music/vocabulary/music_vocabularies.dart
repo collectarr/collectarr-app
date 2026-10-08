@@ -11,13 +11,14 @@ import 'package:collectarr_app/features/pick_lists/pick_list_definition_contribu
 import 'package:collectarr_app/features/library/kinds/music/domain/music_album.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_library_entry.dart';
 import 'package:collectarr_app/features/library/kinds/music/music_country_name.dart';
+import 'package:collectarr_app/features/library/kinds/music/config/music_field_identities.dart';
 
 abstract final class MusicVocabularyIds {
-  static const boxSet = VocabularyId<String>('music.box_set');
+  static const boxSet = MusicFieldIdentities.boxSetVocabulary;
   static const extra = VocabularyId<String>('music.extra');
   static const spars = VocabularyId<String>('music.spars');
   static const imageType = VocabularyId<String>('music.image_type');
-  static const artist = VocabularyId<String>('music.artist');
+  static const artist = MusicFieldIdentities.artistVocabulary;
   static const instrument = VocabularyId<String>('music.instrument');
   static const signedBy = VocabularyId<String>('music.signed_by');
   static VocabularyId<String> creditNames(String role) => VocabularyId<String>(
@@ -26,12 +27,12 @@ abstract final class MusicVocabularyIds {
   static const grade = VocabularyId<String>('music.grade');
   static const mediaCondition = VocabularyId<String>('music.media_condition');
   static const storageDevice = VocabularyId<String>('music.storage_device');
-  static const format = VocabularyId<String>('music.format');
-  static const packaging = VocabularyId<String>('music.packaging');
-  static const recordLabel = VocabularyId<String>('music.record_label');
-  static const genre = VocabularyId<String>('music.genre');
+  static const format = MusicFieldIdentities.formatVocabulary;
+  static const packaging = MusicFieldIdentities.packagingVocabulary;
+  static const recordLabel = MusicFieldIdentities.publisherVocabulary;
+  static const genre = MusicFieldIdentities.genreVocabulary;
   static const creditRole = VocabularyId<String>('music.credit_role');
-  static const country = VocabularyId<String>('music.country');
+  static const country = MusicFieldIdentities.countryVocabulary;
   static const studio = VocabularyId<String>('music.studio');
   static const soundType = VocabularyId<String>('music.sound_type');
   static const vinylColor = VocabularyId<String>('music.vinyl_color');

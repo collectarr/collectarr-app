@@ -1,5 +1,6 @@
 import 'music_workspace_groups.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_ids.dart';
+import 'package:collectarr_app/features/library/kinds/music/config/music_field_identities.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_library_entry_workspace_fields.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_dto.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_schema_support.dart';
@@ -86,15 +87,18 @@ final musicLibraryEntryWorkspaceSchema =
   ],
   sorts: [
     musicStatusSort(),
-    sortFromField<MusicKind, MusicWorkspaceProjection, String>(
-      MusicLibraryEntryWorkspaceFields.artist,
-    ),
-    sortFromField<MusicKind, MusicWorkspaceProjection, String>(
-      MusicLibraryEntryWorkspaceFields.title,
-    ),
-    sortFromField<MusicKind, MusicWorkspaceProjection, String>(
-      MusicLibraryEntryWorkspaceFields.publisher,
-    ),
+    if (MusicFieldIdentities.artist.sortable)
+      sortFromField<MusicKind, MusicWorkspaceProjection, String>(
+        MusicLibraryEntryWorkspaceFields.artist,
+      ),
+    if (MusicFieldIdentities.title.sortable)
+      sortFromField<MusicKind, MusicWorkspaceProjection, String>(
+        MusicLibraryEntryWorkspaceFields.title,
+      ),
+    if (MusicFieldIdentities.publisher.sortable)
+      sortFromField<MusicKind, MusicWorkspaceProjection, String>(
+        MusicLibraryEntryWorkspaceFields.publisher,
+      ),
     sortFromField<MusicKind, MusicWorkspaceProjection, String>(
       MusicLibraryEntryWorkspaceFields.condition,
     ),
