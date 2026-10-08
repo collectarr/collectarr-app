@@ -58,7 +58,12 @@ void main() {
     final mainLabel = find.text('Main');
     final gesture = await tester.startGesture(tester.getCenter(detailsLabel));
     await tester.pump(const Duration(milliseconds: 700));
-    await gesture.moveTo(tester.getCenter(mainLabel));
+    final start = tester.getCenter(detailsLabel);
+    final target = tester.getCenter(mainLabel) + const Offset(20, 0);
+    for (var step = 1; step <= 5; step++) {
+      await gesture.moveTo(Offset.lerp(start, target, step / 5)!);
+      await tester.pump(const Duration(milliseconds: 50));
+    }
     await tester.pump();
     await gesture.up();
     await tester.pumpAndSettle();

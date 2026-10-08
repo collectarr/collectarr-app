@@ -1,11 +1,15 @@
+import 'dart:math' as math;
+
 import 'package:collectarr_app/ui/theme/app_theme.dart';
-import 'package:collectarr_app/features/library/config/library_dialog_tokens.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 const double kLibraryEditTabStripHeight = 32;
 const double kLibraryEditTabStripContainerHeight = 33;
+const Color _clzEditTabBackground = Color(0xFF131313);
+const Color _clzEditTabHighlight = Color(0xFF383838);
+const Color _clzEditTabBorder = Color(0xFF262626);
+const Color _clzEditTabDragShadow = Color(0xFF666666);
 
 // Keep the current selection in memory so Previous/Next can open the next
 // item's editor on the same kind-and-scope tab without persisting it as a
@@ -96,31 +100,34 @@ class LibraryEditStyledTabLabel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
-    final foreground =
-        selected || highlighted ? palette.textPrimary : palette.textMuted;
+    final idleBackground =
+        palette.isDark ? _clzEditTabBackground : palette.surface;
+    final activeBackground =
+        palette.isDark ? _clzEditTabHighlight : palette.panelRaised;
+    final idleForeground =
+        palette.isDark ? const Color(0xB3FFFFFF) : palette.textMuted;
+    final foreground = selected || highlighted
+        ? (palette.isDark ? Colors.white : palette.textPrimary)
+        : idleForeground;
+    final borderColor = palette.isDark ? _clzEditTabBorder : palette.divider;
     return AnimatedContainer(
-      duration: const Duration(milliseconds: 150),
-      margin: const EdgeInsets.symmetric(horizontal: 1.5),
+      duration: const Duration(milliseconds: 250),
+      curve: Curves.ease,
+      margin: const EdgeInsets.only(right: 3),
       constraints: const BoxConstraints(minHeight: kLibraryEditTabStripHeight),
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
       decoration: BoxDecoration(
         color: selected
-            ? palette.panelRaised
+            ? activeBackground
             : highlighted
-                ? accent.withValues(alpha: 0.16)
-                : palette.surface,
-        borderRadius: BorderRadius.vertical(
-          top: const Radius.circular(3),
-          bottom: Radius.circular(selected ? 0 : 3),
+                ? (palette.isDark
+                    ? activeBackground
+                    : accent.withValues(alpha: 0.16))
+                : idleBackground,
+        borderRadius: const BorderRadius.vertical(
+          top: Radius.circular(4),
         ),
-        border: Border.all(
-          color: selected
-              ? palette.divider
-              : highlighted
-                  ? accent.withValues(alpha: 0.72)
-                  : palette.divider,
-          width: highlighted ? 1.1 : 1,
-        ),
+        border: Border.all(color: borderColor),
       ),
       alignment: Alignment.center,
       child: DefaultTextStyle.merge(
@@ -130,48 +137,6 @@ class LibraryEditStyledTabLabel extends StatelessWidget {
           fontSize: 14,
           height: 20 / 14,
           letterSpacing: 0,
-        ),
-        child: IconTheme.merge(
-          data: IconThemeData(color: foreground, size: 14),
-          child: tab,
-        ),
-      ),
-    );
-  }
-}
-
-class LibraryEditDraggedTabLabel extends StatelessWidget {
-  const LibraryEditDraggedTabLabel({
-    super.key,
-    required this.tab,
-    required this.accent,
-    this.muted = false,
-  });
-
-  final Widget tab;
-  final Color accent;
-  final bool muted;
-
-  @override
-  Widget build(BuildContext context) {
-    final palette = appPalette(context);
-    final foreground = muted ? palette.textMuted : palette.textPrimary;
-    return Container(
-      constraints: const BoxConstraints(
-        minHeight: kLibraryEditTabStripHeight,
-      ),
-      padding: const EdgeInsets.symmetric(horizontal: 8),
-      decoration: BoxDecoration(
-        color: appPalette(context).surface,
-        borderRadius: BorderRadius.circular(2),
-        border: Border.all(color: appPalette(context).divider),
-      ),
-      alignment: Alignment.center,
-      child: DefaultTextStyle.merge(
-        style: TextStyle(
-          color: foreground,
-          fontWeight: FontWeight.w500,
-          fontSize: 14,
         ),
         child: IconTheme.merge(
           data: IconThemeData(color: foreground, size: 14),
@@ -226,75 +191,95 @@ class LibraryEditReorderableTabStrip extends StatelessWidget {
   }
 
   Widget _buildStrip(BuildContext context, int currentIndex) {
+    final canReorder = enabled && allowReorder && onReorderItem != null;
+
+    Widget buildTab(int index, {required bool draggable}) {
+      final tab = tabs[index];
+      final child = _tabButton(
+        index: index,
+        currentIndex: currentIndex,
+        highlighted: false,
+        enabled: enabled,
+      );
+      final key = tab.key ?? ObjectKey(tab);
+      return draggable
+          ? ReorderableDragStartListener(
+              key: key,
+              index: index,
+              child: child,
+            )
+          : KeyedSubtree(key: key, child: child);
+    }
+
+    final Widget strip = canReorder
+        ? ReorderableListView.builder(
+            scrollDirection: Axis.horizontal,
+            physics: const ClampingScrollPhysics(),
+            shrinkWrap: true,
+            primary: false,
+            padding: EdgeInsets.zero,
+            clipBehavior: Clip.none,
+            dragBoundaryProvider: (_) => null,
+            buildDefaultDragHandles: false,
+            itemCount: tabs.length,
+            onReorderItem: (oldIndex, newIndex) =>
+                onReorderItem!(oldIndex, newIndex),
+            proxyDecorator: _decorateDraggedTab,
+            itemBuilder: (context, index) => buildTab(index, draggable: true),
+          )
+        : SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                for (var index = 0; index < tabs.length; index++)
+                  buildTab(index, draggable: false),
+              ],
+            ),
+          );
+
     return ConstrainedBox(
       constraints: const BoxConstraints(minHeight: kLibraryEditTabStripHeight),
       child: SizedBox(
         width: double.infinity,
-        child: SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              for (var index = 0; index < tabs.length; index++)
-                enabled && allowReorder && onReorderItem != null
-                    ? DragTarget<_LibraryEditTabDrag>(
-                        key: ValueKey<String>('library-edit-tab-slot-$index'),
-                        onMove: (details) {
-                          final drag = details.data;
-                          if (drag.currentIndex == index) return;
-                          final oldIndex = drag.currentIndex;
-                          drag.currentIndex = index;
-                          onReorderItem!(oldIndex, index);
-                        },
-                        onAcceptWithDetails: (details) {
-                          final drag = details.data;
-                          final from = drag.currentIndex;
-                          if (from != index) {
-                            drag.currentIndex = index;
-                            onReorderItem!(from, index);
-                          }
-                        },
-                        builder: (context, candidateData, _) {
-                          return _MovementThresholdDraggable<
-                              _LibraryEditTabDrag>(
-                            data: _LibraryEditTabDrag(index),
-                            startDistance:
-                                kLibraryDialogTabReorderStartDistance,
-                            feedback: Material(
-                              elevation: 2,
-                              color: Colors.transparent,
-                              child: LibraryEditDraggedTabLabel(
-                                tab: tabs[index],
-                                accent: accent,
-                              ),
-                            ),
-                            childWhenDragging: Opacity(
-                              opacity: 0.4,
-                              child: LibraryEditDraggedTabLabel(
-                                tab: tabs[index],
-                                accent: accent,
-                                muted: true,
-                              ),
-                            ),
-                            child: _tabButton(
-                              index: index,
-                              currentIndex: currentIndex,
-                              highlighted: candidateData.isNotEmpty,
-                              enabled: enabled,
-                            ),
-                          );
-                        },
-                      )
-                    : _tabButton(
-                        index: index,
-                        currentIndex: currentIndex,
-                        highlighted: false,
-                        enabled: enabled,
-                      ),
-            ],
-          ),
-        ),
+        height: kLibraryEditTabStripHeight,
+        child: strip,
       ),
+    );
+  }
+
+  Widget _decorateDraggedTab(
+    Widget child,
+    int index,
+    Animation<double> animation,
+  ) {
+    return AnimatedBuilder(
+      animation: animation,
+      child: child,
+      builder: (context, child) {
+        final progress = Curves.easeOut.transform(animation.value);
+        return Transform.rotate(
+          angle: math.pi / 180 * progress,
+          child: Transform.scale(
+            scale: 1 + 0.025 * progress,
+            child: DecoratedBox(
+              decoration: const BoxDecoration(
+                borderRadius: BorderRadius.all(Radius.circular(4)),
+                boxShadow: [
+                  BoxShadow(
+                    color: _clzEditTabDragShadow,
+                    offset: Offset(2, 2),
+                  ),
+                ],
+              ),
+              child: ClipRRect(
+                borderRadius: const BorderRadius.all(Radius.circular(4)),
+                child: child!,
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 
@@ -321,88 +306,6 @@ class LibraryEditReorderableTabStrip extends StatelessWidget {
             }
           : null,
     );
-  }
-}
-
-class _LibraryEditTabDrag {
-  _LibraryEditTabDrag(this.currentIndex);
-
-  int currentIndex;
-}
-
-/// Starts a drag only after intentional horizontal movement.
-///
-/// Unlike [LongPressDraggable], holding the pointer still does not start the
-/// drag. The threshold also gives tab taps and small pointer movements room to
-/// complete without accidentally reordering the strip.
-class _MovementThresholdDraggable<T extends Object> extends Draggable<T> {
-  const _MovementThresholdDraggable({
-    required super.data,
-    required super.feedback,
-    required super.child,
-    super.childWhenDragging,
-    required this.startDistance,
-  }) : super(axis: Axis.horizontal);
-
-  final double startDistance;
-
-  @override
-  MultiDragGestureRecognizer createRecognizer(
-    GestureMultiDragStartCallback onStart,
-  ) {
-    return _HorizontalMovementThresholdGestureRecognizer(
-      startDistance: startDistance,
-      debugOwner: this,
-      allowedButtonsFilter: allowedButtonsFilter,
-    )..onStart = onStart;
-  }
-}
-
-class _HorizontalMovementThresholdGestureRecognizer
-    extends MultiDragGestureRecognizer {
-  _HorizontalMovementThresholdGestureRecognizer({
-    required this.startDistance,
-    required super.debugOwner,
-    super.allowedButtonsFilter,
-  });
-
-  final double startDistance;
-
-  @override
-  MultiDragPointerState createNewPointerState(PointerDownEvent event) {
-    return _HorizontalMovementThresholdPointerState(
-      event.position,
-      startDistance,
-      event.kind,
-      gestureSettings,
-    );
-  }
-
-  @override
-  String get debugDescription => 'horizontal movement threshold multidrag';
-}
-
-class _HorizontalMovementThresholdPointerState extends MultiDragPointerState {
-  _HorizontalMovementThresholdPointerState(
-    super.initialPosition,
-    this.startDistance,
-    super.kind,
-    super.gestureSettings,
-  );
-
-  final double startDistance;
-
-  @override
-  void checkForResolutionAfterMove() {
-    final delta = pendingDelta!;
-    if (delta.dx.abs() >= startDistance && delta.dx.abs() > delta.dy.abs()) {
-      resolve(GestureDisposition.accepted);
-    }
-  }
-
-  @override
-  void accepted(GestureMultiDragStartCallback starter) {
-    starter(initialPosition);
   }
 }
 
