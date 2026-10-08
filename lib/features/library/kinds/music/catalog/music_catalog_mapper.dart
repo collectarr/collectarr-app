@@ -244,6 +244,8 @@ final class MusicCatalogMapper {
       'sequence',
       'join_phrase',
     };
+    final artistCreditIds = <String>{};
+    final artistCreditSequences = <int>{};
     for (var index = 0; index < artistCredits.length; index++) {
       final credit = artistCredits[index];
       final unsupportedFields = credit.keys.where(
@@ -255,12 +257,31 @@ final class MusicCatalogMapper {
           '"${unsupportedFields.first}".',
         );
       }
-      if (credit['id'] is! String ||
-          (credit['id'] as String).trim().isEmpty ||
-          credit['name'] is! String ||
-          (credit['name'] as String).trim().isEmpty ||
-          credit['sequence'] is! int ||
-          (credit['artist_id'] != null && credit['artist_id'] is! String)) {
+      final creditId = _requiredCatalogText(
+        credit['id'],
+        'Music artist credit ${index + 1} id',
+      );
+      _requiredCatalogText(
+        credit['name'],
+        'Music artist credit ${index + 1} name',
+      );
+      _optionalCatalogText(
+        credit['sort_name'],
+        'Music artist credit ${index + 1} sort_name',
+      );
+      _optionalCatalogText(
+        credit['artist_id'],
+        'Music artist credit ${index + 1} artist_id',
+      );
+      _optionalCatalogText(
+        credit['join_phrase'],
+        'Music artist credit ${index + 1} join_phrase',
+      );
+      final sequence = credit['sequence'];
+      if (sequence is! int ||
+          sequence < 1 ||
+          !artistCreditIds.add(creditId) ||
+          !artistCreditSequences.add(sequence)) {
         throw FormatException(
           'Music artist credit ${index + 1} is missing canonical identity '
           'or ordering fields.',
@@ -269,9 +290,8 @@ final class MusicCatalogMapper {
     }
     for (var discIndex = 0; discIndex < discs.length; discIndex++) {
       final disc = discs[discIndex];
-      if (disc['id'] is! String ||
-          (disc['id'] as String).trim().isEmpty ||
-          disc['disc_number'] is! int) {
+      _requiredCatalogText(disc['id'], 'Music disc ${discIndex + 1} id');
+      if (disc['disc_number'] is! int || (disc['disc_number'] as int) < 1) {
         throw FormatException(
           'Music disc ${discIndex + 1} is missing its canonical identity.',
         );
@@ -282,15 +302,34 @@ final class MusicCatalogMapper {
       );
       for (var trackIndex = 0; trackIndex < tracks.length; trackIndex++) {
         final track = tracks[trackIndex];
-        if (track['id'] is! String ||
-            (track['id'] as String).trim().isEmpty ||
-            track['position'] is! String ||
+        _requiredCatalogText(
+          track['id'],
+          'Music disc ${discIndex + 1} track ${trackIndex + 1} id',
+        );
+        final position = track['position'];
+        final trackTitle = track['title'];
+        _optionalCatalogText(
+          track['artist'],
+          'Music disc ${discIndex + 1} track ${trackIndex + 1} artist',
+        );
+        _optionalCatalogText(
+          track['parent_header_id'],
+          'Music disc ${discIndex + 1} track ${trackIndex + 1} parent_header_id',
+        );
+        if (position is! String ||
+            position != position.trim() ||
             track['position_order'] is! int ||
             (track['position_order'] as int) < 0 ||
-            track['title'] is! String ||
-            (track['title'] as String).trim().isEmpty ||
+            trackTitle is! String ||
+            trackTitle.isEmpty ||
+            trackTitle != trackTitle.trim() ||
             track['is_header'] is! bool ||
-            track['indent_level'] is! int) {
+            track['indent_level'] is! int ||
+            (track['indent_level'] as int) < 0 ||
+            (track['indent_level'] as int) > 8 ||
+            (track['duration_ms'] != null &&
+                (track['duration_ms'] is! int ||
+                    (track['duration_ms'] as int) < 0))) {
           throw FormatException(
             'Music disc ${discIndex + 1} track ${trackIndex + 1} is missing '
             'canonical identity or ordering fields.',
@@ -358,33 +397,59 @@ final class MusicCatalogMapper {
         path: 'Music ${role.replaceAll('_', ' ')}',
       );
       final normalizedRole = _roleLabel(role);
+      final creditIds = <String>{};
+      final creditSequences = <int>{};
       for (var index = 0; index < values.length; index++) {
         final person = values[index];
-        if (person['id'] is! String ||
-            (person['id'] as String).trim().isEmpty ||
-            person['name'] is! String ||
-            (person['name'] as String).trim().isEmpty ||
-            person['person_id'] is! String ||
-            (person['person_id'] as String).trim().isEmpty ||
-            person['sequence'] is! int) {
+        final path = 'Music ${role.replaceAll('_', ' ')} credit ${index + 1}';
+        const roleCreditFields = {
+          'id',
+          'name',
+          'person_id',
+          'role_id',
+          'sequence',
+          'sort_name',
+          'image_url',
+          'instrument',
+        };
+        final unsupportedFields = person.keys.where(
+          (key) => !roleCreditFields.contains(key),
+        );
+        if (unsupportedFields.isNotEmpty) {
           throw FormatException(
-            'Music ${role.replaceAll('_', ' ')} credit ${index + 1} is '
-            'missing canonical identity or ordering fields.',
+            'Unrecognized $path field "${unsupportedFields.first}".',
+          );
+        }
+        final personId =
+            _requiredCatalogText(person['person_id'], '$path person_id');
+        final creditId = _requiredCatalogText(person['id'], '$path id');
+        final name = _requiredCatalogText(person['name'], '$path name');
+        final roleId = _optionalCatalogText(person['role_id'], '$path role_id');
+        final sortName =
+            _optionalCatalogText(person['sort_name'], '$path sort_name');
+        final imageUrl =
+            _optionalCatalogText(person['image_url'], '$path image_url');
+        final instrument =
+            _optionalCatalogText(person['instrument'], '$path instrument');
+        final sequence = person['sequence'];
+        if (sequence is! int ||
+            sequence < 1 ||
+            !creditIds.add(creditId) ||
+            !creditSequences.add(sequence)) {
+          throw FormatException(
+            '$path is missing canonical ordering fields.',
           );
         }
         contributionRows.add({
-          'id': person['id'],
-          'person_id': person['person_id'],
+          'id': creditId,
+          'person_id': personId,
           'role': normalizedRole,
           'sequence': person['sequence'],
-          'name': person['name'],
-          if (_text(person['role_id']) case final roleId?) 'role_id': roleId,
-          if (_text(person['sort_name']) case final sortName?)
-            'sort_name': sortName,
-          if (_text(person['instrument']) case final instrument?)
-            'instrument': instrument,
-          if (_text(person['image_url']) case final imageUrl?)
-            'image_url': imageUrl,
+          'name': name,
+          if (roleId != null) 'role_id': roleId,
+          if (sortName != null) 'sort_name': sortName,
+          if (instrument != null) 'instrument': instrument,
+          if (imageUrl != null) 'image_url': imageUrl,
         });
       }
     }
@@ -534,11 +599,23 @@ List<String> _requiredStrings(Object? value, {required String path}) {
   final result = <String>[];
   var index = 0;
   for (final entry in value) {
-    if (entry is! String || entry.trim().isEmpty) {
+    if (entry is! String || entry.isEmpty || entry != entry.trim()) {
       throw FormatException('$path entry ${index + 1} must be non-empty text.');
     }
     result.add(entry);
     index++;
   }
   return result;
+}
+
+String _requiredCatalogText(Object? value, String path) {
+  if (value is! String || value.isEmpty || value != value.trim()) {
+    throw FormatException('$path must be non-empty trimmed text.');
+  }
+  return value;
+}
+
+String? _optionalCatalogText(Object? value, String path) {
+  if (value == null) return null;
+  return _requiredCatalogText(value, path);
 }

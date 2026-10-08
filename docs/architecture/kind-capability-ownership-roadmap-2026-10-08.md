@@ -108,8 +108,8 @@ album-level format proposal was removed. Music credit writes now require
 explicit IDs, names, person references, and ordering; Core no longer creates
 credit IDs from strings or missing values, and App emits complete rows. Core
 also rejects implicit RPM/weight conversions, untrimmed Music disc/root text,
-and correction values that were previously whitespace-collapsed or silently
-deduplicated. Music external links now have one strict `{url, title?,
+credit text, and correction values that were previously whitespace-collapsed
+or silently deduplicated. Music external links now have one strict `{url, title?,
 description?}` shape in Core, correction payloads, and App decoding; malformed
 rows and legacy link aliases are rejected instead of normalized or dropped.
 Music's Core/local field-name translations now live in the catalog mapper;
