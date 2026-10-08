@@ -15,6 +15,38 @@ void main() {
     expect(find.text('Cancel'), findsOneWidget);
   });
 
+  testWidgets('edit dialog stays top-anchored as its content grows', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(1280, 1000);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    await tester.pumpWidget(
+      const MaterialApp(
+        home: Scaffold(body: _EditScaffoldHarness(contentHeight: 100)),
+      ),
+    );
+    final dialogSurface = find.byWidgetPredicate(
+      (widget) => widget is Material && widget.type == MaterialType.card,
+    );
+    final initialTop = tester.getTopLeft(dialogSurface).dy;
+    final initialBottom = tester.getBottomRight(dialogSurface).dy;
+
+    await tester.pumpWidget(
+      const MaterialApp(
+        home: Scaffold(body: _EditScaffoldHarness(contentHeight: 300)),
+      ),
+    );
+
+    expect(tester.getTopLeft(dialogSurface).dy, closeTo(initialTop, 0.1));
+    expect(
+      tester.getBottomRight(dialogSurface).dy,
+      greaterThan(initialBottom),
+    );
+  });
+
   testWidgets('reordering tabs keeps logical view order stable',
       (tester) async {
     await tester.pumpWidget(const MaterialApp(home: _EditScaffoldHarness()));
@@ -46,7 +78,9 @@ void main() {
 }
 
 class _EditScaffoldHarness extends StatefulWidget {
-  const _EditScaffoldHarness();
+  const _EditScaffoldHarness({this.contentHeight = 80});
+
+  final double contentHeight;
 
   @override
   State<_EditScaffoldHarness> createState() => _EditScaffoldHarnessState();
@@ -79,12 +113,15 @@ class _EditScaffoldHarnessState extends State<_EditScaffoldHarness>
             EditTab(icon: Icons.info_outline, label: 'Main'),
             EditTab(icon: Icons.tune, label: 'Details'),
           ],
-          views: const [
-            Padding(
-              padding: EdgeInsets.all(12),
-              child: Text('Main tab'),
+          views: [
+            SizedBox(
+              height: widget.contentHeight,
+              child: const Padding(
+                padding: EdgeInsets.all(12),
+                child: Text('Main tab'),
+              ),
             ),
-            Padding(
+            const Padding(
               padding: EdgeInsets.all(12),
               child: Text('Details tab'),
             ),

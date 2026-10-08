@@ -42,6 +42,7 @@ class LibraryEditDialogScaffold extends StatefulWidget {
     this.chromeVariant = LibraryEditChromeVariant.standard,
     this.allowTabReorder = true,
     this.tabOrderKey,
+    this.alignment = Alignment.topCenter,
   }) : assert(
           body != null ||
               (tabController != null &&
@@ -79,6 +80,9 @@ class LibraryEditDialogScaffold extends StatefulWidget {
 
   /// If non-null, the tab order is persisted to SharedPreferences under this key.
   final String? tabOrderKey;
+
+  /// Keeps the edit dialog's top edge stable as its content changes height.
+  final AlignmentGeometry? alignment;
 
   @override
   State<LibraryEditDialogScaffold> createState() =>
@@ -243,7 +247,6 @@ class _LibraryEditDialogScaffoldState extends State<LibraryEditDialogScaffold> {
     ];
     final orderedViews = [for (final i in tabOrder) widget.views[i]];
     final viewport = MediaQuery.sizeOf(context);
-    final windowClass = AppWindowClass.of(context);
     final maxWidth = isWideDesktop
         ? (viewport.width > 1440 ? 1220.0 : 1140.0)
         : (viewport.width > 1264 ? 1200.0 : viewport.width - 64);
@@ -289,6 +292,7 @@ class _LibraryEditDialogScaffoldState extends State<LibraryEditDialogScaffold> {
             maxWidth: maxWidth,
             minHeight: 0,
             maxHeight: maxHeight,
+            alignment: widget.alignment,
             density: LibraryDensity.comfortable,
             expandBody: false,
             body: ConstrainedBox(
