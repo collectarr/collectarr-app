@@ -8238,6 +8238,7 @@
         "required": [
           "id",
           "disc_number",
+          "sound_types",
           "tracks"
         ],
         "title": "CatalogMusicDiscResponse",

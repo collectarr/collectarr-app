@@ -84,7 +84,7 @@ final class MusicCatalogMapper {
             if (disc.formatFamily != null)
               'format_family': disc.formatFamily!.value,
             if (disc.format != null) 'format': disc.format,
-            if (disc.soundTypes.isNotEmpty) 'sound_types': disc.soundTypes,
+            'sound_types': disc.soundTypes,
             if (disc.color != null) 'color': disc.color,
             if (disc.vinylWeightGrams != null)
               'vinyl_weight_grams': disc.vinylWeightGrams,

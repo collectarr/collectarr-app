@@ -190,6 +190,7 @@
       "required": [
         "id",
         "disc_number",
+        "sound_types",
         "tracks"
       ],
       "title": "CatalogMusicDiscResponse",
@@ -788,8 +789,8 @@
   "$id": "https://schemas.collectarr.app/music-catalog/v1",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "contractVersion": "1.0.0",
-  "coreCommit": "cd8f9bd7d97cfb0a4206836adb11c90869d01c3c",
-  "generatedAt": "2026-10-08T20:28:40.092171Z",
+  "coreCommit": "32e4f0cf773eae160dced45188e33fbb575df77f",
+  "generatedAt": "2026-10-08T20:32:12.859760Z",
   "roots": {
     "disc": {
       "$ref": "#/$defs/CatalogMusicDiscResponse"
