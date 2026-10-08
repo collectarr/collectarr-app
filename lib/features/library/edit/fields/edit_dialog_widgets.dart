@@ -121,15 +121,15 @@ ThemeData editDialogTheme({
       ),
       border: OutlineInputBorder(
         borderSide: BorderSide(color: palette.divider),
-        borderRadius: BorderRadius.circular(2),
+        borderRadius: BorderRadius.circular(kAppInputBorderRadius),
       ),
       enabledBorder: OutlineInputBorder(
         borderSide: BorderSide(color: palette.divider),
-        borderRadius: BorderRadius.circular(2),
+        borderRadius: BorderRadius.circular(kAppInputBorderRadius),
       ),
       focusedBorder: OutlineInputBorder(
         borderSide: BorderSide(color: accent),
-        borderRadius: BorderRadius.circular(2),
+        borderRadius: BorderRadius.circular(kAppInputBorderRadius),
       ),
     ),
     filledButtonTheme: FilledButtonThemeData(
@@ -899,7 +899,7 @@ class _LibraryDateFieldButtonState extends State<LibraryDateFieldButton> {
   }) {
     final outline = OutlineInputBorder(
       borderSide: BorderSide(color: palette.divider),
-      borderRadius: BorderRadius.circular(4),
+      borderRadius: BorderRadius.circular(kAppInputBorderRadius),
     );
     return LibraryTextFormControl(
       key: key,
@@ -920,7 +920,7 @@ class _LibraryDateFieldButtonState extends State<LibraryDateFieldButton> {
         enabledBorder: outline,
         focusedBorder: OutlineInputBorder(
           borderSide: BorderSide(color: palette.accent, width: 1.5),
-          borderRadius: BorderRadius.circular(4),
+          borderRadius: BorderRadius.circular(kAppInputBorderRadius),
         ),
         isDense: true,
         contentPadding: const EdgeInsets.symmetric(horizontal: 4, vertical: 10),

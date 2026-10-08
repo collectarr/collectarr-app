@@ -8,6 +8,7 @@ const String kClzPrimaryFontFamily = kAppFontFamily;
 const String kClzMonospaceFontFamily = 'JetBrains Mono';
 const List<String> kClzFontFallback = ['Segoe UI', 'Roboto'];
 const List<String> kClzMonospaceFontFallback = ['Consolas', 'Courier New'];
+const double kAppInputBorderRadius = 4;
 const WidgetStateMouseCursor appClickableMouseCursor =
     WidgetStateMouseCursor.clickable;
 
@@ -73,12 +74,15 @@ InputDecorationTheme buildAppInputDecorationTheme(
     ),
     border: OutlineInputBorder(
       borderSide: BorderSide(color: palette.divider),
+      borderRadius: BorderRadius.circular(kAppInputBorderRadius),
     ),
     enabledBorder: OutlineInputBorder(
       borderSide: BorderSide(color: palette.divider),
+      borderRadius: BorderRadius.circular(kAppInputBorderRadius),
     ),
     focusedBorder: OutlineInputBorder(
       borderSide: BorderSide(color: palette.accent),
+      borderRadius: BorderRadius.circular(kAppInputBorderRadius),
     ),
   );
 }
