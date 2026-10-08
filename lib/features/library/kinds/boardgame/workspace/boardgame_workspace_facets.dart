@@ -1,19 +1,21 @@
 import 'package:collectarr_app/features/library/kinds/boardgame/workspace/boardgame_ids.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/workspace/boardgame_workspace_dto.dart';
 import 'package:collectarr_app/features/library/config/library_facet_types.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/config/boardgame_field_identities.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_identifier_types.dart';
 
 final boardgameLibraryFacetDefinitions =
     <LibraryFacetDefinition<BoardGameKind, BoardGameWorkspaceDto, String>>[
-  LibraryFacetDefinition<BoardGameKind, BoardGameWorkspaceDto, String>(
-    id: BoardGameFacetIds.publisher,
-    label: 'Publisher',
-    extractValues: (dto) => _boardGameFacetValues([
-      ...dto.metadata.publishers,
-      dto.metadata.publisher,
-      dto.publisher,
-    ]),
-  ),
+  if (BoardGameFieldIdentities.publisher.filterable)
+    LibraryFacetDefinition<BoardGameKind, BoardGameWorkspaceDto, String>(
+      id: BoardGameFacetIds.publisher,
+      label: BoardGameFieldIdentities.publisher.label,
+      extractValues: (dto) => _boardGameFacetValues([
+        ...dto.metadata.publishers,
+        dto.metadata.publisher,
+        dto.publisher,
+      ]),
+    ),
   LibraryFacetDefinition<BoardGameKind, BoardGameWorkspaceDto, String>(
     id: BoardGameFacetIds.designer,
     label: 'Designer',

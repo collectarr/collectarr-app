@@ -32,14 +32,15 @@ const boardGamesStatsLabels = LibraryMediaStatsLabels(
 );
 
 final boardGamesLibraryFilterDefinitions = <LibraryFilterDefinition<Object?>>[
-  LibraryFilterDefinition<Object?>(
-    id: BoardGameFieldIdentities.seriesId,
-    label: BoardGameFieldIdentities.seriesLabel,
-    anyLabel: 'Any series',
-    value: (item) => (item.dto is BoardGameWorkspaceDto)
-        ? (item.dto as BoardGameWorkspaceDto).seriesTitle
-        : null,
-  ),
+  if (BoardGameFieldIdentities.series.filterable)
+    LibraryFilterDefinition<Object?>(
+      id: BoardGameFieldIdentities.seriesId,
+      label: BoardGameFieldIdentities.seriesLabel,
+      anyLabel: 'Any series',
+      value: (item) => (item.dto is BoardGameWorkspaceDto)
+          ? (item.dto as BoardGameWorkspaceDto).seriesTitle
+          : null,
+    ),
   LibraryFilterDefinition<Object?>(
     id: 'location',
     label: 'Location',
@@ -54,14 +55,15 @@ final boardGamesLibraryFilterDefinitions = <LibraryFilterDefinition<Object?>>[
       item.source.libraryEntryDispatch,
     )?.personal.tags?.split(','),
   ),
-  LibraryFilterDefinition<Object?>(
-    id: BoardGameFieldIdentities.publisherId,
-    label: BoardGameFieldIdentities.publisherLabel,
-    anyLabel: 'Any publisher',
-    value: (item) => (item.dto is BoardGameWorkspaceDto)
-        ? (item.dto as BoardGameWorkspaceDto).publisher
-        : null,
-  ),
+  if (BoardGameFieldIdentities.publisher.filterable)
+    LibraryFilterDefinition<Object?>(
+      id: BoardGameFieldIdentities.publisherId,
+      label: BoardGameFieldIdentities.publisherLabel,
+      anyLabel: 'Any publisher',
+      value: (item) => (item.dto is BoardGameWorkspaceDto)
+          ? (item.dto as BoardGameWorkspaceDto).publisher
+          : null,
+    ),
   LibraryFilterDefinition<Object?>(
     id: 'year',
     label: 'Year',

@@ -18,7 +18,7 @@ abstract final class BoardGameCatalogItemWorkspaceFields {
     id: BoardGameFieldIds.publisher,
     label: BoardGameFieldIdentities.publisherLabel,
     getValue: (dto) => dto.publisher,
-    searchable: true,
+    searchable: BoardGameFieldIdentities.publisher.searchable,
   );
 
   static final releaseDate = dateField<BoardGameKind, BoardGameWorkspaceDto>(
@@ -31,7 +31,7 @@ abstract final class BoardGameCatalogItemWorkspaceFields {
     id: BoardGameFieldIds.barcode,
     label: BoardGameFieldIdentities.barcodeLabel,
     getValue: (dto) => dto.barcode,
-    searchable: true,
+    searchable: BoardGameFieldIdentities.barcode.searchable,
   );
 
   static final designer = textField<BoardGameKind, BoardGameWorkspaceDto>(
@@ -132,39 +132,51 @@ final boardgameCatalogItemWorkspaceFieldDefinitions = [
 ];
 
 final boardgameCatalogItemWorkspaceGroupDefinitions = [
-  groupFromField<BoardGameKind, BoardGameWorkspaceDto, String?>(
-    BoardGameCatalogItemWorkspaceFields.bestPlayers,
-    sidebarTitle: 'Best Player Count',
-    icon: Icons.group_outlined,
-  ),
-  groupFromField<BoardGameKind, BoardGameWorkspaceDto, String?>(
-    BoardGameCatalogItemWorkspaceFields.publisher,
-    sidebarTitle: 'Publishers',
-    icon: Icons.business_outlined,
-    supportsBucketManagement: true,
-    bucketValueMutator: catalogTransportStringListBucketValueMutator(
-      'publishers',
-      scalarMirrorKeys: ['publisher'],
+  if (BoardGameFieldIdentities.bestPlayers.groupable)
+    groupFromField<BoardGameKind, BoardGameWorkspaceDto, String?>(
+      BoardGameCatalogItemWorkspaceFields.bestPlayers,
+      sidebarTitle: 'Best Player Count',
+      icon: Icons.group_outlined,
     ),
-  ),
+  if (BoardGameFieldIdentities.publisher.groupable)
+    groupFromField<BoardGameKind, BoardGameWorkspaceDto, String?>(
+      BoardGameCatalogItemWorkspaceFields.publisher,
+      sidebarTitle: 'Publishers',
+      icon: Icons.business_outlined,
+      supportsBucketManagement: true,
+      bucketValueMutator: catalogTransportStringListBucketValueMutator(
+        'publishers',
+        scalarMirrorKeys: ['publisher'],
+      ),
+    ),
 ];
 
 final boardgameCatalogItemWorkspaceSortDefinitions = [
   sortFromField<BoardGameKind, BoardGameWorkspaceDto, String>(
       BoardGameCatalogItemWorkspaceFields.title),
-  sortFromField<BoardGameKind, BoardGameWorkspaceDto, String>(
-      BoardGameCatalogItemWorkspaceFields.publisher),
-  sortFromField<BoardGameKind, BoardGameWorkspaceDto, DateTime>(
+  if (BoardGameFieldIdentities.publisher.sortable)
+    sortFromField<BoardGameKind, BoardGameWorkspaceDto, String>(
+      BoardGameCatalogItemWorkspaceFields.publisher,
+    ),
+  if (BoardGameFieldIdentities.releaseDate.sortable)
+    sortFromField<BoardGameKind, BoardGameWorkspaceDto, DateTime>(
       BoardGameCatalogItemWorkspaceFields.releaseDate,
-      defaultAscending: false),
-  sortFromField<BoardGameKind, BoardGameWorkspaceDto, num>(
+      defaultAscending: false,
+    ),
+  if (BoardGameFieldIdentities.bggRating.sortable)
+    sortFromField<BoardGameKind, BoardGameWorkspaceDto, num>(
       BoardGameCatalogItemWorkspaceFields.bggRating,
-      defaultAscending: false),
-  sortFromField<BoardGameKind, BoardGameWorkspaceDto, num>(
-      BoardGameCatalogItemWorkspaceFields.bggRank),
-  sortFromField<BoardGameKind, BoardGameWorkspaceDto, num>(
+      defaultAscending: false,
+    ),
+  if (BoardGameFieldIdentities.bggRank.sortable)
+    sortFromField<BoardGameKind, BoardGameWorkspaceDto, num>(
+      BoardGameCatalogItemWorkspaceFields.bggRank,
+    ),
+  if (BoardGameFieldIdentities.complexityWeight.sortable)
+    sortFromField<BoardGameKind, BoardGameWorkspaceDto, num>(
       BoardGameCatalogItemWorkspaceFields.complexityWeight,
-      defaultAscending: false),
+      defaultAscending: false,
+    ),
 ];
 
 final boardgameCatalogItemWorkspaceDefaultVisibleColumns =

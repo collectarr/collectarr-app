@@ -5,10 +5,11 @@ import 'package:collectarr_app/features/pick_lists/models/vocabulary_id.dart';
 import 'package:collectarr_app/features/pick_lists/pick_list_definition_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_library_entry.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/config/boardgame_field_identities.dart';
 
 abstract final class BoardGameVocabularyIds {
   static const condition = VocabularyId<String>('boardgame.condition');
-  static const publisher = VocabularyId<String>('boardgame.publisher');
+  static const publisher = BoardGameFieldIdentities.publisherVocabulary;
   static const format = VocabularyId<String>('boardgame.format');
   static const category = VocabularyId<String>('boardgame.category');
 }
@@ -24,8 +25,11 @@ abstract final class BoardGameVocabularies {
     ];
   }
 
-  static Future<Map<String, int>> entryUsageCounts(LocalDatabase db, String semanticName) =>
-    countPickListEntryUsages(items: BoardGameEntryRepository(db).listActive(), valuesFrom: (item) => _entryValues(item, semanticName));
+  static Future<Map<String, int>> entryUsageCounts(
+          LocalDatabase db, String semanticName) =>
+      countPickListEntryUsages(
+          items: BoardGameEntryRepository(db).listActive(),
+          valuesFrom: (item) => _entryValues(item, semanticName));
 
   static Future<PickListEntryMergeResult> previewEntryMerge(
     LocalDatabase db,

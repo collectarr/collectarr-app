@@ -176,6 +176,12 @@ the descriptor. Release date is marked derived because its workspace value can
 fall back through multiple catalog projections. The editor's distributor field
 and workspace's publisher field remain separate; they do not describe the same
 catalog value.
+Board Game now describes its 14 shared publisher, series, release, barcode,
+player-count, play-time, complexity, BGG, and expansion-target fields. Filter
+definitions, the publisher facet, searchable workspace values, sort/group
+definitions, and the publisher vocabulary binding consume that metadata.
+Publisher and release date are marked derived because their workspace values
+fall back across multiple stored catalog values.
 The P2 interaction audit found existing shared tab, list, and selection
 primitives across kinds. Music's track hierarchy table and bulk editing stay
 Music-owned until another kind has the same structural interaction.
