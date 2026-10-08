@@ -91,7 +91,7 @@ final musicExportCapability = LibraryExportCapability(
     ExportColumnDefinition(
       id: 'tracks',
       label: 'Tracks',
-      getValue: (item) => _musicAlbum(item)?.childCount.toString() ?? '',
+      getValue: (item) => _musicAlbum(item)?.trackCount.toString() ?? '',
       pdfGetValue: (item) => _musicAlbum(item)?.trackCount.toString() ?? '',
       pdfWidthFlex: 0.8,
       pdfDefaultVisible: false,
@@ -180,7 +180,7 @@ final musicExportCapability = LibraryExportCapability(
   childLabel: 'Tracks',
   childModeLabel: 'Track list',
   childFileName: 'export_tracks',
-  childColumns: const [
+  childColumns: [
     LibraryExportChildColumnDefinition(
       id: 'pos',
       label: '#',

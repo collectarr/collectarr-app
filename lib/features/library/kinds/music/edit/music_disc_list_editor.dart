@@ -183,3 +183,8 @@ final class MusicDiscListEditor {
     );
   }
 }
+
+String? _text(String? value) {
+  final normalized = value?.trim();
+  return normalized == null || normalized.isEmpty ? null : normalized;
+}

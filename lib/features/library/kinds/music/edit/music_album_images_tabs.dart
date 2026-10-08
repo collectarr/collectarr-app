@@ -5,6 +5,7 @@ import 'package:collectarr_app/features/library/kinds/music/domain/music_album_i
 import 'package:collectarr_app/features/library/kinds/music/edit/music_cover_crop_editor.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit/music_album_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/music/vocabulary/music_vocabularies.dart';
+import 'package:collectarr_app/features/library/ui/primitives/library_image_intake.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_managed_vocabulary_field.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:dio/dio.dart';
