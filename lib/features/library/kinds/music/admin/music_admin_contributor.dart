@@ -257,7 +257,6 @@ class MusicAdminContributor implements LibraryAdminContributor {
         adminTextProposalField(key: 'subtitle', label: 'Subtitle'),
         adminTextProposalField(key: 'artist', label: 'Artist'),
         adminTextProposalField(key: 'label', label: 'Label'),
-        adminTextProposalField(key: 'format', label: 'Format'),
         adminTextProposalField(
           key: 'catalog_number',
           label: 'Catalog number',
