@@ -192,6 +192,8 @@ use its capabilities, and the format vocabulary reuses the declared binding.
 The workspace barcode label now matches the edit field's canonical label.
 Release date remains separate because the workspace prefers the anime start
 date while the form edits the release date.
+TV now declares the shared barcode's text path and edit/search capabilities;
+the workspace search field reads that declaration.
 The P2 interaction audit found existing shared tab, list, and selection
 primitives across kinds. Music's track hierarchy table and bulk editing stay
 Music-owned until another kind has the same structural interaction.

@@ -25,7 +25,7 @@ abstract final class TvCatalogItemWorkspaceFields {
     id: TvFieldIds.barcode,
     label: TvFieldIdentities.barcodeLabel,
     getValue: (dto) => dto.barcode,
-    searchable: true,
+    searchable: TvFieldIdentities.barcode.searchable,
   );
 
   static final series = textField<TvKind, TvWorkspaceDto>(
