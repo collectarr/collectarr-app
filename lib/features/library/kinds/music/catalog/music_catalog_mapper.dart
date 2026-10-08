@@ -30,14 +30,14 @@ final class MusicCatalogMapper {
       if (album.artist != null) 'artist': album.artist,
       if (album.artistCredits.isNotEmpty)
         'artist_credits': [
-          for (final credit in album.artistCredits)
+          for (final (index, credit) in album.artistCredits.indexed)
             {
               'id': credit.id,
               'name': credit.creditedName,
+              'sequence': credit.sequence ?? index + 1,
               if (credit.sortName != null) 'sort_name': credit.sortName,
               if (credit.artistId != null) 'artist_id': credit.artistId,
               if (credit.joinPhrase != null) 'join_phrase': credit.joinPhrase,
-              if (credit.sequence != null) 'sequence': credit.sequence,
             },
         ],
       if (album.originalReleaseDateParts != null) ...{
@@ -232,6 +232,24 @@ final class MusicCatalogMapper {
       throw FormatException('Expected a Music Catalog Item, received $kind.');
     }
     final discs = _requiredMaps(catalogPayload['discs'], path: 'Music discs');
+    final artistCredits = _requiredMaps(
+      catalogPayload['artist_credits'],
+      path: 'Music artist credits',
+    );
+    for (var index = 0; index < artistCredits.length; index++) {
+      final credit = artistCredits[index];
+      if (credit['id'] is! String ||
+          (credit['id'] as String).trim().isEmpty ||
+          credit['name'] is! String ||
+          (credit['name'] as String).trim().isEmpty ||
+          credit['sequence'] is! int ||
+          (credit['artist_id'] != null && credit['artist_id'] is! String)) {
+        throw FormatException(
+          'Music artist credit ${index + 1} is missing canonical identity '
+          'or ordering fields.',
+        );
+      }
+    }
     for (var discIndex = 0; discIndex < discs.length; discIndex++) {
       final disc = discs[discIndex];
       if (disc['id'] is! String ||
@@ -317,35 +335,56 @@ final class MusicCatalogMapper {
       'producers',
       'engineers',
       'musicians',
-      'choruses',
-      'compositions',
-      'orchestras',
     ]) {
-      final values = catalogPayload[role];
-      if (values is! Iterable) continue;
+      final values = _requiredMaps(
+        catalogPayload[role],
+        path: 'Music ${role.replaceAll('_', ' ')}',
+      );
       final normalizedRole = _roleLabel(role);
-      for (final value in values) {
-        final person = value is Map
-            ? Map<String, dynamic>.from(value)
-            : <String, dynamic>{'name': value};
-        final name = _text(person['name'] ?? person['credited_name']);
-        final artistId = _text(person['artist_id'] ?? person['person_id']);
-        if (name == null && artistId == null) continue;
-        final sequence =
-            _int(person['sequence']) ?? contributionRows.length + 1;
+      for (var index = 0; index < values.length; index++) {
+        final person = values[index];
+        if (person['id'] is! String ||
+            (person['id'] as String).trim().isEmpty ||
+            person['name'] is! String ||
+            (person['name'] as String).trim().isEmpty ||
+            person['person_id'] is! String ||
+            (person['person_id'] as String).trim().isEmpty ||
+            person['sequence'] is! int) {
+          throw FormatException(
+            'Music ${role.replaceAll('_', ' ')} credit ${index + 1} is '
+            'missing canonical identity or ordering fields.',
+          );
+        }
         contributionRows.add({
-          'id': _text(person['contribution_id'] ?? person['id']) ??
-              '$id:$role:$sequence',
-          'person_id': artistId ?? name,
-          'role': _text(person['role']) ?? normalizedRole,
-          'sequence': sequence,
-          if (name != null) 'name': name,
+          'id': person['id'],
+          'person_id': person['person_id'],
+          'role': normalizedRole,
+          'sequence': person['sequence'],
+          'name': person['name'],
+          if (_text(person['role_id']) case final roleId?) 'role_id': roleId,
           if (_text(person['sort_name']) case final sortName?)
             'sort_name': sortName,
           if (_text(person['instrument']) case final instrument?)
             'instrument': instrument,
           if (_text(person['image_url']) case final imageUrl?)
             'image_url': imageUrl,
+        });
+      }
+    }
+    for (final role in const ['choruses', 'compositions', 'orchestras']) {
+      final values = _requiredStrings(
+        catalogPayload[role],
+        path: 'Music ${role.replaceAll('_', ' ')}',
+      );
+      final normalizedRole = _roleLabel(role);
+      for (var index = 0; index < values.length; index++) {
+        final name = values[index];
+        contributionRows.add({
+          'id': '$id:$role:${index + 1}',
+          'person_id': name,
+          'role': normalizedRole,
+          'sequence': index,
+          'name': name,
         });
       }
     }
@@ -384,18 +423,24 @@ final class MusicCatalogMapper {
       };
 }
 
-List<Map<String, Object?>> _peopleForRole(MusicAlbum album, String role) => [
-      for (final contribution in album.contributions)
-        if (contribution.role.toLowerCase() == role.toLowerCase())
-          {
-            'id': contribution.id.value,
-            'name': contribution.displayName ?? contribution.personId,
-            if (contribution.sortName != null)
-              'sort_name': contribution.sortName,
-            if (contribution.instrument != null)
-              'instrument': contribution.instrument,
-          },
-    ];
+List<Map<String, Object?>> _peopleForRole(MusicAlbum album, String role) {
+  final values = <Map<String, Object?>>[];
+  for (final contribution in album.contributions) {
+    if (contribution.role.toLowerCase() != role.toLowerCase()) continue;
+    values.add({
+      'id': contribution.id.value,
+      'person_id': contribution.personId,
+      'name': contribution.displayName ?? contribution.personId,
+      'sequence': contribution.sequence ?? values.length + 1,
+      if (contribution.roleId != null) 'role_id': contribution.roleId,
+      if (contribution.sortName != null) 'sort_name': contribution.sortName,
+      if (contribution.instrument != null)
+        'instrument': contribution.instrument,
+      if (contribution.imageUrl != null) 'image_url': contribution.imageUrl,
+    });
+  }
+  return values;
+}
 
 List<String> _namesForRole(MusicAlbum album, String role) => [
       for (final contribution in album.contributions)
@@ -435,6 +480,22 @@ List<Map<String, dynamic>> _requiredMaps(
       throw FormatException('$path entry ${index + 1} must be an object.');
     }
     result.add(Map<String, dynamic>.from(entry));
+    index++;
+  }
+  return result;
+}
+
+List<String> _requiredStrings(Object? value, {required String path}) {
+  if (value is! Iterable) {
+    throw FormatException('$path must be a list.');
+  }
+  final result = <String>[];
+  var index = 0;
+  for (final entry in value) {
+    if (entry is! String || entry.trim().isEmpty) {
+      throw FormatException('$path entry ${index + 1} must be non-empty text.');
+    }
+    result.add(entry);
     index++;
   }
   return result;

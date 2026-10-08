@@ -1,5 +1,65 @@
 {
   "$defs": {
+    "CatalogMusicArtistCreditResponse": {
+      "additionalProperties": false,
+      "properties": {
+        "artist_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Artist Id"
+        },
+        "id": {
+          "minLength": 1,
+          "title": "Id",
+          "type": "string"
+        },
+        "join_phrase": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Join Phrase"
+        },
+        "name": {
+          "minLength": 1,
+          "title": "Name",
+          "type": "string"
+        },
+        "sequence": {
+          "minimum": 1.0,
+          "title": "Sequence",
+          "type": "integer"
+        },
+        "sort_name": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Sort Name"
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "sequence"
+      ],
+      "title": "CatalogMusicArtistCreditResponse",
+      "type": "object"
+    },
     "CatalogMusicDiscResponse": {
       "additionalProperties": false,
       "properties": {
@@ -151,8 +211,7 @@
         },
         "artist_credits": {
           "items": {
-            "additionalProperties": true,
-            "type": "object"
+            "$ref": "#/$defs/CatalogMusicArtistCreditResponse"
           },
           "title": "Artist Credits",
           "type": "array"
@@ -210,8 +269,7 @@
         },
         "composers": {
           "items": {
-            "additionalProperties": true,
-            "type": "object"
+            "$ref": "#/$defs/CatalogMusicRoleCreditResponse"
           },
           "title": "Composers",
           "type": "array"
@@ -225,8 +283,7 @@
         },
         "conductors": {
           "items": {
-            "additionalProperties": true,
-            "type": "object"
+            "$ref": "#/$defs/CatalogMusicRoleCreditResponse"
           },
           "title": "Conductors",
           "type": "array"
@@ -262,8 +319,7 @@
         },
         "engineers": {
           "items": {
-            "additionalProperties": true,
-            "type": "object"
+            "$ref": "#/$defs/CatalogMusicRoleCreditResponse"
           },
           "title": "Engineers",
           "type": "array"
@@ -324,8 +380,7 @@
         },
         "musicians": {
           "items": {
-            "additionalProperties": true,
-            "type": "object"
+            "$ref": "#/$defs/CatalogMusicRoleCreditResponse"
           },
           "title": "Musicians",
           "type": "array"
@@ -360,8 +415,7 @@
         },
         "producers": {
           "items": {
-            "additionalProperties": true,
-            "type": "object"
+            "$ref": "#/$defs/CatalogMusicRoleCreditResponse"
           },
           "title": "Producers",
           "type": "array"
@@ -392,8 +446,7 @@
         },
         "songwriters": {
           "items": {
-            "additionalProperties": true,
-            "type": "object"
+            "$ref": "#/$defs/CatalogMusicRoleCreditResponse"
           },
           "title": "Songwriters",
           "type": "array"
@@ -475,6 +528,83 @@
         "discs"
       ],
       "title": "CatalogMusicItemResponse",
+      "type": "object"
+    },
+    "CatalogMusicRoleCreditResponse": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "minLength": 1,
+          "title": "Id",
+          "type": "string"
+        },
+        "image_url": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Image Url"
+        },
+        "instrument": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Instrument"
+        },
+        "name": {
+          "minLength": 1,
+          "title": "Name",
+          "type": "string"
+        },
+        "person_id": {
+          "minLength": 1,
+          "title": "Person Id",
+          "type": "string"
+        },
+        "role_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Role Id"
+        },
+        "sequence": {
+          "minimum": 1.0,
+          "title": "Sequence",
+          "type": "integer"
+        },
+        "sort_name": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Sort Name"
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "person_id",
+        "sequence"
+      ],
+      "title": "CatalogMusicRoleCreditResponse",
       "type": "object"
     },
     "CatalogMusicTrackResponse": {
@@ -622,8 +752,8 @@
   "$id": "https://schemas.collectarr.app/music-catalog/v1",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "contractVersion": "1.0.0",
-  "coreCommit": "1ad2d7f2c44bee8a1c50b35eea0dca54de357af9",
-  "generatedAt": "2026-10-08T19:47:54.204620Z",
+  "coreCommit": "480243ef47de5c128c8e8a0a882b14d82847e881",
+  "generatedAt": "2026-10-08T19:55:33.897568Z",
   "roots": {
     "disc": {
       "$ref": "#/$defs/CatalogMusicDiscResponse"

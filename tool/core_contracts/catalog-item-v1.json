@@ -2,13 +2,13 @@
   "$id": "https://schemas.collectarr.app/catalog-item/v1",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "contractVersion": "1.0.0",
-  "coreCommit": "1ad2d7f2c44bee8a1c50b35eea0dca54de357af9",
+  "coreCommit": "480243ef47de5c128c8e8a0a882b14d82847e881",
   "description": "Source-neutral Catalog Item documents. Fields are validated and projected using the schema owned by the declared kind.",
   "fieldStatus": {
     "music": "grounded_in_saved_clz_music_edit_form",
     "other_kinds": "provisional_clz_parity_unverified_without_edit_form_captures"
   },
-  "generatedAt": "2026-10-08T19:47:54.204620Z",
+  "generatedAt": "2026-10-08T19:55:33.897568Z",
   "kinds": {
     "anime": {
       "additionalProperties": false,
@@ -7177,81 +7177,42 @@
           "anyOf": [
             {
               "items": {
-                "anyOf": [
-                  {
+                "additionalProperties": false,
+                "properties": {
+                  "artist_id": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "id": {
+                    "minLength": 1,
                     "type": "string"
                   },
-                  {
-                    "additionalProperties": false,
-                    "properties": {
-                      "artist_id": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
-                      },
-                      "credited_name": {
-                        "type": "string"
-                      },
-                      "id": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
-                      },
-                      "image_url": {
-                        "type": "string"
-                      },
-                      "instrument": {
-                        "type": "string"
-                      },
-                      "join_phrase": {
-                        "type": "string"
-                      },
-                      "name": {
-                        "type": "string"
-                      },
-                      "person_id": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
-                      },
-                      "role": {
-                        "type": "string"
-                      },
-                      "role_id": {
-                        "type": "string"
-                      },
-                      "sequence": {
-                        "anyOf": [
-                          {
-                            "type": "integer"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
-                      },
-                      "sort_name": {
-                        "type": "string"
-                      }
-                    },
-                    "type": "object"
+                  "join_phrase": {
+                    "type": "string"
+                  },
+                  "name": {
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "sequence": {
+                    "type": "integer"
+                  },
+                  "sort_name": {
+                    "type": "string"
                   }
-                ]
+                },
+                "required": [
+                  "id",
+                  "name",
+                  "sequence"
+                ],
+                "type": "object"
               },
               "type": "array"
             },
@@ -7317,81 +7278,43 @@
           "anyOf": [
             {
               "items": {
-                "anyOf": [
-                  {
+                "additionalProperties": false,
+                "properties": {
+                  "id": {
+                    "minLength": 1,
                     "type": "string"
                   },
-                  {
-                    "additionalProperties": false,
-                    "properties": {
-                      "artist_id": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
-                      },
-                      "credited_name": {
-                        "type": "string"
-                      },
-                      "id": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
-                      },
-                      "image_url": {
-                        "type": "string"
-                      },
-                      "instrument": {
-                        "type": "string"
-                      },
-                      "join_phrase": {
-                        "type": "string"
-                      },
-                      "name": {
-                        "type": "string"
-                      },
-                      "person_id": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
-                      },
-                      "role": {
-                        "type": "string"
-                      },
-                      "role_id": {
-                        "type": "string"
-                      },
-                      "sequence": {
-                        "anyOf": [
-                          {
-                            "type": "integer"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
-                      },
-                      "sort_name": {
-                        "type": "string"
-                      }
-                    },
-                    "type": "object"
+                  "image_url": {
+                    "type": "string"
+                  },
+                  "instrument": {
+                    "type": "string"
+                  },
+                  "name": {
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "person_id": {
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "role_id": {
+                    "type": "string"
+                  },
+                  "sequence": {
+                    "type": "integer"
+                  },
+                  "sort_name": {
+                    "type": "string"
                   }
-                ]
+                },
+                "required": [
+                  "id",
+                  "name",
+                  "person_id",
+                  "sequence"
+                ],
+                "type": "object"
               },
               "type": "array"
             },
@@ -7417,81 +7340,43 @@
           "anyOf": [
             {
               "items": {
-                "anyOf": [
-                  {
+                "additionalProperties": false,
+                "properties": {
+                  "id": {
+                    "minLength": 1,
                     "type": "string"
                   },
-                  {
-                    "additionalProperties": false,
-                    "properties": {
-                      "artist_id": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
-                      },
-                      "credited_name": {
-                        "type": "string"
-                      },
-                      "id": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
-                      },
-                      "image_url": {
-                        "type": "string"
-                      },
-                      "instrument": {
-                        "type": "string"
-                      },
-                      "join_phrase": {
-                        "type": "string"
-                      },
-                      "name": {
-                        "type": "string"
-                      },
-                      "person_id": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
-                      },
-                      "role": {
-                        "type": "string"
-                      },
-                      "role_id": {
-                        "type": "string"
-                      },
-                      "sequence": {
-                        "anyOf": [
-                          {
-                            "type": "integer"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
-                      },
-                      "sort_name": {
-                        "type": "string"
-                      }
-                    },
-                    "type": "object"
+                  "image_url": {
+                    "type": "string"
+                  },
+                  "instrument": {
+                    "type": "string"
+                  },
+                  "name": {
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "person_id": {
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "role_id": {
+                    "type": "string"
+                  },
+                  "sequence": {
+                    "type": "integer"
+                  },
+                  "sort_name": {
+                    "type": "string"
                   }
-                ]
+                },
+                "required": [
+                  "id",
+                  "name",
+                  "person_id",
+                  "sequence"
+                ],
+                "type": "object"
               },
               "type": "array"
             },
@@ -7748,81 +7633,43 @@
           "anyOf": [
             {
               "items": {
-                "anyOf": [
-                  {
+                "additionalProperties": false,
+                "properties": {
+                  "id": {
+                    "minLength": 1,
                     "type": "string"
                   },
-                  {
-                    "additionalProperties": false,
-                    "properties": {
-                      "artist_id": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
-                      },
-                      "credited_name": {
-                        "type": "string"
-                      },
-                      "id": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
-                      },
-                      "image_url": {
-                        "type": "string"
-                      },
-                      "instrument": {
-                        "type": "string"
-                      },
-                      "join_phrase": {
-                        "type": "string"
-                      },
-                      "name": {
-                        "type": "string"
-                      },
-                      "person_id": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
-                      },
-                      "role": {
-                        "type": "string"
-                      },
-                      "role_id": {
-                        "type": "string"
-                      },
-                      "sequence": {
-                        "anyOf": [
-                          {
-                            "type": "integer"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
-                      },
-                      "sort_name": {
-                        "type": "string"
-                      }
-                    },
-                    "type": "object"
+                  "image_url": {
+                    "type": "string"
+                  },
+                  "instrument": {
+                    "type": "string"
+                  },
+                  "name": {
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "person_id": {
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "role_id": {
+                    "type": "string"
+                  },
+                  "sequence": {
+                    "type": "integer"
+                  },
+                  "sort_name": {
+                    "type": "string"
                   }
-                ]
+                },
+                "required": [
+                  "id",
+                  "name",
+                  "person_id",
+                  "sequence"
+                ],
+                "type": "object"
               },
               "type": "array"
             },
@@ -7997,81 +7844,43 @@
           "anyOf": [
             {
               "items": {
-                "anyOf": [
-                  {
+                "additionalProperties": false,
+                "properties": {
+                  "id": {
+                    "minLength": 1,
                     "type": "string"
                   },
-                  {
-                    "additionalProperties": false,
-                    "properties": {
-                      "artist_id": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
-                      },
-                      "credited_name": {
-                        "type": "string"
-                      },
-                      "id": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
-                      },
-                      "image_url": {
-                        "type": "string"
-                      },
-                      "instrument": {
-                        "type": "string"
-                      },
-                      "join_phrase": {
-                        "type": "string"
-                      },
-                      "name": {
-                        "type": "string"
-                      },
-                      "person_id": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
-                      },
-                      "role": {
-                        "type": "string"
-                      },
-                      "role_id": {
-                        "type": "string"
-                      },
-                      "sequence": {
-                        "anyOf": [
-                          {
-                            "type": "integer"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
-                      },
-                      "sort_name": {
-                        "type": "string"
-                      }
-                    },
-                    "type": "object"
+                  "image_url": {
+                    "type": "string"
+                  },
+                  "instrument": {
+                    "type": "string"
+                  },
+                  "name": {
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "person_id": {
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "role_id": {
+                    "type": "string"
+                  },
+                  "sequence": {
+                    "type": "integer"
+                  },
+                  "sort_name": {
+                    "type": "string"
                   }
-                ]
+                },
+                "required": [
+                  "id",
+                  "name",
+                  "person_id",
+                  "sequence"
+                ],
+                "type": "object"
               },
               "type": "array"
             },
@@ -8136,81 +7945,43 @@
           "anyOf": [
             {
               "items": {
-                "anyOf": [
-                  {
+                "additionalProperties": false,
+                "properties": {
+                  "id": {
+                    "minLength": 1,
                     "type": "string"
                   },
-                  {
-                    "additionalProperties": false,
-                    "properties": {
-                      "artist_id": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
-                      },
-                      "credited_name": {
-                        "type": "string"
-                      },
-                      "id": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
-                      },
-                      "image_url": {
-                        "type": "string"
-                      },
-                      "instrument": {
-                        "type": "string"
-                      },
-                      "join_phrase": {
-                        "type": "string"
-                      },
-                      "name": {
-                        "type": "string"
-                      },
-                      "person_id": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
-                      },
-                      "role": {
-                        "type": "string"
-                      },
-                      "role_id": {
-                        "type": "string"
-                      },
-                      "sequence": {
-                        "anyOf": [
-                          {
-                            "type": "integer"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
-                      },
-                      "sort_name": {
-                        "type": "string"
-                      }
-                    },
-                    "type": "object"
+                  "image_url": {
+                    "type": "string"
+                  },
+                  "instrument": {
+                    "type": "string"
+                  },
+                  "name": {
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "person_id": {
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "role_id": {
+                    "type": "string"
+                  },
+                  "sequence": {
+                    "type": "integer"
+                  },
+                  "sort_name": {
+                    "type": "string"
                   }
-                ]
+                },
+                "required": [
+                  "id",
+                  "name",
+                  "person_id",
+                  "sequence"
+                ],
+                "type": "object"
               },
               "type": "array"
             },
@@ -8281,81 +8052,43 @@
           "anyOf": [
             {
               "items": {
-                "anyOf": [
-                  {
+                "additionalProperties": false,
+                "properties": {
+                  "id": {
+                    "minLength": 1,
                     "type": "string"
                   },
-                  {
-                    "additionalProperties": false,
-                    "properties": {
-                      "artist_id": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
-                      },
-                      "credited_name": {
-                        "type": "string"
-                      },
-                      "id": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
-                      },
-                      "image_url": {
-                        "type": "string"
-                      },
-                      "instrument": {
-                        "type": "string"
-                      },
-                      "join_phrase": {
-                        "type": "string"
-                      },
-                      "name": {
-                        "type": "string"
-                      },
-                      "person_id": {
-                        "anyOf": [
-                          {
-                            "type": "string"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
-                      },
-                      "role": {
-                        "type": "string"
-                      },
-                      "role_id": {
-                        "type": "string"
-                      },
-                      "sequence": {
-                        "anyOf": [
-                          {
-                            "type": "integer"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
-                      },
-                      "sort_name": {
-                        "type": "string"
-                      }
-                    },
-                    "type": "object"
+                  "image_url": {
+                    "type": "string"
+                  },
+                  "instrument": {
+                    "type": "string"
+                  },
+                  "name": {
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "person_id": {
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "role_id": {
+                    "type": "string"
+                  },
+                  "sequence": {
+                    "type": "integer"
+                  },
+                  "sort_name": {
+                    "type": "string"
                   }
-                ]
+                },
+                "required": [
+                  "id",
+                  "name",
+                  "person_id",
+                  "sequence"
+                ],
+                "type": "object"
               },
               "type": "array"
             },
