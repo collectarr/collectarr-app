@@ -101,19 +101,15 @@ Map<String, Object?>? buildMusicManualProposalData(
     if (_textOrNull(draft.boxSet) case final value?) 'box_set': value,
     if (cover != null) 'cover_image_url': cover,
     if (backCover != null) 'back_cover_image_url': backCover,
-    if (draft.composers.isNotEmpty) 'composers': _namedCredits(draft.composers),
-    if (draft.conductors.isNotEmpty)
-      'conductors': _namedCredits(draft.conductors),
-    if (draft.choruses.isNotEmpty) 'choruses': _creditNames(draft.choruses),
-    if (draft.compositions.isNotEmpty)
-      'compositions': _creditNames(draft.compositions),
-    if (draft.orchestras.isNotEmpty)
-      'orchestras': _creditNames(draft.orchestras),
-    if (draft.songwriters.isNotEmpty)
-      'songwriters': _namedCredits(draft.songwriters),
-    if (draft.producers.isNotEmpty) 'producers': _namedCredits(draft.producers),
-    if (draft.engineers.isNotEmpty) 'engineers': _namedCredits(draft.engineers),
-    if (draft.musicians.isNotEmpty) 'musicians': _namedCredits(draft.musicians),
+    'composers': _namedCredits(draft.composers),
+    'conductors': _namedCredits(draft.conductors),
+    'choruses': _creditNames(draft.choruses),
+    'compositions': _creditNames(draft.compositions),
+    'orchestras': _creditNames(draft.orchestras),
+    'songwriters': _namedCredits(draft.songwriters),
+    'producers': _namedCredits(draft.producers),
+    'engineers': _namedCredits(draft.engineers),
+    'musicians': _namedCredits(draft.musicians),
     if (draft.discs.isNotEmpty)
       'discs': [
         for (var index = 0; index < draft.discs.length; index++)

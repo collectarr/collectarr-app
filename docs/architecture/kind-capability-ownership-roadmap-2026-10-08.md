@@ -114,5 +114,5 @@ Music's Core/local field-name translations now live in the catalog mapper;
 local JSON decoding no longer accepts old `label`, `country`, `spars`, or
 artist-credit aliases.
 Manual Music Add now emits complete artist and role credit collections,
-including explicit credit/person identity and sequence. Remaining P0 work is
-tracked above.
+including explicit credit/person identity and sequence, plus empty canonical
+collections for unused roles. Remaining P0 work is tracked above.
