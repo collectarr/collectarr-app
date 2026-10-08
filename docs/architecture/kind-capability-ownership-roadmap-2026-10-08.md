@@ -76,8 +76,9 @@ use. `MusicDiscListEditor` owns discs and composes `MusicTrackListEditor` for
 track hierarchy, ordering, and duration state. `MusicAlbumEditDraft` now
 combines those editors with scalar values, credits, links, and vocabulary
 changes. The central kind-switch audit has started: stats tracking titles and
-compact row facts now come from kind capabilities, and catalog detail hydration
-delegates kind-specific DTO decoding through metadata capability. The PDF
+compact row facts now come from kind capabilities, empty report flows require
+an explicit kind, and catalog detail hydration delegates kind-specific DTO
+decoding through metadata capability. The PDF
 report now reads item and child-row fields, labels, defaults, and value
 formatting from the kind export capability; shared code owns print layout and
 file handling. The audit still needs to cover the remaining action, search,
