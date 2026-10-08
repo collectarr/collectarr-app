@@ -37,7 +37,7 @@ registration and files under `features/library/kinds/<kind>/`.
 
 ## P1 — consolidate shared edit and kind contracts
 
-- [ ] Make common edit tabs declarative: personal data, custom fields, images,
+- [x] Make common edit tabs declarative: personal data, custom fields, images,
   and links are composed by the shared edit dialog from kind contributions.
 - [x] Collect vocabulary edits in a shared edit-session accumulator; kinds
   declare vocabularies and field specs emit changes.
@@ -146,8 +146,12 @@ purposes and the stored image type.
 Shared edit presentations can now contribute standard tab specs with target
 scope and placement around kind tabs. Game and Movie use this for Personal,
 Custom Fields, and My Images, so their presentation builders no longer repeat
-those specs across catalog and entry tab lists. Their kind-owned tabs and custom
-field editors remain in the kind modules; the broader migration is still open.
+those specs across catalog and entry tab lists. The typed schema dialog now
+composes Personal, Custom Fields, My Images, and Links from structured
+contributions. Music provides its personal layout and fields, custom-field
+values, image purpose and vocabulary controls, and typed link mapping; the
+shared dialog owns the common tab and editor lifecycles. Music Covers stays a
+kind-specific crop and source-selection workflow.
 
 Book, Comic, Manga, and TV now also declare their common Custom Fields, Links,
 Personal, and image tabs through presentation contributions where those tabs
@@ -156,8 +160,9 @@ the other migrated tab specs preserve their previous sections, labels, and
 ordering. The Manga duplicate Links tab was removed during the move. Anime now
 declares Links across targets and Personal, Custom Fields, and Photos for
 tracked or entry contexts; Boardgame declares Links and My Images. Music still
-needs a separate migration because its typed edit dialog has a different tab
-lifecycle.
+uses the typed schema dialog with the same shared Personal, Custom Fields,
+My Images, and Links lifecycle. Album Credits, Tracks, and Covers remain
+Music-owned because their data and interactions are kind-specific.
 
 Reusable field specs, form schemas, renderers, and validation now live under
 `features/library/forms/`; the library edit schema/dialog workflow remains under

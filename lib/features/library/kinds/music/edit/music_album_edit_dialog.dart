@@ -4,24 +4,24 @@ import 'package:collectarr_app/features/library/config/library_item_actions.dart
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_edit_models.dart';
 import 'package:collectarr_app/features/library/edit/schema/library_edit_schema_dialog.dart';
+import 'package:collectarr_app/features/library/edit/fields/library_external_links_draft_editor.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_album.dart';
 import 'package:collectarr_app/features/library/kinds/music/catalog/music_catalog_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit/music_album_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit/music_album_edit_schema.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit/music_edit_header_title.dart';
-import 'package:collectarr_app/features/library/kinds/music/edit/music_album_images_links_tab.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit/music_album_images_tabs.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_album_image.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_external_link.dart';
 import 'package:collectarr_app/features/library/kinds/music/data/music_album_image_providers.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit/music_album_structure_tabs.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit/music_album_credits_tab.dart';
 import 'package:collectarr_app/features/library/kinds/music/forms/music_grade_field.dart';
 import 'package:collectarr_app/features/library/kinds/music/vocabulary/music_vocabularies.dart';
 import 'package:collectarr_app/features/library/edit/schema/edit_schema_renderer.dart';
-import 'package:collectarr_app/features/library/edit/sections/custom_fields_edit_section.dart';
 import 'package:collectarr_app/features/pick_lists/pick_list_options.dart';
-import 'package:collectarr_app/features/library/edit/sections/library_entry_personal_section.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit/music_signed_by_personal_field.dart';
+import 'package:collectarr_app/features/library/ui/primitives/library_managed_vocabulary_field.dart';
 import 'package:collectarr_app/features/library/edit/sections/item_images_edit_section.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit/music_listening_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/music/data/music_listening_repository.dart';
@@ -120,6 +120,157 @@ final class _MusicAlbumEditDialogState
       vocabularyAccumulator: vocabularyEdits,
       accent: widget.request.accent,
       tabOrderKey: 'library_edit_tabs_music_album_v2',
+      contributions: LibraryEditSchemaContributions(
+        personal: LibraryEditPersonalTabContribution(
+          svgAsset: 'assets/tab_icons/user.svg',
+          afterTabId: 'tracks',
+          layoutBuilder: musicPersonalFormLayout,
+          additionalFieldsBuilder: (personal) => {
+            'grade': MusicGradeField(
+              value: personal.text('grade'),
+              onChanged: (value) {
+                personal.set('grade', value ?? '');
+                final normalized = value?.trim();
+                personal.vocabularyEdits.replaceValue(
+                  fieldId: 'personal:music:grade',
+                  listName: MusicVocabularies.grade.key,
+                  value: normalized == 'Ungraded' ? null : normalized,
+                  mediaKind: 'music',
+                );
+              },
+            ),
+            'signed_by': MusicSignedByPersonalField(
+              value: personal.text('signed_by'),
+              onChanged: (value) {
+                personal.set('signed_by', value ?? '');
+                personal.vocabularyEdits.replaceValues(
+                  fieldId: 'personal:music:signed_by',
+                  listName: 'music.signed_by',
+                  values: splitPickListValues(value ?? ''),
+                  mediaKind: 'music',
+                );
+              },
+            ),
+          },
+          historyBuilder: (_) => _listening == null
+              ? const LinearProgressIndicator()
+              : MusicListeningDraftSection(draft: _listening!),
+        ),
+        customFields: LibraryEditCustomFieldsTabContribution(
+          svgAsset: 'assets/tab_icons/pen-to-square.svg',
+          definitions: widget.request.customFieldDefinitions,
+          values: _customFieldEdits,
+          onChanged: (values) => setState(() {
+            _customFieldEdits = Map.of(values);
+          }),
+          onCustomValueChanged: (fieldDefinitionId, value) {
+            final definition = widget.request.customFieldDefinitions
+                .where((item) => item.id == fieldDefinitionId)
+                .firstOrNull;
+            _draft.vocabularyEdits.replaceValue(
+              fieldId: 'custom:$fieldDefinitionId',
+              listName: 'customField:$fieldDefinitionId',
+              value: value,
+              mediaKind:
+                  definition?.mediaKind ?? widget.request.type.kind.apiValue,
+            );
+          },
+        ),
+        images: _albumImagesReady
+            ? LibraryEditImagesTabContribution(
+                svgAsset: 'assets/tab_icons/image.svg',
+                afterTabId: 'covers',
+                images: [
+                  for (final image in _albumImages)
+                    if (image.purpose == MusicAlbumImagePurpose.personal) image,
+                ],
+                title: 'My Images',
+                emptyMessage:
+                    'Add your own images (max. 5). Add a description and an image type for each.',
+                maximumImages: 5,
+                defaultImageType: 'other',
+                uniqueImageTypes: const {},
+                showCoverActions: false,
+                imageTypeFieldBuilder: (context,
+                        {required value, required onChanged}) =>
+                    LibraryManagedVocabularyField(
+                  label: 'Image Type',
+                  listName: MusicVocabularyIds.imageType.value,
+                  mediaKind: 'music',
+                  value: value,
+                  builtIns: MusicVocabularies.imageType.builtIns,
+                  optionLabel: MusicVocabularies.imageType.optionLabel,
+                  onChanged: (selected) {
+                    if (selected != null) onChanged(selected);
+                  },
+                ),
+                imageTypeLabelBuilder: MusicVocabularies.imageType.optionLabel,
+                onChanged: (edits) {
+                  final originalById = {
+                    for (final image in _albumImages)
+                      if (image.purpose == MusicAlbumImagePurpose.personal)
+                        image.id: image,
+                  };
+                  final personalImages = <MusicAlbumImage>[];
+                  for (final edit in edits) {
+                    if (edit.deleted) continue;
+                    final original = originalById[edit.id];
+                    final imageData = edit.imageData ?? original?.imageData;
+                    if (imageData == null) {
+                      throw StateError(
+                          'A new Music image must include its bytes.');
+                    }
+                    personalImages.add(
+                      MusicAlbumImage(
+                        id: edit.id,
+                        albumId: _libraryItemId,
+                        purpose: MusicAlbumImagePurpose.personal,
+                        imageType: edit.imageType,
+                        imageData: imageData,
+                        description: edit.caption,
+                        sortOrder: edit.sortOrder,
+                        createdAt: edit.createdAt ??
+                            original?.createdAt ??
+                            DateTime.now().toUtc(),
+                      ),
+                    );
+                  }
+                  setState(() {
+                    _albumImages = [
+                      ..._albumImages.where(
+                        (image) =>
+                            image.purpose != MusicAlbumImagePurpose.personal,
+                      ),
+                      ...personalImages,
+                    ];
+                    _albumImagesDirty = true;
+                  });
+                },
+              )
+            : null,
+        links: LibraryEditLinksTabContribution(
+          svgAsset: 'assets/tab_icons/globe.svg',
+          afterTabId: 'my_images',
+          links: [
+            for (final link in _draft.externalLinks)
+              LibraryExternalLinkValue(
+                url: link.url,
+                title: link.title ?? '',
+                description: link.description ?? '',
+              ),
+          ],
+          onChanged: (links) {
+            _draft.externalLinks = [
+              for (final link in links)
+                MusicExternalLink(
+                  url: link.url.trim(),
+                  title: _nullable(link.title),
+                  description: _nullable(link.description),
+                ),
+            ];
+          },
+        ),
+      ),
       coreCorrectionSourceBuilder: () =>
           LibraryCoreCorrectionSource.fromTypedFields(
         request: widget.request,
@@ -174,38 +325,6 @@ final class _MusicAlbumEditDialogState
           ),
         ),
         EditSchemaExtraTab(
-          id: 'personal',
-          label: 'Personal',
-          svgAsset: 'assets/tab_icons/user.svg',
-          content: _personalSection(context),
-        ),
-        EditSchemaExtraTab(
-          id: 'custom_fields',
-          label: 'Custom Fields',
-          svgAsset: 'assets/tab_icons/pen-to-square.svg',
-          content: CustomFieldsEditSection(
-            definitions: widget.request.customFieldDefinitions,
-            values: _customFieldEdits,
-            accent: widget.request.accent,
-            mediaKind: widget.request.type.kind.apiValue,
-            onChanged: (values) => setState(() {
-              _customFieldEdits = Map.of(values);
-            }),
-            onCustomValueChanged: (fieldDefinitionId, value) {
-              final definition = widget.request.customFieldDefinitions
-                  .where((item) => item.id == fieldDefinitionId)
-                  .firstOrNull;
-              _draft.vocabularyEdits.replaceValue(
-                fieldId: 'custom:$fieldDefinitionId',
-                listName: 'customField:$fieldDefinitionId',
-                value: value,
-                mediaKind:
-                    definition?.mediaKind ?? widget.request.type.kind.apiValue,
-              );
-            },
-          ),
-        ),
-        EditSchemaExtraTab(
           id: 'covers',
           label: 'Covers',
           svgAsset: 'assets/tab_icons/camera.svg',
@@ -221,31 +340,13 @@ final class _MusicAlbumEditDialogState
                 )
               : const Center(child: CircularProgressIndicator()),
         ),
-        EditSchemaExtraTab(
-          id: 'my_images',
-          label: 'My Images',
-          svgAsset: 'assets/tab_icons/image.svg',
-          content: _albumImagesReady
-              ? MusicAlbumMyImagesTab(
-                  albumId: _libraryItemId,
-                  images: _albumImages,
-                  accent: widget.request.accent,
-                  onImagesChanged: (images) => setState(() {
-                    _albumImages = images;
-                    _albumImagesDirty = true;
-                  }),
-                )
-              : const Center(child: CircularProgressIndicator()),
-        ),
-        EditSchemaExtraTab(
-          id: 'links',
-          label: 'Links',
-          svgAsset: 'assets/tab_icons/globe.svg',
-          content: MusicAlbumLinksTab(
-            draft: _draft,
-            accent: widget.request.accent,
+        if (!_albumImagesReady)
+          const EditSchemaExtraTab(
+            id: 'my_images',
+            label: 'My Images',
+            svgAsset: 'assets/tab_icons/image.svg',
+            content: Center(child: CircularProgressIndicator()),
           ),
-        ),
       ],
       onSave: (_) async {
         await _imagesLoaded;
@@ -295,50 +396,13 @@ final class _MusicAlbumEditDialogState
     );
   }
 
-  Widget _personalSection(BuildContext context) {
-    final personal = LibraryEntryEditScope.maybeOf(context);
-    if (personal == null) {
-      return const Text('Personal fields belong to your local library entry.');
-    }
-    personal.used = true;
-    return LibraryEntryPersonalSection(
-      draft: personal,
-      layoutBuilder: musicPersonalFormLayout,
-      additionalFields: {
-        'grade': MusicGradeField(
-          value: personal.text('grade'),
-          onChanged: (value) {
-            personal.set('grade', value ?? '');
-            final normalized = value?.trim();
-            personal.vocabularyEdits.replaceValue(
-              fieldId: 'personal:music:grade',
-              listName: MusicVocabularies.grade.key,
-              value: normalized == 'Ungraded' ? null : normalized,
-              mediaKind: 'music',
-            );
-          },
-        ),
-        'signed_by': MusicSignedByPersonalField(
-          value: personal.text('signed_by'),
-          onChanged: (value) {
-            personal.set('signed_by', value ?? '');
-            personal.vocabularyEdits.replaceValues(
-              fieldId: 'personal:music:signed_by',
-              listName: 'music.signed_by',
-              values: splitPickListValues(value ?? ''),
-              mediaKind: 'music',
-            );
-          },
-        ),
-      },
-      history: _listening == null
-          ? const LinearProgressIndicator()
-          : MusicListeningDraftSection(draft: _listening!),
-    );
-  }
-
   String get _libraryItemId =>
       widget.request.target?.id ??
       widget.request.kindItem.catalogRef?.id ??
       (throw StateError('Music editing requires an explicit target.'));
+}
+
+String? _nullable(String value) {
+  final normalized = value.trim();
+  return normalized.isEmpty ? null : normalized;
 }

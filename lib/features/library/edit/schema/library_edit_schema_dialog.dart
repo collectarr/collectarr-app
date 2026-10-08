@@ -2,19 +2,25 @@ import 'dart:async';
 
 import 'package:collectarr_app/features/library/edit/schema/edit_schema.dart';
 import 'package:collectarr_app/features/library/edit/schema/edit_schema_renderer.dart';
+import 'package:collectarr_app/features/library/edit/schema/library_edit_schema_contributions.dart';
 import 'package:collectarr_app/features/library/edit/session/library_vocabulary_edit_accumulator.dart';
 import 'package:collectarr_app/features/library/edit/shell/library_edit_scaffold.dart';
 import 'package:collectarr_app/features/library/edit/core_correction/library_core_correction.dart';
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_entry_edit_draft.dart';
 import 'package:collectarr_app/features/library/edit/sections/library_entry_personal_section.dart';
+import 'package:collectarr_app/features/library/edit/sections/custom_fields_edit_section.dart';
+import 'package:collectarr_app/features/library/edit/sections/item_images_edit_section.dart';
+import 'package:collectarr_app/features/library/edit/fields/library_external_links_draft_editor.dart';
+
+export 'package:collectarr_app/features/library/edit/schema/library_edit_schema_contributions.dart';
 
 /// Mounts a typed schema renderer in the same dialog chrome used by the
 /// regular Library edit flow.
 ///
 /// The schema remains responsible for typed fields and validation. This
-/// widget only owns the shared dialog shell and forwards the shell's Save
-/// action to the renderer.
+/// widget owns the shared dialog shell, composes standard tabs from kind
+/// contributions, and forwards the shell's Save action to the renderer.
 final class LibraryEditSchemaDialog<TModel, TDraft> extends StatefulWidget {
   const LibraryEditSchemaDialog({
     super.key,
@@ -35,6 +41,7 @@ final class LibraryEditSchemaDialog<TModel, TDraft> extends StatefulWidget {
     this.vocabularyAccumulator,
     required this.tabOrderKey,
     this.extraTabs = const [],
+    this.contributions = const LibraryEditSchemaContributions(),
   });
 
   final EditSchema<TModel, TDraft> schema;
@@ -54,6 +61,7 @@ final class LibraryEditSchemaDialog<TModel, TDraft> extends StatefulWidget {
   final LibraryVocabularyEditAccumulator? vocabularyAccumulator;
   final String tabOrderKey;
   final List<EditSchemaExtraTab> extraTabs;
+  final LibraryEditSchemaContributions contributions;
 
   @override
   State<LibraryEditSchemaDialog<TModel, TDraft>> createState() =>
@@ -70,16 +78,108 @@ class _LibraryEditSchemaDialogState<TModel, TDraft>
   Widget build(BuildContext context) {
     final entry = LibraryEntryEditScope.maybeOf(context);
     final extraTabs = [...widget.extraTabs];
+    final personalContribution = widget.contributions.personal;
     final hasPersonal = widget.schema.tabs.any((tab) => tab.id == 'personal') ||
         extraTabs.any((tab) => tab.id == 'personal');
-    if (entry != null && !hasPersonal) {
-      entry.used = true;
-      extraTabs.add(EditSchemaExtraTab(
-        id: 'personal',
-        label: 'Personal',
-        icon: Icons.person_outline,
-        content: LibraryEntryPersonalSection(draft: entry),
-      ));
+    if (!hasPersonal && (entry != null || personalContribution != null)) {
+      if (entry != null) entry.used = true;
+      final contribution = personalContribution;
+      _insertExtraTab(
+        extraTabs,
+        EditSchemaExtraTab(
+          id: contribution?.id ?? 'personal',
+          label: contribution?.label ?? 'Personal',
+          icon: contribution?.icon ?? Icons.person_outline,
+          svgAsset: contribution?.svgAsset,
+          content: entry == null
+              ? const Text(
+                  'Personal fields belong to your local library entry.',
+                )
+              : LibraryEntryPersonalSection(
+                  draft: entry,
+                  layoutBuilder: contribution?.layoutBuilder,
+                  additionalFields:
+                      contribution?.additionalFieldsBuilder?.call(entry) ??
+                          const {},
+                  history: contribution?.historyBuilder?.call(entry),
+                ),
+        ),
+        afterTabId: contribution?.afterTabId,
+      );
+    }
+    final customFields = widget.contributions.customFields;
+    if (customFields != null &&
+        !extraTabs.any((tab) => tab.id == customFields.id) &&
+        !widget.schema.tabs.any((tab) => tab.id == customFields.id)) {
+      _insertExtraTab(
+        extraTabs,
+        EditSchemaExtraTab(
+          id: customFields.id,
+          label: customFields.label,
+          icon: customFields.icon,
+          svgAsset: customFields.svgAsset,
+          content: CustomFieldsEditSection(
+            definitions: customFields.definitions,
+            values: customFields.values,
+            accent: widget.accent,
+            mediaKind: widget.mediaKind,
+            onChanged: customFields.onChanged,
+            onCustomValueChanged: customFields.onCustomValueChanged,
+          ),
+        ),
+        afterTabId: customFields.afterTabId,
+      );
+    }
+    final images = widget.contributions.images;
+    if (images != null &&
+        !extraTabs.any((tab) => tab.id == images.id) &&
+        !widget.schema.tabs.any((tab) => tab.id == images.id)) {
+      _insertExtraTab(
+        extraTabs,
+        EditSchemaExtraTab(
+          id: images.id,
+          label: images.label,
+          icon: images.icon,
+          svgAsset: images.svgAsset,
+          content: ItemImagesEditSection(
+            images: images.images,
+            accent: widget.accent,
+            onChanged: images.onChanged,
+            title: images.title,
+            emptyMessage: images.emptyMessage,
+            maximumImages: images.maximumImages,
+            defaultImageType: images.defaultImageType,
+            uniqueImageTypes: images.uniqueImageTypes,
+            showCoverActions: images.showCoverActions,
+            imageTypeFieldBuilder: images.imageTypeFieldBuilder,
+            imageTypeLabelBuilder: images.imageTypeLabelBuilder,
+          ),
+        ),
+        afterTabId: images.afterTabId,
+      );
+    }
+    final links = widget.contributions.links;
+    if (links != null &&
+        !extraTabs.any((tab) => tab.id == links.id) &&
+        !widget.schema.tabs.any((tab) => tab.id == links.id)) {
+      _insertExtraTab(
+        extraTabs,
+        EditSchemaExtraTab(
+          id: links.id,
+          label: links.label,
+          icon: links.icon,
+          svgAsset: links.svgAsset,
+          content: LibraryExternalLinksEditSection(
+            links: links.links,
+            accent: widget.accent,
+            onChanged: links.onChanged,
+            addLabel: links.addLabel,
+            showTitleColumn: links.showTitleColumn,
+            emptyMessage: links.emptyMessage,
+          ),
+        ),
+        afterTabId: links.afterTabId,
+      );
     }
     return LibraryEditDialogScaffold(
       formKey: _formKey,
@@ -129,6 +229,17 @@ class _LibraryEditSchemaDialogState<TModel, TDraft>
         onSave: widget.onSave,
       ),
     );
+  }
+
+  void _insertExtraTab(
+    List<EditSchemaExtraTab> tabs,
+    EditSchemaExtraTab tab, {
+    String? afterTabId,
+  }) {
+    final anchorIndex = afterTabId == null
+        ? -1
+        : tabs.indexWhere((candidate) => candidate.id == afterTabId);
+    tabs.insert(anchorIndex < 0 ? tabs.length : anchorIndex + 1, tab);
   }
 
   void _cancelIfIdle() {
