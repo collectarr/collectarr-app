@@ -2199,15 +2199,6 @@
     },
     {
       "editable": true,
-      "input": "text",
-      "key": "format",
-      "kind": "music",
-      "label": "Format",
-      "section": "publishing",
-      "valueType": "string"
-    },
-    {
-      "editable": true,
       "input": "date",
       "key": "original_release_date",
       "kind": "music",
@@ -2253,42 +2244,6 @@
     },
     {
       "editable": true,
-      "input": "list",
-      "key": "sound_types",
-      "kind": "music",
-      "label": "Sound",
-      "section": "technical",
-      "valueType": "string_list"
-    },
-    {
-      "editable": true,
-      "input": "text",
-      "key": "vinyl_color",
-      "kind": "music",
-      "label": "Vinyl color",
-      "section": "technical",
-      "valueType": "string"
-    },
-    {
-      "editable": true,
-      "input": "text",
-      "key": "vinyl_weight",
-      "kind": "music",
-      "label": "Vinyl weight",
-      "section": "technical",
-      "valueType": "string"
-    },
-    {
-      "editable": true,
-      "input": "number",
-      "key": "rpm",
-      "kind": "music",
-      "label": "RPM",
-      "section": "technical",
-      "valueType": "integer"
-    },
-    {
-      "editable": true,
       "input": "text",
       "key": "extra",
       "kind": "music",
@@ -2299,9 +2254,9 @@
     {
       "editable": true,
       "input": "text",
-      "key": "spars",
+      "key": "spars_code",
       "kind": "music",
-      "label": "SPARS",
+      "label": "SPARS code",
       "section": "technical",
       "valueType": "string"
     },
@@ -4385,5 +4340,5 @@
       "valueType": "link_list"
     }
   ],
-  "generatedAt": "2026-10-06T14:27:18.779838Z"
+  "generatedAt": "2026-10-07T19:52:55.885332Z"
 }

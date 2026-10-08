@@ -86,7 +86,7 @@ abstract class MusicWorkspaceProjectionValues
   String? get catalogNumber => music.catalogNumber;
 
   @override
-  String? get format => music.format;
+  String? get format => music.formatSummary;
 
   @override
   String? get referenceFormatLabel => format;

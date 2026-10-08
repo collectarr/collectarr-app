@@ -17,7 +17,6 @@ final class MusicAddManualDraft implements LibraryKindAddDraft {
     List<String> genres = const [],
     String coverImageUrl = '',
     String backCoverImageUrl = '',
-    String format = '',
     String packaging = '',
     String catalogNumber = '',
     String barcode = '',
@@ -28,12 +27,8 @@ final class MusicAddManualDraft implements LibraryKindAddDraft {
     String recordLabel = '',
     List<String> studios = const [],
     bool? isLive,
-    List<String> soundTypes = const [],
-    String vinylColor = '',
-    String vinylWeight = '',
-    int? rpm,
     String extra = '',
-    String spars = '',
+    String sparsCode = '',
     String boxSet = '',
     List<MusicAddManualNamedCredit> composers = const [],
     List<MusicAddManualNamedCredit> conductors = const [],
@@ -56,7 +51,6 @@ final class MusicAddManualDraft implements LibraryKindAddDraft {
           genres: genres,
           coverImageUrl: coverImageUrl,
           backCoverImageUrl: backCoverImageUrl,
-          format: format,
           packaging: packaging,
           catalogNumber: catalogNumber,
           barcode: barcode,
@@ -67,12 +61,8 @@ final class MusicAddManualDraft implements LibraryKindAddDraft {
           publisher: recordLabel,
           studios: studios,
           isLive: isLive,
-          soundTypes: soundTypes,
-          vinylColor: vinylColor,
-          vinylWeight: vinylWeight,
-          rpm: rpm,
           extra: extra,
-          spars: spars,
+          sparsCode: sparsCode,
           boxSet: boxSet,
         ),
         composers = List.of(composers),
@@ -113,9 +103,6 @@ final class MusicAddManualDraft implements LibraryKindAddDraft {
   String get backCoverImageUrl => values.backCoverImageUrl;
   set backCoverImageUrl(String value) => values.backCoverImageUrl = value;
 
-  String get format => values.format;
-  set format(String value) => values.format = value;
-
   String get packaging => values.packaging;
   set packaging(String value) => values.packaging = value;
 
@@ -148,23 +135,11 @@ final class MusicAddManualDraft implements LibraryKindAddDraft {
   bool? get isLive => values.isLive;
   set isLive(bool? value) => values.isLive = value;
 
-  List<String> get soundTypes => values.soundTypes;
-  set soundTypes(List<String> value) => values.soundTypes = List.of(value);
-
-  String get vinylColor => values.vinylColor;
-  set vinylColor(String value) => values.vinylColor = value;
-
-  String get vinylWeight => values.vinylWeight;
-  set vinylWeight(String value) => values.vinylWeight = value;
-
-  int? get rpm => values.rpm;
-  set rpm(int? value) => values.rpm = value;
-
   String get extra => values.extra;
   set extra(String value) => values.extra = value;
 
-  String get spars => values.spars;
-  set spars(String value) => values.spars = value;
+  String get sparsCode => values.sparsCode;
+  set sparsCode(String value) => values.sparsCode = value;
 
   String get boxSet => values.boxSet;
   set boxSet(String value) => values.boxSet = value;

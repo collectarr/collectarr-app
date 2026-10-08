@@ -1,5 +1,7 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/kinds/music/catalog/music_catalog_mapper.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_disc.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_disc_format_family.dart';
 import 'package:collectarr_app/features/library/kinds/music/forms/music_album_form_values.dart';
 import 'package:collectarr_app/features/library/kinds/music/forms/music_catalog_form_adapters.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -71,24 +73,44 @@ void main() {
     expect(disc['matrix_number_side_a'], 'MATRIX-A');
     expect(track['id'], 'track-1');
     expect(track['position'], 'A1');
-    expect(track['position_order'], 0);
+    expect(track['position_order'], 1);
     expect(track['artist'], 'Guest artist');
     expect(track['duration_ms'], 186000);
   });
 
-  test('Music edit persists a changed format through the catalog mapper', () {
+  test('Music edit persists a changed disc format through the catalog mapper', () {
     final source = CatalogItemDto.fromJson({
       'id': 'album-format',
       'kind': 'music',
       'title': 'Format test',
-      'format': 'Vinyl (12" LP)',
-      'discs': [],
+      'discs': [
+        {
+          'id': 'disc-1',
+          'disc_number': 1,
+          'format': 'Vinyl (12" LP)',
+          'format_family': 'vinyl',
+          'tracks': [],
+        }
+      ],
     });
     final original = MusicCatalogMapper.mapMetadataItemToMusic(source);
-    final values = MusicAlbumFormValues.fromAlbum(original)..format = 'CD';
-    final edited = MusicAlbumFormAdapter.update(original, values);
+    final disc = original.discs.first;
+    final updatedDisc = MusicDisc(
+      id: disc.id,
+      discNumber: disc.discNumber,
+      format: 'CD',
+      formatFamily: MusicDiscFormatFamily.cd,
+    );
+    final values = MusicAlbumFormValues.fromAlbum(original);
+    final edited = MusicAlbumFormAdapter.update(
+      original,
+      values,
+      discs: [updatedDisc],
+    );
     final encoded = MusicCatalogMapper.toCatalogItemDto(edited);
 
-    expect(encoded.kindData['format'], 'CD');
+    final discs = encoded.kindData['discs'] as List;
+    expect((discs.first as Map)['format'], 'CD');
+    expect((discs.first as Map)['format_family'], 'cd');
   });
 }

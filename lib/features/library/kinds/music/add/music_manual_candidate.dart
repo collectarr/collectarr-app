@@ -54,7 +54,6 @@ Map<String, Object?>? buildMusicManualProposalData(
 
   final artist = _textOrNull(draft.artist);
   final releaseDateParts = draft.releaseDateParts;
-  final format = _textOrNull(draft.format);
   final barcode = _textOrNull(draft.barcode);
   final countryCode = _textOrNull(draft.countryCode);
   final country = countryCode == null
@@ -95,7 +94,6 @@ Map<String, Object?>? buildMusicManualProposalData(
             ],
     if (draft.genres.isNotEmpty) 'genres': List<String>.of(draft.genres),
     if (_textOrNull(draft.recordLabel) case final value?) 'label': value,
-    if (format != null) 'format': format,
     if (barcode != null) 'barcode': barcode,
     if (_textOrNull(draft.catalogNumber) case final value?)
       'catalog_number': value,
@@ -103,13 +101,8 @@ Map<String, Object?>? buildMusicManualProposalData(
     if (_textOrNull(draft.packaging) case final value?) 'packaging': value,
     if (draft.studios.isNotEmpty) 'studios': List<String>.of(draft.studios),
     if (draft.isLive != null) 'is_live': draft.isLive,
-    if (draft.soundTypes.isNotEmpty)
-      'sound_types': List<String>.of(draft.soundTypes),
-    if (_textOrNull(draft.vinylColor) case final value?) 'vinyl_color': value,
-    if (_textOrNull(draft.vinylWeight) case final value?) 'vinyl_weight': value,
-    if (draft.rpm != null) 'rpm': draft.rpm,
     if (_textOrNull(draft.extra) case final value?) 'extra': value,
-    if (_textOrNull(draft.spars) case final value?) 'spars': value,
+    if (_textOrNull(draft.sparsCode) case final value?) 'spars_code': value,
     if (_textOrNull(draft.boxSet) case final value?) 'box_set': value,
     if (cover != null) 'cover_image_url': cover,
     if (backCover != null) 'back_cover_image_url': backCover,
@@ -144,49 +137,8 @@ List<Map<String, dynamic>> _candidateDiscs(
 ) =>
     [
       for (var discIndex = 0; discIndex < draft.discs.length; discIndex++)
-        _candidateDisc(draft.discs[discIndex], discIndex),
+        draft.discs[discIndex].toProposalData(discIndex + 1),
     ];
-
-Map<String, dynamic> _candidateDisc(
-  MusicAddManualDisc disc,
-  int discIndex,
-) {
-  final tracks = disc.tracks
-      .where((track) => track.title.trim().isNotEmpty)
-      .toList(growable: false);
-  return {
-    'id': disc.id,
-    'disc_number': discIndex + 1,
-    if (disc.title.trim().isNotEmpty) 'title': disc.title.trim(),
-    if (disc.matrixNumberSideA.trim().isNotEmpty)
-      'matrix_number_side_a': disc.matrixNumberSideA.trim(),
-    if (disc.matrixNumberSideB.trim().isNotEmpty)
-      'matrix_number_side_b': disc.matrixNumberSideB.trim(),
-    'tracks': [
-      for (var trackIndex = 0; trackIndex < tracks.length; trackIndex++)
-        {
-          'id': tracks[trackIndex].id,
-          'position': tracks[trackIndex].isHeader
-              ? ''
-              : tracks[trackIndex].position.isEmpty
-                  ? '${trackIndex + 1}'
-                  : tracks[trackIndex].position,
-          'position_order': trackIndex + 1,
-          'is_header': tracks[trackIndex].isHeader,
-          'indent_level': tracks[trackIndex].indentLevel,
-          if (tracks[trackIndex].parentHeaderId != null)
-            'parent_header_id': tracks[trackIndex].parentHeaderId,
-          'title': tracks[trackIndex].title.trim(),
-          if (!tracks[trackIndex].isHeader &&
-              tracks[trackIndex].artist.trim().isNotEmpty)
-            'artist': tracks[trackIndex].artist.trim(),
-          if (!tracks[trackIndex].isHeader)
-            if (tracks[trackIndex].durationMs case final durationMs?)
-              'duration_ms': durationMs,
-        },
-    ],
-  };
-}
 
 List<Map<String, Object?>> _namedCredits(
   Iterable<MusicAddManualNamedCredit> credits,

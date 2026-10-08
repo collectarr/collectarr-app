@@ -43,7 +43,6 @@ void main() {
       id: const CatalogItemRef(kind: CatalogMediaKind.music, id: 'album-1'),
       title: 'OK Computer',
       artist: 'Radiohead',
-      format: 'CD',
       barcode: '724385522925',
       catalogNumber: 'CDNODATA02',
       discs: [disc1],
@@ -81,7 +80,7 @@ void main() {
 
     // Header checks
     expect(find.text('Export to CSV / TXT'), findsOneWidget);
-    expect(find.text('Export music to CSV / TXT: Albums'), findsOneWidget);
+    expect(find.text('Export albums to CSV / TXT: Albums'), findsOneWidget);
     expect(find.byIcon(Icons.arrow_back), findsOneWidget);
 
     // Section: Which Albums
@@ -161,7 +160,6 @@ void main() {
       id: const CatalogItemRef(kind: CatalogMediaKind.music, id: 'album-1'),
       title: 'OK Computer',
       artist: 'Radiohead',
-      format: 'CD',
       barcode: '724385522925',
       catalogNumber: 'CDNODATA02',
       discs: [disc1],
@@ -208,7 +206,7 @@ void main() {
     await tester.tap(find.text('Track list'));
     await pumpUntilSettled(tester);
 
-    expect(find.text('Export music to CSV / TXT: Tracks'), findsOneWidget);
+    expect(find.text('Export albums to CSV / TXT: Tracks'), findsOneWidget);
     expect(find.textContaining('Paranoid Android'), findsWidgets);
 
     // Open Visible Columns manager

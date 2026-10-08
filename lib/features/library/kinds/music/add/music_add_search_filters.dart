@@ -60,7 +60,7 @@ bool musicAddCoreCandidateMatchesDisc(
   final filter = musicAddDiscFilterFor(context);
   if (filter == MusicAddDiscFilter.all) return true;
   return musicAddDiscFilterMatchesTypes(
-    [musicCatalogItemFromCandidate(item).format ?? ''],
+    [musicCatalogItemFromCandidate(item).formatSummary ?? ''],
     filter,
   );
 }

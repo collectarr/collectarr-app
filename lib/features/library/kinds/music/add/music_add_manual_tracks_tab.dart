@@ -47,18 +47,13 @@ class _MusicAddManualTracksTabState extends State<MusicAddManualTracksTab> {
               id: MusicDiscId(disc.id),
               discNumber: index + 1,
               title: disc.title,
-              format: disc.format.isNotEmpty ? disc.format : widget.draft.format,
-              soundTypes: disc.soundTypes.isNotEmpty
-                  ? disc.soundTypes
-                  : widget.draft.soundTypes,
-              vinylColor: disc.vinylColor.isNotEmpty
-                  ? disc.vinylColor
-                  : widget.draft.vinylColor,
-              vinylWeight: disc.vinylWeight.isNotEmpty
-                  ? disc.vinylWeight
-                  : widget.draft.vinylWeight,
-              rpm: disc.rpm ?? widget.draft.rpm,
-              spars: disc.spars.isNotEmpty ? disc.spars : widget.draft.spars,
+              formatFamily: disc.formatFamily,
+              format: disc.format,
+              soundTypes: disc.soundTypes,
+              color: disc.color,
+              vinylWeightGrams: disc.vinylWeightGrams,
+              rpm: disc.rpm,
+              matrixNumber: disc.matrixNumber,
               matrixNumberSideA: disc.matrixNumberSideA,
               matrixNumberSideB: disc.matrixNumberSideB,
               tracks: [
@@ -96,12 +91,13 @@ class _MusicAddManualTracksTabState extends State<MusicAddManualTracksTab> {
           MusicAddManualDisc(
               id: disc.id.value,
               title: disc.title ?? '',
+              formatFamily: disc.formatFamily,
               format: disc.format ?? '',
               soundTypes: disc.soundTypes,
-              vinylColor: disc.vinylColor ?? '',
-              vinylWeight: disc.vinylWeight ?? '',
+              color: disc.color ?? '',
+              vinylWeightGrams: disc.vinylWeightGrams,
               rpm: disc.rpm,
-              spars: disc.spars ?? '',
+              matrixNumber: disc.matrixNumber ?? '',
               matrixNumberSideA: disc.matrixNumberSideA ?? '',
               matrixNumberSideB: disc.matrixNumberSideB ?? '',
               tracks: [
@@ -117,7 +113,6 @@ class _MusicAddManualTracksTabState extends State<MusicAddManualTracksTab> {
                       parentHeaderId: track.parentHeaderId)
               ]),
       ]);
-    widget.draft.format = _editor.toAlbum().format ?? widget.draft.format;
     widget.request.onManualDraftChanged?.call();
   }
 

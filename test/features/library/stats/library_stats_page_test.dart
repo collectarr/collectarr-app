@@ -37,7 +37,6 @@ void main() {
       id: const CatalogItemRef(kind: CatalogMediaKind.music, id: 'album-1'),
       title: 'Greatest Album',
       artist: 'Rock Band',
-      format: 'Vinyl',
       discs: [disc1],
     );
 
@@ -79,7 +78,7 @@ void main() {
     expect(find.textContaining('tracks / total runtime:'), findsOneWidget);
 
     // Sections
-    expect(find.text('Music by Format'), findsOneWidget);
+    expect(find.text('Albums by Format'), findsOneWidget);
     expect(find.text('Played'), findsOneWidget);
     expect(find.text('Most recent additions'), findsOneWidget);
     expect(find.text('Greatest Album'), findsOneWidget);

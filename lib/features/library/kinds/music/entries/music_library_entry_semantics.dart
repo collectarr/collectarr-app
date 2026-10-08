@@ -9,7 +9,7 @@ LibraryEntryFormatHint resolveMusicEntryFormatHint(
   CatalogSearchCandidate item,
 ) {
   final album = item.musicCatalogFields.metadata;
-  final format = album?.format;
+  final format = album?.formatSummary;
   return (
     format: format,
     label: format,

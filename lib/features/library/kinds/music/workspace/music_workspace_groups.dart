@@ -204,7 +204,7 @@ Object? _groupValue(MusicGroupingField field,
     MusicGroupingField.artist => album.artistCredits.isNotEmpty
         ? album.artistCredits.map((credit) => credit.creditedName)
         : dto.artist,
-    MusicGroupingField.format => album.format,
+    MusicGroupingField.format => album.formatSummary,
     MusicGroupingField.genre => album.genres,
     MusicGroupingField.publisher => album.publisher,
     MusicGroupingField.originalReleaseDate =>
@@ -228,13 +228,16 @@ Object? _groupValue(MusicGroupingField field,
     MusicGroupingField.mediaCondition => personal?.mediaCondition,
     MusicGroupingField.condition => personal?.condition,
     MusicGroupingField.packaging => album.packaging,
-    MusicGroupingField.rpm => album.rpm,
-    MusicGroupingField.spars => album.spars,
-    MusicGroupingField.sound => album.soundTypes,
+    MusicGroupingField.rpm =>
+      album.discs.map((disc) => disc.rpm).whereType<String>(),
+    MusicGroupingField.spars => album.sparsCode,
+    MusicGroupingField.sound =>
+      album.discs.expand((disc) => disc.soundTypes),
     MusicGroupingField.storage =>
       personal?.details.media.map((disc) => disc.storageDevice),
     MusicGroupingField.studio => album.studios,
-    MusicGroupingField.vinylColor => album.vinylColor,
+    MusicGroupingField.vinylColor =>
+      album.discs.map((disc) => disc.color).whereType<String>(),
     MusicGroupingField.chorus => names('chorus'),
     MusicGroupingField.composer => names('composer'),
     MusicGroupingField.composition => names('composition'),

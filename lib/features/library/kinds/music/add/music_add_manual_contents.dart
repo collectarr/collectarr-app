@@ -1,4 +1,5 @@
 import 'package:uuid/uuid.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_disc_format_family.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_track_duration.dart';
 
 /// Editable, kind-entry child values for a manual Music Catalog Item.
@@ -29,12 +30,13 @@ final class MusicAddManualDisc {
   MusicAddManualDisc({
     String? id,
     this.title = '',
+    this.formatFamily,
     this.format = '',
     List<String> soundTypes = const [],
-    this.vinylColor = '',
-    this.vinylWeight = '',
+    this.color = '',
+    this.vinylWeightGrams,
     this.rpm,
-    this.spars = '',
+    this.matrixNumber = '',
     this.matrixNumberSideA = '',
     this.matrixNumberSideB = '',
     List<MusicAddManualTrack> tracks = const [],
@@ -44,12 +46,13 @@ final class MusicAddManualDisc {
 
   final String id;
   String title;
+  MusicDiscFormatFamily? formatFamily;
   String format;
   List<String> soundTypes;
-  String vinylColor;
-  String vinylWeight;
-  int? rpm;
-  String spars;
+  String color;
+  int? vinylWeightGrams;
+  String? rpm;
+  String matrixNumber;
   String matrixNumberSideA;
   String matrixNumberSideB;
   final List<MusicAddManualTrack> tracks;
@@ -58,12 +61,14 @@ final class MusicAddManualDisc {
         'id': id,
         'disc_number': discNumber,
         if (title.trim().isNotEmpty) 'title': title.trim(),
+        if (formatFamily != null) 'format_family': formatFamily!.value,
         if (format.trim().isNotEmpty) 'format': format.trim(),
         if (soundTypes.isNotEmpty) 'sound_types': soundTypes,
-        if (vinylColor.trim().isNotEmpty) 'vinyl_color': vinylColor.trim(),
-        if (vinylWeight.trim().isNotEmpty) 'vinyl_weight': vinylWeight.trim(),
-        if (rpm != null) 'rpm': rpm,
-        if (spars.trim().isNotEmpty) 'spars': spars.trim(),
+        if (color.trim().isNotEmpty) 'color': color.trim(),
+        if (vinylWeightGrams != null) 'vinyl_weight_grams': vinylWeightGrams,
+        if (rpm != null && rpm!.trim().isNotEmpty) 'rpm': rpm!.trim(),
+        if (matrixNumber.trim().isNotEmpty)
+          'matrix_number': matrixNumber.trim(),
         if (matrixNumberSideA.trim().isNotEmpty)
           'matrix_number_side_a': matrixNumberSideA.trim(),
         if (matrixNumberSideB.trim().isNotEmpty)

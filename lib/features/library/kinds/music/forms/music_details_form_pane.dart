@@ -4,7 +4,7 @@ import 'package:collectarr_app/features/library/schema/library_field_spec_render
 import 'package:collectarr_app/features/library/ui/primitives/library_form_controls.dart';
 import 'package:flutter/material.dart';
 
-/// Shared Packaging/Vinyl composition; callers supply local condition bindings.
+/// Shared Details pane for Music; physical metadata belongs to discs.
 class MusicDetailsFormPane<TDraft> extends StatelessWidget {
   const MusicDetailsFormPane(
       {super.key,
@@ -66,7 +66,7 @@ class MusicDetailsFormPane<TDraft> extends StatelessWidget {
       ]),
     ]);
     final right = _stack([
-      _fields(['extra', 'box_set']),
+      _fields(['extra', 'spars_code', 'box_set']),
     ]);
     return LayoutBuilder(
         builder: (context, constraints) => constraints.maxWidth >= 720

@@ -32,12 +32,12 @@ final class MusicStatsCapability implements LibraryStatsCapability {
     return LibraryStatsMetadataProjection(
       primaryGroup: music.artist?.trim(),
       secondaryGroup: secondary,
-      format: music.format?.trim(),
+      format: music.formatSummary?.trim(),
       releaseYear: releaseYear,
       genres: music.genres,
       hasCover: music.coverImageUrl?.trim().isNotEmpty == true,
       hasSecondaryMetadata: secondary?.isNotEmpty == true ||
-          music.format?.trim().isNotEmpty == true,
+          music.formatSummary?.trim().isNotEmpty == true,
       hasReleaseDate:
           music.originalReleaseDate != null || music.releaseDate != null,
     );
@@ -366,7 +366,7 @@ final class MusicStatsCapability implements LibraryStatsCapability {
       Iterable<LibraryWorkspaceContext> entries) {
     return _countMany(
       entries,
-      (music) => [if (music.format != null) music.format!],
+      (music) => [if (music.formatSummary != null) music.formatSummary!],
     );
   }
 

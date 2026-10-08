@@ -63,16 +63,16 @@ abstract final class MusicVocabularies {
   static Iterable<String?> metadataNames(
       MusicAlbum item, String semanticName) sync* {
     final Iterable<String?>? metadataValues = switch (semanticName) {
-      'format' => [item.format],
+      'format' => item.discs.map((d) => d.format),
       'packaging' => [item.packaging],
       'record_label' => [item.publisher],
       'country' => [item.countryCode],
-      'vinyl_color' => [item.vinylColor],
+      'vinyl_color' => item.discs.map((d) => d.color),
       'box_set' => [item.boxSet],
       'extra' => item.extra?.split('||') ?? const <String>[],
-      'spars' => [item.spars],
+      'spars' => [item.sparsCode],
       'genre' => item.genres,
-      'sound_type' => item.soundTypes,
+      'sound_type' => item.discs.expand((d) => d.soundTypes),
       'credit_role' => item.contributions.map((credit) => credit.role),
       _ => null,
     };
@@ -684,7 +684,7 @@ abstract final class MusicVocabularies {
 }
 
 Iterable<String?> _formatCatalogValues(MusicAlbum item) sync* {
-  yield* vocabularyValues([item.format]);
+  yield* vocabularyValues(item.discs.map((d) => d.format));
 }
 
 Iterable<String?> _packagingCatalogValues(MusicAlbum item) {
@@ -699,7 +699,7 @@ Iterable<String?> _studioValues(MusicAlbum item) =>
     vocabularyValues(item.studios);
 
 Iterable<String?> _soundTypeValues(MusicAlbum item) => vocabularyValues([
-      item.soundTypes,
+      for (final disc in item.discs) ...disc.soundTypes,
     ]);
 
 Iterable<String?> _genreValues(MusicAlbum item) {
@@ -717,7 +717,7 @@ Iterable<String?> _countryValues(MusicAlbum item) {
 }
 
 Iterable<String?> _vinylColorValues(MusicAlbum item) sync* {
-  yield* vocabularyValues([item.vinylColor]);
+  yield* vocabularyValues(item.discs.map((d) => d.color));
 }
 
 /// One projector for all ordered name vocabularies; field semantics stay in Music.

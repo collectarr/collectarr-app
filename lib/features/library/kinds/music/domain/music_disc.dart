@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 
+import 'music_disc_format_family.dart';
 import 'music_ids.dart';
 import 'music_track.dart';
 
@@ -10,12 +11,13 @@ final class MusicDisc {
     required this.id,
     required this.discNumber,
     this.title,
+    this.formatFamily,
     this.format,
     List<String> soundTypes = const [],
-    this.vinylColor,
-    this.vinylWeight,
+    this.color,
+    this.vinylWeightGrams,
     this.rpm,
-    this.spars,
+    this.matrixNumber,
     this.matrixNumberSideA,
     this.matrixNumberSideB,
     List<MusicTrack> tracks = const [],
@@ -25,12 +27,13 @@ final class MusicDisc {
   final MusicDiscId id;
   final int discNumber;
   final String? title;
+  final MusicDiscFormatFamily? formatFamily;
   final String? format;
   final List<String> soundTypes;
-  final String? vinylColor;
-  final String? vinylWeight;
-  final int? rpm;
-  final String? spars;
+  final String? color;
+  final int? vinylWeightGrams;
+  final String? rpm;
+  final String? matrixNumber;
   final String? matrixNumberSideA;
   final String? matrixNumberSideB;
   final List<MusicTrack> tracks;
@@ -45,12 +48,14 @@ final class MusicDisc {
       id: MusicDiscId(_text(json['id']) ?? ''),
       discNumber: _int(json['disc_number']) ?? 0,
       title: _text(json['title']),
+      formatFamily:
+          MusicDiscFormatFamily.tryParse(_text(json['format_family'])),
       format: _text(json['format']),
       soundTypes: _strings(json['sound_types']),
-      vinylColor: _text(json['vinyl_color']),
-      vinylWeight: _text(json['vinyl_weight']),
-      rpm: _int(json['rpm']),
-      spars: _text(json['spars']),
+      color: _text(json['color']),
+      vinylWeightGrams: _int(json['vinyl_weight_grams']),
+      rpm: _text(json['rpm']),
+      matrixNumber: _text(json['matrix_number']),
       matrixNumberSideA: _text(json['matrix_number_side_a']),
       matrixNumberSideB: _text(json['matrix_number_side_b']),
       tracks: tracks,
@@ -61,18 +66,48 @@ final class MusicDisc {
         'id': id.value,
         'disc_number': discNumber,
         if (title != null) 'title': title,
+        if (formatFamily != null) 'format_family': formatFamily!.value,
         if (format != null) 'format': format,
         if (soundTypes.isNotEmpty) 'sound_types': soundTypes,
-        if (vinylColor != null) 'vinyl_color': vinylColor,
-        if (vinylWeight != null) 'vinyl_weight': vinylWeight,
+        if (color != null) 'color': color,
+        if (vinylWeightGrams != null) 'vinyl_weight_grams': vinylWeightGrams,
         if (rpm != null) 'rpm': rpm,
-        if (spars != null) 'spars': spars,
+        if (matrixNumber != null) 'matrix_number': matrixNumber,
         if (matrixNumberSideA != null)
           'matrix_number_side_a': matrixNumberSideA,
         if (matrixNumberSideB != null)
           'matrix_number_side_b': matrixNumberSideB,
         'tracks': tracks.map((track) => track.toJson()).toList(),
       };
+}
+
+/// Computes a user-facing album format summary from a collection of disc formats.
+String? formatDiscsSummary(
+  Iterable<String?> formats, {
+  String? fallback,
+}) {
+  final clean = <String>[];
+  for (final f in formats) {
+    final t = f?.trim();
+    if (t != null && t.isNotEmpty) {
+      clean.add(t);
+    }
+  }
+  if (clean.isEmpty) {
+    final fb = fallback?.trim();
+    return (fb == null || fb.isEmpty) ? null : fb;
+  }
+  final counts = <String, int>{};
+  for (final format in clean) {
+    counts[format] = (counts[format] ?? 0) + 1;
+  }
+  if (counts.length == 1) {
+    final entry = counts.entries.first;
+    return entry.value == 1 ? entry.key : '${entry.value}× ${entry.key}';
+  }
+  return counts.entries
+      .map((entry) => '${entry.value}× ${entry.key}')
+      .join(' + ');
 }
 
 /// Computes a user-facing album format summary from its ordered discs.
@@ -84,30 +119,9 @@ final class MusicDisc {
 String? formatAlbumDiscsSummary(
   Iterable<MusicDisc> discs, {
   String? fallback,
-}) {
-  final formats = <String>[];
-  for (final disc in discs) {
-    final format = disc.format?.trim();
-    if (format != null && format.isNotEmpty) {
-      formats.add(format);
-    }
-  }
-  if (formats.isEmpty) {
-    final fb = fallback?.trim();
-    return (fb == null || fb.isEmpty) ? null : fb;
-  }
-  final counts = <String, int>{};
-  for (final format in formats) {
-    counts[format] = (counts[format] ?? 0) + 1;
-  }
-  if (counts.length == 1) {
-    final entry = counts.entries.first;
-    return entry.value == 1 ? entry.key : '${entry.value}× ${entry.key}';
-  }
-  return counts.entries
-      .map((entry) => '${entry.value}× ${entry.key}')
-      .join(' + ');
-}
+}) =>
+    formatDiscsSummary(discs.map((d) => d.format), fallback: fallback);
+
 
 String? _text(Object? value) {
   final text = value?.toString().trim();
@@ -133,4 +147,3 @@ List<Map<String, dynamic>> _maps(Object? value) => value is Iterable
           if (entry is Map) Map<String, dynamic>.from(entry)
       ]
     : const <Map<String, dynamic>>[];
-

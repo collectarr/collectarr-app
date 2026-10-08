@@ -10,8 +10,8 @@ import 'music_track.dart';
 
 /// One concrete Music Catalog Item representing an album edition.
 ///
-/// Discs and tracks are contained children. The historical class name does
-/// not represent a separate Release scope or parent album grouping.
+/// Discs and tracks are contained children. Physical / format metadata belongs
+/// exclusively to [MusicDisc].
 @immutable
 final class MusicAlbum implements JsonEncodable {
   MusicAlbum({
@@ -31,7 +31,6 @@ final class MusicAlbum implements JsonEncodable {
     this.barcode,
     this.catalogNumber,
     this.packaging,
-    String? format,
     this.coverImageUrl,
     this.coverImageKey,
     this.backCoverImageUrl,
@@ -40,11 +39,7 @@ final class MusicAlbum implements JsonEncodable {
     this.localBackImagePath,
     this.localThumbnailImagePath,
     this.extra,
-    List<String> soundTypes = const [],
-    String? vinylColor,
-    String? vinylWeight,
-    int? rpm,
-    String? spars,
+    this.sparsCode,
     this.externalLinks = const [],
     this.boxSet,
     this.contributions = const [],
@@ -53,13 +48,7 @@ final class MusicAlbum implements JsonEncodable {
     this.revision = 1,
     DateTime? createdAt,
     DateTime? updatedAt,
-  })  : _explicitFormat = format,
-        _explicitSoundTypes = List<String>.unmodifiable(soundTypes),
-        _explicitVinylColor = vinylColor,
-        _explicitVinylWeight = vinylWeight,
-        _explicitRpm = rpm,
-        _explicitSpars = spars,
-        studios = List<String>.unmodifiable(studios),
+  })  : studios = List<String>.unmodifiable(studios),
         genres = List<String>.unmodifiable(genres),
         createdAt =
             createdAt ?? DateTime.fromMillisecondsSinceEpoch(0, isUtc: true),
@@ -87,16 +76,8 @@ final class MusicAlbum implements JsonEncodable {
   final String? catalogNumber;
   final String? packaging;
 
-  final String? _explicitFormat;
-  final List<String> _explicitSoundTypes;
-  final String? _explicitVinylColor;
-  final String? _explicitVinylWeight;
-  final int? _explicitRpm;
-  final String? _explicitSpars;
-
-  /// Catalog-level format label derived from discs, falling back to explicit value.
-  String? get format =>
-      formatAlbumDiscsSummary(discs, fallback: _explicitFormat);
+  /// Derived presentation summary computed directly from contained discs.
+  String? get formatSummary => formatAlbumDiscsSummary(discs);
 
   final String? coverImageUrl;
   final String? coverImageKey;
@@ -106,30 +87,7 @@ final class MusicAlbum implements JsonEncodable {
   final String? localBackImagePath;
   final String? localThumbnailImagePath;
   final String? extra;
-
-  List<String> get soundTypes {
-    final discSoundTypes = [
-      for (final disc in discs) ...disc.soundTypes,
-    ];
-    if (discSoundTypes.isNotEmpty) {
-      return List<String>.unmodifiable(discSoundTypes.toSet().toList());
-    }
-    return _explicitSoundTypes;
-  }
-
-  String? get vinylColor =>
-      discs.where((d) => d.vinylColor != null).firstOrNull?.vinylColor ??
-      _explicitVinylColor;
-
-  String? get vinylWeight =>
-      discs.where((d) => d.vinylWeight != null).firstOrNull?.vinylWeight ??
-      _explicitVinylWeight;
-
-  int? get rpm =>
-      discs.where((d) => d.rpm != null).firstOrNull?.rpm ?? _explicitRpm;
-
-  String? get spars =>
-      discs.where((d) => d.spars != null).firstOrNull?.spars ?? _explicitSpars;
+  final String? sparsCode;
   final List<MusicExternalLink> externalLinks;
   final String? boxSet;
   final List<MusicAlbumContribution> contributions;
@@ -152,37 +110,8 @@ final class MusicAlbum implements JsonEncodable {
       ];
 
   factory MusicAlbum.fromJson(Map<String, dynamic> json) {
-    var discs =
+    final discs =
         _maps(json['discs']).map(MusicDisc.fromJson).toList(growable: false);
-    final rawFormat = _text(json['format']);
-    final rawSoundTypes = _strings(json['sound_types']);
-    final rawVinylColor = _text(json['vinyl_color']);
-    final rawVinylWeight = _text(json['vinyl_weight']);
-    final rawRpm = _int(json['rpm']);
-    final rawSpars = _text(json['spars']);
-    if (discs.isNotEmpty &&
-        discs.every((d) => d.format == null && d.vinylColor == null)) {
-      discs = [
-        for (var i = 0; i < discs.length; i++)
-          if (i == 0)
-            MusicDisc(
-              id: discs[i].id,
-              discNumber: discs[i].discNumber,
-              title: discs[i].title,
-              format: rawFormat,
-              soundTypes: rawSoundTypes,
-              vinylColor: rawVinylColor,
-              vinylWeight: rawVinylWeight,
-              rpm: rawRpm,
-              spars: rawSpars,
-              matrixNumberSideA: discs[i].matrixNumberSideA,
-              matrixNumberSideB: discs[i].matrixNumberSideB,
-              tracks: discs[i].tracks,
-            )
-          else
-            discs[i],
-      ];
-    }
     return MusicAlbum(
       id: switch (_text(json['id'])) {
         final id? => CatalogItemRef(kind: CatalogMediaKind.music, id: id),
@@ -204,12 +133,11 @@ final class MusicAlbum implements JsonEncodable {
       releaseDateParts: _partialDate(
         json['release_date_parts'] ?? json['release_date'],
       ),
-      publisher: _text(json['publisher']),
-      countryCode: _text(json['country_code']),
+      publisher: _text(json['publisher'] ?? json['label']),
+      countryCode: _text(json['country_code'] ?? json['country']),
       barcode: _text(json['barcode']),
       catalogNumber: _text(json['catalog_number']),
       packaging: _text(json['packaging']),
-      format: _text(json['format']),
       coverImageUrl: _text(json['cover_image_url']),
       coverImageKey: _text(json['cover_image_key']),
       backCoverImageUrl: _text(json['back_cover_image_url']),
@@ -218,11 +146,7 @@ final class MusicAlbum implements JsonEncodable {
       localBackImagePath: _text(json['local_back_image_path']),
       localThumbnailImagePath: _text(json['local_thumbnail_image_path']),
       extra: _text(json['extra']),
-      soundTypes: _strings(json['sound_types']),
-      vinylColor: _text(json['vinyl_color']),
-      vinylWeight: _text(json['vinyl_weight']),
-      rpm: _int(json['rpm']),
-      spars: _text(json['spars']),
+      sparsCode: _text(json['spars_code'] ?? json['spars']),
       externalLinks: _externalLinks(json),
       boxSet: _text(json['box_set']),
       contributions: [
@@ -271,7 +195,6 @@ final class MusicAlbum implements JsonEncodable {
         if (barcode != null) 'barcode': barcode,
         if (catalogNumber != null) 'catalog_number': catalogNumber,
         if (packaging != null) 'packaging': packaging,
-        if (format != null) 'format': format,
         if (coverImageUrl != null) 'cover_image_url': coverImageUrl,
         if (coverImageKey != null) 'cover_image_key': coverImageKey,
         if (backCoverImageUrl != null)
@@ -284,11 +207,7 @@ final class MusicAlbum implements JsonEncodable {
         if (localThumbnailImagePath != null)
           'local_thumbnail_image_path': localThumbnailImagePath,
         if (extra != null) 'extra': extra,
-        if (soundTypes.isNotEmpty) 'sound_types': soundTypes,
-        if (vinylColor != null) 'vinyl_color': vinylColor,
-        if (vinylWeight != null) 'vinyl_weight': vinylWeight,
-        if (rpm != null) 'rpm': rpm,
-        if (spars != null) 'spars': spars,
+        if (sparsCode != null) 'spars_code': sparsCode,
         if (externalLinks.isNotEmpty)
           'external_links': externalLinks.map((link) => link.toJson()).toList(),
         if (boxSet != null) 'box_set': boxSet,
@@ -313,35 +232,28 @@ int? _int(Object? value) => value is int
         ? value.toInt()
         : int.tryParse(value?.toString().trim() ?? '');
 
-DateTime? _date(Object? value) => _partialDate(value)?.asDateTime;
-
 PartialDate? _partialDate(Object? value) {
   if (value is Map) {
     try {
-      return PartialDate.fromJson(value);
-    } on FormatException {
+      return PartialDate.fromJson(Map<String, dynamic>.from(value));
+    } catch (_) {
       return null;
     }
   }
-  final raw = value?.toString().trim() ?? '';
-  if (raw.isEmpty) return null;
-  try {
-    return PartialDate.fromJson(raw);
-  } on FormatException {
-    final parsed = DateTime.tryParse(raw);
-    return parsed == null ? null : PartialDate.fromDateTime(parsed);
+  if (value is String && value.isNotEmpty) {
+    return PartialDate.tryParse(value);
   }
+  return null;
 }
 
-DateTime _dateTime(Object? value) =>
-    _date(value) ?? DateTime.fromMillisecondsSinceEpoch(0, isUtc: true);
-
-List<Map<String, dynamic>> _maps(Object? value) => value is Iterable
-    ? [
-        for (final entry in value)
-          if (entry is Map) Map<String, dynamic>.from(entry)
-      ]
-    : const <Map<String, dynamic>>[];
+DateTime _dateTime(Object? value) {
+  if (value is DateTime) return value.toUtc();
+  if (value is String && value.isNotEmpty) {
+    return DateTime.tryParse(value)?.toUtc() ??
+        DateTime.fromMillisecondsSinceEpoch(0, isUtc: true);
+  }
+  return DateTime.fromMillisecondsSinceEpoch(0, isUtc: true);
+}
 
 List<String> _strings(Object? value) => value is Iterable
     ? [
@@ -350,13 +262,19 @@ List<String> _strings(Object? value) => value is Iterable
       ]
     : const <String>[];
 
+List<Map<String, dynamic>> _maps(Object? value) => value is Iterable
+    ? [
+        for (final entry in value)
+          if (entry is Map) Map<String, dynamic>.from(entry)
+      ]
+    : const <Map<String, dynamic>>[];
+
 List<MusicExternalLink> _externalLinks(Map<String, dynamic> json) {
-  final values = <MusicExternalLink>[];
-  final seen = <String>{};
-  for (final value in _maps(json['external_links'])) {
-    final url = _text(value['url']);
-    if (url == null || !seen.add(url)) continue;
-    values.add(MusicExternalLink.fromJson(value));
-  }
-  return values;
+  final raw = json['external_links'];
+  return [
+    for (final value in _maps(raw))
+      if (MusicExternalLink.fromJson(value) case final link
+          when link.url.isNotEmpty)
+        link,
+  ];
 }

@@ -106,7 +106,15 @@ final class MusicCollectionCsvProjection
       'title': cells[2],
       if (cells[3].trim().isNotEmpty) 'catalog_number': cells[3],
       if (cells[5].trim().isNotEmpty) 'subtitle': cells[5],
-      if (cells[6].trim().isNotEmpty) 'format': cells[6],
+      if (cells[6].trim().isNotEmpty)
+        'discs': [
+          {
+            'id': 'csv-disc-${cells[0]}',
+            'disc_number': 1,
+            'format': cells[6].trim(),
+            'tracks': <Map<String, dynamic>>[],
+          }
+        ],
       if (cells[8].trim().isNotEmpty) 'label': cells[8],
       if (cells[9].trim().isNotEmpty) 'release_date': cells[9],
       if (cells[10].trim().isNotEmpty) 'barcode': cells[10],
@@ -118,7 +126,7 @@ final class MusicCollectionCsvProjection
     final catalog = entry.kindPresentationData;
     final music = catalog is MusicWorkspaceData ? catalog.music : null;
     final release = catalog is MusicWorkspaceData ? catalog.music : null;
-    final format = release?.format ?? '';
+    final format = release?.formatSummary ?? '';
     return [
       entry.itemId,
       CatalogMediaKind.music.apiValue,

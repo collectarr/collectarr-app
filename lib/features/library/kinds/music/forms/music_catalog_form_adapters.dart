@@ -29,12 +29,7 @@ abstract final class MusicAlbumFormAdapter {
         barcode: _text(values.barcode),
         catalogNumber: _text(values.catalogNumber),
         packaging: _text(values.packaging),
-        format: _formFormat(values),
-        soundTypes: List.unmodifiable(values.soundTypes),
-        vinylColor: _text(values.vinylColor),
-        vinylWeight: _text(values.vinylWeight),
-        rpm: values.rpm,
-        spars: _text(values.spars),
+        sparsCode: _text(values.sparsCode),
         extra: _text(values.extra),
         boxSet: _text(values.boxSet),
         coverImageUrl: _text(values.coverImageUrl),
@@ -66,7 +61,6 @@ abstract final class MusicAlbumFormAdapter {
         barcode: _text(values.barcode),
         catalogNumber: _text(values.catalogNumber),
         packaging: _text(values.packaging),
-        format: _formFormat(values),
         boxSet: _text(values.boxSet),
         coverImageUrl: _text(values.coverImageUrl),
         coverImageKey: original.coverImageKey,
@@ -75,11 +69,7 @@ abstract final class MusicAlbumFormAdapter {
         localCoverImagePath: original.localCoverImagePath,
         localBackImagePath: original.localBackImagePath,
         localThumbnailImagePath: original.localThumbnailImagePath,
-        soundTypes: List.unmodifiable(values.soundTypes),
-        vinylColor: _text(values.vinylColor),
-        vinylWeight: _text(values.vinylWeight),
-        rpm: values.rpm,
-        spars: _text(values.spars),
+        sparsCode: _text(values.sparsCode),
         extra: _text(values.extra),
         externalLinks:
             List.unmodifiable(externalLinks ?? original.externalLinks),
@@ -92,8 +82,6 @@ abstract final class MusicAlbumFormAdapter {
         discs: List.unmodifiable(discs ?? original.discs),
       );
 }
-
-String? _formFormat(MusicAlbumFormValues values) => _text(values.format);
 
 String? _text(String? value) {
   final normalized = value?.trim();

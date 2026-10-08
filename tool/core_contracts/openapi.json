@@ -7960,7 +7960,19 @@
         "type": "object"
       },
       "CatalogMusicDiscResponse": {
+        "additionalProperties": false,
         "properties": {
+          "color": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Color"
+          },
           "disc_number": {
             "minimum": 1.0,
             "title": "Disc Number",
@@ -7977,10 +7989,31 @@
             ],
             "title": "Format"
           },
+          "format_family": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/MusicDiscFormatFamily"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "id": {
             "format": "uuid",
             "title": "Id",
             "type": "string"
+          },
+          "matrix_number": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Matrix Number"
           },
           "matrix_number_side_a": {
             "anyOf": [
@@ -8007,7 +8040,7 @@
           "rpm": {
             "anyOf": [
               {
-                "type": "integer"
+                "type": "string"
               },
               {
                 "type": "null"
@@ -8021,17 +8054,6 @@
             },
             "title": "Sound Types",
             "type": "array"
-          },
-          "spars": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Spars"
           },
           "title": {
             "anyOf": [
@@ -8051,27 +8073,17 @@
             "title": "Tracks",
             "type": "array"
           },
-          "vinyl_color": {
+          "vinyl_weight_grams": {
             "anyOf": [
               {
-                "type": "string"
+                "exclusiveMinimum": 0.0,
+                "type": "integer"
               },
               {
                 "type": "null"
               }
             ],
-            "title": "Vinyl Color"
-          },
-          "vinyl_weight": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Vinyl Weight"
+            "title": "Vinyl Weight Grams"
           }
         },
         "required": [
@@ -8083,6 +8095,7 @@
         "type": "object"
       },
       "CatalogMusicItemResponse": {
+        "additionalProperties": false,
         "properties": {
           "artist": {
             "anyOf": [
@@ -8232,17 +8245,6 @@
               }
             ],
             "title": "Extra"
-          },
-          "format": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Format"
           },
           "genres": {
             "items": {
@@ -8408,17 +8410,6 @@
             "title": "Revision",
             "type": "integer"
           },
-          "rpm": {
-            "anyOf": [
-              {
-                "type": "integer"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Rpm"
-          },
           "songwriters": {
             "items": {
               "additionalProperties": true,
@@ -8438,14 +8429,7 @@
             ],
             "title": "Sort Title"
           },
-          "sound_types": {
-            "items": {
-              "type": "string"
-            },
-            "title": "Sound Types",
-            "type": "array"
-          },
-          "spars": {
+          "spars_code": {
             "anyOf": [
               {
                 "type": "string"
@@ -8454,7 +8438,7 @@
                 "type": "null"
               }
             ],
-            "title": "Spars"
+            "title": "Spars Code"
           },
           "studios": {
             "items": {
@@ -8488,28 +8472,6 @@
           "title": {
             "title": "Title",
             "type": "string"
-          },
-          "vinyl_color": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Vinyl Color"
-          },
-          "vinyl_weight": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Vinyl Weight"
           }
         },
         "required": [
@@ -8518,7 +8480,6 @@
           "artist_credits",
           "genres",
           "studios",
-          "sound_types",
           "composers",
           "conductors",
           "choruses",
@@ -8571,6 +8532,7 @@
         "type": "object"
       },
       "CatalogMusicTrackResponse": {
+        "additionalProperties": false,
         "properties": {
           "artist": {
             "anyOf": [
@@ -10249,6 +10211,19 @@
         ],
         "title": "MetadataNormalizedManifestResponse",
         "type": "object"
+      },
+      "MusicDiscFormatFamily": {
+        "enum": [
+          "vinyl",
+          "cd",
+          "sacd",
+          "cassette",
+          "minidisc",
+          "digital",
+          "other"
+        ],
+        "title": "MusicDiscFormatFamily",
+        "type": "string"
       },
       "PartialDateValue": {
         "additionalProperties": false,

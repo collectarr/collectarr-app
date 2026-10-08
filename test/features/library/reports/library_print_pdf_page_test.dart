@@ -43,7 +43,6 @@ void main() {
       id: const CatalogItemRef(kind: CatalogMediaKind.music, id: 'album-1'),
       title: 'OK Computer',
       artist: 'Radiohead',
-      format: 'CD',
       barcode: '724385522925',
       catalogNumber: 'CDNODATA02',
       discs: [disc1],
@@ -146,7 +145,6 @@ void main() {
       id: const CatalogItemRef(kind: CatalogMediaKind.music, id: 'album-1'),
       title: 'OK Computer',
       artist: 'Radiohead',
-      format: 'CD',
       discs: [disc1],
     );
 

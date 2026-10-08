@@ -123,7 +123,15 @@ void main() {
       mediaKind: CatalogMediaKind.music,
       kindData: const {
         'title': 'Dark Side of the Moon',
-        'format': 'Vinyl (12" LP)',
+        'discs': [
+          {
+            'id': 'd-1',
+            'disc_number': 1,
+            'format': 'Vinyl (12" LP)',
+            'format_family': 'vinyl',
+            'tracks': [],
+          },
+        ],
       },
     );
     final request = LibraryEditDialogRequest(

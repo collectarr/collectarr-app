@@ -2,6 +2,7 @@ import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_album.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_disc.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_disc_format_family.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_ids.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_track.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit/music_album_details_pane.dart';
@@ -63,7 +64,8 @@ void main() {
             id: const MusicDiscId('disc-1'),
             discNumber: 1,
             format: 'Vinyl',
-            vinylColor: 'Black',
+            formatFamily: MusicDiscFormatFamily.vinyl,
+            color: 'Black',
             tracks: [
               MusicTrack(
                 id: const MusicTrackId('t1'),
@@ -113,7 +115,7 @@ void main() {
       expect(find.byType(MusicDiscDetailsView), findsOneWidget);
       // For vinyl disc, the Vinyl group and fields appear
       expect(find.widgetWithText(LibraryFormGroup, 'Vinyl'), findsOneWidget);
-      expect(find.text('Matrix No. Side A'), findsOneWidget);
+      expect(find.text('Matrix Side A'), findsOneWidget);
 
       // Tap General sub-tab again
       await tester.tap(find.text('General'));
@@ -131,9 +133,10 @@ void main() {
             id: const MusicDiscId('disc-1'),
             discNumber: 1,
             format: 'Vinyl',
-            vinylColor: 'Black',
-            vinylWeight: '180',
-            rpm: 33,
+            formatFamily: MusicDiscFormatFamily.vinyl,
+            color: 'Black',
+            vinylWeightGrams: 180,
+            rpm: '33⅓',
             tracks: [
               MusicTrack(
                 id: const MusicTrackId('t1'),
@@ -170,7 +173,7 @@ void main() {
       expect(find.text('Weight (g)'), findsNothing);
       expect(find.text('RPM'), findsNothing);
       expect(find.text('SPARS'), findsNothing);
-      expect(find.text('Matrix No. Side A'), findsNothing);
+      expect(find.text('Matrix Side A'), findsNothing);
       expect(find.text('Storage Device'), findsNothing);
 
       // CLZ Disc Title and Add Disc button must be present

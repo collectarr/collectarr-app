@@ -2,13 +2,13 @@
   "$id": "https://schemas.collectarr.app/catalog-item/v1",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "contractVersion": "1.0.0",
-  "coreCommit": "20d806bf5ae3b159eb9070339697b501c450dfc7",
+  "coreCommit": "45876c0494c5dbec12ea1f170020a459f4f1b62b",
   "description": "Source-neutral Catalog Item documents. Fields are validated and projected using the schema owned by the declared kind.",
   "fieldStatus": {
     "music": "grounded_in_saved_clz_music_edit_form",
     "other_kinds": "provisional_clz_parity_unverified_without_edit_form_captures"
   },
-  "generatedAt": "2026-10-06T14:27:18.779838Z",
+  "generatedAt": "2026-10-07T19:52:55.885332Z",
   "kinds": {
     "anime": {
       "additionalProperties": false,
@@ -7406,6 +7406,16 @@
               "items": {
                 "additionalProperties": false,
                 "properties": {
+                  "color": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
                   "disc_number": {
                     "type": "integer"
                   },
@@ -7419,7 +7429,27 @@
                       }
                     ]
                   },
+                  "format_family": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
                   "id": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "matrix_number": {
                     "anyOf": [
                       {
                         "type": "string"
@@ -7452,7 +7482,7 @@
                   "rpm": {
                     "anyOf": [
                       {
-                        "type": "integer"
+                        "type": "string"
                       },
                       {
                         "type": "null"
@@ -7464,16 +7494,6 @@
                       "type": "string"
                     },
                     "type": "array"
-                  },
-                  "spars": {
-                    "anyOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
                   },
                   "title": {
                     "anyOf": [
@@ -7581,20 +7601,10 @@
                       }
                     ]
                   },
-                  "vinyl_color": {
+                  "vinyl_weight_grams": {
                     "anyOf": [
                       {
-                        "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "vinyl_weight": {
-                    "anyOf": [
-                      {
-                        "type": "string"
+                        "type": "integer"
                       },
                       {
                         "type": "null"
@@ -7818,16 +7828,6 @@
           ]
         },
         "extra": {
-          "anyOf": [
-            {
-              "type": "string"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        },
-        "format": {
           "anyOf": [
             {
               "type": "string"
@@ -8220,16 +8220,6 @@
             }
           ]
         },
-        "rpm": {
-          "anyOf": [
-            {
-              "type": "integer"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        },
         "songwriters": {
           "anyOf": [
             {
@@ -8327,20 +8317,7 @@
             }
           ]
         },
-        "sound_types": {
-          "anyOf": [
-            {
-              "items": {
-                "type": "string"
-              },
-              "type": "array"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        },
-        "spars": {
+        "spars_code": {
           "anyOf": [
             {
               "type": "string"
@@ -8386,26 +8363,6 @@
         "title": {
           "minLength": 1,
           "type": "string"
-        },
-        "vinyl_color": {
-          "anyOf": [
-            {
-              "type": "string"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        },
-        "vinyl_weight": {
-          "anyOf": [
-            {
-              "type": "string"
-            },
-            {
-              "type": "null"
-            }
-          ]
         }
       },
       "required": [

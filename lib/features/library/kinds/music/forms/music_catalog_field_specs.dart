@@ -6,6 +6,7 @@ import 'package:collectarr_app/features/library/config/library_dialog_tokens.dar
 import 'package:collectarr_app/features/library/ui/primitives/library_ordered_names_field.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_form_controls.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_album_relations.dart';
+import 'package:collectarr_app/features/library/kinds/music/edit/music_album_edit_draft.dart';
 import 'dart:async';
 
 import 'package:collectarr_app/features/library/kinds/music/forms/music_album_form_values.dart';
@@ -27,6 +28,7 @@ const musicTitleActions = [
 List<LibraryFieldSpec<TDraft>> musicAlbumFields<TDraft>({
   required MusicAlbumValuesReader<TDraft> values,
   Set<String>? include,
+  String? Function(TDraft draft)? formatSummary,
   Iterable<String>? formatOptions,
   Iterable<String>? genreOptions,
   Iterable<String>? countryOptions,
@@ -170,7 +172,12 @@ List<LibraryFieldSpec<TDraft>> musicAlbumFields<TDraft>({
         id: 'format',
         label: 'Format',
         builder: (context, draft) {
-          final fmt = values(draft).format.trim();
+          final fmt = (formatSummary?.call(draft) ??
+                  (draft is MusicAlbumEditDraft
+                      ? (draft as MusicAlbumEditDraft).formatSummary
+                      : null) ??
+                  '')
+              .trim();
           final display = fmt.isNotEmpty ? fmt : 'Not specified';
           return LibraryFormField(
             label: 'Format',
@@ -252,47 +259,6 @@ List<LibraryFieldSpec<TDraft>> musicAlbumFields<TDraft>({
         write: (draft, value) => values(draft).coverImageUrl = value,
       ),
       LibraryMultiVocabularyFieldSpec<TDraft, String>(
-        id: 'sound_types',
-        label: 'Sound',
-        pickListKey: MusicVocabularyIds.soundType.value,
-        pluralLabel: 'Sound types',
-        values: (draft) => values(draft).soundTypes.toSet(),
-        setValues: (draft, next) =>
-            values(draft).soundTypes = next.toList(growable: false),
-        options: _options(
-          soundTypeOptions ?? MusicVocabularies.soundType.builtIns,
-        ),
-      ),
-      LibraryVocabularyFieldSpec<TDraft, String>(
-        id: 'vinyl_color',
-        label: 'Vinyl Color',
-        value: (draft) => _nullable(values(draft).vinylColor),
-        setValue: (draft, value) => values(draft).vinylColor = value ?? '',
-        options: _options(MusicVocabularies.vinylColor.builtIns),
-        pickListKey: MusicVocabularyIds.vinylColor.value,
-      ),
-      LibraryNumberFieldSpec<TDraft>(
-        id: 'vinyl_weight',
-        label: 'Vinyl Weight',
-        value: (draft) => num.tryParse(values(draft).vinylWeight),
-        setValue: (draft, value) =>
-            values(draft).vinylWeight = value?.toInt().toString() ?? '',
-        minimum: 0,
-      ),
-      LibraryCustomFieldSpec<TDraft>(
-        id: 'rpm',
-        label: 'RPM',
-        builder: (context, draft) => StatefulBuilder(
-            builder: (context, refresh) => LibraryFormField(
-                  label: 'RPM',
-                  child: LibrarySegmentedField<int>(
-                      value: values(draft).rpm ?? 0,
-                      options: const {0: 'N/A', 33: '33', 45: '45', 78: '78'},
-                      onChanged: (value) => refresh(
-                          () => values(draft).rpm = value == 0 ? null : value)),
-                )),
-      ),
-      LibraryMultiVocabularyFieldSpec<TDraft, String>(
         id: 'extra',
         label: 'Extra',
         pluralLabel: 'Extras',
@@ -307,10 +273,10 @@ List<LibraryFieldSpec<TDraft>> musicAlbumFields<TDraft>({
             values(draft).extra = valuesSet.join('||'),
       ),
       LibraryVocabularyFieldSpec<TDraft, String>(
-        id: 'spars',
-        label: 'SPARS',
-        value: (draft) => _nullable(values(draft).spars),
-        setValue: (draft, value) => values(draft).spars = value ?? '',
+        id: 'spars_code',
+        label: 'SPARS Code',
+        value: (draft) => _nullable(values(draft).sparsCode),
+        setValue: (draft, value) => values(draft).sparsCode = value ?? '',
         options: _options(MusicVocabularies.spars.builtIns),
         pickListKey: MusicVocabularyIds.spars.value,
       ),

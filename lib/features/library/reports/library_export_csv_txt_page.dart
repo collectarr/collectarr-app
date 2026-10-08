@@ -164,7 +164,7 @@ class _LibraryExportCsvTxtPageState extends State<LibraryExportCsvTxtPage> {
         ExportColumnDefinition(
           id: 'format',
           label: 'Format',
-          getValue: (item) => _musicAlbum(item)?.format ?? '',
+          getValue: (item) => _musicAlbum(item)?.formatSummary ?? '',
         ),
         ExportColumnDefinition(
           id: 'barcode',
@@ -325,7 +325,7 @@ class _LibraryExportCsvTxtPageState extends State<LibraryExportCsvTxtPage> {
         ExportTrackColumnDefinition(
           id: 'format',
           label: 'Format',
-          getValue: (_, album) => album.format ?? '',
+          getValue: (_, album) => album.formatSummary ?? '',
         ),
         ExportTrackColumnDefinition(
           id: 'genre',

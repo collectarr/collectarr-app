@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:collectarr_app/features/library/schema/library_form_schema.dart';
 import 'package:collectarr_app/features/library/add/schema/library_add_catalog_title_field.dart';
 import 'package:collectarr_app/features/library/kinds/music/add/music_add_manual_draft.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_disc.dart';
 import 'package:collectarr_app/features/library/kinds/music/forms/music_catalog_field_specs.dart';
 
 final LibraryFormSchema<MusicAddManualDraft> musicAddSchema =
@@ -23,6 +24,8 @@ LibraryFormSchema<MusicAddManualDraft> musicAddSchemaFor({
 }) {
   final sharedFields = musicAlbumFields<MusicAddManualDraft>(
     values: (draft) => draft.values,
+    formatSummary: (draft) =>
+        formatDiscsSummary(draft.discs.map((d) => d.format)),
     formatOptions: formatOptions,
     genreOptions: genreOptions,
     countryOptions: countryOptions,

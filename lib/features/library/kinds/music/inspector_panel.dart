@@ -470,7 +470,7 @@ class _MusicInspectorMain extends ConsumerWidget {
             image.purpose == MusicAlbumImagePurpose.cover &&
             image.imageType == 'back_cover')
         .firstOrNull;
-    final formatLabel = release.format ?? release.packaging ?? '-';
+    final formatLabel = release.formatSummary ?? release.packaging ?? '-';
 
     return DecoratedBox(
       decoration: BoxDecoration(
@@ -739,12 +739,13 @@ class _MusicDiscDetailsCard extends StatelessWidget {
       if (disc.format?.trim().isNotEmpty == true)
         ('Format', disc.format!.trim()),
       if (disc.soundTypes.isNotEmpty) ('Sound', disc.soundTypes.join(', ')),
-      if (disc.spars?.trim().isNotEmpty == true) ('SPARS', disc.spars!.trim()),
-      if (disc.vinylColor?.trim().isNotEmpty == true)
-        ('Vinyl color', disc.vinylColor!.trim()),
-      if (disc.vinylWeight?.trim().isNotEmpty == true)
-        ('Vinyl weight', '${disc.vinylWeight!.trim()} g'),
-      if (disc.rpm != null) ('RPM', disc.rpm.toString()),
+      if (disc.color?.trim().isNotEmpty == true)
+        ('Color', disc.color!.trim()),
+      if (disc.vinylWeightGrams != null)
+        ('Weight', '${disc.vinylWeightGrams} g'),
+      if (disc.rpm != null) ('RPM', disc.rpm!),
+      if (disc.matrixNumber?.trim().isNotEmpty == true)
+        ('Matrix / Runout', disc.matrixNumber!.trim()),
       if (disc.matrixNumberSideA?.trim().isNotEmpty == true)
         ('Matrix side A', disc.matrixNumberSideA!.trim()),
       if (disc.matrixNumberSideB?.trim().isNotEmpty == true)
@@ -958,22 +959,16 @@ class _MusicProductDetails extends StatelessWidget {
         ('Catalog number', release.catalogNumber!),
       if (release.barcode?.trim().isNotEmpty == true)
         ('Barcode', release.barcode!),
-      if (release.format?.trim().isNotEmpty == true)
-        ('Format', release.format!),
+      if (release.formatSummary?.trim().isNotEmpty == true)
+        ('Format', release.formatSummary!),
       if (release.packaging?.trim().isNotEmpty == true)
         ('Packaging', release.packaging!),
       if (musicCountryName(release.countryCode) case final country?)
         ('Country', country),
       if (release.boxSet?.trim().isNotEmpty == true)
         ('Box Set', release.boxSet!),
-      if (release.soundTypes.isNotEmpty)
-        ('Sound', release.soundTypes.join(', ')),
-      if (release.spars?.trim().isNotEmpty == true) ('SPARS', release.spars!),
-      if (release.rpm != null) ('RPM', release.rpm.toString()),
-      if (release.vinylColor?.trim().isNotEmpty == true)
-        ('Vinyl color', release.vinylColor!),
-      if (release.vinylWeight?.trim().isNotEmpty == true)
-        ('Vinyl weight', release.vinylWeight!),
+      if (release.sparsCode?.trim().isNotEmpty == true)
+        ('SPARS Code', release.sparsCode!),
       if (release.localCoverImagePath?.trim().isNotEmpty == true)
         ('Local cover', release.localCoverImagePath!),
       if (release.localBackImagePath?.trim().isNotEmpty == true)

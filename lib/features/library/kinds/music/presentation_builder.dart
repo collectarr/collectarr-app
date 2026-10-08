@@ -62,7 +62,7 @@ class MusicLibraryMediaPresentationBuilder
   List<LibraryFormatBadgeDescriptor> buildAddPreviewFormatBadges({
     required CatalogSearchCandidate item,
   }) {
-    final format = musicCatalogItemFromCandidate(item).format;
+    final format = musicCatalogItemFromCandidate(item).formatSummary;
     final badge = musicFormatBadge(format?.toLowerCase(), label: format);
     return badge == null ? const [] : [badge];
   }
@@ -135,7 +135,7 @@ class MusicLibraryMediaPresentationBuilder
   }) {
     final album = musicCatalogItemFromCandidate(item);
     final artist = album.artist?.trim();
-    final format = album.format?.trim();
+    final format = album.formatSummary?.trim();
     final trackCount = album.discs.isEmpty ? null : album.trackCount;
     final country = album.countryCode?.trim();
     final label = album.publisher?.trim();
@@ -176,7 +176,7 @@ class MusicLibraryMediaPresentationBuilder
             album.releaseDate?.year.toString() ??
             item.musicCatalogFields.releaseYear?.toString(),
       ),
-      ('Format', album.format),
+      ('Format', album.formatSummary),
       ('Country', album.countryCode),
       ('Cat No', album.catalogNumber),
       (
@@ -205,7 +205,7 @@ class MusicLibraryMediaPresentationBuilder
     final publisher = album?.publisher;
     final releaseDate = album?.releaseDate;
     final country = musicCountryName(album?.countryCode);
-    final format = album?.format;
+    final format = album?.formatSummary;
 
     return LibraryMetadataPresentation(
       labels: metadataLabels,
@@ -255,10 +255,8 @@ class MusicLibraryMediaPresentationBuilder
           LibraryDetailField(label: 'Country', value: country),
         if (album?.tracks.isNotEmpty == true)
           LibraryDetailField(label: 'Length', value: _musicDuration(album!)),
-        if (album?.vinylColor != null)
-          LibraryDetailField(label: 'Vinyl color', value: album!.vinylColor!),
-        if (album?.rpm != null)
-          LibraryDetailField(label: 'RPM', value: album!.rpm.toString()),
+        if (album?.sparsCode != null)
+          LibraryDetailField(label: 'SPARS Code', value: album!.sparsCode!),
         LibraryDetailField(
             label: 'Cover',
             value: dto.imageUrl == null || dto.imageUrl!.isEmpty

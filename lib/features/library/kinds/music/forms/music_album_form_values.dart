@@ -21,19 +21,13 @@ final class MusicAlbumFormValues {
     this.barcode = '',
     this.catalogNumber = '',
     this.packaging = '',
-    this.format = '',
-    List<String> soundTypes = const [],
-    this.vinylColor = '',
-    this.vinylWeight = '',
-    this.rpm,
-    this.spars = '',
+    this.sparsCode = '',
     this.extra = '',
     this.boxSet = '',
     this.coverImageUrl = '',
     this.backCoverImageUrl = '',
   })  : studios = List.of(studios),
         genres = List.of(genres),
-        soundTypes = List.of(soundTypes),
         artistCredits = List.of(artistCredits);
 
   factory MusicAlbumFormValues.fromAlbum(MusicAlbum album) =>
@@ -54,12 +48,7 @@ final class MusicAlbumFormValues {
         barcode: album.barcode ?? '',
         catalogNumber: album.catalogNumber ?? '',
         packaging: album.packaging ?? '',
-        format: album.format ?? '',
-        soundTypes: album.soundTypes,
-        vinylColor: album.vinylColor ?? '',
-        vinylWeight: album.vinylWeight ?? '',
-        rpm: album.rpm,
-        spars: album.spars ?? '',
+        sparsCode: album.sparsCode ?? '',
         extra: album.extra ?? '',
         boxSet: album.boxSet ?? '',
         coverImageUrl: album.coverImageUrl ?? '',
@@ -82,12 +71,7 @@ final class MusicAlbumFormValues {
   String barcode;
   String catalogNumber;
   String packaging;
-  String format;
-  List<String> soundTypes;
-  String vinylColor;
-  String vinylWeight;
-  int? rpm;
-  String spars;
+  String sparsCode;
   String extra;
   String boxSet;
   String coverImageUrl;

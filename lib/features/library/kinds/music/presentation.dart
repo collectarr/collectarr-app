@@ -156,7 +156,10 @@ final musicLibraryFilterDefinitions = <LibraryFilterDefinition<Object?>>[
     label: 'Sound',
     anyLabel: 'Any sound type',
     value: (item) => (item.dto is MusicWorkspaceProjection)
-        ? (item.dto as MusicWorkspaceProjection).music.soundTypes
+        ? [
+            for (final d in (item.dto as MusicWorkspaceProjection).music.discs)
+              ...d.soundTypes
+          ]
         : const <String>[],
   ),
   LibraryFilterDefinition<Object?>(
@@ -164,7 +167,7 @@ final musicLibraryFilterDefinitions = <LibraryFilterDefinition<Object?>>[
     label: 'SPARS',
     anyLabel: 'Any SPARS code',
     value: (item) => (item.dto is MusicWorkspaceProjection)
-        ? (item.dto as MusicWorkspaceProjection).music.spars
+        ? (item.dto as MusicWorkspaceProjection).music.sparsCode
         : null,
   ),
   LibraryFilterDefinition<Object?>(
@@ -172,16 +175,22 @@ final musicLibraryFilterDefinitions = <LibraryFilterDefinition<Object?>>[
     label: 'Vinyl color',
     anyLabel: 'Any vinyl color',
     value: (item) => (item.dto is MusicWorkspaceProjection)
-        ? (item.dto as MusicWorkspaceProjection).music.vinylColor
-        : null,
+        ? [
+            for (final d in (item.dto as MusicWorkspaceProjection).music.discs)
+              if (d.color != null && d.color!.isNotEmpty) d.color!
+          ]
+        : const <String>[],
   ),
   LibraryFilterDefinition<Object?>(
     id: 'rpm',
     label: 'RPM',
     anyLabel: 'Any RPM',
     value: (item) => (item.dto is MusicWorkspaceProjection)
-        ? (item.dto as MusicWorkspaceProjection).music.rpm?.toString()
-        : null,
+        ? [
+            for (final d in (item.dto as MusicWorkspaceProjection).music.discs)
+              if (d.rpm != null && d.rpm!.isNotEmpty) d.rpm!
+          ]
+        : const <String>[],
   ),
   LibraryFilterDefinition<Object?>(
     id: 'recording_year',

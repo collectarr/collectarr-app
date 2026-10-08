@@ -35,7 +35,8 @@ final musicKindAdd = StandardLibraryAddCapability<MusicAddDraft>(
     isDigital: common.isDigital,
   ),
   digitalCopyFlagBuilder: (item) {
-    final format = musicCatalogItemFromCandidate(item).format?.toLowerCase();
+    final format =
+        musicCatalogItemFromCandidate(item).formatSummary?.toLowerCase();
     return format == null
         ? null
         : const {'digital', 'download', 'streaming', 'file'}

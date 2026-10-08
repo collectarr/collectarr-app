@@ -56,7 +56,6 @@ final class MusicCatalogMapper {
       } else if (album.releaseDate != null)
         'release_date': album.releaseDate!.toIso8601String(),
       if (album.publisher != null) 'label': album.publisher,
-      if (album.format case final format?) 'format': format,
       if (album.barcode case final barcode?) 'barcode': barcode,
       if (album.catalogNumber != null) 'catalog_number': album.catalogNumber,
       if (album.genres.isNotEmpty) 'genres': album.genres,
@@ -64,12 +63,8 @@ final class MusicCatalogMapper {
       if (album.studios.isNotEmpty) 'studios': album.studios,
       if (album.countryCode != null) 'country': album.countryCode,
       if (album.isLive != null) 'is_live': album.isLive,
-      if (album.soundTypes.isNotEmpty) 'sound_types': album.soundTypes,
-      if (album.vinylColor != null) 'vinyl_color': album.vinylColor,
-      if (album.vinylWeight != null) 'vinyl_weight': album.vinylWeight,
-      if (album.rpm != null) 'rpm': album.rpm,
       if (album.extra != null) 'extra': album.extra,
-      if (album.spars != null) 'spars': album.spars,
+      if (album.sparsCode != null) 'spars_code': album.sparsCode,
       if (album.boxSet != null) 'box_set': album.boxSet,
       if (_peopleForRole(album, 'Composer').isNotEmpty)
         'composers': _peopleForRole(album, 'Composer'),
@@ -104,12 +99,16 @@ final class MusicCatalogMapper {
               'id': disc.id.value,
               'disc_number': disc.discNumber,
               if (disc.title != null) 'title': disc.title,
+              if (disc.formatFamily != null)
+                'format_family': disc.formatFamily!.value,
               if (disc.format != null) 'format': disc.format,
               if (disc.soundTypes.isNotEmpty) 'sound_types': disc.soundTypes,
-              if (disc.vinylColor != null) 'vinyl_color': disc.vinylColor,
-              if (disc.vinylWeight != null) 'vinyl_weight': disc.vinylWeight,
+              if (disc.color != null) 'color': disc.color,
+              if (disc.vinylWeightGrams != null)
+                'vinyl_weight_grams': disc.vinylWeightGrams,
               if (disc.rpm != null) 'rpm': disc.rpm,
-              if (disc.spars != null) 'spars': disc.spars,
+              if (disc.matrixNumber != null)
+                'matrix_number': disc.matrixNumber,
               if (disc.matrixNumberSideA != null)
                 'matrix_number_side_a': disc.matrixNumberSideA,
               if (disc.matrixNumberSideB != null)
@@ -201,7 +200,6 @@ final class MusicCatalogMapper {
       'release_date',
       'release_date_parts',
       'label',
-      'format',
       'barcode',
       'catalog_number',
       'genres',
@@ -209,12 +207,8 @@ final class MusicCatalogMapper {
       'studios',
       'country',
       'is_live',
-      'sound_types',
-      'vinyl_color',
-      'vinyl_weight',
-      'rpm',
       'extra',
-      'spars',
+      'spars_code',
       'box_set',
       'composers',
       'conductors',
@@ -252,12 +246,13 @@ final class MusicCatalogMapper {
       'id',
       'disc_number',
       'title',
+      'format_family',
       'format',
       'sound_types',
-      'vinyl_color',
-      'vinyl_weight',
+      'color',
+      'vinyl_weight_grams',
       'rpm',
-      'spars',
+      'matrix_number',
       'matrix_number_side_a',
       'matrix_number_side_b',
       'tracks',
@@ -371,15 +366,11 @@ List<Map<String, Object?>> _peopleForRole(MusicAlbum album, String role) => [
         if (contribution.role.toLowerCase() == role.toLowerCase())
           {
             'id': contribution.id.value,
-            'person_id': contribution.personId,
             'name': contribution.displayName ?? contribution.personId,
             if (contribution.sortName != null)
               'sort_name': contribution.sortName,
             if (contribution.instrument != null)
               'instrument': contribution.instrument,
-            'role': contribution.role,
-            if (contribution.imageUrl != null)
-              'image_url': contribution.imageUrl,
           },
     ];
 
@@ -389,34 +380,40 @@ List<String> _namesForRole(MusicAlbum album, String role) => [
           contribution.displayName ?? contribution.personId,
     ];
 
-List<Map<String, dynamic>> _maps(Object? value) => value is Iterable
-    ? [
-        for (final entry in value)
-          if (entry is Map) Map<String, dynamic>.from(entry),
-      ]
-    : const <Map<String, dynamic>>[];
-
 List<Map<String, dynamic>> _tracksForDisc(
-  Map<String, dynamic> disc,
-  String albumId,
-) {
-  final discNumber = _int(disc['disc_number']) ?? 1;
+    Map<String, dynamic> disc, String itemId) {
   final tracks = _maps(disc['tracks']);
   return [
     for (var index = 0; index < tracks.length; index++)
       {
         ...tracks[index],
         'id': _text(tracks[index]['id']) ??
-            '$albumId:disc:$discNumber:track:${index + 1}',
+            '$itemId:disc:${disc['disc_number']}:track:${index + 1}',
+        'position': _text(tracks[index]['position']) ?? '${index + 1}',
         'position_order': _int(tracks[index]['position_order']) ?? index + 1,
+        'title': _text(tracks[index]['title']) ?? 'Untitled track',
+        'duration_ms': _int(tracks[index]['duration_ms']),
+        'is_header': tracks[index]['is_header'] == true,
+        'parent_header_id': _text(tracks[index]['parent_header_id']),
+        'indent_level': _int(tracks[index]['indent_level']) ?? 0,
       },
   ];
 }
 
 String? _text(Object? value) {
-  final normalized = value?.toString().trim();
-  return normalized == null || normalized.isEmpty ? null : normalized;
+  final text = value?.toString().trim();
+  return text == null || text.isEmpty ? null : text;
 }
 
-int? _int(Object? value) =>
-    value is num ? value.toInt() : int.tryParse(value?.toString().trim() ?? '');
+int? _int(Object? value) => value is int
+    ? value
+    : value is num
+        ? value.toInt()
+        : int.tryParse(value?.toString().trim() ?? '');
+
+List<Map<String, dynamic>> _maps(Object? value) => value is Iterable
+    ? [
+        for (final entry in value)
+          if (entry is Map) Map<String, dynamic>.from(entry)
+      ]
+    : const <Map<String, dynamic>>[];

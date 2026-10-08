@@ -171,7 +171,7 @@ class _LibraryPrintPdfPageState extends State<LibraryPrintPdfPage> {
         PdfColumnDefinition(
           id: 'format',
           label: 'Format',
-          getValue: (item) => _musicAlbum(item)?.format ?? '',
+          getValue: (item) => _musicAlbum(item)?.formatSummary ?? '',
           widthFlex: 1.2,
         ),
         PdfColumnDefinition(
@@ -317,7 +317,7 @@ class _LibraryPrintPdfPageState extends State<LibraryPrintPdfPage> {
         TrackColumnDefinition(
           id: 'format',
           label: 'Format',
-          getValue: (_, album) => album.format ?? '',
+          getValue: (_, album) => album.formatSummary ?? '',
           widthFlex: 1.2,
         ),
         TrackColumnDefinition(
