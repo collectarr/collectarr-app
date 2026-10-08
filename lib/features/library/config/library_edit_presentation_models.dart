@@ -44,6 +44,7 @@ class LibraryEditTabSpec {
 enum LibraryEditTabTargetScope {
   all,
   catalogItem,
+  tracked,
   libraryEntry,
 }
 
@@ -64,6 +65,8 @@ class LibraryEditTabContribution {
       switch (scope) {
         LibraryEditTabTargetScope.all => true,
         LibraryEditTabTargetScope.catalogItem => !context.isEntry,
+        LibraryEditTabTargetScope.tracked => !context.isEntry &&
+            (context.isTrackingOnly || context.hasWishlistContext),
         LibraryEditTabTargetScope.libraryEntry => context.isEntry,
       };
 }

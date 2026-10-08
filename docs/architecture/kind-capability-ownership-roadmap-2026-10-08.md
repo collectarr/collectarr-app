@@ -57,7 +57,7 @@ registration and files under `features/library/kinds/<kind>/`.
 - [ ] Extract interaction-only primitives for reorderable segment tabs,
   selection toolbars, editable table headers, compact actions, and bulk action
   bars when another editor can reuse them.
-- [ ] Add a thin Core response base for truly identical envelope fields; keep
+- [x] Add a thin Core response base for truly identical envelope fields; keep
   kind-specific response schemas separate.
 - [ ] Remove remaining packed multi-value transports and compatibility-era
   comments/helpers after confirming their consumers are gone.
@@ -153,9 +153,11 @@ Book, Comic, Manga, and TV now also declare their common Custom Fields, Links,
 Personal, and image tabs through presentation contributions where those tabs
 already existed. Comic scopes Personal and Custom Fields to library entries;
 the other migrated tab specs preserve their previous sections, labels, and
-ordering. The Manga duplicate Links tab was removed during the move. Anime,
-Boardgame, and Music still need review because their corresponding tabs either
-use kind-specific lifecycle widgets or have target-dependent semantics.
+ordering. The Manga duplicate Links tab was removed during the move. Anime now
+declares Links across targets and Personal, Custom Fields, and Photos for
+tracked or entry contexts; Boardgame declares Links and My Images. Music still
+needs a separate migration because its typed edit dialog has a different tab
+lifecycle.
 
 Reusable field specs, form schemas, renderers, and validation now live under
 `features/library/forms/`; the library edit schema/dialog workflow remains under
@@ -165,3 +167,8 @@ workspace projection. Music encoding delegates to its canonical mapper, while
 the other kinds encode their typed JSON documents. The current catalog registry
 stores these codecs behind the shared boundary; moving codec ownership into the
 kind module capability registration remains open.
+
+Core response schemas for Anime, Board Game, Book, Comic, Game, Manga, Movie,
+Music, and TV now inherit identical `id`, `kind`, `title`, and `revision`
+envelope fields from a thin base. Per-kind response fields and kind literals
+remain in their owning schemas.

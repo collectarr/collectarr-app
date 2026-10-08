@@ -47,38 +47,10 @@ const _animeEntryTabs = [
     label: 'Specs',
   ),
   LibraryEditTabSpec(
-    id: 'links',
-    icon: Icons.public,
-    label: 'Links',
-  ),
-  LibraryEditTabSpec(
-    id: 'personal',
-    icon: Icons.person,
-    label: 'Personal',
-    sectionIds: [
-      'tracking_personal',
-      'wishlist_reference',
-      'entry_notes',
-      'collection_fields_info',
-    ],
-  ),
-  LibraryEditTabSpec(
     id: 'sold',
     icon: Icons.sell,
     label: 'Sold',
     sectionIds: ['sold_status', 'profit_loss'],
-  ),
-  LibraryEditTabSpec(
-    id: 'custom',
-    icon: Icons.tune,
-    label: 'Custom',
-    sectionIds: ['custom_fields'],
-  ),
-  LibraryEditTabSpec(
-    id: 'photos',
-    icon: Icons.photo_library,
-    label: 'Photos',
-    sectionIds: ['photos'],
   ),
   LibraryEditTabSpec(
     id: 'cover',
@@ -100,12 +72,6 @@ const _animeTrackedTabs = [
     icon: Icons.article,
     label: 'Main',
     sectionIds: ['catalog_snapshot', 'tracking_context'],
-  ),
-  LibraryEditTabSpec(
-    id: 'personal',
-    icon: Icons.person,
-    label: 'Personal',
-    sectionIds: ['tracking_personal', 'wishlist_reference'],
   ),
   LibraryEditTabSpec(
     id: 'media',
@@ -131,11 +97,6 @@ const _animeTrackedTabs = [
     id: 'specs',
     icon: Icons.tune_outlined,
     label: 'Specs',
-  ),
-  LibraryEditTabSpec(
-    id: 'links',
-    icon: Icons.public,
-    label: 'Links',
   ),
   LibraryEditTabSpec(
     id: 'cover',
@@ -184,11 +145,6 @@ const _animeCatalogTabs = [
     label: 'Specs',
   ),
   LibraryEditTabSpec(
-    id: 'links',
-    icon: Icons.public,
-    label: 'Links',
-  ),
-  LibraryEditTabSpec(
     id: 'cover',
     icon: Icons.image,
     label: 'Cover',
@@ -223,4 +179,59 @@ class AnimeLibraryEditPresentationBuilder
 
 const animeLibraryEditPresentation = LibraryEditPresentation(
   builder: AnimeLibraryEditPresentationBuilder(),
+  sharedTabs: [
+    LibraryEditTabContribution(
+      tab: LibraryEditTabSpec(
+        id: 'links',
+        icon: Icons.public,
+        label: 'Links',
+      ),
+      afterTabId: 'specs',
+    ),
+    LibraryEditTabContribution(
+      tab: LibraryEditTabSpec(
+        id: 'personal',
+        icon: Icons.person,
+        label: 'Personal',
+        sectionIds: ['tracking_personal', 'wishlist_reference'],
+      ),
+      scope: LibraryEditTabTargetScope.tracked,
+      afterTabId: 'main',
+    ),
+    LibraryEditTabContribution(
+      tab: LibraryEditTabSpec(
+        id: 'personal',
+        icon: Icons.person,
+        label: 'Personal',
+        sectionIds: [
+          'tracking_personal',
+          'wishlist_reference',
+          'entry_notes',
+          'collection_fields_info',
+        ],
+      ),
+      scope: LibraryEditTabTargetScope.libraryEntry,
+      afterTabId: 'links',
+    ),
+    LibraryEditTabContribution(
+      tab: LibraryEditTabSpec(
+        id: 'custom',
+        icon: Icons.tune,
+        label: 'Custom',
+        sectionIds: ['custom_fields'],
+      ),
+      scope: LibraryEditTabTargetScope.libraryEntry,
+      afterTabId: 'sold',
+    ),
+    LibraryEditTabContribution(
+      tab: LibraryEditTabSpec(
+        id: 'photos',
+        icon: Icons.photo_library,
+        label: 'Photos',
+        sectionIds: ['photos'],
+      ),
+      scope: LibraryEditTabTargetScope.libraryEntry,
+      afterTabId: 'custom',
+    ),
+  ],
 );

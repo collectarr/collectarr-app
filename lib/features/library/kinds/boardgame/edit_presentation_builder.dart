@@ -33,21 +33,9 @@ const _boardGameSecondaryTabs = [
     label: 'Description',
   ),
   LibraryEditTabSpec(
-    id: 'links',
-    icon: Icons.public,
-    label: 'Links',
-    sectionIds: ['external_links'],
-  ),
-  LibraryEditTabSpec(
     id: 'cover',
     icon: Icons.photo_camera_outlined,
     label: 'Covers',
-  ),
-  LibraryEditTabSpec(
-    id: 'photos',
-    icon: Icons.image_outlined,
-    label: 'My Images',
-    sectionIds: ['photos'],
   ),
 ];
 
@@ -75,7 +63,6 @@ Widget? buildBoardGameCustomTabView({
   required BuildContext context,
   required LibraryEditShellState draft,
   required Color accent,
-
   required CatalogSearchCandidate item,
   required VoidCallback markDirty,
 }) {
@@ -242,4 +229,24 @@ class BoardGameLibraryCombinedEditPresentationBuilder
 
 const boardGamesLibraryEditPresentation = LibraryEditPresentation(
   builder: BoardGameLibraryCombinedEditPresentationBuilder(),
+  sharedTabs: [
+    LibraryEditTabContribution(
+      tab: LibraryEditTabSpec(
+        id: 'links',
+        icon: Icons.public,
+        label: 'Links',
+        sectionIds: ['external_links'],
+      ),
+      afterTabId: 'synopsis',
+    ),
+    LibraryEditTabContribution(
+      tab: LibraryEditTabSpec(
+        id: 'photos',
+        icon: Icons.image_outlined,
+        label: 'My Images',
+        sectionIds: ['photos'],
+      ),
+      afterTabId: 'cover',
+    ),
+  ],
 );
