@@ -28,18 +28,17 @@ final class MusicCatalogMapper {
       if (album.sortTitle != null) 'sort_title': album.sortTitle,
       if (album.subtitle != null) 'subtitle': album.subtitle,
       if (album.artist != null) 'artist': album.artist,
-      if (album.artistCredits.isNotEmpty)
-        'artist_credits': [
-          for (final credit in album.artistCredits)
-            {
-              'id': credit.id,
-              'name': credit.creditedName,
-              'sequence': credit.sequence,
-              if (credit.sortName != null) 'sort_name': credit.sortName,
-              if (credit.artistId != null) 'artist_id': credit.artistId,
-              if (credit.joinPhrase != null) 'join_phrase': credit.joinPhrase,
-            },
-        ],
+      'artist_credits': [
+        for (final credit in album.artistCredits)
+          {
+            'id': credit.id,
+            'name': credit.creditedName,
+            'sequence': credit.sequence,
+            if (credit.sortName != null) 'sort_name': credit.sortName,
+            if (credit.artistId != null) 'artist_id': credit.artistId,
+            if (credit.joinPhrase != null) 'join_phrase': credit.joinPhrase,
+          },
+      ],
       if (album.originalReleaseDateParts != null) ...{
         'original_release_date': album.originalReleaseDateParts!.toJson(),
       },
@@ -52,66 +51,55 @@ final class MusicCatalogMapper {
       if (album.publisher != null) 'label': album.publisher,
       if (album.barcode case final barcode?) 'barcode': barcode,
       if (album.catalogNumber != null) 'catalog_number': album.catalogNumber,
-      if (album.genres.isNotEmpty) 'genres': album.genres,
+      'genres': album.genres,
       if (album.packaging != null) 'packaging': album.packaging,
-      if (album.studios.isNotEmpty) 'studios': album.studios,
+      'studios': album.studios,
       if (album.countryCode != null) 'country': album.countryCode,
       if (album.isLive != null) 'is_live': album.isLive,
       'extra': album.extra,
       if (album.sparsCode != null) 'spars_code': album.sparsCode,
       if (album.boxSet != null) 'box_set': album.boxSet,
-      if (_peopleForRole(album, 'Composer').isNotEmpty)
-        'composers': _peopleForRole(album, 'Composer'),
-      if (_peopleForRole(album, 'Conductor').isNotEmpty)
-        'conductors': _peopleForRole(album, 'Conductor'),
-      if (_peopleForRole(album, 'Songwriter').isNotEmpty)
-        'songwriters': _peopleForRole(album, 'Songwriter'),
-      if (_peopleForRole(album, 'Producer').isNotEmpty)
-        'producers': _peopleForRole(album, 'Producer'),
-      if (_peopleForRole(album, 'Engineer').isNotEmpty)
-        'engineers': _peopleForRole(album, 'Engineer'),
-      if (_peopleForRole(album, 'Musician').isNotEmpty)
-        'musicians': _peopleForRole(album, 'Musician'),
-      if (_namesForRole(album, 'Chorus').isNotEmpty)
-        'choruses': _namesForRole(album, 'Chorus'),
-      if (_namesForRole(album, 'Composition').isNotEmpty)
-        'compositions': _namesForRole(album, 'Composition'),
-      if (_namesForRole(album, 'Orchestra').isNotEmpty)
-        'orchestras': _namesForRole(album, 'Orchestra'),
-      if (album.externalLinks.isNotEmpty)
-        'external_links':
-            album.externalLinks.map((link) => link.toJson()).toList(),
+      'composers': _peopleForRole(album, 'Composer'),
+      'conductors': _peopleForRole(album, 'Conductor'),
+      'songwriters': _peopleForRole(album, 'Songwriter'),
+      'producers': _peopleForRole(album, 'Producer'),
+      'engineers': _peopleForRole(album, 'Engineer'),
+      'musicians': _peopleForRole(album, 'Musician'),
+      'choruses': _namesForRole(album, 'Chorus'),
+      'compositions': _namesForRole(album, 'Composition'),
+      'orchestras': _namesForRole(album, 'Orchestra'),
+      'external_links':
+          album.externalLinks.map((link) => link.toJson()).toList(),
       if (album.coverImageUrl != null) 'cover_image_url': album.coverImageUrl,
       if (album.backCoverImageUrl != null)
         'back_cover_image_url': album.backCoverImageUrl,
       if (album.thumbnailImageUrl != null)
         'thumbnail_image_url': album.thumbnailImageUrl,
-      if (album.discs.isNotEmpty)
-        'discs': [
-          for (final disc in album.discs)
-            {
-              'id': disc.id.value,
-              'disc_number': disc.discNumber,
-              if (disc.title != null) 'title': disc.title,
-              if (disc.formatFamily != null)
-                'format_family': disc.formatFamily!.value,
-              if (disc.format != null) 'format': disc.format,
-              if (disc.soundTypes.isNotEmpty) 'sound_types': disc.soundTypes,
-              if (disc.color != null) 'color': disc.color,
-              if (disc.vinylWeightGrams != null)
-                'vinyl_weight_grams': disc.vinylWeightGrams,
-              if (disc.rpm != null) 'rpm': disc.rpm,
-              if (disc.matrixNumber != null) 'matrix_number': disc.matrixNumber,
-              if (disc.matrixNumberSideA != null)
-                'matrix_number_side_a': disc.matrixNumberSideA,
-              if (disc.matrixNumberSideB != null)
-                'matrix_number_side_b': disc.matrixNumberSideB,
-              'tracks': [
-                for (var index = 0; index < disc.tracks.length; index++)
-                  _trackToCatalogData(disc.tracks[index], index),
-              ],
-            },
-        ],
+      'discs': [
+        for (final disc in album.discs)
+          {
+            'id': disc.id.value,
+            'disc_number': disc.discNumber,
+            if (disc.title != null) 'title': disc.title,
+            if (disc.formatFamily != null)
+              'format_family': disc.formatFamily!.value,
+            if (disc.format != null) 'format': disc.format,
+            if (disc.soundTypes.isNotEmpty) 'sound_types': disc.soundTypes,
+            if (disc.color != null) 'color': disc.color,
+            if (disc.vinylWeightGrams != null)
+              'vinyl_weight_grams': disc.vinylWeightGrams,
+            if (disc.rpm != null) 'rpm': disc.rpm,
+            if (disc.matrixNumber != null) 'matrix_number': disc.matrixNumber,
+            if (disc.matrixNumberSideA != null)
+              'matrix_number_side_a': disc.matrixNumberSideA,
+            if (disc.matrixNumberSideB != null)
+              'matrix_number_side_b': disc.matrixNumberSideB,
+            'tracks': [
+              for (var index = 0; index < disc.tracks.length; index++)
+                _trackToCatalogData(disc.tracks[index], index),
+            ],
+          },
+      ],
     };
 
     return CatalogItemDto.raw(
