@@ -56,13 +56,20 @@ registration and files under `features/library/kinds/<kind>/`.
   overlapping kind-owned report columns; keep export formatting and layout
   settings in the export contribution.
 - [ ] Consolidate field metadata used by filtering, sorting, exporting,
-  and editing without forcing unrelated fields into one model.
+  and editing without forcing unrelated fields into one model. Exact matching
+  field IDs and labels are now shared across all nine registered kinds, with
+  filters wired to those identities where their value semantics match. The
+  full metadata contract remains open: types, catalog paths, capability flags,
+  and vocabulary bindings are still split across form, workspace, and export
+  definitions.
 
 ## P2 — shared interaction primitives and core contract cleanup
 
-- [ ] Extract interaction-only primitives for reorderable segment tabs,
-  selection toolbars, editable table headers, compact actions, and bulk action
-  bars when another editor can reuse them.
+- [x] Audit interaction-only primitive candidates. The edit tab strip, named
+  detail lists, and library selection controls are already shared. Music's
+  segment tabs and track table remain kind-owned because no other editor uses
+  that interaction model; Manual Add embeds the same editor rather than a
+  second consumer.
 - [x] Add a thin Core response base for truly identical envelope fields; keep
   kind-specific response schemas separate.
 - [x] Remove packed multi-value transports; no quoted `||` delimiter remains
@@ -143,6 +150,13 @@ release date and barcode stay separate because they use date and identifier
 fallbacks; volume number and edition format also represent different values.
 Music filters now use the canonical artist, label, country, format, packaging,
 and genre identities already shared by its forms and workspace fields.
+The field identity audit covers all nine registered kinds. It deliberately
+stops at IDs and labels for now: typed value kinds, catalog paths, capability
+flags, and vocabulary references still belong to separate form, workspace,
+filter, and export definitions, so the P1 field metadata item remains open.
+The P2 interaction audit found existing shared tab, list, and selection
+primitives across kinds. Music's track hierarchy table and bulk editing stay
+Music-owned until another kind has the same structural interaction.
 Music release, original release, and recording dates now have one canonical
 `{year, month, day}` representation across the Core model, API, correction
 flow, search projection, App mapper, and pinned contract. Core rejects legacy
