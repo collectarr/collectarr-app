@@ -134,12 +134,13 @@ final mangaCatalogItemWorkspaceFieldDefinitions = [
 ];
 
 final mangaCatalogItemWorkspaceGroupDefinitions = [
-  groupFromField<MangaKind, MangaWorkspaceDto, String?>(
-    MangaCatalogItemWorkspaceFields.series,
-    sidebarTitle: 'Series',
-    icon: Icons.collections_bookmark_outlined,
-    sequenceValue: (context) => context.dto.itemNumber,
-  ),
+  if (MangaFieldIdentities.series.groupable)
+    groupFromField<MangaKind, MangaWorkspaceDto, String?>(
+      MangaCatalogItemWorkspaceFields.series,
+      sidebarTitle: 'Series',
+      icon: Icons.collections_bookmark_outlined,
+      sequenceValue: (context) => context.dto.itemNumber,
+    ),
   groupFromField<MangaKind, MangaWorkspaceDto, String?>(
     MangaCatalogItemWorkspaceFields.demographic,
     sidebarTitle: 'Demographics',
@@ -164,8 +165,10 @@ final mangaCatalogItemWorkspaceGroupDefinitions = [
 ];
 
 final mangaCatalogItemWorkspaceSortDefinitions = [
-  sortFromField<MangaKind, MangaWorkspaceDto, String>(
-      MangaCatalogItemWorkspaceFields.series),
+  if (MangaFieldIdentities.series.sortable)
+    sortFromField<MangaKind, MangaWorkspaceDto, String>(
+      MangaCatalogItemWorkspaceFields.series,
+    ),
   sortFromField<MangaKind, MangaWorkspaceDto, String>(
       MangaCatalogItemWorkspaceFields.volumeNumber),
   sortFromField<MangaKind, MangaWorkspaceDto, String>(

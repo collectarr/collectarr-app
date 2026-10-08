@@ -55,13 +55,14 @@ registration and files under `features/library/kinds/<kind>/`.
 - [x] Reuse typed workspace field identity, labels, and value getters for
   overlapping kind-owned report columns; keep export formatting and layout
   settings in the export contribution.
-- [ ] Consolidate field metadata used by filtering, sorting, exporting,
-  and editing without forcing unrelated fields into one model. Exact matching
-  field IDs and labels are now shared across all nine registered kinds, with
-  filters wired to those identities where their value semantics match. The
-  full metadata contract remains open: types, catalog paths, capability flags,
-  and vocabulary bindings are still split across form, workspace, and export
-  definitions.
+- [x] Consolidate field metadata used by filtering, sorting, exporting,
+  and editing without forcing unrelated fields into one model. All nine
+  registered kinds now describe audited shared field identities with value
+  types, catalog paths, projection origin, surface capabilities, and applicable
+  vocabulary bindings. Filters, facets, workspace search/sort/group fields, and
+  Music export columns consume those flags where identity and value semantics
+  match. Typed getters, writers, and formatting remain in their owning surfaces;
+  fields with different fallback or projection semantics stay separate.
 
 ## P2 — shared interaction primitives and core contract cleanup
 
@@ -150,25 +151,27 @@ release date and barcode stay separate because they use date and identifier
 fallbacks; volume number and edition format also represent different values.
 Music filters now use the canonical artist, label, country, format, packaging,
 and genre identities already shared by its forms and workspace fields.
-The field identity audit covers all nine registered kinds. It deliberately
-shares exact IDs and labels across forms and workspace fields, and filters
-where their value semantics match. Typed value kinds, catalog paths, capability
-flags, and vocabulary references still need to be audited across the remaining
-kinds and surfaces, so the P1 field metadata item remains open.
+The field metadata audit covers all nine registered kinds. Each kind now
+declares typed paths and capabilities for the audited fields shared by its edit
+and workspace surfaces, with vocabulary bindings where applicable. Filters,
+facets, workspace search/sort/group definitions, and Music export columns
+consume those declarations where their values match. Field-specific access,
+editing, and formatting stay local, and projections with different fallback
+semantics retain separate identities. The P1 field metadata stage is complete.
 The first full metadata descriptor is now in place for Music's overlapping
 catalog fields. It records value type, canonical catalog path, derived origin,
 search/filter/sort/group/export/edit capabilities, and vocabulary binding next
 to the canonical field ID and label. Music filters, workspace sorts and groups,
 and export columns consume those capability flags; edit forms keep using the
-same primitive const IDs and labels. This is a pilot only: equivalent
-descriptors and surface adoption remain to be audited across the other kinds.
+same primitive const IDs and labels. The same metadata contract is now adopted
+by the other registered kinds for their audited shared fields.
 Book now has the same descriptor for subtitle, series, publisher, page count,
 ISBN, release date, and format. Its filters, facets, workspace sorts and groups,
 and searchable field definitions consume the matching flags; publisher and
 format vocabularies reuse their descriptor bindings. The ISBN and release-date
 projections are marked derived because their displayed values can fall back to
-other catalog fields. Other kinds and Book export support remain outside this
-slice.
+other catalog fields. Book export remains a separate capability and is not
+introduced by this metadata refactor.
 Movie now declares metadata for its shared title, original title, genre,
 ratings, runtime, format, release date, and barcode fields. Searchable workspace
 fields, sort and group contributions, and genre/format vocabulary IDs consume
@@ -199,6 +202,11 @@ count fields. Series filtering/grouping/sorting, issue-number sorting, and the
 imprint vocabulary use those descriptors. Publisher stays separate because its
 workspace value falls back to imprint; release date and barcode also retain
 their projection-specific identities.
+Manga now describes Series and Publisher across Add/Edit forms, workspace,
+filters, facets, sorting, and grouping. Publisher's search capability and
+vocabulary binding also come from the same descriptor. Its release-date and
+barcode projections remain separate because they fall back across catalog
+fields.
 The P2 interaction audit found existing shared tab, list, and selection
 primitives across kinds. Music's track hierarchy table and bulk editing stay
 Music-owned until another kind has the same structural interaction.

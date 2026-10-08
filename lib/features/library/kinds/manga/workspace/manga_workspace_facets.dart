@@ -6,13 +6,14 @@ import 'package:collectarr_app/features/library/workspace/schema/library_identif
 
 final mangaLibraryFacetDefinitions =
     <LibraryFacetDefinition<MangaKind, MangaWorkspaceDto, String>>[
-  LibraryFacetDefinition<MangaKind, MangaWorkspaceDto, String>(
-    id: MangaFacetIds.publisher,
-    label: MangaFieldIdentities.publisherLabel,
-    extractValues: (dto) => [
-      if (dto.publisher case final publisher?) publisher,
-    ],
-  ),
+  if (MangaFieldIdentities.publisher.filterable)
+    LibraryFacetDefinition<MangaKind, MangaWorkspaceDto, String>(
+      id: MangaFacetIds.publisher,
+      label: MangaFieldIdentities.publisher.label,
+      extractValues: (dto) => [
+        if (dto.publisher case final publisher?) publisher,
+      ],
+    ),
   LibraryFacetDefinition<MangaKind, MangaWorkspaceDto, String>(
     id: MangaFacetIds.genre,
     label: 'Genre',

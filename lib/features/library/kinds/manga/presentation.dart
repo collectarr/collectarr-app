@@ -64,14 +64,15 @@ const mangaLibraryBucketLabelOverrides = LibraryPresentationLabels(
 );
 
 final mangaLibraryFilterDefinitions = <LibraryFilterDefinition<Object?>>[
-  LibraryFilterDefinition<Object?>(
-    id: MangaFieldIdentities.seriesId,
-    label: MangaFieldIdentities.seriesLabel,
-    anyLabel: 'Any series',
-    value: (item) => (item.dto is MangaWorkspaceDto)
-        ? (item.dto as MangaWorkspaceDto).seriesTitle
-        : null,
-  ),
+  if (MangaFieldIdentities.series.filterable)
+    LibraryFilterDefinition<Object?>(
+      id: MangaFieldIdentities.seriesId,
+      label: MangaFieldIdentities.seriesLabel,
+      anyLabel: 'Any series',
+      value: (item) => (item.dto is MangaWorkspaceDto)
+          ? (item.dto as MangaWorkspaceDto).seriesTitle
+          : null,
+    ),
   LibraryFilterDefinition<Object?>(
     id: 'location',
     label: 'Location',
@@ -86,14 +87,15 @@ final mangaLibraryFilterDefinitions = <LibraryFilterDefinition<Object?>>[
       item.source.libraryEntryDispatch,
     )?.personal.tags?.split(','),
   ),
-  LibraryFilterDefinition<Object?>(
-    id: MangaFieldIdentities.publisherId,
-    label: MangaFieldIdentities.publisherLabel,
-    anyLabel: 'Any publisher',
-    value: (item) => (item.dto is MangaWorkspaceDto)
-        ? (item.dto as MangaWorkspaceDto).publisher
-        : null,
-  ),
+  if (MangaFieldIdentities.publisher.filterable)
+    LibraryFilterDefinition<Object?>(
+      id: MangaFieldIdentities.publisherId,
+      label: MangaFieldIdentities.publisherLabel,
+      anyLabel: 'Any publisher',
+      value: (item) => (item.dto is MangaWorkspaceDto)
+          ? (item.dto as MangaWorkspaceDto).publisher
+          : null,
+    ),
   LibraryFilterDefinition<Object?>(
     id: 'year',
     label: 'Year',

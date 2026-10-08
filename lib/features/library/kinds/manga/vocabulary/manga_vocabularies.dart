@@ -6,10 +6,11 @@ import 'package:collectarr_app/features/pick_lists/pick_list_definition_contribu
 import 'package:collectarr_app/features/library/kinds/manga/domain/manga_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/manga/domain/manga_library_entry.dart';
 import 'package:collectarr_app/features/library/kinds/manga/entries/manga_entry_details.dart';
+import 'package:collectarr_app/features/library/kinds/manga/config/manga_field_identities.dart';
 
 abstract final class MangaVocabularyIds {
   static const condition = VocabularyId<String>('manga.condition');
-  static const publisher = VocabularyId<String>('manga.publisher');
+  static const publisher = MangaFieldIdentities.publisherVocabulary;
   static const imprint = VocabularyId<String>('manga.imprint');
   static const demographic = VocabularyId<String>('manga.demographic');
   static const serialization = VocabularyId<String>('manga.serialization');
@@ -27,8 +28,11 @@ abstract final class MangaVocabularies {
     ];
   }
 
-  static Future<Map<String, int>> entryUsageCounts(LocalDatabase db, String semanticName) =>
-    countPickListEntryUsages(items: MangaEntryRepository(db).listActive(), valuesFrom: (item) => _entryValues(item, semanticName));
+  static Future<Map<String, int>> entryUsageCounts(
+          LocalDatabase db, String semanticName) =>
+      countPickListEntryUsages(
+          items: MangaEntryRepository(db).listActive(),
+          valuesFrom: (item) => _entryValues(item, semanticName));
 
   static Future<PickListEntryMergeResult> previewEntryMerge(
     LocalDatabase db,

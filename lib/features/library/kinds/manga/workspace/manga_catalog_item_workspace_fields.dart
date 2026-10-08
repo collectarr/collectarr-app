@@ -11,7 +11,7 @@ abstract final class MangaAdditionalCatalogItemWorkspaceFields {
     id: MangaFieldIds.publisher,
     label: MangaFieldIdentities.publisherLabel,
     getValue: (dto) => dto.publisher,
-    searchable: true,
+    searchable: MangaFieldIdentities.publisher.searchable,
   );
 
   static final releaseDate = dateField<MangaKind, MangaWorkspaceDto>(
@@ -35,15 +35,16 @@ final mangaAdditionalCatalogItemWorkspaceFieldDefinitions = [
 ];
 
 final mangaAdditionalCatalogItemWorkspaceGroupDefinitions = [
-  groupFromField<MangaKind, MangaWorkspaceDto, String?>(
-    MangaAdditionalCatalogItemWorkspaceFields.publisher,
-    sidebarTitle: 'Publishers',
-    icon: Icons.business_outlined,
-    supportsBucketManagement: true,
-    bucketValueMutator: catalogTransportStringBucketValueMutator(
-      ['publisher', 'original_publisher', 'localized_publisher'],
+  if (MangaFieldIdentities.publisher.groupable)
+    groupFromField<MangaKind, MangaWorkspaceDto, String?>(
+      MangaAdditionalCatalogItemWorkspaceFields.publisher,
+      sidebarTitle: 'Publishers',
+      icon: Icons.business_outlined,
+      supportsBucketManagement: true,
+      bucketValueMutator: catalogTransportStringBucketValueMutator(
+        ['publisher', 'original_publisher', 'localized_publisher'],
+      ),
     ),
-  ),
 ];
 
 final mangaAdditionalCatalogItemWorkspaceSortDefinitions = [
@@ -52,8 +53,10 @@ final mangaAdditionalCatalogItemWorkspaceSortDefinitions = [
     label: 'Release title',
     compare: (left, right) => left.dto.title.compareTo(right.dto.title),
   ),
-  sortFromField<MangaKind, MangaWorkspaceDto, String>(
-      MangaAdditionalCatalogItemWorkspaceFields.publisher),
+  if (MangaFieldIdentities.publisher.sortable)
+    sortFromField<MangaKind, MangaWorkspaceDto, String>(
+      MangaAdditionalCatalogItemWorkspaceFields.publisher,
+    ),
   sortFromField<MangaKind, MangaWorkspaceDto, DateTime>(
       MangaAdditionalCatalogItemWorkspaceFields.releaseDate,
       defaultAscending: false),
