@@ -90,7 +90,7 @@ final class _MusicAlbumStructureTabState
               buildDefaultDragHandles: false,
               itemCount: draft.discs.length,
               onReorderItem: (oldIndex, newIndex) => _change(() {
-                draft.reorderDisc(oldIndex, newIndex);
+                draft.discList.reorderDisc(oldIndex, newIndex);
                 _selectedTrackIds.clear();
               }),
               itemBuilder: (context, index) {
@@ -128,7 +128,7 @@ final class _MusicAlbumStructureTabState
       mouseCursor: SystemMouseCursors.click,
       borderRadius: BorderRadius.circular(4),
       onTap: () => _change(() {
-        draft.addDisc();
+        draft.discList.addDisc();
         _activeDiscId = draft.discs.last.id;
         _selectedTrackIds.clear();
       }),
@@ -210,7 +210,7 @@ final class _MusicAlbumStructureTabState
                 ),
               ),
               onChanged: (value) {
-                _change(() => draft.updateDiscTitle(disc.id, value));
+                _change(() => draft.discList.updateDiscTitle(disc.id, value));
               },
             ),
           ),
@@ -266,7 +266,7 @@ final class _MusicAlbumStructureTabState
         entry.set('media', details);
       }
       widget.onDiscRemoved?.call(disc.id.value);
-      draft.removeDisc(disc.id);
+      draft.discList.removeDisc(disc.id);
       _activeDiscId = draft.discs.isEmpty ? null : draft.discs.first.id;
       _selectedTrackIds.clear();
     });

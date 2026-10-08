@@ -110,8 +110,8 @@ class _MusicDiscDetailsViewState extends State<MusicDiscDetailsView> {
 
   @override
   Widget build(BuildContext context) {
-    final family = disc.formatFamily ??
-        MusicDiscFormatFamily.fromFormatName(disc.format);
+    final family =
+        disc.formatFamily ?? MusicDiscFormatFamily.fromFormatName(disc.format);
     final isVinyl = family == MusicDiscFormatFamily.vinyl;
     final isCassette = family == MusicDiscFormatFamily.cassette;
     final isOptical = family == MusicDiscFormatFamily.cd ||
@@ -127,7 +127,7 @@ class _MusicDiscDetailsViewState extends State<MusicDiscDetailsView> {
           label: 'Disc Title',
           initialValue: disc.title ?? '',
           onChanged: (value) {
-            draft.updateDiscTitle(disc.id, value);
+            draft.discList.updateDiscTitle(disc.id, value);
             widget.onChanged?.call();
           },
         );
@@ -140,7 +140,7 @@ class _MusicDiscDetailsViewState extends State<MusicDiscDetailsView> {
             value: disc.format,
             builtIns: MusicVocabularies.format.builtIns,
             onChanged: (value) {
-              draft.updateDiscFormat(disc.id, value);
+              draft.discList.updateDiscFormat(disc.id, value);
               _notify();
             },
           ),
@@ -166,7 +166,7 @@ class _MusicDiscDetailsViewState extends State<MusicDiscDetailsView> {
               ],
               onChanged: (val) {
                 if (val != null) {
-                  draft.updateDiscFormatFamily(disc.id, val);
+                  draft.discList.updateDiscFormatFamily(disc.id, val);
                   _notify();
                 }
               },
@@ -211,7 +211,7 @@ class _MusicDiscDetailsViewState extends State<MusicDiscDetailsView> {
             LibraryFieldOption(value: option, label: option),
         ],
         onChanged: (values) {
-          draft.updateDiscSoundTypes(disc.id, values.toList());
+          draft.discList.updateDiscSoundTypes(disc.id, values.toList());
           _notify();
         },
         onOpenPicker: ({
@@ -237,7 +237,7 @@ class _MusicDiscDetailsViewState extends State<MusicDiscDetailsView> {
       value: disc.color,
       builtIns: MusicVocabularies.vinylColor.builtIns,
       onChanged: (value) {
-        draft.updateDiscColor(disc.id, value);
+        draft.discList.updateDiscColor(disc.id, value);
         _notify();
       },
     );
@@ -247,7 +247,7 @@ class _MusicDiscDetailsViewState extends State<MusicDiscDetailsView> {
       label: 'Matrix Side A',
       initialValue: disc.matrixNumberSideA ?? '',
       onChanged: (value) {
-        draft.updateDiscMatrixNumberSideA(disc.id, value);
+        draft.discList.updateDiscMatrixNumberSideA(disc.id, value);
         widget.onChanged?.call();
       },
     );
@@ -257,7 +257,7 @@ class _MusicDiscDetailsViewState extends State<MusicDiscDetailsView> {
       label: 'Matrix Side B',
       initialValue: disc.matrixNumberSideB ?? '',
       onChanged: (value) {
-        draft.updateDiscMatrixNumberSideB(disc.id, value);
+        draft.discList.updateDiscMatrixNumberSideB(disc.id, value);
         widget.onChanged?.call();
       },
     );
@@ -267,12 +267,13 @@ class _MusicDiscDetailsViewState extends State<MusicDiscDetailsView> {
       label: 'Matrix / Runout',
       initialValue: disc.matrixNumber ?? '',
       onChanged: (value) {
-        draft.updateDiscMatrixNumber(disc.id, value);
+        draft.discList.updateDiscMatrixNumber(disc.id, value);
         widget.onChanged?.call();
       },
     );
 
-    final storage = _discPersonalField(disc, 'Storage Device', 'storage_device');
+    final storage =
+        _discPersonalField(disc, 'Storage Device', 'storage_device');
     final slot = _discPersonalField(disc, 'Slot', 'storage_slot');
 
     return Column(
@@ -296,7 +297,8 @@ class _MusicDiscDetailsViewState extends State<MusicDiscDetailsView> {
                     keyboardType: TextInputType.number,
                     onChanged: (value) {
                       final parsed = int.tryParse(value);
-                      draft.updateDiscVinylWeightGrams(disc.id, parsed);
+                      draft.discList
+                          .updateDiscVinylWeightGrams(disc.id, parsed);
                       widget.onChanged?.call();
                     },
                   ),
@@ -311,7 +313,7 @@ class _MusicDiscDetailsViewState extends State<MusicDiscDetailsView> {
                       '78': '78',
                     },
                     onChanged: (value) {
-                      draft.updateDiscRpm(disc.id, value);
+                      draft.discList.updateDiscRpm(disc.id, value);
                       _notify();
                     },
                   ),
@@ -365,7 +367,9 @@ class _MusicDiscDetailsViewState extends State<MusicDiscDetailsView> {
             },
           ),
           const SizedBox(height: 10),
-        ] else if (isOptical || isCassette || (!isDigital && family == MusicDiscFormatFamily.other)) ...[
+        ] else if (isOptical ||
+            isCassette ||
+            (!isDigital && family == MusicDiscFormatFamily.other)) ...[
           LayoutBuilder(
             builder: (context, constraints) {
               final wide = constraints.maxWidth >= 600;

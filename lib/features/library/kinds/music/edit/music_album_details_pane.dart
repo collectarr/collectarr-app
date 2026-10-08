@@ -109,7 +109,7 @@ class _MusicAlbumDetailsPaneState extends State<MusicAlbumDetailsPane> {
       }
     }
     widget.onDiscRemoved?.call(disc.id.value);
-    draft.removeDisc(disc.id);
+    draft.discList.removeDisc(disc.id);
     setState(() {
       _selectedSubTabIndex = 0;
     });
@@ -195,7 +195,7 @@ class _MusicAlbumDetailsPaneState extends State<MusicAlbumDetailsPane> {
           ],
           OutlinedButton.icon(
             onPressed: () {
-              draft.addDisc();
+              draft.discList.addDisc();
               setState(() {
                 _selectedSubTabIndex = draft.discs.length;
               });

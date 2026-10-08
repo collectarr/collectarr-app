@@ -30,7 +30,7 @@ registration and files under `features/library/kinds/<kind>/`.
 - [ ] Audit central kind switches across actions, reports, search, folders,
   edit setup, display, images, and vocabulary; move semantic behavior to kind
   contributions where the current architecture permits it.
-- [ ] Reduce `MusicAlbumEditDraft` orchestration by separating album values,
+- [x] Reduce `MusicAlbumEditDraft` orchestration by separating album values,
   discs, credits, links, and track editing logic where useful.
 - [x] Audit Music edit/forms for orphaned components after cutover and delete
   confirmed dead code.
@@ -72,7 +72,7 @@ fields, child rows, labels, and default filenames. The shared page owns column
 selection, sorting, quoting, preview, and file handling. The Music edit/forms
 reference audit removed three unreferenced pre-cutover helpers; the disc text
 field, disc tab button, disc details view, and active form adapters remain in
-use. Track list editing now lives in `MusicTrackListEditor`; album values,
-disc lifecycle, credits, links, and vocabulary changes remain in
-`MusicAlbumEditDraft`, so that extraction item stays open. Remaining P0 work
-is tracked above.
+use. `MusicDiscListEditor` owns discs and composes `MusicTrackListEditor` for
+track hierarchy, ordering, and duration state. `MusicAlbumEditDraft` now
+combines those editors with scalar values, credits, links, and vocabulary
+changes. Remaining P0 work is tracked above.
