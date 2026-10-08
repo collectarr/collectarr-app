@@ -29,6 +29,27 @@ final class MusicStatsCapability implements LibraryStatsCapability {
     final secondary = music.publisher?.trim();
     final releaseYear =
         music.releaseDate?.year ?? music.originalReleaseDate?.year;
+    final inlineFacts = <LibraryStatsInlineFact>[];
+    final tracksCount = music.trackCount;
+    if (tracksCount > 0) {
+      inlineFacts.add(LibraryStatsInlineFact(
+        icon: Icons.music_note,
+        text: '$tracksCount tracks',
+      ));
+      var durationSec = 0;
+      for (final track in music.tracks) {
+        if (track.durationMs != null && track.durationMs! > 0) {
+          durationSec += (track.durationMs! / 1000).round();
+        }
+      }
+      if (durationSec > 0) {
+        final minutes = durationSec ~/ 60;
+        final seconds = durationSec % 60;
+        inlineFacts.add(LibraryStatsInlineFact(
+          text: '$minutes:${seconds.toString().padLeft(2, '0')}',
+        ));
+      }
+    }
     return LibraryStatsMetadataProjection(
       primaryGroup: music.artist?.trim(),
       secondaryGroup: secondary,
@@ -40,6 +61,7 @@ final class MusicStatsCapability implements LibraryStatsCapability {
           music.formatSummary?.trim().isNotEmpty == true,
       hasReleaseDate:
           music.originalReleaseDate != null || music.releaseDate != null,
+      inlineFacts: inlineFacts,
     );
   }
 

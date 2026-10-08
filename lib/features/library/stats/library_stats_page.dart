@@ -2,7 +2,6 @@ import 'package:collectarr_app/features/collection/repositories/shelf_controller
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/config/library_kind_style.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
-import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_data.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/stats/library_stats_cards.dart';
 import 'package:collectarr_app/features/library/stats/library_stats_style.dart';
@@ -553,28 +552,10 @@ class _RecentAdditionsCard extends StatelessWidget {
     final coverUrl = summary?.imageUrl;
     final projection = libraryStatsForKind(type.kind).buildMetadataProjection(entry);
 
-    // Music-specific rich info
-    int? tracksCount;
-    String? durationText;
+    // Kind-owned compact facts
     final formatText = projection?.format;
     final releaseYear = projection?.releaseYear;
-
-    final catalogData = entry.kindPresentationData;
-    if (catalogData is MusicWorkspaceData) {
-      final music = catalogData.music;
-      tracksCount = music.trackCount;
-      var durationSec = 0;
-      for (final t in music.tracks) {
-        if (t.durationMs != null && t.durationMs! > 0) {
-          durationSec += (t.durationMs! / 1000).round();
-        }
-      }
-      if (durationSec > 0) {
-        final m = durationSec ~/ 60;
-        final s = durationSec % 60;
-        durationText = '$m:${s.toString().padLeft(2, '0')}';
-      }
-    }
+    final inlineFacts = projection?.inlineFacts ?? const [];
 
     final databoxParts = <String>[
       if (formatText != null && formatText.trim().isNotEmpty) formatText.trim(),
@@ -616,30 +597,29 @@ class _RecentAdditionsCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
-              if (tracksCount != null && tracksCount > 0) ...[
+              if (inlineFacts.isNotEmpty) ...[
                 Row(
                   children: [
-                    Icon(
-                      Icons.music_note,
-                      size: 13,
-                      color: colors.textMuted,
-                    ),
-                    const SizedBox(width: 3),
-                    Text(
-                      '$tracksCount tracks',
-                      style: TextStyle(
-                        fontSize: 11,
-                        color: colors.textMuted,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    if (durationText != null) ...[
-                      const SizedBox(width: 8),
+                    for (var index = 0;
+                        index < inlineFacts.length;
+                        index++) ...[
+                      if (index > 0) const SizedBox(width: 8),
+                      if (inlineFacts[index].icon case final icon?) ...[
+                        Icon(
+                          icon,
+                          size: 13,
+                          color: colors.textMuted,
+                        ),
+                        const SizedBox(width: 3),
+                      ],
                       Text(
-                        durationText,
+                        inlineFacts[index].text,
                         style: TextStyle(
                           fontSize: 11,
                           color: colors.textMuted,
+                          fontWeight: inlineFacts[index].icon == null
+                              ? FontWeight.normal
+                              : FontWeight.w600,
                         ),
                       ),
                     ],

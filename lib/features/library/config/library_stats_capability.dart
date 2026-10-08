@@ -47,6 +47,7 @@ class LibraryStatsMetadataProjection {
     this.hasSecondaryMetadata = false,
     this.hasReleaseDate = false,
     this.hasItemNumber = false,
+    this.inlineFacts = const [],
   });
 
   final String? primaryGroup;
@@ -59,6 +60,17 @@ class LibraryStatsMetadataProjection {
   final bool hasSecondaryMetadata;
   final bool hasReleaseDate;
   final bool hasItemNumber;
+  final List<LibraryStatsInlineFact> inlineFacts;
+}
+
+/// Compact item facts rendered above the title in a generic stats row.
+///
+/// Kinds choose the meaning, icon, and text; the shared row owns the layout.
+class LibraryStatsInlineFact {
+  const LibraryStatsInlineFact({required this.text, this.icon});
+
+  final String text;
+  final IconData? icon;
 }
 
 abstract interface class LibraryStatsCapability {
