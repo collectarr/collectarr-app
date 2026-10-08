@@ -99,9 +99,11 @@ vocabulary edits, grouping, and pinned field metadata; the packed `||` form is
 gone. The broader strict Music contract remains open for other payload
 normalization. Canonical Music disc documents now reject
 missing component IDs and track positions/orders instead of generating them;
-the correction editor sends explicit disc and track identities, and App
-rejects incomplete Core disc rows. Disc format labels and format families stay
-on discs, while the album format summary remains derived; the unsupported
+the correction editor sends explicit disc and track identities, track
+positions have one string representation, and Core's request/response
+contracts require every track identity, order, and hierarchy flag. App rejects
+incomplete Core disc rows. Disc format labels and format families stay on
+discs, while the album format summary remains derived; the unsupported
 album-level format proposal was removed. Music credit writes now require
 explicit IDs, names, person references, and ordering; Core no longer creates
 credit IDs from strings or missing values, and App emits complete rows. Core

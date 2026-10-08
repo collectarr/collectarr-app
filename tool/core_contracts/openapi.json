@@ -8758,14 +8758,12 @@
             "type": "string"
           },
           "indent_level": {
-            "default": 0,
             "maximum": 8.0,
             "minimum": 0.0,
             "title": "Indent Level",
             "type": "integer"
           },
           "is_header": {
-            "default": false,
             "title": "Is Header",
             "type": "boolean"
           },
@@ -8782,7 +8780,6 @@
             "title": "Parent Header Id"
           },
           "position": {
-            "default": "",
             "maxLength": 16,
             "title": "Position",
             "type": "string"
@@ -8801,8 +8798,11 @@
         },
         "required": [
           "id",
+          "position",
           "position_order",
-          "title"
+          "title",
+          "is_header",
+          "indent_level"
         ],
         "title": "CatalogMusicTrackResponse",
         "type": "object"

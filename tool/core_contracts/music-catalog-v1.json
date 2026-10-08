@@ -675,14 +675,12 @@
           "type": "string"
         },
         "indent_level": {
-          "default": 0,
           "maximum": 8.0,
           "minimum": 0.0,
           "title": "Indent Level",
           "type": "integer"
         },
         "is_header": {
-          "default": false,
           "title": "Is Header",
           "type": "boolean"
         },
@@ -699,7 +697,6 @@
           "title": "Parent Header Id"
         },
         "position": {
-          "default": "",
           "maxLength": 16,
           "title": "Position",
           "type": "string"
@@ -718,8 +715,11 @@
       },
       "required": [
         "id",
+        "position",
         "position_order",
-        "title"
+        "title",
+        "is_header",
+        "indent_level"
       ],
       "title": "CatalogMusicTrackResponse",
       "type": "object"
@@ -788,8 +788,8 @@
   "$id": "https://schemas.collectarr.app/music-catalog/v1",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "contractVersion": "1.0.0",
-  "coreCommit": "a6575141cbca7e510754aa038362efe771497df4",
-  "generatedAt": "2026-10-08T20:09:59.985497Z",
+  "coreCommit": "c5b28fbbcab4c1535f476635169e2c6d3d3d69ba",
+  "generatedAt": "2026-10-08T20:10:45.970958Z",
   "roots": {
     "disc": {
       "$ref": "#/$defs/CatalogMusicDiscResponse"
