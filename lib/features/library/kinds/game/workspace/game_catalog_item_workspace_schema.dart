@@ -44,7 +44,7 @@ abstract final class GameCatalogItemWorkspaceFields {
     id: GameFieldIds.barcode,
     label: GameFieldIdentities.barcodeLabel,
     getValue: (dto) => dto.barcode,
-    searchable: true,
+    searchable: GameFieldIdentities.barcode.searchable,
   );
 
   static final edition = textField<GameKind, GameWorkspaceDto>(
@@ -64,7 +64,7 @@ abstract final class GameCatalogItemWorkspaceFields {
     id: GameFieldIds.franchise,
     label: GameFieldIdentities.franchiseLabel,
     getValue: (dto) => dto.franchise,
-    searchable: true,
+    searchable: GameFieldIdentities.franchise.searchable,
   );
 
   static final series = textField<GameKind, GameWorkspaceDto>(
@@ -108,11 +108,12 @@ final gameCatalogItemWorkspaceGroupDefinitions = [
     sidebarTitle: 'Platforms',
     icon: Icons.videogame_asset_outlined,
   ),
-  groupFromField<GameKind, GameWorkspaceDto, String?>(
-    GameCatalogItemWorkspaceFields.franchise,
-    sidebarTitle: 'Franchises',
-    icon: Icons.auto_stories_outlined,
-  ),
+  if (GameFieldIdentities.franchise.groupable)
+    groupFromField<GameKind, GameWorkspaceDto, String?>(
+      GameCatalogItemWorkspaceFields.franchise,
+      sidebarTitle: 'Franchises',
+      icon: Icons.auto_stories_outlined,
+    ),
   groupFromField<GameKind, GameWorkspaceDto, String?>(
     GameCatalogItemWorkspaceFields.publisher,
     sidebarTitle: 'Publishers',
@@ -127,13 +128,17 @@ final gameCatalogItemWorkspaceSortDefinitions = [
       GameCatalogItemWorkspaceFields.title),
   sortFromField<GameKind, GameWorkspaceDto, String>(
       GameCatalogItemWorkspaceFields.publisher),
-  sortFromField<GameKind, GameWorkspaceDto, DateTime>(
+  if (GameFieldIdentities.releaseDate.sortable)
+    sortFromField<GameKind, GameWorkspaceDto, DateTime>(
       GameCatalogItemWorkspaceFields.releaseDate,
-      defaultAscending: false),
+      defaultAscending: false,
+    ),
   sortFromField<GameKind, GameWorkspaceDto, String>(
       GameCatalogItemWorkspaceFields.edition),
-  sortFromField<GameKind, GameWorkspaceDto, String>(
-      GameCatalogItemWorkspaceFields.barcode),
+  if (GameFieldIdentities.barcode.sortable)
+    sortFromField<GameKind, GameWorkspaceDto, String>(
+      GameCatalogItemWorkspaceFields.barcode,
+    ),
 ];
 
 final gameCatalogItemWorkspaceDefaultVisibleColumns = <LibraryFieldIdRuntime>{

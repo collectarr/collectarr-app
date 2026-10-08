@@ -182,6 +182,10 @@ definitions, the publisher facet, searchable workspace values, sort/group
 definitions, and the publisher vocabulary binding consume that metadata.
 Publisher and release date are marked derived because their workspace values
 fall back across multiple stored catalog values.
+Game now describes its shared franchise, release-date, and barcode fields.
+The franchise field consumes its search and grouping flags; release date
+consumes its sort flag; barcode consumes its search and sort flags. Release
+date is derived from the typed date-parts value and the shared date projection.
 The P2 interaction audit found existing shared tab, list, and selection
 primitives across kinds. Music's track hierarchy table and bulk editing stay
 Music-owned until another kind has the same structural interaction.
