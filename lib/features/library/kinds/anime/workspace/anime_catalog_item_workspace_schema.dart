@@ -50,7 +50,7 @@ abstract final class AnimeCatalogItemWorkspaceFields {
     id: AnimeFieldIds.format,
     label: AnimeFieldIdentities.formatLabel,
     getValue: (dto) => dto.animeType,
-    searchable: true,
+    searchable: AnimeFieldIdentities.format.searchable,
   );
 
   static final season = textField<AnimeKind, AnimeWorkspaceDto>(
@@ -119,11 +119,12 @@ final animeCatalogItemWorkspaceGroupDefinitions = [
       scalarMirrorKeys: ['publisher'],
     ),
   ),
-  groupFromField<AnimeKind, AnimeWorkspaceDto, String?>(
-    AnimeCatalogItemWorkspaceFields.format,
-    sidebarTitle: 'Formats',
-    icon: Icons.tv_outlined,
-  ),
+  if (AnimeFieldIdentities.format.groupable)
+    groupFromField<AnimeKind, AnimeWorkspaceDto, String?>(
+      AnimeCatalogItemWorkspaceFields.format,
+      sidebarTitle: 'Formats',
+      icon: Icons.tv_outlined,
+    ),
   groupFromField<AnimeKind, AnimeWorkspaceDto, String?>(
     AnimeCatalogItemWorkspaceFields.season,
     sidebarTitle: 'Seasons',

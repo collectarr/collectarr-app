@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/library/kinds/anime/workspace/anime_ids.dart';
+import 'package:collectarr_app/features/library/kinds/anime/config/anime_field_identities.dart';
 import 'package:collectarr_app/features/library/kinds/anime/workspace/anime_workspace_dto.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/schema/field_factories.dart';
@@ -26,9 +27,9 @@ abstract final class AnimeAdditionalCatalogItemWorkspaceFields {
 
   static final barcode = textField<AnimeKind, AnimeWorkspaceDto>(
     id: AnimeFieldIds.barcode,
-    label: 'UPC / Barcode',
+    label: AnimeFieldIdentities.barcodeLabel,
     getValue: (dto) => dto.barcode,
-    searchable: true,
+    searchable: AnimeFieldIdentities.barcode.searchable,
   );
 }
 

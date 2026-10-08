@@ -6,11 +6,12 @@ import 'package:collectarr_app/features/pick_lists/pick_list_definition_contribu
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_library_entry.dart';
 import 'package:collectarr_app/features/library/kinds/anime/entries/anime_entry_details.dart';
+import 'package:collectarr_app/features/library/kinds/anime/config/anime_field_identities.dart';
 
 abstract final class AnimeVocabularyIds {
   static const condition = VocabularyId<String>('anime.condition');
   static const demographic = VocabularyId<String>('anime.demographic');
-  static const format = VocabularyId<String>('anime.format');
+  static const format = AnimeFieldIdentities.formatVocabulary;
   static const studio = VocabularyId<String>('anime.studio');
   static const season = VocabularyId<String>('anime.season');
   static const physicalFormat = VocabularyId<String>('anime.physical_format');
@@ -31,8 +32,11 @@ abstract final class AnimeVocabularies {
     ];
   }
 
-  static Future<Map<String, int>> entryUsageCounts(LocalDatabase db, String semanticName) =>
-    countPickListEntryUsages(items: AnimeEntryRepository(db).listActive(), valuesFrom: (item) => _entryValues(item, semanticName));
+  static Future<Map<String, int>> entryUsageCounts(
+          LocalDatabase db, String semanticName) =>
+      countPickListEntryUsages(
+          items: AnimeEntryRepository(db).listActive(),
+          valuesFrom: (item) => _entryValues(item, semanticName));
 
   static Future<PickListEntryMergeResult> previewEntryMerge(
     LocalDatabase db,
