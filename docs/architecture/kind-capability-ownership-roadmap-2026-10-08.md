@@ -148,6 +148,14 @@ Custom Fields, and My Images, so their presentation builders no longer repeat
 those specs across catalog and entry tab lists. Their kind-owned tabs and custom
 field editors remain in the kind modules; the broader migration is still open.
 
+Book, Comic, Manga, and TV now also declare their common Custom Fields, Links,
+Personal, and image tabs through presentation contributions where those tabs
+already existed. Comic scopes Personal and Custom Fields to library entries;
+the other migrated tab specs preserve their previous sections, labels, and
+ordering. The Manga duplicate Links tab was removed during the move. Anime,
+Boardgame, and Music still need review because their corresponding tabs either
+use kind-specific lifecycle widgets or have target-dependent semantics.
+
 Reusable field specs, form schemas, renderers, and validation now live under
 `features/library/forms/`; the library edit schema/dialog workflow remains under
 `features/library/edit/schema/`. Catalog transport already uses the shared

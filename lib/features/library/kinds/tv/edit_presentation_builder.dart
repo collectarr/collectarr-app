@@ -17,12 +17,6 @@ const _tvMediaTabs = [
     sectionIds: ['edition'],
   ),
   LibraryEditTabSpec(
-    id: 'personal',
-    icon: Icons.person,
-    label: 'Personal',
-    sectionIds: ['tracking_personal', 'entries_fields', 'entry_notes'],
-  ),
-  LibraryEditTabSpec(
     id: 'episodes',
     icon: Icons.play_circle_outline,
     label: 'Episodes',
@@ -57,18 +51,6 @@ const _tvMediaTabs = [
     icon: Icons.camera_alt,
     label: 'Covers',
     sectionIds: ['cover_images'],
-  ),
-  LibraryEditTabSpec(
-    id: 'photos',
-    icon: Icons.image,
-    label: 'Images',
-    sectionIds: ['photos'],
-  ),
-  LibraryEditTabSpec(
-    id: 'links',
-    icon: Icons.public,
-    label: 'Links',
-    sectionIds: ['external_links'],
   ),
   LibraryEditTabSpec(
     id: 'synopsis',
@@ -129,4 +111,33 @@ class TvLibraryMediaEditPresentationBuilder
 const tvLibraryEditPresentation = LibraryEditPresentation(
   builder: TvLibraryEditPresentationBuilder(),
   catalogItemBuilder: TvLibraryMediaEditPresentationBuilder(),
+  sharedTabs: [
+    LibraryEditTabContribution(
+      tab: LibraryEditTabSpec(
+        id: 'personal',
+        icon: Icons.person,
+        label: 'Personal',
+        sectionIds: ['tracking_personal', 'entries_fields', 'entry_notes'],
+      ),
+      afterTabId: 'edition',
+    ),
+    LibraryEditTabContribution(
+      tab: LibraryEditTabSpec(
+        id: 'photos',
+        icon: Icons.image,
+        label: 'Images',
+        sectionIds: ['photos'],
+      ),
+      afterTabId: 'cover',
+    ),
+    LibraryEditTabContribution(
+      tab: LibraryEditTabSpec(
+        id: 'links',
+        icon: Icons.public,
+        label: 'Links',
+        sectionIds: ['external_links'],
+      ),
+      afterTabId: 'photos',
+    ),
+  ],
 );

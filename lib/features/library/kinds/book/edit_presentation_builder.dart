@@ -31,12 +31,6 @@ class BookCatalogItemEditPresentationBuilder
               sectionIds: ['book_credits'],
             ),
             LibraryEditTabSpec(
-              id: 'custom',
-              icon: Icons.edit_note,
-              label: 'Custom Fields',
-              sectionIds: ['book_custom_fields'],
-            ),
-            LibraryEditTabSpec(
               id: 'read_history',
               icon: Icons.auto_stories_outlined,
               label: 'Tracking',
@@ -54,12 +48,6 @@ class BookCatalogItemEditPresentationBuilder
               label: 'Plot',
               sectionIds: ['book_plot'],
             ),
-            LibraryEditTabSpec(
-              id: 'links',
-              icon: Icons.public,
-              label: 'Links',
-              sectionIds: ['book_identifiers_links'],
-            ),
           ],
           trackedTabs: const [
             LibraryEditTabSpec(
@@ -71,11 +59,6 @@ class BookCatalogItemEditPresentationBuilder
               id: 'credits',
               icon: Icons.groups_2,
               label: 'Credits',
-            ),
-            LibraryEditTabSpec(
-              id: 'custom',
-              icon: Icons.edit_note,
-              label: 'Custom Fields',
             ),
             LibraryEditTabSpec(
               id: 'read_history',
@@ -91,11 +74,6 @@ class BookCatalogItemEditPresentationBuilder
               id: 'plot',
               icon: Icons.description_outlined,
               label: 'Plot',
-            ),
-            LibraryEditTabSpec(
-              id: 'links',
-              icon: Icons.public,
-              label: 'Links',
             ),
           ],
           catalogTabs: const [
@@ -110,11 +88,6 @@ class BookCatalogItemEditPresentationBuilder
               label: 'Credits',
             ),
             LibraryEditTabSpec(
-              id: 'custom',
-              icon: Icons.edit_note,
-              label: 'Custom Fields',
-            ),
-            LibraryEditTabSpec(
               id: 'read_history',
               icon: Icons.auto_stories_outlined,
               label: 'Tracking',
@@ -128,11 +101,6 @@ class BookCatalogItemEditPresentationBuilder
               id: 'plot',
               icon: Icons.description_outlined,
               label: 'Plot',
-            ),
-            LibraryEditTabSpec(
-              id: 'links',
-              icon: Icons.public,
-              label: 'Links',
             ),
           ],
           customTabBuilder: buildBookCustomTabView,
@@ -173,12 +141,6 @@ class BookCatalogItemEditPresentationBuilder
         sectionIds: ['book_credits'],
       ),
       LibraryEditTabSpec(
-        id: 'custom',
-        icon: Icons.edit_note,
-        label: 'Custom Fields',
-        sectionIds: ['book_custom_fields'],
-      ),
-      LibraryEditTabSpec(
         id: 'read_history',
         icon: Icons.auto_stories_outlined,
         label: 'Tracking',
@@ -195,12 +157,6 @@ class BookCatalogItemEditPresentationBuilder
         icon: Icons.description_outlined,
         label: 'Plot',
         sectionIds: ['book_plot'],
-      ),
-      LibraryEditTabSpec(
-        id: 'links',
-        icon: Icons.public,
-        label: 'Links',
-        sectionIds: ['book_identifiers_links'],
       ),
       if (context.isEntry)
         const LibraryEditTabSpec(

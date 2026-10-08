@@ -7,6 +7,26 @@ final bookKindEditCapabilities = LibraryEditCapabilitySet(
   presentation: const LibraryEditPresentation(
     builder: BookCatalogItemEditPresentationBuilder(),
     catalogItemBuilder: BookCatalogItemEditPresentationBuilder(),
+    sharedTabs: [
+      LibraryEditTabContribution(
+        tab: LibraryEditTabSpec(
+          id: 'custom',
+          icon: Icons.edit_note,
+          label: 'Custom Fields',
+          sectionIds: ['book_custom_fields'],
+        ),
+        afterTabId: 'credits',
+      ),
+      LibraryEditTabContribution(
+        tab: LibraryEditTabSpec(
+          id: 'links',
+          icon: Icons.public,
+          label: 'Links',
+          sectionIds: ['book_identifiers_links'],
+        ),
+        afterTabId: 'plot',
+      ),
+    ],
   ),
   conditions: BookVocabularies.condition.builtIns,
   entryCollectionValueReader: (libraryEntry) => switch (libraryEntry?.value) {

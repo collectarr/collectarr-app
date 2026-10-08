@@ -35,51 +35,16 @@ const _mangaCombinedTabs = [
     sectionIds: ['purchase', 'value_summary'],
   ),
   LibraryEditTabSpec(
-    id: 'personal',
-    icon: Icons.person,
-    label: 'Personal',
-    sectionIds: [
-      'tracking_personal',
-      'wishlist_reference',
-      'entry_notes',
-      'collection_fields_info',
-    ],
-  ),
-  LibraryEditTabSpec(
     id: 'sold',
     icon: Icons.sell,
     label: 'Sold',
     sectionIds: ['sold_status', 'profit_loss'],
   ),
   LibraryEditTabSpec(
-    id: 'custom',
-    icon: Icons.tune,
-    label: 'Custom Fields',
-    sectionIds: ['custom_fields'],
-  ),
-  LibraryEditTabSpec(
-    id: 'photos',
-    icon: Icons.photo_library,
-    label: 'Photos',
-    sectionIds: ['photos'],
-  ),
-  LibraryEditTabSpec(
     id: 'cover',
     icon: Icons.image,
     label: 'Cover',
     sectionIds: ['cover_images'],
-  ),
-  LibraryEditTabSpec(
-    id: 'links',
-    icon: Icons.public,
-    label: 'Links',
-    sectionIds: ['external_links'],
-  ),
-  LibraryEditTabSpec(
-    id: 'links',
-    icon: Icons.public,
-    label: 'Links',
-    sectionIds: ['external_links'],
   ),
   LibraryEditTabSpec(
     id: 'entry',
@@ -110,4 +75,47 @@ class MangaLibraryEditPresentationBuilder
 
 const mangaLibraryEditPresentation = LibraryEditPresentation(
   builder: MangaLibraryEditPresentationBuilder(),
+  sharedTabs: [
+    LibraryEditTabContribution(
+      tab: LibraryEditTabSpec(
+        id: 'personal',
+        icon: Icons.person,
+        label: 'Personal',
+        sectionIds: [
+          'tracking_personal',
+          'wishlist_reference',
+          'entry_notes',
+          'collection_fields_info',
+        ],
+      ),
+      afterTabId: 'value',
+    ),
+    LibraryEditTabContribution(
+      tab: LibraryEditTabSpec(
+        id: 'custom',
+        icon: Icons.tune,
+        label: 'Custom Fields',
+        sectionIds: ['custom_fields'],
+      ),
+      afterTabId: 'sold',
+    ),
+    LibraryEditTabContribution(
+      tab: LibraryEditTabSpec(
+        id: 'photos',
+        icon: Icons.photo_library,
+        label: 'Photos',
+        sectionIds: ['photos'],
+      ),
+      afterTabId: 'custom',
+    ),
+    LibraryEditTabContribution(
+      tab: LibraryEditTabSpec(
+        id: 'links',
+        icon: Icons.public,
+        label: 'Links',
+        sectionIds: ['external_links'],
+      ),
+      afterTabId: 'cover',
+    ),
+  ],
 );
