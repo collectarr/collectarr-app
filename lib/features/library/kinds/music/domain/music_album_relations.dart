@@ -12,7 +12,7 @@ final class MusicArtistCredit implements JsonEncodable {
     this.sortName,
     this.artistId,
     this.joinPhrase,
-    this.sequence,
+    required this.sequence,
   });
 
   final String id;
@@ -20,16 +20,31 @@ final class MusicArtistCredit implements JsonEncodable {
   final String? sortName;
   final String? artistId;
   final String? joinPhrase;
-  final int? sequence;
+  final int sequence;
 
   factory MusicArtistCredit.fromJson(Map<String, dynamic> json) {
+    const fields = {
+      'id',
+      'credited_name',
+      'sort_name',
+      'artist_id',
+      'join_phrase',
+      'sequence',
+    };
+    final unsupported = json.keys.where((key) => !fields.contains(key));
+    if (unsupported.isNotEmpty) {
+      throw FormatException(
+        'Unrecognized Music artist credit field "${unsupported.first}".',
+      );
+    }
+    final sequence = _requiredInt(json['sequence'], 'sequence', minimum: 1);
     return MusicArtistCredit(
       id: _requiredText(json['id'], 'id'),
       creditedName: _requiredText(json['credited_name'], 'credited_name'),
       artistId: _optionalText(json['artist_id'], 'artist_id'),
       sortName: _optionalText(json['sort_name'], 'sort_name'),
       joinPhrase: _optionalString(json['join_phrase'], 'join_phrase'),
-      sequence: _int(json['sequence']),
+      sequence: sequence,
     );
   }
 
@@ -40,7 +55,7 @@ final class MusicArtistCredit implements JsonEncodable {
         if (sortName != null) 'sort_name': sortName,
         if (artistId != null) 'artist_id': artistId,
         if (joinPhrase != null) 'join_phrase': joinPhrase,
-        if (sequence != null) 'sequence': sequence,
+        'sequence': sequence,
       };
 }
 
@@ -54,9 +69,9 @@ final class MusicAlbumContribution implements JsonEncodable {
     required this.id,
     required this.personId,
     required this.role,
+    required this.sequence,
+    required this.displayName,
     this.roleId,
-    this.sequence,
-    this.displayName,
     this.sortName,
     this.instrument,
     this.imageUrl,
@@ -71,8 +86,8 @@ final class MusicAlbumContribution implements JsonEncodable {
   final String personId;
   final String role;
   final String? roleId;
-  final int? sequence;
-  final String? displayName;
+  final int sequence;
+  final String displayName;
   final String? sortName;
   final String? instrument;
   final String? imageUrl;
@@ -80,18 +95,37 @@ final class MusicAlbumContribution implements JsonEncodable {
   final DateTime updatedAt;
 
   factory MusicAlbumContribution.fromJson(Map<String, dynamic> json) {
+    const fields = {
+      'id',
+      'person_id',
+      'role',
+      'role_id',
+      'sequence',
+      'name',
+      'sort_name',
+      'instrument',
+      'image_url',
+      'created_at',
+      'updated_at',
+    };
+    final unsupported = json.keys.where((key) => !fields.contains(key));
+    if (unsupported.isNotEmpty) {
+      throw FormatException(
+        'Unrecognized Music contribution field "${unsupported.first}".',
+      );
+    }
     return MusicAlbumContribution(
-      id: MusicAlbumContributionId(_text(json['id']) ?? ''),
-      personId: _text(json['person_id']) ?? '',
-      role: _text(json['role']) ?? 'Artist',
-      roleId: _text(json['role_id']),
-      sequence: _int(json['sequence']),
-      displayName: _text(json['name']),
-      sortName: _text(json['sort_name']),
-      instrument: _text(json['instrument']),
-      imageUrl: _text(json['image_url']),
-      createdAt: _dateTime(json['created_at']),
-      updatedAt: _dateTime(json['updated_at']),
+      id: MusicAlbumContributionId(_requiredText(json['id'], 'id')),
+      personId: _requiredText(json['person_id'], 'person_id'),
+      role: _requiredText(json['role'], 'role'),
+      roleId: _optionalText(json['role_id'], 'role_id'),
+      sequence: _requiredInt(json['sequence'], 'sequence', minimum: 1),
+      displayName: _requiredText(json['name'], 'name'),
+      sortName: _optionalText(json['sort_name'], 'sort_name'),
+      instrument: _optionalText(json['instrument'], 'instrument'),
+      imageUrl: _optionalText(json['image_url'], 'image_url'),
+      createdAt: _optionalDateTime(json['created_at'], 'created_at'),
+      updatedAt: _optionalDateTime(json['updated_at'], 'updated_at'),
     );
   }
 
@@ -103,17 +137,12 @@ final class MusicAlbumContribution implements JsonEncodable {
         'created_at': createdAt.toIso8601String(),
         'updated_at': updatedAt.toIso8601String(),
         if (roleId != null) 'role_id': roleId,
-        if (sequence != null) 'sequence': sequence,
-        if (displayName != null) 'name': displayName,
+        'sequence': sequence,
+        'name': displayName,
         if (sortName != null) 'sort_name': sortName,
         if (instrument != null) 'instrument': instrument,
         if (imageUrl != null) 'image_url': imageUrl,
       };
-}
-
-String? _text(Object? value) {
-  final text = value?.toString().trim();
-  return text == null || text.isEmpty ? null : text;
 }
 
 String _requiredText(Object? value, String field) {
@@ -138,13 +167,24 @@ String? _optionalString(Object? value, String field) {
   return value;
 }
 
-int? _int(Object? value) {
-  if (value is int) return value;
-  if (value is num) return value.toInt();
-  return int.tryParse(value?.toString().trim() ?? '');
+int _requiredInt(Object? value, String field, {required int minimum}) {
+  if (value is! int || value < minimum) {
+    throw FormatException(
+      'Music credit $field must be an integer >= $minimum.',
+    );
+  }
+  return value;
 }
 
-DateTime _dateTime(Object? value) {
-  return DateTime.tryParse(value?.toString().trim() ?? '') ??
-      DateTime.fromMillisecondsSinceEpoch(0, isUtc: true);
+DateTime? _optionalDateTime(Object? value, String field) {
+  if (value == null) return null;
+  if (value is! String) {
+    throw FormatException('Music contribution $field must be text or null.');
+  }
+  final parsed = DateTime.tryParse(value);
+  if (parsed == null || !value.contains('T') || value != value.trim()) {
+    throw FormatException(
+        'Music contribution $field must be an ISO date-time.');
+  }
+  return parsed.toUtc();
 }

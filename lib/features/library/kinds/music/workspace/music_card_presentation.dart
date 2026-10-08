@@ -48,7 +48,7 @@ String? musicCardArtist(LibraryProjectionView item) {
   if (albumArtist != null && albumArtist.isNotEmpty) return albumArtist;
   final creators = album?.contributions ?? const <MusicAlbumContribution>[];
   for (final creator in creators) {
-    final rawName = (creator.displayName ?? '').trim();
+    final rawName = creator.displayName.trim();
     if (rawName.isEmpty) continue;
     final role = creator.role.toLowerCase();
     if (role.contains('artist') ||

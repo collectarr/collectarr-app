@@ -101,8 +101,8 @@ final class MusicTrack {
       indentLevel: _requiredIndentLevel(json['indent_level']),
       parentHeaderId:
           _optionalText(json['parent_header_id'], 'parent_header_id'),
-      createdAt: _dateTime(json['created_at']),
-      updatedAt: _dateTime(json['updated_at']),
+      createdAt: _optionalDateTime(json['created_at'], 'created_at'),
+      updatedAt: _optionalDateTime(json['updated_at'], 'updated_at'),
     );
   }
 
@@ -168,8 +168,14 @@ bool _requiredBool(Object? value, String field) {
   return value;
 }
 
-DateTime? _date(Object? value) =>
-    DateTime.tryParse(value?.toString().trim() ?? '');
-
-DateTime _dateTime(Object? value) =>
-    _date(value) ?? DateTime.fromMillisecondsSinceEpoch(0, isUtc: true);
+DateTime? _optionalDateTime(Object? value, String field) {
+  if (value == null) return null;
+  if (value is! String) {
+    throw FormatException('Music track $field must be an ISO date-time.');
+  }
+  final parsed = DateTime.tryParse(value);
+  if (parsed == null || !value.contains('T') || value != value.trim()) {
+    throw FormatException('Music track $field must be an ISO date-time.');
+  }
+  return parsed.toUtc();
+}

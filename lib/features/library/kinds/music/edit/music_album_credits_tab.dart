@@ -154,7 +154,7 @@ class _CreditRow {
   factory _CreditRow.from(MusicAlbumContribution value) => _CreditRow(
         id: value.id.value,
         role: value.role,
-        name: value.displayName ?? value.personId,
+        name: value.displayName,
         sortName: value.sortName,
         instrument: value.instrument ?? '',
         previous: value,
@@ -180,8 +180,7 @@ bool _isClassicalRole(String role) => const {
 
 String _personIdFor(_CreditRow row) {
   final previous = row.previous;
-  if (previous != null &&
-      (previous.displayName ?? previous.personId) == row.name) {
+  if (previous != null && previous.displayName == row.name) {
     return previous.personId;
   }
   return row.name.trim();

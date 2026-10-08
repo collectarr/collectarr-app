@@ -209,9 +209,9 @@ final class MusicAlbum implements JsonEncodable {
       ],
       artistCredits: _artistCredits(json['artist_credits']),
       discs: discs,
-      revision: _optionalInt(json['revision'], 'revision', minimum: 1) ?? 1,
-      createdAt: _dateTime(json['created_at']),
-      updatedAt: _dateTime(json['updated_at']),
+      revision: _requiredInt(json['revision'], 'revision', minimum: 1),
+      createdAt: _optionalDateTime(json['created_at'], 'created_at'),
+      updatedAt: _optionalDateTime(json['updated_at'], 'updated_at'),
     );
   }
 
@@ -286,8 +286,7 @@ String? _optionalText(Object? value, String field) {
   return _requiredText(value, field);
 }
 
-int? _optionalInt(Object? value, String field, {required int minimum}) {
-  if (value == null) return null;
+int _requiredInt(Object? value, String field, {required int minimum}) {
   if (value is! int || value < minimum) {
     throw FormatException('Local Music $field must be an integer >= $minimum.');
   }
@@ -316,13 +315,16 @@ PartialDate? _partialDate(Object? value) {
   return parsed;
 }
 
-DateTime _dateTime(Object? value) {
-  if (value is DateTime) return value.toUtc();
-  if (value is String && value.isNotEmpty) {
-    return DateTime.tryParse(value)?.toUtc() ??
-        DateTime.fromMillisecondsSinceEpoch(0, isUtc: true);
+DateTime? _optionalDateTime(Object? value, String field) {
+  if (value == null) return null;
+  if (value is! String) {
+    throw FormatException('Local Music $field must be an ISO date-time.');
   }
-  return DateTime.fromMillisecondsSinceEpoch(0, isUtc: true);
+  final parsed = DateTime.tryParse(value);
+  if (parsed == null || !value.contains('T') || value != value.trim()) {
+    throw FormatException('Local Music $field must be an ISO date-time.');
+  }
+  return parsed.toUtc();
 }
 
 List<String> _strings(Object? value, String field) {

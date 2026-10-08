@@ -72,7 +72,10 @@ List<LibraryFieldSpec<TDraft>> musicAlbumFields<TDraft>({
               : [
                   if (form.artist.trim().isNotEmpty)
                     MusicArtistCredit(
-                        id: 'artist-main', creditedName: form.artist),
+                      id: 'artist-main',
+                      creditedName: form.artist,
+                      sequence: 1,
+                    ),
                 ];
           return LibraryOrderedPickListField(
             label: 'Artist',
@@ -202,8 +205,9 @@ List<LibraryFieldSpec<TDraft>> musicAlbumFields<TDraft>({
                             ? appPalette(context).textPrimary
                             : appPalette(context).textSecondary,
                         fontSize: 13,
-                        fontWeight:
-                            fmt.isNotEmpty ? FontWeight.w500 : FontWeight.normal,
+                        fontWeight: fmt.isNotEmpty
+                            ? FontWeight.w500
+                            : FontWeight.normal,
                       ),
                       overflow: TextOverflow.ellipsis,
                     ),

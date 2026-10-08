@@ -141,8 +141,7 @@ abstract final class MusicVocabularies {
               ...credit.toJson(),
               if (credit.role.toLowerCase().replaceAll(' ', '_') ==
                       semanticName &&
-                  normalizePickListValue(credit.displayName ?? '') ==
-                      normalized)
+                  normalizePickListValue(credit.displayName) == normalized)
                 'sort_name': sortName
             }
         ];
@@ -347,7 +346,7 @@ abstract final class MusicVocabularies {
                     (credit.role.toLowerCase().replaceAll(' ', '_') ==
                             semanticName &&
                         normalizedSourceValues.contains(
-                            normalizePickListValue(credit.displayName ?? '')))))
+                            normalizePickListValue(credit.displayName)))))
               {
                 ...credit.toJson(),
                 if (semanticName == 'credit_role') 'role': replace(credit.role),

@@ -121,6 +121,9 @@ collections when a role or list has no values. Local Music snapshots now
 reject malformed album/disc/track rows, unknown aliases, and numeric coercion;
 the `entry_type` header fallback and silent dropping of invalid child rows are
 gone.
+Local artist and role credit rows now also require explicit identities, text,
+and sequence values; numeric sequence coercion and the default `Artist` role
+are gone.
 Manual Music Add now emits complete artist and role credit collections,
 including explicit credit/person identity and sequence, plus empty canonical
 collections for unused roles. Remaining P0 work is tracked above.

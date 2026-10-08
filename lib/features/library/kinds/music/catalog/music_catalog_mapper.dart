@@ -30,11 +30,11 @@ final class MusicCatalogMapper {
       if (album.artist != null) 'artist': album.artist,
       if (album.artistCredits.isNotEmpty)
         'artist_credits': [
-          for (final (index, credit) in album.artistCredits.indexed)
+          for (final credit in album.artistCredits)
             {
               'id': credit.id,
               'name': credit.creditedName,
-              'sequence': credit.sequence ?? index + 1,
+              'sequence': credit.sequence,
               if (credit.sortName != null) 'sort_name': credit.sortName,
               if (credit.artistId != null) 'artist_id': credit.artistId,
               if (credit.joinPhrase != null) 'join_phrase': credit.joinPhrase,
@@ -533,7 +533,7 @@ final class MusicCatalogMapper {
           'id': '$id:$role:${index + 1}',
           'person_id': name,
           'role': normalizedRole,
-          'sequence': index,
+          'sequence': index + 1,
           'name': name,
         });
       }
@@ -605,8 +605,8 @@ List<Map<String, Object?>> _peopleForRole(MusicAlbum album, String role) {
     values.add({
       'id': contribution.id.value,
       'person_id': contribution.personId,
-      'name': contribution.displayName ?? contribution.personId,
-      'sequence': contribution.sequence ?? values.length + 1,
+      'name': contribution.displayName,
+      'sequence': contribution.sequence,
       if (contribution.roleId != null) 'role_id': contribution.roleId,
       if (contribution.sortName != null) 'sort_name': contribution.sortName,
       if (contribution.instrument != null)
@@ -620,7 +620,7 @@ List<Map<String, Object?>> _peopleForRole(MusicAlbum album, String role) {
 List<String> _namesForRole(MusicAlbum album, String role) => [
       for (final contribution in album.contributions)
         if (contribution.role.toLowerCase() == role.toLowerCase())
-          contribution.displayName ?? contribution.personId,
+          contribution.displayName,
     ];
 
 String? _text(Object? value) {
