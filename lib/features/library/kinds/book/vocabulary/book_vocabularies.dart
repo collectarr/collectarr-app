@@ -5,10 +5,11 @@ import 'package:collectarr_app/features/pick_lists/models/vocabulary_id.dart';
 import 'package:collectarr_app/features/pick_lists/pick_list_definition_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/book/domain/book_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/book/domain/book_library_entry.dart';
+import 'package:collectarr_app/features/library/kinds/book/config/book_field_identities.dart';
 
 abstract final class BookVocabularyIds {
-  static const publisher = VocabularyId<String>('book.publisher');
-  static const format = VocabularyId<String>('book.format');
+  static const publisher = BookFieldIdentities.publisherVocabulary;
+  static const format = BookFieldIdentities.formatVocabulary;
   static const binding = VocabularyId<String>('book.binding');
   static const language = VocabularyId<String>('book.language');
   static const condition = VocabularyId<String>('book.condition');
@@ -25,8 +26,11 @@ abstract final class BookVocabularies {
     ];
   }
 
-  static Future<Map<String, int>> entryUsageCounts(LocalDatabase db, String semanticName) =>
-    countPickListEntryUsages(items: BookEntryRepository(db).listActive(), valuesFrom: (item) => _entryValues(item, semanticName));
+  static Future<Map<String, int>> entryUsageCounts(
+          LocalDatabase db, String semanticName) =>
+      countPickListEntryUsages(
+          items: BookEntryRepository(db).listActive(),
+          valuesFrom: (item) => _entryValues(item, semanticName));
 
   static Future<PickListEntryMergeResult> previewEntryMerge(
     LocalDatabase db,

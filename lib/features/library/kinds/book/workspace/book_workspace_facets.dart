@@ -1,6 +1,7 @@
 import 'package:collectarr_app/features/library/kinds/book/workspace/book_ids.dart';
 import 'package:collectarr_app/features/library/kinds/book/workspace/book_workspace_dto.dart';
 import 'package:collectarr_app/features/library/config/library_facet_types.dart';
+import 'package:collectarr_app/features/library/kinds/book/config/book_field_identities.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_identifier_types.dart';
 
 final bookLibraryFacetDefinitions =
@@ -10,13 +11,14 @@ final bookLibraryFacetDefinitions =
     label: 'Author',
     extractValues: (dto) => dto.metadata.authors,
   ),
-  LibraryFacetDefinition<BookKind, BookWorkspaceDto, String>(
-    id: BookFacetIds.publisher,
-    label: 'Publisher',
-    extractValues: (dto) => [
-      if (dto.publisher case final publisher?) publisher,
-    ],
-  ),
+  if (BookFieldIdentities.publisher.filterable)
+    LibraryFacetDefinition<BookKind, BookWorkspaceDto, String>(
+      id: BookFacetIds.publisher,
+      label: BookFieldIdentities.publisher.label,
+      extractValues: (dto) => [
+        if (dto.publisher case final publisher?) publisher,
+      ],
+    ),
   LibraryFacetDefinition<BookKind, BookWorkspaceDto, String>(
     id: BookFacetIds.genre,
     label: 'Genre',
@@ -27,13 +29,14 @@ final bookLibraryFacetDefinitions =
     label: 'Subject',
     extractValues: (dto) => dto.metadata.subjects,
   ),
-  LibraryFacetDefinition<BookKind, BookWorkspaceDto, String>(
-    id: BookFacetIds.format,
-    label: 'Format',
-    extractValues: (dto) => [
-      if (dto.format case final format?) format,
-    ],
-  ),
+  if (BookFieldIdentities.format.filterable)
+    LibraryFacetDefinition<BookKind, BookWorkspaceDto, String>(
+      id: BookFacetIds.format,
+      label: BookFieldIdentities.format.label,
+      extractValues: (dto) => [
+        if (dto.format case final format?) format,
+      ],
+    ),
   LibraryFacetDefinition<BookKind, BookWorkspaceDto, String>(
     id: BookFacetIds.translator,
     label: 'Translator',

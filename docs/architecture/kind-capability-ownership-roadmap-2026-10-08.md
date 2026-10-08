@@ -162,6 +162,13 @@ to the canonical field ID and label. Music filters, workspace sorts and groups,
 and export columns consume those capability flags; edit forms keep using the
 same primitive const IDs and labels. This is a pilot only: equivalent
 descriptors and surface adoption remain to be audited across the other kinds.
+Book now has the same descriptor for subtitle, series, publisher, page count,
+ISBN, release date, and format. Its filters, facets, workspace sorts and groups,
+and searchable field definitions consume the matching flags; publisher and
+format vocabularies reuse their descriptor bindings. The ISBN and release-date
+projections are marked derived because their displayed values can fall back to
+other catalog fields. Other kinds and Book export support remain outside this
+slice.
 The P2 interaction audit found existing shared tab, list, and selection
 primitives across kinds. Music's track hierarchy table and bulk editing stay
 Music-owned until another kind has the same structural interaction.

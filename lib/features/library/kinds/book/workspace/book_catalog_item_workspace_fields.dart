@@ -36,7 +36,7 @@ abstract final class BookCatalogItemWorkspaceFields {
     id: BookFieldIds.subtitle,
     label: BookFieldIdentities.subtitleLabel,
     getValue: (dto) => dto.subtitle,
-    searchable: true,
+    searchable: BookFieldIdentities.subtitle.searchable,
   );
 
   static final translator = textField<BookKind, BookWorkspaceDto>(
@@ -85,12 +85,13 @@ final bookCatalogItemWorkspaceGroupDefinitions = [
     sidebarTitle: 'Authors',
     icon: Icons.person_outline,
   ),
-  groupFromField<BookKind, BookWorkspaceDto, String?>(
-    BookCatalogItemWorkspaceFields.series,
-    sidebarTitle: 'Series',
-    icon: Icons.collections_bookmark_outlined,
-    sequenceValue: (context) => context.dto.itemNumber,
-  ),
+  if (BookFieldIdentities.series.groupable)
+    groupFromField<BookKind, BookWorkspaceDto, String?>(
+      BookCatalogItemWorkspaceFields.series,
+      sidebarTitle: 'Series',
+      icon: Icons.collections_bookmark_outlined,
+      sequenceValue: (context) => context.dto.itemNumber,
+    ),
 ];
 
 final bookCatalogItemWorkspaceSortDefinitions = [

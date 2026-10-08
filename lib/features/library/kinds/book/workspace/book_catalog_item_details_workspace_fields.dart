@@ -11,7 +11,7 @@ abstract final class BookCatalogItemDetailsWorkspaceFields {
     id: BookFieldIds.publisher,
     label: BookFieldIdentities.publisherLabel,
     getValue: (dto) => dto.publisher,
-    searchable: true,
+    searchable: BookFieldIdentities.publisher.searchable,
   );
 
   static final pageCount = numberField<BookKind, BookWorkspaceDto>(
@@ -24,7 +24,7 @@ abstract final class BookCatalogItemDetailsWorkspaceFields {
     id: BookFieldIds.isbn,
     label: BookFieldIdentities.isbnLabel,
     getValue: (dto) => dto.isbn ?? dto.barcode,
-    searchable: true,
+    searchable: BookFieldIdentities.isbn.searchable,
   );
 
   static final releaseDate = dateField<BookKind, BookWorkspaceDto>(
@@ -49,29 +49,35 @@ final bookCatalogItemDetailsWorkspaceFieldDefinitions = [
 ];
 
 final bookCatalogItemDetailsWorkspaceGroupDefinitions = [
-  groupFromField<BookKind, BookWorkspaceDto, String?>(
-    BookCatalogItemDetailsWorkspaceFields.publisher,
-    sidebarTitle: 'Publishers',
-    icon: Icons.business_outlined,
-    supportsBucketManagement: true,
-    bucketValueMutator: catalogTransportStringBucketValueMutator(
-      ['publisher'],
+  if (BookFieldIdentities.publisher.groupable)
+    groupFromField<BookKind, BookWorkspaceDto, String?>(
+      BookCatalogItemDetailsWorkspaceFields.publisher,
+      sidebarTitle: 'Publishers',
+      icon: Icons.business_outlined,
+      supportsBucketManagement: true,
+      bucketValueMutator: catalogTransportStringBucketValueMutator(
+        ['publisher'],
+      ),
     ),
-  ),
-  groupFromField<BookKind, BookWorkspaceDto, String?>(
-    BookCatalogItemDetailsWorkspaceFields.format,
-    sidebarTitle: 'Formats',
-    icon: Icons.book_outlined,
-  ),
+  if (BookFieldIdentities.format.groupable)
+    groupFromField<BookKind, BookWorkspaceDto, String?>(
+      BookCatalogItemDetailsWorkspaceFields.format,
+      sidebarTitle: 'Formats',
+      icon: Icons.book_outlined,
+    ),
 ];
 
 final bookCatalogItemDetailsWorkspaceSortDefinitions = [
-  sortFromField<BookKind, BookWorkspaceDto, DateTime>(
+  if (BookFieldIdentities.releaseDate.sortable)
+    sortFromField<BookKind, BookWorkspaceDto, DateTime>(
       BookCatalogItemDetailsWorkspaceFields.releaseDate,
-      defaultAscending: false),
-  sortFromField<BookKind, BookWorkspaceDto, num>(
+      defaultAscending: false,
+    ),
+  if (BookFieldIdentities.pageCount.sortable)
+    sortFromField<BookKind, BookWorkspaceDto, num>(
       BookCatalogItemDetailsWorkspaceFields.pageCount,
-      group: 'Details'),
+      group: 'Details',
+    ),
 ];
 
 final bookCatalogItemDetailsWorkspaceDefaultVisibleColumns =

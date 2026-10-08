@@ -34,14 +34,15 @@ const bookLibraryGroupLabels = LibraryPresentationLabels(
 const bookLibraryBucketLabelOverrides = LibraryPresentationLabels();
 
 final bookLibraryFilterDefinitions = <LibraryFilterDefinition<Object?>>[
-  LibraryFilterDefinition<Object?>(
-    id: BookFieldIdentities.seriesId,
-    label: BookFieldIdentities.seriesLabel,
-    anyLabel: 'Any series',
-    value: (item) => (item.dto is BookWorkspaceDto)
-        ? (item.dto as BookWorkspaceDto).seriesTitle
-        : null,
-  ),
+  if (BookFieldIdentities.series.filterable)
+    LibraryFilterDefinition<Object?>(
+      id: BookFieldIdentities.seriesId,
+      label: BookFieldIdentities.seriesLabel,
+      anyLabel: 'Any series',
+      value: (item) => (item.dto is BookWorkspaceDto)
+          ? (item.dto as BookWorkspaceDto).seriesTitle
+          : null,
+    ),
   LibraryFilterDefinition<Object?>(
     id: 'location',
     label: 'Location',
@@ -56,14 +57,15 @@ final bookLibraryFilterDefinitions = <LibraryFilterDefinition<Object?>>[
       item.source.libraryEntryDispatch,
     )?.personal.tags?.split(','),
   ),
-  LibraryFilterDefinition<Object?>(
-    id: BookFieldIdentities.publisherId,
-    label: BookFieldIdentities.publisherLabel,
-    anyLabel: 'Any publisher',
-    value: (item) => (item.dto is BookWorkspaceDto)
-        ? (item.dto as BookWorkspaceDto).publisher
-        : null,
-  ),
+  if (BookFieldIdentities.publisher.filterable)
+    LibraryFilterDefinition<Object?>(
+      id: BookFieldIdentities.publisherId,
+      label: BookFieldIdentities.publisherLabel,
+      anyLabel: 'Any publisher',
+      value: (item) => (item.dto is BookWorkspaceDto)
+          ? (item.dto as BookWorkspaceDto).publisher
+          : null,
+    ),
   LibraryFilterDefinition<Object?>(
     id: 'year',
     label: 'Year',
