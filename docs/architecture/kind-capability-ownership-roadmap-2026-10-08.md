@@ -43,7 +43,7 @@ registration and files under `features/library/kinds/<kind>/`.
   declare vocabularies and field specs emit changes.
 - [ ] Share image persistence and editor lifecycle where semantics match;
   kinds declare purposes, labels, aspect ratios, and other real differences.
-- [ ] Clarify reusable form schemas versus the library edit workflow in naming
+- [x] Clarify reusable form schemas versus the library edit workflow in naming
   and directory boundaries.
 - [ ] Standardize catalog mapper/codec contracts and expose them through kind
   registration.
@@ -147,3 +147,9 @@ scope and placement around kind tabs. Game and Movie use this for Personal,
 Custom Fields, and My Images, so their presentation builders no longer repeat
 those specs across catalog and entry tab lists. Their kind-owned tabs and custom
 field editors remain in the kind modules; the broader migration is still open.
+
+Reusable field specs, form schemas, renderers, and validation now live under
+`features/library/forms/`; the library edit schema/dialog workflow remains under
+`features/library/edit/schema/`. Catalog transport already uses the shared
+`CatalogKindTransportCodec<T>` interface for decoding and workspace projection;
+uniform typed encoding through the kind capability remains open.

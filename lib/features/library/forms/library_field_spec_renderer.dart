@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:collectarr_app/features/library/schema/library_field_spec_control_builder.dart';
-import 'package:collectarr_app/features/library/schema/library_field_spec_layout.dart';
-import 'package:collectarr_app/features/library/schema/library_schema_text_controller_store.dart';
+import 'package:collectarr_app/features/library/forms/library_field_spec_control_builder.dart';
+import 'package:collectarr_app/features/library/forms/library_field_spec_layout.dart';
+import 'package:collectarr_app/features/library/forms/library_schema_text_controller_store.dart';
 
 import 'library_form_schema.dart';
 

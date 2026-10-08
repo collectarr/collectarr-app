@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:collectarr_app/features/library/kinds/manga/forms/manga_catalog_form_values.dart';
 import 'package:collectarr_app/features/library/kinds/manga/vocabulary/manga_vocabularies.dart';
-import 'package:collectarr_app/features/library/schema/library_field_spec.dart';
+import 'package:collectarr_app/features/library/forms/library_field_spec.dart';
 
 typedef MangaFormValuesReader<TDraft> = MangaCatalogFormValues Function(
   TDraft draft,

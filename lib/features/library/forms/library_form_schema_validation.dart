@@ -1,9 +1,9 @@
-import 'package:collectarr_app/features/library/schema/library_field_spec_control_builder.dart';
-import 'package:collectarr_app/features/library/schema/library_form_schema.dart';
-import 'package:collectarr_app/features/library/schema/library_schema_text_controller_store.dart';
+import 'package:collectarr_app/features/library/forms/library_field_spec_control_builder.dart';
+import 'package:collectarr_app/features/library/forms/library_form_schema.dart';
+import 'package:collectarr_app/features/library/forms/library_schema_text_controller_store.dart';
 
-final class LibraryFormValidationIssue {
-  const LibraryFormValidationIssue(this.message, {this.fieldId});
+final class LibraryFormValidationProblem {
+  const LibraryFormValidationProblem(this.message, {this.fieldId});
 
   final String message;
   final String? fieldId;
@@ -19,7 +19,7 @@ final class LibraryFormValidationTab {
 
   final String id;
   final int index;
-  final LibraryFormValidationIssue? Function() validate;
+  final LibraryFormValidationProblem? Function() validate;
 }
 
 /// Identifies the first invalid tab in the order supplied by the host.
@@ -27,31 +27,31 @@ final class LibraryFormTabValidationFailure {
   const LibraryFormTabValidationFailure({
     required this.tabId,
     required this.tabIndex,
-    required this.issue,
+    required this.problem,
   });
 
   final String tabId;
   final int tabIndex;
-  final LibraryFormValidationIssue issue;
+  final LibraryFormValidationProblem problem;
 }
 
 LibraryFormTabValidationFailure? firstLibraryFormTabValidationFailure(
   Iterable<LibraryFormValidationTab> tabs,
 ) {
   for (final tab in tabs) {
-    final issue = tab.validate();
-    if (issue != null) {
+    final problem = tab.validate();
+    if (problem != null) {
       return LibraryFormTabValidationFailure(
         tabId: tab.id,
         tabIndex: tab.index,
-        issue: issue,
+        problem: problem,
       );
     }
   }
   return null;
 }
 
-LibraryFormValidationIssue? firstLibraryFormValidationIssue<TDraft>({
+LibraryFormValidationProblem? firstLibraryFormValidationProblem<TDraft>({
   required LibraryFormSchema<TDraft> schema,
   required TDraft draft,
   required LibrarySchemaTextControllerStore controllers,
@@ -59,7 +59,7 @@ LibraryFormValidationIssue? firstLibraryFormValidationIssue<TDraft>({
 }) {
   if (validateSchema) {
     final message = schema.validate?.call(draft);
-    if (message != null) return LibraryFormValidationIssue(message);
+    if (message != null) return LibraryFormValidationProblem(message);
   }
 
   for (final section in schema.sections) {
@@ -79,7 +79,7 @@ LibraryFormValidationIssue? firstLibraryFormValidationIssue<TDraft>({
             )
           : field.validate(draft);
       if (message != null) {
-        return LibraryFormValidationIssue(message, fieldId: field.id);
+        return LibraryFormValidationProblem(message, fieldId: field.id);
       }
     }
   }

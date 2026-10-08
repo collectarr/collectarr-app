@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:collectarr_app/features/library/schema/library_form_schema.dart';
+import 'package:collectarr_app/features/library/forms/library_form_schema.dart';
 import 'package:collectarr_app/features/library/kinds/movie/add/movie_add_manual_draft.dart';
 import 'package:collectarr_app/features/library/kinds/movie/forms/movie_catalog_field_specs.dart';
 import 'package:collectarr_app/features/library/kinds/movie/forms/movie_catalog_form_schema.dart';

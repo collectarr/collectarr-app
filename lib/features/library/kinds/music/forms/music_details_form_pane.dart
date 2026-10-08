@@ -1,6 +1,6 @@
 import 'package:collectarr_app/features/library/kinds/music/forms/music_catalog_field_specs.dart';
-import 'package:collectarr_app/features/library/schema/library_form_schema.dart';
-import 'package:collectarr_app/features/library/schema/library_field_spec_renderer.dart';
+import 'package:collectarr_app/features/library/forms/library_form_schema.dart';
+import 'package:collectarr_app/features/library/forms/library_field_spec_renderer.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_form_controls.dart';
 import 'package:flutter/material.dart';
 

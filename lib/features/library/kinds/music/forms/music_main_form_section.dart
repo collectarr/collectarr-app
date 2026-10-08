@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/library/schema/library_form_schema.dart';
+import 'package:collectarr_app/features/library/forms/library_form_schema.dart';
 
 /// CLZ Main composition shared by Music Manual Add and Edit.
 LibraryFormSectionSpec<TDraft> musicMainFormSection<TDraft>({

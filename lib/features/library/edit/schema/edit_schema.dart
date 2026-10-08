@@ -1,7 +1,7 @@
-import 'package:collectarr_app/features/library/schema/library_form_schema.dart';
+import 'package:collectarr_app/features/library/forms/library_form_schema.dart';
 import 'package:flutter/widgets.dart';
 
-export 'package:collectarr_app/features/library/schema/library_form_schema.dart';
+export 'package:collectarr_app/features/library/forms/library_form_schema.dart';
 
 final class EditSchema<TModel, TDraft> {
   const EditSchema({

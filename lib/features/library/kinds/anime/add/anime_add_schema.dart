@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:collectarr_app/core/models/partial_date.dart';
-import 'package:collectarr_app/features/library/schema/library_form_schema.dart';
+import 'package:collectarr_app/features/library/forms/library_form_schema.dart';
 import 'package:collectarr_app/features/library/add/schema/library_add_catalog_title_field.dart';
 import 'package:collectarr_app/features/library/kinds/anime/add/anime_add_manual_draft.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_metadata.dart';

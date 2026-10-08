@@ -1,7 +1,7 @@
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/kinds/comic/forms/comic_creator_roles.dart';
 import 'package:collectarr_app/features/library/kinds/comic/forms/comic_person_draft.dart';
-import 'package:collectarr_app/features/library/schema/library_field_spec.dart';
+import 'package:collectarr_app/features/library/forms/library_field_spec.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_dropdown_pick_field.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_named_detail_list.dart';
 import 'package:flutter/material.dart';

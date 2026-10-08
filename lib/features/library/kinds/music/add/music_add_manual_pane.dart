@@ -8,8 +8,8 @@ import 'package:collectarr_app/features/library/ui/primitives/library_managed_vo
 import 'package:collectarr_app/features/library/kinds/music/forms/music_main_form_section.dart';
 import 'package:collectarr_app/features/library/add/controllers/library_add_dialog_requests.dart';
 import 'package:collectarr_app/features/library/add/panes/library_add_manual_pane_shell.dart';
-import 'package:collectarr_app/features/library/schema/library_form_schema.dart';
-import 'package:collectarr_app/features/library/schema/library_form_schema_validation.dart';
+import 'package:collectarr_app/features/library/forms/library_form_schema.dart';
+import 'package:collectarr_app/features/library/forms/library_form_schema_validation.dart';
 import 'package:collectarr_app/features/library/kinds/music/add/music_add_manual_credits_tab.dart';
 import 'package:collectarr_app/features/library/kinds/music/add/music_add_manual_covers_tab.dart';
 import 'package:collectarr_app/features/library/kinds/music/add/music_add_draft.dart';
@@ -185,7 +185,7 @@ class MusicAddManualPane extends StatelessWidget {
   }
 }
 
-LibraryFormValidationIssue? _validateCredits(
+LibraryFormValidationProblem? _validateCredits(
   MusicAddManualDraft draft, {
   required bool classical,
 }) {
@@ -204,20 +204,20 @@ LibraryFormValidationIssue? _validateCredits(
           ...draft.musicians,
         ];
   if (credits.any((credit) => credit.name.trim().isEmpty)) {
-    return const LibraryFormValidationIssue(
+    return const LibraryFormValidationProblem(
       'Complete or remove each unfinished music credit',
     );
   }
   return null;
 }
 
-LibraryFormValidationIssue? _validateTrackDurations(
+LibraryFormValidationProblem? _validateTrackDurations(
   MusicAddManualDraft draft,
 ) {
   for (final disc in draft.discs) {
     for (final track in disc.tracks) {
       if (track.duration.trim().isNotEmpty && track.durationMs == null) {
-        return const LibraryFormValidationIssue(
+        return const LibraryFormValidationProblem(
           'Enter a valid track length in seconds, MM:SS, or HH:MM:SS.',
         );
       }

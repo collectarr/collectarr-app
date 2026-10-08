@@ -12,7 +12,7 @@ import 'dart:async';
 import 'package:collectarr_app/features/library/kinds/music/forms/music_album_form_values.dart';
 import 'package:collectarr_app/features/library/kinds/music/music_country_name.dart';
 import 'package:collectarr_app/features/library/kinds/music/vocabulary/music_vocabularies.dart';
-import 'package:collectarr_app/features/library/schema/library_field_spec.dart';
+import 'package:collectarr_app/features/library/forms/library_field_spec.dart';
 
 typedef MusicAlbumValuesReader<TDraft> = MusicAlbumFormValues Function(
     TDraft draft);

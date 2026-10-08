@@ -62,7 +62,7 @@ One visual editor can still write to separate Catalog Item, Collection Item and 
 | Shared edit host | `lib/features/library/edit/schema/library_edit_schema_dialog.dart` |
 | Shared layout renderer | `lib/features/library/edit/schema/edit_schema_renderer.dart` |
 | Header and action footer | `lib/features/library/edit/shell/library_edit_scaffold.dart` |
-| Shared controls | `lib/features/library/schema/library_field_spec_control_builder.dart` |
+| Shared controls | `lib/features/library/forms/library_field_spec_control_builder.dart` |
 
 ## 1. Dialog chrome and layout
 

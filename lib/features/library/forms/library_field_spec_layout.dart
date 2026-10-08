@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/library/schema/library_form_schema.dart';
+import 'package:collectarr_app/features/library/forms/library_form_schema.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_responsive_field_layout.dart';
 import 'package:flutter/material.dart';
 

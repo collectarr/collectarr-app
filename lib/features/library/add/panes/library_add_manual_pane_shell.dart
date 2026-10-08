@@ -7,10 +7,10 @@ import 'package:collectarr_app/features/library/edit/sections/custom_fields_edit
 import 'package:collectarr_app/features/library/edit/sections/item_images_edit_section.dart';
 import 'package:collectarr_app/features/library/edit/shell/library_edit_scaffold.dart'
     show LibraryEditDialogScaffold, LibraryEditTabNavigationScope;
-import 'package:collectarr_app/features/library/schema/library_form_schema.dart';
-import 'package:collectarr_app/features/library/schema/library_form_schema_validation.dart';
-import 'package:collectarr_app/features/library/schema/library_field_spec_renderer.dart';
-import 'package:collectarr_app/features/library/schema/library_schema_text_controller_store.dart';
+import 'package:collectarr_app/features/library/forms/library_form_schema.dart';
+import 'package:collectarr_app/features/library/forms/library_form_schema_validation.dart';
+import 'package:collectarr_app/features/library/forms/library_field_spec_renderer.dart';
+import 'package:collectarr_app/features/library/forms/library_schema_text_controller_store.dart';
 import 'package:flutter/material.dart';
 
 /// Shared visual structure for kind-entry manual Add forms.
@@ -157,7 +157,7 @@ class _LibraryAddManualPaneShellState extends State<LibraryAddManualPaneShell>
     } else if (_tabController.index != failure.tabIndex) {
       _tabController.index = failure.tabIndex;
     }
-    final issue = failure.issue;
+    final problem = failure.problem;
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final visibleIndex = _tabController.index;
       final selectedTabId = navigation?.selectedTabId() ??
@@ -166,7 +166,7 @@ class _LibraryAddManualPaneShellState extends State<LibraryAddManualPaneShell>
               : null);
       if (!mounted || selectedTabId != failure.tabId) return;
       _formKey.currentState?.validate();
-      final fieldId = issue.fieldId;
+      final fieldId = problem.fieldId;
       if (fieldId != null) {
         final node = _fieldFocusNodes['${failure.tabId}::$fieldId'];
         node?.requestFocus();
@@ -181,9 +181,9 @@ class _LibraryAddManualPaneShellState extends State<LibraryAddManualPaneShell>
       }
     });
     ScaffoldMessenger.of(validationContext).showSnackBar(
-      SnackBar(content: Text(issue.message)),
+      SnackBar(content: Text(problem.message)),
     );
-    return issue.message;
+    return problem.message;
   }
 
   @override
@@ -275,7 +275,8 @@ final class LibraryAddManualPaneTab {
     this.svgAsset,
     required this.content,
     this.validate,
-  }) : assert(icon != null || svgAsset != null, 'Either icon or svgAsset must be provided.');
+  }) : assert(icon != null || svgAsset != null,
+            'Either icon or svgAsset must be provided.');
 
   static LibraryAddManualPaneTab fromForm<TDraft>({
     required String id,
@@ -293,7 +294,7 @@ final class LibraryAddManualPaneTab {
         icon: icon,
         svgAsset: svgAsset,
         content: content,
-        validate: (controllers) => firstLibraryFormValidationIssue(
+        validate: (controllers) => firstLibraryFormValidationProblem(
           schema: schema,
           draft: draft,
           controllers: controllers,
@@ -337,7 +338,7 @@ final class LibraryAddManualPaneTab {
   final IconData? icon;
   final String? svgAsset;
   final Widget content;
-  final LibraryFormValidationIssue? Function(
+  final LibraryFormValidationProblem? Function(
     LibrarySchemaTextControllerStore controllers,
   )? validate;
 }

@@ -6,9 +6,9 @@ import 'package:flutter/foundation.dart' show listEquals;
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_tab_strip.dart';
 import 'package:collectarr_app/features/library/edit/session/library_vocabulary_edit_accumulator.dart';
-import 'package:collectarr_app/features/library/schema/library_form_schema_validation.dart';
-import 'package:collectarr_app/features/library/schema/library_field_spec_renderer.dart';
-import 'package:collectarr_app/features/library/schema/library_schema_text_controller_store.dart';
+import 'package:collectarr_app/features/library/forms/library_form_schema_validation.dart';
+import 'package:collectarr_app/features/library/forms/library_field_spec_renderer.dart';
+import 'package:collectarr_app/features/library/forms/library_schema_text_controller_store.dart';
 import 'package:collectarr_app/features/pick_lists/pick_list_repository.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:flutter/material.dart';
@@ -759,7 +759,7 @@ class EditSchemaRendererState<TModel, TDraft>
           LibraryFormValidationTab(
             id: widget.schema.tabs[sourceIndex].id,
             index: sourceIndex,
-            validate: () => firstLibraryFormValidationIssue(
+            validate: () => firstLibraryFormValidationProblem(
               schema: LibraryFormSchema<TDraft>(
                 sections: widget.schema.tabs[sourceIndex].sections,
               ),
@@ -776,17 +776,17 @@ class EditSchemaRendererState<TModel, TDraft>
               final error = widget
                   .extraTabs[sourceIndex - widget.schema.tabs.length].validate
                   ?.call();
-              return error == null ? null : LibraryFormValidationIssue(error);
+              return error == null ? null : LibraryFormValidationProblem(error);
             },
           ),
     ]);
     if (failure == null) return null;
     return (
       tabIndex: failure.tabIndex,
-      error: failure.issue.message,
-      focusKey: failure.issue.fieldId == null
+      error: failure.problem.message,
+      focusKey: failure.problem.fieldId == null
           ? null
-          : '${failure.tabId}::${failure.issue.fieldId}',
+          : '${failure.tabId}::${failure.problem.fieldId}',
     );
   }
 

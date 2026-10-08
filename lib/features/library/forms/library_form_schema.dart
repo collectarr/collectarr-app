@@ -1,6 +1,6 @@
-import 'package:collectarr_app/features/library/schema/library_field_spec.dart';
+import 'package:collectarr_app/features/library/forms/library_field_spec.dart';
 
-export 'package:collectarr_app/features/library/schema/library_field_spec.dart';
+export 'package:collectarr_app/features/library/forms/library_field_spec.dart';
 
 /// Kind-owned field structure shared by local Add and Edit forms.
 final class LibraryFormSchema<TDraft> {

@@ -1,5 +1,5 @@
 import 'package:collectarr_app/features/library/add/models/library_kind_add_draft.dart';
-import 'package:collectarr_app/features/library/schema/library_field_spec.dart';
+import 'package:collectarr_app/features/library/forms/library_field_spec.dart';
 
 /// Required catalog-title field contributed by a Manual Add kind form.
 LibraryTextFieldSpec<TDraft>
