@@ -68,11 +68,11 @@ Map<String, Object?>? buildMusicManualProposalData(
     'title': title.trim(),
     if (_textOrNull(draft.sortTitle) case final value?) 'sort_title': value,
     if (_textOrNull(draft.subtitle) case final value?) 'subtitle': value,
-    if (releaseDateParts != null) 'release_date': releaseDateParts.isoString,
+    if (releaseDateParts != null) 'release_date': releaseDateParts.toJson(),
     if (originalReleaseDateParts != null)
-      'original_release_date': originalReleaseDateParts.isoString,
+      'original_release_date': originalReleaseDateParts.toJson(),
     if (recordingDateParts != null)
-      'recording_date': recordingDateParts.isoString,
+      'recording_date': recordingDateParts.toJson(),
     if (artist != null || draft.artistCredits.isNotEmpty)
       'artist_credits': draft.artistCredits.isEmpty
           ? [

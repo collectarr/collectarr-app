@@ -17,10 +17,8 @@ final class MusicCatalogFields {
   String? get coverImageUrl =>
       _metadata?.coverImageUrl ?? _candidate.summary.imageUrl;
   String? get thumbnailImageUrl => _metadata?.thumbnailImageUrl;
-  DateTime? get releaseDate =>
-      _metadata?.releaseDateParts?.asDateTime ?? _metadata?.releaseDate;
-  int? get releaseYear =>
-      _metadata?.releaseDateParts?.year ?? releaseDate?.year;
+  DateTime? get releaseDate => _metadata?.releaseDate;
+  int? get releaseYear => _metadata?.releaseDateParts?.year;
 
   bool get hasReleaseDate => releaseDate != null || releaseYear != null;
 }

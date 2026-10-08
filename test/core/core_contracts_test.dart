@@ -79,7 +79,9 @@ void main() {
     final musicSchema = catalogKinds['music'] as Map<String, dynamic>;
     final musicProperties = musicSchema['properties'] as Map<String, dynamic>;
     expect(musicProperties.keys, contains('discs'));
-    expect(musicProperties.keys, contains('original_release_date_parts'));
+    expect(musicProperties.keys, contains('original_release_date'));
+    expect(
+        musicProperties.keys, isNot(contains('original_release_date_parts')));
     expect(musicProperties, isNot(containsPair('recording_id', anything)));
     final fields =
         (fieldSchema['fields'] as List<dynamic>).cast<Map<String, dynamic>>();

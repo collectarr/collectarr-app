@@ -344,31 +344,12 @@
         "original_release_date": {
           "anyOf": [
             {
-              "format": "date",
-              "type": "string"
+              "$ref": "#/$defs/PartialDateValue"
             },
             {
               "type": "null"
             }
-          ],
-          "title": "Original Release Date"
-        },
-        "original_release_date_parts": {
-          "anyOf": [
-            {
-              "additionalProperties": {
-                "type": "integer"
-              },
-              "type": "object"
-            },
-            {
-              "type": "string"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "title": "Original Release Date Parts"
+          ]
         },
         "packaging": {
           "anyOf": [
@@ -392,60 +373,22 @@
         "recording_date": {
           "anyOf": [
             {
-              "format": "date",
-              "type": "string"
+              "$ref": "#/$defs/PartialDateValue"
             },
             {
               "type": "null"
             }
-          ],
-          "title": "Recording Date"
-        },
-        "recording_date_parts": {
-          "anyOf": [
-            {
-              "additionalProperties": {
-                "type": "integer"
-              },
-              "type": "object"
-            },
-            {
-              "type": "string"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "title": "Recording Date Parts"
+          ]
         },
         "release_date": {
           "anyOf": [
             {
-              "format": "date",
-              "type": "string"
+              "$ref": "#/$defs/PartialDateValue"
             },
             {
               "type": "null"
             }
-          ],
-          "title": "Release Date"
-        },
-        "release_date_parts": {
-          "anyOf": [
-            {
-              "additionalProperties": {
-                "type": "integer"
-              },
-              "type": "object"
-            },
-            {
-              "type": "string"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "title": "Release Date Parts"
+          ]
         },
         "revision": {
           "title": "Revision",
@@ -630,13 +573,60 @@
       ],
       "title": "MusicDiscFormatFamily",
       "type": "string"
+    },
+    "PartialDateValue": {
+      "additionalProperties": false,
+      "description": "A catalog date with independently optional components.",
+      "properties": {
+        "day": {
+          "anyOf": [
+            {
+              "maximum": 31.0,
+              "minimum": 1.0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Day"
+        },
+        "month": {
+          "anyOf": [
+            {
+              "maximum": 12.0,
+              "minimum": 1.0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Month"
+        },
+        "year": {
+          "anyOf": [
+            {
+              "maximum": 9999.0,
+              "minimum": 1.0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Year"
+        }
+      },
+      "title": "PartialDateValue",
+      "type": "object"
     }
   },
   "$id": "https://schemas.collectarr.app/music-catalog/v1",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "contractVersion": "1.0.0",
-  "coreCommit": "45876c0494c5dbec12ea1f170020a459f4f1b62b",
-  "generatedAt": "2026-10-07T19:52:55.885332Z",
+  "coreCommit": "bb6b2d43dc30f5df4a57fb4eca596ebf1a96e508",
+  "generatedAt": "2026-10-08T19:32:41.191255Z",
   "roots": {
     "disc": {
       "$ref": "#/$defs/CatalogMusicDiscResponse"

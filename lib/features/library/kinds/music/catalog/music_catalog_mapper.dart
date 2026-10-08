@@ -41,20 +41,14 @@ final class MusicCatalogMapper {
             },
         ],
       if (album.originalReleaseDateParts != null) ...{
-        'original_release_date': album.originalReleaseDateParts!.isoString,
-        'original_release_date_parts': album.originalReleaseDateParts!.toJson(),
-      } else if (album.originalReleaseDate != null)
-        'original_release_date': album.originalReleaseDate!.toIso8601String(),
+        'original_release_date': album.originalReleaseDateParts!.toJson(),
+      },
       if (album.recordingDateParts != null) ...{
-        'recording_date': album.recordingDateParts!.isoString,
-        'recording_date_parts': album.recordingDateParts!.toJson(),
-      } else if (album.recordingDate != null)
-        'recording_date': album.recordingDate!.toIso8601String(),
+        'recording_date': album.recordingDateParts!.toJson(),
+      },
       if (album.releaseDateParts != null) ...{
-        'release_date': album.releaseDateParts!.isoString,
-        'release_date_parts': album.releaseDateParts!.toJson(),
-      } else if (album.releaseDate != null)
-        'release_date': album.releaseDate!.toIso8601String(),
+        'release_date': album.releaseDateParts!.toJson(),
+      },
       if (album.publisher != null) 'label': album.publisher,
       if (album.barcode case final barcode?) 'barcode': barcode,
       if (album.catalogNumber != null) 'catalog_number': album.catalogNumber,
@@ -107,8 +101,7 @@ final class MusicCatalogMapper {
               if (disc.vinylWeightGrams != null)
                 'vinyl_weight_grams': disc.vinylWeightGrams,
               if (disc.rpm != null) 'rpm': disc.rpm,
-              if (disc.matrixNumber != null)
-                'matrix_number': disc.matrixNumber,
+              if (disc.matrixNumber != null) 'matrix_number': disc.matrixNumber,
               if (disc.matrixNumberSideA != null)
                 'matrix_number_side_a': disc.matrixNumberSideA,
               if (disc.matrixNumberSideB != null)
@@ -194,11 +187,8 @@ final class MusicCatalogMapper {
       'artist',
       'artist_credits',
       'original_release_date',
-      'original_release_date_parts',
       'recording_date',
-      'recording_date_parts',
       'release_date',
-      'release_date_parts',
       'label',
       'barcode',
       'catalog_number',

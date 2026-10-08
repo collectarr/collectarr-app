@@ -122,16 +122,16 @@ final class MusicAlbum implements JsonEncodable {
       subtitle: _text(json['subtitle']),
       artist: _text(json['artist']),
       originalReleaseDateParts: _partialDate(
-        json['original_release_date_parts'] ?? json['original_release_date'],
+        json['original_release_date'],
       ),
       recordingDateParts: _partialDate(
-        json['recording_date_parts'] ?? json['recording_date'],
+        json['recording_date'],
       ),
       studios: _strings(json['studios']),
       isLive: json['is_live'] as bool?,
       genres: _strings(json['genres']),
       releaseDateParts: _partialDate(
-        json['release_date_parts'] ?? json['release_date'],
+        json['release_date'],
       ),
       publisher: _text(json['publisher'] ?? json['label']),
       countryCode: _text(json['country_code'] ?? json['country']),
@@ -176,20 +176,14 @@ final class MusicAlbum implements JsonEncodable {
         if (subtitle != null) 'subtitle': subtitle,
         if (artist != null) 'artist': artist,
         if (originalReleaseDateParts != null)
-          'original_release_date': originalReleaseDateParts!.isoString,
-        if (originalReleaseDateParts != null)
-          'original_release_date_parts': originalReleaseDateParts!.toJson(),
+          'original_release_date': originalReleaseDateParts!.toJson(),
         if (recordingDateParts != null)
-          'recording_date': recordingDateParts!.isoString,
-        if (recordingDateParts != null)
-          'recording_date_parts': recordingDateParts!.toJson(),
+          'recording_date': recordingDateParts!.toJson(),
         if (studios.isNotEmpty) 'studios': studios,
         if (isLive != null) 'is_live': isLive,
         if (genres.isNotEmpty) 'genres': genres,
         if (releaseDateParts != null)
-          'release_date': releaseDateParts!.isoString,
-        if (releaseDateParts != null)
-          'release_date_parts': releaseDateParts!.toJson(),
+          'release_date': releaseDateParts!.toJson(),
         if (publisher != null) 'publisher': publisher,
         if (countryCode != null) 'country_code': countryCode,
         if (barcode != null) 'barcode': barcode,
@@ -233,17 +227,25 @@ int? _int(Object? value) => value is int
         : int.tryParse(value?.toString().trim() ?? '');
 
 PartialDate? _partialDate(Object? value) {
-  if (value is Map) {
-    try {
-      return PartialDate.fromJson(Map<String, dynamic>.from(value));
-    } catch (_) {
-      return null;
-    }
+  if (value == null) return null;
+  if (value is! Map ||
+      value.isEmpty ||
+      value.keys.any((key) => !{'year', 'month', 'day'}.contains(key)) ||
+      value.values.any(
+        (part) => part != null && part is! int,
+      ) ||
+      !value.values.any((part) => part is int)) {
+    throw const FormatException('Music dates must use PartialDate objects.');
   }
-  if (value is String && value.isNotEmpty) {
-    return PartialDate.tryParse(value);
+  final parsed = PartialDate.fromJson(Map<String, dynamic>.from(value));
+  if ((parsed.year != null && (parsed.year! < 1 || parsed.year! > 9999)) ||
+      (parsed.month != null && (parsed.month! < 1 || parsed.month! > 12)) ||
+      (parsed.day != null && (parsed.day! < 1 || parsed.day! > 31)) ||
+      (parsed.isFullDate && parsed.asDateTime == null)) {
+    throw const FormatException(
+        'Music dates must contain valid calendar values.');
   }
-  return null;
+  return parsed;
 }
 
 DateTime _dateTime(Object? value) {

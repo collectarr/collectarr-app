@@ -90,4 +90,9 @@ updates. Music binds its schema fields, custom fields, details form, and
 library-entry personal fields to one accumulator for the edit session. The
 shared commit boundary turns the collected values into one local vocabulary
 change, while catalog-only Music edits retain the collector in the kind draft.
-Remaining P0 work is tracked above.
+Music release, original release, and recording dates now have one canonical
+`{year, month, day}` representation across the Core model, API, correction
+flow, search projection, App mapper, and pinned contract. Core rejects legacy
+date strings and `*_date_parts` fields on Music writes. The broader strict
+Music contract remains open for extras and other duplicated fields. Remaining
+P0 work is tracked above.

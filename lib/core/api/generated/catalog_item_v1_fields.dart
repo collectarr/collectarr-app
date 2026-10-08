@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND.
 // Source: tool/core_contracts/catalog-item-v1.json
-// Contract SHA-256: eae3b4704302ef00adc39d585312625c806ff07d54a41a8820b7fa8ad9e95a78
+// Contract SHA-256: c07ebd8b7a2a1bc06636489d3fa82b11bd35c58375d7082fce0417ae17dcaaf7
 const catalogItemV1SchemaVersion = 1;
 const catalogItemV1ContractVersion = '1.0.0';
 
@@ -389,31 +389,23 @@ const Map<String, Set<String>> catalogItemV1FieldsByKind = {
     'engineers',
     'external_links',
     'extra',
-    'format',
     'genres',
     'is_live',
     'label',
     'musicians',
     'orchestras',
     'original_release_date',
-    'original_release_date_parts',
     'packaging',
     'producers',
     'recording_date',
-    'recording_date_parts',
     'release_date',
-    'release_date_parts',
-    'rpm',
     'songwriters',
     'sort_title',
-    'sound_types',
-    'spars',
+    'spars_code',
     'studios',
     'subtitle',
     'thumbnail_image_url',
     'title',
-    'vinyl_color',
-    'vinyl_weight',
   },
   'tv': {
     'age_rating',

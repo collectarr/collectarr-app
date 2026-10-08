@@ -8303,31 +8303,12 @@
           "original_release_date": {
             "anyOf": [
               {
-                "format": "date",
-                "type": "string"
+                "$ref": "#/components/schemas/PartialDateValue"
               },
               {
                 "type": "null"
               }
-            ],
-            "title": "Original Release Date"
-          },
-          "original_release_date_parts": {
-            "anyOf": [
-              {
-                "additionalProperties": {
-                  "type": "integer"
-                },
-                "type": "object"
-              },
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Original Release Date Parts"
+            ]
           },
           "packaging": {
             "anyOf": [
@@ -8351,60 +8332,22 @@
           "recording_date": {
             "anyOf": [
               {
-                "format": "date",
-                "type": "string"
+                "$ref": "#/components/schemas/PartialDateValue"
               },
               {
                 "type": "null"
               }
-            ],
-            "title": "Recording Date"
-          },
-          "recording_date_parts": {
-            "anyOf": [
-              {
-                "additionalProperties": {
-                  "type": "integer"
-                },
-                "type": "object"
-              },
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Recording Date Parts"
+            ]
           },
           "release_date": {
             "anyOf": [
               {
-                "format": "date",
-                "type": "string"
+                "$ref": "#/components/schemas/PartialDateValue"
               },
               {
                 "type": "null"
               }
-            ],
-            "title": "Release Date"
-          },
-          "release_date_parts": {
-            "anyOf": [
-              {
-                "additionalProperties": {
-                  "type": "integer"
-                },
-                "type": "object"
-              },
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Release Date Parts"
+            ]
           },
           "revision": {
             "title": "Revision",

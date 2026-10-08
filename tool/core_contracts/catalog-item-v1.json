@@ -2,13 +2,13 @@
   "$id": "https://schemas.collectarr.app/catalog-item/v1",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "contractVersion": "1.0.0",
-  "coreCommit": "45876c0494c5dbec12ea1f170020a459f4f1b62b",
+  "coreCommit": "bb6b2d43dc30f5df4a57fb4eca596ebf1a96e508",
   "description": "Source-neutral Catalog Item documents. Fields are validated and projected using the schema owned by the declared kind.",
   "fieldStatus": {
     "music": "grounded_in_saved_clz_music_edit_form",
     "other_kinds": "provisional_clz_parity_unverified_without_edit_form_captures"
   },
-  "generatedAt": "2026-10-07T19:52:55.885332Z",
+  "generatedAt": "2026-10-08T19:32:41.191255Z",
   "kinds": {
     "anime": {
       "additionalProperties": false,
@@ -401,12 +401,18 @@
                             "additionalProperties": false,
                             "properties": {
                               "day": {
+                                "maximum": 31,
+                                "minimum": 1,
                                 "type": "integer"
                               },
                               "month": {
+                                "maximum": 12,
+                                "minimum": 1,
                                 "type": "integer"
                               },
                               "year": {
+                                "maximum": 9999,
+                                "minimum": 1,
                                 "type": "integer"
                               }
                             },
@@ -470,12 +476,18 @@
                             "additionalProperties": false,
                             "properties": {
                               "day": {
+                                "maximum": 31,
+                                "minimum": 1,
                                 "type": "integer"
                               },
                               "month": {
+                                "maximum": 12,
+                                "minimum": 1,
                                 "type": "integer"
                               },
                               "year": {
+                                "maximum": 9999,
+                                "minimum": 1,
                                 "type": "integer"
                               }
                             },
@@ -955,12 +967,18 @@
                   "additionalProperties": false,
                   "properties": {
                     "day": {
+                      "maximum": 31,
+                      "minimum": 1,
                       "type": "integer"
                     },
                     "month": {
+                      "maximum": 12,
+                      "minimum": 1,
                       "type": "integer"
                     },
                     "year": {
+                      "maximum": 9999,
+                      "minimum": 1,
                       "type": "integer"
                     }
                   },
@@ -1041,12 +1059,18 @@
                             "additionalProperties": false,
                             "properties": {
                               "day": {
+                                "maximum": 31,
+                                "minimum": 1,
                                 "type": "integer"
                               },
                               "month": {
+                                "maximum": 12,
+                                "minimum": 1,
                                 "type": "integer"
                               },
                               "year": {
+                                "maximum": 9999,
+                                "minimum": 1,
                                 "type": "integer"
                               }
                             },
@@ -1096,12 +1120,18 @@
                                       "additionalProperties": false,
                                       "properties": {
                                         "day": {
+                                          "maximum": 31,
+                                          "minimum": 1,
                                           "type": "integer"
                                         },
                                         "month": {
+                                          "maximum": 12,
+                                          "minimum": 1,
                                           "type": "integer"
                                         },
                                         "year": {
+                                          "maximum": 9999,
+                                          "minimum": 1,
                                           "type": "integer"
                                         }
                                       },
@@ -1165,12 +1195,18 @@
                                       "additionalProperties": false,
                                       "properties": {
                                         "day": {
+                                          "maximum": 31,
+                                          "minimum": 1,
                                           "type": "integer"
                                         },
                                         "month": {
+                                          "maximum": 12,
+                                          "minimum": 1,
                                           "type": "integer"
                                         },
                                         "year": {
+                                          "maximum": 9999,
+                                          "minimum": 1,
                                           "type": "integer"
                                         }
                                       },
@@ -1270,12 +1306,18 @@
                             "additionalProperties": false,
                             "properties": {
                               "day": {
+                                "maximum": 31,
+                                "minimum": 1,
                                 "type": "integer"
                               },
                               "month": {
+                                "maximum": 12,
+                                "minimum": 1,
                                 "type": "integer"
                               },
                               "year": {
+                                "maximum": 9999,
+                                "minimum": 1,
                                 "type": "integer"
                               }
                             },
@@ -2198,12 +2240,18 @@
                   "additionalProperties": false,
                   "properties": {
                     "day": {
+                      "maximum": 31,
+                      "minimum": 1,
                       "type": "integer"
                     },
                     "month": {
+                      "maximum": 12,
+                      "minimum": 1,
                       "type": "integer"
                     },
                     "year": {
+                      "maximum": 9999,
+                      "minimum": 1,
                       "type": "integer"
                     }
                   },
@@ -2805,12 +2853,18 @@
                   "additionalProperties": false,
                   "properties": {
                     "day": {
+                      "maximum": 31,
+                      "minimum": 1,
                       "type": "integer"
                     },
                     "month": {
+                      "maximum": 12,
+                      "minimum": 1,
                       "type": "integer"
                     },
                     "year": {
+                      "maximum": 9999,
+                      "minimum": 1,
                       "type": "integer"
                     }
                   },
@@ -2992,12 +3046,18 @@
                   "additionalProperties": false,
                   "properties": {
                     "day": {
+                      "maximum": 31,
+                      "minimum": 1,
                       "type": "integer"
                     },
                     "month": {
+                      "maximum": 12,
+                      "minimum": 1,
                       "type": "integer"
                     },
                     "year": {
+                      "maximum": 9999,
+                      "minimum": 1,
                       "type": "integer"
                     }
                   },
@@ -3127,12 +3187,18 @@
                             "additionalProperties": false,
                             "properties": {
                               "day": {
+                                "maximum": 31,
+                                "minimum": 1,
                                 "type": "integer"
                               },
                               "month": {
+                                "maximum": 12,
+                                "minimum": 1,
                                 "type": "integer"
                               },
                               "year": {
+                                "maximum": 9999,
+                                "minimum": 1,
                                 "type": "integer"
                               }
                             },
@@ -3196,12 +3262,18 @@
                   "additionalProperties": false,
                   "properties": {
                     "day": {
+                      "maximum": 31,
+                      "minimum": 1,
                       "type": "integer"
                     },
                     "month": {
+                      "maximum": 12,
+                      "minimum": 1,
                       "type": "integer"
                     },
                     "year": {
+                      "maximum": 9999,
+                      "minimum": 1,
                       "type": "integer"
                     }
                   },
@@ -3728,12 +3800,18 @@
                   "additionalProperties": false,
                   "properties": {
                     "day": {
+                      "maximum": 31,
+                      "minimum": 1,
                       "type": "integer"
                     },
                     "month": {
+                      "maximum": 12,
+                      "minimum": 1,
                       "type": "integer"
                     },
                     "year": {
+                      "maximum": 9999,
+                      "minimum": 1,
                       "type": "integer"
                     }
                   },
@@ -4204,12 +4282,18 @@
                   "additionalProperties": false,
                   "properties": {
                     "day": {
+                      "maximum": 31,
+                      "minimum": 1,
                       "type": "integer"
                     },
                     "month": {
+                      "maximum": 12,
+                      "minimum": 1,
                       "type": "integer"
                     },
                     "year": {
+                      "maximum": 9999,
+                      "minimum": 1,
                       "type": "integer"
                     }
                   },
@@ -4321,12 +4405,18 @@
                                 "additionalProperties": false,
                                 "properties": {
                                   "day": {
+                                    "maximum": 31,
+                                    "minimum": 1,
                                     "type": "integer"
                                   },
                                   "month": {
+                                    "maximum": 12,
+                                    "minimum": 1,
                                     "type": "integer"
                                   },
                                   "year": {
+                                    "maximum": 9999,
+                                    "minimum": 1,
                                     "type": "integer"
                                   }
                                 },
@@ -4366,12 +4456,18 @@
                                 "additionalProperties": false,
                                 "properties": {
                                   "day": {
+                                    "maximum": 31,
+                                    "minimum": 1,
                                     "type": "integer"
                                   },
                                   "month": {
+                                    "maximum": 12,
+                                    "minimum": 1,
                                     "type": "integer"
                                   },
                                   "year": {
+                                    "maximum": 9999,
+                                    "minimum": 1,
                                     "type": "integer"
                                   }
                                 },
@@ -5042,12 +5138,18 @@
                   "additionalProperties": false,
                   "properties": {
                     "day": {
+                      "maximum": 31,
+                      "minimum": 1,
                       "type": "integer"
                     },
                     "month": {
+                      "maximum": 12,
+                      "minimum": 1,
                       "type": "integer"
                     },
                     "year": {
+                      "maximum": 9999,
+                      "minimum": 1,
                       "type": "integer"
                     }
                   },
@@ -5374,12 +5476,18 @@
                             "additionalProperties": false,
                             "properties": {
                               "day": {
+                                "maximum": 31,
+                                "minimum": 1,
                                 "type": "integer"
                               },
                               "month": {
+                                "maximum": 12,
+                                "minimum": 1,
                                 "type": "integer"
                               },
                               "year": {
+                                "maximum": 9999,
+                                "minimum": 1,
                                 "type": "integer"
                               }
                             },
@@ -6012,12 +6120,18 @@
                   "additionalProperties": false,
                   "properties": {
                     "day": {
+                      "maximum": 31,
+                      "minimum": 1,
                       "type": "integer"
                     },
                     "month": {
+                      "maximum": 12,
+                      "minimum": 1,
                       "type": "integer"
                     },
                     "year": {
+                      "maximum": 9999,
+                      "minimum": 1,
                       "type": "integer"
                     }
                   },
@@ -6798,12 +6912,18 @@
                   "additionalProperties": false,
                   "properties": {
                     "day": {
+                      "maximum": 31,
+                      "minimum": 1,
                       "type": "integer"
                     },
                     "month": {
+                      "maximum": 12,
+                      "minimum": 1,
                       "type": "integer"
                     },
                     "year": {
+                      "maximum": 9999,
+                      "minimum": 1,
                       "type": "integer"
                     }
                   },
@@ -7973,55 +8093,26 @@
         "original_release_date": {
           "anyOf": [
             {
-              "anyOf": [
-                {
-                  "type": "string"
+              "additionalProperties": false,
+              "minProperties": 1,
+              "properties": {
+                "day": {
+                  "maximum": 31,
+                  "minimum": 1,
+                  "type": "integer"
                 },
-                {
-                  "additionalProperties": false,
-                  "properties": {
-                    "day": {
-                      "type": "integer"
-                    },
-                    "month": {
-                      "type": "integer"
-                    },
-                    "year": {
-                      "type": "integer"
-                    }
-                  },
-                  "type": "object"
-                }
-              ]
-            },
-            {
-              "type": "null"
-            }
-          ]
-        },
-        "original_release_date_parts": {
-          "anyOf": [
-            {
-              "anyOf": [
-                {
-                  "type": "string"
+                "month": {
+                  "maximum": 12,
+                  "minimum": 1,
+                  "type": "integer"
                 },
-                {
-                  "additionalProperties": false,
-                  "properties": {
-                    "day": {
-                      "type": "integer"
-                    },
-                    "month": {
-                      "type": "integer"
-                    },
-                    "year": {
-                      "type": "integer"
-                    }
-                  },
-                  "type": "object"
+                "year": {
+                  "maximum": 9999,
+                  "minimum": 1,
+                  "type": "integer"
                 }
-              ]
+              },
+              "type": "object"
             },
             {
               "type": "null"
@@ -8128,55 +8219,26 @@
         "recording_date": {
           "anyOf": [
             {
-              "anyOf": [
-                {
-                  "type": "string"
+              "additionalProperties": false,
+              "minProperties": 1,
+              "properties": {
+                "day": {
+                  "maximum": 31,
+                  "minimum": 1,
+                  "type": "integer"
                 },
-                {
-                  "additionalProperties": false,
-                  "properties": {
-                    "day": {
-                      "type": "integer"
-                    },
-                    "month": {
-                      "type": "integer"
-                    },
-                    "year": {
-                      "type": "integer"
-                    }
-                  },
-                  "type": "object"
-                }
-              ]
-            },
-            {
-              "type": "null"
-            }
-          ]
-        },
-        "recording_date_parts": {
-          "anyOf": [
-            {
-              "anyOf": [
-                {
-                  "type": "string"
+                "month": {
+                  "maximum": 12,
+                  "minimum": 1,
+                  "type": "integer"
                 },
-                {
-                  "additionalProperties": false,
-                  "properties": {
-                    "day": {
-                      "type": "integer"
-                    },
-                    "month": {
-                      "type": "integer"
-                    },
-                    "year": {
-                      "type": "integer"
-                    }
-                  },
-                  "type": "object"
+                "year": {
+                  "maximum": 9999,
+                  "minimum": 1,
+                  "type": "integer"
                 }
-              ]
+              },
+              "type": "object"
             },
             {
               "type": "null"
@@ -8186,35 +8248,27 @@
         "release_date": {
           "anyOf": [
             {
-              "anyOf": [
-                {
-                  "type": "string"
+              "additionalProperties": false,
+              "minProperties": 1,
+              "properties": {
+                "day": {
+                  "maximum": 31,
+                  "minimum": 1,
+                  "type": "integer"
                 },
-                {
-                  "additionalProperties": false,
-                  "properties": {
-                    "day": {
-                      "type": "integer"
-                    },
-                    "month": {
-                      "type": "integer"
-                    },
-                    "year": {
-                      "type": "integer"
-                    }
-                  },
-                  "type": "object"
+                "month": {
+                  "maximum": 12,
+                  "minimum": 1,
+                  "type": "integer"
+                },
+                "year": {
+                  "maximum": 9999,
+                  "minimum": 1,
+                  "type": "integer"
                 }
-              ]
+              },
+              "type": "object"
             },
-            {
-              "type": "null"
-            }
-          ]
-        },
-        "release_date_parts": {
-          "anyOf": [
-            {},
             {
               "type": "null"
             }
@@ -8652,12 +8706,18 @@
                             "additionalProperties": false,
                             "properties": {
                               "day": {
+                                "maximum": 31,
+                                "minimum": 1,
                                 "type": "integer"
                               },
                               "month": {
+                                "maximum": 12,
+                                "minimum": 1,
                                 "type": "integer"
                               },
                               "year": {
+                                "maximum": 9999,
+                                "minimum": 1,
                                 "type": "integer"
                               }
                             },
@@ -8731,12 +8791,18 @@
                             "additionalProperties": false,
                             "properties": {
                               "day": {
+                                "maximum": 31,
+                                "minimum": 1,
                                 "type": "integer"
                               },
                               "month": {
+                                "maximum": 12,
+                                "minimum": 1,
                                 "type": "integer"
                               },
                               "year": {
+                                "maximum": 9999,
+                                "minimum": 1,
                                 "type": "integer"
                               }
                             },
@@ -9256,12 +9322,18 @@
                   "additionalProperties": false,
                   "properties": {
                     "day": {
+                      "maximum": 31,
+                      "minimum": 1,
                       "type": "integer"
                     },
                     "month": {
+                      "maximum": 12,
+                      "minimum": 1,
                       "type": "integer"
                     },
                     "year": {
+                      "maximum": 9999,
+                      "minimum": 1,
                       "type": "integer"
                     }
                   },
@@ -9342,12 +9414,18 @@
                             "additionalProperties": false,
                             "properties": {
                               "day": {
+                                "maximum": 31,
+                                "minimum": 1,
                                 "type": "integer"
                               },
                               "month": {
+                                "maximum": 12,
+                                "minimum": 1,
                                 "type": "integer"
                               },
                               "year": {
+                                "maximum": 9999,
+                                "minimum": 1,
                                 "type": "integer"
                               }
                             },
@@ -9397,12 +9475,18 @@
                                       "additionalProperties": false,
                                       "properties": {
                                         "day": {
+                                          "maximum": 31,
+                                          "minimum": 1,
                                           "type": "integer"
                                         },
                                         "month": {
+                                          "maximum": 12,
+                                          "minimum": 1,
                                           "type": "integer"
                                         },
                                         "year": {
+                                          "maximum": 9999,
+                                          "minimum": 1,
                                           "type": "integer"
                                         }
                                       },
@@ -9476,12 +9560,18 @@
                                       "additionalProperties": false,
                                       "properties": {
                                         "day": {
+                                          "maximum": 31,
+                                          "minimum": 1,
                                           "type": "integer"
                                         },
                                         "month": {
+                                          "maximum": 12,
+                                          "minimum": 1,
                                           "type": "integer"
                                         },
                                         "year": {
+                                          "maximum": 9999,
+                                          "minimum": 1,
                                           "type": "integer"
                                         }
                                       },
@@ -9581,12 +9671,18 @@
                             "additionalProperties": false,
                             "properties": {
                               "day": {
+                                "maximum": 31,
+                                "minimum": 1,
                                 "type": "integer"
                               },
                               "month": {
+                                "maximum": 12,
+                                "minimum": 1,
                                 "type": "integer"
                               },
                               "year": {
+                                "maximum": 9999,
+                                "minimum": 1,
                                 "type": "integer"
                               }
                             },

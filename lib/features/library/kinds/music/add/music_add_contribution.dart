@@ -82,10 +82,9 @@ final musicKindAdd = StandardLibraryAddCapability<MusicAddDraft>(
             metadataValues: (item) {
               final catalogItem = musicCatalogItemFromCandidate(item);
               return [
-                catalogItem.releaseDateParts ?? catalogItem.releaseDate,
-                catalogItem.originalReleaseDateParts ??
-                    catalogItem.originalReleaseDate,
-                catalogItem.recordingDateParts ?? catalogItem.recordingDate,
+                catalogItem.releaseDateParts,
+                catalogItem.originalReleaseDateParts,
+                catalogItem.recordingDateParts,
               ];
             },
           ),
