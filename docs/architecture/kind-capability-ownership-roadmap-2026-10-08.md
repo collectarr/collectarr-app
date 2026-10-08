@@ -105,5 +105,6 @@ on discs, while the album format summary remains derived; the unsupported
 album-level format proposal was removed. Music credit writes now require
 explicit IDs, names, person references, and ordering; Core no longer creates
 credit IDs from strings or missing values, and App emits complete rows. Core
-also rejects implicit RPM/weight conversions and untrimmed Music disc text.
-Remaining P0 work is tracked above.
+also rejects implicit RPM/weight conversions, untrimmed Music disc/root text,
+and correction values that were previously whitespace-collapsed or silently
+deduplicated. Remaining P0 work is tracked above.

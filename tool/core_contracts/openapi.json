@@ -1259,18 +1259,11 @@
             "title": "Title Extension"
           },
           "tracks": {
-            "anyOf": [
-              {
-                "items": {
-                  "$ref": "#/components/schemas/AdminMusicTrackCorrection"
-                },
-                "type": "array"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Tracks"
+            "items": {
+              "$ref": "#/components/schemas/AdminMusicTrackCorrection"
+            },
+            "title": "Tracks",
+            "type": "array"
           },
           "trailer_urls": {
             "anyOf": [
