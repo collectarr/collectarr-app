@@ -110,14 +110,15 @@ final comicCatalogItemWorkspaceFieldDefinitions = [
 ];
 
 final comicCatalogItemWorkspaceGroupDefinitions = [
-  groupFromField<ComicKind, ComicWorkspaceDto, String?>(
-    ComicCatalogItemWorkspaceFields.series,
-    sidebarTitle: 'Series',
-    category: 'Main',
-    icon: Icons.collections_bookmark_outlined,
-    supportsJump: true,
-    sequenceValue: (context) => context.dto.itemNumber,
-  ),
+  if (ComicFieldIdentities.series.groupable)
+    groupFromField<ComicKind, ComicWorkspaceDto, String?>(
+      ComicCatalogItemWorkspaceFields.series,
+      sidebarTitle: 'Series',
+      category: 'Main',
+      icon: Icons.collections_bookmark_outlined,
+      supportsJump: true,
+      sequenceValue: (context) => context.dto.itemNumber,
+    ),
   groupFromField<ComicKind, ComicWorkspaceDto, String?>(
     ComicCatalogItemWorkspaceFields.publisher,
     sidebarTitle: 'Publishers',
@@ -131,10 +132,14 @@ final comicCatalogItemWorkspaceGroupDefinitions = [
 ];
 
 final comicCatalogItemWorkspaceSortDefinitions = [
-  sortFromField<ComicKind, ComicWorkspaceDto, String>(
-      ComicCatalogItemWorkspaceFields.series),
-  sortFromField<ComicKind, ComicWorkspaceDto, String>(
-      ComicCatalogItemWorkspaceFields.issueNumber),
+  if (ComicFieldIdentities.series.sortable)
+    sortFromField<ComicKind, ComicWorkspaceDto, String>(
+      ComicCatalogItemWorkspaceFields.series,
+    ),
+  if (ComicFieldIdentities.issueNumber.sortable)
+    sortFromField<ComicKind, ComicWorkspaceDto, String>(
+      ComicCatalogItemWorkspaceFields.issueNumber,
+    ),
   sortFromField<ComicKind, ComicWorkspaceDto, String>(
       ComicCatalogItemWorkspaceFields.title),
   sortFromField<ComicKind, ComicWorkspaceDto, String>(

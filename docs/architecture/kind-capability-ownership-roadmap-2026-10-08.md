@@ -194,6 +194,11 @@ Release date remains separate because the workspace prefers the anime start
 date while the form edits the release date.
 TV now declares the shared barcode's text path and edit/search capabilities;
 the workspace search field reads that declaration.
+Comic now describes the shared series, issue number, variant, imprint, and page
+count fields. Series filtering/grouping/sorting, issue-number sorting, and the
+imprint vocabulary use those descriptors. Publisher stays separate because its
+workspace value falls back to imprint; release date and barcode also retain
+their projection-specific identities.
 The P2 interaction audit found existing shared tab, list, and selection
 primitives across kinds. Music's track hierarchy table and bulk editing stay
 Music-owned until another kind has the same structural interaction.

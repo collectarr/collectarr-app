@@ -6,10 +6,11 @@ import 'package:collectarr_app/features/pick_lists/pick_list_definition_contribu
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_catalog_item.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_library_entry.dart';
 import 'package:collectarr_app/features/library/kinds/comic/entries/comic_entry_details.dart';
+import 'package:collectarr_app/features/library/kinds/comic/config/comic_field_identities.dart';
 
 abstract final class ComicVocabularyIds {
   static const publisher = VocabularyId<String>('comic.publisher');
-  static const imprint = VocabularyId<String>('comic.imprint');
+  static const imprint = ComicFieldIdentities.imprintVocabulary;
   static const seriesGroup = VocabularyId<String>('comic.series_group');
   static const physicalFormat = VocabularyId<String>('comic.physical_format');
   static const condition = VocabularyId<String>('comic.condition');
@@ -31,8 +32,11 @@ abstract final class ComicVocabularies {
     ];
   }
 
-  static Future<Map<String, int>> entryUsageCounts(LocalDatabase db, String semanticName) =>
-    countPickListEntryUsages(items: ComicEntryRepository(db).listActive(), valuesFrom: (item) => _entryValues(item, semanticName));
+  static Future<Map<String, int>> entryUsageCounts(
+          LocalDatabase db, String semanticName) =>
+      countPickListEntryUsages(
+          items: ComicEntryRepository(db).listActive(),
+          valuesFrom: (item) => _entryValues(item, semanticName));
 
   static Future<PickListEntryMergeResult> previewEntryMerge(
     LocalDatabase db,

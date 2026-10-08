@@ -66,14 +66,15 @@ const comicLibraryGroupLabels = LibraryPresentationLabels(
 const comicLibraryBucketLabelOverrides = LibraryPresentationLabels();
 
 final comicLibraryFilterDefinitions = <LibraryFilterDefinition<Object?>>[
-  LibraryFilterDefinition<Object?>(
-    id: ComicFieldIdentities.seriesId,
-    label: ComicFieldIdentities.seriesLabel,
-    anyLabel: 'Any series',
-    value: (item) => (item.dto is ComicWorkspaceDto)
-        ? (item.dto as ComicWorkspaceDto).seriesTitle
-        : null,
-  ),
+  if (ComicFieldIdentities.series.filterable)
+    LibraryFilterDefinition<Object?>(
+      id: ComicFieldIdentities.seriesId,
+      label: ComicFieldIdentities.seriesLabel,
+      anyLabel: 'Any series',
+      value: (item) => (item.dto is ComicWorkspaceDto)
+          ? (item.dto as ComicWorkspaceDto).seriesTitle
+          : null,
+    ),
   LibraryFilterDefinition<Object?>(
     id: 'location',
     label: 'Location',
