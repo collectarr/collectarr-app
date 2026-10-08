@@ -10,6 +10,7 @@ import 'package:collectarr_app/features/library/serial/library_series_selector_f
 import 'package:collectarr_app/features/library/kinds/comic/add/comic_add_manual_draft.dart';
 import 'package:collectarr_app/features/library/kinds/comic/add/comic_add_links_tab.dart';
 import 'package:collectarr_app/features/library/kinds/comic/add/comic_add_schema.dart';
+import 'package:collectarr_app/features/library/kinds/comic/config/comic_field_identities.dart';
 import 'package:collectarr_app/features/library/kinds/comic/forms/comic_person_draft.dart';
 import 'package:collectarr_app/features/library/kinds/comic/forms/comic_people_editors.dart';
 import 'package:collectarr_app/features/library/kinds/comic/vocabulary/comic_vocabularies.dart';
@@ -199,7 +200,7 @@ class _ComicAddManualPaneState extends ConsumerState<ComicAddManualPane> {
           id: 'main',
           label: 'Main',
           icon: Icons.article_outlined,
-          fieldIds: const {'catalog_title', 'issue_number'},
+          fieldIds: const {'catalog_title', ComicFieldIdentities.issueNumberId},
           sectionLabel: 'Main',
           validateSchema: true,
         ),
@@ -208,7 +209,7 @@ class _ComicAddManualPaneState extends ConsumerState<ComicAddManualPane> {
           label: 'Edition Details',
           icon: Icons.inventory_2_outlined,
           fieldIds: const {
-            'variant',
+            ComicFieldIdentities.variantId,
             'edition_title',
             'barcode',
             'isbn',
@@ -225,9 +226,9 @@ class _ComicAddManualPaneState extends ConsumerState<ComicAddManualPane> {
           icon: Icons.info_outline,
           fieldIds: const {
             'publisher',
-            'imprint',
+            ComicFieldIdentities.imprintId,
             'series_group',
-            'page_count',
+            ComicFieldIdentities.pageCountId,
             'age_rating',
             'genres',
             'language',

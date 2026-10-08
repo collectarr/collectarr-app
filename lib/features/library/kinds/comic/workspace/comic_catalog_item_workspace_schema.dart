@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_ids.dart';
+import 'package:collectarr_app/features/library/kinds/comic/config/comic_field_identities.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_dto.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/schema/field_factories.dart';
@@ -15,13 +16,13 @@ abstract final class ComicCatalogItemWorkspaceFields {
 
   static final series = textField<ComicKind, ComicWorkspaceDto>(
     id: ComicFieldIds.series,
-    label: 'Series',
+    label: ComicFieldIdentities.seriesLabel,
     getValue: (dto) => dto.seriesTitle,
   );
 
   static final issueNumber = textField<ComicKind, ComicWorkspaceDto>(
     id: ComicFieldIds.issueNumber,
-    label: 'Issue Number',
+    label: ComicFieldIdentities.issueNumberLabel,
     getValue: (dto) => dto.itemNumber,
   );
 
@@ -55,13 +56,13 @@ abstract final class ComicCatalogItemWorkspaceFields {
 
   static final imprint = textField<ComicKind, ComicWorkspaceDto>(
     id: ComicFieldIds.imprint,
-    label: 'Imprint',
+    label: ComicFieldIdentities.imprintLabel,
     getValue: (dto) => dto.imprint,
   );
 
   static final pageCount = numberField<ComicKind, ComicWorkspaceDto>(
     id: ComicFieldIds.pageCount,
-    label: 'Page Count',
+    label: ComicFieldIdentities.pageCountLabel,
     getValue: (dto) => dto.pageCount,
   );
 
@@ -87,7 +88,7 @@ abstract final class ComicCatalogItemWorkspaceFields {
 
   static final variant = textField<ComicKind, ComicWorkspaceDto>(
     id: ComicFieldIds.variant,
-    label: 'Variant',
+    label: ComicFieldIdentities.variantLabel,
     getValue: (dto) => dto.variant,
   );
 }

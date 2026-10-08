@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:collectarr_app/core/models/partial_date.dart';
 import 'package:collectarr_app/features/library/forms/library_field_spec.dart';
+import 'package:collectarr_app/features/library/kinds/comic/config/comic_field_identities.dart';
 import 'package:collectarr_app/features/library/kinds/comic/forms/comic_catalog_form_values.dart';
 import 'package:collectarr_app/features/library/kinds/comic/vocabulary/comic_vocabularies.dart';
 
@@ -30,20 +31,20 @@ List<LibraryFieldSpec<T>> comicCatalogItemIdentityFields<T>({
         ),
       if (includeSeries)
         _text<T>(
-          id: 'series',
-          label: 'Series',
+          id: ComicFieldIdentities.seriesId,
+          label: ComicFieldIdentities.seriesLabel,
           value: (draft) => values(draft).seriesTitle,
           setValue: (draft, value) => values(draft).seriesTitle = value,
         ),
       _text<T>(
-        id: 'issue_number',
-        label: 'Issue number',
+        id: ComicFieldIdentities.issueNumberId,
+        label: ComicFieldIdentities.issueNumberLabel,
         value: (draft) => values(draft).issueNumber,
         setValue: (draft, value) => values(draft).issueNumber = value,
       ),
       _text<T>(
-        id: 'variant',
-        label: 'Variant',
+        id: ComicFieldIdentities.variantId,
+        label: ComicFieldIdentities.variantLabel,
         value: (draft) => values(draft).variant,
         setValue: (draft, value) => values(draft).variant = value,
       ),
@@ -123,8 +124,8 @@ List<LibraryFieldSpec<T>> comicCatalogItemPublicationFields<T>({
         onManage: onManagePublisher,
       ),
       _vocabulary<T>(
-        id: 'imprint',
-        label: 'Imprint',
+        id: ComicFieldIdentities.imprintId,
+        label: ComicFieldIdentities.imprintLabel,
         value: (draft) => values(draft).imprint,
         setValue: (draft, value) => values(draft).imprint = value ?? '',
         options: imprintOptions ?? ComicVocabularies.imprint.builtIns,
@@ -141,8 +142,8 @@ List<LibraryFieldSpec<T>> comicCatalogItemPublicationFields<T>({
         onManage: onManageSeriesGroup,
       ),
       LibraryNumberFieldSpec<T>(
-        id: 'page_count',
-        label: 'Page count',
+        id: ComicFieldIdentities.pageCountId,
+        label: ComicFieldIdentities.pageCountLabel,
         value: (draft) => values(draft).pageCount,
         setValue: (draft, value) => values(draft).pageCount = value?.round(),
         minimum: 0,

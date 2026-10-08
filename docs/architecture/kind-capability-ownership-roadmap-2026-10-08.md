@@ -128,6 +128,10 @@ the Game edit form identity in this slice. Anime shares format, native, Romaji,
 and English titles, and barcode. Its form release date remains distinct from
 the workspace's start-date-first release projection. TV now shares its barcode
 identity between Edition editing and the workspace.
+Comic now shares series, issue number, variant, imprint, and page count IDs
+and labels between its edit forms and workspace metadata. The workspace's
+release date and barcode remain separate because they are projections across
+the comic's dates and identifiers rather than the exact editable fields.
 Music release, original release, and recording dates now have one canonical
 `{year, month, day}` representation across the Core model, API, correction
 flow, search projection, App mapper, and pinned contract. Core rejects legacy
