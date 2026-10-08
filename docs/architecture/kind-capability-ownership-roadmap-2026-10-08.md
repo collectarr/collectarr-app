@@ -47,7 +47,7 @@ registration and files under `features/library/kinds/<kind>/`.
   and directory boundaries.
 - [x] Standardize catalog mapper/codec contracts and expose them through kind
   registration.
-- [ ] Derive correction ownership metadata from field specifications where
+- [x] Derive correction ownership metadata from field specifications where
   possible, then keep canonicalization and diff generation shared.
 - [ ] Consolidate field metadata used by filtering, sorting, exporting,
   searching, and editing without forcing unrelated fields into one model.
@@ -187,3 +187,10 @@ The one-time Music Collector user-field transfer and Music Label's legacy
 export-based import are removed with their dedicated UI, source metadata, and
 configuration. Ordinary file imports remain part of each kind's import
 capability.
+
+Admin correction fields now come from Core's per-kind metadata field schema.
+Kind contributors retain only correction codecs and writers for physical
+formats, links, related entities, Music extras/tracks, explicit kind aliases,
+and required titles; repeated direct readers for ordinary canonical fields
+are removed. The shared correction builder owns field applicability and
+presentation from Core metadata while preserving kind-specific save behavior.

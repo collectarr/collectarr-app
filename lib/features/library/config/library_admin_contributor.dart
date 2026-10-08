@@ -79,8 +79,9 @@ final class LibraryAdminCorrectionField {
   String get key => presentation.key;
 
   LibraryAdminCorrectionField withPresentation(
-    SharedMetadataFieldDescriptor value,
-  ) =>
+    SharedMetadataFieldDescriptor value, {
+    bool? isRequired,
+  }) =>
       LibraryAdminCorrectionField(
         presentation: value,
         read: read,
@@ -89,7 +90,7 @@ final class LibraryAdminCorrectionField {
         equals: equals,
         save: save,
         usesPhysicalFormatPicker: usesPhysicalFormatPicker,
-        required: required,
+        required: isRequired ?? required,
       );
 
   bool valuesEqual(Object? left, Object? right) =>
@@ -161,17 +162,27 @@ LibraryAdminCorrectionField adminPhysicalFormatCorrectionField({
   );
 }
 
-LibraryAdminCorrectionField adminCorrectionFieldValueOverride({
+LibraryAdminCorrectionField adminRequiredCorrectionField({
   required String key,
   required LibraryAdminCorrectionValueReader read,
-  bool required = false,
 }) =>
     adminCorrectionField(
       key: key,
       label: key,
       tab: SharedMetadataEditTab.item,
       read: read,
-      required: required,
+      required: true,
+    );
+
+LibraryAdminCorrectionField adminCorrectionFieldReadOverride({
+  required String key,
+  required LibraryAdminCorrectionValueReader read,
+}) =>
+    adminCorrectionField(
+      key: key,
+      label: key,
+      tab: SharedMetadataEditTab.item,
+      read: read,
     );
 
 LibraryAdminCorrectionField adminUrlListCorrectionField({
@@ -352,14 +363,14 @@ class LibraryMetadataOverrideField {
 
 /// Semantic admin contribution supplied by one library kind.
 ///
-/// Admin may render the fields structurally, but it must not interpret their
-/// serialized keys or decide which kind-specific fields are applicable.
+/// Core's metadata schema defines applicable fields and their presentation;
+/// kinds supply only corrections that need kind-specific codecs or writers.
 abstract interface class LibraryAdminContributor {
   CatalogMediaKind get kind;
 
   List<LibraryAdminProposalField> get proposalFields;
 
-  List<LibraryAdminCorrectionField> get correctionFields;
+  List<LibraryAdminCorrectionField> get correctionFieldOverrides;
 
   Map<String, Object?> serializeCoverCorrection({
     required String? coverImageUrl,
@@ -377,7 +388,7 @@ List<LibraryAdminCorrectionField> adminCorrectionFieldsForKind({
   required LibraryAdminContributor contributor,
 }) {
   final overrides = {
-    for (final field in contributor.correctionFields) field.key: field,
+    for (final field in contributor.correctionFieldOverrides) field.key: field,
   };
   final fields = <LibraryAdminCorrectionField>[];
   for (final spec in schema.fieldsForKind(kind.apiValue)) {
@@ -385,7 +396,10 @@ List<LibraryAdminCorrectionField> adminCorrectionFieldsForKind({
     final presentation = _adminCorrectionPresentationFromSchema(spec);
     final override = overrides.remove(spec.key);
     if (override != null) {
-      fields.add(override.withPresentation(presentation));
+      fields.add(override.withPresentation(
+        presentation,
+        isRequired: spec.required || override.required,
+      ));
       continue;
     }
     fields.add(_adminCorrectionFieldFromSchema(spec, presentation));

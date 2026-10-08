@@ -282,7 +282,7 @@ class MusicAdminContributor implements LibraryAdminContributor {
       ];
 
   @override
-  List<LibraryAdminCorrectionField> get correctionFields => [
+  List<LibraryAdminCorrectionField> get correctionFieldOverrides => [
         adminCorrectionField(
           key: 'extra',
           label: 'Extra',
