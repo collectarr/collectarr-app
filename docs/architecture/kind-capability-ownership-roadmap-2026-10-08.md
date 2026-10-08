@@ -117,7 +117,8 @@ local JSON decoding no longer accepts old `label`, `country`, `spars`, or
 artist-credit aliases. The App mapper now requires complete response
 collections and validates root, disc, track, link, and credit value types
 before constructing the local model. Core canonical Music documents now reject
-unknown root and nested fields instead of filtering them away. Manual Add emits
+unknown root and nested fields instead of filtering them away, and tracks are
+declared only inside discs rather than as a duplicate root field. Manual Add emits
 the same empty collections when a role or list has no values. Local Music snapshots now
 reject malformed album/disc/track rows, unknown aliases, and numeric coercion;
 the `entry_type` header fallback and silent dropping of invalid child rows are

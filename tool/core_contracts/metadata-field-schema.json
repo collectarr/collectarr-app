@@ -2271,15 +2271,6 @@
     },
     {
       "editable": true,
-      "input": "multiline",
-      "key": "tracks",
-      "kind": "music",
-      "label": "Tracks",
-      "section": "relations",
-      "valueType": "object_list"
-    },
-    {
-      "editable": true,
       "input": "text",
       "key": "title",
       "kind": "anime",
@@ -4340,5 +4331,5 @@
       "valueType": "link_list"
     }
   ],
-  "generatedAt": "2026-10-08T20:10:45.970958Z"
+  "generatedAt": "2026-10-08T20:26:38.896791Z"
 }
