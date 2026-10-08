@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 final class LibraryTrackingSessionLabels {
   const LibraryTrackingSessionLabels({
     required this.title,
+    required this.trackingStatusTitle,
     required this.nounSingular,
     required this.nounPlural,
     required this.addTooltip,
@@ -12,6 +13,7 @@ final class LibraryTrackingSessionLabels {
   });
 
   final String title;
+  final String trackingStatusTitle;
   final String nounSingular;
   final String nounPlural;
   final String addTooltip;
@@ -20,6 +22,7 @@ final class LibraryTrackingSessionLabels {
 
   static const watch = LibraryTrackingSessionLabels(
     title: 'Watch history',
+    trackingStatusTitle: 'Watched',
     nounSingular: 'watch',
     nounPlural: 'watches',
     addTooltip: 'Log a watch',
@@ -29,6 +32,7 @@ final class LibraryTrackingSessionLabels {
 
   static const read = LibraryTrackingSessionLabels(
     title: 'Read history',
+    trackingStatusTitle: 'Read',
     nounSingular: 'read',
     nounPlural: 'reads',
     addTooltip: 'Log a read',
@@ -38,6 +42,7 @@ final class LibraryTrackingSessionLabels {
 
   static const listen = LibraryTrackingSessionLabels(
     title: 'Listen history',
+    trackingStatusTitle: 'Played',
     nounSingular: 'listen',
     nounPlural: 'listens',
     addTooltip: 'Log a listen',
@@ -47,6 +52,7 @@ final class LibraryTrackingSessionLabels {
 
   static const play = LibraryTrackingSessionLabels(
     title: 'Play history',
+    trackingStatusTitle: 'Played',
     nounSingular: 'play',
     nounPlural: 'plays',
     addTooltip: 'Log a play',

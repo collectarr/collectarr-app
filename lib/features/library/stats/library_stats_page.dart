@@ -1,4 +1,3 @@
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/config/library_kind_style.dart';
@@ -282,7 +281,10 @@ class LibraryStatsPage extends StatelessWidget {
       // 2. Played / Tracking Status
       _cardWrapper(
         LibraryStatsDistributionCard(
-          title: _trackingTitle,
+          title: libraryKindWorkspaceForKind(type.kind)
+              .trackingTopology
+              .sessionLabels
+              .trackingStatusTitle,
           values: trackingCounts,
         ),
       ),
@@ -385,16 +387,6 @@ class LibraryStatsPage extends StatelessWidget {
 
   String get _seriesLabel =>
       _statsLabels.labelFor('top_series', fallback: 'Artist');
-
-  String get _trackingTitle {
-    return switch (type.kind) {
-      CatalogMediaKind.music => 'Played',
-      CatalogMediaKind.movie || CatalogMediaKind.tv || CatalogMediaKind.anime => 'Watched',
-      CatalogMediaKind.book || CatalogMediaKind.comic || CatalogMediaKind.manga => 'Read',
-      CatalogMediaKind.game || CatalogMediaKind.boardgame => 'Played',
-      _ => 'Tracking',
-    };
-  }
 
   static Map<String, int> _formatCounts(
     List<LibraryWorkspaceContext> entries,
