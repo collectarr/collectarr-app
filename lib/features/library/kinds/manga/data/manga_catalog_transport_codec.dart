@@ -29,6 +29,13 @@ final class MangaCatalogTransportCodec
       MangaMetadata.fromJson(kindData);
 
   @override
+  CatalogItemDto encode(String id, MangaMetadata item) => CatalogItemDto.raw(
+        id: id,
+        mediaKind: kind,
+        kindData: item.toJson(),
+      );
+
+  @override
   CatalogDisplaySummary summarize(String catalogItemId, MangaMetadata item) =>
       CatalogDisplaySummary.forCatalogItem(
         kind: kind,

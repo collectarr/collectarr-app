@@ -28,6 +28,14 @@ final class MovieCatalogTransportCodec
       MovieCatalogMetadata.fromJson(kindData);
 
   @override
+  CatalogItemDto encode(String id, MovieCatalogMetadata item) =>
+      CatalogItemDto.raw(
+        id: id,
+        mediaKind: kind,
+        kindData: item.toJson(),
+      );
+
+  @override
   CatalogDisplaySummary summarize(
     String catalogItemId,
     MovieCatalogMetadata item,

@@ -1,6 +1,7 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_display_summary.dart';
+import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/core/models/library_entry_ref.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_item_cache_repository.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_kind_derived_data.dart';
@@ -33,6 +34,13 @@ final class MusicCatalogTransportCodec
   @override
   MusicAlbum decodeKindData(Map<String, dynamic> kindData) =>
       MusicAlbum.fromJson(kindData);
+
+  @override
+  CatalogItemDto encode(String id, MusicAlbum item) =>
+      MusicCatalogMapper.toCatalogItemDto(
+        item,
+        ref: CatalogItemRef(kind: kind, id: id),
+      );
 
   @override
   CatalogDisplaySummary summarize(String catalogItemId, MusicAlbum item) =>

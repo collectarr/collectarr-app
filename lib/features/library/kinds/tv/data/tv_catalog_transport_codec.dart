@@ -29,6 +29,13 @@ final class TvCatalogTransportCodec
       TvMetadata.fromJson(kindData);
 
   @override
+  CatalogItemDto encode(String id, TvMetadata item) => CatalogItemDto.raw(
+        id: id,
+        mediaKind: kind,
+        kindData: item.toJson(),
+      );
+
+  @override
   CatalogDisplaySummary summarize(
     String catalogItemId,
     TvMetadata item,

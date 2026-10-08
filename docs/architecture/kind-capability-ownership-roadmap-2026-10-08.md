@@ -160,5 +160,8 @@ use kind-specific lifecycle widgets or have target-dependent semantics.
 Reusable field specs, form schemas, renderers, and validation now live under
 `features/library/forms/`; the library edit schema/dialog workflow remains under
 `features/library/edit/schema/`. Catalog transport already uses the shared
-`CatalogKindTransportCodec<T>` interface for decoding and workspace projection;
-uniform typed encoding through the kind capability remains open.
+`CatalogKindTransportCodec<T>` interface for typed decoding, encoding, and
+workspace projection. Music encoding delegates to its canonical mapper, while
+the other kinds encode their typed JSON documents. The current catalog registry
+stores these codecs behind the shared boundary; moving codec ownership into the
+kind module capability registration remains open.

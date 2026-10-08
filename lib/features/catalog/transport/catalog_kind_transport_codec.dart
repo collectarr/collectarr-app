@@ -2,6 +2,7 @@ import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_display_summary.dart';
 import 'package:collectarr_app/core/models/library_entry_ref.dart';
+import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/features/catalog/catalog_kind_summary_reader.dart';
 import 'package:collectarr_app/features/catalog/serial/serial_authority_repository.dart';
 import 'package:collectarr_app/features/pick_lists/pick_list_repository.dart';
@@ -52,14 +53,18 @@ abstract interface class CatalogKindTransportBoundary
 /// mixed infrastructure that must persist a complete catalog snapshot. Kind
 /// code owns the mapping to and from its typed catalog item; converted kinds
 /// may declare the shared item cache as their primary local store.
-abstract interface class CatalogKindTransportCodec<TCatalog>
-    implements CatalogKindTransportBoundary {
+abstract interface class CatalogKindTransportCodec<
+    TCatalog extends JsonEncodable> implements CatalogKindTransportBoundary {
   /// Decodes the transport boundary into the owning kind's concrete domain.
   ///
   /// Generic catalog orchestration must not inspect the returned value. The
   /// generated registry may invoke this method at the dispatch boundary, but
   /// the concrete codec owns all interpretation of the DTO.
   TCatalog decode(CatalogItemDto item);
+
+  /// Encodes one typed kind value into its canonical flattened catalog item.
+  /// The caller supplies the catalog identity; kind field mapping remains here.
+  CatalogItemDto encode(String id, TCatalog item);
 
   /// Decodes kind-owned metadata from an independent local Library Entry.
   TCatalog decodeKindData(Map<String, dynamic> kindData);
@@ -118,9 +123,17 @@ extension CatalogKindTransportSummary on CatalogKindTransportBoundary {
   }
 }
 
+/// Encodes typed kind values through the codec selected by the kind registry.
+extension CatalogKindTransportEncoding on CatalogKindTransportBoundary {
+  CatalogItemDto encodeTransport(String id, JsonEncodable item) {
+    final codec = this as CatalogKindTransportCodec<dynamic>;
+    return codec.encode(id, item);
+  }
+}
+
 /// Reads typed metadata from Core snapshots and locally owned entries.
 /// Local entry identities remain in their own namespace.
-extension CatalogKindMetadataReads<TCatalog>
+extension CatalogKindMetadataReads<TCatalog extends JsonEncodable>
     on CatalogKindTransportCodec<TCatalog> {
   Future<List<TCatalog>> listCatalogAndEntryMetadata(LocalDatabase db) async {
     final catalogItems = await listTransport(db);

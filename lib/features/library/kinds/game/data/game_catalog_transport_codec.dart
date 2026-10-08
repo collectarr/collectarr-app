@@ -28,6 +28,14 @@ final class GameCatalogTransportCodec
       GameCatalogMetadata.fromJson(kindData);
 
   @override
+  CatalogItemDto encode(String id, GameCatalogMetadata item) =>
+      CatalogItemDto.raw(
+        id: id,
+        mediaKind: kind,
+        kindData: item.toJson(),
+      );
+
+  @override
   CatalogDisplaySummary summarize(
     String catalogItemId,
     GameCatalogMetadata item,

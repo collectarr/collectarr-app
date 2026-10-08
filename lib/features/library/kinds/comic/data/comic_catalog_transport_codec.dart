@@ -29,6 +29,13 @@ final class ComicCatalogTransportCodec
       ComicCatalogItem.fromJson(kindData);
 
   @override
+  CatalogItemDto encode(String id, ComicCatalogItem item) => CatalogItemDto.raw(
+        id: id,
+        mediaKind: kind,
+        kindData: item.toJson(),
+      );
+
+  @override
   CatalogDisplaySummary summarize(
           String catalogItemId, ComicCatalogItem item) =>
       _comicSummary(catalogItemId, item);
