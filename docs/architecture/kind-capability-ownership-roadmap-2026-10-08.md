@@ -117,7 +117,10 @@ local JSON decoding no longer accepts old `label`, `country`, `spars`, or
 artist-credit aliases. The App mapper now requires complete response
 collections and validates root, disc, track, link, and credit value types
 before constructing the local model; Manual Add emits the same empty
-collections when a role or list has no values.
+collections when a role or list has no values. Local Music snapshots now
+reject malformed album/disc/track rows, unknown aliases, and numeric coercion;
+the `entry_type` header fallback and silent dropping of invalid child rows are
+gone.
 Manual Music Add now emits complete artist and role credit collections,
 including explicit credit/person identity and sequence, plus empty canonical
 collections for unused roles. Remaining P0 work is tracked above.

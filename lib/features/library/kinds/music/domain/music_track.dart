@@ -58,25 +58,53 @@ final class MusicTrack {
   int? get durationSeconds =>
       durationMs == null ? null : (durationMs! / 1000).round();
 
-  factory MusicTrack.fromJson(Map<String, dynamic> json) => MusicTrack(
-        id: MusicTrackId(_text(json['id']) ?? ''),
-        position: _text(json['position']) ?? '',
-        title: _text(json['title']) ?? 'Track',
-        positionOrder: _int(json['position_order']),
-        artist: _text(json['artist']),
-        composition: _text(json['composition']),
-        durationMs: _int(json['duration_ms']),
-        offsetMs: _int(json['offset_ms']),
-        bitrateKbps: _int(json['bitrate_kbps']),
-        fileSizeBytes: _int(json['file_size_bytes']),
-        trackHash: _text(json['track_hash']),
-        instrument: _text(json['instrument']),
-        isHeader: json['is_header'] == true || json['entry_type'] == 'header',
-        indentLevel: _int(json['indent_level']) ?? 0,
-        parentHeaderId: _text(json['parent_header_id']),
-        createdAt: _dateTime(json['created_at']),
-        updatedAt: _dateTime(json['updated_at']),
+  factory MusicTrack.fromJson(Map<String, dynamic> json) {
+    const fields = {
+      'id',
+      'created_at',
+      'updated_at',
+      'position',
+      'title',
+      'position_order',
+      'artist',
+      'composition',
+      'duration_ms',
+      'offset_ms',
+      'bitrate_kbps',
+      'file_size_bytes',
+      'track_hash',
+      'instrument',
+      'is_header',
+      'indent_level',
+      'parent_header_id',
+    };
+    final unsupported = json.keys.where((key) => !fields.contains(key));
+    if (unsupported.isNotEmpty) {
+      throw FormatException(
+        'Unrecognized Music track field "${unsupported.first}".',
       );
+    }
+    return MusicTrack(
+      id: MusicTrackId(_requiredText(json['id'], 'id')),
+      position: _requiredText(json['position'], 'position', allowEmpty: true),
+      title: _requiredText(json['title'], 'title'),
+      positionOrder: _optionalInt(json['position_order'], 'position_order'),
+      artist: _optionalText(json['artist'], 'artist'),
+      composition: _optionalText(json['composition'], 'composition'),
+      durationMs: _optionalInt(json['duration_ms'], 'duration_ms'),
+      offsetMs: _optionalInt(json['offset_ms'], 'offset_ms'),
+      bitrateKbps: _optionalInt(json['bitrate_kbps'], 'bitrate_kbps'),
+      fileSizeBytes: _optionalInt(json['file_size_bytes'], 'file_size_bytes'),
+      trackHash: _optionalText(json['track_hash'], 'track_hash'),
+      instrument: _optionalText(json['instrument'], 'instrument'),
+      isHeader: _requiredBool(json['is_header'], 'is_header'),
+      indentLevel: _requiredIndentLevel(json['indent_level']),
+      parentHeaderId:
+          _optionalText(json['parent_header_id'], 'parent_header_id'),
+      createdAt: _dateTime(json['created_at']),
+      updatedAt: _dateTime(json['updated_at']),
+    );
+  }
 
   Map<String, dynamic> toJson() => {
         'id': id.value,
@@ -99,15 +127,45 @@ final class MusicTrack {
       };
 }
 
-String? _text(Object? value) {
-  final text = value?.toString().trim();
-  return text == null || text.isEmpty ? null : text;
+String _requiredText(Object? value, String field, {bool allowEmpty = false}) {
+  if (value is! String ||
+      (!allowEmpty && value.isEmpty) ||
+      value != value.trim()) {
+    throw FormatException('Music track $field must be trimmed text.');
+  }
+  return value;
 }
 
-int? _int(Object? value) {
-  if (value is int) return value;
-  if (value is num) return value.toInt();
-  return int.tryParse(value?.toString().trim() ?? '');
+String? _optionalText(Object? value, String field) {
+  if (value == null) return null;
+  return _requiredText(value, field);
+}
+
+int? _optionalInt(Object? value, String field) {
+  if (value == null) return null;
+  return _requiredInt(value, field);
+}
+
+int _requiredInt(Object? value, String field) {
+  if (value is! int || value < 0) {
+    throw FormatException('Music track $field must be a non-negative integer.');
+  }
+  return value;
+}
+
+int _requiredIndentLevel(Object? value) {
+  final indentLevel = _requiredInt(value, 'indent_level');
+  if (indentLevel > 8) {
+    throw const FormatException('Music track indent_level must be <= 8.');
+  }
+  return indentLevel;
+}
+
+bool _requiredBool(Object? value, String field) {
+  if (value is! bool) {
+    throw FormatException('Music track $field must be boolean.');
+  }
+  return value;
 }
 
 DateTime? _date(Object? value) =>

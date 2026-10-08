@@ -42,22 +42,49 @@ final class MusicDisc {
       tracks.where((track) => !track.isHeader).length;
 
   factory MusicDisc.fromJson(Map<String, dynamic> json) {
-    final tracks =
-        _maps(json['tracks']).map(MusicTrack.fromJson).toList(growable: false);
+    const fields = {
+      'id',
+      'disc_number',
+      'title',
+      'format_family',
+      'format',
+      'sound_types',
+      'color',
+      'vinyl_weight_grams',
+      'rpm',
+      'matrix_number',
+      'matrix_number_side_a',
+      'matrix_number_side_b',
+      'tracks',
+    };
+    final unsupported = json.keys.where((key) => !fields.contains(key));
+    if (unsupported.isNotEmpty) {
+      throw FormatException(
+        'Unrecognized Music disc field "${unsupported.first}".',
+      );
+    }
+    final tracks = _requiredMaps(json['tracks'], 'tracks')
+        .map(MusicTrack.fromJson)
+        .toList(growable: false);
     return MusicDisc(
-      id: MusicDiscId(_text(json['id']) ?? ''),
-      discNumber: _int(json['disc_number']) ?? 0,
-      title: _text(json['title']),
-      formatFamily:
-          MusicDiscFormatFamily.tryParse(_text(json['format_family'])),
-      format: _text(json['format']),
-      soundTypes: _strings(json['sound_types']),
-      color: _text(json['color']),
-      vinylWeightGrams: _int(json['vinyl_weight_grams']),
-      rpm: _text(json['rpm']),
-      matrixNumber: _text(json['matrix_number']),
-      matrixNumberSideA: _text(json['matrix_number_side_a']),
-      matrixNumberSideB: _text(json['matrix_number_side_b']),
+      id: MusicDiscId(_requiredText(json['id'], 'id')),
+      discNumber: _requiredInt(json['disc_number'], 'disc_number', minimum: 1),
+      title: _optionalText(json['title'], 'title'),
+      formatFamily: _formatFamily(json['format_family']),
+      format: _optionalText(json['format'], 'format'),
+      soundTypes: _stringList(json['sound_types'], 'sound_types'),
+      color: _optionalText(json['color'], 'color'),
+      vinylWeightGrams: _optionalInt(
+        json['vinyl_weight_grams'],
+        'vinyl_weight_grams',
+        minimum: 1,
+      ),
+      rpm: _optionalText(json['rpm'], 'rpm'),
+      matrixNumber: _optionalText(json['matrix_number'], 'matrix_number'),
+      matrixNumberSideA:
+          _optionalText(json['matrix_number_side_a'], 'matrix_number_side_a'),
+      matrixNumberSideB:
+          _optionalText(json['matrix_number_side_b'], 'matrix_number_side_b'),
       tracks: tracks,
     );
   }
@@ -122,28 +149,68 @@ String? formatAlbumDiscsSummary(
 }) =>
     formatDiscsSummary(discs.map((d) => d.format), fallback: fallback);
 
-
-String? _text(Object? value) {
-  final text = value?.toString().trim();
-  return text == null || text.isEmpty ? null : text;
+String _requiredText(Object? value, String field) {
+  if (value is! String || value.isEmpty || value != value.trim()) {
+    throw FormatException('Music disc $field must be non-empty trimmed text.');
+  }
+  return value;
 }
 
-int? _int(Object? value) => value is int
-    ? value
-    : value is num
-        ? value.toInt()
-        : int.tryParse(value?.toString().trim() ?? '');
+String? _optionalText(Object? value, String field) {
+  if (value == null) return null;
+  return _requiredText(value, field);
+}
 
-List<String> _strings(Object? value) => value is Iterable
-    ? [
-        for (final entry in value)
-          if (_text(entry) case final text?) text,
-      ]
-    : const <String>[];
+int _requiredInt(Object? value, String field, {required int minimum}) {
+  if (value is! int || value < minimum) {
+    throw FormatException('Music disc $field must be an integer >= $minimum.');
+  }
+  return value;
+}
 
-List<Map<String, dynamic>> _maps(Object? value) => value is Iterable
-    ? [
-        for (final entry in value)
-          if (entry is Map) Map<String, dynamic>.from(entry)
-      ]
-    : const <Map<String, dynamic>>[];
+int? _optionalInt(Object? value, String field, {required int minimum}) {
+  if (value == null) return null;
+  return _requiredInt(value, field, minimum: minimum);
+}
+
+MusicDiscFormatFamily? _formatFamily(Object? value) {
+  if (value == null) return null;
+  if (value is! String) {
+    throw const FormatException(
+        'Music disc format_family must be text or null.');
+  }
+  for (final family in MusicDiscFormatFamily.values) {
+    if (family.value == value) return family;
+  }
+  throw FormatException('Unrecognized Music disc format_family "$value".');
+}
+
+List<String> _stringList(Object? value, String field) {
+  if (value == null) return const [];
+  if (value is! List || value.any((entry) => entry is! String)) {
+    throw FormatException('Music disc $field must be a list of strings.');
+  }
+  for (final (index, entry) in value.indexed) {
+    if (entry.isEmpty || entry != entry.trim()) {
+      throw FormatException(
+        'Music disc $field entry ${index + 1} must be non-empty trimmed text.',
+      );
+    }
+  }
+  return List<String>.unmodifiable(value.cast<String>());
+}
+
+List<Map<String, dynamic>> _requiredMaps(Object? value, String field) {
+  if (value is! List) {
+    throw FormatException('Music disc $field must be a list.');
+  }
+  return [
+    for (final (index, entry) in value.indexed)
+      if (entry is Map)
+        Map<String, dynamic>.from(entry)
+      else
+        throw FormatException(
+          'Music disc $field entry ${index + 1} must be an object.',
+        ),
+  ];
+}

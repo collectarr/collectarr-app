@@ -111,52 +111,105 @@ final class MusicAlbum implements JsonEncodable {
       ];
 
   factory MusicAlbum.fromJson(Map<String, dynamic> json) {
-    final discs =
-        _maps(json['discs']).map(MusicDisc.fromJson).toList(growable: false);
+    const fields = {
+      'id',
+      'kind',
+      'revision',
+      'created_at',
+      'updated_at',
+      'title',
+      'sort_title',
+      'subtitle',
+      'artist',
+      'original_release_date',
+      'recording_date',
+      'studios',
+      'is_live',
+      'genres',
+      'release_date',
+      'publisher',
+      'country_code',
+      'barcode',
+      'catalog_number',
+      'packaging',
+      'cover_image_url',
+      'cover_image_key',
+      'back_cover_image_url',
+      'thumbnail_image_url',
+      'local_cover_image_path',
+      'local_back_image_path',
+      'local_thumbnail_image_path',
+      'extra',
+      'spars_code',
+      'external_links',
+      'box_set',
+      'contributions',
+      'artist_credits',
+      'discs',
+    };
+    final unsupported = json.keys.where((key) => !fields.contains(key));
+    if (unsupported.isNotEmpty) {
+      throw FormatException(
+        'Unrecognized local Music field "${unsupported.first}".',
+      );
+    }
+    if (json['kind'] != null && json['kind'] != 'music') {
+      throw FormatException(
+          'Expected local Music data, received ${json['kind']}.');
+    }
+    final discs = _maps(json['discs'], 'discs')
+        .map(MusicDisc.fromJson)
+        .toList(growable: false);
     return MusicAlbum(
-      id: switch (_text(json['id'])) {
-        final id? => CatalogItemRef(kind: CatalogMediaKind.music, id: id),
-        null => null,
-      },
-      title: _text(json['title']) ?? 'Untitled album',
-      sortTitle: _text(json['sort_title']),
-      subtitle: _text(json['subtitle']),
-      artist: _text(json['artist']),
+      id: _catalogItemRef(json['id']),
+      title: _requiredText(json['title'], 'title'),
+      sortTitle: _optionalText(json['sort_title'], 'sort_title'),
+      subtitle: _optionalText(json['subtitle'], 'subtitle'),
+      artist: _optionalText(json['artist'], 'artist'),
       originalReleaseDateParts: _partialDate(
         json['original_release_date'],
       ),
       recordingDateParts: _partialDate(
         json['recording_date'],
       ),
-      studios: _strings(json['studios']),
+      studios: _strings(json['studios'], 'studios'),
       isLive: json['is_live'] as bool?,
-      genres: _strings(json['genres']),
+      genres: _strings(json['genres'], 'genres'),
       releaseDateParts: _partialDate(
         json['release_date'],
       ),
-      publisher: _text(json['publisher']),
-      countryCode: _text(json['country_code']),
-      barcode: _text(json['barcode']),
-      catalogNumber: _text(json['catalog_number']),
-      packaging: _text(json['packaging']),
-      coverImageUrl: _text(json['cover_image_url']),
-      coverImageKey: _text(json['cover_image_key']),
-      backCoverImageUrl: _text(json['back_cover_image_url']),
-      thumbnailImageUrl: _text(json['thumbnail_image_url']),
-      localCoverImagePath: _text(json['local_cover_image_path']),
-      localBackImagePath: _text(json['local_back_image_path']),
-      localThumbnailImagePath: _text(json['local_thumbnail_image_path']),
+      publisher: _optionalText(json['publisher'], 'publisher'),
+      countryCode: _optionalText(json['country_code'], 'country_code'),
+      barcode: _optionalText(json['barcode'], 'barcode'),
+      catalogNumber: _optionalText(json['catalog_number'], 'catalog_number'),
+      packaging: _optionalText(json['packaging'], 'packaging'),
+      coverImageUrl: _optionalText(json['cover_image_url'], 'cover_image_url'),
+      coverImageKey: _optionalText(json['cover_image_key'], 'cover_image_key'),
+      backCoverImageUrl:
+          _optionalText(json['back_cover_image_url'], 'back_cover_image_url'),
+      thumbnailImageUrl: _optionalText(
+        json['thumbnail_image_url'],
+        'thumbnail_image_url',
+      ),
+      localCoverImagePath: _optionalText(
+          json['local_cover_image_path'], 'local_cover_image_path'),
+      localBackImagePath:
+          _optionalText(json['local_back_image_path'], 'local_back_image_path'),
+      localThumbnailImagePath: _optionalText(
+        json['local_thumbnail_image_path'],
+        'local_thumbnail_image_path',
+      ),
       extra: _strictStringList(json['extra']),
-      sparsCode: _text(json['spars_code']),
+      sparsCode: _optionalText(json['spars_code'], 'spars_code'),
       externalLinks: _externalLinks(json),
-      boxSet: _text(json['box_set']),
+      boxSet: _optionalText(json['box_set'], 'box_set'),
       contributions: [
-        for (final value in _maps(json['contributions']))
+        for (final value in _maps(json['contributions'], 'contributions'))
           MusicAlbumContribution.fromJson(value),
       ],
       artistCredits: _artistCredits(json['artist_credits']),
       discs: discs,
-      revision: _int(json['revision']) ?? 1,
+      revision: _optionalInt(json['revision'], 'revision', minimum: 1) ?? 1,
       createdAt: _dateTime(json['created_at']),
       updatedAt: _dateTime(json['updated_at']),
     );
@@ -213,16 +266,33 @@ final class MusicAlbum implements JsonEncodable {
       };
 }
 
-String? _text(Object? value) {
-  final text = value?.toString().trim();
-  return text == null || text.isEmpty ? null : text;
+CatalogItemRef? _catalogItemRef(Object? value) {
+  if (value == null) return null;
+  return CatalogItemRef(
+    kind: CatalogMediaKind.music,
+    id: _requiredText(value, 'id'),
+  );
 }
 
-int? _int(Object? value) => value is int
-    ? value
-    : value is num
-        ? value.toInt()
-        : int.tryParse(value?.toString().trim() ?? '');
+String _requiredText(Object? value, String field) {
+  if (value is! String || value.isEmpty || value != value.trim()) {
+    throw FormatException('Local Music $field must be non-empty trimmed text.');
+  }
+  return value;
+}
+
+String? _optionalText(Object? value, String field) {
+  if (value == null) return null;
+  return _requiredText(value, field);
+}
+
+int? _optionalInt(Object? value, String field, {required int minimum}) {
+  if (value == null) return null;
+  if (value is! int || value < minimum) {
+    throw FormatException('Local Music $field must be an integer >= $minimum.');
+  }
+  return value;
+}
 
 PartialDate? _partialDate(Object? value) {
   if (value == null) return null;
@@ -255,31 +325,47 @@ DateTime _dateTime(Object? value) {
   return DateTime.fromMillisecondsSinceEpoch(0, isUtc: true);
 }
 
-List<String> _strings(Object? value) => value is Iterable
-    ? [
-        for (final entry in value)
-          if (_text(entry) case final text?) text,
-      ]
-    : const <String>[];
+List<String> _strings(Object? value, String field) {
+  if (value == null) return const [];
+  if (value is! List) {
+    throw FormatException('Local Music $field must be a list of strings.');
+  }
+  return [
+    for (final (index, entry) in value.indexed)
+      _requiredText(entry, '$field entry ${index + 1}'),
+  ];
+}
 
 List<String> _strictStringList(Object? value) {
   if (value == null) return const [];
-  if (value is! List || value.any((entry) => entry is! String)) {
-    throw const FormatException('Music extra must be a list of strings.');
+  if (value is! List) {
+    throw const FormatException('Local Music extra must be a list of strings.');
   }
-  return List<String>.unmodifiable(value.cast<String>());
+  return List<String>.unmodifiable([
+    for (final (index, entry) in value.indexed)
+      _requiredText(entry, 'extra entry ${index + 1}'),
+  ]);
 }
 
-List<Map<String, dynamic>> _maps(Object? value) => value is Iterable
-    ? [
-        for (final entry in value)
-          if (entry is Map) Map<String, dynamic>.from(entry)
-      ]
-    : const <Map<String, dynamic>>[];
+List<Map<String, dynamic>> _maps(Object? value, String field) {
+  if (value == null) return const [];
+  if (value is! List) {
+    throw FormatException('Local Music $field must be a list.');
+  }
+  return [
+    for (final (index, entry) in value.indexed)
+      if (entry is Map)
+        Map<String, dynamic>.from(entry)
+      else
+        throw FormatException(
+          'Local Music $field entry ${index + 1} must be an object.',
+        ),
+  ];
+}
 
 List<MusicArtistCredit> _artistCredits(Object? value) {
   if (value == null) return const [];
-  if (value is! Iterable) {
+  if (value is! List) {
     throw const FormatException('Music artist_credits must be a list.');
   }
   return [
@@ -296,7 +382,7 @@ List<MusicArtistCredit> _artistCredits(Object? value) {
 List<MusicExternalLink> _externalLinks(Map<String, dynamic> json) {
   final raw = json['external_links'];
   if (raw == null) return const [];
-  if (raw is! Iterable) {
+  if (raw is! List) {
     throw const FormatException('Music external_links must be a list.');
   }
   return [
