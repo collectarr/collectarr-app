@@ -205,6 +205,7 @@ class _LibraryMultiValuePickFieldState<TValue>
                 focusNode: focusNode,
                 enabled: widget.enabled,
                 style: textStyle,
+                textAlignVertical: TextAlignVertical.center,
                 textInputAction: TextInputAction.done,
                 decoration: InputDecoration(
                     hintText: widget.hintText,
