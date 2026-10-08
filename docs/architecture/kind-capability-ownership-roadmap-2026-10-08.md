@@ -32,7 +32,7 @@ registration and files under `features/library/kinds/<kind>/`.
   contributions where the current architecture permits it.
 - [ ] Reduce `MusicAlbumEditDraft` orchestration by separating album values,
   discs, credits, links, and track editing logic where useful.
-- [ ] Audit Music edit/forms for orphaned components after cutover and delete
+- [x] Audit Music edit/forms for orphaned components after cutover and delete
   confirmed dead code.
 
 ## P1 — consolidate shared edit and kind contracts
@@ -69,5 +69,7 @@ and several capability registries. Implementation should extend those
 boundaries instead of introducing a second ownership system. The CSV/TXT
 export page now consumes a structural export capability; Music owns its item
 fields, child rows, labels, and default filenames. The shared page owns column
-selection, sorting, quoting, preview, and file handling. Remaining P0 work is
-tracked above.
+selection, sorting, quoting, preview, and file handling. The Music edit/forms
+reference audit removed three unreferenced pre-cutover helpers; the disc text
+field, disc tab button, disc details view, and active form adapters remain in
+use. Remaining P0 work is tracked above.
