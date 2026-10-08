@@ -622,8 +622,8 @@
   "$id": "https://schemas.collectarr.app/music-catalog/v1",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "contractVersion": "1.0.0",
-  "coreCommit": "546f30e4e8b8d8d46b79edcc5065b68d7fc89e01",
-  "generatedAt": "2026-10-08T19:39:10.352508Z",
+  "coreCommit": "1ad2d7f2c44bee8a1c50b35eea0dca54de357af9",
+  "generatedAt": "2026-10-08T19:47:54.204620Z",
   "roots": {
     "disc": {
       "$ref": "#/$defs/CatalogMusicDiscResponse"

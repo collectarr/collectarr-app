@@ -96,6 +96,8 @@ flow, search projection, App mapper, and pinned contract. Core rejects legacy
 date strings and `*_date_parts` fields on Music writes. Music `extra` is now a
 `list[str]` through Core JSONB storage, API responses, corrections, App forms,
 vocabulary edits, grouping, and pinned field metadata; the packed `||` form is
-gone. The broader strict Music contract remains open for format duplication,
-disc validation, and other payload normalization. Remaining P0 work is tracked
-above.
+gone. The broader strict Music contract remains open for format duplication
+and other payload normalization. Canonical Music disc documents now reject
+missing component IDs and track positions/orders instead of generating them;
+the correction editor sends explicit disc and track identities, and App
+rejects incomplete Core disc rows. Remaining P0 work is tracked above.

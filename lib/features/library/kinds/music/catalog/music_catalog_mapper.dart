@@ -231,7 +231,38 @@ final class MusicCatalogMapper {
     if (_text(catalogPayload['kind']) case final kind? when kind != 'music') {
       throw FormatException('Expected a Music Catalog Item, received $kind.');
     }
-    final discs = _maps(catalogPayload['discs']);
+    final discs = _requiredMaps(catalogPayload['discs'], path: 'Music discs');
+    for (var discIndex = 0; discIndex < discs.length; discIndex++) {
+      final disc = discs[discIndex];
+      if (disc['id'] is! String ||
+          (disc['id'] as String).trim().isEmpty ||
+          disc['disc_number'] is! int) {
+        throw FormatException(
+          'Music disc ${discIndex + 1} is missing its canonical identity.',
+        );
+      }
+      final tracks = _requiredMaps(
+        disc['tracks'],
+        path: 'Music disc ${discIndex + 1} tracks',
+      );
+      for (var trackIndex = 0; trackIndex < tracks.length; trackIndex++) {
+        final track = tracks[trackIndex];
+        if (track['id'] is! String ||
+            (track['id'] as String).trim().isEmpty ||
+            track['position'] is! String ||
+            track['position_order'] is! int ||
+            (track['position_order'] as int) < 0 ||
+            track['title'] is! String ||
+            (track['title'] as String).trim().isEmpty ||
+            track['is_header'] is! bool ||
+            track['indent_level'] is! int) {
+          throw FormatException(
+            'Music disc ${discIndex + 1} track ${trackIndex + 1} is missing '
+            'canonical identity or ordering fields.',
+          );
+        }
+      }
+    }
     const discFields = <String>{
       'id',
       'disc_number',
@@ -328,9 +359,11 @@ final class MusicCatalogMapper {
         for (final disc in discs)
           {
             ...disc,
-            'id': _text(disc['id']) ?? '$id:disc:${disc['disc_number']}',
             'disc_number': disc['disc_number'],
-            'tracks': _tracksForDisc(disc, id),
+            'tracks': _requiredMaps(
+              disc['tracks'],
+              path: 'Music disc ${disc['disc_number']} tracks',
+            ),
           },
       ],
     };
@@ -370,26 +403,6 @@ List<String> _namesForRole(MusicAlbum album, String role) => [
           contribution.displayName ?? contribution.personId,
     ];
 
-List<Map<String, dynamic>> _tracksForDisc(
-    Map<String, dynamic> disc, String itemId) {
-  final tracks = _maps(disc['tracks']);
-  return [
-    for (var index = 0; index < tracks.length; index++)
-      {
-        ...tracks[index],
-        'id': _text(tracks[index]['id']) ??
-            '$itemId:disc:${disc['disc_number']}:track:${index + 1}',
-        'position': _text(tracks[index]['position']) ?? '${index + 1}',
-        'position_order': _int(tracks[index]['position_order']) ?? index + 1,
-        'title': _text(tracks[index]['title']) ?? 'Untitled track',
-        'duration_ms': _int(tracks[index]['duration_ms']),
-        'is_header': tracks[index]['is_header'] == true,
-        'parent_header_id': _text(tracks[index]['parent_header_id']),
-        'indent_level': _int(tracks[index]['indent_level']) ?? 0,
-      },
-  ];
-}
-
 String? _text(Object? value) {
   final text = value?.toString().trim();
   return text == null || text.isEmpty ? null : text;
@@ -407,3 +420,22 @@ List<Map<String, dynamic>> _maps(Object? value) => value is Iterable
           if (entry is Map) Map<String, dynamic>.from(entry)
       ]
     : const <Map<String, dynamic>>[];
+
+List<Map<String, dynamic>> _requiredMaps(
+  Object? value, {
+  required String path,
+}) {
+  if (value is! Iterable) {
+    throw FormatException('$path must be a list.');
+  }
+  final result = <Map<String, dynamic>>[];
+  var index = 0;
+  for (final entry in value) {
+    if (entry is! Map) {
+      throw FormatException('$path entry ${index + 1} must be an object.');
+    }
+    result.add(Map<String, dynamic>.from(entry));
+    index++;
+  }
+  return result;
+}

@@ -1262,8 +1262,7 @@
             "anyOf": [
               {
                 "items": {
-                  "additionalProperties": true,
-                  "type": "object"
+                  "$ref": "#/components/schemas/AdminMusicTrackCorrection"
                 },
                 "type": "array"
               },
@@ -1353,6 +1352,100 @@
           "name"
         ],
         "title": "AdminMetadataCreditInput",
+        "type": "object"
+      },
+      "AdminMusicTrackCorrection": {
+        "additionalProperties": false,
+        "properties": {
+          "artist": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Artist"
+          },
+          "disc_id": {
+            "format": "uuid",
+            "title": "Disc Id",
+            "type": "string"
+          },
+          "disc_number": {
+            "minimum": 1.0,
+            "title": "Disc Number",
+            "type": "integer"
+          },
+          "duration_ms": {
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Duration Ms"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "indent_level": {
+            "maximum": 8.0,
+            "minimum": 0.0,
+            "title": "Indent Level",
+            "type": "integer"
+          },
+          "is_header": {
+            "title": "Is Header",
+            "type": "boolean"
+          },
+          "parent_header_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Parent Header Id"
+          },
+          "position": {
+            "maxLength": 16,
+            "title": "Position",
+            "type": "string"
+          },
+          "position_order": {
+            "minimum": 0.0,
+            "title": "Position Order",
+            "type": "integer"
+          },
+          "title": {
+            "maxLength": 255,
+            "minLength": 1,
+            "title": "Title",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "disc_id",
+          "disc_number",
+          "position",
+          "position_order",
+          "title",
+          "is_header",
+          "parent_header_id",
+          "indent_level"
+        ],
+        "title": "AdminMusicTrackCorrection",
         "type": "object"
       },
       "AdminNormalizedMetadataDriftReportResponse": {
