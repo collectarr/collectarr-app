@@ -9,6 +9,7 @@ import 'package:collectarr_app/features/library/kinds/book/forms/book_person_cre
 import 'package:collectarr_app/features/library/kinds/book/forms/book_catalog_form_field_ids.dart';
 import 'package:collectarr_app/features/library/kinds/book/forms/book_external_links_editor.dart';
 import 'package:collectarr_app/features/library/kinds/book/vocabulary/book_vocabularies.dart';
+import 'package:collectarr_app/features/library/kinds/book/config/book_field_identities.dart';
 import 'package:collectarr_app/features/library/kinds/book/entries/book_entry_details.dart';
 import 'package:collectarr_app/features/library/kinds/book/entries/book_entry_details_draft.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
@@ -19,7 +20,6 @@ Widget? buildBookCustomTabView({
   required BuildContext context,
   required LibraryEditShellState draft,
   required Color accent,
-
   required CatalogSearchCandidate item,
   required VoidCallback markDirty,
 }) {
@@ -151,12 +151,12 @@ List<String> _options(
 
 List<String> _optionsForField(LibraryEditShellState draft, String fieldId) =>
     switch (fieldId) {
-      'publisher' => _options(
+      BookFieldIdentities.publisherId => _options(
           draft,
           BookVocabularyIds.publisher.value,
           BookVocabularies.publisher.builtIns,
         ),
-      'format' => _options(
+      BookFieldIdentities.formatId => _options(
           draft,
           BookVocabularyIds.format.value,
           BookVocabularies.format.builtIns,

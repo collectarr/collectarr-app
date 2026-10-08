@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/library/kinds/book/workspace/book_ids.dart';
+import 'package:collectarr_app/features/library/kinds/book/config/book_field_identities.dart';
 import 'package:collectarr_app/features/library/kinds/book/workspace/book_workspace_dto.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_transport_bucket_mutators.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
@@ -8,33 +9,33 @@ import 'package:flutter/material.dart';
 abstract final class BookCatalogItemDetailsWorkspaceFields {
   static final publisher = textField<BookKind, BookWorkspaceDto>(
     id: BookFieldIds.publisher,
-    label: 'Publisher',
+    label: BookFieldIdentities.publisherLabel,
     getValue: (dto) => dto.publisher,
     searchable: true,
   );
 
   static final pageCount = numberField<BookKind, BookWorkspaceDto>(
     id: BookFieldIds.pageCount,
-    label: 'Page count',
+    label: BookFieldIdentities.pageCountLabel,
     getValue: (dto) => dto.pageCount,
   );
 
   static final isbn = textField<BookKind, BookWorkspaceDto>(
     id: BookFieldIds.isbn,
-    label: 'ISBN',
+    label: BookFieldIdentities.isbnLabel,
     getValue: (dto) => dto.isbn ?? dto.barcode,
     searchable: true,
   );
 
   static final releaseDate = dateField<BookKind, BookWorkspaceDto>(
     id: BookFieldIds.releaseDate,
-    label: 'Release Date',
+    label: BookFieldIdentities.releaseDateLabel,
     getValue: (dto) => dto.releaseDate,
   );
 
   static final format = textField<BookKind, BookWorkspaceDto>(
     id: BookFieldIds.format,
-    label: 'Format',
+    label: BookFieldIdentities.formatLabel,
     getValue: (dto) => dto.format,
   );
 }

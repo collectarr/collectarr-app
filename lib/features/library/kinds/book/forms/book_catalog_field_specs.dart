@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:collectarr_app/features/library/kinds/book/forms/book_catalog_form_values.dart';
 import 'package:collectarr_app/features/library/kinds/book/vocabulary/book_vocabularies.dart';
 import 'package:collectarr_app/features/library/forms/library_field_spec.dart';
+import 'package:collectarr_app/features/library/kinds/book/config/book_field_identities.dart';
 
 typedef BookFormValuesReader<TDraft> = BookCatalogFormValues Function(
   TDraft draft,
@@ -29,8 +30,8 @@ List<LibraryFieldSpec<TDraft>> bookCatalogIdentityFields<TDraft>({
         setValue: (draft, value) => values(draft).sortTitle = value,
       ),
       LibraryTextFieldSpec<TDraft>(
-        id: 'subtitle',
-        label: 'Subtitle',
+        id: BookFieldIdentities.subtitleId,
+        label: BookFieldIdentities.subtitleLabel,
         value: (draft) => values(draft).subtitle,
         setValue: (draft, value) => values(draft).subtitle = value,
       ),
@@ -128,8 +129,8 @@ List<LibraryFieldSpec<TDraft>> bookCatalogEditionFields<TDraft>({
         onManage: onManageBinding,
       ),
       _vocabulary<TDraft>(
-        id: 'format',
-        label: 'Format',
+        id: BookFieldIdentities.formatId,
+        label: BookFieldIdentities.formatLabel,
         value: (draft) => values(draft).format,
         setValue: (draft, value) => values(draft).format = value,
         options: formatOptions ?? BookVocabularies.format.builtIns,
@@ -137,8 +138,8 @@ List<LibraryFieldSpec<TDraft>> bookCatalogEditionFields<TDraft>({
         onManage: onManageFormat,
       ),
       LibraryTextFieldSpec<TDraft>(
-        id: 'isbn',
-        label: 'ISBN',
+        id: BookFieldIdentities.isbnId,
+        label: BookFieldIdentities.isbnLabel,
         value: (draft) => values(draft).isbn,
         setValue: (draft, value) => values(draft).isbn = value,
       ),
@@ -149,8 +150,8 @@ List<LibraryFieldSpec<TDraft>> bookCatalogEditionFields<TDraft>({
         setValue: (draft, value) => values(draft).upc = value,
       ),
       _vocabulary<TDraft>(
-        id: 'publisher',
-        label: 'Publisher',
+        id: BookFieldIdentities.publisherId,
+        label: BookFieldIdentities.publisherLabel,
         value: (draft) => values(draft).publisher,
         setValue: (draft, value) => values(draft).publisher = value,
         options: publisherOptions ?? BookVocabularies.publisher.builtIns,
@@ -170,14 +171,14 @@ List<LibraryFieldSpec<TDraft>> bookCatalogEditionFields<TDraft>({
         setValue: (draft, value) => values(draft).imprint = value,
       ),
       LibraryDateFieldSpec<TDraft>(
-        id: 'release_date',
-        label: 'Release Date',
+        id: BookFieldIdentities.releaseDateId,
+        label: BookFieldIdentities.releaseDateLabel,
         value: (draft) => values(draft).releaseDate,
         setValue: (draft, value) => values(draft).releaseDate = value,
       ),
       LibraryNumberFieldSpec<TDraft>(
-        id: 'page_count',
-        label: 'Page count',
+        id: BookFieldIdentities.pageCountId,
+        label: BookFieldIdentities.pageCountLabel,
         value: (draft) => values(draft).pageCount?.toDouble(),
         setValue: (draft, value) => values(draft).pageCount = value?.toInt(),
         minimum: 0,
@@ -222,8 +223,8 @@ List<LibraryFieldSpec<TDraft>> bookCatalogEditionFields<TDraft>({
         maxLines: 4,
       ),
       LibraryTextFieldSpec<TDraft>(
-        id: 'series_title',
-        label: 'Series',
+        id: BookFieldIdentities.seriesId,
+        label: BookFieldIdentities.seriesLabel,
         value: (draft) => values(draft).seriesTitle,
         setValue: (draft, value) => values(draft).seriesTitle = value,
       ),

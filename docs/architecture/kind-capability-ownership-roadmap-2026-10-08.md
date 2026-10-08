@@ -113,7 +113,10 @@ labels from one kind-owned definition. The typed workspace field, sort, group,
 and facet identifiers, workspace labels, form fields, and form layouts reuse
 those values. Draft readers, writers, validation, and vocabulary behavior stay
 in the edit form specs; the broader cross-kind field metadata consolidation is
-still open.
+still open. Book now shares the same contract for subtitle, series, publisher,
+format, release date, page count, and ISBN across workspace and form metadata.
+The Book edition-title field remains distinct from the workspace work title;
+their shared word does not make them the same field.
 Music release, original release, and recording dates now have one canonical
 `{year, month, day}` representation across the Core model, API, correction
 flow, search projection, App mapper, and pinned contract. Core rejects legacy

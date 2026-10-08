@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/library/kinds/book/workspace/book_ids.dart';
+import 'package:collectarr_app/features/library/kinds/book/config/book_field_identities.dart';
 import 'package:collectarr_app/features/library/kinds/book/workspace/book_workspace_dto.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/schema/field_factories.dart';
@@ -20,7 +21,7 @@ abstract final class BookCatalogItemWorkspaceFields {
 
   static final series = textField<BookKind, BookWorkspaceDto>(
     id: BookFieldIds.series,
-    label: 'Series',
+    label: BookFieldIdentities.seriesLabel,
     getValue: (dto) => dto.seriesTitle,
   );
 
@@ -33,7 +34,7 @@ abstract final class BookCatalogItemWorkspaceFields {
 
   static final subtitle = textField<BookKind, BookWorkspaceDto>(
     id: BookFieldIds.subtitle,
-    label: 'Subtitle',
+    label: BookFieldIdentities.subtitleLabel,
     getValue: (dto) => dto.subtitle,
     searchable: true,
   );

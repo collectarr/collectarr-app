@@ -1,22 +1,24 @@
+import 'package:collectarr_app/features/library/kinds/book/config/book_field_identities.dart';
+
 const bookMainFieldIds = {
   'catalog_title',
   'sort_title',
-  'subtitle',
+  BookFieldIdentities.subtitleId,
   'original_title',
   'localized_title',
   'number',
   'variant',
   'title',
   'binding',
-  'format',
-  'release_date',
-  'publisher',
+  BookFieldIdentities.formatId,
+  BookFieldIdentities.releaseDateId,
+  BookFieldIdentities.publisherId,
   'imprint',
   'language',
   'publication_year',
   'series_group',
   'distributor',
-  'page_count',
+  BookFieldIdentities.pageCountId,
   'characters',
   'genres',
   'subjects',
@@ -32,10 +34,10 @@ const bookMainFieldIds = {
   'first_publication_date',
   'original_publication_date',
   'search_aliases',
-  'series_title',
+  BookFieldIdentities.seriesId,
 };
 
 const bookCreditFieldIds = {'authors', 'translators'};
-const bookLinkFieldIds = {'isbn', 'barcode'};
+const bookLinkFieldIds = {BookFieldIdentities.isbnId, 'barcode'};
 const bookCoverFieldIds = {'cover_image_url', 'back_cover_image_url'};
 const bookPlotFieldIds = {'description'};

@@ -6,6 +6,7 @@ import 'package:collectarr_app/features/library/kinds/book/forms/book_catalog_fo
 import 'package:collectarr_app/features/library/kinds/book/forms/book_catalog_field_specs.dart';
 import 'package:collectarr_app/features/library/kinds/book/forms/book_catalog_form_values.dart';
 import 'package:collectarr_app/features/library/kinds/book/forms/book_person_credits_field.dart';
+import 'package:collectarr_app/features/library/kinds/book/config/book_field_identities.dart';
 import 'package:collectarr_app/features/library/kinds/book/vocabulary/book_vocabularies.dart';
 
 final LibraryFormSchema<BookCatalogFormDraft> bookAddSchema =
@@ -45,7 +46,7 @@ LibraryFormSchema<TDraft>
             values: values,
             include: {
               'sort_title',
-              'subtitle',
+              BookFieldIdentities.subtitleId,
               'original_title',
               'localized_title',
             },
@@ -68,10 +69,10 @@ LibraryFormSchema<TDraft>
             include: {
               'title',
               'binding',
-              'format',
-              'isbn',
-              'release_date',
-              'publisher',
+              BookFieldIdentities.formatId,
+              BookFieldIdentities.isbnId,
+              BookFieldIdentities.releaseDateId,
+              BookFieldIdentities.publisherId,
               'imprint',
               'language',
               'cover_image_url',
@@ -118,7 +119,11 @@ LibraryFormSchema<TDraft>
           ),
           ...bookCatalogEditionFields(
             values: values,
-            include: {'distributor', 'page_count', 'series_title'},
+            include: {
+              'distributor',
+              BookFieldIdentities.pageCountId,
+              BookFieldIdentities.seriesId,
+            },
           ),
           LibraryCustomFieldSpec<TDraft>(
             id: 'authors',
