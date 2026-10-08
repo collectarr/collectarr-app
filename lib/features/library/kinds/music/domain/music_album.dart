@@ -38,7 +38,7 @@ final class MusicAlbum implements JsonEncodable {
     this.localCoverImagePath,
     this.localBackImagePath,
     this.localThumbnailImagePath,
-    this.extra,
+    List<String> extra = const [],
     this.sparsCode,
     this.externalLinks = const [],
     this.boxSet,
@@ -50,6 +50,7 @@ final class MusicAlbum implements JsonEncodable {
     DateTime? updatedAt,
   })  : studios = List<String>.unmodifiable(studios),
         genres = List<String>.unmodifiable(genres),
+        extra = List<String>.unmodifiable(extra),
         createdAt =
             createdAt ?? DateTime.fromMillisecondsSinceEpoch(0, isUtc: true),
         updatedAt =
@@ -86,7 +87,7 @@ final class MusicAlbum implements JsonEncodable {
   final String? localCoverImagePath;
   final String? localBackImagePath;
   final String? localThumbnailImagePath;
-  final String? extra;
+  final List<String> extra;
   final String? sparsCode;
   final List<MusicExternalLink> externalLinks;
   final String? boxSet;
@@ -145,7 +146,7 @@ final class MusicAlbum implements JsonEncodable {
       localCoverImagePath: _text(json['local_cover_image_path']),
       localBackImagePath: _text(json['local_back_image_path']),
       localThumbnailImagePath: _text(json['local_thumbnail_image_path']),
-      extra: _text(json['extra']),
+      extra: _strictStringList(json['extra']),
       sparsCode: _text(json['spars_code'] ?? json['spars']),
       externalLinks: _externalLinks(json),
       boxSet: _text(json['box_set']),
@@ -200,7 +201,7 @@ final class MusicAlbum implements JsonEncodable {
           'local_back_image_path': localBackImagePath,
         if (localThumbnailImagePath != null)
           'local_thumbnail_image_path': localThumbnailImagePath,
-        if (extra != null) 'extra': extra,
+        'extra': extra,
         if (sparsCode != null) 'spars_code': sparsCode,
         if (externalLinks.isNotEmpty)
           'external_links': externalLinks.map((link) => link.toJson()).toList(),
@@ -263,6 +264,14 @@ List<String> _strings(Object? value) => value is Iterable
           if (_text(entry) case final text?) text,
       ]
     : const <String>[];
+
+List<String> _strictStringList(Object? value) {
+  if (value == null) return const [];
+  if (value is! List || value.any((entry) => entry is! String)) {
+    throw const FormatException('Music extra must be a list of strings.');
+  }
+  return List<String>.unmodifiable(value.cast<String>());
+}
 
 List<Map<String, dynamic>> _maps(Object? value) => value is Iterable
     ? [

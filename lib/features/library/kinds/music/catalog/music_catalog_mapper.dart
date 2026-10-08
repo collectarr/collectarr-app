@@ -57,7 +57,7 @@ final class MusicCatalogMapper {
       if (album.studios.isNotEmpty) 'studios': album.studios,
       if (album.countryCode != null) 'country': album.countryCode,
       if (album.isLive != null) 'is_live': album.isLive,
-      if (album.extra != null) 'extra': album.extra,
+      'extra': album.extra,
       if (album.sparsCode != null) 'spars_code': album.sparsCode,
       if (album.boxSet != null) 'box_set': album.boxSet,
       if (_peopleForRole(album, 'Composer').isNotEmpty)

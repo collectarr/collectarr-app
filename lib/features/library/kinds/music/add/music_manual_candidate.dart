@@ -101,7 +101,7 @@ Map<String, Object?>? buildMusicManualProposalData(
     if (_textOrNull(draft.packaging) case final value?) 'packaging': value,
     if (draft.studios.isNotEmpty) 'studios': List<String>.of(draft.studios),
     if (draft.isLive != null) 'is_live': draft.isLive,
-    if (_textOrNull(draft.extra) case final value?) 'extra': value,
+    'extra': List<String>.of(draft.extra),
     if (_textOrNull(draft.sparsCode) case final value?) 'spars_code': value,
     if (_textOrNull(draft.boxSet) case final value?) 'box_set': value,
     if (cover != null) 'cover_image_url': cover,

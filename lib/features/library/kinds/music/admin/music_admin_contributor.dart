@@ -155,6 +155,10 @@ class MusicAdminContributor implements LibraryAdminContributor {
           key: 'genres',
           label: 'Genre (comma separated)',
         ),
+        adminStringListProposalField(
+          key: 'extra',
+          label: 'Extra (comma separated)',
+        ),
         LibraryAdminProposalField(
           key: 'tracks',
           label: 'Tracks (title | artist | disc | pos | duration)',
@@ -168,6 +172,26 @@ class MusicAdminContributor implements LibraryAdminContributor {
 
   @override
   List<LibraryAdminCorrectionField> get correctionFields => [
+        adminCorrectionField(
+          key: 'extra',
+          label: 'Extra',
+          tab: SharedMetadataEditTab.technical,
+          read: (item) => item.canonicalFieldValues['extra'],
+          valueType: SharedMetadataFieldValueType.stringList,
+          inputType: SharedMetadataFieldInputType.multiline,
+          minLines: 2,
+          maxLines: 4,
+          parse: (raw) => raw
+              .split(',')
+              .map((value) => value.trim())
+              .where((value) => value.isNotEmpty)
+              .toList(growable: false),
+          format: (value) => value is Iterable
+              ? value.map((entry) => entry.toString()).join(', ')
+              : '',
+          save: (item, value, writer) =>
+              writer.updateCatalogFields({'extra': value}),
+        ),
         adminCorrectionField(
           key: 'tracks',
           label: 'Tracks (title | artist | disc | pos | duration)',

@@ -277,15 +277,11 @@
           "type": "array"
         },
         "extra": {
-          "anyOf": [
-            {
-              "type": "string"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "title": "Extra"
+          "items": {
+            "type": "string"
+          },
+          "title": "Extra",
+          "type": "array"
         },
         "genres": {
           "items": {
@@ -464,6 +460,7 @@
         "artist_credits",
         "genres",
         "studios",
+        "extra",
         "composers",
         "conductors",
         "choruses",
@@ -625,8 +622,8 @@
   "$id": "https://schemas.collectarr.app/music-catalog/v1",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "contractVersion": "1.0.0",
-  "coreCommit": "bb6b2d43dc30f5df4a57fb4eca596ebf1a96e508",
-  "generatedAt": "2026-10-08T19:32:41.191255Z",
+  "coreCommit": "546f30e4e8b8d8d46b79edcc5065b68d7fc89e01",
+  "generatedAt": "2026-10-08T19:39:10.352508Z",
   "roots": {
     "disc": {
       "$ref": "#/$defs/CatalogMusicDiscResponse"

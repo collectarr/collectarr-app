@@ -705,7 +705,10 @@
           "extra": {
             "anyOf": [
               {
-                "type": "string"
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
               },
               {
                 "type": "null"
@@ -8236,15 +8239,11 @@
             "type": "array"
           },
           "extra": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Extra"
+            "items": {
+              "type": "string"
+            },
+            "title": "Extra",
+            "type": "array"
           },
           "genres": {
             "items": {
@@ -8423,6 +8422,7 @@
           "artist_credits",
           "genres",
           "studios",
+          "extra",
           "composers",
           "conductors",
           "choruses",

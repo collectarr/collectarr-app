@@ -1,10 +1,10 @@
 {
-  "activeKindsHash": "0aee3daa70c3d83943e9146edad3dd053155a9c1eefd5c51d8bf6ff6eb401c1d",
-  "catalogItemHash": "c07ebd8b7a2a1bc06636489d3fa82b11bd35c58375d7082fce0417ae17dcaaf7",
+  "activeKindsHash": "dd6e8874d7b00e0ea3706362cbf8e0cd40d72e86196c9c1fe5cbe2c80600f777",
+  "catalogItemHash": "c0ba127db07d0e74c056e89e15562cfe40cd45ef77c61c7f50fed41aba967c45",
   "contractVersion": "1.0.0",
-  "coreCommit": "bb6b2d43dc30f5df4a57fb4eca596ebf1a96e508",
-  "fieldSchemaHash": "585f1e82441901b3c15f7094fe569ecb054dd21cfb89f0bbf8c4e527094b2847",
-  "generatedAt": "2026-10-08T19:32:41.191255Z",
-  "musicCatalogHash": "b4ef373b24cb94459b6265c6631f2a109b57aeafa336bc4c7c38a882f828414c",
-  "openApiHash": "c02ad10cf2afc3af7859d2482676e847dde0b1bd5092a0f10b3991490035e8d2"
+  "coreCommit": "546f30e4e8b8d8d46b79edcc5065b68d7fc89e01",
+  "fieldSchemaHash": "460ca3cae607dcd4a6a15d9eccb8bbbb7e86a8271629a141bb60e21021b20c80",
+  "generatedAt": "2026-10-08T19:39:10.352508Z",
+  "musicCatalogHash": "5a6554e90f26c4ef218de714da939840d8b8b3dd86849d0e570290679b13b15e",
+  "openApiHash": "b0f691595d80baae2e750d2b745e69195f85a3edd9167f8de917be706e4c1fbb"
 }

@@ -264,13 +264,9 @@ List<LibraryFieldSpec<TDraft>> musicAlbumFields<TDraft>({
         pluralLabel: 'Extras',
         pickListKey: MusicVocabularyIds.extra.value,
         options: const [],
-        values: (draft) => values(draft)
-            .extra
-            .split('||')
-            .where((value) => value.trim().isNotEmpty)
-            .toSet(),
+        values: (draft) => values(draft).extra.toSet(),
         setValues: (draft, valuesSet) =>
-            values(draft).extra = valuesSet.join('||'),
+            values(draft).extra = List.of(valuesSet),
       ),
       LibraryVocabularyFieldSpec<TDraft, String>(
         id: 'spars_code',

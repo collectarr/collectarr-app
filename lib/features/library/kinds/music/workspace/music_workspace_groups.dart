@@ -221,7 +221,7 @@ Object? _groupValue(MusicGroupingField field,
     MusicGroupingField.releaseYear => album.releaseDateParts?.year,
     MusicGroupingField.boxSet => album.boxSet,
     MusicGroupingField.country => album.countryCode,
-    MusicGroupingField.extra => album.extra?.split('||'),
+    MusicGroupingField.extra => album.extra,
     MusicGroupingField.instrument =>
       album.contributions.expand((credit) => _split(credit.instrument)),
     MusicGroupingField.isLive => _yesNo(album.isLive == true),

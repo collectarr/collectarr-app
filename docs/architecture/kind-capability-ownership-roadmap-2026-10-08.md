@@ -93,6 +93,9 @@ change, while catalog-only Music edits retain the collector in the kind draft.
 Music release, original release, and recording dates now have one canonical
 `{year, month, day}` representation across the Core model, API, correction
 flow, search projection, App mapper, and pinned contract. Core rejects legacy
-date strings and `*_date_parts` fields on Music writes. The broader strict
-Music contract remains open for extras and other duplicated fields. Remaining
-P0 work is tracked above.
+date strings and `*_date_parts` fields on Music writes. Music `extra` is now a
+`list[str]` through Core JSONB storage, API responses, corrections, App forms,
+vocabulary edits, grouping, and pinned field metadata; the packed `||` form is
+gone. The broader strict Music contract remains open for format duplication,
+disc validation, and other payload normalization. Remaining P0 work is tracked
+above.

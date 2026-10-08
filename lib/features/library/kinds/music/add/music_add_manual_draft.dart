@@ -27,7 +27,7 @@ final class MusicAddManualDraft implements LibraryKindAddDraft {
     String recordLabel = '',
     List<String> studios = const [],
     bool? isLive,
-    String extra = '',
+    List<String> extra = const [],
     String sparsCode = '',
     String boxSet = '',
     List<MusicAddManualNamedCredit> composers = const [],
@@ -135,8 +135,8 @@ final class MusicAddManualDraft implements LibraryKindAddDraft {
   bool? get isLive => values.isLive;
   set isLive(bool? value) => values.isLive = value;
 
-  String get extra => values.extra;
-  set extra(String value) => values.extra = value;
+  List<String> get extra => values.extra;
+  set extra(List<String> value) => values.extra = List.of(value);
 
   String get sparsCode => values.sparsCode;
   set sparsCode(String value) => values.sparsCode = value;

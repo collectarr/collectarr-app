@@ -22,12 +22,13 @@ final class MusicAlbumFormValues {
     this.catalogNumber = '',
     this.packaging = '',
     this.sparsCode = '',
-    this.extra = '',
+    List<String> extra = const [],
     this.boxSet = '',
     this.coverImageUrl = '',
     this.backCoverImageUrl = '',
   })  : studios = List.of(studios),
         genres = List.of(genres),
+        extra = List.of(extra),
         artistCredits = List.of(artistCredits);
 
   factory MusicAlbumFormValues.fromAlbum(MusicAlbum album) =>
@@ -49,7 +50,7 @@ final class MusicAlbumFormValues {
         catalogNumber: album.catalogNumber ?? '',
         packaging: album.packaging ?? '',
         sparsCode: album.sparsCode ?? '',
-        extra: album.extra ?? '',
+        extra: album.extra,
         boxSet: album.boxSet ?? '',
         coverImageUrl: album.coverImageUrl ?? '',
         backCoverImageUrl: album.backCoverImageUrl ?? '',
@@ -72,7 +73,7 @@ final class MusicAlbumFormValues {
   String catalogNumber;
   String packaging;
   String sparsCode;
-  String extra;
+  List<String> extra;
   String boxSet;
   String coverImageUrl;
   String backCoverImageUrl;

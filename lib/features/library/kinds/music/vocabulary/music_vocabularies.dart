@@ -69,7 +69,7 @@ abstract final class MusicVocabularies {
       'country' => [item.countryCode],
       'vinyl_color' => item.discs.map((d) => d.color),
       'box_set' => [item.boxSet],
-      'extra' => item.extra?.split('||') ?? const <String>[],
+      'extra' => item.extra,
       'spars' => [item.sparsCode],
       'genre' => item.genres,
       'sound_type' => item.discs.expand((d) => d.soundTypes),
@@ -257,7 +257,7 @@ abstract final class MusicVocabularies {
     }
     if (semanticName == 'extra') {
       final seen = <String>{};
-      final values = (item.metadata.extra?.split('||') ?? const <String>[])
+      final values = item.metadata.extra
           .map((value) =>
               normalizedSourceValues.contains(normalizePickListValue(value))
                   ? targetValue
@@ -266,8 +266,7 @@ abstract final class MusicVocabularies {
               value.trim().isNotEmpty &&
               seen.add(normalizePickListValue(value)))
           .toList();
-      final data = item.metadata.toJson()
-        ..['extra'] = values.isEmpty ? null : values.join('||');
+      final data = item.metadata.toJson()..['extra'] = values;
       return item.copyWith(metadata: MusicAlbum.fromJson(data));
     }
     final scalarKey = switch (semanticName) {

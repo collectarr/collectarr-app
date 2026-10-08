@@ -2244,12 +2244,12 @@
     },
     {
       "editable": true,
-      "input": "text",
+      "input": "list",
       "key": "extra",
       "kind": "music",
       "label": "Extra",
       "section": "technical",
-      "valueType": "string"
+      "valueType": "string_list"
     },
     {
       "editable": true,
@@ -4340,5 +4340,5 @@
       "valueType": "link_list"
     }
   ],
-  "generatedAt": "2026-10-08T19:32:41.191255Z"
+  "generatedAt": "2026-10-08T19:39:10.352508Z"
 }

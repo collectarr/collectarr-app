@@ -30,7 +30,7 @@ abstract final class MusicAlbumFormAdapter {
         catalogNumber: _text(values.catalogNumber),
         packaging: _text(values.packaging),
         sparsCode: _text(values.sparsCode),
-        extra: _text(values.extra),
+        extra: List.unmodifiable(values.extra),
         boxSet: _text(values.boxSet),
         coverImageUrl: _text(values.coverImageUrl),
         backCoverImageUrl: _text(values.backCoverImageUrl),
@@ -70,7 +70,7 @@ abstract final class MusicAlbumFormAdapter {
         localBackImagePath: original.localBackImagePath,
         localThumbnailImagePath: original.localThumbnailImagePath,
         sparsCode: _text(values.sparsCode),
-        extra: _text(values.extra),
+        extra: List.unmodifiable(values.extra),
         externalLinks:
             List.unmodifiable(externalLinks ?? original.externalLinks),
         revision: original.revision,
