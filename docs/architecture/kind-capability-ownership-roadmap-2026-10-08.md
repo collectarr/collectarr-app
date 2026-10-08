@@ -116,7 +116,10 @@ in the edit form specs; the broader cross-kind field metadata consolidation is
 still open. Book now shares the same contract for subtitle, series, publisher,
 format, release date, page count, and ISBN across workspace and form metadata.
 The Book edition-title field remains distinct from the workspace work title;
-their shared word does not make them the same field.
+their shared word does not make them the same field. Movie shares it for title,
+original title, genre, age and audience ratings, runtime, format, release date,
+and barcode. The movie publisher and distributor fields stay separate because
+they read different metadata values.
 Music release, original release, and recording dates now have one canonical
 `{year, month, day}` representation across the Core model, API, correction
 flow, search projection, App mapper, and pinned contract. Core rejects legacy

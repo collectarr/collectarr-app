@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:collectarr_app/features/library/forms/library_form_schema.dart';
 import 'package:collectarr_app/features/library/kinds/movie/forms/movie_catalog_field_specs.dart';
+import 'package:collectarr_app/features/library/kinds/movie/config/movie_field_identities.dart';
 
 /// Builds one tab's fields from the same Movie field definitions used by Add
 /// and Edit.
@@ -39,7 +40,7 @@ LibraryFormSchema<TDraft> movieCatalogFormSchemaFor<TDraft>({
         label: sectionLabel,
         fields: fields.toList(growable: false),
         fullWidthFieldIds: const {
-          'catalog_title',
+          MovieFieldIdentities.titleId,
           'synopsis',
           movieCoverImageUrlFieldId,
         },

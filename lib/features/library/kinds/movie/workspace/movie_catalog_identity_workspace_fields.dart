@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_ids.dart';
+import 'package:collectarr_app/features/library/kinds/movie/config/movie_field_identities.dart';
 import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_workspace_dto.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_transport_bucket_mutators.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
@@ -8,7 +9,7 @@ import 'package:flutter/material.dart';
 abstract final class MovieCatalogIdentityWorkspaceFields {
   static final title = textField<MovieKind, MovieWorkspaceDto>(
     id: MovieFieldIds.title,
-    label: 'Title',
+    label: MovieFieldIdentities.titleLabel,
     getValue: (dto) => dto.title,
   );
 
@@ -35,20 +36,20 @@ abstract final class MovieCatalogIdentityWorkspaceFields {
 
   static final runtimeMinutes = numberField<MovieKind, MovieWorkspaceDto>(
     id: MovieFieldIds.runtimeMinutes,
-    label: 'Runtime (min)',
+    label: MovieFieldIdentities.runtimeMinutesLabel,
     getValue: (dto) => dto.runtimeMinutes,
   );
 
   static final genre = textField<MovieKind, MovieWorkspaceDto>(
     id: MovieFieldIds.genre,
-    label: 'Genre',
+    label: MovieFieldIdentities.genreLabel,
     getValue: (dto) => dto.genres.isNotEmpty ? dto.genres.join(', ') : null,
     searchable: true,
   );
 
   static final audienceRating = textField<MovieKind, MovieWorkspaceDto>(
     id: MovieFieldIds.audienceRating,
-    label: 'Audience Rating',
+    label: MovieFieldIdentities.audienceRatingLabel,
     getValue: (dto) => dto.audienceRating,
   );
 
@@ -60,7 +61,7 @@ abstract final class MovieCatalogIdentityWorkspaceFields {
 
   static final originalTitle = textField<MovieKind, MovieWorkspaceDto>(
     id: MovieFieldIds.originalTitle,
-    label: 'Original Title',
+    label: MovieFieldIdentities.originalTitleLabel,
     getValue: (dto) => dto.originalTitle,
     searchable: true,
   );
@@ -80,7 +81,7 @@ abstract final class MovieCatalogIdentityWorkspaceFields {
 
   static final ageRating = textField<MovieKind, MovieWorkspaceDto>(
     id: MovieFieldIds.ageRating,
-    label: 'Age Rating',
+    label: MovieFieldIdentities.ageRatingLabel,
     getValue: (dto) => dto.ageRating,
   );
 }

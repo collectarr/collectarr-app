@@ -3,24 +3,25 @@ import 'dart:async';
 import 'package:collectarr_app/features/library/forms/library_field_spec.dart';
 import 'package:collectarr_app/features/library/kinds/movie/forms/movie_catalog_form_values.dart';
 import 'package:collectarr_app/features/library/kinds/movie/forms/movie_characters_editor.dart';
+import 'package:collectarr_app/features/library/kinds/movie/config/movie_field_identities.dart';
 import 'package:collectarr_app/features/library/kinds/movie/vocabulary/movie_vocabularies.dart';
 
 typedef MovieFormValuesReader<TDraft> = MovieCatalogFormValues Function(
     TDraft draft);
 
 const movieMainFieldIds = <String>{
-  'catalog_title',
+  MovieFieldIdentities.titleId,
   'sort_key',
-  'original_title',
+  MovieFieldIdentities.originalTitleId,
   'localized_title',
   'display_title',
   'search_aliases',
-  'genres',
+  MovieFieldIdentities.genreId,
   'original_language',
   'language',
-  'age_rating',
-  'audience_rating',
-  'runtime_minutes',
+  MovieFieldIdentities.ageRatingId,
+  MovieFieldIdentities.audienceRatingId,
+  MovieFieldIdentities.runtimeMinutesId,
   'country',
   'publisher',
 };
@@ -28,10 +29,10 @@ const movieMainFieldIds = <String>{
 const movieEditionFieldIds = <String>{
   'subtitle',
   'edition_title',
-  'physical_format',
+  MovieFieldIdentities.formatId,
   'release_year',
-  'release_date',
-  'barcode',
+  MovieFieldIdentities.releaseDateId,
+  MovieFieldIdentities.barcodeId,
   'item_number',
   'variant_name',
 };
@@ -71,8 +72,8 @@ List<LibraryFieldSpec<TDraft>> movieCatalogItemFields<TDraft>({
 }) =>
     [
       LibraryTextFieldSpec<TDraft>(
-        id: 'catalog_title',
-        label: 'Title',
+        id: MovieFieldIdentities.titleId,
+        label: MovieFieldIdentities.titleLabel,
         value: (draft) => values(draft).title,
         setValue: (draft, value) => values(draft).title = value,
         validator: (draft) =>
@@ -91,8 +92,8 @@ List<LibraryFieldSpec<TDraft>> movieCatalogItemFields<TDraft>({
         setValue: (draft, value) => values(draft).sortTitle = value,
       ),
       LibraryTextFieldSpec<TDraft>(
-        id: 'original_title',
-        label: 'Original Title',
+        id: MovieFieldIdentities.originalTitleId,
+        label: MovieFieldIdentities.originalTitleLabel,
         value: (draft) => values(draft).originalTitle,
         setValue: (draft, value) => values(draft).originalTitle = value,
       ),
@@ -116,8 +117,8 @@ List<LibraryFieldSpec<TDraft>> movieCatalogItemFields<TDraft>({
         maxLines: 4,
       ),
       LibraryMultiVocabularyFieldSpec<TDraft, String>(
-        id: 'genres',
-        label: 'Genres',
+        id: MovieFieldIdentities.genreId,
+        label: MovieFieldIdentities.genreLabel,
         values: (draft) => values(draft).genres.toSet(),
         setValues: (draft, selected) =>
             values(draft).genres = selected.toList(growable: false),
@@ -141,20 +142,20 @@ List<LibraryFieldSpec<TDraft>> movieCatalogItemFields<TDraft>({
         setValue: (draft, value) => values(draft).language = value,
       ),
       LibraryTextFieldSpec<TDraft>(
-        id: 'age_rating',
-        label: 'Age rating',
+        id: MovieFieldIdentities.ageRatingId,
+        label: MovieFieldIdentities.ageRatingLabel,
         value: (draft) => values(draft).ageRating,
         setValue: (draft, value) => values(draft).ageRating = value,
       ),
       LibraryTextFieldSpec<TDraft>(
-        id: 'audience_rating',
-        label: 'Audience rating',
+        id: MovieFieldIdentities.audienceRatingId,
+        label: MovieFieldIdentities.audienceRatingLabel,
         value: (draft) => values(draft).audienceRating,
         setValue: (draft, value) => values(draft).audienceRating = value,
       ),
       LibraryNumberFieldSpec<TDraft>(
-        id: 'runtime_minutes',
-        label: 'Runtime (minutes)',
+        id: MovieFieldIdentities.runtimeMinutesId,
+        label: MovieFieldIdentities.runtimeMinutesLabel,
         value: (draft) => values(draft).runtimeMinutes,
         setValue: (draft, value) =>
             values(draft).runtimeMinutes = value?.toInt(),
@@ -232,8 +233,8 @@ List<LibraryFieldSpec<TDraft>> movieCatalogItemFields<TDraft>({
         setValue: (draft, value) => values(draft).editionTitle = value,
       ),
       LibraryVocabularyFieldSpec<TDraft, String>(
-        id: 'physical_format',
-        label: 'Format',
+        id: MovieFieldIdentities.formatId,
+        label: MovieFieldIdentities.formatLabel,
         value: (draft) => _nullableText(values(draft).format),
         setValue: (draft, value) => values(draft).format = value ?? '',
         options: _options(
@@ -259,8 +260,8 @@ List<LibraryFieldSpec<TDraft>> movieCatalogItemFields<TDraft>({
         minimum: 1,
       ),
       LibraryDateFieldSpec<TDraft>(
-        id: 'release_date',
-        label: 'Release Date',
+        id: MovieFieldIdentities.releaseDateId,
+        label: MovieFieldIdentities.releaseDateLabel,
         value: (draft) => values(draft).releaseDate,
         setValue: (draft, value) {
           final form = values(draft);
@@ -283,8 +284,8 @@ List<LibraryFieldSpec<TDraft>> movieCatalogItemFields<TDraft>({
             onManageDistributor == null ? null : (_) => onManageDistributor(),
       ),
       LibraryTextFieldSpec<TDraft>(
-        id: 'barcode',
-        label: 'Barcode',
+        id: MovieFieldIdentities.barcodeId,
+        label: MovieFieldIdentities.barcodeLabel,
         value: (draft) => values(draft).barcode,
         setValue: (draft, value) => values(draft).barcode = value,
       ),

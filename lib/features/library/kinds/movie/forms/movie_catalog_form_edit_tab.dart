@@ -3,6 +3,7 @@ import 'package:collectarr_app/features/library/edit/draft/library_edit_shell_st
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/kinds/movie/forms/movie_catalog_form_schema.dart';
 import 'package:collectarr_app/features/library/kinds/movie/forms/movie_catalog_form_values.dart';
+import 'package:collectarr_app/features/library/kinds/movie/config/movie_field_identities.dart';
 import 'package:collectarr_app/features/library/kinds/movie/vocabulary/movie_vocabularies.dart';
 import 'package:flutter/material.dart';
 
@@ -104,11 +105,11 @@ final class MovieCatalogFormEditTab extends StatelessWidget {
       fallback.toList(growable: false);
 
   List<String> _optionsFor(String fieldId) => switch (fieldId) {
-        'physical_format' => _options(
+        MovieFieldIdentities.formatId => _options(
             MovieVocabularyIds.physicalFormat.value,
             MovieVocabularies.physicalFormat.builtIns,
           ),
-        'genres' => _options(
+        MovieFieldIdentities.genreId => _options(
             MovieVocabularyIds.genre.value,
             MovieVocabularies.genre.builtIns,
           ),

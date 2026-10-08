@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_ids.dart';
+import 'package:collectarr_app/features/library/kinds/movie/config/movie_field_identities.dart';
 import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_workspace_dto.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_transport_bucket_mutators.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
@@ -15,20 +16,20 @@ abstract final class MovieCatalogEditionWorkspaceFields {
 
   static final releaseDate = dateField<MovieKind, MovieWorkspaceDto>(
     id: MovieFieldIds.releaseDate,
-    label: 'Release Date',
+    label: MovieFieldIdentities.releaseDateLabel,
     getValue: (dto) => dto.releaseDate,
   );
 
   static final barcode = textField<MovieKind, MovieWorkspaceDto>(
     id: MovieFieldIds.barcode,
-    label: 'UPC / Barcode',
+    label: MovieFieldIdentities.barcodeLabel,
     getValue: (dto) => dto.barcode,
     searchable: true,
   );
 
   static final format = textField<MovieKind, MovieWorkspaceDto>(
     id: MovieFieldIds.format,
-    label: 'Format',
+    label: MovieFieldIdentities.formatLabel,
     getValue: (dto) => dto.format,
   );
 
