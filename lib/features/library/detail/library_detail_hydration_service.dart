@@ -5,7 +5,6 @@ import 'package:collectarr_app/features/catalog/transport/catalog_search_candida
 import 'package:collectarr_app/features/catalog/transport/catalog_transport_repository.dart';
 import 'package:collectarr_app/features/catalog/library_catalog_registry.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
-import 'package:collectarr_app/features/library/kinds/music/catalog/music_catalog_mapper.dart';
 
 final class LibraryDetailHydrationService {
   const LibraryDetailHydrationService();
@@ -17,21 +16,16 @@ final class LibraryDetailHydrationService {
     required String itemId,
   }) async {
     final json = await api.getCatalogItemJson(kind: kind, id: itemId);
-    final candidate = kind == CatalogMediaKind.music
-        ? _musicCandidate(json)
-        : CatalogSearchCandidate.fromApiJson(
+    final metadata = libraryMetadataForKind(kind);
+    final detailDecoder = metadata.catalogDetailItemDecoder;
+    final candidate = detailDecoder == null
+        ? CatalogSearchCandidate.fromApiJson(
             json: json,
-            metadataDecoder:
-                libraryMetadataForKind(kind).catalogMetadataDecoder,
+            metadataDecoder: metadata.catalogMetadataDecoder,
             summaryBuilder: summarizeCatalogTransport,
-          );
+          )
+        : CatalogSearchCandidate.fromItem(detailDecoder(json));
     await CatalogTransportRepository(database)
         .upsertTransports([candidate.toImportTransport()]);
-  }
-
-  CatalogSearchCandidate _musicCandidate(Map<String, dynamic> json) {
-    final music = MusicCatalogMapper.fromCatalogPayload(json);
-    final item = MusicCatalogMapper.toCatalogItemDto(music);
-    return CatalogSearchCandidate.fromItem(item);
   }
 }

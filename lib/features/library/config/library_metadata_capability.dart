@@ -1,5 +1,6 @@
 import 'package:flutter/widgets.dart';
 import 'package:collectarr_app/core/api/api_client.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/api/dto/catalog_search_page.dart';
 import 'package:collectarr_app/core/api/dto/metadata_search_query.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
@@ -22,6 +23,10 @@ typedef LibraryMetadataCatalogDecoder = JsonEncodable Function(
   JsonMap payload,
 );
 
+typedef LibraryMetadataCatalogDetailItemDecoder = CatalogItemDto Function(
+  JsonMap payload,
+);
+
 typedef MetadataCompareBuilder = List<Widget> Function(
   BuildContext context, {
   required Map<String, dynamic> localPayload,
@@ -38,6 +43,7 @@ class LibraryMetadataCapability {
     this.searchQueryBuilder,
     this.catalogSearchBuilder,
     this.catalogSearchResultsAreDetailed = false,
+    this.catalogDetailItemDecoder,
   });
 
   final LibraryMetadataCatalogDecoder catalogMetadataDecoder;
@@ -46,6 +52,7 @@ class LibraryMetadataCapability {
   final LibraryMetadataSearchQueryBuilder? searchQueryBuilder;
   final LibraryMetadataCatalogSearchBuilder? catalogSearchBuilder;
   final bool catalogSearchResultsAreDetailed;
+  final LibraryMetadataCatalogDetailItemDecoder? catalogDetailItemDecoder;
 
   MetadataSearchQuery searchQueryFor({
     required LibraryWorkspaceContext source,

@@ -76,6 +76,7 @@ use. `MusicDiscListEditor` owns discs and composes `MusicTrackListEditor` for
 track hierarchy, ordering, and duration state. `MusicAlbumEditDraft` now
 combines those editors with scalar values, credits, links, and vocabulary
 changes. The central kind-switch audit has started: stats tracking titles now
-come from each kind's tracking topology. The audit still needs to cover PDF
-report columns, catalog detail hydration, and the remaining action, search,
+come from each kind's tracking topology, and catalog detail hydration
+delegates kind-specific DTO decoding through metadata capability. The audit
+still needs to cover PDF report columns and the remaining action, search,
 folder, image, and vocabulary paths. Remaining P0 work is tracked above.
