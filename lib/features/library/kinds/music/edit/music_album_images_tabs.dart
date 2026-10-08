@@ -455,13 +455,11 @@ final class MusicAlbumMyImagesTab extends StatelessWidget {
             .where((image) => image.purpose == MusicAlbumImagePurpose.personal)
             .toList(growable: false),
         accent: accent,
-        title: 'My Images',
-        emptyMessage:
-            'Add your own images (max. 5). Add a description and an image type for each.',
+        helperText:
+            'Add your own images (max. 5), set a description and an image type (Signature, Booklet, etc.).',
         maximumImages: 5,
         defaultImageType: 'other',
         uniqueImageTypes: const {},
-        showCoverActions: false,
         imageTypeFieldBuilder: (context,
                 {required value, required onChanged}) =>
             LibraryManagedVocabularyField(
@@ -475,7 +473,6 @@ final class MusicAlbumMyImagesTab extends StatelessWidget {
             if (selected != null) onChanged(selected);
           },
         ),
-        imageTypeLabelBuilder: MusicVocabularies.imageType.optionLabel,
         onChanged: (edits) {
           final originalById = {
             for (final image in images)

@@ -184,13 +184,11 @@ final class _MusicAlbumEditDialogState
                   for (final image in _albumImages)
                     if (image.purpose == MusicAlbumImagePurpose.personal) image,
                 ],
-                title: 'My Images',
-                emptyMessage:
-                    'Add your own images (max. 5). Add a description and an image type for each.',
+                helperText:
+                    'Add your own images (max. 5), set a description and an image type (Signature, Booklet, etc.).',
                 maximumImages: 5,
                 defaultImageType: 'other',
                 uniqueImageTypes: const {},
-                showCoverActions: false,
                 imageTypeFieldBuilder: (context,
                         {required value, required onChanged}) =>
                     LibraryManagedVocabularyField(
@@ -204,7 +202,6 @@ final class _MusicAlbumEditDialogState
                     if (selected != null) onChanged(selected);
                   },
                 ),
-                imageTypeLabelBuilder: MusicVocabularies.imageType.optionLabel,
                 onChanged: (edits) {
                   final originalById = {
                     for (final image in _albumImages)

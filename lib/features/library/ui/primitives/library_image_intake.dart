@@ -36,11 +36,11 @@ class LibraryImageIntake extends StatefulWidget {
       {super.key,
       required this.remaining,
       required this.onImages,
-      this.child,
-      this.height = 140});
+      this.width = 164,
+      this.height = 300});
   final int remaining;
   final ValueChanged<List<Uint8List>> onImages;
-  final Widget? child;
+  final double width;
   final double height;
   @override
   State<LibraryImageIntake> createState() => _LibraryImageIntakeState();
@@ -114,12 +114,17 @@ class _LibraryImageIntakeState extends State<LibraryImageIntake> {
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
-    return DropTarget(
-      enable: _enabled,
-      onDragEntered: (_) => setState(() => _dragging = true),
-      onDragExited: (_) => setState(() => _dragging = false),
-      onDragDone: (details) => _run(() => _readFiles(details.files)),
-      child: Shortcuts(
+    final borderColor =
+        _dragging ? Theme.of(context).colorScheme.primary : palette.textMuted;
+    return SizedBox(
+      width: widget.width,
+      height: widget.height,
+      child: DropTarget(
+        enable: _enabled,
+        onDragEntered: (_) => setState(() => _dragging = true),
+        onDragExited: (_) => setState(() => _dragging = false),
+        onDragDone: (details) => _run(() => _readFiles(details.files)),
+        child: Shortcuts(
           shortcuts: const {
             SingleActivator(LogicalKeyboardKey.keyV, control: true):
                 _PasteImageIntent(),
@@ -127,58 +132,84 @@ class _LibraryImageIntakeState extends State<LibraryImageIntake> {
                 _PasteImageIntent(),
           },
           child: Actions(
-              actions: {
-                _PasteImageIntent:
-                    CallbackAction<_PasteImageIntent>(onInvoke: (_) {
+            actions: {
+              _PasteImageIntent: CallbackAction<_PasteImageIntent>(
+                onInvoke: (_) {
                   _paste();
                   return null;
-                })
-              },
-              child: Focus(
-                  child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                    if (widget.child != null)
-                      widget.child!
-                    else
-                      InkWell(
-                          onTap: _enabled ? _pick : null,
-                          child: Container(
-                              height: widget.height,
-                              alignment: Alignment.center,
-                              decoration: BoxDecoration(
-                                  color: _dragging
-                                      ? palette.surfaceBright
-                                      : palette.surface,
-                                  border: Border.all(
-                                      color: _dragging
-                                          ? Theme.of(context)
-                                              .colorScheme
-                                              .primary
-                                          : palette.divider)),
-                              child: _busy
-                                  ? const CircularProgressIndicator()
-                                  : Text(
-                                      widget.remaining > 0
-                                          ? 'Drop, paste or click to add an image'
-                                          : 'All image slots are filled',
-                                      style: TextStyle(
-                                          color: palette.textMuted)))),
-                    const SizedBox(height: 6),
-                    Wrap(spacing: 8, children: [
-                      TextButton.icon(
-                          onPressed: _enabled ? _pick : null,
-                          icon:
-                              const Icon(Icons.upload_file_outlined, size: 18),
-                          label: const Text('Upload')),
-                      TextButton.icon(
-                          onPressed: _enabled ? _paste : null,
-                          icon: const Icon(Icons.content_paste, size: 18),
-                          label: const Text('Paste')),
-                    ]),
-                  ])))),
+                },
+              ),
+            },
+            child: Focus(
+              child: InkWell(
+                onTap: _enabled ? _pick : null,
+                child: CustomPaint(
+                  foregroundPainter: _DashedBorderPainter(color: borderColor),
+                  child: AnimatedContainer(
+                    width: widget.width,
+                    height: widget.height,
+                    duration: const Duration(milliseconds: 120),
+                    color: _dragging ? palette.surfaceBright : palette.surface,
+                    padding: const EdgeInsets.all(15),
+                    child: _busy
+                        ? const Center(child: CircularProgressIndicator())
+                        : Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.image_outlined,
+                                size: 26,
+                                color: borderColor,
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                'Drop, paste or click to add a new image',
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  color: borderColor,
+                                  fontSize: 14,
+                                ),
+                              ),
+                            ],
+                          ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
     );
   }
+}
+
+class _DashedBorderPainter extends CustomPainter {
+  const _DashedBorderPainter({required this.color});
+
+  final Color color;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    const dashLength = 7.0;
+    const gapLength = 5.0;
+    final paint = Paint()
+      ..color = color
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 2;
+    final path = Path()..addRect(Offset.zero & size);
+    for (final metric in path.computeMetrics()) {
+      var distance = 0.0;
+      while (distance < metric.length) {
+        final end = (distance + dashLength).clamp(0.0, metric.length);
+        canvas.drawPath(metric.extractPath(distance, end), paint);
+        distance = end + gapLength;
+      }
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant _DashedBorderPainter oldDelegate) =>
+      oldDelegate.color != color;
 }
 
 class _PasteImageIntent extends Intent {

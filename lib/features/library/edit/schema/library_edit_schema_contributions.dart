@@ -75,15 +75,12 @@ final class LibraryEditImagesTabContribution {
     this.icon = Icons.image_outlined,
     this.svgAsset,
     this.afterTabId,
-    this.title = 'My Images',
-    this.emptyMessage =
-        'No photos attached. Use the tools below to add supporting shots.',
+    this.helperText =
+        'Add your own images (max. 5), set a description and an image type.',
     this.maximumImages = 5,
     this.defaultImageType = 'auxiliary',
     this.uniqueImageTypes = const {'front_cover', 'back_cover'},
-    this.showCoverActions = true,
     this.imageTypeFieldBuilder,
-    this.imageTypeLabelBuilder,
   }) : assert(icon != null || svgAsset != null);
 
   final String id;
@@ -93,14 +90,11 @@ final class LibraryEditImagesTabContribution {
   final String? afterTabId;
   final List<ItemImageContent> images;
   final ValueChanged<List<ItemImageEdit>> onChanged;
-  final String title;
-  final String emptyMessage;
+  final String helperText;
   final int maximumImages;
   final String defaultImageType;
   final Set<String> uniqueImageTypes;
-  final bool showCoverActions;
   final ItemImageTypeFieldBuilder? imageTypeFieldBuilder;
-  final ItemImageTypeLabelBuilder? imageTypeLabelBuilder;
 }
 
 /// Kind-owned values for the shared URL/title/description Links tab.
