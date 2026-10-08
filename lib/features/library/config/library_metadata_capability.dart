@@ -4,6 +4,7 @@ import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/api/dto/catalog_search_page.dart';
 import 'package:collectarr_app/core/api/dto/metadata_search_query.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_kind_transport_codec.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_context.dart';
 import 'package:dio/dio.dart';
 
@@ -38,6 +39,7 @@ typedef MetadataCompareBuilder = List<Widget> Function(
 class LibraryMetadataCapability {
   const LibraryMetadataCapability({
     required this.catalogMetadataDecoder,
+    required this.catalogTransportCodec,
     this.supportsServerCompare = false,
     this.compareBuilder,
     this.searchQueryBuilder,
@@ -47,6 +49,7 @@ class LibraryMetadataCapability {
   });
 
   final LibraryMetadataCatalogDecoder catalogMetadataDecoder;
+  final CatalogKindTransportBoundary catalogTransportCodec;
   final bool supportsServerCompare;
   final MetadataCompareBuilder? compareBuilder;
   final LibraryMetadataSearchQueryBuilder? searchQueryBuilder;

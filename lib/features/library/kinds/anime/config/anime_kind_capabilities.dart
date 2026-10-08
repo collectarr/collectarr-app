@@ -1,6 +1,7 @@
 import '../anime_module_dependencies.dart';
 import 'anime_kind_configuration.dart';
 import '../add/anime_add_contribution.dart';
+import '../data/anime_catalog_transport_codec.dart';
 import 'package:collectarr_app/features/library/workspace/shared/library_media_adapter_builder.dart';
 import 'package:collectarr_app/features/library/metadata/common_personal_library_fields.dart';
 
@@ -81,6 +82,7 @@ final animeKindIdentity = const LibraryKindIdentity(
 
 final animeKindMetadata = const LibraryMetadataCapability(
   catalogMetadataDecoder: AnimeMetadata.fromJson,
+  catalogTransportCodec: AnimeCatalogTransportCodec(),
   searchQueryBuilder: animeMetadataSearchQuery,
 );
 

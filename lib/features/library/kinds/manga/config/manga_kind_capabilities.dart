@@ -1,5 +1,6 @@
 import '../manga_module_dependencies.dart';
 import 'manga_kind_configuration.dart';
+import '../data/manga_catalog_transport_codec.dart';
 import 'package:collectarr_app/features/library/metadata/common_personal_library_fields.dart';
 
 final mangaKindPersonalFieldContributor = const LibraryPersonalFieldContributor(
@@ -91,6 +92,7 @@ final mangaKindIdentity = const LibraryKindIdentity(
 
 final mangaKindMetadata = LibraryMetadataCapability(
   catalogMetadataDecoder: MangaMetadata.fromJson,
+  catalogTransportCodec: MangaCatalogTransportCodec(),
   searchQueryBuilder: mangaMetadataSearchQuery,
 );
 

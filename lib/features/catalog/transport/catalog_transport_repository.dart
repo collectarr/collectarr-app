@@ -16,10 +16,10 @@ import 'package:collectarr_app/features/pick_lists/pick_list_repository.dart';
 final class CatalogTransportRepository {
   CatalogTransportRepository(
     this._db, {
-    Iterable<CatalogKindTransportBoundary> codecs =
-        libraryCatalogTransportCodecs,
+    Iterable<CatalogKindTransportBoundary>? codecs,
   }) : _codecs = {
-          for (final codec in codecs) codec.kind: codec,
+          for (final codec in codecs ?? libraryCatalogTransportCodecs)
+            codec.kind: codec,
         };
 
   final LocalDatabase _db;

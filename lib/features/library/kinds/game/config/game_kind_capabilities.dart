@@ -1,5 +1,6 @@
 import '../game_module_dependencies.dart';
 import 'game_kind_configuration.dart';
+import '../data/game_catalog_transport_codec.dart';
 import 'package:collectarr_app/features/library/metadata/common_personal_library_fields.dart';
 
 final gameKindPresentation = gamesLibraryMediaPresentation;
@@ -37,6 +38,7 @@ final gameKindIdentity = const LibraryKindIdentity(
 
 final gameKindMetadata = const LibraryMetadataCapability(
   catalogMetadataDecoder: GameCatalogMetadata.fromJson,
+  catalogTransportCodec: GameCatalogTransportCodec(),
   searchQueryBuilder: gameMetadataSearchQuery,
 );
 

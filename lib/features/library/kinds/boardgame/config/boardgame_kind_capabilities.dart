@@ -1,5 +1,6 @@
 import '../boardgame_module_dependencies.dart';
 import 'boardgame_kind_configuration.dart';
+import '../data/boardgame_catalog_transport_codec.dart';
 import 'package:collectarr_app/features/library/metadata/common_personal_library_fields.dart';
 
 final boardGameKindPersonalFieldContributor = LibraryPersonalFieldContributor(
@@ -43,6 +44,7 @@ final boardGameKindIdentity = const LibraryKindIdentity(
 
 final boardGameKindMetadata = const LibraryMetadataCapability(
   catalogMetadataDecoder: BoardGameMetadata.fromJson,
+  catalogTransportCodec: BoardGameCatalogTransportCodec(),
   searchQueryBuilder: boardGameMetadataSearchQuery,
 );
 

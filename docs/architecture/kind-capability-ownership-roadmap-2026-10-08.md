@@ -45,7 +45,7 @@ registration and files under `features/library/kinds/<kind>/`.
   kinds declare purposes, labels, aspect ratios, and other real differences.
 - [x] Clarify reusable form schemas versus the library edit workflow in naming
   and directory boundaries.
-- [ ] Standardize catalog mapper/codec contracts and expose them through kind
+- [x] Standardize catalog mapper/codec contracts and expose them through kind
   registration.
 - [ ] Derive correction ownership metadata from field specifications where
   possible, then keep canonicalization and diff generation shared.
@@ -168,10 +168,10 @@ Reusable field specs, form schemas, renderers, and validation now live under
 `features/library/forms/`; the library edit schema/dialog workflow remains under
 `features/library/edit/schema/`. Catalog transport already uses the shared
 `CatalogKindTransportCodec<T>` interface for typed decoding, encoding, and
-workspace projection. Music encoding delegates to its canonical mapper, while
-the other kinds encode their typed JSON documents. The current catalog registry
-stores these codecs behind the shared boundary; moving codec ownership into the
-kind module capability registration remains open.
+workspace projection. Each `LibraryMetadataCapability` now owns its codec;
+mixed catalog infrastructure derives its dispatch list from that capability
+registry. Music encoding delegates to its canonical mapper, while the other
+kinds encode their typed JSON documents.
 
 Core response schemas for Anime, Board Game, Book, Comic, Game, Manga, Movie,
 Music, and TV now inherit identical `id`, `kind`, `title`, and `revision`

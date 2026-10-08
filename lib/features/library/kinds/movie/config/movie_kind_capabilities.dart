@@ -1,5 +1,6 @@
 import '../movie_module_dependencies.dart';
 import 'movie_kind_configuration.dart';
+import '../data/movie_catalog_transport_codec.dart';
 import 'package:collectarr_app/features/library/metadata/common_personal_library_fields.dart';
 
 final movieKindPersonalFieldContributor = const LibraryPersonalFieldContributor(
@@ -79,6 +80,7 @@ final movieKindIdentity = const LibraryKindIdentity(
 
 final movieKindMetadata = const LibraryMetadataCapability(
   catalogMetadataDecoder: MovieCatalogMetadata.fromJson,
+  catalogTransportCodec: MovieCatalogTransportCodec(),
   searchQueryBuilder: movieMetadataSearchQuery,
 );
 

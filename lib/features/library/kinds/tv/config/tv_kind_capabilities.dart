@@ -1,6 +1,7 @@
 import '../tv_module_dependencies.dart';
 import 'tv_kind_configuration.dart';
 import '../add/tv_add_contribution.dart';
+import '../data/tv_catalog_transport_codec.dart';
 import 'package:collectarr_app/features/library/metadata/common_personal_library_fields.dart';
 
 final tvKindPersonalFieldContributor = const LibraryPersonalFieldContributor(
@@ -83,6 +84,7 @@ final tvKindIdentity = const LibraryKindIdentity(
 
 final tvKindMetadata = const LibraryMetadataCapability(
   catalogMetadataDecoder: TvMetadata.fromJson,
+  catalogTransportCodec: TvCatalogTransportCodec(),
   searchQueryBuilder: tvMetadataSearchQuery,
 );
 
