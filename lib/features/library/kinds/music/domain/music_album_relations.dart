@@ -22,15 +22,16 @@ final class MusicArtistCredit implements JsonEncodable {
   final String? joinPhrase;
   final int? sequence;
 
-  factory MusicArtistCredit.fromJson(Map<String, dynamic> json) =>
-      MusicArtistCredit(
-        id: _text(json['id']) ?? '',
-        creditedName: _text(json['credited_name'] ?? json['name']) ?? '',
-        artistId: _text(json['artist_id'] ?? json['person_id']),
-        sortName: _text(json['sort_name']),
-        joinPhrase: _text(json['join_phrase']),
-        sequence: _int(json['sequence']),
-      );
+  factory MusicArtistCredit.fromJson(Map<String, dynamic> json) {
+    return MusicArtistCredit(
+      id: _requiredText(json['id'], 'id'),
+      creditedName: _requiredText(json['credited_name'], 'credited_name'),
+      artistId: _optionalText(json['artist_id'], 'artist_id'),
+      sortName: _optionalText(json['sort_name'], 'sort_name'),
+      joinPhrase: _optionalText(json['join_phrase'], 'join_phrase'),
+      sequence: _int(json['sequence']),
+    );
+  }
 
   @override
   Map<String, dynamic> toJson() => {
@@ -113,6 +114,20 @@ final class MusicAlbumContribution implements JsonEncodable {
 String? _text(Object? value) {
   final text = value?.toString().trim();
   return text == null || text.isEmpty ? null : text;
+}
+
+String _requiredText(Object? value, String field) {
+  if (value is! String || value.isEmpty || value != value.trim()) {
+    throw FormatException(
+      'Music artist credit $field must be non-empty trimmed text.',
+    );
+  }
+  return value;
+}
+
+String? _optionalText(Object? value, String field) {
+  if (value == null) return null;
+  return _requiredText(value, field);
 }
 
 int? _int(Object? value) {

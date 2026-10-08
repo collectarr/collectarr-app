@@ -134,8 +134,8 @@ final class MusicAlbum implements JsonEncodable {
       releaseDateParts: _partialDate(
         json['release_date'],
       ),
-      publisher: _text(json['publisher'] ?? json['label']),
-      countryCode: _text(json['country_code'] ?? json['country']),
+      publisher: _text(json['publisher']),
+      countryCode: _text(json['country_code']),
       barcode: _text(json['barcode']),
       catalogNumber: _text(json['catalog_number']),
       packaging: _text(json['packaging']),
@@ -147,17 +147,14 @@ final class MusicAlbum implements JsonEncodable {
       localBackImagePath: _text(json['local_back_image_path']),
       localThumbnailImagePath: _text(json['local_thumbnail_image_path']),
       extra: _strictStringList(json['extra']),
-      sparsCode: _text(json['spars_code'] ?? json['spars']),
+      sparsCode: _text(json['spars_code']),
       externalLinks: _externalLinks(json),
       boxSet: _text(json['box_set']),
       contributions: [
         for (final value in _maps(json['contributions']))
           MusicAlbumContribution.fromJson(value),
       ],
-      artistCredits: [
-        for (final value in _maps(json['artist_credits']))
-          MusicArtistCredit.fromJson(value),
-      ],
+      artistCredits: _artistCredits(json['artist_credits']),
       discs: discs,
       revision: _int(json['revision']) ?? 1,
       createdAt: _dateTime(json['created_at']),
@@ -279,6 +276,22 @@ List<Map<String, dynamic>> _maps(Object? value) => value is Iterable
           if (entry is Map) Map<String, dynamic>.from(entry)
       ]
     : const <Map<String, dynamic>>[];
+
+List<MusicArtistCredit> _artistCredits(Object? value) {
+  if (value == null) return const [];
+  if (value is! Iterable) {
+    throw const FormatException('Music artist_credits must be a list.');
+  }
+  return [
+    for (final (index, entry) in value.indexed)
+      if (entry is Map)
+        MusicArtistCredit.fromJson(Map<String, dynamic>.from(entry))
+      else
+        throw FormatException(
+          'Music artist_credits entry ${index + 1} must be an object.',
+        ),
+  ];
+}
 
 List<MusicExternalLink> _externalLinks(Map<String, dynamic> json) {
   final raw = json['external_links'];

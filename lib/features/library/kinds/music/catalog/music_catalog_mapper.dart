@@ -236,8 +236,25 @@ final class MusicCatalogMapper {
       catalogPayload['artist_credits'],
       path: 'Music artist credits',
     );
+    const artistCreditFields = {
+      'id',
+      'name',
+      'sort_name',
+      'artist_id',
+      'sequence',
+      'join_phrase',
+    };
     for (var index = 0; index < artistCredits.length; index++) {
       final credit = artistCredits[index];
+      final unsupportedFields = credit.keys.where(
+        (key) => !artistCreditFields.contains(key),
+      );
+      if (unsupportedFields.isNotEmpty) {
+        throw FormatException(
+          'Unrecognized Music artist credit field '
+          '"${unsupportedFields.first}".',
+        );
+      }
       if (credit['id'] is! String ||
           (credit['id'] as String).trim().isEmpty ||
           credit['name'] is! String ||
@@ -389,12 +406,38 @@ final class MusicCatalogMapper {
       }
     }
 
-    final localPayload = <String, dynamic>{
-      ...catalogPayload,
-      'country_code': catalogPayload['country'],
-      'publisher': catalogPayload['label'],
-      'contributions': contributionRows,
-      'discs': [
+    final localPayload = Map<String, dynamic>.from(catalogPayload)
+      ..remove('label')
+      ..remove('country')
+      ..removeWhere(
+        (key, _) => const {
+          'composers',
+          'conductors',
+          'songwriters',
+          'producers',
+          'engineers',
+          'musicians',
+          'choruses',
+          'compositions',
+          'orchestras',
+        }.contains(key),
+      )
+      ..['country_code'] = catalogPayload['country']
+      ..['publisher'] = catalogPayload['label']
+      ..['artist_credits'] = [
+        for (final credit in artistCredits)
+          {
+            'id': credit['id'],
+            'credited_name': credit['name'],
+            'sequence': credit['sequence'],
+            if (credit['sort_name'] != null) 'sort_name': credit['sort_name'],
+            if (credit['artist_id'] != null) 'artist_id': credit['artist_id'],
+            if (credit['join_phrase'] != null)
+              'join_phrase': credit['join_phrase'],
+          },
+      ]
+      ..['contributions'] = contributionRows
+      ..['discs'] = [
         for (final disc in discs)
           {
             ...disc,
@@ -404,8 +447,7 @@ final class MusicCatalogMapper {
               path: 'Music disc ${disc['disc_number']} tracks',
             ),
           },
-      ],
-    };
+      ];
     return MusicAlbum.fromJson(localPayload);
   }
 

@@ -110,6 +110,9 @@ and correction values that were previously whitespace-collapsed or silently
 deduplicated. Music external links now have one strict `{url, title?,
 description?}` shape in Core, correction payloads, and App decoding; malformed
 rows and legacy link aliases are rejected instead of normalized or dropped.
+Music's Core/local field-name translations now live in the catalog mapper;
+local JSON decoding no longer accepts old `label`, `country`, `spars`, or
+artist-credit aliases.
 Manual Music Add now emits complete artist and role credit collections,
 including explicit credit/person identity and sequence. Remaining P0 work is
 tracked above.

@@ -30,9 +30,10 @@ void main() {
           'person_id': 'person-1',
           'name': 'Composer Name',
           'sort_name': 'Name, Composer',
+          'sequence': 1,
         },
       ],
-      'release_date': '1998-11',
+      'release_date': {'year': 1998, 'month': 11},
       'discs': [
         {
           'id': 'disc-1',
@@ -47,6 +48,8 @@ void main() {
               'title': 'Opening track',
               'artist': 'Guest artist',
               'duration_ms': 186000,
+              'is_header': false,
+              'indent_level': 0,
             },
           ],
         },
@@ -67,7 +70,7 @@ void main() {
     expect(artistCredits.single['id'], 'credit-1');
     expect(artistCredits.single['sort_name'], 'Artist, The');
     expect(composers.single['sort_name'], 'Name, Composer');
-    expect(encoded['release_date'], '1998-11');
+    expect(encoded['release_date'], {'year': 1998, 'month': 11});
     expect(disc['id'], 'disc-1');
     expect(disc['title'], 'Side One');
     expect(disc['matrix_number_side_a'], 'MATRIX-A');
@@ -78,7 +81,8 @@ void main() {
     expect(track['duration_ms'], 186000);
   });
 
-  test('Music edit persists a changed disc format through the catalog mapper', () {
+  test('Music edit persists a changed disc format through the catalog mapper',
+      () {
     final source = CatalogItemDto.fromJson({
       'id': 'album-format',
       'kind': 'music',
