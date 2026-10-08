@@ -114,7 +114,10 @@ description?}` shape in Core, correction payloads, and App decoding; malformed
 rows and legacy link aliases are rejected instead of normalized or dropped.
 Music's Core/local field-name translations now live in the catalog mapper;
 local JSON decoding no longer accepts old `label`, `country`, `spars`, or
-artist-credit aliases.
+artist-credit aliases. The App mapper now requires complete response
+collections and validates root, disc, track, link, and credit value types
+before constructing the local model; Manual Add emits the same empty
+collections when a role or list has no values.
 Manual Music Add now emits complete artist and role credit collections,
 including explicit credit/person identity and sequence, plus empty canonical
 collections for unused roles. Remaining P0 work is tracked above.

@@ -24,6 +24,18 @@ void main() {
           'sequence': 1,
         },
       ],
+      'genres': <String>[],
+      'studios': <String>[],
+      'extra': <String>[],
+      'conductors': <Map<String, Object?>>[],
+      'choruses': <String>[],
+      'compositions': <String>[],
+      'orchestras': <String>[],
+      'songwriters': <Map<String, Object?>>[],
+      'producers': <Map<String, Object?>>[],
+      'engineers': <Map<String, Object?>>[],
+      'musicians': <Map<String, Object?>>[],
+      'external_links': <Map<String, Object?>>[],
       'composers': [
         {
           'id': 'composer-credit-1',
@@ -39,6 +51,7 @@ void main() {
           'id': 'disc-1',
           'disc_number': 1,
           'title': 'Side One',
+          'sound_types': <String>[],
           'matrix_number_side_a': 'MATRIX-A',
           'tracks': [
             {
@@ -93,9 +106,25 @@ void main() {
           'disc_number': 1,
           'format': 'Vinyl (12" LP)',
           'format_family': 'vinyl',
+          'sound_types': <String>[],
           'tracks': [],
         }
       ],
+      'revision': 1,
+      'artist_credits': <Map<String, Object?>>[],
+      'genres': <String>[],
+      'studios': <String>[],
+      'extra': <String>[],
+      'composers': <Map<String, Object?>>[],
+      'conductors': <Map<String, Object?>>[],
+      'choruses': <String>[],
+      'compositions': <String>[],
+      'orchestras': <String>[],
+      'songwriters': <Map<String, Object?>>[],
+      'producers': <Map<String, Object?>>[],
+      'engineers': <Map<String, Object?>>[],
+      'musicians': <Map<String, Object?>>[],
+      'external_links': <Map<String, Object?>>[],
     });
     final original = MusicCatalogMapper.mapMetadataItemToMusic(source);
     final disc = original.discs.first;

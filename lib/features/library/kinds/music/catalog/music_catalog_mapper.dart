@@ -224,13 +224,48 @@ final class MusicCatalogMapper {
       );
     }
 
-    final id = _text(catalogPayload['id']);
-    if (id == null || id.isEmpty) {
-      throw const FormatException('Music Catalog Item requires an id.');
+    final id =
+        _requiredCatalogText(catalogPayload['id'], 'Music Catalog Item id');
+    _requiredCatalogText(catalogPayload['title'], 'Music Catalog Item title');
+    if (catalogPayload['kind'] != 'music') {
+      throw FormatException(
+        'Expected a Music Catalog Item, received ${catalogPayload['kind']}.',
+      );
     }
-    if (_text(catalogPayload['kind']) case final kind? when kind != 'music') {
-      throw FormatException('Expected a Music Catalog Item, received $kind.');
+    if (catalogPayload['revision'] is! int ||
+        (catalogPayload['revision'] as int) < 1) {
+      throw const FormatException(
+          'Music Catalog Item revision must be positive.');
     }
+    for (final field in const [
+      'sort_title',
+      'subtitle',
+      'artist',
+      'label',
+      'barcode',
+      'catalog_number',
+      'country',
+      'packaging',
+      'spars_code',
+      'box_set',
+      'cover_image_url',
+      'back_cover_image_url',
+      'thumbnail_image_url',
+    ]) {
+      _optionalCatalogText(catalogPayload[field], 'Music Catalog Item $field');
+    }
+    if (catalogPayload['is_live'] != null &&
+        catalogPayload['is_live'] is! bool) {
+      throw const FormatException(
+          'Music Catalog Item is_live must be boolean.');
+    }
+    for (final field in const ['genres', 'studios', 'extra']) {
+      _requiredStrings(catalogPayload[field], path: 'Music $field');
+    }
+    _requiredMaps(
+      catalogPayload['external_links'],
+      path: 'Music external links',
+    );
     final discs = _requiredMaps(catalogPayload['discs'], path: 'Music discs');
     final artistCredits = _requiredMaps(
       catalogPayload['artist_credits'],
@@ -273,7 +308,7 @@ final class MusicCatalogMapper {
         credit['artist_id'],
         'Music artist credit ${index + 1} artist_id',
       );
-      _optionalCatalogText(
+      _optionalCatalogString(
         credit['join_phrase'],
         'Music artist credit ${index + 1} join_phrase',
       );
@@ -296,6 +331,39 @@ final class MusicCatalogMapper {
           'Music disc ${discIndex + 1} is missing its canonical identity.',
         );
       }
+      final discPath = 'Music disc ${discIndex + 1}';
+      for (final field in const [
+        'title',
+        'format_family',
+        'format',
+        'color',
+        'rpm',
+        'matrix_number',
+        'matrix_number_side_a',
+        'matrix_number_side_b',
+      ]) {
+        _optionalCatalogText(disc[field], '$discPath $field');
+      }
+      const formatFamilies = {
+        'vinyl',
+        'cd',
+        'sacd',
+        'cassette',
+        'minidisc',
+        'digital',
+        'other',
+      };
+      final formatFamily = disc['format_family'];
+      if (formatFamily != null && !formatFamilies.contains(formatFamily)) {
+        throw FormatException('$discPath has an unrecognized format_family.');
+      }
+      final vinylWeight = disc['vinyl_weight_grams'];
+      if (vinylWeight != null && (vinylWeight is! int || vinylWeight <= 0)) {
+        throw FormatException(
+          '$discPath vinyl_weight_grams must be a positive integer.',
+        );
+      }
+      _requiredStrings(disc['sound_types'], path: '$discPath sound_types');
       final tracks = _requiredMaps(
         disc['tracks'],
         path: 'Music disc ${discIndex + 1} tracks',
@@ -618,4 +686,12 @@ String _requiredCatalogText(Object? value, String path) {
 String? _optionalCatalogText(Object? value, String path) {
   if (value == null) return null;
   return _requiredCatalogText(value, path);
+}
+
+String? _optionalCatalogString(Object? value, String path) {
+  if (value == null) return null;
+  if (value is! String) {
+    throw FormatException('$path must be text or null.');
+  }
+  return value;
 }

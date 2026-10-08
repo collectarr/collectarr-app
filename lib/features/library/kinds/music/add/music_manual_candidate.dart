@@ -87,14 +87,14 @@ Map<String, Object?>? buildMusicManualProposalData(
           'sequence': index + 1,
         },
     ],
-    if (draft.genres.isNotEmpty) 'genres': List<String>.of(draft.genres),
+    'genres': List<String>.of(draft.genres),
     if (_textOrNull(draft.recordLabel) case final value?) 'label': value,
     if (barcode != null) 'barcode': barcode,
     if (_textOrNull(draft.catalogNumber) case final value?)
       'catalog_number': value,
     if (country != null) 'country': country,
     if (_textOrNull(draft.packaging) case final value?) 'packaging': value,
-    if (draft.studios.isNotEmpty) 'studios': List<String>.of(draft.studios),
+    'studios': List<String>.of(draft.studios),
     if (draft.isLive != null) 'is_live': draft.isLive,
     'extra': List<String>.of(draft.extra),
     if (_textOrNull(draft.sparsCode) case final value?) 'spars_code': value,
@@ -110,16 +110,14 @@ Map<String, Object?>? buildMusicManualProposalData(
     'producers': _namedCredits(draft.producers),
     'engineers': _namedCredits(draft.engineers),
     'musicians': _namedCredits(draft.musicians),
-    if (draft.discs.isNotEmpty)
-      'discs': [
-        for (var index = 0; index < draft.discs.length; index++)
-          draft.discs[index].toProposalData(index + 1),
-      ],
-    if (draft.externalLinks.any((link) => link.url.trim().isNotEmpty))
-      'external_links': [
-        for (final link in draft.externalLinks)
-          if (link.url.trim().isNotEmpty) link.toProposalData(),
-      ],
+    'discs': [
+      for (var index = 0; index < draft.discs.length; index++)
+        draft.discs[index].toProposalData(index + 1),
+    ],
+    'external_links': [
+      for (final link in draft.externalLinks)
+        if (link.url.trim().isNotEmpty) link.toProposalData(),
+    ],
   };
 }
 

@@ -66,7 +66,7 @@ final class MusicAddManualDisc {
         if (title.trim().isNotEmpty) 'title': title.trim(),
         if (formatFamily != null) 'format_family': formatFamily!.value,
         if (format.trim().isNotEmpty) 'format': format.trim(),
-        if (soundTypes.isNotEmpty) 'sound_types': soundTypes,
+        'sound_types': List<String>.of(soundTypes),
         if (color.trim().isNotEmpty) 'color': color.trim(),
         if (vinylWeightGrams != null) 'vinyl_weight_grams': vinylWeightGrams,
         if (rpm != null && rpm!.trim().isNotEmpty) 'rpm': rpm!.trim(),

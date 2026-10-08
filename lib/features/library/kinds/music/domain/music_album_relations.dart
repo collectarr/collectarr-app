@@ -28,7 +28,7 @@ final class MusicArtistCredit implements JsonEncodable {
       creditedName: _requiredText(json['credited_name'], 'credited_name'),
       artistId: _optionalText(json['artist_id'], 'artist_id'),
       sortName: _optionalText(json['sort_name'], 'sort_name'),
-      joinPhrase: _optionalText(json['join_phrase'], 'join_phrase'),
+      joinPhrase: _optionalString(json['join_phrase'], 'join_phrase'),
       sequence: _int(json['sequence']),
     );
   }
@@ -128,6 +128,14 @@ String _requiredText(Object? value, String field) {
 String? _optionalText(Object? value, String field) {
   if (value == null) return null;
   return _requiredText(value, field);
+}
+
+String? _optionalString(Object? value, String field) {
+  if (value == null) return null;
+  if (value is! String) {
+    throw FormatException('Music artist credit $field must be text or null.');
+  }
+  return value;
 }
 
 int? _int(Object? value) {
