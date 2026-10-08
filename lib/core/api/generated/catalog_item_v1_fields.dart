@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND.
 // Source: tool/core_contracts/catalog-item-v1.json
-// Contract SHA-256: 75c1c15a43db3e57e3c75c25e6798cbff3b23a1d04898fd2f89f2eeaa5c0d037
+// Contract SHA-256: 2492800f1450c4f700856a0eafc3dcd70faf220774d97d503dab52420e964679
 const catalogItemV1SchemaVersion = 1;
 const catalogItemV1ContractVersion = '1.0.0';
 

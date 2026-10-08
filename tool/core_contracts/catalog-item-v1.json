@@ -2,13 +2,13 @@
   "$id": "https://schemas.collectarr.app/catalog-item/v1",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "contractVersion": "1.0.0",
-  "coreCommit": "ecc13cfec0c6f7c0897c7d721d5cc12bac89b224",
+  "coreCommit": "a6575141cbca7e510754aa038362efe771497df4",
   "description": "Source-neutral Catalog Item documents. Fields are validated and projected using the schema owned by the declared kind.",
   "fieldStatus": {
     "music": "grounded_in_saved_clz_music_edit_form",
     "other_kinds": "provisional_clz_parity_unverified_without_edit_form_captures"
   },
-  "generatedAt": "2026-10-08T20:04:47.731490Z",
+  "generatedAt": "2026-10-08T20:09:59.985497Z",
   "kinds": {
     "anime": {
       "additionalProperties": false,
@@ -7445,14 +7445,7 @@
                     ]
                   },
                   "id": {
-                    "anyOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
+                    "type": "string"
                   },
                   "matrix_number": {
                     "anyOf": [
@@ -7537,14 +7530,7 @@
                               ]
                             },
                             "id": {
-                              "anyOf": [
-                                {
-                                  "type": "string"
-                                },
-                                {
-                                  "type": "null"
-                                }
-                              ]
+                              "type": "string"
                             },
                             "indent_level": {
                               "type": "integer"
@@ -7563,31 +7549,10 @@
                               ]
                             },
                             "position": {
-                              "anyOf": [
-                                {
-                                  "anyOf": [
-                                    {
-                                      "type": "integer"
-                                    },
-                                    {
-                                      "type": "string"
-                                    }
-                                  ]
-                                },
-                                {
-                                  "type": "null"
-                                }
-                              ]
+                              "type": "string"
                             },
                             "position_order": {
-                              "anyOf": [
-                                {
-                                  "type": "integer"
-                                },
-                                {
-                                  "type": "null"
-                                }
-                              ]
+                              "type": "integer"
                             },
                             "title": {
                               "minLength": 1,
@@ -7595,6 +7560,11 @@
                             }
                           },
                           "required": [
+                            "id",
+                            "indent_level",
+                            "is_header",
+                            "position",
+                            "position_order",
                             "title"
                           ],
                           "type": "object"
@@ -7618,7 +7588,9 @@
                   }
                 },
                 "required": [
-                  "disc_number"
+                  "disc_number",
+                  "id",
+                  "tracks"
                 ],
                 "type": "object"
               },
