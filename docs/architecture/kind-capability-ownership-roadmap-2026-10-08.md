@@ -27,7 +27,7 @@ registration and files under `features/library/kinds/<kind>/`.
 - [x] Move CSV/TXT export field definitions and default columns to kind-owned
   contributions while keeping encoding, file handling, and column selection
   shared.
-- [ ] Audit central kind switches across actions, reports, search, folders,
+- [x] Audit central kind switches across actions, reports, search, folders,
   edit setup, display, images, and vocabulary; move semantic behavior to kind
   contributions where the current architecture permits it.
 - [x] Reduce `MusicAlbumEditDraft` orchestration by separating album values,
@@ -75,14 +75,16 @@ field, disc tab button, disc details view, and active form adapters remain in
 use. `MusicDiscListEditor` owns discs and composes `MusicTrackListEditor` for
 track hierarchy, ordering, and duration state. `MusicAlbumEditDraft` now
 combines those editors with scalar values, credits, links, and vocabulary
-changes. The central kind-switch audit has started: stats tracking titles and
+changes. The central kind-switch audit is complete: stats tracking titles and
 compact row facts now come from kind capabilities, empty report flows require
 an explicit kind, and catalog detail hydration delegates kind-specific DTO
-decoding through metadata capability. The PDF
+decoding through metadata capability. The shared library scan now finds no
+direct kind model checks or enum branches outside registration maps; action,
+search, folder, edit, image, and vocabulary behavior routes through existing
+kind contributions. The PDF
 report now reads item and child-row fields, labels, defaults, and value
 formatting from the kind export capability; shared code owns print layout and
-file handling. The audit still needs to cover the remaining action, search,
-folder, image, and vocabulary paths. A shared
+file handling. A shared
 `LibraryVocabularyEditAccumulator` collects schema-renderer and shell field
 updates. Music binds its schema fields, custom fields, details form, and
 library-entry personal fields to one accumulator for the edit session. The
