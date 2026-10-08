@@ -1,3 +1,5 @@
+import 'package:collectarr_app/features/library/kinds/game/config/game_field_identities.dart';
+
 const gameMainFieldIds = {
   'catalog_title',
   'display_title',
@@ -16,7 +18,7 @@ const gameMainFieldIds = {
   'age_ratings',
   'languages',
   'country',
-  'franchise',
+  GameFieldIdentities.franchiseId,
   'series',
 };
 
@@ -24,9 +26,9 @@ const gameEditionFieldIds = {
   'edition_title',
   'region',
   'format',
-  'release_date',
+  GameFieldIdentities.releaseDateId,
   'catalog_number',
-  'barcode',
+  GameFieldIdentities.barcodeId,
   'release_year',
   'variant',
   'release_status',

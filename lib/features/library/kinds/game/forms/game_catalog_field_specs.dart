@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:collectarr_app/features/library/kinds/game/forms/game_catalog_form_values.dart';
+import 'package:collectarr_app/features/library/kinds/game/config/game_field_identities.dart';
 import 'package:collectarr_app/features/library/kinds/game/vocabulary/game_vocabularies.dart';
 import 'package:collectarr_app/features/library/forms/library_field_spec.dart';
 
@@ -129,8 +130,8 @@ List<LibraryFieldSpec<TDraft>> gameMetadataFields<TDraft>({
         setValue: (draft, value) => values(draft).originalLanguage = value,
       ),
       LibraryTextFieldSpec<TDraft>(
-        id: 'franchise',
-        label: 'Franchise',
+        id: GameFieldIdentities.franchiseId,
+        label: GameFieldIdentities.franchiseLabel,
         value: (draft) => values(draft).franchise,
         setValue: (draft, value) => values(draft).franchise = value,
       ),
@@ -208,8 +209,8 @@ List<LibraryFieldSpec<TDraft>> gameCatalogItemFields<TDraft>({
         pickListKey: GameVocabularyIds.edition.value,
       ),
       LibraryDateFieldSpec<TDraft>(
-        id: 'release_date',
-        label: 'Release Date',
+        id: GameFieldIdentities.releaseDateId,
+        label: GameFieldIdentities.releaseDateLabel,
         value: (draft) => values(draft).releaseDate,
         setValue: (draft, value) => values(draft).releaseDate = value,
       ),
@@ -238,8 +239,8 @@ List<LibraryFieldSpec<TDraft>> gameCatalogItemFields<TDraft>({
         setValue: (draft, value) => values(draft).language = value,
       ),
       LibraryTextFieldSpec<TDraft>(
-        id: 'barcode',
-        label: 'Barcode',
+        id: GameFieldIdentities.barcodeId,
+        label: GameFieldIdentities.barcodeLabel,
         value: (draft) => values(draft).barcode,
         setValue: (draft, value) => values(draft).barcode = value,
       ),

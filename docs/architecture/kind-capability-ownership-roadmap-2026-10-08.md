@@ -121,7 +121,10 @@ original title, genre, age and audience ratings, runtime, format, release date,
 and barcode. The movie publisher and distributor fields stay separate because
 they read different metadata values. Board Game now shares publisher, release
 date, barcode, player counts, play-time bounds, complexity, BGG rating/rank,
-and expansion target IDs and labels across forms and workspace fields.
+and expansion target IDs and labels across forms and workspace fields. Game now
+shares franchise, release date, and barcode identities. Its required title
+still comes from the shared Manual Add title field, so it is not folded into
+the Game edit form identity in this slice.
 Music release, original release, and recording dates now have one canonical
 `{year, month, day}` representation across the Core model, API, correction
 flow, search projection, App mapper, and pinned contract. Core rejects legacy

@@ -5,6 +5,7 @@ import 'package:collectarr_app/features/library/add/schema/library_add_catalog_t
 import 'package:collectarr_app/features/library/kinds/game/forms/game_catalog_form_draft.dart';
 import 'package:collectarr_app/features/library/kinds/game/forms/game_catalog_field_specs.dart';
 import 'package:collectarr_app/features/library/kinds/game/forms/game_catalog_form_values.dart';
+import 'package:collectarr_app/features/library/kinds/game/config/game_field_identities.dart';
 
 final LibraryFormSchema<GameCatalogFormDraft> gameAddSchema =
     gameAddSchemaFor();
@@ -41,9 +42,9 @@ LibraryFormSchema<TDraft>
               'edition_title',
               'region',
               'format',
-              'release_date',
+              GameFieldIdentities.releaseDateId,
               'catalog_number',
-              'barcode',
+              GameFieldIdentities.barcodeId,
               'cover_image_url',
               'thumbnail_image_url',
               'release_year',
@@ -81,7 +82,7 @@ LibraryFormSchema<TDraft>
             'age_ratings',
             'languages',
             'country',
-            'franchise',
+            GameFieldIdentities.franchiseId,
             'series',
             'description',
           },

@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/library/kinds/game/workspace/game_ids.dart';
+import 'package:collectarr_app/features/library/kinds/game/config/game_field_identities.dart';
 import 'package:collectarr_app/features/library/kinds/game/workspace/game_workspace_dto.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/schema/field_factories.dart';
@@ -35,13 +36,13 @@ abstract final class GameCatalogItemWorkspaceFields {
 
   static final releaseDate = dateField<GameKind, GameWorkspaceDto>(
     id: GameFieldIds.releaseDate,
-    label: 'Release Date',
+    label: GameFieldIdentities.releaseDateLabel,
     getValue: (dto) => dto.releaseDate,
   );
 
   static final barcode = textField<GameKind, GameWorkspaceDto>(
     id: GameFieldIds.barcode,
-    label: 'Barcode',
+    label: GameFieldIdentities.barcodeLabel,
     getValue: (dto) => dto.barcode,
     searchable: true,
   );
@@ -61,7 +62,7 @@ abstract final class GameCatalogItemWorkspaceFields {
 
   static final franchise = textField<GameKind, GameWorkspaceDto>(
     id: GameFieldIds.franchise,
-    label: 'Franchise',
+    label: GameFieldIdentities.franchiseLabel,
     getValue: (dto) => dto.franchise,
     searchable: true,
   );
