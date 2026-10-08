@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/library/workspace/schema/library_identifier_types.dart';
+import 'package:collectarr_app/features/library/kinds/anime/config/anime_field_identities.dart';
 
 abstract final class AnimeFieldIds {
   static const status = LibraryFieldId<AnimeKind, String?>('anime.status');
@@ -13,8 +14,10 @@ abstract final class AnimeFieldIds {
       LibraryFieldId<AnimeKind, int?>('anime.release_year');
   static const episodeCount =
       LibraryFieldId<AnimeKind, int?>('anime.episode_count');
-  static const format = LibraryFieldId<AnimeKind, String?>('anime.format');
-  static const barcode = LibraryFieldId<AnimeKind, String?>('anime.barcode');
+  static const format =
+      LibraryFieldId<AnimeKind, String?>(AnimeFieldIdentities.formatId);
+  static const barcode =
+      LibraryFieldId<AnimeKind, String?>(AnimeFieldIdentities.barcodeId);
   static const rating = LibraryFieldId<AnimeKind, int?>('anime.rating');
   static const condition =
       LibraryFieldId<AnimeKind, String?>('anime.condition');
@@ -29,11 +32,11 @@ abstract final class AnimeFieldIds {
 
   // Rich Anime Metadata Fields
   static const nativeTitle =
-      LibraryFieldId<AnimeKind, String?>('anime.native_title');
+      LibraryFieldId<AnimeKind, String?>(AnimeFieldIdentities.nativeTitleId);
   static const romajiTitle =
-      LibraryFieldId<AnimeKind, String?>('anime.romaji_title');
+      LibraryFieldId<AnimeKind, String?>(AnimeFieldIdentities.romajiTitleId);
   static const englishTitle =
-      LibraryFieldId<AnimeKind, String?>('anime.english_title');
+      LibraryFieldId<AnimeKind, String?>(AnimeFieldIdentities.englishTitleId);
   static const season = LibraryFieldId<AnimeKind, String?>('anime.season');
   static const seasonYear =
       LibraryFieldId<AnimeKind, int?>('anime.season_year');
@@ -75,7 +78,8 @@ abstract final class AnimeGroupIds {
   static const studio = LibraryGroupId<AnimeKind, String?>('anime.studio');
   static const publisher =
       LibraryGroupId<AnimeKind, String?>('anime.publisher');
-  static const format = LibraryGroupId<AnimeKind, String?>('anime.format');
+  static const format =
+      LibraryGroupId<AnimeKind, String?>(AnimeFieldIdentities.formatId);
   static const releaseYear =
       LibraryGroupId<AnimeKind, int?>('anime.release_year');
   static const location = LibraryGroupId<AnimeKind, String?>(
@@ -100,7 +104,8 @@ abstract final class AnimeFacetIds {
   static const studio = LibraryFacetId<AnimeKind, String>('anime.studio');
   static const publisher = LibraryFacetId<AnimeKind, String>('anime.publisher');
   static const genre = LibraryFacetId<AnimeKind, String>('anime.genre');
-  static const format = LibraryFacetId<AnimeKind, String>('anime.format');
+  static const format =
+      LibraryFacetId<AnimeKind, String>(AnimeFieldIdentities.formatId);
   static const theme = LibraryFacetId<AnimeKind, String>('anime.theme');
   static const season = LibraryFacetId<AnimeKind, String>('anime.season');
 }

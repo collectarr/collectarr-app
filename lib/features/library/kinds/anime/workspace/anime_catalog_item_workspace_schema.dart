@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/library/kinds/anime/workspace/anime_ids.dart';
+import 'package:collectarr_app/features/library/kinds/anime/config/anime_field_identities.dart';
 import 'package:collectarr_app/features/library/kinds/anime/workspace/anime_workspace_dto.dart';
 import 'package:collectarr_app/features/library/kinds/anime/workspace/anime_catalog_item_workspace_fields.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_transport_bucket_mutators.dart';
@@ -29,25 +30,25 @@ abstract final class AnimeCatalogItemWorkspaceFields {
 
   static final nativeTitle = textField<AnimeKind, AnimeWorkspaceDto>(
     id: AnimeFieldIds.nativeTitle,
-    label: 'Native Title',
+    label: AnimeFieldIdentities.nativeTitleLabel,
     getValue: (dto) => dto.metadata.nativeTitle,
   );
 
   static final romajiTitle = textField<AnimeKind, AnimeWorkspaceDto>(
     id: AnimeFieldIds.romajiTitle,
-    label: 'Romaji Title',
+    label: AnimeFieldIdentities.romajiTitleLabel,
     getValue: (dto) => dto.metadata.romajiTitle,
   );
 
   static final englishTitle = textField<AnimeKind, AnimeWorkspaceDto>(
     id: AnimeFieldIds.englishTitle,
-    label: 'English Title',
+    label: AnimeFieldIdentities.englishTitleLabel,
     getValue: (dto) => dto.metadata.englishTitle,
   );
 
   static final format = textField<AnimeKind, AnimeWorkspaceDto>(
     id: AnimeFieldIds.format,
-    label: 'Format',
+    label: AnimeFieldIdentities.formatLabel,
     getValue: (dto) => dto.animeType,
     searchable: true,
   );

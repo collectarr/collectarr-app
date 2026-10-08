@@ -6,6 +6,7 @@ import 'package:collectarr_app/features/library/add/schema/library_add_catalog_t
 import 'package:collectarr_app/features/library/kinds/anime/add/anime_add_manual_draft.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_metadata_children.dart';
+import 'package:collectarr_app/features/library/kinds/anime/config/anime_field_identities.dart';
 import 'package:collectarr_app/features/library/kinds/anime/forms/anime_catalog_form_draft.dart';
 import 'package:collectarr_app/features/library/kinds/anime/vocabulary/anime_vocabularies.dart';
 
@@ -19,7 +20,7 @@ const animeMainFieldIds = {
   'localized_title',
   'search_aliases',
   'sort_key',
-  'format',
+  AnimeFieldIdentities.formatId,
   'season',
   'source_material',
   'original_language',
@@ -39,9 +40,9 @@ const animeMainFieldIds = {
 };
 
 const animeDetailsFieldIds = {
-  'native_title',
-  'romaji_title',
-  'english_title',
+  AnimeFieldIdentities.nativeTitleId,
+  AnimeFieldIdentities.romajiTitleId,
+  AnimeFieldIdentities.englishTitleId,
   'alternate_titles',
   'country',
   'characters',
@@ -51,7 +52,7 @@ const animeEditionFieldIds = {
   'edition_title',
   'physical_format',
   'publisher',
-  'barcode',
+  AnimeFieldIdentities.barcodeId,
   'release_date',
   'variant_name',
   'region',
@@ -182,8 +183,8 @@ LibraryFormSchema<TDraft> animeAddSchemaFor<
               ),
             ),
             _vocabulary<TDraft>(
-              id: 'format',
-              label: 'Anime format',
+              id: AnimeFieldIdentities.formatId,
+              label: AnimeFieldIdentities.formatLabel,
               read: (metadata) => metadata.format.label,
               write: (draft, value) => draft.metadata = draft.metadata.copyWith(
                 format: AnimeFormat.fromString(value),
@@ -379,8 +380,8 @@ LibraryFormSchema<TDraft> animeAddSchemaFor<
                   _writeNullable(draft, 'publisher', _nullable(value)),
             ),
             _text<TDraft>(
-              id: 'barcode',
-              label: 'Barcode',
+              id: AnimeFieldIdentities.barcodeId,
+              label: AnimeFieldIdentities.barcodeLabel,
               read: (metadata) => metadata.barcode ?? '',
               write: (draft, value) =>
                   _writeNullable(draft, 'barcode', _nullable(value)),
@@ -472,22 +473,22 @@ LibraryFormSchema<TDraft> animeAddSchemaFor<
           label: 'Titles and people',
           fields: [
             _text<TDraft>(
-              id: 'native_title',
-              label: 'Native title',
+              id: AnimeFieldIdentities.nativeTitleId,
+              label: AnimeFieldIdentities.nativeTitleLabel,
               read: (metadata) => metadata.nativeTitle ?? '',
               write: (draft, value) =>
                   _writeNullable(draft, 'native_title', _nullable(value)),
             ),
             _text<TDraft>(
-              id: 'romaji_title',
-              label: 'Romaji title',
+              id: AnimeFieldIdentities.romajiTitleId,
+              label: AnimeFieldIdentities.romajiTitleLabel,
               read: (metadata) => metadata.romajiTitle ?? '',
               write: (draft, value) =>
                   _writeNullable(draft, 'romaji_title', _nullable(value)),
             ),
             _text<TDraft>(
-              id: 'english_title',
-              label: 'English title',
+              id: AnimeFieldIdentities.englishTitleId,
+              label: AnimeFieldIdentities.englishTitleLabel,
               read: (metadata) => metadata.englishTitle ?? '',
               write: (draft, value) =>
                   _writeNullable(draft, 'english_title', _nullable(value)),
