@@ -14,17 +14,42 @@ import 'package:flutter/material.dart';
 import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 import 'package:image/image.dart' as img;
 
+typedef ItemImageTypeFieldBuilder = Widget Function(
+  BuildContext context, {
+  required String value,
+  required ValueChanged<String> onChanged,
+});
+
+typedef ItemImageTypeLabelBuilder = String Function(String value);
+
 class ItemImagesEditSection extends StatefulWidget {
   const ItemImagesEditSection({
     super.key,
     required this.images,
     required this.accent,
     required this.onChanged,
+    this.title = 'Item photos',
+    this.emptyMessage =
+        'No photos attached. Use the tools below to add a front cover, back cover, or supporting shots.',
+    this.maximumImages = 5,
+    this.defaultImageType = 'auxiliary',
+    this.uniqueImageTypes = const {'front_cover', 'back_cover'},
+    this.showCoverActions = true,
+    this.imageTypeFieldBuilder,
+    this.imageTypeLabelBuilder,
   });
 
   final List<ItemImageContent> images;
   final Color accent;
   final ValueChanged<List<ItemImageEdit>> onChanged;
+  final String title;
+  final String emptyMessage;
+  final int maximumImages;
+  final String defaultImageType;
+  final Set<String> uniqueImageTypes;
+  final bool showCoverActions;
+  final ItemImageTypeFieldBuilder? imageTypeFieldBuilder;
+  final ItemImageTypeLabelBuilder? imageTypeLabelBuilder;
 
   @override
   State<ItemImagesEditSection> createState() => _ItemImagesEditSectionState();
@@ -74,10 +99,10 @@ class _ItemImagesEditSectionState extends State<ItemImagesEditSection> {
     final visible = _visibleImages();
     final deleted =
         _images.where((image) => image.deleted).toList(growable: false);
-    final canAddMore = visible.length < 5;
+    final canAddMore = visible.length < widget.maximumImages;
 
     return EditSection(
-      title: 'Item photos (${visible.length}/5)',
+      title: '${widget.title} (${visible.length}/${widget.maximumImages})',
       accent: widget.accent,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -86,7 +111,7 @@ class _ItemImagesEditSectionState extends State<ItemImagesEditSection> {
             Padding(
               padding: const EdgeInsets.only(bottom: 8),
               child: Text(
-                'No photos attached. Use the tools below to add a front cover, back cover, or supporting shots.',
+                widget.emptyMessage,
                 style: const TextStyle(color: kEditTextMuted, fontSize: 13),
               ),
             )
@@ -109,6 +134,8 @@ class _ItemImagesEditSectionState extends State<ItemImagesEditSection> {
                       reorderIndex: index,
                       canMoveLeft: index > 0,
                       canMoveRight: index < visible.length - 1,
+                      showCoverActions: widget.showCoverActions,
+                      typeLabelBuilder: widget.imageTypeLabelBuilder,
                       onAction: (action) => _handleImageAction(image, action),
                     ),
                   );
@@ -140,7 +167,7 @@ class _ItemImagesEditSectionState extends State<ItemImagesEditSection> {
           ],
           const SizedBox(height: 8),
           LibraryImageIntake(
-              remaining: canAddMore ? 5 - visible.length : 0,
+              remaining: canAddMore ? widget.maximumImages - visible.length : 0,
               height: visible.isEmpty ? 180 : 100,
               onImages: (bytes) {
                 for (final image in bytes) {
@@ -184,7 +211,7 @@ class _ItemImagesEditSectionState extends State<ItemImagesEditSection> {
   }
 
   void _addImage(Uint8List imageData) {
-    if (_visibleImages().length >= 5) {
+    if (_visibleImages().length >= widget.maximumImages) {
       return;
     }
     final createdAt = DateTime.now().toUtc();
@@ -194,7 +221,7 @@ class _ItemImagesEditSectionState extends State<ItemImagesEditSection> {
           id: createdAt.microsecondsSinceEpoch.toString(),
           imageData: imageData,
           createdAt: createdAt,
-          imageType: 'auxiliary',
+          imageType: widget.defaultImageType,
           sortOrder: _images.length,
           isNew: true,
           hasBinaryChanges: true,
@@ -218,33 +245,10 @@ class _ItemImagesEditSectionState extends State<ItemImagesEditSection> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                LibraryDropdownPickField<String>(
-                  label: 'Image type',
+                _imageTypeField(
+                  context,
                   value: selectedType,
-                  options: const [
-                    LibraryFieldOption(
-                        value: 'front_cover', label: 'Front cover'),
-                    LibraryFieldOption(
-                        value: 'back_cover', label: 'Back cover'),
-                    LibraryFieldOption(value: 'auxiliary', label: 'Auxiliary'),
-                    LibraryFieldOption(value: 'booklet', label: 'Booklet'),
-                    LibraryFieldOption(value: 'disc', label: 'Disc'),
-                    LibraryFieldOption(value: 'label', label: 'Label'),
-                    LibraryFieldOption(value: 'other', label: 'Other'),
-                  ],
-                  openPicker: (
-                          {required label,
-                          required selectedValue,
-                          required options}) =>
-                      showPickListSelectDialog(
-                    context: context,
-                    label: label,
-                    options: options,
-                    selectedValue: selectedValue,
-                  ),
-                  onChanged: (value) {
-                    selectedType = value ?? 'auxiliary';
-                  },
+                  onChanged: (value) => selectedType = value,
                 ),
                 const SizedBox(height: 12),
                 LibraryTextFormControl(
@@ -298,12 +302,12 @@ class _ItemImagesEditSectionState extends State<ItemImagesEditSection> {
   }
 
   void _assignImageType(_EditableImage image, String imageType) {
-    if (imageType == 'front_cover' || imageType == 'back_cover') {
+    if (widget.uniqueImageTypes.contains(imageType)) {
       for (final other in _images) {
         if (!other.deleted &&
             other.id != image.id &&
             other.imageType == imageType) {
-          other.imageType = 'auxiliary';
+          other.imageType = widget.defaultImageType;
         }
       }
     }
@@ -462,6 +466,8 @@ class _ItemImagesEditSectionState extends State<ItemImagesEditSection> {
   }
 
   String _labelForType(String value) {
+    final typeLabel = widget.imageTypeLabelBuilder;
+    if (typeLabel != null) return typeLabel(value);
     switch (value) {
       case 'front_cover':
         return 'Front cover';
@@ -478,6 +484,41 @@ class _ItemImagesEditSectionState extends State<ItemImagesEditSection> {
       default:
         return value.trim().isEmpty ? 'Auxiliary' : value;
     }
+  }
+
+  Widget _imageTypeField(
+    BuildContext context, {
+    required String value,
+    required ValueChanged<String> onChanged,
+  }) {
+    final customBuilder = widget.imageTypeFieldBuilder;
+    if (customBuilder != null) {
+      return customBuilder(context, value: value, onChanged: onChanged);
+    }
+    return LibraryDropdownPickField<String>(
+      label: 'Image type',
+      value: value,
+      options: const [
+        LibraryFieldOption(value: 'front_cover', label: 'Front cover'),
+        LibraryFieldOption(value: 'back_cover', label: 'Back cover'),
+        LibraryFieldOption(value: 'auxiliary', label: 'Auxiliary'),
+        LibraryFieldOption(value: 'booklet', label: 'Booklet'),
+        LibraryFieldOption(value: 'disc', label: 'Disc'),
+        LibraryFieldOption(value: 'label', label: 'Label'),
+        LibraryFieldOption(value: 'other', label: 'Other'),
+      ],
+      openPicker: (
+              {required label, required selectedValue, required options}) =>
+          showPickListSelectDialog(
+        context: context,
+        label: label,
+        options: options,
+        selectedValue: selectedValue,
+      ),
+      onChanged: (selected) {
+        if (selected != null) onChanged(selected);
+      },
+    );
   }
 }
 
@@ -623,6 +664,8 @@ class _ImageCard extends StatelessWidget {
     required this.reorderIndex,
     required this.canMoveLeft,
     required this.canMoveRight,
+    required this.showCoverActions,
+    required this.typeLabelBuilder,
     required this.onAction,
   });
 
@@ -630,6 +673,8 @@ class _ImageCard extends StatelessWidget {
   final int reorderIndex;
   final bool canMoveLeft;
   final bool canMoveRight;
+  final bool showCoverActions;
+  final ItemImageTypeLabelBuilder? typeLabelBuilder;
   final ValueChanged<_ImageCardAction> onAction;
 
   @override
@@ -663,19 +708,21 @@ class _ImageCard extends StatelessWidget {
                         value: _ImageCardAction.editDetails,
                         child: Text('Edit details'),
                       ),
-                      const PopupMenuDivider(),
-                      const PopupMenuItem(
-                        value: _ImageCardAction.assignFront,
-                        child: Text('Use as front cover'),
-                      ),
-                      const PopupMenuItem(
-                        value: _ImageCardAction.assignBack,
-                        child: Text('Use as back cover'),
-                      ),
-                      const PopupMenuItem(
-                        value: _ImageCardAction.assignAuxiliary,
-                        child: Text('Use as auxiliary'),
-                      ),
+                      if (showCoverActions) ...[
+                        const PopupMenuDivider(),
+                        const PopupMenuItem(
+                          value: _ImageCardAction.assignFront,
+                          child: Text('Use as front cover'),
+                        ),
+                        const PopupMenuItem(
+                          value: _ImageCardAction.assignBack,
+                          child: Text('Use as back cover'),
+                        ),
+                        const PopupMenuItem(
+                          value: _ImageCardAction.assignAuxiliary,
+                          child: Text('Use as auxiliary'),
+                        ),
+                      ],
                       const PopupMenuDivider(),
                       const PopupMenuItem(
                         value: _ImageCardAction.rotateLeft,
@@ -737,7 +784,8 @@ class _ImageCard extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.only(top: 2),
             child: Text(
-              _typeLabel(image.imageType),
+              typeLabelBuilder?.call(image.imageType) ??
+                  _typeLabel(image.imageType),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: Theme.of(context).textTheme.informationalText.copyWith(

@@ -21,7 +21,7 @@ registration and files under `features/library/kinds/<kind>/`.
 
 ## P0 — stabilize the current Music cutover and next growth points
 
-- [ ] Finish the strict Music contract: one canonical representation for
+- [x] Finish the strict Music contract: one canonical representation for
   dates, extras, format data, and other duplicated fields; keep import
   normalization separate from canonical write validation.
 - [x] Move CSV/TXT export field definitions and default columns to kind-owned
@@ -131,4 +131,13 @@ and sequence values; numeric sequence coercion and the default `Artist` role
 are gone.
 Manual Music Add now emits complete artist and role credit collections,
 including explicit credit/person identity and sequence, plus empty canonical
-collections for unused roles. Remaining P0 work is tracked above.
+collections for unused roles. Canonical write schemas validate rather than
+normalize Music payloads; normalization remains in import/seed paths. The P0
+Music cutover is complete.
+
+The Music My Images tab now uses the shared `ItemImagesEditSection` for upload,
+caption/type editing, ordering, rotation, crop, restore, and removal. Music
+supplies its image vocabulary, labels, count, and tab copy; cover-source selection
+and its square crop workflow remain kind-specific. The Music image repository
+still adapts the shared item-image store and is tracked for the remaining image
+storage consolidation.

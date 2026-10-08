@@ -1,14 +1,12 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:collectarr_app/features/library/kinds/music/vocabulary/music_vocabularies.dart';
-import 'package:collectarr_app/features/library/ui/primitives/library_managed_vocabulary_field.dart';
-import 'package:collectarr_app/features/library/ui/primitives/library_image_intake.dart';
-import 'package:collectarr_app/features/library/ui/primitives/library_form_controls.dart';
-import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'dart:typed_data';
 
+import 'package:collectarr_app/features/library/edit/sections/item_images_edit_section.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_album_image.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit/music_cover_crop_editor.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit/music_album_edit_draft.dart';
+import 'package:collectarr_app/features/library/kinds/music/vocabulary/music_vocabularies.dart';
+import 'package:collectarr_app/features/library/ui/primitives/library_managed_vocabulary_field.dart';
+import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:dio/dio.dart';
 import 'package:file_selector/file_selector.dart';
 import 'package:flutter/material.dart';
@@ -457,236 +455,67 @@ final class MusicAlbumMyImagesTab extends StatelessWidget {
   final ValueChanged<List<MusicAlbumImage>> onImagesChanged;
 
   @override
-  Widget build(BuildContext context) => _MusicAlbumMyImagesEditor(
-        albumId: albumId,
+  Widget build(BuildContext context) => ItemImagesEditSection(
         images: images
             .where((image) => image.purpose == MusicAlbumImagePurpose.personal)
             .toList(growable: false),
         accent: accent,
-        onChanged: (personal) => onImagesChanged([
-          ...images.where(
-            (image) => image.purpose != MusicAlbumImagePurpose.personal,
-          ),
-          ...personal,
-        ]),
-      );
-}
-
-final class _MusicAlbumMyImagesEditor extends StatefulWidget {
-  const _MusicAlbumMyImagesEditor({
-    required this.albumId,
-    required this.images,
-    required this.accent,
-    required this.onChanged,
-  });
-
-  final String albumId;
-  final List<MusicAlbumImage> images;
-  final Color accent;
-  final ValueChanged<List<MusicAlbumImage>> onChanged;
-
-  @override
-  State<_MusicAlbumMyImagesEditor> createState() =>
-      _MusicAlbumMyImagesEditorState();
-}
-
-final class _MusicAlbumMyImagesEditorState
-    extends State<_MusicAlbumMyImagesEditor> {
-  late List<MusicAlbumImage> _images;
-
-  @override
-  void initState() {
-    super.initState();
-    _images = List.of(widget.images);
-  }
-
-  @override
-  void didUpdateWidget(covariant _MusicAlbumMyImagesEditor oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (!identical(oldWidget.images, widget.images)) {
-      _images = List.of(widget.images);
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) => Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          if (_images.isNotEmpty)
-            ReorderableListView.builder(
-              shrinkWrap: true,
-              primary: false,
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: _images.length,
-              onReorderItem: _reorder,
-              itemBuilder: (context, index) => _PersonalImageRow(
-                  key: ValueKey(_images[index].id),
-                  image: _images[index],
-                  index: index,
-                  onChanged: (image) => _replace(index, image),
-                  onDelete: () => _remove(index)),
-            ),
-          if (_images.isEmpty) ...[
-            const Text(
-              'Add your own images (max. 5). Add a description and an image type for each.',
-              style: TextStyle(fontSize: 13),
-            ),
-            const SizedBox(height: 10),
-          ],
-          Center(
-            child: SizedBox(
-              width: 190,
-              child: LibraryImageIntake(
-                  remaining: 5 - _images.length,
-                  height: _images.isEmpty ? 200 : 100,
-                  onImages: (bytes) => _commit([
-                        ..._images,
-                        for (final image in bytes.take(5 - _images.length))
-                          MusicAlbumImage(
-                              id: const Uuid().v4(),
-                              albumId: widget.albumId,
-                              purpose: MusicAlbumImagePurpose.personal,
-                              imageType: 'other',
-                              imageData: image,
-                              sortOrder: _images.length,
-                              createdAt: DateTime.now().toUtc()),
-                      ])),
-            ),
-          ),
-        ],
-      );
-
-  void _replace(int index, MusicAlbumImage image) {
-    final next = List<MusicAlbumImage>.of(_images)..[index] = image;
-    _commit(next);
-  }
-
-  void _remove(int index) {
-    final next = List<MusicAlbumImage>.of(_images)..removeAt(index);
-    _commit(next);
-  }
-
-  void _reorder(int oldIndex, int newIndex) {
-    final next = List<MusicAlbumImage>.of(_images);
-    final image = next.removeAt(oldIndex);
-    next.insert(newIndex, image);
-    _commit(next);
-  }
-
-  void _commit(List<MusicAlbumImage> next) {
-    setState(() => _images = [
-          for (var index = 0; index < next.length; index++)
-            next[index].copyWith(sortOrder: index),
-        ]);
-    widget.onChanged(_images);
-  }
-}
-
-final class _PersonalImageRow extends ConsumerStatefulWidget {
-  const _PersonalImageRow({
-    super.key,
-    required this.image,
-    required this.index,
-    required this.onChanged,
-    required this.onDelete,
-  });
-
-  final MusicAlbumImage image;
-  final int index;
-  final ValueChanged<MusicAlbumImage> onChanged;
-  final VoidCallback onDelete;
-
-  @override
-  ConsumerState<_PersonalImageRow> createState() => _PersonalImageRowState();
-}
-
-final class _PersonalImageRowState extends ConsumerState<_PersonalImageRow> {
-  late final TextEditingController _description;
-
-  @override
-  void initState() {
-    super.initState();
-    _description = TextEditingController(text: widget.image.description ?? '');
-  }
-
-  @override
-  void didUpdateWidget(covariant _PersonalImageRow oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (oldWidget.image.id != widget.image.id) {
-      _description.text = widget.image.description ?? '';
-    }
-  }
-
-  @override
-  void dispose() {
-    _description.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) => Padding(
-        key: ValueKey('release-image-row-${widget.image.id}'),
-        padding: const EdgeInsets.only(top: 12),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Padding(
-              padding: EdgeInsets.only(top: 22),
-              child: Icon(Icons.drag_indicator),
-            ),
-            const SizedBox(width: 8),
-            ClipRRect(
-              borderRadius: BorderRadius.circular(4),
-              child: Image.memory(
-                widget.image.imageData,
-                width: 104,
-                height: 104,
-                fit: BoxFit.cover,
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                children: [
-                  LibraryManagedVocabularyField(
-                    label: 'Image Type',
-                    listName: MusicVocabularyIds.imageType.value,
-                    mediaKind: 'music',
-                    value: widget.image.imageType,
-                    builtIns: MusicVocabularies.imageType.builtIns,
-                    optionLabel: MusicVocabularies.imageType.optionLabel,
-                    onChanged: (value) {
-                      if (value != null) {
-                        widget
-                            .onChanged(widget.image.copyWith(imageType: value));
-                      }
-                    },
-                  ),
-                  const SizedBox(height: 8),
-                  LibraryFormField(
-                      label: 'Description',
-                      child: LibraryTextFormControl(
-                        controller: _description,
-                        onChanged: (value) => widget.onChanged(
-                          widget.image.copyWith(
-                            description: _nullable(value),
-                          ),
-                        ),
-                      )),
-                ],
-              ),
-            ),
-            IconButton(
-              tooltip: 'Remove image',
-              onPressed: widget.onDelete,
-              icon: const Icon(Icons.delete_outline),
-            ),
-          ],
+        title: 'My Images',
+        emptyMessage:
+            'Add your own images (max. 5). Add a description and an image type for each.',
+        maximumImages: 5,
+        defaultImageType: 'other',
+        uniqueImageTypes: const {},
+        showCoverActions: false,
+        imageTypeFieldBuilder: (context,
+                {required value, required onChanged}) =>
+            LibraryManagedVocabularyField(
+          label: 'Image Type',
+          listName: MusicVocabularyIds.imageType.value,
+          mediaKind: 'music',
+          value: value,
+          builtIns: MusicVocabularies.imageType.builtIns,
+          optionLabel: MusicVocabularies.imageType.optionLabel,
+          onChanged: (selected) {
+            if (selected != null) onChanged(selected);
+          },
         ),
+        imageTypeLabelBuilder: MusicVocabularies.imageType.optionLabel,
+        onChanged: (edits) {
+          final originalById = {
+            for (final image in images)
+              if (image.purpose == MusicAlbumImagePurpose.personal)
+                image.id: image,
+          };
+          final personal = <MusicAlbumImage>[];
+          for (final edit in edits) {
+            if (edit.deleted) continue;
+            final original = originalById[edit.id];
+            final imageData = edit.imageData ?? original?.imageData;
+            if (imageData == null) {
+              throw StateError('A new Music image must include its bytes.');
+            }
+            personal.add(
+              MusicAlbumImage(
+                id: edit.id,
+                albumId: albumId,
+                purpose: MusicAlbumImagePurpose.personal,
+                imageType: edit.imageType,
+                imageData: imageData,
+                description: edit.caption,
+                sortOrder: edit.sortOrder,
+                createdAt: edit.createdAt ??
+                    original?.createdAt ??
+                    DateTime.now().toUtc(),
+              ),
+            );
+          }
+          onImagesChanged([
+            ...images.where(
+              (image) => image.purpose != MusicAlbumImagePurpose.personal,
+            ),
+            ...personal,
+          ]);
+        },
       );
-}
-
-String? _nullable(String value) {
-  final trimmed = value.trim();
-  return trimmed.isEmpty ? null : trimmed;
 }
