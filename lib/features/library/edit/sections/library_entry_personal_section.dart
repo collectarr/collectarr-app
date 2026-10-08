@@ -4,7 +4,6 @@ import 'dart:async';
 import 'package:collectarr_app/core/models/partial_date.dart';
 import 'package:collectarr_app/core/models/storage_location.dart';
 import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
-import 'package:collectarr_app/features/library/edit/contracts/library_vocabulary_edit_change.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_entry_edit_draft.dart';
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_personal_field_registry.dart';
@@ -155,15 +154,12 @@ class _LibraryEntryPersonalSectionState
 
   void _setVocabulary(String key, String listName, String? value) {
     _draft.set(key, value);
-    final normalized = value?.trim();
-    final changeKey = 'vocabulary:$listName';
-    if (normalized == null || normalized.isEmpty) {
-      _draft.pendingChanges.remove(changeKey);
-      return;
-    }
-    _draft.pendingChanges[changeKey] = LibraryVocabularyEditChange([
-      (listName: listName, value: normalized, mediaKind: _kind),
-    ]);
+    _draft.vocabularyEdits.replaceValue(
+      fieldId: 'personal:$key',
+      listName: listName,
+      value: value,
+      mediaKind: _kind,
+    );
   }
 
   void _setMultiVocabulary(
@@ -172,15 +168,12 @@ class _LibraryEntryPersonalSectionState
   ) {
     final listName = field.vocabularyListName!;
     _draft.set(field.key, joinPickListValues(values) ?? '');
-    _draft.pendingChanges['vocabulary:$listName'] =
-        LibraryVocabularyEditChange([
-      for (final value in values)
-        (
-          listName: listName,
-          value: value,
-          mediaKind: _kind,
-        ),
-    ]);
+    _draft.vocabularyEdits.replaceValues(
+      fieldId: 'personal:${field.key}',
+      listName: listName,
+      values: values,
+      mediaKind: _kind,
+    );
   }
 
   @override

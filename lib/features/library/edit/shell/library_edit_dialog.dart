@@ -1,5 +1,4 @@
 import 'package:collectarr_app/features/library/edit/sections/library_entry_personal_section.dart';
-import 'package:collectarr_app/features/library/edit/contracts/library_vocabulary_edit_change.dart';
 import 'package:collectarr_app/features/library/edit/contracts/library_external_links_edit_session.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_entry_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_contributors.dart';
@@ -293,14 +292,10 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
       final prepared = selection.copyWith(
         localChanges: [
           ...selection.localChanges,
-          LibraryVocabularyEditChange([
-            for (final pending in _draft.pendingVocabularyValues.values)
-              (
-                listName: pending.listName,
-                value: pending.value,
-                mediaKind: pending.mediaKind ?? widget.type.kind.apiValue,
-              ),
-          ]),
+          if (!_draft.pendingVocabularyValues.isEmpty)
+            _draft.pendingVocabularyValues.toEditChange(
+              defaultMediaKind: widget.type.kind.apiValue,
+            ),
         ],
       );
       await commitLibraryEdit(context, prepared);

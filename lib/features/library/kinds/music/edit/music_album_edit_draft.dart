@@ -6,6 +6,7 @@ import 'package:collectarr_app/features/library/kinds/music/forms/music_catalog_
 import 'package:collectarr_app/features/library/kinds/music/forms/music_album_form_values.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit/music_track_list_editor.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit/music_disc_list_editor.dart';
+import 'package:collectarr_app/features/library/edit/session/library_vocabulary_edit_accumulator.dart';
 
 final class MusicAlbumEditDraft {
   MusicAlbumEditDraft.fromAlbum(
@@ -24,8 +25,8 @@ final class MusicAlbumEditDraft {
   MusicTrackListEditor get trackList => discList.trackList;
   String? get formatSummary => discList.formatSummary;
   List<MusicExternalLink> externalLinks;
-  final Map<String, List<({String listName, String value, String? mediaKind})>>
-      pendingDetailVocabularyValues = {};
+  LibraryVocabularyEditAccumulator vocabularyEdits =
+      LibraryVocabularyEditAccumulator();
 
   MusicAlbum toAlbum() {
     return MusicAlbumFormAdapter.update(

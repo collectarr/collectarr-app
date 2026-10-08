@@ -1,4 +1,3 @@
-import 'package:collectarr_app/features/library/edit/contracts/library_vocabulary_edit_change.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_entry_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_disc.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit/music_album_edit_draft.dart';
@@ -40,12 +39,12 @@ class _MusicAlbumDetailsPaneState extends State<MusicAlbumDetailsPane> {
   }
 
   void _rememberValues(String fieldId, String? listName, Set<String> values) {
-    draft.pendingDetailVocabularyValues[fieldId] = [
-      if (listName != null)
-        for (final value in values)
-          if (value.trim().isNotEmpty)
-            (listName: listName, value: value.trim(), mediaKind: 'music'),
-    ];
+    draft.vocabularyEdits.replaceValues(
+      fieldId: fieldId,
+      listName: listName,
+      values: values,
+      mediaKind: 'music',
+    );
   }
 
   Widget _condition(
@@ -65,11 +64,12 @@ class _MusicAlbumDetailsPaneState extends State<MusicAlbumDetailsPane> {
         onChanged: (value) {
           if (entry == null) return;
           entry.set(key, value);
-          entry.pendingChanges['vocabulary:$listName'] =
-              LibraryVocabularyEditChange([
-            if (value?.trim().isNotEmpty == true)
-              (listName: listName, value: value!.trim(), mediaKind: 'music'),
-          ]);
+          entry.vocabularyEdits.replaceValue(
+            fieldId: 'personal:music:$key',
+            listName: listName,
+            value: value,
+            mediaKind: 'music',
+          );
         },
       );
 

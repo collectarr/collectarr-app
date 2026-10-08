@@ -15,6 +15,7 @@ import 'package:collectarr_app/features/library/edit/sections/item_images_edit_s
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_edit_shell_state_factory.dart';
 import 'package:collectarr_app/features/library/edit/session/library_edit_session_controller.dart';
+import 'package:collectarr_app/features/library/edit/session/library_vocabulary_edit_accumulator.dart';
 import 'package:collectarr_app/features/library/domain/library_target_ref.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_registration.dart';
@@ -97,8 +98,7 @@ class LibraryEditShellState {
   List<String> purchaseStoreOptions = const [];
   List<String> tagOptions = const [];
   Map<String, List<String>> kindVocabularies = const {};
-  final Map<String, ({String listName, String value, String? mediaKind})>
-      pendingVocabularyValues = {};
+  final pendingVocabularyValues = LibraryVocabularyEditAccumulator();
   bool _isDirty = false;
 
   bool get isDirty => _isDirty;
@@ -113,9 +113,7 @@ class LibraryEditShellState {
     required bool allowCustomValues,
     String? mediaKind,
   }) {
-    pendingVocabularyValues.removeWhere(
-      (key, _) => key == fieldId || key.startsWith('$fieldId::'),
-    );
+    pendingVocabularyValues.removeField(fieldId);
     final normalized = value?.trim();
     final isKnownValue = normalized != null &&
         options.any(
@@ -126,10 +124,10 @@ class LibraryEditShellState {
         normalized == null ||
         normalized.isEmpty ||
         isKnownValue) {
-      pendingVocabularyValues.remove(fieldId);
       return;
     }
-    pendingVocabularyValues[fieldId] = (
+    pendingVocabularyValues.replaceValue(
+      fieldId: fieldId,
       listName: listName,
       value: normalized,
       mediaKind: mediaKind,
@@ -144,26 +142,26 @@ class LibraryEditShellState {
     required bool allowCustomValues,
     String? mediaKind,
   }) {
-    final prefix = '$fieldId::';
-    pendingVocabularyValues.removeWhere(
-      (key, _) => key == fieldId || key.startsWith(prefix),
-    );
+    pendingVocabularyValues.removeField(fieldId);
     if (!allowCustomValues || listName == null) return;
 
     final knownValues =
         options.map((value) => value.trim().toLowerCase()).toSet();
+    final pendingValues = <String>[];
     for (final value in values) {
       final normalized = value.trim();
       if (normalized.isEmpty ||
           knownValues.contains(normalized.toLowerCase())) {
         continue;
       }
-      pendingVocabularyValues['$prefix${normalized.toLowerCase()}'] = (
-        listName: listName,
-        value: normalized,
-        mediaKind: mediaKind,
-      );
+      pendingValues.add(normalized);
     }
+    pendingVocabularyValues.replaceValues(
+      fieldId: fieldId,
+      listName: listName,
+      values: pendingValues,
+      mediaKind: mediaKind,
+    );
   }
 
   void markClean() => _isDirty = false;

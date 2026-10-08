@@ -19,7 +19,6 @@ import 'package:collectarr_app/features/library/kinds/music/forms/music_grade_fi
 import 'package:collectarr_app/features/library/kinds/music/vocabulary/music_vocabularies.dart';
 import 'package:collectarr_app/features/library/edit/schema/edit_schema_renderer.dart';
 import 'package:collectarr_app/features/library/edit/sections/custom_fields_edit_section.dart';
-import 'package:collectarr_app/features/library/edit/contracts/library_vocabulary_edit_change.dart';
 import 'package:collectarr_app/features/pick_lists/pick_list_options.dart';
 import 'package:collectarr_app/features/library/edit/sections/library_entry_personal_section.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit/music_signed_by_personal_field.dart';
@@ -55,8 +54,6 @@ final class _MusicAlbumEditDialogState
   late final MusicAlbumCreditsEditor _creditsEditor;
   late final Future<void> _imagesLoaded;
   late Map<String, String?> _customFieldEdits;
-  final Map<String, ({String listName, String value, String? mediaKind})>
-      _pendingCustomFieldVocabularyValues = {};
   List<MusicAlbumImage> _albumImages = const [];
   Set<String> _originalImageIds = {};
   MusicListeningEditDraft? _listening;
@@ -107,6 +104,8 @@ final class _MusicAlbumEditDialogState
   @override
   Widget build(BuildContext context) {
     final personal = LibraryEntryEditScope.maybeOf(context);
+    final vocabularyEdits = personal?.vocabularyEdits ?? _draft.vocabularyEdits;
+    _draft.vocabularyEdits = vocabularyEdits;
     return LibraryEditSchemaDialog<MusicAlbum, MusicAlbumEditDraft>(
       schema: musicAlbumEditSchema,
       model: _album,
@@ -117,6 +116,7 @@ final class _MusicAlbumEditDialogState
       ),
       icon: widget.request.type.identity.icon,
       mediaKind: widget.request.type.kind.apiValue,
+      vocabularyAccumulator: vocabularyEdits,
       accent: widget.request.accent,
       tabOrderKey: 'library_edit_tabs_music_album_v2',
       coreCorrectionSourceBuilder: () =>
@@ -191,17 +191,13 @@ final class _MusicAlbumEditDialogState
               _customFieldEdits = Map.of(values);
             }),
             onCustomValueChanged: (fieldDefinitionId, value) {
-              final normalized = value?.trim();
-              if (normalized == null || normalized.isEmpty) {
-                _pendingCustomFieldVocabularyValues.remove(fieldDefinitionId);
-                return;
-              }
               final definition = widget.request.customFieldDefinitions
                   .where((item) => item.id == fieldDefinitionId)
                   .firstOrNull;
-              _pendingCustomFieldVocabularyValues[fieldDefinitionId] = (
+              _draft.vocabularyEdits.replaceValue(
+                fieldId: 'custom:$fieldDefinitionId',
                 listName: 'customField:$fieldDefinitionId',
-                value: normalized,
+                value: value,
                 mediaKind:
                     definition?.mediaKind ?? widget.request.type.kind.apiValue,
               );
@@ -289,11 +285,10 @@ final class _MusicAlbumEditDialogState
                 : const [],
             localChanges: [
               if (_listening != null && personal != null) _listening!,
-              LibraryVocabularyEditChange(_draft
-                  .pendingDetailVocabularyValues.values
-                  .expand((values) => values)),
-              LibraryVocabularyEditChange(
-                  _pendingCustomFieldVocabularyValues.values),
+              if (personal == null && !vocabularyEdits.isEmpty)
+                vocabularyEdits.toEditChange(
+                  defaultMediaKind: widget.request.type.kind.apiValue,
+                ),
             ],
           ),
         );
@@ -316,37 +311,24 @@ final class _MusicAlbumEditDialogState
           onChanged: (value) {
             personal.set('grade', value ?? '');
             final normalized = value?.trim();
-            final vocabularyChangeKey =
-                'vocabulary:${MusicVocabularies.grade.key}';
-            if (normalized == null ||
-                normalized.isEmpty ||
-                normalized == 'Ungraded') {
-              personal.pendingChanges.remove(vocabularyChangeKey);
-            } else {
-              personal.pendingChanges[vocabularyChangeKey] =
-                  LibraryVocabularyEditChange([
-                (
-                  listName: MusicVocabularies.grade.key,
-                  value: normalized,
-                  mediaKind: 'music',
-                ),
-              ]);
-            }
+            personal.vocabularyEdits.replaceValue(
+              fieldId: 'personal:music:grade',
+              listName: MusicVocabularies.grade.key,
+              value: normalized == 'Ungraded' ? null : normalized,
+              mediaKind: 'music',
+            );
           },
         ),
         'signed_by': MusicSignedByPersonalField(
           value: personal.text('signed_by'),
           onChanged: (value) {
             personal.set('signed_by', value ?? '');
-            personal.pendingChanges['vocabulary:music.signed_by'] =
-                LibraryVocabularyEditChange([
-              for (final signer in splitPickListValues(value ?? ''))
-                (
-                  listName: 'music.signed_by',
-                  value: signer,
-                  mediaKind: 'music',
-                ),
-            ]);
+            personal.vocabularyEdits.replaceValues(
+              fieldId: 'personal:music:signed_by',
+              listName: 'music.signed_by',
+              values: splitPickListValues(value ?? ''),
+              mediaKind: 'music',
+            );
           },
         ),
       },

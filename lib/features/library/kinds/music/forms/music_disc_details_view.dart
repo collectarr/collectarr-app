@@ -1,4 +1,3 @@
-import 'package:collectarr_app/features/library/edit/contracts/library_vocabulary_edit_change.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_entry_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_disc.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_disc_format_family.dart';
@@ -78,11 +77,12 @@ class _MusicDiscDetailsViewState extends State<MusicDiscDetailsView> {
       entry.set('media', next);
       if (key == 'storage_device') {
         final listName = MusicVocabularies.storageDevice.key;
-        entry.pendingChanges['vocabulary:$listName'] =
-            LibraryVocabularyEditChange([
-          if (normalized?.isNotEmpty == true)
-            (listName: listName, value: normalized!, mediaKind: 'music'),
-        ]);
+        entry.vocabularyEdits.replaceValue(
+          fieldId: 'disc:${disc.id.value}:$key',
+          listName: listName,
+          value: normalized,
+          mediaKind: 'music',
+        );
       }
       _notify();
     }

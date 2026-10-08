@@ -39,7 +39,7 @@ registration and files under `features/library/kinds/<kind>/`.
 
 - [ ] Make common edit tabs declarative: personal data, custom fields, images,
   and links are composed by the shared edit dialog from kind contributions.
-- [ ] Collect vocabulary edits in a shared edit-session accumulator; kinds
+- [x] Collect vocabulary edits in a shared edit-session accumulator; kinds
   declare vocabularies and field specs emit changes.
 - [ ] Share image persistence and editor lifecycle where semantics match;
   kinds declare purposes, labels, aspect ratios, and other real differences.
@@ -81,4 +81,10 @@ delegates kind-specific DTO decoding through metadata capability. The PDF
 report now reads item and child-row fields, labels, defaults, and value
 formatting from the kind export capability; shared code owns print layout and
 file handling. The audit still needs to cover the remaining action, search,
-folder, image, and vocabulary paths. Remaining P0 work is tracked above.
+folder, image, and vocabulary paths. A shared
+`LibraryVocabularyEditAccumulator` collects schema-renderer and shell field
+updates. Music binds its schema fields, custom fields, details form, and
+library-entry personal fields to one accumulator for the edit session. The
+shared commit boundary turns the collected values into one local vocabulary
+change, while catalog-only Music edits retain the collector in the kind draft.
+Remaining P0 work is tracked above.

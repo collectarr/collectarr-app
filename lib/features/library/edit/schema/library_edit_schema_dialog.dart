@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:collectarr_app/features/library/edit/schema/edit_schema.dart';
 import 'package:collectarr_app/features/library/edit/schema/edit_schema_renderer.dart';
+import 'package:collectarr_app/features/library/edit/session/library_vocabulary_edit_accumulator.dart';
 import 'package:collectarr_app/features/library/edit/shell/library_edit_scaffold.dart';
 import 'package:collectarr_app/features/library/edit/core_correction/library_core_correction.dart';
 import 'package:flutter/material.dart';
@@ -31,6 +32,7 @@ final class LibraryEditSchemaDialog<TModel, TDraft> extends StatefulWidget {
     this.onNext,
     this.chromeVariant = LibraryEditChromeVariant.standard,
     this.mediaKind,
+    this.vocabularyAccumulator,
     required this.tabOrderKey,
     this.extraTabs = const [],
   });
@@ -49,6 +51,7 @@ final class LibraryEditSchemaDialog<TModel, TDraft> extends StatefulWidget {
   final VoidCallback? onNext;
   final LibraryEditChromeVariant chromeVariant;
   final String? mediaKind;
+  final LibraryVocabularyEditAccumulator? vocabularyAccumulator;
   final String tabOrderKey;
   final List<EditSchemaExtraTab> extraTabs;
 
@@ -121,6 +124,7 @@ class _LibraryEditSchemaDialogState<TModel, TDraft>
         tabOrderKey: widget.tabOrderKey,
         extraTabs: extraTabs,
         mediaKind: widget.mediaKind,
+        vocabularyAccumulator: widget.vocabularyAccumulator,
         onCancel: _saving ? null : widget.onCancel,
         onSave: widget.onSave,
       ),

@@ -1,11 +1,11 @@
 import 'package:collectarr_app/features/library/edit/draft/library_entry_edit_draft.dart';
-import 'package:collectarr_app/features/library/edit/contracts/library_vocabulary_edit_change.dart';
 import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:flutter/foundation.dart' show listEquals;
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_tab_strip.dart';
+import 'package:collectarr_app/features/library/edit/session/library_vocabulary_edit_accumulator.dart';
 import 'package:collectarr_app/features/library/schema/library_form_schema_validation.dart';
 import 'package:collectarr_app/features/library/schema/library_field_spec_renderer.dart';
 import 'package:collectarr_app/features/library/schema/library_schema_text_controller_store.dart';
@@ -26,7 +26,8 @@ final class EditSchemaExtraTab {
     this.icon,
     this.svgAsset,
     this.validate,
-  }) : assert(icon != null || svgAsset != null, 'Either icon or svgAsset must be provided.');
+  }) : assert(icon != null || svgAsset != null,
+            'Either icon or svgAsset must be provided.');
 
   final String id;
   final String label;
@@ -57,6 +58,7 @@ class EditSchemaRenderer<TModel, TDraft> extends StatefulWidget {
     String? tabOrderKey,
     List<EditSchemaExtraTab> extraTabs = const [],
     String? mediaKind,
+    LibraryVocabularyEditAccumulator? vocabularyAccumulator,
   }) =>
       EditSchemaRenderer<TModel, TDraft>._(
         key: key,
@@ -76,6 +78,7 @@ class EditSchemaRenderer<TModel, TDraft> extends StatefulWidget {
         tabOrderKey: tabOrderKey,
         extraTabs: extraTabs,
         mediaKind: mediaKind,
+        vocabularyAccumulator: vocabularyAccumulator,
       );
 
   const EditSchemaRenderer.embedded({
@@ -92,6 +95,7 @@ class EditSchemaRenderer<TModel, TDraft> extends StatefulWidget {
     this.tabOrderKey,
     this.extraTabs = const [],
     this.mediaKind,
+    this.vocabularyAccumulator,
   })  : onSave = null,
         onCancel = null,
         showFooter = false,
@@ -115,6 +119,7 @@ class EditSchemaRenderer<TModel, TDraft> extends StatefulWidget {
     required this.tabOrderKey,
     required this.extraTabs,
     required this.mediaKind,
+    required this.vocabularyAccumulator,
   });
 
   final EditSchema<TModel, TDraft> schema;
@@ -133,6 +138,7 @@ class EditSchemaRenderer<TModel, TDraft> extends StatefulWidget {
   final String? tabOrderKey;
   final List<EditSchemaExtraTab> extraTabs;
   final String? mediaKind;
+  final LibraryVocabularyEditAccumulator? vocabularyAccumulator;
 
   @override
   State<EditSchemaRenderer<TModel, TDraft>> createState() =>
@@ -146,11 +152,13 @@ class EditSchemaRendererState<TModel, TDraft>
   late List<int> _tabOrder;
   late int _selectedTabIndex;
   String? _selectedTabId;
-  final Map<String, Map<String, ({String listName, String value})>>
-      _pendingVocabularyValues = {};
+  final _localVocabularyAccumulator = LibraryVocabularyEditAccumulator();
   bool _isSaving = false;
   String? _saveError;
   String? _validationError;
+
+  LibraryVocabularyEditAccumulator get _vocabularyAccumulator =>
+      widget.vocabularyAccumulator ?? _localVocabularyAccumulator;
 
   @override
   void initState() {
@@ -543,19 +551,12 @@ class EditSchemaRendererState<TModel, TDraft>
     required String? listName,
     required String? value,
   }) {
-    final normalizedValue = value?.trim();
-    if (listName == null ||
-        normalizedValue == null ||
-        normalizedValue.isEmpty) {
-      _pendingVocabularyValues.remove(fieldId);
-      return;
-    }
-    _pendingVocabularyValues[fieldId] = {
-      normalizedValue.toLowerCase(): (
-        listName: listName,
-        value: normalizedValue,
-      ),
-    };
+    _vocabularyAccumulator.replaceValue(
+      fieldId: fieldId,
+      listName: listName,
+      value: value,
+      mediaKind: widget.mediaKind,
+    );
   }
 
   void _rememberVocabularyValues({
@@ -563,29 +564,17 @@ class EditSchemaRendererState<TModel, TDraft>
     required String? listName,
     required Set<String> values,
   }) {
-    if (listName == null || values.isEmpty) {
-      _pendingVocabularyValues.remove(fieldId);
-      return;
-    }
-    final pending = <String, ({String listName, String value})>{};
-    for (final value in values) {
-      final normalizedValue = value.trim();
-      if (normalizedValue.isEmpty) continue;
-      pending[normalizedValue.toLowerCase()] = (
-        listName: listName,
-        value: normalizedValue,
-      );
-    }
-    if (pending.isEmpty) {
-      _pendingVocabularyValues.remove(fieldId);
-    } else {
-      _pendingVocabularyValues[fieldId] = pending;
-    }
+    _vocabularyAccumulator.replaceValues(
+      fieldId: fieldId,
+      listName: listName,
+      values: values,
+      mediaKind: widget.mediaKind,
+    );
   }
 
   PickListRepository? _pendingVocabularyRepository() {
     final mediaKind = widget.mediaKind;
-    if (mediaKind == null || _pendingVocabularyValues.isEmpty) return null;
+    if (mediaKind == null || _vocabularyAccumulator.isEmpty) return null;
     final db = ProviderScope.containerOf(context, listen: false)
         .read(localDatabaseProvider);
     return PickListRepository(db);
@@ -596,16 +585,14 @@ class EditSchemaRendererState<TModel, TDraft>
   ) async {
     final mediaKind = widget.mediaKind;
     if (repository == null || mediaKind == null) return;
-    for (final fieldValues in _pendingVocabularyValues.values) {
-      for (final pending in fieldValues.values) {
-        await repository.addValue(
-          pending.listName,
-          pending.value,
-          mediaKind: mediaKind,
-        );
-      }
+    for (final pending in _vocabularyAccumulator.values) {
+      await repository.addValue(
+        pending.listName,
+        pending.value,
+        mediaKind: pending.mediaKind ?? mediaKind,
+      );
     }
-    _pendingVocabularyValues.clear();
+    _vocabularyAccumulator.clear();
   }
 
   Widget _buildFeedback(BuildContext context) {
@@ -711,22 +698,20 @@ class EditSchemaRendererState<TModel, TDraft>
       _saveError = null;
     });
     try {
-      final repository = _pendingVocabularyRepository();
+      final usesExternalAccumulator = widget.vocabularyAccumulator != null;
+      final repository =
+          usesExternalAccumulator ? null : _pendingVocabularyRepository();
       final entry = LibraryEntryEditScope.maybeOf(context);
       if (entry != null) {
-        entry.pendingChanges[this] = LibraryVocabularyEditChange([
-          for (final fields in _pendingVocabularyValues.values)
-            for (final pending in fields.values)
-              (
-                listName: pending.listName,
-                value: pending.value,
-                mediaKind: widget.mediaKind
-              ),
-        ]);
+        if (!usesExternalAccumulator && !_vocabularyAccumulator.isEmpty) {
+          entry.vocabularyEdits.mergeFrom(_vocabularyAccumulator);
+        }
         await onSave(widget.draft);
       } else {
         await onSave(widget.draft);
-        await _savePendingVocabularyValues(repository);
+        if (!usesExternalAccumulator) {
+          await _savePendingVocabularyValues(repository);
+        }
       }
     } catch (error) {
       if (!mounted) return;
