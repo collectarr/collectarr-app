@@ -195,6 +195,43 @@
       "title": "CatalogMusicDiscResponse",
       "type": "object"
     },
+    "CatalogMusicExternalLinkResponse": {
+      "additionalProperties": false,
+      "properties": {
+        "description": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Description"
+        },
+        "title": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Title"
+        },
+        "url": {
+          "minLength": 1,
+          "title": "Url",
+          "type": "string"
+        }
+      },
+      "required": [
+        "url"
+      ],
+      "title": "CatalogMusicExternalLinkResponse",
+      "type": "object"
+    },
     "CatalogMusicItemResponse": {
       "additionalProperties": false,
       "properties": {
@@ -326,8 +363,7 @@
         },
         "external_links": {
           "items": {
-            "additionalProperties": true,
-            "type": "object"
+            "$ref": "#/$defs/CatalogMusicExternalLinkResponse"
           },
           "title": "External Links",
           "type": "array"
@@ -752,8 +788,8 @@
   "$id": "https://schemas.collectarr.app/music-catalog/v1",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "contractVersion": "1.0.0",
-  "coreCommit": "cf67a8c00a78ea2ebe75450563b9f2ae6a27b235",
-  "generatedAt": "2026-10-08T20:00:05.929297Z",
+  "coreCommit": "ecc13cfec0c6f7c0897c7d721d5cc12bac89b224",
+  "generatedAt": "2026-10-08T20:04:47.731490Z",
   "roots": {
     "disc": {
       "$ref": "#/$defs/CatalogMusicDiscResponse"

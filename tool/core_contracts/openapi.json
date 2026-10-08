@@ -8243,6 +8243,43 @@
         "title": "CatalogMusicDiscResponse",
         "type": "object"
       },
+      "CatalogMusicExternalLinkResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          },
+          "title": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Title"
+          },
+          "url": {
+            "minLength": 1,
+            "title": "Url",
+            "type": "string"
+          }
+        },
+        "required": [
+          "url"
+        ],
+        "title": "CatalogMusicExternalLinkResponse",
+        "type": "object"
+      },
       "CatalogMusicItemResponse": {
         "additionalProperties": false,
         "properties": {
@@ -8374,8 +8411,7 @@
           },
           "external_links": {
             "items": {
-              "additionalProperties": true,
-              "type": "object"
+              "$ref": "#/components/schemas/CatalogMusicExternalLinkResponse"
             },
             "title": "External Links",
             "type": "array"

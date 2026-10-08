@@ -2,13 +2,13 @@
   "$id": "https://schemas.collectarr.app/catalog-item/v1",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "contractVersion": "1.0.0",
-  "coreCommit": "cf67a8c00a78ea2ebe75450563b9f2ae6a27b235",
+  "coreCommit": "ecc13cfec0c6f7c0897c7d721d5cc12bac89b224",
   "description": "Source-neutral Catalog Item documents. Fields are validated and projected using the schema owned by the declared kind.",
   "fieldStatus": {
     "music": "grounded_in_saved_clz_music_edit_form",
     "other_kinds": "provisional_clz_parity_unverified_without_edit_form_captures"
   },
-  "generatedAt": "2026-10-08T20:00:05.929297Z",
+  "generatedAt": "2026-10-08T20:04:47.731490Z",
   "kinds": {
     "anime": {
       "additionalProperties": false,
@@ -7687,76 +7687,7 @@
                   "description": {
                     "anyOf": [
                       {
-                        "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "id": {
-                    "anyOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "kind": {
-                    "anyOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "label": {
-                    "anyOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "link_type": {
-                    "anyOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "name": {
-                    "anyOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "position": {
-                    "anyOf": [
-                      {
-                        "type": "integer"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "site": {
-                    "anyOf": [
-                      {
+                        "minLength": 1,
                         "type": "string"
                       },
                       {
@@ -7767,6 +7698,7 @@
                   "title": {
                     "anyOf": [
                       {
+                        "minLength": 1,
                         "type": "string"
                       },
                       {
@@ -7775,16 +7707,13 @@
                     ]
                   },
                   "url": {
-                    "anyOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
+                    "minLength": 1,
+                    "type": "string"
                   }
                 },
+                "required": [
+                  "url"
+                ],
                 "type": "object"
               },
               "type": "array"
