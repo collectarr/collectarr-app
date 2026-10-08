@@ -4,7 +4,8 @@ import 'package:collectarr_app/features/library/kinds/manga/config/manga_field_i
 abstract final class MangaFieldIds {
   static const status = LibraryFieldId<MangaKind, String?>('manga.status');
   static const cover = LibraryFieldId<MangaKind, String?>('manga.cover');
-  static const series = LibraryFieldId<MangaKind, String?>('manga.series');
+  static const series =
+      LibraryFieldId<MangaKind, String?>(MangaFieldIdentities.seriesId);
   static const title = LibraryFieldId<MangaKind, String>('manga.title');
   static const volumeNumber =
       LibraryFieldId<MangaKind, String?>('manga.volume_number');
@@ -79,7 +80,7 @@ abstract final class MangaFieldIds {
 }
 
 abstract final class MangaSortIds {
-  static const series = LibrarySortId<MangaKind>('manga.series');
+  static const series = LibrarySortId<MangaKind>(MangaFieldIdentities.seriesId);
   static const volumeNumber = LibrarySortId<MangaKind>('manga.volume_number');
   static const publisher =
       LibrarySortId<MangaKind>(MangaFieldIdentities.publisherId);
@@ -98,7 +99,8 @@ abstract final class MangaSortIds {
 }
 
 abstract final class MangaGroupIds {
-  static const series = LibraryGroupId<MangaKind, String?>('manga.series');
+  static const series =
+      LibraryGroupId<MangaKind, String?>(MangaFieldIdentities.seriesId);
   static const publisher =
       LibraryGroupId<MangaKind, String?>(MangaFieldIdentities.publisherId);
   static const location = LibraryGroupId<MangaKind, String?>(

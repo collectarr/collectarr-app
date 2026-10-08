@@ -4,6 +4,7 @@ import 'package:collectarr_app/features/library/kinds/music/domain/music_album.d
 import 'package:collectarr_app/features/library/kinds/music/presentation_builder.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_card_presentation.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_dto.dart';
+import 'package:collectarr_app/features/library/kinds/music/config/music_field_identities.dart';
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/features/library/config/workspace_presentation_support.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
@@ -56,8 +57,8 @@ const musicLibraryBucketLabelOverrides = LibraryPresentationLabels();
 
 final musicLibraryFilterDefinitions = <LibraryFilterDefinition<Object?>>[
   LibraryFilterDefinition<Object?>(
-    id: 'series',
-    label: 'Artist',
+    id: MusicFieldIdentities.artistId,
+    label: MusicFieldIdentities.artistLabel,
     anyLabel: 'Any artist',
     value: (item) => (item.dto is MusicWorkspaceProjection)
         ? (item.dto as MusicWorkspaceProjection).artist
@@ -78,8 +79,8 @@ final musicLibraryFilterDefinitions = <LibraryFilterDefinition<Object?>>[
     )?.personal.tags?.split(','),
   ),
   LibraryFilterDefinition<Object?>(
-    id: 'publisher',
-    label: 'Label',
+    id: MusicFieldIdentities.publisherId,
+    label: MusicFieldIdentities.publisherLabel,
     anyLabel: 'Any label',
     value: (item) => (item.dto is MusicWorkspaceProjection)
         ? (item.dto as MusicWorkspaceProjection).publisher
@@ -102,32 +103,32 @@ final musicLibraryFilterDefinitions = <LibraryFilterDefinition<Object?>>[
     )?.personal.condition,
   ),
   LibraryFilterDefinition<Object?>(
-    id: 'country',
-    label: 'Country',
+    id: MusicFieldIdentities.countryId,
+    label: MusicFieldIdentities.countryLabel,
     anyLabel: 'Any country',
     value: (item) => (item.dto is MusicWorkspaceProjection)
         ? (item.dto as MusicWorkspaceProjection).country
         : null,
   ),
   LibraryFilterDefinition<Object?>(
-    id: 'format',
-    label: 'Format',
+    id: MusicFieldIdentities.formatId,
+    label: MusicFieldIdentities.formatLabel,
     anyLabel: 'Any format',
     value: (item) => (item.dto is MusicWorkspaceProjection)
         ? (item.dto as MusicWorkspaceProjection).format
         : null,
   ),
   LibraryFilterDefinition<Object?>(
-    id: 'packaging',
-    label: 'Packaging',
+    id: MusicFieldIdentities.packagingId,
+    label: MusicFieldIdentities.packagingLabel,
     anyLabel: 'Any packaging',
     value: (item) => _musicAlbumsFor(item)
         .map((release) => release.packaging)
         .whereType<String>(),
   ),
   LibraryFilterDefinition<Object?>(
-    id: 'genre',
-    label: 'Genre',
+    id: MusicFieldIdentities.genreId,
+    label: MusicFieldIdentities.genreLabel,
     anyLabel: 'Any genre',
     value: (item) => (item.dto is MusicWorkspaceProjection)
         ? (item.dto as MusicWorkspaceProjection).genres

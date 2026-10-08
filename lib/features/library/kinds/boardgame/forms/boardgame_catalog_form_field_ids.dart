@@ -8,7 +8,7 @@ const boardGameMainFieldIds = {
   'subtitle',
   BoardGameFieldIdentities.publisherId,
   'platforms',
-  'series_title',
+  BoardGameFieldIdentities.seriesId,
   'year_published',
   'categories',
   'designers',

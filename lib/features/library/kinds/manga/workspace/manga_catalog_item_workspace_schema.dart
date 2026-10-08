@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/library/kinds/manga/workspace/manga_ids.dart';
+import 'package:collectarr_app/features/library/kinds/manga/config/manga_field_identities.dart';
 import 'package:collectarr_app/features/library/kinds/manga/workspace/manga_workspace_dto.dart';
 import 'package:collectarr_app/features/library/kinds/manga/workspace/manga_catalog_item_workspace_fields.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
@@ -15,7 +16,7 @@ abstract final class MangaCatalogItemWorkspaceFields {
 
   static final series = textField<MangaKind, MangaWorkspaceDto>(
     id: MangaFieldIds.series,
-    label: 'Series',
+    label: MangaFieldIdentities.seriesLabel,
     getValue: (dto) => dto.seriesTitle,
   );
 

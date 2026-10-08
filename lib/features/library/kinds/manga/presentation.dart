@@ -65,8 +65,8 @@ const mangaLibraryBucketLabelOverrides = LibraryPresentationLabels(
 
 final mangaLibraryFilterDefinitions = <LibraryFilterDefinition<Object?>>[
   LibraryFilterDefinition<Object?>(
-    id: 'series',
-    label: 'Series',
+    id: MangaFieldIdentities.seriesId,
+    label: MangaFieldIdentities.seriesLabel,
     anyLabel: 'Any series',
     value: (item) => (item.dto is MangaWorkspaceDto)
         ? (item.dto as MangaWorkspaceDto).seriesTitle

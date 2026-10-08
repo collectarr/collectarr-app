@@ -5,6 +5,7 @@ import 'package:collectarr_app/features/library/generic/quick_view.dart';
 import 'package:collectarr_app/features/library/kinds/comic/presentation_builder.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_card_presentation.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_dto.dart';
+import 'package:collectarr_app/features/library/kinds/comic/config/comic_field_identities.dart';
 import 'package:collectarr_app/features/library/config/workspace_presentation_support.dart';
 
 const comicsMetadataLabels = LibraryMetadataLabels(
@@ -66,8 +67,8 @@ const comicLibraryBucketLabelOverrides = LibraryPresentationLabels();
 
 final comicLibraryFilterDefinitions = <LibraryFilterDefinition<Object?>>[
   LibraryFilterDefinition<Object?>(
-    id: 'series',
-    label: 'Series',
+    id: ComicFieldIdentities.seriesId,
+    label: ComicFieldIdentities.seriesLabel,
     anyLabel: 'Any series',
     value: (item) => (item.dto is ComicWorkspaceDto)
         ? (item.dto as ComicWorkspaceDto).seriesTitle

@@ -249,8 +249,8 @@ List<LibraryFieldSpec<TDraft>> boardGameCatalogItemFields<TDraft>({
         minimum: 1,
       ),
       LibraryTextFieldSpec<TDraft>(
-        id: 'series_title',
-        label: 'Series',
+        id: BoardGameFieldIdentities.seriesId,
+        label: BoardGameFieldIdentities.seriesLabel,
         value: (draft) => values(draft).seriesTitle,
         setValue: (draft, value) => values(draft).seriesTitle = value,
       ),

@@ -2,6 +2,8 @@
 abstract final class BoardGameFieldIdentities {
   static const publisherId = 'boardgame.publisher';
   static const publisherLabel = 'Publisher';
+  static const seriesId = 'boardgame.series';
+  static const seriesLabel = 'Series';
   static const releaseDateId = 'boardgame.release_date';
   static const releaseDateLabel = 'Release Date';
   static const barcodeId = 'boardgame.barcode';

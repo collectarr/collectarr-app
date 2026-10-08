@@ -132,10 +132,17 @@ Comic now shares series, issue number, variant, imprint, and page count IDs
 and labels between its edit forms and workspace metadata. The workspace's
 release date and barcode remain separate because they are projections across
 the comic's dates and identifiers rather than the exact editable fields.
-Manga shares its publisher identity and label across Add/Edit forms, workspace
-fields, filter, facet, sort, and group configuration. Manga workspace release
-date and barcode stay separate because they use date and identifier fallbacks;
-series, volume number, and edition format also represent different values.
+Book filters now use the canonical series and publisher identities. Comic
+filters use the canonical series identity; its publisher filter stays separate
+because the workspace value falls back to imprint. Board Game Series now shares
+an ID and label between its form and filter, and its publisher filter uses the
+publisher identity and label. Manga shares publisher across Add/Edit forms,
+workspace fields, filter, facet, sort, and group configuration, and shares
+Series across its selector, workspace field, and filter. Manga workspace
+release date and barcode stay separate because they use date and identifier
+fallbacks; volume number and edition format also represent different values.
+Music filters now use the canonical artist, label, country, format, packaging,
+and genre identities already shared by its forms and workspace fields.
 Music release, original release, and recording dates now have one canonical
 `{year, month, day}` representation across the Core model, API, correction
 flow, search projection, App mapper, and pinned contract. Core rejects legacy

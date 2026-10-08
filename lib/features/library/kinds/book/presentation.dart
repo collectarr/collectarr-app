@@ -2,6 +2,7 @@ import 'package:collectarr_app/features/library/config/library_media_presentatio
 import 'package:collectarr_app/features/library/kinds/book/data/book_library_entry_projection.dart';
 import 'package:collectarr_app/features/library/kinds/book/presentation_builder.dart';
 import 'package:collectarr_app/features/library/kinds/book/workspace/book_workspace_dto.dart';
+import 'package:collectarr_app/features/library/kinds/book/config/book_field_identities.dart';
 import 'package:collectarr_app/features/library/config/workspace_presentation_support.dart';
 
 const booksPreviewLabels = LibraryMediaPreviewLabels(
@@ -34,8 +35,8 @@ const bookLibraryBucketLabelOverrides = LibraryPresentationLabels();
 
 final bookLibraryFilterDefinitions = <LibraryFilterDefinition<Object?>>[
   LibraryFilterDefinition<Object?>(
-    id: 'series',
-    label: 'Series',
+    id: BookFieldIdentities.seriesId,
+    label: BookFieldIdentities.seriesLabel,
     anyLabel: 'Any series',
     value: (item) => (item.dto is BookWorkspaceDto)
         ? (item.dto as BookWorkspaceDto).seriesTitle
@@ -56,8 +57,8 @@ final bookLibraryFilterDefinitions = <LibraryFilterDefinition<Object?>>[
     )?.personal.tags?.split(','),
   ),
   LibraryFilterDefinition<Object?>(
-    id: 'publisher',
-    label: 'Publisher',
+    id: BookFieldIdentities.publisherId,
+    label: BookFieldIdentities.publisherLabel,
     anyLabel: 'Any publisher',
     value: (item) => (item.dto is BookWorkspaceDto)
         ? (item.dto as BookWorkspaceDto).publisher

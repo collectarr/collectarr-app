@@ -2,6 +2,7 @@ import 'package:collectarr_app/features/library/config/library_media_presentatio
 import 'package:collectarr_app/features/library/kinds/boardgame/data/boardgame_library_entry_projection.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/presentation_builder.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/workspace/boardgame_workspace_dto.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/config/boardgame_field_identities.dart';
 import 'package:collectarr_app/features/library/config/workspace_presentation_support.dart';
 
 const boardGamesMetadataLabels = LibraryMetadataLabels(
@@ -32,8 +33,8 @@ const boardGamesStatsLabels = LibraryMediaStatsLabels(
 
 final boardGamesLibraryFilterDefinitions = <LibraryFilterDefinition<Object?>>[
   LibraryFilterDefinition<Object?>(
-    id: 'series',
-    label: 'Series',
+    id: BoardGameFieldIdentities.seriesId,
+    label: BoardGameFieldIdentities.seriesLabel,
     anyLabel: 'Any series',
     value: (item) => (item.dto is BoardGameWorkspaceDto)
         ? (item.dto as BoardGameWorkspaceDto).seriesTitle
@@ -54,9 +55,9 @@ final boardGamesLibraryFilterDefinitions = <LibraryFilterDefinition<Object?>>[
     )?.personal.tags?.split(','),
   ),
   LibraryFilterDefinition<Object?>(
-    id: 'publisher',
-    label: 'Publisher / Designer',
-    anyLabel: 'Any publisher / designer',
+    id: BoardGameFieldIdentities.publisherId,
+    label: BoardGameFieldIdentities.publisherLabel,
+    anyLabel: 'Any publisher',
     value: (item) => (item.dto is BoardGameWorkspaceDto)
         ? (item.dto as BoardGameWorkspaceDto).publisher
         : null,
