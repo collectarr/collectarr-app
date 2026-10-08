@@ -208,93 +208,87 @@ final class MusicCoverEditorState extends State<MusicCoverEditor> {
             ? 'Remove'
             : null;
     final colors = Theme.of(context).colorScheme;
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        border: Border.all(color: colors.outlineVariant),
-        borderRadius: BorderRadius.circular(4),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(10, 7, 10, 5),
-            child: Text(
-              widget.title,
-              style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                    fontWeight: FontWeight.w700,
-                  ),
-            ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(10, 7, 10, 5),
+          child: Text(
+            widget.title,
+            style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                  fontWeight: FontWeight.w700,
+                ),
           ),
-          ColoredBox(
-            color: colors.surfaceContainerLowest,
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Expanded(
-                  child: Wrap(
-                    spacing: 2,
-                    runSpacing: 2,
-                    children: [
+        ),
+        ColoredBox(
+          color: colors.surfaceContainerLowest,
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Expanded(
+                child: Wrap(
+                  spacing: 2,
+                  runSpacing: 2,
+                  children: [
+                    _toolbarAction(
+                      context,
+                      icon: Icons.file_upload_outlined,
+                      label: 'Upload',
+                      onPressed: _upload,
+                    ),
+                    if (removeActionLabel != null)
                       _toolbarAction(
                         context,
-                        icon: Icons.file_upload_outlined,
-                        label: 'Upload',
-                        onPressed: _upload,
-                      ),
-                      if (removeActionLabel != null)
-                        _toolbarAction(
-                          context,
-                          icon: removeActionLabel == 'Restore'
-                              ? Icons.restore
-                              : Icons.delete_outline,
-                          label: removeActionLabel,
-                          onPressed: () {
-                            if (image != null) {
-                              widget.onChanged(null);
-                              if (canRestoreCoreCover) {
-                                widget.onRestoreCoreCover();
-                              }
-                            } else {
-                              widget.onRemoveCoreCover();
+                        icon: removeActionLabel == 'Restore'
+                            ? Icons.restore
+                            : Icons.delete_outline,
+                        label: removeActionLabel,
+                        onPressed: () {
+                          if (image != null) {
+                            widget.onChanged(null);
+                            if (canRestoreCoreCover) {
+                              widget.onRestoreCoreCover();
                             }
-                          },
-                        ),
-                    ],
-                  ),
+                          } else {
+                            widget.onRemoveCoreCover();
+                          }
+                        },
+                      ),
+                  ],
                 ),
-                _toolbarAction(
-                  context,
-                  icon: Icons.crop_rotate,
-                  label: 'Crop / Rotate',
-                  onPressed: canEditCover ? _openCropEditor : null,
-                ),
-              ],
-            ),
+              ),
+              _toolbarAction(
+                context,
+                icon: Icons.crop_rotate,
+                label: 'Crop / Rotate',
+                onPressed: canEditCover ? _openCropEditor : null,
+              ),
+            ],
           ),
-          Padding(
-            padding: const EdgeInsets.all(8),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(3),
-              child: AspectRatio(
-                aspectRatio: 1,
-                child: ColoredBox(
-                  color: appPalette(context).surface,
-                  child: image != null
-                      ? Image.memory(image.imageData, fit: BoxFit.contain)
-                      : widget.coreCoverUrl?.trim().isNotEmpty == true
-                          ? Image.network(
-                              widget.coreCoverUrl!,
-                              fit: BoxFit.contain,
-                              errorBuilder: (_, __, ___) =>
-                                  const _NoCoverPreview(),
-                            )
-                          : const _NoCoverPreview(),
-                ),
+        ),
+        Padding(
+          padding: const EdgeInsets.all(8),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(3),
+            child: AspectRatio(
+              aspectRatio: 1,
+              child: ColoredBox(
+                color: appPalette(context).surface,
+                child: image != null
+                    ? Image.memory(image.imageData, fit: BoxFit.contain)
+                    : widget.coreCoverUrl?.trim().isNotEmpty == true
+                        ? Image.network(
+                            widget.coreCoverUrl!,
+                            fit: BoxFit.contain,
+                            errorBuilder: (_, __, ___) =>
+                                const _NoCoverPreview(),
+                          )
+                        : const _NoCoverPreview(),
               ),
             ),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
