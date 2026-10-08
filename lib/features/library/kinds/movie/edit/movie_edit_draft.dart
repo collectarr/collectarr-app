@@ -6,7 +6,6 @@ import 'package:collectarr_app/features/library/kinds/movie/data/movie_library_e
 import 'package:collectarr_app/features/collection/commands/library_entry_commands.dart';
 import 'package:collectarr_app/features/library/edit/contracts/library_edit_kind_draft.dart';
 import 'package:collectarr_app/features/library/edit/contracts/library_external_links_edit_session.dart';
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/edit/draft/text_controller_group.dart';
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_edit_models.dart';
@@ -44,7 +43,7 @@ class MovieEditDraft
     with
         LibraryCatalogItemEditSessionLinkDefaults,
         LibraryEntryEditSessionDefaults
-    implements MovieEditDraftContract, LibraryEntryExternalLinksSource {
+    implements MovieEditDraftContract {
   MovieEditDraft({
     this.libraryEntry,
     required this.catalogValues,
@@ -71,10 +70,6 @@ class MovieEditDraft
   List<String> hdrFormats;
   @override
   final MovieEditController movieEdit;
-
-  @override
-  Iterable<TrailerLinkDto> get legacyManualExternalLinks =>
-      movieEdit.initialTrailerLinks;
 
   @override
   JsonEncodable toDetailsDraft() => MovieEntryDetailsDraft(

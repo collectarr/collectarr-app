@@ -23,7 +23,13 @@ const List<KindMappableField> musicMappableFields = [
   KindMappableField(
     key: 'format',
     label: 'Format',
-    aliases: ['Format', 'Media', 'Media Format', 'Physical Format', 'Format / Edition'],
+    aliases: [
+      'Format',
+      'Media',
+      'Media Format',
+      'Physical Format',
+      'Format / Edition'
+    ],
   ),
   KindMappableField(
     key: 'label',
@@ -124,27 +130,6 @@ final musicImportSources = <LibraryImportSourceDefinition>[
       'Download the created CSV file and upload it below:',
     ],
     filePrompt: 'Upload your Discogs CSV file:',
-  ),
-  const LibraryImportSourceDefinition(
-    id: 'musiclabel',
-    title: 'Music Label',
-    assetLogoPath: 'assets/import_logos/musiclabel.png',
-    fallbackIcon: Icons.album,
-    isSvg: false,
-    sourceType: LibraryImportSourceType.guidedFile,
-    fileExtensions: ['xml'],
-    description:
-        'To import your list of albums from Music Label, you need to export a ZIP file of your albums out of your Music Label program. Here\'s what to do:',
-    instructions: [
-      'Start Music Label on your computer.',
-      'Click Albums on the left side.',
-      'Click the Data tab at the top.',
-      'Click Export Data.',
-      'Click Netwalk Musica [Legacy].',
-      'Save the ZIP file on your computer and extract it.',
-      'Inside you will find a file called export.xml, upload that file below:',
-    ],
-    filePrompt: 'Upload your Music Label XML file:',
   ),
   const LibraryImportSourceDefinition(
     id: 'catraxx',
@@ -266,38 +251,7 @@ final musicImportSources = <LibraryImportSourceDefinition>[
   ),
 ];
 
-final musicOtherImportSources = <LibraryImportSourceDefinition>[
-  const LibraryImportSourceDefinition(
-    id: 'musiccollector_udf',
-    title: 'Import User Defined Fields from Music Collector',
-    assetLogoPath: 'assets/import_logos/logo-desktop.png',
-    fallbackIcon: Icons.desktop_windows,
-    isSvg: false,
-    sourceType: LibraryImportSourceType.guidedFile,
-    fileExtensions: ['xml'],
-    isOtherSection: true,
-    description:
-        'If you have user defined fields in the legacy Music Collector Windows program, you can import them to CLZ Music Web. This is a one-time import meant for users who are making the switch from Music Collector to CLZ Music Web (and stop using Music Collector Windows).',
-    subDescription:
-        'To import your user defined fields from Music Collector Windows to CLZ Music Web, follow these steps exactly and not make any other alterations to your database during the process:',
-    instructions: [
-      'Click menu CLZ Cloud > Synchronize and click "Synchronize".',
-      'Now go to File > Export to > XML and export "All Albums" to an XML file (use the Browse button to select a location).',
-      'Upload the XML file below:',
-    ],
-    filePrompt: 'Upload your Music Collector XML file:',
-    extraNoteTitle: 'Do you also use the CLZ Mobile app?',
-    extraNoteContent:
-        'First we\'re going to make sure you are \'in sync\' and have a fresh copy of data in your Cloud. Here\'s what to do:',
-    extraNoteBullets: [
-      'Tap the menu top left and tap Maintenance, then use Clear Database,',
-      'Then choose Sync with CLZ Cloud to download a fresh copy of your data from the CLZ Cloud.',
-    ],
-  ),
-];
-
 final musicKindImport = LibraryKindImportCapability(
   sources: musicImportSources,
-  otherSources: musicOtherImportSources,
   mappableFields: musicMappableFields,
 );

@@ -201,13 +201,10 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
     final libraryEntryRef =
         _draft.libraryEntry?.ref ?? _draft.libraryEntryDispatch?.ref;
     final entrySession = _draft.session.entrySession;
-    if (libraryEntryRef != null &&
-        entrySession is LibraryEntryExternalLinksSource) {
-      final linksSource = entrySession as LibraryEntryExternalLinksSource;
+    if (libraryEntryRef != null) {
       await _draft.userExternalLinks.load(
         db,
         libraryEntryRef,
-        legacyManualLinks: linksSource.legacyManualExternalLinks,
       );
     }
     final locations = await LocationRepository(db).getAll();

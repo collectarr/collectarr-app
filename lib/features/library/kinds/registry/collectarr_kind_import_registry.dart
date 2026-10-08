@@ -1,6 +1,7 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/config/library_import_capability.dart';
-import 'package:collectarr_app/features/library/kinds/music/config/music_import_sources.dart';
+import 'package:collectarr_app/features/library/kinds/music/music_module.dart'
+    show musicKindImport;
 import 'package:flutter/material.dart';
 
 LibraryKindImportCapability _buildGenericKindImport(
@@ -21,11 +22,23 @@ LibraryKindImportCapability _buildGenericKindImport(
       ...additionalSources,
     ],
     mappableFields: const [
-      KindMappableField(key: 'title', label: 'Title', aliases: ['Title', 'Name'], isDefault: true),
-      KindMappableField(key: 'creator', label: 'Creator / Author', aliases: ['Creator', 'Author', 'Artist']),
-      KindMappableField(key: 'year', label: 'Release Year', aliases: ['Year', 'Date']),
-      KindMappableField(key: 'barcode', label: 'Barcode', aliases: ['Barcode', 'UPC', 'ISBN', 'EAN']),
-      KindMappableField(key: 'notes', label: 'Notes', aliases: ['Notes', 'Comments']),
+      KindMappableField(
+          key: 'title',
+          label: 'Title',
+          aliases: ['Title', 'Name'],
+          isDefault: true),
+      KindMappableField(
+          key: 'creator',
+          label: 'Creator / Author',
+          aliases: ['Creator', 'Author', 'Artist']),
+      KindMappableField(
+          key: 'year', label: 'Release Year', aliases: ['Year', 'Date']),
+      KindMappableField(
+          key: 'barcode',
+          label: 'Barcode',
+          aliases: ['Barcode', 'UPC', 'ISBN', 'EAN']),
+      KindMappableField(
+          key: 'notes', label: 'Notes', aliases: ['Notes', 'Comments']),
     ],
   );
 }
@@ -42,7 +55,8 @@ final Map<CatalogMediaKind, LibraryKindImportCapability> collectarrKindImports =
         fallbackIcon: Icons.menu_book,
         sourceType: LibraryImportSourceType.guidedFile,
         fileExtensions: ['xml', 'crb'],
-        description: 'To import your list of comics from ComicRack, export an XML/CRB file from ComicRack.',
+        description:
+            'To import your list of comics from ComicRack, export an XML/CRB file from ComicRack.',
         instructions: [
           'Start ComicRack on your computer.',
           'Select your collection and click File > Export.',
@@ -59,7 +73,8 @@ final Map<CatalogMediaKind, LibraryKindImportCapability> collectarrKindImports =
         isSvg: true,
         sourceType: LibraryImportSourceType.guidedFile,
         fileExtensions: ['xml'],
-        description: 'To import your list of comics from CLZ Comics Web, export an XML file of your comics out of CLZ Comics Web.',
+        description:
+            'To import your list of comics from CLZ Comics Web, export an XML file of your comics out of CLZ Comics Web.',
         instructions: [
           'Login to CLZ Comics Web.',
           'Click the menu on the left and navigate to "Export to XML".',
@@ -79,7 +94,8 @@ final Map<CatalogMediaKind, LibraryKindImportCapability> collectarrKindImports =
         fallbackIcon: Icons.auto_stories,
         sourceType: LibraryImportSourceType.guidedFile,
         fileExtensions: ['csv'],
-        description: 'To import your library from Goodreads, export your library to CSV from Goodreads account settings.',
+        description:
+            'To import your library from Goodreads, export your library to CSV from Goodreads account settings.',
         instructions: [
           'Log in to Goodreads and go to My Books.',
           'Click "Import and export" on the left sidebar.',
@@ -94,7 +110,8 @@ final Map<CatalogMediaKind, LibraryKindImportCapability> collectarrKindImports =
         fallbackIcon: Icons.import_contacts,
         sourceType: LibraryImportSourceType.guidedFile,
         fileExtensions: ['csv', 'xml'],
-        description: 'To import your books from Calibre, export your catalog to CSV or XML.',
+        description:
+            'To import your books from Calibre, export your catalog to CSV or XML.',
         instructions: [
           'Start Calibre on your computer.',
           'Click Convert books > Create a catalog of books in your Calibre library.',
@@ -114,7 +131,8 @@ final Map<CatalogMediaKind, LibraryKindImportCapability> collectarrKindImports =
         fallbackIcon: Icons.movie_outlined,
         sourceType: LibraryImportSourceType.guidedFile,
         fileExtensions: ['xml'],
-        description: 'To import your movies from DVD Profiler, export an XML file from DVD Profiler.',
+        description:
+            'To import your movies from DVD Profiler, export an XML file from DVD Profiler.',
         instructions: [
           'Start DVD Profiler on your computer.',
           'Click File > Export > XML.',
@@ -129,5 +147,6 @@ final Map<CatalogMediaKind, LibraryKindImportCapability> collectarrKindImports =
   CatalogMediaKind.anime: _buildGenericKindImport(CatalogMediaKind.anime),
   CatalogMediaKind.manga: _buildGenericKindImport(CatalogMediaKind.manga),
   CatalogMediaKind.tv: _buildGenericKindImport(CatalogMediaKind.tv),
-  CatalogMediaKind.boardgame: _buildGenericKindImport(CatalogMediaKind.boardgame),
+  CatalogMediaKind.boardgame:
+      _buildGenericKindImport(CatalogMediaKind.boardgame),
 });

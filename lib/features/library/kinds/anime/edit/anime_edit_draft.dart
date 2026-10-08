@@ -5,7 +5,6 @@ import 'package:collectarr_app/features/library/kinds/anime/data/anime_library_e
 import 'package:collectarr_app/features/collection/commands/library_entry_commands.dart';
 import 'package:collectarr_app/features/library/edit/contracts/library_edit_kind_draft.dart';
 import 'package:collectarr_app/features/library/edit/contracts/library_external_links_edit_session.dart';
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/edit/draft/text_controller_group.dart';
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_edit_models.dart';
@@ -28,7 +27,7 @@ class AnimeEditDraft
     with
         LibraryCatalogItemEditSessionLinkDefaults,
         LibraryEntryEditSessionDefaults
-    implements AnimeEditDraftContract, LibraryEntryExternalLinksSource {
+    implements AnimeEditDraftContract {
   AnimeEditDraft({
     this.libraryEntry,
     required this.metadata,
@@ -77,9 +76,6 @@ class AnimeEditDraft
   @override
   final AnimeEditController animeEdit;
 
-  @override
-  Iterable<TrailerLinkDto> get legacyManualExternalLinks =>
-      animeEdit.initialTrailerLinks;
   @override
   String? physicalFormatId;
 

@@ -1,4 +1,3 @@
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/core/models/user_external_link.dart';
@@ -21,9 +20,8 @@ final class LibraryUserExternalLinksDraft {
 
   Future<void> load(
     LocalDatabase database,
-    LibraryEntryRef libraryEntryRef, {
-    Iterable<TrailerLinkDto> legacyManualLinks = const [],
-  }) async {
+    LibraryEntryRef libraryEntryRef,
+  ) async {
     if (_loaded) return;
     _libraryEntryRef = libraryEntryRef;
     final stored = await UserExternalLinksCacheRepository(database)
@@ -32,24 +30,6 @@ final class LibraryUserExternalLinksDraft {
     for (final link in stored) {
       if (!seen.add(_dedupeKey(link.kind, link.label, link.url))) continue;
       _addEditable(link);
-    }
-    for (final link in legacyManualLinks.where((link) => !link.isAutomatic)) {
-      final kind = link.kind == 'trailer' ? 'trailer' : 'custom';
-      final label = link.title ?? link.description ?? link.url;
-      final key = _dedupeKey(kind, label, link.url);
-      if (!seen.add(key)) continue;
-      _addEditable(UserExternalLink(
-        id: 'seed-${libraryEntryRef.key}-${link.kind}-${link.url.hashCode}',
-        libraryEntryRef: libraryEntryRef,
-        label: label,
-        url: link.url,
-        kind: kind,
-        createdAt: DateTime.now(),
-        updatedAt: DateTime.now(),
-      ));
-      // Move existing manually-entered metadata links to their local owner on
-      // the next successful save. Automatic catalog links remain untouched.
-      _changed = true;
     }
     _loaded = true;
   }

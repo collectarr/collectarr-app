@@ -12,24 +12,19 @@ import '../../../helpers/test_data_factories.dart';
 
 void main() {
   group('LibraryKindImportCapability & Contributors', () {
-    test('music kind provides all CLZ Web import sources and other imports', () {
+    test('music kind provides its supported file import sources', () {
       final capability = libraryImportForKind(CatalogMediaKind.music);
       expect(capability.sources, isNotEmpty);
-      expect(capability.otherSources, isNotEmpty);
 
       final sourceIds = capability.sources.map((s) => s.id).toList();
       expect(sourceIds, contains('text'));
       expect(sourceIds, contains('discogs'));
-      expect(sourceIds, contains('musiclabel'));
       expect(sourceIds, contains('catraxx'));
       expect(sourceIds, contains('delicious'));
       expect(sourceIds, contains('orangecd'));
       expect(sourceIds, contains('cdpedia'));
       expect(sourceIds, contains('musiccollector'));
       expect(sourceIds, contains('clzweb'));
-
-      final otherIds = capability.otherSources.map((s) => s.id).toList();
-      expect(otherIds, contains('musiccollector_udf'));
 
       expect(capability.mappableFields, isNotEmpty);
       expect(capability.mappableFields.any((f) => f.key == 'artist'), isTrue);
@@ -107,7 +102,8 @@ void main() {
       );
     });
 
-    testWidgets('navigates to CSV / TXT import view with warning banner and settings',
+    testWidgets(
+        'navigates to CSV / TXT import view with warning banner and settings',
         (tester) async {
       tester.view.physicalSize = const Size(1280, 1400);
       tester.view.devicePixelRatio = 1.0;
@@ -164,13 +160,15 @@ void main() {
 
       expect(find.text('2. Choose your data format settings:'), findsOneWidget);
       expect(find.text('Skip First Row'), findsOneWidget);
-      expect(find.text('Semicolon'), findsNWidgets(2)); // Delimiter + Multi-delimiter
+      expect(find.text('Semicolon'),
+          findsNWidgets(2)); // Delimiter + Multi-delimiter
       expect(find.text('Comma'), findsNWidgets(2));
       expect(find.text('Double Quote'), findsOneWidget);
 
       expect(find.text('3. Map your fields to our fields:'), findsOneWidget);
       expect(
-        find.text('Click the column headers below to map your fields to our fields.'),
+        find.text(
+            'Click the column headers below to map your fields to our fields.'),
         findsOneWidget,
       );
 
@@ -207,9 +205,11 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      expect(find.text('Import from Discogs'), findsNWidgets(2)); // AppBar + Heading
+      expect(find.text('Import from Discogs'),
+          findsNWidgets(2)); // AppBar + Heading
       expect(
-        find.textContaining('you need to export a CSV file of your albums out of your Discogs account'),
+        find.textContaining(
+            'you need to export a CSV file of your albums out of your Discogs account'),
         findsOneWidget,
       );
       expect(find.text('Upload your Discogs CSV file:'), findsOneWidget);
@@ -219,48 +219,6 @@ void main() {
       await tester.tap(find.byKey(const Key('import_data.back')));
       await tester.pumpAndSettle();
       expect(find.text('Import from:'), findsOneWidget);
-    });
-
-    testWidgets('renders user defined fields view with extra mobile note',
-        (tester) async {
-      tester.view.physicalSize = const Size(1280, 1400);
-      tester.view.devicePixelRatio = 1.0;
-      addTearDown(() {
-        tester.view.resetPhysicalSize();
-        tester.view.resetDevicePixelRatio();
-      });
-
-      final musicType =
-          defaultLibraryKindRegistry.require(CatalogMediaKind.music);
-
-      await tester.pumpWidget(
-        ProviderScope(
-          child: MaterialApp(
-            home: LibraryImportDataPage(
-              type: musicType,
-              initialSourceId: 'musiccollector_udf',
-            ),
-          ),
-        ),
-      );
-      await tester.pumpAndSettle();
-
-      expect(
-        find.text('Import User Defined Fields from Music Collector'),
-        findsOneWidget,
-      );
-      expect(
-        find.text('How to import your user defined fields'),
-        findsOneWidget,
-      );
-      expect(
-        find.text('Do you also use the CLZ Mobile app?'),
-        findsOneWidget,
-      );
-      expect(
-        find.textContaining('First we\'re going to make sure you are \'in sync\''),
-        findsOneWidget,
-      );
     });
   });
 }

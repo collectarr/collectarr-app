@@ -184,7 +184,7 @@ class LibraryEditDraggedTabLabel extends StatelessWidget {
 
 /// The tab strip used by every Library edit dialog.
 ///
-/// The controller-backed mode is used by the legacy draft renderer. The
+/// The controller-backed mode is used by shell-based edit dialogs. The
 /// callback-backed mode is used by schema dialogs, where the schema renderer
 /// owns the selected tab and visible-tab mapping. Both modes intentionally
 /// share the same visual and drag behavior.

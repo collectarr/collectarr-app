@@ -59,8 +59,10 @@ registration and files under `features/library/kinds/<kind>/`.
   bars when another editor can reuse them.
 - [x] Add a thin Core response base for truly identical envelope fields; keep
   kind-specific response schemas separate.
-- [ ] Remove remaining packed multi-value transports and compatibility-era
-  comments/helpers after confirming their consumers are gone.
+- [x] Remove packed multi-value transports; no quoted `||` delimiter remains
+  in App or Core source.
+- [x] Remove active compatibility and migration paths after their consumers
+  are removed.
 
 ## Execution status
 
@@ -177,3 +179,11 @@ Core response schemas for Anime, Board Game, Book, Comic, Game, Manga, Movie,
 Music, and TV now inherit identical `id`, `kind`, `title`, and `revision`
 envelope fields from a thin base. Per-kind response fields and kind literals
 remain in their owning schemas.
+
+The App and Core source audit found no quoted `||` multi-value transport
+delimiter. Catalog-owned manual links are no longer copied into a local entry
+as a compatibility fallback; entry-local links load only from their own store.
+The one-time Music Collector user-field transfer and Music Label's legacy
+export-based import are removed with their dedicated UI, source metadata, and
+configuration. Ordinary file imports remain part of each kind's import
+capability.

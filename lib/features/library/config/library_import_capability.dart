@@ -29,14 +29,9 @@ class LibraryImportSourceDefinition {
     this.isSvg = false,
     this.sourceType = LibraryImportSourceType.guidedFile,
     this.fileExtensions = const ['xml'],
-    this.isOtherSection = false,
     this.description = '',
-    this.subDescription,
     this.instructions = const [],
     this.filePrompt = 'Upload your file below:',
-    this.extraNoteTitle,
-    this.extraNoteContent,
-    this.extraNoteBullets,
   });
 
   final String id;
@@ -47,34 +42,22 @@ class LibraryImportSourceDefinition {
   final bool isSvg;
   final LibraryImportSourceType sourceType;
   final List<String> fileExtensions;
-  final bool isOtherSection;
   final String description;
-  final String? subDescription;
   final List<String> instructions;
   final String filePrompt;
-  final String? extraNoteTitle;
-  final String? extraNoteContent;
-  final List<String>? extraNoteBullets;
 }
 
 class LibraryKindImportCapability {
   const LibraryKindImportCapability({
     this.sources = const [],
-    this.otherSources = const [],
     this.mappableFields = const [],
   });
 
   final List<LibraryImportSourceDefinition> sources;
-  final List<LibraryImportSourceDefinition> otherSources;
   final List<KindMappableField> mappableFields;
 
-  List<LibraryImportSourceDefinition> get allSources => [
-        ...sources,
-        ...otherSources,
-      ];
-
   LibraryImportSourceDefinition? findSourceById(String id) {
-    for (final s in allSources) {
+    for (final s in sources) {
       if (s.id == id) return s;
     }
     return null;

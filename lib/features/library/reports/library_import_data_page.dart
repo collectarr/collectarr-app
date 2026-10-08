@@ -140,7 +140,6 @@ class _LibraryImportDataPageState extends ConsumerState<LibraryImportDataPage> {
     final String pageTitle = switch (active?.id) {
       null => 'Import Data',
       'text' => 'Import from CSV / TXT File',
-      'musiccollector_udf' => 'Import from Music Collector',
       _ => 'Import from ${active!.title}',
     };
 
@@ -172,7 +171,8 @@ class _LibraryImportDataPageState extends ConsumerState<LibraryImportDataPage> {
               'assets/sidebar_icons/file-import.svg',
               width: 18,
               height: 18,
-              colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
+              colorFilter:
+                  const ColorFilter.mode(Colors.white, BlendMode.srcIn),
             ),
             const SizedBox(width: 8),
             Text(
@@ -307,22 +307,6 @@ class _LibraryImportDataPageState extends ConsumerState<LibraryImportDataPage> {
                 _buildSourceCard(palette, source),
                 const SizedBox(height: 12),
               ],
-              if (capability.otherSources.isNotEmpty) ...[
-                const SizedBox(height: 12),
-                Text(
-                  'Other imports',
-                  style: TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.w700,
-                    color: palette.textPrimary,
-                  ),
-                ),
-                const SizedBox(height: 12),
-                for (final source in capability.otherSources) ...[
-                  _buildSourceCard(palette, source),
-                  const SizedBox(height: 12),
-                ],
-              ],
             ],
           ),
         ),
@@ -354,7 +338,8 @@ class _LibraryImportDataPageState extends ConsumerState<LibraryImportDataPage> {
               hoverColor: Colors.white.withValues(alpha: 0.04),
               onTap: () => _selectSource(source.id),
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 child: Row(
                   children: [
                     _buildSourceLogo(source, 45),
@@ -764,7 +749,8 @@ class _LibraryImportDataPageState extends ConsumerState<LibraryImportDataPage> {
               child: _buildSettingsCard(
                 palette: palette,
                 title: 'Multi-Field Delimiter',
-                tooltip: 'Character separating values inside multi-value fields',
+                tooltip:
+                    'Character separating values inside multi-value fields',
                 child: Column(
                   children: [
                     for (final m in ImportMultiFieldDelimiter.values)
@@ -980,7 +966,8 @@ class _LibraryImportDataPageState extends ConsumerState<LibraryImportDataPage> {
                                   value: null,
                                   child: Text(
                                     '-- Do not import --',
-                                    style: TextStyle(fontStyle: FontStyle.italic),
+                                    style:
+                                        TextStyle(fontStyle: FontStyle.italic),
                                   ),
                                 ),
                                 for (final field in fields)
@@ -1011,7 +998,8 @@ class _LibraryImportDataPageState extends ConsumerState<LibraryImportDataPage> {
                       padding: const EdgeInsets.all(8),
                       child: Text(
                         col < row.length ? row[col] : '',
-                        style: TextStyle(fontSize: 12, color: palette.textMuted),
+                        style:
+                            TextStyle(fontSize: 12, color: palette.textMuted),
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -1059,26 +1047,6 @@ class _LibraryImportDataPageState extends ConsumerState<LibraryImportDataPage> {
               if (source.description.isNotEmpty) ...[
                 Text(
                   source.description,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    color: Colors.white,
-                    height: 1.4,
-                  ),
-                ),
-                const SizedBox(height: 16),
-              ],
-              if (source.subDescription != null) ...[
-                const Text(
-                  'How to import your user defined fields',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w700,
-                    color: Colors.white,
-                  ),
-                ),
-                const SizedBox(height: 6),
-                Text(
-                  source.subDescription!,
                   style: const TextStyle(
                     fontSize: 14,
                     color: Colors.white,
@@ -1210,52 +1178,6 @@ class _LibraryImportDataPageState extends ConsumerState<LibraryImportDataPage> {
                   return button;
                 },
               ),
-
-              if (source.extraNoteTitle != null) ...[
-                const SizedBox(height: 28),
-                Text(
-                  source.extraNoteTitle!,
-                  style: const TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w700,
-                    color: Colors.white,
-                  ),
-                ),
-                if (source.extraNoteContent != null) ...[
-                  const SizedBox(height: 6),
-                  Text(
-                    source.extraNoteContent!,
-                    style: TextStyle(
-                      fontSize: 13,
-                      color: palette.textMuted,
-                      height: 1.4,
-                    ),
-                  ),
-                ],
-                if (source.extraNoteBullets != null) ...[
-                  const SizedBox(height: 8),
-                  for (final bullet in source.extraNoteBullets!)
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 4, left: 8),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text('• ', style: TextStyle(fontSize: 13, color: Colors.white70)),
-                          Expanded(
-                            child: Text(
-                              bullet,
-                              style: TextStyle(
-                                fontSize: 13,
-                                color: palette.textMuted,
-                                height: 1.35,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                ],
-              ],
             ],
           ),
         ),
@@ -1467,15 +1389,17 @@ class _LibraryImportDataPageState extends ConsumerState<LibraryImportDataPage> {
       } else {
         // XML / OXL / other guided formats
         // Extract items via standard title / album tags or fallback
-        final titleMatches = RegExp(r'<title>([^<]+)</title>', caseSensitive: false)
-            .allMatches(raw);
+        final titleMatches =
+            RegExp(r'<title>([^<]+)</title>', caseSensitive: false)
+                .allMatches(raw);
         if (titleMatches.isNotEmpty) {
           int i = 0;
           for (final m in titleMatches) {
             final title = m.group(1)?.trim() ?? 'Imported Item $i';
             rowsToImport.add(
               CollectionImportRow(
-                itemId: '${source.id}_${DateTime.now().millisecondsSinceEpoch}_$i',
+                itemId:
+                    '${source.id}_${DateTime.now().millisecondsSinceEpoch}_$i',
                 status: 'entry',
                 mediaKind: widget.type.kind,
                 title: title,

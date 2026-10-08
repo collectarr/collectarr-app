@@ -5,7 +5,6 @@ import 'package:collectarr_app/features/library/kinds/tv/data/tv_library_entry_p
 import 'package:collectarr_app/features/collection/commands/library_entry_commands.dart';
 import 'package:collectarr_app/features/library/edit/contracts/library_edit_kind_draft.dart';
 import 'package:collectarr_app/features/library/edit/contracts/library_external_links_edit_session.dart';
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/edit/draft/text_controller_group.dart';
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_edit_models.dart';
@@ -26,7 +25,7 @@ class TvEditDraft
     with
         LibraryCatalogItemEditSessionLinkDefaults,
         LibraryEntryEditSessionDefaults
-    implements LibraryEntryExternalLinksSource, TvCatalogFormDraft {
+    implements TvCatalogFormDraft {
   TvEditDraft({
     this.libraryEntry,
     required this.metadata,
@@ -57,9 +56,6 @@ class TvEditDraft
   List<String> hdrFormats;
   final TvEditController tvEdit;
 
-  @override
-  Iterable<TrailerLinkDto> get legacyManualExternalLinks =>
-      tvEdit.initialTrailerLinks;
   final TvMediaEditController mediaEdit;
 
   @override
