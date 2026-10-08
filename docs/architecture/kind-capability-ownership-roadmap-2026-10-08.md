@@ -41,7 +41,7 @@ registration and files under `features/library/kinds/<kind>/`.
   and links are composed by the shared edit dialog from kind contributions.
 - [x] Collect vocabulary edits in a shared edit-session accumulator; kinds
   declare vocabularies and field specs emit changes.
-- [ ] Share image persistence and editor lifecycle where semantics match;
+- [x] Share image persistence and editor lifecycle where semantics match;
   kinds declare purposes, labels, aspect ratios, and other real differences.
 - [x] Clarify reusable form schemas versus the library edit workflow in naming
   and directory boundaries.
@@ -139,8 +139,9 @@ The Music My Images tab now uses the shared `ItemImagesEditSection` for upload,
 caption/type editing, ordering, rotation, crop, restore, and removal. Music
 supplies its image vocabulary, labels, count, and tab copy; cover-source selection
 and its square crop workflow remain kind-specific. The Music image repository
-still adapts the shared item-image store and is tracked for the remaining image
-storage consolidation.
+adapter has been removed. Music reads and saves through the shared item-image
+repository; the kind model owns only the mapping between its cover/personal
+purposes and the stored image type.
 
 Shared edit presentations can now contribute standard tab specs with target
 scope and placement around kind tabs. Game and Movie use this for Personal,

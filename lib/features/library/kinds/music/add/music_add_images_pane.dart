@@ -7,20 +7,10 @@ import 'package:flutter/material.dart';
 
 List<MusicAlbumImage> musicAddImages(Iterable<ItemImageContent> images) => [
       for (final image in images)
-        MusicAlbumImage(
-            id: image.id,
-            albumId: 'manual-music',
-            purpose: image.imageType == 'front_cover' ||
-                    image.imageType == 'back_cover'
-                ? MusicAlbumImagePurpose.cover
-                : MusicAlbumImagePurpose.personal,
-            imageType: image.imageType.startsWith('personal:')
-                ? image.imageType.substring(9)
-                : image.imageType,
-            imageData: image.imageData,
-            description: image.caption,
-            sortOrder: image.sortOrder,
-            createdAt: image.createdAt),
+        MusicAlbumImage.fromItemImageContent(
+          albumId: 'manual-music',
+          image: image,
+        ),
     ];
 void updateMusicAddImages(
         LibraryAddManualPaneRequest request, List<MusicAlbumImage> images) =>
@@ -30,9 +20,7 @@ void updateMusicAddImages(
             id: image.id,
             imageData: image.imageData,
             caption: image.description,
-            imageType: image.purpose == MusicAlbumImagePurpose.cover
-                ? image.imageType
-                : 'personal:${image.imageType}',
+            imageType: image.storageImageType,
             sortOrder: image.sortOrder,
             createdAt: image.createdAt),
     ]);

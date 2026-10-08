@@ -12,7 +12,7 @@ import 'package:collectarr_app/features/library/kinds/music/edit/music_edit_head
 import 'package:collectarr_app/features/library/kinds/music/edit/music_album_images_links_tab.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit/music_album_images_tabs.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_album_image.dart';
-import 'package:collectarr_app/features/library/kinds/music/data/music_album_image_repository.dart';
+import 'package:collectarr_app/features/library/kinds/music/data/music_album_image_providers.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit/music_album_structure_tabs.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit/music_album_credits_tab.dart';
 import 'package:collectarr_app/features/library/kinds/music/forms/music_grade_field.dart';
@@ -82,9 +82,10 @@ final class _MusicAlbumEditDialogState
   }
 
   Future<void> _loadReleaseImages() async {
-    final images = await MusicAlbumImageRepository(
+    final images = await loadMusicAlbumImages(
       ref.read(localDatabaseProvider),
-    ).listForAlbum(_libraryItemId);
+      _libraryItemId,
+    );
     final listeningRef = widget.request.libraryEntry?.ref;
     final events = listeningRef == null
         ? const <MusicListenEvent>[]
@@ -275,9 +276,7 @@ final class _MusicAlbumEditDialogState
                         id: image.id,
                         imageData: image.imageData,
                         caption: image.description,
-                        imageType: image.purpose == MusicAlbumImagePurpose.cover
-                            ? image.imageType
-                            : 'personal:${image.imageType}',
+                        imageType: image.storageImageType,
                         sortOrder: image.sortOrder,
                         createdAt: image.createdAt,
                       ),

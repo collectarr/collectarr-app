@@ -3,6 +3,7 @@ import 'package:collectarr_app/features/library/kinds/music/vocabulary/music_voc
 import 'package:collectarr_app/features/pick_lists/models/vocabulary_id.dart';
 import 'package:collectarr_app/core/models/partial_date.dart';
 import 'package:collectarr_app/features/library/kinds/music/data/music_library_entry_projection.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_album_image.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_personal_data.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_dto.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
@@ -183,9 +184,7 @@ Object? _groupValue(MusicGroupingField field,
     if (_has(album.backCoverImageUrl) || _has(album.localBackImagePath))
       'back_cover',
     for (final image in context.personal.images)
-      image.imageType.startsWith('personal:')
-          ? image.imageType.substring(9)
-          : image.imageType,
+      MusicAlbumImage.imageTypeFromStorageValue(image.imageType),
   };
   Iterable<String?> names(String role) => album.contributions
       .where((credit) => credit.role.toLowerCase() == role)
