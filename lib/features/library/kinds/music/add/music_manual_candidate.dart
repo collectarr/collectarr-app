@@ -73,25 +73,20 @@ Map<String, Object?>? buildMusicManualProposalData(
       'original_release_date': originalReleaseDateParts.toJson(),
     if (recordingDateParts != null)
       'recording_date': recordingDateParts.toJson(),
-    if (artist != null || draft.artistCredits.isNotEmpty)
-      'artist_credits': draft.artistCredits.isEmpty
-          ? [
-              <String, Object?>{'name': artist!}
-            ]
-          : [
-              for (var index = 0; index < draft.artistCredits.length; index++)
-                {
-                  'id': draft.artistCredits[index].id,
-                  'name': draft.artistCredits[index].creditedName,
-                  if (draft.artistCredits[index].sortName != null)
-                    'sort_name': draft.artistCredits[index].sortName,
-                  if (draft.artistCredits[index].artistId != null)
-                    'artist_id': draft.artistCredits[index].artistId,
-                  if (draft.artistCredits[index].joinPhrase != null)
-                    'join_phrase': draft.artistCredits[index].joinPhrase,
-                  'sequence': index + 1,
-                },
-            ],
+    'artist_credits': [
+      for (var index = 0; index < draft.artistCredits.length; index++)
+        {
+          'id': draft.artistCredits[index].id,
+          'name': draft.artistCredits[index].creditedName,
+          if (draft.artistCredits[index].sortName != null)
+            'sort_name': draft.artistCredits[index].sortName,
+          if (draft.artistCredits[index].artistId != null)
+            'artist_id': draft.artistCredits[index].artistId,
+          if (draft.artistCredits[index].joinPhrase != null)
+            'join_phrase': draft.artistCredits[index].joinPhrase,
+          'sequence': index + 1,
+        },
+    ],
     if (draft.genres.isNotEmpty) 'genres': List<String>.of(draft.genres),
     if (_textOrNull(draft.recordLabel) case final value?) 'label': value,
     if (barcode != null) 'barcode': barcode,
@@ -142,11 +137,15 @@ List<Map<String, dynamic>> _candidateDiscs(
 
 List<Map<String, Object?>> _namedCredits(
   Iterable<MusicAddManualNamedCredit> credits,
-) =>
-    [
-      for (final credit in credits)
-        if (credit.name.trim().isNotEmpty) credit.toCatalogData(),
-    ];
+) {
+  final namedCredits = credits
+      .where((credit) => credit.name.trim().isNotEmpty)
+      .toList(growable: false);
+  return [
+    for (var index = 0; index < namedCredits.length; index++)
+      namedCredits[index].toCatalogData(sequence: index + 1),
+  ];
+}
 
 List<String> _creditNames(Iterable<MusicAddManualNamedCredit> credits) => [
       for (final credit in credits)

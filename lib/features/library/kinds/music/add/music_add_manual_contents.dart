@@ -19,8 +19,11 @@ final class MusicAddManualNamedCredit {
   String sortName;
   String instrument;
 
-  Map<String, Object?> toCatalogData() => {
+  Map<String, Object?> toCatalogData({required int sequence}) => {
+        'id': id,
+        'person_id': id,
         'name': name.trim(),
+        'sequence': sequence,
         if (sortName.trim().isNotEmpty) 'sort_name': sortName.trim(),
         if (instrument.trim().isNotEmpty) 'instrument': instrument.trim(),
       };

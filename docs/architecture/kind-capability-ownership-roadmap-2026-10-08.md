@@ -107,4 +107,6 @@ explicit IDs, names, person references, and ordering; Core no longer creates
 credit IDs from strings or missing values, and App emits complete rows. Core
 also rejects implicit RPM/weight conversions, untrimmed Music disc/root text,
 and correction values that were previously whitespace-collapsed or silently
-deduplicated. Remaining P0 work is tracked above.
+deduplicated. Manual Music Add now emits complete artist and role credit
+collections, including explicit credit/person identity and sequence. Remaining
+P0 work is tracked above.
