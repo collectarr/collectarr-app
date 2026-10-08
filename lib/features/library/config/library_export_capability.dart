@@ -1,6 +1,47 @@
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 
 /// A column whose meaning and value are supplied by an owning library kind.
+ExportColumnDefinition exportColumnFromWorkspaceField<TKind,
+    TDto extends LibraryWorkspaceDto, TValue>({
+  required LibraryFieldDefinition<TKind, TDto, TValue> field,
+  required String Function(TValue value) valueFormatter,
+  String Function(TValue value)? pdfValueFormatter,
+  bool defaultVisible = true,
+  bool includeInPdf = true,
+  String? pdfLabel,
+  double? pdfWidthFlex,
+  bool? pdfDefaultVisible,
+  int? pdfOrder,
+}) {
+  String valueFor(LibraryProjectionView item, String Function(TValue) format) {
+    return format(
+      field.getValue(
+        LibraryProjectionContext<TDto>(
+          item: item.source.item,
+          personal: item.source.personal,
+          dto: item.dto as TDto,
+        ),
+      ),
+    );
+  }
+
+  return ExportColumnDefinition(
+    id: field.id.value,
+    label: field.label,
+    getValue: (item) => valueFor(item, valueFormatter),
+    defaultVisible: defaultVisible,
+    includeInPdf: includeInPdf,
+    pdfLabel: pdfLabel,
+    pdfGetValue: pdfValueFormatter == null
+        ? null
+        : (item) => valueFor(item, pdfValueFormatter),
+    pdfWidthFlex: pdfWidthFlex,
+    pdfDefaultVisible: pdfDefaultVisible,
+    pdfOrder: pdfOrder,
+  );
+}
+
 class ExportColumnDefinition {
   const ExportColumnDefinition({
     required this.id,

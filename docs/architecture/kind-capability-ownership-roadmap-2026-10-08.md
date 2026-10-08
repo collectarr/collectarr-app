@@ -52,6 +52,9 @@ registration and files under `features/library/kinds/<kind>/`.
 - [x] Move kind-specific indexed search values from DTO overrides into
   searchable workspace field metadata; keep title, custom-field, personal,
   and date indexing in the shared search layer.
+- [x] Reuse typed workspace field identity, labels, and value getters for
+  overlapping kind-owned report columns; keep export formatting and layout
+  settings in the export contribution.
 - [ ] Consolidate field metadata used by filtering, sorting, exporting,
   and editing without forcing unrelated fields into one model.
 
@@ -101,6 +104,10 @@ typed values through each kind's catalog workspace registry while retaining
 common title, custom-field, location, and date handling. Search fields include
 metadata such as Music barcode/catalog number, Movie studio, Game region, and
 TV barcode even when those fields are not visible workspace columns.
+Music's item export columns now reuse the catalog workspace definitions for
+artist, title, format, barcode, catalog number, release date, track count, and
+label. Their shared field IDs and labels line up with workspace metadata while
+CSV/PDF formatting, visibility, and ordering remain export-specific.
 Music release, original release, and recording dates now have one canonical
 `{year, month, day}` representation across the Core model, API, correction
 flow, search projection, App mapper, and pinned contract. Core rejects legacy

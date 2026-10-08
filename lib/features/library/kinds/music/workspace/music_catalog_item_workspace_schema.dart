@@ -18,6 +18,7 @@ final musicCatalogItemWorkspaceSchema =
     MusicCatalogItemWorkspaceFields.barcode,
     MusicCatalogItemWorkspaceFields.catalogNumber,
     MusicCatalogItemWorkspaceFields.genre,
+    MusicCatalogItemWorkspaceFields.format,
     MusicCatalogItemWorkspaceFields.releaseDate,
     MusicCatalogItemWorkspaceFields.trackCount,
     MusicCatalogItemWorkspaceFields.listenCount,

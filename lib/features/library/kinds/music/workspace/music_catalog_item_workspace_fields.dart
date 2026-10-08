@@ -45,6 +45,12 @@ abstract final class MusicCatalogItemWorkspaceFields {
     searchable: true,
   );
 
+  static final format = textField<MusicKind, MusicWorkspaceProjection>(
+    id: MusicFieldIds.format,
+    label: 'Format',
+    getValue: (dto) => dto.format,
+  );
+
   static final releaseDate = dateField<MusicKind, MusicWorkspaceProjection>(
     id: MusicFieldIds.releaseDate,
     label: 'Release Date',
