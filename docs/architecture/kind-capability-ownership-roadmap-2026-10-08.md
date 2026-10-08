@@ -77,6 +77,8 @@ track hierarchy, ordering, and duration state. `MusicAlbumEditDraft` now
 combines those editors with scalar values, credits, links, and vocabulary
 changes. The central kind-switch audit has started: stats tracking titles now
 come from each kind's tracking topology, and catalog detail hydration
-delegates kind-specific DTO decoding through metadata capability. The audit
-still needs to cover PDF report columns and the remaining action, search,
+delegates kind-specific DTO decoding through metadata capability. The PDF
+report now reads item and child-row fields, labels, defaults, and value
+formatting from the kind export capability; shared code owns print layout and
+file handling. The audit still needs to cover the remaining action, search,
 folder, image, and vocabulary paths. Remaining P0 work is tracked above.

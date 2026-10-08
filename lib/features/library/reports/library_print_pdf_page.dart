@@ -1,14 +1,10 @@
 import 'dart:typed_data';
 
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
+import 'package:collectarr_app/features/library/config/library_export_capability.dart';
 import 'package:collectarr_app/features/library/config/library_kind_style.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_album.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_track.dart';
-import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_data.dart';
-import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_dto.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/ui/library_accent_scope.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
@@ -19,7 +15,7 @@ import 'package:printing/printing.dart';
 
 enum PrintSubset { all, currentList, checkboxed }
 
-enum ExportMode { albumList, trackList }
+enum ExportMode { itemList, childList }
 
 enum PdfOrientation { portrait, landscape }
 
@@ -51,10 +47,21 @@ class PdfColumnDefinition {
   final String Function(LibraryProjectionView item) getValue;
   final double widthFlex;
   final bool defaultVisible;
+
+  factory PdfColumnDefinition.fromExportColumn(
+    ExportColumnDefinition column,
+  ) =>
+      PdfColumnDefinition(
+        id: column.id,
+        label: column.pdfLabel ?? column.label,
+        getValue: column.pdfGetValue ?? column.getValue,
+        widthFlex: column.pdfWidthFlex ?? 1.0,
+        defaultVisible: column.pdfDefaultVisible ?? column.defaultVisible,
+      );
 }
 
-class TrackColumnDefinition {
-  const TrackColumnDefinition({
+class PdfChildColumnDefinition {
+  const PdfChildColumnDefinition({
     required this.id,
     required this.label,
     required this.getValue,
@@ -62,9 +69,20 @@ class TrackColumnDefinition {
     this.defaultVisible = true,
   });
 
+  factory PdfChildColumnDefinition.fromExportColumn(
+    LibraryExportChildColumnDefinition column,
+  ) =>
+      PdfChildColumnDefinition(
+        id: column.id,
+        label: column.pdfLabel ?? column.label,
+        getValue: column.pdfGetValue ?? column.getValue,
+        widthFlex: column.pdfWidthFlex ?? 1.0,
+        defaultVisible: column.pdfDefaultVisible ?? column.defaultVisible,
+      );
+
   final String id;
   final String label;
-  final String Function(MusicTrack track, MusicAlbum album) getValue;
+  final String Function(LibraryExportChildRow row) getValue;
   final double widthFlex;
   final bool defaultVisible;
 }
@@ -94,7 +112,7 @@ class LibraryPrintPdfPage extends StatefulWidget {
 
 class _LibraryPrintPdfPageState extends State<LibraryPrintPdfPage> {
   PrintSubset _subset = PrintSubset.all;
-  ExportMode _exportMode = ExportMode.albumList;
+  ExportMode _exportMode = ExportMode.itemList;
   PdfOrientation _orientation = PdfOrientation.portrait;
   late final TextEditingController _titleController;
 
@@ -118,11 +136,11 @@ class _LibraryPrintPdfPageState extends State<LibraryPrintPdfPage> {
   bool _alternatingRows = false;
   PdfBorderType _borderType = PdfBorderType.all;
 
-  late List<PdfColumnDefinition> _availableAlbumColumns;
-  late List<String> _selectedAlbumColumnIds;
+  late List<PdfColumnDefinition> _availableItemColumns;
+  late List<String> _selectedItemColumnIds;
 
-  late List<TrackColumnDefinition> _availableTrackColumns;
-  late List<String> _selectedTrackColumnIds;
+  late List<PdfChildColumnDefinition> _availableChildColumns;
+  late List<String> _selectedChildColumnIds;
 
   String _sortColumnId = 'artist';
   bool _sortAscending = true;
@@ -131,7 +149,17 @@ class _LibraryPrintPdfPageState extends State<LibraryPrintPdfPage> {
   Uint8List? _generatedPdfBytes;
   String? _generatedFileSize;
 
-  bool get _isMusic => widget.type.kind == CatalogMediaKind.music;
+  LibraryExportCapability? get _exportCapability =>
+      libraryExportCapabilityForKind(widget.type.kind);
+
+  bool get _supportsChildList =>
+      _exportCapability?.supportsChildList == true &&
+      _availableChildColumns.isNotEmpty;
+
+  String get _itemLabel =>
+      _exportCapability?.itemLabel ?? widget.type.identity.pluralLabel;
+
+  String get _childLabel => _exportCapability?.childLabel ?? 'items';
 
   @override
   void initState() {
@@ -142,7 +170,7 @@ class _LibraryPrintPdfPageState extends State<LibraryPrintPdfPage> {
     }
     _titleController = TextEditingController(
       text: widget.initialTitle ??
-          (_isMusic ? 'My Albums' : 'My ${widget.type.identity.pluralLabel}'),
+          (_exportCapability?.pdfItemTitle ?? 'My $_itemLabel'),
     );
     _initColumns();
   }
@@ -154,251 +182,77 @@ class _LibraryPrintPdfPageState extends State<LibraryPrintPdfPage> {
   }
 
   void _initColumns() {
-    if (_isMusic) {
-      _availableAlbumColumns = [
-        PdfColumnDefinition(
-          id: 'artist',
-          label: 'Artist',
-          getValue: (item) => _musicAlbum(item)?.artist ?? item.dto.secondaryLabel ?? '',
-          widthFlex: 2.0,
-        ),
-        PdfColumnDefinition(
-          id: 'title',
-          label: 'Title',
-          getValue: (item) => item.dto.primaryLabel,
-          widthFlex: 2.5,
-        ),
-        PdfColumnDefinition(
-          id: 'format',
-          label: 'Format',
-          getValue: (item) => _musicAlbum(item)?.formatSummary ?? '',
-          widthFlex: 1.2,
-        ),
-        PdfColumnDefinition(
-          id: 'barcode',
-          label: 'Barcode',
-          getValue: (item) => _musicAlbum(item)?.barcode ?? '',
-          widthFlex: 1.5,
-        ),
-        PdfColumnDefinition(
-          id: 'cat_no',
-          label: 'Cat No',
-          getValue: (item) => _musicAlbum(item)?.catalogNumber ?? '',
-          widthFlex: 1.5,
-        ),
-        PdfColumnDefinition(
-          id: 'genre',
-          label: 'Genre',
-          getValue: (item) => _musicAlbum(item)?.genres.join(', ') ?? '',
-          widthFlex: 2.0,
-        ),
-        PdfColumnDefinition(
-          id: 'label',
-          label: 'Label',
-          getValue: (item) => _musicAlbum(item)?.publisher ?? '',
-          widthFlex: 1.8,
-        ),
-        PdfColumnDefinition(
-          id: 'release_year',
-          label: 'Release Year',
-          getValue: (item) => _musicAlbum(item)?.releaseDate?.year.toString() ?? '',
-          widthFlex: 1.0,
-        ),
-        PdfColumnDefinition(
-          id: 'orig_year',
-          label: 'Original Year',
-          getValue: (item) => _musicAlbum(item)?.originalReleaseDate?.year.toString() ?? '',
-          widthFlex: 1.0,
-          defaultVisible: false,
-        ),
-        PdfColumnDefinition(
-          id: 'discs',
-          label: 'Discs',
-          getValue: (item) => _musicAlbum(item)?.discs.length.toString() ?? '1',
-          widthFlex: 0.8,
-          defaultVisible: false,
-        ),
-        PdfColumnDefinition(
-          id: 'tracks',
-          label: 'Tracks',
-          getValue: (item) => _musicAlbum(item)?.trackCount.toString() ?? '',
-          widthFlex: 0.8,
-          defaultVisible: false,
-        ),
-        PdfColumnDefinition(
-          id: 'condition',
-          label: 'Condition',
-          getValue: (item) {
-            if (item.dto case MusicWorkspaceProjection musicDto) {
-              return musicDto.personal.condition ?? '';
-            }
-            return '';
-          },
-          widthFlex: 1.0,
-          defaultVisible: false,
-        ),
-        PdfColumnDefinition(
-          id: 'rating',
-          label: 'Rating',
-          getValue: (item) => item.source.trackingRating?.toString() ?? '',
-          widthFlex: 0.8,
-          defaultVisible: false,
-        ),
-        PdfColumnDefinition(
-          id: 'location',
-          label: 'Location',
-          getValue: (item) => item.source.locationPath ?? '',
-          widthFlex: 1.2,
-          defaultVisible: false,
-        ),
-        PdfColumnDefinition(
-          id: 'price_paid',
-          label: 'Price Paid',
-          getValue: (item) => item.source.pricePaidCents != null
-              ? formatMoney(item.source.pricePaidCents, item.source.currency)
-              : '',
-          widthFlex: 1.0,
-          defaultVisible: false,
-        ),
-        PdfColumnDefinition(
-          id: 'value',
-          label: 'Value',
-          getValue: (item) => item.source.marketValueCents != null
-              ? formatMoney(item.source.marketValueCents, item.source.currency)
-              : '',
-          widthFlex: 1.0,
-          defaultVisible: false,
-        ),
-      ];
-
-      _selectedAlbumColumnIds = _availableAlbumColumns
-          .where((col) => col.defaultVisible)
-          .map((col) => col.id)
-          .toList();
-
-      _availableTrackColumns = [
-        TrackColumnDefinition(
-          id: 'pos',
-          label: '#',
-          getValue: (track, _) => track.position,
-          widthFlex: 0.8,
-        ),
-        TrackColumnDefinition(
-          id: 'track_title',
-          label: 'Track Title',
-          getValue: (track, _) => track.title,
-          widthFlex: 3.0,
-        ),
-        TrackColumnDefinition(
-          id: 'track_artist',
-          label: 'Artist',
-          getValue: (track, album) => track.artist ?? album.artist ?? '',
-          widthFlex: 2.0,
-        ),
-        TrackColumnDefinition(
-          id: 'track_album',
-          label: 'Album',
-          getValue: (_, album) => album.title,
-          widthFlex: 2.5,
-        ),
-        TrackColumnDefinition(
-          id: 'duration',
-          label: 'Duration',
-          getValue: (track, _) {
-            final ms = track.durationMs;
-            if (ms == null || ms <= 0) return '';
-            final sec = (ms / 1000).round();
-            final m = sec ~/ 60;
-            final s = sec % 60;
-            return '$m:${s.toString().padLeft(2, '0')}';
-          },
-          widthFlex: 1.0,
-        ),
-        TrackColumnDefinition(
-          id: 'format',
-          label: 'Format',
-          getValue: (_, album) => album.formatSummary ?? '',
-          widthFlex: 1.2,
-        ),
-        TrackColumnDefinition(
-          id: 'genre',
-          label: 'Genre',
-          getValue: (_, album) => album.genres.join(', '),
-          widthFlex: 1.5,
-        ),
-      ];
-
-      _selectedTrackColumnIds = _availableTrackColumns
-          .where((col) => col.defaultVisible)
-          .map((col) => col.id)
-          .toList();
-    } else {
-      _availableAlbumColumns = [
-        PdfColumnDefinition(
-          id: 'title',
-          label: 'Title',
-          getValue: (item) => item.dto.primaryLabel,
-          widthFlex: 2.5,
-        ),
-        PdfColumnDefinition(
-          id: 'secondary',
-          label: 'Creator / Series',
-          getValue: (item) => item.dto.secondaryLabel ?? '',
-          widthFlex: 2.0,
-        ),
-        PdfColumnDefinition(
-          id: 'format',
-          label: 'Format',
-          getValue: (item) => item.source.catalogSummary?.subtitle ?? '',
-          widthFlex: 1.2,
-        ),
-        PdfColumnDefinition(
-          id: 'status',
-          label: 'Status',
-          getValue: (item) => item.source.trackingStatusLabel,
-          widthFlex: 1.0,
-        ),
-        PdfColumnDefinition(
-          id: 'location',
-          label: 'Location',
-          getValue: (item) => item.source.locationPath ?? '',
-          widthFlex: 1.5,
-          defaultVisible: false,
-        ),
-        PdfColumnDefinition(
-          id: 'price_paid',
-          label: 'Price Paid',
-          getValue: (item) => item.source.pricePaidCents != null
-              ? formatMoney(item.source.pricePaidCents, item.source.currency)
-              : '',
-          widthFlex: 1.0,
-          defaultVisible: false,
-        ),
-        PdfColumnDefinition(
-          id: 'value',
-          label: 'Value',
-          getValue: (item) => item.source.marketValueCents != null
-              ? formatMoney(item.source.marketValueCents, item.source.currency)
-              : '',
-          widthFlex: 1.0,
-          defaultVisible: false,
-        ),
-      ];
-
-      _selectedAlbumColumnIds = _availableAlbumColumns
-          .where((col) => col.defaultVisible)
-          .map((col) => col.id)
-          .toList();
-
-      _availableTrackColumns = const [];
-      _selectedTrackColumnIds = const [];
-      _sortColumnId = 'title';
-    }
-  }
-
-  static MusicAlbum? _musicAlbum(LibraryProjectionView item) {
-    final data = item.source.kindPresentationData;
-    return data is MusicWorkspaceData ? data.music : null;
+    final capability = _exportCapability;
+    final contributedColumns = capability?.pdfItemColumns ?? const [];
+    _availableItemColumns = contributedColumns.isNotEmpty
+        ? [
+            for (final column in contributedColumns)
+              PdfColumnDefinition.fromExportColumn(column),
+          ]
+        : [
+            PdfColumnDefinition(
+              id: 'title',
+              label: 'Title',
+              getValue: (item) => item.dto.primaryLabel,
+              widthFlex: 2.5,
+            ),
+            PdfColumnDefinition(
+              id: 'secondary',
+              label: 'Creator / Series',
+              getValue: (item) => item.dto.secondaryLabel ?? '',
+              widthFlex: 2.0,
+            ),
+            PdfColumnDefinition(
+              id: 'format',
+              label: 'Format',
+              getValue: (item) => item.source.catalogSummary?.subtitle ?? '',
+              widthFlex: 1.2,
+            ),
+            PdfColumnDefinition(
+              id: 'status',
+              label: 'Status',
+              getValue: (item) => item.source.trackingStatusLabel,
+              widthFlex: 1.0,
+            ),
+            PdfColumnDefinition(
+              id: 'location',
+              label: 'Location',
+              getValue: (item) => item.source.locationPath ?? '',
+              widthFlex: 1.5,
+              defaultVisible: false,
+            ),
+            PdfColumnDefinition(
+              id: 'price_paid',
+              label: 'Price Paid',
+              getValue: (item) => item.source.pricePaidCents != null
+                  ? formatMoney(item.source.pricePaidCents, item.source.currency)
+                  : '',
+              widthFlex: 1.0,
+              defaultVisible: false,
+            ),
+            PdfColumnDefinition(
+              id: 'value',
+              label: 'Value',
+              getValue: (item) => item.source.marketValueCents != null
+                  ? formatMoney(item.source.marketValueCents, item.source.currency)
+                  : '',
+              widthFlex: 1.0,
+              defaultVisible: false,
+            ),
+          ];
+    _selectedItemColumnIds = _availableItemColumns
+        .where((column) => column.defaultVisible)
+        .map((column) => column.id)
+        .toList();
+    _availableChildColumns = [
+      for (final column in capability?.pdfChildColumns ?? const [])
+        PdfChildColumnDefinition.fromExportColumn(column),
+    ];
+    _selectedChildColumnIds = _availableChildColumns
+        .where((column) => column.defaultVisible)
+        .map((column) => column.id)
+        .toList();
+    _sortColumnId = capability?.defaultSortColumnId ?? 'title';
   }
 
   List<LibraryProjectionView> get _allList => widget.allItems ?? widget.items;
@@ -418,9 +272,9 @@ class _LibraryPrintPdfPageState extends State<LibraryPrintPdfPage> {
 
     final sorted = List<LibraryProjectionView>.from(list);
     sorted.sort((a, b) {
-      final col = _availableAlbumColumns.firstWhere(
+      final col = _availableItemColumns.firstWhere(
         (c) => c.id == _sortColumnId,
-        orElse: () => _availableAlbumColumns.first,
+        orElse: () => _availableItemColumns.first,
       );
       final valA = col.getValue(a).toLowerCase();
       final valB = col.getValue(b).toLowerCase();
@@ -430,30 +284,11 @@ class _LibraryPrintPdfPageState extends State<LibraryPrintPdfPage> {
     return sorted;
   }
 
-  List<({MusicTrack track, MusicAlbum album})> get _activeTracks {
-    final rows = <({MusicTrack track, MusicAlbum album})>[];
-    for (final item in _activeItems) {
-      final album = _musicAlbum(item);
-      if (album == null) continue;
-      for (final disc in album.discs) {
-        for (final track in disc.tracks) {
-          if (!track.isHeader) {
-            rows.add((track: track, album: album));
-          }
-        }
-      }
-    }
-    return rows;
-  }
+  List<LibraryExportChildRow> get _activeChildRows =>
+      _exportCapability?.childRowsFor(_activeItems) ?? const [];
 
-  int get _totalTracksCount {
-    var count = 0;
-    for (final item in widget.items) {
-      final album = _musicAlbum(item);
-      if (album != null) count += album.trackCount;
-    }
-    return count;
-  }
+  int get _totalChildCount =>
+      _exportCapability?.childRowsFor(widget.items).length ?? 0;
 
   String get _formattedCurrentDateTime {
     final now = DateTime.now();
@@ -510,7 +345,7 @@ class _LibraryPrintPdfPageState extends State<LibraryPrintPdfPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                // 1. Pane: Which Albums + Export Mode + Columns + Sort
+                // 1. Pane: Which items + optional child mode + Columns + Sort
                 _buildTopSelectionPane(palette, accent),
                 const SizedBox(height: 16),
 
@@ -554,7 +389,7 @@ class _LibraryPrintPdfPageState extends State<LibraryPrintPdfPage> {
               children: [
                 Expanded(child: _buildSubsetSection(palette)),
                 const SizedBox(width: 16),
-                if (_isMusic) ...[
+                if (_supportsChildList) ...[
                   Expanded(child: _buildExportModeSection(palette)),
                   const SizedBox(width: 16),
                 ],
@@ -566,7 +401,7 @@ class _LibraryPrintPdfPageState extends State<LibraryPrintPdfPage> {
           else ...[
             _buildSubsetSection(palette),
             const SizedBox(height: 16),
-            if (_isMusic) ...[
+            if (_supportsChildList) ...[
               _buildExportModeSection(palette),
               const SizedBox(height: 16),
             ],
@@ -580,7 +415,7 @@ class _LibraryPrintPdfPageState extends State<LibraryPrintPdfPage> {
   }
 
   Widget _buildSubsetSection(AppThemePalette palette) {
-    final plural = _isMusic ? 'Albums' : widget.type.identity.pluralLabel;
+    final plural = _itemLabel;
     final allCount = _allList.length;
     final currentCount = widget.items.length;
     final checkboxedCount = _checkboxedList.length;
@@ -638,6 +473,7 @@ class _LibraryPrintPdfPageState extends State<LibraryPrintPdfPage> {
   }
 
   Widget _buildExportModeSection(AppThemePalette palette) {
+    final capability = _exportCapability!;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -659,18 +495,19 @@ class _LibraryPrintPdfPageState extends State<LibraryPrintPdfPage> {
           child: Column(
             children: [
               _buildRadioRow(
-                title: 'Album list',
+                title: capability.itemModeLabel,
                 count: widget.items.length,
-                selected: _exportMode == ExportMode.albumList,
-                onTap: () => setState(() => _exportMode = ExportMode.albumList),
+                selected: _exportMode == ExportMode.itemList,
+                onTap: () => setState(() => _exportMode = ExportMode.itemList),
                 palette: palette,
               ),
               Divider(height: 1, color: palette.divider),
               _buildRadioRow(
-                title: 'Track list',
-                count: _totalTracksCount,
-                selected: _exportMode == ExportMode.trackList,
-                onTap: () => setState(() => _exportMode = ExportMode.trackList),
+                title: capability.childModeLabel ??
+                    '${capability.childLabel} list',
+                count: _totalChildCount,
+                selected: _exportMode == ExportMode.childList,
+                onTap: () => setState(() => _exportMode = ExportMode.childList),
                 palette: palette,
               ),
             ],
@@ -681,13 +518,13 @@ class _LibraryPrintPdfPageState extends State<LibraryPrintPdfPage> {
   }
 
   Widget _buildColumnsSection(AppThemePalette palette) {
-    final activeLabels = _exportMode == ExportMode.albumList
-        ? _availableAlbumColumns
-            .where((c) => _selectedAlbumColumnIds.contains(c.id))
+    final activeLabels = _exportMode == ExportMode.itemList
+        ? _availableItemColumns
+            .where((c) => _selectedItemColumnIds.contains(c.id))
             .map((c) => c.label)
             .join(', ')
-        : _availableTrackColumns
-            .where((c) => _selectedTrackColumnIds.contains(c.id))
+        : _availableChildColumns
+            .where((c) => _selectedChildColumnIds.contains(c.id))
             .map((c) => c.label)
             .join(', ')
             .trim();
@@ -734,7 +571,7 @@ class _LibraryPrintPdfPageState extends State<LibraryPrintPdfPage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Active columns (${_exportMode == ExportMode.albumList ? _selectedAlbumColumnIds.length : _selectedTrackColumnIds.length})',
+                'Active columns (${_exportMode == ExportMode.itemList ? _selectedItemColumnIds.length : _selectedChildColumnIds.length})',
                 style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.bold,
@@ -759,9 +596,9 @@ class _LibraryPrintPdfPageState extends State<LibraryPrintPdfPage> {
   }
 
   Widget _buildSortSection(AppThemePalette palette) {
-    final currentSortLabel = _availableAlbumColumns
+    final currentSortLabel = _availableItemColumns
         .firstWhere((c) => c.id == _sortColumnId,
-            orElse: () => _availableAlbumColumns.first)
+            orElse: () => _availableItemColumns.first)
         .label;
 
     return Column(
@@ -1479,9 +1316,9 @@ class _LibraryPrintPdfPageState extends State<LibraryPrintPdfPage> {
                       // Preview Table
                       SingleChildScrollView(
                         scrollDirection: Axis.horizontal,
-                        child: _exportMode == ExportMode.albumList
-                            ? _buildAlbumPreviewTable(previewItems)
-                            : _buildTrackPreviewTable(),
+                        child: _exportMode == ExportMode.itemList
+                            ? _buildItemPreviewTable(previewItems)
+                            : _buildChildPreviewTable(),
                       ),
 
                       const SizedBox(height: 16),
@@ -1508,9 +1345,9 @@ class _LibraryPrintPdfPageState extends State<LibraryPrintPdfPage> {
     );
   }
 
-  Widget _buildAlbumPreviewTable(List<LibraryProjectionView> items) {
-    final activeCols = _availableAlbumColumns
-        .where((c) => _selectedAlbumColumnIds.contains(c.id))
+  Widget _buildItemPreviewTable(List<LibraryProjectionView> items) {
+    final activeCols = _availableItemColumns
+        .where((c) => _selectedItemColumnIds.contains(c.id))
         .toList();
 
     final border = switch (_borderType) {
@@ -1601,11 +1438,11 @@ class _LibraryPrintPdfPageState extends State<LibraryPrintPdfPage> {
     );
   }
 
-  Widget _buildTrackPreviewTable() {
-    final activeCols = _availableTrackColumns
-        .where((c) => _selectedTrackColumnIds.contains(c.id))
+  Widget _buildChildPreviewTable() {
+    final activeCols = _availableChildColumns
+        .where((c) => _selectedChildColumnIds.contains(c.id))
         .toList();
-    final tracks = _activeTracks.take(15).toList();
+    final rows = _activeChildRows.take(15).toList();
 
     final border = switch (_borderType) {
       PdfBorderType.none => const TableBorder(),
@@ -1646,7 +1483,7 @@ class _LibraryPrintPdfPageState extends State<LibraryPrintPdfPage> {
                 ),
             ],
           ),
-        for (var i = 0; i < tracks.length; i++)
+        for (var i = 0; i < rows.length; i++)
           TableRow(
             decoration: BoxDecoration(
               color: _alternatingRows && i % 2 == 1
@@ -1658,7 +1495,7 @@ class _LibraryPrintPdfPageState extends State<LibraryPrintPdfPage> {
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   child: Text(
-                    col.getValue(tracks[i].track, tracks[i].album),
+                    col.getValue(rows[i]),
                     softWrap: _wrapInsideColumn,
                     style: TextStyle(
                       fontSize: _fontSize.toDouble(),
@@ -1769,10 +1606,10 @@ class _LibraryPrintPdfPageState extends State<LibraryPrintPdfPage> {
           ),
       };
 
-      if (_exportMode == ExportMode.albumList) {
+      if (_exportMode == ExportMode.itemList) {
         final items = _activeItems;
-        final activeCols = _availableAlbumColumns
-            .where((c) => _selectedAlbumColumnIds.contains(c.id))
+        final activeCols = _availableItemColumns
+            .where((c) => _selectedItemColumnIds.contains(c.id))
             .toList();
 
         final itemsPerPage = _limitRowsPerPage ? _maxRowsPerPage : 35;
@@ -1881,22 +1718,22 @@ class _LibraryPrintPdfPageState extends State<LibraryPrintPdfPage> {
           );
         }
       } else {
-        // Track list export mode
-        final tracks = _activeTracks;
-        final activeCols = _availableTrackColumns
-            .where((c) => _selectedTrackColumnIds.contains(c.id))
+        // Kind-owned child list export mode
+        final rows = _activeChildRows;
+        final activeCols = _availableChildColumns
+            .where((c) => _selectedChildColumnIds.contains(c.id))
             .toList();
 
         final itemsPerPage = _limitRowsPerPage ? _maxRowsPerPage : 40;
-        final pages = <List<({MusicTrack track, MusicAlbum album})>>[];
-        for (var i = 0; i < tracks.length; i += itemsPerPage) {
-          pages.add(tracks.sublist(
-              i, i + itemsPerPage > tracks.length ? tracks.length : i + itemsPerPage));
+        final pages = <List<LibraryExportChildRow>>[];
+        for (var i = 0; i < rows.length; i += itemsPerPage) {
+          pages.add(rows.sublist(
+              i, i + itemsPerPage > rows.length ? rows.length : i + itemsPerPage));
         }
         if (pages.isEmpty) pages.add([]);
 
         for (var p = 0; p < pages.length; p++) {
-          final pageTracks = pages[p];
+          final pageRows = pages[p];
           doc.addPage(
             pw.Page(
               pageFormat: format,
@@ -1908,7 +1745,8 @@ class _LibraryPrintPdfPageState extends State<LibraryPrintPdfPage> {
                     if (p == 0 || _repeatTitleOnEveryPage) ...[
                       pw.Text(
                         _titleController.text.trim().isEmpty
-                            ? 'My Tracks'
+                            ? (_exportCapability?.pdfChildTitle ??
+                                'My $_childLabel')
                             : _titleController.text.trim(),
                         style: pw.TextStyle(
                           font: pdfBoldFont,
@@ -1949,7 +1787,7 @@ class _LibraryPrintPdfPageState extends State<LibraryPrintPdfPage> {
                                 ),
                             ],
                           ),
-                        for (var i = 0; i < pageTracks.length; i++)
+                        for (var i = 0; i < pageRows.length; i++)
                           pw.TableRow(
                             decoration: pw.BoxDecoration(
                               color: _alternatingRows && i % 2 == 1
@@ -1961,8 +1799,7 @@ class _LibraryPrintPdfPageState extends State<LibraryPrintPdfPage> {
                                 pw.Padding(
                                   padding: const pw.EdgeInsets.all(4),
                                   child: pw.Text(
-                                    col.getValue(
-                                        pageTracks[i].track, pageTracks[i].album),
+                                    col.getValue(pageRows[i]),
                                     style: pw.TextStyle(
                                       font: pdfFont,
                                       fontSize: _fontSize.toDouble(),
@@ -2032,13 +1869,13 @@ class _LibraryPrintPdfPageState extends State<LibraryPrintPdfPage> {
   // MANAGE DIALOGS
   // ==========================================
   Future<void> _showManageColumnsDialog() async {
-    final isTrack = _exportMode == ExportMode.trackList;
-    final availableCols = isTrack
-        ? _availableTrackColumns.map((c) => (id: c.id, label: c.label)).toList()
-        : _availableAlbumColumns.map((c) => (id: c.id, label: c.label)).toList();
+    final isChild = _exportMode == ExportMode.childList;
+    final availableCols = isChild
+        ? _availableChildColumns.map((c) => (id: c.id, label: c.label)).toList()
+        : _availableItemColumns.map((c) => (id: c.id, label: c.label)).toList();
 
     var currentSelected = List<String>.from(
-      isTrack ? _selectedTrackColumnIds : _selectedAlbumColumnIds,
+      isChild ? _selectedChildColumnIds : _selectedItemColumnIds,
     );
 
     await showDialog<void>(
@@ -2078,10 +1915,10 @@ class _LibraryPrintPdfPageState extends State<LibraryPrintPdfPage> {
               FilledButton(
                 onPressed: () {
                   setState(() {
-                    if (isTrack) {
-                      _selectedTrackColumnIds = currentSelected;
+                    if (isChild) {
+                      _selectedChildColumnIds = currentSelected;
                     } else {
-                      _selectedAlbumColumnIds = currentSelected;
+                      _selectedItemColumnIds = currentSelected;
                     }
                   });
                   Navigator.of(dialogCtx).pop();
@@ -2113,7 +1950,7 @@ class _LibraryPrintPdfPageState extends State<LibraryPrintPdfPage> {
                 const SizedBox(height: 6),
                 DropdownButtonFormField<String>(
                   initialValue: chosenColId,
-                  items: _availableAlbumColumns
+                  items: _availableItemColumns
                       .map((c) => DropdownMenuItem(value: c.id, child: Text(c.label)))
                       .toList(),
                   onChanged: (v) => setDialogState(() => chosenColId = v ?? chosenColId),
