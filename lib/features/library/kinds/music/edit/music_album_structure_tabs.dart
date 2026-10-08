@@ -60,10 +60,8 @@ final class _MusicAlbumStructureTabState
   List<Widget> _trackSections() {
     if (draft.discs.isEmpty) {
       return [
-        const Text('This release does not have any discs yet.'),
-        const SizedBox(height: 10),
         Align(
-          alignment: Alignment.centerLeft,
+          alignment: Alignment.centerRight,
           child: _addDiscButton(),
         ),
       ];
