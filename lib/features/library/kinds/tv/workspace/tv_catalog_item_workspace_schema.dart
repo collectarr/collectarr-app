@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/library/kinds/tv/workspace/tv_ids.dart';
+import 'package:collectarr_app/features/library/kinds/tv/config/tv_field_identities.dart';
 import 'package:collectarr_app/features/library/kinds/tv/workspace/tv_workspace_dto.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_transport_bucket_mutators.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
@@ -22,7 +23,7 @@ abstract final class TvCatalogItemWorkspaceFields {
 
   static final barcode = textField<TvKind, TvWorkspaceDto>(
     id: TvFieldIds.barcode,
-    label: 'Barcode',
+    label: TvFieldIdentities.barcodeLabel,
     getValue: (dto) => dto.barcode,
     searchable: true,
   );

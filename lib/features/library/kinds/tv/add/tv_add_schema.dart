@@ -6,6 +6,7 @@ import 'package:collectarr_app/features/library/add/schema/library_add_catalog_t
 import 'package:collectarr_app/features/library/kinds/tv/add/tv_add_manual_draft.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/tv/forms/tv_catalog_form_draft.dart';
+import 'package:collectarr_app/features/library/kinds/tv/config/tv_field_identities.dart';
 import 'package:collectarr_app/features/library/kinds/tv/vocabulary/tv_vocabularies.dart';
 
 final LibraryFormSchema<TvAddManualDraft> tvAddSchema = tvAddSchemaFor();
@@ -30,7 +31,7 @@ const tvEditionFieldIds = {
   'variant_name',
   'physical_format',
   'release_date',
-  'barcode',
+  TvFieldIdentities.barcodeId,
 };
 
 const tvSpecsFieldIds = {
@@ -214,8 +215,8 @@ LibraryFormSchema<TDraft> tvAddSchemaFor<TDraft extends TvCatalogFormDraft>({
               allowCustomValues: true,
             ),
             _text<TDraft>(
-              id: 'barcode',
-              label: 'Barcode',
+              id: TvFieldIdentities.barcodeId,
+              label: TvFieldIdentities.barcodeLabel,
               read: (metadata) => metadata.barcode ?? '',
               write: (draft, value) =>
                   _writeNullable(draft, 'barcode', _nullable(value)),
