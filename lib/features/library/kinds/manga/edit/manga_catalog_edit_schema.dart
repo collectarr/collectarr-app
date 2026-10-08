@@ -1,5 +1,6 @@
 import 'package:collectarr_app/core/models/partial_date.dart';
 import 'package:collectarr_app/features/library/edit/schema/edit_schema.dart';
+import 'package:collectarr_app/features/library/kinds/manga/config/manga_field_identities.dart';
 import 'package:collectarr_app/features/library/kinds/manga/edit/manga_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/manga/vocabulary/manga_vocabularies.dart';
 import 'package:flutter/material.dart';
@@ -61,8 +62,8 @@ final EditSchema<MangaEditDraft, MangaEditDraft> mangaCatalogEditionEditSchema =
               write: (draft, value) => draft.bindingController.text = value,
             ),
             _vocabularyField(
-              id: 'publisher',
-              label: 'Publisher',
+              id: MangaFieldIdentities.publisherId,
+              label: MangaFieldIdentities.publisherLabel,
               options: MangaVocabularies.publisher.builtIns,
               vocabularyKey: MangaVocabularies.publisher.key,
               read: (draft) => draft.publisherController.text,

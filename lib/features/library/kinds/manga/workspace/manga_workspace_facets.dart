@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/library/kinds/manga/workspace/manga_ids.dart';
+import 'package:collectarr_app/features/library/kinds/manga/config/manga_field_identities.dart';
 import 'package:collectarr_app/features/library/kinds/manga/workspace/manga_workspace_dto.dart';
 import 'package:collectarr_app/features/library/config/library_facet_types.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_identifier_types.dart';
@@ -7,7 +8,7 @@ final mangaLibraryFacetDefinitions =
     <LibraryFacetDefinition<MangaKind, MangaWorkspaceDto, String>>[
   LibraryFacetDefinition<MangaKind, MangaWorkspaceDto, String>(
     id: MangaFacetIds.publisher,
-    label: 'Publisher',
+    label: MangaFieldIdentities.publisherLabel,
     extractValues: (dto) => [
       if (dto.publisher case final publisher?) publisher,
     ],

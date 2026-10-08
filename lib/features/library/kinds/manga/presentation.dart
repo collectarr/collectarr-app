@@ -3,6 +3,7 @@ import 'package:collectarr_app/features/library/kinds/manga/data/manga_library_e
 import 'package:collectarr_app/features/library/kinds/manga/presentation_builder.dart';
 import 'package:collectarr_app/features/library/kinds/manga/workspace/manga_card_presentation.dart';
 import 'package:collectarr_app/features/library/kinds/manga/workspace/manga_workspace_dto.dart';
+import 'package:collectarr_app/features/library/kinds/manga/config/manga_field_identities.dart';
 import 'package:collectarr_app/features/library/config/workspace_presentation_support.dart';
 
 const mangaMetadataLabels = LibraryMetadataLabels(
@@ -86,8 +87,8 @@ final mangaLibraryFilterDefinitions = <LibraryFilterDefinition<Object?>>[
     )?.personal.tags?.split(','),
   ),
   LibraryFilterDefinition<Object?>(
-    id: 'publisher',
-    label: 'Publisher',
+    id: MangaFieldIdentities.publisherId,
+    label: MangaFieldIdentities.publisherLabel,
     anyLabel: 'Any publisher',
     value: (item) => (item.dto is MangaWorkspaceDto)
         ? (item.dto as MangaWorkspaceDto).publisher

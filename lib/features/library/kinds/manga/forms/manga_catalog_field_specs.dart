@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:collectarr_app/features/library/kinds/manga/config/manga_field_identities.dart';
 import 'package:collectarr_app/features/library/kinds/manga/forms/manga_catalog_form_values.dart';
 import 'package:collectarr_app/features/library/kinds/manga/vocabulary/manga_vocabularies.dart';
 import 'package:collectarr_app/features/library/forms/library_field_spec.dart';
@@ -40,8 +41,8 @@ List<LibraryFieldSpec<TDraft>> mangaReleaseFields<TDraft>({
         setValue: (draft, value) => values(draft).binding = value,
       ),
       _vocabularyOrText<TDraft>(
-        id: 'publisher',
-        label: 'Publisher',
+        id: MangaFieldIdentities.publisherId,
+        label: MangaFieldIdentities.publisherLabel,
         value: (draft) => values(draft).publisher,
         setValue: (draft, value) => values(draft).publisher = value,
         options: publisherOptions ?? MangaVocabularies.publisher.builtIns,

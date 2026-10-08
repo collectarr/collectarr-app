@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/library/kinds/manga/workspace/manga_ids.dart';
+import 'package:collectarr_app/features/library/kinds/manga/config/manga_field_identities.dart';
 import 'package:collectarr_app/features/library/kinds/manga/workspace/manga_workspace_dto.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_transport_bucket_mutators.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
@@ -8,7 +9,7 @@ import 'package:flutter/material.dart';
 abstract final class MangaAdditionalCatalogItemWorkspaceFields {
   static final publisher = textField<MangaKind, MangaWorkspaceDto>(
     id: MangaFieldIds.publisher,
-    label: 'Publisher',
+    label: MangaFieldIdentities.publisherLabel,
     getValue: (dto) => dto.publisher,
     searchable: true,
   );

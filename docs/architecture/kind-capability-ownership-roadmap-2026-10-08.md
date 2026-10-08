@@ -132,6 +132,10 @@ Comic now shares series, issue number, variant, imprint, and page count IDs
 and labels between its edit forms and workspace metadata. The workspace's
 release date and barcode remain separate because they are projections across
 the comic's dates and identifiers rather than the exact editable fields.
+Manga shares its publisher identity and label across Add/Edit forms, workspace
+fields, filter, facet, sort, and group configuration. Manga workspace release
+date and barcode stay separate because they use date and identifier fallbacks;
+series, volume number, and edition format also represent different values.
 Music release, original release, and recording dates now have one canonical
 `{year, month, day}` representation across the Core model, API, correction
 flow, search projection, App mapper, and pinned contract. Core rejects legacy

@@ -7,6 +7,7 @@ import 'package:collectarr_app/features/library/add/panes/library_add_manual_pan
 import 'package:collectarr_app/features/library/forms/library_form_schema.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/features/library/serial/library_series_selector_field.dart';
+import 'package:collectarr_app/features/library/kinds/manga/config/manga_field_identities.dart';
 import 'package:collectarr_app/features/library/kinds/manga/add/manga_add_schema.dart';
 import 'package:collectarr_app/features/library/kinds/manga/add/manga_add_manual_draft.dart';
 import 'package:collectarr_app/features/library/kinds/manga/vocabulary/manga_vocabularies.dart';
@@ -176,7 +177,7 @@ class _MangaAddManualPaneState extends ConsumerState<MangaAddManualPane> {
             'variant',
             'format',
             'binding',
-            'publisher',
+            MangaFieldIdentities.publisherId,
             'imprint',
             'isbn',
             'barcode',
