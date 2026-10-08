@@ -1,10 +1,12 @@
+import 'package:collectarr_app/features/library/kinds/boardgame/config/boardgame_field_identities.dart';
+
 const boardGameMainFieldIds = {
   'catalog_title',
   'original_title',
   'localized_title',
   'sort_title',
   'subtitle',
-  'publisher',
+  BoardGameFieldIdentities.publisherId,
   'platforms',
   'series_title',
   'year_published',
@@ -18,7 +20,7 @@ const boardGameMainFieldIds = {
   'families',
   'themes',
   'expansions',
-  'expansion_for',
+  BoardGameFieldIdentities.expansionForId,
   'rankings',
   'search_aliases',
   'original_language',
@@ -32,26 +34,26 @@ const boardGameMainFieldIds = {
 const boardGameEditionFieldIds = {
   'edition_title',
   'item_number',
-  'barcode',
+  BoardGameFieldIdentities.barcodeId,
   'catalog_number',
   'variant',
   'format',
-  'release_date',
+  BoardGameFieldIdentities.releaseDateId,
 };
 
 const boardGamePlayFieldIds = {
-  'min_players',
-  'max_players',
-  'recommended_players',
-  'best_players',
-  'min_playtime_minutes',
-  'max_playtime_minutes',
+  BoardGameFieldIdentities.minPlayersId,
+  BoardGameFieldIdentities.maxPlayersId,
+  BoardGameFieldIdentities.recommendedPlayersId,
+  BoardGameFieldIdentities.bestPlayersId,
+  BoardGameFieldIdentities.minPlaytimeMinutesId,
+  BoardGameFieldIdentities.maxPlaytimeMinutesId,
   'playing_time_minutes',
   'min_age',
-  'complexity_weight',
-  'bgg_rating',
+  BoardGameFieldIdentities.complexityWeightId,
+  BoardGameFieldIdentities.bggRatingId,
   'bgg_rating_count',
-  'bgg_rank',
+  BoardGameFieldIdentities.bggRankId,
 };
 
 const boardGameDescriptionFieldIds = {'description'};

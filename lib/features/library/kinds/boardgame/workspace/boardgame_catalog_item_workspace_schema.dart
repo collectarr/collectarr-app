@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/library/kinds/boardgame/workspace/boardgame_ids.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/config/boardgame_field_identities.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/workspace/boardgame_workspace_dto.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/schema/field_factories.dart';
@@ -15,20 +16,20 @@ abstract final class BoardGameCatalogItemWorkspaceFields {
 
   static final publisher = textField<BoardGameKind, BoardGameWorkspaceDto>(
     id: BoardGameFieldIds.publisher,
-    label: 'Publisher',
+    label: BoardGameFieldIdentities.publisherLabel,
     getValue: (dto) => dto.publisher,
     searchable: true,
   );
 
   static final releaseDate = dateField<BoardGameKind, BoardGameWorkspaceDto>(
     id: BoardGameFieldIds.releaseDate,
-    label: 'Release Date',
+    label: BoardGameFieldIdentities.releaseDateLabel,
     getValue: (dto) => dto.releaseDate,
   );
 
   static final barcode = textField<BoardGameKind, BoardGameWorkspaceDto>(
     id: BoardGameFieldIds.barcode,
-    label: 'Barcode',
+    label: BoardGameFieldIdentities.barcodeLabel,
     getValue: (dto) => dto.barcode,
     searchable: true,
   );
@@ -48,65 +49,65 @@ abstract final class BoardGameCatalogItemWorkspaceFields {
 
   static final minPlayers = numberField<BoardGameKind, BoardGameWorkspaceDto>(
     id: BoardGameFieldIds.minPlayers,
-    label: 'Min Players',
+    label: BoardGameFieldIdentities.minPlayersLabel,
     getValue: (dto) => dto.metadata.minPlayers,
   );
 
   static final maxPlayers = numberField<BoardGameKind, BoardGameWorkspaceDto>(
     id: BoardGameFieldIds.maxPlayers,
-    label: 'Max Players',
+    label: BoardGameFieldIdentities.maxPlayersLabel,
     getValue: (dto) => dto.metadata.maxPlayers,
   );
 
   static final bestPlayers = textField<BoardGameKind, BoardGameWorkspaceDto>(
     id: BoardGameFieldIds.bestPlayers,
-    label: 'Best Players',
+    label: BoardGameFieldIdentities.bestPlayersLabel,
     getValue: (dto) => dto.metadata.bestPlayers,
   );
 
   static final recommendedPlayers =
       textField<BoardGameKind, BoardGameWorkspaceDto>(
     id: BoardGameFieldIds.recommendedPlayers,
-    label: 'Recommended Players',
+    label: BoardGameFieldIdentities.recommendedPlayersLabel,
     getValue: (dto) => dto.metadata.recommendedPlayers,
   );
 
   static final minPlaytimeMinutes =
       numberField<BoardGameKind, BoardGameWorkspaceDto>(
     id: BoardGameFieldIds.minPlaytimeMinutes,
-    label: 'Min Playtime (m)',
+    label: BoardGameFieldIdentities.minPlaytimeMinutesLabel,
     getValue: (dto) => dto.metadata.minPlaytimeMinutes,
   );
 
   static final maxPlaytimeMinutes =
       numberField<BoardGameKind, BoardGameWorkspaceDto>(
     id: BoardGameFieldIds.maxPlaytimeMinutes,
-    label: 'Max Playtime (m)',
+    label: BoardGameFieldIdentities.maxPlaytimeMinutesLabel,
     getValue: (dto) => dto.metadata.maxPlaytimeMinutes,
   );
 
   static final complexityWeight =
       numberField<BoardGameKind, BoardGameWorkspaceDto>(
     id: BoardGameFieldIds.complexityWeight,
-    label: 'Complexity / Weight',
+    label: BoardGameFieldIdentities.complexityWeightLabel,
     getValue: (dto) => dto.metadata.complexityWeight,
   );
 
   static final bggRating = numberField<BoardGameKind, BoardGameWorkspaceDto>(
     id: BoardGameFieldIds.bggRating,
-    label: 'BGG Rating',
+    label: BoardGameFieldIdentities.bggRatingLabel,
     getValue: (dto) => dto.metadata.bggRating,
   );
 
   static final bggRank = numberField<BoardGameKind, BoardGameWorkspaceDto>(
     id: BoardGameFieldIds.bggRank,
-    label: 'BGG Rank',
+    label: BoardGameFieldIdentities.bggRankLabel,
     getValue: (dto) => dto.metadata.bggRank,
   );
 
   static final expansionFor = textField<BoardGameKind, BoardGameWorkspaceDto>(
     id: BoardGameFieldIds.expansionFor,
-    label: 'Expansion For',
+    label: BoardGameFieldIdentities.expansionForLabel,
     getValue: (dto) => dto.metadata.expansionFor,
   );
 }

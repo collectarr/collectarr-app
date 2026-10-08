@@ -4,6 +4,7 @@ import 'package:collectarr_app/core/models/partial_date.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/forms/boardgame_catalog_form_values.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/vocabulary/boardgame_vocabularies.dart';
 import 'package:collectarr_app/features/library/forms/library_field_spec.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/config/boardgame_field_identities.dart';
 
 typedef BoardGameFormValuesReader<TDraft> = BoardGameCatalogFormValues Function(
     TDraft draft);
@@ -50,8 +51,8 @@ List<LibraryFieldSpec<TDraft>> boardGameCatalogItemFields<TDraft>({
         maxLines: 4,
       ),
       LibraryVocabularyFieldSpec<TDraft, String>(
-        id: 'publisher',
-        label: 'Publisher',
+        id: BoardGameFieldIdentities.publisherId,
+        label: BoardGameFieldIdentities.publisherLabel,
         value: (draft) => _nullable(values(draft).publisher),
         setValue: (draft, value) => values(draft).publisher = value ?? '',
         options: _options(
@@ -133,8 +134,8 @@ List<LibraryFieldSpec<TDraft>> boardGameCatalogItemFields<TDraft>({
         setValue: (draft, value) => values(draft).expansions = _split(value),
       ),
       LibraryTextFieldSpec<TDraft>(
-        id: 'expansion_for',
-        label: 'Expansion for',
+        id: BoardGameFieldIdentities.expansionForId,
+        label: BoardGameFieldIdentities.expansionForLabel,
         value: (draft) => values(draft).expansionFor,
         setValue: (draft, value) => values(draft).expansionFor = value,
       ),
@@ -165,41 +166,41 @@ List<LibraryFieldSpec<TDraft>> boardGameCatalogItemFields<TDraft>({
             values(draft).yearPublished = value?.toInt(),
       ),
       _number<TDraft>(
-        id: 'min_players',
-        label: 'Minimum players',
+        id: BoardGameFieldIdentities.minPlayersId,
+        label: BoardGameFieldIdentities.minPlayersLabel,
         read: (draft) => values(draft).minPlayers,
         write: (draft, value) => values(draft).minPlayers = value,
         minimum: 1,
       ),
       _number<TDraft>(
-        id: 'max_players',
-        label: 'Maximum players',
+        id: BoardGameFieldIdentities.maxPlayersId,
+        label: BoardGameFieldIdentities.maxPlayersLabel,
         read: (draft) => values(draft).maxPlayers,
         write: (draft, value) => values(draft).maxPlayers = value,
         minimum: 1,
       ),
       LibraryTextFieldSpec<TDraft>(
-        id: 'recommended_players',
-        label: 'Recommended players',
+        id: BoardGameFieldIdentities.recommendedPlayersId,
+        label: BoardGameFieldIdentities.recommendedPlayersLabel,
         value: (draft) => values(draft).recommendedPlayers,
         setValue: (draft, value) => values(draft).recommendedPlayers = value,
       ),
       LibraryTextFieldSpec<TDraft>(
-        id: 'best_players',
-        label: 'Best player count',
+        id: BoardGameFieldIdentities.bestPlayersId,
+        label: BoardGameFieldIdentities.bestPlayersLabel,
         value: (draft) => values(draft).bestPlayers,
         setValue: (draft, value) => values(draft).bestPlayers = value,
       ),
       _number<TDraft>(
-        id: 'min_playtime_minutes',
-        label: 'Minimum play time (minutes)',
+        id: BoardGameFieldIdentities.minPlaytimeMinutesId,
+        label: BoardGameFieldIdentities.minPlaytimeMinutesLabel,
         read: (draft) => values(draft).minPlaytimeMinutes,
         write: (draft, value) => values(draft).minPlaytimeMinutes = value,
         minimum: 0,
       ),
       _number<TDraft>(
-        id: 'max_playtime_minutes',
-        label: 'Maximum play time (minutes)',
+        id: BoardGameFieldIdentities.maxPlaytimeMinutesId,
+        label: BoardGameFieldIdentities.maxPlaytimeMinutesLabel,
         read: (draft) => values(draft).maxPlaytimeMinutes,
         write: (draft, value) => values(draft).maxPlaytimeMinutes = value,
         minimum: 0,
@@ -219,16 +220,16 @@ List<LibraryFieldSpec<TDraft>> boardGameCatalogItemFields<TDraft>({
         minimum: 0,
       ),
       LibraryNumberFieldSpec<TDraft>(
-        id: 'complexity_weight',
-        label: 'Complexity weight',
+        id: BoardGameFieldIdentities.complexityWeightId,
+        label: BoardGameFieldIdentities.complexityWeightLabel,
         minimum: 0,
         value: (draft) => values(draft).complexityWeight,
         setValue: (draft, value) =>
             values(draft).complexityWeight = value?.toDouble(),
       ),
       LibraryNumberFieldSpec<TDraft>(
-        id: 'bgg_rating',
-        label: 'BoardGameGeek rating',
+        id: BoardGameFieldIdentities.bggRatingId,
+        label: BoardGameFieldIdentities.bggRatingLabel,
         minimum: 0,
         value: (draft) => values(draft).bggRating,
         setValue: (draft, value) => values(draft).bggRating = value?.toDouble(),
@@ -241,8 +242,8 @@ List<LibraryFieldSpec<TDraft>> boardGameCatalogItemFields<TDraft>({
         minimum: 0,
       ),
       _number<TDraft>(
-        id: 'bgg_rank',
-        label: 'BoardGameGeek rank',
+        id: BoardGameFieldIdentities.bggRankId,
+        label: BoardGameFieldIdentities.bggRankLabel,
         read: (draft) => values(draft).bggRank,
         write: (draft, value) => values(draft).bggRank = value,
         minimum: 1,
@@ -266,8 +267,8 @@ List<LibraryFieldSpec<TDraft>> boardGameCatalogItemFields<TDraft>({
         setValue: (draft, value) => values(draft).itemNumber = value,
       ),
       LibraryTextFieldSpec<TDraft>(
-        id: 'barcode',
-        label: 'Barcode',
+        id: BoardGameFieldIdentities.barcodeId,
+        label: BoardGameFieldIdentities.barcodeLabel,
         value: (draft) => values(draft).barcode,
         setValue: (draft, value) => values(draft).barcode = value,
       ),
@@ -305,8 +306,8 @@ List<LibraryFieldSpec<TDraft>> boardGameCatalogItemFields<TDraft>({
         setValue: (draft, value) => values(draft).language = value,
       ),
       LibraryDateFieldSpec<TDraft>(
-        id: 'release_date',
-        label: 'Release Date',
+        id: BoardGameFieldIdentities.releaseDateId,
+        label: BoardGameFieldIdentities.releaseDateLabel,
         value: (draft) => values(draft).releaseDate,
         setValue: (draft, value) {
           values(draft).releaseDate = value;
