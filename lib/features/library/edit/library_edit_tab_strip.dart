@@ -133,7 +133,7 @@ class LibraryEditStyledTabLabel extends StatelessWidget {
       child: DefaultTextStyle.merge(
         style: TextStyle(
           color: foreground,
-          fontWeight: selected ? FontWeight.w600 : FontWeight.w500,
+          fontWeight: FontWeight.w400,
           fontSize: 14,
           height: 20 / 14,
           letterSpacing: 0,

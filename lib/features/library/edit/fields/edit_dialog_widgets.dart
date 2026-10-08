@@ -170,7 +170,7 @@ ThemeData editDialogTheme({
           labelLarge: base.textTheme.labelLarge?.copyWith(
               fontSize: 14,
               height: 20 / 14,
-              fontWeight: FontWeight.w500,
+              fontWeight: FontWeight.w400,
               letterSpacing: 0),
         )
         .apply(
