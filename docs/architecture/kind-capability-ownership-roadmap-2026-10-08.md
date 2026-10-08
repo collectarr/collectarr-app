@@ -72,4 +72,7 @@ fields, child rows, labels, and default filenames. The shared page owns column
 selection, sorting, quoting, preview, and file handling. The Music edit/forms
 reference audit removed three unreferenced pre-cutover helpers; the disc text
 field, disc tab button, disc details view, and active form adapters remain in
-use. Remaining P0 work is tracked above.
+use. Track list editing now lives in `MusicTrackListEditor`; album values,
+disc lifecycle, credits, links, and vocabulary changes remain in
+`MusicAlbumEditDraft`, so that extraction item stays open. Remaining P0 work
+is tracked above.

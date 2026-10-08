@@ -4,6 +4,7 @@ import 'package:collectarr_app/features/library/kinds/music/domain/music_disc.da
 import 'package:collectarr_app/features/library/kinds/music/domain/music_ids.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_track.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit/music_album_edit_draft.dart';
+import 'package:collectarr_app/features/library/kinds/music/edit/music_track_list_editor.dart';
 import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 import 'package:collectarr_app/ui/theme/app_typography.dart';
 import 'package:flutter/material.dart';
@@ -357,7 +358,8 @@ final class _MusicAlbumStructureTabState
                 borderRadius: BorderRadius.circular(3),
                 onTap: () => _change(() => _toggleAllTracks(disc)),
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
@@ -370,7 +372,8 @@ final class _MusicAlbumStructureTabState
                         ),
                         alignment: Alignment.center,
                         child: allSelected
-                            ? const Icon(Icons.check, size: 12, color: Colors.white)
+                            ? const Icon(Icons.check,
+                                size: 12, color: Colors.white)
                             : null,
                       ),
                       const SizedBox(width: 6),
@@ -417,7 +420,7 @@ final class _MusicAlbumStructureTabState
                 mouseCursor: SystemMouseCursors.click,
                 borderRadius: BorderRadius.circular(3),
                 onTap: () => _change(
-                  () => draft.autocapTracks(
+                  () => draft.trackList.autocapTracks(
                     disc.id,
                     Set.of(_selectedTrackIds),
                   ),
@@ -462,7 +465,7 @@ final class _MusicAlbumStructureTabState
                   tooltip: 'Move selected tracks to another disc',
                   onSelected: (destinationId) {
                     _change(() {
-                      draft.moveTracksToDisc(
+                      draft.trackList.moveTracksToDisc(
                         sourceId: disc.id,
                         destinationId: destinationId,
                         trackIds: Set.of(_selectedTrackIds),
@@ -484,7 +487,8 @@ final class _MusicAlbumStructureTabState
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Icon(Icons.album_outlined, size: 15, color: Colors.white),
+                          Icon(Icons.album_outlined,
+                              size: 15, color: Colors.white),
                           SizedBox(width: 4),
                           Text(
                             'Move to other disc',
@@ -510,7 +514,8 @@ final class _MusicAlbumStructureTabState
                 mouseCursor: SystemMouseCursors.click,
                 borderRadius: BorderRadius.circular(3),
                 onTap: () => _change(() {
-                  draft.removeTracks(disc.id, Set.of(_selectedTrackIds));
+                  draft.trackList
+                      .removeTracks(disc.id, Set.of(_selectedTrackIds));
                   _selectedTrackIds.clear();
                 }),
                 child: const Padding(
@@ -574,7 +579,7 @@ final class _MusicAlbumStructureTabState
                     buildDefaultDragHandles: false,
                     itemCount: disc.tracks.length,
                     onReorderItem: (oldIndex, newIndex) => _change(
-                      () => draft.reorderTrack(
+                      () => draft.trackList.reorderTrack(
                         disc.id,
                         oldIndex,
                         newIndex,
@@ -626,7 +631,8 @@ final class _MusicAlbumStructureTabState
                 width: 14,
                 height: 14,
                 decoration: BoxDecoration(
-                  border: Border.all(color: const Color(0xFF888888), width: 1.5),
+                  border:
+                      Border.all(color: const Color(0xFF888888), width: 1.5),
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
@@ -688,7 +694,8 @@ final class _MusicAlbumStructureTabState
 
   void _toggleAllTracks(MusicDisc disc) {
     final allSelected = disc.tracks.isNotEmpty &&
-        disc.tracks.every((track) => _selectedTrackIds.contains(track.id.value));
+        disc.tracks
+            .every((track) => _selectedTrackIds.contains(track.id.value));
     _selectedTrackIds.clear();
     if (!allSelected) {
       _selectedTrackIds.addAll(disc.tracks.map((track) => track.id.value));
@@ -743,7 +750,8 @@ final class _MusicAlbumStructureTabState
                 ),
                 alignment: Alignment.center,
                 child: isSelected
-                    ? const Icon(Icons.check, size: 12, color: Color(0xFF262626))
+                    ? const Icon(Icons.check,
+                        size: 12, color: Color(0xFF262626))
                     : null,
               ),
             ),
@@ -787,10 +795,14 @@ final class _MusicAlbumStructureTabState
                       borderRadius: BorderRadius.circular(4),
                       color: const Color(0xFF383838),
                       child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 10, vertical: 6),
                         child: Text(
-                          track.title.isEmpty ? 'Track ${track.position}' : track.title,
-                          style: const TextStyle(color: Colors.white, fontSize: 13),
+                          track.title.isEmpty
+                              ? 'Track ${track.position}'
+                              : track.title,
+                          style: const TextStyle(
+                              color: Colors.white, fontSize: 13),
                         ),
                       ),
                     ),
@@ -839,7 +851,8 @@ final class _MusicAlbumStructureTabState
                         Expanded(
                           flex: 6,
                           child: Padding(
-                            padding: EdgeInsets.only(left: track.indentLevel * 14.0),
+                            padding:
+                                EdgeInsets.only(left: track.indentLevel * 14.0),
                             child: _trackCellInput(
                               id: 'music-track-title-${track.id.value}',
                               initialValue: track.title,
@@ -898,13 +911,15 @@ final class _MusicAlbumStructureTabState
                       width: 62,
                       child: _trackCellInput(
                         id: 'music-track-duration-${track.id.value}',
-                        initialValue: widget.draft.trackDurationText(track),
+                        initialValue:
+                            widget.draft.trackList.trackDurationText(track),
                         hint: '0:00',
                         textAlign: TextAlign.center,
                         keyboardType: TextInputType.datetime,
                         isHeader: false,
                         onChanged: (value) {
-                          widget.draft.setTrackDurationText(disc.id, index, value);
+                          widget.draft.trackList
+                              .setTrackDurationText(disc.id, index, value);
                           widget.onChanged?.call();
                         },
                       ),
@@ -920,7 +935,7 @@ final class _MusicAlbumStructureTabState
       key: ValueKey('music-track-header-drop-${track.id.value}'),
       onWillAcceptWithDetails: (details) => details.data != track.id.value,
       onAcceptWithDetails: (details) => _change(
-        () => draft.assignTrackToHeader(
+        () => draft.trackList.assignTrackToHeader(
           disc.id,
           trackId: details.data,
           headerId: track.id.value,
@@ -998,13 +1013,15 @@ final class _MusicAlbumStructureTabState
           _actionButton(
             icon: Icons.folder,
             label: 'Add Header',
-            onTap: () => _change(() => draft.addTrack(disc.id, header: true)),
+            onTap: () =>
+                _change(() => draft.trackList.addTrack(disc.id, header: true)),
           ),
           const SizedBox(width: 8),
           _actionButton(
             icon: Icons.add,
             label: 'Add Track',
-            onTap: () => _change(() => draft.addTrack(disc.id, header: false)),
+            onTap: () =>
+                _change(() => draft.trackList.addTrack(disc.id, header: false)),
           ),
         ],
       ),
@@ -1079,7 +1096,7 @@ final class _MusicAlbumStructureTabState
           ? updatedTrack.indentLevel
           : currentTrack.indentLevel,
     );
-    draft.replaceTrack(disc.id, currentIndex, mergedTrack);
+    draft.trackList.replaceTrack(disc.id, currentIndex, mergedTrack);
     if (rebuild) {
       _change(() {});
     } else {

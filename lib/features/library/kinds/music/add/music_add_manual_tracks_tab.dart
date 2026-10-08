@@ -77,7 +77,7 @@ class _MusicAddManualTracksTabState extends State<MusicAddManualTracksTab> {
     ));
     for (final disc in widget.draft.discs) {
       for (var index = 0; index < disc.tracks.length; index++) {
-        _editor.setTrackDurationText(
+        _editor.trackList.setTrackDurationText(
             MusicDiscId(disc.id), index, disc.tracks[index].duration);
       }
     }
@@ -107,7 +107,7 @@ class _MusicAddManualTracksTabState extends State<MusicAddManualTracksTab> {
                       position: track.position,
                       title: track.title,
                       artist: track.artist ?? '',
-                      duration: _editor.trackDurationText(track),
+                      duration: _editor.trackList.trackDurationText(track),
                       isHeader: track.isHeader,
                       indentLevel: track.indentLevel,
                       parentHeaderId: track.parentHeaderId)

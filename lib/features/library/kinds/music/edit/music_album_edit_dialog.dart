@@ -164,7 +164,7 @@ final class _MusicAlbumEditDialogState
           id: 'tracks',
           label: 'Tracks',
           svgAsset: 'assets/tab_icons/list-ol.svg',
-          validate: () => _draft.hasInvalidTrackDurationInput
+          validate: () => _draft.trackList.hasInvalidTrackDurationInput
               ? 'Track lengths must use seconds, MM:SS, or HH:MM:SS'
               : null,
           content: MusicAlbumStructureTab(
