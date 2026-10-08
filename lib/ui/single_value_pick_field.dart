@@ -265,6 +265,7 @@ class _SingleValuePickFieldState extends State<SingleValuePickField> {
           hintText: widget.hint,
           helperText: widget.helperText,
           errorText: widget.errorText,
+          contentPadding: const EdgeInsets.symmetric(horizontal: 7),
           constraints: const BoxConstraints(
             minHeight: kLibraryFormControlHeight,
           ),

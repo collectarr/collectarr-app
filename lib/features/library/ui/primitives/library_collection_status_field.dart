@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
+import 'package:collectarr_app/features/library/config/library_dialog_tokens.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_collection_status_icon.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_form_controls.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
@@ -69,9 +70,12 @@ class LibraryCollectionStatusField extends StatelessWidget {
                 onChanged(libraryCollectionStatusValue(value)),
             child: InputDecorator(
                 decoration: const InputDecoration(
+                    isDense: true,
                     contentPadding:
-                        EdgeInsets.symmetric(horizontal: 8, vertical: 5),
-                    constraints: BoxConstraints(minHeight: 34)),
+                        EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    constraints: BoxConstraints.tightFor(
+                      height: kLibraryFormControlHeight,
+                    )),
                 child: Row(children: [
                   LibraryCollectionStatusIcon(status: status, size: 24),
                   const SizedBox(width: 8),
