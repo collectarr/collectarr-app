@@ -36,18 +36,21 @@ abstract final class ComicCatalogItemWorkspaceFields {
     id: ComicFieldIds.writer,
     label: 'Writer',
     getValue: (dto) => dto.writer,
+    searchable: true,
   );
 
   static final artist = textField<ComicKind, ComicWorkspaceDto>(
     id: ComicFieldIds.artist,
     label: 'Artist',
     getValue: (dto) => dto.artist,
+    searchable: true,
   );
 
   static final coverArtist = textField<ComicKind, ComicWorkspaceDto>(
     id: ComicFieldIds.coverArtist,
     label: 'Cover Artist',
     getValue: (dto) => dto.coverArtist,
+    searchable: true,
   );
 
   static final imprint = textField<ComicKind, ComicWorkspaceDto>(
@@ -66,6 +69,7 @@ abstract final class ComicCatalogItemWorkspaceFields {
     id: ComicFieldIds.publisher,
     label: 'Publisher',
     getValue: (dto) => dto.publisher,
+    searchable: true,
   );
 
   static final releaseDate = dateField<ComicKind, ComicWorkspaceDto>(
@@ -78,6 +82,7 @@ abstract final class ComicCatalogItemWorkspaceFields {
     id: ComicFieldIds.barcode,
     label: 'Barcode',
     getValue: (dto) => dto.barcode,
+    searchable: true,
   );
 
   static final variant = textField<ComicKind, ComicWorkspaceDto>(

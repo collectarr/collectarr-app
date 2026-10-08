@@ -49,8 +49,11 @@ registration and files under `features/library/kinds/<kind>/`.
   registration.
 - [x] Derive correction ownership metadata from field specifications where
   possible, then keep canonicalization and diff generation shared.
+- [x] Move kind-specific indexed search values from DTO overrides into
+  searchable workspace field metadata; keep title, custom-field, personal,
+  and date indexing in the shared search layer.
 - [ ] Consolidate field metadata used by filtering, sorting, exporting,
-  searching, and editing without forcing unrelated fields into one model.
+  and editing without forcing unrelated fields into one model.
 
 ## P2 — shared interaction primitives and core contract cleanup
 
@@ -92,6 +95,12 @@ updates. Music binds its schema fields, custom fields, details form, and
 library-entry personal fields to one accumulator for the edit session. The
 shared commit boundary turns the collected values into one local vocabulary
 change, while catalog-only Music edits retain the collector in the kind draft.
+Kind-specific search tokens now come from searchable workspace field
+definitions instead of per-kind DTO getters. The shared index collects those
+typed values through each kind's catalog workspace registry while retaining
+common title, custom-field, location, and date handling. Search fields include
+metadata such as Music barcode/catalog number, Movie studio, Game region, and
+TV barcode even when those fields are not visible workspace columns.
 Music release, original release, and recording dates now have one canonical
 `{year, month, day}` representation across the Core model, API, correction
 flow, search projection, App mapper, and pinned contract. Core rejects legacy

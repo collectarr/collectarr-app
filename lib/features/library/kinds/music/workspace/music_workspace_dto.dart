@@ -140,15 +140,6 @@ abstract class MusicWorkspaceProjectionValues
         for (final credit in music.contributions) credit.toJson(),
         for (final credit in music.artistCredits) credit.toJson(),
       ];
-
-  @override
-  Iterable<String> get searchTokens => [
-        if (artist != null) artist!,
-        if (publisher != null) publisher!,
-        if (identifierCode != null) identifierCode!,
-        if (catalogNumber != null) catalogNumber!,
-        ...genres,
-      ];
 }
 
 final class MusicCatalogItemWorkspaceDto

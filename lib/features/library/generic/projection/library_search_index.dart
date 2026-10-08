@@ -32,6 +32,7 @@ class LibrarySearchIndex {
   LibrarySearchDocument getOrBuild(
     LibraryProjectionItem item, [
     Map<String, List<String>> customFieldValuesByItem = const {},
+    Iterable<String> searchFieldValues = const [],
   ]) {
     final existing = _documents[item.target.id];
     // Custom field values are supplied by the caller and may change between
@@ -61,7 +62,7 @@ class LibrarySearchIndex {
     add(card.itemNumber);
     add(card.variant);
     add(card.format);
-    for (final token in dto.searchTokens) {
+    for (final token in searchFieldValues) {
       add(token);
     }
     if (card.releaseDate != null) {

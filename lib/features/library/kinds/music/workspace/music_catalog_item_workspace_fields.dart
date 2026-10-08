@@ -14,12 +14,35 @@ abstract final class MusicCatalogItemWorkspaceFields {
     id: MusicFieldIds.artist,
     label: 'Artist',
     getValue: (dto) => dto.artist,
+    searchable: true,
+  );
+
+  static final publisher = textField<MusicKind, MusicWorkspaceProjection>(
+    id: MusicFieldIds.publisher,
+    label: 'Label',
+    getValue: (dto) => dto.publisher,
+    searchable: true,
+  );
+
+  static final barcode = textField<MusicKind, MusicWorkspaceProjection>(
+    id: MusicFieldIds.barcode,
+    label: 'Barcode',
+    getValue: (dto) => dto.barcode,
+    searchable: true,
+  );
+
+  static final catalogNumber = textField<MusicKind, MusicWorkspaceProjection>(
+    id: MusicFieldIds.catalogNumber,
+    label: 'Catalog Number',
+    getValue: (dto) => dto.catalogNumber,
+    searchable: true,
   );
 
   static final genre = textField<MusicKind, MusicWorkspaceProjection>(
     id: MusicFieldIds.genre,
     label: 'Genre',
     getValue: (dto) => dto.genre,
+    searchable: true,
   );
 
   static final releaseDate = dateField<MusicKind, MusicWorkspaceProjection>(

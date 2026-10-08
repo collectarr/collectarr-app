@@ -59,12 +59,4 @@ final class ComicWorkspaceDto implements LibraryWorkspaceDto {
           })
           .map((creator) => creator.name)
           .firstOrNull;
-  @override
-  Iterable<String> get searchTokens => [
-        if (publisher != null) publisher!,
-        if (identifierCode != null) identifierCode!,
-        if (writer != null) writer!,
-        if (artist != null) artist!,
-        if (coverArtist != null) coverArtist!,
-      ];
 }

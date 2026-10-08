@@ -9,6 +9,7 @@ abstract final class AnimeAdditionalCatalogItemWorkspaceFields {
     id: AnimeFieldIds.publisher,
     label: 'Publisher',
     getValue: (dto) => dto.publisher,
+    searchable: true,
   );
 
   static final releaseDate = dateField<AnimeKind, AnimeWorkspaceDto>(
@@ -27,6 +28,7 @@ abstract final class AnimeAdditionalCatalogItemWorkspaceFields {
     id: AnimeFieldIds.barcode,
     label: 'UPC / Barcode',
     getValue: (dto) => dto.barcode,
+    searchable: true,
   );
 }
 

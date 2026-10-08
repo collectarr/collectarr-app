@@ -25,8 +25,13 @@ class LibraryProjectionIndex {
   LibrarySearchDocument getSearchDocument(
     LibraryProjectionItem item, [
     Map<String, List<String>> customFieldValuesByItem = const {},
+    Iterable<String> searchFieldValues = const [],
   ]) {
-    return _searchIndex.getOrBuild(item, customFieldValuesByItem);
+    return _searchIndex.getOrBuild(
+      item,
+      customFieldValuesByItem,
+      searchFieldValues,
+    );
   }
 
   String getGroupBucket(

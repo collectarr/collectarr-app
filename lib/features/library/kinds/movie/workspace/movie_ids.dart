@@ -5,6 +5,7 @@ abstract final class MovieFieldIds {
   static const cover = LibraryFieldId<MovieKind, String?>('movie.cover');
   static const title = LibraryFieldId<MovieKind, String>('movie.title');
   static const director = LibraryFieldId<MovieKind, String?>('movie.director');
+  static const studio = LibraryFieldId<MovieKind, String?>('movie.studio');
   static const publisher =
       LibraryFieldId<MovieKind, String?>('movie.publisher');
   static const releaseDate =

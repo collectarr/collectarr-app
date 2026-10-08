@@ -51,15 +51,4 @@ final class MovieWorkspaceDto implements LibraryWorkspaceDto {
   String? get ageRating => metadata.ageRating;
   String? get audienceRating => metadata.audienceRating;
   List<String> get genres => metadata.genres;
-
-  @override
-  Iterable<String> get searchTokens => [
-        if (publisher != null) publisher!,
-        if (identifierCode != null) identifierCode!,
-        if (director != null) director!,
-        if (writer != null) writer!,
-        if (studio != null) studio!,
-        if (originalTitle != null) originalTitle!,
-        ...genres,
-      ];
 }

@@ -14,6 +14,9 @@ final musicCatalogItemWorkspaceSchema =
   fields: [
     MusicCatalogItemWorkspaceFields.title,
     MusicCatalogItemWorkspaceFields.artist,
+    MusicCatalogItemWorkspaceFields.publisher,
+    MusicCatalogItemWorkspaceFields.barcode,
+    MusicCatalogItemWorkspaceFields.catalogNumber,
     MusicCatalogItemWorkspaceFields.genre,
     MusicCatalogItemWorkspaceFields.releaseDate,
     MusicCatalogItemWorkspaceFields.trackCount,

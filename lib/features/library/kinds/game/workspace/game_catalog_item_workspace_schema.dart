@@ -16,18 +16,21 @@ abstract final class GameCatalogItemWorkspaceFields {
     id: GameFieldIds.platform,
     label: 'Platform',
     getValue: (dto) => dto.platform,
+    searchable: true,
   );
 
   static final developer = textField<GameKind, GameWorkspaceDto>(
     id: GameFieldIds.developer,
     label: 'Developer',
     getValue: (dto) => dto.developer,
+    searchable: true,
   );
 
   static final publisher = textField<GameKind, GameWorkspaceDto>(
     id: GameFieldIds.publisher,
     label: 'Publisher',
     getValue: (dto) => dto.publisher,
+    searchable: true,
   );
 
   static final releaseDate = dateField<GameKind, GameWorkspaceDto>(
@@ -40,6 +43,7 @@ abstract final class GameCatalogItemWorkspaceFields {
     id: GameFieldIds.barcode,
     label: 'Barcode',
     getValue: (dto) => dto.barcode,
+    searchable: true,
   );
 
   static final edition = textField<GameKind, GameWorkspaceDto>(
@@ -59,6 +63,7 @@ abstract final class GameCatalogItemWorkspaceFields {
     id: GameFieldIds.franchise,
     label: 'Franchise',
     getValue: (dto) => dto.franchise,
+    searchable: true,
   );
 
   static final series = textField<GameKind, GameWorkspaceDto>(
@@ -73,6 +78,12 @@ abstract final class GameCatalogItemWorkspaceFields {
     getValue: (dto) => dto.ageRating,
   );
 
+  static final region = textField<GameKind, GameWorkspaceDto>(
+    id: GameFieldIds.region,
+    label: 'Region',
+    getValue: (dto) => dto.region,
+    searchable: true,
+  );
 }
 
 final gameCatalogItemWorkspaceFieldDefinitions = [
@@ -87,6 +98,7 @@ final gameCatalogItemWorkspaceFieldDefinitions = [
   GameCatalogItemWorkspaceFields.franchise,
   GameCatalogItemWorkspaceFields.series,
   GameCatalogItemWorkspaceFields.ageRating,
+  GameCatalogItemWorkspaceFields.region,
 ];
 
 final gameCatalogItemWorkspaceGroupDefinitions = [

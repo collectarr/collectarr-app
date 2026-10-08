@@ -42,9 +42,4 @@ final class MangaWorkspaceDto implements LibraryWorkspaceDto {
   String? get variant => metadata?.variant;
   String? get referenceFormatLabel => metadata?.physicalFormat;
   String? get format => referenceFormatLabel;
-  @override
-  Iterable<String> get searchTokens => [
-        if (publisher != null) publisher!,
-        if (identifierCode != null) identifierCode!,
-      ];
 }

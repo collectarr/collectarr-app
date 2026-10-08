@@ -76,6 +76,7 @@ class LibraryProjectionEngine {
       final searchDoc = index.getSearchDocument(
         item,
         customFieldValuesByItem,
+        fields.searchValuesFor(item),
       );
       if (filterEngine.matches(
         item: item,

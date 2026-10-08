@@ -16,6 +16,14 @@ abstract final class MovieCatalogIdentityWorkspaceFields {
     id: MovieFieldIds.director,
     label: 'Director',
     getValue: (dto) => dto.director,
+    searchable: true,
+  );
+
+  static final studio = textField<MovieKind, MovieWorkspaceDto>(
+    id: MovieFieldIds.studio,
+    label: 'Studio',
+    getValue: (dto) => dto.studio,
+    searchable: true,
   );
 
   static final cover =
@@ -35,6 +43,7 @@ abstract final class MovieCatalogIdentityWorkspaceFields {
     id: MovieFieldIds.genre,
     label: 'Genre',
     getValue: (dto) => dto.genres.isNotEmpty ? dto.genres.join(', ') : null,
+    searchable: true,
   );
 
   static final audienceRating = textField<MovieKind, MovieWorkspaceDto>(
@@ -53,12 +62,14 @@ abstract final class MovieCatalogIdentityWorkspaceFields {
     id: MovieFieldIds.originalTitle,
     label: 'Original Title',
     getValue: (dto) => dto.originalTitle,
+    searchable: true,
   );
 
   static final writer = textField<MovieKind, MovieWorkspaceDto>(
     id: MovieFieldIds.writer,
     label: 'Writer',
     getValue: (dto) => dto.writer,
+    searchable: true,
   );
 
   static final producer = textField<MovieKind, MovieWorkspaceDto>(
@@ -77,6 +88,7 @@ abstract final class MovieCatalogIdentityWorkspaceFields {
 final movieCatalogIdentityFieldDefinitions = [
   MovieCatalogIdentityWorkspaceFields.title,
   MovieCatalogIdentityWorkspaceFields.director,
+  MovieCatalogIdentityWorkspaceFields.studio,
   MovieCatalogIdentityWorkspaceFields.runtimeMinutes,
   MovieCatalogIdentityWorkspaceFields.genre,
   MovieCatalogIdentityWorkspaceFields.audienceRating,

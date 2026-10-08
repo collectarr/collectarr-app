@@ -46,12 +46,4 @@ final class TvWorkspaceDto implements LibraryWorkspaceDto {
   int? get seasonCount => metadata.seasonCount;
   int? get episodeCount => metadata.episodeCount;
   int? get episodeRuntimeMinutes => metadata.episodeRuntimeMinutes;
-  @override
-  Iterable<String> get searchTokens => [
-        if (publisher != null) publisher!,
-        if (identifierCode != null) identifierCode!,
-        if (contentRating != null) contentRating!,
-        if (tvStatus != null) tvStatus!,
-        if (network != null) network!,
-      ];
 }

@@ -10,6 +10,7 @@ abstract final class MovieCatalogEditionWorkspaceFields {
     id: MovieFieldIds.publisher,
     label: 'Studio / Publisher',
     getValue: (dto) => dto.publisher,
+    searchable: true,
   );
 
   static final releaseDate = dateField<MovieKind, MovieWorkspaceDto>(
@@ -22,6 +23,7 @@ abstract final class MovieCatalogEditionWorkspaceFields {
     id: MovieFieldIds.barcode,
     label: 'UPC / Barcode',
     getValue: (dto) => dto.barcode,
+    searchable: true,
   );
 
   static final format = textField<MovieKind, MovieWorkspaceDto>(

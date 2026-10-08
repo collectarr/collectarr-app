@@ -55,6 +55,7 @@ final class LibraryFieldRegistry<TDto extends LibraryWorkspaceDto> {
             origin: field.origin,
             sortable: field.sortable,
             groupable: field.groupable,
+            searchable: field.searchable,
             cellValue: field.cellValue,
             getValue: (context) => field.getValue(typedContext(context)),
           ),
@@ -128,6 +129,25 @@ final class LibraryFieldRegistry<TDto extends LibraryWorkspaceDto> {
   LibraryColumnDefinition<dynamic, TDto, Object?>? columnDefinition(
           LibraryFieldIdRuntime id) =>
       findColumnDefinition(id);
+
+  Iterable<String> searchValuesFor(LibraryProjectionView item) sync* {
+    final context = LibraryProjectionContext<TDto>(
+      item: item.source.item,
+      personal: item.source.personal,
+      dto: item.dto as TDto,
+    );
+    for (final field in fields) {
+      if (!field.searchable) continue;
+      final value = field.getValue(context);
+      if (value is String) {
+        yield value;
+      } else if (value is Iterable) {
+        for (final entry in value) {
+          if (entry is String) yield entry;
+        }
+      }
+    }
+  }
 
   LibrarySortDefinition<dynamic, TDto>? sortDefinition(
           LibrarySortIdRuntime id) =>

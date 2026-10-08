@@ -15,6 +15,7 @@ abstract final class BookCatalogItemWorkspaceFields {
     id: BookFieldIds.author,
     label: 'Author',
     getValue: (dto) => dto.author,
+    searchable: true,
   );
 
   static final series = textField<BookKind, BookWorkspaceDto>(
@@ -34,24 +35,28 @@ abstract final class BookCatalogItemWorkspaceFields {
     id: BookFieldIds.subtitle,
     label: 'Subtitle',
     getValue: (dto) => dto.subtitle,
+    searchable: true,
   );
 
   static final translator = textField<BookKind, BookWorkspaceDto>(
     id: BookFieldIds.translator,
     label: 'Translator',
     getValue: (dto) => dto.translator,
+    searchable: true,
   );
 
   static final editor = textField<BookKind, BookWorkspaceDto>(
     id: BookFieldIds.editor,
     label: 'Editor',
     getValue: (dto) => dto.editor,
+    searchable: true,
   );
 
   static final illustrator = textField<BookKind, BookWorkspaceDto>(
     id: BookFieldIds.illustrator,
     label: 'Illustrator',
     getValue: (dto) => dto.illustrator,
+    searchable: true,
   );
 
   static final coverArtist = textField<BookKind, BookWorkspaceDto>(

@@ -26,12 +26,6 @@ abstract interface class LibraryWorkspaceDto {
 
   /// Kind-entry presentation image. This is not a canonical cover field.
   String? get imageUrl;
-
-  /// Kind-entry searchable values exposed to generic index mechanics.
-  ///
-  /// The host may tokenize these values, but it must not inspect a catalog
-  /// payload to infer publisher/barcode/serial/video semantics.
-  Iterable<String> get searchTokens => const <String>[];
 }
 
 enum LibraryGroupPresentation { inlineHeaders, folderGrid }
@@ -87,6 +81,7 @@ class LibraryFieldDefinition<TKind, TDto extends LibraryWorkspaceDto, TValue> {
     this.cellValue,
     this.sortable = true,
     this.groupable = true,
+    this.searchable = false,
   });
 
   final LibraryFieldId<TKind, TValue> id;
@@ -96,6 +91,7 @@ class LibraryFieldDefinition<TKind, TDto extends LibraryWorkspaceDto, TValue> {
   final LibraryCellValue Function(TValue value)? cellValue;
   final bool sortable;
   final bool groupable;
+  final bool searchable;
 }
 
 class LibraryGroupDefinition<TKind, TDto extends LibraryWorkspaceDto, TValue> {

@@ -17,6 +17,7 @@ abstract final class BoardGameCatalogItemWorkspaceFields {
     id: BoardGameFieldIds.publisher,
     label: 'Publisher',
     getValue: (dto) => dto.publisher,
+    searchable: true,
   );
 
   static final releaseDate = dateField<BoardGameKind, BoardGameWorkspaceDto>(
@@ -29,6 +30,7 @@ abstract final class BoardGameCatalogItemWorkspaceFields {
     id: BoardGameFieldIds.barcode,
     label: 'Barcode',
     getValue: (dto) => dto.barcode,
+    searchable: true,
   );
 
   static final designer = textField<BoardGameKind, BoardGameWorkspaceDto>(

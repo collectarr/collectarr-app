@@ -10,6 +10,7 @@ abstract final class MangaAdditionalCatalogItemWorkspaceFields {
     id: MangaFieldIds.publisher,
     label: 'Publisher',
     getValue: (dto) => dto.publisher,
+    searchable: true,
   );
 
   static final releaseDate = dateField<MangaKind, MangaWorkspaceDto>(
@@ -22,6 +23,7 @@ abstract final class MangaAdditionalCatalogItemWorkspaceFields {
     id: MangaFieldIds.barcode,
     label: 'ISBN / Barcode',
     getValue: (dto) => dto.barcode,
+    searchable: true,
   );
 }
 

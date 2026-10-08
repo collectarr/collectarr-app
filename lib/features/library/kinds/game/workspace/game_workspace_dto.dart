@@ -53,13 +53,4 @@ final class GameWorkspaceDto implements LibraryWorkspaceDto {
   int? get gradedPrice => valuations?.graded?.amountCents;
   int? get boxOnlyPrice => valuations?.boxOnly?.amountCents;
   int? get manualOnlyPrice => valuations?.manualOnly?.amountCents;
-  @override
-  Iterable<String> get searchTokens => [
-        if (publisher != null) publisher!,
-        if (identifierCode != null) identifierCode!,
-        if (platform != null) platform!,
-        if (franchise != null) franchise!,
-        if (developer != null) developer!,
-        if (region != null) region!,
-      ];
 }

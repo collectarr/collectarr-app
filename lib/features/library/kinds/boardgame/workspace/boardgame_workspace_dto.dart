@@ -52,9 +52,4 @@ final class BoardGameWorkspaceDto implements LibraryWorkspaceDto {
   double? get complexityWeight => metadata.complexityWeight;
   double? get bggRating => metadata.bggRating;
   int? get bggRank => metadata.bggRank;
-  @override
-  Iterable<String> get searchTokens => [
-        if (publisher != null) publisher!,
-        if (identifierCode != null) identifierCode!,
-      ];
 }

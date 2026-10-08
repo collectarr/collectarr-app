@@ -42,11 +42,4 @@ final class AnimeWorkspaceDto implements LibraryWorkspaceDto {
   String? get referenceFormatLabel =>
       metadata.physicalFormatLabel ?? metadata.physicalFormat;
   String? get format => referenceFormatLabel;
-  @override
-  Iterable<String> get searchTokens => [
-        if (publisher != null) publisher!,
-        if (identifierCode != null) identifierCode!,
-        if (animeType != null) animeType!,
-        if (airingStatus != null) airingStatus!,
-      ];
 }

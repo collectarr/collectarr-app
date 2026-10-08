@@ -51,14 +51,4 @@ final class BookWorkspaceDto implements LibraryWorkspaceDto {
   String? get editor => metadata.editors.firstOrNull;
   String? get illustrator => metadata.illustrators.firstOrNull;
   String? get coverArtist => metadata.coverArtists.firstOrNull;
-  @override
-  Iterable<String> get searchTokens => [
-        if (publisher != null) publisher!,
-        if (identifierCode != null) identifierCode!,
-        if (author != null) author!,
-        if (subtitle != null) subtitle!,
-        if (translator != null) translator!,
-        if (editor != null) editor!,
-        if (illustrator != null) illustrator!,
-      ];
 }

@@ -17,6 +17,14 @@ abstract final class TvCatalogItemWorkspaceFields {
     id: TvFieldIds.network,
     label: 'Network / Studio',
     getValue: (dto) => dto.publisher,
+    searchable: true,
+  );
+
+  static final barcode = textField<TvKind, TvWorkspaceDto>(
+    id: TvFieldIds.barcode,
+    label: 'Barcode',
+    getValue: (dto) => dto.barcode,
+    searchable: true,
   );
 
   static final series = textField<TvKind, TvWorkspaceDto>(
@@ -47,18 +55,21 @@ abstract final class TvCatalogItemWorkspaceFields {
     id: TvFieldIds.tvStatus,
     label: 'Series Status',
     getValue: (dto) => dto.tvStatus,
+    searchable: true,
   );
 
   static final streamingService = textField<TvKind, TvWorkspaceDto>(
     id: TvFieldIds.streamingService,
     label: 'Streamer',
     getValue: (dto) => dto.streamingService,
+    searchable: true,
   );
 
   static final contentRating = textField<TvKind, TvWorkspaceDto>(
     id: TvFieldIds.contentRating,
     label: 'Content Rating',
     getValue: (dto) => dto.contentRating,
+    searchable: true,
   );
 
   static final seasonCount = numberField<TvKind, TvWorkspaceDto>(
@@ -83,6 +94,7 @@ abstract final class TvCatalogItemWorkspaceFields {
 final tvCatalogItemWorkspaceFieldDefinitions = [
   TvCatalogItemWorkspaceFields.title,
   TvCatalogItemWorkspaceFields.publisher,
+  TvCatalogItemWorkspaceFields.barcode,
   TvCatalogItemWorkspaceFields.series,
   TvCatalogItemWorkspaceFields.firstAirDate,
   TvCatalogItemWorkspaceFields.lastAirDate,

@@ -10,6 +10,7 @@ abstract final class BookCatalogItemDetailsWorkspaceFields {
     id: BookFieldIds.publisher,
     label: 'Publisher',
     getValue: (dto) => dto.publisher,
+    searchable: true,
   );
 
   static final pageCount = numberField<BookKind, BookWorkspaceDto>(
@@ -22,6 +23,7 @@ abstract final class BookCatalogItemDetailsWorkspaceFields {
     id: BookFieldIds.isbn,
     label: 'ISBN',
     getValue: (dto) => dto.isbn ?? dto.barcode,
+    searchable: true,
   );
 
   static final releaseDate = dateField<BookKind, BookWorkspaceDto>(

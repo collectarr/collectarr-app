@@ -49,6 +49,7 @@ abstract final class AnimeCatalogItemWorkspaceFields {
     id: AnimeFieldIds.format,
     label: 'Format',
     getValue: (dto) => dto.animeType,
+    searchable: true,
   );
 
   static final season = textField<AnimeKind, AnimeWorkspaceDto>(
@@ -80,6 +81,7 @@ abstract final class AnimeCatalogItemWorkspaceFields {
     id: AnimeFieldIds.airingStatus,
     label: 'Airing Status',
     getValue: (dto) => dto.airingStatus,
+    searchable: true,
   );
 
   static final sourceMaterial = textField<AnimeKind, AnimeWorkspaceDto>(

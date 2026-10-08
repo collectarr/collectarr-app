@@ -7,11 +7,13 @@ LibraryFieldDefinition<TKind, TDto, String?>
   required LibraryFieldId<TKind, String?> id,
   required String label,
   required String? Function(TDto dto) getValue,
+  bool searchable = false,
 }) {
   return LibraryFieldDefinition<TKind, TDto, String?>(
     id: id,
     label: label,
     getValue: (context) => getValue(context.dto),
+    searchable: searchable,
   );
 }
 
