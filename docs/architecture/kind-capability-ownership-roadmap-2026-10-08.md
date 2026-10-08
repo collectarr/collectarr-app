@@ -169,6 +169,13 @@ format vocabularies reuse their descriptor bindings. The ISBN and release-date
 projections are marked derived because their displayed values can fall back to
 other catalog fields. Other kinds and Book export support remain outside this
 slice.
+Movie now declares metadata for its shared title, original title, genre,
+ratings, runtime, format, release date, and barcode fields. Searchable workspace
+fields, sort and group contributions, and genre/format vocabulary IDs consume
+the descriptor. Release date is marked derived because its workspace value can
+fall back through multiple catalog projections. The editor's distributor field
+and workspace's publisher field remain separate; they do not describe the same
+catalog value.
 The P2 interaction audit found existing shared tab, list, and selection
 primitives across kinds. Music's track hierarchy table and bulk editing stay
 Music-owned until another kind has the same structural interaction.

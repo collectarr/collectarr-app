@@ -6,11 +6,12 @@ import 'package:collectarr_app/features/pick_lists/pick_list_definition_contribu
 import 'package:collectarr_app/features/library/kinds/movie/domain/movie_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/movie/domain/movie_library_entry.dart';
 import 'package:collectarr_app/features/library/kinds/movie/entries/movie_entry_details.dart';
+import 'package:collectarr_app/features/library/kinds/movie/config/movie_field_identities.dart';
 
 abstract final class MovieVocabularyIds {
   static const condition = VocabularyId<String>('movie.condition');
-  static const genre = VocabularyId<String>('movie.genre');
-  static const physicalFormat = VocabularyId<String>('movie.physical_format');
+  static const genre = MovieFieldIdentities.genreVocabulary;
+  static const physicalFormat = MovieFieldIdentities.formatVocabulary;
   static const region = VocabularyId<String>('movie.region');
   static const packaging = VocabularyId<String>('movie.packaging');
   static const distributor = VocabularyId<String>('movie.distributor');
@@ -31,8 +32,11 @@ abstract final class MovieVocabularies {
     ];
   }
 
-  static Future<Map<String, int>> entryUsageCounts(LocalDatabase db, String semanticName) =>
-    countPickListEntryUsages(items: MovieEntryRepository(db).listActive(), valuesFrom: (item) => _entryValues(item, semanticName));
+  static Future<Map<String, int>> entryUsageCounts(
+          LocalDatabase db, String semanticName) =>
+      countPickListEntryUsages(
+          items: MovieEntryRepository(db).listActive(),
+          valuesFrom: (item) => _entryValues(item, semanticName));
 
   static Future<PickListEntryMergeResult> previewEntryMerge(
     LocalDatabase db,

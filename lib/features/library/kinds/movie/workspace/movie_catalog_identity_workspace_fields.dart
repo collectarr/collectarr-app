@@ -44,7 +44,7 @@ abstract final class MovieCatalogIdentityWorkspaceFields {
     id: MovieFieldIds.genre,
     label: MovieFieldIdentities.genreLabel,
     getValue: (dto) => dto.genres.isNotEmpty ? dto.genres.join(', ') : null,
-    searchable: true,
+    searchable: MovieFieldIdentities.genre.searchable,
   );
 
   static final audienceRating = textField<MovieKind, MovieWorkspaceDto>(
@@ -63,7 +63,7 @@ abstract final class MovieCatalogIdentityWorkspaceFields {
     id: MovieFieldIds.originalTitle,
     label: MovieFieldIdentities.originalTitleLabel,
     getValue: (dto) => dto.originalTitle,
-    searchable: true,
+    searchable: MovieFieldIdentities.originalTitle.searchable,
   );
 
   static final writer = textField<MovieKind, MovieWorkspaceDto>(
@@ -106,19 +106,22 @@ final movieCatalogIdentityGroupDefinitions = [
     category: 'Cast & Crew',
     icon: Icons.movie_creation_outlined,
   ),
-  groupFromField<MovieKind, MovieWorkspaceDto, String?>(
-    MovieCatalogIdentityWorkspaceFields.genre,
-    sidebarTitle: 'Genres',
-    category: 'Main',
-    icon: Icons.category_outlined,
-    supportsBucketManagement: true,
-    bucketValueMutator: catalogTransportStringListBucketValueMutator('genres'),
-  ),
-  groupFromField<MovieKind, MovieWorkspaceDto, String?>(
-    MovieCatalogIdentityWorkspaceFields.audienceRating,
-    category: 'Main',
-    icon: Icons.star_outline,
-  ),
+  if (MovieFieldIdentities.genre.groupable)
+    groupFromField<MovieKind, MovieWorkspaceDto, String?>(
+      MovieCatalogIdentityWorkspaceFields.genre,
+      sidebarTitle: 'Genres',
+      category: 'Main',
+      icon: Icons.category_outlined,
+      supportsBucketManagement: true,
+      bucketValueMutator:
+          catalogTransportStringListBucketValueMutator('genres'),
+    ),
+  if (MovieFieldIdentities.audienceRating.groupable)
+    groupFromField<MovieKind, MovieWorkspaceDto, String?>(
+      MovieCatalogIdentityWorkspaceFields.audienceRating,
+      category: 'Main',
+      icon: Icons.star_outline,
+    ),
   groupFromField<MovieKind, MovieWorkspaceDto, String?>(
     MovieCatalogIdentityWorkspaceFields.movieOrTvSeries,
     category: 'Main',
@@ -129,11 +132,15 @@ final movieCatalogIdentityGroupDefinitions = [
 final movieCatalogIdentitySortDefinitions = [
   sortFromField<MovieKind, MovieWorkspaceDto, String>(
       MovieCatalogIdentityWorkspaceFields.director),
-  sortFromField<MovieKind, MovieWorkspaceDto, String>(
-      MovieCatalogIdentityWorkspaceFields.title),
-  sortFromField<MovieKind, MovieWorkspaceDto, num>(
+  if (MovieFieldIdentities.title.sortable)
+    sortFromField<MovieKind, MovieWorkspaceDto, String>(
+      MovieCatalogIdentityWorkspaceFields.title,
+    ),
+  if (MovieFieldIdentities.runtimeMinutes.sortable)
+    sortFromField<MovieKind, MovieWorkspaceDto, num>(
       MovieCatalogIdentityWorkspaceFields.runtimeMinutes,
-      defaultAscending: false),
+      defaultAscending: false,
+    ),
 ];
 
 final movieCatalogIdentityDefaultVisibleColumns = <LibraryFieldIdRuntime>{

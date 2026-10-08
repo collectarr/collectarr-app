@@ -24,7 +24,7 @@ abstract final class MovieCatalogEditionWorkspaceFields {
     id: MovieFieldIds.barcode,
     label: MovieFieldIdentities.barcodeLabel,
     getValue: (dto) => dto.barcode,
-    searchable: true,
+    searchable: MovieFieldIdentities.barcode.searchable,
   );
 
   static final format = textField<MovieKind, MovieWorkspaceDto>(
@@ -84,11 +84,12 @@ final movieCatalogEditionGroupDefinitions = [
     category: 'Main',
     icon: Icons.calendar_today_outlined,
   ),
-  groupFromField<MovieKind, MovieWorkspaceDto, String?>(
-    MovieCatalogEditionWorkspaceFields.format,
-    category: 'Edition',
-    icon: Icons.album_outlined,
-  ),
+  if (MovieFieldIdentities.format.groupable)
+    groupFromField<MovieKind, MovieWorkspaceDto, String?>(
+      MovieCatalogEditionWorkspaceFields.format,
+      category: 'Edition',
+      icon: Icons.album_outlined,
+    ),
   groupFromField<MovieKind, MovieWorkspaceDto, String?>(
     MovieCatalogEditionWorkspaceFields.audioTracks,
     category: 'Edition',
@@ -109,9 +110,11 @@ final movieCatalogEditionSortDefinitions = [
   ),
   sortFromField<MovieKind, MovieWorkspaceDto, String>(
       MovieCatalogEditionWorkspaceFields.publisher),
-  sortFromField<MovieKind, MovieWorkspaceDto, DateTime>(
+  if (MovieFieldIdentities.releaseDate.sortable)
+    sortFromField<MovieKind, MovieWorkspaceDto, DateTime>(
       MovieCatalogEditionWorkspaceFields.releaseDate,
-      defaultAscending: false),
+      defaultAscending: false,
+    ),
 ];
 
 final movieCatalogEditionDefaultVisibleColumns = <LibraryFieldIdRuntime>{
