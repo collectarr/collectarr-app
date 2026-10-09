@@ -128,6 +128,29 @@ void main() {
     );
   });
 
+  test('Music disc date reducers are scalar sortable fields', () {
+    final earliest = MusicWorkspaceFieldMetadata.earliestDiscRecordingDate;
+    final latest = MusicWorkspaceFieldMetadata.latestDiscRecordingDate;
+
+    for (final metadata in [earliest, latest]) {
+      expect(metadata.valueType, LibraryFieldValueType.partialDate);
+      expect(metadata.cardinality, LibraryFieldCardinality.one);
+      expect(metadata.source, LibraryFieldSource.derived);
+      expect(metadata.sortable, isTrue);
+    }
+
+    final catalogSortIds = musicCatalogItemWorkspaceSchema.sorts
+        .map((definition) => definition.id.value)
+        .toSet();
+    final entrySortIds = musicLibraryEntryWorkspaceSchema.sorts
+        .map((definition) => definition.id.value)
+        .toSet();
+    for (final metadata in [earliest, latest]) {
+      expect(catalogSortIds, contains(metadata.id));
+      expect(entrySortIds, contains(metadata.id));
+    }
+  });
+
   test('text cardinality is represented independently from value type', () {
     expect(MusicFieldIdentities.artist.valueType, LibraryFieldValueType.text);
     expect(

@@ -106,8 +106,11 @@ workspace schema, search-presentation, and export regression tests pass for
 this checkpoint. Checkpoint I now splits Music group definitions into
 catalog/disc/credit/personal modules, adds contained disc and credit fields to
 workspace groups and filters, and keeps `is_live` boolean while rendering
-Live/Studio labels. Smart List many-value operator semantics, reducer sorts,
-full search/correction alignment, and final performance and Windows build
+Live/Studio labels. Checkpoint J adds scalar earliest/latest disc recording
+date fields and sorts to both Music workspace schemas. Facts reduction and
+sorting share one partial-date bound comparator, and sort callbacks read only
+the precomputed fact values. Smart List many-value operator semantics, full
+search/correction alignment, performance benchmarks, and Windows build
 verification remain open.
 
 ## Local data

@@ -5,6 +5,7 @@ import 'package:collectarr_app/features/library/kinds/music/workspace/music_cata
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_fields.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_dto.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_schema_support.dart';
+import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_sorts.dart';
 import 'package:collectarr_app/features/library/workspace/schema/field_factories.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_identifier_types.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_workspace_schema.dart';
@@ -59,6 +60,8 @@ final musicCatalogItemWorkspaceSchema =
         MusicCatalogWorkspaceFields.releaseDate,
         defaultAscending: false,
       ),
+    musicEarliestDiscRecordingDateSort(),
+    musicLatestDiscRecordingDateSort(),
     sortFromField<MusicKind, MusicWorkspaceProjection, num>(
       MusicCatalogWorkspaceFields.trackCount,
       defaultAscending: false,

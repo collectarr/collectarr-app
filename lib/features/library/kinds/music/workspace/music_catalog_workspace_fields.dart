@@ -93,6 +93,20 @@ abstract final class MusicCatalogWorkspaceFields {
     getValue: (context) => context.dto.facts.discRecordingYears,
   );
 
+  static final earliestDiscRecordingDate =
+      LibraryFieldDefinition<MusicKind, MusicWorkspaceProjection, PartialDate?>(
+    id: MusicFieldIds.earliestDiscRecordingDate,
+    metadata: MusicWorkspaceFieldMetadata.earliestDiscRecordingDate,
+    getValue: (context) => context.dto.facts.earliestDiscRecordingDate,
+  );
+
+  static final latestDiscRecordingDate =
+      LibraryFieldDefinition<MusicKind, MusicWorkspaceProjection, PartialDate?>(
+    id: MusicFieldIds.latestDiscRecordingDate,
+    metadata: MusicWorkspaceFieldMetadata.latestDiscRecordingDate,
+    getValue: (context) => context.dto.facts.latestDiscRecordingDate,
+  );
+
   static final liveStudio = LibraryFieldDefinition<MusicKind,
       MusicWorkspaceProjection, Iterable<bool>>(
     id: MusicFieldIds.liveStudio,
@@ -211,6 +225,8 @@ abstract final class MusicCatalogWorkspaceFields {
     recordingDate,
     recordingMonth,
     recordingYear,
+    earliestDiscRecordingDate,
+    latestDiscRecordingDate,
     liveStudio,
     recordingLocation,
     discSpars,

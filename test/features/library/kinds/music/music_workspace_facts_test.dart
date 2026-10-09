@@ -6,6 +6,7 @@ import 'package:collectarr_app/features/library/kinds/music/domain/music_disc.da
 import 'package:collectarr_app/features/library/kinds/music/domain/music_disc_format_family.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_ids.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_data.dart';
+import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_facts.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -78,6 +79,21 @@ void main() {
 
       expect(sameMonthFacts.earliestDiscRecordingDate?.isoString, '1995-04');
       expect(sameMonthFacts.latestDiscRecordingDate?.isoString, '1995-04');
+    });
+
+    test('compares partial date bounds consistently for earliest and latest',
+        () {
+      const year = PartialDate(year: 1995);
+      const april = PartialDate(year: 1995, month: 4);
+
+      expect(
+        compareMusicPartialDateBounds(year, april, latest: false),
+        lessThan(0),
+      );
+      expect(
+        compareMusicPartialDateBounds(year, april, latest: true),
+        greaterThan(0),
+      );
     });
 
     test('keeps album and disc contributor scopes in distinct sets', () {

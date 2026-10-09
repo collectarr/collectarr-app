@@ -31,6 +31,14 @@ abstract final class MusicFieldIds {
       LibraryFieldId<MusicKind, Iterable<int>>('music.disc.recording_month');
   static const recordingYear =
       LibraryFieldId<MusicKind, Iterable<int>>('music.disc.recording_year');
+  static const earliestDiscRecordingDate =
+      LibraryFieldId<MusicKind, PartialDate?>(
+    'music.disc.recording_date.earliest',
+  );
+  static const latestDiscRecordingDate =
+      LibraryFieldId<MusicKind, PartialDate?>(
+    'music.disc.recording_date.latest',
+  );
   static const liveStudio =
       LibraryFieldId<MusicKind, Iterable<bool>>('music.disc.is_live');
   static const recordingLocation = LibraryFieldId<MusicKind, Iterable<String>>(
@@ -118,6 +126,12 @@ abstract final class MusicSortIds {
   static const discCount = LibrarySortId<MusicKind>('music.disc_count');
   static const listenCount = LibrarySortId<MusicKind>('music.listen_count');
   static const lastListened = LibrarySortId<MusicKind>('music.last_listened');
+  static const earliestDiscRecordingDate = LibrarySortId<MusicKind>(
+    'music.disc.recording_date.earliest',
+  );
+  static const latestDiscRecordingDate = LibrarySortId<MusicKind>(
+    'music.disc.recording_date.latest',
+  );
 }
 
 abstract final class MusicGroupIds {

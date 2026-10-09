@@ -201,15 +201,19 @@ PartialDate? _reduceDate(
       selected = value;
       continue;
     }
-    final comparison = latest
-        ? _compareDateBounds(value, current, latest: true)
-        : _compareDateBounds(value, current, latest: false);
+    final comparison = compareMusicPartialDateBounds(
+      value,
+      current,
+      latest: latest,
+    );
     if (latest ? comparison > 0 : comparison < 0) selected = value;
   }
   return selected;
 }
 
-int _compareDateBounds(
+/// Compares partial dates using the same lower/upper-bound semantics used by
+/// MusicWorkspaceFacts reducers and workspace sort definitions.
+int compareMusicPartialDateBounds(
   PartialDate left,
   PartialDate right, {
   required bool latest,

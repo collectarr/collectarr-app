@@ -271,6 +271,8 @@ abstract final class MusicWorkspaceFieldMetadata {
     recordingDate,
     recordingMonth,
     recordingYear,
+    earliestDiscRecordingDate,
+    latestDiscRecordingDate,
     releaseYear,
     signedBy,
     creditContributor,
@@ -411,6 +413,28 @@ abstract final class MusicWorkspaceFieldMetadata {
     sourcePath: 'discs[].recording_date.year',
     filterable: true,
     groupable: true,
+  );
+
+  static const earliestDiscRecordingDate = LibraryKindFieldMetadata(
+    id: 'music.disc.recording_date.earliest',
+    label: 'Earliest Disc Recording Date',
+    valueType: LibraryFieldValueType.partialDate,
+    cardinality: LibraryFieldCardinality.one,
+    source: LibraryFieldSource.derived,
+    sourcePath: 'earliest_disc_recording_date',
+    sortable: true,
+    exportable: true,
+  );
+
+  static const latestDiscRecordingDate = LibraryKindFieldMetadata(
+    id: 'music.disc.recording_date.latest',
+    label: 'Latest Disc Recording Date',
+    valueType: LibraryFieldValueType.partialDate,
+    cardinality: LibraryFieldCardinality.one,
+    source: LibraryFieldSource.derived,
+    sourcePath: 'latest_disc_recording_date',
+    sortable: true,
+    exportable: true,
   );
 
   static const releaseYear = LibraryKindFieldMetadata(

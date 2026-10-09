@@ -182,12 +182,13 @@ typed workspace field getters as grouping, and `is_live` remains a boolean
 field with Live/Studio presentation labels. Smart List many-value operator
 semantics and complete contained-group regression coverage remain open.
 
-### J. Scalar date sorting
+### J. Scalar date sorting (implemented)
 
 Add explicit Earliest Disc Recording Date and Latest Disc Recording Date
-fields. Share PartialDate reduction rules, preserve deterministic null and
-precision ordering, and do not offer sort by Disc Format without a useful
-scalar meaning.
+fields. Their metadata is scalar, derived, and sortable; both workspace
+schemas expose these sorts. Share PartialDate lower/upper-bound comparison
+rules with the facts reducer, put missing values last, and do not offer sort by
+Disc Format without a useful scalar meaning.
 
 ### K. Search, export, corrections, and import boundary
 

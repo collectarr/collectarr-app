@@ -6,6 +6,7 @@ import 'package:collectarr_app/features/library/kinds/music/workspace/music_pers
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_fields.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_dto.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_schema_support.dart';
+import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_sorts.dart';
 import 'package:collectarr_app/features/library/workspace/schema/field_factories.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_identifier_types.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_workspace_schema.dart';
@@ -99,6 +100,8 @@ final musicLibraryEntryWorkspaceSchema =
       sortFromField<MusicKind, MusicWorkspaceProjection, String>(
         MusicCatalogWorkspaceFields.title,
       ),
+    musicEarliestDiscRecordingDateSort(),
+    musicLatestDiscRecordingDateSort(),
     if (MusicFieldIdentities.publisher.sortable)
       sortFromField<MusicKind, MusicWorkspaceProjection, String>(
         MusicCatalogWorkspaceFields.publisher,
