@@ -67,7 +67,15 @@ void main() {
 
     final alphabetRow = find.byType(LibraryToolbarAlphabetRow);
     expect(alphabetRow, findsOneWidget);
-    expect(tester.getSize(alphabetRow).width, greaterThan(380));
+    expect(tester.getSize(alphabetRow).width, greaterThan(900));
+    expect(
+      tester.getRect(find.text('Z')).right,
+      lessThanOrEqualTo(tester.getRect(alphabetRow).right),
+    );
+
+    tester.view.physicalSize = const Size(1440, 900);
+    await tester.pump();
+    expect(tester.getSize(alphabetRow).width, greaterThan(560));
 
     expect(find.text('#'), findsOneWidget);
     expect(find.text('0-9'), findsOneWidget);

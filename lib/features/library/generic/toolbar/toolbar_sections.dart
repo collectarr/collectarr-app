@@ -545,61 +545,62 @@ class LibraryDesktopFilteringToolbar extends StatelessWidget {
     );
     return Padding(
       padding: const EdgeInsets.only(left: 4, top: 2, bottom: 2),
-      child: Row(
-        children: [
-          Expanded(
-            flex: 3,
-            child: Align(
-              alignment: Alignment.centerLeft,
-              child: SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: leftControls,
-              ),
-            ),
-          ),
-          if (showAlphabetRow)
-            Expanded(
-              flex: 4,
-              child: Center(
-                child: LibraryToolbarAlphabetRow(
-                  letters: availableLetters,
-                  selectedLetter: selectedLetter,
-                  accent: accent,
-                  onLetterSelected: onLetterSelected!,
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final sideWidth =
+              (constraints.maxWidth * 0.3).clamp(0.0, 420.0).toDouble();
+          final searchWidth =
+              (constraints.maxWidth * 0.3).clamp(0.0, 380.0).toDouble();
+          return Row(
+            children: [
+              ConstrainedBox(
+                constraints: BoxConstraints(maxWidth: sideWidth),
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: leftControls,
                 ),
               ),
-            )
-          else
-            const Spacer(flex: 4),
-          Expanded(
-            flex: 3,
-            child: Align(
-              alignment: Alignment.centerRight,
-              child: SizedBox(
-                width: 380,
-                child: LibraryToolbarSearch(
-                  controller: searchController,
-                  hintText:
-                      'Search ${type.identity.pluralLabel.toLowerCase()}...',
-                  onScanBarcode: onScan,
-                  onScanCover: onScanCover,
-                  onRandomPick: onRandomPick,
-                  onSearch: onSearchChanged,
-                  onChanged: onSearchInputChanged,
-                  selectionColor: appPalette(context).selection,
-                  searchTarget: searchTarget,
-                  searchTargetOptions: searchTargetOptions,
-                  onSearchTargetChanged: onSearchTargetChanged,
-                  onClearSearch: onClearSearch,
-                  searchActive: searchActive,
-                  suggestions: searchSuggestions,
-                  onSuggestionSelected: onSearchSuggestionSelected,
-                  maxWidth: 380,
+              const SizedBox(width: 6),
+              if (showAlphabetRow)
+                Expanded(
+                  child: LibraryToolbarAlphabetRow(
+                    letters: availableLetters,
+                    selectedLetter: selectedLetter,
+                    accent: accent,
+                    onLetterSelected: onLetterSelected!,
+                  ),
+                )
+              else
+                const Expanded(child: SizedBox.shrink()),
+              const SizedBox(width: 6),
+              SizedBox(
+                width: searchWidth,
+                child: Align(
+                  alignment: Alignment.centerRight,
+                  child: LibraryToolbarSearch(
+                    controller: searchController,
+                    hintText:
+                        'Search ${type.identity.pluralLabel.toLowerCase()}...',
+                    onScanBarcode: onScan,
+                    onScanCover: onScanCover,
+                    onRandomPick: onRandomPick,
+                    onSearch: onSearchChanged,
+                    onChanged: onSearchInputChanged,
+                    selectionColor: appPalette(context).selection,
+                    searchTarget: searchTarget,
+                    searchTargetOptions: searchTargetOptions,
+                    onSearchTargetChanged: onSearchTargetChanged,
+                    onClearSearch: onClearSearch,
+                    searchActive: searchActive,
+                    suggestions: searchSuggestions,
+                    onSuggestionSelected: onSearchSuggestionSelected,
+                    maxWidth: 380,
+                  ),
                 ),
               ),
-            ),
-          ),
-        ],
+            ],
+          );
+        },
       ),
     );
   }
