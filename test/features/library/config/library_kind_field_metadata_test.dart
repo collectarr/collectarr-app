@@ -38,6 +38,8 @@ import 'package:collectarr_app/features/library/kinds/music/workspace/music_cata
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_library_entry_workspace_schema.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_personal_workspace_fields.dart';
 import 'package:collectarr_app/features/library/kinds/music/presentation.dart';
+import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_field_labels.dart';
+import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_groups.dart';
 import 'package:collectarr_app/features/library/kinds/tv/config/tv_field_identities.dart';
 import 'package:collectarr_app/features/library/kinds/tv/config/tv_workspace_field_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/tv/presentation.dart';
@@ -77,6 +79,53 @@ void main() {
       expect(field.label, isNotEmpty, reason: field.id);
       expect(field.sourcePath, isNotEmpty, reason: field.id);
     }
+  });
+
+  test('Music live status stays boolean while labels are presentation values',
+      () {
+    expect(MusicWorkspaceFieldMetadata.isLive.valueType,
+        LibraryFieldValueType.boolean);
+    expect(MusicWorkspaceFieldMetadata.isLive.cardinality,
+        LibraryFieldCardinality.many);
+    expect(
+        MusicWorkspaceFieldMetadata.isLive.source, LibraryFieldSource.catalog);
+    expect(MusicWorkspaceFieldMetadata.isLive.sourcePath, 'discs[].is_live');
+    expect(musicLiveStudioLabels([true, false]), ['Live', 'Studio']);
+  });
+
+  test('Music contained disc and credit groups follow field capabilities', () {
+    final groups = musicWorkspaceGroupDefinitions(includePersonal: true);
+    final groupIds = groups.map((group) => group.id.value).toSet();
+    final expectedFields = <LibraryKindFieldMetadata>[
+      MusicFieldIdentities.discFormat,
+      MusicWorkspaceFieldMetadata.discFormatFamily,
+      MusicWorkspaceFieldMetadata.recordingDate,
+      MusicWorkspaceFieldMetadata.recordingMonth,
+      MusicWorkspaceFieldMetadata.recordingYear,
+      MusicWorkspaceFieldMetadata.isLive,
+      MusicWorkspaceFieldMetadata.rpm,
+      MusicWorkspaceFieldMetadata.spars,
+      MusicWorkspaceFieldMetadata.sound,
+      MusicWorkspaceFieldMetadata.recordingLocations,
+      MusicWorkspaceFieldMetadata.vinylColor,
+      MusicWorkspaceFieldMetadata.creditContributor,
+      MusicWorkspaceFieldMetadata.creditRole,
+      MusicWorkspaceFieldMetadata.creditInstrument,
+    ];
+
+    for (final field in expectedFields) {
+      expect(field.groupable, isTrue, reason: field.id);
+      expect(groupIds, contains(field.id), reason: field.id);
+    }
+    expect(groups.map((group) => group.category), contains('Credits'));
+    expect(groups.map((group) => group.category), isNot(contains('Classical')));
+    expect(groups.map((group) => group.category), isNot(contains('People')));
+    expect(
+      groups
+          .where((group) => group.category == 'Credits')
+          .map((group) => group.label),
+      containsAll(['Contributor', 'Credit Role', 'Credit Instrument']),
+    );
   });
 
   test('text cardinality is represented independently from value type', () {

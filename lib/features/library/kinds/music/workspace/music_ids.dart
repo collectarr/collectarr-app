@@ -1,3 +1,4 @@
+import 'package:collectarr_app/core/models/partial_date.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_identifier_types.dart';
 import 'package:collectarr_app/features/library/kinds/music/config/music_field_identities.dart';
 
@@ -21,6 +22,36 @@ abstract final class MusicFieldIds {
   static const discFormat = LibraryFieldId<MusicKind, Iterable<String>>(
     MusicFieldIdentities.discFormatId,
   );
+  static const discFormatFamily =
+      LibraryFieldId<MusicKind, Iterable<String>>('music.disc.format_family');
+  static const recordingDate = LibraryFieldId<MusicKind, Iterable<PartialDate>>(
+    'music.disc.recording_date',
+  );
+  static const recordingMonth =
+      LibraryFieldId<MusicKind, Iterable<int>>('music.disc.recording_month');
+  static const recordingYear =
+      LibraryFieldId<MusicKind, Iterable<int>>('music.disc.recording_year');
+  static const liveStudio =
+      LibraryFieldId<MusicKind, Iterable<bool>>('music.disc.is_live');
+  static const recordingLocation = LibraryFieldId<MusicKind, Iterable<String>>(
+    'music.recording_location',
+  );
+  static const discSpars =
+      LibraryFieldId<MusicKind, Iterable<String>>('music.disc.spars');
+  static const discSound =
+      LibraryFieldId<MusicKind, Iterable<String>>('music.sound');
+  static const discColor =
+      LibraryFieldId<MusicKind, Iterable<String>>('music.vinyl_color');
+  static const discRpm =
+      LibraryFieldId<MusicKind, Iterable<String>>('music.rpm');
+  static const creditContributor =
+      LibraryFieldId<MusicKind, Iterable<String>>('music.credit.contributor');
+  static const creditRole =
+      LibraryFieldId<MusicKind, Iterable<String>>('music.credit.role');
+  static const creditInstrument =
+      LibraryFieldId<MusicKind, Iterable<String>>('music.credit.instrument');
+  static const trackComposition =
+      LibraryFieldId<MusicKind, Iterable<String>>('music.track.composition');
   static const packaging =
       LibraryFieldId<MusicKind, String?>(MusicFieldIdentities.packagingId);
   static const boxSet =

@@ -103,9 +103,12 @@ getters, made Catalog Item and Library Entry schemas share catalog field
 definitions, layered personal fields only onto Library Entry, and separated
 format/storage summaries from their many-valued semantic fields. Metadata,
 workspace schema, search-presentation, and export regression tests pass for
-this checkpoint. Contained disc/credit groups, Smart List many-value semantics,
-reducer sorts, full search/correction alignment, and final performance and
-Windows build verification remain open.
+this checkpoint. Checkpoint I now splits Music group definitions into
+catalog/disc/credit/personal modules, adds contained disc and credit fields to
+workspace groups and filters, and keeps `is_live` boolean while rendering
+Live/Studio labels. Smart List many-value operator semantics, reducer sorts,
+full search/correction alignment, and final performance and Windows build
+verification remain open.
 
 ## Local data
 

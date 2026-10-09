@@ -171,13 +171,16 @@ slot are separate fields, and the concatenated summary is not used for filters
 or grouping. Metadata and schema tests verify shared field identity and
 one/many semantics.
 
-### I. Disc and credit groups; filters and facets
+### I. Disc and credit groups; filters and facets (in progress)
 
 Split catalog, disc, credit, and personal grouping definitions. Add contained
 groups for disc format/family/date/month/year/SPARS/sound/live-state/location/
 color/RPM and contributor/role/instrument. Replace Classical and People
-categories with Credits. Make filter/facet values consume the same facts used
-by groups and implement the defined many-value semantics in Smart Lists.
+categories with Credits. Grouping definitions are split into catalog, disc,
+credit, and personal modules; contained disc and credit filters use the same
+typed workspace field getters as grouping, and `is_live` remains a boolean
+field with Live/Studio presentation labels. Smart List many-value operator
+semantics and complete contained-group regression coverage remain open.
 
 ### J. Scalar date sorting
 

@@ -7,6 +7,7 @@ import 'package:collectarr_app/features/library/kinds/music/workspace/music_card
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_dto.dart';
 import 'package:collectarr_app/features/library/kinds/music/config/music_field_identities.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_catalog_workspace_fields.dart';
+import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_field_labels.dart';
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/features/library/config/workspace_presentation_support.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
@@ -138,6 +139,17 @@ final musicLibraryFilterDefinitions = <LibraryFilterDefinition<Object?>>[
         item,
       ),
     ),
+  if (MusicWorkspaceFieldMetadata.discFormatFamily.filterable)
+    LibraryFilterDefinition<Object?>(
+      metadata: MusicWorkspaceFieldMetadata.discFormatFamily,
+      id: MusicWorkspaceFieldMetadata.discFormatFamily.id,
+      label: MusicWorkspaceFieldMetadata.discFormatFamily.label,
+      anyLabel: 'Any disc format family',
+      value: (item) => _musicWorkspaceFieldValue<Iterable<String>>(
+        MusicCatalogWorkspaceFields.discFormatFamily.getValue,
+        item,
+      ),
+    ),
   if (MusicFieldIdentities.packaging.filterable)
     LibraryFilterDefinition<Object?>(
       metadata: MusicFieldIdentities.packaging,
@@ -160,75 +172,111 @@ final musicLibraryFilterDefinitions = <LibraryFilterDefinition<Object?>>[
         item,
       ),
     ),
+  if (MusicWorkspaceFieldMetadata.creditContributor.filterable)
+    LibraryFilterDefinition<Object?>(
+      metadata: MusicWorkspaceFieldMetadata.creditContributor,
+      id: MusicWorkspaceFieldMetadata.creditContributor.id,
+      label: MusicWorkspaceFieldMetadata.creditContributor.label,
+      anyLabel: 'Any contributor',
+      value: (item) => _musicWorkspaceFieldValue<Iterable<String>>(
+        MusicCatalogWorkspaceFields.creditContributor.getValue,
+        item,
+      ),
+    ),
+  if (MusicWorkspaceFieldMetadata.creditRole.filterable)
+    LibraryFilterDefinition<Object?>(
+      metadata: MusicWorkspaceFieldMetadata.creditRole,
+      id: MusicWorkspaceFieldMetadata.creditRole.id,
+      label: MusicWorkspaceFieldMetadata.creditRole.label,
+      anyLabel: 'Any credit role',
+      value: (item) => _musicWorkspaceFieldValue<Iterable<String>>(
+        MusicCatalogWorkspaceFields.creditRole.getValue,
+        item,
+      ),
+    ),
+  if (MusicWorkspaceFieldMetadata.creditInstrument.filterable)
+    LibraryFilterDefinition<Object?>(
+      metadata: MusicWorkspaceFieldMetadata.creditInstrument,
+      id: MusicWorkspaceFieldMetadata.creditInstrument.id,
+      label: MusicWorkspaceFieldMetadata.creditInstrument.label,
+      anyLabel: 'Any credit instrument',
+      value: (item) => _musicWorkspaceFieldValue<Iterable<String>>(
+        MusicCatalogWorkspaceFields.creditInstrument.getValue,
+        item,
+      ),
+    ),
   LibraryFilterDefinition<Object?>(
     metadata: MusicWorkspaceFieldMetadata.recordingLocations,
     id: 'recording_location',
     label: 'Recording Location',
     anyLabel: 'Any recording location',
-    value: (item) => (item.dto is MusicWorkspaceProjection)
-        ? (item.dto as MusicWorkspaceProjection).facts.recordingLocations
-        : null,
+    value: (item) => _musicWorkspaceFieldValue<Iterable<String>>(
+      MusicCatalogWorkspaceFields.recordingLocation.getValue,
+      item,
+    ),
   ),
   LibraryFilterDefinition<Object?>(
     metadata: MusicWorkspaceFieldMetadata.isLive,
     id: 'is_live',
     label: 'Live recording',
     anyLabel: 'Any live status',
-    value: (item) => (item.dto is MusicWorkspaceProjection)
-        ? <String>{
-            if ((item.dto as MusicWorkspaceProjection).facts.hasLiveDisc) 'Yes',
-            if ((item.dto as MusicWorkspaceProjection).facts.hasStudioDisc)
-              'No',
-          }
-        : null,
+    value: (item) {
+      final values = _musicWorkspaceFieldValue<Iterable<bool>>(
+        MusicCatalogWorkspaceFields.liveStudio.getValue,
+        item,
+      );
+      return values == null ? null : musicLiveStudioLabels(values);
+    },
   ),
   LibraryFilterDefinition<Object?>(
     metadata: MusicWorkspaceFieldMetadata.sound,
     id: 'sound',
     label: 'Sound',
     anyLabel: 'Any sound type',
-    value: (item) => (item.dto is MusicWorkspaceProjection)
-        ? (item.dto as MusicWorkspaceProjection).facts.discSoundTypes
-        : const <String>[],
+    value: (item) => _musicWorkspaceFieldValue<Iterable<String>>(
+      MusicCatalogWorkspaceFields.discSound.getValue,
+      item,
+    ),
   ),
   LibraryFilterDefinition<Object?>(
     metadata: MusicWorkspaceFieldMetadata.spars,
     id: 'spars',
     label: 'SPARS',
     anyLabel: 'Any SPARS code',
-    value: (item) => (item.dto is MusicWorkspaceProjection)
-        ? (item.dto as MusicWorkspaceProjection).facts.discSparsCodes
-        : null,
+    value: (item) => _musicWorkspaceFieldValue<Iterable<String>>(
+      MusicCatalogWorkspaceFields.discSpars.getValue,
+      item,
+    ),
   ),
   LibraryFilterDefinition<Object?>(
     metadata: MusicWorkspaceFieldMetadata.vinylColor,
     id: 'vinyl_color',
     label: 'Vinyl color',
     anyLabel: 'Any vinyl color',
-    value: (item) => (item.dto is MusicWorkspaceProjection)
-        ? (item.dto as MusicWorkspaceProjection).facts.discColors
-        : const <String>[],
+    value: (item) => _musicWorkspaceFieldValue<Iterable<String>>(
+      MusicCatalogWorkspaceFields.discColor.getValue,
+      item,
+    ),
   ),
   LibraryFilterDefinition<Object?>(
     metadata: MusicWorkspaceFieldMetadata.rpm,
     id: 'rpm',
     label: 'RPM',
     anyLabel: 'Any RPM',
-    value: (item) => (item.dto is MusicWorkspaceProjection)
-        ? (item.dto as MusicWorkspaceProjection).facts.discRpms
-        : const <String>[],
+    value: (item) => _musicWorkspaceFieldValue<Iterable<String>>(
+      MusicCatalogWorkspaceFields.discRpm.getValue,
+      item,
+    ),
   ),
   LibraryFilterDefinition<Object?>(
     metadata: MusicWorkspaceFieldMetadata.recordingYear,
     id: 'recording_year',
     label: 'Recording year',
     anyLabel: 'Any recording year',
-    value: (item) => (item.dto is MusicWorkspaceProjection)
-        ? (item.dto as MusicWorkspaceProjection)
-            .facts
-            .discRecordingYears
-            .map((year) => year.toString())
-        : null,
+    value: (item) => _musicWorkspaceFieldValue<Iterable<int>>(
+      MusicCatalogWorkspaceFields.recordingYear.getValue,
+      item,
+    ),
   ),
   LibraryFilterDefinition<Object?>(
     metadata: MusicWorkspaceFieldMetadata.originalReleaseYear,

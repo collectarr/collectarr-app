@@ -40,8 +40,7 @@ class MusicLibraryMediaPresentationBuilder
           'Images',
           'Main',
           'Details',
-          'Classical',
-          'People',
+          'Credits',
           'Personal'
         ])
           if (MusicGroupingField.values.any((field) =>

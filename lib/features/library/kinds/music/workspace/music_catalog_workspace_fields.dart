@@ -1,3 +1,4 @@
+import 'package:collectarr_app/core/models/partial_date.dart';
 import 'package:collectarr_app/features/library/kinds/music/config/music_field_identities.dart';
 import 'package:collectarr_app/features/library/kinds/music/config/music_workspace_field_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_ids.dart';
@@ -63,6 +64,108 @@ abstract final class MusicCatalogWorkspaceFields {
     getValue: (context) => context.dto.facts.discFormats,
   );
 
+  static final discFormatFamily = LibraryFieldDefinition<MusicKind,
+      MusicWorkspaceProjection, Iterable<String>>(
+    id: MusicFieldIds.discFormatFamily,
+    metadata: MusicWorkspaceFieldMetadata.discFormatFamily,
+    getValue: (context) =>
+        context.dto.facts.discFormatFamilies.map((family) => family.value),
+  );
+
+  static final recordingDate = LibraryFieldDefinition<MusicKind,
+      MusicWorkspaceProjection, Iterable<PartialDate>>(
+    id: MusicFieldIds.recordingDate,
+    metadata: MusicWorkspaceFieldMetadata.recordingDate,
+    getValue: (context) => context.dto.facts.discRecordingDates,
+  );
+
+  static final recordingMonth = LibraryFieldDefinition<MusicKind,
+      MusicWorkspaceProjection, Iterable<int>>(
+    id: MusicFieldIds.recordingMonth,
+    metadata: MusicWorkspaceFieldMetadata.recordingMonth,
+    getValue: (context) => context.dto.facts.discRecordingMonths,
+  );
+
+  static final recordingYear = LibraryFieldDefinition<MusicKind,
+      MusicWorkspaceProjection, Iterable<int>>(
+    id: MusicFieldIds.recordingYear,
+    metadata: MusicWorkspaceFieldMetadata.recordingYear,
+    getValue: (context) => context.dto.facts.discRecordingYears,
+  );
+
+  static final liveStudio = LibraryFieldDefinition<MusicKind,
+      MusicWorkspaceProjection, Iterable<bool>>(
+    id: MusicFieldIds.liveStudio,
+    metadata: MusicWorkspaceFieldMetadata.isLive,
+    getValue: (context) => {
+      if (context.dto.facts.hasLiveDisc) true,
+      if (context.dto.facts.hasStudioDisc) false,
+    },
+  );
+
+  static final recordingLocation = LibraryFieldDefinition<MusicKind,
+      MusicWorkspaceProjection, Iterable<String>>(
+    id: MusicFieldIds.recordingLocation,
+    metadata: MusicWorkspaceFieldMetadata.recordingLocations,
+    getValue: (context) => context.dto.facts.recordingLocations,
+  );
+
+  static final discSpars = LibraryFieldDefinition<MusicKind,
+      MusicWorkspaceProjection, Iterable<String>>(
+    id: MusicFieldIds.discSpars,
+    metadata: MusicWorkspaceFieldMetadata.spars,
+    getValue: (context) => context.dto.facts.discSparsCodes,
+  );
+
+  static final discSound = LibraryFieldDefinition<MusicKind,
+      MusicWorkspaceProjection, Iterable<String>>(
+    id: MusicFieldIds.discSound,
+    metadata: MusicWorkspaceFieldMetadata.sound,
+    getValue: (context) => context.dto.facts.discSoundTypes,
+  );
+
+  static final discColor = LibraryFieldDefinition<MusicKind,
+      MusicWorkspaceProjection, Iterable<String>>(
+    id: MusicFieldIds.discColor,
+    metadata: MusicWorkspaceFieldMetadata.vinylColor,
+    getValue: (context) => context.dto.facts.discColors,
+  );
+
+  static final discRpm = LibraryFieldDefinition<MusicKind,
+      MusicWorkspaceProjection, Iterable<String>>(
+    id: MusicFieldIds.discRpm,
+    metadata: MusicWorkspaceFieldMetadata.rpm,
+    getValue: (context) => context.dto.facts.discRpms,
+  );
+
+  static final creditContributor = LibraryFieldDefinition<MusicKind,
+      MusicWorkspaceProjection, Iterable<String>>(
+    id: MusicFieldIds.creditContributor,
+    metadata: MusicWorkspaceFieldMetadata.creditContributor,
+    getValue: (context) => context.dto.facts.allContributors,
+  );
+
+  static final creditRole = LibraryFieldDefinition<MusicKind,
+      MusicWorkspaceProjection, Iterable<String>>(
+    id: MusicFieldIds.creditRole,
+    metadata: MusicWorkspaceFieldMetadata.creditRole,
+    getValue: (context) => context.dto.facts.creditRoles,
+  );
+
+  static final creditInstrument = LibraryFieldDefinition<MusicKind,
+      MusicWorkspaceProjection, Iterable<String>>(
+    id: MusicFieldIds.creditInstrument,
+    metadata: MusicWorkspaceFieldMetadata.creditInstrument,
+    getValue: (context) => context.dto.facts.creditInstruments,
+  );
+
+  static final trackComposition = LibraryFieldDefinition<MusicKind,
+      MusicWorkspaceProjection, Iterable<String>>(
+    id: MusicFieldIds.trackComposition,
+    metadata: MusicWorkspaceFieldMetadata.trackComposition,
+    getValue: (context) => context.dto.facts.trackCompositions,
+  );
+
   static final releaseDate = dateField<MusicKind, MusicWorkspaceProjection>(
     id: MusicFieldIds.releaseDate,
     metadata: MusicFieldIdentities.releaseDate,
@@ -104,6 +207,20 @@ abstract final class MusicCatalogWorkspaceFields {
     genre,
     formatSummary,
     discFormat,
+    discFormatFamily,
+    recordingDate,
+    recordingMonth,
+    recordingYear,
+    liveStudio,
+    recordingLocation,
+    discSpars,
+    discSound,
+    discColor,
+    discRpm,
+    creditContributor,
+    creditRole,
+    creditInstrument,
+    trackComposition,
     releaseDate,
     trackCount,
     country,
