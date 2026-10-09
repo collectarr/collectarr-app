@@ -6,7 +6,9 @@ workspace field cleanup checkpoint H, contained grouping/filter checkpoint I,
 scalar date sorts checkpoint J, search/export/correction checkpoint K, and
 physical cleanup checkpoint L are implemented. The full Core suite passes 152
 tests, including PostgreSQL-backed schema and index-plan checks. Stage M's
-release gate remains open for the repository-wide architecture check. Each
+release gate remains open while the repository-wide architecture check reports
+48 AST boundary violations; 261 stale exact field-leak baseline entries have
+been removed, and no new field leaks were added to the baseline. Each
 completed checkpoint is committed separately with a detailed Conventional
 Commit message. Stages that touch Core contracts regenerate the Core bundle and
 update the App pin in the same stage.

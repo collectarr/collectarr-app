@@ -1,8 +1,8 @@
 # Current Architecture Status
 
-Last reviewed: 2026-10-09. This report describes the current working tree; it
-does not claim that the pending implementation work has passed a build or test
-run.
+Last reviewed: 2026-10-09. This report reflects the current working tree and
+the verification evidence recorded below. Stage M remains open until the
+remaining repository-wide architecture findings are resolved.
 
 ## Implemented
 
@@ -90,7 +90,7 @@ run.
 - Stage M release verification is underway. Formatting and strict Flutter
   analysis pass. Kind registry and field-manifest generation, the pinned Music
   v2 contract check, the generated Catalog Item v2 field check, and targeted
-  Core schema/contract tests pass. The full App suite passes: 768 passed,
+  Core schema/contract tests pass. The full App suite passes: 769 passed,
   one skipped, and zero failed. Windows debug build and desktop/mobile
   integration smoke tests pass.
 - The App regression fixtures now match typed registries, field IDs,
@@ -108,10 +108,13 @@ run.
 - Music listening events now enforce their Music library-entry ownership in
   the Music domain model; the shared sync queue only validates the generic
   reference structure.
-- `tool/check_library_kind_boundaries.dart` still fails with 307 AST boundary
+- TV's watch-history editor and season/episode target model now live under the
+  TV kind; the generic tracking folder no longer owns that TV-only workflow.
+- `tool/check_library_kind_boundaries.dart` still reports 48 AST boundary
   violations and 364 complexity-budget findings. The AST findings are TK002=4,
-  TK003=5, TK009=14, TK016=31, and TK017=253 stale field-leak baseline
-  entries; TK005, TK001, and TK011 are clear. The full
+  TK003=5, TK009=14, and TK016=25. There are zero stale TK017 entries; the
+  exact baseline retains 170 previously reviewed findings that still occur.
+  TK001, TK005, and TK011 are clear. The full
   Core suite now passes all 152 tests against the isolated local
   `collectarr_test` database, including schema, API, correction, and index-plan
   checks; `ruff check .` passes. Stage M remains open until the repository-wide
