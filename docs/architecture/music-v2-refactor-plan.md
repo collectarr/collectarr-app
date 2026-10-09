@@ -7,7 +7,7 @@ grouping/filter checkpoint I, scalar date sorts checkpoint J,
 search/export/correction checkpoint K, and physical cleanup checkpoint L are
 implemented. The full Core suite passes 155 tests with PostgreSQL-backed
 schema and index-plan checks. After the audit follow-up, the full App suite
-passes 778 tests with one skip; strict analysis, changed-file formatting,
+passes 780 tests with one skip; strict analysis, changed-file formatting,
 contract pin checks, Windows debug build, desktop and mobile integration smoke
 tests, and architecture guards pass. The exact architecture baseline retains
 44 reviewed field leaks, all still observed and none stale; 364
@@ -155,13 +155,17 @@ Instruments | Applies to`) where roles are vocabulary values. Put recording
 date, locations, SPARS, and live/studio controls on each disc's details view.
 Keep Tracks kind-owned and preserve track/disc lifecycle behavior. The Add and
 Edit flows use one scope-aware Credits surface, and disc details own recording
-controls.
+controls. Widget tests cover the single Credits tab, role edits, album/disc
+scope changes, removal of credits when a disc is deleted, and the custom-format
+family selector's visibility and update behavior.
 
 ### G. Music workspace facts (implemented)
 
 Build immutable, distinct `MusicWorkspaceFacts` once per canonical projection.
 Add mixed-disc fixtures and tests for deduplication, earliest/latest partial
 date semantics, live/studio state, and album/disc contributor aggregation.
+The canonical mixed-edition fixture stores `DDD` and `ADD` as SPARS codes and
+uses `Stereo` for sound type, keeping those separate facts and group buckets.
 `MusicWorkspaceData` builds the immutable snapshot once from the canonical
 album and reuses it when listening data changes. Workspace grouping and the
 existing disc recording filters read deduplicated fact sets instead of
@@ -295,7 +299,10 @@ recording location/studio switches. Current table values are means of two
 separate benchmark processes; projection time is the median of three runs per
 process. Baseline allocation and RSS values use the same fixture and projector
 in a detached projection-only harness, while baseline timing values are from
-the previously recorded benchmark run.
+the previously recorded benchmark run. The current App suite passes 780 tests
+with one skip after adding the edit-widget coverage for role/scope lifecycle
+and format-family visibility; the canonical mixed-disc tests now assert SPARS
+and Sound as separate values.
 
 | Operation | 1k baseline | 1k current | 5k baseline | 5k current |
 | --- | ---: | ---: | ---: | ---: |

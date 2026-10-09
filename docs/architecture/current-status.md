@@ -98,7 +98,7 @@ informational complexity findings.
   scalar indexes with PostgreSQL query plans.
 - The post-audit release gate passes. Core contract/schema tests pass and the
   full Core suite passes 155 tests with PostgreSQL; `ruff check .` is clean.
-  The full App suite passes 778 tests with one skip, strict Flutter analysis
+  The full App suite passes 780 tests with one skip, strict Flutter analysis
   and changed-file formatting pass, and the pinned Core bundle matches
   contract 2.2.0. The architecture guard has no unreviewed AST violations.
   Windows desktop/mobile integration smoke tests pass and the Windows debug
@@ -126,7 +126,7 @@ informational complexity findings.
   The checker prints 364 complexity-budget findings as informational output.
   TK001, TK002, TK003, TK005, TK009, TK011, and TK017 have no active violations;
   TK016 has only the 44 exact baseline entries above. The full
-  Core suite now passes all 152 tests against the isolated local
+  Core suite now passes all 155 tests against the isolated local
   `collectarr_test` database, including schema, API, correction, and index-plan
   checks; `ruff check .` passes. The global format check still reports 44
   pre-existing files outside this change set; all files changed for the final
@@ -170,11 +170,13 @@ recording locations, and contributor names for multi-value search indexing,
 while technical values and credit roles/instruments stay excluded. Smart List
 many-value operators now match contained values with any-match semantics, and
 the opt-in workspace benchmark measures 1k/5k mixed-disc collections against
-the pre-facts checkpoint. Average disc-group switches are about 20–25% faster;
-projection now pays the one-time cost of building facts (about 5.4 ms at 1k
-and 27.0 ms at 5k in the recorded run). Scalar publisher filtering is slower
-under typed Smart List rules but remains below 3.3 ms at 5k. RSS is recorded
-as a coarse process high-water snapshot, not as an allocation count. Music's
+the pre-facts checkpoint. Contained group switches are about 30% faster at 1k
+and 23% faster at 5k. Projection pays the one-time facts cost (about 5.35 ms
+at 1k and 27.56 ms at 5k); typed publisher filtering is about 1.39 ms at 1k
+and 3.43 ms at 5k. The 5k default sort measured 5.35 ms versus a 4.01 ms
+baseline, and that regression is recorded in the benchmark report. VM
+allocation profiles and process peak-RSS increases are also recorded with
+their measurement limits. Music's
 schema-v1 CSV import boundary is verified. Windows debug build and
 desktop/mobile integration smoke tests pass. Core correction targets
 expose Music nested lists as correction-only object-list fields and validate
