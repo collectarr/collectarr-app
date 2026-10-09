@@ -90,15 +90,16 @@ run.
 - Stage M release verification is underway. Formatting and strict Flutter
   analysis pass. Kind registry and field-manifest generation, the pinned Music
   v2 contract check, the generated Catalog Item v2 field check, and targeted
-  Core schema/contract tests pass. Music domain, edit, workspace grouping, and
-  export tests pass; the Windows debug build and Windows integration smoke
-  tests pass.
-- The full App unit/widget test suite now passes. Its stale expectations were
-  updated to the current typed registries, field IDs, versioned preference
-  keys, TV shared-tab composition, and current Comic Drift tables. CSV fixtures
-  now use canonical per-kind wire fields; this exposed and fixed Game export
-  cells that had repeated the edition title instead of exporting the item
-  number and edition title separately.
+  Core schema/contract tests pass. The full App suite passes: 981 tests, zero
+  failures, and one skipped test. Windows debug build and desktop/mobile
+  integration smoke tests pass.
+- The App regression fixtures now match typed registries, field IDs,
+  versioned preference keys, TV shared-tab composition, current Comic Drift
+  tables, and strict per-kind payloads. The suite also caught and fixed Comic
+  issue labels disappearing from local workspace rows, Movie CSV import
+  emitting unsupported metadata keys, compact information-chip and pick-list
+  header overflows, and stale widget finders for current dropdowns and scopes.
+  Game CSV export cells now preserve item number and edition title separately.
 - `tool/check_library_kind_boundaries.dart` still fails with 318 AST boundary
   violations and 364 complexity-budget findings, including stale baseline
   entries. The full Core suite also has 11 failures (106 passed, 36 skipped),
