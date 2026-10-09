@@ -19,6 +19,7 @@ final class MusicCatalogItemWorkspaceProjector
       common: _musicCommonProjection(item, catalog),
       personal: PersonalEntryProjection.fromShelf(item, personal),
       music: catalog.music,
+      facts: catalog.facts,
       listeningSummary: catalog.listeningSummary,
     );
   }
@@ -38,6 +39,7 @@ final class MusicLibraryEntryWorkspaceProjector
       common: _musicCommonProjection(item, catalog),
       personal: PersonalEntryProjection.fromShelf(item, personal),
       music: catalog.music,
+      facts: catalog.facts,
       listeningSummary: catalog.listeningSummary,
     );
   }

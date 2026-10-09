@@ -96,9 +96,11 @@ kinds. The strict Core Music v2 bundle is pinned in App, and the App domain has
 stable album/disc credits, disc-owned recording metadata, coarse format
 families, explicit format presets, and a shared Credits editor for Add/Edit.
 The former album-level recording fields and contribution model are removed.
-The next checkpoint builds immutable `MusicWorkspaceFacts` once per projection;
-disc/credit groups, many-value filters, reducer sorts, export/search, and final
-performance verification remain open.
+`MusicWorkspaceData` now constructs immutable `MusicWorkspaceFacts` once from
+the canonical album and reuses them through workspace projections, grouping,
+and existing disc recording filters. Shared catalog field definitions,
+contained disc/credit groups, many-value filter semantics, reducer sorts,
+export/search, and final performance verification remain open.
 
 ## Local data
 

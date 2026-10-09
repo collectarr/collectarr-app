@@ -203,6 +203,7 @@ Object? _groupValue(MusicGroupingField field,
     LibraryProjectionContext<MusicWorkspaceProjection> context) {
   final dto = context.dto;
   final album = dto.music;
+  final facts = dto.facts;
   final entry = MusicLibraryEntryProjection.fromDispatch(
       context.item.libraryEntryDispatch);
   final MusicPersonalData? personal = entry?.personal;
@@ -216,13 +217,7 @@ Object? _groupValue(MusicGroupingField field,
     for (final image in context.personal.images)
       MusicAlbumImage.imageTypeFromStorageValue(image.imageType),
   };
-  final allCredits = [
-    ...album.credits,
-    ...album.discs.expand((disc) => disc.credits),
-  ];
-  Iterable<String?> names(String role) => allCredits
-      .where((credit) => credit.role.toLowerCase() == role)
-      .map((credit) => credit.name);
+  Iterable<String> names(String role) => facts.contributorsForRole(role);
   final purchase =
       personal?.purchaseDateParts ?? _parts(personal?.purchaseDate);
   final cleaned = personal?.details.lastCleanedDateParts ??
@@ -237,7 +232,7 @@ Object? _groupValue(MusicGroupingField field,
     MusicGroupingField.artist => album.artistCredits.isNotEmpty
         ? album.artistCredits.map((credit) => credit.creditedName)
         : dto.artist,
-    MusicGroupingField.format => album.formatSummary,
+    MusicGroupingField.format => facts.formatSummary,
     MusicGroupingField.genre => album.genres,
     MusicGroupingField.publisher => album.publisher,
     MusicGroupingField.originalReleaseDate =>
@@ -246,42 +241,38 @@ Object? _groupValue(MusicGroupingField field,
       _month(album.originalReleaseDateParts),
     MusicGroupingField.originalReleaseYear =>
       album.originalReleaseDateParts?.year,
-    MusicGroupingField.recordingDate => album.discs
-        .map((disc) => disc.recordingDate?.isoString)
+    MusicGroupingField.recordingDate => facts.discRecordingDates
+        .map((date) => date.isoString)
         .whereType<String>(),
-    MusicGroupingField.recordingMonth =>
-      album.discs.map((disc) => _month(disc.recordingDate)).whereType<String>(),
-    MusicGroupingField.recordingYear => album.discs
-        .map((disc) => disc.recordingDate?.year?.toString())
+    MusicGroupingField.recordingMonth => facts.discRecordingMonths
+        .map((month) => _month(PartialDate(month: month)))
         .whereType<String>(),
+    MusicGroupingField.recordingYear =>
+      facts.discRecordingYears.map((year) => year.toString()),
     MusicGroupingField.releaseDate => album.releaseDateParts?.isoString,
     MusicGroupingField.releaseMonth => _month(album.releaseDateParts),
     MusicGroupingField.releaseYear => album.releaseDateParts?.year,
     MusicGroupingField.boxSet => album.boxSet,
     MusicGroupingField.country => album.countryCode,
     MusicGroupingField.extra => album.extra,
-    MusicGroupingField.instrument =>
-      allCredits.expand((credit) => credit.instruments),
-    MusicGroupingField.isLive => album.discs
-        .where((disc) => disc.isLive != null)
-        .map((disc) => _yesNo(disc.isLive == true)),
+    MusicGroupingField.instrument => facts.creditInstruments,
+    MusicGroupingField.isLive => <String>{
+        if (facts.hasLiveDisc) 'Yes',
+        if (facts.hasStudioDisc) 'No',
+      },
     MusicGroupingField.mediaCondition => personal?.mediaCondition,
     MusicGroupingField.condition => personal?.condition,
     MusicGroupingField.packaging => album.packaging,
-    MusicGroupingField.rpm =>
-      album.discs.map((disc) => disc.rpm).whereType<String>(),
-    MusicGroupingField.spars =>
-      album.discs.map((disc) => disc.sparsCode).whereType<String>(),
-    MusicGroupingField.sound => album.discs.expand((disc) => disc.soundTypes),
+    MusicGroupingField.rpm => facts.discRpms,
+    MusicGroupingField.spars => facts.discSparsCodes,
+    MusicGroupingField.sound => facts.discSoundTypes,
     MusicGroupingField.storage =>
       personal?.details.media.map((disc) => disc.storageDevice),
-    MusicGroupingField.studio =>
-      album.discs.expand((disc) => disc.recordingLocations),
-    MusicGroupingField.vinylColor =>
-      album.discs.map((disc) => disc.color).whereType<String>(),
+    MusicGroupingField.studio => facts.recordingLocations,
+    MusicGroupingField.vinylColor => facts.discColors,
     MusicGroupingField.chorus => names('chorus'),
     MusicGroupingField.composer => names('composer'),
-    MusicGroupingField.composition => names('composition'),
+    MusicGroupingField.composition => facts.trackCompositions,
     MusicGroupingField.conductor => names('conductor'),
     MusicGroupingField.orchestra => names('orchestra'),
     MusicGroupingField.engineer => names('engineer'),

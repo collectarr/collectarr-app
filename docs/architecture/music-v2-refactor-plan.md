@@ -1,10 +1,11 @@
 # Music v2 and Library Field Semantics Roadmap
 
-Status: active; checkpoints A1–A4, the nine-kind metadata cutover, and Music
-v2 contract/domain/editing checkpoints C–F are implemented. The next stage is
-precomputed Music workspace facts. Each completed checkpoint is committed
-separately with a detailed Conventional Commit message. Stages that touch Core
-contracts regenerate the Core bundle and update the App pin in the same stage.
+Status: active; checkpoints A1–A4, the nine-kind metadata cutover, Music
+v2 contract/domain/editing checkpoints C–F, and workspace-facts checkpoint G
+are implemented. The next stage is workspace field cleanup. Each completed
+checkpoint is committed separately with a detailed Conventional Commit
+message. Stages that touch Core contracts regenerate the Core bundle and update
+the App pin in the same stage.
 
 ## Architectural contract
 
@@ -144,11 +145,15 @@ Keep Tracks kind-owned and preserve track/disc lifecycle behavior. The Add and
 Edit flows use one scope-aware Credits surface, and disc details own recording
 controls.
 
-### G. Music workspace facts
+### G. Music workspace facts (implemented)
 
 Build immutable, distinct `MusicWorkspaceFacts` once per canonical projection.
 Add mixed-disc fixtures and tests for deduplication, earliest/latest partial
 date semantics, live/studio state, and album/disc contributor aggregation.
+`MusicWorkspaceData` builds the immutable snapshot once from the canonical
+album and reuses it when listening data changes. Workspace grouping and the
+existing disc recording filters read deduplicated fact sets instead of
+traversing discs and credits for each row comparison.
 
 ### H. Workspace field cleanup
 

@@ -1,5 +1,6 @@
 import 'package:collectarr_app/features/library/kinds/music/domain/music_listening.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_album.dart';
+import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_facts.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 
@@ -8,6 +9,7 @@ abstract interface class MusicWorkspaceProjection
   WorkspaceCommonProjection get common;
   PersonalEntryProjection get personal;
   MusicAlbum get music;
+  MusicWorkspaceFacts get facts;
   MusicEntryListeningSummary? get listeningSummary;
 
   String? get currency;
@@ -38,6 +40,7 @@ abstract class MusicWorkspaceProjectionValues
     required this.common,
     required this.personal,
     required this.music,
+    required this.facts,
     this.listeningSummary,
   });
 
@@ -47,6 +50,8 @@ abstract class MusicWorkspaceProjectionValues
   final PersonalEntryProjection personal;
   @override
   final MusicAlbum music;
+  @override
+  final MusicWorkspaceFacts facts;
   @override
   final MusicEntryListeningSummary? listeningSummary;
 
@@ -66,30 +71,14 @@ abstract class MusicWorkspaceProjectionValues
 
   @override
   String? get artist {
-    final value = music.artist?.trim();
-    if (value != null && value.isNotEmpty) return value;
-    for (final credit in [
-      ...music.credits,
-      ...music.discs.expand((disc) => disc.credits),
-    ]) {
-      final role = credit.role.trim().toLowerCase();
-      if (!(role.contains('artist') ||
-          role.contains('performer') ||
-          role.contains('musician') ||
-          role.contains('band'))) {
-        continue;
-      }
-      final name = credit.name.trim();
-      if (name.isNotEmpty) return name;
-    }
-    return null;
+    return facts.primaryArtist;
   }
 
   @override
   String? get catalogNumber => music.catalogNumber;
 
   @override
-  String? get format => music.formatSummary;
+  String? get format => facts.formatSummary;
 
   @override
   String? get referenceFormatLabel => format;
@@ -127,13 +116,13 @@ abstract class MusicWorkspaceProjectionValues
   String? get coverImageUrl => music.coverImageUrl ?? common.coverImageUrl;
 
   @override
-  int? get discCount => music.discs.isEmpty ? null : music.discs.length;
+  int? get discCount => facts.discCount == 0 ? null : facts.discCount;
 
   @override
-  int? get trackCount => music.trackCount;
+  int? get trackCount => facts.trackCount;
 
   @override
-  bool? get isLive => music.discs.any((disc) => disc.isLive == true);
+  bool? get isLive => facts.hasLiveDisc;
 
   @override
   List<String> get genres => music.genres;
@@ -155,6 +144,7 @@ final class MusicCatalogItemWorkspaceDto
     required super.common,
     required super.personal,
     required super.music,
+    required super.facts,
     super.listeningSummary,
   });
 }
@@ -165,6 +155,7 @@ final class MusicLibraryEntryWorkspaceDto
     required super.common,
     required super.personal,
     required super.music,
+    required super.facts,
     super.listeningSummary,
   });
 }
