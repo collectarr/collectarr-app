@@ -7,7 +7,7 @@ grouping/filter checkpoint I, scalar date sorts checkpoint J,
 search/export/correction checkpoint K, and physical cleanup checkpoint L are
 implemented. The full Core suite passes 155 tests with PostgreSQL-backed
 schema and index-plan checks. After the audit follow-up, the full App suite
-passes 780 tests with one skip; strict analysis, changed-file formatting,
+passes 786 tests with one skip; strict analysis, changed-file formatting,
 contract pin checks, Windows debug build, desktop and mobile integration smoke
 tests, and architecture guards pass. The exact architecture baseline retains
 44 reviewed field leaks, all still observed and none stale; 364
@@ -299,10 +299,11 @@ recording location/studio switches. Current table values are means of two
 separate benchmark processes; projection time is the median of three runs per
 process. Baseline allocation and RSS values use the same fixture and projector
 in a detached projection-only harness, while baseline timing values are from
-the previously recorded benchmark run. The current App suite passes 780 tests
+the previously recorded benchmark run. The current App suite passes 786 tests
 with one skip after adding the edit-widget coverage for role/scope lifecycle
-and format-family visibility; the canonical mixed-disc tests now assert SPARS
-and Sound as separate values.
+and format-family visibility, plus strict App-domain round-trip, field, and
+nested-identity tests. The canonical mixed-disc tests assert SPARS and Sound
+as separate values.
 
 | Operation | 1k baseline | 1k current | 5k baseline | 5k current |
 | --- | ---: | ---: | ---: | ---: |

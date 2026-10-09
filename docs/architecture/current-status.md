@@ -98,7 +98,7 @@ informational complexity findings.
   scalar indexes with PostgreSQL query plans.
 - The post-audit release gate passes. Core contract/schema tests pass and the
   full Core suite passes 155 tests with PostgreSQL; `ruff check .` is clean.
-  The full App suite passes 780 tests with one skip, strict Flutter analysis
+  The full App suite passes 786 tests with one skip, strict Flutter analysis
   and changed-file formatting pass, and the pinned Core bundle matches
   contract 2.2.0. The architecture guard has no unreviewed AST violations.
   Windows desktop/mobile integration smoke tests pass and the Windows debug
