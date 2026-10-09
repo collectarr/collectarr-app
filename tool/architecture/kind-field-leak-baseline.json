@@ -2,121 +2,6 @@
     "formatVersion":  1,
     "entries":  [
                     {
-                        "path":  "lib/core/models/activity_event.dart",
-                        "surface":  "member-declaration",
-                        "symbol":  "rating"
-                    },
-                    {
-                        "path":  "lib/core/models/library_entry_projection.dart",
-                        "surface":  "member-access",
-                        "symbol":  "notes"
-                    },
-                    {
-                        "path":  "lib/core/models/personal_tracking_base.dart",
-                        "surface":  "member-declaration",
-                        "symbol":  "completedAt"
-                    },
-                    {
-                        "path":  "lib/core/models/personal_tracking_base.dart",
-                        "surface":  "member-declaration",
-                        "symbol":  "notes"
-                    },
-                    {
-                        "path":  "lib/core/models/personal_tracking_base.dart",
-                        "surface":  "member-declaration",
-                        "symbol":  "rating"
-                    },
-                    {
-                        "path":  "lib/core/models/personal_tracking_base.dart",
-                        "surface":  "member-declaration",
-                        "symbol":  "startedAt"
-                    },
-                    {
-                        "path":  "lib/core/models/personal_tracking_base.dart",
-                        "surface":  "member-declaration",
-                        "symbol":  "status"
-                    },
-                    {
-                        "path":  "lib/core/models/tracking_activity_summary.dart",
-                        "surface":  "member-declaration",
-                        "symbol":  "completedAt"
-                    },
-                    {
-                        "path":  "lib/core/models/tracking_activity_summary.dart",
-                        "surface":  "member-declaration",
-                        "symbol":  "notes"
-                    },
-                    {
-                        "path":  "lib/core/models/tracking_activity_summary.dart",
-                        "surface":  "member-declaration",
-                        "symbol":  "rating"
-                    },
-                    {
-                        "path":  "lib/core/models/tracking_activity_summary.dart",
-                        "surface":  "member-declaration",
-                        "symbol":  "startedAt"
-                    },
-                    {
-                        "path":  "lib/core/models/tracking_activity_summary.dart",
-                        "surface":  "member-declaration",
-                        "symbol":  "status"
-                    },
-                    {
-                        "path":  "lib/core/models/tracking_progress_snapshot.dart",
-                        "surface":  "member-access",
-                        "symbol":  "timesCompleted"
-                    },
-                    {
-                        "path":  "lib/core/models/tracking_progress_snapshot.dart",
-                        "surface":  "member-declaration",
-                        "symbol":  "timesCompleted"
-                    },
-                    {
-                        "path":  "lib/core/models/tracking_summary.dart",
-                        "surface":  "member-declaration",
-                        "symbol":  "completedAt"
-                    },
-                    {
-                        "path":  "lib/core/models/tracking_summary.dart",
-                        "surface":  "member-declaration",
-                        "symbol":  "notes"
-                    },
-                    {
-                        "path":  "lib/core/models/tracking_summary.dart",
-                        "surface":  "member-declaration",
-                        "symbol":  "rating"
-                    },
-                    {
-                        "path":  "lib/core/models/tracking_summary.dart",
-                        "surface":  "member-declaration",
-                        "symbol":  "startedAt"
-                    },
-                    {
-                        "path":  "lib/core/models/tracking_summary.dart",
-                        "surface":  "member-declaration",
-                        "symbol":  "status"
-                    },
-                    {
-                        "path":  "lib/core/models/tracking_unit_summary.dart",
-                        "surface":  "map-key",
-                        "symbol":  "completed_at"
-                    },
-                    {
-                        "path":  "lib/core/models/tracking_unit_summary.dart",
-                        "surface":  "member-access",
-                        "symbol":  "completedAt"
-                    },
-                    {
-                        "path":  "lib/core/models/tracking_unit_summary.dart",
-                        "surface":  "member-declaration",
-                        "symbol":  "completedAt"
-                    },
-                    {
-                        "path":  "lib/features/library/actions/import_export_actions.dart",
-                        "surface":  "member-declaration",
-                        "symbol":  "status"
-                    },
-                    {
                         "path":  "lib/features/library/add/controllers/library_add_session_controller.dart",
                         "surface":  "member-access",
                         "symbol":  "finishedAt"
@@ -124,52 +9,12 @@
                     {
                         "path":  "lib/features/library/add/controllers/library_add_session_controller.dart",
                         "surface":  "member-access",
-                        "symbol":  "rating"
-                    },
-                    {
-                        "path":  "lib/features/library/add/controllers/library_add_session_controller.dart",
-                        "surface":  "member-access",
                         "symbol":  "readStatus"
-                    },
-                    {
-                        "path":  "lib/features/library/add/controllers/library_add_session_controller.dart",
-                        "surface":  "member-access",
-                        "symbol":  "startedAt"
-                    },
-                    {
-                        "path":  "lib/features/library/add/library_add_collection_workflow.dart",
-                        "surface":  "member-declaration",
-                        "symbol":  "condition"
-                    },
-                    {
-                        "path":  "lib/features/library/add/library_add_collection_workflow.dart",
-                        "surface":  "member-declaration",
-                        "symbol":  "purchaseDate"
                     },
                     {
                         "path":  "lib/features/library/add/library_add_collection_workflow.dart",
                         "surface":  "member-declaration",
                         "symbol":  "readStatus"
-                    },
-                    {
-                        "path":  "lib/features/library/add/models/library_add_common_draft.dart",
-                        "surface":  "member-access",
-                        "symbol":  "condition"
-                    },
-                    {
-                        "path":  "lib/features/library/add/models/library_add_common_draft.dart",
-                        "surface":  "member-access",
-                        "symbol":  "purchaseDate"
-                    },
-                    {
-                        "path":  "lib/features/library/add/models/library_add_common_draft.dart",
-                        "surface":  "member-declaration",
-                        "symbol":  "condition"
-                    },
-                    {
-                        "path":  "lib/features/library/add/models/library_add_common_draft.dart",
-                        "surface":  "member-declaration",
-                        "symbol":  "purchaseDate"
                     },
                     {
                         "path":  "lib/features/library/add/models/library_add_tracking_draft.dart",
@@ -179,22 +24,7 @@
                     {
                         "path":  "lib/features/library/add/models/library_add_tracking_draft.dart",
                         "surface":  "member-access",
-                        "symbol":  "notes"
-                    },
-                    {
-                        "path":  "lib/features/library/add/models/library_add_tracking_draft.dart",
-                        "surface":  "member-access",
-                        "symbol":  "rating"
-                    },
-                    {
-                        "path":  "lib/features/library/add/models/library_add_tracking_draft.dart",
-                        "surface":  "member-access",
                         "symbol":  "readStatus"
-                    },
-                    {
-                        "path":  "lib/features/library/add/models/library_add_tracking_draft.dart",
-                        "surface":  "member-access",
-                        "symbol":  "startedAt"
                     },
                     {
                         "path":  "lib/features/library/add/models/library_add_tracking_draft.dart",
@@ -204,37 +34,12 @@
                     {
                         "path":  "lib/features/library/add/models/library_add_tracking_draft.dart",
                         "surface":  "member-declaration",
-                        "symbol":  "notes"
-                    },
-                    {
-                        "path":  "lib/features/library/add/models/library_add_tracking_draft.dart",
-                        "surface":  "member-declaration",
-                        "symbol":  "rating"
-                    },
-                    {
-                        "path":  "lib/features/library/add/models/library_add_tracking_draft.dart",
-                        "surface":  "member-declaration",
                         "symbol":  "readStatus"
-                    },
-                    {
-                        "path":  "lib/features/library/add/models/library_add_tracking_draft.dart",
-                        "surface":  "member-declaration",
-                        "symbol":  "startedAt"
                     },
                     {
                         "path":  "lib/features/library/add/models/signature_draft.dart",
                         "surface":  "member-declaration",
                         "symbol":  "signedBy"
-                    },
-                    {
-                        "path":  "lib/features/library/add/panes/library_add_bottom_bar.dart",
-                        "surface":  "member-declaration",
-                        "symbol":  "condition"
-                    },
-                    {
-                        "path":  "lib/features/library/add/panes/library_add_bottom_bar.dart",
-                        "surface":  "member-declaration",
-                        "symbol":  "purchaseDate"
                     },
                     {
                         "path":  "lib/features/library/bundles/models/library_bundle_detail.dart",
@@ -245,26 +50,6 @@
                         "path":  "lib/features/library/bundles/models/library_bundle_summary.dart",
                         "surface":  "member-declaration",
                         "symbol":  "thumbnailImageUrl"
-                    },
-                    {
-                        "path":  "lib/features/library/detail/library_detail_collection_sections.dart",
-                        "surface":  "member-access",
-                        "symbol":  "notes"
-                    },
-                    {
-                        "path":  "lib/features/library/detail/library_detail_collection_sections.dart",
-                        "surface":  "member-access",
-                        "symbol":  "purchaseDate"
-                    },
-                    {
-                        "path":  "lib/features/library/detail/library_detail_collection_sections.dart",
-                        "surface":  "member-access",
-                        "symbol":  "rating"
-                    },
-                    {
-                        "path":  "lib/features/library/detail/library_detail_collection_sections.dart",
-                        "surface":  "member-declaration",
-                        "symbol":  "rating"
                     },
                     {
                         "path":  "lib/features/library/details/library_detail_panel_scaffold.dart",
@@ -279,11 +64,6 @@
                     {
                         "path":  "lib/features/library/edit/draft/library_edit_models.dart",
                         "surface":  "member-access",
-                        "symbol":  "notes"
-                    },
-                    {
-                        "path":  "lib/features/library/edit/draft/library_edit_models.dart",
-                        "surface":  "member-access",
                         "symbol":  "progressCurrent"
                     },
                     {
@@ -294,37 +74,12 @@
                     {
                         "path":  "lib/features/library/edit/draft/library_edit_models.dart",
                         "surface":  "member-access",
-                        "symbol":  "rating"
-                    },
-                    {
-                        "path":  "lib/features/library/edit/draft/library_edit_models.dart",
-                        "surface":  "member-access",
                         "symbol":  "readStatus"
-                    },
-                    {
-                        "path":  "lib/features/library/edit/draft/library_edit_models.dart",
-                        "surface":  "member-access",
-                        "symbol":  "startedAt"
-                    },
-                    {
-                        "path":  "lib/features/library/edit/draft/library_edit_models.dart",
-                        "surface":  "member-access",
-                        "symbol":  "timesCompleted"
-                    },
-                    {
-                        "path":  "lib/features/library/edit/draft/library_edit_models.dart",
-                        "surface":  "member-access",
-                        "symbol":  "wishlist"
                     },
                     {
                         "path":  "lib/features/library/edit/draft/library_edit_models.dart",
                         "surface":  "member-declaration",
                         "symbol":  "finishedAt"
-                    },
-                    {
-                        "path":  "lib/features/library/edit/draft/library_edit_models.dart",
-                        "surface":  "member-declaration",
-                        "symbol":  "notes"
                     },
                     {
                         "path":  "lib/features/library/edit/draft/library_edit_models.dart",
@@ -339,67 +94,12 @@
                     {
                         "path":  "lib/features/library/edit/draft/library_edit_models.dart",
                         "surface":  "member-declaration",
-                        "symbol":  "rating"
-                    },
-                    {
-                        "path":  "lib/features/library/edit/draft/library_edit_models.dart",
-                        "surface":  "member-declaration",
                         "symbol":  "readStatus"
-                    },
-                    {
-                        "path":  "lib/features/library/edit/draft/library_edit_models.dart",
-                        "surface":  "member-declaration",
-                        "symbol":  "startedAt"
-                    },
-                    {
-                        "path":  "lib/features/library/edit/draft/library_edit_models.dart",
-                        "surface":  "member-declaration",
-                        "symbol":  "timesCompleted"
-                    },
-                    {
-                        "path":  "lib/features/library/edit/draft/library_edit_models.dart",
-                        "surface":  "member-declaration",
-                        "symbol":  "wishlist"
-                    },
-                    {
-                        "path":  "lib/features/library/edit/draft/library_edit_shell_state_factory.dart",
-                        "surface":  "member-access",
-                        "symbol":  "completedAt"
-                    },
-                    {
-                        "path":  "lib/features/library/edit/draft/library_edit_shell_state_factory.dart",
-                        "surface":  "member-access",
-                        "symbol":  "notes"
-                    },
-                    {
-                        "path":  "lib/features/library/edit/draft/library_edit_shell_state_factory.dart",
-                        "surface":  "member-access",
-                        "symbol":  "purchaseDate"
-                    },
-                    {
-                        "path":  "lib/features/library/edit/draft/library_edit_shell_state_factory.dart",
-                        "surface":  "member-access",
-                        "symbol":  "rating"
-                    },
-                    {
-                        "path":  "lib/features/library/edit/draft/library_edit_shell_state_factory.dart",
-                        "surface":  "member-access",
-                        "symbol":  "startedAt"
-                    },
-                    {
-                        "path":  "lib/features/library/edit/draft/library_edit_shell_state_factory.dart",
-                        "surface":  "member-access",
-                        "symbol":  "timesCompleted"
                     },
                     {
                         "path":  "lib/features/library/edit/draft/tracking_draft.dart",
                         "surface":  "member-declaration",
                         "symbol":  "finishedAt"
-                    },
-                    {
-                        "path":  "lib/features/library/edit/draft/tracking_draft.dart",
-                        "surface":  "member-declaration",
-                        "symbol":  "startedAt"
                     },
                     {
                         "path":  "lib/features/library/edit/fields/edit_dialog_widgets.dart",
@@ -412,21 +112,6 @@
                         "symbol":  "finishedAt"
                     },
                     {
-                        "path":  "lib/features/library/edit/session/library_edit_session_controller.dart",
-                        "surface":  "member-access",
-                        "symbol":  "startedAt"
-                    },
-                    {
-                        "path":  "lib/features/library/export/integration_export_dialog.dart",
-                        "surface":  "map-key",
-                        "symbol":  "wishlist"
-                    },
-                    {
-                        "path":  "lib/features/library/generic/dialogs/batch_loan_dialog.dart",
-                        "surface":  "member-declaration",
-                        "symbol":  "notes"
-                    },
-                    {
                         "path":  "lib/features/library/generic/page/coordinators/page_edit_coordinator.dart",
                         "surface":  "member-access",
                         "symbol":  "finishedAt"
@@ -434,11 +119,6 @@
                     {
                         "path":  "lib/features/library/generic/page/coordinators/page_edit_coordinator.dart",
                         "surface":  "member-access",
-                        "symbol":  "notes"
-                    },
-                    {
-                        "path":  "lib/features/library/generic/page/coordinators/page_edit_coordinator.dart",
-                        "surface":  "member-access",
                         "symbol":  "progressCurrent"
                     },
                     {
@@ -449,27 +129,7 @@
                     {
                         "path":  "lib/features/library/generic/page/coordinators/page_edit_coordinator.dart",
                         "surface":  "member-access",
-                        "symbol":  "rating"
-                    },
-                    {
-                        "path":  "lib/features/library/generic/page/coordinators/page_edit_coordinator.dart",
-                        "surface":  "member-access",
                         "symbol":  "readStatus"
-                    },
-                    {
-                        "path":  "lib/features/library/generic/page/coordinators/page_edit_coordinator.dart",
-                        "surface":  "member-access",
-                        "symbol":  "startedAt"
-                    },
-                    {
-                        "path":  "lib/features/library/generic/page/coordinators/page_edit_coordinator.dart",
-                        "surface":  "member-access",
-                        "symbol":  "timesCompleted"
-                    },
-                    {
-                        "path":  "lib/features/library/generic/projection/library_filter_engine.dart",
-                        "surface":  "member-access",
-                        "symbol":  "purchaseDate"
                     },
                     {
                         "path":  "lib/features/library/generic/projection/library_grouping_engine.dart",
@@ -477,134 +137,14 @@
                         "symbol":  "releaseDate"
                     },
                     {
-                        "path":  "lib/features/library/generic/quick_view.dart",
-                        "surface":  "member-declaration",
-                        "symbol":  "wishlist"
-                    },
-                    {
-                        "path":  "lib/features/library/generic/reading_queue_dialog.dart",
-                        "surface":  "member-access",
-                        "symbol":  "notes"
-                    },
-                    {
-                        "path":  "lib/features/library/home/home_counts.dart",
-                        "surface":  "member-declaration",
-                        "symbol":  "wishlist"
-                    },
-                    {
-                        "path":  "lib/features/library/inspector/inspector_personal_details.dart",
-                        "surface":  "member-declaration",
-                        "symbol":  "condition"
-                    },
-                    {
-                        "path":  "lib/features/library/inspector/library_inspector_sections.dart",
-                        "surface":  "member-access",
-                        "symbol":  "completedAt"
-                    },
-                    {
-                        "path":  "lib/features/library/inspector/library_inspector_sections.dart",
-                        "surface":  "member-access",
-                        "symbol":  "notes"
-                    },
-                    {
-                        "path":  "lib/features/library/inspector/library_inspector_sections.dart",
-                        "surface":  "member-access",
-                        "symbol":  "rating"
-                    },
-                    {
-                        "path":  "lib/features/library/inspector/library_inspector_sections.dart",
-                        "surface":  "member-access",
-                        "symbol":  "startedAt"
-                    },
-                    {
-                        "path":  "lib/features/library/metadata/library_metadata_refresh_dialog.dart",
-                        "surface":  "member-access",
-                        "symbol":  "status"
-                    },
-                    {
-                        "path":  "lib/features/library/metadata/library_metadata_refresh_dialog.dart",
-                        "surface":  "member-declaration",
-                        "symbol":  "status"
-                    },
-                    {
-                        "path":  "lib/features/library/metadata/metadata_proposal_store.dart",
-                        "surface":  "map-index",
-                        "symbol":  "status"
-                    },
-                    {
-                        "path":  "lib/features/library/metadata/metadata_proposal_store.dart",
-                        "surface":  "map-key",
-                        "symbol":  "status"
-                    },
-                    {
-                        "path":  "lib/features/library/metadata/metadata_proposal_store.dart",
-                        "surface":  "member-declaration",
-                        "symbol":  "status"
-                    },
-                    {
                         "path":  "lib/features/library/metadata/shared_metadata_editing_contract.dart",
                         "surface":  "map-key",
                         "symbol":  "release_date"
                     },
                     {
-                        "path":  "lib/features/library/selection/library_bulk_actions.dart",
-                        "surface":  "member-access",
-                        "symbol":  "completedAt"
-                    },
-                    {
-                        "path":  "lib/features/library/selection/library_bulk_actions.dart",
-                        "surface":  "member-access",
-                        "symbol":  "notes"
-                    },
-                    {
-                        "path":  "lib/features/library/selection/library_bulk_actions.dart",
-                        "surface":  "member-access",
-                        "symbol":  "rating"
-                    },
-                    {
-                        "path":  "lib/features/library/selection/library_bulk_actions.dart",
-                        "surface":  "member-access",
-                        "symbol":  "startedAt"
-                    },
-                    {
-                        "path":  "lib/features/library/selection/library_bulk_actions.dart",
-                        "surface":  "member-access",
-                        "symbol":  "status"
-                    },
-                    {
-                        "path":  "lib/features/library/selection/library_bulk_edit_dialog.dart",
-                        "surface":  "member-declaration",
-                        "symbol":  "condition"
-                    },
-                    {
-                        "path":  "lib/features/library/selection/library_bulk_edit_dialog.dart",
-                        "surface":  "member-declaration",
-                        "symbol":  "rating"
-                    },
-                    {
                         "path":  "lib/features/library/selection/library_bulk_edit_dialog.dart",
                         "surface":  "member-declaration",
                         "symbol":  "readStatus"
-                    },
-                    {
-                        "path":  "lib/features/library/sharing/collection_share_dialog.dart",
-                        "surface":  "map-key",
-                        "symbol":  "wishlist"
-                    },
-                    {
-                        "path":  "lib/features/library/tracking/media_rating_field.dart",
-                        "surface":  "member-declaration",
-                        "symbol":  "rating"
-                    },
-                    {
-                        "path":  "lib/features/library/tracking/media_tracking.dart",
-                        "surface":  "member-declaration",
-                        "symbol":  "completedAt"
-                    },
-                    {
-                        "path":  "lib/features/library/tracking/media_tracking.dart",
-                        "surface":  "member-declaration",
-                        "symbol":  "notes"
                     },
                     {
                         "path":  "lib/features/library/tracking/media_tracking.dart",
@@ -615,31 +155,6 @@
                         "path":  "lib/features/library/tracking/media_tracking.dart",
                         "surface":  "member-declaration",
                         "symbol":  "progressTotal"
-                    },
-                    {
-                        "path":  "lib/features/library/tracking/media_tracking.dart",
-                        "surface":  "member-declaration",
-                        "symbol":  "rating"
-                    },
-                    {
-                        "path":  "lib/features/library/tracking/media_tracking.dart",
-                        "surface":  "member-declaration",
-                        "symbol":  "startedAt"
-                    },
-                    {
-                        "path":  "lib/features/library/tracking/media_tracking.dart",
-                        "surface":  "member-declaration",
-                        "symbol":  "status"
-                    },
-                    {
-                        "path":  "lib/features/library/tracking/media_tracking.dart",
-                        "surface":  "member-declaration",
-                        "symbol":  "timesCompleted"
-                    },
-                    {
-                        "path":  "lib/features/library/tracking/media_tracking_profile.dart",
-                        "surface":  "member-declaration",
-                        "symbol":  "status"
                     },
                     {
                         "path":  "lib/features/library/tracking/session_history_presenter.dart",
@@ -652,44 +167,9 @@
                         "symbol":  "finishedAt"
                     },
                     {
-                        "path":  "lib/features/library/tracking/tracking_storage_codec.dart",
-                        "surface":  "member-declaration",
-                        "symbol":  "notes"
-                    },
-                    {
-                        "path":  "lib/features/library/tracking/tracking_storage_codec.dart",
-                        "surface":  "member-declaration",
-                        "symbol":  "rating"
-                    },
-                    {
-                        "path":  "lib/features/library/tracking/tracking_storage_codec.dart",
-                        "surface":  "member-declaration",
-                        "symbol":  "startedAt"
-                    },
-                    {
-                        "path":  "lib/features/library/tracking/tracking_storage_codec.dart",
-                        "surface":  "member-declaration",
-                        "symbol":  "status"
-                    },
-                    {
                         "path":  "lib/features/library/tracking/tracking_storage_import.dart",
                         "surface":  "member-declaration",
                         "symbol":  "finishedAt"
-                    },
-                    {
-                        "path":  "lib/features/library/tracking/tracking_storage_import.dart",
-                        "surface":  "member-declaration",
-                        "symbol":  "rating"
-                    },
-                    {
-                        "path":  "lib/features/library/tracking/tracking_storage_import.dart",
-                        "surface":  "member-declaration",
-                        "symbol":  "startedAt"
-                    },
-                    {
-                        "path":  "lib/features/library/tracking/tracking_storage_import.dart",
-                        "surface":  "member-declaration",
-                        "symbol":  "status"
                     },
                     {
                         "path":  "lib/features/library/tracking/tracking_storage_record.dart",
@@ -699,67 +179,12 @@
                     {
                         "path":  "lib/features/library/tracking/tracking_storage_record.dart",
                         "surface":  "map-key",
-                        "symbol":  "notes"
-                    },
-                    {
-                        "path":  "lib/features/library/tracking/tracking_storage_record.dart",
-                        "surface":  "map-key",
-                        "symbol":  "rating"
-                    },
-                    {
-                        "path":  "lib/features/library/tracking/tracking_storage_record.dart",
-                        "surface":  "map-key",
                         "symbol":  "started_at"
-                    },
-                    {
-                        "path":  "lib/features/library/tracking/tracking_storage_record.dart",
-                        "surface":  "map-key",
-                        "symbol":  "status"
                     },
                     {
                         "path":  "lib/features/library/tracking/tracking_storage_record.dart",
                         "surface":  "member-declaration",
                         "symbol":  "finishedAt"
-                    },
-                    {
-                        "path":  "lib/features/library/tracking/tracking_storage_record.dart",
-                        "surface":  "member-declaration",
-                        "symbol":  "notes"
-                    },
-                    {
-                        "path":  "lib/features/library/tracking/tracking_storage_record.dart",
-                        "surface":  "member-declaration",
-                        "symbol":  "rating"
-                    },
-                    {
-                        "path":  "lib/features/library/tracking/tracking_storage_record.dart",
-                        "surface":  "member-declaration",
-                        "symbol":  "startedAt"
-                    },
-                    {
-                        "path":  "lib/features/library/tracking/tracking_storage_record.dart",
-                        "surface":  "member-declaration",
-                        "symbol":  "status"
-                    },
-                    {
-                        "path":  "lib/features/library/tracking/tracking_storage_repository.dart",
-                        "surface":  "member-access",
-                        "symbol":  "timesCompleted"
-                    },
-                    {
-                        "path":  "lib/features/library/tracking/tracking_unit_storage_codec.dart",
-                        "surface":  "member-declaration",
-                        "symbol":  "completedAt"
-                    },
-                    {
-                        "path":  "lib/features/library/tracking/watch_session_codec.dart",
-                        "surface":  "member-declaration",
-                        "symbol":  "notes"
-                    },
-                    {
-                        "path":  "lib/features/library/tracking/watch_session_codec.dart",
-                        "surface":  "member-declaration",
-                        "symbol":  "rating"
                     },
                     {
                         "path":  "lib/features/library/tracking/watch_session_codec.dart",
@@ -787,46 +212,6 @@
                         "symbol":  "discCount"
                     },
                     {
-                        "path":  "lib/features/library/workspace/layout/library_flow_carousel.dart",
-                        "surface":  "member-access",
-                        "symbol":  "notes"
-                    },
-                    {
-                        "path":  "lib/features/library/workspace/schema/library_workspace_projections.dart",
-                        "surface":  "member-access",
-                        "symbol":  "notes"
-                    },
-                    {
-                        "path":  "lib/features/library/workspace/schema/library_workspace_projections.dart",
-                        "surface":  "member-access",
-                        "symbol":  "rating"
-                    },
-                    {
-                        "path":  "lib/features/library/workspace/schema/library_workspace_projections.dart",
-                        "surface":  "member-access",
-                        "symbol":  "status"
-                    },
-                    {
-                        "path":  "lib/features/library/workspace/schema/library_workspace_projections.dart",
-                        "surface":  "member-declaration",
-                        "symbol":  "addedAt"
-                    },
-                    {
-                        "path":  "lib/features/library/workspace/schema/library_workspace_projections.dart",
-                        "surface":  "member-declaration",
-                        "symbol":  "condition"
-                    },
-                    {
-                        "path":  "lib/features/library/workspace/schema/library_workspace_projections.dart",
-                        "surface":  "member-declaration",
-                        "symbol":  "notes"
-                    },
-                    {
-                        "path":  "lib/features/library/workspace/schema/library_workspace_projections.dart",
-                        "surface":  "member-declaration",
-                        "symbol":  "rating"
-                    },
-                    {
                         "path":  "lib/features/library/workspace/schema/library_workspace_projections.dart",
                         "surface":  "member-declaration",
                         "symbol":  "releaseDate"
@@ -845,11 +230,6 @@
                         "path":  "lib/features/library/workspace/tiles/library_cover_image.dart",
                         "surface":  "member-declaration",
                         "symbol":  "labelType"
-                    },
-                    {
-                        "path":  "lib/features/library/workspace/tiles/library_workspace_card.dart",
-                        "surface":  "member-access",
-                        "symbol":  "notes"
                     }
                 ]
 }
