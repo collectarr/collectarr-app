@@ -13,7 +13,7 @@ SharedMetadataFieldValueType _appValueType(String coreValueType) {
     'number' => SharedMetadataFieldValueType.number,
     'boolean' => SharedMetadataFieldValueType.boolean,
     'partial_date' => SharedMetadataFieldValueType.partialDate,
-    // string / link_list / track_list render as text/list controls in the app.
+    // Shared metadata kinds render as text or list controls in the app.
     _ => SharedMetadataFieldValueType.text,
   };
 }

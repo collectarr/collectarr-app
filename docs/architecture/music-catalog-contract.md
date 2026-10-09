@@ -39,6 +39,12 @@ former album-level recording fields or role-specific root arrays, and App has
 no v1 decoding or migration path. Reordering discs, tracks, or credits keeps
 their stable IDs and does not change their identities.
 
+Canonical correction targets expose `artist_credits`, album `credits`, and
+`discs` as correction-only object-list fields. They are omitted from the normal
+metadata and Add schemas. Core validates each proposed Music change together
+with the complete current item against the strict v2 document before storing or
+applying it, so nested IDs and ordering remain part of the proposed values.
+
 ## Ownership
 
 - Core owns canonical edition metadata, artist credits, album and disc credits,

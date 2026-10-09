@@ -124,10 +124,12 @@ CatalogItemRef coreCatalogRefForEditRequest(
 bool _isSupportedCoreType(String valueType) => switch (valueType) {
       'string' ||
       'integer' ||
+      'number' ||
+      'boolean' ||
       'partial_date' ||
       'string_list' ||
       'link_list' ||
-      'track_list' =>
+      'object_list' =>
         true,
       _ => false,
     };
@@ -141,10 +143,12 @@ bool _isCompatibleWithCoreType(String valueType, Object? value) {
     'string' => value is String,
     'integer' =>
       value is int || (value is num && value.isFinite && value % 1 == 0),
+    'number' => value is num && value.isFinite,
+    'boolean' => value is bool,
     'partial_date' => value is String || value is Map,
     'string_list' => value is List && value.every((entry) => entry is String),
     'link_list' ||
-    'track_list' =>
+    'object_list' =>
       value is List && value.every((entry) => entry is Map),
     _ => false,
   };
@@ -330,7 +334,7 @@ final class _LibraryCoreCorrectionReviewDialogState
         ? '${currentValue.substring(0, 117)}...'
         : currentValue;
     final multiline = switch (field.valueType) {
-      'string_list' || 'link_list' || 'track_list' || 'partial_date' => true,
+      'string_list' || 'link_list' || 'object_list' || 'partial_date' => true,
       _ => false,
     };
     return LibraryFormField(
@@ -339,9 +343,14 @@ final class _LibraryCoreCorrectionReviewDialogState
         controller: controller,
         minLines: multiline ? 2 : 1,
         maxLines: multiline ? 5 : 1,
-        keyboardType: field.valueType == 'integer'
-            ? const TextInputType.numberWithOptions(signed: true)
-            : null,
+        keyboardType: switch (field.valueType) {
+          'integer' => const TextInputType.numberWithOptions(signed: true),
+          'number' => const TextInputType.numberWithOptions(
+              decimal: true,
+              signed: true,
+            ),
+          _ => null,
+        },
         decoration: InputDecoration(
           helperText: '${field.valueType} | Core current: $currentPreview',
           errorText: _fieldErrors[field.key],
@@ -470,6 +479,19 @@ final class _LibraryCoreCorrectionReviewDialogState
         return parsed == null
             ? (value: null, error: 'Enter a whole number.')
             : (value: parsed, error: null);
+      case 'number':
+        if (text.trim().isEmpty) return (value: null, error: null);
+        final parsed = double.tryParse(text.trim());
+        return parsed == null || !parsed.isFinite
+            ? (value: null, error: 'Enter a valid number.')
+            : (value: parsed, error: null);
+      case 'boolean':
+        if (text.trim().isEmpty) return (value: null, error: null);
+        return switch (text.trim().toLowerCase()) {
+          'true' => (value: true, error: null),
+          'false' => (value: false, error: null),
+          _ => (value: null, error: 'Enter true or false.'),
+        };
       case 'partial_date':
         if (text.trim().isEmpty) return (value: null, error: null);
         if (!text.trimLeft().startsWith('{')) {
@@ -492,7 +514,7 @@ final class _LibraryCoreCorrectionReviewDialogState
               .toList(growable: false),
           error: null,
         );
-      case 'link_list' || 'track_list':
+      case 'link_list' || 'object_list':
         if (text.trim().isEmpty) return (value: <Object?>[], error: null);
         try {
           final decoded = jsonDecode(text);
@@ -538,7 +560,7 @@ String _textForCoreValue(String valueType, Object? value) {
   if (valueType == 'string_list' && value is Iterable) {
     return value.join('\n');
   }
-  if ((valueType == 'link_list' || valueType == 'track_list') &&
+  if ((valueType == 'link_list' || valueType == 'object_list') &&
       value is Iterable) {
     return const JsonEncoder.withIndent('  ').convert(value);
   }

@@ -200,7 +200,11 @@ handling. Searchable metadata selects disc format, recording location, and
 contributor facts; other technical and credit values stay out of the index.
 Diff nested Core corrections by stable disc/credit IDs so reorder is not
 delete/create. Extend CSV import only for fields it already supports; edit and
-export capability alone does not imply import support.
+export capability alone does not imply import support. Core correction targets
+expose `artist_credits`, album `credits`, and `discs` as correction-only object
+lists, leaving ordinary metadata and Add schemas unchanged. Proposed Music
+documents are validated against the complete strict v2 item before storage and
+application, preserving nested stable IDs in before/after values.
 
 ### L. Physical code layout and cleanup
 
