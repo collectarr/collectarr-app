@@ -462,6 +462,8 @@ class _LibraryEditTitleBar extends StatelessWidget {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
+                      fontFamily: kLibraryEditorFontFamily,
+                      fontFamilyFallback: kClzFontFallback,
                       fontWeight: FontWeight.w700,
                       fontSize: isWideDesktop ? 16 : 18,
                       height: 1,
