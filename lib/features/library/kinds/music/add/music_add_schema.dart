@@ -40,6 +40,11 @@ LibraryFormSchema<MusicAddManualDraft> musicAddSchemaFor({
   return LibraryFormSchema<MusicAddManualDraft>(
     title: (_) => 'Manual music album',
     validate: (draft) {
+      if (draft.discs.any(
+        (disc) => disc.format.trim().isNotEmpty && disc.formatFamily == null,
+      )) {
+        return 'Choose a family for each custom disc format';
+      }
       if (draft.releaseDateParts?.year case final year? when year < 1) {
         return 'Release year must be greater than zero';
       }

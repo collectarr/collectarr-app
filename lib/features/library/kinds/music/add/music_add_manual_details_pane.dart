@@ -178,7 +178,8 @@ class _MusicAddManualDetailsPaneState extends State<MusicAddManualDetailsPane> {
     final hasGenericMatrix = capabilities?.supportsGenericMatrix == true;
     final hasSideMatrices = capabilities?.supportsSideMatrices == true;
     final hasColor = capabilities?.supportsColor == true;
-    final isCustomFormat = presetFamily == null;
+    final isCustomFormat =
+        disc.format.trim().isNotEmpty && presetFamily == null;
 
     final titleAndFormatRow = LayoutBuilder(
       builder: (context, constraints) {

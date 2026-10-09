@@ -1,5 +1,5 @@
 {
-  "contractVersion": "2.1.0",
+  "contractVersion": "2.2.0",
   "fields": [
     {
       "editable": false,
@@ -4295,5 +4295,5 @@
       "valueType": "link_list"
     }
   ],
-  "generatedAt": "2026-10-09T14:31:33.370861Z"
+  "generatedAt": "2026-10-09T17:50:51.410583Z"
 }

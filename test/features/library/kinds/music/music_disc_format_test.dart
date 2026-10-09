@@ -181,6 +181,55 @@ void main() {
       expect(saved.formatSummary, '1× Vinyl + 1× SHM-CD');
     });
 
+    test('canonical disc JSON requires a family for every explicit format', () {
+      expect(
+        () => MusicDisc.fromJson({
+          'id': 'custom-disc',
+          'disc_number': 1,
+          'format': 'custom silver disc',
+          'sound_types': <String>[],
+          'recording_locations': <String>[],
+          'credits': <Object?>[],
+          'tracks': <Object?>[],
+        }),
+        throwsFormatException,
+      );
+
+      final custom = MusicDisc.fromJson({
+        'id': 'custom-disc',
+        'disc_number': 1,
+        'format': 'custom silver disc',
+        'format_family': 'other',
+        'sound_types': <String>[],
+        'recording_locations': <String>[],
+        'credits': <Object?>[],
+        'tracks': <Object?>[],
+      });
+      expect(custom.formatFamily, MusicDiscFormatFamily.other);
+    });
+
+    test('edit draft requires a family for custom formats before save', () {
+      final album = MusicAlbum(
+        id: const CatalogItemRef(kind: CatalogMediaKind.music, id: 'album-3'),
+        title: 'Custom format',
+        discs: [
+          MusicDisc(
+            id: const MusicDiscId('disc-custom'),
+            discNumber: 1,
+            format: 'custom silver disc',
+          ),
+        ],
+      );
+      final draft = MusicAlbumEditDraft.fromAlbum(album);
+      expect(draft.discList.hasUnclassifiedFormat, isTrue);
+
+      draft.discList.updateDiscFormatFamily(
+        const MusicDiscId('disc-custom'),
+        MusicDiscFormatFamily.other,
+      );
+      expect(draft.discList.hasUnclassifiedFormat, isFalse);
+    });
+
     test(
         'known formats use explicit presets; custom formats do not infer a family',
         () {

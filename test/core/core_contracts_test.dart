@@ -19,6 +19,9 @@ void main() {
     final catalogItemSchema = jsonDecode(
       File('tool/core_contracts/catalog-item-v2.json').readAsStringSync(),
     ) as Map<String, dynamic>;
+    final musicContract = jsonDecode(
+      File('tool/core_contracts/music-catalog-v2.json').readAsStringSync(),
+    ) as Map<String, dynamic>;
 
     expect(manifest['contractVersion'], isA<String>());
     expect((manifest['contractVersion'] as String).isNotEmpty, isTrue);
@@ -81,6 +84,21 @@ void main() {
     expect(musicProperties.keys, contains('discs'));
     expect(musicProperties.keys, contains('credits'));
     expect(musicProperties.keys, contains('original_release_date'));
+    final musicDefinitions = musicContract[r'$defs'] as Map<String, dynamic>;
+    final musicDiscSchema =
+        musicDefinitions['CatalogMusicDiscResponse'] as Map<String, dynamic>;
+    final formatFamilyRule = (musicDiscSchema['allOf'] as List<dynamic>).single
+        as Map<String, dynamic>;
+    expect(formatFamilyRule['if'], {
+      'properties': {
+        'format': {'type': 'string'},
+      },
+      'required': ['format'],
+    });
+    expect(
+      (formatFamilyRule['then'] as Map<String, dynamic>)['required'],
+      ['format_family'],
+    );
     for (final field in [
       'recording_date',
       'studios',

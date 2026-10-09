@@ -19,6 +19,9 @@ final class MusicDiscListEditor {
 
   String? get formatSummary => formatAlbumDiscsSummary(discs);
 
+  bool get hasUnclassifiedFormat =>
+      discs.any((disc) => disc.format != null && disc.formatFamily == null);
+
   void addDisc({String? format, MusicDiscFormatFamily? formatFamily}) {
     final nextNumber = discs.fold<int>(
           0,

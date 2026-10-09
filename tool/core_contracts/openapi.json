@@ -8166,6 +8166,32 @@
       },
       "CatalogMusicDiscResponse": {
         "additionalProperties": false,
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "format": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "format"
+              ]
+            },
+            "then": {
+              "properties": {
+                "format_family": {
+                  "not": {
+                    "type": "null"
+                  }
+                }
+              },
+              "required": [
+                "format_family"
+              ]
+            }
+          }
+        ],
         "properties": {
           "color": {
             "anyOf": [
@@ -8199,6 +8225,7 @@
                 "type": "null"
               }
             ],
+            "description": "A custom value must be paired with an explicit format_family.",
             "title": "Format"
           },
           "format_family": {
@@ -8209,7 +8236,8 @@
               {
                 "type": "null"
               }
-            ]
+            ],
+            "description": "Required and non-null whenever format has a value."
           },
           "id": {
             "format": "uuid",

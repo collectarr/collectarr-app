@@ -10,6 +10,25 @@ import 'package:collectarr_app/features/library/kinds/music/edit/music_album_edi
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
+  test('Music mapper rejects a format without an explicit family', () {
+    final album = MusicAlbum(
+      id: const CatalogItemRef(kind: CatalogMediaKind.music, id: 'album-1'),
+      title: 'Unclassified format',
+      discs: [
+        MusicDisc(
+          id: const MusicDiscId('disc-1'),
+          discNumber: 1,
+          format: 'custom silver disc',
+        ),
+      ],
+    );
+
+    expect(
+      () => MusicCatalogMapper.toCatalogItemDto(album),
+      throwsFormatException,
+    );
+  });
+
   test('Music v2 mapper preserves nested album, disc, credit, and track IDs',
       () {
     final source = CatalogItemDto.fromJson({

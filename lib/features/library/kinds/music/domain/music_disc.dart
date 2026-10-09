@@ -113,12 +113,18 @@ final class MusicDisc {
         'Music disc technical fields do not match its format family.',
       );
     }
+    final format = _optionalText(json['format'], 'format');
+    if (format != null && formatFamily == null) {
+      throw const FormatException(
+        'Music disc format requires an explicit format_family.',
+      );
+    }
     return MusicDisc(
       id: MusicDiscId(_requiredText(json['id'], 'id')),
       discNumber: _requiredInt(json['disc_number'], 'disc_number', minimum: 1),
       title: _optionalText(json['title'], 'title'),
       formatFamily: formatFamily,
-      format: _optionalText(json['format'], 'format'),
+      format: format,
       soundTypes: _requiredStringList(json['sound_types'], 'sound_types'),
       recordingDate: _partialDate(json['recording_date']),
       recordingLocations: _requiredStringList(

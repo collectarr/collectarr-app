@@ -131,6 +131,7 @@ final class MusicCatalogMapper {
         'thumbnail_image_url': album.thumbnailImageUrl,
       'discs': [for (final disc in album.discs) _discToCatalogData(disc)],
     };
+    fromCatalogPayload(music);
     return CatalogItemDto.raw(
       id: itemRef.id,
       mediaKind: itemRef.kind,
@@ -415,6 +416,11 @@ final class MusicCatalogMapper {
       final family = disc['format_family'];
       if (family != null && !families.contains(family)) {
         throw FormatException('$path has an unrecognized format_family.');
+      }
+      if (disc['format'] != null && family == null) {
+        throw FormatException(
+          '$path format requires an explicit format_family.',
+        );
       }
       final weight = disc['vinyl_weight_grams'];
       if (weight != null && (weight is! int || weight <= 0)) {
