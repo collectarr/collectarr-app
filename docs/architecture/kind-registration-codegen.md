@@ -26,9 +26,9 @@ dart run tool/generate_kind_registries.dart
 
 ## Other generated files
 
-The ownership manifest is generated separately by
-`tool/generate_kind_field_ownership.dart`. It writes
-`tool/architecture/generated/kind-field-ownership.json` from Drift columns,
+The kind field-entry manifest is generated separately by
+`tool/generate_kind_field_entries.dart`. It writes
+`tool/architecture/generated/kind-field-entries.json` from Drift columns,
 kind-local mapper aliases, and kind-owned workspace field declarations. It is
 an architecture inventory, not a registration source.
 
@@ -39,6 +39,8 @@ dart run build_runner build --delete-conflicting-outputs
 ```
 
 CI runs these generation steps independently and checks that generated files are
-up to date. The distinction is intentional: the kind registry is reviewed
-application source, while the generators produce mechanical table/seed
-composition, the ownership manifest, and Drift implementation code.
+up to date. It also verifies the pinned Music catalog contract against the
+mapper and the generated Catalog Item v2 fields against their pinned contract.
+The distinction is intentional: the kind registry is reviewed application
+source, while the generators produce mechanical table/seed composition, the
+field-entry manifest, and Drift implementation code.

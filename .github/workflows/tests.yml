@@ -29,17 +29,14 @@ jobs:
       - name: Generate Drift table composition and dev seed registry
         run: dart run tool/generate_kind_registries.dart
 
-      - name: Generate kind field ownership manifest
-        run: dart run tool/generate_kind_field_ownership.dart
+      - name: Generate kind field entry manifest
+        run: dart run tool/generate_kind_field_entries.dart
 
-      - name: Verify pinned Music catalog DTOs
-        run: dart run tool/generate_music_catalog_dto.dart --check
+      - name: Verify pinned Music catalog contract and mapper
+        run: dart run tool/check_music_catalog_contract.dart
 
-      - name: Verify generated Catalog Item v1 field schema
-        run: dart run tool/generate_catalog_item_v1_fields.dart --check
-
-      - name: Verify Music catalog field ownership
-        run: dart run tool/check_music_catalog_field_ownership.dart
+      - name: Verify generated Catalog Item v2 field schema
+        run: dart run tool/generate_catalog_item_v2_fields.dart --check
 
       - name: Generate Drift code
         run: dart run build_runner build --delete-conflicting-outputs
@@ -50,8 +47,8 @@ jobs:
       - name: Check library kind boundaries
         run: dart run tool/check_library_kind_boundaries.dart
 
-      - name: Verify generated Core DTO field adoption
-        run: flutter test test/contracts/all_core_dto_field_adoption_contract_test.dart
+      - name: Verify typed contract infrastructure
+        run: flutter test test/contracts/typed_contract_infrastructure_test.dart
 
       - name: Analyze
         run: flutter analyze --fatal-warnings --fatal-infos
