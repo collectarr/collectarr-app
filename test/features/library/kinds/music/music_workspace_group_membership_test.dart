@@ -135,8 +135,8 @@ void main() {
       ['Abbey Road', 'Wembley'],
     );
     expectBucketsAndSingleMembership('music.rpm', ['45']);
-    expectBucketsAndSingleMembership('music.disc.spars', ['[None]']);
-    expectBucketsAndSingleMembership('music.sound', ['ADD', 'DDD']);
+    expectBucketsAndSingleMembership('music.disc.spars', ['ADD', 'DDD']);
+    expectBucketsAndSingleMembership('music.sound', ['Stereo']);
     expectBucketsAndSingleMembership('music.vinyl_color', ['Red']);
     expectBucketsAndSingleMembership('music.track.composition', ['[None]']);
 
@@ -237,7 +237,8 @@ MusicAlbum _mixedAlbum() => MusicAlbum(
           discNumber: 1,
           formatFamily: MusicDiscFormatFamily.opticalDisc,
           format: 'CD',
-          soundTypes: const ['DDD', 'DDD'],
+          soundTypes: const ['Stereo', 'Stereo'],
+          sparsCode: 'DDD',
           recordingDate: const PartialDate(year: 2025),
           recordingLocations: const ['Abbey Road', 'Abbey Road'],
           isLive: false,
@@ -248,10 +249,11 @@ MusicAlbum _mixedAlbum() => MusicAlbum(
           discNumber: 2,
           formatFamily: MusicDiscFormatFamily.opticalDisc,
           format: 'CD',
-          soundTypes: const ['ADD'],
+          soundTypes: const ['Stereo'],
           recordingDate: const PartialDate(year: 2026, month: 2, day: 18),
           recordingLocations: const ['Wembley'],
           isLive: true,
+          sparsCode: 'ADD',
           credits: [
             _credit(
               'conductor',

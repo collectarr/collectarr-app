@@ -79,6 +79,10 @@ void main() {
     await tester.tap(find.text('Open'));
     await tester.pumpAndSettle();
 
+    expect(find.text('Credits'), findsOneWidget);
+    expect(find.text('Classical'), findsNothing);
+    expect(find.text('People'), findsNothing);
+
     final coversTab = find.text('Covers').last;
     await tester.ensureVisible(coversTab);
     await tester.tap(coversTab);

@@ -25,8 +25,8 @@ void main() {
       });
       expect(facts.discRecordingYears, {2024, 2025, 2026});
       expect(facts.discRecordingMonths, {2});
-      expect(facts.discSparsCodes, isEmpty);
-      expect(facts.discSoundTypes, {'DDD', 'ADD'});
+      expect(facts.discSparsCodes, {'DDD', 'ADD'});
+      expect(facts.discSoundTypes, {'Stereo'});
       expect(facts.discColors, {'Red'});
       expect(facts.discRpms, {'45'});
       expect(facts.recordingLocations, {'Abbey Road', 'Wembley'});
@@ -146,7 +146,8 @@ MusicAlbum _mixedDiscEdition() => MusicAlbum(
           format: 'CD',
           recordingDate: const PartialDate(year: 2025),
           recordingLocations: const ['Abbey Road', 'Abbey Road'],
-          soundTypes: const ['DDD', 'DDD'],
+          soundTypes: const ['Stereo', 'Stereo'],
+          sparsCode: 'DDD',
           isLive: false,
           credits: [_credit('credit-producer-john', 'John', 'Producer')],
         ),
@@ -157,7 +158,8 @@ MusicAlbum _mixedDiscEdition() => MusicAlbum(
           format: 'CD',
           recordingDate: const PartialDate(year: 2026, month: 2, day: 18),
           recordingLocations: const ['Wembley'],
-          soundTypes: const ['ADD'],
+          soundTypes: const ['Stereo'],
+          sparsCode: 'ADD',
           isLive: true,
           credits: [
             _credit(
@@ -189,6 +191,7 @@ MusicDisc _disc(
   PartialDate? recordingDate,
   List<String> recordingLocations = const [],
   List<String> soundTypes = const [],
+  String? sparsCode,
   bool? isLive,
   String? color,
   String? rpm,
@@ -202,6 +205,7 @@ MusicDisc _disc(
       recordingDate: recordingDate,
       recordingLocations: recordingLocations,
       soundTypes: soundTypes,
+      sparsCode: sparsCode,
       isLive: isLive,
       color: color,
       rpm: rpm,
