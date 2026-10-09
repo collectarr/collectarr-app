@@ -73,7 +73,7 @@ void main() {
       if (request.uri.host == 'coverartarchive.org') {
         return jsonEncode({
           'images': [
-            {'image': 'https://example.com/front.jpg', 'front': true},
+            {'image': 'http://example.com/front.jpg', 'front': true},
             {'image': 'https://example.com/back.jpg', 'back': true}
           ]
         });
@@ -83,6 +83,8 @@ void main() {
     final covers = await MusicOnlineCoverSearch(client: client)
         .search('Powerwolf Lupus Dei 039841461923', barcode: '039841461923');
     expect(covers.map((c) => c.artist), ['Front cover', 'Back cover']);
+    expect(covers.map((c) => c.imageUrl),
+        ['https://example.com/front.jpg', 'https://example.com/back.jpg']);
     expect(requests.last.uri.queryParameters['term'], 'Powerwolf Lupus Dei');
     client.close();
   });

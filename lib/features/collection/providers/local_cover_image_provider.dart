@@ -1,7 +1,6 @@
-import 'dart:typed_data';
-
 import 'package:collectarr_app/core/models/library_entry_projection.dart';
-import 'package:collectarr_app/features/collection/repositories/item_images_cache_repository.dart';
+import 'package:collectarr_app/core/models/structural_ref_validation.dart';
+import 'package:drift/drift.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -10,26 +9,19 @@ typedef LocalItemImageRequest = ({
   String imageType
 });
 
-final localItemImageProvider =
-    FutureProvider.family<Uint8List?, LocalItemImageRequest>(
-        (ref, request) async {
+final localItemImageProvider = StreamProvider.autoDispose
+    .family<Uint8List?, LocalItemImageRequest>((ref, request) {
+  requireKnownLibraryEntryRef(request.libraryEntryRef);
   final db = ref.watch(localDatabaseProvider);
-  final image = await ItemImagesCacheRepository(db).primaryImageForItem(
-    request.libraryEntryRef,
-    imageType: request.imageType,
-  );
-  return image?.imageData;
+  return (db.select(db.itemImagesCache)
+        ..where((row) =>
+            row.libraryEntryRefKey.equals(request.libraryEntryRef.key) &
+            row.imageType.equals(request.imageType))
+        ..orderBy([
+          (row) => OrderingTerm.asc(row.sortOrder),
+          (row) => OrderingTerm.asc(row.createdAt)
+        ])
+        ..limit(1))
+      .watchSingleOrNull()
+      .map((image) => image?.imageData);
 });
-
-/// Provides front cover bytes for a collection item, looked up from local DB.
-final localCoverImageProvider =
-    FutureProvider.family<Uint8List?, LibraryEntryRef>(
-  (ref, libraryEntryRef) async {
-    return ref.watch(
-      localItemImageProvider((
-        libraryEntryRef: libraryEntryRef,
-        imageType: 'front_cover',
-      )).future,
-    );
-  },
-);

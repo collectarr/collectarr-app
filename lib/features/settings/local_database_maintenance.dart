@@ -65,7 +65,6 @@ void invalidateLocalDatabaseProjections(WidgetRef ref) {
   ref.invalidate(globalActivityProvider);
   ref.invalidate(calendarEventsProvider);
   ref.invalidate(localItemImageProvider);
-  ref.invalidate(localCoverImageProvider);
   ref.invalidate(overdueLoanLibraryEntryIdsProvider);
   ref.invalidate(libraryCustomFieldCacheProvider);
   for (final invalidate in kindDatabaseMaintenanceProjectionInvalidators) {

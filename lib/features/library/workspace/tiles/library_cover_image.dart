@@ -40,10 +40,9 @@ class LibraryCoverImage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final url = normalizeNetworkImageUrl(imageUrl);
 
-    // Resolve local image: prefer explicit local bytes; query DB only when
-    // there is no usable remote URL to avoid first-load source swapping.
+    // An entry's chosen local cover takes precedence over catalog artwork.
     var local = localBytes;
-    if (local == null && libraryEntryRef != null && url == null) {
+    if (local == null && libraryEntryRef != null) {
       local = ref
           .watch(
             localItemImageProvider((

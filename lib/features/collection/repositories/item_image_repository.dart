@@ -11,6 +11,33 @@ class ItemImageRepository {
 
   final LocalDatabase _db;
 
+  /// Presence metadata for workspace queries, without loading image blobs.
+  Future<Map<LibraryEntryRef, Set<String>>> typesForLibraryEntryRefs(
+      Iterable<LibraryEntryRef> libraryEntryRefs) async {
+    final refs = libraryEntryRefs.toSet().toList(growable: false);
+    for (final ref in refs) {
+      requireKnownLibraryEntryRef(ref);
+    }
+    final keys = refs.map((ref) => ref.key).toList(growable: false);
+    final types = <LibraryEntryRef, Set<String>>{};
+    final table = _db.itemImagesCache;
+    for (var start = 0; start < keys.length; start += _refQueryChunkSize) {
+      final end = (start + _refQueryChunkSize).clamp(0, keys.length).toInt();
+      final query = _db.selectOnly(table)
+        ..addColumns([table.libraryEntryRefKey, table.imageType])
+        ..where(table.libraryEntryRefKey.isIn(keys.sublist(start, end)));
+      for (final row in await query.get()) {
+        final ref =
+            LibraryEntryRef.fromKey(row.read(table.libraryEntryRefKey)!);
+        types.putIfAbsent(ref, () => {}).add(row.read(table.imageType)!);
+      }
+    }
+    return {
+      for (final entry in types.entries)
+        entry.key: Set.unmodifiable(entry.value)
+    };
+  }
+
   Future<List<ItemImage>> listForLibraryEntryRef(
       LibraryEntryRef libraryEntryRef) async {
     requireKnownLibraryEntryRef(libraryEntryRef);

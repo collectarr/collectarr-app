@@ -56,7 +56,8 @@ final class MusicStatsCapability implements LibraryStatsCapability {
       format: music.formatSummary?.trim(),
       displayYear: releaseYear,
       categoryLabels: music.genres,
-      hasCover: music.coverImageUrl?.trim().isNotEmpty == true,
+      hasCover: entry.hasLocalFrontCover ||
+          music.coverImageUrl?.trim().isNotEmpty == true,
       hasSecondaryMetadata: secondary?.isNotEmpty == true ||
           music.formatSummary?.trim().isNotEmpty == true,
       hasReleaseDate:

@@ -77,6 +77,7 @@ final class MusicOnlineCoverSearch {
     final payload = jsonDecode(response.data ?? '') as Map<String, dynamic>;
     final releases = payload['releases'] as List? ?? const [];
     final covers = <MusicOnlineCoverCandidate>[];
+    final seenUrls = <String>{};
     for (final release in releases.whereType<Map<String, dynamic>>()) {
       final id = release['id'];
       if (id is! String || !RegExp(r'^[a-f0-9-]{36}$').hasMatch(id)) continue;
@@ -90,8 +91,17 @@ final class MusicOnlineCoverSearch {
           (jsonDecode(archive.data ?? '') as Map)['images'] as List? ??
               const [];
       for (final image in images.whereType<Map<String, dynamic>>()) {
-        final url = image['image'];
-        if (url is! String || Uri.tryParse(url)?.scheme != 'https') continue;
+        final rawUrl = image['image'];
+        if (rawUrl is! String) continue;
+        final uri = Uri.tryParse(rawUrl);
+        if (uri == null ||
+            uri.host.isEmpty ||
+            (uri.scheme != 'http' && uri.scheme != 'https')) {
+          continue;
+        }
+        // CAA's JSON advertises HTTP originals, served identically over HTTPS.
+        final url = uri.replace(scheme: 'https').toString();
+        if (!seenUrls.add(url)) continue;
         covers.add(MusicOnlineCoverCandidate(
             title: release['title'] as String? ?? '',
             artist: image['front'] == true

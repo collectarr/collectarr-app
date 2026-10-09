@@ -38,6 +38,10 @@ final class LibraryWorkspaceContext {
   String? get locationPath => personal.locationPath;
   List<WatchSession> get watchSessions => personal.watchSessions;
   List<ItemImage> get itemImages => personal.images;
+  bool get hasLocalFrontCover =>
+      personal.imageTypes.contains('front_cover') ||
+      itemImages.any((image) =>
+          image.imageType == 'front_cover' && image.imageData.isNotEmpty);
   List<UserExternalLink> get userExternalLinks => personal.externalLinks;
   List<Loan> get loans => personal.loans;
   List<({String folderId, int sortOrder})> get folderMemberships =>

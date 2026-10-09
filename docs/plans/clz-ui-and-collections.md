@@ -41,7 +41,8 @@ an actual sharing service and is not represented by a cosmetic Public toggle.
   advanced saved criteria and no longer impersonate collections.
 - Local image reads now observe DB changes, expire when their widgets leave,
   and take precedence over remote catalog artwork. Shelf overlays include
-  stored images, so cover badges, grouping and Music cover statistics agree
+  image-type metadata without loading full image blobs, so badges, grouping
+  and Music cover statistics agree
   with the visible cover. Removed the unused front-cover provider alias.
 
 ## Verification
@@ -57,7 +58,8 @@ Browser verification used an isolated origin, preserving the user's library
 and authenticated CLZ session. Verified real online results with 600 x 600
 artwork, selection/download, saved front/back covers and reload. Verified
 MusicBrainz barcode responses and CAA's HTTP original-image URLs, which the
-client requests over HTTPS. Verified collection creation, empty active
+client requests over HTTPS. The final gallery showed edition front/back scans
+with real dimensions including 1000 x 1000 and 3608 x 2788. Verified collection creation, empty active
 collection, album transfer, rename/reload, and deletion with transfer back to
 Main Collection. The latest build displayed the local cover and grouped it
 under Has Back = Yes. At 1000 px the alphabet becomes the complete A-Z menu.

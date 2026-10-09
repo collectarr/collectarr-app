@@ -266,7 +266,8 @@ class _LibraryCoverTileState extends ConsumerState<LibraryCoverTile> {
     final dto = item.dto;
     final presentation = libraryCardPresentationForEntry(item);
     return [
-      if (dto.imageUrl == null || dto.imageUrl!.isEmpty)
+      if ((dto.imageUrl == null || dto.imageUrl!.isEmpty) &&
+          !item.source.hasLocalFrontCover)
         const LibraryCoverBadge(
           icon: Icons.image_not_supported_outlined,
           label: 'Missing cover',

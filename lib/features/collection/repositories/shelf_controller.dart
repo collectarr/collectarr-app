@@ -12,6 +12,7 @@ import 'package:collectarr_app/core/models/user_folder.dart';
 import 'package:collectarr_app/features/catalog/catalog_display_summary_repository.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
+import 'package:collectarr_app/features/collection/repositories/item_image_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/user_external_links_cache_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/loan_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/user_folder_repository.dart';
@@ -45,6 +46,8 @@ final shelfProvider = FutureProvider<ShelfState>((ref) async {
     libraryEntryDispatchesByRef[result.ref] = result;
   }
   final entryRefs = entrySummaries.map((entry) => entry.ref).toSet();
+  final imageTypesByEntry =
+      await ItemImageRepository(db).typesForLibraryEntryRefs(entryRefs);
   final catalogRefs = <CatalogItemRef>{
     for (final entry in entrySummaries)
       if (entry.sourceCatalogRef case final ref?) ref,
@@ -99,6 +102,7 @@ final shelfProvider = FutureProvider<ShelfState>((ref) async {
     kindPresentationByEntryRef: kindPresentationByEntryRef,
     catalogPresentationByRef: catalogPresentationByRef,
     locations: locations,
+    imageTypesByLibraryEntry: imageTypesByEntry,
     userExternalLinksByEntry: userExternalLinksByEntry,
     loansByEntry: loansByEntry,
     folderMembershipsByEntry: folderMembershipsByEntry,
@@ -143,6 +147,7 @@ class ShelfState {
     List<StorageLocation> locations = const [],
     Map<LibraryEntryRef, List<ItemImage>> itemImagesByLibraryEntry =
         const <LibraryEntryRef, List<ItemImage>>{},
+    Map<LibraryEntryRef, Set<String>> imageTypesByLibraryEntry = const {},
     Map<LibraryEntryRef, List<UserExternalLink>> userExternalLinksByEntry =
         const <LibraryEntryRef, List<UserExternalLink>>{},
     Map<LibraryEntryRef, List<Loan>> loansByEntry =
@@ -216,6 +221,7 @@ class ShelfState {
           wishlist: sourceRef == null ? null : wishlistByCatalogRef[sourceRef],
           locationPath: locationPathsById[entry.locationId],
           images: itemImagesByLibraryEntry[entry.ref] ?? const <ItemImage>[],
+          imageTypes: imageTypesByLibraryEntry[entry.ref] ?? const {},
           externalLinks:
               userExternalLinksByEntry[entry.ref] ?? const <UserExternalLink>[],
           loans: loansByEntry[entry.ref] ?? const <Loan>[],

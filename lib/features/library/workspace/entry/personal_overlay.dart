@@ -17,6 +17,7 @@ final class PersonalOverlay {
     this.locationPath,
     this.watchSessions = const <WatchSession>[],
     this.images = const <ItemImage>[],
+    this.imageTypes = const <String>{},
     this.externalLinks = const <UserExternalLink>[],
     this.loans = const <Loan>[],
     this.folderMemberships = const <({String folderId, int sortOrder})>[],
@@ -31,6 +32,7 @@ final class PersonalOverlay {
   final String? locationPath;
   final List<WatchSession> watchSessions;
   final List<ItemImage> images;
+  final Set<String> imageTypes;
   final List<UserExternalLink> externalLinks;
   final List<Loan> loans;
   final List<({String folderId, int sortOrder})> folderMemberships;

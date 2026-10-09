@@ -40,6 +40,8 @@ Object? musicCatalogGroupValue(
       'back_cover',
     for (final image in context.personal.images)
       MusicAlbumImage.imageTypeFromStorageValue(image.imageType),
+    for (final type in context.personal.imageTypes)
+      MusicAlbumImage.imageTypeFromStorageValue(type),
   };
 
   return switch (field) {
