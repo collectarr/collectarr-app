@@ -182,9 +182,11 @@ typed workspace field getters as grouping, and `is_live` remains a boolean
 field with Live/Studio presentation labels. Smart List v3 now supports equals,
 not-equals, contains, and is-empty field rules; many-valued equality matches
 any contained value, while not-equals requires no contained value to match.
-Mixed-edition regression coverage now checks unique format/year/location buckets,
-Live/Studio labels over boolean values, and contributor/role/instrument buckets.
-Coverage for the remaining technical contained groups remains open.
+Mixed-edition regression coverage exercises every contained disc and credit
+group bucket, checks one membership per matching bucket, and verifies Smart List
+Disc Format filtering against the same field getter used by grouping. Live/Studio
+labels remain a presentation over boolean values. Broader filter/facet parity
+coverage remains open.
 
 ### J. Scalar date sorting (implemented)
 

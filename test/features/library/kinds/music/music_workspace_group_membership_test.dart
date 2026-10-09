@@ -1,6 +1,8 @@
 import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/core/models/partial_date.dart';
+import 'package:collectarr_app/core/models/smart_list_criteria.dart';
 import 'package:collectarr_app/features/library/domain/library_target_ref.dart';
+import 'package:collectarr_app/features/library/generic/library_filters.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_album.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_credit.dart';
@@ -68,6 +70,10 @@ void main() {
     );
     expect(formats, ['CD', 'Vinyl']);
     expect(MusicCatalogWorkspaceFields.discFormat.getValue(context), formats);
+    expectBucketsAndSingleMembership(
+      'music.disc.format_family',
+      ['opticalDisc', 'vinyl'],
+    );
 
     final formatGroups = grouping.buildGroupEntries(
       [item],
@@ -98,14 +104,24 @@ void main() {
     for (final group in yearGroups) {
       expect(group.items, [item]);
     }
+    expectBucketsAndSingleMembership(
+      'music.disc.recording_date',
+      ['2024', '2025', '2026-02-18'],
+    );
+    expectBucketsAndSingleMembership(
+      'music.disc.recording_month',
+      ['02 - February'],
+    );
 
-    final locationGroupId = workspace.fields.groups
-        .singleWhere((group) => group.id.value == 'music.recording_location')
-        .id;
-    expect(
-      grouping.bucketsForItem(item, registration, locationGroupId),
+    expectBucketsAndSingleMembership(
+      'music.recording_location',
       ['Abbey Road', 'Wembley'],
     );
+    expectBucketsAndSingleMembership('music.rpm', ['45']);
+    expectBucketsAndSingleMembership('music.disc.spars', ['[None]']);
+    expectBucketsAndSingleMembership('music.sound', ['ADD', 'DDD']);
+    expectBucketsAndSingleMembership('music.vinyl_color', ['Red']);
+    expectBucketsAndSingleMembership('music.track.composition', ['[None]']);
 
     expectBucketsAndSingleMembership(
       'music.disc.is_live',
@@ -124,6 +140,29 @@ void main() {
       ['Conductor', 'Producer'],
     );
     expectBucketsAndSingleMembership('music.credit.instrument', ['Piano']);
+
+    bool matchesDiscFormat(SmartListFieldOperator operator, String value) =>
+        libraryFilterMatches(
+          item,
+          LibraryFilterSelection(
+            fieldCriteria: {
+              'music.disc.format': SmartListFieldCriterion(
+                operator: operator,
+                value: value,
+              ),
+            },
+          ),
+          filterDefinitions: libraryPresentationForKind(CatalogMediaKind.music)
+              .filterDefinitions,
+          fieldRegistry: workspace.fields.asStructural(),
+        );
+
+    expect(matchesDiscFormat(SmartListFieldOperator.equals, 'Vinyl'), isTrue);
+    expect(
+        matchesDiscFormat(SmartListFieldOperator.equals, 'Cassette'), isFalse);
+    expect(matchesDiscFormat(SmartListFieldOperator.notEquals, 'CD'), isFalse);
+    expect(matchesDiscFormat(SmartListFieldOperator.notEquals, 'Cassette'),
+        isTrue);
   });
 }
 
@@ -135,6 +174,7 @@ MusicAlbum _mixedAlbum() => MusicAlbum(
           discNumber: 1,
           formatFamily: MusicDiscFormatFamily.opticalDisc,
           format: 'CD',
+          soundTypes: const ['DDD', 'DDD'],
           recordingDate: const PartialDate(year: 2025),
           recordingLocations: const ['Abbey Road', 'Abbey Road'],
           isLive: false,
@@ -145,6 +185,7 @@ MusicAlbum _mixedAlbum() => MusicAlbum(
           discNumber: 2,
           formatFamily: MusicDiscFormatFamily.opticalDisc,
           format: 'CD',
+          soundTypes: const ['ADD'],
           recordingDate: const PartialDate(year: 2026, month: 2, day: 18),
           recordingLocations: const ['Wembley'],
           isLive: true,
