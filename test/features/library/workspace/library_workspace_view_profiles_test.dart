@@ -15,17 +15,22 @@ void main() {
     SharedPreferences.setMockInitialValues({});
   });
 
-  test('all nine kinds share the standard workspace profile and presets', () {
+  test('kind workspace profiles use their configured inspector defaults', () {
     for (final kind in kinds) {
       final profile = libraryViewProfileForKind(kind);
       final defaults = profile.defaults();
+      final expectedDetailsLayout = kind == CatalogMediaKind.music
+          ? LibraryDetailsLayout.right
+          : LibraryDetailsLayout.bottom;
+      final expectedDetailsWidth =
+          kind == CatalogMediaKind.music ? 350.0 : 340.0;
 
       expect(profile.defaultCoverSize, 128, reason: kind.apiValue);
       expect(profile.minCoverSize, 96, reason: kind.apiValue);
       expect(profile.maxCoverSize, 275, reason: kind.apiValue);
-      expect(profile.defaultDetailsLayout, LibraryDetailsLayout.bottom);
-      expect(defaults.detailsLayout, LibraryDetailsLayout.bottom);
-      expect(defaults.detailsWidth, kLibraryDetailsDefaultWidth);
+      expect(profile.defaultDetailsLayout, expectedDetailsLayout);
+      expect(defaults.detailsLayout, expectedDetailsLayout);
+      expect(defaults.detailsWidth, expectedDetailsWidth);
       final fields = libraryWorkspaceForKind(kind).fields;
       expect(
         profile.initialSortAscending(fields.defaultSort),
@@ -37,7 +42,7 @@ void main() {
         final config = profile.presetConfig(preset);
         expect(
           config.detailsLayout,
-          LibraryDetailsLayout.bottom,
+          expectedDetailsLayout,
           reason: '${kind.apiValue}: ${preset.name}',
         );
         expect(
@@ -64,18 +69,20 @@ void main() {
     }
   });
 
-  test('profile loading uses bottom details when no preference is saved',
+  test('profile loading uses configured details when no preference is saved',
       () async {
     for (final kind in kinds) {
       final loaded = await libraryViewProfileForKind(kind).load();
       expect(
         loaded.detailsLayout,
-        LibraryDetailsLayout.bottom,
+        kind == CatalogMediaKind.music
+            ? LibraryDetailsLayout.right
+            : LibraryDetailsLayout.bottom,
         reason: kind.apiValue,
       );
       expect(
         loaded.detailsWidth,
-        kLibraryDetailsDefaultWidth,
+        kind == CatalogMediaKind.music ? 350 : kLibraryDetailsDefaultWidth,
         reason: kind.apiValue,
       );
     }
