@@ -1,10 +1,10 @@
 # Current Architecture Status
 
 Last reviewed: 2026-10-09. This report reflects the current working tree and
-the verification evidence recorded below. Stage M's release gate passed on
-2026-10-09. The architecture guard has no unreviewed AST violations; its exact
-baseline retains 44 reviewed field-leak findings, all still observed and none
-stale. The checker also reports 364 informational complexity findings.
+the post-audit release evidence recorded below. The architecture guard has no
+unreviewed AST violations; its exact baseline retains 44 reviewed field-leak
+findings, all still observed and none stale. The checker reports 364
+informational complexity findings.
 
 ## Implemented
 
@@ -61,6 +61,13 @@ stale. The checker also reports 364 informational complexity findings.
 - Core corrections require an explicit Catalog Item reference. Editing a
   local entry uses its `sourceCatalogRef`; a local entry ID is never treated as
   a Core ID.
+- Music disc `is_live` remains `boolean?`, `cardinality: many`, with source
+  path `discs[].is_live`. “Live” and “Studio” are display labels for grouping
+  and export; they do not change the canonical value type.
+- Every non-null Music disc `format` now requires an explicit non-null
+  `format_family` in Core contract 2.2.0. Known presets supply the family;
+  custom formats require a selection before Add or Edit can save. No canonical
+  path guesses a family from format text.
 - The generic workspace composition no longer carries the unused hierarchy
   capability. Actual contained content such as Anime episodes and TV seasons
   remains kind-owned and available through the separate content hierarchy.
@@ -89,14 +96,13 @@ stale. The checker also reports 364 informational complexity findings.
   ordering. Identifier predicates use indexed scalar columns or JSONB
   containment. The full Core suite now verifies the declared identifier and
   scalar indexes with PostgreSQL query plans.
-- Stage M release verification is complete. Changed Dart files pass formatting
-  checks and strict Flutter analysis. Kind registry and field-manifest
-  generation, the pinned Music
-  v2 contract check, the generated Catalog Item v2 field check, and targeted
-  Core schema/contract tests pass. The full App suite passes: 771 passed,
-  one skipped, and zero failed. The typed contract infrastructure test passes;
-  the Windows debug build and Windows desktop/mobile integration smoke tests
-  pass.
+- The post-audit release gate passes. Core contract/schema tests pass and the
+  full Core suite passes 155 tests with PostgreSQL; `ruff check .` is clean.
+  The full App suite passes 778 tests with one skip, strict Flutter analysis
+  and changed-file formatting pass, and the pinned Core bundle matches
+  contract 2.2.0. The architecture guard has no unreviewed AST violations.
+  Windows desktop/mobile integration smoke tests pass and the Windows debug
+  build succeeds.
 - The App regression fixtures now match typed registries, field IDs,
   versioned preference keys, TV shared-tab composition, current Comic Drift
   tables, and strict per-kind payloads. The suite also caught and fixed Comic

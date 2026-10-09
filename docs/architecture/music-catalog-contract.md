@@ -22,7 +22,10 @@ Disc format family is intentionally coarse: `vinyl`, `opticalDisc`, `tape`,
 `digital`, or `other`. The format string carries the detailed format such as
 CD, SACD, SHM-CD, cassette, 12-inch vinyl, or FLAC. Known Music presets assign
 their family; custom formats require the user to choose one. The canonical
-contract never infers family from a format string.
+contract never infers family from a format string. Every non-null `format`
+requires a non-null `format_family` under Core contract 2.2.0. The disc's
+`is_live` value remains a nullable boolean; “Live” and “Studio” are display
+labels used by grouped views and exports.
 
 Core response models in `app/schemas/catalog_music_item.py` define the strict
 wire schema. Core exports `contracts/music-catalog-v2.json` and pins its hash

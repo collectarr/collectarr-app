@@ -1,19 +1,19 @@
 # Music v2 and Library Field Semantics Roadmap
 
-Status: complete; checkpoints A1–A4, the nine-kind metadata cutover, Music
-v2 contract/domain/editing checkpoints C–F, workspace-facts checkpoint G,
-workspace field cleanup checkpoint H, contained grouping/filter checkpoint I,
-scalar date sorts checkpoint J, search/export/correction checkpoint K, and
-physical cleanup checkpoint L are implemented. The full Core suite passes 152
-tests, including PostgreSQL-backed schema and index-plan checks. Stage M's
-release gate passed on 2026-10-09: the full App suite passes 771 tests with one
-skip, strict analysis and changed-file formatting pass, Windows debug build
-and desktop/mobile integration smoke tests pass, and the architecture guard
-has no unreviewed AST violations. Its exact baseline retains 44 reviewed field
-leaks, all still observed and none stale; 364 complexity-budget reports remain
-informational. Each completed checkpoint is committed separately with a
-detailed Conventional Commit message. Stages that touch Core contracts
-regenerate the Core bundle and update the App pin in the same stage.
+Status: complete after the Stage M audit follow-up. Checkpoints A1–A4, the
+nine-kind metadata cutover, Music v2 contract/domain/editing checkpoints C–F,
+workspace-facts checkpoint G, workspace field cleanup checkpoint H, contained
+grouping/filter checkpoint I, scalar date sorts checkpoint J,
+search/export/correction checkpoint K, and physical cleanup checkpoint L are
+implemented. The full Core suite passes 155 tests with PostgreSQL-backed
+schema and index-plan checks. After the audit follow-up, the full App suite
+passes 778 tests with one skip; strict analysis, changed-file formatting,
+contract pin checks, Windows debug build, desktop and mobile integration smoke
+tests, and architecture guards pass. The exact architecture baseline retains
+44 reviewed field leaks, all still observed and none stale; 364
+complexity-budget reports remain informational. Each completed checkpoint has
+a detailed Conventional Commit message. Core contract changes regenerate the
+bundle and update the App pin in the same stage.
 
 ## Architectural contract
 
@@ -67,6 +67,10 @@ album to discs. Disc format family is coarse (`vinyl`, `opticalDisc`, `tape`,
 presets set family. Custom formats require an explicit family; canonical
 parsing never guesses family from format text. Family controls are hidden for
 known formats and exposed only for custom/advanced editing.
+
+Every non-null disc `format` requires an explicit non-null `format_family` at
+the Core write and response boundary. `is_live` remains boolean/many; “Live”
+and “Studio” are display labels only.
 
 Music workspace projection builds immutable, deduplicated
 `MusicWorkspaceFacts` once per canonical item. Facts cover disc formats and
@@ -271,39 +275,49 @@ imports from current Add/Edit paths.
 opt-in harness lives in
 [`music_workspace_benchmark_test.dart`](../../test/performance/music_workspace_benchmark_test.dart)
 and runs with
-`flutter test --no-pub --dart-define=RUN_MUSIC_WORKSPACE_BENCHMARK=true test/performance/music_workspace_benchmark_test.dart`.
+`flutter test --no-pub --enable-vmservice --dart-define=RUN_MUSIC_WORKSPACE_BENCHMARK=true --dart-define=MUSIC_WORKSPACE_BENCHMARK_ALBUMS=1000 test/performance/music_workspace_benchmark_test.dart`
+and rerun with `MUSIC_WORKSPACE_BENCHMARK_ALBUMS=5000` in a separate process.
 It builds 1k and 5k albums with 2–4 discs, one 8-disc deluxe edition per 100
 albums, 10 tracks per disc, and one credit per disc. It measures median
 projection time over three runs, facts construction, three contained group
-switches, sort, real filter-engine execution, and process RSS. An identity
-assertion for every projected item verifies that the projector reuses the
-facts constructed for `MusicWorkspaceData`; comparators use those facts
-instead of traversing discs.
+switches, sort, real filter-engine execution, process RSS, and VM allocation
+bytes and instance counts around projection. The VM counters are isolate-local
+and include test/VM-service bookkeeping; input generation occurs before the
+counter reset. Each scale runs in its own process for independent RSS peaks.
+An identity assertion for every projected item verifies that the projector
+reuses the facts constructed for `MusicWorkspaceData`; comparators use those
+facts instead of traversing discs.
 
 The baseline was measured on detached commit `b681270eb`, immediately before
 `MusicWorkspaceFacts` was introduced. Timings are milliseconds on this Windows
 workspace; the three-group figure is the mean of recording year, SPARS, and
-recording location/studio switches.
+recording location/studio switches. Current table values are means of two
+separate benchmark processes; projection time is the median of three runs per
+process. Baseline allocation and RSS values use the same fixture and projector
+in a detached projection-only harness, while baseline timing values are from
+the previously recorded benchmark run.
 
 | Operation | 1k baseline | 1k current | 5k baseline | 5k current |
 | --- | ---: | ---: | ---: | ---: |
-| Initial projection, median of 3 | 3.83 | 14.52 | 13.27 | 59.32 |
-| Facts construction | — | 5.42 | — | 27.04 |
-| Mean of 3 contained group switches | 19.71 | 14.79 | 86.91 | 69.35 |
-| Default sort | 2.02 | 1.88 | 4.01 | 3.69 |
-| Publisher filter through filter engine | 0.77 | 1.46 | 1.67 | 3.25 |
-| Disc Format many-value filter | — | 2.97 | — | 5.74 |
+| Initial projection, median of 3 (ms) | 3.83 | 13.29 | 13.27 | 59.82 |
+| Facts construction (ms) | — | 5.35 | — | 27.56 |
+| Mean of 3 contained group switches (ms) | 19.71 | 13.77 | 86.91 | 67.12 |
+| Default sort (ms) | 2.02 | 1.76 | 4.01 | 5.35 |
+| Publisher filter through filter engine (ms) | 0.77 | 1.39 | 1.67 | 3.43 |
+| Disc Format many-value filter (ms) | — | 3.14 | — | 7.54 |
+| Projection allocation profile (MB) | 221.0 | 232.5 | 304.8 | 316.7 |
+| Projection allocation instances (millions) | 1.89 | 2.07 | 3.39 | 3.74 |
+| Process peak RSS increase during projection (MiB) | 117.6 | 91.3 | 156.8 | 143.8 |
 
-Contained group switches improved about 20–25%, and sorting improved about
-7–8%. Projection is slower because it constructs immutable facts once; the
-facts alone took 5.4 ms at 1k and 27.0 ms at 5k. The typed publisher filter
-costs about 1.9× the old scalar filter and stays below 3.3 ms at 5k. Reusing
-the workspace's structural field registry and looking up field definitions by
-ID reduced the 5k typed-filter measurement from 31 ms to about 3.3 ms. RSS
-high-water snapshots are included in the test output. They are affected by
-garbage collection and the test runner, so they are directional memory
-measurements rather than allocation counts; the 5k current projection raised
-the process high-water by about 27.2 MB in the recorded run.
+Contained group switches improved about 30% at 1k and 23% at 5k. Projection
+adds the one-time immutable facts build, measured at 5.35 ms and 27.56 ms.
+The typed publisher filter stays near 1.4 ms at 1k and 3.43 ms at 5k. The
+default sort is faster at 1k and measured 5.35 ms at 5k versus the 4.01 ms
+baseline; it remains a direct field comparison and does not traverse discs.
+The allocation profile is about 5% higher at 1k and 4% higher at 5k, while
+the measured process peak-RSS increase is lower at both sizes. RSS and
+allocation counters include process/test-runner effects and are directional,
+not per-object accounting.
 
 `current-status.md` records field ownership, cardinality, contained grouping,
 reducer, derived-facts semantics, and the final release evidence. Core schema
