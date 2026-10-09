@@ -4,6 +4,25 @@ import 'package:collectarr_app/features/library/kinds/music/workspace/music_work
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_facts.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 
+LibrarySortDefinition<MusicKind, MusicWorkspaceProjection> musicStatusSort() {
+  return LibrarySortDefinition<MusicKind, MusicWorkspaceProjection>(
+    id: MusicSortIds.status,
+    compare: (left, right) {
+      int rank(LibraryProjectionContext<MusicWorkspaceProjection> context) {
+        if (context.item.entrySummary != null) return 0;
+        if (context.personal.isWishlisted) return 1;
+        return 2;
+      }
+
+      final result = rank(left).compareTo(rank(right));
+      return result != 0
+          ? result
+          : left.dto.primaryLabel.compareTo(right.dto.primaryLabel);
+    },
+    label: 'Status',
+  );
+}
+
 LibrarySortDefinition<MusicKind, MusicWorkspaceProjection>
     musicEarliestDiscRecordingDateSort() =>
         LibrarySortDefinition<MusicKind, MusicWorkspaceProjection>(

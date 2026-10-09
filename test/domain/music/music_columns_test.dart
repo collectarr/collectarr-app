@@ -46,7 +46,7 @@ void main() {
     expect(
       musicWorkspace.fields.defaultVisibleColumns.map((column) => column.value),
       containsAll([
-        'music.artist',
+        'music.artist_summary',
         'music.title',
         'music.track_count',
       ]),

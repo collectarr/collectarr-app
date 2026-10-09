@@ -1,8 +1,8 @@
-import 'package:collectarr_app/features/library/kinds/music/workspace/music_ids.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_dto.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/schema/field_factories.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
+import 'package:collectarr_app/features/library/kinds/music/workspace/presentation/music_workspace_formatting.dart';
 import 'package:flutter/material.dart';
 
 LibraryColumnDefinition<MusicKind, MusicWorkspaceProjection, String?>
@@ -92,7 +92,7 @@ LibraryColumnDefinition<MusicKind, MusicWorkspaceProjection, DateTime>
     id: field.id,
     metadata: field.metadata,
     getValue: field.getValue,
-    cellValue: (context) => Text(_formatDate(field.getValue(context))),
+    cellValue: (context) => Text(formatMusicDate(field.getValue(context))),
     group: 'Personal',
     defaultWidth: 112,
   );
@@ -109,7 +109,7 @@ LibraryColumnDefinition<MusicKind, MusicWorkspaceProjection, DateTime?>
     id: field.id,
     metadata: field.metadata,
     getValue: field.getValue,
-    cellValue: (context) => Text(_formatDate(field.getValue(context))),
+    cellValue: (context) => Text(formatMusicDate(field.getValue(context))),
     group: 'Personal',
     defaultWidth: 112,
   );
@@ -123,8 +123,10 @@ LibraryColumnDefinition<MusicKind, MusicWorkspaceProjection, int?>
   return columnFromField<MusicKind, MusicWorkspaceProjection, int?>(
     field,
     cellValue: (context) => Text(
-      _formatCents(context.item.entrySummary?.pricePaidCents,
-          context.dto.common.currency),
+      formatMusicCents(
+        context.item.entrySummary?.pricePaidCents,
+        context.dto.common.currency,
+      ),
     ),
     group: 'Value',
     isNumeric: true,
@@ -181,7 +183,7 @@ LibraryColumnDefinition<MusicKind, MusicWorkspaceProjection, DateTime?>
 }) {
   return columnFromField<MusicKind, MusicWorkspaceProjection, DateTime?>(
     field,
-    cellValue: (context) => Text(_formatDate(field.getValue(context))),
+    cellValue: (context) => Text(formatMusicDate(field.getValue(context))),
     defaultWidth: 112,
   );
 }
@@ -194,45 +196,13 @@ LibraryColumnDefinition<MusicKind, MusicWorkspaceProjection, int?>
   return columnFromField<MusicKind, MusicWorkspaceProjection, int?>(
     field,
     cellValue: (context) => Text(
-      _formatCents(context.item.entrySummary?.marketValueCents,
-          context.dto.common.currency),
+      formatMusicCents(
+        context.item.entrySummary?.marketValueCents,
+        context.dto.common.currency,
+      ),
     ),
     group: 'Value',
     isNumeric: true,
     defaultWidth: 100,
   );
-}
-
-LibrarySortDefinition<MusicKind, MusicWorkspaceProjection> musicStatusSort() {
-  return LibrarySortDefinition<MusicKind, MusicWorkspaceProjection>(
-    id: MusicSortIds.status,
-    compare: (left, right) {
-      int rank(LibraryProjectionContext<MusicWorkspaceProjection> context) {
-        if ((context.item.entrySummary != null)) return 0;
-        if (context.personal.isWishlisted) return 1;
-        return 2;
-      }
-
-      final result = rank(left).compareTo(rank(right));
-      return result != 0
-          ? result
-          : left.dto.primaryLabel.compareTo(right.dto.primaryLabel);
-    },
-    label: 'Status',
-  );
-}
-
-String _formatDate(DateTime? value) {
-  if (value == null) return '';
-  return '${value.year.toString().padLeft(4, '0')}-'
-      '${value.month.toString().padLeft(2, '0')}-'
-      '${value.day.toString().padLeft(2, '0')}';
-}
-
-String formatMusicDate(DateTime? value) => _formatDate(value);
-
-String _formatCents(int? cents, String? currency) {
-  if (cents == null) return '';
-  final amount = (cents / 100).toStringAsFixed(2);
-  return currency == null ? amount : '$currency $amount';
 }

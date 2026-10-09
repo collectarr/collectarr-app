@@ -212,7 +212,7 @@ lists, leaving ordinary metadata and Add schemas unchanged. Proposed Music
 documents are validated against the complete strict v2 item before storage and
 application, preserving nested stable IDs in before/after values.
 
-### L. Physical code layout and cleanup
+### L. Physical code layout and cleanup (in progress)
 
 Move domain, format capabilities, presets, edit credits/discs, workspace
 facts/projection/fields/groups/sorts/columns/schemas into kind-owned folders.
@@ -221,7 +221,9 @@ columns, formatting, and sorting. Remove MusicAlbumContribution, artificial
 person IDs, Classical/People tabs and groups, root recording fields, old root
 role arrays, family guessing, format ambiguity, duplicate capability flags,
 and redundant sort/group/facet IDs. Do not add compatibility or migration
-layers.
+layers. Workspace column definitions, Music sorts, and date/money formatting
+now live in separate modules; the former mixed schema-support helper is
+deleted. Remaining work is the physical layout pass and a complete orphan audit.
 
 ### M. Performance, documentation, and release gate
 
