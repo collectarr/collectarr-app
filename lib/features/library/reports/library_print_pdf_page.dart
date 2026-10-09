@@ -245,7 +245,8 @@ class _LibraryPrintPdfPageState extends State<LibraryPrintPdfPage> {
         .map((column) => column.id)
         .toList();
     _availableChildColumns = [
-      for (final column in capability?.pdfChildColumns ?? const [])
+      for (final column in capability?.pdfChildColumns ??
+          const <LibraryExportChildColumnDefinition>[])
         PdfChildColumnDefinition.fromExportColumn(column),
     ];
     _selectedChildColumnIds = _availableChildColumns
