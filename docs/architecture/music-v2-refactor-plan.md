@@ -179,8 +179,10 @@ color/RPM and contributor/role/instrument. Replace Classical and People
 categories with Credits. Grouping definitions are split into catalog, disc,
 credit, and personal modules; contained disc and credit filters use the same
 typed workspace field getters as grouping, and `is_live` remains a boolean
-field with Live/Studio presentation labels. Smart List many-value operator
-semantics and complete contained-group regression coverage remain open.
+field with Live/Studio presentation labels. Smart List v3 now supports equals,
+not-equals, contains, and is-empty field rules; many-valued equality matches
+any contained value, while not-equals requires no contained value to match.
+Contained-group regression coverage remains open.
 
 ### J. Scalar date sorting (implemented)
 

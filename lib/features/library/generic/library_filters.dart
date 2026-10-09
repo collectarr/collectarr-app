@@ -1,8 +1,13 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
+import 'package:collectarr_app/core/models/smart_list_criteria.dart';
+import 'package:collectarr_app/features/library/config/library_kind_field_metadata.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
+import 'package:collectarr_app/features/library/domain/library_target_ref.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
+import 'package:collectarr_app/features/library/workspace/schema/library_field_registry.dart';
 import 'package:flutter/foundation.dart';
 
 /// Shared entry policy criteria used by Smart Lists and library projections.
@@ -136,6 +141,7 @@ class LibraryFilterSelection {
     this.customFieldDefinitionId,
     this.customFieldValue,
     this.fieldValues = const {},
+    this.fieldCriteria = const {},
     this.missingCover = false,
     this.missingMetadata = false,
   });
@@ -151,6 +157,7 @@ class LibraryFilterSelection {
   final String? customFieldDefinitionId;
   final String? customFieldValue;
   final Map<String, String?> fieldValues;
+  final Map<String, SmartListFieldCriterion> fieldCriteria;
   final bool missingCover;
   final bool missingMetadata;
 
@@ -166,6 +173,7 @@ class LibraryFilterSelection {
         customFieldDefinitionId != null ||
         customFieldValue != null ||
         fieldValues.values.any((value) => value != null) ||
+        fieldCriteria.isNotEmpty ||
         missingCover ||
         missingMetadata;
   }
@@ -178,6 +186,7 @@ class LibraryFilterSelection {
     if (hasActiveDateRange) count++;
     if (customFieldDefinitionId != null || customFieldValue != null) count++;
     count += fieldValues.values.where((value) => value != null).length;
+    count += fieldCriteria.length;
     if (missingCover) count++;
     if (missingMetadata) count++;
     return count;
@@ -197,6 +206,7 @@ class LibraryFilterSelection {
     String? customFieldValue,
     bool clearCustomFieldValue = false,
     Map<String, String?>? fieldValues,
+    Map<String, SmartListFieldCriterion>? fieldCriteria,
     bool? missingCover,
     bool? missingMetadata,
   }) {
@@ -214,6 +224,7 @@ class LibraryFilterSelection {
           ? null
           : (customFieldValue ?? this.customFieldValue),
       fieldValues: fieldValues ?? this.fieldValues,
+      fieldCriteria: fieldCriteria ?? this.fieldCriteria,
       missingCover: missingCover ?? this.missingCover,
       missingMetadata: missingMetadata ?? this.missingMetadata,
     );
@@ -232,6 +243,7 @@ class LibraryFilterSelection {
             other.customFieldDefinitionId == customFieldDefinitionId &&
             other.customFieldValue == customFieldValue &&
             mapEquals(other.fieldValues, fieldValues) &&
+            mapEquals(other.fieldCriteria, fieldCriteria) &&
             other.missingCover == missingCover &&
             other.missingMetadata == missingMetadata;
   }
@@ -247,6 +259,7 @@ class LibraryFilterSelection {
         customFieldDefinitionId,
         customFieldValue,
         _fieldValuesHash(fieldValues),
+        _fieldCriteriaHash(fieldCriteria),
         missingCover,
         missingMetadata,
       );
@@ -257,6 +270,12 @@ int _fieldValuesHash(Map<String, String?> values) {
   return Object.hashAll([
     for (final key in keys) Object.hash(key, values[key]),
   ]);
+}
+
+int _fieldCriteriaHash(Map<String, SmartListFieldCriterion> criteria) {
+  final keys = criteria.keys.toList()..sort();
+  return Object.hashAll(
+      [for (final key in keys) Object.hash(key, criteria[key])]);
 }
 
 LibraryFilterSelection sanitizeLibraryFilterSelectionForType(
@@ -293,6 +312,7 @@ LibraryFilterSelection sanitizeLibraryFilterSelectionForType(
     customFieldDefinitionId: selection.customFieldDefinitionId,
     customFieldValue: selection.customFieldValue,
     fieldValues: fieldValues,
+    fieldCriteria: selection.fieldCriteria,
     missingCover: selection.missingCover,
     missingMetadata: selection.missingMetadata,
   );
@@ -303,6 +323,7 @@ bool libraryFilterMatches(
   LibraryProjectionView item,
   LibraryFilterSelection filters, {
   Iterable<LibraryFilterDefinition<Object?>> filterDefinitions = const [],
+  LibraryFieldRegistry<LibraryWorkspaceDto>? fieldRegistry,
 }) {
   final source = item.source;
   if (filters.entriesFilter == LibraryEntryPolicyFilter.entry &&
@@ -326,9 +347,103 @@ bool libraryFilterMatches(
       return false;
     }
   }
+  if (filters.fieldCriteria.isNotEmpty && fieldRegistry != null) {
+    final context = LibraryProjectionContext<LibraryWorkspaceDto>(
+      item: item.source.item,
+      personal: item.source.personal,
+      dto: item.dto,
+    );
+    for (final entry in filters.fieldCriteria.entries) {
+      final candidates = <Object?>[];
+      for (final candidate in fieldRegistry.fields) {
+        if (candidate.id.value == entry.key) {
+          if (candidate.filterable &&
+              _fieldSourceAllowedForTarget(candidate.metadata, item.target)) {
+            candidates.add(candidate.getValue(context));
+          }
+          break;
+        }
+      }
+      for (final filter in filterDefinitions) {
+        if (filter.metadata.id != entry.key ||
+            !_fieldSourceAllowedForTarget(filter.metadata, item.target)) {
+          continue;
+        }
+        candidates.add(
+          filter.id == 'location'
+              ? item.source.locationPath
+              : filter.value?.call(item),
+        );
+      }
+      if (candidates.isEmpty) continue;
+      if (!_matchesSmartListCriterion(
+        candidates,
+        entry.value,
+      )) {
+        return false;
+      }
+    }
+  }
   if (filters.missingCover && item.dto.imageUrl != null) return false;
   if (filters.missingMetadata && item.source.kindPresentationData != null) {
     return false;
   }
   return true;
+}
+
+bool _fieldSourceAllowedForTarget(
+  LibraryKindFieldMetadata metadata,
+  LibraryTargetRef target,
+) =>
+    target is! CatalogTargetRef ||
+    metadata.source != LibraryFieldSource.libraryEntry;
+
+bool librarySmartListCriterionMatches(
+  Object? candidate,
+  SmartListFieldCriterion criterion,
+) =>
+    _matchesSmartListCriterion([candidate], criterion);
+
+bool _matchesSmartListCriterion(
+  List<Object?> candidates,
+  SmartListFieldCriterion criterion,
+) {
+  final values = <Object?>[];
+  for (final candidate in candidates) {
+    if (candidate == null) continue;
+    if (candidate is Iterable && candidate is! String) {
+      values.addAll(candidate.cast<Object?>());
+    } else {
+      values.add(candidate);
+    }
+  }
+  final expected = criterion.value?.trim().toLowerCase();
+  bool equals(Object? value) {
+    if (expected == null) return false;
+    if (value is num) {
+      final numericExpected = num.tryParse(expected);
+      if (numericExpected != null) return value == numericExpected;
+    }
+    return _smartListValueText(value).toLowerCase() == expected;
+  }
+
+  return switch (criterion.operator) {
+    SmartListFieldOperator.equals => values.any(equals),
+    SmartListFieldOperator.notEquals => !values.any(equals),
+    SmartListFieldOperator.contains => values
+        .whereType<String>()
+        .any((value) => value.toLowerCase().contains(expected ?? '')),
+    SmartListFieldOperator.isEmpty => candidates.every((candidate) {
+        if (candidate == null) return true;
+        if (candidate is Iterable && candidate is! String) {
+          return candidate.isEmpty;
+        }
+        return candidate is String && candidate.trim().isEmpty;
+      }),
+  };
+}
+
+String _smartListValueText(Object? value) {
+  if (value is DateTime) return value.toIso8601String().split('T').first;
+  return value?.toString().trim() ?? '';
 }

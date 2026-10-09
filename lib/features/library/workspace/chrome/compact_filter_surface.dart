@@ -1,3 +1,4 @@
+import 'package:collectarr_app/core/models/smart_list_criteria.dart';
 import 'package:collectarr_app/features/library/generic/library_filters.dart';
 import 'package:collectarr_app/features/library/config/presentation/library_filter_presentation.dart';
 import 'package:collectarr_app/features/library/config/presentation/library_sort_presentation.dart';
@@ -188,6 +189,19 @@ class CompactFilterSurface extends StatelessWidget {
                     );
                   },
                 ),
+            for (final entry in selection.fieldCriteria.entries)
+              _buildRemovableChip(
+                key: ValueKey('active_smart_field_${entry.key}'),
+                label: _smartListCriterionLabel(entry.key, entry.value),
+                accent: accentData.accent,
+                palette: palette,
+                onDeleted: () {
+                  final criteria = Map<String, SmartListFieldCriterion>.from(
+                    selection.fieldCriteria,
+                  )..remove(entry.key);
+                  onFilterChanged(selection.copyWith(fieldCriteria: criteria));
+                },
+              ),
             if (selection.missingCover)
               _buildRemovableChip(
                 key: const ValueKey('active_filter_missing_cover'),
@@ -285,4 +299,18 @@ class CompactFilterSurface extends StatelessWidget {
       ),
     );
   }
+}
+
+String _smartListCriterionLabel(
+  String fieldId,
+  SmartListFieldCriterion criterion,
+) {
+  final operator = switch (criterion.operator) {
+    SmartListFieldOperator.equals => '=',
+    SmartListFieldOperator.notEquals => 'is not',
+    SmartListFieldOperator.contains => 'contains',
+    SmartListFieldOperator.isEmpty => 'is empty',
+  };
+  final value = criterion.value;
+  return '${libraryFallbackLabelForId(fieldId)} $operator${value == null ? '' : ' $value'}';
 }

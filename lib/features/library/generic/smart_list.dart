@@ -47,41 +47,55 @@ class SmartList {
 
   bool appliesTo(String kind) => kinds.contains(kind);
 
-  SmartListCriteria toCriteria() => SmartListCriteria(
-        target: target,
-        kinds: kinds,
-        search: searchQuery,
-        quickView: quickView?.name,
-        sorts: [
-          for (final rule in effectiveSortRules)
-            SmartListSortCriterion(
-              field: rule.column,
-              ascending: rule.ascending,
-            ),
-        ],
-        expression: {
-          if (filterSelection.entriesFilter != LibraryEntryPolicyFilter.all)
-            'entries': filterSelection.entriesFilter.name,
-          if (filterSelection.trackingStatusFilter !=
-              LibraryTrackingStatusFilter.all)
-            'tracking_status': filterSelection.trackingStatusFilter.name,
-          if (filterSelection.loanStatusFilter != LibraryLoanStatusFilter.all)
-            'loan_status': filterSelection.loanStatusFilter.name,
-          if (filterSelection.hasActiveDateRange)
-            'date_field': filterSelection.dateRangeField.name,
-          if (filterSelection.dateFrom != null)
-            'date_from': filterSelection.dateFrom!.toIso8601String(),
-          if (filterSelection.dateTo != null)
-            'date_to': filterSelection.dateTo!.toIso8601String(),
-          if (filterSelection.customFieldDefinitionId != null)
-            'custom_field_definition_id':
-                filterSelection.customFieldDefinitionId,
-          if (filterSelection.customFieldValue != null)
-            'custom_field_value': filterSelection.customFieldValue,
-          if (filterSelection.fieldValues.isNotEmpty)
-            'fields': filterSelection.fieldValues,
-          if (filterSelection.missingCover) 'missing_cover': true,
-          if (filterSelection.missingMetadata) 'missing_metadata': true,
-        },
-      );
+  SmartListCriteria toCriteria() {
+    final fields = <String, Object?>{
+      for (final entry in filterSelection.fieldValues.entries)
+        if (entry.value?.trim().isNotEmpty == true)
+          entry.key: entry.value == '__missing__'
+              ? const SmartListFieldCriterion(
+                  operator: SmartListFieldOperator.isEmpty,
+                ).toJson()
+              : SmartListFieldCriterion(
+                  operator: SmartListFieldOperator.equals,
+                  value: entry.value!.trim(),
+                ).toJson(),
+      for (final entry in filterSelection.fieldCriteria.entries)
+        entry.key: entry.value.toJson(),
+    };
+    return SmartListCriteria(
+      target: target,
+      kinds: kinds,
+      search: searchQuery,
+      quickView: quickView?.name,
+      sorts: [
+        for (final rule in effectiveSortRules)
+          SmartListSortCriterion(
+            field: rule.column,
+            ascending: rule.ascending,
+          ),
+      ],
+      expression: {
+        if (filterSelection.entriesFilter != LibraryEntryPolicyFilter.all)
+          'entries': filterSelection.entriesFilter.name,
+        if (filterSelection.trackingStatusFilter !=
+            LibraryTrackingStatusFilter.all)
+          'tracking_status': filterSelection.trackingStatusFilter.name,
+        if (filterSelection.loanStatusFilter != LibraryLoanStatusFilter.all)
+          'loan_status': filterSelection.loanStatusFilter.name,
+        if (filterSelection.hasActiveDateRange)
+          'date_field': filterSelection.dateRangeField.name,
+        if (filterSelection.dateFrom != null)
+          'date_from': filterSelection.dateFrom!.toIso8601String(),
+        if (filterSelection.dateTo != null)
+          'date_to': filterSelection.dateTo!.toIso8601String(),
+        if (filterSelection.customFieldDefinitionId != null)
+          'custom_field_definition_id': filterSelection.customFieldDefinitionId,
+        if (filterSelection.customFieldValue != null)
+          'custom_field_value': filterSelection.customFieldValue,
+        if (fields.isNotEmpty) 'fields': fields,
+        if (filterSelection.missingCover) 'missing_cover': true,
+        if (filterSelection.missingMetadata) 'missing_metadata': true,
+      },
+    );
+  }
 }

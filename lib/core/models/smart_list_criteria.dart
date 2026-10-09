@@ -15,6 +15,79 @@ enum SmartListCriteriaTarget {
       };
 }
 
+enum SmartListFieldOperator {
+  equals('equals'),
+  notEquals('not_equals'),
+  contains('contains'),
+  isEmpty('is_empty');
+
+  const SmartListFieldOperator(this.value);
+
+  final String value;
+
+  static SmartListFieldOperator parse(Object? value) => switch (value) {
+        'equals' => SmartListFieldOperator.equals,
+        'not_equals' => SmartListFieldOperator.notEquals,
+        'contains' => SmartListFieldOperator.contains,
+        'is_empty' => SmartListFieldOperator.isEmpty,
+        _ => throw FormatException(
+            'Unsupported Smart List field operator: $value.'),
+      };
+}
+
+class SmartListFieldCriterion {
+  const SmartListFieldCriterion({
+    required this.operator,
+    this.value,
+  });
+
+  final SmartListFieldOperator operator;
+  final String? value;
+
+  Map<String, Object?> toJson() => {
+        'operator': operator.value,
+        if (value != null) 'value': value,
+      };
+
+  static SmartListFieldCriterion fromJson(Object? raw) {
+    if (raw is! Map) {
+      throw const FormatException('Smart List field criteria must be objects.');
+    }
+    if (raw.keys
+        .any((key) => key is! String || !{'operator', 'value'}.contains(key))) {
+      throw const FormatException(
+          'Smart List field criteria contain an unsupported field.');
+    }
+    final operator = SmartListFieldOperator.parse(raw['operator']);
+    final rawValue = raw['value'];
+    if (rawValue != null && rawValue is! String) {
+      throw const FormatException(
+          'Smart List field criterion value must be text.');
+    }
+    if (operator == SmartListFieldOperator.isEmpty) {
+      if (raw.containsKey('value')) {
+        throw const FormatException(
+            'is_empty criteria must not include a value.');
+      }
+      return SmartListFieldCriterion(operator: operator);
+    }
+    if (rawValue is! String || rawValue.trim().isEmpty) {
+      throw const FormatException(
+          'Smart List field criteria require a non-empty value.');
+    }
+    return SmartListFieldCriterion(operator: operator, value: rawValue.trim());
+  }
+
+  @override
+  bool operator ==(Object other) =>
+      other is SmartListFieldCriterion &&
+      other.operator == operator &&
+      other.value == value;
+
+  @override
+  int get hashCode => Object.hash(operator, value);
+}
+
 class SmartListSortCriterion {
   const SmartListSortCriterion({
     required this.field,
@@ -57,7 +130,7 @@ class SmartListCriteria {
   final Map<String, Object?> expression;
 
   Map<String, Object?> toJson() => {
-        'schema_version': 2,
+        'schema_version': 3,
         'target': target.value,
         'kinds': kinds,
         if (search != null) 'search': search,
@@ -76,7 +149,7 @@ class SmartListCriteria {
       RegExp(r'^[a-z][a-z0-9_]*$').hasMatch(value);
 }
 
-/// Strict codec for the v2 persisted Smart List contract.
+/// Strict codec for the v3 persisted Smart List contract.
 class SmartListCriteriaCodec {
   const SmartListCriteriaCodec._();
 
@@ -110,7 +183,7 @@ class SmartListCriteriaCodec {
         throw FormatException('Unsupported Smart List field: $key.');
       }
     }
-    if (json['schema_version'] != 2) {
+    if (json['schema_version'] != 3) {
       throw const FormatException('Unsupported Smart List schema version.');
     }
     if (!json.containsKey('expression')) {
@@ -190,6 +263,22 @@ class SmartListCriteriaCodec {
       }
       expression[key] = entry.value;
     }
+    final rawFieldCriteria = expression['fields'];
+    if (rawFieldCriteria != null) {
+      if (rawFieldCriteria is! Map) {
+        throw const FormatException(
+            'Smart List expression.fields must be an object.');
+      }
+      final fieldCriteria = <String, Object?>{};
+      for (final entry in rawFieldCriteria.entries) {
+        if (entry.key is! String) {
+          throw const FormatException('Smart List field IDs must be strings.');
+        }
+        fieldCriteria[entry.key as String] =
+            SmartListFieldCriterion.fromJson(entry.value).toJson();
+      }
+      expression['fields'] = fieldCriteria;
+    }
     for (final key in const [
       'entries',
       'tracking_status',
@@ -217,23 +306,6 @@ class SmartListCriteriaCodec {
         throw FormatException('Smart List expression.$key must be a boolean.');
       }
     }
-    final rawFields = expression['fields'];
-    if (rawFields != null) {
-      if (rawFields is! Map) {
-        throw const FormatException(
-          'Smart List expression.fields must be an object.',
-        );
-      }
-      for (final entry in rawFields.entries) {
-        if (entry.key is! String ||
-            (entry.value != null && entry.value is! String)) {
-          throw const FormatException(
-            'Smart List expression.fields must map strings to strings or null.',
-          );
-        }
-      }
-    }
-
     return SmartListCriteria(
       target: SmartListCriteriaTarget.parse(json['target']),
       kinds: rawKinds.cast<String>(),

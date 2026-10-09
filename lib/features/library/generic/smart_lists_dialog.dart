@@ -6,6 +6,7 @@ import 'package:collectarr_app/features/collection/repositories/smart_list_repos
 import 'package:collectarr_app/features/library/generic/library_filters.dart';
 import 'package:collectarr_app/features/library/generic/quick_view.dart';
 import 'package:collectarr_app/features/library/generic/smart_list.dart';
+import 'package:collectarr_app/features/library/generic/smart_list_field_rules_dialog.dart';
 import 'package:collectarr_app/features/library/config/presentation/library_sort_presentation.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
@@ -311,6 +312,35 @@ class _SmartListsDialogState extends State<_SmartListsDialog> {
     await _load();
   }
 
+  Future<void> _editFieldRules(SmartList list) async {
+    final kind = catalogMediaKindFromApiValue(widget.mediaKind);
+    if (kind.isUnknown) return;
+    final criteria = await showSmartListFieldRulesDialog(
+      context: context,
+      kind: kind,
+      target: list.target,
+      initial: list.filterSelection.fieldCriteria,
+      kinds: list.kinds,
+    );
+    if (criteria == null) return;
+    await SmartListRepository(widget.db).update(
+      SmartList(
+        id: list.id,
+        name: list.name,
+        target: list.target,
+        kinds: list.kinds,
+        filterSelection: list.filterSelection.copyWith(
+          fieldValues: const {},
+          fieldCriteria: criteria,
+        ),
+        quickView: list.quickView,
+        sortRules: list.sortRules,
+        searchQuery: list.searchQuery,
+      ),
+    );
+    await _load();
+  }
+
   Future<void> _overwriteFromCurrentView(SmartList list) async {
     final confirmed = await showDialog<bool>(
       context: context,
@@ -546,6 +576,8 @@ class _SmartListsDialogState extends State<_SmartListsDialog> {
                                     onLoad: () => _load_(selectedList),
                                     onRename: () => _rename(selectedList),
                                     onEditKinds: () => _editKinds(selectedList),
+                                    onEditFieldRules: () =>
+                                        _editFieldRules(selectedList),
                                     onOverwriteFromCurrentView: () =>
                                         _overwriteFromCurrentView(selectedList),
                                     onDelete: () => _delete(selectedList),
@@ -684,6 +716,7 @@ class _SmartListDetailsPane extends StatelessWidget {
     required this.onLoad,
     required this.onRename,
     required this.onEditKinds,
+    required this.onEditFieldRules,
     required this.onOverwriteFromCurrentView,
     required this.onDelete,
   });
@@ -693,6 +726,7 @@ class _SmartListDetailsPane extends StatelessWidget {
   final VoidCallback onLoad;
   final Future<void> Function() onRename;
   final Future<void> Function() onEditKinds;
+  final Future<void> Function() onEditFieldRules;
   final Future<void> Function() onOverwriteFromCurrentView;
   final Future<void> Function() onDelete;
 
@@ -796,6 +830,11 @@ class _SmartListDetailsPane extends StatelessWidget {
                   label: const Text('Kinds'),
                 ),
                 OutlinedButton.icon(
+                  onPressed: () => onEditFieldRules(),
+                  icon: const Icon(Icons.rule_folder_outlined),
+                  label: const Text('Field rules'),
+                ),
+                OutlinedButton.icon(
                   onPressed: () => onOverwriteFromCurrentView(),
                   icon: const Icon(Icons.save_as_outlined),
                   label: const Text('Use current view'),
@@ -828,6 +867,8 @@ class _SmartListDetailsPane extends StatelessWidget {
       for (final entry in filter.fieldValues.entries)
         if (entry.value?.isNotEmpty == true)
           '${libraryFallbackLabelForId(entry.key)}: ${entry.value}',
+      for (final entry in filter.fieldCriteria.entries)
+        '${libraryFallbackLabelForId(entry.key)} ${_fieldCriterionLabel(entry.value)}',
       if (filter.missingCover) 'Missing cover',
       if (filter.missingMetadata) 'Missing metadata',
     ];
@@ -873,6 +914,14 @@ class _SmartListDetailsPane extends StatelessWidget {
     final day = local.day.toString().padLeft(2, '0');
     return '${local.year}-$month-$day';
   }
+
+  String _fieldCriterionLabel(SmartListFieldCriterion criterion) =>
+      switch (criterion.operator) {
+        SmartListFieldOperator.equals => '= ${criterion.value}',
+        SmartListFieldOperator.notEquals => '≠ ${criterion.value}',
+        SmartListFieldOperator.contains => 'contains "${criterion.value}"',
+        SmartListFieldOperator.isEmpty => 'is empty',
+      };
 }
 
 enum _SmartListAction {

@@ -30,12 +30,15 @@ run.
 - Add search consumes the paged Core search contract (`items`, `next_offset`,
   `has_more`). Music keeps its detailed disc and track payload while using the
   same page shape.
-- Smart List persistence is a strict v2 contract with an explicit target and a
+- Smart List persistence is a strict v3 contract with an explicit target and a
   list of kinds. The UI can create and edit multi-kind lists. Kind-specific
   fields are resolved against each active kind schema, and unavailable fields
-  remain visible as degraded criteria rather than being discarded. The v2
-  resolver does not translate old per-field `catalog_item` or `library_entry`
-  scope tokens.
+  remain visible as degraded criteria rather than being discarded. Field rules
+  support equals, not-equals, text contains, and is-empty operators. For
+  many-valued fields, equals matches any contained value, not-equals requires
+  no contained value to match, and is-empty checks for an empty collection.
+  The v3 resolver does not translate old per-field `catalog_item` or
+  `library_entry` scope tokens.
 - Target-based edit, action, inspector, and vocabulary capability types now use
   `LibraryTarget*` names. Generic workspace composition stores only
   `WorkspaceItem` and `PersonalOverlay`; it does not reconstruct local identity

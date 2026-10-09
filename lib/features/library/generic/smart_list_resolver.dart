@@ -3,6 +3,7 @@ import 'package:collectarr_app/core/models/smart_list_criteria.dart';
 import 'package:collectarr_app/features/library/generic/library_filters.dart';
 import 'package:collectarr_app/features/library/generic/quick_view.dart';
 import 'package:collectarr_app/features/library/generic/smart_list.dart';
+import 'package:collectarr_app/features/library/config/library_kind_field_metadata.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
@@ -95,20 +96,23 @@ class SmartListResolver {
     SmartListCriteriaTarget target,
     LibraryFieldRegistry<LibraryWorkspaceDto> registry,
   ) {
-    final fieldValues = <String, String?>{};
+    final fieldCriteria = <String, SmartListFieldCriterion>{};
     final degraded = <String>[];
     final rawFields = expression['fields'];
     if (rawFields is Map) {
       for (final entry in rawFields.entries) {
-        final rawValue = entry.value?.toString().trim();
-        if (rawValue == null || rawValue.isEmpty) continue;
+        if (entry.key is! String) continue;
+        final criterion = SmartListFieldCriterion.fromJson(entry.value);
         final token = _fieldTokenForKind(
-          entry.key.toString(),
+          entry.key as String,
           kind,
           registry,
         );
-        fieldValues[token] = rawValue;
-        if (!_isKnownField(token, registry)) degraded.add(token);
+        fieldCriteria[token] = criterion;
+        if (!_isKnownField(token, kind, registry) ||
+            !_supportsCriterion(token, criterion, kind, target, registry)) {
+          degraded.add(token);
+        }
       }
     }
     return (
@@ -138,7 +142,7 @@ class SmartListResolver {
         customFieldDefinitionId:
             expression['custom_field_definition_id'] as String?,
         customFieldValue: expression['custom_field_value'] as String?,
-        fieldValues: fieldValues,
+        fieldCriteria: Map.unmodifiable(fieldCriteria),
         missingCover: expression['missing_cover'] as bool? ?? false,
         missingMetadata: expression['missing_metadata'] as bool? ?? false,
       ),
@@ -148,10 +152,54 @@ class SmartListResolver {
 
   static bool _isKnownField(
     String token,
+    CatalogMediaKind kind,
     LibraryFieldRegistry<LibraryWorkspaceDto> registry,
   ) {
     return registry.fields.any((field) => field.id.value == token) ||
-        registry.columns.any((column) => column.id.value == token);
+        registry.columns.any((column) => column.id.value == token) ||
+        libraryPresentationForKind(kind)
+            .filterDefinitions
+            .any((filter) => filter.metadata.id == token);
+  }
+
+  static bool _supportsCriterion(
+    String token,
+    SmartListFieldCriterion criterion,
+    CatalogMediaKind kind,
+    SmartListCriteriaTarget target,
+    LibraryFieldRegistry<LibraryWorkspaceDto> registry,
+  ) {
+    final field = registry.fields.where((field) => field.id.value == token);
+    final filter = libraryPresentationForKind(kind)
+        .filterDefinitions
+        .where((filter) => filter.metadata.id == token);
+    final metadata = field.isNotEmpty
+        ? field.first.metadata
+        : (filter.isEmpty ? null : filter.first.metadata);
+    if (target == SmartListCriteriaTarget.catalog &&
+        metadata?.source == LibraryFieldSource.libraryEntry) {
+      return false;
+    }
+    if (metadata != null && !metadata.filterable) return false;
+    if (criterion.operator == SmartListFieldOperator.contains &&
+        metadata != null &&
+        metadata.valueType != LibraryFieldValueType.text) {
+      return false;
+    }
+    if (metadata != null &&
+        criterion.operator != SmartListFieldOperator.isEmpty) {
+      final value = criterion.value;
+      if (metadata.valueType == LibraryFieldValueType.boolean &&
+          value != 'true' &&
+          value != 'false') {
+        return false;
+      }
+      if (metadata.valueType == LibraryFieldValueType.number &&
+          (value == null || num.tryParse(value) == null)) {
+        return false;
+      }
+    }
+    return metadata != null;
   }
 
   static String _fieldTokenForKind(
@@ -160,7 +208,11 @@ class SmartListResolver {
     LibraryFieldRegistry<LibraryWorkspaceDto> registry,
   ) {
     final normalized = _stableToken(raw);
-    if (_isKnownField(normalized, registry)) return normalized;
+    if (_isKnownField(normalized, kind, registry)) return normalized;
+    for (final definition
+        in libraryPresentationForKind(kind).filterDefinitions) {
+      if (definition.id == normalized) return definition.metadata.id;
+    }
     final parts = normalized.split('.');
     final hasKindPrefix =
         parts.length >= 2 && !catalogMediaKindFromValue(parts.first).isUnknown;

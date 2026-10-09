@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
+import 'package:collectarr_app/core/models/smart_list_criteria.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/generic/library_filters.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
@@ -302,6 +303,11 @@ class LibraryRouteState {
           for (final entry in selection.fieldValues.entries)
             if (_trimmed(entry.value) != null) entry.key: _trimmed(entry.value),
         },
+      if (selection.fieldCriteria.isNotEmpty)
+        'fieldCriteria': {
+          for (final entry in selection.fieldCriteria.entries)
+            entry.key: entry.value.toJson(),
+        },
       if (selection.missingCover) 'missingCover': true,
       if (selection.missingMetadata) 'missingMetadata': true,
     });
@@ -324,6 +330,7 @@ class LibraryRouteState {
         (key, value) => MapEntry(key.toString(), value),
       );
       final fieldValues = <String, String?>{};
+      final fieldCriteria = <String, SmartListFieldCriterion>{};
       final rawFields = map['fields'];
       if (rawFields is Map) {
         for (final entry in rawFields.entries) {
@@ -331,6 +338,14 @@ class LibraryRouteState {
           if (value != null) {
             fieldValues[_normalizeFilterFieldId(entry.key.toString())] = value;
           }
+        }
+      }
+      final rawCriteria = map['fieldCriteria'];
+      if (rawCriteria is Map) {
+        for (final entry in rawCriteria.entries) {
+          if (entry.key is! String) continue;
+          fieldCriteria[_normalizeFilterFieldId(entry.key as String)] =
+              SmartListFieldCriterion.fromJson(entry.value);
         }
       }
       for (final key in const [
@@ -369,6 +384,7 @@ class LibraryRouteState {
         customFieldDefinitionId: _trimmed(map['customFieldDefinitionId']),
         customFieldValue: _trimmed(map['customFieldValue']),
         fieldValues: fieldValues,
+        fieldCriteria: fieldCriteria,
         missingCover: map['missingCover'] == true,
         missingMetadata: map['missingMetadata'] == true,
       );

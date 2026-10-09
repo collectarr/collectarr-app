@@ -1,6 +1,6 @@
 # Flattened Catalog Reference Inventory (App)
 
-Last reviewed: 2026-10-05. This inventory records the active App ownership
+Last reviewed: 2026-10-09. This inventory records the active App ownership
 boundaries and remaining cleanup. It does not claim that the complete cutover
 has passed a build or test run.
 
@@ -22,7 +22,7 @@ corresponding Edit-form captures are available.
 | Calendar | Release dates are kind-owned catalog metadata; loans and purchase dates belong to personal state; watch events have local-entry ownership and contained episode coordinates. | Review each calendar projection and ensure it does not reconstruct Work or Release identities. |
 | Tracking and sessions | Tracking and sessions use local entry identity; kind-owned season, episode, chapter, or track coordinates remain in their payloads. Music listening events are Music-owned. | Remove any redundant Catalog Item reference from tracking payload/storage only after all active readers have moved to local entry identity. |
 | Loans | `LoansCache.libraryEntryRefKey` and `LoanRepository`. | No Work/Release identity is needed; preserve borrower, dates, and notes. |
-| Smart Lists | Strict v2 `SmartListCriteria` stores `target`, `kinds`, filters, sorts, and search. The UI can create/edit a list across kinds. | Keep field resolution against each kind-owned schema. Preserve unavailable criteria as degraded values rather than mapping unrelated same-named fields across kinds. |
+| Smart Lists | Strict v3 `SmartListCriteria` stores `target`, `kinds`, field rules, filters, sorts, and search. The UI can create/edit a list across kinds and select field operators. | Keep field resolution against each kind-owned schema. Preserve unavailable criteria as degraded values rather than mapping unrelated same-named fields across kinds. |
 | User folders and reading queue | `UserFolderItemsCache` and `ReadingQueueCache` use `LibraryEntryRef`. | Keep organization personal to the local entry. |
 | Locations | `LocationsCache` and `StorageLocation` are App-owned reference data; personal entry data stores the chosen location ID. | None of these parent IDs represent a Catalog Item parent; they describe nested storage locations. |
 | Custom fields | App-owned definitions and values target a Catalog Item or local entry explicitly. | Continue to validate target kind and identity at the persistence boundary. |
@@ -53,7 +53,9 @@ where the kind uses it; quantity is not a substitute for entry identity.
 Contained tracks, episodes, and similar data retain kind-owned child IDs and
 do not create editable Work or Release nodes.
 
-Smart List v2 rejects the old scope-based JSON format. Workspace runtime no
+Smart List v3 rejects older persisted criteria and the old scope-based JSON
+format. Field rules use explicit operators; many-valued equality matches any
+contained value, while not-equals requires that none match. Workspace runtime no
 longer uses `LibraryEntityScope`, `LibraryEntityRef`, or `CatalogEntityRef`.
 Drift now declares a v1 fresh-database baseline with no upgrade or repair
 hooks. Existing database files have not been modified; start the v1 App from
