@@ -352,7 +352,7 @@ class _ImportCsvDialogState extends ConsumerState<_ImportCsvDialog> {
     });
     try {
       final kind = _kindForImportRow(row);
-      final catalogItem = <String, dynamic>{
+      final JsonMap catalogItem = {
         'title': draft.title.trim().isEmpty ? draft.query : draft.title.trim(),
         if (draft.summary.trim().isNotEmpty)
           'description': draft.summary.trim(),

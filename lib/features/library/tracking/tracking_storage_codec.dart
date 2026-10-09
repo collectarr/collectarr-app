@@ -315,7 +315,7 @@ TrackingStorageRow trackingStorageRowFromColumns({
 }
 
 LibraryEntryRef trackingLibraryEntryRefFromPayload(
-  Map<String, dynamic> payload,
+  JsonMap payload,
   CatalogMediaKind expectedKind,
 ) {
   final ref = libraryEntryRefFromSerialized(payload['library_entry_ref']);

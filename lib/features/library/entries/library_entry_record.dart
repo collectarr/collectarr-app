@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:collectarr_app/core/models/catalog_item_ref.dart';
+import 'package:collectarr_app/core/models/json_encodable.dart';
 
 const libraryEntrySyncImagesKey = '__sync_item_images';
 const libraryEntrySyncCustomFieldsKey = '__sync_custom_fields';
@@ -15,8 +16,8 @@ final class LibraryEntryRecord {
   LibraryEntryRecord({
     required this.id,
     required this.kind,
-    required Map<String, dynamic> catalogData,
-    required Map<String, dynamic> personalData,
+    required JsonMap catalogData,
+    required JsonMap personalData,
     required this.updatedAt,
     this.sourceCatalogRef,
     this.deletedAt,
@@ -48,13 +49,13 @@ final class LibraryEntryRecord {
 
   final String id;
   final CatalogMediaKind kind;
-  final Map<String, dynamic> catalogData;
-  final Map<String, dynamic> personalData;
+  final JsonMap catalogData;
+  final JsonMap personalData;
   final CatalogItemRef? sourceCatalogRef;
   final DateTime updatedAt;
   final DateTime? deletedAt;
 
-  Map<String, dynamic> toJson() => {
+  JsonMap toJson() => {
         'id': id,
         'kind': kind.apiValue,
         'catalog_data': catalogData,
@@ -65,7 +66,7 @@ final class LibraryEntryRecord {
         'deleted_at': deletedAt?.toUtc().toIso8601String(),
       };
 
-  factory LibraryEntryRecord.fromJson(Map<String, dynamic> json) {
+  factory LibraryEntryRecord.fromJson(JsonMap json) {
     const allowedKeys = {
       'id',
       'kind',
@@ -109,11 +110,11 @@ final class LibraryEntryRecord {
     return LibraryEntryRecord(
       id: id,
       kind: kind,
-      catalogData: Map<String, dynamic>.from(catalog),
-      personalData: Map<String, dynamic>.from(personal),
+      catalogData: JsonMap.from(catalog),
+      personalData: JsonMap.from(personal),
       sourceCatalogRef: source == null
           ? null
-          : CatalogItemRef.fromJson(Map<String, dynamic>.from(source as Map)),
+          : CatalogItemRef.fromJson(JsonMap.from(source as Map)),
       updatedAt: DateTime.parse(json['updated_at'] as String),
       deletedAt: json['deleted_at'] == null
           ? null
@@ -123,7 +124,7 @@ final class LibraryEntryRecord {
 
   /// Kind-specific form projections use the local record identity, never the
   /// source Core identity. This is not a second persisted entity.
-  Map<String, dynamic> toKindJson() => {
+  JsonMap toKindJson() => {
         ...personalData,
         'id': id,
         'catalog_data': catalogData,
@@ -133,7 +134,6 @@ final class LibraryEntryRecord {
       };
 }
 
-Map<String, dynamic> _snapshot(Map<String, dynamic> values) =>
-    Map<String, dynamic>.unmodifiable(
-      Map<String, dynamic>.from(jsonDecode(jsonEncode(values)) as Map),
+JsonMap _snapshot(JsonMap values) => JsonMap.unmodifiable(
+      JsonMap.from(jsonDecode(jsonEncode(values)) as Map),
     );

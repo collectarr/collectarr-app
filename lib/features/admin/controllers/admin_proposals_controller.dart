@@ -1,5 +1,6 @@
 import 'package:collectarr_app/core/api/api_client.dart';
 import 'package:collectarr_app/core/api/dto/admin_metadata.dart';
+import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/features/admin/admin_page_data_loader.dart';
 import 'package:flutter/foundation.dart';
 
@@ -69,12 +70,12 @@ final class AdminProposalsController extends ChangeNotifier {
   Future<AdminMetadataProposal> update(
     ApiClient api, {
     required String proposalId,
-    required Map<String, Object?> catalogItem,
+    required JsonMap catalogItem,
     String? reviewNote,
   }) =>
       api.adminUpdateMetadataProposal(
         proposalId: proposalId,
-        catalogItem: Map<String, dynamic>.from(catalogItem),
+        catalogItem: catalogItem,
         reviewNote: reviewNote,
       );
 

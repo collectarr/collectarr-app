@@ -1,5 +1,6 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_record.dart';
 import 'package:collectarr_app/core/models/tracking_state_ref.dart';
@@ -372,7 +373,7 @@ class TrackingStorageRepository {
         .markDeletedInStorage(_db, entry, deletedAt);
   }
 
-  Map<String, dynamic> toSyncPayload(TrackingStorageRecord entry) {
+  JsonMap toSyncPayload(TrackingStorageRecord entry) {
     return _codecForKind(_libraryEntryRefForRecord(entry).kind)
         .toSyncPayload(entry);
   }

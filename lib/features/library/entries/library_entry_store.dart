@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_item_ref.dart';
+import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/core/models/library_entry_ref.dart';
 import 'package:collectarr_app/features/library/entries/library_entry_record.dart';
 import 'package:drift/drift.dart';
@@ -75,8 +76,7 @@ final class LibraryEntryStore {
         );
   }
 
-  Future<void> putKindJson(
-      CatalogMediaKind kind, Map<String, dynamic> json) async {
+  Future<void> putKindJson(CatalogMediaKind kind, JsonMap json) async {
     if (kind.isUnknown) {
       throw ArgumentError.value(
           kind, 'kind', 'Library entry kind must be known.');
@@ -123,7 +123,7 @@ final class LibraryEntryStore {
       catalogData: catalog,
       personalData: {...?existing?.personalData, ...personal},
       sourceCatalogRef: source is Map
-          ? CatalogItemRef.fromJson(Map<String, dynamic>.from(source))
+          ? CatalogItemRef.fromJson(JsonMap.from(source))
           : existing?.sourceCatalogRef,
       updatedAt: DateTime.parse(json['updated_at'] as String),
       deletedAt: json['deleted_at'] == null
@@ -133,7 +133,7 @@ final class LibraryEntryStore {
   }
 
   Future<void> updatePersonal(
-      CatalogMediaKind kind, String id, Map<String, dynamic> values) async {
+      CatalogMediaKind kind, String id, JsonMap values) async {
     final entry = await find(kind, id);
     if (entry == null) throw StateError('Library entry not found.');
     await put(LibraryEntryRecord(
@@ -148,6 +148,6 @@ final class LibraryEntryStore {
   }
 
   LibraryEntryRecord _decode(String raw) => LibraryEntryRecord.fromJson(
-        Map<String, dynamic>.from(jsonDecode(raw) as Map),
+        JsonMap.from(jsonDecode(raw) as Map),
       );
 }

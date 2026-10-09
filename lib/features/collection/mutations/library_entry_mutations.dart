@@ -259,7 +259,7 @@ final class LibraryEntryMutations {
 
   Future<void> updateCatalogData(
     LibraryEntryRef ref,
-    Map<String, dynamic> catalogData,
+    JsonMap catalogData,
   ) async {
     final now = DateTime.now().toUtc();
     await mutationRunner.run(

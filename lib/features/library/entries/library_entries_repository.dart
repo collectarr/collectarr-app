@@ -305,7 +305,7 @@ final class LibraryEntriesRepository {
   /// local ID as a Core Catalog Item ID.
   Future<LibraryEntryMutationResult> updateCatalogData({
     required LibraryEntryRef ref,
-    required Map<String, dynamic> catalogData,
+    required JsonMap catalogData,
     required DateTime updatedAt,
   }) async {
     final existing = await LibraryEntryStore(database).find(
