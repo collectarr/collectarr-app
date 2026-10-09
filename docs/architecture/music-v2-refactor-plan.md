@@ -1,17 +1,19 @@
 # Music v2 and Library Field Semantics Roadmap
 
-Status: active; checkpoints A1–A4, the nine-kind metadata cutover, Music
+Status: complete; checkpoints A1–A4, the nine-kind metadata cutover, Music
 v2 contract/domain/editing checkpoints C–F, workspace-facts checkpoint G,
 workspace field cleanup checkpoint H, contained grouping/filter checkpoint I,
 scalar date sorts checkpoint J, search/export/correction checkpoint K, and
 physical cleanup checkpoint L are implemented. The full Core suite passes 152
 tests, including PostgreSQL-backed schema and index-plan checks. Stage M's
-release gate remains open while the repository-wide architecture check reports
-48 AST boundary violations; 261 stale exact field-leak baseline entries have
-been removed, and no new field leaks were added to the baseline. Each
-completed checkpoint is committed separately with a detailed Conventional
-Commit message. Stages that touch Core contracts regenerate the Core bundle and
-update the App pin in the same stage.
+release gate passed on 2026-10-09: the full App suite passes 771 tests with one
+skip, strict analysis and changed-file formatting pass, Windows debug build
+and desktop/mobile integration smoke tests pass, and the architecture guard
+has no unreviewed AST violations. Its exact baseline retains 44 reviewed field
+leaks, all still observed and none stale; 364 complexity-budget reports remain
+informational. Each completed checkpoint is committed separately with a
+detailed Conventional Commit message. Stages that touch Core contracts
+regenerate the Core bundle and update the App pin in the same stage.
 
 ## Architectural contract
 
@@ -265,7 +267,7 @@ imports from current Add/Edit paths.
 
 ### M. Performance, documentation, and release gate
 
-**Benchmark and status update implemented; release gate still open.** The
+**Benchmark, status update, and release gate complete (2026-10-09).** The
 opt-in harness lives in
 [`music_workspace_benchmark_test.dart`](../../test/performance/music_workspace_benchmark_test.dart)
 and runs with
@@ -303,10 +305,11 @@ garbage collection and the test runner, so they are directional memory
 measurements rather than allocation counts; the 5k current projection raised
 the process high-water by about 27.2 MB in the recorded run.
 
-`current-status.md` now records field ownership, cardinality, contained
-grouping, reducer, and derived-facts semantics. Complete Core schema/tests,
-generated bundle and App pin, formatting, analysis, architecture guards,
-unit/widget/integration tests, and Windows debug build before closing Music v2.
+`current-status.md` records field ownership, cardinality, contained grouping,
+reducer, derived-facts semantics, and the final release evidence. Core schema
+and contract tests, generated bundle and App pin, changed-file formatting,
+strict analysis, architecture guards, unit/widget/integration tests, and the
+Windows debug build all pass; Music v2 is closed.
 
 ## Required fixtures and regression gates
 

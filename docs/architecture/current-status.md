@@ -1,8 +1,10 @@
 # Current Architecture Status
 
 Last reviewed: 2026-10-09. This report reflects the current working tree and
-the verification evidence recorded below. Stage M remains open until the
-remaining repository-wide architecture findings are resolved.
+the verification evidence recorded below. Stage M's release gate passed on
+2026-10-09. The architecture guard has no unreviewed AST violations; its exact
+baseline retains 44 reviewed field-leak findings, all still observed and none
+stale. The checker also reports 364 informational complexity findings.
 
 ## Implemented
 
@@ -87,12 +89,14 @@ remaining repository-wide architecture findings are resolved.
   ordering. Identifier predicates use indexed scalar columns or JSONB
   containment. The full Core suite now verifies the declared identifier and
   scalar indexes with PostgreSQL query plans.
-- Stage M release verification is underway. Formatting and strict Flutter
-  analysis pass. Kind registry and field-manifest generation, the pinned Music
+- Stage M release verification is complete. Changed Dart files pass formatting
+  checks and strict Flutter analysis. Kind registry and field-manifest
+  generation, the pinned Music
   v2 contract check, the generated Catalog Item v2 field check, and targeted
-  Core schema/contract tests pass. The full App suite passes: 769 passed,
-  one skipped, and zero failed. Windows debug build and desktop/mobile
-  integration smoke tests pass.
+  Core schema/contract tests pass. The full App suite passes: 771 passed,
+  one skipped, and zero failed. The typed contract infrastructure test passes;
+  the Windows debug build and Windows desktop/mobile integration smoke tests
+  pass.
 - The App regression fixtures now match typed registries, field IDs,
   versioned preference keys, TV shared-tab composition, current Comic Drift
   tables, and strict per-kind payloads. The suite also caught and fixed Comic
@@ -110,17 +114,24 @@ remaining repository-wide architecture findings are resolved.
   reference structure.
 - TV's watch-history editor and season/episode target model now live under the
   TV kind; the generic tracking folder no longer owns that TV-only workflow.
-- `tool/check_library_kind_boundaries.dart` still reports 48 AST boundary
-  violations and 364 complexity-budget findings. The AST findings are TK002=4,
-  TK003=5, TK009=14, and TK016=25. There are zero stale TK017 entries; the
-  exact baseline retains 170 previously reviewed findings that still occur.
-  TK001, TK005, and TK011 are clear. The full
+- `tool/check_library_kind_boundaries.dart` passes with no unreviewed AST
+  boundary violations. Its exact field-leak baseline retains 44 reviewed
+  findings, all still observed and none stale; no new findings were added.
+  The checker prints 364 complexity-budget findings as informational output.
+  TK001, TK002, TK003, TK005, TK009, TK011, and TK017 have no active violations;
+  TK016 has only the 44 exact baseline entries above. The full
   Core suite now passes all 152 tests against the isolated local
   `collectarr_test` database, including schema, API, correction, and index-plan
-  checks; `ruff check .` passes. Stage M remains open until the repository-wide
-  architecture guard passes. The global format check still reports 44
-  pre-existing files outside this change set; all files changed for this
+  checks; `ruff check .` passes. The global format check still reports 44
+  pre-existing files outside this change set; all files changed for the final
   checkpoint pass targeted formatting checks.
+
+- Generic metadata detail decoding and Entry creation now exchange
+  `CatalogSearchCandidate`; each kind decodes its own Catalog Item transport
+  through the candidate capability. The DTO-based generic callback and the
+  former top-level transport summary registry were removed without aliases.
+  Persisted Library Entry, tracking, admin, CSV import/export, and catalog edit
+  payloads use the canonical `JsonMap` serialization boundary.
 
 ## Active Music v2 refactor
 
