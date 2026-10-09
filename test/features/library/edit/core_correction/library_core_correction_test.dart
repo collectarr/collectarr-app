@@ -83,6 +83,46 @@ void main() {
     });
   });
 
+  test('disc reordering preserves the same identities in a correction', () {
+    final album = MusicAlbum(
+      id: const CatalogItemRef(kind: CatalogMediaKind.music, id: 'album-3'),
+      title: 'Two Disc Edition',
+      discs: [
+        MusicDisc(
+          id: const MusicDiscId('disc-one'),
+          discNumber: 1,
+          format: 'CD',
+          formatFamily: MusicDiscFormatFamily.opticalDisc,
+        ),
+        MusicDisc(
+          id: const MusicDiscId('disc-two'),
+          discNumber: 2,
+          format: 'Vinyl',
+          formatFamily: MusicDiscFormatFamily.vinyl,
+        ),
+      ],
+    );
+    final draft = MusicAlbumEditDraft.fromAlbum(album);
+    draft.discList.reorderDisc(0, 2);
+
+    final changes = libraryCoreKindCorrectionChanges(
+      originalFields: album.toJson(),
+      proposedFields: draft.toAlbum().toJson(),
+      fieldSchema: const [musicItemField],
+      scope: 'catalog_item',
+      entityType: 'music_item',
+    );
+    final originalIds = (album.toJson()['discs']! as List)
+        .cast<Map<String, dynamic>>()
+        .map((disc) => disc['id']);
+    final proposedDiscs =
+        (changes['discs']! as List).cast<Map<String, dynamic>>();
+
+    expect(proposedDiscs.map((disc) => disc['id']), ['disc-two', 'disc-one']);
+    expect(
+        proposedDiscs.map((disc) => disc['id']).toSet(), originalIds.toSet());
+  });
+
   test('correction changes require writable matching Core scope and type', () {
     final original = <String, Object?>{'discs': <Object?>[]};
     final proposed = <String, Object?>{
