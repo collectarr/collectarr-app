@@ -54,8 +54,8 @@ final class MusicStatsCapability implements LibraryStatsCapability {
       primaryGroup: music.artist?.trim(),
       secondaryGroup: secondary,
       format: music.formatSummary?.trim(),
-      releaseYear: releaseYear,
-      genres: music.genres,
+      displayYear: releaseYear,
+      categoryLabels: music.genres,
       hasCover: music.coverImageUrl?.trim().isNotEmpty == true,
       hasSecondaryMetadata: secondary?.isNotEmpty == true ||
           music.formatSummary?.trim().isNotEmpty == true,

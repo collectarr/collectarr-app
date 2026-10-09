@@ -40,8 +40,8 @@ class LibraryStatsMetadataProjection {
     this.primaryGroup,
     this.secondaryGroup,
     this.format,
-    this.releaseYear,
-    this.genres = const [],
+    this.displayYear,
+    this.categoryLabels = const [],
     this.hasCover = false,
     this.hasSynopsis,
     this.hasSecondaryMetadata = false,
@@ -53,8 +53,8 @@ class LibraryStatsMetadataProjection {
   final String? primaryGroup;
   final String? secondaryGroup;
   final String? format;
-  final int? releaseYear;
-  final List<String> genres;
+  final int? displayYear;
+  final List<String> categoryLabels;
   final bool hasCover;
   final bool? hasSynopsis;
   final bool hasSecondaryMetadata;

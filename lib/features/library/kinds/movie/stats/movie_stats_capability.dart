@@ -28,9 +28,9 @@ class MovieStatsCapability implements LibraryStatsCapability {
       primaryGroup: (metadata.seriesTitle ?? metadata.title).trim(),
       secondaryGroup: secondary,
       format: metadata.physicalFormat?.trim(),
-      releaseYear:
+      displayYear:
           metadata.releaseDate?.year ?? metadata.releaseDateParts?.year,
-      genres: metadata.genres,
+      categoryLabels: metadata.genres,
       hasCover: metadata.coverImageUrl?.trim().isNotEmpty == true,
       hasSynopsis: metadata.synopsis?.trim().isNotEmpty == true,
       hasSecondaryMetadata: secondary?.isNotEmpty == true ||

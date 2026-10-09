@@ -440,7 +440,7 @@ class LibraryStatsPage extends StatelessWidget {
     for (final entry in entries) {
       final p =
           libraryStatsForKind(registration.kind).buildMetadataProjection(entry);
-      final year = p?.releaseYear;
+      final year = p?.displayYear;
       if (year == null) continue;
       final key = year.toString();
       counts[key] = (counts[key] ?? 0) + 1;
@@ -457,7 +457,7 @@ class LibraryStatsPage extends StatelessWidget {
       final p =
           libraryStatsForKind(registration.kind).buildMetadataProjection(entry);
       if (p == null) continue;
-      for (final g in p.genres) {
+      for (final g in p.categoryLabels) {
         final clean = g.trim();
         if (clean.isNotEmpty) counts[clean] = (counts[clean] ?? 0) + 1;
       }
@@ -561,12 +561,12 @@ class _RecentAdditionsCard extends StatelessWidget {
 
     // Kind-owned compact facts
     final formatText = projection?.format;
-    final releaseYear = projection?.releaseYear;
+    final displayYear = projection?.displayYear;
     final inlineFacts = projection?.inlineFacts ?? const [];
 
     final databoxParts = <String>[
       if (formatText != null && formatText.trim().isNotEmpty) formatText.trim(),
-      if (releaseYear != null) releaseYear.toString(),
+      if (displayYear != null) displayYear.toString(),
     ];
     final databox = databoxParts.join(' - ');
 
