@@ -8,6 +8,8 @@ import 'package:collectarr_app/features/library/kinds/music/workspace/music_ids.
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_catalog_workspace_fields.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_data.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_dto.dart';
+import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_field_labels.dart';
+import 'package:collectarr_app/features/library/kinds/music/config/music_workspace_field_metadata.dart';
 
 final musicExportCapability = LibraryExportCapability(
   itemLabel: 'Albums',
@@ -60,6 +62,122 @@ final musicExportCapability = LibraryExportCapability(
         defaultVisible: false,
         pdfDefaultVisible: false,
         pdfOrder: 13,
+      ),
+    if (MusicWorkspaceFieldMetadata.discFormatFamily.exportable)
+      exportColumnFromWorkspaceField(
+        field: MusicCatalogWorkspaceFields.discFormatFamily,
+        valueFormatter: (values) => values.join(' | '),
+        defaultVisible: false,
+        includeInPdf: false,
+      ),
+    if (MusicWorkspaceFieldMetadata.recordingDate.exportable)
+      exportColumnFromWorkspaceField(
+        field: MusicCatalogWorkspaceFields.recordingDate,
+        valueFormatter: (values) => values
+            .map((value) => value.isoString)
+            .whereType<String>()
+            .join(' | '),
+        defaultVisible: false,
+        includeInPdf: false,
+      ),
+    if (MusicWorkspaceFieldMetadata.recordingYear.exportable)
+      exportColumnFromWorkspaceField(
+        field: MusicCatalogWorkspaceFields.recordingYear,
+        valueFormatter: (values) => values.join(' | '),
+        defaultVisible: false,
+        includeInPdf: false,
+      ),
+    if (MusicWorkspaceFieldMetadata.recordingMonth.exportable)
+      exportColumnFromWorkspaceField(
+        field: MusicCatalogWorkspaceFields.recordingMonth,
+        valueFormatter: (values) => values.join(' | '),
+        defaultVisible: false,
+        includeInPdf: false,
+      ),
+    if (MusicWorkspaceFieldMetadata.earliestDiscRecordingDate.exportable)
+      exportColumnFromWorkspaceField(
+        field: MusicCatalogWorkspaceFields.earliestDiscRecordingDate,
+        valueFormatter: (value) => value?.isoString ?? '',
+        defaultVisible: false,
+        includeInPdf: false,
+      ),
+    if (MusicWorkspaceFieldMetadata.latestDiscRecordingDate.exportable)
+      exportColumnFromWorkspaceField(
+        field: MusicCatalogWorkspaceFields.latestDiscRecordingDate,
+        valueFormatter: (value) => value?.isoString ?? '',
+        defaultVisible: false,
+        includeInPdf: false,
+      ),
+    if (MusicWorkspaceFieldMetadata.isLive.exportable)
+      exportColumnFromWorkspaceField(
+        field: MusicCatalogWorkspaceFields.liveStudio,
+        valueFormatter: (values) =>
+            values.map(musicLiveStudioLabel).join(' | '),
+        defaultVisible: false,
+        includeInPdf: false,
+      ),
+    if (MusicWorkspaceFieldMetadata.recordingLocations.exportable)
+      exportColumnFromWorkspaceField(
+        field: MusicCatalogWorkspaceFields.recordingLocation,
+        valueFormatter: (values) => values.join(' | '),
+        defaultVisible: false,
+        includeInPdf: false,
+      ),
+    if (MusicWorkspaceFieldMetadata.spars.exportable)
+      exportColumnFromWorkspaceField(
+        field: MusicCatalogWorkspaceFields.discSpars,
+        valueFormatter: (values) => values.join(' | '),
+        defaultVisible: false,
+        includeInPdf: false,
+      ),
+    if (MusicWorkspaceFieldMetadata.sound.exportable)
+      exportColumnFromWorkspaceField(
+        field: MusicCatalogWorkspaceFields.discSound,
+        valueFormatter: (values) => values.join(' | '),
+        defaultVisible: false,
+        includeInPdf: false,
+      ),
+    if (MusicWorkspaceFieldMetadata.vinylColor.exportable)
+      exportColumnFromWorkspaceField(
+        field: MusicCatalogWorkspaceFields.discColor,
+        valueFormatter: (values) => values.join(' | '),
+        defaultVisible: false,
+        includeInPdf: false,
+      ),
+    if (MusicWorkspaceFieldMetadata.rpm.exportable)
+      exportColumnFromWorkspaceField(
+        field: MusicCatalogWorkspaceFields.discRpm,
+        valueFormatter: (values) => values.join(' | '),
+        defaultVisible: false,
+        includeInPdf: false,
+      ),
+    if (MusicWorkspaceFieldMetadata.creditContributor.exportable)
+      exportColumnFromWorkspaceField(
+        field: MusicCatalogWorkspaceFields.creditContributor,
+        valueFormatter: (values) => values.join(' | '),
+        defaultVisible: false,
+        includeInPdf: false,
+      ),
+    if (MusicWorkspaceFieldMetadata.creditRole.exportable)
+      exportColumnFromWorkspaceField(
+        field: MusicCatalogWorkspaceFields.creditRole,
+        valueFormatter: (values) => values.join(' | '),
+        defaultVisible: false,
+        includeInPdf: false,
+      ),
+    if (MusicWorkspaceFieldMetadata.creditInstrument.exportable)
+      exportColumnFromWorkspaceField(
+        field: MusicCatalogWorkspaceFields.creditInstrument,
+        valueFormatter: (values) => values.join(' | '),
+        defaultVisible: false,
+        includeInPdf: false,
+      ),
+    if (MusicWorkspaceFieldMetadata.trackComposition.exportable)
+      exportColumnFromWorkspaceField(
+        field: MusicCatalogWorkspaceFields.trackComposition,
+        valueFormatter: (values) => values.join(' | '),
+        defaultVisible: false,
+        includeInPdf: false,
       ),
     if (MusicFieldIdentities.barcode.exportable)
       exportColumnFromWorkspaceField(

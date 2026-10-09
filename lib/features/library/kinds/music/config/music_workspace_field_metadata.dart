@@ -338,6 +338,7 @@ abstract final class MusicWorkspaceFieldMetadata {
     sourcePath: 'discs[].recording_date.month',
     filterable: true,
     groupable: true,
+    exportable: true,
   );
 
   static const creditContributor = LibraryKindFieldMetadata(
@@ -413,6 +414,7 @@ abstract final class MusicWorkspaceFieldMetadata {
     sourcePath: 'discs[].recording_date.year',
     filterable: true,
     groupable: true,
+    exportable: true,
   );
 
   static const earliestDiscRecordingDate = LibraryKindFieldMetadata(
@@ -457,6 +459,7 @@ abstract final class MusicWorkspaceFieldMetadata {
     sourcePath: 'discs[].sound_types[]',
     filterable: true,
     groupable: true,
+    exportable: true,
   );
 
   static const spars = LibraryKindFieldMetadata(
@@ -468,6 +471,7 @@ abstract final class MusicWorkspaceFieldMetadata {
     sourcePath: 'discs[].spars_code',
     filterable: true,
     groupable: true,
+    exportable: true,
   );
 
   static const recordingLocations = LibraryKindFieldMetadata(
@@ -479,6 +483,7 @@ abstract final class MusicWorkspaceFieldMetadata {
     sourcePath: 'discs[].recording_locations[]',
     filterable: true,
     groupable: true,
+    exportable: true,
   );
 
   static const vinylColor = LibraryKindFieldMetadata(
@@ -490,6 +495,7 @@ abstract final class MusicWorkspaceFieldMetadata {
     sourcePath: 'discs[].color',
     filterable: true,
     groupable: true,
+    exportable: true,
   );
 
   static const rpm = LibraryKindFieldMetadata(
@@ -501,5 +507,6 @@ abstract final class MusicWorkspaceFieldMetadata {
     sourcePath: 'discs[].rpm',
     filterable: true,
     groupable: true,
+    exportable: true,
   );
 }

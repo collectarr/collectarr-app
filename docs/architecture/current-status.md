@@ -109,9 +109,11 @@ workspace groups and filters, and keeps `is_live` boolean while rendering
 Live/Studio labels. Checkpoint J adds scalar earliest/latest disc recording
 date fields and sorts to both Music workspace schemas. Facts reduction and
 sorting share one partial-date bound comparator, and sort callbacks read only
-the precomputed fact values. Smart List many-value operator semantics, full
-search/correction alignment, performance benchmarks, and Windows build
-verification remain open.
+the precomputed fact values. Music reports now export format summaries
+separately from raw disc formats and expose exportable disc and credit facts
+through kind-owned fields. Smart List many-value operator semantics, selected
+multi-value search indexing, nested correction alignment, performance
+benchmarks, and Windows build verification remain open.
 
 ## Local data
 
