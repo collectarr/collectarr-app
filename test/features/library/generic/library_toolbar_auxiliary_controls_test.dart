@@ -4,6 +4,38 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
+  testWidgets(
+      'alphabet exposes Z inline and switches to a complete compact menu',
+      (tester) async {
+    tester.view.physicalSize = const Size(1000, 900);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    String? selected;
+    Widget subject(double width) => MaterialApp(
+        home: Scaffold(
+            body: SizedBox(
+                width: width,
+                child: LibraryToolbarAlphabetRow(
+                    letters: const {'A', 'Z'},
+                    selectedLetter: selected,
+                    accent: Colors.orange,
+                    onLetterSelected: (value) => selected = value))));
+    await tester.pumpWidget(subject(900));
+    expect(find.text('Z'), findsOneWidget);
+    expect(tester.getRect(find.text('Z')).right, lessThanOrEqualTo(900));
+    await tester.pumpWidget(subject(350));
+    expect(find.byTooltip('Filter A–Z'), findsOneWidget);
+    await tester.tap(find.byTooltip('Filter A–Z'));
+    await tester.pumpAndSettle();
+    await tester.scrollUntilVisible(find.text('Z'), 200,
+        scrollable: find.byType(Scrollable).last);
+    await tester.tap(find.text('Z'));
+    await tester.pumpAndSettle();
+    expect(selected, 'Z');
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets('collection status scope dropdown opens and selects a scope', (
     tester,
   ) async {

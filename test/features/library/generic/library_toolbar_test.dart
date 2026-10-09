@@ -84,6 +84,10 @@ void main() {
   testWidgets('alphabet row selected button uses library accent', (
     tester,
   ) async {
+    tester.view.physicalSize = const Size(900, 600);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
     const selectedLetter = 'A';
     final accent = movieKindIdentity.accent;
 
@@ -107,6 +111,10 @@ void main() {
   testWidgets('alphabet buttons have a slightly wider touch target', (
     tester,
   ) async {
+    tester.view.physicalSize = const Size(900, 600);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
     await tester.pumpWidget(
       MaterialApp(
         home: Scaffold(

@@ -1006,35 +1006,21 @@ Color libraryCollectionStatusScopeColor(
   };
 }
 
-final RegExp _libraryToolbarLetterPattern = RegExp(r'[A-Z]');
-
 class LibraryToolbarAlphabetRow extends StatelessWidget {
-  const LibraryToolbarAlphabetRow({
-    super.key,
-    required this.letters,
-    required this.selectedLetter,
-    required this.accent,
-    required this.onLetterSelected,
-  });
-
+  const LibraryToolbarAlphabetRow(
+      {super.key,
+      required this.letters,
+      required this.selectedLetter,
+      required this.accent,
+      required this.onLetterSelected});
   final Set<String> letters;
   final String? selectedLetter;
   final Color accent;
   final ValueChanged<String?> onLetterSelected;
-
   @override
   Widget build(BuildContext context) {
-    final palette = appPalette(context);
-    final availableLetters = letters
-        .map((letter) => letter.trim().toUpperCase())
-        .where(
-          (letter) =>
-              letter == '#' ||
-              letter == '0-9' ||
-              (letter.length == 1 &&
-                  _libraryToolbarLetterPattern.hasMatch(letter)),
-        )
-        .toSet();
+    final available =
+        letters.map((letter) => letter.trim().toUpperCase()).toSet();
     const alphabet = [
       '#',
       '0-9',
@@ -1063,110 +1049,67 @@ class LibraryToolbarAlphabetRow extends StatelessWidget {
       'W',
       'X',
       'Y',
-      'Z',
+      'Z'
     ];
-
-    Widget buildLetterButton({
-      required String label,
-      required bool selected,
-      required bool enabled,
-      required VoidCallback? onTap,
-    }) {
-      final foreground = selected
-          ? accent
-          : enabled
-              ? palette.textPrimary
-              : palette.textMuted.withValues(alpha: 0.38);
-      final background = selected
-          ? Color.alphaBlend(
-              accent.withValues(alpha: 0.14),
-              palette.panelRaised,
-            )
-          : enabled
-              ? palette.surfaceSubtle.withValues(alpha: 0.42)
-              : Colors.transparent;
-      final borderColor = selected
-          ? accent.withValues(alpha: 0.9)
-          : enabled
-              ? palette.divider.withValues(alpha: 0.7)
-              : palette.divider.withValues(alpha: 0.24);
-
-      return Padding(
-        padding: const EdgeInsets.only(right: 4),
-        child: Material(
-          color: background,
-          borderRadius: BorderRadius.circular(6),
-          child: InkWell(
-            mouseCursor: WidgetStateMouseCursor.clickable,
-            onTap: onTap,
-            borderRadius: BorderRadius.circular(6),
-            child: Container(
-              constraints: BoxConstraints(
-                minWidth: label == 'All' ? 40 : 28,
-                minHeight: 24,
-              ),
-              padding: EdgeInsets.symmetric(
-                horizontal: label == 'All' ? 10 : 4,
-                vertical: 4,
-              ),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(6),
-                border: Border.all(color: borderColor),
-              ),
-              alignment: Alignment.center,
-              child: Text(
-                label,
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: selected ? FontWeight.w700 : FontWeight.w600,
-                  color: foreground,
-                ),
-              ),
-            ),
-          ),
-        ),
-      );
-    }
-
+    void select(String value) => onLetterSelected(
+        value == 'All' || value == selectedLetter ? null : value);
+    final palette = appPalette(context);
     return SizedBox(
-      width: double.infinity,
-      height: 28,
-      child: LayoutBuilder(
-        builder: (context, constraints) {
-          return SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: ConstrainedBox(
-              constraints: BoxConstraints(minWidth: constraints.maxWidth),
-              child: Align(
-                alignment: Alignment.center,
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    buildLetterButton(
-                      label: 'All',
-                      selected: selectedLetter == null,
-                      enabled: true,
-                      onTap: () => onLetterSelected(null),
-                    ),
-                    for (final letter in alphabet)
-                      buildLetterButton(
-                        label: letter,
-                        selected: selectedLetter == letter,
-                        enabled: availableLetters.contains(letter),
-                        onTap: availableLetters.contains(letter)
-                            ? () => onLetterSelected(
-                                  selectedLetter == letter ? null : letter,
-                                )
-                            : null,
-                      ),
+        height: 28,
+        child: LayoutBuilder(builder: (context, constraints) {
+          final scale = MediaQuery.textScalerOf(context).scale(12) / 12;
+          if (constraints.maxWidth < 828 * scale) {
+            return Align(
+                alignment: Alignment.centerLeft,
+                child: PopupMenuButton<String>(
+                  tooltip: 'Filter A–Z',
+                  onSelected: select,
+                  itemBuilder: (_) => [
+                    for (final label in ['All', ...alphabet])
+                      PopupMenuItem(
+                          value: label,
+                          enabled: label == 'All' || available.contains(label),
+                          child: Text(label,
+                              style: TextStyle(
+                                  fontWeight: label == (selectedLetter ?? 'All')
+                                      ? FontWeight.w700
+                                      : FontWeight.w500)))
                   ],
-                ),
-              ),
-            ),
-          );
-        },
-      ),
-    );
+                  child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 8),
+                      child: Row(mainAxisSize: MainAxisSize.min, children: [
+                        const Icon(Icons.filter_alt, size: 17),
+                        const SizedBox(width: 4),
+                        Text(selectedLetter ?? 'A–Z',
+                            style:
+                                const TextStyle(fontWeight: FontWeight.w700)),
+                        const Icon(Icons.expand_more, size: 16)
+                      ])),
+                ));
+          }
+          return Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+            for (final label in ['All', ...alphabet])
+              SizedBox(
+                  width: (label == 'All' ? 44 : 28) * scale,
+                  child: InkWell(
+                    onTap: label == 'All' || available.contains(label)
+                        ? () => select(label)
+                        : null,
+                    child: Center(
+                        child: Text(label,
+                            style: TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w700,
+                                color: label == (selectedLetter ?? 'All')
+                                    ? accent
+                                    : label == 'All' ||
+                                            available.contains(label)
+                                        ? palette.textPrimary
+                                        : palette.textMuted
+                                            .withValues(alpha: 0.38)))),
+                  ))
+          ]);
+        }));
   }
 }
 

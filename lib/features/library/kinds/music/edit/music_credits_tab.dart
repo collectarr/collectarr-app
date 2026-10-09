@@ -1,4 +1,5 @@
 import 'package:uuid/uuid.dart';
+import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_credit.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_ids.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit/music_album_edit_draft.dart';
@@ -160,9 +161,9 @@ final class _MusicAlbumCreditsTabState extends State<MusicAlbumCreditsTab> {
             scrollDirection: Axis.horizontal,
             child: DataTable(
               columnSpacing: 12,
-              headingRowHeight: 40,
-              dataRowMinHeight: 58,
-              dataRowMaxHeight: 78,
+              headingRowHeight: 34,
+              dataRowMinHeight: 46,
+              dataRowMaxHeight: double.infinity,
               columns: const [
                 DataColumn(label: Text('Name')),
                 DataColumn(label: Text('Role')),
@@ -191,6 +192,7 @@ final class _MusicAlbumCreditsTabState extends State<MusicAlbumCreditsTab> {
                           width: 170,
                           child: LibraryManagedVocabularyField(
                             label: 'Role',
+                            showFieldLabel: false,
                             listName: MusicVocabularyIds.creditRole.value,
                             mediaKind: 'music',
                             value: row.role.isEmpty ? null : row.role,
@@ -205,6 +207,7 @@ final class _MusicAlbumCreditsTabState extends State<MusicAlbumCreditsTab> {
                           width: 230,
                           child: LibraryMultiValuePickField<String>(
                             label: 'Instruments',
+                            showFieldLabel: false,
                             value: row.instruments.toSet(),
                             options: [
                               for (final value
@@ -240,11 +243,12 @@ final class _MusicAlbumCreditsTabState extends State<MusicAlbumCreditsTab> {
                                     ? row.scopeId
                                     : 'album',
                             isExpanded: true,
+                            style: context.libraryTextTheme.controlText,
                             decoration: const InputDecoration(
                               isDense: true,
                               contentPadding: EdgeInsets.symmetric(
-                                horizontal: 10,
-                                vertical: 8,
+                                horizontal: 7,
+                                vertical: 6,
                               ),
                             ),
                             items: [

@@ -107,10 +107,15 @@ class LibraryTextFormControl extends StatelessWidget {
         readOnly: readOnly,
         style: style ?? context.libraryTextTheme.controlText,
         textAlign: textAlign,
+        textAlignVertical: TextAlignVertical.center,
         textCapitalization: textCapitalization,
         textInputAction: textInputAction,
         decoration: (decoration ?? const InputDecoration()).copyWith(
           constraints: BoxConstraints(minHeight: minimumHeight),
+          contentPadding:
+              (maxLines == 1 && minimumHeight == kLibraryFormControlHeight)
+                  ? const EdgeInsets.symmetric(horizontal: 7, vertical: 6)
+                  : decoration?.contentPadding,
         ),
       );
 }

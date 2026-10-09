@@ -34,8 +34,10 @@ class LibraryMultiValuePickField<TValue> extends StatefulWidget {
       this.enabled = true,
       this.allowCustomValueEntry = false,
       this.pickerSearchHint,
-      this.customValueHint = 'Add value'});
+      this.customValueHint = 'Add value',
+      this.showFieldLabel = true});
   final String label;
+  final bool showFieldLabel;
   final Set<TValue> value;
   final List<LibraryFieldOption<TValue>> options;
   final ValueChanged<Set<TValue>> onChanged;
@@ -280,44 +282,46 @@ class _LibraryMultiValuePickFieldState<TValue>
   }
 
   @override
-  Widget build(BuildContext context) => LibraryFormField(
-      label: widget.label,
-      child: InputDecorator(
-          isFocused: _entryFocusNode.hasFocus || _pickerOpen,
-          decoration: InputDecoration(
-              errorText: widget.errorText,
-              enabled: widget.enabled,
-              constraints:
-                  const BoxConstraints(minHeight: kLibraryFormControlHeight),
-              contentPadding: EdgeInsets.zero,
-              suffixIconConstraints: const BoxConstraints.tightFor(
-                  width: PickListFieldButton.width,
-                  height: kLibraryFormControlHeight - 2),
-              suffixIcon: PickListFieldButton(
-                  tooltip: 'Select ${widget.label.toLowerCase()}',
-                  onPressed:
-                      widget.enabled && !_pickerOpen ? _openPicker : null)),
-          child: Padding(
-              padding: const EdgeInsets.all(3),
-              child: LayoutBuilder(
-                  builder: (context, constraints) => GestureDetector(
-                      behavior: HitTestBehavior.translucent,
-                      onTap:
-                          widget.enabled ? _entryFocusNode.requestFocus : null,
-                      child: ConstrainedBox(
-                          constraints: const BoxConstraints(minHeight: 26),
-                          child: LibraryChipInputLayout(
-                              hasEditor: TValue == String,
-                              minimumEditorWidth:
-                                  _minimumEditorWidth(constraints.maxWidth),
-                              children: [
-                                for (final value in _value)
-                                  LibraryValueChip(
-                                      label: _labelFor(value),
-                                      onDeleted: widget.enabled
-                                          ? () => _remove(value)
-                                          : null),
-                                if (TValue == String)
-                                  _entry(constraints.maxWidth),
-                              ])))))));
+  Widget build(BuildContext context) {
+    final field = InputDecorator(
+        isFocused: _entryFocusNode.hasFocus || _pickerOpen,
+        decoration: InputDecoration(
+            errorText: widget.errorText,
+            enabled: widget.enabled,
+            constraints:
+                const BoxConstraints(minHeight: kLibraryFormControlHeight),
+            contentPadding: EdgeInsets.zero,
+            suffixIconConstraints: const BoxConstraints.tightFor(
+                width: PickListFieldButton.width,
+                height: kLibraryFormControlHeight - 2),
+            suffixIcon: PickListFieldButton(
+                tooltip: 'Select ${widget.label.toLowerCase()}',
+                onPressed:
+                    widget.enabled && !_pickerOpen ? _openPicker : null)),
+        child: Padding(
+            padding: const EdgeInsets.all(3),
+            child: LayoutBuilder(
+                builder: (context, constraints) => GestureDetector(
+                    behavior: HitTestBehavior.translucent,
+                    onTap: widget.enabled ? _entryFocusNode.requestFocus : null,
+                    child: ConstrainedBox(
+                        constraints: const BoxConstraints(minHeight: 26),
+                        child: LibraryChipInputLayout(
+                            hasEditor: TValue == String,
+                            minimumEditorWidth:
+                                _minimumEditorWidth(constraints.maxWidth),
+                            children: [
+                              for (final value in _value)
+                                LibraryValueChip(
+                                    label: _labelFor(value),
+                                    onDeleted: widget.enabled
+                                        ? () => _remove(value)
+                                        : null),
+                              if (TValue == String)
+                                _entry(constraints.maxWidth),
+                            ]))))));
+    return widget.showFieldLabel
+        ? LibraryFormField(label: widget.label, child: field)
+        : field;
+  }
 }

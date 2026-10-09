@@ -55,7 +55,7 @@ class MusicDiscTabButton extends StatelessWidget {
               label,
               style: TextStyle(
                 fontSize: 13,
-                fontWeight: FontWeight.w400,
+                fontWeight: FontWeight.w700,
                 color: selected ? Colors.white : const Color(0xFFAAAAAA),
               ),
             ),

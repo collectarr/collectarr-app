@@ -16,7 +16,8 @@ class LibraryManagedVocabularyField extends ConsumerWidget {
       required this.onChanged,
       this.builtIns = const [],
       this.optionLabel,
-      this.enabled = true});
+      this.enabled = true,
+      this.showFieldLabel = true});
   final String label;
   final String listName;
   final String mediaKind;
@@ -24,6 +25,7 @@ class LibraryManagedVocabularyField extends ConsumerWidget {
   final List<String> builtIns;
   final String Function(String value)? optionLabel;
   final bool enabled;
+  final bool showFieldLabel;
   final ValueChanged<String?> onChanged;
   @override
   Widget build(BuildContext context, WidgetRef ref) =>
@@ -34,6 +36,7 @@ class LibraryManagedVocabularyField extends ConsumerWidget {
         selected: [if (value != null) value!],
         builder: (choices) => LibraryDropdownPickField<String>(
           label: label,
+          showFieldLabel: showFieldLabel,
           value: value,
           enabled: enabled,
           allowCustomValue: true,

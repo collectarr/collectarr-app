@@ -260,7 +260,10 @@ class _SingleValuePickFieldState extends State<SingleValuePickField> {
         validator: widget.validator,
         enabled: widget.enabled,
         readOnly: widget.readOnly,
+        style: context.libraryTextTheme.controlText,
+        textAlignVertical: TextAlignVertical.center,
         decoration: InputDecoration(
+          isDense: true,
           labelText: widget.showInlineLabel ? widget.label : null,
           hintText: widget.hint,
           helperText: widget.helperText,

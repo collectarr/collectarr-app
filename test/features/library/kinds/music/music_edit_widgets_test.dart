@@ -49,7 +49,12 @@ void main() {
                 id: const MusicCreditId('disc-credit'),
                 name: 'Bob Example',
                 role: 'Guitarist',
-                instruments: const ['Guitar'],
+                instruments: const [
+                  'Guitar',
+                  'Bass Guitar',
+                  'Percussion',
+                  'Keyboards'
+                ],
                 sequence: 1,
               ),
             ],

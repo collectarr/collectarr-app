@@ -160,17 +160,17 @@ ThemeData editDialogTheme({
           bodyLarge: base.textTheme.bodyLarge?.copyWith(
               fontSize: 14,
               height: 20 / 14,
-              fontWeight: FontWeight.w400,
+              fontWeight: FontWeight.w600,
               letterSpacing: 0),
           bodyMedium: base.textTheme.bodyMedium?.copyWith(
               fontSize: 14,
               height: 20 / 14,
-              fontWeight: FontWeight.w400,
+              fontWeight: FontWeight.w600,
               letterSpacing: 0),
           labelLarge: base.textTheme.labelLarge?.copyWith(
               fontSize: 14,
               height: 20 / 14,
-              fontWeight: FontWeight.w400,
+              fontWeight: FontWeight.w700,
               letterSpacing: 0),
         )
         .apply(

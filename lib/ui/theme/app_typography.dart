@@ -1,11 +1,8 @@
 import 'package:flutter/material.dart';
 
-/// Primary font family priority:
-/// 1. 'Gilroy' if installed on the host operating system.
-/// 2. 'Collectarr Sans' (our bundled 1:1 geometric SIL OFL face).
-/// 3. Standard system fallbacks ('Segoe UI', 'Roboto').
-const kAppFontFamily = 'Gilroy';
-const kAppFontFamilyFallback = ['Collectarr Sans', 'Segoe UI', 'Roboto'];
+/// Bundled geometric face, identical across web and desktop.
+const kAppFontFamily = 'Collectarr Sans';
+const kAppFontFamilyFallback = ['Segoe UI', 'Roboto'];
 const kAppBodyFontSize = 14.0;
 const kAppCaptionFontSize = 13.0;
 const kAppNormalFontWeight = FontWeight.w500;
