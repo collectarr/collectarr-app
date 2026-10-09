@@ -15,30 +15,6 @@ final class AnimeWatchSessionCodec implements WatchSessionCodec {
   CatalogMediaKind get kind => CatalogMediaKind.anime;
 
   @override
-  WatchSession create(WatchSessionCreateRequest request) {
-    if (request.libraryEntryRef.kind != kind) {
-      throw ArgumentError.value(
-        request.libraryEntryRef.kind,
-        'request.libraryEntryRef.kind',
-        'Expected Anime watch session',
-      );
-    }
-    return AnimeWatchSession(
-      id: request.id,
-      libraryEntryRef: request.libraryEntryRef,
-      trackingEntryId: request.trackingEntryId,
-      seasonNumber: request.seasonNumber,
-      episodeNumber: request.episodeNumber,
-      sourceType: request.sourceType,
-      seenWhere: request.seenWhere,
-      watchedAt: request.watchedAt ?? request.updatedAt,
-      rating: request.rating,
-      notes: request.notes,
-      updatedAt: request.updatedAt,
-    );
-  }
-
-  @override
   Future<List<WatchSession>> listActive(LocalDatabase db) async {
     final query = db.select(db.animeWatchSessionRows)
       ..where((row) => row.deletedAt.isNull());

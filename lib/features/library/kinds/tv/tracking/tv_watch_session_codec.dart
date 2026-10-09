@@ -16,26 +16,6 @@ final class TvWatchSessionCodec implements WatchSessionCodec {
   CatalogMediaKind get kind => CatalogMediaKind.tv;
 
   @override
-  WatchSession create(WatchSessionCreateRequest request) {
-    _validateEntryRef(request.libraryEntryRef);
-    return TvWatchSession(
-      id: request.id,
-      libraryEntryRef: request.libraryEntryRef,
-      episodeId:
-          request.episodeId == null ? null : TvEpisodeId(request.episodeId!),
-      trackingEntryId: request.trackingEntryId,
-      seasonNumber: request.seasonNumber,
-      episodeNumber: request.episodeNumber,
-      sourceType: request.sourceType,
-      seenWhere: request.seenWhere,
-      watchedAt: request.watchedAt ?? request.updatedAt,
-      rating: request.rating,
-      notes: request.notes,
-      updatedAt: request.updatedAt,
-    );
-  }
-
-  @override
   Future<List<WatchSession>> listActive(LocalDatabase db) async {
     final rows = await (db.select(db.tvWatchSessionRows)
           ..where((row) => row.deletedAt.isNull()))

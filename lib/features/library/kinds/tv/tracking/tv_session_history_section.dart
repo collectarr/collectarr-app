@@ -3,6 +3,8 @@ import 'package:collectarr_app/core/models/watch_session.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
+import 'package:collectarr_app/features/library/kinds/tv/domain/tv_ids.dart';
+import 'package:collectarr_app/features/library/kinds/tv/domain/tv_tracking.dart';
 import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 import 'package:collectarr_app/ui/accent_dialog_header.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
@@ -11,6 +13,7 @@ import 'package:collectarr_app/ui/compact_search_dropdown_form_field.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:collectarr_app/features/library/tracking/library_tracking_topology.dart';
 import 'package:collectarr_app/features/library/tracking/session_history_presenter.dart';
+import 'package:uuid/uuid.dart';
 export 'package:collectarr_app/features/library/tracking/library_tracking_topology.dart'
     show LibraryTrackingSessionLabels;
 
@@ -189,16 +192,22 @@ class TvWatchHistorySection extends ConsumerWidget {
     if (result == null || !context.mounted) {
       return;
     }
-    await ref.read(watchSessionMutationsProvider).addWatchSession(
-          libraryEntryRef,
-          id: existing?.id,
-          watchedAt: result.watchedAt,
-          seasonNumber: result.target.seasonNumber,
-          episodeNumber: result.target.episodeNumber,
-          episodeId: result.target.episodeId,
-          seenWhere: result.seenWhere,
-          rating: result.rating,
-          notes: result.notes,
+    final updatedAt = DateTime.now().toUtc();
+    await ref.read(watchSessionMutationsProvider).saveWatchSession(
+          TvWatchSession(
+            id: existing?.id ?? const Uuid().v4(),
+            libraryEntryRef: libraryEntryRef,
+            episodeId: result.target.episodeId == null
+                ? null
+                : TvEpisodeId(result.target.episodeId!),
+            seasonNumber: result.target.seasonNumber,
+            episodeNumber: result.target.episodeNumber,
+            watchedAt: result.watchedAt,
+            seenWhere: result.seenWhere,
+            rating: result.rating,
+            notes: result.notes,
+            updatedAt: updatedAt,
+          ),
         );
   }
 

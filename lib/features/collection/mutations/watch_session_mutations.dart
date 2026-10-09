@@ -1,61 +1,24 @@
 import 'dart:async';
-import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
 import 'package:collectarr_app/core/sync/sync_change.dart';
 import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
 import 'package:collectarr_app/features/collection/events/collection_event.dart';
 import 'package:collectarr_app/features/library/tracking/watch_sessions_repository.dart';
 import 'package:collectarr_app/features/collection/runner/collection_mutation_runner.dart';
-import 'package:collectarr_app/features/library/tracking/watch_session_codec.dart';
-import 'package:uuid/uuid.dart';
-
-typedef IdGenerator = String Function();
-String _defaultIdGenerator() => const Uuid().v4();
 
 final class WatchSessionMutations {
   const WatchSessionMutations({
     required this.watchSessions,
     required this.syncQueue,
     required this.mutationRunner,
-    this.idGenerator = _defaultIdGenerator,
   });
 
   final WatchSessionsRepository watchSessions;
   final SyncQueueRepository syncQueue;
   final CollectionMutationRunner mutationRunner;
-  final IdGenerator idGenerator;
 
-  Future<WatchSession> addWatchSession(
-    LibraryEntryRef libraryEntryRef, {
-    String? id,
-    String? trackingEntryId,
-    Object? sourceType,
-    DateTime? watchedAt,
-    int? seasonNumber,
-    int? episodeNumber,
-    String? episodeId,
-    String? seenWhere,
-    int? rating,
-    String? notes,
-  }) async {
-    final now = DateTime.now().toUtc();
-    final session = watchSessions.create(
-      WatchSessionCreateRequest(
-        id: id ?? idGenerator(),
-        libraryEntryRef: libraryEntryRef,
-        trackingEntryId: trackingEntryId,
-        sourceType: sourceType,
-        watchedAt: watchedAt ?? now,
-        seasonNumber: seasonNumber,
-        episodeNumber: episodeNumber,
-        episodeId: episodeId,
-        seenWhere: seenWhere,
-        rating: rating,
-        notes: notes,
-        updatedAt: now,
-      ),
-    );
-
+  Future<WatchSession> saveWatchSession(WatchSession session) async {
+    final now = session.updatedAt;
     await mutationRunner.run(
       action: () async {
         await watchSessions.upsert(session);
