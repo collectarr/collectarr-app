@@ -11,27 +11,6 @@ abstract interface class MusicWorkspaceProjection
   MusicAlbum get music;
   MusicWorkspaceFacts get facts;
   MusicEntryListeningSummary? get listeningSummary;
-
-  String? get currency;
-  String? get artist;
-  String? get catalogNumber;
-  String? get format;
-  String? get referenceFormatLabel;
-  String? get packaging;
-  String? get boxSet;
-  String? get publisher;
-  String? get genre;
-  DateTime? get releaseDate;
-  String? get identifierCode;
-  String? get barcode;
-  String? get country;
-  int? get listenCount;
-  DateTime? get lastListened;
-  int? get discCount;
-  int? get trackCount;
-  bool? get isLive;
-  List<String> get genres;
-  List<Map<String, dynamic>> get credits;
 }
 
 abstract class MusicWorkspaceProjectionValues
@@ -65,77 +44,6 @@ abstract class MusicWorkspaceProjectionValues
 
   @override
   String? get secondaryLabel => null;
-
-  @override
-  String? get currency => common.currency;
-
-  @override
-  String? get artist {
-    return facts.primaryArtist;
-  }
-
-  @override
-  String? get catalogNumber => music.catalogNumber;
-
-  @override
-  String? get format => facts.formatSummary;
-
-  @override
-  String? get referenceFormatLabel => format;
-
-  @override
-  String? get packaging => music.packaging;
-
-  @override
-  String? get boxSet => music.boxSet;
-
-  @override
-  String? get publisher => music.publisher;
-
-  @override
-  String? get genre => music.genres.isEmpty ? null : music.genres.join(', ');
-
-  @override
-  DateTime? get releaseDate => music.releaseDate;
-
-  @override
-  String? get identifierCode => music.barcode;
-
-  @override
-  String? get barcode => identifierCode;
-
-  @override
-  String? get country => music.countryCode;
-
-  @override
-  int? get listenCount => listeningSummary?.totalListenCount;
-
-  @override
-  DateTime? get lastListened => listeningSummary?.lastListened;
-
-  String? get coverImageUrl => music.coverImageUrl ?? common.coverImageUrl;
-
-  @override
-  int? get discCount => facts.discCount == 0 ? null : facts.discCount;
-
-  @override
-  int? get trackCount => facts.trackCount;
-
-  @override
-  bool? get isLive => facts.hasLiveDisc;
-
-  @override
-  List<String> get genres => music.genres;
-
-  @override
-  List<Map<String, dynamic>> get credits => [
-        for (final credit in music.credits)
-          {...credit.toJson(), 'scope': 'Album'},
-        for (final disc in music.discs)
-          for (final credit in disc.credits)
-            {...credit.toJson(), 'scope': 'Disc ${disc.discNumber}'},
-        for (final credit in music.artistCredits) credit.toJson(),
-      ];
 }
 
 final class MusicCatalogItemWorkspaceDto

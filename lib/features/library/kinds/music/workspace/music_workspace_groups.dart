@@ -6,6 +6,7 @@ import 'package:collectarr_app/features/library/kinds/music/data/music_library_e
 import 'package:collectarr_app/features/library/kinds/music/domain/music_album_image.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_personal_data.dart';
 import 'package:collectarr_app/features/library/kinds/music/config/music_field_identities.dart';
+import 'package:collectarr_app/features/library/kinds/music/config/music_workspace_field_metadata.dart';
 import 'package:collectarr_app/features/library/config/library_kind_field_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_dto.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
@@ -22,8 +23,8 @@ enum MusicGroupingField {
   artist(
       MusicFieldIdentities.artistId, MusicFieldIdentities.artistLabel, 'Main',
       localOnly: false),
-  format(
-      MusicFieldIdentities.formatId, MusicFieldIdentities.formatLabel, 'Main',
+  discFormat(MusicFieldIdentities.discFormatId,
+      MusicFieldIdentities.discFormatLabel, 'Main',
       localOnly: false),
   genre(MusicFieldIdentities.genreId, MusicFieldIdentities.genreLabel, 'Main',
       localOnly: false),
@@ -70,7 +71,9 @@ enum MusicGroupingField {
   rpm('music.rpm', 'RPM', 'Details', localOnly: false),
   spars('music.spars', 'SPARS', 'Details', localOnly: false),
   sound('music.sound', 'Sound', 'Details', localOnly: false),
-  storage('music.storage', 'Storage Device', 'Details', localOnly: true),
+  storageDevice('music.storage_device', 'Storage Device', 'Details',
+      localOnly: true),
+  storageSlot('music.storage_slot', 'Storage Slot', 'Details', localOnly: true),
   studio('music.studio', 'Studio', 'Details', localOnly: false),
   vinylColor('music.vinyl_color', 'Vinyl Color', 'Details', localOnly: false),
   chorus('music.chorus', 'Chorus', 'Classical', localOnly: false),
@@ -127,13 +130,15 @@ enum MusicGroupingField {
 
   LibraryKindFieldMetadata? get fieldMetadata => switch (this) {
         artist => MusicFieldIdentities.artist,
-        format => MusicFieldIdentities.format,
+        discFormat => MusicFieldIdentities.discFormat,
         genre => MusicFieldIdentities.genre,
         publisher => MusicFieldIdentities.publisher,
         releaseDate => MusicFieldIdentities.releaseDate,
         boxSet => MusicFieldIdentities.boxSet,
         country => MusicFieldIdentities.country,
         packaging => MusicFieldIdentities.packaging,
+        storageDevice => MusicWorkspaceFieldMetadata.storageDevice,
+        storageSlot => MusicWorkspaceFieldMetadata.storageSlot,
         _ => null,
       };
 
@@ -147,7 +152,7 @@ enum MusicGroupingField {
         location => const VocabularyId<String>('locations'),
         tags => UniversalVocabularyIds.tags,
         purchaseStore => UniversalVocabularyIds.purchaseStore,
-        format => MusicVocabularyIds.format,
+        discFormat => MusicVocabularyIds.format,
         genre => MusicVocabularyIds.genre,
         publisher => MusicVocabularyIds.recordLabel,
         country => MusicVocabularyIds.country,
@@ -156,7 +161,7 @@ enum MusicGroupingField {
         condition => MusicVocabularyIds.condition,
         packaging => MusicVocabularyIds.packaging,
         sound => MusicVocabularyIds.soundType,
-        storage => MusicVocabularyIds.storageDevice,
+        storageDevice => MusicVocabularyIds.storageDevice,
         studio => MusicVocabularyIds.recordingLocation,
         vinylColor => MusicVocabularyIds.vinylColor,
         signedBy => MusicVocabularyIds.signedBy,
@@ -224,15 +229,15 @@ Object? _groupValue(MusicGroupingField field,
       _parts(personal?.details.lastCleanedDate);
   final added = _parts(entry?.createdAt ?? context.addedAt);
   final modified = _parts(entry?.updatedAt ?? context.updatedAt);
-  final played = _parts(dto.lastListened);
+  final played = _parts(dto.listeningSummary?.lastListened);
   return switch (field) {
     MusicGroupingField.hasBack => _yesNo(imageTypes.contains('back_cover')),
     MusicGroupingField.hasFront => _yesNo(imageTypes.contains('front_cover')),
     MusicGroupingField.imageType => imageTypes,
     MusicGroupingField.artist => album.artistCredits.isNotEmpty
         ? album.artistCredits.map((credit) => credit.creditedName)
-        : dto.artist,
-    MusicGroupingField.format => facts.formatSummary,
+        : facts.artistNames,
+    MusicGroupingField.discFormat => facts.discFormats,
     MusicGroupingField.genre => album.genres,
     MusicGroupingField.publisher => album.publisher,
     MusicGroupingField.originalReleaseDate =>
@@ -266,8 +271,12 @@ Object? _groupValue(MusicGroupingField field,
     MusicGroupingField.rpm => facts.discRpms,
     MusicGroupingField.spars => facts.discSparsCodes,
     MusicGroupingField.sound => facts.discSoundTypes,
-    MusicGroupingField.storage =>
-      personal?.details.media.map((disc) => disc.storageDevice),
+    MusicGroupingField.storageDevice => personal?.details.media
+        .map((medium) => medium.storageDevice)
+        .whereType<String>(),
+    MusicGroupingField.storageSlot => personal?.details.media
+        .map((medium) => medium.storageSlot)
+        .whereType<String>(),
     MusicGroupingField.studio => facts.recordingLocations,
     MusicGroupingField.vinylColor => facts.discColors,
     MusicGroupingField.chorus => names('chorus'),
@@ -294,7 +303,8 @@ Object? _groupValue(MusicGroupingField field,
     MusicGroupingField.updatedMonth => _month(modified),
     MusicGroupingField.rating => personal?.rating,
     MusicGroupingField.owner => personal?.ownerLabel,
-    MusicGroupingField.played => _yesNo((dto.listenCount ?? 0) > 0),
+    MusicGroupingField.played =>
+      _yesNo((dto.listeningSummary?.totalListenCount ?? 0) > 0),
     MusicGroupingField.playedDate => dto.listeningSummary?.recentEvents
         .map((event) => _parts(event.listenedAt)?.isoString),
     MusicGroupingField.playedMonth => _month(played),

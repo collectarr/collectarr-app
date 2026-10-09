@@ -16,7 +16,7 @@ LibraryFormSectionSpec<TDraft> musicMainFormSection<TDraft>({
     const LibraryFormColumnSpec(rows: [
       [MusicFieldIdentities.releaseDateId, 'original_release_date'],
       [MusicFieldIdentities.publisherId],
-      [MusicFieldIdentities.formatId, MusicFieldIdentities.barcodeId],
+      [MusicFieldIdentities.formatSummaryId, MusicFieldIdentities.barcodeId],
       [MusicFieldIdentities.catalogNumberId],
       [MusicFieldIdentities.genreId],
     ]),

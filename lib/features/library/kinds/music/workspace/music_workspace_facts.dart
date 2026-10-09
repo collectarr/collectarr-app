@@ -47,10 +47,15 @@ final class MusicWorkspaceFacts {
       ...discContributors,
     });
     final artist = _primaryArtist(album);
+    final artistNames = _stringSet([
+      ...album.artistCredits.map((credit) => credit.creditedName),
+      if (album.artistCredits.isEmpty) album.artist,
+    ]);
 
     return MusicWorkspaceFacts._(
       formatSummary: album.formatSummary,
       primaryArtist: artist,
+      artistNames: artistNames,
       discCount: discs.length,
       trackCount: discs.fold<int>(
         0,
@@ -96,6 +101,7 @@ final class MusicWorkspaceFacts {
   const MusicWorkspaceFacts._({
     required this.formatSummary,
     required this.primaryArtist,
+    required this.artistNames,
     required this.discCount,
     required this.trackCount,
     required this.discFormats,
@@ -123,6 +129,7 @@ final class MusicWorkspaceFacts {
 
   final String? formatSummary;
   final String? primaryArtist;
+  final Set<String> artistNames;
   final int discCount;
   final int trackCount;
   final Set<String> discFormats;

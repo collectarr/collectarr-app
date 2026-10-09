@@ -178,15 +178,40 @@ abstract final class MusicWorkspaceFieldMetadata {
     groupable: true,
   );
 
-  static const storage = LibraryKindFieldMetadata(
-    id: 'music.storage',
-    label: 'Storage',
+  static const storageSummary = LibraryKindFieldMetadata(
+    id: 'music.storage_summary',
+    label: 'Storage Summary',
     valueType: LibraryFieldValueType.text,
     cardinality: LibraryFieldCardinality.one,
-    source: LibraryFieldSource.libraryEntry,
-    sourcePath: 'storage',
+    source: LibraryFieldSource.derived,
+    sourcePath: 'personal.details.media[]',
     sortable: true,
+    exportable: true,
+  );
+
+  static const storageDevice = LibraryKindFieldMetadata(
+    id: 'music.storage_device',
+    label: 'Storage Device',
+    valueType: LibraryFieldValueType.text,
+    cardinality: LibraryFieldCardinality.many,
+    source: LibraryFieldSource.libraryEntry,
+    sourcePath: 'personal.details.media[].storage_device',
+    filterable: true,
     groupable: true,
+    exportable: true,
+    editable: true,
+  );
+
+  static const storageSlot = LibraryKindFieldMetadata(
+    id: 'music.storage_slot',
+    label: 'Storage Slot',
+    valueType: LibraryFieldValueType.text,
+    cardinality: LibraryFieldCardinality.many,
+    source: LibraryFieldSource.libraryEntry,
+    sourcePath: 'personal.details.media[].storage_slot',
+    filterable: true,
+    groupable: true,
+    exportable: true,
     editable: true,
   );
 
@@ -247,7 +272,9 @@ abstract final class MusicWorkspaceFieldMetadata {
     sound,
     spars,
     status,
-    storage,
+    storageSummary,
+    storageDevice,
+    storageSlot,
     recordingLocations,
     trackCount,
     updatedAt,

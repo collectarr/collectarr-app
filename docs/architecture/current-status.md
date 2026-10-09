@@ -98,9 +98,14 @@ families, explicit format presets, and a shared Credits editor for Add/Edit.
 The former album-level recording fields and contribution model are removed.
 `MusicWorkspaceData` now constructs immutable `MusicWorkspaceFacts` once from
 the canonical album and reuses them through workspace projections, grouping,
-and existing disc recording filters. Shared catalog field definitions,
-contained disc/credit groups, many-value filter semantics, reducer sorts,
-export/search, and final performance verification remain open.
+and existing disc recording filters. Checkpoint H also removed Music DTO proxy
+getters, made Catalog Item and Library Entry schemas share catalog field
+definitions, layered personal fields only onto Library Entry, and separated
+format/storage summaries from their many-valued semantic fields. Metadata,
+workspace schema, search-presentation, and export regression tests pass for
+this checkpoint. Contained disc/credit groups, Smart List many-value semantics,
+reducer sorts, full search/correction alignment, and final performance and
+Windows build verification remain open.
 
 ## Local data
 

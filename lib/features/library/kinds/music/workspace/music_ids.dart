@@ -4,16 +4,23 @@ import 'package:collectarr_app/features/library/kinds/music/config/music_field_i
 abstract final class MusicFieldIds {
   static const status = LibraryFieldId<MusicKind, String?>('music.status');
   static const cover = LibraryFieldId<MusicKind, String?>('music.cover');
-  static const artist =
-      LibraryFieldId<MusicKind, String?>(MusicFieldIdentities.artistId);
+  static const artist = LibraryFieldId<MusicKind, Iterable<String>>(
+      MusicFieldIdentities.artistId);
+  static const artistSummary = LibraryFieldId<MusicKind, String?>(
+    MusicFieldIdentities.artistSummaryId,
+  );
   static const title =
       LibraryFieldId<MusicKind, String>(MusicFieldIdentities.titleId);
   static const publisher =
       LibraryFieldId<MusicKind, String?>(MusicFieldIdentities.publisherId);
   static const genre =
-      LibraryFieldId<MusicKind, String?>(MusicFieldIdentities.genreId);
-  static const format =
-      LibraryFieldId<MusicKind, String?>(MusicFieldIdentities.formatId);
+      LibraryFieldId<MusicKind, Iterable<String>>(MusicFieldIdentities.genreId);
+  static const formatSummary = LibraryFieldId<MusicKind, String?>(
+    MusicFieldIdentities.formatSummaryId,
+  );
+  static const discFormat = LibraryFieldId<MusicKind, Iterable<String>>(
+    MusicFieldIdentities.discFormatId,
+  );
   static const packaging =
       LibraryFieldId<MusicKind, String?>(MusicFieldIdentities.packagingId);
   static const boxSet =
@@ -44,7 +51,12 @@ abstract final class MusicFieldIds {
   static const discCount = LibraryFieldId<MusicKind, int?>('music.disc_count');
   static const signedBy = LibraryFieldId<MusicKind, String?>('music.signed_by');
   static const grade = LibraryFieldId<MusicKind, String?>('music.grade');
-  static const storage = LibraryFieldId<MusicKind, String?>('music.storage');
+  static const storageSummary =
+      LibraryFieldId<MusicKind, String?>('music.storage_summary');
+  static const storageDevice =
+      LibraryFieldId<MusicKind, Iterable<String>>('music.storage_device');
+  static const storageSlot =
+      LibraryFieldId<MusicKind, Iterable<String>>('music.storage_slot');
   static const purchaseDate =
       LibraryFieldId<MusicKind, DateTime?>('music.purchase_date');
   static const marketValue =
@@ -61,7 +73,8 @@ abstract final class MusicFieldIds {
 
 abstract final class MusicSortIds {
   static const status = LibrarySortId<MusicKind>('music.status');
-  static const artist = LibrarySortId<MusicKind>(MusicFieldIdentities.artistId);
+  static const artistSummary =
+      LibrarySortId<MusicKind>(MusicFieldIdentities.artistSummaryId);
   static const title = LibrarySortId<MusicKind>(MusicFieldIdentities.titleId);
   static const publisher =
       LibrarySortId<MusicKind>(MusicFieldIdentities.publisherId);
@@ -78,13 +91,13 @@ abstract final class MusicSortIds {
 
 abstract final class MusicGroupIds {
   static const artist =
-      LibraryGroupId<MusicKind, String?>(MusicFieldIdentities.artistId);
+      LibraryGroupId<MusicKind, Object?>(MusicFieldIdentities.artistId);
   static const publisher =
       LibraryGroupId<MusicKind, String?>(MusicFieldIdentities.publisherId);
   static const genre =
-      LibraryGroupId<MusicKind, String?>(MusicFieldIdentities.genreId);
-  static const format =
-      LibraryGroupId<MusicKind, String?>(MusicFieldIdentities.formatId);
+      LibraryGroupId<MusicKind, Object?>(MusicFieldIdentities.genreId);
+  static const discFormat =
+      LibraryGroupId<MusicKind, Object?>(MusicFieldIdentities.discFormatId);
   static const location = LibraryGroupId<MusicKind, String?>(
     'music.location',
     semantic: LibraryGroupSemantic.location,
@@ -105,8 +118,8 @@ abstract final class MusicFacetIds {
       LibraryFacetId<MusicKind, String>(MusicFieldIdentities.publisherId);
   static const genre =
       LibraryFacetId<MusicKind, String>(MusicFieldIdentities.genreId);
-  static const format =
-      LibraryFacetId<MusicKind, String>(MusicFieldIdentities.formatId);
+  static const discFormat =
+      LibraryFacetId<MusicKind, String>(MusicFieldIdentities.discFormatId);
   static const country =
       LibraryFacetId<MusicKind, String>(MusicFieldIdentities.countryId);
 }

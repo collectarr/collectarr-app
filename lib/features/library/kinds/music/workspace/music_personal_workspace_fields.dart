@@ -6,31 +6,11 @@ import 'package:collectarr_app/features/library/kinds/music/data/music_library_e
 import 'package:collectarr_app/features/library/kinds/music/domain/music_library_entry.dart';
 import 'package:collectarr_app/features/library/kinds/music/entries/music_library_entry_update_payload.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_ids.dart';
-import 'package:collectarr_app/features/library/kinds/music/config/music_field_identities.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_dto.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_entry_dispatch.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
-import 'package:collectarr_app/features/library/workspace/schema/field_factories.dart';
 
-abstract final class MusicLibraryEntryWorkspaceFields {
-  static final title = textField<MusicKind, MusicWorkspaceProjection>(
-    id: MusicFieldIds.title,
-    metadata: MusicFieldIdentities.title,
-    getValue: (dto) => dto.primaryLabel,
-  );
-
-  static final artist = textField<MusicKind, MusicWorkspaceProjection>(
-    id: MusicFieldIds.artist,
-    metadata: MusicFieldIdentities.artist,
-    getValue: (dto) => dto.artist,
-  );
-
-  static final publisher = textField<MusicKind, MusicWorkspaceProjection>(
-    id: MusicFieldIds.publisher,
-    metadata: MusicFieldIdentities.publisher,
-    getValue: (dto) => dto.publisher,
-  );
-
+abstract final class MusicPersonalWorkspaceFields {
   static final condition =
       LibraryFieldDefinition<MusicKind, MusicWorkspaceProjection, String?>(
     id: MusicFieldIds.condition,
@@ -50,27 +30,25 @@ abstract final class MusicLibraryEntryWorkspaceFields {
     getValue: (context) => context.personal.locationPath,
   );
 
+  static final listenCount =
+      LibraryFieldDefinition<MusicKind, MusicWorkspaceProjection, int?>(
+    id: MusicFieldIds.listenCount,
+    metadata: MusicWorkspaceFieldMetadata.listenCount,
+    getValue: (context) => context.dto.listeningSummary?.totalListenCount,
+  );
+
+  static final lastListened =
+      LibraryFieldDefinition<MusicKind, MusicWorkspaceProjection, DateTime?>(
+    id: MusicFieldIds.lastListened,
+    metadata: MusicWorkspaceFieldMetadata.lastListened,
+    getValue: (context) => context.dto.listeningSummary?.lastListened,
+  );
+
   static final pricePaid =
       LibraryFieldDefinition<MusicKind, MusicWorkspaceProjection, int?>(
     id: MusicFieldIds.pricePaid,
     metadata: MusicWorkspaceFieldMetadata.pricePaid,
     getValue: (context) => context.item.entrySummary?.pricePaidCents,
-  );
-
-  static final status =
-      LibraryFieldDefinition<MusicKind, MusicWorkspaceProjection, String?>(
-    id: MusicFieldIds.status,
-    metadata: MusicWorkspaceFieldMetadata.status,
-    getValue: (context) => context.personal.isWishlisted
-        ? 'wishlist'
-        : ((context.item.entrySummary != null) ? 'entry' : null),
-  );
-
-  static final cover =
-      LibraryFieldDefinition<MusicKind, MusicWorkspaceProjection, String?>(
-    id: MusicFieldIds.cover,
-    metadata: MusicWorkspaceFieldMetadata.cover,
-    getValue: (context) => context.dto.imageUrl,
   );
 
   static final rating =
@@ -127,24 +105,58 @@ abstract final class MusicLibraryEntryWorkspaceFields {
     },
   );
 
-  static final storage =
+  static final storageSummary =
       LibraryFieldDefinition<MusicKind, MusicWorkspaceProjection, String?>(
-    id: MusicFieldIds.storage,
-    metadata: MusicWorkspaceFieldMetadata.storage,
+    id: MusicFieldIds.storageSummary,
+    metadata: MusicWorkspaceFieldMetadata.storageSummary,
     getValue: (context) {
       final entry = MusicLibraryEntryProjection.fromDispatch(
         context.item.libraryEntryDispatch,
       );
       if (entry is! MusicLibraryEntry) return null;
       final values = [
-        for (final disc in entry.personal.details.media) ...[
-          if (disc.storageDevice?.trim().isNotEmpty == true)
-            disc.storageDevice!.trim(),
-          if (disc.storageSlot?.trim().isNotEmpty == true)
-            disc.storageSlot!.trim(),
-        ],
+        for (final medium in entry.personal.details.media)
+          [
+            medium.storageDevice?.trim(),
+            medium.storageSlot?.trim(),
+          ].whereType<String>().where((value) => value.isNotEmpty).join(' / '),
       ];
-      return values.isEmpty ? null : values.join(' / ');
+      final populated = values.where((value) => value.isNotEmpty).toList();
+      return populated.isEmpty ? null : populated.join(' | ');
+    },
+  );
+
+  static final storageDevice = LibraryFieldDefinition<MusicKind,
+      MusicWorkspaceProjection, Iterable<String>>(
+    id: MusicFieldIds.storageDevice,
+    metadata: MusicWorkspaceFieldMetadata.storageDevice,
+    getValue: (context) {
+      final entry = MusicLibraryEntryProjection.fromDispatch(
+        context.item.libraryEntryDispatch,
+      );
+      if (entry is! MusicLibraryEntry) return const <String>[];
+      return {
+        for (final medium in entry.personal.details.media)
+          if (medium.storageDevice?.trim() case final device?)
+            if (device.isNotEmpty) device,
+      };
+    },
+  );
+
+  static final storageSlot = LibraryFieldDefinition<MusicKind,
+      MusicWorkspaceProjection, Iterable<String>>(
+    id: MusicFieldIds.storageSlot,
+    metadata: MusicWorkspaceFieldMetadata.storageSlot,
+    getValue: (context) {
+      final entry = MusicLibraryEntryProjection.fromDispatch(
+        context.item.libraryEntryDispatch,
+      );
+      if (entry is! MusicLibraryEntry) return const <String>[];
+      return {
+        for (final medium in entry.personal.details.media)
+          if (medium.storageSlot?.trim() case final slot?)
+            if (slot.isNotEmpty) slot,
+      };
     },
   );
 
@@ -187,6 +199,28 @@ abstract final class MusicLibraryEntryWorkspaceFields {
           : null;
     },
   );
+
+  static final all =
+      <LibraryFieldDefinition<MusicKind, MusicWorkspaceProjection, Object?>>[
+    condition,
+    grade,
+    location,
+    listenCount,
+    lastListened,
+    storageSummary,
+    storageDevice,
+    storageSlot,
+    pricePaid,
+    marketValue,
+    purchaseDate,
+    indexNumber,
+    rating,
+    wishlist,
+    updatedAt,
+    addedAt,
+    signedBy,
+    lastCleaned,
+  ];
 
   static LibraryEntryGroupBucketValueMutator conditionBucketValueMutator() {
     return (item, currentLabel, {String? replacement}) {

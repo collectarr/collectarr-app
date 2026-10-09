@@ -2,14 +2,15 @@ import 'package:collectarr_app/features/library/config/library_media_presentatio
 import 'package:collectarr_app/features/library/config/library_entry_field_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/music/config/music_workspace_field_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/music/data/music_library_entry_projection.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_album.dart';
 import 'package:collectarr_app/features/library/kinds/music/presentation_builder.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_card_presentation.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_dto.dart';
 import 'package:collectarr_app/features/library/kinds/music/config/music_field_identities.dart';
+import 'package:collectarr_app/features/library/kinds/music/workspace/music_catalog_workspace_fields.dart';
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/features/library/config/workspace_presentation_support.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 
 const musicMetadataLabels = LibraryMetadataLabels(
   identitySectionTitle: 'Album identity',
@@ -62,11 +63,12 @@ final musicLibraryFilterDefinitions = <LibraryFilterDefinition<Object?>>[
     LibraryFilterDefinition<Object?>(
       metadata: MusicFieldIdentities.artist,
       id: MusicFieldIdentities.artistId,
-      label: MusicFieldIdentities.artistLabel,
+      label: MusicFieldIdentities.artist.label,
       anyLabel: 'Any artist',
-      value: (item) => (item.dto is MusicWorkspaceProjection)
-          ? (item.dto as MusicWorkspaceProjection).artist
-          : null,
+      value: (item) => _musicWorkspaceFieldValue<Iterable<String>>(
+        MusicCatalogWorkspaceFields.artist.getValue,
+        item,
+      ),
     ),
   LibraryFilterDefinition<Object?>(
     metadata: LibraryEntryFieldMetadata.location,
@@ -90,18 +92,20 @@ final musicLibraryFilterDefinitions = <LibraryFilterDefinition<Object?>>[
       id: MusicFieldIdentities.publisherId,
       label: MusicFieldIdentities.publisherLabel,
       anyLabel: 'Any label',
-      value: (item) => (item.dto is MusicWorkspaceProjection)
-          ? (item.dto as MusicWorkspaceProjection).publisher
-          : null,
+      value: (item) => _musicWorkspaceFieldValue<String?>(
+        MusicCatalogWorkspaceFields.publisher.getValue,
+        item,
+      ),
     ),
   LibraryFilterDefinition<Object?>(
     metadata: MusicWorkspaceFieldMetadata.releaseYear,
     id: 'year',
     label: 'Year',
     anyLabel: 'Any year',
-    value: (item) => (item.dto is MusicWorkspaceProjection)
-        ? (item.dto as MusicWorkspaceProjection).releaseDate?.year.toString()
-        : null,
+    value: (item) => _musicWorkspaceFieldValue<DateTime?>(
+      MusicCatalogWorkspaceFields.releaseDate.getValue,
+      item,
+    )?.year.toString(),
   ),
   LibraryFilterDefinition<Object?>(
     metadata: LibraryEntryFieldMetadata.condition,
@@ -118,19 +122,21 @@ final musicLibraryFilterDefinitions = <LibraryFilterDefinition<Object?>>[
       id: MusicFieldIdentities.countryId,
       label: MusicFieldIdentities.countryLabel,
       anyLabel: 'Any country',
-      value: (item) => (item.dto is MusicWorkspaceProjection)
-          ? (item.dto as MusicWorkspaceProjection).country
-          : null,
+      value: (item) => _musicWorkspaceFieldValue<String?>(
+        MusicCatalogWorkspaceFields.country.getValue,
+        item,
+      ),
     ),
-  if (MusicFieldIdentities.format.filterable)
+  if (MusicFieldIdentities.discFormat.filterable)
     LibraryFilterDefinition<Object?>(
-      metadata: MusicFieldIdentities.format,
-      id: MusicFieldIdentities.formatId,
-      label: MusicFieldIdentities.formatLabel,
-      anyLabel: 'Any format',
-      value: (item) => (item.dto is MusicWorkspaceProjection)
-          ? (item.dto as MusicWorkspaceProjection).format
-          : null,
+      metadata: MusicFieldIdentities.discFormat,
+      id: MusicFieldIdentities.discFormatId,
+      label: MusicFieldIdentities.discFormatLabel,
+      anyLabel: 'Any disc format',
+      value: (item) => _musicWorkspaceFieldValue<Iterable<String>>(
+        MusicCatalogWorkspaceFields.discFormat.getValue,
+        item,
+      ),
     ),
   if (MusicFieldIdentities.packaging.filterable)
     LibraryFilterDefinition<Object?>(
@@ -138,9 +144,10 @@ final musicLibraryFilterDefinitions = <LibraryFilterDefinition<Object?>>[
       id: MusicFieldIdentities.packagingId,
       label: MusicFieldIdentities.packagingLabel,
       anyLabel: 'Any packaging',
-      value: (item) => _musicAlbumsFor(item)
-          .map((release) => release.packaging)
-          .whereType<String>(),
+      value: (item) => _musicWorkspaceFieldValue<String?>(
+        MusicCatalogWorkspaceFields.packaging.getValue,
+        item,
+      ),
     ),
   if (MusicFieldIdentities.genre.filterable)
     LibraryFilterDefinition<Object?>(
@@ -148,9 +155,10 @@ final musicLibraryFilterDefinitions = <LibraryFilterDefinition<Object?>>[
       id: MusicFieldIdentities.genreId,
       label: MusicFieldIdentities.genreLabel,
       anyLabel: 'Any genre',
-      value: (item) => (item.dto is MusicWorkspaceProjection)
-          ? (item.dto as MusicWorkspaceProjection).genres
-          : const <String>[],
+      value: (item) => _musicWorkspaceFieldValue<Iterable<String>>(
+        MusicCatalogWorkspaceFields.genre.getValue,
+        item,
+      ),
     ),
   LibraryFilterDefinition<Object?>(
     metadata: MusicWorkspaceFieldMetadata.recordingLocations,
@@ -237,10 +245,17 @@ final musicLibraryFilterDefinitions = <LibraryFilterDefinition<Object?>>[
   ),
 ];
 
-List<MusicAlbum> _musicAlbumsFor(LibraryProjectionView item) {
+TValue? _musicWorkspaceFieldValue<TValue>(
+  TValue Function(LibraryProjectionContext<MusicWorkspaceProjection> context)
+      getValue,
+  LibraryProjectionView item,
+) {
   final dto = item.dto;
-  if (dto is! MusicWorkspaceProjection) return const <MusicAlbum>[];
-  return [dto.music];
+  if (dto is! MusicWorkspaceProjection) return null;
+  return getValue(
+    LibraryProjectionContext<MusicWorkspaceProjection>(
+        item: item.source.item, personal: item.source.personal, dto: dto),
+  );
 }
 
 String musicLibraryBucketLabelBuilder(LibraryBucketingContext context) {

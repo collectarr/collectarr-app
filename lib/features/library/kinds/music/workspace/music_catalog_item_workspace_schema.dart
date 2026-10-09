@@ -1,7 +1,8 @@
 import 'music_workspace_groups.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_ids.dart';
 import 'package:collectarr_app/features/library/kinds/music/config/music_field_identities.dart';
-import 'package:collectarr_app/features/library/kinds/music/workspace/music_catalog_item_workspace_fields.dart';
+import 'package:collectarr_app/features/library/kinds/music/workspace/music_catalog_workspace_fields.dart';
+import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_fields.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_dto.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_schema_support.dart';
 import 'package:collectarr_app/features/library/workspace/schema/field_factories.dart';
@@ -13,95 +14,67 @@ final musicCatalogItemWorkspaceSchema =
     LibraryWorkspaceSchema<MusicKind, MusicWorkspaceProjection>(
   kindNamespace: 'music',
   fields: [
-    MusicCatalogItemWorkspaceFields.title,
-    MusicCatalogItemWorkspaceFields.artist,
-    MusicCatalogItemWorkspaceFields.publisher,
-    MusicCatalogItemWorkspaceFields.barcode,
-    MusicCatalogItemWorkspaceFields.catalogNumber,
-    MusicCatalogItemWorkspaceFields.genre,
-    MusicCatalogItemWorkspaceFields.format,
-    MusicCatalogItemWorkspaceFields.releaseDate,
-    MusicCatalogItemWorkspaceFields.trackCount,
-    MusicCatalogItemWorkspaceFields.listenCount,
-    MusicCatalogItemWorkspaceFields.lastListened,
-    MusicCatalogItemWorkspaceFields.status,
-    MusicCatalogItemWorkspaceFields.cover,
+    ...MusicCatalogWorkspaceFields.all,
+    MusicWorkspaceFields.status,
+    MusicWorkspaceFields.cover,
   ],
   columns: [
-    musicStatusColumn(field: MusicCatalogItemWorkspaceFields.status),
-    musicCoverColumn(field: MusicCatalogItemWorkspaceFields.cover),
+    musicStatusColumn(field: MusicWorkspaceFields.status),
+    musicCoverColumn(field: MusicWorkspaceFields.cover),
     columnFromField<MusicKind, MusicWorkspaceProjection, String?>(
-      MusicCatalogItemWorkspaceFields.artist,
+      MusicCatalogWorkspaceFields.artistSummary,
       defaultWidth: 160,
     ),
     columnFromField<MusicKind, MusicWorkspaceProjection, String?>(
-      MusicCatalogItemWorkspaceFields.title,
+      MusicCatalogWorkspaceFields.title,
       defaultWidth: 260,
       maxWidth: 520,
     ),
-    columnFromField<MusicKind, MusicWorkspaceProjection, String?>(
-      MusicCatalogItemWorkspaceFields.genre,
+    columnFromField<MusicKind, MusicWorkspaceProjection, Iterable<String>>(
+      MusicCatalogWorkspaceFields.genre,
+      cellValue: (context) => Text(
+        MusicCatalogWorkspaceFields.genre.getValue(context).join(', '),
+      ),
       defaultWidth: 150,
     ),
     musicAlbumDateColumn(
-      field: MusicCatalogItemWorkspaceFields.releaseDate,
+      field: MusicCatalogWorkspaceFields.releaseDate,
     ),
     columnFromField<MusicKind, MusicWorkspaceProjection, num?>(
-      MusicCatalogItemWorkspaceFields.trackCount,
+      MusicCatalogWorkspaceFields.trackCount,
       defaultWidth: 90,
-    ),
-    columnFromField<MusicKind, MusicWorkspaceProjection, num?>(
-      MusicCatalogItemWorkspaceFields.listenCount,
-      defaultWidth: 110,
-    ),
-    columnFromField<MusicKind, MusicWorkspaceProjection, DateTime?>(
-      MusicCatalogItemWorkspaceFields.lastListened,
-      cellValue: (context) => Text(
-        formatMusicDate(context.dto.lastListened),
-      ),
-      defaultWidth: 118,
     ),
   ],
   sorts: [
-    if (MusicFieldIdentities.artist.sortable)
+    if (MusicFieldIdentities.artistSummary.sortable)
       sortFromField<MusicKind, MusicWorkspaceProjection, String>(
-        MusicCatalogItemWorkspaceFields.artist,
+        MusicCatalogWorkspaceFields.artistSummary,
       ),
     if (MusicFieldIdentities.title.sortable)
       sortFromField<MusicKind, MusicWorkspaceProjection, String>(
-        MusicCatalogItemWorkspaceFields.title,
+        MusicCatalogWorkspaceFields.title,
       ),
     if (MusicFieldIdentities.releaseDate.sortable)
       sortFromField<MusicKind, MusicWorkspaceProjection, DateTime>(
-        MusicCatalogItemWorkspaceFields.releaseDate,
+        MusicCatalogWorkspaceFields.releaseDate,
         defaultAscending: false,
       ),
     sortFromField<MusicKind, MusicWorkspaceProjection, num>(
-      MusicCatalogItemWorkspaceFields.trackCount,
-      defaultAscending: false,
-    ),
-    sortFromField<MusicKind, MusicWorkspaceProjection, num>(
-      MusicCatalogItemWorkspaceFields.listenCount,
-      defaultAscending: false,
-    ),
-    sortFromField<MusicKind, MusicWorkspaceProjection, DateTime>(
-      MusicCatalogItemWorkspaceFields.lastListened,
+      MusicCatalogWorkspaceFields.trackCount,
       defaultAscending: false,
     ),
   ],
   groups: musicWorkspaceGroupDefinitions(includePersonal: false),
-  primaryColumn: MusicCatalogItemWorkspaceFields.title.id,
+  primaryColumn: MusicCatalogWorkspaceFields.title.id,
   defaultVisibleColumns: {
     MusicFieldIds.status,
     MusicFieldIds.cover,
-    MusicFieldIds.artist,
+    MusicFieldIds.artistSummary,
     MusicFieldIds.title,
     MusicFieldIds.genre,
     MusicFieldIds.releaseDate,
     MusicFieldIds.trackCount,
-    MusicFieldIds.listenCount,
-    MusicFieldIds.lastListened,
   },
-  defaultSort: MusicSortIds.artist,
+  defaultSort: MusicSortIds.artistSummary,
   defaultGroup: MusicGroupIds.artist,
 );

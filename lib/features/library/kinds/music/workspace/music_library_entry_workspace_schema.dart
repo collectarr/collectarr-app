@@ -1,162 +1,176 @@
 import 'music_workspace_groups.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_ids.dart';
 import 'package:collectarr_app/features/library/kinds/music/config/music_field_identities.dart';
-import 'package:collectarr_app/features/library/kinds/music/workspace/music_library_entry_workspace_fields.dart';
+import 'package:collectarr_app/features/library/kinds/music/workspace/music_catalog_workspace_fields.dart';
+import 'package:collectarr_app/features/library/kinds/music/workspace/music_personal_workspace_fields.dart';
+import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_fields.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_dto.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_schema_support.dart';
 import 'package:collectarr_app/features/library/workspace/schema/field_factories.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_identifier_types.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_workspace_schema.dart';
+import 'package:flutter/material.dart';
 
 final musicLibraryEntryWorkspaceSchema =
     LibraryWorkspaceSchema<MusicKind, MusicWorkspaceProjection>(
   kindNamespace: 'music',
   fields: [
-    MusicLibraryEntryWorkspaceFields.title,
-    MusicLibraryEntryWorkspaceFields.artist,
-    MusicLibraryEntryWorkspaceFields.publisher,
-    MusicLibraryEntryWorkspaceFields.condition,
-    MusicLibraryEntryWorkspaceFields.grade,
-    MusicLibraryEntryWorkspaceFields.location,
-    MusicLibraryEntryWorkspaceFields.storage,
-    MusicLibraryEntryWorkspaceFields.pricePaid,
-    MusicLibraryEntryWorkspaceFields.marketValue,
-    MusicLibraryEntryWorkspaceFields.purchaseDate,
-    MusicLibraryEntryWorkspaceFields.indexNumber,
-    MusicLibraryEntryWorkspaceFields.status,
-    MusicLibraryEntryWorkspaceFields.rating,
-    MusicLibraryEntryWorkspaceFields.wishlist,
-    MusicLibraryEntryWorkspaceFields.updatedAt,
-    MusicLibraryEntryWorkspaceFields.addedAt,
-    MusicLibraryEntryWorkspaceFields.signedBy,
-    MusicLibraryEntryWorkspaceFields.lastCleaned,
+    ...MusicCatalogWorkspaceFields.all,
+    ...MusicPersonalWorkspaceFields.all,
+    MusicWorkspaceFields.status,
+    MusicWorkspaceFields.cover,
   ],
   columns: [
-    musicStatusColumn(field: MusicLibraryEntryWorkspaceFields.status),
-    musicCoverColumn(field: MusicLibraryEntryWorkspaceFields.cover),
+    musicStatusColumn(field: MusicWorkspaceFields.status),
+    musicCoverColumn(field: MusicWorkspaceFields.cover),
     columnFromField<MusicKind, MusicWorkspaceProjection, String?>(
-      MusicLibraryEntryWorkspaceFields.artist,
+      MusicCatalogWorkspaceFields.artistSummary,
       defaultWidth: 160,
     ),
     columnFromField<MusicKind, MusicWorkspaceProjection, String?>(
-      MusicLibraryEntryWorkspaceFields.title,
+      MusicCatalogWorkspaceFields.title,
       defaultWidth: 260,
       maxWidth: 520,
     ),
     columnFromField<MusicKind, MusicWorkspaceProjection, String?>(
-      MusicLibraryEntryWorkspaceFields.publisher,
+      MusicCatalogWorkspaceFields.publisher,
       group: 'Release',
       defaultWidth: 140,
     ),
     columnFromField<MusicKind, MusicWorkspaceProjection, String?>(
-      MusicLibraryEntryWorkspaceFields.condition,
+      MusicPersonalWorkspaceFields.condition,
       group: 'Personal',
       defaultWidth: 124,
     ),
     columnFromField<MusicKind, MusicWorkspaceProjection, String?>(
-      MusicLibraryEntryWorkspaceFields.grade,
+      MusicPersonalWorkspaceFields.grade,
       group: 'Personal',
       defaultWidth: 96,
     ),
     columnFromField<MusicKind, MusicWorkspaceProjection, String?>(
-      MusicLibraryEntryWorkspaceFields.location,
+      MusicPersonalWorkspaceFields.location,
       group: 'Personal',
       defaultWidth: 118,
     ),
     columnFromField<MusicKind, MusicWorkspaceProjection, String?>(
-      MusicLibraryEntryWorkspaceFields.storage,
+      MusicPersonalWorkspaceFields.storageSummary,
       group: 'Personal',
       defaultWidth: 150,
     ),
-    musicPricePaidColumn(field: MusicLibraryEntryWorkspaceFields.pricePaid),
-    musicMarketValueColumn(field: MusicLibraryEntryWorkspaceFields.marketValue),
-    musicPurchaseDateColumn(
-        field: MusicLibraryEntryWorkspaceFields.purchaseDate),
+    musicPricePaidColumn(field: MusicPersonalWorkspaceFields.pricePaid),
+    musicMarketValueColumn(field: MusicPersonalWorkspaceFields.marketValue),
+    musicPurchaseDateColumn(field: MusicPersonalWorkspaceFields.purchaseDate),
+    columnFromField<MusicKind, MusicWorkspaceProjection, int?>(
+      MusicPersonalWorkspaceFields.listenCount,
+      group: 'Activity',
+      isNumeric: true,
+      defaultWidth: 96,
+    ),
+    columnFromField<MusicKind, MusicWorkspaceProjection, DateTime?>(
+      MusicPersonalWorkspaceFields.lastListened,
+      cellValue: (context) => Text(
+        formatMusicDate(
+          MusicPersonalWorkspaceFields.lastListened.getValue(context),
+        ),
+      ),
+      group: 'Activity',
+      defaultWidth: 118,
+    ),
     columnFromField<MusicKind, MusicWorkspaceProjection, num?>(
-      MusicLibraryEntryWorkspaceFields.indexNumber,
+      MusicPersonalWorkspaceFields.indexNumber,
       group: 'Personal',
       isNumeric: true,
       defaultWidth: 96,
     ),
-    musicRatingColumn(field: MusicLibraryEntryWorkspaceFields.rating),
-    musicWishlistColumn(field: MusicLibraryEntryWorkspaceFields.wishlist),
-    musicUpdatedAtColumn(field: MusicLibraryEntryWorkspaceFields.updatedAt),
-    musicAddedAtColumn(field: MusicLibraryEntryWorkspaceFields.addedAt),
-    musicSignedByColumn(field: MusicLibraryEntryWorkspaceFields.signedBy),
-    musicLastCleanedColumn(field: MusicLibraryEntryWorkspaceFields.lastCleaned),
+    musicRatingColumn(field: MusicPersonalWorkspaceFields.rating),
+    musicWishlistColumn(field: MusicPersonalWorkspaceFields.wishlist),
+    musicUpdatedAtColumn(field: MusicPersonalWorkspaceFields.updatedAt),
+    musicAddedAtColumn(field: MusicPersonalWorkspaceFields.addedAt),
+    musicSignedByColumn(field: MusicPersonalWorkspaceFields.signedBy),
+    musicLastCleanedColumn(field: MusicPersonalWorkspaceFields.lastCleaned),
   ],
   sorts: [
     musicStatusSort(),
-    if (MusicFieldIdentities.artist.sortable)
+    if (MusicFieldIdentities.artistSummary.sortable)
       sortFromField<MusicKind, MusicWorkspaceProjection, String>(
-        MusicLibraryEntryWorkspaceFields.artist,
+        MusicCatalogWorkspaceFields.artistSummary,
       ),
     if (MusicFieldIdentities.title.sortable)
       sortFromField<MusicKind, MusicWorkspaceProjection, String>(
-        MusicLibraryEntryWorkspaceFields.title,
+        MusicCatalogWorkspaceFields.title,
       ),
     if (MusicFieldIdentities.publisher.sortable)
       sortFromField<MusicKind, MusicWorkspaceProjection, String>(
-        MusicLibraryEntryWorkspaceFields.publisher,
+        MusicCatalogWorkspaceFields.publisher,
       ),
     sortFromField<MusicKind, MusicWorkspaceProjection, String>(
-      MusicLibraryEntryWorkspaceFields.condition,
+      MusicPersonalWorkspaceFields.condition,
     ),
     sortFromField<MusicKind, MusicWorkspaceProjection, String>(
-      MusicLibraryEntryWorkspaceFields.grade,
+      MusicPersonalWorkspaceFields.grade,
     ),
     sortFromField<MusicKind, MusicWorkspaceProjection, String>(
-      MusicLibraryEntryWorkspaceFields.location,
+      MusicPersonalWorkspaceFields.location,
     ),
     sortFromField<MusicKind, MusicWorkspaceProjection, String>(
-      MusicLibraryEntryWorkspaceFields.storage,
+      MusicPersonalWorkspaceFields.storageSummary,
     ),
     sortFromField<MusicKind, MusicWorkspaceProjection, int>(
-      MusicLibraryEntryWorkspaceFields.pricePaid,
-      defaultAscending: false,
-    ),
-    sortFromField<MusicKind, MusicWorkspaceProjection, int>(
-      MusicLibraryEntryWorkspaceFields.marketValue,
-      defaultAscending: false,
-    ),
-    sortFromField<MusicKind, MusicWorkspaceProjection, DateTime>(
-      MusicLibraryEntryWorkspaceFields.purchaseDate,
+      MusicPersonalWorkspaceFields.pricePaid,
       defaultAscending: false,
     ),
     sortFromField<MusicKind, MusicWorkspaceProjection, int>(
-      MusicLibraryEntryWorkspaceFields.indexNumber,
-    ),
-    sortFromField<MusicKind, MusicWorkspaceProjection, DateTime>(
-      MusicLibraryEntryWorkspaceFields.updatedAt,
+      MusicPersonalWorkspaceFields.marketValue,
       defaultAscending: false,
     ),
     sortFromField<MusicKind, MusicWorkspaceProjection, DateTime>(
-      MusicLibraryEntryWorkspaceFields.addedAt,
+      MusicPersonalWorkspaceFields.purchaseDate,
+      defaultAscending: false,
+    ),
+    sortFromField<MusicKind, MusicWorkspaceProjection, int>(
+      MusicPersonalWorkspaceFields.indexNumber,
+    ),
+    sortFromField<MusicKind, MusicWorkspaceProjection, DateTime>(
+      MusicPersonalWorkspaceFields.updatedAt,
       defaultAscending: false,
     ),
     sortFromField<MusicKind, MusicWorkspaceProjection, DateTime>(
-      MusicLibraryEntryWorkspaceFields.lastCleaned,
+      MusicPersonalWorkspaceFields.addedAt,
+      defaultAscending: false,
+    ),
+    sortFromField<MusicKind, MusicWorkspaceProjection, DateTime>(
+      MusicPersonalWorkspaceFields.lastCleaned,
+      defaultAscending: false,
+    ),
+    sortFromField<MusicKind, MusicWorkspaceProjection, int>(
+      MusicPersonalWorkspaceFields.listenCount,
+      defaultAscending: false,
+    ),
+    sortFromField<MusicKind, MusicWorkspaceProjection, DateTime>(
+      MusicPersonalWorkspaceFields.lastListened,
       defaultAscending: false,
     ),
   ],
   groups: musicWorkspaceGroupDefinitions(includePersonal: true),
-  primaryColumn: MusicLibraryEntryWorkspaceFields.title.id,
+  primaryColumn: MusicCatalogWorkspaceFields.title.id,
   defaultVisibleColumns: {
     MusicFieldIds.status,
     MusicFieldIds.cover,
-    MusicFieldIds.artist,
+    MusicFieldIds.artistSummary,
     MusicFieldIds.title,
     MusicFieldIds.condition,
     MusicFieldIds.grade,
     MusicFieldIds.location,
-    MusicFieldIds.storage,
+    MusicFieldIds.storageSummary,
     MusicFieldIds.pricePaid,
     MusicFieldIds.marketValue,
     MusicFieldIds.purchaseDate,
     MusicFieldIds.indexNumber,
+    MusicFieldIds.listenCount,
+    MusicFieldIds.lastListened,
     MusicFieldIds.rating,
     MusicFieldIds.updatedAt,
   },
-  defaultSort: MusicSortIds.artist,
+  defaultSort: MusicSortIds.artistSummary,
   defaultGroup: MusicGroupIds.artist,
 );

@@ -33,6 +33,10 @@ import 'package:collectarr_app/features/library/kinds/movie/config/movie_workspa
 import 'package:collectarr_app/features/library/kinds/movie/presentation.dart';
 import 'package:collectarr_app/features/library/kinds/music/config/music_field_identities.dart';
 import 'package:collectarr_app/features/library/kinds/music/config/music_workspace_field_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/music/workspace/music_catalog_workspace_fields.dart';
+import 'package:collectarr_app/features/library/kinds/music/workspace/music_catalog_item_workspace_schema.dart';
+import 'package:collectarr_app/features/library/kinds/music/workspace/music_library_entry_workspace_schema.dart';
+import 'package:collectarr_app/features/library/kinds/music/workspace/music_personal_workspace_fields.dart';
 import 'package:collectarr_app/features/library/kinds/music/presentation.dart';
 import 'package:collectarr_app/features/library/kinds/tv/config/tv_field_identities.dart';
 import 'package:collectarr_app/features/library/kinds/tv/config/tv_workspace_field_metadata.dart';
@@ -94,10 +98,80 @@ void main() {
   });
 
   test('source and semantic path remain explicit for derived fields', () {
-    expect(MusicFieldIdentities.format.source, LibraryFieldSource.derived);
-    expect(MusicFieldIdentities.format.sourcePath, 'discs[].format');
+    expect(
+      MusicFieldIdentities.formatSummary.source,
+      LibraryFieldSource.derived,
+    );
+    expect(MusicFieldIdentities.formatSummary.sourcePath, 'format_summary');
+    expect(
+      MusicFieldIdentities.formatSummary.cardinality,
+      LibraryFieldCardinality.one,
+    );
+    expect(
+      MusicFieldIdentities.discFormat.source,
+      LibraryFieldSource.catalog,
+    );
+    expect(MusicFieldIdentities.discFormat.sourcePath, 'discs[].format');
+    expect(
+      MusicFieldIdentities.discFormat.cardinality,
+      LibraryFieldCardinality.many,
+    );
+    expect(
+      MusicFieldIdentities.discFormat.valueType,
+      LibraryFieldValueType.text,
+    );
     expect(BookFieldIdentities.releaseDate.source, LibraryFieldSource.derived);
     expect(BookFieldIdentities.releaseDate.sourcePath, 'release_date');
+  });
+
+  test('Music catalog fields are shared and summaries stay distinct', () {
+    final catalogFields = musicCatalogItemWorkspaceSchema.fields;
+    final entryFields = musicLibraryEntryWorkspaceSchema.fields;
+
+    for (final field in MusicCatalogWorkspaceFields.all) {
+      expect(catalogFields.any((candidate) => identical(candidate, field)),
+          isTrue);
+      expect(
+          entryFields.any((candidate) => identical(candidate, field)), isTrue);
+    }
+    for (final field in MusicPersonalWorkspaceFields.all) {
+      expect(catalogFields.any((candidate) => identical(candidate, field)),
+          isFalse);
+      expect(
+          entryFields.any((candidate) => identical(candidate, field)), isTrue);
+    }
+
+    expect(
+      MusicCatalogWorkspaceFields.formatSummary.metadata,
+      same(MusicFieldIdentities.formatSummary),
+    );
+    expect(
+      MusicCatalogWorkspaceFields.discFormat.metadata,
+      same(MusicFieldIdentities.discFormat),
+    );
+    expect(
+      MusicCatalogWorkspaceFields.formatSummary.metadata.cardinality,
+      LibraryFieldCardinality.one,
+    );
+    expect(
+      MusicCatalogWorkspaceFields.discFormat.metadata.cardinality,
+      LibraryFieldCardinality.many,
+    );
+
+    expect(
+      MusicWorkspaceFieldMetadata.storageSummary.cardinality,
+      LibraryFieldCardinality.one,
+    );
+    expect(
+      MusicWorkspaceFieldMetadata.storageDevice.cardinality,
+      LibraryFieldCardinality.many,
+    );
+    expect(
+      MusicWorkspaceFieldMetadata.storageSlot.cardinality,
+      LibraryFieldCardinality.many,
+    );
+    expect(MusicWorkspaceFieldMetadata.storageDevice.sortable, isFalse);
+    expect(MusicWorkspaceFieldMetadata.storageSlot.sortable, isFalse);
   });
 
   test('all nine workspace targets register fields with matching metadata', () {

@@ -123,8 +123,8 @@ LibraryColumnDefinition<MusicKind, MusicWorkspaceProjection, int?>
   return columnFromField<MusicKind, MusicWorkspaceProjection, int?>(
     field,
     cellValue: (context) => Text(
-      _formatCents(
-          context.item.entrySummary?.pricePaidCents, context.dto.currency),
+      _formatCents(context.item.entrySummary?.pricePaidCents,
+          context.dto.common.currency),
     ),
     group: 'Value',
     isNumeric: true,
@@ -194,8 +194,8 @@ LibraryColumnDefinition<MusicKind, MusicWorkspaceProjection, int?>
   return columnFromField<MusicKind, MusicWorkspaceProjection, int?>(
     field,
     cellValue: (context) => Text(
-      _formatCents(
-          context.item.entrySummary?.marketValueCents, context.dto.currency),
+      _formatCents(context.item.entrySummary?.marketValueCents,
+          context.dto.common.currency),
     ),
     group: 'Value',
     isNumeric: true,

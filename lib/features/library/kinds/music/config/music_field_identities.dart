@@ -30,11 +30,23 @@ abstract final class MusicFieldIdentities {
     sourcePath: 'artist_credits',
     searchable: true,
     filterable: true,
-    sortable: true,
     groupable: true,
     exportable: true,
     editable: true,
     vocabulary: artistVocabulary,
+  );
+
+  static const artistSummaryId = 'music.artist_summary';
+  static const artistSummary = LibraryKindFieldMetadata(
+    id: artistSummaryId,
+    label: artistLabel,
+    valueType: LibraryFieldValueType.text,
+    cardinality: LibraryFieldCardinality.one,
+    source: LibraryFieldSource.derived,
+    sourcePath: 'artist_credits',
+    searchable: true,
+    sortable: true,
+    exportable: true,
   );
 
   static const publisherId = 'music.publisher';
@@ -74,16 +86,29 @@ abstract final class MusicFieldIdentities {
     vocabulary: genreVocabulary,
   );
 
-  static const formatId = 'music.format';
-  static const formatLabel = 'Format';
+  static const formatSummaryId = 'music.format_summary';
+  static const formatSummaryLabel = 'Format Summary';
   static const formatVocabulary = VocabularyId<String>('music.format');
-  static const format = LibraryKindFieldMetadata(
-    id: formatId,
-    label: formatLabel,
+  static const formatSummary = LibraryKindFieldMetadata(
+    id: formatSummaryId,
+    label: formatSummaryLabel,
     valueType: LibraryFieldValueType.text,
     cardinality: LibraryFieldCardinality.one,
     source: LibraryFieldSource.derived,
+    sourcePath: 'format_summary',
+    exportable: true,
+  );
+
+  static const discFormatId = 'music.disc.format';
+  static const discFormatLabel = 'Disc Format';
+  static const discFormat = LibraryKindFieldMetadata(
+    id: discFormatId,
+    label: discFormatLabel,
+    valueType: LibraryFieldValueType.text,
+    cardinality: LibraryFieldCardinality.many,
+    source: LibraryFieldSource.catalog,
     sourcePath: 'discs[].format',
+    searchable: true,
     filterable: true,
     groupable: true,
     exportable: true,
@@ -184,9 +209,11 @@ abstract final class MusicFieldIdentities {
   static const all = <LibraryKindFieldMetadata>[
     title,
     artist,
+    artistSummary,
     publisher,
     genre,
-    format,
+    formatSummary,
+    discFormat,
     packaging,
     boxSet,
     releaseDate,

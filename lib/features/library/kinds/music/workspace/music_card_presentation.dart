@@ -19,11 +19,11 @@ LibraryCardPresentation buildMusicCardPresentation(
   final duration = musicCardDuration(item);
 
   return LibraryCardPresentation(
-    releaseDate: music?.releaseDate,
-    format: music?.format,
+    releaseDate: music?.music.releaseDate,
+    format: music?.facts.formatSummary,
     contextFacts: [
       musicCardArtist(item),
-      music?.publisher,
+      music?.music.publisher,
     ].whereType<String>().where((value) => value.trim().isNotEmpty).toList(),
     compactBadges: [
       if (tracks != null)

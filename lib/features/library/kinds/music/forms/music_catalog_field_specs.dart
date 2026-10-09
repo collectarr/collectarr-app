@@ -125,8 +125,8 @@ List<LibraryFieldSpec<TDraft>> musicAlbumFields<TDraft>({
         options: _options(genreOptions ?? MusicVocabularies.genre.builtIns),
       ),
       LibraryCustomFieldSpec<TDraft>(
-        id: MusicFieldIdentities.formatId,
-        label: MusicFieldIdentities.formatLabel,
+        id: MusicFieldIdentities.formatSummaryId,
+        label: MusicFieldIdentities.formatSummaryLabel,
         builder: (context, draft) {
           final fmt = (formatSummary?.call(draft) ??
                   (draft is MusicAlbumEditDraft

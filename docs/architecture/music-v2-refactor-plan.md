@@ -1,8 +1,9 @@
 # Music v2 and Library Field Semantics Roadmap
 
 Status: active; checkpoints A1–A4, the nine-kind metadata cutover, Music
-v2 contract/domain/editing checkpoints C–F, and workspace-facts checkpoint G
-are implemented. The next stage is workspace field cleanup. Each completed
+v2 contract/domain/editing checkpoints C–F, workspace-facts checkpoint G, and
+workspace field cleanup checkpoint H are implemented. The next stage is
+contained grouping and filter alignment. Each completed
 checkpoint is committed separately with a detailed Conventional Commit
 message. Stages that touch Core contracts regenerate the Core bundle and update
 the App pin in the same stage.
@@ -155,13 +156,20 @@ album and reuses it when listening data changes. Workspace grouping and the
 existing disc recording filters read deduplicated fact sets instead of
 traversing discs and credits for each row comparison.
 
-### H. Workspace field cleanup
+### H. Workspace field cleanup (implemented)
 
 Reduce `MusicWorkspaceProjection` to common, personal, Music, facts, listening
 summary, and required generic DTO data. Share catalog workspace fields between
 Catalog Item and Library Entry; layer personal fields only onto Library Entry.
 Separate format summary from contained disc format and keep storage summary,
-devices, and slots as distinct values where applicable.
+devices, and slots as distinct values where applicable. Catalog and entry
+schemas now hold the same catalog field definitions; their UI columns remain
+explicit. Filters and exports read the shared definitions for those catalog
+fields. `music.format_summary` is scalar derived display data, while
+`music.disc.format` is a many-valued catalog field. Storage summary, device, and
+slot are separate fields, and the concatenated summary is not used for filters
+or grouping. Metadata and schema tests verify shared field identity and
+one/many semantics.
 
 ### I. Disc and credit groups; filters and facets
 
