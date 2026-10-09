@@ -1,5 +1,6 @@
 import 'package:collectarr_app/features/library/config/library_kind_field_metadata.dart';
 import 'package:collectarr_app/features/pick_lists/models/vocabulary_id.dart';
+import 'package:collectarr_app/features/pick_lists/models/universal_vocabularies.dart';
 
 /// Additional kind-owned semantics for workspace fields.
 abstract final class MusicWorkspaceFieldMetadata {
@@ -25,6 +26,7 @@ abstract final class MusicWorkspaceFieldMetadata {
     sortable: true,
     groupable: true,
     editable: true,
+    vocabulary: VocabularyId<String>('music.condition'),
   );
 
   static const cover = LibraryKindFieldMetadata(
@@ -106,6 +108,7 @@ abstract final class MusicWorkspaceFieldMetadata {
     sortable: true,
     groupable: true,
     editable: true,
+    vocabulary: VocabularyId<String>('locations'),
   );
 
   static const marketValue = LibraryKindFieldMetadata(
@@ -166,6 +169,7 @@ abstract final class MusicWorkspaceFieldMetadata {
     sortable: true,
     groupable: true,
     editable: true,
+    vocabulary: VocabularyId<String>('music.signed_by'),
   );
 
   static const status = LibraryKindFieldMetadata(
@@ -201,6 +205,7 @@ abstract final class MusicWorkspaceFieldMetadata {
     groupable: true,
     exportable: true,
     editable: true,
+    vocabulary: VocabularyId<String>('music.storage_device'),
   );
 
   static const storageSlot = LibraryKindFieldMetadata(
@@ -253,18 +258,34 @@ abstract final class MusicWorkspaceFieldMetadata {
 
   static const all = <LibraryKindFieldMetadata>[
     addedAt,
+    addedMonth,
+    addedYear,
     condition,
     cover,
+    collectionStatus,
+    extra,
     grade,
+    hasBack,
+    hasFront,
+    imageType,
     isLive,
+    isSigned,
     indexNumber,
     lastCleaned,
+    lastCleanedMonth,
+    lastCleanedYear,
     lastListened,
     listenCount,
     location,
     marketValue,
+    mediaCondition,
+    originalReleaseDate,
+    originalReleaseMonth,
     pricePaid,
     purchaseDate,
+    purchaseMonth,
+    purchaseStore,
+    purchaseYear,
     rating,
     originalReleaseYear,
     discFormatFamily,
@@ -288,10 +309,265 @@ abstract final class MusicWorkspaceFieldMetadata {
     trackCount,
     trackComposition,
     updatedAt,
+    updatedMonth,
     vinylColor,
     wishlist,
     rpm,
+    owner,
+    played,
+    playedDate,
+    playedMonth,
+    playedYear,
+    releaseMonth,
+    tags,
   ];
+
+  static const addedMonth = LibraryKindFieldMetadata(
+    id: 'music.added_month',
+    label: 'Added Month',
+    valueType: LibraryFieldValueType.number,
+    cardinality: LibraryFieldCardinality.one,
+    source: LibraryFieldSource.derived,
+    sourcePath: 'added_at.month',
+    groupable: true,
+  );
+
+  static const addedYear = LibraryKindFieldMetadata(
+    id: 'music.added_year',
+    label: 'Added Year',
+    valueType: LibraryFieldValueType.number,
+    cardinality: LibraryFieldCardinality.one,
+    source: LibraryFieldSource.derived,
+    sourcePath: 'added_at.year',
+    groupable: true,
+  );
+
+  static const collectionStatus = LibraryKindFieldMetadata(
+    id: 'music.collection_status',
+    label: 'Collection Status',
+    valueType: LibraryFieldValueType.text,
+    cardinality: LibraryFieldCardinality.one,
+    source: LibraryFieldSource.libraryEntry,
+    sourcePath: 'collection_status',
+    groupable: true,
+    vocabulary: UniversalVocabularyIds.collectionStatus,
+  );
+
+  static const extra = LibraryKindFieldMetadata(
+    id: 'music.extra',
+    label: 'Extra',
+    valueType: LibraryFieldValueType.text,
+    cardinality: LibraryFieldCardinality.many,
+    source: LibraryFieldSource.catalog,
+    sourcePath: 'extra[]',
+    groupable: true,
+    vocabulary: VocabularyId<String>('music.extra'),
+  );
+
+  static const hasBack = LibraryKindFieldMetadata(
+    id: 'music.has_back',
+    label: 'Has Back',
+    valueType: LibraryFieldValueType.boolean,
+    cardinality: LibraryFieldCardinality.one,
+    source: LibraryFieldSource.derived,
+    sourcePath: 'images.has_back',
+    groupable: true,
+  );
+
+  static const hasFront = LibraryKindFieldMetadata(
+    id: 'music.has_front',
+    label: 'Has Front',
+    valueType: LibraryFieldValueType.boolean,
+    cardinality: LibraryFieldCardinality.one,
+    source: LibraryFieldSource.derived,
+    sourcePath: 'images.has_front',
+    groupable: true,
+  );
+
+  static const imageType = LibraryKindFieldMetadata(
+    id: 'music.image_type',
+    label: 'Image Type',
+    valueType: LibraryFieldValueType.text,
+    cardinality: LibraryFieldCardinality.many,
+    source: LibraryFieldSource.derived,
+    sourcePath: 'images[].image_type',
+    groupable: true,
+    vocabulary: VocabularyId<String>('music.image_type'),
+  );
+
+  static const isSigned = LibraryKindFieldMetadata(
+    id: 'music.is_signed',
+    label: 'Is Signed',
+    valueType: LibraryFieldValueType.boolean,
+    cardinality: LibraryFieldCardinality.one,
+    source: LibraryFieldSource.derived,
+    sourcePath: 'personal.details.signed_by',
+    groupable: true,
+  );
+
+  static const lastCleanedMonth = LibraryKindFieldMetadata(
+    id: 'music.last_cleaned_month',
+    label: 'Last cleaned Month',
+    valueType: LibraryFieldValueType.number,
+    cardinality: LibraryFieldCardinality.one,
+    source: LibraryFieldSource.derived,
+    sourcePath: 'last_cleaned.month',
+    groupable: true,
+  );
+
+  static const lastCleanedYear = LibraryKindFieldMetadata(
+    id: 'music.last_cleaned_year',
+    label: 'Last cleaned Year',
+    valueType: LibraryFieldValueType.number,
+    cardinality: LibraryFieldCardinality.one,
+    source: LibraryFieldSource.derived,
+    sourcePath: 'last_cleaned.year',
+    groupable: true,
+  );
+
+  static const mediaCondition = LibraryKindFieldMetadata(
+    id: 'music.media_condition',
+    label: 'Media Condition',
+    valueType: LibraryFieldValueType.text,
+    cardinality: LibraryFieldCardinality.one,
+    source: LibraryFieldSource.libraryEntry,
+    sourcePath: 'personal.media_condition',
+    groupable: true,
+    vocabulary: VocabularyId<String>('music.media_condition'),
+  );
+
+  static const originalReleaseDate = LibraryKindFieldMetadata(
+    id: 'music.original_release_date',
+    label: 'Original Release Date',
+    valueType: LibraryFieldValueType.partialDate,
+    cardinality: LibraryFieldCardinality.one,
+    source: LibraryFieldSource.catalog,
+    sourcePath: 'original_release_date',
+    groupable: true,
+  );
+
+  static const originalReleaseMonth = LibraryKindFieldMetadata(
+    id: 'music.original_release_month',
+    label: 'Original Release Month',
+    valueType: LibraryFieldValueType.number,
+    cardinality: LibraryFieldCardinality.one,
+    source: LibraryFieldSource.derived,
+    sourcePath: 'original_release_date.month',
+    groupable: true,
+  );
+
+  static const owner = LibraryKindFieldMetadata(
+    id: 'music.owner',
+    label: 'Owner',
+    valueType: LibraryFieldValueType.text,
+    cardinality: LibraryFieldCardinality.one,
+    source: LibraryFieldSource.libraryEntry,
+    sourcePath: 'owner_label',
+    groupable: true,
+    vocabulary: UniversalVocabularyIds.owners,
+  );
+
+  static const played = LibraryKindFieldMetadata(
+    id: 'music.played',
+    label: 'Played',
+    valueType: LibraryFieldValueType.boolean,
+    cardinality: LibraryFieldCardinality.one,
+    source: LibraryFieldSource.derived,
+    sourcePath: 'listening_summary.total_listen_count',
+    groupable: true,
+  );
+
+  static const playedDate = LibraryKindFieldMetadata(
+    id: 'music.played_date',
+    label: 'Played Date',
+    valueType: LibraryFieldValueType.partialDate,
+    cardinality: LibraryFieldCardinality.many,
+    source: LibraryFieldSource.derived,
+    sourcePath: 'listening_summary.recent_events[].listened_at',
+    groupable: true,
+  );
+
+  static const playedMonth = LibraryKindFieldMetadata(
+    id: 'music.played_month',
+    label: 'Played Month',
+    valueType: LibraryFieldValueType.number,
+    cardinality: LibraryFieldCardinality.one,
+    source: LibraryFieldSource.derived,
+    sourcePath: 'last_listened.month',
+    groupable: true,
+  );
+
+  static const playedYear = LibraryKindFieldMetadata(
+    id: 'music.played_year',
+    label: 'Played Year',
+    valueType: LibraryFieldValueType.number,
+    cardinality: LibraryFieldCardinality.one,
+    source: LibraryFieldSource.derived,
+    sourcePath: 'last_listened.year',
+    groupable: true,
+  );
+
+  static const purchaseMonth = LibraryKindFieldMetadata(
+    id: 'music.purchase_month',
+    label: 'Purchase Month',
+    valueType: LibraryFieldValueType.number,
+    cardinality: LibraryFieldCardinality.one,
+    source: LibraryFieldSource.derived,
+    sourcePath: 'purchase_date.month',
+    groupable: true,
+  );
+
+  static const purchaseStore = LibraryKindFieldMetadata(
+    id: 'music.purchase_store',
+    label: 'Purchase Store',
+    valueType: LibraryFieldValueType.text,
+    cardinality: LibraryFieldCardinality.one,
+    source: LibraryFieldSource.libraryEntry,
+    sourcePath: 'purchase_store',
+    groupable: true,
+    vocabulary: UniversalVocabularyIds.purchaseStore,
+  );
+
+  static const purchaseYear = LibraryKindFieldMetadata(
+    id: 'music.purchase_year',
+    label: 'Purchase Year',
+    valueType: LibraryFieldValueType.number,
+    cardinality: LibraryFieldCardinality.one,
+    source: LibraryFieldSource.derived,
+    sourcePath: 'purchase_date.year',
+    groupable: true,
+  );
+
+  static const releaseMonth = LibraryKindFieldMetadata(
+    id: 'music.release_month',
+    label: 'Release Month',
+    valueType: LibraryFieldValueType.number,
+    cardinality: LibraryFieldCardinality.one,
+    source: LibraryFieldSource.derived,
+    sourcePath: 'release_date.month',
+    groupable: true,
+  );
+
+  static const tags = LibraryKindFieldMetadata(
+    id: 'music.tags',
+    label: 'Tags',
+    valueType: LibraryFieldValueType.text,
+    cardinality: LibraryFieldCardinality.many,
+    source: LibraryFieldSource.libraryEntry,
+    sourcePath: 'tags',
+    groupable: true,
+    vocabulary: UniversalVocabularyIds.tags,
+  );
+
+  static const updatedMonth = LibraryKindFieldMetadata(
+    id: 'music.updated_month',
+    label: 'Modified Month',
+    valueType: LibraryFieldValueType.number,
+    cardinality: LibraryFieldCardinality.one,
+    source: LibraryFieldSource.derived,
+    sourcePath: 'updated_at.month',
+    groupable: true,
+  );
 
   static const isLive = LibraryKindFieldMetadata(
     id: 'music.disc.is_live',
@@ -460,6 +736,7 @@ abstract final class MusicWorkspaceFieldMetadata {
     filterable: true,
     groupable: true,
     exportable: true,
+    vocabulary: VocabularyId<String>('music.sound_type'),
   );
 
   static const spars = LibraryKindFieldMetadata(
@@ -472,6 +749,7 @@ abstract final class MusicWorkspaceFieldMetadata {
     filterable: true,
     groupable: true,
     exportable: true,
+    vocabulary: VocabularyId<String>('music.spars'),
   );
 
   static const recordingLocations = LibraryKindFieldMetadata(
@@ -485,6 +763,7 @@ abstract final class MusicWorkspaceFieldMetadata {
     filterable: true,
     groupable: true,
     exportable: true,
+    vocabulary: VocabularyId<String>('music.recording_location'),
   );
 
   static const vinylColor = LibraryKindFieldMetadata(
@@ -497,6 +776,7 @@ abstract final class MusicWorkspaceFieldMetadata {
     filterable: true,
     groupable: true,
     exportable: true,
+    vocabulary: VocabularyId<String>('music.vinyl_color'),
   );
 
   static const rpm = LibraryKindFieldMetadata(

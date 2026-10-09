@@ -1,12 +1,14 @@
 # Music v2 and Library Field Semantics Roadmap
 
 Status: active; checkpoints A1–A4, the nine-kind metadata cutover, Music
-v2 contract/domain/editing checkpoints C–F, workspace-facts checkpoint G, and
-workspace field cleanup checkpoint H are implemented. The next stage is
-contained grouping and filter alignment. Each completed
-checkpoint is committed separately with a detailed Conventional Commit
-message. Stages that touch Core contracts regenerate the Core bundle and update
-the App pin in the same stage.
+v2 contract/domain/editing checkpoints C–F, workspace-facts checkpoint G,
+workspace field cleanup checkpoint H, contained grouping/filter checkpoint I,
+scalar date sorts checkpoint J, search/export/correction checkpoint K, and
+physical cleanup checkpoint L are implemented. Stage M's release gate remains
+open for the repository-wide architecture check and full Core suite. Each
+completed checkpoint is committed separately with a detailed Conventional
+Commit message. Stages that touch Core contracts regenerate the Core bundle and
+update the App pin in the same stage.
 
 ## Architectural contract
 
@@ -171,7 +173,7 @@ slot are separate fields, and the concatenated summary is not used for filters
 or grouping. Metadata and schema tests verify shared field identity and
 one/many semantics.
 
-### I. Disc and credit groups; filters and facets (in progress)
+### I. Disc and credit groups; filters and facets (implemented)
 
 Split catalog, disc, credit, and personal grouping definitions. Add contained
 groups for disc format/family/date/month/year/SPARS/sound/live-state/location/
@@ -194,6 +196,14 @@ field or the kind's filter definitions. Multi-value facet fields for Board
 Games, Books, Comics, Games, and Manga are registered on both catalog and
 library-entry targets, with getters aligned to the facet values; Manga
 Character filtering now reads its canonical character list.
+
+Every Music grouping field now resolves to required `LibraryKindFieldMetadata`;
+group IDs, labels, capabilities, and bucket vocabularies come from that
+metadata. There is no nullable metadata fallback that implicitly treats a
+group as supported. Regression tests assert every Music grouping field is
+registered, groupable, and uses the metadata vocabulary. The `is_live` value
+remains boolean in its metadata and typed getter; Live/Studio are only the
+group bucket labels.
 
 ### J. Scalar date sorting (implemented)
 

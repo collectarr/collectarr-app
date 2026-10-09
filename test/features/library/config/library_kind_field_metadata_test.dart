@@ -94,6 +94,23 @@ void main() {
     expect(musicLiveStudioLabels([true, false]), ['Live', 'Studio']);
   });
 
+  test('every Music grouping field is backed by canonical metadata', () {
+    final groups = musicWorkspaceGroupDefinitions(includePersonal: true);
+    final groupIds = groups.map((group) => group.id.value).toSet();
+
+    for (final groupingField in MusicGroupingField.values) {
+      final metadata = groupingField.fieldMetadata;
+      expect(metadata.id, groupingField.id);
+      expect(metadata.label, groupingField.label);
+      expect(metadata.groupable, isTrue, reason: metadata.id);
+      expect(fields.map((field) => field.id), contains(metadata.id));
+      expect(groupIds, contains(metadata.id));
+      final group = groups
+          .singleWhere((definition) => definition.id.value == groupingField.id);
+      expect(group.bucketVocabulary, metadata.vocabulary, reason: metadata.id);
+    }
+  });
+
   test('Music contained disc and credit groups follow field capabilities', () {
     final groups = musicWorkspaceGroupDefinitions(includePersonal: true);
     final groupIds = groups.map((group) => group.id.value).toSet();

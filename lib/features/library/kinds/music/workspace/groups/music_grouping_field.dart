@@ -1,8 +1,6 @@
 import 'package:collectarr_app/features/library/config/library_kind_field_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/music/config/music_field_identities.dart';
 import 'package:collectarr_app/features/library/kinds/music/config/music_workspace_field_metadata.dart';
-import 'package:collectarr_app/features/library/kinds/music/vocabulary/music_vocabularies.dart';
-import 'package:collectarr_app/features/pick_lists/models/universal_vocabularies.dart';
 import 'package:collectarr_app/features/pick_lists/models/vocabulary_id.dart';
 
 enum MusicGroupingField {
@@ -67,13 +65,20 @@ enum MusicGroupingField {
 }
 
 extension MusicGroupingFieldConfiguration on MusicGroupingField {
-  LibraryKindFieldMetadata? get fieldMetadata => switch (this) {
+  LibraryKindFieldMetadata get fieldMetadata => switch (this) {
+        MusicGroupingField.hasBack => MusicWorkspaceFieldMetadata.hasBack,
+        MusicGroupingField.hasFront => MusicWorkspaceFieldMetadata.hasFront,
+        MusicGroupingField.imageType => MusicWorkspaceFieldMetadata.imageType,
         MusicGroupingField.artist => MusicFieldIdentities.artist,
         MusicGroupingField.discFormat => MusicFieldIdentities.discFormat,
         MusicGroupingField.discFormatFamily =>
           MusicWorkspaceFieldMetadata.discFormatFamily,
         MusicGroupingField.genre => MusicFieldIdentities.genre,
         MusicGroupingField.publisher => MusicFieldIdentities.publisher,
+        MusicGroupingField.originalReleaseDate =>
+          MusicWorkspaceFieldMetadata.originalReleaseDate,
+        MusicGroupingField.originalReleaseMonth =>
+          MusicWorkspaceFieldMetadata.originalReleaseMonth,
         MusicGroupingField.originalReleaseYear =>
           MusicWorkspaceFieldMetadata.originalReleaseYear,
         MusicGroupingField.recordingDate =>
@@ -83,16 +88,21 @@ extension MusicGroupingFieldConfiguration on MusicGroupingField {
         MusicGroupingField.recordingYear =>
           MusicWorkspaceFieldMetadata.recordingYear,
         MusicGroupingField.releaseDate => MusicFieldIdentities.releaseDate,
+        MusicGroupingField.releaseMonth =>
+          MusicWorkspaceFieldMetadata.releaseMonth,
         MusicGroupingField.releaseYear =>
           MusicWorkspaceFieldMetadata.releaseYear,
         MusicGroupingField.boxSet => MusicFieldIdentities.boxSet,
         MusicGroupingField.country => MusicFieldIdentities.country,
+        MusicGroupingField.extra => MusicWorkspaceFieldMetadata.extra,
         MusicGroupingField.creditContributor =>
           MusicWorkspaceFieldMetadata.creditContributor,
         MusicGroupingField.creditRole => MusicWorkspaceFieldMetadata.creditRole,
         MusicGroupingField.creditInstrument =>
           MusicWorkspaceFieldMetadata.creditInstrument,
         MusicGroupingField.isLive => MusicWorkspaceFieldMetadata.isLive,
+        MusicGroupingField.mediaCondition =>
+          MusicWorkspaceFieldMetadata.mediaCondition,
         MusicGroupingField.condition => MusicWorkspaceFieldMetadata.condition,
         MusicGroupingField.packaging => MusicFieldIdentities.packaging,
         MusicGroupingField.rpm => MusicWorkspaceFieldMetadata.rpm,
@@ -108,78 +118,43 @@ extension MusicGroupingFieldConfiguration on MusicGroupingField {
         MusicGroupingField.trackComposition =>
           MusicWorkspaceFieldMetadata.trackComposition,
         MusicGroupingField.addedAt => MusicWorkspaceFieldMetadata.addedAt,
+        MusicGroupingField.addedMonth => MusicWorkspaceFieldMetadata.addedMonth,
+        MusicGroupingField.addedYear => MusicWorkspaceFieldMetadata.addedYear,
+        MusicGroupingField.collectionStatus =>
+          MusicWorkspaceFieldMetadata.collectionStatus,
+        MusicGroupingField.isSigned => MusicWorkspaceFieldMetadata.isSigned,
         MusicGroupingField.lastCleaned =>
           MusicWorkspaceFieldMetadata.lastCleaned,
+        MusicGroupingField.lastCleanedMonth =>
+          MusicWorkspaceFieldMetadata.lastCleanedMonth,
+        MusicGroupingField.lastCleanedYear =>
+          MusicWorkspaceFieldMetadata.lastCleanedYear,
         MusicGroupingField.location => MusicWorkspaceFieldMetadata.location,
+        MusicGroupingField.updatedAt => MusicWorkspaceFieldMetadata.updatedAt,
+        MusicGroupingField.updatedMonth =>
+          MusicWorkspaceFieldMetadata.updatedMonth,
         MusicGroupingField.rating => MusicWorkspaceFieldMetadata.rating,
+        MusicGroupingField.owner => MusicWorkspaceFieldMetadata.owner,
+        MusicGroupingField.played => MusicWorkspaceFieldMetadata.played,
+        MusicGroupingField.playedDate => MusicWorkspaceFieldMetadata.playedDate,
+        MusicGroupingField.playedMonth =>
+          MusicWorkspaceFieldMetadata.playedMonth,
+        MusicGroupingField.playedYear => MusicWorkspaceFieldMetadata.playedYear,
         MusicGroupingField.purchaseDate =>
           MusicWorkspaceFieldMetadata.purchaseDate,
+        MusicGroupingField.purchaseMonth =>
+          MusicWorkspaceFieldMetadata.purchaseMonth,
+        MusicGroupingField.purchaseStore =>
+          MusicWorkspaceFieldMetadata.purchaseStore,
+        MusicGroupingField.purchaseYear =>
+          MusicWorkspaceFieldMetadata.purchaseYear,
         MusicGroupingField.signedBy => MusicWorkspaceFieldMetadata.signedBy,
-        MusicGroupingField.updatedAt => MusicWorkspaceFieldMetadata.updatedAt,
-        _ => null,
+        MusicGroupingField.tags => MusicWorkspaceFieldMetadata.tags,
       };
 
-  String get id =>
-      fieldMetadata?.id ??
-      switch (this) {
-        MusicGroupingField.hasBack => 'music.has_back',
-        MusicGroupingField.hasFront => 'music.has_front',
-        MusicGroupingField.imageType => 'music.image_type',
-        MusicGroupingField.originalReleaseDate => 'music.original_release_date',
-        MusicGroupingField.originalReleaseMonth =>
-          'music.original_release_month',
-        MusicGroupingField.releaseMonth => 'music.release_month',
-        MusicGroupingField.extra => 'music.extra',
-        MusicGroupingField.mediaCondition => 'music.media_condition',
-        MusicGroupingField.addedMonth => 'music.added_month',
-        MusicGroupingField.addedYear => 'music.added_year',
-        MusicGroupingField.collectionStatus => 'music.collection_status',
-        MusicGroupingField.isSigned => 'music.is_signed',
-        MusicGroupingField.lastCleanedMonth => 'music.last_cleaned_month',
-        MusicGroupingField.lastCleanedYear => 'music.last_cleaned_year',
-        MusicGroupingField.updatedMonth => 'music.updated_month',
-        MusicGroupingField.owner => 'music.owner',
-        MusicGroupingField.played => 'music.played',
-        MusicGroupingField.playedDate => 'music.played_date',
-        MusicGroupingField.playedMonth => 'music.played_month',
-        MusicGroupingField.playedYear => 'music.played_year',
-        MusicGroupingField.purchaseMonth => 'music.purchase_month',
-        MusicGroupingField.purchaseStore => 'music.purchase_store',
-        MusicGroupingField.purchaseYear => 'music.purchase_year',
-        MusicGroupingField.tags => 'music.tags',
-        _ => throw StateError('Grouping field $this needs metadata or an ID.'),
-      };
+  String get id => fieldMetadata.id;
 
-  String get label =>
-      fieldMetadata?.label ??
-      switch (this) {
-        MusicGroupingField.hasBack => 'Has Back',
-        MusicGroupingField.hasFront => 'Has Front',
-        MusicGroupingField.imageType => 'Image Type',
-        MusicGroupingField.originalReleaseDate => 'Original Release Date',
-        MusicGroupingField.originalReleaseMonth => 'Original Release Month',
-        MusicGroupingField.releaseMonth => 'Release Month',
-        MusicGroupingField.extra => 'Extra',
-        MusicGroupingField.mediaCondition => 'Media Condition',
-        MusicGroupingField.addedMonth => 'Added Month',
-        MusicGroupingField.addedYear => 'Added Year',
-        MusicGroupingField.collectionStatus => 'Collection Status',
-        MusicGroupingField.isSigned => 'Is Signed',
-        MusicGroupingField.lastCleanedMonth => 'Last Cleaned Month',
-        MusicGroupingField.lastCleanedYear => 'Last Cleaned Year',
-        MusicGroupingField.updatedMonth => 'Modified Month',
-        MusicGroupingField.owner => 'Owner',
-        MusicGroupingField.played => 'Played',
-        MusicGroupingField.playedDate => 'Played Date',
-        MusicGroupingField.playedMonth => 'Played Month',
-        MusicGroupingField.playedYear => 'Played Year',
-        MusicGroupingField.purchaseMonth => 'Purchase Month',
-        MusicGroupingField.purchaseStore => 'Purchase Store',
-        MusicGroupingField.purchaseYear => 'Purchase Year',
-        MusicGroupingField.tags => 'Tags',
-        _ =>
-          throw StateError('Grouping field $this needs metadata or a label.'),
-      };
+  String get label => fieldMetadata.label;
 
   String get category => switch (this) {
         MusicGroupingField.hasBack ||
@@ -266,34 +241,5 @@ extension MusicGroupingFieldConfiguration on MusicGroupingField {
         _ => false,
       };
 
-  VocabularyId<String>? get bucketVocabulary => switch (this) {
-        MusicGroupingField.artist => MusicVocabularyIds.artist,
-        MusicGroupingField.boxSet => MusicVocabularyIds.boxSet,
-        MusicGroupingField.extra => MusicVocabularyIds.extra,
-        MusicGroupingField.spars => MusicVocabularyIds.spars,
-        MusicGroupingField.imageType => MusicVocabularyIds.imageType,
-        MusicGroupingField.owner => UniversalVocabularyIds.owners,
-        MusicGroupingField.location => const VocabularyId<String>('locations'),
-        MusicGroupingField.tags => UniversalVocabularyIds.tags,
-        MusicGroupingField.purchaseStore =>
-          UniversalVocabularyIds.purchaseStore,
-        MusicGroupingField.discFormat => MusicVocabularyIds.format,
-        MusicGroupingField.creditContributor =>
-          MusicVocabularyIds.contributorName,
-        MusicGroupingField.creditRole => MusicVocabularyIds.creditRole,
-        MusicGroupingField.creditInstrument => MusicVocabularyIds.instrument,
-        MusicGroupingField.genre => MusicVocabularyIds.genre,
-        MusicGroupingField.publisher => MusicVocabularyIds.recordLabel,
-        MusicGroupingField.country => MusicVocabularyIds.country,
-        MusicGroupingField.mediaCondition => MusicVocabularyIds.mediaCondition,
-        MusicGroupingField.condition => MusicVocabularyIds.condition,
-        MusicGroupingField.packaging => MusicVocabularyIds.packaging,
-        MusicGroupingField.sound => MusicVocabularyIds.soundType,
-        MusicGroupingField.storageDevice => MusicVocabularyIds.storageDevice,
-        MusicGroupingField.recordingLocation =>
-          MusicVocabularyIds.recordingLocation,
-        MusicGroupingField.vinylColor => MusicVocabularyIds.vinylColor,
-        MusicGroupingField.signedBy => MusicVocabularyIds.signedBy,
-        _ => null,
-      };
+  VocabularyId<String>? get bucketVocabulary => fieldMetadata.vocabulary;
 }

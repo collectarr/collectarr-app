@@ -14,7 +14,7 @@ List<LibraryGroupDefinition<MusicKind, MusicWorkspaceProjection, Object?>>
     musicWorkspaceGroupDefinitions({required bool includePersonal}) => [
           for (final field in MusicGroupingField.values)
             if (includePersonal || !field.localOnly)
-              if (field.fieldMetadata?.groupable ?? true)
+              if (field.fieldMetadata.groupable)
                 LibraryGroupDefinition(
                   id: LibraryGroupId<MusicKind, Object?>(
                     field.id,
