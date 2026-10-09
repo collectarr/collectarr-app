@@ -47,6 +47,8 @@ Future<SmartListLoadResult?> showSmartListsDialog({
   String? currentSearchQuery,
   required SmartListCriteriaTarget currentTarget,
   List<CustomFieldDefinition> customFieldDefinitions = const [],
+  bool collectionManager = false,
+  bool allowCurrentViewUpdate = true,
 }) {
   return showDialog<SmartListLoadResult>(
     context: context,
@@ -61,6 +63,8 @@ Future<SmartListLoadResult?> showSmartListsDialog({
       currentSearchQuery: currentSearchQuery,
       currentTarget: currentTarget,
       customFieldDefinitions: customFieldDefinitions,
+      collectionManager: collectionManager,
+      allowCurrentViewUpdate: allowCurrentViewUpdate,
     ),
   );
 }
@@ -77,6 +81,8 @@ class _SmartListsDialog extends StatefulWidget {
     this.currentSearchQuery,
     required this.currentTarget,
     this.customFieldDefinitions = const [],
+    this.collectionManager = false,
+    this.allowCurrentViewUpdate = true,
   });
 
   final LocalDatabase db;
@@ -89,6 +95,8 @@ class _SmartListsDialog extends StatefulWidget {
   final String? currentSearchQuery;
   final SmartListCriteriaTarget currentTarget;
   final List<CustomFieldDefinition> customFieldDefinitions;
+  final bool collectionManager;
+  final bool allowCurrentViewUpdate;
 
   @override
   State<_SmartListsDialog> createState() => _SmartListsDialogState();
@@ -125,13 +133,16 @@ class _SmartListsDialogState extends State<_SmartListsDialog> {
 
   Future<void> _saveCurrentAsSmartList() async {
     final name = await _promptForName(
-      title: 'Save Smart List',
-      confirmLabel: 'Save',
-      hintText: 'e.g. Unread Marvel',
+      title: widget.collectionManager ? 'Add Collection' : 'Save Smart List',
+      confirmLabel: widget.collectionManager ? 'Add' : 'Save',
+      hintText:
+          widget.collectionManager ? 'e.g. Favorites' : 'e.g. Unread Marvel',
     );
     if (name == null || name.isEmpty) return;
 
-    final kinds = await _chooseKinds({widget.mediaKind});
+    final kinds = widget.collectionManager
+        ? <String>{widget.mediaKind}
+        : await _chooseKinds({widget.mediaKind});
     if (kinds == null || kinds.isEmpty) return;
 
     final repo = SmartListRepository(widget.db);
@@ -252,7 +263,8 @@ class _SmartListsDialogState extends State<_SmartListsDialog> {
 
   Future<void> _rename(SmartList list) async {
     final name = await _promptForName(
-      title: 'Rename Smart List',
+      title:
+          widget.collectionManager ? 'Rename Collection' : 'Rename Smart List',
       confirmLabel: 'Rename',
       hintText: 'e.g. Unread Marvel',
       initialValue: list.name,
@@ -304,7 +316,9 @@ class _SmartListsDialogState extends State<_SmartListsDialog> {
       context: context,
       builder: (ctx) => AccentAlertDialog(
         backgroundColor: appPalette(ctx).panel,
-        title: const Text('Overwrite Smart List'),
+        title: Text(widget.collectionManager
+            ? 'Update Collection'
+            : 'Overwrite Smart List'),
         content: Text(
           'Replace "${list.name}" with the current filters, search, sort and quick view?',
         ),
@@ -338,8 +352,14 @@ class _SmartListsDialogState extends State<_SmartListsDialog> {
       context: context,
       builder: (ctx) => AccentAlertDialog(
         backgroundColor: appPalette(ctx).panel,
-        title: const Text('Delete Smart List'),
-        content: Text('Delete "${list.name}"?'),
+        title: Text(widget.collectionManager
+            ? 'Delete Collection'
+            : 'Delete Smart List'),
+        content: Text(
+          widget.collectionManager
+              ? 'Delete the "${list.name}" collection tab?'
+              : 'Delete "${list.name}"?',
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
@@ -397,131 +417,243 @@ class _SmartListsDialogState extends State<_SmartListsDialog> {
       backgroundColor: palette.panel,
       title: Row(
         children: [
-          const Icon(Icons.auto_awesome_mosaic, size: 20),
-          const SizedBox(width: 8),
-          const Expanded(child: Text('Smart Lists')),
-          IconButton(
-            icon: const Icon(Icons.add, size: 20),
-            tooltip: 'Save current view as smart list',
-            onPressed: _saveCurrentAsSmartList,
+          Icon(
+            widget.collectionManager
+                ? Icons.collections_bookmark
+                : Icons.auto_awesome_mosaic,
+            size: 20,
           ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              widget.collectionManager ? 'Manage Collections' : 'Smart Lists',
+            ),
+          ),
+          if (!widget.collectionManager)
+            IconButton(
+              icon: const Icon(Icons.add, size: 20),
+              tooltip: 'Save current view as smart list',
+              onPressed: _saveCurrentAsSmartList,
+            ),
         ],
       ),
       content: SizedBox(
-        width: 760,
+        width: widget.collectionManager ? 640 : 760,
         height: 380,
         child: _loading
             ? const Center(child: CircularProgressIndicator())
-            : _lists.isEmpty
-                ? Center(
-                    child: Text(
-                      'No saved smart lists.\n'
-                      'Apply filters, then tap + to save\n'
-                      'the current view as a smart list.',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(color: palette.textMuted),
-                    ),
-                  )
-                : Row(
-                    children: [
-                      SizedBox(
-                        width: 310,
-                        child: DecoratedBox(
-                          decoration: BoxDecoration(
-                            color: palette.panelRaised,
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(color: palette.divider),
-                          ),
-                          child: Material(
-                            color: Colors.transparent,
-                            child: ListView.separated(
-                              itemCount: _lists.length,
-                              separatorBuilder: (_, __) =>
-                                  Divider(height: 1, color: palette.divider),
-                              itemBuilder: (context, i) {
-                                final list = _lists[i];
-                                final selected = list.id == _selectedListId;
-                                return ListTile(
-                                  leading: Icon(
-                                    selected
-                                        ? Icons.bookmark_added
-                                        : Icons.filter_list,
-                                    size: 20,
-                                    color: selected
-                                        ? Theme.of(context).colorScheme.primary
-                                        : null,
-                                  ),
-                                  title: Text(list.name),
-                                  subtitle: _buildSubtitle(list),
-                                  dense: true,
-                                  selected: selected,
-                                  onTap: () =>
-                                      setState(() => _selectedListId = list.id),
-                                  trailing: PopupMenuButton<_SmartListAction>(
-                                    icon:
-                                        const Icon(Icons.more_horiz, size: 18),
-                                    tooltip: 'Smart list actions',
-                                    onSelected: (action) async {
-                                      switch (action) {
-                                        case _SmartListAction.load:
-                                          _load_(list);
-                                        case _SmartListAction.rename:
-                                          await _rename(list);
-                                        case _SmartListAction.overwrite:
-                                          await _overwriteFromCurrentView(list);
-                                        case _SmartListAction.delete:
-                                          await _delete(list);
-                                      }
-                                    },
-                                    itemBuilder: (context) => const [
-                                      PopupMenuItem<_SmartListAction>(
-                                        value: _SmartListAction.load,
-                                        child: Text('Load'),
+            : widget.collectionManager
+                ? _buildCollectionManager(palette)
+                : _lists.isEmpty
+                    ? Center(
+                        child: Text(
+                          'No saved smart lists.\n'
+                          'Apply filters, then tap + to save\n'
+                          'the current view as a smart list.',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(color: palette.textMuted),
+                        ),
+                      )
+                    : Row(
+                        children: [
+                          SizedBox(
+                            width: 310,
+                            child: DecoratedBox(
+                              decoration: BoxDecoration(
+                                color: palette.panelRaised,
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(color: palette.divider),
+                              ),
+                              child: Material(
+                                color: Colors.transparent,
+                                child: ListView.separated(
+                                  itemCount: _lists.length,
+                                  separatorBuilder: (_, __) => Divider(
+                                      height: 1, color: palette.divider),
+                                  itemBuilder: (context, i) {
+                                    final list = _lists[i];
+                                    final selected = list.id == _selectedListId;
+                                    return ListTile(
+                                      leading: Icon(
+                                        selected
+                                            ? Icons.bookmark_added
+                                            : Icons.filter_list,
+                                        size: 20,
+                                        color: selected
+                                            ? Theme.of(context)
+                                                .colorScheme
+                                                .primary
+                                            : null,
                                       ),
-                                      PopupMenuItem<_SmartListAction>(
-                                        value: _SmartListAction.rename,
-                                        child: Text('Rename'),
+                                      title: Text(list.name),
+                                      subtitle: _buildSubtitle(list),
+                                      dense: true,
+                                      selected: selected,
+                                      onTap: () => setState(
+                                          () => _selectedListId = list.id),
+                                      trailing:
+                                          PopupMenuButton<_SmartListAction>(
+                                        icon: const Icon(Icons.more_horiz,
+                                            size: 18),
+                                        tooltip: 'Smart list actions',
+                                        onSelected: (action) async {
+                                          switch (action) {
+                                            case _SmartListAction.load:
+                                              _load_(list);
+                                            case _SmartListAction.rename:
+                                              await _rename(list);
+                                            case _SmartListAction.overwrite:
+                                              await _overwriteFromCurrentView(
+                                                  list);
+                                            case _SmartListAction.delete:
+                                              await _delete(list);
+                                          }
+                                        },
+                                        itemBuilder: (context) => const [
+                                          PopupMenuItem<_SmartListAction>(
+                                            value: _SmartListAction.load,
+                                            child: Text('Load'),
+                                          ),
+                                          PopupMenuItem<_SmartListAction>(
+                                            value: _SmartListAction.rename,
+                                            child: Text('Rename'),
+                                          ),
+                                          PopupMenuItem<_SmartListAction>(
+                                            value: _SmartListAction.overwrite,
+                                            child: Text(
+                                                'Overwrite with current view'),
+                                          ),
+                                          PopupMenuItem<_SmartListAction>(
+                                            value: _SmartListAction.delete,
+                                            child: Text('Delete'),
+                                          ),
+                                        ],
                                       ),
-                                      PopupMenuItem<_SmartListAction>(
-                                        value: _SmartListAction.overwrite,
-                                        child:
-                                            Text('Overwrite with current view'),
-                                      ),
-                                      PopupMenuItem<_SmartListAction>(
-                                        value: _SmartListAction.delete,
-                                        child: Text('Delete'),
-                                      ),
-                                    ],
-                                  ),
-                                );
-                              },
+                                    );
+                                  },
+                                ),
+                              ),
                             ),
                           ),
-                        ),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: selectedList == null
+                                ? const SizedBox.shrink()
+                                : _SmartListDetailsPane(
+                                    list: selectedList,
+                                    customFieldDefinitions:
+                                        widget.customFieldDefinitions,
+                                    onLoad: () => _load_(selectedList),
+                                    onRename: () => _rename(selectedList),
+                                    onEditKinds: () => _editKinds(selectedList),
+                                    onOverwriteFromCurrentView: () =>
+                                        _overwriteFromCurrentView(selectedList),
+                                    onDelete: () => _delete(selectedList),
+                                  ),
+                          ),
+                        ],
                       ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: selectedList == null
-                            ? const SizedBox.shrink()
-                            : _SmartListDetailsPane(
-                                list: selectedList,
-                                customFieldDefinitions:
-                                    widget.customFieldDefinitions,
-                                onLoad: () => _load_(selectedList),
-                                onRename: () => _rename(selectedList),
-                                onEditKinds: () => _editKinds(selectedList),
-                                onOverwriteFromCurrentView: () =>
-                                    _overwriteFromCurrentView(selectedList),
-                                onDelete: () => _delete(selectedList),
-                              ),
-                      ),
-                    ],
-                  ),
       ),
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context),
           child: const Text('Close'),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildCollectionManager(AppThemePalette palette) {
+    return Column(
+      children: [
+        Container(
+          height: 40,
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+          decoration: const BoxDecoration(
+            color: Color(0xFF464950),
+            border: Border(
+              bottom: BorderSide(color: Color(0xFF383838)),
+            ),
+          ),
+          child: Align(
+            alignment: Alignment.centerRight,
+            child: FilledButton.icon(
+              onPressed: _saveCurrentAsSmartList,
+              icon: const Icon(Icons.add, size: 17),
+              label: const Text('Add Collection'),
+              style: FilledButton.styleFrom(
+                backgroundColor: const Color(0xFF5EB1DE),
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(horizontal: 10),
+                visualDensity: VisualDensity.compact,
+              ),
+            ),
+          ),
+        ),
+        Expanded(
+          child: _lists.isEmpty
+              ? Center(
+                  child: Text(
+                    'No collections yet. Add one to create a collection tab.',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(color: palette.textMuted),
+                  ),
+                )
+              : Material(
+                  color: Colors.transparent,
+                  child: ListView.separated(
+                    itemCount: _lists.length,
+                    separatorBuilder: (_, __) =>
+                        Divider(height: 1, color: palette.divider),
+                    itemBuilder: (context, index) {
+                      final list = _lists[index];
+                      return ListTile(
+                        leading:
+                            const Icon(Icons.collections_bookmark_outlined),
+                        title: Text(list.name),
+                        subtitle: _buildSubtitle(list),
+                        dense: true,
+                        minVerticalPadding: 7,
+                        trailing: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            IconButton(
+                              tooltip: 'Rename collection',
+                              visualDensity: VisualDensity.compact,
+                              onPressed: () => _rename(list),
+                              icon: const Icon(
+                                Icons.edit_outlined,
+                                size: 18,
+                              ),
+                            ),
+                            if (widget.allowCurrentViewUpdate)
+                              PopupMenuButton<_SmartListAction>(
+                                tooltip: 'Collection actions',
+                                icon: const Icon(Icons.more_horiz, size: 18),
+                                onSelected: (action) async {
+                                  if (action == _SmartListAction.overwrite) {
+                                    await _overwriteFromCurrentView(list);
+                                  }
+                                },
+                                itemBuilder: (context) => const [
+                                  PopupMenuItem<_SmartListAction>(
+                                    value: _SmartListAction.overwrite,
+                                    child: Text('Use current view'),
+                                  ),
+                                ],
+                              ),
+                            IconButton(
+                              tooltip: 'Delete collection',
+                              visualDensity: VisualDensity.compact,
+                              onPressed: () => _delete(list),
+                              icon: const Icon(Icons.delete_outline, size: 18),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
+                ),
         ),
       ],
     );

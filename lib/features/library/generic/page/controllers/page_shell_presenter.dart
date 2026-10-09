@@ -55,6 +55,11 @@ abstract final class LibraryPageShellPresenter {
         activeSmartListId: state._session.preferences.activeSmartListId,
         onSmartListSelected: state._applySmartList,
         onAllSelected: state._clearSmartList,
+        accent: state.widget.accent,
+        onManageCollections: () => state._dialogCoordinator.showSmartListsFlow(
+          shelfState,
+          collectionManager: true,
+        ),
       ),
       accent: state.widget.accent,
       showAddButton: useFab,
