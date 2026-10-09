@@ -43,6 +43,8 @@ class LibraryEditDialogScaffold extends StatefulWidget {
     this.allowTabReorder = true,
     this.tabOrderKey,
     this.alignment = Alignment.topCenter,
+    this.maxDialogWidth,
+    this.insetPadding,
   }) : assert(
           body != null ||
               (tabController != null &&
@@ -83,6 +85,8 @@ class LibraryEditDialogScaffold extends StatefulWidget {
 
   /// Keeps the edit dialog's top edge stable as its content changes height.
   final AlignmentGeometry? alignment;
+  final double? maxDialogWidth;
+  final EdgeInsets? insetPadding;
 
   @override
   State<LibraryEditDialogScaffold> createState() =>
@@ -247,9 +251,10 @@ class _LibraryEditDialogScaffoldState extends State<LibraryEditDialogScaffold> {
     ];
     final orderedViews = [for (final i in tabOrder) widget.views[i]];
     final viewport = MediaQuery.sizeOf(context);
-    final maxWidth = isWideDesktop
-        ? (viewport.width > 1440 ? 1220.0 : 1140.0)
-        : (viewport.width > 1264 ? 1200.0 : viewport.width - 64);
+    final maxWidth = widget.maxDialogWidth ??
+        (isWideDesktop
+            ? (viewport.width > 1440 ? 1220.0 : 1140.0)
+            : (viewport.width > 1264 ? 1200.0 : viewport.width - 64));
     final maxHeight = viewport.height > 900 ? 850.0 : viewport.height - 24;
     final p = libraryEditPalette(appPalette(context));
     return LibrarySchemaTextControllerScope(
@@ -293,6 +298,7 @@ class _LibraryEditDialogScaffoldState extends State<LibraryEditDialogScaffold> {
             minHeight: 0,
             maxHeight: maxHeight,
             alignment: widget.alignment,
+            insetPadding: widget.insetPadding,
             density: LibraryDensity.comfortable,
             expandBody: false,
             body: ConstrainedBox(

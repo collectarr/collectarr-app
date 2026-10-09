@@ -37,6 +37,8 @@ final class LibraryEditSchemaDialog<TModel, TDraft> extends StatefulWidget {
     this.onPrevious,
     this.onNext,
     this.chromeVariant = LibraryEditChromeVariant.standard,
+    this.maxDialogWidth,
+    this.insetPadding,
     this.mediaKind,
     this.vocabularyAccumulator,
     required this.tabOrderKey,
@@ -57,6 +59,8 @@ final class LibraryEditSchemaDialog<TModel, TDraft> extends StatefulWidget {
   final VoidCallback? onPrevious;
   final VoidCallback? onNext;
   final LibraryEditChromeVariant chromeVariant;
+  final double? maxDialogWidth;
+  final EdgeInsets? insetPadding;
   final String? mediaKind;
   final LibraryVocabularyEditAccumulator? vocabularyAccumulator;
   final String tabOrderKey;
@@ -208,6 +212,8 @@ class _LibraryEditSchemaDialogState<TModel, TDraft>
       onPrevious: _saving ? null : widget.onPrevious,
       onNext: _saving ? null : widget.onNext,
       chromeVariant: widget.chromeVariant,
+      maxDialogWidth: widget.maxDialogWidth,
+      insetPadding: widget.insetPadding,
       body: EditSchemaRenderer<TModel, TDraft>(
         key: _rendererKey,
         schema: widget.schema,

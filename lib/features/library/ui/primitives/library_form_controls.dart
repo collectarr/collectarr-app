@@ -224,14 +224,12 @@ class _LibraryPartialDateInputState extends State<LibraryPartialDateInput> {
                 focusNode: i == 0 ? widget.focusNode : null,
                 textAlign: TextAlign.center,
                 keyboardType: TextInputType.number,
-                minimumHeight: 0,
                 inputFormatters: [
                   FilteringTextInputFormatter.digitsOnly,
                   LengthLimitingTextInputFormatter(i == 0 ? 4 : 2)
                 ],
                 decoration: InputDecoration(
                   hintText: ['YYYY', 'MM', 'DD'][i],
-                  constraints: const BoxConstraints(),
                 ),
                 validator: (raw) {
                   if (raw == null || raw.isEmpty) return null;
