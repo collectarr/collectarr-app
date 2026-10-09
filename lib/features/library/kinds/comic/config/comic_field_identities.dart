@@ -20,7 +20,9 @@ abstract final class ComicFieldIdentities {
     id: seriesId,
     label: seriesLabel,
     valueType: LibraryFieldValueType.text,
-    catalogPath: 'series_title',
+    cardinality: LibraryFieldCardinality.one,
+    source: LibraryFieldSource.catalog,
+    sourcePath: 'series_title',
     filterable: true,
     sortable: true,
     groupable: true,
@@ -30,7 +32,9 @@ abstract final class ComicFieldIdentities {
     id: issueNumberId,
     label: issueNumberLabel,
     valueType: LibraryFieldValueType.text,
-    catalogPath: 'issue_number',
+    cardinality: LibraryFieldCardinality.one,
+    source: LibraryFieldSource.catalog,
+    sourcePath: 'issue_number',
     sortable: true,
     editable: true,
   );
@@ -38,14 +42,18 @@ abstract final class ComicFieldIdentities {
     id: variantId,
     label: variantLabel,
     valueType: LibraryFieldValueType.text,
-    catalogPath: 'variant_name',
+    cardinality: LibraryFieldCardinality.one,
+    source: LibraryFieldSource.catalog,
+    sourcePath: 'variant_name',
     editable: true,
   );
   static const imprint = LibraryKindFieldMetadata(
     id: imprintId,
     label: imprintLabel,
     valueType: LibraryFieldValueType.text,
-    catalogPath: 'imprint',
+    cardinality: LibraryFieldCardinality.one,
+    source: LibraryFieldSource.catalog,
+    sourcePath: 'imprint',
     editable: true,
     vocabulary: imprintVocabulary,
   );
@@ -53,7 +61,17 @@ abstract final class ComicFieldIdentities {
     id: pageCountId,
     label: pageCountLabel,
     valueType: LibraryFieldValueType.number,
-    catalogPath: 'page_count',
+    cardinality: LibraryFieldCardinality.one,
+    source: LibraryFieldSource.catalog,
+    sourcePath: 'page_count',
     editable: true,
   );
+
+  static const all = <LibraryKindFieldMetadata>[
+    series,
+    issueNumber,
+    variant,
+    imprint,
+    pageCount,
+  ];
 }

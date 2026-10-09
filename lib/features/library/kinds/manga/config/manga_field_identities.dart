@@ -14,7 +14,9 @@ abstract final class MangaFieldIdentities {
     id: seriesId,
     label: seriesLabel,
     valueType: LibraryFieldValueType.text,
-    catalogPath: 'series_title',
+    cardinality: LibraryFieldCardinality.one,
+    source: LibraryFieldSource.catalog,
+    sourcePath: 'series_title',
     filterable: true,
     sortable: true,
     groupable: true,
@@ -24,7 +26,9 @@ abstract final class MangaFieldIdentities {
     id: publisherId,
     label: publisherLabel,
     valueType: LibraryFieldValueType.text,
-    catalogPath: 'publisher',
+    cardinality: LibraryFieldCardinality.one,
+    source: LibraryFieldSource.catalog,
+    sourcePath: 'publisher',
     searchable: true,
     filterable: true,
     sortable: true,
@@ -32,4 +36,6 @@ abstract final class MangaFieldIdentities {
     editable: true,
     vocabulary: publisherVocabulary,
   );
+
+  static const all = <LibraryKindFieldMetadata>[series, publisher];
 }

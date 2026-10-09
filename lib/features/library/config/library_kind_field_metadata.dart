@@ -6,10 +6,11 @@ enum LibraryFieldValueType {
   boolean,
   date,
   partialDate,
-  textList,
 }
 
-enum LibraryFieldValueOrigin { catalog, derived }
+enum LibraryFieldCardinality { one, many }
+
+enum LibraryFieldSource { catalog, libraryEntry, derived }
 
 /// Kind-owned field facts shared by surface-specific field definitions.
 ///
@@ -20,8 +21,9 @@ final class LibraryKindFieldMetadata {
     required this.id,
     required this.label,
     required this.valueType,
-    required this.catalogPath,
-    this.origin = LibraryFieldValueOrigin.catalog,
+    required this.cardinality,
+    required this.source,
+    required this.sourcePath,
     this.searchable = false,
     this.filterable = false,
     this.sortable = false,
@@ -34,8 +36,9 @@ final class LibraryKindFieldMetadata {
   final String id;
   final String label;
   final LibraryFieldValueType valueType;
-  final String catalogPath;
-  final LibraryFieldValueOrigin origin;
+  final LibraryFieldCardinality cardinality;
+  final LibraryFieldSource source;
+  final String sourcePath;
   final bool searchable;
   final bool filterable;
   final bool sortable;

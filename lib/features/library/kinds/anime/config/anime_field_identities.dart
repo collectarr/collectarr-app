@@ -20,7 +20,9 @@ abstract final class AnimeFieldIdentities {
     id: formatId,
     label: formatLabel,
     valueType: LibraryFieldValueType.text,
-    catalogPath: 'format',
+    cardinality: LibraryFieldCardinality.one,
+    source: LibraryFieldSource.catalog,
+    sourcePath: 'format',
     searchable: true,
     groupable: true,
     editable: true,
@@ -30,7 +32,9 @@ abstract final class AnimeFieldIdentities {
     id: barcodeId,
     label: barcodeLabel,
     valueType: LibraryFieldValueType.text,
-    catalogPath: 'barcode',
+    cardinality: LibraryFieldCardinality.one,
+    source: LibraryFieldSource.catalog,
+    sourcePath: 'barcode',
     searchable: true,
     editable: true,
   );
@@ -38,21 +42,35 @@ abstract final class AnimeFieldIdentities {
     id: nativeTitleId,
     label: nativeTitleLabel,
     valueType: LibraryFieldValueType.text,
-    catalogPath: 'native_title',
+    cardinality: LibraryFieldCardinality.one,
+    source: LibraryFieldSource.catalog,
+    sourcePath: 'native_title',
     editable: true,
   );
   static const romajiTitle = LibraryKindFieldMetadata(
     id: romajiTitleId,
     label: romajiTitleLabel,
     valueType: LibraryFieldValueType.text,
-    catalogPath: 'romaji_title',
+    cardinality: LibraryFieldCardinality.one,
+    source: LibraryFieldSource.catalog,
+    sourcePath: 'romaji_title',
     editable: true,
   );
   static const englishTitle = LibraryKindFieldMetadata(
     id: englishTitleId,
     label: englishTitleLabel,
     valueType: LibraryFieldValueType.text,
-    catalogPath: 'english_title',
+    cardinality: LibraryFieldCardinality.one,
+    source: LibraryFieldSource.catalog,
+    sourcePath: 'english_title',
     editable: true,
   );
+
+  static const all = <LibraryKindFieldMetadata>[
+    format,
+    barcode,
+    nativeTitle,
+    romajiTitle,
+    englishTitle,
+  ];
 }

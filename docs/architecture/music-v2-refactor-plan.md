@@ -1,0 +1,200 @@
+# Music v2 and Library Field Semantics Roadmap
+
+Status: active; checkpoint A1 (the cardinality/source/path contract and the
+existing nine-kind metadata declarations) is implemented and verified.
+Checkpoint A2 (workspace metadata ownership and capability invariants) is next.
+Each completed checkpoint is committed separately with a detailed Conventional
+Commit message. Stages that touch Core contracts regenerate the Core bundle and
+update the App pin in the same stage.
+
+## Architectural contract
+
+`LibraryKindFieldMetadata` is the single semantic declaration for a field:
+
+```dart
+LibraryKindFieldMetadata(
+  id: 'music.disc.format',
+  label: 'Disc Format',
+  valueType: LibraryFieldValueType.text,
+  cardinality: LibraryFieldCardinality.many,
+  source: LibraryFieldSource.catalog,
+  sourcePath: 'discs[].format',
+  searchable: true,
+  filterable: true,
+  sortable: false,
+  groupable: true,
+  exportable: true,
+  editable: true,
+  vocabulary: MusicVocabularyIds.format,
+)
+```
+
+The only field sources are `catalog`, `libraryEntry`, and `derived`; semantic
+paths express contained values such as `discs[].format`. Cardinality is
+`one` or `many`; list-valued text remains `valueType: text`. Workspace field
+definitions reference this metadata and keep typed value access and narrowly
+scoped presentation conversion. Columns and schemas explicitly select what
+the user sees; metadata does not auto-generate a workspace.
+
+Capability factories derive search/filter/sort/group/export/edit behavior from
+metadata and reject contradictory registrations. A many-valued field is not
+sortable by default. Semantic operation IDs derive from the field ID unless an
+operation is distinct, such as earliest and latest date reductions.
+
+## Target Music model and behavior
+
+`MusicAlbum` owns edition data: title and artist credits, release/original
+release dates, label, country, barcode, catalog number, packaging, genres,
+box-set state, covers, links, album credits, and discs. `MusicDisc` owns
+physical/technical and recording data, credits, and tracks. `MusicCredit`
+contains a stable ID, optional real `contributorId`, name/sort name, role and
+optional role ID, `instruments[]`, and sequence. `MusicArtistCredit` remains a
+separate model for credited artist name, join phrase, and sequence. Composition
+belongs to tracks, never credits.
+
+Core and App move together to nested `credits[]` and `discs[]` transport.
+Recording date, recording locations, live/studio state, and SPARS move from the
+album to discs. Disc format family is coarse (`vinyl`, `opticalDisc`, `tape`,
+`digital`, `other`); the format name remains the detailed value. Known format
+presets set family. Custom formats require an explicit family; canonical
+parsing never guesses family from format text. Family controls are hidden for
+known formats and exposed only for custom/advanced editing.
+
+Music workspace projection builds immutable, deduplicated
+`MusicWorkspaceFacts` once per canonical item. Facts cover disc formats and
+families, recording date parts and earliest/latest reducers, SPARS, sound,
+colors, RPM, locations, live/studio presence, contributors, roles, and
+instruments. Facts are derived and non-persistent. Comparators and filters use
+precomputed lookups rather than traversing discs repeatedly.
+
+Many-valued filter semantics are: equals/is matches any member; not-equals
+matches only when no member matches; contains matches any textual member; empty
+means the collection has no values. Date filters match if any disc has a date
+in the requested period. Grouping puts an album in every matching bucket but
+only once per bucket. Many-valued fields do not receive implicit sort fields;
+earliest/latest recording date are explicit scalar reducers with shared
+precision rules. Summaries stay separate from semantic values in columns,
+filters, and exports.
+
+## Stages
+
+### A. Field contract and capability ownership
+
+**A1 — contract foundation (implemented):** add explicit cardinality, source,
+and semantic source path to field metadata; migrate all currently registered
+field metadata across the nine kinds; remove `textList` and the old origin
+enum; validate IDs, paths, and list cardinality.
+
+**A2 — capability ownership (next):** make every workspace field definition
+reference its kind metadata and expose capabilities only through that metadata.
+Derive factory behavior from metadata and reject unsupported
+search/filter/sort/group registrations. Keep schema column selection explicit.
+
+### B. Nine-kind workspace metadata cutover
+
+Complete metadata coverage for every workspace field in Music, Book, Comic,
+Movie, TV, Anime, Manga, Board Game, and Game. Preserve current source paths and
+capability behavior, prove cross-kind behavior is unchanged, and remove the
+duplicated capability declarations once every kind is migrated.
+
+### C. Core Music v2 contract
+
+Define strict nested album/disc/credit/track transport and reject old root role
+arrays and root recording fields. Make credit contributor references optional,
+instruments a list, and disc IDs/track IDs/credit IDs stable and unique. Move
+recording fields to discs and replace detailed format-family values with the
+coarse family enum. Update Core schema/domain tests, regenerate its bundle, and
+pin that bundle in App before continuing.
+
+### D. App Music v2 domain and codec
+
+Mirror the strict Core contract in App domain models and codecs. Remove old
+root contributor arrays, album recording fields, composition credits, and
+silent format-family inference. Keep artist credits semantically separate.
+Add strict JSON round-trip, unknown-field rejection, duplicate-ID rejection,
+optional contributor ID, and old-payload rejection tests.
+
+### E. Disc format capabilities and presets
+
+Add `MusicDiscCapabilities` for color, vinyl weight, RPM, generic matrix, and
+side matrices. Define Music-owned known-format presets and explicit family
+selection for custom formats. Hide Family for known formats and make normal
+editing show the format only.
+
+### F. Credit and disc editing
+
+Refactor controllers before widgets. Move disc recording metadata APIs into
+`MusicDiscListEditor`; add `MusicCreditListEditor` for album and disc scopes.
+Replace Classical and People tabs with one Credits table (`Name | Role |
+Instruments | Applies to`) where roles are vocabulary values. Put recording
+date, locations, SPARS, and live/studio controls on each disc's details view.
+Keep Tracks kind-owned and preserve track/disc lifecycle behavior.
+
+### G. Music workspace facts
+
+Build immutable, distinct `MusicWorkspaceFacts` once per canonical projection.
+Add mixed-disc fixtures and tests for deduplication, earliest/latest partial
+date semantics, live/studio state, and album/disc contributor aggregation.
+
+### H. Workspace field cleanup
+
+Reduce `MusicWorkspaceProjection` to common, personal, Music, facts, listening
+summary, and required generic DTO data. Share catalog workspace fields between
+Catalog Item and Library Entry; layer personal fields only onto Library Entry.
+Separate format summary from contained disc format and keep storage summary,
+devices, and slots as distinct values where applicable.
+
+### I. Disc and credit groups; filters and facets
+
+Split catalog, disc, credit, and personal grouping definitions. Add contained
+groups for disc format/family/date/month/year/SPARS/sound/live-state/location/
+color/RPM and contributor/role/instrument. Replace Classical and People
+categories with Credits. Make filter/facet values consume the same facts used
+by groups and implement the defined many-value semantics in Smart Lists.
+
+### J. Scalar date sorting
+
+Add explicit Earliest Disc Recording Date and Latest Disc Recording Date
+fields. Share PartialDate reduction rules, preserve deterministic null and
+precision ordering, and do not offer sort by Disc Format without a useful
+scalar meaning.
+
+### K. Search, export, corrections, and import boundary
+
+Index selected multi-value facts (disc format, recording location, credits)
+where search benefits. Export semantic values and summaries separately. Diff
+nested Core corrections by stable disc/credit IDs so reorder is not
+delete/create. Extend CSV import only for fields it already supports; edit and
+export capability alone does not imply import support.
+
+### L. Physical code layout and cleanup
+
+Move domain, format capabilities, presets, edit credits/discs, workspace
+facts/projection/fields/groups/sorts/columns/schemas into kind-owned folders.
+Delete obsolete relation bags and presentation helpers that still combine
+columns, formatting, and sorting. Remove MusicAlbumContribution, artificial
+person IDs, Classical/People tabs and groups, root recording fields, old root
+role arrays, family guessing, format ambiguity, duplicate capability flags,
+and redundant sort/group/facet IDs. Do not add compatibility or migration
+layers.
+
+### M. Performance, documentation, and release gate
+
+Benchmark 1k and 5k albums, including multi-disc deluxe albums: initial
+projection, facts construction, group switch, sort, filter, and allocations or
+peak memory. Assert facts build once per canonical projection and no repeated
+disc traversal in comparators. Update `current-status.md` with ownership,
+cardinality, contained grouping, reducer, and derived-facts semantics.
+Complete Core schema/tests, generated bundle and App pin, formatting, analysis,
+architecture guards, unit/widget/integration tests, and Windows debug build
+before closing Music v2.
+
+## Required fixtures and regression gates
+
+The mixed-disc fixture is `Deluxe Edition`: CD 1 is 2025 / DDD / studio / Abbey
+Road / Producer John; CD 2 is 2026-02-18 / ADD / live / Wembley / Conductor
+Jane / Orchestra LSO; Vinyl is 2024 / 45 RPM / Red. Tests cover strict domain
+JSON, duplicate IDs, field metadata uniqueness and one/many correctness,
+cross-kind behavior, group membership, date reductions, filters, corrections,
+and edit scope changes including disc removal. Performance comparisons use
+this fixture plus 1k and 5k album datasets.

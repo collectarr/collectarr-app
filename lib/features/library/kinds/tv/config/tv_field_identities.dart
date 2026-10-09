@@ -9,8 +9,12 @@ abstract final class TvFieldIdentities {
     id: barcodeId,
     label: barcodeLabel,
     valueType: LibraryFieldValueType.text,
-    catalogPath: 'barcode',
+    cardinality: LibraryFieldCardinality.one,
+    source: LibraryFieldSource.catalog,
+    sourcePath: 'barcode',
     searchable: true,
     editable: true,
   );
+
+  static const all = <LibraryKindFieldMetadata>[barcode];
 }

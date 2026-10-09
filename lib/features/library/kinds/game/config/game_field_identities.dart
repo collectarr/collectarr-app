@@ -13,7 +13,9 @@ abstract final class GameFieldIdentities {
     id: franchiseId,
     label: franchiseLabel,
     valueType: LibraryFieldValueType.text,
-    catalogPath: 'franchise',
+    cardinality: LibraryFieldCardinality.one,
+    source: LibraryFieldSource.catalog,
+    sourcePath: 'franchise',
     searchable: true,
     groupable: true,
     editable: true,
@@ -22,8 +24,9 @@ abstract final class GameFieldIdentities {
     id: releaseDateId,
     label: releaseDateLabel,
     valueType: LibraryFieldValueType.partialDate,
-    catalogPath: 'release_date_parts',
-    origin: LibraryFieldValueOrigin.derived,
+    cardinality: LibraryFieldCardinality.one,
+    source: LibraryFieldSource.derived,
+    sourcePath: 'release_date_parts',
     sortable: true,
     editable: true,
   );
@@ -31,9 +34,17 @@ abstract final class GameFieldIdentities {
     id: barcodeId,
     label: barcodeLabel,
     valueType: LibraryFieldValueType.text,
-    catalogPath: 'barcode',
+    cardinality: LibraryFieldCardinality.one,
+    source: LibraryFieldSource.catalog,
+    sourcePath: 'barcode',
     searchable: true,
     sortable: true,
     editable: true,
   );
+
+  static const all = <LibraryKindFieldMetadata>[
+    franchise,
+    releaseDate,
+    barcode
+  ];
 }
