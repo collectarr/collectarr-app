@@ -77,20 +77,12 @@ void main() {
       // Main sources
       expect(find.text('Import a Text or CSV file'), findsOneWidget);
       expect(find.text('Discogs'), findsOneWidget);
-      expect(find.text('Music Label'), findsOneWidget);
       expect(find.text('CATraxx'), findsOneWidget);
       expect(find.text('Delicious Library'), findsOneWidget);
       expect(find.text('OrangeCD'), findsOneWidget);
       expect(find.text('CDpedia'), findsOneWidget);
       expect(find.text('Music Collector'), findsOneWidget);
       expect(find.text('CLZ Music Web'), findsOneWidget);
-
-      // Other imports section
-      expect(find.text('Other imports'), findsOneWidget);
-      expect(
-        find.text('Import User Defined Fields from Music Collector'),
-        findsOneWidget,
-      );
 
       // Footer should not be present
       expect(

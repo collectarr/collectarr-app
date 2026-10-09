@@ -11,6 +11,8 @@ final class TestLibraryEntry {
   const TestLibraryEntry({
     required this.id,
     required this.catalogRef,
+    this.catalogTitle = 'Test Item',
+    this.catalogIssueNumber,
     required this.details,
     this.createdAt,
     this.isDigital,
@@ -38,6 +40,8 @@ final class TestLibraryEntry {
 
   final String id;
   final CatalogItemRef catalogRef;
+  final String catalogTitle;
+  final String? catalogIssueNumber;
   final DateTime? createdAt;
   final bool? isDigital;
   final CatalogItemRef? targetRef;
@@ -98,7 +102,8 @@ final class TestLibraryEntry {
   JsonMap toJson() => {
         'id': id,
         'catalog_data': <String, dynamic>{
-          'title': 'Test Item',
+          'title': catalogTitle,
+          if (catalogIssueNumber != null) 'issue_number': catalogIssueNumber,
         },
         'source_catalog_ref': catalogRef.toJson(),
         'created_at': createdAt?.toUtc().toIso8601String(),

@@ -19,7 +19,7 @@ void main() {
         name: 'Release Notes',
         fieldType: 'text',
         mediaKind: 'movie',
-        editScope: 'release',
+        editScope: CustomFieldTargetScope.libraryEntry.apiValue,
         createdAt: DateTime.utc(2026, 1, 1),
       ),
     );
@@ -35,7 +35,7 @@ void main() {
 
     expect(find.text('Release Notes'), findsOneWidget);
     expect(find.text('Movie'), findsOneWidget);
-    expect(find.text('Release'), findsOneWidget);
+    expect(find.text('Library item'), findsOneWidget);
     expect(find.text('Text'), findsOneWidget);
   });
 }

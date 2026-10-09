@@ -94,11 +94,12 @@ CatalogItemDto testCatalogItem({
     if (itemNumber != null) 'item_number': itemNumber,
     if (editionTitle != null) 'edition_title': editionTitle,
     if (physicalFormat != null) 'physical_format': physicalFormat,
-    if (physicalFormatLabel != null)
+    if (physicalFormatLabel != null && kind != 'movie')
       'physical_format_label': physicalFormatLabel,
     if (publisher != null) 'publisher': publisher,
     if (barcode != null) 'barcode': barcode,
-    if (variant != null) 'variant': variant,
+    if (variant != null)
+      (kind == 'movie' ? 'variant_name' : 'variant'): variant,
     if (country != null) 'country': country,
     if (language != null) 'language': language,
     if (ageRating != null) 'age_rating': ageRating,
@@ -290,6 +291,8 @@ TestLibraryEntry testLibraryEntry({
   String id = 'entry-1',
   String itemId = 'test-item-1',
   String kind = 'comic',
+  String catalogTitle = 'Test Item',
+  String? catalogIssueNumber,
   CatalogItemRef? catalogRef,
   DateTime? createdAt,
   DateTime? updatedAt,
@@ -444,6 +447,8 @@ TestLibraryEntry testLibraryEntry({
   return TestLibraryEntry(
     id: id,
     catalogRef: resolvedCatalogRef,
+    catalogTitle: catalogTitle,
+    catalogIssueNumber: catalogIssueNumber,
     createdAt: createdAt,
     updatedAt: updatedAt ?? DateTime.utc(2025, 1, 1),
     isDigital: isDigital,

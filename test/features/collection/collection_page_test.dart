@@ -34,6 +34,11 @@ void main() {
         'title': 'Superman, Vol. 4',
         'item_number': '8A',
       }),
+      testCatalogItemFromJson({
+        'id': 'comic-2',
+        'kind': 'comic',
+        'title': 'Wishlist comic',
+      }),
     ]);
     await db.into(db.locationsCache).insert(
           LocationsCacheCompanion.insert(
@@ -47,6 +52,8 @@ void main() {
         id: 'entry-1',
         itemId: 'comic-1',
         kind: 'comic',
+        catalogTitle: 'Superman, Vol. 4',
+        catalogIssueNumber: '8A',
         condition: 'Near Mint',
         grade: '9.8',
         pricePaidCents: 1299,
@@ -80,7 +87,7 @@ void main() {
     expect(find.text('Shelf'), findsOneWidget);
     expect(find.text('Entry'), findsWidgets);
     expect(find.text('Quantity'), findsNothing);
-    expect(find.text('2'), findsWidgets);
+    expect(find.text('1'), findsWidgets);
     expect(find.text('Wishlist'), findsWidgets);
     expect(find.text('USD 12.99'), findsWidgets);
     expect(find.text('Locations'), findsOneWidget);
@@ -105,7 +112,7 @@ void main() {
     await pumpUntilSettled(tester);
 
     expect(find.text('Superman, Vol. 4 #8A'), findsNothing);
-    expect(find.textContaining('Catalog item'), findsOneWidget);
+    expect(find.text('Wishlist comic'), findsOneWidget);
 
     await tester.pumpWidget(const SizedBox.shrink());
     await tester.pump();
@@ -134,6 +141,8 @@ void main() {
         id: 'entry-1',
         itemId: 'comic-1',
         kind: 'comic',
+        catalogTitle: 'Superman, Vol. 4',
+        catalogIssueNumber: '8A',
         condition: 'Near Mint',
         grade: '9.8',
         pricePaidCents: 1299,

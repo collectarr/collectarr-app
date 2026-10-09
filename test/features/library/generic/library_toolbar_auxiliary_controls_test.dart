@@ -25,9 +25,9 @@ void main() {
     await tester.tap(find.byKey(const Key('collection-status-scope-dropdown')));
     await tester.pumpAndSettle();
 
-    expect(find.text('Wish List'), findsOneWidget);
+    expect(find.text('On Wish List'), findsOneWidget);
 
-    await tester.tap(find.text('Wish List').last);
+    await tester.tap(find.text('On Wish List').last);
     await tester.pumpAndSettle();
 
     expect(selected, LibraryCollectionStatusScope.wishList);

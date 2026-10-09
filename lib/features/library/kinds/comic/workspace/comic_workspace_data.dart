@@ -18,5 +18,10 @@ final class ComicWorkspaceData implements LibraryWorkspaceKindData {
   @override
   CatalogMediaKind get kind => CatalogMediaKind.comic;
   @override
-  String get displayLabel => comic.title;
+  String get displayLabel {
+    final issue = comic.issueNumber?.trim();
+    return issue == null || issue.isEmpty
+        ? comic.title
+        : '${comic.title} #$issue';
+  }
 }

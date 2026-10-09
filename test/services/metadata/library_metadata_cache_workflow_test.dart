@@ -1,6 +1,7 @@
 import 'package:collectarr_app/core/api/api_client.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/api/dto/metadata_search_query.dart';
+import 'package:collectarr_app/core/api/dto/catalog_search_page.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_transport_repository.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_snapshot_repository.dart';
 import 'package:collectarr_app/features/library/kinds/comic/comic_module.dart';
@@ -77,19 +78,23 @@ class _FakeMetadataWorkflowApiClient extends ApiClient {
   MetadataSearchQuery? lastSearchQuery;
 
   @override
-  Future<List<Map<String, dynamic>>> searchMetadata(
+  Future<CatalogSearchPage> searchMetadataPage(
     MetadataSearchQuery query, {
     CancelToken? cancelToken,
   }) async {
     lastSearchQuery = query;
-    return const [
-      {
-        'id': 'comic-search-1',
-        'kind': 'comic',
-        'title': 'Batman',
-        'item_number': '1',
-      },
-    ];
+    return const CatalogSearchPage(
+      items: [
+        {
+          'id': 'comic-search-1',
+          'kind': 'comic',
+          'title': 'Batman',
+          'item_number': '1',
+        },
+      ],
+      nextOffset: null,
+      hasMore: false,
+    );
   }
 
   @override

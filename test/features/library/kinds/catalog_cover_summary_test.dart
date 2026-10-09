@@ -9,6 +9,7 @@ import 'package:collectarr_app/features/library/kinds/manga/data/manga_catalog_t
 import 'package:collectarr_app/features/library/kinds/movie/data/movie_catalog_transport_codec.dart';
 import 'package:collectarr_app/features/library/kinds/music/data/music_catalog_transport_codec.dart';
 import 'package:collectarr_app/features/library/kinds/tv/data/tv_catalog_transport_codec.dart';
+import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -75,15 +76,23 @@ void main() {
     ];
 
     for (final testCase in cases) {
-      final item = CatalogItemDto.raw(
-        id: 'cover-${testCase.kind.apiValue}',
-        mediaKind: testCase.kind,
-        kindData: const {
-          'title': 'Cover fixture',
-          'cover_image_url': anilistCover,
-          'thumbnail_image_url': anilistCover,
-        },
-      );
+      final item = testCase.kind == CatalogMediaKind.music
+          ? testCatalogItem(
+              id: 'cover-${testCase.kind.apiValue}',
+              kind: testCase.kind.apiValue,
+              title: 'Cover fixture',
+              coverImageUrl: anilistCover,
+              thumbnailImageUrl: anilistCover,
+            )
+          : CatalogItemDto.raw(
+              id: 'cover-${testCase.kind.apiValue}',
+              mediaKind: testCase.kind,
+              kindData: {
+                'title': 'Cover fixture',
+                'cover_image_url': anilistCover,
+                'thumbnail_image_url': anilistCover,
+              },
+            );
 
       expect(
         testCase.readSummaryCover(item),

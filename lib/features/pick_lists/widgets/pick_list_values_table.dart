@@ -100,7 +100,7 @@ class _PickListValuesTableState extends State<PickListValuesTable> {
                                   secondary: true)
                             ]))),
                 SizedBox(
-                    width: 68,
+                    width: 84,
                     child: Align(
                         alignment: Alignment.centerRight,
                         child: _heading('Count', PickListTableSort.count))),
@@ -196,7 +196,7 @@ class _PickListValuesTableState extends State<PickListValuesTable> {
                                                                 .textMuted)),
                                                   ]))),
                                       SizedBox(
-                                          width: 68,
+                                          width: 84,
                                           child: Padding(
                                               padding: const EdgeInsets.only(
                                                   right: 5),
@@ -249,7 +249,7 @@ class _PickListGrid extends CustomPainter {
       ..color = color
       ..strokeWidth = 1;
     final countEnd = size.width - (selecting ? 0 : 36);
-    for (final x in [36.0, countEnd - 68, if (!selecting) countEnd]) {
+    for (final x in [36.0, countEnd - 84, if (!selecting) countEnd]) {
       canvas.drawLine(Offset(x, 0), Offset(x, size.height), paint);
     }
     canvas.drawLine(Offset(0, size.height - .5),

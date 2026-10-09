@@ -8,13 +8,13 @@ const kLibraryEditorFontFamily = kAppFontFamily;
 extension LibraryTextTheme on TextTheme {
   /// Panel and dialog title styling (prominent header).
   TextStyle get panelTitle => (titleMedium ?? const TextStyle()).copyWith(
-        fontWeight: FontWeight.w700,
+        fontWeight: FontWeight.w800,
         letterSpacing: -0.1,
       );
 
   /// Form section title styling (structured form segment headers).
   TextStyle get sectionTitle => (titleSmall ?? const TextStyle()).copyWith(
-        fontWeight: FontWeight.w700,
+        fontWeight: FontWeight.w800,
         letterSpacing: -0.05,
       );
 
@@ -47,7 +47,7 @@ extension LibraryTextTheme on TextTheme {
   /// Table column headers and uppercase badge / metric labels.
   TextStyle get tableHeader => (labelSmall ?? const TextStyle()).copyWith(
         fontSize: 13,
-        fontWeight: kAppBoldFontWeight,
+        fontWeight: FontWeight.w800,
         letterSpacing: 0,
       );
 

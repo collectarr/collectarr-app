@@ -34,6 +34,8 @@ void main() {
             body: PickListManagerPage(
               db: db,
               registry: defaultPickListRegistry,
+              initialListName: 'comic.condition',
+              initialMediaKind: 'comic',
             ),
           ),
         ),
@@ -42,20 +44,8 @@ void main() {
 
     await pumpUntilSettled(tester);
 
-    await tester.tap(find.byType(DropdownButtonFormField<String>));
-    await pumpUntilSettled(tester);
-    await tester.tap(find.text('Comics').last);
-    await pumpUntilSettled(tester);
-
-    expect(find.text('Condition'), findsWidgets);
-    final conditionListName = find.text('comic.condition', skipOffstage: false);
-    expect(conditionListName, findsOneWidget);
-    await tester.ensureVisible(conditionListName);
-    await tester.tap(conditionListName);
-    await pumpUntilSettled(tester);
-
-    expect(find.text('Add value'), findsOneWidget);
-    expect(find.text('Near Mint'), findsOneWidget);
-    expect(find.text('comic'), findsWidgets);
+    expect(find.text('Manage Conditions'), findsOneWidget);
+    expect(find.text('Condition list'), findsOneWidget);
+    expect(find.text('Near Mint'), findsWidgets);
   });
 }

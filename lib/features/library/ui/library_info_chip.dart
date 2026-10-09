@@ -39,11 +39,15 @@ class LibraryInfoChip extends StatelessWidget {
               Icon(icon, size: 14, color: resolvedForeground),
               const SizedBox(width: 5),
             ],
-            Text(
-              label,
-              style: theme.textTheme.libraryCaption.copyWith(
-                color: resolvedForeground,
-                fontWeight: FontWeight.w700,
+            Flexible(
+              child: Text(
+                label,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: theme.textTheme.libraryCaption.copyWith(
+                  color: resolvedForeground,
+                  fontWeight: FontWeight.w700,
+                ),
               ),
             ),
           ],
