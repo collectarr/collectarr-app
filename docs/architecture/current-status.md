@@ -123,8 +123,9 @@ the pre-facts checkpoint. Average disc-group switches are about 20–25% faster;
 projection now pays the one-time cost of building facts (about 5.4 ms at 1k
 and 27.0 ms at 5k in the recorded run). Scalar publisher filtering is slower
 under typed Smart List rules but remains below 3.3 ms at 5k. RSS is recorded
-as a coarse process high-water snapshot, not as an allocation count. CSV import
-boundaries and Windows build verification remain open. Core correction targets
+as a coarse process high-water snapshot, not as an allocation count. Music's
+schema-v1 CSV import boundary is verified; Windows debug-build verification
+remains open. Core correction targets
 expose Music nested lists as correction-only object-list fields and validate
 proposals against the canonical v2 document, preserving nested IDs.
 All filterable metadata is now available in Smart List rules, including the

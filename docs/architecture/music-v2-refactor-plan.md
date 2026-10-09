@@ -203,7 +203,7 @@ schemas expose these sorts. Share PartialDate lower/upper-bound comparison
 rules with the facts reducer, put missing values last, and do not offer sort by
 Disc Format without a useful scalar meaning.
 
-### K. Search, export, corrections, and import boundary (in progress)
+### K. Search, export, corrections, and import boundary (implemented)
 
 Export semantic values and summaries separately. Music now exports its format
 summary beside raw disc formats, distinct recording dates/years, recording
@@ -217,7 +217,11 @@ export capability alone does not imply import support. Core correction targets
 expose `artist_credits`, album `credits`, and `discs` as correction-only object
 lists, leaving ordinary metadata and Add schemas unchanged. Proposed Music
 documents are validated against the complete strict v2 item before storage and
-application, preserving nested stable IDs in before/after values.
+application, preserving nested stable IDs in before/after values. Music
+collection CSV import remains limited to its existing schema-v1 cells:
+`physical_format` creates a disc with that format, and the importer does not
+infer a family or add recording facts. A regression test locks that boundary so
+exportable/editable Music fields do not silently become importable.
 
 ### L. Physical code layout and cleanup (in progress)
 
