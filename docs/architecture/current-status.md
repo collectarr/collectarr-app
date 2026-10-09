@@ -85,13 +85,13 @@ run.
   and App pin were regenerated together after this contract change.
 - Core catalog search now pages shared and kind-specific endpoints with stable
   ordering. Identifier predicates use indexed scalar columns or JSONB
-  containment. PostgreSQL planner verification remains deferred to the final
-  checks.
+  containment. The full Core suite now verifies the declared identifier and
+  scalar indexes with PostgreSQL query plans.
 - Stage M release verification is underway. Formatting and strict Flutter
   analysis pass. Kind registry and field-manifest generation, the pinned Music
   v2 contract check, the generated Catalog Item v2 field check, and targeted
-  Core schema/contract tests pass. The full App suite passes: 981 tests, zero
-  failures, and one skipped test. Windows debug build and desktop/mobile
+  Core schema/contract tests pass. The full App suite passes: 768 passed,
+  one skipped, and zero failed. Windows debug build and desktop/mobile
   integration smoke tests pass.
 - The App regression fixtures now match typed registries, field IDs,
   versioned preference keys, TV shared-tab composition, current Comic Drift
@@ -105,15 +105,19 @@ run.
   database-maintenance hosts dispatch kind-specific provider invalidations
   through the kind registry instead of importing Music, Anime, Board Game, or
   TV implementations. Focused sync tests and analysis pass.
-- `tool/check_library_kind_boundaries.dart` still fails with 308 AST boundary
+- Music listening events now enforce their Music library-entry ownership in
+  the Music domain model; the shared sync queue only validates the generic
+  reference structure.
+- `tool/check_library_kind_boundaries.dart` still fails with 307 AST boundary
   violations and 364 complexity-budget findings. The AST findings are TK002=4,
-  TK003=5, TK005=1, TK009=14, TK016=31, and TK017=253 stale field-leak
-  baseline entries; there are no remaining TK001 or TK011 findings. The full
-  Core suite also has 11 failures (106 passed, 36 skipped), including tests
-  that require a local PostgreSQL service. Core lint, bundle, generated
-  contract documentation, and targeted schema/contract tests pass. Stage M
-  remains open until the repository-wide architecture guard and full Core
-  suite pass in the intended test environment.
+  TK003=5, TK009=14, TK016=31, and TK017=253 stale field-leak baseline
+  entries; TK005, TK001, and TK011 are clear. The full
+  Core suite now passes all 152 tests against the isolated local
+  `collectarr_test` database, including schema, API, correction, and index-plan
+  checks; `ruff check .` passes. Stage M remains open until the repository-wide
+  architecture guard passes. The global format check still reports 44
+  pre-existing files outside this change set; all files changed for this
+  checkpoint pass targeted formatting checks.
 
 ## Active Music v2 refactor
 

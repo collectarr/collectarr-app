@@ -4,8 +4,9 @@ Status: active; checkpoints A1–A4, the nine-kind metadata cutover, Music
 v2 contract/domain/editing checkpoints C–F, workspace-facts checkpoint G,
 workspace field cleanup checkpoint H, contained grouping/filter checkpoint I,
 scalar date sorts checkpoint J, search/export/correction checkpoint K, and
-physical cleanup checkpoint L are implemented. Stage M's release gate remains
-open for the repository-wide architecture check and full Core suite. Each
+physical cleanup checkpoint L are implemented. The full Core suite passes 152
+tests, including PostgreSQL-backed schema and index-plan checks. Stage M's
+release gate remains open for the repository-wide architecture check. Each
 completed checkpoint is committed separately with a detailed Conventional
 Commit message. Stages that touch Core contracts regenerate the Core bundle and
 update the App pin in the same stage.
