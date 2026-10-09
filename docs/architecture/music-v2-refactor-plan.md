@@ -223,7 +223,7 @@ collection CSV import remains limited to its existing schema-v1 cells:
 infer a family or add recording facts. A regression test locks that boundary so
 exportable/editable Music fields do not silently become importable.
 
-### L. Physical code layout and cleanup (in progress)
+### L. Physical code layout and cleanup (complete)
 
 Move domain, format capabilities, presets, edit credits/discs, workspace
 facts/projection/fields/groups/sorts/columns/schemas into kind-owned folders.
@@ -238,8 +238,17 @@ deleted. A strict filename import audit found and removed the unused
 `music_domain.dart` barrel; the remaining Music edit helpers have active
 consumers. Music's unused `MusicSortIds`, `MusicGroupIds`, and `MusicFacetIds`
 registries are removed; default and reducer operation IDs now derive from the
-field IDs they expose. Remaining work is the final layout pass and cross-tree
-legacy audit.
+field IDs they expose. Physical-media format definitions and badge mapping now
+live under `music/config/` with the other Music-owned format configuration.
+The final App/Core audit found no remaining Music compatibility aliases,
+contribution/person-ID model, family-name guessing, or duplicate Music
+sort/group/facet ID registries. Core's former root recording and role field
+names occur only in strict-schema tests that assert those payloads are rejected;
+the canonical Core schema and App model keep recording metadata under discs.
+The remaining draft is a small edit-session composition of form values,
+disc/track editors, credits, and links rather than an album/disc/track god
+object. Candidate form and edit helpers retained in the kind have active
+imports from current Add/Edit paths.
 
 ### M. Performance, documentation, and release gate
 

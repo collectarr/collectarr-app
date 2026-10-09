@@ -97,7 +97,8 @@ The staged field-semantics and Music v2 roadmap is tracked in
 owns cardinality, source/path, and workspace capabilities across all nine
 kinds. The strict Core Music v2 bundle is pinned in App, and the App domain has
 stable album/disc credits, disc-owned recording metadata, coarse format
-families, explicit format presets, and a shared Credits editor for Add/Edit.
+families, explicit format presets, and one Credits tab with Album/Disc scope in
+Edit and manual Add.
 The former album-level recording fields and contribution model are removed.
 `MusicWorkspaceData` now constructs immutable `MusicWorkspaceFacts` once from
 the canonical album and reuses them through workspace projections, grouping,
@@ -108,9 +109,10 @@ format/storage summaries from their many-valued semantic fields. Metadata,
 workspace schema, search-presentation, and export regression tests pass for
 this checkpoint. Checkpoint I now splits Music group definitions into
 catalog/disc/credit/personal modules, adds contained disc and credit fields to
-workspace groups and filters, and keeps `is_live` boolean while rendering
-Live/Studio labels. Checkpoint J adds scalar earliest/latest disc recording
-date fields and sorts to both Music workspace schemas. Facts reduction and
+workspace groups and filters, and keeps `is_live` a many-valued boolean while
+rendering Live/Studio labels for grouping. Raw CSV/TXT export preserves the
+boolean values as `true`/`false`. Checkpoint J adds scalar earliest/latest
+disc recording date fields and sorts to both Music workspace schemas. Facts reduction and
 sorting share one partial-date bound comparator, and sort callbacks read only
 the precomputed fact values. Music reports now export format summaries
 separately from raw disc formats and expose exportable disc and credit facts
