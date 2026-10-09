@@ -232,14 +232,9 @@ class SyncQueueRepository {
           'Music listen event requires its local library_entry_ref.',
         );
       }
-      final libraryEntryRef = LibraryEntryRef.fromJson(
+      LibraryEntryRef.fromJson(
         Map<String, Object?>.from(rawEntryRef),
       );
-      if (libraryEntryRef.kind != CatalogMediaKind.music) {
-        throw const FormatException(
-          'Music listen event library_entry_ref must be Music.',
-        );
-      }
       if (payload.containsKey('catalog_ref')) {
         throw const FormatException(
           'Music listen event cannot duplicate its local identity as catalog_ref.',

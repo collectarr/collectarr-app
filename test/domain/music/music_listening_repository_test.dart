@@ -34,6 +34,22 @@ void main() {
 
   tearDown(() => db.close());
 
+  test('listening events only accept Music library entries', () {
+    const bookEntry = LibraryEntryRef(
+      kind: CatalogMediaKind.book,
+      id: LibraryEntryId('book-1'),
+    );
+
+    expect(
+      () => MusicListenEvent(
+        id: 'listen-book',
+        libraryEntryRef: bookEntry,
+        listenedAt: DateTime.utc(2026, 8, 1),
+      ),
+      throwsArgumentError,
+    );
+  });
+
   test('persists history against a collection library entry', () async {
     const entry1 = LibraryEntryRef(
       kind: CatalogMediaKind.music,

@@ -1,3 +1,4 @@
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:flutter/foundation.dart';
 
@@ -7,7 +8,7 @@ import 'package:flutter/foundation.dart';
 /// personal activity. Catalog provenance is deliberately not repeated here.
 @immutable
 final class MusicListenEvent {
-  const MusicListenEvent({
+  MusicListenEvent({
     required this.id,
     required this.libraryEntryRef,
     required this.listenedAt,
@@ -18,7 +19,15 @@ final class MusicListenEvent {
     this.createdAt,
     this.updatedAt,
     this.deletedAt,
-  });
+  }) {
+    if (libraryEntryRef.kind != CatalogMediaKind.music) {
+      throw ArgumentError.value(
+        libraryEntryRef.kind,
+        'libraryEntryRef.kind',
+        'Music listening events must belong to a Music library entry.',
+      );
+    }
+  }
 
   final String id;
   final LibraryEntryRef libraryEntryRef;
