@@ -615,8 +615,7 @@ final class CollectionImportOrchestrator {
       _csvProfiles[kind];
 
   Map<CatalogItemRef, LibraryEntrySummary> _entrySummariesByTarget(
-      Iterable<LibraryEntrySummary> summaries,
-      Iterable<CatalogItemRef> targets,
+      Iterable<LibraryEntrySummary> summaries, Iterable<CatalogItemRef> targets,
       {required bool includeRootScope}) {
     final targetSet = targets.toSet();
     final targetRoots = {for (final target in targetSet) target};

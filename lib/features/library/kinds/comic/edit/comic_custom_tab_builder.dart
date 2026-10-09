@@ -13,7 +13,6 @@ Widget? buildComicCustomTabView({
   required BuildContext context,
   required LibraryEditShellState draft,
   required Color accent,
-
   required CatalogSearchCandidate item,
   required VoidCallback markDirty,
 }) {
@@ -28,7 +27,6 @@ Widget? buildComicCustomTabView({
     draft: draft,
     media: media,
     accent: accent,
-
     markDirty: markDirty,
   );
   if (tabId == 'entry') {

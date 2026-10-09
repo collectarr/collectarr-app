@@ -40,8 +40,7 @@ class ModalDialogDepthScope extends InheritedTheme {
 
   @override
   bool updateShouldNotify(ModalDialogDepthScope oldWidget) =>
-      depth != oldWidget.depth ||
-      parentAlignment != oldWidget.parentAlignment;
+      depth != oldWidget.depth || parentAlignment != oldWidget.parentAlignment;
 }
 
 /// A dialog route that silences the Windows error beep when clicking outside

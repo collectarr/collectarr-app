@@ -94,7 +94,8 @@ class UserFolderRepository {
         .go();
   }
 
-  Future<List<LibraryEntryRef>> getLibraryEntryRefsInFolder(String folderId) async {
+  Future<List<LibraryEntryRef>> getLibraryEntryRefsInFolder(
+      String folderId) async {
     final rows = await (_db.select(_db.userFolderItemsCache)
           ..where((t) => t.folderId.equals(folderId))
           ..orderBy([(t) => OrderingTerm.asc(t.sortOrder)]))
@@ -106,8 +107,8 @@ class UserFolderRepository {
     }).toList();
   }
 
-  Future<List<({String folderId, int sortOrder})>>
-      getMembershipSnapshotForItem(LibraryEntryRef ref) async {
+  Future<List<({String folderId, int sortOrder})>> getMembershipSnapshotForItem(
+      LibraryEntryRef ref) async {
     requireKnownLibraryEntryRef(ref);
     final rows = await (_db.select(_db.userFolderItemsCache)
           ..where((t) => t.libraryEntryRefKey.equals(ref.key))
@@ -158,7 +159,8 @@ class UserFolderRepository {
 
   Future<void> applySyncedDelete(String id) => deleteLocally(id);
 
-  Future<void> addItemToFolder(String folderId, LibraryEntryRef libraryEntryRef) async {
+  Future<void> addItemToFolder(
+      String folderId, LibraryEntryRef libraryEntryRef) async {
     requireKnownLibraryEntryRef(libraryEntryRef);
     final maxSort = await _db.customSelect(
       'SELECT COALESCE(MAX(sort_order), 0) AS m FROM user_folder_items_cache WHERE folder_id = ?',
@@ -182,11 +184,13 @@ class UserFolderRepository {
     requireKnownLibraryEntryRef(libraryEntryRef);
     await (_db.delete(_db.userFolderItemsCache)
           ..where((t) =>
-              t.folderId.equals(folderId) & t.libraryEntryRefKey.equals(libraryEntryRef.key)))
+              t.folderId.equals(folderId) &
+              t.libraryEntryRefKey.equals(libraryEntryRef.key)))
         .go();
   }
 
-  Future<List<UserFolder>> getFoldersForItem(LibraryEntryRef libraryEntryRef) async {
+  Future<List<UserFolder>> getFoldersForItem(
+      LibraryEntryRef libraryEntryRef) async {
     requireKnownLibraryEntryRef(libraryEntryRef);
     final rows = await (_db.select(_db.userFolderItemsCache)
           ..where((t) => t.libraryEntryRefKey.equals(libraryEntryRef.key)))

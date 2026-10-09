@@ -66,7 +66,8 @@ void main() {
     // Test collapsible toggle animation for Maintenance
     await tester.tap(find.text('Maintenance'));
     await tester.pump();
-    await tester.pump(const Duration(milliseconds: 175)); // halfway through 350ms
+    await tester
+        .pump(const Duration(milliseconds: 175)); // halfway through 350ms
     await tester.pumpAndSettle();
 
     // Maintenance items should be collapsed
@@ -75,7 +76,8 @@ void main() {
     // Expand Maintenance back
     await tester.tap(find.text('Maintenance'));
     await tester.pump();
-    await tester.pump(const Duration(milliseconds: 175)); // halfway through 350ms
+    await tester
+        .pump(const Duration(milliseconds: 175)); // halfway through 350ms
     await tester.pumpAndSettle();
     expect(find.text('Backup / Restore'), findsOneWidget);
   });

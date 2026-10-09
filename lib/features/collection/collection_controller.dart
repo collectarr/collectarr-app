@@ -18,7 +18,8 @@ import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_r
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-final collectionProvider = FutureProvider<List<LibraryEntrySummary>>((ref) async {
+final collectionProvider =
+    FutureProvider<List<LibraryEntrySummary>>((ref) async {
   final cache = LibraryEntriesRepository(ref.watch(localDatabaseProvider));
   return cache.listActiveSummaries();
 });
@@ -110,7 +111,8 @@ final trackingUnitsByLibraryEntryRefMapProvider =
 final trackingUnitsByLibraryEntryRefProvider =
     Provider.family<List<TrackingUnitSummary>, LibraryEntryRef>(
         (ref, libraryEntryRef) {
-  return ref.watch(trackingUnitsByLibraryEntryRefMapProvider)[libraryEntryRef] ??
+  return ref
+          .watch(trackingUnitsByLibraryEntryRefMapProvider)[libraryEntryRef] ??
       const <TrackingUnitSummary>[];
 });
 
@@ -154,7 +156,8 @@ final watchSessionsProvider = FutureProvider<List<WatchSession>>((ref) async {
 });
 
 final watchSessionsByLibraryEntryRefProvider =
-    Provider.family<List<WatchSession>, LibraryEntryRef>((ref, libraryEntryRef) {
+    Provider.family<List<WatchSession>, LibraryEntryRef>(
+        (ref, libraryEntryRef) {
   final sessions = ref.watch(watchSessionsProvider);
   return sessions.maybeWhen(
     data: (items) {

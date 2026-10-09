@@ -191,8 +191,7 @@ class BoardGamePlayStatsCard extends ConsumerWidget {
       data: (allSessions) {
         final ids = mediaIds.toSet();
         final scopedSessions = allSessions
-            .where((session) =>
-                ids.contains(CatalogItemRef(
+            .where((session) => ids.contains(CatalogItemRef(
                   kind: CatalogMediaKind.boardgame,
                   id: session.boardGameId,
                 )))

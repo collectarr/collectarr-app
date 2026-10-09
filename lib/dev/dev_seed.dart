@@ -826,8 +826,8 @@ Future<DevSeedVerificationReport> verifyDevSeedDatabase(
           .findAll(kind: CatalogMediaKind.book))
       .where((item) => item.id.startsWith('seed-'));
   require(
-    bookItems.every(
-        (item) => item.id.trim().isNotEmpty && seedTitle(item).trim().isNotEmpty),
+    bookItems.every((item) =>
+        item.id.trim().isNotEmpty && seedTitle(item).trim().isNotEmpty),
     'Book seed Catalog Items are missing canonical identity fields',
   );
   final boardGameItems = (await CatalogItemCacheRepository(db)
@@ -846,8 +846,7 @@ Future<DevSeedVerificationReport> verifyDevSeedDatabase(
   );
   final musicTracks = [
     for (final item in musicItems.where((item) => item.id.startsWith('seed-')))
-      for (final disc
-          in MusicCatalogMapper.mapMetadataItemToMusic(item).discs)
+      for (final disc in MusicCatalogMapper.mapMetadataItemToMusic(item).discs)
         for (final track in disc.tracks)
           if (track.id.value.startsWith('seed-')) track,
   ];

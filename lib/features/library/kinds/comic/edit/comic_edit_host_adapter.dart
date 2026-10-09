@@ -25,7 +25,6 @@ class ComicEditHostAdapter implements ComicEditHost {
     required this.draft,
     required this.media,
     required this.accent,
-
     required this.markDirty,
   });
 

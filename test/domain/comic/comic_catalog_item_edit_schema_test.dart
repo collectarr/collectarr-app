@@ -9,7 +9,8 @@ import 'package:flutter_test/flutter_test.dart';
 import '../../contracts/media_edit_contract.dart';
 
 void main() {
-  defineMediaEditContract<EditSchema<ComicCatalogItem, ComicCatalogItemFormValues>>(
+  defineMediaEditContract<
+      EditSchema<ComicCatalogItem, ComicCatalogItemFormValues>>(
     name: 'Comic',
     create: () => comicCatalogItemEditSchema,
     tabIds: (schema) => schema.tabs.map((tab) => tab.id),
@@ -91,8 +92,8 @@ void main() {
     format.setValue(draft, null);
     expect(format.value(draft), isNull);
 
-    final pageCount =
-        _field('page_count') as LibraryNumberFieldSpec<ComicCatalogItemFormValues>;
+    final pageCount = _field('page_count')
+        as LibraryNumberFieldSpec<ComicCatalogItemFormValues>;
     pageCount.setValue(draft, 48);
     expect(pageCount.value(draft), 48);
 
@@ -101,8 +102,8 @@ void main() {
     genres.setValues(draft, {'Action', 'Mystery'});
     expect(genres.values(draft), {'Action', 'Mystery'});
 
-    final releaseDate =
-        _field('release_date') as LibraryDateFieldSpec<ComicCatalogItemFormValues>;
+    final releaseDate = _field('release_date')
+        as LibraryDateFieldSpec<ComicCatalogItemFormValues>;
     releaseDate.setValue(draft, DateTime(2026, 4, 12));
     expect(releaseDate.value(draft), DateTime(2026, 4, 12));
   });
@@ -120,7 +121,8 @@ void main() {
     draft.pageCount = null;
     draft.coverDate = DateTime(2026, 3, 4);
     draft.releaseDate = DateTime(2026, 3, 10);
-    final updated = comicCatalogItemFromFormValues(original: original, values: draft);
+    final updated =
+        comicCatalogItemFromFormValues(original: original, values: draft);
     expect(updated.coverDate, DateTime(2026, 3, 4));
     expect(updated.releaseDate, DateTime(2026, 3, 10));
   });

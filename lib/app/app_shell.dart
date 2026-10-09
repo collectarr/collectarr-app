@@ -111,90 +111,90 @@ class _AppShellState extends ConsumerState<AppShell> {
         appBar: widget.navigationShell.currentIndex == _branchSettings
             ? null
             : AppBar(
-          toolbarHeight: 40,
-          automaticallyImplyLeading: false,
-          leadingWidth: 44,
-          leading: Builder(
-            builder: (context) => IconButton(
-              key: const Key('app.open-navigation'),
-              tooltip: 'Open navigation',
-              visualDensity: VisualDensity.compact,
-              style: toolbarIconStyle,
-              onPressed: () => Scaffold.of(context).openDrawer(),
-              icon: const Icon(Icons.menu),
-            ),
-          ),
-          titleSpacing: 2,
-          title: const Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              ClipRRect(
-                borderRadius: BorderRadius.all(Radius.circular(5)),
-                child: Image(
-                  key: Key('app.brand-logo'),
-                  image: AssetImage('web/icons/Icon-maskable-192.png'),
-                  width: 23,
-                  height: 23,
-                  fit: BoxFit.cover,
+                toolbarHeight: 40,
+                automaticallyImplyLeading: false,
+                leadingWidth: 44,
+                leading: Builder(
+                  builder: (context) => IconButton(
+                    key: const Key('app.open-navigation'),
+                    tooltip: 'Open navigation',
+                    visualDensity: VisualDensity.compact,
+                    style: toolbarIconStyle,
+                    onPressed: () => Scaffold.of(context).openDrawer(),
+                    icon: const Icon(Icons.menu),
+                  ),
                 ),
+                titleSpacing: 2,
+                title: const Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    ClipRRect(
+                      borderRadius: BorderRadius.all(Radius.circular(5)),
+                      child: Image(
+                        key: Key('app.brand-logo'),
+                        image: AssetImage('web/icons/Icon-maskable-192.png'),
+                        width: 23,
+                        height: 23,
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                    SizedBox(width: 7),
+                    Text('Collectarr'),
+                  ],
+                ),
+                backgroundColor: libraryAccentChromeFallbackColor(accent),
+                foregroundColor: Colors.white,
+                surfaceTintColor: Colors.transparent,
+                elevation: 0,
+                scrolledUnderElevation: 0,
+                titleTextStyle: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: 0.2,
+                ),
+                iconTheme: const IconThemeData(color: Colors.white, size: 19),
+                flexibleSpace: LibraryAccentChrome(
+                  accent: accent,
+                  animationDuration: uiPreferences.animationsEnabled
+                      ? kAppAnimNormal
+                      : Duration.zero,
+                ),
+                actions: [
+                  LibraryOverdueLoansAction(
+                    selectedKind: activeLibrary,
+                    selectedLabel: activeType.identity.pluralLabel,
+                  ),
+                  MediaLibraryKindMenu(
+                    types: libraryTypes,
+                    registry: defaultLibraryKindRegistry,
+                    onSelected: (type) {
+                      ref
+                          .read(selectedLibraryKindProvider.notifier)
+                          .select(type.kind);
+                      final libraryUri = Uri(
+                        path: '/libraries',
+                        queryParameters: {'kind': type.kind},
+                      );
+                      context.go(libraryUri.toString());
+                    },
+                  ),
+                  SyncActionButton(style: toolbarIconStyle),
+                  IconButton(
+                    key: const Key('nav.settings'),
+                    tooltip: 'Settings',
+                    visualDensity: VisualDensity.compact,
+                    style: toolbarIconStyle,
+                    onPressed: () => widget.navigationShell.goBranch(
+                      _branchSettings,
+                      initialLocation: widget.navigationShell.currentIndex ==
+                          _branchSettings,
+                    ),
+                    icon: const Icon(Icons.settings_outlined),
+                  ),
+                  const SizedBox(width: 4),
+                ],
               ),
-              SizedBox(width: 7),
-              Text('Collectarr'),
-            ],
-          ),
-          backgroundColor: libraryAccentChromeFallbackColor(accent),
-          foregroundColor: Colors.white,
-          surfaceTintColor: Colors.transparent,
-          elevation: 0,
-          scrolledUnderElevation: 0,
-          titleTextStyle: const TextStyle(
-            color: Colors.white,
-            fontSize: 16,
-            fontWeight: FontWeight.w800,
-            letterSpacing: 0.2,
-          ),
-          iconTheme: const IconThemeData(color: Colors.white, size: 19),
-          flexibleSpace: LibraryAccentChrome(
-            accent: accent,
-            animationDuration: uiPreferences.animationsEnabled
-                ? kAppAnimNormal
-                : Duration.zero,
-          ),
-          actions: [
-            LibraryOverdueLoansAction(
-              selectedKind: activeLibrary,
-              selectedLabel: activeType.identity.pluralLabel,
-            ),
-            MediaLibraryKindMenu(
-              types: libraryTypes,
-              registry: defaultLibraryKindRegistry,
-              onSelected: (type) {
-                ref
-                    .read(selectedLibraryKindProvider.notifier)
-                    .select(type.kind);
-                final libraryUri = Uri(
-                  path: '/libraries',
-                  queryParameters: {'kind': type.kind},
-                );
-                context.go(libraryUri.toString());
-              },
-            ),
-            SyncActionButton(style: toolbarIconStyle),
-            IconButton(
-              key: const Key('nav.settings'),
-              tooltip: 'Settings',
-              visualDensity: VisualDensity.compact,
-              style: toolbarIconStyle,
-              onPressed: () => widget.navigationShell.goBranch(
-                _branchSettings,
-                initialLocation:
-                    widget.navigationShell.currentIndex == _branchSettings,
-              ),
-              icon: const Icon(Icons.settings_outlined),
-            ),
-            const SizedBox(width: 4),
-          ],
-        ),
         drawer: AppNavigationDrawer(
           currentBranch: widget.navigationShell.currentIndex,
           isAdmin: auth.isAdmin,
@@ -550,8 +550,7 @@ class _AppNavigationDrawerState extends State<AppNavigationDrawer> {
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
-    final drawerBg =
-        palette.isDark ? const Color(0xFF383838) : palette.surface;
+    final drawerBg = palette.isDark ? const Color(0xFF383838) : palette.surface;
     final sectionHeaderColor = palette.isDark
         ? Colors.white.withValues(alpha: 0.4)
         : palette.textMuted;

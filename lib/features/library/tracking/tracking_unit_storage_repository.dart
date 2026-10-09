@@ -84,8 +84,8 @@ class TrackingUnitStorageRepository {
   }
 
   int _compareForDisplay(TrackingUnitSummary a, TrackingUnitSummary b) {
-    final itemCompare = a.libraryEntryRef.id.value
-        .compareTo(b.libraryEntryRef.id.value);
+    final itemCompare =
+        a.libraryEntryRef.id.value.compareTo(b.libraryEntryRef.id.value);
     if (itemCompare != 0) return itemCompare;
     final coordinatesCompare =
         _codecs[a.libraryEntryRef.kind]?.compareCoordinates(a, b) ?? 0;

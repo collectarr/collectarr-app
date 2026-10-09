@@ -108,7 +108,8 @@ class LocationRepository {
   }
 
   Future<String?> getItemLocationId(LibraryEntryRef libraryEntryRef) async {
-    for (final item in await LibraryEntriesRepository(_db).listActiveSummaries()) {
+    for (final item
+        in await LibraryEntriesRepository(_db).listActiveSummaries()) {
       if (item.ref == libraryEntryRef) return item.locationId;
     }
     return null;

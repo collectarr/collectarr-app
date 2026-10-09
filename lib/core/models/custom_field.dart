@@ -1,6 +1,5 @@
 import 'dart:convert';
 
-
 enum CustomFieldValueType {
   text('text', 'Text'),
   longText('longText', 'Long text'),

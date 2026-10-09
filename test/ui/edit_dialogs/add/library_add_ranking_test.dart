@@ -161,7 +161,6 @@ void main() {
               .payload['item_number'],
           '1');
     });
-
   });
 
   group('filterAndRankCatalogItems', () {

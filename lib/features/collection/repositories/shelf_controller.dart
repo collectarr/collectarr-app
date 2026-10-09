@@ -53,7 +53,8 @@ final shelfProvider = FutureProvider<ShelfState>((ref) async {
   final catalogSummaries =
       await CatalogDisplaySummaryRepository(db).findByRefs(catalogRefs);
   final dataRepository = CatalogWorkspaceDataRepository(db);
-  final kindPresentationByEntryRef = await dataRepository.findEntries(entryRefs);
+  final kindPresentationByEntryRef =
+      await dataRepository.findEntries(entryRefs);
   final catalogPresentationByRef = await dataRepository.findCatalogItems(
     wishlist.map((item) => item.catalogRef),
   );

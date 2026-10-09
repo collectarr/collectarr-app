@@ -178,7 +178,8 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
         child: Scaffold(
           appBar: AppBar(
             leading: _buildBackButton(context),
-            title: const Text('Settings', style: TextStyle(color: Colors.white)),
+            title:
+                const Text('Settings', style: TextStyle(color: Colors.white)),
             foregroundColor: Colors.white,
             iconTheme: const IconThemeData(color: Colors.white),
             backgroundColor: libraryAccentChromeFallbackColor(accent),
@@ -248,7 +249,8 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
         child: Scaffold(
           appBar: AppBar(
             leading: _buildBackButton(context),
-            title: const Text('Settings', style: TextStyle(color: Colors.white)),
+            title:
+                const Text('Settings', style: TextStyle(color: Colors.white)),
             foregroundColor: Colors.white,
             iconTheme: const IconThemeData(color: Colors.white),
             backgroundColor: libraryAccentChromeFallbackColor(accent),
@@ -306,7 +308,8 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
         child: Scaffold(
           appBar: AppBar(
             leading: _buildBackButton(context),
-            title: const Text('Settings', style: TextStyle(color: Colors.white)),
+            title:
+                const Text('Settings', style: TextStyle(color: Colors.white)),
             foregroundColor: Colors.white,
             iconTheme: const IconThemeData(color: Colors.white),
             backgroundColor: libraryAccentChromeFallbackColor(accent),

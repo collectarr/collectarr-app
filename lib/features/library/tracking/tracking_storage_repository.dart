@@ -174,9 +174,11 @@ class TrackingStorageRepository {
               status: replaceNullableFields
                   ? status
                   : status ?? existing.status ?? MediaTrackingStatus.planned,
-              rating: replaceNullableFields ? rating : rating ?? existing.rating,
-              startedAt:
-                  replaceNullableFields ? startedAt : startedAt ?? existing.startedAt,
+              rating:
+                  replaceNullableFields ? rating : rating ?? existing.rating,
+              startedAt: replaceNullableFields
+                  ? startedAt
+                  : startedAt ?? existing.startedAt,
               finishedAt: replaceNullableFields
                   ? finishedAt
                   : finishedAt ?? existing.finishedAt,
@@ -221,7 +223,8 @@ class TrackingStorageRepository {
     return _syncRecord(codec, deleted);
   }
 
-  Future<List<TrackingStorageRecord>> findActiveStorageRecordsByLibraryEntryRefs(
+  Future<List<TrackingStorageRecord>>
+      findActiveStorageRecordsByLibraryEntryRefs(
     Iterable<LibraryEntryRef> libraryEntryRefs,
   ) async {
     final wanted = libraryEntryRefs.toSet();
@@ -242,8 +245,7 @@ class TrackingStorageRepository {
     await _db.transaction(() async {
       for (final entry in entries) {
         final libraryEntryRef = _libraryEntryRefForRecord(entry);
-        await _codecForKind(libraryEntryRef.kind)
-            .upsertToStorage(_db, entry);
+        await _codecForKind(libraryEntryRef.kind).upsertToStorage(_db, entry);
       }
     });
   }
@@ -321,10 +323,10 @@ class TrackingStorageRepository {
     final entries = <TrackingStorageRecord>[];
     for (final input in values) {
       _validateLibraryEntryRef(input.libraryEntryRef);
-      final existing =
-          (await findActiveStorageRecordsByLibraryEntryRefs([
+      final existing = (await findActiveStorageRecordsByLibraryEntryRefs([
         input.libraryEntryRef,
-      ])).firstOrNull;
+      ]))
+          .firstOrNull;
       final entry = existing == null
           ? create(
               id: input.entryId,

@@ -36,8 +36,8 @@ void main() {
     expect(musicLabels.queryHint, 'Enter album, artist, format, or label...');
     expect(musicLabels.emptySearchMessage,
         'Enter an album, artist, format, or label.');
-    expect(movieLabels.queryHint,
-        'Search by title, studio, year, or release...');
+    expect(
+        movieLabels.queryHint, 'Search by title, studio, year, or release...');
   });
 
   test('filter labels vary by media type', () {

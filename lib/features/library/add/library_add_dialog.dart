@@ -85,6 +85,7 @@ class LibraryAddDialog extends ConsumerStatefulWidget {
   @override
   ConsumerState<LibraryAddDialog> createState() => LibraryAddDialogState();
 }
+
 class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
   late final LibraryAddSessionController _controller;
   late final LibraryAddManualDraft _manualDraft;

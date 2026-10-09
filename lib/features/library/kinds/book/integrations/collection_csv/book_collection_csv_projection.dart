@@ -114,8 +114,7 @@ final class BookCollectionCsvProjection
   @override
   List<String> catalogCells(LibraryWorkspaceContext entry) {
     final catalog = entry.kindPresentationData;
-    final metadata =
-        catalog is BookWorkspaceData ? catalog.metadata : null;
+    final metadata = catalog is BookWorkspaceData ? catalog.metadata : null;
     return [
       entry.itemId,
       CatalogMediaKind.book.apiValue,
@@ -126,8 +125,8 @@ final class BookCollectionCsvProjection
       metadata?.physicalFormat ?? '',
       metadata?.physicalFormatLabel ?? '',
       metadata?.publisher ?? '',
-      _formatDate(metadata?.releaseDate ??
-          metadata?.releaseDateParts?.asDateTime),
+      _formatDate(
+          metadata?.releaseDate ?? metadata?.releaseDateParts?.asDateTime),
       metadata?.isbn ??
           metadata?.isbn13 ??
           metadata?.isbn10 ??

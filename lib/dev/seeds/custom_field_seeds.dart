@@ -3,8 +3,7 @@ import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/features/collection/repositories/custom_field_repository.dart';
 
-String _entrySeedKey(CatalogMediaKind kind, String id) =>
-    LibraryEntryRef(
+String _entrySeedKey(CatalogMediaKind kind, String id) => LibraryEntryRef(
       kind: kind,
       id: LibraryEntryId(id),
     ).key;

@@ -26,8 +26,11 @@ abstract final class GameVocabularies {
     ];
   }
 
-  static Future<Map<String, int>> entryUsageCounts(LocalDatabase db, String semanticName) =>
-    countPickListEntryUsages(items: GameEntryRepository(db).listActive(), valuesFrom: (item) => _entryValues(item, semanticName));
+  static Future<Map<String, int>> entryUsageCounts(
+          LocalDatabase db, String semanticName) =>
+      countPickListEntryUsages(
+          items: GameEntryRepository(db).listActive(),
+          valuesFrom: (item) => _entryValues(item, semanticName));
 
   static Future<PickListEntryMergeResult> previewEntryMerge(
     LocalDatabase db,

@@ -13,9 +13,9 @@ import 'package:collectarr_app/features/library/kinds/music/entries/music_entry_
 final class MusicLibraryEntryCreatePayload
     implements LibraryEntryCreatePayload {
   const MusicLibraryEntryCreatePayload({
-      required this.details,
-      this.initialListens = const [],
-      this.quantity = 1,
+    required this.details,
+    this.initialListens = const [],
+    this.quantity = 1,
     this.rating,
     this.mediaCondition,
     this.purchaseDateParts,

@@ -117,8 +117,7 @@ final class MovieCollectionCsvProjection
   @override
   List<String> catalogCells(LibraryWorkspaceContext entry) {
     final catalog = entry.kindPresentationData;
-    final metadata =
-        catalog is MovieWorkspaceData ? catalog.metadata : null;
+    final metadata = catalog is MovieWorkspaceData ? catalog.metadata : null;
     return [
       entry.itemId,
       CatalogMediaKind.movie.apiValue,
@@ -129,8 +128,8 @@ final class MovieCollectionCsvProjection
       metadata?.physicalFormat ?? '',
       moviePhysicalMediaFormatLabel(metadata?.physicalFormat) ?? '',
       metadata?.studio ?? metadata?.publisher ?? '',
-      _formatDate(metadata?.releaseDate ??
-          metadata?.releaseDateParts?.asDateTime),
+      _formatDate(
+          metadata?.releaseDate ?? metadata?.releaseDateParts?.asDateTime),
       metadata?.barcode ?? '',
     ];
   }

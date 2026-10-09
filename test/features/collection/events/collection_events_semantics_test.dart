@@ -96,7 +96,8 @@ void main() {
     await db.close();
   });
 
-  test('add collection item without wishlist emits LibraryEntryAdded only', () async {
+  test('add collection item without wishlist emits LibraryEntryAdded only',
+      () async {
     final events = <CollectionEvent>[];
     final sub = eventBus.stream.listen(events.add);
 

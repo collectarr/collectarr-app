@@ -2,7 +2,9 @@ import '../movie_module_dependencies.dart';
 import '../entries/movie_transfer_library_entry.dart';
 
 final movieKindEditCapabilities = LibraryEditCapabilitySet(
-  editRegistry: LibraryTargetEditRegistry(catalogItem: buildMovieLibraryEditDialog, libraryEntry: buildMovieLibraryEditDialog),
+  editRegistry: LibraryTargetEditRegistry(
+      catalogItem: buildMovieLibraryEditDialog,
+      libraryEntry: buildMovieLibraryEditDialog),
   vocabularies: StandardKindVocabularyCapability(MovieVocabularies.all),
   presentation: movieLibraryEditPresentation,
   conditions: MovieVocabularies.condition.builtIns,

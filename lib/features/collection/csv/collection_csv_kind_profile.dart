@@ -218,9 +218,8 @@ Map<String, dynamic> collectionCsvKindEntryImportPayload(
     'kind': input.kind.apiValue,
     'catalog_data': input.catalogData,
     'personal_data': personal,
-    'source_catalog_ref': (existing?.sourceCatalogRef ??
-            input.sourceCatalogItemRef)
-        ?.toJson(),
+    'source_catalog_ref':
+        (existing?.sourceCatalogRef ?? input.sourceCatalogItemRef)?.toJson(),
     'updated_at': input.now.toUtc().toIso8601String(),
   };
 }

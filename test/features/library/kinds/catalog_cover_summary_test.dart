@@ -35,9 +35,8 @@ void main() {
       ),
       (
         kind: CatalogMediaKind.book,
-        readSummaryCover: (item) => const BookCatalogTransportCodec()
-            .summarizeTransport(item)
-            .imageUrl,
+        readSummaryCover: (item) =>
+            const BookCatalogTransportCodec().summarizeTransport(item).imageUrl,
       ),
       (
         kind: CatalogMediaKind.comic,
@@ -47,9 +46,8 @@ void main() {
       ),
       (
         kind: CatalogMediaKind.game,
-        readSummaryCover: (item) => const GameCatalogTransportCodec()
-            .summarizeTransport(item)
-            .imageUrl,
+        readSummaryCover: (item) =>
+            const GameCatalogTransportCodec().summarizeTransport(item).imageUrl,
       ),
       (
         kind: CatalogMediaKind.manga,
@@ -71,9 +69,8 @@ void main() {
       ),
       (
         kind: CatalogMediaKind.tv,
-        readSummaryCover: (item) => const TvCatalogTransportCodec()
-            .summarizeTransport(item)
-            .imageUrl,
+        readSummaryCover: (item) =>
+            const TvCatalogTransportCodec().summarizeTransport(item).imageUrl,
       ),
     ];
 

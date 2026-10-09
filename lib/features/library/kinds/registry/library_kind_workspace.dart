@@ -341,8 +341,7 @@ final class TypedLibraryKindWorkspace<TDto extends LibraryWorkspaceDto>
   }
 
   @override
-  String columnLabel(LibraryFieldIdRuntime column,
-      {LibraryTargetRef? target}) {
+  String columnLabel(LibraryFieldIdRuntime column, {LibraryTargetRef? target}) {
     return standardMediaTableColumnLabelForType(
         _fieldsForOptionalTarget(target), column);
   }

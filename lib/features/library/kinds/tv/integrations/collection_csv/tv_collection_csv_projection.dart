@@ -118,8 +118,7 @@ final class TvCollectionCsvProjection
   @override
   List<String> catalogCells(LibraryWorkspaceContext entry) {
     final catalog = entry.kindPresentationData;
-    final metadata =
-        catalog is TvWorkspaceData ? catalog.metadata : null;
+    final metadata = catalog is TvWorkspaceData ? catalog.metadata : null;
     return [
       entry.itemId,
       CatalogMediaKind.tv.apiValue,
@@ -135,8 +134,7 @@ final class TvCollectionCsvProjection
           metadata?.productionCompanies.firstOrNull ??
           '',
       metadata?.releaseDateParts?.isoString ??
-          _formatDate(metadata?.releaseDate ??
-              metadata?.firstAirDate),
+          _formatDate(metadata?.releaseDate ?? metadata?.firstAirDate),
       metadata?.barcode ?? '',
     ];
   }

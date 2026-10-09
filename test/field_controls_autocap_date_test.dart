@@ -12,7 +12,8 @@ import 'package:flutter_test/flutter_test.dart';
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  testWidgets('LibraryPartialDateInput renders divider lines between date fields',
+  testWidgets(
+      'LibraryPartialDateInput renders divider lines between date fields',
       (tester) async {
     PartialDate? changedDate;
 
@@ -35,7 +36,8 @@ void main() {
     expect(find.text('06'), findsOneWidget);
 
     // Verify 2 divider line containers connecting the fields
-    final containers = tester.widgetList<Container>(find.byType(Container)).where((c) {
+    final containers =
+        tester.widgetList<Container>(find.byType(Container)).where((c) {
       final constraints = c.constraints;
       return constraints != null &&
           constraints.minWidth == 8 &&
@@ -67,12 +69,13 @@ void main() {
           home: Scaffold(
             body: Builder(
               builder: (context) {
-                final builder = LibraryFieldSpecControlBuilder<Map<String, String>>(
+                final builder =
+                    LibraryFieldSpecControlBuilder<Map<String, String>>(
                   context: context,
                   draft: draft,
                   mode: LibraryFieldSpecControlMode.edit,
-                  controllerFor: (id, initial) =>
-                      controllers.putIfAbsent(id, () => TextEditingController(text: initial)),
+                  controllerFor: (id, initial) => controllers.putIfAbsent(
+                      id, () => TextEditingController(text: initial)),
                 );
                 return builder.build(spec);
               },
@@ -114,12 +117,13 @@ void main() {
           home: Scaffold(
             body: Builder(
               builder: (context) {
-                final builder = LibraryFieldSpecControlBuilder<Map<String, Object?>>(
+                final builder =
+                    LibraryFieldSpecControlBuilder<Map<String, Object?>>(
                   context: context,
                   draft: draft,
                   mode: LibraryFieldSpecControlMode.edit,
-                  controllerFor: (id, initial) =>
-                      controllers.putIfAbsent(id, () => TextEditingController(text: initial)),
+                  controllerFor: (id, initial) => controllers.putIfAbsent(
+                      id, () => TextEditingController(text: initial)),
                 );
                 return builder.build(spec);
               },

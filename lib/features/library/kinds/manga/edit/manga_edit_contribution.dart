@@ -2,7 +2,9 @@ import '../manga_module_dependencies.dart';
 import '../entries/manga_transfer_library_entry.dart';
 
 final mangaKindEditCapabilities = LibraryEditCapabilitySet(
-  editRegistry: LibraryTargetEditRegistry(catalogItem: buildMangaLibraryEditDialog, libraryEntry: buildMangaLibraryEditDialog),
+  editRegistry: LibraryTargetEditRegistry(
+      catalogItem: buildMangaLibraryEditDialog,
+      libraryEntry: buildMangaLibraryEditDialog),
   presentation: mangaLibraryEditPresentation,
   conditions: MangaVocabularies.condition.builtIns,
   entryCollectionValueReader: (libraryEntry) => switch (libraryEntry?.value) {

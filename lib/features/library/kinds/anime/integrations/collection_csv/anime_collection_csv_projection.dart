@@ -117,8 +117,7 @@ final class AnimeCollectionCsvProjection
   @override
   List<String> catalogCells(LibraryWorkspaceContext entry) {
     final catalog = entry.kindPresentationData;
-    final metadata =
-        catalog is AnimeWorkspaceData ? catalog.metadata : null;
+    final metadata = catalog is AnimeWorkspaceData ? catalog.metadata : null;
     return [
       entry.itemId,
       CatalogMediaKind.anime.apiValue,
@@ -130,8 +129,7 @@ final class AnimeCollectionCsvProjection
       metadata?.physicalFormatLabel ?? '',
       metadata?.publisher ?? metadata?.studios.firstOrNull ?? '',
       metadata?.releaseDateParts?.isoString ??
-          _formatDate(metadata?.releaseDate ??
-              metadata?.startDate),
+          _formatDate(metadata?.releaseDate ?? metadata?.startDate),
       metadata?.barcode ?? '',
     ];
   }

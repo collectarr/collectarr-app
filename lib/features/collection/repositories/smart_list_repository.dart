@@ -60,8 +60,8 @@ class SmartListRepository {
             name: smartList.name,
             criteriaJson: criteriaJson,
             createdAt: DateTime.now().toUtc(),
-        ),
-      );
+          ),
+        );
     return SmartList(
       id: id,
       name: smartList.name,

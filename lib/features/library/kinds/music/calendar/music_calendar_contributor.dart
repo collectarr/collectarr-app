@@ -46,10 +46,7 @@ final class MusicCalendarContributor implements LibraryCalendarContributor {
     if (database == null) {
       throw StateError('Music calendar contribution requires a database');
     }
-    return LibraryEntryStore(database)
-        .find(kind, id)
-        .then((entry) => entry == null
-            ? null
-            : MusicAlbum.fromJson(entry.catalogData));
+    return LibraryEntryStore(database).find(kind, id).then((entry) =>
+        entry == null ? null : MusicAlbum.fromJson(entry.catalogData));
   }
 }

@@ -114,8 +114,7 @@ final class GameCollectionCsvProjection
   @override
   List<String> catalogCells(LibraryWorkspaceContext entry) {
     final catalog = entry.kindPresentationData;
-    final metadata =
-        catalog is GameWorkspaceData ? catalog.metadata : null;
+    final metadata = catalog is GameWorkspaceData ? catalog.metadata : null;
     return [
       entry.itemId,
       CatalogMediaKind.game.apiValue,

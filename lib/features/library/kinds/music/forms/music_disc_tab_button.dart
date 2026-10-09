@@ -20,9 +20,8 @@ class MusicDiscTabButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final label = (title?.trim().isNotEmpty == true)
-        ? title!.trim()
-        : 'Disc #$number';
+    final label =
+        (title?.trim().isNotEmpty == true) ? title!.trim() : 'Disc #$number';
     return InkWell(
       onTap: onPressed,
       mouseCursor: SystemMouseCursors.click,
@@ -35,19 +34,16 @@ class MusicDiscTabButton extends StatelessWidget {
           borderRadius: const BorderRadius.vertical(top: Radius.circular(3)),
           border: Border(
             top: BorderSide(
-              color: selected
-                  ? const Color(0xFF555555)
-                  : const Color(0xFF262626),
+              color:
+                  selected ? const Color(0xFF555555) : const Color(0xFF262626),
             ),
             left: BorderSide(
-              color: selected
-                  ? const Color(0xFF555555)
-                  : const Color(0xFF262626),
+              color:
+                  selected ? const Color(0xFF555555) : const Color(0xFF262626),
             ),
             right: BorderSide(
-              color: selected
-                  ? const Color(0xFF555555)
-                  : const Color(0xFF262626),
+              color:
+                  selected ? const Color(0xFF555555) : const Color(0xFF262626),
             ),
           ),
         ),

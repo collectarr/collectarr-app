@@ -15,6 +15,7 @@ void requireKnownCatalogItemRef(
     );
   }
 }
+
 /// Validates a personal collection entry before it is persisted by a global
 /// feature. A bare string id is never a valid cross-kind target.
 void requireKnownLibraryEntryRef(
@@ -29,6 +30,7 @@ void requireKnownLibraryEntryRef(
     );
   }
 }
+
 /// Ensures a collection item and its optional catalog target belong to the same
 /// kind before a global feature stores both references together.
 void requireMatchingCatalogAndLibraryEntryKinds(

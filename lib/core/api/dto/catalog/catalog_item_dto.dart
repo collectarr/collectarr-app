@@ -163,4 +163,3 @@ const _transportFields = <String>{
   'kind',
   'snapshot_version',
 };
-

@@ -93,7 +93,6 @@ class LibrarySidebarHeader extends StatelessWidget {
           isPickList: true,
           onPressed: manageBuckets,
         ),
-
       if (navigateBack != null || (!isRootScope && clearFilter != null))
         _LibrarySidebarToolbarButton(
           tooltip: navigateBack != null

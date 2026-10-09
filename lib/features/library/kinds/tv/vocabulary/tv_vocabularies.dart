@@ -30,8 +30,11 @@ abstract final class TvVocabularies {
     ];
   }
 
-  static Future<Map<String, int>> entryUsageCounts(LocalDatabase db, String semanticName) =>
-    countPickListEntryUsages(items: TvEntryRepository(db).listActive(), valuesFrom: (item) => _entryValues(item, semanticName));
+  static Future<Map<String, int>> entryUsageCounts(
+          LocalDatabase db, String semanticName) =>
+      countPickListEntryUsages(
+          items: TvEntryRepository(db).listActive(),
+          valuesFrom: (item) => _entryValues(item, semanticName));
 
   static Future<PickListEntryMergeResult> previewEntryMerge(
     LocalDatabase db,

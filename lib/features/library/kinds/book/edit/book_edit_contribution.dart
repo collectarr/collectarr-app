@@ -2,7 +2,9 @@ import '../book_module_dependencies.dart';
 import '../entries/book_transfer_library_entry.dart';
 
 final bookKindEditCapabilities = LibraryEditCapabilitySet(
-  editRegistry: LibraryTargetEditRegistry(catalogItem: buildBookLibraryEditDialog, libraryEntry: buildBookLibraryEditDialog),
+  editRegistry: LibraryTargetEditRegistry(
+      catalogItem: buildBookLibraryEditDialog,
+      libraryEntry: buildBookLibraryEditDialog),
   vocabularies: StandardKindVocabularyCapability(BookVocabularies.all),
   presentation: const LibraryEditPresentation(
     builder: BookCatalogItemEditPresentationBuilder(),

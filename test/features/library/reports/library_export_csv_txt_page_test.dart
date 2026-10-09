@@ -132,7 +132,8 @@ void main() {
     expect(find.textContaining('Radiohead'), findsWidgets);
   });
 
-  testWidgets('LibraryExportCsvTxtPage tab switching and settings update preview',
+  testWidgets(
+      'LibraryExportCsvTxtPage tab switching and settings update preview',
       (tester) async {
     tester.view.physicalSize = const Size(1280, 1400);
     tester.view.devicePixelRatio = 1.0;

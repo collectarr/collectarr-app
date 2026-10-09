@@ -25,8 +25,7 @@ class LibraryCollectionActions {
     final target = item.target;
     if (target is! CatalogTargetRef) return;
     final catalogRef = target.ref;
-    final catalogItem =
-        await catalogSnapshots.findCandidateByRef(catalogRef);
+    final catalogItem = await catalogSnapshots.findCandidateByRef(catalogRef);
     if (catalogItem == null) return;
     final registration =
         libraryKindRegistrationForKind(catalogItem.summary.kind);

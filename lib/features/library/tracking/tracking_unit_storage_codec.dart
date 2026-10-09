@@ -85,7 +85,8 @@ TrackingUnitStorageRow trackingUnitStorageRowFromSyncPayload({
   required DateTime updatedAt,
   required DateTime? deletedAt,
 }) {
-  final libraryEntryRef = libraryEntryRefFromSerialized(payload['library_entry_ref']);
+  final libraryEntryRef =
+      libraryEntryRefFromSerialized(payload['library_entry_ref']);
   if (libraryEntryRef == null) {
     throw const FormatException(
       'Tracking unit payload requires library_entry_ref.',

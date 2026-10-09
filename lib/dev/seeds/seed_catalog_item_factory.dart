@@ -118,4 +118,3 @@ CatalogItemDto seedCatalogItem({
     kindData: kindData,
   );
 }
-

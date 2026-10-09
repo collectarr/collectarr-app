@@ -15,8 +15,7 @@ final class ComicRepository
   CatalogItemCacheRepository get _catalog => CatalogItemCacheRepository(_db);
 
   @override
-  Future<ComicCatalogItem?> findById(CatalogItemRef id) =>
-      getCatalogItem(id);
+  Future<ComicCatalogItem?> findById(CatalogItemRef id) => getCatalogItem(id);
 
   Future<ComicCatalogItem?> getCatalogItem(CatalogItemRef id) async {
     if (id.kind != CatalogMediaKind.comic) {

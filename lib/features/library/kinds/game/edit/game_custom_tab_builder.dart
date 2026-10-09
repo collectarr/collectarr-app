@@ -19,7 +19,6 @@ Widget? buildGameCustomTabView({
   required BuildContext context,
   required LibraryEditShellState draft,
   required Color accent,
-
   required CatalogSearchCandidate item,
   required VoidCallback markDirty,
 }) {

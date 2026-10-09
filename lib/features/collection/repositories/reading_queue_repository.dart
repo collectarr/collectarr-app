@@ -13,7 +13,9 @@ class ReadingQueueRepository {
     final rows = await (_db.select(_db.readingQueueCache)
           ..orderBy([(t) => OrderingTerm.asc(t.position)]))
         .get();
-    return rows.map((r) => LibraryEntryRef.fromKey(r.libraryEntryRefKey)).toList();
+    return rows
+        .map((r) => LibraryEntryRef.fromKey(r.libraryEntryRefKey))
+        .toList();
   }
 
   /// Check if an item is in the queue.

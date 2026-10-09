@@ -34,9 +34,10 @@ class SyncRetryMapper {
         final payload = change.localPayload ?? change.servicePayload;
         final kind = catalogMediaKindFromApiValue(payload?['kind'] as String?);
         if (kind.isUnknown) return null;
-        final libraryEntryRef = LibraryEntryRef(kind: kind, id: LibraryEntryId(change.entityId));
-        final serialized =
-            await CollectarrLibraryEntryPersistence(db).syncPayloadByRef(libraryEntryRef);
+        final libraryEntryRef =
+            LibraryEntryRef(kind: kind, id: LibraryEntryId(change.entityId));
+        final serialized = await CollectarrLibraryEntryPersistence(db)
+            .syncPayloadByRef(libraryEntryRef);
         if (serialized == null) {
           return null;
         }

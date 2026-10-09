@@ -891,8 +891,7 @@ List<AnimeLibraryEntry> animeSeedLibraryEntries(DateTime now) {
         id: LibraryEntryId('seed-entry-$itemId'),
         metadata: metadataById[itemId] ??
             (throw StateError('Missing Anime seed catalog item: $itemId')),
-        sourceCatalogRef:
-            seedCatalogRef(CatalogMediaKind.anime, itemId),
+        sourceCatalogRef: seedCatalogRef(CatalogMediaKind.anime, itemId),
         createdAt: now.subtract(const Duration(days: 180)),
         updatedAt: now,
         personal: AnimePersonalData(

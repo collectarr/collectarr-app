@@ -242,8 +242,7 @@ class TransferableField {
           ];
     return [
       ...resolved,
-      for (final def in definitions)
-        TransferableField.customField(def),
+      for (final def in definitions) TransferableField.customField(def),
     ];
   }
 }

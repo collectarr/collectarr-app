@@ -19,7 +19,9 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   group('Music Details sub-tabs and Tracks tab refactor', () {
-    testWidgets('LibraryPartialDateInput divider is vertically centered with fields', (tester) async {
+    testWidgets(
+        'LibraryPartialDateInput divider is vertically centered with fields',
+        (tester) async {
       await tester.pumpWidget(MaterialApp(
         theme: buildLibraryTheme(),
         home: Scaffold(
@@ -36,7 +38,8 @@ void main() {
       ));
 
       // Two divider containers between 3 fields
-      final containers = tester.widgetList<Container>(find.byType(Container)).toList();
+      final containers =
+          tester.widgetList<Container>(find.byType(Container)).toList();
       expect(containers.length, greaterThanOrEqualTo(2));
 
       // Find the divider render boxes
@@ -51,13 +54,16 @@ void main() {
 
       // The vertical center of the divider line must match the vertical center of the field box (within 1px tolerance)
       final fieldCenterY = (firstFieldRect.top + firstFieldRect.bottom) / 2;
-      final dividerCenterY = (firstDividerRect.top + firstDividerRect.bottom) / 2;
+      final dividerCenterY =
+          (firstDividerRect.top + firstDividerRect.bottom) / 2;
       expect((fieldCenterY - dividerCenterY).abs(), lessThan(1.5));
     });
 
-    testWidgets('MusicAlbumDetailsPane renders General + Disc sub-tabs', (tester) async {
+    testWidgets('MusicAlbumDetailsPane renders General + Disc sub-tabs',
+        (tester) async {
       final album = MusicAlbum(
-        id: const CatalogItemRef(kind: CatalogMediaKind.music, id: 'test-album'),
+        id: const CatalogItemRef(
+            kind: CatalogMediaKind.music, id: 'test-album'),
         title: 'Abbey Road',
         discs: [
           MusicDisc(
@@ -103,7 +109,8 @@ void main() {
       expect(find.text('Add Disc'), findsOneWidget);
 
       // Default sub-tab is General: MusicDetailsFormPane is shown
-      expect(find.byType(MusicDetailsFormPane<MusicAlbumEditDraft>), findsOneWidget);
+      expect(find.byType(MusicDetailsFormPane<MusicAlbumEditDraft>),
+          findsOneWidget);
       expect(find.byType(MusicDiscDetailsView), findsNothing);
 
       // Tap Disc 1 sub-tab
@@ -111,7 +118,8 @@ void main() {
       await tester.pumpAndSettle();
 
       // General form is no longer shown, MusicDiscDetailsView is shown
-      expect(find.byType(MusicDetailsFormPane<MusicAlbumEditDraft>), findsNothing);
+      expect(
+          find.byType(MusicDetailsFormPane<MusicAlbumEditDraft>), findsNothing);
       expect(find.byType(MusicDiscDetailsView), findsOneWidget);
       // For vinyl disc, the Vinyl group and fields appear
       expect(find.widgetWithText(LibraryFormGroup, 'Vinyl'), findsOneWidget);
@@ -120,13 +128,17 @@ void main() {
       // Tap General sub-tab again
       await tester.tap(find.text('General'));
       await tester.pumpAndSettle();
-      expect(find.byType(MusicDetailsFormPane<MusicAlbumEditDraft>), findsOneWidget);
+      expect(find.byType(MusicDetailsFormPane<MusicAlbumEditDraft>),
+          findsOneWidget);
       expect(find.byType(MusicDiscDetailsView), findsNothing);
     });
 
-    testWidgets('MusicAlbumStructureTab (Tracks tab) does not display disc extra fields', (tester) async {
+    testWidgets(
+        'MusicAlbumStructureTab (Tracks tab) does not display disc extra fields',
+        (tester) async {
       final album = MusicAlbum(
-        id: const CatalogItemRef(kind: CatalogMediaKind.music, id: 'test-album'),
+        id: const CatalogItemRef(
+            kind: CatalogMediaKind.music, id: 'test-album'),
         title: 'Abbey Road',
         discs: [
           MusicDisc(
@@ -190,7 +202,10 @@ void main() {
 
       // Tap on the track selection checkbox to select track
       final trackCheckboxFinder = find.byWidgetPredicate(
-        (widget) => widget is Container && widget.decoration is BoxDecoration && (widget.decoration as BoxDecoration).color == Colors.transparent,
+        (widget) =>
+            widget is Container &&
+            widget.decoration is BoxDecoration &&
+            (widget.decoration as BoxDecoration).color == Colors.transparent,
       );
       if (trackCheckboxFinder.evaluate().isNotEmpty) {
         await tester.tap(trackCheckboxFinder.first);

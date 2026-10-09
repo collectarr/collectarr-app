@@ -872,7 +872,8 @@ class _GroupModeFavoritesDialogState extends State<_GroupModeFavoritesDialog> {
   @override
   Widget build(BuildContext context) {
     final availableHeight = MediaQuery.sizeOf(context).height - 60;
-    final listHeight = (167.0 + _favoritePresets.length * 49).clamp(200.0, double.infinity);
+    final listHeight =
+        (167.0 + _favoritePresets.length * 49).clamp(200.0, double.infinity);
     return Dialog(
       alignment: Alignment.topCenter,
       insetPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 30),
@@ -1087,53 +1088,54 @@ class _GroupModeFavoritesDialogState extends State<_GroupModeFavoritesDialog> {
                 ),
               )
             : LibraryFolderReorderList(
-          padding: const EdgeInsets.all(10),
-          placeholderColor: const Color(0xff808080),
-          itemCount: _draftModes.length,
-          onReorder: (oldIndex, newIndex) => setState(() {
-            final mode = _draftModes.removeAt(oldIndex);
-            _draftModes.insert(newIndex, mode);
-          }),
-          itemBuilder: (context, index) {
-            final mode = _draftModes[index];
-            return LibraryFolderReorderRow(
-              selectedField: true,
-              height: 28,
-              color: _fieldColor(context),
-              hoverColor: _fieldColor(context),
-              borderColor: _fieldBorder(context),
-              child: Row(children: [
-                const SizedBox(width: 26, child: Icon(Icons.menu, size: 16)),
-                Expanded(
-                    child: Text(genericGroupModeLabel(mode, widget.type),
-                        maxLines: 1, overflow: TextOverflow.ellipsis)),
-                IconButton(
-                  tooltip: 'Remove field',
-                  onPressed: () => _toggleDraftMode(mode),
-                  style: IconButton.styleFrom(
-                    padding: EdgeInsets.zero,
-                    backgroundColor: Colors.transparent,
-                    disabledBackgroundColor: Colors.transparent,
-                    overlayColor: Colors.transparent,
-                    shadowColor: Colors.transparent,
-                    surfaceTintColor: Colors.transparent,
-                    side: BorderSide.none,
-                    elevation: 0,
-                    minimumSize: const Size(28, 26),
-                    maximumSize: const Size(28, 26),
-                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                  ).copyWith(
-                    foregroundColor: WidgetStateProperty.resolveWith((states) =>
-                        states.contains(WidgetState.hovered)
-                            ? Theme.of(context).colorScheme.error
-                            : appPalette(context).textPrimary),
-                  ),
-                  icon: const Icon(Icons.close, size: 16),
-                ),
-              ]),
-            );
-          },
-        ),
+                padding: const EdgeInsets.all(10),
+                placeholderColor: const Color(0xff808080),
+                itemCount: _draftModes.length,
+                onReorder: (oldIndex, newIndex) => setState(() {
+                  final mode = _draftModes.removeAt(oldIndex);
+                  _draftModes.insert(newIndex, mode);
+                }),
+                itemBuilder: (context, index) {
+                  final mode = _draftModes[index];
+                  return LibraryFolderReorderRow(
+                    selectedField: true,
+                    height: 28,
+                    color: _fieldColor(context),
+                    hoverColor: _fieldColor(context),
+                    borderColor: _fieldBorder(context),
+                    child: Row(children: [
+                      const SizedBox(
+                          width: 26, child: Icon(Icons.menu, size: 16)),
+                      Expanded(
+                          child: Text(genericGroupModeLabel(mode, widget.type),
+                              maxLines: 1, overflow: TextOverflow.ellipsis)),
+                      IconButton(
+                        tooltip: 'Remove field',
+                        onPressed: () => _toggleDraftMode(mode),
+                        style: IconButton.styleFrom(
+                          padding: EdgeInsets.zero,
+                          backgroundColor: Colors.transparent,
+                          disabledBackgroundColor: Colors.transparent,
+                          overlayColor: Colors.transparent,
+                          shadowColor: Colors.transparent,
+                          surfaceTintColor: Colors.transparent,
+                          side: BorderSide.none,
+                          elevation: 0,
+                          minimumSize: const Size(28, 26),
+                          maximumSize: const Size(28, 26),
+                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        ).copyWith(
+                          foregroundColor: WidgetStateProperty.resolveWith(
+                              (states) => states.contains(WidgetState.hovered)
+                                  ? Theme.of(context).colorScheme.error
+                                  : appPalette(context).textPrimary),
+                        ),
+                        icon: const Icon(Icons.close, size: 16),
+                      ),
+                    ]),
+                  );
+                },
+              ),
       );
 
   Widget _fieldRow(

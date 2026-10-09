@@ -35,8 +35,7 @@ class _LoanManagerPageState extends ConsumerState<LoanManagerPage> {
   Map<LibraryEntryRef, LibraryEntrySummary> _entryByRef = const {};
   Map<LibraryEntryRef, LibraryWorkspaceKindData> _kindPresentationByEntryRef =
       const {};
-  Map<CatalogItemRef, List<LibraryEntrySummary>> _entryByCatalogRef =
-      const {};
+  Map<CatalogItemRef, List<LibraryEntrySummary>> _entryByCatalogRef = const {};
 
   @override
   void initState() {
@@ -218,8 +217,8 @@ class _LoanManagerPageState extends ConsumerState<LoanManagerPage> {
       return;
     }
     final activeLoans = _loans
-        .where((loan) =>
-            loan.libraryEntryRef == libraryEntry.ref && loan.isActive)
+        .where(
+            (loan) => loan.libraryEntryRef == libraryEntry.ref && loan.isActive)
         .toList();
     if (activeLoans.isEmpty) {
       showAppToast(context, 'No active loan found for that item.',

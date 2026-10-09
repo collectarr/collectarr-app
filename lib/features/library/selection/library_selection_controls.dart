@@ -141,8 +141,7 @@ class LibrarySelectionControls extends StatelessWidget {
       backgroundColor: onAccent
           ? Colors.transparent
           : librarySelectionToolbarSecondaryAction(context),
-      overlayColor:
-          onAccent ? Colors.white.withValues(alpha: 0.15) : null,
+      overlayColor: onAccent ? Colors.white.withValues(alpha: 0.15) : null,
       padding: onAccent
           ? const EdgeInsets.symmetric(horizontal: 6, vertical: 0)
           : const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
@@ -179,7 +178,9 @@ class LibrarySelectionControls extends StatelessWidget {
           : (backgroundColor ??
               librarySelectionToolbarSecondaryAction(context));
       final effectiveBorder = onAccent
-          ? (borderColor != null ? BorderSide(color: borderColor) : BorderSide.none)
+          ? (borderColor != null
+              ? BorderSide(color: borderColor)
+              : BorderSide.none)
           : BorderSide(
               color: borderColor ??
                   librarySelectionToolbarBorder(context)
@@ -214,9 +215,8 @@ class LibrarySelectionControls extends StatelessWidget {
       required String label,
       required bool enabled,
     }) {
-      final contentColor = enabled
-          ? Colors.white
-          : Colors.white.withValues(alpha: 0.38);
+      final contentColor =
+          enabled ? Colors.white : Colors.white.withValues(alpha: 0.38);
       return PopupMenuItem<_BulkAction>(
         value: value,
         enabled: enabled,
@@ -298,9 +298,9 @@ class LibrarySelectionControls extends StatelessWidget {
                 ? const EdgeInsets.symmetric(horizontal: 6, vertical: 0)
                 : const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
           ),
-          minimumSize: onAccent ? const WidgetStatePropertyAll(Size.zero) : null,
-          tapTargetSize:
-              onAccent ? MaterialTapTargetSize.shrinkWrap : null,
+          minimumSize:
+              onAccent ? const WidgetStatePropertyAll(Size.zero) : null,
+          tapTargetSize: onAccent ? MaterialTapTargetSize.shrinkWrap : null,
           shape: WidgetStatePropertyAll(
             RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(onAccent ? 4 : 6),
@@ -566,4 +566,3 @@ class LibrarySelectionControls extends StatelessWidget {
     );
   }
 }
-

@@ -61,11 +61,14 @@ final class SyntheticSpecimenDraft {
 
 void main() {
   group('Synthetic kind without title (specimen_code, epoch, curator)', () {
-    test('1. Creation: Add form schema validates specimen_code without demanding title', () {
+    test(
+        '1. Creation: Add form schema validates specimen_code without demanding title',
+        () {
       final schema = LibraryFormSchema<SyntheticSpecimenDraft>(
         title: (draft) => 'Add Specimen ${draft.specimenCode}',
-        validate: (draft) =>
-            draft.specimenCode.trim().isEmpty ? 'Specimen code is required' : null,
+        validate: (draft) => draft.specimenCode.trim().isEmpty
+            ? 'Specimen code is required'
+            : null,
         sections: [
           LibraryFormSectionSpec<SyntheticSpecimenDraft>(
             id: 'general',
@@ -76,8 +79,9 @@ void main() {
                 label: 'Specimen Code',
                 value: (draft) => draft.specimenCode,
                 setValue: (draft, val) => draft.specimenCode = val,
-                validator: (draft) =>
-                    draft.specimenCode.trim().isEmpty ? 'Specimen code required' : null,
+                validator: (draft) => draft.specimenCode.trim().isEmpty
+                    ? 'Specimen code required'
+                    : null,
               ),
               LibraryTextFieldSpec<SyntheticSpecimenDraft>(
                 id: 'epoch',
@@ -108,7 +112,9 @@ void main() {
       expect(schema.title!(validDraft), 'Add Specimen SPEC-001');
     });
 
-    test('2. Editing: Edit schema tracks dirty state and validates without title', () {
+    test(
+        '2. Editing: Edit schema tracks dirty state and validates without title',
+        () {
       final initial = SyntheticSpecimen(
         id: 'spec-1',
         specimenCode: 'SPEC-001',
@@ -163,7 +169,9 @@ void main() {
       expect(schema.validate!(initial, draft), 'Specimen code required');
     });
 
-    test('3. Display & Presentation: primaryLabel and alpha jump bar work without title', () {
+    test(
+        '3. Display & Presentation: primaryLabel and alpha jump bar work without title',
+        () {
       final specimen = SyntheticSpecimen(
         id: 'spec-1',
         specimenCode: 'Tracer-99',
@@ -176,11 +184,13 @@ void main() {
       expect(dto.primaryLabel, 'Tracer-99');
 
       // Alpha jump bar resolves directly from primaryLabel
-      final letter = LibraryAlphaJumpBar.normalizedLetterForTitle(dto.primaryLabel);
+      final letter =
+          LibraryAlphaJumpBar.normalizedLetterForTitle(dto.primaryLabel);
       expect(letter, 'T');
     });
 
-    testWidgets('4. Column Chooser: does not force or lock title for synthetic kind',
+    testWidgets(
+        '4. Column Chooser: does not force or lock title for synthetic kind',
         (tester) async {
       Set<String>? savedColumns;
 
@@ -193,7 +203,11 @@ void main() {
                   savedColumns = await showDialog<Set<String>>(
                     context: context,
                     builder: (_) => LibraryColumnChooserDialog(
-                      availableColumns: const ['specimen_code', 'epoch', 'curator'],
+                      availableColumns: const [
+                        'specimen_code',
+                        'epoch',
+                        'curator'
+                      ],
                       selectedColumns: const {'specimen_code', 'epoch'},
                       defaultColumns: const {'specimen_code'},
                       primaryColumn: 'specimen_code',
@@ -226,7 +240,8 @@ void main() {
       expect(savedColumns, isNot(contains('title')));
     });
 
-    test('5. Search: CatalogSearchHit decodes synthetic kind without title', () {
+    test('5. Search: CatalogSearchHit decodes synthetic kind without title',
+        () {
       final hit = CatalogSearchHit.fromJson({
         'id': 'spec-101',
         'kind': 'book',

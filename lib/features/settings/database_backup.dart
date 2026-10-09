@@ -176,9 +176,8 @@ class DatabaseBackup {
   Future<String> _schemaFingerprint(Iterable<dynamic> tables) async {
     final schema = <Map<String, Object?>>[];
     final sortedTables = tables.toList()
-      ..sort((dynamic left, dynamic right) =>
-          (left.actualTableName as String)
-              .compareTo(right.actualTableName as String));
+      ..sort((dynamic left, dynamic right) => (left.actualTableName as String)
+          .compareTo(right.actualTableName as String));
     for (final table in sortedTables) {
       final tableName = table.actualTableName as String;
       final columns = await _readColumns(tableName);

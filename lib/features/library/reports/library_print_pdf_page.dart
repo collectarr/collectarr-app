@@ -164,8 +164,7 @@ class _LibraryPrintPdfPageState extends State<LibraryPrintPdfPage> {
   @override
   void initState() {
     super.initState();
-    if (widget.selectedItemIds != null &&
-        widget.selectedItemIds!.isNotEmpty) {
+    if (widget.selectedItemIds != null && widget.selectedItemIds!.isNotEmpty) {
       _subset = PrintSubset.checkboxed;
     }
     _titleController = TextEditingController(
@@ -225,7 +224,8 @@ class _LibraryPrintPdfPageState extends State<LibraryPrintPdfPage> {
               id: 'price_paid',
               label: 'Price Paid',
               getValue: (item) => item.source.pricePaidCents != null
-                  ? formatMoney(item.source.pricePaidCents, item.source.currency)
+                  ? formatMoney(
+                      item.source.pricePaidCents, item.source.currency)
                   : '',
               widthFlex: 1.0,
               defaultVisible: false,
@@ -234,7 +234,8 @@ class _LibraryPrintPdfPageState extends State<LibraryPrintPdfPage> {
               id: 'value',
               label: 'Value',
               getValue: (item) => item.source.marketValueCents != null
-                  ? formatMoney(item.source.marketValueCents, item.source.currency)
+                  ? formatMoney(
+                      item.source.marketValueCents, item.source.currency)
                   : '',
               widthFlex: 1.0,
               defaultVisible: false,
@@ -655,14 +656,16 @@ class _LibraryPrintPdfPageState extends State<LibraryPrintPdfPage> {
                   ),
                   const SizedBox(width: 6),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
                     decoration: BoxDecoration(
                       color: palette.panel,
                       borderRadius: BorderRadius.circular(3),
                     ),
                     child: Text(
                       _sortAscending ? 'ASC' : 'DESC',
-                      style: const TextStyle(fontSize: 9, fontWeight: FontWeight.bold),
+                      style: const TextStyle(
+                          fontSize: 9, fontWeight: FontWeight.bold),
                     ),
                   ),
                 ],
@@ -1041,7 +1044,8 @@ class _LibraryPrintPdfPageState extends State<LibraryPrintPdfPage> {
                         .map((s) => DropdownMenuItem(
                             value: s, child: Text(s.toString())))
                         .toList(),
-                    onChanged: (v) => setState(() => _fontSize = v ?? _fontSize),
+                    onChanged: (v) =>
+                        setState(() => _fontSize = v ?? _fontSize),
                   ),
                 ],
               ),
@@ -1115,8 +1119,7 @@ class _LibraryPrintPdfPageState extends State<LibraryPrintPdfPage> {
           children: [
             Checkbox(
               value: _limitRowsPerPage,
-              onChanged: (v) =>
-                  setState(() => _limitRowsPerPage = v ?? false),
+              onChanged: (v) => setState(() => _limitRowsPerPage = v ?? false),
             ),
             const Text('Max rows per page:', style: TextStyle(fontSize: 12)),
             const SizedBox(width: 6),
@@ -1136,7 +1139,8 @@ class _LibraryPrintPdfPageState extends State<LibraryPrintPdfPage> {
                     borderSide: BorderSide(color: palette.cardBorder),
                   ),
                 ),
-                controller: TextEditingController(text: _maxRowsPerPage.toString()),
+                controller:
+                    TextEditingController(text: _maxRowsPerPage.toString()),
                 onChanged: (v) {
                   final n = int.tryParse(v);
                   if (n != null && n > 0) _maxRowsPerPage = n;
@@ -1185,7 +1189,8 @@ class _LibraryPrintPdfPageState extends State<LibraryPrintPdfPage> {
     );
   }
 
-  Widget _buildCheckboxRow(String label, bool value, ValueChanged<bool> onChanged) {
+  Widget _buildCheckboxRow(
+      String label, bool value, ValueChanged<bool> onChanged) {
     return InkWell(
       onTap: () => onChanged(!value),
       child: Row(
@@ -1378,11 +1383,16 @@ class _LibraryPrintPdfPageState extends State<LibraryPrintPdfPage> {
               if (_coverThumbnails)
                 const Padding(
                   padding: EdgeInsets.symmetric(horizontal: 6, vertical: 4),
-                  child: Text('Cover', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.black)),
+                  child: Text('Cover',
+                      style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black)),
                 ),
               for (final col in activeCols)
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
                   child: Text(
                     col.label,
                     style: TextStyle(
@@ -1411,18 +1421,25 @@ class _LibraryPrintPdfPageState extends State<LibraryPrintPdfPage> {
                     height: 28,
                     color: Colors.grey.shade300,
                     child: items[i].source.catalogSummary?.imageUrl != null &&
-                            items[i].source.catalogSummary!.imageUrl!.trim().isNotEmpty
+                            items[i]
+                                .source
+                                .catalogSummary!
+                                .imageUrl!
+                                .trim()
+                                .isNotEmpty
                         ? Image.network(
                             items[i].source.catalogSummary!.imageUrl!,
                             fit: BoxFit.cover,
-                            errorBuilder: (_, __, ___) => const Icon(Icons.album, size: 16),
+                            errorBuilder: (_, __, ___) =>
+                                const Icon(Icons.album, size: 16),
                           )
                         : const Icon(Icons.album, size: 16),
                   ),
                 ),
               for (final col in activeCols)
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   child: Text(
                     col.getValue(items[i]),
                     softWrap: _wrapInsideColumn,
@@ -1471,7 +1488,8 @@ class _LibraryPrintPdfPageState extends State<LibraryPrintPdfPage> {
             children: [
               for (final col in activeCols)
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
                   child: Text(
                     col.label,
                     style: TextStyle(
@@ -1494,7 +1512,8 @@ class _LibraryPrintPdfPageState extends State<LibraryPrintPdfPage> {
             children: [
               for (final col in activeCols)
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   child: Text(
                     col.getValue(rows[i]),
                     softWrap: _wrapInsideColumn,
@@ -1548,10 +1567,12 @@ class _LibraryPrintPdfPageState extends State<LibraryPrintPdfPage> {
               ? const SizedBox(
                   width: 16,
                   height: 16,
-                  child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                  child: CircularProgressIndicator(
+                      strokeWidth: 2, color: Colors.white),
                 )
               : const Icon(Icons.picture_as_pdf, size: 16),
-          label: Text(_isGenerating ? 'Generating file...' : 'Generate PDF file'),
+          label:
+              Text(_isGenerating ? 'Generating file...' : 'Generate PDF file'),
           style: FilledButton.styleFrom(
             backgroundColor: accent,
             foregroundColor: Colors.white,
@@ -1617,7 +1638,10 @@ class _LibraryPrintPdfPageState extends State<LibraryPrintPdfPage> {
         final pages = <List<LibraryProjectionView>>[];
         for (var i = 0; i < items.length; i += itemsPerPage) {
           pages.add(items.sublist(
-              i, i + itemsPerPage > items.length ? items.length : i + itemsPerPage));
+              i,
+              i + itemsPerPage > items.length
+                  ? items.length
+                  : i + itemsPerPage));
         }
         if (pages.isEmpty) pages.add([]);
 
@@ -1658,8 +1682,8 @@ class _LibraryPrintPdfPageState extends State<LibraryPrintPdfPage> {
                       children: [
                         if (_headerRow && (p == 0 || _repeatHeaderRow))
                           pw.TableRow(
-                            decoration:
-                                const pw.BoxDecoration(color: PdfColors.grey200),
+                            decoration: const pw.BoxDecoration(
+                                color: PdfColors.grey200),
                             children: [
                               for (final col in activeCols)
                                 pw.Padding(
@@ -1728,8 +1752,8 @@ class _LibraryPrintPdfPageState extends State<LibraryPrintPdfPage> {
         final itemsPerPage = _limitRowsPerPage ? _maxRowsPerPage : 40;
         final pages = <List<LibraryExportChildRow>>[];
         for (var i = 0; i < rows.length; i += itemsPerPage) {
-          pages.add(rows.sublist(
-              i, i + itemsPerPage > rows.length ? rows.length : i + itemsPerPage));
+          pages.add(rows.sublist(i,
+              i + itemsPerPage > rows.length ? rows.length : i + itemsPerPage));
         }
         if (pages.isEmpty) pages.add([]);
 
@@ -1771,8 +1795,8 @@ class _LibraryPrintPdfPageState extends State<LibraryPrintPdfPage> {
                       children: [
                         if (_headerRow && (p == 0 || _repeatHeaderRow))
                           pw.TableRow(
-                            decoration:
-                                const pw.BoxDecoration(color: PdfColors.grey200),
+                            decoration: const pw.BoxDecoration(
+                                color: PdfColors.grey200),
                             children: [
                               for (final col in activeCols)
                                 pw.Padding(
@@ -1853,7 +1877,8 @@ class _LibraryPrintPdfPageState extends State<LibraryPrintPdfPage> {
   Future<void> _downloadPdf() async {
     final bytes = _generatedPdfBytes;
     if (bytes == null) return;
-    final filename = '${_titleController.text.trim().replaceAll(RegExp(r"[^\w\s-]"), "")}.pdf';
+    final filename =
+        '${_titleController.text.trim().replaceAll(RegExp(r"[^\w\s-]"), "")}.pdf';
     await Printing.sharePdf(bytes: bytes, filename: filename);
   }
 
@@ -1947,17 +1972,23 @@ class _LibraryPrintPdfPageState extends State<LibraryPrintPdfPage> {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text('Sort by:', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                const Text('Sort by:',
+                    style:
+                        TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 6),
                 DropdownButtonFormField<String>(
                   initialValue: chosenColId,
                   items: _availableItemColumns
-                      .map((c) => DropdownMenuItem(value: c.id, child: Text(c.label)))
+                      .map((c) =>
+                          DropdownMenuItem(value: c.id, child: Text(c.label)))
                       .toList(),
-                  onChanged: (v) => setDialogState(() => chosenColId = v ?? chosenColId),
+                  onChanged: (v) =>
+                      setDialogState(() => chosenColId = v ?? chosenColId),
                 ),
                 const SizedBox(height: 12),
-                const Text('Direction:', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                const Text('Direction:',
+                    style:
+                        TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 6),
                 RadioGroup<bool>(
                   groupValue: chosenAsc,
@@ -2027,18 +2058,18 @@ class _BorderOptionPainter extends CustomPainter {
       case PdfBorderType.none:
         break;
       case PdfBorderType.middle:
-        canvas.drawLine(
-            Offset(0, size.height / 2), Offset(size.width, size.height / 2), paint);
+        canvas.drawLine(Offset(0, size.height / 2),
+            Offset(size.width, size.height / 2), paint);
         break;
       case PdfBorderType.outside:
         canvas.drawRect(Rect.fromLTWH(0, 0, size.width, size.height), paint);
         break;
       case PdfBorderType.all:
         canvas.drawRect(Rect.fromLTWH(0, 0, size.width, size.height), paint);
-        canvas.drawLine(
-            Offset(0, size.height / 2), Offset(size.width, size.height / 2), paint);
-        canvas.drawLine(
-            Offset(size.width / 2, 0), Offset(size.width / 2, size.height), paint);
+        canvas.drawLine(Offset(0, size.height / 2),
+            Offset(size.width, size.height / 2), paint);
+        canvas.drawLine(Offset(size.width / 2, 0),
+            Offset(size.width / 2, size.height), paint);
         break;
     }
   }

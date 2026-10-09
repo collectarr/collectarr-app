@@ -17,8 +17,8 @@ final _inspectorCustomFieldsProvider = FutureProvider.autoDispose
     .family<_CustomFieldData, _InspectorCustomFieldsRequest>(
   (ref, request) async {
     final repo = CustomFieldRepository(request.db);
-    final definitions =
-        await repo.listDefinitions(mediaKind: request.libraryEntryRef.kind.apiValue);
+    final definitions = await repo.listDefinitions(
+        mediaKind: request.libraryEntryRef.kind.apiValue);
     final values = await repo.listValuesForTarget(
       targetId: request.libraryEntryRef.key,
       targetScope: CustomFieldTargetScope.libraryEntry,

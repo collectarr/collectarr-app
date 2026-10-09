@@ -29,14 +29,12 @@ class MangaStatsCapability implements LibraryStatsCapability {
       primaryGroup: primary,
       secondaryGroup: secondary,
       hasCover: metadata.coverImageUrl?.trim().isNotEmpty == true,
-      hasSynopsis: (metadata.synopsis ?? metadata.description)
-              ?.trim()
-              .isNotEmpty ==
-          true,
+      hasSynopsis:
+          (metadata.synopsis ?? metadata.description)?.trim().isNotEmpty ==
+              true,
       hasSecondaryMetadata: secondary?.isNotEmpty == true ||
           metadata.physicalFormat?.trim().isNotEmpty == true,
-      hasReleaseDate:
-          metadata.releaseDate != null,
+      hasReleaseDate: metadata.releaseDate != null,
       hasItemNumber:
           metadata.itemNumber != null || metadata.volumeNumber != null,
     );

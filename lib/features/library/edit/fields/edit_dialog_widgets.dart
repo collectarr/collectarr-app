@@ -370,7 +370,8 @@ class EditTab extends StatelessWidget {
     this.icon,
     this.svgAsset,
     required this.label,
-  }) : assert(icon != null || svgAsset != null, 'Either icon or svgAsset must be provided.');
+  }) : assert(icon != null || svgAsset != null,
+            'Either icon or svgAsset must be provided.');
 
   final IconData? icon;
   final String? svgAsset;

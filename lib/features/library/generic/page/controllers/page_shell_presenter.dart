@@ -434,8 +434,7 @@ abstract final class LibraryPageShellPresenter {
           ? () => state._reportCoordinator.printSelectedReportFlow(projection)
           : null,
       onExportCsvTxt: state._hasSelectedItemsInSelection(projection)
-          ? () =>
-              state._sharingCoordinator.exportSelectedCsvTxtFlow(projection)
+          ? () => state._sharingCoordinator.exportSelectedCsvTxtFlow(projection)
           : null,
       onBulkDuplicate: state._hasLibraryEntriesInSelection(projection)
           ? () =>

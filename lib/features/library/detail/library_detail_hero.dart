@@ -104,8 +104,9 @@ class LibraryDetailHero extends StatelessWidget {
                     context,
                     coverWidth: 140,
                   ),
-                  fallbackAspectRatio:
-                      1 / libraryViewProfileForKind(type.kind).coverGridHeightFactor,
+                  fallbackAspectRatio: 1 /
+                      libraryViewProfileForKind(type.kind)
+                          .coverGridHeightFactor,
                   libraryEntryRef: resolvedLibraryEntryRef,
                   enableHoverCue: false,
                 ),

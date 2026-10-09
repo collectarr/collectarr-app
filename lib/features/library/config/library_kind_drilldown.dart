@@ -23,7 +23,7 @@ Widget? buildLibraryKindDrilldown({
   required Future<void> Function() onRefreshFromCore,
   required VoidCallback onOpenTitleDetails,
   required List<LibraryEntrySummary> libraryEntries,
-    required List<WishlistItem> wishlistItems,
+  required List<WishlistItem> wishlistItems,
 }) {
   return libraryPresentationForKind(type.kind).builder.buildKindDrilldown(
         context: context,

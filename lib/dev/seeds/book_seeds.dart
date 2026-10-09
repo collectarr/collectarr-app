@@ -741,8 +741,7 @@ List<BookLibraryEntry> bookSeedLibraryEntries(DateTime now) {
         id: LibraryEntryId('seed-entry-$itemId'),
         metadata: metadataById[itemId] ??
             (throw StateError('Missing Book seed catalog item: $itemId')),
-        sourceCatalogRef:
-            seedCatalogRef(CatalogMediaKind.book, itemId),
+        sourceCatalogRef: seedCatalogRef(CatalogMediaKind.book, itemId),
         createdAt: now.subtract(const Duration(days: 300)),
         updatedAt: now,
         personal: BookPersonalData(

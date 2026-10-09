@@ -351,4 +351,3 @@ void main() {
     expect(editPos.dx < countPos.dx, isTrue);
   });
 }
-

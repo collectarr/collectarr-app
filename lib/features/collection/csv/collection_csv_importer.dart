@@ -28,7 +28,8 @@ final class CollectionCsvImporter {
       return const [];
     }
     final parsedHeader = rows.first.toList(growable: false);
-    if (parsedHeader.any((column) => _normalizeColumn(column) == 'catalog_ref')) {
+    if (parsedHeader
+        .any((column) => _normalizeColumn(column) == 'catalog_ref')) {
       throw const FormatException(
         'This CSV uses the removed catalog_ref entry format. Export it again '
         'with the current Collectarr schema-v1 format.',

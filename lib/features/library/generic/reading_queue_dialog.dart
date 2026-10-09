@@ -48,7 +48,8 @@ class _ReadingQueueDialog extends StatefulWidget {
   final String mediaKind;
   final List<LibraryEntrySummary> libraryEntries;
   final List<TrackingSummary> trackingSummaries;
-  final Map<LibraryEntryRef, LibraryWorkspaceKindData> kindPresentationByEntryRef;
+  final Map<LibraryEntryRef, LibraryWorkspaceKindData>
+      kindPresentationByEntryRef;
   final ValueChanged<String>? onSelectItem;
 
   @override
@@ -89,7 +90,8 @@ class _ReadingQueueDialogState extends State<_ReadingQueueDialog> {
         continue;
       }
       final kindPresentation = widget.kindPresentationByEntryRef[summary.ref];
-      if (kindPresentation == null || kindPresentation.kind.apiValue != widget.mediaKind) {
+      if (kindPresentation == null ||
+          kindPresentation.kind.apiValue != widget.mediaKind) {
         continue;
       }
       entries.add(

@@ -31,9 +31,7 @@ String? seedPublisher(CatalogItemDto item) =>
     _seedText(item.kindData['publisher'] ?? item.kindData['label']);
 
 String? seedBarcode(CatalogItemDto item) => _seedText(
-      item.kindData['barcode'] ??
-          item.kindData['isbn'] ??
-          item.kindData['upc'],
+      item.kindData['barcode'] ?? item.kindData['isbn'] ?? item.kindData['upc'],
     );
 
 DateTime? seedReleaseDate(CatalogItemDto item) =>
@@ -43,8 +41,8 @@ DateTime? seedReleaseDate(CatalogItemDto item) =>
 String? seedPhysicalFormat(CatalogItemDto item) =>
     _seedText(item.kindData['physical_format'] ?? item.kindData['format']);
 
-String? seedEditionTitle(CatalogItemDto item) =>
-    _seedText(item.kindData['edition_title'] ?? item.kindData['title_extension']);
+String? seedEditionTitle(CatalogItemDto item) => _seedText(
+    item.kindData['edition_title'] ?? item.kindData['title_extension']);
 
 String? seedCoverImageUrl(CatalogItemDto item) =>
     summarizeCatalogTransportPayload(item).imageUrl;
@@ -136,7 +134,8 @@ CatalogItemDto enrichSeedItem(
   final placeholderCoverUrl =
       'https://placehold.co/600x900/png?text=${Uri.encodeComponent(title)}';
   payload.putIfAbsent('cover_image_data', () => seedCoverImageData);
-  payload.putIfAbsent('cover_image_url', () => seedCoverImageUrl(item) ?? placeholderCoverUrl);
+  payload.putIfAbsent(
+      'cover_image_url', () => seedCoverImageUrl(item) ?? placeholderCoverUrl);
   payload.putIfAbsent('thumbnail_image_url', () => payload['cover_image_url']);
 
   if (pubMap != null || defaults.includePublishingDetails) {

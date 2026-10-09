@@ -2,7 +2,9 @@ import '../game_module_dependencies.dart';
 import '../entries/game_transfer_library_entry.dart';
 
 final gameKindEditCapabilities = LibraryEditCapabilitySet(
-  editRegistry: LibraryTargetEditRegistry(catalogItem: buildGameLibraryEditDialog, libraryEntry: buildGameLibraryEditDialog),
+  editRegistry: LibraryTargetEditRegistry(
+      catalogItem: buildGameLibraryEditDialog,
+      libraryEntry: buildGameLibraryEditDialog),
   vocabularies: StandardKindVocabularyCapability(GameVocabularies.all),
   conditions: GameVocabularies.condition.builtIns,
   entryCollectionValueReader: (libraryEntry) => switch (libraryEntry?.value) {

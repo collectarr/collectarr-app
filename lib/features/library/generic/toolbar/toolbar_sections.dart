@@ -185,95 +185,90 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
                   scrollDirection: Axis.horizontal,
                   child: Row(
                     children: [
-                            if (!viewState.isSidebarVisible &&
-                                onGroupModeChanged != null) ...[
-                              LibraryGroupModeMenuButton(
-                                type: type,
-                                folderPreset: folderPreset,
-                                availableModes: availableGroupModes,
-                                accent: type.identity.accent,
-                                icon: folderPreset == null
-                                    ? Icons.account_tree_outlined
-                                    : genericFolderPresetIcon(
-                                        folderPreset!, type),
-                                onChanged: onGroupModeChanged!,
-                                sidebarVisible: viewState.isSidebarVisible,
-                                onSidebarVisibilityChanged:
-                                    onSidebarVisibilityChanged,
-                                onClearBucket: onClearBucket,
-                                pinnedFolderPresets: pinnedFolderPresets,
-                                onPinnedPresetsChanged:
-                                    onPinnedFolderPresetsChanged,
-                                iconOnly: true,
-                              ),
-                              const SizedBox(width: 4),
-                            ],
-                            if (onEditSort != null)
-                              const _LibraryDesktopToolbarSeparator(),
-                            if (onEditSort != null)
-                              LibraryToolbarSortButton(
-                                onPressed: onEditSort!,
-                                sortFavorites: sortFavorites,
-                                activeSortFavoriteId: activeSortFavoriteId,
-                                pinnedSortFavoriteIds: pinnedSortFavoriteIds,
-                                onSortFavoriteSelected: onSortFavoriteSelected,
-                                onManageFavoritesPressed: onManageSortFavorites,
-                                iconOnly: true,
-                              ),
-                            const _LibraryDesktopToolbarSeparator(),
-                            LibraryViewModeDropdown(
-                              viewMode: viewState.viewMode,
-                              onChanged: onViewModeChanged,
-                              iconOnly: true,
-                            ),
-                            if (viewState.detailsLayout ==
-                                LibraryDetailsLayout.hidden) ...[
-                              const _LibraryDesktopToolbarSeparator(),
-                              LibraryDetailsLayoutDropdown(
-                                detailsLayout: viewState.detailsLayout,
-                                onChanged: onDetailsLayoutChanged,
-                                iconOnly: true,
-                              ),
-                            ],
-                            const _LibraryDesktopToolbarSeparator(),
-                            LibraryWorkspaceDensityDropdown(
-                              densityPreset: viewState.densityPreset,
-                              onChanged: onDensityPresetChanged,
-                              iconOnly: true,
-                            ),
-                            if (viewState.viewMode == LibraryViewMode.list) ...[
-                              const _LibraryDesktopToolbarSeparator(),
-                              _LibraryDesktopToolbarSection(
-                                label: 'Columns',
-                                child: _LibraryColumnLauncher(
-                                  activeLabel: activeColumnFavoriteLabel,
-                                  onManageColumns: onEditColumns,
-                                  pinnedPresets: pinnedColumnPresets,
-                                  overflowPresets: overflowColumnPresets,
-                                  onPresetSelected: onColumnFavoriteSelected,
-                                ),
-                              ),
-                            ] else if (viewState
-                                .viewMode.supportsCoverSize) ...[
-                              const _LibraryDesktopToolbarSeparator(),
-                              _LibraryDesktopToolbarSection(
-                                label: 'Covers',
-                                child: LibraryCoverSizeSlider(
-                                  viewMode: viewState.viewMode,
-                                  coverSize: viewState.coverSize,
-                                  minCoverSize:
-                                      libraryViewProfileForKind(type.kind)
-                                          .minCoverSize,
-                                  maxCoverSize:
-                                      libraryViewProfileForKind(type.kind)
-                                          .maxCoverSize,
-                                  onChanged: onCoverSizeChanged,
-                                ),
-                              ),
-                            ],
-                          ],
+                      if (!viewState.isSidebarVisible &&
+                          onGroupModeChanged != null) ...[
+                        LibraryGroupModeMenuButton(
+                          type: type,
+                          folderPreset: folderPreset,
+                          availableModes: availableGroupModes,
+                          accent: type.identity.accent,
+                          icon: folderPreset == null
+                              ? Icons.account_tree_outlined
+                              : genericFolderPresetIcon(folderPreset!, type),
+                          onChanged: onGroupModeChanged!,
+                          sidebarVisible: viewState.isSidebarVisible,
+                          onSidebarVisibilityChanged:
+                              onSidebarVisibilityChanged,
+                          onClearBucket: onClearBucket,
+                          pinnedFolderPresets: pinnedFolderPresets,
+                          onPinnedPresetsChanged: onPinnedFolderPresetsChanged,
+                          iconOnly: true,
                         ),
+                        const SizedBox(width: 4),
+                      ],
+                      if (onEditSort != null)
+                        const _LibraryDesktopToolbarSeparator(),
+                      if (onEditSort != null)
+                        LibraryToolbarSortButton(
+                          onPressed: onEditSort!,
+                          sortFavorites: sortFavorites,
+                          activeSortFavoriteId: activeSortFavoriteId,
+                          pinnedSortFavoriteIds: pinnedSortFavoriteIds,
+                          onSortFavoriteSelected: onSortFavoriteSelected,
+                          onManageFavoritesPressed: onManageSortFavorites,
+                          iconOnly: true,
+                        ),
+                      const _LibraryDesktopToolbarSeparator(),
+                      LibraryViewModeDropdown(
+                        viewMode: viewState.viewMode,
+                        onChanged: onViewModeChanged,
+                        iconOnly: true,
                       ),
+                      if (viewState.detailsLayout ==
+                          LibraryDetailsLayout.hidden) ...[
+                        const _LibraryDesktopToolbarSeparator(),
+                        LibraryDetailsLayoutDropdown(
+                          detailsLayout: viewState.detailsLayout,
+                          onChanged: onDetailsLayoutChanged,
+                          iconOnly: true,
+                        ),
+                      ],
+                      const _LibraryDesktopToolbarSeparator(),
+                      LibraryWorkspaceDensityDropdown(
+                        densityPreset: viewState.densityPreset,
+                        onChanged: onDensityPresetChanged,
+                        iconOnly: true,
+                      ),
+                      if (viewState.viewMode == LibraryViewMode.list) ...[
+                        const _LibraryDesktopToolbarSeparator(),
+                        _LibraryDesktopToolbarSection(
+                          label: 'Columns',
+                          child: _LibraryColumnLauncher(
+                            activeLabel: activeColumnFavoriteLabel,
+                            onManageColumns: onEditColumns,
+                            pinnedPresets: pinnedColumnPresets,
+                            overflowPresets: overflowColumnPresets,
+                            onPresetSelected: onColumnFavoriteSelected,
+                          ),
+                        ),
+                      ] else if (viewState.viewMode.supportsCoverSize) ...[
+                        const _LibraryDesktopToolbarSeparator(),
+                        _LibraryDesktopToolbarSection(
+                          label: 'Covers',
+                          child: LibraryCoverSizeSlider(
+                            viewMode: viewState.viewMode,
+                            coverSize: viewState.coverSize,
+                            minCoverSize: libraryViewProfileForKind(type.kind)
+                                .minCoverSize,
+                            maxCoverSize: libraryViewProfileForKind(type.kind)
+                                .maxCoverSize,
+                            onChanged: onCoverSizeChanged,
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
               ),
               const SizedBox(width: 6),
               LibraryWorkspaceControlStrip(
@@ -338,7 +333,6 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
     );
   }
 }
-
 
 class _LibraryDesktopToolbarSection extends StatelessWidget {
   const _LibraryDesktopToolbarSection({
@@ -666,10 +660,10 @@ class LibrarySelectionToolbarBand extends StatelessWidget {
     final isAllSelected =
         selectedCount == totalSelectableCount && totalSelectableCount > 0;
 
-    final mergeLabel = itemPluralLabel != null &&
-            itemPluralLabel!.toLowerCase() == 'music'
-        ? 'Merge Albums'
-        : 'Merge ${itemPluralLabel ?? 'Albums'}';
+    final mergeLabel =
+        itemPluralLabel != null && itemPluralLabel!.toLowerCase() == 'music'
+            ? 'Merge Albums'
+            : 'Merge ${itemPluralLabel ?? 'Albums'}';
 
     return AnimatedLibraryChromeGradient(
       accent: effectiveAccent,

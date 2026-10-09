@@ -15,7 +15,8 @@ class UserMetadataOverridesCacheRepository {
   Future<List<UserMetadataOverride>> listActiveByTarget(
     LibraryEntryRef libraryEntryRef,
   ) async {
-    requireKnownLibraryEntryRef(libraryEntryRef, 'metadataOverride.libraryEntryRef');
+    requireKnownLibraryEntryRef(
+        libraryEntryRef, 'metadataOverride.libraryEntryRef');
     final overrides = await listActive();
     return overrides
         .where((override) => override.libraryEntryRef == libraryEntryRef)

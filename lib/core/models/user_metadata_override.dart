@@ -49,7 +49,8 @@ class UserMetadataOverride {
   factory UserMetadataOverride.fromJson(Map<String, Object?> json) {
     final rawEntryRef = json['library_entry_ref'];
     if (rawEntryRef is! Map) {
-      throw const FormatException('Metadata override library_entry_ref is required');
+      throw const FormatException(
+          'Metadata override library_entry_ref is required');
     }
     final libraryEntryRef = LibraryEntryRef.fromJson(
       Map<String, Object?>.from(rawEntryRef),

@@ -23,8 +23,9 @@ class LibraryMetadataCorrectionsSection extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final overrides = ref.watch(metadataOverridesByItemProvider)[libraryEntryRef] ??
-        const <UserMetadataOverride>[];
+    final overrides =
+        ref.watch(metadataOverridesByItemProvider)[libraryEntryRef] ??
+            const <UserMetadataOverride>[];
     final palette = appPalette(context);
     return DecoratedBox(
       decoration: BoxDecoration(

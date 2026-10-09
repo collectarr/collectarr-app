@@ -78,9 +78,7 @@ final class LibraryEntryRef {
     }
     final rawKind = json['kind'];
     final rawId = json['id'];
-    if (rawKind is! String ||
-        rawId is! String ||
-        rawId.trim().isEmpty) {
+    if (rawKind is! String || rawId is! String || rawId.trim().isEmpty) {
       throw const FormatException(
         'LibraryEntryRef requires kind and id',
       );
@@ -98,9 +96,7 @@ final class LibraryEntryRef {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is LibraryEntryRef &&
-          kind == other.kind &&
-          id == other.id;
+      other is LibraryEntryRef && kind == other.kind && id == other.id;
 
   @override
   int get hashCode => Object.hash(kind, id);

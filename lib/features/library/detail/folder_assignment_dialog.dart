@@ -16,7 +16,8 @@ Future<void> showFolderAssignmentDialog({
 }) async {
   return showDialog<void>(
     context: context,
-    builder: (_) => _FolderAssignmentDialog(db: db, libraryEntryRef: libraryEntryRef),
+    builder: (_) =>
+        _FolderAssignmentDialog(db: db, libraryEntryRef: libraryEntryRef),
   );
 }
 

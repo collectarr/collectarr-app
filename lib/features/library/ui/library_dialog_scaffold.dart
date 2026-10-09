@@ -113,7 +113,8 @@ class LibraryDialogScaffold extends StatelessWidget {
                   foregroundColor: Colors.white,
                   borderColor: Colors.transparent,
                   onClose: onClose ?? () => Navigator.of(context).maybePop(),
-                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                   density: density,
                   child: DefaultTextStyle.merge(
                     style: const TextStyle(
@@ -163,8 +164,7 @@ class LibraryDialogScaffold extends StatelessWidget {
       ],
     );
 
-    final inheritedAlignment =
-        ModalDialogDepthScope.parentAlignmentOf(context);
+    final inheritedAlignment = ModalDialogDepthScope.parentAlignmentOf(context);
     final resolvedAlignment = alignment ??
         (currentDepth > 0
             ? Alignment.center

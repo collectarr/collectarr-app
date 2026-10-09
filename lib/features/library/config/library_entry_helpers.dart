@@ -24,8 +24,7 @@ List<TrackingSummary> libraryTrackingSummariesForItem(
 }) {
   final entryRef = libraryEntry?.ref ?? item.source.libraryEntryRef;
   if (entryRef == null) return const <TrackingSummary>[];
-  return summariesByRef[entryRef] ??
-      const <TrackingSummary>[];
+  return summariesByRef[entryRef] ?? const <TrackingSummary>[];
 }
 
 String? libraryLibraryEntryReferenceLabel(
@@ -136,6 +135,7 @@ String? buildLibraryEntryContextLabel(
   }
   return parts.where((value) => value.isNotEmpty).join('  ·  ');
 }
+
 String formatMoney(int? cents, String? currency) {
   if (cents == null) {
     return '';

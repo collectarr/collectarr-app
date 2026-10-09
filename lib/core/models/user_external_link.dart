@@ -54,7 +54,8 @@ final class UserExternalLink {
   factory UserExternalLink.fromJson(Map<String, Object?> json) {
     final rawRef = json['library_entry_ref'];
     if (rawRef is! Map) {
-      throw const FormatException('User external link requires library_entry_ref.');
+      throw const FormatException(
+          'User external link requires library_entry_ref.');
     }
     return UserExternalLink(
       id: json['id'] as String,

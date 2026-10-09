@@ -58,7 +58,8 @@ class _LibraryDetailPageState extends ConsumerState<LibraryDetailPage> {
       ),
       activeLibraryEntrySummary,
     );
-    final isEntry = activeLibraryEntrySummary != null || widget.item.source.isEntry;
+    final isEntry =
+        activeLibraryEntrySummary != null || widget.item.source.isEntry;
     final palette = appPalette(context);
     return Theme(
       data: buildLibraryTheme(palette: palette),

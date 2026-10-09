@@ -707,8 +707,7 @@ List<MangaLibraryEntry> mangaSeedLibraryEntries(DateTime now) {
         id: LibraryEntryId('seed-entry-$itemId'),
         metadata: metadataById[itemId] ??
             (throw StateError('Missing Manga seed catalog item: $itemId')),
-        sourceCatalogRef:
-            seedCatalogRef(CatalogMediaKind.manga, itemId),
+        sourceCatalogRef: seedCatalogRef(CatalogMediaKind.manga, itemId),
         createdAt: now.subtract(const Duration(days: 210)),
         updatedAt: now,
         personal: MangaPersonalData(

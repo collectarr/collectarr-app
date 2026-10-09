@@ -159,7 +159,8 @@ class LibraryStatsPage extends StatelessWidget {
                   text: '${state.entries.length} ',
                   style: const TextStyle(fontWeight: FontWeight.bold),
                 ),
-                TextSpan(text: '${type.identity.pluralLabel.toLowerCase()} and '),
+                TextSpan(
+                    text: '${type.identity.pluralLabel.toLowerCase()} and '),
                 TextSpan(
                   text: '$primaryGroupsCount ',
                   style: const TextStyle(fontWeight: FontWeight.bold),
@@ -334,8 +335,8 @@ class LibraryStatsPage extends StatelessWidget {
     final artistCounts = _topSeriesCounts(state.entries, type);
     final yearCounts = _releaseYearCounts(state.entries, type);
     final genreCounts = _genreCounts(state.entries, type);
-    final customCards = libraryStatsForKind(type.kind)
-        .buildCustomCards(context, state, type);
+    final customCards =
+        libraryStatsForKind(type.kind).buildCustomCards(context, state, type);
 
     return [
       // 1. Most recent additions (CLZ style)
@@ -372,8 +373,7 @@ class LibraryStatsPage extends StatelessWidget {
           ),
         ),
       // 5. Kind custom cards
-      for (final card in customCards)
-        _cardWrapper(card),
+      for (final card in customCards) _cardWrapper(card),
     ];
   }
 
@@ -393,9 +393,11 @@ class LibraryStatsPage extends StatelessWidget {
   ) {
     final counts = <String, int>{};
     for (final entry in entries) {
-      final p = libraryStatsForKind(registration.kind).buildMetadataProjection(entry);
+      final p =
+          libraryStatsForKind(registration.kind).buildMetadataProjection(entry);
       final format = p?.format?.trim();
-      final label = (format != null && format.isNotEmpty) ? format : 'Unspecified';
+      final label =
+          (format != null && format.isNotEmpty) ? format : 'Unspecified';
       counts[label] = (counts[label] ?? 0) + 1;
     }
     return counts;
@@ -407,9 +409,8 @@ class LibraryStatsPage extends StatelessWidget {
     final counts = <String, int>{};
     for (final entry in entries) {
       final status = entry.trackingStatus;
-      final label = status == MediaTrackingStatus.none
-          ? 'Not tracked'
-          : status.label;
+      final label =
+          status == MediaTrackingStatus.none ? 'Not tracked' : status.label;
       counts[label] = (counts[label] ?? 0) + 1;
     }
     return counts;
@@ -423,7 +424,8 @@ class LibraryStatsPage extends StatelessWidget {
     for (final entry in entries) {
       final name = libraryStatsForKind(registration.kind)
           .buildMetadataProjection(entry)
-          ?.primaryGroup?.trim();
+          ?.primaryGroup
+          ?.trim();
       if (name == null || name.isEmpty || name == 'Unknown') continue;
       counts[name] = (counts[name] ?? 0) + 1;
     }
@@ -436,7 +438,8 @@ class LibraryStatsPage extends StatelessWidget {
   ) {
     final counts = <String, int>{};
     for (final entry in entries) {
-      final p = libraryStatsForKind(registration.kind).buildMetadataProjection(entry);
+      final p =
+          libraryStatsForKind(registration.kind).buildMetadataProjection(entry);
       final year = p?.releaseYear;
       if (year == null) continue;
       final key = year.toString();
@@ -451,7 +454,8 @@ class LibraryStatsPage extends StatelessWidget {
   ) {
     final counts = <String, int>{};
     for (final entry in entries) {
-      final p = libraryStatsForKind(registration.kind).buildMetadataProjection(entry);
+      final p =
+          libraryStatsForKind(registration.kind).buildMetadataProjection(entry);
       if (p == null) continue;
       for (final g in p.genres) {
         final clean = g.trim();
@@ -473,7 +477,8 @@ class LibraryStatsPage extends StatelessWidget {
       if (cents == null || cents <= 0) continue;
       final name = libraryStatsForKind(registration.kind)
           .buildMetadataProjection(entry)
-          ?.primaryGroup?.trim();
+          ?.primaryGroup
+          ?.trim();
       if (name == null || name.isEmpty) continue;
       amounts[name] = (amounts[name] ?? 0) + cents;
     }
@@ -485,7 +490,8 @@ class LibraryStatsPage extends StatelessWidget {
     LibraryKindRegistration registration,
   ) {
     return entries.where((e) {
-      final p = libraryStatsForKind(registration.kind).buildMetadataProjection(e);
+      final p =
+          libraryStatsForKind(registration.kind).buildMetadataProjection(e);
       if (p == null) return true;
       return !p.hasSecondaryMetadata && !p.hasReleaseDate;
     }).length;
@@ -550,7 +556,8 @@ class _RecentAdditionsCard extends StatelessWidget {
     final title = summary?.primaryLabel ?? 'Untitled';
     final subtitle = summary?.subtitle;
     final coverUrl = summary?.imageUrl;
-    final projection = libraryStatsForKind(type.kind).buildMetadataProjection(entry);
+    final projection =
+        libraryStatsForKind(type.kind).buildMetadataProjection(entry);
 
     // Kind-owned compact facts
     final formatText = projection?.format;

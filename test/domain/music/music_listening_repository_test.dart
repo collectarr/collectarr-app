@@ -16,21 +16,21 @@ void main() {
     db = LocalDatabase(NativeDatabase.memory());
     repository = MusicListeningRepository(db);
     await db.into(db.libraryEntries).insert(
-      LibraryEntriesCompanion.insert(
-        id: 'entry-1',
-        kind: 'music',
-        payloadJson: '{}',
-        updatedAt: DateTime.utc(2026, 8, 1),
-      ),
-    );
+          LibraryEntriesCompanion.insert(
+            id: 'entry-1',
+            kind: 'music',
+            payloadJson: '{}',
+            updatedAt: DateTime.utc(2026, 8, 1),
+          ),
+        );
     await db.into(db.libraryEntries).insert(
-      LibraryEntriesCompanion.insert(
-        id: 'entry-2',
-        kind: 'music',
-        payloadJson: '{}',
-        updatedAt: DateTime.utc(2026, 8, 1),
-      ),
-    );
+          LibraryEntriesCompanion.insert(
+            id: 'entry-2',
+            kind: 'music',
+            payloadJson: '{}',
+            updatedAt: DateTime.utc(2026, 8, 1),
+          ),
+        );
   });
 
   tearDown(() => db.close());

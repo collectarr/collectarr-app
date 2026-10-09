@@ -207,8 +207,7 @@ class MangaLibraryMediaPresentationBuilder
     final country = adapter?.country;
     final language = adapter?.language;
     final catalog = item.source.kindPresentationData;
-    final metadata =
-        catalog is MangaWorkspaceData ? catalog.metadata : null;
+    final metadata = catalog is MangaWorkspaceData ? catalog.metadata : null;
     const String? musicCatalogNumber = null;
     const String? musicAlbumStatus = null;
     const String? ageRating = null;

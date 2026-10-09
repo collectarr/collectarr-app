@@ -43,8 +43,7 @@ class MetadataOverrideResolver {
     final result = <LibraryEntryRef, List<UserMetadataOverride>>{};
     for (final override in _byField.values) {
       result
-          .putIfAbsent(
-              override.libraryEntryRef, () => <UserMetadataOverride>[])
+          .putIfAbsent(override.libraryEntryRef, () => <UserMetadataOverride>[])
           .add(override);
     }
     return result;

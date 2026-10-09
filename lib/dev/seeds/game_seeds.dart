@@ -682,8 +682,7 @@ List<GameLibraryEntry> gameSeedLibraryEntries(DateTime now) {
         id: LibraryEntryId('seed-entry-$itemId'),
         metadata: metadataById[itemId] ??
             (throw StateError('Missing Game seed catalog item: $itemId')),
-        sourceCatalogRef:
-            seedCatalogRef(CatalogMediaKind.game, itemId),
+        sourceCatalogRef: seedCatalogRef(CatalogMediaKind.game, itemId),
         createdAt: now.subtract(const Duration(days: 200)),
         updatedAt: now,
         personal: GamePersonalData(

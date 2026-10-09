@@ -35,12 +35,14 @@ void main() {
       );
 
   test('listForLibraryEntryRef returns empty initially', () async {
-    expect(await repo.listForLibraryEntryRef(libraryEntryRef('entry-1')), isEmpty);
+    expect(
+        await repo.listForLibraryEntryRef(libraryEntryRef('entry-1')), isEmpty);
   });
 
   test('add inserts and retrieves image', () async {
     await repo.add(image('img-1', 'entry-1'));
-    final images = await repo.listForLibraryEntryRef(libraryEntryRef('entry-1'));
+    final images =
+        await repo.listForLibraryEntryRef(libraryEntryRef('entry-1'));
     expect(images, hasLength(1));
     expect(images.single.id, 'img-1');
     expect(images.single.libraryEntryRef, libraryEntryRef('entry-1'));
@@ -52,7 +54,8 @@ void main() {
     await repo.add(image('img-1', 'entry-1'));
     await repo.add(image('img-3', 'entry-1', sortOrder: 1));
 
-    final images = await repo.listForLibraryEntryRef(libraryEntryRef('entry-1'));
+    final images =
+        await repo.listForLibraryEntryRef(libraryEntryRef('entry-1'));
     expect(images.map((i) => i.id), ['img-1', 'img-3', 'img-2']);
   });
 
@@ -61,7 +64,8 @@ void main() {
       image('img-1', 'entry-1').copyWith(caption: 'Original'),
     );
     await repo.updateCaption('img-1', 'Updated caption');
-    final result = await repo.listForLibraryEntryRef(libraryEntryRef('entry-1'));
+    final result =
+        await repo.listForLibraryEntryRef(libraryEntryRef('entry-1'));
     expect(result.single.caption, 'Updated caption');
     expect(result.single.imageData, orderedEquals([1]));
   });
@@ -69,7 +73,8 @@ void main() {
   test('updateCaption can set caption to null', () async {
     await repo.add(image('img-1', 'entry-1').copyWith(caption: 'Has caption'));
     await repo.updateCaption('img-1', null);
-    final result = await repo.listForLibraryEntryRef(libraryEntryRef('entry-1'));
+    final result =
+        await repo.listForLibraryEntryRef(libraryEntryRef('entry-1'));
     expect(result.single.caption, isNull);
   });
 
@@ -77,17 +82,21 @@ void main() {
     await repo.add(image('img-1', 'entry-1'));
     await repo.add(image('img-2', 'entry-1', sortOrder: 1));
     await repo.delete('img-1');
-    final result = await repo.listForLibraryEntryRef(libraryEntryRef('entry-1'));
+    final result =
+        await repo.listForLibraryEntryRef(libraryEntryRef('entry-1'));
     expect(result, hasLength(1));
     expect(result.single.id, 'img-2');
   });
 
-  test('deleteAllForLibraryEntryRef removes all images for one ref only', () async {
+  test('deleteAllForLibraryEntryRef removes all images for one ref only',
+      () async {
     await repo.add(image('img-1', 'entry-1'));
     await repo.add(image('img-2', 'entry-2'));
     await repo.deleteAllForLibraryEntryRef(libraryEntryRef('entry-1'));
-    expect(await repo.listForLibraryEntryRef(libraryEntryRef('entry-1')), isEmpty);
-    expect(await repo.listForLibraryEntryRef(libraryEntryRef('entry-2')), hasLength(1));
+    expect(
+        await repo.listForLibraryEntryRef(libraryEntryRef('entry-1')), isEmpty);
+    expect(await repo.listForLibraryEntryRef(libraryEntryRef('entry-2')),
+        hasLength(1));
   });
 
   test('countForLibraryEntryRef returns correct count', () async {
@@ -108,8 +117,10 @@ void main() {
         createdAt: DateTime.utc(2026, 1, 1),
       ),
     );
-    expect(await repo.listForLibraryEntryRef(libraryEntryRef('entry-1')), hasLength(1));
+    expect(await repo.listForLibraryEntryRef(libraryEntryRef('entry-1')),
+        hasLength(1));
     expect(await repo.listForLibraryEntryRef(bookRef), hasLength(1));
-    expect(await repo.listForLibraryEntryRef(libraryEntryRef('entry-3')), isEmpty);
+    expect(
+        await repo.listForLibraryEntryRef(libraryEntryRef('entry-3')), isEmpty);
   });
 }

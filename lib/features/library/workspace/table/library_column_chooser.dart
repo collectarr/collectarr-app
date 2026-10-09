@@ -281,10 +281,9 @@ class _LibraryColumnChooserDialogState
                                             'selected-column-$column',
                                           ),
                                           title: widget.columnLabel(column),
-                                          removable:
-                                              _effectivePrimaryColumn == null ||
-                                                  column !=
-                                                      _effectivePrimaryColumn,
+                                          removable: _effectivePrimaryColumn ==
+                                                  null ||
+                                              column != _effectivePrimaryColumn,
                                           onRemove: () => setState(
                                             () => _selected.remove(column),
                                           ),

@@ -67,7 +67,8 @@ void main() {
     expect(hitWithLabel.primaryLabel, 'SPEC-101');
     expect(hitWithLabel.title, 'SPEC-101');
 
-    final hitOnlyId = CatalogSearchHit.fromJson({'id': 'item-1', 'kind': 'book'});
+    final hitOnlyId =
+        CatalogSearchHit.fromJson({'id': 'item-1', 'kind': 'book'});
     expect(hitOnlyId.primaryLabel, 'item-1');
     expect(hitOnlyId.title, 'item-1');
   });

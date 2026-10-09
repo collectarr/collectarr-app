@@ -2,7 +2,9 @@ import '../comic_module_dependencies.dart';
 import '../entries/comic_transfer_library_entry.dart';
 
 final comicKindEditCapabilities = LibraryEditCapabilitySet(
-  editRegistry: LibraryTargetEditRegistry(catalogItem: buildComicLibraryEditDialog, libraryEntry: buildComicCatalogItemLibraryEditDialog),
+  editRegistry: LibraryTargetEditRegistry(
+      catalogItem: buildComicLibraryEditDialog,
+      libraryEntry: buildComicCatalogItemLibraryEditDialog),
   vocabularies: StandardKindVocabularyCapability(ComicVocabularies.all),
   presentation: comicsLibraryEditPresentation,
   conditions: ComicVocabularies.condition.builtIns,

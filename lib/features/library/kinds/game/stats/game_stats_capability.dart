@@ -34,8 +34,7 @@ class GameStatsCapability implements LibraryStatsCapability {
       hasSecondaryMetadata: secondary?.isNotEmpty == true ||
           metadata.platforms.isNotEmpty ||
           metadata.physicalFormat?.trim().isNotEmpty == true,
-      hasReleaseDate:
-          metadata.releaseDate != null,
+      hasReleaseDate: metadata.releaseDate != null,
     );
   }
 

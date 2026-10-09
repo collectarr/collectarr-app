@@ -204,10 +204,12 @@ final class MusicPersonalData implements JsonEncodable {
         details: details ?? this.details,
       );
 }
+
 DateTime? _musicPersonalDate(Object? value) {
   if (value is! String || value.trim().isEmpty) return null;
   return DateTime.tryParse(value);
 }
+
 int _quantity(Object? value) {
   if (value == null) return 1;
   if (value is! num || value != value.toInt() || value < 1) {

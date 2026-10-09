@@ -91,7 +91,8 @@ class InspectorPersonalSection extends StatelessWidget {
       context: context,
       item: item,
       libraryEntry: item.source.libraryEntrySummary,
-      libraryEntryDispatch: libraryEntryDispatch ?? item.source.libraryEntryDispatch,
+      libraryEntryDispatch:
+          libraryEntryDispatch ?? item.source.libraryEntryDispatch,
       currency: libraryEntry?.currency ?? item.source.currency,
     );
     return LibraryDetailSection(
@@ -109,7 +110,8 @@ class InspectorPersonalSection extends StatelessWidget {
             LibraryDetailField(
                 label: 'Status', value: genericLibraryStatusLabel(item)),
             if (libraryEntryTypeLabel != null)
-              LibraryDetailField(label: 'EntryPolicy', value: libraryEntryTypeLabel),
+              LibraryDetailField(
+                  label: 'EntryPolicy', value: libraryEntryTypeLabel),
             if (trackingStatus != null && trackingStatus.trim().isNotEmpty)
               LibraryDetailField(label: 'Tracking', value: trackingStatus),
             if (trackingStartedAt != null)
@@ -153,13 +155,15 @@ class InspectorPersonalSection extends StatelessWidget {
               LibraryDetailField(
                 label: 'Profit / Loss',
                 value: formatMoney(
-                  libraryEntry!.sellPriceCents! - (libraryEntry!.pricePaidCents ?? 0),
+                  libraryEntry!.sellPriceCents! -
+                      (libraryEntry!.pricePaidCents ?? 0),
                   libraryEntry?.currency ?? item.source.currency,
                 ),
               ),
           ],
         ),
-        if (item.source.libraryEntrySummary?.notes?.trim().isNotEmpty == true) ...[
+        if (item.source.libraryEntrySummary?.notes?.trim().isNotEmpty ==
+            true) ...[
           const SizedBox(height: 8),
           Text(
             item.source.libraryEntrySummary!.notes!,

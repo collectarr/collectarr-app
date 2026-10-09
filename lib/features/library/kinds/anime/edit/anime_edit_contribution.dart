@@ -2,7 +2,9 @@ import '../anime_module_dependencies.dart';
 import '../entries/anime_transfer_library_entry.dart';
 
 final animeKindEditCapabilities = LibraryEditCapabilitySet(
-  editRegistry: LibraryTargetEditRegistry(catalogItem: buildAnimeLibraryEditDialog, libraryEntry: buildAnimeLibraryEditDialog),
+  editRegistry: LibraryTargetEditRegistry(
+      catalogItem: buildAnimeLibraryEditDialog,
+      libraryEntry: buildAnimeLibraryEditDialog),
   presentation: animeLibraryEditPresentation,
   conditions: AnimeVocabularies.condition.builtIns,
   entryCollectionValueReader: (libraryEntry) => switch (libraryEntry?.value) {

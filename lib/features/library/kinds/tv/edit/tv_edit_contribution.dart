@@ -2,7 +2,9 @@ import '../tv_module_dependencies.dart';
 import '../entries/tv_transfer_library_entry.dart';
 
 final tvKindEditCapabilities = LibraryEditCapabilitySet(
-  editRegistry: LibraryTargetEditRegistry(catalogItem: buildTvLibraryEditDialog, libraryEntry: buildTvLibraryEditDialog),
+  editRegistry: LibraryTargetEditRegistry(
+      catalogItem: buildTvLibraryEditDialog,
+      libraryEntry: buildTvLibraryEditDialog),
   vocabularies: StandardKindVocabularyCapability(TvVocabularies.all),
   presentation: tvLibraryEditPresentation,
   conditions: TvVocabularies.condition.builtIns,

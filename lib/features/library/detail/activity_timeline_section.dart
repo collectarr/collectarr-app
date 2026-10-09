@@ -76,16 +76,15 @@ class _ActivityTimelineSectionState
     final trackingByEntry =
         ref.watch(trackingSummariesByLibraryEntryRefProvider);
     final trackingSummaries = [
-      for (final entryRef in entryRefs)
-        ...?trackingByEntry[entryRef],
+      for (final entryRef in entryRefs) ...?trackingByEntry[entryRef],
     ];
     final watchSessions = [
       for (final entryRef in entryRefs)
         ...ref.watch(watchSessionsByLibraryEntryRefProvider(entryRef)),
     ];
-    final wishlistItems = ref.watch(
-            wishlistByCatalogRefProvider)[widget.itemRef] ??
-        const <WishlistItem>[];
+    final wishlistItems =
+        ref.watch(wishlistByCatalogRefProvider)[widget.itemRef] ??
+            const <WishlistItem>[];
 
     final events = ActivityEventAggregator.aggregate(
       libraryEntries: libraryEntries,

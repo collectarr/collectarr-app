@@ -2,7 +2,9 @@ import '../boardgame_module_dependencies.dart';
 import '../entries/boardgame_transfer_library_entry.dart';
 
 final boardGameKindEditCapabilities = LibraryEditCapabilitySet(
-  editRegistry: LibraryTargetEditRegistry(catalogItem: buildBoardGameLibraryEditDialog, libraryEntry: buildBoardGameLibraryEditDialog),
+  editRegistry: LibraryTargetEditRegistry(
+      catalogItem: buildBoardGameLibraryEditDialog,
+      libraryEntry: buildBoardGameLibraryEditDialog),
   vocabularies: StandardKindVocabularyCapability(BoardGameVocabularies.all),
   presentation: boardGamesLibraryEditPresentation,
   conditions: BoardGameVocabularies.condition.builtIns,

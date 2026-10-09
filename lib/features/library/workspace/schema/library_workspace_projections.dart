@@ -12,8 +12,7 @@ class WorkspaceCommonProjection {
   });
 
   factory WorkspaceCommonProjection.fromKindPresentation(
-    WorkspaceItem item,
-    {
+    WorkspaceItem item, {
     required String title,
     String? synopsis,
     DateTime? releaseDate,
@@ -69,10 +68,10 @@ class PersonalEntryProjection {
       rating: tracking?.rating,
       pricePaidCents: item.entrySummary?.pricePaidCents,
       addedAt: item.entrySummary?.createdAt ?? personal.wishlist?.createdAt,
-      updatedAt: entryUpdatedAt == null ||
-              !entryUpdatedAt.isAfter(personalUpdatedAt)
-          ? personalUpdatedAt
-          : entryUpdatedAt,
+      updatedAt:
+          entryUpdatedAt == null || !entryUpdatedAt.isAfter(personalUpdatedAt)
+              ? personalUpdatedAt
+              : entryUpdatedAt,
       tags: null,
       collectionStatus: null,
       notes: item.entrySummary?.notes,

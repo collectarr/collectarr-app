@@ -5,7 +5,10 @@ import 'package:collectarr_app/features/collection/repositories/item_images_cach
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-typedef LocalItemImageRequest = ({LibraryEntryRef libraryEntryRef, String imageType});
+typedef LocalItemImageRequest = ({
+  LibraryEntryRef libraryEntryRef,
+  String imageType
+});
 
 final localItemImageProvider =
     FutureProvider.family<Uint8List?, LocalItemImageRequest>(
@@ -19,7 +22,8 @@ final localItemImageProvider =
 });
 
 /// Provides front cover bytes for a collection item, looked up from local DB.
-final localCoverImageProvider = FutureProvider.family<Uint8List?, LibraryEntryRef>(
+final localCoverImageProvider =
+    FutureProvider.family<Uint8List?, LibraryEntryRef>(
   (ref, libraryEntryRef) async {
     return ref.watch(
       localItemImageProvider((

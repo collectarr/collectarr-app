@@ -287,7 +287,8 @@ class LibraryWorkspace extends ConsumerWidget {
           isSelected: _isSelectionSelected,
           selectionEnabled: selectionEnabled,
           onTap: (item) => _selectionTap(item)(),
-          onToggleSelectionItem: (item) => onToggleSelectionItem(item.target.id),
+          onToggleSelectionItem: (item) =>
+              onToggleSelectionItem(item.target.id),
           onDoubleTap: onOpenItem,
           onSecondaryTapUp: onItemContextMenu == null
               ? null
@@ -353,13 +354,17 @@ class LibraryWorkspace extends ConsumerWidget {
                       ),
                   ],
                   columnWidthFor: (column) => workspace.tableColumnWidth(
-                    workspace.fieldsForTarget(schemaNode).decodeColumnId(column),
+                    workspace
+                        .fieldsForTarget(schemaNode)
+                        .decodeColumnId(column),
                     viewState.columnWidths,
                     target: schemaNode,
                   ),
                   defaultColumnWidthFor: (column) =>
                       workspace.defaultTableColumnWidth(
-                    workspace.fieldsForTarget(schemaNode).decodeColumnId(column),
+                    workspace
+                        .fieldsForTarget(schemaNode)
+                        .decodeColumnId(column),
                     target: schemaNode,
                   ),
                   columnSortFor: (column) => workspace
@@ -370,11 +375,15 @@ class LibraryWorkspace extends ConsumerWidget {
                           target: schemaNode)
                       ?.value,
                   columnLabelFor: (column) => workspace.columnLabel(
-                    workspace.fieldsForTarget(schemaNode).decodeColumnId(column),
+                    workspace
+                        .fieldsForTarget(schemaNode)
+                        .decodeColumnId(column),
                     target: schemaNode,
                   ),
                   columnIsNumeric: (column) => workspace.columnIsNumeric(
-                    workspace.fieldsForTarget(schemaNode).decodeColumnId(column),
+                    workspace
+                        .fieldsForTarget(schemaNode)
+                        .decodeColumnId(column),
                     target: schemaNode,
                   ),
                   cellBuilder: (entry, column) => _tableCell(entry, column),
