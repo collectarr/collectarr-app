@@ -5,9 +5,9 @@ nine-kind metadata cutover, Music v2 contract/domain/editing checkpoints C–F,
 workspace-facts checkpoint G, workspace field cleanup checkpoint H, contained
 grouping/filter checkpoint I, scalar date sorts checkpoint J,
 search/export/correction checkpoint K, and physical cleanup checkpoint L are
-implemented. The full Core suite passes 155 tests with PostgreSQL-backed
+implemented. The full Core suite passes 156 tests with PostgreSQL-backed
 schema and index-plan checks. After the audit follow-up, the full App suite
-passes 786 tests with one skip; strict analysis, changed-file formatting,
+passes 787 tests with one skip; strict analysis, changed-file formatting,
 contract pin checks, Windows debug build, desktop and mobile integration smoke
 tests, and architecture guards pass. The exact architecture baseline retains
 44 reviewed field leaks, all still observed and none stale; 364
@@ -240,7 +240,9 @@ export capability alone does not imply import support. Core correction targets
 expose `artist_credits`, album `credits`, and `discs` as correction-only object
 lists, leaving ordinary metadata and Add schemas unchanged. Proposed Music
 documents are validated against the complete strict v2 item before storage and
-application, preserving nested stable IDs in before/after values. Music
+application, preserving nested stable IDs in before/after values. App and Core
+correction tests verify that a disc reorder retains the same IDs while
+renumbering disc positions; it does not replace child identities. Music
 collection CSV import remains limited to its existing schema-v1 cells:
 `physical_format` creates a disc with that format, and the importer does not
 infer a family or add recording facts. A regression test locks that boundary so
@@ -299,11 +301,12 @@ recording location/studio switches. Current table values are means of two
 separate benchmark processes; projection time is the median of three runs per
 process. Baseline allocation and RSS values use the same fixture and projector
 in a detached projection-only harness, while baseline timing values are from
-the previously recorded benchmark run. The current App suite passes 786 tests
+the previously recorded benchmark run. The current App suite passes 787 tests
 with one skip after adding the edit-widget coverage for role/scope lifecycle
 and format-family visibility, plus strict App-domain round-trip, field, and
-nested-identity tests. The canonical mixed-disc tests assert SPARS and Sound
-as separate values.
+nested-identity tests. Correction tests also verify that disc reorder retains
+the same stable IDs while updating canonical disc numbers. The canonical
+mixed-disc tests assert SPARS and Sound as separate values.
 
 | Operation | 1k baseline | 1k current | 5k baseline | 5k current |
 | --- | ---: | ---: | ---: | ---: |

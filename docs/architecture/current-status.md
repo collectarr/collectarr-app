@@ -97,8 +97,8 @@ informational complexity findings.
   containment. The full Core suite now verifies the declared identifier and
   scalar indexes with PostgreSQL query plans.
 - The post-audit release gate passes. Core contract/schema tests pass and the
-  full Core suite passes 155 tests with PostgreSQL; `ruff check .` is clean.
-  The full App suite passes 786 tests with one skip, strict Flutter analysis
+  full Core suite passes 156 tests with PostgreSQL; `ruff check .` is clean.
+  The full App suite passes 787 tests with one skip, strict Flutter analysis
   and changed-file formatting pass, and the pinned Core bundle matches
   contract 2.2.0. The architecture guard has no unreviewed AST violations.
   Windows desktop/mobile integration smoke tests pass and the Windows debug
@@ -126,7 +126,7 @@ informational complexity findings.
   The checker prints 364 complexity-budget findings as informational output.
   TK001, TK002, TK003, TK005, TK009, TK011, and TK017 have no active violations;
   TK016 has only the 44 exact baseline entries above. The full
-  Core suite now passes all 155 tests against the isolated local
+  Core suite now passes all 156 tests against the isolated local
   `collectarr_test` database, including schema, API, correction, and index-plan
   checks; `ruff check .` passes. The global format check still reports 44
   pre-existing files outside this change set; all files changed for the final
