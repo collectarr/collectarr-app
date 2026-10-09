@@ -1,18 +1,24 @@
 import 'package:collectarr_app/features/library/config/library_kind_field_metadata.dart';
+import 'package:collectarr_app/features/library/config/library_facet_types.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/schema/field_factories.dart';
 import 'package:collectarr_app/features/library/kinds/anime/config/anime_field_identities.dart';
 import 'package:collectarr_app/features/library/kinds/anime/config/anime_workspace_field_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/config/boardgame_field_identities.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/config/boardgame_workspace_field_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/workspace/boardgame_workspace_facets.dart';
 import 'package:collectarr_app/features/library/kinds/book/config/book_field_identities.dart';
 import 'package:collectarr_app/features/library/kinds/book/config/book_workspace_field_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/book/workspace/book_workspace_facets.dart';
 import 'package:collectarr_app/features/library/kinds/comic/config/comic_field_identities.dart';
 import 'package:collectarr_app/features/library/kinds/comic/config/comic_workspace_field_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_facets.dart';
 import 'package:collectarr_app/features/library/kinds/game/config/game_field_identities.dart';
 import 'package:collectarr_app/features/library/kinds/game/config/game_workspace_field_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/game/workspace/game_facet_definitions.dart';
 import 'package:collectarr_app/features/library/kinds/manga/config/manga_field_identities.dart';
 import 'package:collectarr_app/features/library/kinds/manga/config/manga_workspace_field_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/manga/workspace/manga_workspace_facets.dart';
 import 'package:collectarr_app/features/library/kinds/movie/config/movie_field_identities.dart';
 import 'package:collectarr_app/features/library/kinds/movie/config/movie_workspace_field_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/music/config/music_field_identities.dart';
@@ -127,6 +133,43 @@ void main() {
     );
     expect(
       () => groupFromField<String, _TestDto, String?>(field),
+      throwsArgumentError,
+    );
+  });
+
+  test('facet definitions derive IDs and labels from filterable metadata', () {
+    final fieldIds = fields.map((field) => field.id).toSet();
+    final definitions = [
+      ...bookLibraryFacetDefinitions,
+      ...boardgameLibraryFacetDefinitions,
+      ...comicLibraryFacetDefinitions,
+      ...gameLibraryFacetDefinitions,
+      ...mangaLibraryFacetDefinitions,
+    ];
+
+    for (final definition in definitions) {
+      expect(fieldIds, contains(definition.metadata.id));
+      expect(definition.id.value, definition.metadata.id);
+      expect(definition.label, definition.metadata.label);
+      expect(definition.metadata.filterable, isTrue);
+    }
+  });
+
+  test('facet definitions reject fields without filter capability', () {
+    const metadata = LibraryKindFieldMetadata(
+      id: 'test.not_filterable',
+      label: 'Not Filterable',
+      valueType: LibraryFieldValueType.text,
+      cardinality: LibraryFieldCardinality.one,
+      source: LibraryFieldSource.catalog,
+      sourcePath: 'not_filterable',
+    );
+
+    expect(
+      () => LibraryFacetDefinition<String, Object?, String>(
+        metadata: metadata,
+        extractValues: (_) => const <String>[],
+      ),
       throwsArgumentError,
     );
   });

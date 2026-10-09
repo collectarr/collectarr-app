@@ -1,7 +1,7 @@
 # Music v2 and Library Field Semantics Roadmap
 
-Status: active; checkpoints A1 and A2 are implemented and verified. A3 (filter
-and facet metadata ownership) is next.
+Status: active; checkpoints A1, A2, and A3 are implemented and verified. A4
+(presentation filter metadata ownership) is next.
 Each completed checkpoint is committed separately with a detailed Conventional
 Commit message. Stages that touch Core contracts regenerate the Core bundle and
 update the App pin in the same stage.
@@ -35,9 +35,9 @@ definitions reference this metadata and keep typed value access and narrowly
 scoped presentation conversion. Columns and schemas explicitly select what
 the user sees; metadata does not auto-generate a workspace.
 
-Workspace search/sort/group behavior derives from metadata and rejects
-contradictory registrations. Filter and facet factories will adopt the same
-contract in A3. A many-valued field is not sortable by default. Semantic
+Workspace search/sort/group and facet behavior derives from metadata and
+rejects contradictory registrations. Presentation filters will adopt the same
+contract in A4. A many-valued field is not sortable by default. Semantic
 operation IDs derive from the field ID unless an operation is distinct, such as
 earliest and latest date reductions.
 
@@ -91,9 +91,14 @@ sort/group affordances derive from it. Sort/group factories reject unsupported
 registrations, and schema column selection remains explicit. All nine kinds
 are covered without changing their workspace behavior.
 
-**A3 — filter and facet capability ownership (next):** make filter and facet
-definitions reference the same field metadata, add filterable invariants, and
-remove capability duplication from those registries.
+**A3 — facet capability ownership (implemented):** workspace facet definitions
+reference field metadata, derive facet IDs and labels from it, and reject fields
+that are not filterable. Facet-only fields are included in each kind's metadata
+inventory.
+
+**A4 — presentation filter capability ownership (next):** make library toolbar
+filters reference field metadata and reject filters whose metadata is not
+filterable. Keep the existing presentation IDs stable in this checkpoint.
 
 ### B. Nine-kind workspace metadata cutover
 

@@ -1,48 +1,43 @@
-import 'package:collectarr_app/features/library/kinds/game/workspace/game_ids.dart';
 import 'package:collectarr_app/features/library/kinds/game/workspace/game_workspace_dto.dart';
 import 'package:collectarr_app/features/library/config/library_facet_types.dart';
+import 'package:collectarr_app/features/library/kinds/game/config/game_field_identities.dart';
+import 'package:collectarr_app/features/library/kinds/game/config/game_workspace_field_metadata.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_identifier_types.dart';
 
 final gameLibraryFacetDefinitions =
     <LibraryFacetDefinition<GameKind, GameWorkspaceDto, String>>[
   LibraryFacetDefinition<GameKind, GameWorkspaceDto, String>(
-    id: GameFacetIds.platform,
-    label: 'Platform',
+    metadata: GameWorkspaceFieldMetadata.platform,
     extractValues: (dto) => _values([
       ...dto.metadata.platforms,
     ]),
   ),
   LibraryFacetDefinition<GameKind, GameWorkspaceDto, String>(
-    id: GameFacetIds.publisher,
-    label: 'Publisher',
+    metadata: GameWorkspaceFieldMetadata.publisher,
     extractValues: (dto) => _values([
       dto.metadata.publisher,
       dto.publisher,
     ]),
   ),
   LibraryFacetDefinition<GameKind, GameWorkspaceDto, String>(
-    id: GameFacetIds.developer,
-    label: 'Developer',
+    metadata: GameWorkspaceFieldMetadata.developer,
     extractValues: (dto) => _values([
       ...dto.metadata.developers,
       dto.developer,
     ]),
   ),
   LibraryFacetDefinition<GameKind, GameWorkspaceDto, String>(
-    id: GameFacetIds.franchise,
-    label: 'Franchise',
+    metadata: GameFieldIdentities.franchise,
     extractValues: (dto) => _values([dto.franchise]),
   ),
   LibraryFacetDefinition<GameKind, GameWorkspaceDto, String>(
-    id: GameFacetIds.genre,
-    label: 'Genre',
+    metadata: GameWorkspaceFieldMetadata.genre,
     extractValues: (dto) => _values([
       ...dto.metadata.genres,
     ]),
   ),
   LibraryFacetDefinition<GameKind, GameWorkspaceDto, String>(
-    id: GameFacetIds.region,
-    label: 'Region',
+    metadata: GameWorkspaceFieldMetadata.region,
     extractValues: (dto) => _values([
       dto.region,
       dto.metadata.country,

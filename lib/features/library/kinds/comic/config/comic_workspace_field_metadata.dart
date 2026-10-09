@@ -1,4 +1,4 @@
-﻿import 'package:collectarr_app/features/library/config/library_kind_field_metadata.dart';
+import 'package:collectarr_app/features/library/config/library_kind_field_metadata.dart';
 
 /// Additional kind-owned semantics for workspace fields.
 abstract final class ComicWorkspaceFieldMetadata {
@@ -382,12 +382,14 @@ abstract final class ComicWorkspaceFieldMetadata {
     addedAt,
     artist,
     barcode,
+    character,
     certificationNumber,
     condition,
     cover,
     coverArtist,
     coverPrice,
     customLabel,
+    genre,
     grade,
     graderNotes,
     gradingCompany,
@@ -404,6 +406,7 @@ abstract final class ComicWorkspaceFieldMetadata {
     rating,
     rawOrSlabbed,
     releaseDate,
+    storyArc,
     signedBy,
     status,
     title,
@@ -411,4 +414,34 @@ abstract final class ComicWorkspaceFieldMetadata {
     wishlist,
     writer,
   ];
+
+  static const character = LibraryKindFieldMetadata(
+    id: 'comic.character',
+    label: 'Character',
+    valueType: LibraryFieldValueType.text,
+    cardinality: LibraryFieldCardinality.many,
+    source: LibraryFieldSource.catalog,
+    sourcePath: 'characters[].name',
+    filterable: true,
+  );
+
+  static const genre = LibraryKindFieldMetadata(
+    id: 'comic.genre',
+    label: 'Genre',
+    valueType: LibraryFieldValueType.text,
+    cardinality: LibraryFieldCardinality.many,
+    source: LibraryFieldSource.catalog,
+    sourcePath: 'genres[]',
+    filterable: true,
+  );
+
+  static const storyArc = LibraryKindFieldMetadata(
+    id: 'comic.story_arc',
+    label: 'Story Arc',
+    valueType: LibraryFieldValueType.text,
+    cardinality: LibraryFieldCardinality.many,
+    source: LibraryFieldSource.catalog,
+    sourcePath: 'story_arcs[].name',
+    filterable: true,
+  );
 }

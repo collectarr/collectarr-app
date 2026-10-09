@@ -1,4 +1,4 @@
-﻿import 'package:collectarr_app/features/library/config/library_kind_field_metadata.dart';
+import 'package:collectarr_app/features/library/config/library_kind_field_metadata.dart';
 
 /// Additional kind-owned semantics for workspace fields.
 abstract final class BoardGameWorkspaceFieldMetadata {
@@ -133,15 +133,59 @@ abstract final class BoardGameWorkspaceFieldMetadata {
 
   static const all = <LibraryKindFieldMetadata>[
     addedAt,
+    category,
     condition,
     cover,
     designer,
+    family,
     location,
+    mechanic,
     pricePaid,
     rating,
     status,
     title,
+    theme,
     updatedAt,
     wishlist,
   ];
+
+  static const category = LibraryKindFieldMetadata(
+    id: 'boardgame.category',
+    label: 'Category',
+    valueType: LibraryFieldValueType.text,
+    cardinality: LibraryFieldCardinality.many,
+    source: LibraryFieldSource.catalog,
+    sourcePath: 'categories[]',
+    filterable: true,
+  );
+
+  static const family = LibraryKindFieldMetadata(
+    id: 'boardgame.family',
+    label: 'Family',
+    valueType: LibraryFieldValueType.text,
+    cardinality: LibraryFieldCardinality.many,
+    source: LibraryFieldSource.catalog,
+    sourcePath: 'families[]',
+    filterable: true,
+  );
+
+  static const mechanic = LibraryKindFieldMetadata(
+    id: 'boardgame.mechanic',
+    label: 'Mechanic',
+    valueType: LibraryFieldValueType.text,
+    cardinality: LibraryFieldCardinality.many,
+    source: LibraryFieldSource.catalog,
+    sourcePath: 'mechanics[]',
+    filterable: true,
+  );
+
+  static const theme = LibraryKindFieldMetadata(
+    id: 'boardgame.theme',
+    label: 'Theme',
+    valueType: LibraryFieldValueType.text,
+    cardinality: LibraryFieldCardinality.many,
+    source: LibraryFieldSource.catalog,
+    sourcePath: 'themes[]',
+    filterable: true,
+  );
 }

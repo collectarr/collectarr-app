@@ -1,15 +1,14 @@
-import 'package:collectarr_app/features/library/kinds/boardgame/workspace/boardgame_ids.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/workspace/boardgame_workspace_dto.dart';
 import 'package:collectarr_app/features/library/config/library_facet_types.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/config/boardgame_field_identities.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/config/boardgame_workspace_field_metadata.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_identifier_types.dart';
 
 final boardgameLibraryFacetDefinitions =
     <LibraryFacetDefinition<BoardGameKind, BoardGameWorkspaceDto, String>>[
   if (BoardGameFieldIdentities.publisher.filterable)
     LibraryFacetDefinition<BoardGameKind, BoardGameWorkspaceDto, String>(
-      id: BoardGameFacetIds.publisher,
-      label: BoardGameFieldIdentities.publisher.label,
+      metadata: BoardGameFieldIdentities.publisher,
       extractValues: (dto) => _boardGameFacetValues([
         ...dto.metadata.publishers,
         dto.metadata.publisher,
@@ -17,36 +16,31 @@ final boardgameLibraryFacetDefinitions =
       ]),
     ),
   LibraryFacetDefinition<BoardGameKind, BoardGameWorkspaceDto, String>(
-    id: BoardGameFacetIds.designer,
-    label: 'Designer',
+    metadata: BoardGameWorkspaceFieldMetadata.designer,
     extractValues: (dto) => _boardGameFacetValues([
       ...dto.metadata.designers,
     ]),
   ),
   LibraryFacetDefinition<BoardGameKind, BoardGameWorkspaceDto, String>(
-    id: BoardGameFacetIds.mechanic,
-    label: 'Mechanic',
+    metadata: BoardGameWorkspaceFieldMetadata.mechanic,
     extractValues: (dto) => _boardGameFacetValues([
       ...dto.metadata.mechanics,
     ]),
   ),
   LibraryFacetDefinition<BoardGameKind, BoardGameWorkspaceDto, String>(
-    id: BoardGameFacetIds.category,
-    label: 'Category',
+    metadata: BoardGameWorkspaceFieldMetadata.category,
     extractValues: (dto) => _boardGameFacetValues([
       ...dto.metadata.categories,
     ]),
   ),
   LibraryFacetDefinition<BoardGameKind, BoardGameWorkspaceDto, String>(
-    id: BoardGameFacetIds.family,
-    label: 'Family',
+    metadata: BoardGameWorkspaceFieldMetadata.family,
     extractValues: (dto) => _boardGameFacetValues([
       ...dto.metadata.families,
     ]),
   ),
   LibraryFacetDefinition<BoardGameKind, BoardGameWorkspaceDto, String>(
-    id: BoardGameFacetIds.theme,
-    label: 'Theme',
+    metadata: BoardGameWorkspaceFieldMetadata.theme,
     extractValues: (dto) => _boardGameFacetValues([
       ...dto.metadata.themes,
     ]),

@@ -1,4 +1,4 @@
-﻿import 'package:collectarr_app/features/library/config/library_kind_field_metadata.dart';
+import 'package:collectarr_app/features/library/config/library_kind_field_metadata.dart';
 
 /// Additional kind-owned semantics for workspace fields.
 abstract final class GameWorkspaceFieldMetadata {
@@ -378,6 +378,7 @@ abstract final class GameWorkspaceFieldMetadata {
     cover,
     developer,
     edition,
+    genre,
     gradedPrice,
     hasBox,
     hasManual,
@@ -398,4 +399,14 @@ abstract final class GameWorkspaceFieldMetadata {
     valueLocked,
     wishlist,
   ];
+
+  static const genre = LibraryKindFieldMetadata(
+    id: 'game.genre',
+    label: 'Genre',
+    valueType: LibraryFieldValueType.text,
+    cardinality: LibraryFieldCardinality.many,
+    source: LibraryFieldSource.catalog,
+    sourcePath: 'genres[]',
+    filterable: true,
+  );
 }

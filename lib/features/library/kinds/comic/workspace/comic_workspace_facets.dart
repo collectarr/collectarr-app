@@ -1,43 +1,37 @@
-import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_ids.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_dto.dart';
 import 'package:collectarr_app/features/library/config/library_facet_types.dart';
+import 'package:collectarr_app/features/library/kinds/comic/config/comic_workspace_field_metadata.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_identifier_types.dart';
 
 final comicLibraryFacetDefinitions =
     <LibraryFacetDefinition<ComicKind, ComicWorkspaceDto, String>>[
   LibraryFacetDefinition<ComicKind, ComicWorkspaceDto, String>(
-    id: ComicFacetIds.publisher,
-    label: 'Publisher',
+    metadata: ComicWorkspaceFieldMetadata.publisher,
     extractValues: (dto) => [
       if (dto.publisher case final publisher?) publisher,
     ],
   ),
   LibraryFacetDefinition<ComicKind, ComicWorkspaceDto, String>(
-    id: ComicFacetIds.genre,
-    label: 'Genre',
+    metadata: ComicWorkspaceFieldMetadata.genre,
     extractValues: (dto) => dto.comic.genres,
   ),
   LibraryFacetDefinition<ComicKind, ComicWorkspaceDto, String>(
-    id: ComicFacetIds.character,
-    label: 'Character',
+    metadata: ComicWorkspaceFieldMetadata.character,
     extractValues: (dto) => dto.comic.characters
         .map((character) => character.name)
         .whereType<String>(),
   ),
   LibraryFacetDefinition<ComicKind, ComicWorkspaceDto, String>(
-    id: ComicFacetIds.storyArc,
-    label: 'Story Arc',
+    metadata: ComicWorkspaceFieldMetadata.storyArc,
     extractValues: (dto) =>
         dto.comic.storyArcs.map((arc) => arc.name).whereType<String>(),
   ),
   LibraryFacetDefinition<ComicKind, ComicWorkspaceDto, String>(
-    id: ComicFacetIds.writer,
-    label: 'Writer',
+    metadata: ComicWorkspaceFieldMetadata.writer,
     extractValues: (dto) => _creatorNamesForRole(dto, 'writer'),
   ),
   LibraryFacetDefinition<ComicKind, ComicWorkspaceDto, String>(
-    id: ComicFacetIds.artist,
-    label: 'Artist',
+    metadata: ComicWorkspaceFieldMetadata.artist,
     extractValues: (dto) => _creatorNamesForRole(dto, 'artist'),
   ),
 ];

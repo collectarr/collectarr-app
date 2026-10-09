@@ -17,6 +17,7 @@ abstract final class GameFieldIdentities {
     source: LibraryFieldSource.catalog,
     sourcePath: 'franchise',
     searchable: true,
+    filterable: true,
     groupable: true,
     editable: true,
   );

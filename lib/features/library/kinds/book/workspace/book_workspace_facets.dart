@@ -1,45 +1,39 @@
-import 'package:collectarr_app/features/library/kinds/book/workspace/book_ids.dart';
 import 'package:collectarr_app/features/library/kinds/book/workspace/book_workspace_dto.dart';
 import 'package:collectarr_app/features/library/config/library_facet_types.dart';
 import 'package:collectarr_app/features/library/kinds/book/config/book_field_identities.dart';
+import 'package:collectarr_app/features/library/kinds/book/config/book_workspace_field_metadata.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_identifier_types.dart';
 
 final bookLibraryFacetDefinitions =
     <LibraryFacetDefinition<BookKind, BookWorkspaceDto, String>>[
   LibraryFacetDefinition<BookKind, BookWorkspaceDto, String>(
-    id: BookFacetIds.author,
-    label: 'Author',
+    metadata: BookWorkspaceFieldMetadata.author,
     extractValues: (dto) => dto.metadata.authors,
   ),
   if (BookFieldIdentities.publisher.filterable)
     LibraryFacetDefinition<BookKind, BookWorkspaceDto, String>(
-      id: BookFacetIds.publisher,
-      label: BookFieldIdentities.publisher.label,
+      metadata: BookFieldIdentities.publisher,
       extractValues: (dto) => [
         if (dto.publisher case final publisher?) publisher,
       ],
     ),
   LibraryFacetDefinition<BookKind, BookWorkspaceDto, String>(
-    id: BookFacetIds.genre,
-    label: 'Genre',
+    metadata: BookWorkspaceFieldMetadata.genre,
     extractValues: (dto) => dto.metadata.genres,
   ),
   LibraryFacetDefinition<BookKind, BookWorkspaceDto, String>(
-    id: BookFacetIds.subject,
-    label: 'Subject',
+    metadata: BookWorkspaceFieldMetadata.subject,
     extractValues: (dto) => dto.metadata.subjects,
   ),
   if (BookFieldIdentities.format.filterable)
     LibraryFacetDefinition<BookKind, BookWorkspaceDto, String>(
-      id: BookFacetIds.format,
-      label: BookFieldIdentities.format.label,
+      metadata: BookFieldIdentities.format,
       extractValues: (dto) => [
         if (dto.format case final format?) format,
       ],
     ),
   LibraryFacetDefinition<BookKind, BookWorkspaceDto, String>(
-    id: BookFacetIds.translator,
-    label: 'Translator',
+    metadata: BookWorkspaceFieldMetadata.translator,
     extractValues: (dto) => dto.metadata.translators,
   ),
 ];

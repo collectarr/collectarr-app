@@ -1,4 +1,4 @@
-﻿import 'package:collectarr_app/features/library/config/library_kind_field_metadata.dart';
+import 'package:collectarr_app/features/library/config/library_kind_field_metadata.dart';
 
 /// Additional kind-owned semantics for workspace fields.
 abstract final class BookWorkspaceFieldMetadata {
@@ -222,9 +222,31 @@ abstract final class BookWorkspaceFieldMetadata {
     readStatus,
     signedBy,
     status,
+    genre,
+    subject,
     title,
     translator,
     updatedAt,
     wishlist,
   ];
+
+  static const genre = LibraryKindFieldMetadata(
+    id: 'book.genre',
+    label: 'Genre',
+    valueType: LibraryFieldValueType.text,
+    cardinality: LibraryFieldCardinality.many,
+    source: LibraryFieldSource.catalog,
+    sourcePath: 'genres[]',
+    filterable: true,
+  );
+
+  static const subject = LibraryKindFieldMetadata(
+    id: 'book.subject',
+    label: 'Subject',
+    valueType: LibraryFieldValueType.text,
+    cardinality: LibraryFieldCardinality.many,
+    source: LibraryFieldSource.catalog,
+    sourcePath: 'subjects[]',
+    filterable: true,
+  );
 }

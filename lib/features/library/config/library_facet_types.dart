@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/library/workspace/schema/library_identifier_types.dart';
+import 'package:collectarr_app/features/library/config/library_kind_field_metadata.dart';
 import 'package:flutter/foundation.dart';
 
 export 'package:collectarr_app/features/library/workspace/schema/library_identifier_types.dart'
@@ -48,13 +49,23 @@ class LibraryFacetQuery<TValue> {
 
 @immutable
 class LibraryFacetDefinition<TKind, TDto, TValue> {
-  const LibraryFacetDefinition({
-    required this.id,
-    required this.label,
+  LibraryFacetDefinition({
+    required this.metadata,
     required this.extractValues,
-  });
+  }) {
+    if (!metadata.filterable) {
+      throw ArgumentError.value(
+        metadata.id,
+        'metadata',
+        'Facet metadata must allow filtering.',
+      );
+    }
+  }
 
-  final LibraryFacetId<TKind, TValue> id;
-  final String label;
+  final LibraryKindFieldMetadata metadata;
   final Iterable<TValue> Function(TDto dto) extractValues;
+
+  LibraryFacetId<TKind, TValue> get id =>
+      LibraryFacetId<TKind, TValue>(metadata.id);
+  String get label => metadata.label;
 }

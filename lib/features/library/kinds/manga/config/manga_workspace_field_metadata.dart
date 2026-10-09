@@ -1,4 +1,4 @@
-﻿import 'package:collectarr_app/features/library/config/library_kind_field_metadata.dart';
+import 'package:collectarr_app/features/library/config/library_kind_field_metadata.dart';
 
 /// Additional kind-owned semantics for workspace fields.
 abstract final class MangaWorkspaceFieldMetadata {
@@ -427,11 +427,13 @@ abstract final class MangaWorkspaceFieldMetadata {
     chapterCount,
     condition,
     cover,
+    character,
     demographic,
     dustJacketCondition,
     dustJacketPresent,
     editionFormat,
     englishTitle,
+    genre,
     insertsPresent,
     localizedEdition,
     localizedPublisher,
@@ -450,6 +452,7 @@ abstract final class MangaWorkspaceFieldMetadata {
     signedBy,
     slipcoverPresent,
     status,
+    theme,
     title,
     totalVolumes,
     translator,
@@ -457,4 +460,34 @@ abstract final class MangaWorkspaceFieldMetadata {
     volumeNumber,
     wishlist,
   ];
+
+  static const character = LibraryKindFieldMetadata(
+    id: 'manga.character',
+    label: 'Character',
+    valueType: LibraryFieldValueType.text,
+    cardinality: LibraryFieldCardinality.many,
+    source: LibraryFieldSource.catalog,
+    sourcePath: 'characters[].name',
+    filterable: true,
+  );
+
+  static const genre = LibraryKindFieldMetadata(
+    id: 'manga.genre',
+    label: 'Genre',
+    valueType: LibraryFieldValueType.text,
+    cardinality: LibraryFieldCardinality.many,
+    source: LibraryFieldSource.catalog,
+    sourcePath: 'genres[]',
+    filterable: true,
+  );
+
+  static const theme = LibraryKindFieldMetadata(
+    id: 'manga.theme',
+    label: 'Theme',
+    valueType: LibraryFieldValueType.text,
+    cardinality: LibraryFieldCardinality.many,
+    source: LibraryFieldSource.catalog,
+    sourcePath: 'themes[]',
+    filterable: true,
+  );
 }
