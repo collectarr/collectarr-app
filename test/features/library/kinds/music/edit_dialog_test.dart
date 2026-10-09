@@ -79,6 +79,10 @@ void main() {
     await tester.tap(find.text('Open'));
     await tester.pumpAndSettle();
 
+    final dialogSurface = find.byKey(const ValueKey('library-dialog-surface'));
+    expect(tester.getSize(dialogSurface).width, lessThanOrEqualTo(1024));
+    expect(tester.getTopLeft(dialogSurface).dy, closeTo(10, 1));
+
     expect(find.text('Credits'), findsOneWidget);
     expect(find.text('Classical'), findsNothing);
     expect(find.text('People'), findsNothing);
@@ -91,6 +95,7 @@ void main() {
       find.byKey(const ValueKey('musicAlbumCoverImageUrlField')),
       findsNothing,
     );
+    expect(find.text('Find Online'), findsNWidgets(2));
 
     final linksTab = find.text('Links').last;
     await tester.ensureVisible(linksTab);

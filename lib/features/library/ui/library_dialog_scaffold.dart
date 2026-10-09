@@ -209,6 +209,7 @@ class LibraryDialogScaffold extends StatelessWidget {
               vertical: windowClass.isMedium ? 16 : 24,
             ),
         child: ConstrainedBox(
+          key: const ValueKey('library-dialog-surface'),
           constraints: BoxConstraints(
             minWidth: effectiveMinWidth,
             maxWidth: effectiveMaxWidth,

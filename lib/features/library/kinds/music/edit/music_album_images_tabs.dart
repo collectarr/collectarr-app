@@ -4,6 +4,8 @@ import 'package:collectarr_app/features/library/edit/sections/item_images_edit_s
 import 'package:collectarr_app/features/library/kinds/music/domain/music_album_image.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit/music_cover_crop_editor.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit/music_album_edit_draft.dart';
+import 'package:collectarr_app/features/library/kinds/music/edit/music_online_cover_picker_dialog.dart';
+import 'package:collectarr_app/features/library/kinds/music/edit/music_online_cover_search.dart';
 import 'package:collectarr_app/features/library/kinds/music/vocabulary/music_vocabularies.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_image_intake.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_managed_vocabulary_field.dart';
@@ -54,6 +56,7 @@ final class _MusicAlbumCoversTabState extends State<MusicAlbumCoversTab> {
               MusicCoverEditor(
                 title: 'Front Cover',
                 albumId: widget.albumId,
+                searchQuery: _searchQuery,
                 image: front,
                 coreCoverUrl: widget.draft.values.coverImageUrl,
                 restoreCoreCoverUrl: widget.draft.original.coverImageUrl,
@@ -64,6 +67,7 @@ final class _MusicAlbumCoversTabState extends State<MusicAlbumCoversTab> {
               MusicCoverEditor(
                 title: 'Back Cover',
                 albumId: widget.albumId,
+                searchQuery: _searchQuery,
                 image: back,
                 coreCoverUrl: widget.draft.values.backCoverImageUrl,
                 restoreCoreCoverUrl: widget.draft.original.backCoverImageUrl,
@@ -100,6 +104,11 @@ final class _MusicAlbumCoversTabState extends State<MusicAlbumCoversTab> {
     }
     return null;
   }
+
+  String get _searchQuery => [
+        widget.draft.values.artist.trim(),
+        widget.draft.values.title.trim(),
+      ].where((value) => value.isNotEmpty).join(' ');
 
   void _replaceCover(String imageType, MusicAlbumImage? replacement) {
     final next = [
@@ -140,6 +149,7 @@ final class MusicCoverEditor extends StatefulWidget {
     super.key,
     required this.title,
     required this.albumId,
+    this.searchQuery = '',
     required this.image,
     required this.coreCoverUrl,
     required this.restoreCoreCoverUrl,
@@ -150,6 +160,7 @@ final class MusicCoverEditor extends StatefulWidget {
 
   final String title;
   final String albumId;
+  final String searchQuery;
   final MusicAlbumImage? image;
   final String? coreCoverUrl;
   final String? restoreCoreCoverUrl;
@@ -234,7 +245,13 @@ final class MusicCoverEditorState extends State<MusicCoverEditor> {
                       context,
                       icon: Icons.file_upload_outlined,
                       label: 'Upload',
-                      onPressed: _upload,
+                      onPressed: _transforming ? null : _upload,
+                    ),
+                    _toolbarAction(
+                      context,
+                      icon: Icons.image_search_outlined,
+                      label: 'Find Online',
+                      onPressed: _transforming ? null : _findOnline,
                     ),
                     if (removeActionLabel != null)
                       _toolbarAction(
@@ -345,6 +362,53 @@ final class MusicCoverEditorState extends State<MusicCoverEditor> {
         createdAt: current?.createdAt ?? DateTime.now().toUtc(),
       ),
     );
+  }
+
+  Future<void> _findOnline() async {
+    setState(() => _transforming = true);
+    try {
+      final candidate = await showDialog<MusicOnlineCoverCandidate>(
+        context: context,
+        builder: (_) => MusicOnlineCoverPickerDialog(
+          initialQuery: widget.searchQuery,
+        ),
+      );
+      if (candidate == null || !mounted) return;
+
+      final response = await _coverImageClient.get<List<int>>(
+        candidate.imageUrl,
+        options: Options(responseType: ResponseType.bytes),
+      );
+      final responseBytes = response.data;
+      if (responseBytes == null || responseBytes.isEmpty) {
+        throw StateError('The selected cover image could not be downloaded.');
+      }
+      final bytes = Uint8List.fromList(responseBytes);
+      await validateLibraryImageBytes(bytes);
+      if (!mounted) return;
+      final current = widget.image;
+      widget.onChanged(
+        MusicAlbumImage(
+          id: current?.id ?? const Uuid().v4(),
+          albumId: widget.albumId,
+          purpose: MusicAlbumImagePurpose.cover,
+          imageType:
+              widget.title == 'Back Cover' ? 'back_cover' : 'front_cover',
+          imageData: bytes,
+          description: '${candidate.title} — ${candidate.artist}',
+          sortOrder: current?.sortOrder ?? 0,
+          createdAt: current?.createdAt ?? DateTime.now().toUtc(),
+        ),
+      );
+    } catch (error) {
+      if (mounted) {
+        ScaffoldMessenger.maybeOf(context)?.showSnackBar(
+          SnackBar(content: Text('Could not use this online cover: $error')),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _transforming = false);
+    }
   }
 
   Future<void> _openCropEditor() async {
