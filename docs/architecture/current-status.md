@@ -100,13 +100,20 @@ run.
   emitting unsupported metadata keys, compact information-chip and pick-list
   header overflows, and stale widget finders for current dropdowns and scopes.
   Game CSV export cells now preserve item number and edition title separately.
-- `tool/check_library_kind_boundaries.dart` still fails with 318 AST boundary
-  violations and 364 complexity-budget findings, including stale baseline
-  entries. The full Core suite also has 11 failures (106 passed, 36 skipped),
-  including tests that require a local PostgreSQL service. Core lint, bundle,
-  generated contract documentation, and targeted schema/contract tests pass.
-  Stage M remains open until the repository-wide architecture guard and full
-  Core suite pass in the intended test environment.
+- Music listening-event pull and rejected-change retry now run through a
+  Music-owned sync codec registered with the kind tracking codecs. Sync and
+  database-maintenance hosts dispatch kind-specific provider invalidations
+  through the kind registry instead of importing Music, Anime, Board Game, or
+  TV implementations. Focused sync tests and analysis pass.
+- `tool/check_library_kind_boundaries.dart` still fails with 308 AST boundary
+  violations and 364 complexity-budget findings. The AST findings are TK002=4,
+  TK003=5, TK005=1, TK009=14, TK016=31, and TK017=253 stale field-leak
+  baseline entries; there are no remaining TK001 or TK011 findings. The full
+  Core suite also has 11 failures (106 passed, 36 skipped), including tests
+  that require a local PostgreSQL service. Core lint, bundle, generated
+  contract documentation, and targeted schema/contract tests pass. Stage M
+  remains open until the repository-wide architecture guard and full Core
+  suite pass in the intended test environment.
 
 ## Active Music v2 refactor
 

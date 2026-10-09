@@ -29,8 +29,6 @@ import 'package:collectarr_app/features/library/tracking/tracking_unit_storage_r
 import 'package:collectarr_app/features/library/tracking/tracking_unit_storage_codec.dart';
 import 'package:collectarr_app/features/collection/repositories/user_metadata_overrides_cache_repository.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_library_entry_persistence.dart';
-import 'package:collectarr_app/features/library/kinds/music/data/music_listening_repository.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_listening.dart';
 import 'package:collectarr_app/features/library/tracking/watch_session_codec.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_codec.dart';
 import 'package:collectarr_app/features/library/tracking/custom_episode_codec.dart';
@@ -101,7 +99,7 @@ class SyncApplyService {
     final trackingUnits = <TrackingUnitSummary>[];
     final wishlist = <WishlistItem>[];
     final watchSessions = <WatchSession>[];
-    final musicListenEvents = <MusicListenEvent>[];
+    final kindSyncEntities = <String, List<JsonMap>>{};
     final metadataOverrides = <UserMetadataOverride>[];
     final entryImages = <({LibraryEntryRef ref, List<ItemImage> images})>[];
     final entryCustomFields =
@@ -113,6 +111,11 @@ class SyncApplyService {
     final pickListDeletes = <String>[];
     for (final entity in entities) {
       final type = entity['entity_type'] as String;
+      if (libraryKindSyncEntityCodecs
+          .any((codec) => codec.entityType == type)) {
+        kindSyncEntities.putIfAbsent(type, () => []).add(entity);
+        continue;
+      }
       if (type == 'location') {
         if (entity['action'] == 'delete') {
           locationDeletes.add(entity['entity_id'] as String);
@@ -147,9 +150,6 @@ class SyncApplyService {
       }
       if (type == 'watch_session') {
         watchSessions.add(_watchSessionFromEntity(entity));
-      }
-      if (type == 'music_listen_event') {
-        musicListenEvents.add(_musicListenEventFromEntity(entity));
       }
       if (type == 'metadata_override') {
         metadataOverrides.add(_metadataOverrideFromEntity(entity));
@@ -228,8 +228,11 @@ class SyncApplyService {
           codecs: libraryWatchSessionCodecs,
         ).upsertAll(watchSessions);
       }
-      if (musicListenEvents.isNotEmpty) {
-        await MusicListeningRepository(db).upsertAll(musicListenEvents);
+      for (final codec in libraryKindSyncEntityCodecs) {
+        final incoming = kindSyncEntities[codec.entityType];
+        if (incoming != null && incoming.isNotEmpty) {
+          await codec.applyPullBatch(db, incoming);
+        }
       }
       if (metadataOverrides.isNotEmpty) {
         await UserMetadataOverridesCacheRepository(db)
@@ -538,22 +541,6 @@ class SyncApplyService {
     throw UnsupportedError(
       'No kind-entry watch-session codec is registered for ${kind.apiValue}',
     );
-  }
-
-  MusicListenEvent _musicListenEventFromEntity(JsonMap entity) {
-    final type = entity['entity_type'] as String;
-    if (type != 'music_listen_event') {
-      throw FormatException('Expected music_listen_event entity, got $type');
-    }
-    final action = entity['action'] as String;
-    final payload = _payload(entity);
-    final changedAt = entity['client_changed_at'] as String;
-    return MusicListenEvent.fromJson({
-      ...payload,
-      'id': entity['entity_id'],
-      'updated_at': payload['updated_at'] ?? changedAt,
-      'deleted_at': action == 'delete' ? changedAt : payload['deleted_at'],
-    });
   }
 
   UserMetadataOverride _metadataOverrideFromEntity(

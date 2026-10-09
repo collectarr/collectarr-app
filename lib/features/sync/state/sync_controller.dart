@@ -9,8 +9,8 @@ import 'package:collectarr_app/core/sync/sync_retry.dart';
 import 'package:collectarr_app/core/sync/sync_warning_formatter.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_provider_invalidation_registry.dart';
 import 'package:collectarr_app/features/sync/data/sync_repository.dart';
-import 'package:collectarr_app/features/library/kinds/music/data/music_listening_providers.dart';
 import 'package:collectarr_app/features/sync/state/sync_state.dart';
 import 'package:collectarr_app/state/connection_settings_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -75,7 +75,9 @@ class SyncController extends Notifier<SyncState> {
       ref.invalidate(wishlistRefsProvider);
       ref.invalidate(wishlistProvider);
       ref.invalidate(shelfProvider);
-      ref.invalidate(musicListeningRepositoryProvider);
+      for (final invalidate in kindSyncProjectionInvalidators) {
+        invalidate(ref);
+      }
 
       final count = await _repo.getPendingCount();
       final log = _appendLog(

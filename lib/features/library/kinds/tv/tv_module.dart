@@ -13,6 +13,8 @@ export 'integrations/collection_csv/tv_collection_csv_projection.dart';
 export 'entries/tv_entry_contributor.dart';
 export 'page.dart';
 export 'tracking/tv_custom_episode_codec.dart';
+export 'tracking/tv_tracking_mutation_provider.dart';
+export 'tracking/tv_tracking_state_provider.dart';
 export 'tracking/tv_tracking_state_codec.dart';
 export 'tracking/tv_tracking_unit_codec.dart';
 export 'tracking/tv_watch_session_codec.dart';

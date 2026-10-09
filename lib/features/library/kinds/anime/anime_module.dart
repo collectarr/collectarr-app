@@ -13,6 +13,7 @@ export 'integrations/collection_csv/anime_collection_csv_projection.dart';
 export 'entries/anime_entry_contributor.dart';
 export 'page.dart';
 export 'tracking/anime_custom_episode_codec.dart';
+export 'tracking/anime_tracking_state_provider.dart';
 export 'tracking/anime_tracking_state_codec.dart';
 export 'tracking/anime_tracking_unit_codec.dart';
 export 'tracking/anime_watch_session_codec.dart';

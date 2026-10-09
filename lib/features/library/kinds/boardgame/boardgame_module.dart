@@ -12,4 +12,5 @@ export 'integrations/collection_csv/boardgame_collection_csv_projection.dart';
 export 'entries/boardgame_entry_contributor.dart';
 export 'page.dart';
 export 'tracking/boardgame_tracking_state_codec.dart';
+export 'data/boardgame_play_session_providers.dart';
 export 'vocabulary/boardgame_vocabularies.dart';

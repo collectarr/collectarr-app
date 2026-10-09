@@ -17,7 +17,6 @@ import 'package:collectarr_app/features/collection/repositories/location_reposit
 import 'package:collectarr_app/features/collection/repositories/user_folder_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/user_metadata_overrides_cache_repository.dart';
 import 'package:collectarr_app/features/library/tracking/watch_sessions_repository.dart';
-import 'package:collectarr_app/features/library/kinds/music/data/music_listening_repository.dart';
 import 'package:uuid/uuid.dart';
 
 class SyncRetryMapper {
@@ -29,6 +28,17 @@ class SyncRetryMapper {
     required DateTime changedAt,
     required Uuid uuid,
   }) async {
+    for (final codec in libraryKindSyncEntityCodecs) {
+      if (codec.entityType == change.entityType) {
+        return codec.retryRejected(
+          change,
+          db: db,
+          changedAt: changedAt,
+          uuid: uuid,
+        );
+      }
+    }
+
     switch (change.entityType) {
       case 'library_entry':
         final payload = change.localPayload ?? change.servicePayload;
@@ -145,19 +155,6 @@ class SyncRetryMapper {
             db,
             codecs: libraryWatchSessionCodecs,
           ).toSyncPayload(session),
-          clientChangedAt: changedAt,
-        );
-      case 'music_listen_event':
-        final event = await MusicListeningRepository(db).findById(
-          change.entityId,
-        );
-        if (event == null) return null;
-        return SyncChange(
-          id: uuid.v4(),
-          entityType: change.entityType,
-          entityId: event.id,
-          action: event.isDeleted ? 'delete' : 'upsert',
-          payload: event.toSyncPayload(),
           clientChangedAt: changedAt,
         );
       case 'metadata_override':
