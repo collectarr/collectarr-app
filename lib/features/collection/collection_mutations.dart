@@ -10,8 +10,7 @@ export 'package:collectarr_app/features/collection/mutations/library_entry_mutat
     hide IdGenerator;
 export 'package:collectarr_app/features/collection/mutations/tracking_mutations.dart'
     hide IdGenerator;
-export 'package:collectarr_app/features/collection/mutations/watch_session_mutations.dart'
-    hide IdGenerator;
+export 'package:collectarr_app/features/collection/mutations/watch_session_mutations.dart';
 export 'package:collectarr_app/features/collection/mutations/wishlist_mutations.dart'
     hide IdGenerator;
 export 'package:collectarr_app/features/collection/providers/collection_mutation_providers.dart';
