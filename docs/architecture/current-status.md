@@ -87,8 +87,24 @@ run.
   ordering. Identifier predicates use indexed scalar columns or JSONB
   containment. PostgreSQL planner verification remains deferred to the final
   checks.
-- Architecture guards, the Windows build, and tests remain deferred until
-  implementation work is complete, as requested.
+- Stage M release verification is underway. Formatting and strict Flutter
+  analysis pass. Kind registry and field-manifest generation, the pinned Music
+  v2 contract check, the generated Catalog Item v2 field check, and targeted
+  Core schema/contract tests pass. Music domain, edit, workspace grouping, and
+  export tests pass; the Windows debug build and Windows integration smoke
+  tests pass.
+- The full App test run still has 18 failing test cases. Failures include
+  assertions against removed registry/provider names and old field IDs, plus
+  cross-kind CSV projections whose expected values do not match current
+  workspace data. These need to be reconciled with the strict contracts and
+  verified before Stage M closes.
+- `tool/check_library_kind_boundaries.dart` still fails with 318 AST boundary
+  violations and 364 complexity-budget findings, including stale baseline
+  entries. The full Core suite also has 11 failures (106 passed, 36 skipped),
+  including tests that require a local PostgreSQL service. Core lint, bundle,
+  generated contract documentation, and targeted schema/contract tests pass.
+  Stage M remains open until these release-gate failures are resolved or
+  verified against the intended CI environment.
 
 ## Active Music v2 refactor
 
