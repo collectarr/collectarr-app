@@ -11,7 +11,7 @@ import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_episode_rat
 import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_progress_section.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_season_tracking_section.dart';
 import 'package:collectarr_app/features/library/kinds/tv/workspace/tv_workspace_data.dart';
-import 'package:collectarr_app/features/library/tracking/session_history_section.dart';
+import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_session_history_section.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -82,7 +82,7 @@ final class TvVideoDetailContribution extends ConsumerWidget {
           accent: request.accent,
         ),
         const SizedBox(height: 16),
-        WatchHistorySection(
+        TvWatchHistorySection(
           libraryEntryRef: request.libraryEntrySummary?.ref ??
               LibraryEntryRef(
                 kind: catalogRef.kind,
@@ -96,26 +96,26 @@ final class TvVideoDetailContribution extends ConsumerWidget {
   }
 }
 
-List<WatchHistoryTargetOption> _watchHistoryTargets({
+List<TvWatchHistoryTargetOption> _watchHistoryTargets({
   required LibraryDetailPageRequest request,
   required CatalogItemRef catalogRef,
   required AsyncValue<List<TvSeasonMetadata>> seasonsAsync,
 }) =>
     [
-      WatchHistoryTargetOption(
+      TvWatchHistoryTargetOption(
         label: 'This item',
         subtitle: request.item.source.title,
       ),
       ...seasonsAsync.maybeWhen(
         data: (seasons) => [
           for (final season in seasons) ...[
-            WatchHistoryTargetOption(
+            TvWatchHistoryTargetOption(
               label: season.title ?? 'Season ${season.seasonNumber}',
               subtitle: 'Season ${season.seasonNumber}',
               seasonNumber: season.seasonNumber,
             ),
             for (final episode in season.episodes)
-              WatchHistoryTargetOption(
+              TvWatchHistoryTargetOption(
                 label: episode.episodeTitle ??
                     episode.title ??
                     'Episode ${episode.episodeNumber ?? episode.position}',
@@ -127,6 +127,6 @@ List<WatchHistoryTargetOption> _watchHistoryTargets({
               ),
           ],
         ],
-        orElse: () => const <WatchHistoryTargetOption>[],
+        orElse: () => const <TvWatchHistoryTargetOption>[],
       ),
     ];

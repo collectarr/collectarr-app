@@ -1,5 +1,5 @@
-import 'package:collectarr_app/core/models/watch_session.dart';
 import 'package:collectarr_app/core/models/library_entry_projection.dart';
+import 'package:collectarr_app/core/models/watch_session.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
@@ -9,13 +9,13 @@ import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/ui/compact_search_dropdown_form_field.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:collectarr_app/features/library/tracking/session_history_presenter.dart';
 import 'package:collectarr_app/features/library/tracking/library_tracking_topology.dart';
+import 'package:collectarr_app/features/library/tracking/session_history_presenter.dart';
 export 'package:collectarr_app/features/library/tracking/library_tracking_topology.dart'
     show LibraryTrackingSessionLabels;
 
-class WatchHistoryTargetOption {
-  const WatchHistoryTargetOption({
+class TvWatchHistoryTargetOption {
+  const TvWatchHistoryTargetOption({
     required this.label,
     this.subtitle,
     this.seasonNumber,
@@ -34,19 +34,19 @@ class WatchHistoryTargetOption {
       episodeNumber == session.episodeNumber;
 }
 
-class WatchHistorySection extends ConsumerWidget {
-  const WatchHistorySection({
+class TvWatchHistorySection extends ConsumerWidget {
+  const TvWatchHistorySection({
     super.key,
     required this.libraryEntryRef,
     required this.accent,
     this.labels = LibraryTrackingSessionLabels.watch,
-    this.targetOptions = const <WatchHistoryTargetOption>[],
+    this.targetOptions = const <TvWatchHistoryTargetOption>[],
   });
 
   final Color accent;
   final LibraryEntryRef libraryEntryRef;
   final LibraryTrackingSessionLabels labels;
-  final List<WatchHistoryTargetOption> targetOptions;
+  final List<TvWatchHistoryTargetOption> targetOptions;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -137,12 +137,12 @@ class WatchHistorySection extends ConsumerWidget {
     );
   }
 
-  List<WatchHistoryTargetOption> _resolvedTargetOptions() {
+  List<TvWatchHistoryTargetOption> _resolvedTargetOptions() {
     if (targetOptions.isNotEmpty) {
       return targetOptions;
     }
     return [
-      WatchHistoryTargetOption(
+      TvWatchHistoryTargetOption(
         label: 'This item',
       ),
     ];
@@ -150,7 +150,7 @@ class WatchHistorySection extends ConsumerWidget {
 
   String _targetLabelFor(
     WatchSession session,
-    List<WatchHistoryTargetOption> options,
+    List<TvWatchHistoryTargetOption> options,
   ) {
     for (final option in options) {
       if (option.matches(session)) {
@@ -169,7 +169,7 @@ class WatchHistorySection extends ConsumerWidget {
   Future<void> _showEditor(
     BuildContext context,
     WidgetRef ref, {
-    required List<WatchHistoryTargetOption> resolvedTargets,
+    required List<TvWatchHistoryTargetOption> resolvedTargets,
     WatchSession? existing,
   }) async {
     final result = await showDialog<_WatchSessionDraft>(
@@ -202,9 +202,9 @@ class WatchHistorySection extends ConsumerWidget {
         );
   }
 
-  WatchHistoryTargetOption _initialTargetFor(
+  TvWatchHistoryTargetOption _initialTargetFor(
     WatchSession? existing,
-    List<WatchHistoryTargetOption> options,
+    List<TvWatchHistoryTargetOption> options,
   ) {
     if (existing != null) {
       for (final option in options) {
@@ -212,7 +212,7 @@ class WatchHistorySection extends ConsumerWidget {
           return option;
         }
       }
-      return WatchHistoryTargetOption(
+      return TvWatchHistoryTargetOption(
         label: _targetLabelFor(existing, options),
         seasonNumber: existing.seasonNumber,
         episodeNumber: existing.episodeNumber,
@@ -320,7 +320,7 @@ class _WatchSessionDraft {
     required this.notes,
   });
 
-  final WatchHistoryTargetOption target;
+  final TvWatchHistoryTargetOption target;
   final DateTime watchedAt;
   final String? seenWhere;
   final int? rating;
@@ -343,8 +343,8 @@ class _WatchSessionDialog extends StatefulWidget {
   final Color accent;
   final String title;
   final String confirmLabel;
-  final List<WatchHistoryTargetOption> targetOptions;
-  final WatchHistoryTargetOption initialTarget;
+  final List<TvWatchHistoryTargetOption> targetOptions;
+  final TvWatchHistoryTargetOption initialTarget;
   final DateTime initialWatchedAt;
   final String? initialSeenWhere;
   final int? initialRating;
@@ -355,7 +355,7 @@ class _WatchSessionDialog extends StatefulWidget {
 }
 
 class _WatchSessionDialogState extends State<_WatchSessionDialog> {
-  late WatchHistoryTargetOption _selectedTarget;
+  late TvWatchHistoryTargetOption _selectedTarget;
   late DateTime _watchedAt;
   late final TextEditingController _seenWhereController;
   late final TextEditingController _ratingController;
@@ -395,7 +395,7 @@ class _WatchSessionDialogState extends State<_WatchSessionDialog> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             if (widget.targetOptions.isNotEmpty) ...[
-              CompactSearchDropdownFormField<WatchHistoryTargetOption>(
+              CompactSearchDropdownFormField<TvWatchHistoryTargetOption>(
                 initialValue: _selectedTarget,
                 decoration: const InputDecoration(labelText: 'Target'),
                 items: [
