@@ -7,7 +7,6 @@ import 'package:collectarr_app/features/library/kinds/music/workspace/music_card
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_dto.dart';
 import 'package:collectarr_app/features/library/kinds/music/config/music_field_identities.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_catalog_workspace_fields.dart';
-import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_field_labels.dart';
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/features/library/config/workspace_presentation_support.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
@@ -221,11 +220,10 @@ final musicLibraryFilterDefinitions = <LibraryFilterDefinition<Object?>>[
     label: 'Live recording',
     anyLabel: 'Any live status',
     value: (item) {
-      final values = _musicWorkspaceFieldValue<Iterable<bool>>(
+      return _musicWorkspaceFieldValue<Iterable<bool>>(
         MusicCatalogWorkspaceFields.liveStudio.getValue,
         item,
       );
-      return values == null ? null : musicLiveStudioLabels(values);
     },
   ),
   LibraryFilterDefinition<Object?>(

@@ -13,6 +13,7 @@ import 'package:collectarr_app/features/library/kinds/music/workspace/music_cata
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_data.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_dto.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_ids.dart';
+import 'package:collectarr_app/features/library/kinds/music/presentation.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
@@ -131,6 +132,12 @@ void main() {
       true,
       false,
     });
+    final liveFilter = musicLibraryFilterDefinitions
+        .singleWhere((filter) => filter.metadata.id == 'music.disc.is_live');
+    expect(liveFilter.value?.call(item), {true, false});
+    expect(liveFilter.matchesItem(item, 'true'), isTrue);
+    expect(liveFilter.matchesItem(item, 'false'), isTrue);
+    expect(liveFilter.matchesItem(item, 'Live'), isFalse);
     expectBucketsAndSingleMembership(
       'music.credit.contributor',
       ['Jane', 'John'],
