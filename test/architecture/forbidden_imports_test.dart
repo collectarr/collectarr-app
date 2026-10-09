@@ -11,7 +11,7 @@ import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import '../../tool/check_library_kind_boundaries.dart';
 
 void main() {
-  test('generated kind entries joins Drift columns and model aliases', () {
+  test('generated kind entries resolve field identity constants', () {
     final manifest = jsonDecode(
       File('tool/architecture/generated/kind-field-entries.json')
           .readAsStringSync(),
@@ -24,6 +24,26 @@ void main() {
         (comic['tables'] as List<dynamic>).cast<Map<String, dynamic>>();
     final comicTableNames = comicTables.map((table) => table['name']).toSet();
     final series = fields['series'] as Map<String, dynamic>;
+    final animeFields = (kinds['anime'] as Map<String, dynamic>)['fields']
+        as Map<String, dynamic>;
+    final boardGameFields = (kinds['boardgame']
+        as Map<String, dynamic>)['fields'] as Map<String, dynamic>;
+    final bookFields = (kinds['book'] as Map<String, dynamic>)['fields']
+        as Map<String, dynamic>;
+    final movieFields = (kinds['movie'] as Map<String, dynamic>)['fields']
+        as Map<String, dynamic>;
+    final musicFields = (kinds['music'] as Map<String, dynamic>)['fields']
+        as Map<String, dynamic>;
+    final tvFields =
+        (kinds['tv'] as Map<String, dynamic>)['fields'] as Map<String, dynamic>;
+    void expectWorkspaceId(
+      Map<String, dynamic> fields,
+      String fieldName,
+      String fieldId,
+    ) {
+      final field = fields[fieldName] as Map<String, dynamic>;
+      expect(field['workspaceFieldIds'], contains(fieldId));
+    }
 
     expect(issueNumber['databaseColumns'], contains('issueNumber'));
     expect(issueNumber['symbols'], contains('issue_number'));
@@ -31,6 +51,12 @@ void main() {
     expect(comicTableNames, isNot(contains('ComicMediaRows')));
     expect(comicTableNames, isNot(contains('ComicReleaseRows')));
     expect(series['workspaceFieldIds'], contains('comic.series'));
+    expectWorkspaceId(animeFields, 'format', 'anime.format');
+    expectWorkspaceId(boardGameFields, 'publisher', 'boardgame.publisher');
+    expectWorkspaceId(bookFields, 'series', 'book.series');
+    expectWorkspaceId(movieFields, 'title', 'movie.title');
+    expectWorkspaceId(musicFields, 'artist', 'music.artist');
+    expectWorkspaceId(tvFields, 'barcode', 'tv.barcode');
     expect(
         kinds.keys, containsAll(['anime', 'book', 'comic', 'game', 'music']));
   });

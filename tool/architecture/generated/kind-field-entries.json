@@ -482,6 +482,17 @@
             "anime.format"
           ]
         },
+        "genres": {
+          "symbols": [
+            "genres"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "anime.genres"
+          ]
+        },
         "id": {
           "symbols": [
             "id"
@@ -534,6 +545,17 @@
             "library_entry_ref_key"
           ],
           "workspaceFieldIds": []
+        },
+        "licensors": {
+          "symbols": [
+            "licensors"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "anime.licensors"
+          ]
         },
         "localImagePath": {
           "symbols": [
@@ -600,6 +622,17 @@
           "sqlNames": [],
           "workspaceFieldIds": [
             "anime.price_paid"
+          ]
+        },
+        "producers": {
+          "symbols": [
+            "producers"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "anime.producers"
           ]
         },
         "progressCurrent": {
@@ -860,6 +893,28 @@
           "sqlNames": [],
           "workspaceFieldIds": [
             "anime.studio"
+          ]
+        },
+        "studios": {
+          "symbols": [
+            "studios"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "anime.studios"
+          ]
+        },
+        "themes": {
+          "symbols": [
+            "themes"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "anime.themes"
           ]
         },
         "thumbnailImageUrl": {
@@ -3571,6 +3626,17 @@
             "game.rating"
           ]
         },
+        "region": {
+          "symbols": [
+            "region"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "game.region"
+          ]
+        },
         "releaseDate": {
           "symbols": [
             "releaseDate",
@@ -3829,6 +3895,28 @@
             "manga.added_at"
           ]
         },
+        "artists": {
+          "symbols": [
+            "artists"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "manga.artists"
+          ]
+        },
+        "authors": {
+          "symbols": [
+            "authors"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "manga.authors"
+          ]
+        },
         "barcode": {
           "symbols": [
             "barcode"
@@ -4009,6 +4097,17 @@
             "finished_at"
           ],
           "workspaceFieldIds": []
+        },
+        "genres": {
+          "symbols": [
+            "genres"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "manga.genres"
+          ]
         },
         "id": {
           "symbols": [
@@ -4378,6 +4477,17 @@
           ],
           "workspaceFieldIds": [
             "manga.status"
+          ]
+        },
+        "themes": {
+          "symbols": [
+            "themes"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "manga.themes"
           ]
         },
         "timesCompleted": {
@@ -4992,6 +5102,17 @@
             "movie.status"
           ]
         },
+        "studio": {
+          "symbols": [
+            "studio"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "movie.studio"
+          ]
+        },
         "timesCompleted": {
           "symbols": [
             "timesCompleted",
@@ -5208,6 +5329,18 @@
             "music.artist"
           ]
         },
+        "artistSummary": {
+          "symbols": [
+            "artistSummary",
+            "artist_summary"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "music.artist_summary"
+          ]
+        },
         "barcode": {
           "symbols": [
             "barcode"
@@ -5292,6 +5425,39 @@
           ],
           "workspaceFieldIds": []
         },
+        "credit.contributor": {
+          "symbols": [
+            "credit.contributor"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "music.credit.contributor"
+          ]
+        },
+        "credit.instrument": {
+          "symbols": [
+            "credit.instrument"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "music.credit.instrument"
+          ]
+        },
+        "credit.role": {
+          "symbols": [
+            "credit.role"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "music.credit.role"
+          ]
+        },
         "deletedAt": {
           "symbols": [
             "deletedAt",
@@ -5308,6 +5474,112 @@
             "deleted_at"
           ],
           "workspaceFieldIds": []
+        },
+        "disc.format": {
+          "symbols": [
+            "disc.format"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "music.disc.format"
+          ]
+        },
+        "disc.formatFamily": {
+          "symbols": [
+            "disc.formatFamily",
+            "disc.format_family"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "music.disc.format_family"
+          ]
+        },
+        "disc.isLive": {
+          "symbols": [
+            "disc.isLive",
+            "disc.is_live"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "music.disc.is_live"
+          ]
+        },
+        "disc.recordingDate": {
+          "symbols": [
+            "disc.recordingDate",
+            "disc.recording_date"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "music.disc.recording_date"
+          ]
+        },
+        "disc.recordingDate.earliest": {
+          "symbols": [
+            "disc.recordingDate.earliest",
+            "disc.recording_date.earliest"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "music.disc.recording_date.earliest"
+          ]
+        },
+        "disc.recordingDate.latest": {
+          "symbols": [
+            "disc.recordingDate.latest",
+            "disc.recording_date.latest"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "music.disc.recording_date.latest"
+          ]
+        },
+        "disc.recordingMonth": {
+          "symbols": [
+            "disc.recordingMonth",
+            "disc.recording_month"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "music.disc.recording_month"
+          ]
+        },
+        "disc.recordingYear": {
+          "symbols": [
+            "disc.recordingYear",
+            "disc.recording_year"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "music.disc.recording_year"
+          ]
+        },
+        "disc.spars": {
+          "symbols": [
+            "disc.spars"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "music.disc.spars"
+          ]
         },
         "discCount": {
           "symbols": [
@@ -5338,15 +5610,16 @@
           ],
           "workspaceFieldIds": []
         },
-        "format": {
+        "formatSummary": {
           "symbols": [
-            "format"
+            "formatSummary",
+            "format_summary"
           ],
           "databaseColumns": [],
           "databaseTables": [],
           "sqlNames": [],
           "workspaceFieldIds": [
-            "music.format"
+            "music.format_summary"
           ]
         },
         "genre": {
@@ -5608,6 +5881,18 @@
             "music.rating"
           ]
         },
+        "recordingLocation": {
+          "symbols": [
+            "recordingLocation",
+            "recording_location"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "music.recording_location"
+          ]
+        },
         "releaseDate": {
           "symbols": [
             "releaseDate",
@@ -5620,6 +5905,17 @@
             "music.release_date"
           ]
         },
+        "rpm": {
+          "symbols": [
+            "rpm"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "music.rpm"
+          ]
+        },
         "signedBy": {
           "symbols": [
             "signedBy",
@@ -5630,6 +5926,17 @@
           "sqlNames": [],
           "workspaceFieldIds": [
             "music.signed_by"
+          ]
+        },
+        "sound": {
+          "symbols": [
+            "sound"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "music.sound"
           ]
         },
         "sourceType": {
@@ -5682,15 +5989,40 @@
             "music.status"
           ]
         },
-        "storage": {
+        "storageDevice": {
           "symbols": [
-            "storage"
+            "storageDevice",
+            "storage_device"
           ],
           "databaseColumns": [],
           "databaseTables": [],
           "sqlNames": [],
           "workspaceFieldIds": [
-            "music.storage"
+            "music.storage_device"
+          ]
+        },
+        "storageSlot": {
+          "symbols": [
+            "storageSlot",
+            "storage_slot"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "music.storage_slot"
+          ]
+        },
+        "storageSummary": {
+          "symbols": [
+            "storageSummary",
+            "storage_summary"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "music.storage_summary"
           ]
         },
         "timesCompleted": {
@@ -5718,6 +6050,17 @@
           "sqlNames": [],
           "workspaceFieldIds": [
             "music.title"
+          ]
+        },
+        "track.composition": {
+          "symbols": [
+            "track.composition"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "music.track.composition"
           ]
         },
         "trackCount": {
@@ -5749,6 +6092,18 @@
           ],
           "workspaceFieldIds": [
             "music.updated_at"
+          ]
+        },
+        "vinylColor": {
+          "symbols": [
+            "vinylColor",
+            "vinyl_color"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "music.vinyl_color"
           ]
         },
         "wishlist": {

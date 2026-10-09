@@ -151,14 +151,26 @@ Map<String, Object?> _buildKindManifest(String repoRoot, String kind) {
         p.basename(file.path).endsWith('_ids.dart');
   }).toList()
     ..sort((left, right) => left.path.compareTo(right.path));
-  final fieldIdPattern = RegExp(
-    r"""LibraryFieldId(?:<[^>]+>)?\s*\(\s*['"]([^'"]+)['"]""",
-  );
+  final stringConstants = <String, String>{};
+  for (final file in _dartFiles(Directory(kindRoot))) {
+    final result = parseString(
+      content: file.readAsStringSync(),
+      path: file.path,
+      throwIfDiagnostics: false,
+    );
+    result.unit.accept(_StringConstantCollector(stringConstants));
+  }
+
   final seenIds = <String>{};
   for (final file in workspaceIdFiles) {
-    final content = file.readAsStringSync();
-    for (final match in fieldIdPattern.allMatches(content)) {
-      final fieldId = match.group(1)!;
+    final result = parseString(
+      content: file.readAsStringSync(),
+      path: file.path,
+      throwIfDiagnostics: false,
+    );
+    final collector = _LibraryFieldIdCollector(stringConstants);
+    result.unit.accept(collector);
+    for (final fieldId in collector.fieldIds) {
       if (!fieldId.startsWith('$kind.')) continue;
       if (!seenIds.add(fieldId)) continue;
       final suffix = fieldId.substring(kind.length + 1);
@@ -204,6 +216,119 @@ Map<String, Object?> _buildKindManifest(String repoRoot, String kind) {
     'fields': serializedFields,
   };
 }
+
+class _StringConstantCollector extends RecursiveAstVisitor<void> {
+  _StringConstantCollector(this.values);
+
+  final Map<String, String> values;
+  String? _className;
+
+  @override
+  void visitClassDeclaration(ClassDeclaration node) {
+    final previousClassName = _className;
+    _className = node.namePart.toSource();
+    super.visitClassDeclaration(node);
+    _className = previousClassName;
+  }
+
+  @override
+  void visitFieldDeclaration(FieldDeclaration node) {
+    if (node.fields.isConst) {
+      for (final variable in node.fields.variables) {
+        final value = _stringLiteralValue(variable.initializer);
+        if (value == null) continue;
+        values['$_className.${variable.name.lexeme}'] = value;
+        values.putIfAbsent(variable.name.lexeme, () => value);
+      }
+    }
+    super.visitFieldDeclaration(node);
+  }
+
+  @override
+  void visitTopLevelVariableDeclaration(TopLevelVariableDeclaration node) {
+    if (node.variables.isConst) {
+      for (final variable in node.variables.variables) {
+        final value = _stringLiteralValue(variable.initializer);
+        if (value == null) continue;
+        values[variable.name.lexeme] = value;
+      }
+    }
+    super.visitTopLevelVariableDeclaration(node);
+  }
+}
+
+class _LibraryFieldIdCollector extends RecursiveAstVisitor<void> {
+  _LibraryFieldIdCollector(this.stringConstants);
+
+  final Map<String, String> stringConstants;
+  final Set<String> fieldIds = {};
+
+  @override
+  void visitInstanceCreationExpression(InstanceCreationExpression node) {
+    if (node.constructorName.type.name.lexeme == 'LibraryFieldId') {
+      _addFieldId(node.argumentList.arguments, node.toSource());
+    }
+    super.visitInstanceCreationExpression(node);
+  }
+
+  @override
+  void visitFunctionExpressionInvocation(FunctionExpressionInvocation node) {
+    final functionSource = node.function.toSource();
+    if (functionSource == 'LibraryFieldId' ||
+        functionSource.startsWith('LibraryFieldId<')) {
+      _addFieldId(node.argumentList.arguments, node.toSource());
+    }
+    super.visitFunctionExpressionInvocation(node);
+  }
+
+  @override
+  void visitMethodInvocation(MethodInvocation node) {
+    if (node.methodName.name == 'LibraryFieldId') {
+      _addFieldId(node.argumentList.arguments, node.toSource());
+    }
+    super.visitMethodInvocation(node);
+  }
+
+  void _addFieldId(List<Expression> arguments, String source) {
+    if (arguments.isEmpty) return;
+    final value = _resolveStringValue(arguments.first, stringConstants);
+    if (value == null) {
+      throw FormatException(
+        'Cannot resolve LibraryFieldId value "${arguments.first}".',
+        source,
+      );
+    }
+    fieldIds.add(value);
+  }
+}
+
+String? _resolveStringValue(
+  Expression expression,
+  Map<String, String> stringConstants,
+) {
+  final literalValue = _stringLiteralValue(expression);
+  if (literalValue != null) return literalValue;
+  if (expression is SimpleIdentifier) {
+    return stringConstants[expression.name];
+  }
+  if (expression is PrefixedIdentifier) {
+    final qualifiedName =
+        '${expression.prefix.name}.${expression.identifier.name}';
+    return stringConstants[qualifiedName] ??
+        stringConstants[expression.identifier.name];
+  }
+  if (expression is PropertyAccess) {
+    final target = expression.target;
+    if (target == null) return null;
+    final qualifiedName =
+        '${target.toSource()}.${expression.propertyName.name}';
+    return stringConstants[qualifiedName];
+  }
+  return null;
+}
+
+String? _stringLiteralValue(Expression? expression) =>
+    expression is StringLiteral ? expression.stringValue : null;
 
 class _TableCollector extends RecursiveAstVisitor<void> {
   _TableCollector(this.sourcePath);
