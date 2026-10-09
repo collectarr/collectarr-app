@@ -2,16 +2,86 @@ import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_transport_payload.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_album.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_disc.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_track.dart';
 
-/// Converts the Core Music document at the API boundary into the Music domain
-/// aggregate. The domain aggregate remains the only typed representation of
-/// album, disc, and track fields in App.
+/// Translates the strict Core Music v2 document into the local Music aggregate.
 final class MusicCatalogMapper {
   const MusicCatalogMapper._();
 
-  /// Encodes the local Music item using Core's flattened catalog document.
-  /// Local-only fields such as file paths and timestamps are not sent to Core.
+  static const coreFields = <String>{
+    'id',
+    'kind',
+    'revision',
+    'title',
+    'sort_title',
+    'subtitle',
+    'artist',
+    'artist_credits',
+    'original_release_date',
+    'release_date',
+    'label',
+    'barcode',
+    'catalog_number',
+    'genres',
+    'packaging',
+    'country',
+    'extra',
+    'box_set',
+    'credits',
+    'external_links',
+    'cover_image_url',
+    'back_cover_image_url',
+    'thumbnail_image_url',
+    'discs',
+  };
+
+  static const discFields = <String>{
+    'id',
+    'disc_number',
+    'title',
+    'format_family',
+    'format',
+    'sound_types',
+    'recording_date',
+    'recording_locations',
+    'is_live',
+    'spars_code',
+    'color',
+    'vinyl_weight_grams',
+    'rpm',
+    'matrix_number',
+    'matrix_number_side_a',
+    'matrix_number_side_b',
+    'credits',
+    'tracks',
+  };
+
+  static const creditFields = <String>{
+    'id',
+    'contributor_id',
+    'name',
+    'sort_name',
+    'role',
+    'role_id',
+    'instruments',
+    'sequence',
+  };
+
+  static const trackFields = <String>{
+    'id',
+    'position',
+    'position_order',
+    'title',
+    'artist',
+    'composition',
+    'duration_ms',
+    'is_header',
+    'parent_header_id',
+    'indent_level',
+  };
+
+  /// Encodes catalog-owned fields only. Local paths and timestamps stay local.
   static CatalogItemDto toCatalogItemDto(
     MusicAlbum album, {
     CatalogItemRef? ref,
@@ -39,35 +109,19 @@ final class MusicCatalogMapper {
             if (credit.joinPhrase != null) 'join_phrase': credit.joinPhrase,
           },
       ],
-      if (album.originalReleaseDateParts != null) ...{
+      if (album.originalReleaseDateParts != null)
         'original_release_date': album.originalReleaseDateParts!.toJson(),
-      },
-      if (album.recordingDateParts != null) ...{
-        'recording_date': album.recordingDateParts!.toJson(),
-      },
-      if (album.releaseDateParts != null) ...{
+      if (album.releaseDateParts != null)
         'release_date': album.releaseDateParts!.toJson(),
-      },
       if (album.publisher != null) 'label': album.publisher,
-      if (album.barcode case final barcode?) 'barcode': barcode,
+      if (album.barcode != null) 'barcode': album.barcode,
       if (album.catalogNumber != null) 'catalog_number': album.catalogNumber,
       'genres': album.genres,
       if (album.packaging != null) 'packaging': album.packaging,
-      'studios': album.studios,
       if (album.countryCode != null) 'country': album.countryCode,
-      if (album.isLive != null) 'is_live': album.isLive,
       'extra': album.extra,
-      if (album.sparsCode != null) 'spars_code': album.sparsCode,
       if (album.boxSet != null) 'box_set': album.boxSet,
-      'composers': _peopleForRole(album, 'Composer'),
-      'conductors': _peopleForRole(album, 'Conductor'),
-      'songwriters': _peopleForRole(album, 'Songwriter'),
-      'producers': _peopleForRole(album, 'Producer'),
-      'engineers': _peopleForRole(album, 'Engineer'),
-      'musicians': _peopleForRole(album, 'Musician'),
-      'choruses': _namesForRole(album, 'Chorus'),
-      'compositions': _namesForRole(album, 'Composition'),
-      'orchestras': _namesForRole(album, 'Orchestra'),
+      'credits': album.credits.map((credit) => credit.toJson()).toList(),
       'external_links':
           album.externalLinks.map((link) => link.toJson()).toList(),
       if (album.coverImageUrl != null) 'cover_image_url': album.coverImageUrl,
@@ -75,33 +129,8 @@ final class MusicCatalogMapper {
         'back_cover_image_url': album.backCoverImageUrl,
       if (album.thumbnailImageUrl != null)
         'thumbnail_image_url': album.thumbnailImageUrl,
-      'discs': [
-        for (final disc in album.discs)
-          {
-            'id': disc.id.value,
-            'disc_number': disc.discNumber,
-            if (disc.title != null) 'title': disc.title,
-            if (disc.formatFamily != null)
-              'format_family': disc.formatFamily!.value,
-            if (disc.format != null) 'format': disc.format,
-            'sound_types': disc.soundTypes,
-            if (disc.color != null) 'color': disc.color,
-            if (disc.vinylWeightGrams != null)
-              'vinyl_weight_grams': disc.vinylWeightGrams,
-            if (disc.rpm != null) 'rpm': disc.rpm,
-            if (disc.matrixNumber != null) 'matrix_number': disc.matrixNumber,
-            if (disc.matrixNumberSideA != null)
-              'matrix_number_side_a': disc.matrixNumberSideA,
-            if (disc.matrixNumberSideB != null)
-              'matrix_number_side_b': disc.matrixNumberSideB,
-            'tracks': [
-              for (var index = 0; index < disc.tracks.length; index++)
-                _trackToCatalogData(disc.tracks[index], index),
-            ],
-          },
-      ],
+      'discs': [for (final disc in album.discs) _discToCatalogData(disc)],
     };
-
     return CatalogItemDto.raw(
       id: itemRef.id,
       mediaKind: itemRef.kind,
@@ -109,18 +138,51 @@ final class MusicCatalogMapper {
     );
   }
 
+  static Map<String, Object?> _discToCatalogData(MusicDisc disc) => {
+        'id': disc.id.value,
+        'disc_number': disc.discNumber,
+        if (disc.title != null) 'title': disc.title,
+        if (disc.formatFamily != null)
+          'format_family': disc.formatFamily!.value,
+        if (disc.format != null) 'format': disc.format,
+        'sound_types': disc.soundTypes,
+        if (disc.recordingDate != null)
+          'recording_date': disc.recordingDate!.toJson(),
+        'recording_locations': disc.recordingLocations,
+        if (disc.isLive != null) 'is_live': disc.isLive,
+        if (disc.sparsCode != null) 'spars_code': disc.sparsCode,
+        if (disc.color != null) 'color': disc.color,
+        if (disc.vinylWeightGrams != null)
+          'vinyl_weight_grams': disc.vinylWeightGrams,
+        if (disc.rpm != null) 'rpm': disc.rpm,
+        if (disc.matrixNumber != null) 'matrix_number': disc.matrixNumber,
+        if (disc.matrixNumberSideA != null)
+          'matrix_number_side_a': disc.matrixNumberSideA,
+        if (disc.matrixNumberSideB != null)
+          'matrix_number_side_b': disc.matrixNumberSideB,
+        'credits': disc.credits.map((credit) => credit.toJson()).toList(),
+        'tracks': [
+          for (var index = 0; index < disc.tracks.length; index++)
+            _trackToCatalogData(disc.tracks[index], index),
+        ],
+      };
+
   static Map<String, Object?> _trackToCatalogData(
-          MusicTrack track, int index) =>
+    MusicTrack track,
+    int index,
+  ) =>
       {
         'id': track.id.value,
-        'position': track.position,
-        'position_order': index + 1,
+        'position': track.isHeader ? '' : track.position,
+        'position_order': track.positionOrder ?? index,
         'title': track.title,
         'is_header': track.isHeader,
         'indent_level': track.indentLevel,
         if (track.parentHeaderId != null)
           'parent_header_id': track.parentHeaderId,
         if (!track.isHeader && track.artist != null) 'artist': track.artist,
+        if (!track.isHeader && track.composition != null)
+          'composition': track.composition,
         if (!track.isHeader && track.durationMs != null)
           'duration_ms': track.durationMs,
       };
@@ -128,8 +190,6 @@ final class MusicCatalogMapper {
   static MusicAlbum mapDtoToMusic(CatalogItemDto dto) =>
       mapMetadataItemToMusic(dto);
 
-  /// Local entries retain the complete domain snapshot, including timestamps,
-  /// track headers and local artwork. Core documents use the API field names.
   static MusicAlbum mapMetadataItemToMusic(CatalogItemDto item) {
     final payload = catalogTransportPayloadFor(item);
     return switch (item.origin) {
@@ -142,10 +202,7 @@ final class MusicCatalogMapper {
     };
   }
 
-  static CatalogItemDto toLocalCatalogItemDto(
-    MusicAlbum album, {
-    String? id,
-  }) {
+  static CatalogItemDto toLocalCatalogItemDto(MusicAlbum album, {String? id}) {
     final localId = id ?? album.id?.id;
     if (localId == null || localId.trim().isEmpty) {
       throw StateError('Encoding a local Music item requires its entry ID.');
@@ -161,67 +218,16 @@ final class MusicCatalogMapper {
     );
   }
 
-  /// Decodes the flat Core Music item. Local snapshots use MusicAlbum.fromJson.
-  /// `discs` → `discs` is the only structural API/domain translation.
   static MusicAlbum fromCatalogPayload(Map<String, dynamic> payload) {
-    final catalogPayload = Map<String, dynamic>.from(payload);
-    const coreFields = <String>{
-      'id',
-      'kind',
-      'revision',
-      'title',
-      'sort_title',
-      'subtitle',
-      'artist',
-      'artist_credits',
-      'original_release_date',
-      'recording_date',
-      'release_date',
-      'label',
-      'barcode',
-      'catalog_number',
-      'genres',
-      'packaging',
-      'studios',
-      'country',
-      'is_live',
-      'extra',
-      'spars_code',
-      'box_set',
-      'composers',
-      'conductors',
-      'choruses',
-      'compositions',
-      'orchestras',
-      'songwriters',
-      'producers',
-      'engineers',
-      'musicians',
-      'external_links',
-      'cover_image_url',
-      'back_cover_image_url',
-      'thumbnail_image_url',
-      'discs',
-    };
-    final unsupported = catalogPayload.keys.where(
-      (key) => !coreFields.contains(key),
-    );
-    if (unsupported.isNotEmpty) {
+    _assertFields(payload, coreFields, 'Music Catalog Item');
+    final id = _requiredText(payload['id'], 'Music Catalog Item id');
+    _requiredText(payload['title'], 'Music Catalog Item title');
+    if (payload['kind'] != 'music') {
       throw FormatException(
-        'Unrecognized Music Catalog Item field "${unsupported.first}".',
-      );
+          'Expected a Music Catalog Item, received ${payload['kind']}.');
     }
-
-    final id =
-        _requiredCatalogText(catalogPayload['id'], 'Music Catalog Item id');
-    _requiredCatalogText(catalogPayload['title'], 'Music Catalog Item title');
-    if (catalogPayload['kind'] != 'music') {
-      throw FormatException(
-        'Expected a Music Catalog Item, received ${catalogPayload['kind']}.',
-      );
-    }
-    if (catalogPayload['revision'] is! int ||
-        (catalogPayload['revision'] as int) < 1) {
+    final revision = payload['revision'];
+    if (revision is! int || revision < 1) {
       throw const FormatException(
           'Music Catalog Item revision must be positive.');
     }
@@ -234,318 +240,59 @@ final class MusicCatalogMapper {
       'catalog_number',
       'country',
       'packaging',
-      'spars_code',
       'box_set',
       'cover_image_url',
       'back_cover_image_url',
       'thumbnail_image_url',
     ]) {
-      _optionalCatalogText(catalogPayload[field], 'Music Catalog Item $field');
-    }
-    if (catalogPayload['is_live'] != null &&
-        catalogPayload['is_live'] is! bool) {
-      throw const FormatException(
-          'Music Catalog Item is_live must be boolean.');
-    }
-    for (final field in const ['genres', 'studios', 'extra']) {
-      _requiredStrings(catalogPayload[field], path: 'Music $field');
-    }
-    _requiredMaps(
-      catalogPayload['external_links'],
-      path: 'Music external links',
-    );
-    final discs = _requiredMaps(catalogPayload['discs'], path: 'Music discs');
-    final artistCredits = _requiredMaps(
-      catalogPayload['artist_credits'],
-      path: 'Music artist credits',
-    );
-    const artistCreditFields = {
-      'id',
-      'name',
-      'sort_name',
-      'artist_id',
-      'sequence',
-      'join_phrase',
-    };
-    final artistCreditIds = <String>{};
-    final artistCreditSequences = <int>{};
-    for (var index = 0; index < artistCredits.length; index++) {
-      final credit = artistCredits[index];
-      final unsupportedFields = credit.keys.where(
-        (key) => !artistCreditFields.contains(key),
-      );
-      if (unsupportedFields.isNotEmpty) {
-        throw FormatException(
-          'Unrecognized Music artist credit field '
-          '"${unsupportedFields.first}".',
-        );
-      }
-      final creditId = _requiredCatalogText(
-        credit['id'],
-        'Music artist credit ${index + 1} id',
-      );
-      _requiredCatalogText(
-        credit['name'],
-        'Music artist credit ${index + 1} name',
-      );
-      _optionalCatalogText(
-        credit['sort_name'],
-        'Music artist credit ${index + 1} sort_name',
-      );
-      _optionalCatalogText(
-        credit['artist_id'],
-        'Music artist credit ${index + 1} artist_id',
-      );
-      _optionalCatalogString(
-        credit['join_phrase'],
-        'Music artist credit ${index + 1} join_phrase',
-      );
-      final sequence = credit['sequence'];
-      if (sequence is! int ||
-          sequence < 1 ||
-          !artistCreditIds.add(creditId) ||
-          !artistCreditSequences.add(sequence)) {
-        throw FormatException(
-          'Music artist credit ${index + 1} is missing canonical identity '
-          'or ordering fields.',
-        );
-      }
-    }
-    for (var discIndex = 0; discIndex < discs.length; discIndex++) {
-      final disc = discs[discIndex];
-      _requiredCatalogText(disc['id'], 'Music disc ${discIndex + 1} id');
-      if (disc['disc_number'] is! int || (disc['disc_number'] as int) < 1) {
-        throw FormatException(
-          'Music disc ${discIndex + 1} is missing its canonical identity.',
-        );
-      }
-      final discPath = 'Music disc ${discIndex + 1}';
-      for (final field in const [
-        'title',
-        'format_family',
-        'format',
-        'color',
-        'rpm',
-        'matrix_number',
-        'matrix_number_side_a',
-        'matrix_number_side_b',
-      ]) {
-        _optionalCatalogText(disc[field], '$discPath $field');
-      }
-      const formatFamilies = {
-        'vinyl',
-        'cd',
-        'sacd',
-        'cassette',
-        'minidisc',
-        'digital',
-        'other',
-      };
-      final formatFamily = disc['format_family'];
-      if (formatFamily != null && !formatFamilies.contains(formatFamily)) {
-        throw FormatException('$discPath has an unrecognized format_family.');
-      }
-      final vinylWeight = disc['vinyl_weight_grams'];
-      if (vinylWeight != null && (vinylWeight is! int || vinylWeight <= 0)) {
-        throw FormatException(
-          '$discPath vinyl_weight_grams must be a positive integer.',
-        );
-      }
-      _requiredStrings(disc['sound_types'], path: '$discPath sound_types');
-      final tracks = _requiredMaps(
-        disc['tracks'],
-        path: 'Music disc ${discIndex + 1} tracks',
-      );
-      for (var trackIndex = 0; trackIndex < tracks.length; trackIndex++) {
-        final track = tracks[trackIndex];
-        _requiredCatalogText(
-          track['id'],
-          'Music disc ${discIndex + 1} track ${trackIndex + 1} id',
-        );
-        final position = track['position'];
-        final trackTitle = track['title'];
-        _optionalCatalogText(
-          track['artist'],
-          'Music disc ${discIndex + 1} track ${trackIndex + 1} artist',
-        );
-        _optionalCatalogText(
-          track['parent_header_id'],
-          'Music disc ${discIndex + 1} track ${trackIndex + 1} parent_header_id',
-        );
-        if (position is! String ||
-            position != position.trim() ||
-            track['position_order'] is! int ||
-            (track['position_order'] as int) < 0 ||
-            trackTitle is! String ||
-            trackTitle.isEmpty ||
-            trackTitle != trackTitle.trim() ||
-            track['is_header'] is! bool ||
-            track['indent_level'] is! int ||
-            (track['indent_level'] as int) < 0 ||
-            (track['indent_level'] as int) > 8 ||
-            (track['duration_ms'] != null &&
-                (track['duration_ms'] is! int ||
-                    (track['duration_ms'] as int) < 0))) {
-          throw FormatException(
-            'Music disc ${discIndex + 1} track ${trackIndex + 1} is missing '
-            'canonical identity or ordering fields.',
-          );
-        }
-      }
-    }
-    const discFields = <String>{
-      'id',
-      'disc_number',
-      'title',
-      'format_family',
-      'format',
-      'sound_types',
-      'color',
-      'vinyl_weight_grams',
-      'rpm',
-      'matrix_number',
-      'matrix_number_side_a',
-      'matrix_number_side_b',
-      'tracks',
-    };
-    const trackFields = <String>{
-      'id',
-      'position',
-      'position_order',
-      'title',
-      'artist',
-      'duration_ms',
-      'is_header',
-      'parent_header_id',
-      'indent_level',
-    };
-    for (final disc in discs) {
-      final unsupportedDiscFields = disc.keys.where(
-        (key) => !discFields.contains(key),
-      );
-      if (unsupportedDiscFields.isNotEmpty) {
-        throw FormatException(
-          'Unrecognized Music disc field "${unsupportedDiscFields.first}".',
-        );
-      }
-      for (final track in _maps(disc['tracks'])) {
-        final unsupportedTrackFields = track.keys.where(
-          (key) => !trackFields.contains(key),
-        );
-        if (unsupportedTrackFields.isNotEmpty) {
-          throw FormatException(
-            'Unrecognized Music track field "${unsupportedTrackFields.first}".',
-          );
-        }
-      }
-    }
-    final contributionRows = <Map<String, dynamic>>[];
-    for (final role in const [
-      'composers',
-      'conductors',
-      'songwriters',
-      'producers',
-      'engineers',
-      'musicians',
-    ]) {
-      final values = _requiredMaps(
-        catalogPayload[role],
-        path: 'Music ${role.replaceAll('_', ' ')}',
-      );
-      final normalizedRole = _roleLabel(role);
-      final creditIds = <String>{};
-      final creditSequences = <int>{};
-      for (var index = 0; index < values.length; index++) {
-        final person = values[index];
-        final path = 'Music ${role.replaceAll('_', ' ')} credit ${index + 1}';
-        const roleCreditFields = {
-          'id',
-          'name',
-          'person_id',
-          'role_id',
-          'sequence',
-          'sort_name',
-          'image_url',
-          'instrument',
-        };
-        final unsupportedFields = person.keys.where(
-          (key) => !roleCreditFields.contains(key),
-        );
-        if (unsupportedFields.isNotEmpty) {
-          throw FormatException(
-            'Unrecognized $path field "${unsupportedFields.first}".',
-          );
-        }
-        final personId =
-            _requiredCatalogText(person['person_id'], '$path person_id');
-        final creditId = _requiredCatalogText(person['id'], '$path id');
-        final name = _requiredCatalogText(person['name'], '$path name');
-        final roleId = _optionalCatalogText(person['role_id'], '$path role_id');
-        final sortName =
-            _optionalCatalogText(person['sort_name'], '$path sort_name');
-        final imageUrl =
-            _optionalCatalogText(person['image_url'], '$path image_url');
-        final instrument =
-            _optionalCatalogText(person['instrument'], '$path instrument');
-        final sequence = person['sequence'];
-        if (sequence is! int ||
-            sequence < 1 ||
-            !creditIds.add(creditId) ||
-            !creditSequences.add(sequence)) {
-          throw FormatException(
-            '$path is missing canonical ordering fields.',
-          );
-        }
-        contributionRows.add({
-          'id': creditId,
-          'person_id': personId,
-          'role': normalizedRole,
-          'sequence': person['sequence'],
-          'name': name,
-          if (roleId != null) 'role_id': roleId,
-          if (sortName != null) 'sort_name': sortName,
-          if (instrument != null) 'instrument': instrument,
-          if (imageUrl != null) 'image_url': imageUrl,
-        });
-      }
-    }
-    for (final role in const ['choruses', 'compositions', 'orchestras']) {
-      final values = _requiredStrings(
-        catalogPayload[role],
-        path: 'Music ${role.replaceAll('_', ' ')}',
-      );
-      final normalizedRole = _roleLabel(role);
-      for (var index = 0; index < values.length; index++) {
-        final name = values[index];
-        contributionRows.add({
-          'id': '$id:$role:${index + 1}',
-          'person_id': name,
-          'role': normalizedRole,
-          'sequence': index + 1,
-          'name': name,
-        });
-      }
+      _optionalText(payload[field], 'Music Catalog Item $field');
     }
 
-    final localPayload = Map<String, dynamic>.from(catalogPayload)
-      ..remove('label')
-      ..remove('country')
-      ..removeWhere(
-        (key, _) => const {
-          'composers',
-          'conductors',
-          'songwriters',
-          'producers',
-          'engineers',
-          'musicians',
-          'choruses',
-          'compositions',
-          'orchestras',
-        }.contains(key),
-      )
-      ..['country_code'] = catalogPayload['country']
-      ..['publisher'] = catalogPayload['label']
-      ..['artist_credits'] = [
+    final artistCredits = _requiredMaps(
+      payload['artist_credits'],
+      path: 'Music artist credits',
+    );
+    final albumCredits =
+        _requiredMaps(payload['credits'], path: 'Music credits');
+    final discs = _requiredMaps(payload['discs'], path: 'Music discs');
+    _requiredStrings(payload['genres'], path: 'Music genres');
+    _requiredStrings(payload['extra'], path: 'Music extra');
+    _validatePartialDate(payload['original_release_date'],
+        'Music Catalog Item original_release_date');
+    _validatePartialDate(
+        payload['release_date'], 'Music Catalog Item release_date');
+    _validateArtistCredits(artistCredits);
+    final creditIds = <String>{};
+    _validateCredits(
+      albumCredits,
+      path: 'Music album credits',
+      sharedIds: creditIds,
+    );
+    _validateDiscs(discs, creditIds: creditIds);
+
+    final localPayload = <String, dynamic>{
+      'id': id,
+      'kind': 'music',
+      'revision': revision,
+      'title': payload['title'],
+      if (payload['sort_title'] != null) 'sort_title': payload['sort_title'],
+      if (payload['subtitle'] != null) 'subtitle': payload['subtitle'],
+      if (payload['artist'] != null) 'artist': payload['artist'],
+      if (payload['original_release_date'] != null)
+        'original_release_date': payload['original_release_date'],
+      if (payload['release_date'] != null)
+        'release_date': payload['release_date'],
+      if (payload['label'] != null) 'publisher': payload['label'],
+      if (payload['barcode'] != null) 'barcode': payload['barcode'],
+      if (payload['catalog_number'] != null)
+        'catalog_number': payload['catalog_number'],
+      'genres': payload['genres'],
+      if (payload['packaging'] != null) 'packaging': payload['packaging'],
+      if (payload['country'] != null) 'country_code': payload['country'],
+      'extra': payload['extra'],
+      if (payload['box_set'] != null) 'box_set': payload['box_set'],
+      'credits': albumCredits,
+      'artist_credits': [
         for (final credit in artistCredits)
           {
             'id': credit['id'],
@@ -556,130 +303,263 @@ final class MusicCatalogMapper {
             if (credit['join_phrase'] != null)
               'join_phrase': credit['join_phrase'],
           },
-      ]
-      ..['contributions'] = contributionRows
-      ..['discs'] = [
-        for (final disc in discs)
-          {
-            ...disc,
-            'disc_number': disc['disc_number'],
-            'tracks': _requiredMaps(
-              disc['tracks'],
-              path: 'Music disc ${disc['disc_number']} tracks',
-            ),
-          },
-      ];
+      ],
+      'external_links': _requiredMaps(
+        payload['external_links'],
+        path: 'Music external links',
+      ),
+      if (payload['cover_image_url'] != null)
+        'cover_image_url': payload['cover_image_url'],
+      if (payload['back_cover_image_url'] != null)
+        'back_cover_image_url': payload['back_cover_image_url'],
+      if (payload['thumbnail_image_url'] != null)
+        'thumbnail_image_url': payload['thumbnail_image_url'],
+      'discs': discs,
+    };
     return MusicAlbum.fromJson(localPayload);
   }
 
-  static String _roleLabel(String key) => switch (key) {
-        'composers' => 'Composer',
-        'conductors' => 'Conductor',
-        'songwriters' => 'Songwriter',
-        'producers' => 'Producer',
-        'engineers' => 'Engineer',
-        'musicians' => 'Musician',
-        'choruses' => 'Chorus',
-        'compositions' => 'Composition',
-        'orchestras' => 'Orchestra',
-        _ => key,
+  static void _validateArtistCredits(List<Map<String, dynamic>> credits) {
+    final ids = <String>{};
+    final sequences = <int>{};
+    for (var index = 0; index < credits.length; index++) {
+      final credit = credits[index];
+      const fields = {
+        'id',
+        'name',
+        'sort_name',
+        'artist_id',
+        'sequence',
+        'join_phrase',
       };
-}
-
-List<Map<String, Object?>> _peopleForRole(MusicAlbum album, String role) {
-  final values = <Map<String, Object?>>[];
-  for (final contribution in album.contributions) {
-    if (contribution.role.toLowerCase() != role.toLowerCase()) continue;
-    values.add({
-      'id': contribution.id.value,
-      'person_id': contribution.personId,
-      'name': contribution.displayName,
-      'sequence': contribution.sequence,
-      if (contribution.roleId != null) 'role_id': contribution.roleId,
-      if (contribution.sortName != null) 'sort_name': contribution.sortName,
-      if (contribution.instrument != null)
-        'instrument': contribution.instrument,
-      if (contribution.imageUrl != null) 'image_url': contribution.imageUrl,
-    });
-  }
-  return values;
-}
-
-List<String> _namesForRole(MusicAlbum album, String role) => [
-      for (final contribution in album.contributions)
-        if (contribution.role.toLowerCase() == role.toLowerCase())
-          contribution.displayName,
-    ];
-
-String? _text(Object? value) {
-  final text = value?.toString().trim();
-  return text == null || text.isEmpty ? null : text;
-}
-
-int? _int(Object? value) => value is int
-    ? value
-    : value is num
-        ? value.toInt()
-        : int.tryParse(value?.toString().trim() ?? '');
-
-List<Map<String, dynamic>> _maps(Object? value) => value is Iterable
-    ? [
-        for (final entry in value)
-          if (entry is Map) Map<String, dynamic>.from(entry)
-      ]
-    : const <Map<String, dynamic>>[];
-
-List<Map<String, dynamic>> _requiredMaps(
-  Object? value, {
-  required String path,
-}) {
-  if (value is! Iterable) {
-    throw FormatException('$path must be a list.');
-  }
-  final result = <Map<String, dynamic>>[];
-  var index = 0;
-  for (final entry in value) {
-    if (entry is! Map) {
-      throw FormatException('$path entry ${index + 1} must be an object.');
+      _assertFields(credit, fields, 'Music artist credit ${index + 1}');
+      final id = _requiredText(credit['id'], 'Music artist credit id');
+      _requiredText(credit['name'], 'Music artist credit name');
+      _optionalText(credit['sort_name'], 'Music artist credit sort_name');
+      _optionalText(credit['artist_id'], 'Music artist credit artist_id');
+      final joinPhrase = credit['join_phrase'];
+      if (joinPhrase != null && joinPhrase is! String) {
+        throw const FormatException(
+          'Music artist credit join_phrase must be text or null.',
+        );
+      }
+      final sequence = credit['sequence'];
+      if (sequence is! int ||
+          sequence < 1 ||
+          !ids.add(id) ||
+          !sequences.add(sequence)) {
+        throw const FormatException(
+            'Music artist credits require unique IDs and sequences.');
+      }
     }
-    result.add(Map<String, dynamic>.from(entry));
-    index++;
   }
-  return result;
+
+  static void _validateCredits(
+    List<Map<String, dynamic>> credits, {
+    required String path,
+    Set<String>? sharedIds,
+  }) {
+    final ids = sharedIds ?? <String>{};
+    final sequences = <int>{};
+    for (var index = 0; index < credits.length; index++) {
+      final credit = credits[index];
+      _assertFields(credit, creditFields, '$path ${index + 1}');
+      final id = _requiredText(credit['id'], '$path id');
+      _optionalText(credit['contributor_id'], '$path contributor_id');
+      _requiredText(credit['name'], '$path name');
+      _optionalText(credit['sort_name'], '$path sort_name');
+      _requiredText(credit['role'], '$path role');
+      _optionalText(credit['role_id'], '$path role_id');
+      _requiredStrings(credit['instruments'], path: '$path instruments');
+      final sequence = credit['sequence'];
+      if (sequence is! int ||
+          sequence < 1 ||
+          !ids.add(id) ||
+          !sequences.add(sequence)) {
+        throw FormatException('$path require unique IDs and sequences.');
+      }
+    }
+  }
+
+  static void _validateDiscs(
+    List<Map<String, dynamic>> discs, {
+    required Set<String> creditIds,
+  }) {
+    final discIds = <String>{};
+    final trackIds = <String>{};
+    var previousDiscNumber = 0;
+    const families = {'vinyl', 'opticalDisc', 'tape', 'digital', 'other'};
+    for (var discIndex = 0; discIndex < discs.length; discIndex++) {
+      final disc = discs[discIndex];
+      final path = 'Music disc ${discIndex + 1}';
+      _assertFields(disc, discFields, path);
+      final id = _requiredText(disc['id'], '$path id');
+      final number = disc['disc_number'];
+      if (number is! int || number <= previousDiscNumber || !discIds.add(id)) {
+        throw const FormatException(
+            'Music disc IDs and numbers must be unique and ordered.');
+      }
+      previousDiscNumber = number;
+      for (final field in const [
+        'title',
+        'format',
+        'color',
+        'rpm',
+        'spars_code',
+        'matrix_number',
+        'matrix_number_side_a',
+        'matrix_number_side_b',
+      ]) {
+        _optionalText(disc[field], '$path $field');
+      }
+      final family = disc['format_family'];
+      if (family != null && !families.contains(family)) {
+        throw FormatException('$path has an unrecognized format_family.');
+      }
+      final weight = disc['vinyl_weight_grams'];
+      if (weight != null && (weight is! int || weight <= 0)) {
+        throw FormatException('$path vinyl_weight_grams must be positive.');
+      }
+      _requiredStrings(disc['sound_types'], path: '$path sound_types');
+      _requiredStrings(
+        disc['recording_locations'],
+        path: '$path recording_locations',
+      );
+      _validatePartialDate(disc['recording_date'], '$path recording_date');
+      if (disc['is_live'] != null && disc['is_live'] is! bool) {
+        throw FormatException('$path is_live must be boolean or null.');
+      }
+      _validateCredits(
+        _requiredMaps(disc['credits'], path: '$path credits'),
+        path: '$path credits',
+        sharedIds: creditIds,
+      );
+      final tracks = _requiredMaps(disc['tracks'], path: '$path tracks');
+      var previousTrackOrder = -1;
+      for (var trackIndex = 0; trackIndex < tracks.length; trackIndex++) {
+        final track = tracks[trackIndex];
+        final trackPath = '$path track ${trackIndex + 1}';
+        _assertFields(track, trackFields, trackPath);
+        final trackId = _requiredText(track['id'], '$trackPath id');
+        final order = track['position_order'];
+        final position = track['position'];
+        final title = track['title'];
+        final isHeader = track['is_header'] == true;
+        if (!trackIds.add(trackId) ||
+            order is! int ||
+            order <= previousTrackOrder ||
+            position is! String ||
+            position != position.trim() ||
+            (isHeader && position.isNotEmpty) ||
+            (!isHeader && position.isEmpty) ||
+            title is! String ||
+            title.isEmpty ||
+            title != title.trim() ||
+            track['is_header'] is! bool ||
+            track['indent_level'] is! int ||
+            (track['indent_level'] as int) < 0 ||
+            (track['indent_level'] as int) > 8 ||
+            (track['duration_ms'] != null &&
+                (track['duration_ms'] is! int ||
+                    (track['duration_ms'] as int) < 0)) ||
+            (isHeader &&
+                (track['artist'] != null ||
+                    track['composition'] != null ||
+                    track['duration_ms'] != null))) {
+          throw FormatException(
+              '$trackPath has invalid identity or ordering fields.');
+        }
+        previousTrackOrder = order;
+        _optionalText(track['artist'], '$trackPath artist');
+        _optionalText(track['composition'], '$trackPath composition');
+        _optionalText(track['parent_header_id'], '$trackPath parent_header_id');
+      }
+    }
+  }
+
+  static void _validatePartialDate(Object? value, String path) {
+    if (value == null) return;
+    if (value is! Map) {
+      throw FormatException('$path must be a PartialDate object.');
+    }
+    final fields = Map<Object?, Object?>.from(value);
+    if (fields.isEmpty ||
+        fields.keys.any((key) => !{'year', 'month', 'day'}.contains(key)) ||
+        fields.values.any((part) => part != null && part is! int) ||
+        !fields.values.any((part) => part is int)) {
+      throw FormatException('$path must be a PartialDate object.');
+    }
+    final yearValue = fields['year'];
+    final monthValue = fields['month'];
+    final dayValue = fields['day'];
+    final year = yearValue is int ? yearValue : null;
+    final month = monthValue is int ? monthValue : null;
+    final day = dayValue is int ? dayValue : null;
+    if ((yearValue != null && (year == null || year < 1 || year > 9999)) ||
+        (monthValue != null && (month == null || month < 1 || month > 12)) ||
+        (dayValue != null && (day == null || day < 1 || day > 31)) ||
+        (day != null && month == null) ||
+        (month != null && year == null)) {
+      throw FormatException('$path contains invalid PartialDate values.');
+    }
+    if (year != null && month != null && day != null) {
+      final parsed = DateTime.tryParse(
+        '${year.toString().padLeft(4, '0')}-${month.toString().padLeft(2, '0')}-${day.toString().padLeft(2, '0')}',
+      );
+      if (parsed == null ||
+          parsed.year != year ||
+          parsed.month != month ||
+          parsed.day != day) {
+        throw FormatException('$path contains an invalid calendar date.');
+      }
+    }
+  }
+
+  static void _assertFields(
+    Map<String, dynamic> value,
+    Set<String> allowed,
+    String path,
+  ) {
+    final unsupported = value.keys.where((key) => !allowed.contains(key));
+    if (unsupported.isNotEmpty) {
+      throw FormatException('Unrecognized $path field "${unsupported.first}".');
+    }
+  }
+}
+
+List<Map<String, dynamic>> _requiredMaps(Object? value,
+    {required String path}) {
+  if (value is! List) throw FormatException('$path must be a list.');
+  return [
+    for (final (index, entry) in value.indexed)
+      if (entry is Map)
+        Map<String, dynamic>.from(entry)
+      else
+        throw FormatException('$path entry ${index + 1} must be an object.'),
+  ];
 }
 
 List<String> _requiredStrings(Object? value, {required String path}) {
-  if (value is! Iterable) {
-    throw FormatException('$path must be a list.');
+  if (value is! List || value.any((entry) => entry is! String)) {
+    throw FormatException('$path must be a list of strings.');
   }
-  final result = <String>[];
-  var index = 0;
-  for (final entry in value) {
-    if (entry is! String || entry.isEmpty || entry != entry.trim()) {
-      throw FormatException('$path entry ${index + 1} must be non-empty text.');
-    }
-    result.add(entry);
-    index++;
-  }
-  return result;
+  return [
+    for (final (index, entry) in value.cast<String>().indexed)
+      if (entry.isNotEmpty && entry == entry.trim())
+        entry
+      else
+        throw FormatException('$path entry ${index + 1} must be trimmed text.'),
+  ];
 }
 
-String _requiredCatalogText(Object? value, String path) {
+String _requiredText(Object? value, String path) {
   if (value is! String || value.isEmpty || value != value.trim()) {
     throw FormatException('$path must be non-empty trimmed text.');
   }
   return value;
 }
 
-String? _optionalCatalogText(Object? value, String path) {
+String? _optionalText(Object? value, String path) {
   if (value == null) return null;
-  return _requiredCatalogText(value, path);
-}
-
-String? _optionalCatalogString(Object? value, String path) {
-  if (value == null) return null;
-  if (value is! String) {
-    throw FormatException('$path must be text or null.');
-  }
-  return value;
+  return _requiredText(value, path);
 }

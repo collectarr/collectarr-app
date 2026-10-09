@@ -1,8 +1,10 @@
 import 'package:collectarr_app/core/models/partial_date.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_album_relations.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_album.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_artist_credit.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_credit.dart';
 
-/// Flutter independent values for one concrete pressing or edition.
+/// Flutter-independent form values for album-level edition metadata.
+/// Recording properties belong to [MusicDisc] and are edited per disc.
 final class MusicAlbumFormValues {
   MusicAlbumFormValues({
     this.title = '',
@@ -11,9 +13,6 @@ final class MusicAlbumFormValues {
     this.artist = '',
     List<MusicArtistCredit> artistCredits = const [],
     this.originalReleaseDateParts,
-    this.recordingDateParts,
-    List<String> studios = const [],
-    this.isLive,
     List<String> genres = const [],
     this.releaseDateParts,
     this.publisher = '',
@@ -21,15 +20,15 @@ final class MusicAlbumFormValues {
     this.barcode = '',
     this.catalogNumber = '',
     this.packaging = '',
-    this.sparsCode = '',
     List<String> extra = const [],
     this.boxSet = '',
     this.coverImageUrl = '',
     this.backCoverImageUrl = '',
-  })  : studios = List.of(studios),
+    List<MusicCredit> credits = const [],
+  })  : artistCredits = List.of(artistCredits),
         genres = List.of(genres),
         extra = List.of(extra),
-        artistCredits = List.of(artistCredits);
+        credits = List.of(credits);
 
   factory MusicAlbumFormValues.fromAlbum(MusicAlbum album) =>
       MusicAlbumFormValues(
@@ -37,11 +36,8 @@ final class MusicAlbumFormValues {
         sortTitle: album.sortTitle ?? '',
         subtitle: album.subtitle ?? '',
         artist: album.artist ?? '',
-        artistCredits: List.of(album.artistCredits),
+        artistCredits: album.artistCredits,
         originalReleaseDateParts: album.originalReleaseDateParts,
-        recordingDateParts: album.recordingDateParts,
-        studios: album.studios,
-        isLive: album.isLive,
         genres: album.genres,
         releaseDateParts: album.releaseDateParts,
         publisher: album.publisher ?? '',
@@ -49,11 +45,11 @@ final class MusicAlbumFormValues {
         barcode: album.barcode ?? '',
         catalogNumber: album.catalogNumber ?? '',
         packaging: album.packaging ?? '',
-        sparsCode: album.sparsCode ?? '',
         extra: album.extra,
         boxSet: album.boxSet ?? '',
         coverImageUrl: album.coverImageUrl ?? '',
         backCoverImageUrl: album.backCoverImageUrl ?? '',
+        credits: album.credits,
       );
 
   String title;
@@ -62,9 +58,6 @@ final class MusicAlbumFormValues {
   String artist;
   List<MusicArtistCredit> artistCredits;
   PartialDate? originalReleaseDateParts;
-  PartialDate? recordingDateParts;
-  List<String> studios;
-  bool? isLive;
   List<String> genres;
   PartialDate? releaseDateParts;
   String publisher;
@@ -72,9 +65,9 @@ final class MusicAlbumFormValues {
   String barcode;
   String catalogNumber;
   String packaging;
-  String sparsCode;
   List<String> extra;
   String boxSet;
   String coverImageUrl;
   String backCoverImageUrl;
+  List<MusicCredit> credits;
 }

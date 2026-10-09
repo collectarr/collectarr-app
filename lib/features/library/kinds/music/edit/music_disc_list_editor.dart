@@ -1,4 +1,6 @@
 import 'package:uuid/uuid.dart';
+import 'package:collectarr_app/core/models/partial_date.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_credit.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_disc.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_disc_format_family.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_ids.dart';
@@ -26,10 +28,8 @@ final class MusicDiscListEditor {
         1;
     final defaultFormat =
         format ?? (discs.isNotEmpty ? discs.first.format : null);
-    final defaultFamily = formatFamily ??
-        (discs.isNotEmpty
-            ? discs.first.formatFamily
-            : MusicDiscFormatFamily.fromFormatName(defaultFormat));
+    final defaultFamily =
+        formatFamily ?? (discs.isNotEmpty ? discs.first.formatFamily : null);
     discs.add(
       MusicDisc(
         id: MusicDiscId(const Uuid().v4()),
@@ -83,12 +83,13 @@ final class MusicDiscListEditor {
     MusicDiscId discId,
     String? format, {
     MusicDiscFormatFamily? formatFamily,
+    bool clearFormatFamily = false,
   }) {
     final index = discs.indexWhere((disc) => disc.id == discId);
     if (index < 0) return;
     final resolvedFormat = _text(format);
     final resolvedFamily =
-        formatFamily ?? MusicDiscFormatFamily.fromFormatName(resolvedFormat);
+        clearFormatFamily ? null : formatFamily ?? discs[index].formatFamily;
     discs[index] = copyMusicDisc(
       discs[index],
       format: resolvedFormat,
@@ -119,6 +120,55 @@ final class MusicDiscListEditor {
       soundTypes: soundTypes,
       replaceSoundTypes: true,
     );
+  }
+
+  void updateDiscRecordingDate(MusicDiscId discId, PartialDate? value) {
+    final index = discs.indexWhere((disc) => disc.id == discId);
+    if (index < 0) return;
+    discs[index] = copyMusicDisc(
+      discs[index],
+      recordingDate: value,
+      replaceRecordingDate: true,
+    );
+  }
+
+  void updateDiscRecordingLocations(
+    MusicDiscId discId,
+    List<String> recordingLocations,
+  ) {
+    final index = discs.indexWhere((disc) => disc.id == discId);
+    if (index < 0) return;
+    discs[index] = copyMusicDisc(
+      discs[index],
+      recordingLocations: recordingLocations,
+      replaceRecordingLocations: true,
+    );
+  }
+
+  void updateDiscIsLive(MusicDiscId discId, bool? value) {
+    final index = discs.indexWhere((disc) => disc.id == discId);
+    if (index < 0) return;
+    discs[index] = copyMusicDisc(
+      discs[index],
+      isLive: value,
+      replaceIsLive: true,
+    );
+  }
+
+  void updateDiscSparsCode(MusicDiscId discId, String? value) {
+    final index = discs.indexWhere((disc) => disc.id == discId);
+    if (index < 0) return;
+    discs[index] = copyMusicDisc(
+      discs[index],
+      sparsCode: _text(value),
+      replaceSparsCode: true,
+    );
+  }
+
+  void updateDiscCredits(MusicDiscId discId, List<MusicCredit> credits) {
+    final index = discs.indexWhere((disc) => disc.id == discId);
+    if (index < 0) return;
+    discs[index] = copyMusicDisc(discs[index], credits: credits);
   }
 
   void updateDiscColor(MusicDiscId discId, String? color) {

@@ -1,4 +1,5 @@
 import 'package:uuid/uuid.dart';
+import 'package:collectarr_app/core/models/partial_date.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_disc_format_family.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_track_duration.dart';
 
@@ -6,26 +7,35 @@ import 'package:collectarr_app/features/library/kinds/music/domain/music_track_d
 ///
 /// These drafts contain disc and track data for the selected concrete Music
 /// Catalog Item. Their sequence in the parent list defines catalog order.
-final class MusicAddManualNamedCredit {
-  MusicAddManualNamedCredit({
+final class MusicAddManualCredit {
+  MusicAddManualCredit({
     String? id,
     this.name = '',
     this.sortName = '',
-    this.instrument = '',
-  }) : id = id ?? _nextId('credit');
+    this.contributorId,
+    this.role = '',
+    List<String> instruments = const [],
+    this.discId,
+  })  : id = id ?? _nextId('credit'),
+        instruments = List.of(instruments);
 
   final String id;
   String name;
   String sortName;
-  String instrument;
+  String? contributorId;
+  String role;
+  List<String> instruments;
+  String? discId;
 
   Map<String, Object?> toCatalogData({required int sequence}) => {
         'id': id,
-        'person_id': id,
         'name': name.trim(),
+        'role': role.trim(),
         'sequence': sequence,
+        'instruments': List<String>.of(instruments),
+        if (contributorId?.trim().isNotEmpty == true)
+          'contributor_id': contributorId!.trim(),
         if (sortName.trim().isNotEmpty) 'sort_name': sortName.trim(),
-        if (instrument.trim().isNotEmpty) 'instrument': instrument.trim(),
       };
 }
 
@@ -36,6 +46,10 @@ final class MusicAddManualDisc {
     this.formatFamily,
     this.format = '',
     List<String> soundTypes = const [],
+    this.recordingDate,
+    List<String> recordingLocations = const [],
+    this.isLive,
+    this.sparsCode = '',
     this.color = '',
     this.vinylWeightGrams,
     this.rpm,
@@ -45,6 +59,7 @@ final class MusicAddManualDisc {
     List<MusicAddManualTrack> tracks = const [],
   })  : id = id ?? const Uuid().v4(),
         soundTypes = List.of(soundTypes),
+        recordingLocations = List.of(recordingLocations),
         tracks = List.of(tracks);
 
   final String id;
@@ -52,6 +67,10 @@ final class MusicAddManualDisc {
   MusicDiscFormatFamily? formatFamily;
   String format;
   List<String> soundTypes;
+  PartialDate? recordingDate;
+  List<String> recordingLocations;
+  bool? isLive;
+  String sparsCode;
   String color;
   int? vinylWeightGrams;
   String? rpm;
@@ -60,13 +79,25 @@ final class MusicAddManualDisc {
   String matrixNumberSideB;
   final List<MusicAddManualTrack> tracks;
 
-  Map<String, Object?> toProposalData(int discNumber) => {
+  Map<String, Object?> toProposalData(
+    int discNumber, {
+    Iterable<MusicAddManualCredit> credits = const [],
+  }) =>
+      {
         'id': id,
         'disc_number': discNumber,
         if (title.trim().isNotEmpty) 'title': title.trim(),
         if (formatFamily != null) 'format_family': formatFamily!.value,
         if (format.trim().isNotEmpty) 'format': format.trim(),
         'sound_types': List<String>.of(soundTypes),
+        if (recordingDate != null) 'recording_date': recordingDate!.toJson(),
+        'recording_locations': List<String>.of(recordingLocations),
+        if (isLive != null) 'is_live': isLive,
+        if (sparsCode.trim().isNotEmpty) 'spars_code': sparsCode.trim(),
+        'credits': [
+          for (final (index, credit) in credits.indexed)
+            credit.toCatalogData(sequence: index + 1),
+        ],
         if (color.trim().isNotEmpty) 'color': color.trim(),
         if (vinylWeightGrams != null) 'vinyl_weight_grams': vinylWeightGrams,
         if (rpm != null && rpm!.trim().isNotEmpty) 'rpm': rpm!.trim(),
@@ -93,12 +124,14 @@ final class MusicAddManualTrack {
     this.parentHeaderId,
     this.title = '',
     this.artist = '',
+    this.composition = '',
     this.duration = '',
   }) : id = id ?? const Uuid().v4();
 
   final String id;
   String title;
   String artist;
+  String composition;
   String duration;
   String position;
   bool isHeader;
@@ -118,6 +151,8 @@ final class MusicAddManualTrack {
         'indent_level': indentLevel,
         if (parentHeaderId != null) 'parent_header_id': parentHeaderId,
         if (!isHeader && artist.trim().isNotEmpty) 'artist': artist.trim(),
+        if (!isHeader && composition.trim().isNotEmpty)
+          'composition': composition.trim(),
         if (!isHeader)
           if (parseMusicTrackDurationMs(duration) case final durationMs?)
             'duration_ms': durationMs,

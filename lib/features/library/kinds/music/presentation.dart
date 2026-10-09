@@ -153,12 +153,15 @@ final musicLibraryFilterDefinitions = <LibraryFilterDefinition<Object?>>[
           : const <String>[],
     ),
   LibraryFilterDefinition<Object?>(
-    metadata: MusicWorkspaceFieldMetadata.studios,
-    id: 'studios',
-    label: 'Studio',
-    anyLabel: 'Any studio',
+    metadata: MusicWorkspaceFieldMetadata.recordingLocations,
+    id: 'recording_location',
+    label: 'Recording Location',
+    anyLabel: 'Any recording location',
     value: (item) => (item.dto is MusicWorkspaceProjection)
-        ? (item.dto as MusicWorkspaceProjection).music.studios
+        ? (item.dto as MusicWorkspaceProjection)
+            .music
+            .discs
+            .expand((disc) => disc.recordingLocations)
         : null,
   ),
   LibraryFilterDefinition<Object?>(
@@ -167,9 +170,11 @@ final musicLibraryFilterDefinitions = <LibraryFilterDefinition<Object?>>[
     label: 'Live recording',
     anyLabel: 'Any live status',
     value: (item) => (item.dto is MusicWorkspaceProjection)
-        ? (item.dto as MusicWorkspaceProjection).isLive == true
-            ? 'Yes'
-            : 'No'
+        ? (item.dto as MusicWorkspaceProjection)
+            .music
+            .discs
+            .where((disc) => disc.isLive != null)
+            .map((disc) => disc.isLive! ? 'Yes' : 'No')
         : null,
   ),
   LibraryFilterDefinition<Object?>(
@@ -190,7 +195,11 @@ final musicLibraryFilterDefinitions = <LibraryFilterDefinition<Object?>>[
     label: 'SPARS',
     anyLabel: 'Any SPARS code',
     value: (item) => (item.dto is MusicWorkspaceProjection)
-        ? (item.dto as MusicWorkspaceProjection).music.sparsCode
+        ? (item.dto as MusicWorkspaceProjection)
+            .music
+            .discs
+            .map((disc) => disc.sparsCode)
+            .whereType<String>()
         : null,
   ),
   LibraryFilterDefinition<Object?>(
@@ -225,9 +234,9 @@ final musicLibraryFilterDefinitions = <LibraryFilterDefinition<Object?>>[
     value: (item) => (item.dto is MusicWorkspaceProjection)
         ? (item.dto as MusicWorkspaceProjection)
             .music
-            .recordingDate
-            ?.year
-            .toString()
+            .discs
+            .map((disc) => disc.recordingDate?.year?.toString())
+            .whereType<String>()
         : null,
   ),
   LibraryFilterDefinition<Object?>(

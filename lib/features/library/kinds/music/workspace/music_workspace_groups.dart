@@ -157,7 +157,7 @@ enum MusicGroupingField {
         packaging => MusicVocabularyIds.packaging,
         sound => MusicVocabularyIds.soundType,
         storage => MusicVocabularyIds.storageDevice,
-        studio => MusicVocabularyIds.studio,
+        studio => MusicVocabularyIds.recordingLocation,
         vinylColor => MusicVocabularyIds.vinylColor,
         signedBy => MusicVocabularyIds.signedBy,
         chorus ||
@@ -169,7 +169,7 @@ enum MusicGroupingField {
         musician ||
         producer ||
         songwriter =>
-          MusicVocabularyIds.creditNames(name),
+          MusicVocabularyIds.contributorName,
         _ => null,
       };
 }
@@ -216,9 +216,13 @@ Object? _groupValue(MusicGroupingField field,
     for (final image in context.personal.images)
       MusicAlbumImage.imageTypeFromStorageValue(image.imageType),
   };
-  Iterable<String?> names(String role) => album.contributions
+  final allCredits = [
+    ...album.credits,
+    ...album.discs.expand((disc) => disc.credits),
+  ];
+  Iterable<String?> names(String role) => allCredits
       .where((credit) => credit.role.toLowerCase() == role)
-      .map((credit) => credit.displayName);
+      .map((credit) => credit.name);
   final purchase =
       personal?.purchaseDateParts ?? _parts(personal?.purchaseDate);
   final cleaned = personal?.details.lastCleanedDateParts ??
@@ -242,9 +246,14 @@ Object? _groupValue(MusicGroupingField field,
       _month(album.originalReleaseDateParts),
     MusicGroupingField.originalReleaseYear =>
       album.originalReleaseDateParts?.year,
-    MusicGroupingField.recordingDate => album.recordingDateParts?.isoString,
-    MusicGroupingField.recordingMonth => _month(album.recordingDateParts),
-    MusicGroupingField.recordingYear => album.recordingDateParts?.year,
+    MusicGroupingField.recordingDate => album.discs
+        .map((disc) => disc.recordingDate?.isoString)
+        .whereType<String>(),
+    MusicGroupingField.recordingMonth =>
+      album.discs.map((disc) => _month(disc.recordingDate)).whereType<String>(),
+    MusicGroupingField.recordingYear => album.discs
+        .map((disc) => disc.recordingDate?.year?.toString())
+        .whereType<String>(),
     MusicGroupingField.releaseDate => album.releaseDateParts?.isoString,
     MusicGroupingField.releaseMonth => _month(album.releaseDateParts),
     MusicGroupingField.releaseYear => album.releaseDateParts?.year,
@@ -252,18 +261,22 @@ Object? _groupValue(MusicGroupingField field,
     MusicGroupingField.country => album.countryCode,
     MusicGroupingField.extra => album.extra,
     MusicGroupingField.instrument =>
-      album.contributions.expand((credit) => _split(credit.instrument)),
-    MusicGroupingField.isLive => _yesNo(album.isLive == true),
+      allCredits.expand((credit) => credit.instruments),
+    MusicGroupingField.isLive => album.discs
+        .where((disc) => disc.isLive != null)
+        .map((disc) => _yesNo(disc.isLive == true)),
     MusicGroupingField.mediaCondition => personal?.mediaCondition,
     MusicGroupingField.condition => personal?.condition,
     MusicGroupingField.packaging => album.packaging,
     MusicGroupingField.rpm =>
       album.discs.map((disc) => disc.rpm).whereType<String>(),
-    MusicGroupingField.spars => album.sparsCode,
+    MusicGroupingField.spars =>
+      album.discs.map((disc) => disc.sparsCode).whereType<String>(),
     MusicGroupingField.sound => album.discs.expand((disc) => disc.soundTypes),
     MusicGroupingField.storage =>
       personal?.details.media.map((disc) => disc.storageDevice),
-    MusicGroupingField.studio => album.studios,
+    MusicGroupingField.studio =>
+      album.discs.expand((disc) => disc.recordingLocations),
     MusicGroupingField.vinylColor =>
       album.discs.map((disc) => disc.color).whereType<String>(),
     MusicGroupingField.chorus => names('chorus'),

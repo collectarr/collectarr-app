@@ -38,7 +38,7 @@ void main() {
   });
 
   test('core field schema fixture parses into the app model', () {
-    expect(schema.schemaVersion, 1);
+    expect(schema.schemaVersion, 2);
     expect(schema.fields, isNotEmpty);
     expect(schema.sections, contains('item'));
     expect(schema.sections, isNot(contains('internal')));
@@ -81,7 +81,8 @@ void main() {
     expect(
       appKeys,
       equals(coreKeys),
-      reason: 'Diff: app-core=${appKeys.difference(coreKeys)}, core-app=${coreKeys.difference(appKeys)}',
+      reason:
+          'Diff: app-core=${appKeys.difference(coreKeys)}, core-app=${coreKeys.difference(appKeys)}',
     );
   });
 
@@ -106,8 +107,6 @@ void main() {
     // reorder the admin/edit panel.
     const expectedOrder = <SharedMetadataEditTab, List<String>>{
       SharedMetadataEditTab.item: [
-        'languages',
-        'original_language',
         'recommended_players',
         'best_players',
         'min_playtime_minutes',
@@ -123,8 +122,6 @@ void main() {
         'artist',
         'sort_title',
         'original_release_date',
-        'recording_date',
-        'studios',
         'title',
         'original_title',
         'localized_title',
@@ -150,7 +147,6 @@ void main() {
         'studio',
         'production_companies',
         'label',
-        'format',
         'packaging',
         'publisher',
         'subtitle',
@@ -166,18 +162,14 @@ void main() {
         'layers',
         'dimensions',
         'audio_length_minutes',
-        'is_live',
-        'sound_types',
-        'vinyl_color',
-        'vinyl_weight',
-        'rpm',
         'extra',
-        'spars',
         'box_set',
         'catalog_number',
         'release_status',
       ],
       SharedMetadataEditTab.regional: [
+        'languages',
+        'original_language',
         'region',
         'country',
         'language',

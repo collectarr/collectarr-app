@@ -93,8 +93,8 @@ void main() {
     await tester.ensureVisible(linksTab);
     await tester.tap(linksTab);
     await tester.pumpAndSettle();
-    expect(find.text('New Link'), findsOneWidget);
-    await tester.tap(find.text('New Link'));
+    expect(find.text('Add Link'), findsOneWidget);
+    await tester.tap(find.text('Add Link'));
     await tester.pumpAndSettle();
     expect(
       find.byWidgetPredicate(
@@ -123,12 +123,21 @@ void main() {
       mediaKind: CatalogMediaKind.music,
       kindData: const {
         'title': 'Dark Side of the Moon',
+        'revision': 1,
+        'artist_credits': <Map<String, Object?>>[],
+        'genres': <String>[],
+        'extra': <String>[],
+        'credits': <Map<String, Object?>>[],
+        'external_links': <Map<String, Object?>>[],
         'discs': [
           {
             'id': 'd-1',
             'disc_number': 1,
             'format': 'Vinyl (12" LP)',
             'format_family': 'vinyl',
+            'sound_types': <String>[],
+            'recording_locations': <String>[],
+            'credits': <Map<String, Object?>>[],
             'tracks': [],
           },
         ],

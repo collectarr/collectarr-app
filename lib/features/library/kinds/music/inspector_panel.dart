@@ -739,8 +739,7 @@ class _MusicDiscDetailsCard extends StatelessWidget {
       if (disc.format?.trim().isNotEmpty == true)
         ('Format', disc.format!.trim()),
       if (disc.soundTypes.isNotEmpty) ('Sound', disc.soundTypes.join(', ')),
-      if (disc.color?.trim().isNotEmpty == true)
-        ('Color', disc.color!.trim()),
+      if (disc.color?.trim().isNotEmpty == true) ('Color', disc.color!.trim()),
       if (disc.vinylWeightGrams != null)
         ('Weight', '${disc.vinylWeightGrams} g'),
       if (disc.rpm != null) ('RPM', disc.rpm!),
@@ -967,8 +966,12 @@ class _MusicProductDetails extends StatelessWidget {
         ('Country', country),
       if (release.boxSet?.trim().isNotEmpty == true)
         ('Box Set', release.boxSet!),
-      if (release.sparsCode?.trim().isNotEmpty == true)
-        ('SPARS Code', release.sparsCode!),
+      for (final value in release.discs
+          .map((disc) => disc.sparsCode)
+          .whereType<String>()
+          .where((value) => value.trim().isNotEmpty)
+          .toSet())
+        ('SPARS Code', value),
       if (release.localCoverImagePath?.trim().isNotEmpty == true)
         ('Local cover', release.localCoverImagePath!),
       if (release.localBackImagePath?.trim().isNotEmpty == true)
@@ -1059,9 +1062,18 @@ class _MusicInspectorCredits extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final release = _musicModel(inspector.item).music;
-    final contributions = release.contributions;
+    final credits = [
+      for (final credit in release.credits)
+        {...credit.toJson(), 'name': '${credit.name} (Album)'},
+      for (final disc in release.discs)
+        for (final credit in disc.credits)
+          {
+            ...credit.toJson(),
+            'name': '${credit.name} (Disc ${disc.discNumber})'
+          },
+    ];
     final creditRows = libraryCreatorsGroupedByRole([
-      for (final contribution in contributions) contribution.toJson(),
+      ...credits,
     ]);
     if (creditRows.isEmpty) {
       return Text(

@@ -3,7 +3,7 @@ import 'dart:io';
 
 import 'package:crypto/crypto.dart';
 
-const _contractPath = 'tool/core_contracts/music-catalog-v1.json';
+const _contractPath = 'tool/core_contracts/music-catalog-v2.json';
 const _manifestPath = 'tool/core_contracts/contract-manifest.json';
 const _mapperPath =
     'lib/features/library/kinds/music/catalog/music_catalog_mapper.dart';
@@ -12,7 +12,7 @@ Future<void> main() async {
   final contractBytes = await File(_contractPath).readAsBytes();
   final actualHash = sha256.convert(contractBytes).toString();
   final manifest = _readJson(_manifestPath);
-  if (manifest['musicCatalogHash'] != actualHash) {
+  if (manifest['musicCatalogV2Hash'] != actualHash) {
     throw StateError(
       'The pinned Music contract hash does not match its manifest.',
     );
@@ -34,6 +34,12 @@ Future<void> main() async {
     mapper,
     schemaName: 'CatalogMusicDiscResponse',
     allowlistName: 'discFields',
+  );
+  _assertContractFieldsMatchMapper(
+    definitions,
+    mapper,
+    schemaName: 'CatalogMusicCreditResponse',
+    allowlistName: 'creditFields',
   );
   _assertContractFieldsMatchMapper(
     definitions,

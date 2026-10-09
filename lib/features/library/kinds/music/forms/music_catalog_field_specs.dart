@@ -5,11 +5,11 @@ import 'package:collectarr_app/features/library/kinds/music/forms/music_title_fo
 import 'package:collectarr_app/features/library/config/library_dialog_tokens.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_ordered_names_field.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_form_controls.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_album_relations.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit/music_album_edit_draft.dart';
 import 'dart:async';
 
 import 'package:collectarr_app/features/library/kinds/music/forms/music_album_form_values.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_artist_credit.dart';
 import 'package:collectarr_app/features/library/kinds/music/music_country_name.dart';
 import 'package:collectarr_app/features/library/kinds/music/vocabulary/music_vocabularies.dart';
 import 'package:collectarr_app/features/library/forms/library_field_spec.dart';
@@ -35,7 +35,6 @@ List<LibraryFieldSpec<TDraft>> musicAlbumFields<TDraft>({
   Iterable<String>? countryOptions,
   Iterable<String>? recordLabelOptions,
   Iterable<String>? packagingOptions,
-  Iterable<String>? studioOptions,
   Iterable<String>? soundTypeOptions,
   FutureOr<void> Function()? onManageFormat,
   FutureOr<void> Function()? onManageCountry,
@@ -94,20 +93,11 @@ List<LibraryFieldSpec<TDraft>> musicAlbumFields<TDraft>({
             onChanged: (names) => refresh(() {
               form.artistCredits = [
                 for (var index = 0; index < names.length; index++)
-                  MusicArtistCredit(
-                    id: names[index].id,
-                    creditedName: names[index].name,
-                    sortName: names[index].sortName,
-                    artistId: credits
-                        .where((c) => c.id == names[index].id)
-                        .firstOrNull
-                        ?.artistId,
-                    joinPhrase: credits
-                        .where((c) => c.id == names[index].id)
-                        .firstOrNull
-                        ?.joinPhrase,
+                  _artistCreditFromSelection(
+                    names[index],
+                    credits,
                     sequence: index + 1,
-                  )
+                  ),
               ];
               form.artist = names
                   .map((value) => value.name.trim())
@@ -123,44 +113,6 @@ List<LibraryFieldSpec<TDraft>> musicAlbumFields<TDraft>({
         value: (draft) => values(draft).originalReleaseDateParts,
         setValue: (draft, value) =>
             values(draft).originalReleaseDateParts = value,
-      ),
-      LibraryPartialDateFieldSpec<TDraft>(
-        id: 'recording_date',
-        label: 'Recording Date',
-        value: (draft) => values(draft).recordingDateParts,
-        setValue: (draft, value) => values(draft).recordingDateParts = value,
-      ),
-      LibraryCustomFieldSpec<TDraft>(
-        id: 'studios',
-        label: 'Studio',
-        builder: (context, draft) => StatefulBuilder(
-            builder: (context, refresh) => LibraryOrderedPickListField(
-                  label: 'Studio',
-                  listName: MusicVocabularyIds.studio.value,
-                  mediaKind: 'music',
-                  options: [...?studioOptions],
-                  loadOptions: (db) => MusicVocabularies.nameOptions(
-                      db, MusicVocabularyIds.studio.value),
-                  values: [
-                    for (final studio in values(draft).studios)
-                      LibraryNamedValue(id: studio, name: studio)
-                  ],
-                  onChanged: (names) => refresh(() => values(draft).studios =
-                      names.map((value) => value.name).toList()),
-                )),
-      ),
-      LibraryCustomFieldSpec<TDraft>(
-        id: 'is_live',
-        label: 'Is Live',
-        builder: (context, draft) => StatefulBuilder(
-            builder: (context, refresh) => LibraryFormField(
-                  label: 'Is Live',
-                  child: LibrarySegmentedField<bool>(
-                      value: values(draft).isLive ?? false,
-                      options: const {false: 'No', true: 'Yes'},
-                      onChanged: (value) =>
-                          refresh(() => values(draft).isLive = value)),
-                )),
       ),
       LibraryMultiVocabularyFieldSpec<TDraft, String>(
         id: MusicFieldIdentities.genreId,
@@ -274,14 +226,6 @@ List<LibraryFieldSpec<TDraft>> musicAlbumFields<TDraft>({
             values(draft).extra = List.of(valuesSet),
       ),
       LibraryVocabularyFieldSpec<TDraft, String>(
-        id: 'spars_code',
-        label: 'SPARS Code',
-        value: (draft) => _nullable(values(draft).sparsCode),
-        setValue: (draft, value) => values(draft).sparsCode = value ?? '',
-        options: _options(MusicVocabularies.spars.builtIns),
-        pickListKey: MusicVocabularyIds.spars.value,
-      ),
-      LibraryVocabularyFieldSpec<TDraft, String>(
         id: MusicFieldIdentities.countryId,
         label: MusicFieldIdentities.countryLabel,
         value: (draft) => _nullable(values(draft).countryCode),
@@ -339,6 +283,23 @@ LibraryTextFieldSpec<TDraft> _text<TDraft>({
 String? _nullable(String value) {
   final normalized = value.trim();
   return normalized.isEmpty ? null : normalized;
+}
+
+MusicArtistCredit _artistCreditFromSelection(
+  LibraryNamedValue selected,
+  List<MusicArtistCredit> existing, {
+  required int sequence,
+}) {
+  final previous =
+      existing.where((credit) => credit.id == selected.id).firstOrNull;
+  return MusicArtistCredit(
+    id: selected.id,
+    creditedName: selected.name,
+    sortName: selected.sortName,
+    artistId: previous?.artistId,
+    joinPhrase: previous?.joinPhrase,
+    sequence: sequence,
+  );
 }
 
 List<LibraryFieldOption<String>> _options(Iterable<String> values) => [

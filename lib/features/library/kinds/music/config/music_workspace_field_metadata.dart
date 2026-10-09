@@ -248,7 +248,7 @@ abstract final class MusicWorkspaceFieldMetadata {
     spars,
     status,
     storage,
-    studios,
+    recordingLocations,
     trackCount,
     updatedAt,
     vinylColor,
@@ -257,12 +257,12 @@ abstract final class MusicWorkspaceFieldMetadata {
   ];
 
   static const isLive = LibraryKindFieldMetadata(
-    id: 'music.is_live',
-    label: 'Live recording',
+    id: 'music.disc.is_live',
+    label: 'Disc Live / Studio',
     valueType: LibraryFieldValueType.boolean,
-    cardinality: LibraryFieldCardinality.one,
+    cardinality: LibraryFieldCardinality.many,
     source: LibraryFieldSource.catalog,
-    sourcePath: 'is_live',
+    sourcePath: 'discs[].is_live',
     filterable: true,
   );
 
@@ -277,12 +277,12 @@ abstract final class MusicWorkspaceFieldMetadata {
   );
 
   static const recordingYear = LibraryKindFieldMetadata(
-    id: 'music.recording_year',
-    label: 'Recording Year',
+    id: 'music.disc.recording_year',
+    label: 'Disc Recording Year',
     valueType: LibraryFieldValueType.number,
-    cardinality: LibraryFieldCardinality.one,
+    cardinality: LibraryFieldCardinality.many,
     source: LibraryFieldSource.derived,
-    sourcePath: 'recording_date.year',
+    sourcePath: 'discs[].recording_date.year',
     filterable: true,
   );
 
@@ -307,22 +307,22 @@ abstract final class MusicWorkspaceFieldMetadata {
   );
 
   static const spars = LibraryKindFieldMetadata(
-    id: 'music.spars',
-    label: 'SPARS',
-    valueType: LibraryFieldValueType.text,
-    cardinality: LibraryFieldCardinality.one,
-    source: LibraryFieldSource.catalog,
-    sourcePath: 'spars_code',
-    filterable: true,
-  );
-
-  static const studios = LibraryKindFieldMetadata(
-    id: 'music.studios',
-    label: 'Studio',
+    id: 'music.disc.spars',
+    label: 'Disc SPARS',
     valueType: LibraryFieldValueType.text,
     cardinality: LibraryFieldCardinality.many,
     source: LibraryFieldSource.catalog,
-    sourcePath: 'studios[]',
+    sourcePath: 'discs[].spars_code',
+    filterable: true,
+  );
+
+  static const recordingLocations = LibraryKindFieldMetadata(
+    id: 'music.recording_location',
+    label: 'Recording Location',
+    valueType: LibraryFieldValueType.text,
+    cardinality: LibraryFieldCardinality.many,
+    source: LibraryFieldSource.catalog,
+    sourcePath: 'discs[].recording_locations[]',
     filterable: true,
   );
 

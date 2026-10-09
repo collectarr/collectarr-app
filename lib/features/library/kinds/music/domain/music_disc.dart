@@ -1,6 +1,8 @@
 import 'package:flutter/foundation.dart';
+import 'package:collectarr_app/core/models/partial_date.dart';
 
 import 'music_disc_format_family.dart';
+import 'music_credit.dart';
 import 'music_ids.dart';
 import 'music_track.dart';
 
@@ -14,14 +16,21 @@ final class MusicDisc {
     this.formatFamily,
     this.format,
     List<String> soundTypes = const [],
+    this.recordingDate,
+    List<String> recordingLocations = const [],
+    this.isLive,
+    this.sparsCode,
     this.color,
     this.vinylWeightGrams,
     this.rpm,
     this.matrixNumber,
     this.matrixNumberSideA,
     this.matrixNumberSideB,
+    List<MusicCredit> credits = const [],
     List<MusicTrack> tracks = const [],
   })  : soundTypes = List<String>.unmodifiable(soundTypes),
+        recordingLocations = List<String>.unmodifiable(recordingLocations),
+        credits = List<MusicCredit>.unmodifiable(credits),
         tracks = List<MusicTrack>.unmodifiable(tracks);
 
   final MusicDiscId id;
@@ -30,12 +39,17 @@ final class MusicDisc {
   final MusicDiscFormatFamily? formatFamily;
   final String? format;
   final List<String> soundTypes;
+  final PartialDate? recordingDate;
+  final List<String> recordingLocations;
+  final bool? isLive;
+  final String? sparsCode;
   final String? color;
   final int? vinylWeightGrams;
   final String? rpm;
   final String? matrixNumber;
   final String? matrixNumberSideA;
   final String? matrixNumberSideB;
+  final List<MusicCredit> credits;
   final List<MusicTrack> tracks;
 
   int get effectiveTrackCount =>
@@ -49,12 +63,17 @@ final class MusicDisc {
       'format_family',
       'format',
       'sound_types',
+      'recording_date',
+      'recording_locations',
+      'is_live',
+      'spars_code',
       'color',
       'vinyl_weight_grams',
       'rpm',
       'matrix_number',
       'matrix_number_side_a',
       'matrix_number_side_b',
+      'credits',
       'tracks',
     };
     final unsupported = json.keys.where((key) => !fields.contains(key));
@@ -66,25 +85,55 @@ final class MusicDisc {
     final tracks = _requiredMaps(json['tracks'], 'tracks')
         .map(MusicTrack.fromJson)
         .toList(growable: false);
+    final credits = _requiredMaps(json['credits'], 'credits')
+        .map(MusicCredit.fromJson)
+        .toList(growable: false);
+    final formatFamily = _formatFamily(json['format_family']);
+    final capabilities = formatFamily?.capabilities;
+    final color = _optionalText(json['color'], 'color');
+    final vinylWeightGrams = _optionalInt(
+      json['vinyl_weight_grams'],
+      'vinyl_weight_grams',
+      minimum: 1,
+    );
+    final rpm = _optionalText(json['rpm'], 'rpm');
+    final matrixNumberSideA =
+        _optionalText(json['matrix_number_side_a'], 'matrix_number_side_a');
+    final matrixNumberSideB =
+        _optionalText(json['matrix_number_side_b'], 'matrix_number_side_b');
+    final matrixNumber = _optionalText(json['matrix_number'], 'matrix_number');
+    if (color != null && capabilities?.supportsColor == false ||
+        vinylWeightGrams != null &&
+            capabilities?.supportsVinylWeight == false ||
+        rpm != null && capabilities?.supportsRpm == false ||
+        matrixNumber != null && capabilities?.supportsGenericMatrix == false ||
+        (matrixNumberSideA != null || matrixNumberSideB != null) &&
+            capabilities?.supportsSideMatrices == false) {
+      throw const FormatException(
+        'Music disc technical fields do not match its format family.',
+      );
+    }
     return MusicDisc(
       id: MusicDiscId(_requiredText(json['id'], 'id')),
       discNumber: _requiredInt(json['disc_number'], 'disc_number', minimum: 1),
       title: _optionalText(json['title'], 'title'),
-      formatFamily: _formatFamily(json['format_family']),
+      formatFamily: formatFamily,
       format: _optionalText(json['format'], 'format'),
-      soundTypes: _stringList(json['sound_types'], 'sound_types'),
-      color: _optionalText(json['color'], 'color'),
-      vinylWeightGrams: _optionalInt(
-        json['vinyl_weight_grams'],
-        'vinyl_weight_grams',
-        minimum: 1,
+      soundTypes: _requiredStringList(json['sound_types'], 'sound_types'),
+      recordingDate: _partialDate(json['recording_date']),
+      recordingLocations: _requiredStringList(
+        json['recording_locations'],
+        'recording_locations',
       ),
-      rpm: _optionalText(json['rpm'], 'rpm'),
-      matrixNumber: _optionalText(json['matrix_number'], 'matrix_number'),
-      matrixNumberSideA:
-          _optionalText(json['matrix_number_side_a'], 'matrix_number_side_a'),
-      matrixNumberSideB:
-          _optionalText(json['matrix_number_side_b'], 'matrix_number_side_b'),
+      isLive: _optionalBool(json['is_live'], 'is_live'),
+      sparsCode: _optionalText(json['spars_code'], 'spars_code'),
+      color: color,
+      vinylWeightGrams: vinylWeightGrams,
+      rpm: rpm,
+      matrixNumber: matrixNumber,
+      matrixNumberSideA: matrixNumberSideA,
+      matrixNumberSideB: matrixNumberSideB,
+      credits: credits,
       tracks: tracks,
     );
   }
@@ -95,7 +144,11 @@ final class MusicDisc {
         if (title != null) 'title': title,
         if (formatFamily != null) 'format_family': formatFamily!.value,
         if (format != null) 'format': format,
-        if (soundTypes.isNotEmpty) 'sound_types': soundTypes,
+        'sound_types': soundTypes,
+        if (recordingDate != null) 'recording_date': recordingDate!.toJson(),
+        'recording_locations': recordingLocations,
+        if (isLive != null) 'is_live': isLive,
+        if (sparsCode != null) 'spars_code': sparsCode,
         if (color != null) 'color': color,
         if (vinylWeightGrams != null) 'vinyl_weight_grams': vinylWeightGrams,
         if (rpm != null) 'rpm': rpm,
@@ -104,6 +157,7 @@ final class MusicDisc {
           'matrix_number_side_a': matrixNumberSideA,
         if (matrixNumberSideB != null)
           'matrix_number_side_b': matrixNumberSideB,
+        'credits': credits.map((credit) => credit.toJson()).toList(),
         'tracks': tracks.map((track) => track.toJson()).toList(),
       };
 }
@@ -185,19 +239,48 @@ MusicDiscFormatFamily? _formatFamily(Object? value) {
   throw FormatException('Unrecognized Music disc format_family "$value".');
 }
 
-List<String> _stringList(Object? value, String field) {
-  if (value == null) return const [];
-  if (value is! List || value.any((entry) => entry is! String)) {
+List<String> _requiredStringList(Object? value, String field) {
+  if (value is! List) {
     throw FormatException('Music disc $field must be a list of strings.');
   }
-  for (final (index, entry) in value.indexed) {
-    if (entry.isEmpty || entry != entry.trim()) {
+  final entries = List<Object?>.from(value);
+  if (entries.any((entry) => entry is! String)) {
+    throw FormatException('Music disc $field must be a list of strings.');
+  }
+  for (final (index, entry) in entries.indexed) {
+    final text = entry as String;
+    if (text.isEmpty || text != text.trim()) {
       throw FormatException(
         'Music disc $field entry ${index + 1} must be non-empty trimmed text.',
       );
     }
   }
-  return List<String>.unmodifiable(value.cast<String>());
+  return List<String>.unmodifiable(entries.cast<String>());
+}
+
+PartialDate? _partialDate(Object? value) {
+  if (value == null) return null;
+  if (value is! Map) {
+    throw const FormatException(
+        'Music recording_date must be a PartialDate object.');
+  }
+  final fields = Map<Object?, Object?>.from(value);
+  if (fields.isEmpty ||
+      fields.keys.any((key) => !{'year', 'month', 'day'}.contains(key)) ||
+      fields.values.any((part) => part != null && part is! int) ||
+      !fields.values.any((part) => part is int)) {
+    throw const FormatException(
+        'Music recording_date must be a PartialDate object.');
+  }
+  return PartialDate.fromJson(Map<String, dynamic>.from(value));
+}
+
+bool? _optionalBool(Object? value, String field) {
+  if (value == null) return null;
+  if (value is! bool) {
+    throw FormatException('Music disc $field must be boolean or null.');
+  }
+  return value;
 }
 
 List<Map<String, dynamic>> _requiredMaps(Object? value, String field) {

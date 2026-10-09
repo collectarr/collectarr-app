@@ -1,7 +1,7 @@
 import 'package:collectarr_app/features/library/kinds/music/domain/music_external_link.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_disc.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_album.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_album_relations.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_credit.dart';
 import 'package:collectarr_app/features/library/kinds/music/forms/music_catalog_form_adapters.dart';
 import 'package:collectarr_app/features/library/kinds/music/forms/music_album_form_values.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit/music_track_list_editor.dart';
@@ -13,13 +13,13 @@ final class MusicAlbumEditDraft {
     MusicAlbum album,
   )   : original = album,
         values = MusicAlbumFormValues.fromAlbum(album),
-        contributions = List.of(album.contributions),
         discList = MusicDiscListEditor.fromDiscs(album.discs),
         externalLinks = List.of(album.externalLinks);
 
   final MusicAlbum original;
   final MusicAlbumFormValues values;
-  List<MusicAlbumContribution> contributions;
+  List<MusicCredit> get credits => values.credits;
+  set credits(List<MusicCredit> value) => values.credits = List.of(value);
   final MusicDiscListEditor discList;
   List<MusicDisc> get discs => discList.discs;
   MusicTrackListEditor get trackList => discList.trackList;
@@ -36,7 +36,7 @@ final class MusicAlbumEditDraft {
       externalLinks: externalLinks
           .where((link) => link.url.trim().isNotEmpty)
           .toList(growable: false),
-      contributions: contributions,
+      credits: credits,
     );
   }
 }

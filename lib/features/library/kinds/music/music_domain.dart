@@ -2,8 +2,11 @@ export 'package:collectarr_app/features/library/kinds/music/domain/music_listeni
 export 'package:collectarr_app/features/library/kinds/music/domain/music_ids.dart';
 export 'package:collectarr_app/features/library/kinds/music/domain/music_external_link.dart';
 export 'package:collectarr_app/features/library/kinds/music/domain/music_disc.dart';
+export 'package:collectarr_app/features/library/kinds/music/domain/music_disc_format_family.dart';
+export 'package:collectarr_app/features/library/kinds/music/domain/music_disc_capabilities.dart';
 export 'package:collectarr_app/features/library/kinds/music/domain/music_album.dart';
-export 'package:collectarr_app/features/library/kinds/music/domain/music_album_relations.dart';
+export 'package:collectarr_app/features/library/kinds/music/domain/music_artist_credit.dart';
+export 'package:collectarr_app/features/library/kinds/music/domain/music_credit.dart';
 export 'package:collectarr_app/features/library/kinds/music/domain/music_track.dart';
 export 'package:collectarr_app/features/library/kinds/music/domain/music_track_list_entry.dart';
 export 'package:collectarr_app/features/library/kinds/music/entries/music_entry_details.dart';

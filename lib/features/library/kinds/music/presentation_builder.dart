@@ -16,7 +16,8 @@ import 'package:collectarr_app/features/library/kinds/music/domain/music_album.d
 import 'package:collectarr_app/features/library/kinds/music/catalog/music_catalog_mapper.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/features/library/kinds/music/music_country_name.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_album_relations.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_credit.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_disc.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_data.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/kinds/music/music_physical_media_formats.dart';
@@ -255,8 +256,15 @@ class MusicLibraryMediaPresentationBuilder
           LibraryDetailField(label: 'Country', value: country),
         if (album?.tracks.isNotEmpty == true)
           LibraryDetailField(label: 'Length', value: _musicDuration(album!)),
-        if (album?.sparsCode != null)
-          LibraryDetailField(label: 'SPARS Code', value: album!.sparsCode!),
+        if (album?.discs.any((disc) => disc.sparsCode != null) == true)
+          LibraryDetailField(
+            label: 'SPARS Code',
+            value: album!.discs
+                .map((disc) => disc.sparsCode)
+                .whereType<String>()
+                .toSet()
+                .join(', '),
+          ),
         LibraryDetailField(
             label: 'Cover',
             value: dto.imageUrl == null || dto.imageUrl!.isEmpty
@@ -268,9 +276,11 @@ class MusicLibraryMediaPresentationBuilder
       sections: {
         'creators': LibraryMetadataSection(
           values: [
-            for (final contribution
-                in album?.contributions ?? const <MusicAlbumContribution>[])
-              contribution.toJson(),
+            for (final credit in album?.credits ?? const <MusicCredit>[])
+              {...credit.toJson(), 'scope': 'Album'},
+            for (final disc in album?.discs ?? const <MusicDisc>[])
+              for (final credit in disc.credits)
+                {...credit.toJson(), 'scope': 'Disc ${disc.discNumber}'},
           ],
           placement: LibraryMetadataSectionPlacement.credits,
           renderer: LibraryMetadataSectionRenderer.credits,

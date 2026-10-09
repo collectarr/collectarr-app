@@ -26,7 +26,7 @@ in this pass; their coordinated changes below are requirements to verify there.
 | `dart run tool/check_library_kind_boundaries.dart` | Fails: 178 findings, including 147 stale baseline entries and 31 other findings requiring review. Also reports 343 complexity budget warnings. These counts are not 178 independent product defects. |
 | `dart run tool/check_kind_duplication.dart` | Passes: no repeated clusters covered by this checker. This does not establish that forwarding wrappers and form definitions are unique. |
 | `dart run tool/check_music_catalog_contract.dart` | Fails on `artist`; the check searches for `json['artist']`, whereas the decoder uses `catalogJson['artist']`. This particular failure is a checker defect, distinct from the real serialization defects below. |
-| `dart run tool/generate_catalog_item_v1_fields.dart --check` | Fails: generated field definitions are stale. |
+| `dart run tool/generate_catalog_item_v2_fields.dart --check` | Fails: generated field definitions are stale. |
 | CI command existence | `tests.yml` invokes missing `tool/generate_music_catalog_dto.dart` and `tool/check_music_catalog_field_ownership.dart`. |
 | Read-only import graph and folder scan | 1,629 Dart files under `lib/`; 1,519 reached by the main import/export/part graph, including conditional imports. Reachability is at file level, not executable symbol level. Fifty empty leaf directories remain. |
 

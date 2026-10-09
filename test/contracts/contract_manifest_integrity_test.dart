@@ -19,7 +19,8 @@ void main() {
   const hashKeyByFile = <String, String>{
     'openapi.json': 'openApiHash',
     'metadata-field-schema.json': 'fieldSchemaHash',
-    'catalog-item-v1.json': 'catalogItemHash',
+    'music-catalog-v2.json': 'musicCatalogV2Hash',
+    'catalog-item-v2.json': 'catalogItemV2Hash',
     'active-kinds.json': 'activeKindsHash',
   };
 

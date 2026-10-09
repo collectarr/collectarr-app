@@ -3,9 +3,10 @@ import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:flutter/foundation.dart';
 
 import 'music_disc.dart';
+import 'music_credit.dart';
 import 'package:collectarr_app/core/models/partial_date.dart';
 import 'music_external_link.dart';
-import 'music_album_relations.dart';
+import 'music_artist_credit.dart';
 import 'music_track.dart';
 
 /// One concrete Music Catalog Item representing an album edition.
@@ -21,9 +22,6 @@ final class MusicAlbum implements JsonEncodable {
     this.subtitle,
     this.artist,
     this.originalReleaseDateParts,
-    this.recordingDateParts,
-    List<String> studios = const [],
-    this.isLive,
     List<String> genres = const [],
     this.releaseDateParts,
     this.publisher,
@@ -39,18 +37,17 @@ final class MusicAlbum implements JsonEncodable {
     this.localBackImagePath,
     this.localThumbnailImagePath,
     List<String> extra = const [],
-    this.sparsCode,
     this.externalLinks = const [],
     this.boxSet,
-    this.contributions = const [],
+    List<MusicCredit> credits = const [],
     this.artistCredits = const [],
     this.discs = const [],
     this.revision = 1,
     DateTime? createdAt,
     DateTime? updatedAt,
-  })  : studios = List<String>.unmodifiable(studios),
-        genres = List<String>.unmodifiable(genres),
+  })  : genres = List<String>.unmodifiable(genres),
         extra = List<String>.unmodifiable(extra),
+        credits = List<MusicCredit>.unmodifiable(credits),
         createdAt =
             createdAt ?? DateTime.fromMillisecondsSinceEpoch(0, isUtc: true),
         updatedAt =
@@ -64,9 +61,6 @@ final class MusicAlbum implements JsonEncodable {
   final String? subtitle;
   final String? artist;
   final PartialDate? originalReleaseDateParts;
-  final PartialDate? recordingDateParts;
-  final List<String> studios;
-  final bool? isLive;
   final List<String> genres;
 
   /// Preserves year/month precision from partial catalog dates.
@@ -88,10 +82,9 @@ final class MusicAlbum implements JsonEncodable {
   final String? localBackImagePath;
   final String? localThumbnailImagePath;
   final List<String> extra;
-  final String? sparsCode;
   final List<MusicExternalLink> externalLinks;
   final String? boxSet;
-  final List<MusicAlbumContribution> contributions;
+  final List<MusicCredit> credits;
   final List<MusicArtistCredit> artistCredits;
   final List<MusicDisc> discs;
   final int revision;
@@ -99,7 +92,6 @@ final class MusicAlbum implements JsonEncodable {
   final DateTime updatedAt;
 
   DateTime? get originalReleaseDate => originalReleaseDateParts?.asDateTime;
-  DateTime? get recordingDate => recordingDateParts?.asDateTime;
   DateTime? get releaseDate => releaseDateParts?.asDateTime;
 
   int get trackCount =>
@@ -122,9 +114,6 @@ final class MusicAlbum implements JsonEncodable {
       'subtitle',
       'artist',
       'original_release_date',
-      'recording_date',
-      'studios',
-      'is_live',
       'genres',
       'release_date',
       'publisher',
@@ -140,10 +129,9 @@ final class MusicAlbum implements JsonEncodable {
       'local_back_image_path',
       'local_thumbnail_image_path',
       'extra',
-      'spars_code',
       'external_links',
       'box_set',
-      'contributions',
+      'credits',
       'artist_credits',
       'discs',
     };
@@ -160,6 +148,9 @@ final class MusicAlbum implements JsonEncodable {
     final discs = _maps(json['discs'], 'discs')
         .map(MusicDisc.fromJson)
         .toList(growable: false);
+    final credits = _credits(json['credits']);
+    final artistCredits = _artistCredits(json['artist_credits']);
+    _validateContainedIdentity(discs, credits, artistCredits);
     return MusicAlbum(
       id: _catalogItemRef(json['id']),
       title: _requiredText(json['title'], 'title'),
@@ -169,11 +160,6 @@ final class MusicAlbum implements JsonEncodable {
       originalReleaseDateParts: _partialDate(
         json['original_release_date'],
       ),
-      recordingDateParts: _partialDate(
-        json['recording_date'],
-      ),
-      studios: _strings(json['studios'], 'studios'),
-      isLive: json['is_live'] as bool?,
       genres: _strings(json['genres'], 'genres'),
       releaseDateParts: _partialDate(
         json['release_date'],
@@ -200,14 +186,10 @@ final class MusicAlbum implements JsonEncodable {
         'local_thumbnail_image_path',
       ),
       extra: _strictStringList(json['extra']),
-      sparsCode: _optionalText(json['spars_code'], 'spars_code'),
       externalLinks: _externalLinks(json),
       boxSet: _optionalText(json['box_set'], 'box_set'),
-      contributions: [
-        for (final value in _maps(json['contributions'], 'contributions'))
-          MusicAlbumContribution.fromJson(value),
-      ],
-      artistCredits: _artistCredits(json['artist_credits']),
+      credits: credits,
+      artistCredits: artistCredits,
       discs: discs,
       revision: _requiredInt(json['revision'], 'revision', minimum: 1),
       createdAt: _optionalDateTime(json['created_at'], 'created_at'),
@@ -228,10 +210,6 @@ final class MusicAlbum implements JsonEncodable {
         if (artist != null) 'artist': artist,
         if (originalReleaseDateParts != null)
           'original_release_date': originalReleaseDateParts!.toJson(),
-        if (recordingDateParts != null)
-          'recording_date': recordingDateParts!.toJson(),
-        if (studios.isNotEmpty) 'studios': studios,
-        if (isLive != null) 'is_live': isLive,
         if (genres.isNotEmpty) 'genres': genres,
         if (releaseDateParts != null)
           'release_date': releaseDateParts!.toJson(),
@@ -252,18 +230,56 @@ final class MusicAlbum implements JsonEncodable {
         if (localThumbnailImagePath != null)
           'local_thumbnail_image_path': localThumbnailImagePath,
         'extra': extra,
-        if (sparsCode != null) 'spars_code': sparsCode,
         if (externalLinks.isNotEmpty)
           'external_links': externalLinks.map((link) => link.toJson()).toList(),
         if (boxSet != null) 'box_set': boxSet,
-        if (contributions.isNotEmpty)
-          'contributions':
-              contributions.map((value) => value.toJson()).toList(),
+        'credits': credits.map((value) => value.toJson()).toList(),
         if (artistCredits.isNotEmpty)
           'artist_credits':
               artistCredits.map((value) => value.toJson()).toList(),
         'discs': discs.map((disc) => disc.toJson()).toList(),
       };
+}
+
+void _validateContainedIdentity(
+  List<MusicDisc> discs,
+  List<MusicCredit> albumCredits,
+  List<MusicArtistCredit> artistCredits,
+) {
+  final discIds = <String>{};
+  final trackIds = <String>{};
+  final creditIds = <String>{};
+  final artistCreditIds = <String>{};
+  final discNumbers = <int>{};
+
+  for (final credit in artistCredits) {
+    if (!artistCreditIds.add(credit.id)) {
+      throw const FormatException('Music artist credit IDs must be unique.');
+    }
+  }
+  void checkCredits(List<MusicCredit> credits, String scope) {
+    final sequences = <int>{};
+    for (final credit in credits) {
+      if (!creditIds.add(credit.id.value) || !sequences.add(credit.sequence)) {
+        throw FormatException(
+          'Music $scope credit IDs and sequences must be unique.',
+        );
+      }
+    }
+  }
+
+  checkCredits(albumCredits, 'album');
+  for (final disc in discs) {
+    if (!discIds.add(disc.id.value) || !discNumbers.add(disc.discNumber)) {
+      throw const FormatException('Music disc IDs and numbers must be unique.');
+    }
+    checkCredits(disc.credits, 'disc');
+    for (final track in disc.tracks) {
+      if (!trackIds.add(track.id.value)) {
+        throw const FormatException('Music track IDs must be unique.');
+      }
+    }
+  }
 }
 
 CatalogItemRef? _catalogItemRef(Object? value) {
@@ -377,6 +393,22 @@ List<MusicArtistCredit> _artistCredits(Object? value) {
       else
         throw FormatException(
           'Music artist_credits entry ${index + 1} must be an object.',
+        ),
+  ];
+}
+
+List<MusicCredit> _credits(Object? value) {
+  if (value == null) return const [];
+  if (value is! List) {
+    throw const FormatException('Music credits must be a list.');
+  }
+  return [
+    for (final (index, entry) in value.indexed)
+      if (entry is Map)
+        MusicCredit.fromJson(Map<String, dynamic>.from(entry))
+      else
+        throw FormatException(
+          'Music credit ${index + 1} must be an object.',
         ),
   ];
 }

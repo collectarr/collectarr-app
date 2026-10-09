@@ -90,15 +90,15 @@ run.
 ## Active Music v2 refactor
 
 The staged field-semantics and Music v2 roadmap is tracked in
-[`music-v2-refactor-plan.md`](music-v2-refactor-plan.md). Work starts with
-The cardinality/source/path contract and metadata coverage for every workspace
-field and column across all nine kinds are implemented and verified. Workspace
-field capabilities now come from kind metadata, and sort/group factory
-invariants reject unsupported registrations. Workspace facet definitions also
-derive their IDs and labels from metadata and reject non-filterable fields.
-Library toolbar filters now reference metadata and reject non-filterable fields.
-The nine-kind metadata cutover is complete; the next checkpoint is the strict
-Core Music v2 contract.
+[`music-v2-refactor-plan.md`](music-v2-refactor-plan.md). Field metadata now
+owns cardinality, source/path, and workspace capabilities across all nine
+kinds. The strict Core Music v2 bundle is pinned in App, and the App domain has
+stable album/disc credits, disc-owned recording metadata, coarse format
+families, explicit format presets, and a shared Credits editor for Add/Edit.
+The former album-level recording fields and contribution model are removed.
+The next checkpoint builds immutable `MusicWorkspaceFacts` once per projection;
+disc/credit groups, many-value filters, reducer sorts, export/search, and final
+performance verification remain open.
 
 ## Local data
 

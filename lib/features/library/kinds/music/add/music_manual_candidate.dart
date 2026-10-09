@@ -2,7 +2,6 @@ import 'package:collectarr_app/features/library/kinds/music/domain/music_album.d
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/add/models/library_kind_add_draft.dart';
 import 'package:collectarr_app/features/library/kinds/music/add/music_add_manual_draft.dart';
-import 'package:collectarr_app/features/library/kinds/music/add/music_add_manual_contents.dart';
 import 'package:collectarr_app/features/library/kinds/music/add/music_add_schema.dart';
 import 'package:collectarr_app/features/library/kinds/music/music_country_name.dart';
 import 'package:collectarr_app/features/library/kinds/music/catalog/music_catalog_mapper.dart';
@@ -52,7 +51,6 @@ Map<String, Object?>? buildMusicManualProposalData(
     return null;
   }
 
-  final artist = _textOrNull(draft.artist);
   final releaseDateParts = draft.releaseDateParts;
   final barcode = _textOrNull(draft.barcode);
   final countryCode = _textOrNull(draft.countryCode);
@@ -62,7 +60,6 @@ Map<String, Object?>? buildMusicManualProposalData(
   final cover = _textOrNull(draft.coverImageUrl);
   final backCover = _textOrNull(draft.backCoverImageUrl);
   final originalReleaseDateParts = draft.originalReleaseDateParts;
-  final recordingDateParts = draft.recordingDateParts;
 
   return {
     'title': title.trim(),
@@ -71,8 +68,6 @@ Map<String, Object?>? buildMusicManualProposalData(
     if (releaseDateParts != null) 'release_date': releaseDateParts.toJson(),
     if (originalReleaseDateParts != null)
       'original_release_date': originalReleaseDateParts.toJson(),
-    if (recordingDateParts != null)
-      'recording_date': recordingDateParts.toJson(),
     'artist_credits': [
       for (var index = 0; index < draft.artistCredits.length; index++)
         {
@@ -94,25 +89,23 @@ Map<String, Object?>? buildMusicManualProposalData(
       'catalog_number': value,
     if (country != null) 'country': country,
     if (_textOrNull(draft.packaging) case final value?) 'packaging': value,
-    'studios': List<String>.of(draft.studios),
-    if (draft.isLive != null) 'is_live': draft.isLive,
     'extra': List<String>.of(draft.extra),
-    if (_textOrNull(draft.sparsCode) case final value?) 'spars_code': value,
     if (_textOrNull(draft.boxSet) case final value?) 'box_set': value,
     if (cover != null) 'cover_image_url': cover,
     if (backCover != null) 'back_cover_image_url': backCover,
-    'composers': _namedCredits(draft.composers),
-    'conductors': _namedCredits(draft.conductors),
-    'choruses': _creditNames(draft.choruses),
-    'compositions': _creditNames(draft.compositions),
-    'orchestras': _creditNames(draft.orchestras),
-    'songwriters': _namedCredits(draft.songwriters),
-    'producers': _namedCredits(draft.producers),
-    'engineers': _namedCredits(draft.engineers),
-    'musicians': _namedCredits(draft.musicians),
+    'credits': [
+      for (final (index, credit)
+          in draft.credits.where((credit) => credit.discId == null).indexed)
+        credit.toCatalogData(sequence: index + 1),
+    ],
     'discs': [
       for (var index = 0; index < draft.discs.length; index++)
-        draft.discs[index].toProposalData(index + 1),
+        draft.discs[index].toProposalData(
+          index + 1,
+          credits: draft.credits.where(
+            (credit) => credit.discId == draft.discs[index].id,
+          ),
+        ),
     ],
     'external_links': [
       for (final link in draft.externalLinks)
@@ -126,24 +119,12 @@ List<Map<String, dynamic>> _candidateDiscs(
 ) =>
     [
       for (var discIndex = 0; discIndex < draft.discs.length; discIndex++)
-        draft.discs[discIndex].toProposalData(discIndex + 1),
-    ];
-
-List<Map<String, Object?>> _namedCredits(
-  Iterable<MusicAddManualNamedCredit> credits,
-) {
-  final namedCredits = credits
-      .where((credit) => credit.name.trim().isNotEmpty)
-      .toList(growable: false);
-  return [
-    for (var index = 0; index < namedCredits.length; index++)
-      namedCredits[index].toCatalogData(sequence: index + 1),
-  ];
-}
-
-List<String> _creditNames(Iterable<MusicAddManualNamedCredit> credits) => [
-      for (final credit in credits)
-        if (credit.name.trim().isNotEmpty) credit.name.trim(),
+        draft.discs[discIndex].toProposalData(
+          discIndex + 1,
+          credits: draft.credits.where(
+            (credit) => credit.discId == draft.discs[discIndex].id,
+          ),
+        ),
     ];
 
 String? _textOrNull(String value) {

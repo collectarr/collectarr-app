@@ -1,5 +1,8 @@
 import 'package:collectarr_app/core/models/catalog_item_ref.dart';
+import 'package:collectarr_app/core/models/partial_date.dart';
+import 'package:collectarr_app/features/library/kinds/music/config/music_format_presets.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_album.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_credit.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_disc.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_disc_format_family.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_ids.dart';
@@ -8,8 +11,8 @@ import 'package:collectarr_app/features/library/kinds/music/edit/music_album_edi
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  group('MusicDisc format and physical metadata', () {
-    test('serializes and deserializes disc format, vinyl, sound, and matrix numbers', () {
+  group('MusicDisc format and recording metadata', () {
+    test('serializes technical and recording metadata on the disc', () {
       final disc = MusicDisc(
         id: const MusicDiscId('disc-1'),
         discNumber: 1,
@@ -17,11 +20,25 @@ void main() {
         formatFamily: MusicDiscFormatFamily.vinyl,
         format: 'Vinyl (12" LP)',
         soundTypes: const ['Stereo', 'Dolby Atmos'],
+        recordingDate: PartialDate(year: 2025, month: 2),
+        recordingLocations: const ['Abbey Road', 'Wembley'],
+        isLive: true,
+        sparsCode: 'DDD',
         color: 'Clear Splatter',
         vinylWeightGrams: 180,
         rpm: '45',
         matrixNumberSideA: 'MAT-A-1',
         matrixNumberSideB: 'MAT-B-1',
+        credits: [
+          MusicCredit(
+            id: const MusicCreditId('credit-1'),
+            contributorId: null,
+            name: 'Jane Doe',
+            role: 'Producer',
+            instruments: const ['Piano', 'Voice'],
+            sequence: 1,
+          ),
+        ],
         tracks: [
           MusicTrack(
             id: const MusicTrackId('track-1'),
@@ -33,129 +50,159 @@ void main() {
 
       final json = disc.toJson();
       expect(json['format_family'], 'vinyl');
-      expect(json['format'], 'Vinyl (12" LP)');
-      expect(json['sound_types'], ['Stereo', 'Dolby Atmos']);
-      expect(json['color'], 'Clear Splatter');
-      expect(json['vinyl_weight_grams'], 180);
-      expect(json['rpm'], '45');
-      expect(json['matrix_number_side_a'], 'MAT-A-1');
+      expect(json['recording_date'], {'year': 2025, 'month': 2});
+      expect(json['recording_locations'], ['Abbey Road', 'Wembley']);
+      expect(json['is_live'], isTrue);
+      expect(json['spars_code'], 'DDD');
+      expect((json['credits'] as List).single['contributor_id'], isNull);
+      expect(
+          (json['credits'] as List).single['instruments'], ['Piano', 'Voice']);
 
       final reconstructed = MusicDisc.fromJson(json);
-      expect(reconstructed.id.value, 'disc-1');
-      expect(reconstructed.formatFamily, MusicDiscFormatFamily.vinyl);
-      expect(reconstructed.format, 'Vinyl (12" LP)');
-      expect(reconstructed.soundTypes, ['Stereo', 'Dolby Atmos']);
-      expect(reconstructed.color, 'Clear Splatter');
-      expect(reconstructed.vinylWeightGrams, 180);
-      expect(reconstructed.rpm, '45');
-      expect(reconstructed.matrixNumberSideA, 'MAT-A-1');
-      expect(reconstructed.tracks.length, 1);
+      expect(reconstructed.recordingDate?.isoString, '2025-02');
+      expect(reconstructed.recordingLocations, ['Abbey Road', 'Wembley']);
+      expect(reconstructed.credits.single.contributorId, isNull);
+      expect(reconstructed.credits.single.instruments, ['Piano', 'Voice']);
+      expect(reconstructed.tracks.single.id.value, 'track-1');
     });
 
-    test('formatAlbumDiscsSummary and formatDiscsSummary correctly aggregate formats', () {
+    test('format summary counts contained disc formats', () {
+      expect(formatAlbumDiscsSummary([]), isNull);
+      expect(formatAlbumDiscsSummary([], fallback: 'CD'), 'CD');
       expect(
-        formatAlbumDiscsSummary([]),
-        isNull,
-      );
-      expect(
-        formatAlbumDiscsSummary([], fallback: 'CD'),
+        formatAlbumDiscsSummary([
+          MusicDisc(id: const MusicDiscId('1'), discNumber: 1, format: 'CD'),
+        ]),
         'CD',
       );
-
-      final singleCd = [
-        MusicDisc(id: const MusicDiscId('1'), discNumber: 1, format: 'CD'),
-      ];
-      expect(formatAlbumDiscsSummary(singleCd), 'CD');
-
-      final doubleVinyl = [
-        MusicDisc(id: const MusicDiscId('1'), discNumber: 1, format: 'Vinyl'),
-        MusicDisc(id: const MusicDiscId('2'), discNumber: 2, format: 'Vinyl'),
-      ];
-      expect(formatAlbumDiscsSummary(doubleVinyl), '2× Vinyl');
-
-      final mixedBox = [
-        MusicDisc(id: const MusicDiscId('1'), discNumber: 1, format: 'CD'),
-        MusicDisc(id: const MusicDiscId('2'), discNumber: 2, format: 'CD'),
-        MusicDisc(id: const MusicDiscId('3'), discNumber: 3, format: 'Vinyl'),
-      ];
-      expect(formatAlbumDiscsSummary(mixedBox), '2× CD + 1× Vinyl');
+      expect(
+        formatAlbumDiscsSummary([
+          MusicDisc(id: const MusicDiscId('1'), discNumber: 1, format: 'CD'),
+          MusicDisc(id: const MusicDiscId('2'), discNumber: 2, format: 'CD'),
+          MusicDisc(id: const MusicDiscId('3'), discNumber: 3, format: 'Vinyl'),
+        ]),
+        '2× CD + 1× Vinyl',
+      );
     });
 
-    test('MusicAlbum derives formatSummary from discs and keeps sparsCode at album level', () {
+    test(
+        'album stores edition metadata while all recording data belongs to discs',
+        () {
       final album = MusicAlbum(
-        id: const CatalogItemRef(kind: CatalogMediaKind.music, id: 'alb-1'),
-        title: 'Test Album',
-        sparsCode: 'DSD',
+        id: const CatalogItemRef(kind: CatalogMediaKind.music, id: 'album-1'),
+        title: 'Deluxe Edition',
+        publisher: 'Example Label',
+        releaseDateParts: PartialDate(year: 2025),
         discs: [
           MusicDisc(
-            id: const MusicDiscId('1'),
+            id: const MusicDiscId('cd-1'),
             discNumber: 1,
-            format: 'SACD',
-            soundTypes: const ['Stereo', '5.1 Surround'],
+            format: 'CD',
+            formatFamily: MusicDiscFormatFamily.opticalDisc,
+            recordingDate: PartialDate(year: 2025),
+            recordingLocations: const ['Abbey Road'],
+            isLive: false,
+            sparsCode: 'DDD',
           ),
           MusicDisc(
-            id: const MusicDiscId('2'),
+            id: const MusicDiscId('vinyl-1'),
             discNumber: 2,
-            format: 'CD',
-            soundTypes: const ['Stereo'],
+            format: 'Vinyl',
+            formatFamily: MusicDiscFormatFamily.vinyl,
+            recordingDate: PartialDate(year: 2024),
+            isLive: true,
           ),
         ],
       );
 
-      expect(album.formatSummary, '1× SACD + 1× CD');
-      expect(album.sparsCode, 'DSD');
+      expect(album.formatSummary, '1× CD + 1× Vinyl');
+      expect(album.discs.map((disc) => disc.sparsCode).whereType<String>(),
+          ['DDD']);
+      expect(album.toJson(), isNot(contains('recording_date')));
+      expect(album.toJson(), isNot(contains('is_live')));
+      expect(album.toJson(), isNot(contains('spars_code')));
     });
 
-    test('MusicAlbumEditDraft manages disc-level formats and updates derived summary', () {
+    test('edit draft applies changes to disc scope and keeps family explicit',
+        () {
       final album = MusicAlbum(
-        id: const CatalogItemRef(kind: CatalogMediaKind.music, id: 'alb-2'),
+        id: const CatalogItemRef(kind: CatalogMediaKind.music, id: 'album-2'),
         title: 'Draft Test',
-        sparsCode: 'AAA',
         discs: [
           MusicDisc(
-            id: const MusicDiscId('d-1'),
+            id: const MusicDiscId('disc-1'),
             discNumber: 1,
             format: 'CD',
-            formatFamily: MusicDiscFormatFamily.cd,
+            formatFamily: MusicDiscFormatFamily.opticalDisc,
           ),
         ],
       );
-
       final draft = MusicAlbumEditDraft.fromAlbum(album);
-      expect(draft.formatSummary, 'CD');
 
-      // Update disc 1 format and physical details
-      draft.updateDiscFormat(const MusicDiscId('d-1'), 'Vinyl');
-      draft.updateDiscFormatFamily(
-        const MusicDiscId('d-1'),
-        MusicDiscFormatFamily.vinyl,
-      );
-      draft.updateDiscColor(const MusicDiscId('d-1'), 'Blue');
-      draft.updateDiscVinylWeightGrams(const MusicDiscId('d-1'), 180);
-      draft.updateDiscRpm(const MusicDiscId('d-1'), '33⅓');
-      draft.updateDiscSoundTypes(const MusicDiscId('d-1'), ['Stereo']);
-
-      expect(draft.formatSummary, 'Vinyl');
-      expect(draft.discs.first.color, 'Blue');
-      expect(draft.discs.first.vinylWeightGrams, 180);
-      expect(draft.discs.first.rpm, '33⅓');
-      expect(draft.values.sparsCode, 'AAA');
-
-      // Add second disc
-      draft.addDisc(
-        format: 'Vinyl',
+      draft.discList.updateDiscFormat(
+        const MusicDiscId('disc-1'),
+        'Vinyl',
         formatFamily: MusicDiscFormatFamily.vinyl,
       );
-      expect(draft.discs.length, 2);
-      expect(draft.formatSummary, '2× Vinyl');
+      draft.discList.updateDiscColor(const MusicDiscId('disc-1'), 'Blue');
+      draft.discList
+          .updateDiscVinylWeightGrams(const MusicDiscId('disc-1'), 180);
+      draft.discList.updateDiscRpm(const MusicDiscId('disc-1'), '45');
+      draft.discList.updateDiscSoundTypes(
+        const MusicDiscId('disc-1'),
+        ['Stereo'],
+      );
+      draft.discList.updateDiscRecordingDate(
+        const MusicDiscId('disc-1'),
+        PartialDate(year: 2026, month: 2, day: 18),
+      );
+      draft.discList.updateDiscRecordingLocations(
+        const MusicDiscId('disc-1'),
+        ['Wembley'],
+      );
+      draft.discList.updateDiscIsLive(const MusicDiscId('disc-1'), true);
+      draft.discList.updateDiscSparsCode(const MusicDiscId('disc-1'), 'ADD');
+      expect(draft.formatSummary, 'Vinyl');
 
-      // Save to album
-      final updatedAlbum = draft.toAlbum();
-      expect(updatedAlbum.formatSummary, '2× Vinyl');
-      expect(updatedAlbum.discs.length, 2);
-      expect(updatedAlbum.discs[0].color, 'Blue');
-      expect(updatedAlbum.discs[0].rpm, '33⅓');
-      expect(updatedAlbum.discs[1].format, 'Vinyl');
+      draft.discList.addDisc(
+        format: 'SHM-CD',
+        formatFamily: musicFormatPresetFamily('SHM-CD'),
+      );
+      final saved = draft.toAlbum();
+      expect(saved.discs, hasLength(2));
+      expect(saved.discs.first.formatFamily, MusicDiscFormatFamily.vinyl);
+      expect(saved.discs.first.sparsCode, 'ADD');
+      expect(saved.discs.first.recordingLocations, ['Wembley']);
+      expect(saved.discs.last.formatFamily, MusicDiscFormatFamily.opticalDisc);
+      expect(saved.formatSummary, '1× Vinyl + 1× SHM-CD');
+    });
+
+    test(
+        'known formats use explicit presets; custom formats do not infer a family',
+        () {
+      expect(musicFormatPresetFamily('CD'), MusicDiscFormatFamily.opticalDisc);
+      expect(
+          musicFormatPresetFamily('SACD'), MusicDiscFormatFamily.opticalDisc);
+      expect(musicFormatPresetFamily('Cassette'), MusicDiscFormatFamily.tape);
+      expect(musicFormatPresetFamily('FLAC'), MusicDiscFormatFamily.digital);
+      expect(musicFormatPresetFamily('custom silver disc'), isNull);
+    });
+
+    test('strict domain rejects former album-level recording fields', () {
+      expect(
+        () => MusicAlbum.fromJson({
+          'title': 'Old payload',
+          'spars_code': 'DDD',
+        }),
+        throwsFormatException,
+      );
+      expect(
+        () => MusicAlbum.fromJson({
+          'title': 'Old payload',
+          'composers': <Object?>[],
+        }),
+        throwsFormatException,
+      );
     });
   });
 }

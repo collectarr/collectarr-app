@@ -3,25 +3,25 @@ import 'dart:io';
 
 import 'package:crypto/crypto.dart';
 
-const _contractPath = 'tool/core_contracts/catalog-item-v1.json';
+const _contractPath = 'tool/core_contracts/catalog-item-v2.json';
 const _manifestPath = 'tool/core_contracts/contract-manifest.json';
-const _outputPath = 'lib/core/api/generated/catalog_item_v1_fields.dart';
+const _outputPath = 'lib/core/api/generated/catalog_item_v2_fields.dart';
 
 Future<void> main(List<String> args) async {
   final contractBytes = await File(_contractPath).readAsBytes();
   final manifest = jsonDecode(await File(_manifestPath).readAsString())
       as Map<String, dynamic>;
   final contractHash = sha256.convert(contractBytes).toString();
-  if (manifest['catalogItemHash'] != contractHash) {
+  if (manifest['catalogItemV2Hash'] != contractHash) {
     throw const FormatException(
-      'Pinned Catalog Item v1 schema hash does not match contract-manifest.json.',
+      'Pinned Catalog Item v2 schema hash does not match contract-manifest.json.',
     );
   }
 
   final contract =
       jsonDecode(utf8.decode(contractBytes)) as Map<String, dynamic>;
-  if (contract['schemaVersion'] != 1 ||
-      contract['contractVersion'] != '1.0.0') {
+  if (contract['schemaVersion'] != 2 ||
+      contract['contractVersion'] != '2.0.0') {
     throw const FormatException('Unsupported Catalog Item contract version.');
   }
   final kinds = contract['kinds'] as Map<String, dynamic>;
@@ -29,7 +29,7 @@ Future<void> main(List<String> args) async {
   final output = File(_outputPath);
   if (args.contains('--check')) {
     if (!await output.exists() || await output.readAsString() != source) {
-      stderr.writeln('Generated Catalog Item v1 field definitions are stale.');
+      stderr.writeln('Generated Catalog Item v2 field definitions are stale.');
       exitCode = 1;
     }
     return;
@@ -43,10 +43,10 @@ String _generate(Map<String, dynamic> kinds, String hash) {
     ..writeln('// GENERATED CODE - DO NOT MODIFY BY HAND.')
     ..writeln('// Source: $_contractPath')
     ..writeln('// Contract SHA-256: $hash')
-    ..writeln("const catalogItemV1SchemaVersion = 1;")
-    ..writeln("const catalogItemV1ContractVersion = '1.0.0';")
+    ..writeln("const catalogItemV2SchemaVersion = 2;")
+    ..writeln("const catalogItemV2ContractVersion = '2.0.0';")
     ..writeln()
-    ..writeln('const Map<String, Set<String>> catalogItemV1FieldsByKind = {');
+    ..writeln('const Map<String, Set<String>> catalogItemV2FieldsByKind = {');
 
   for (final kindName in kinds.keys.toList()..sort()) {
     final kindSchema = kinds[kindName] as Map<String, dynamic>;

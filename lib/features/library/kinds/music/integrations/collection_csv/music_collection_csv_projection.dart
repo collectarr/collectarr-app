@@ -136,7 +136,12 @@ final class MusicCollectionCsvProjection
       release?.subtitle ?? '',
       format,
       format,
-      release?.publisher ?? music?.studios.join(', ') ?? '',
+      release?.publisher ??
+          music?.discs
+              .expand((disc) => disc.recordingLocations)
+              .toSet()
+              .join(', ') ??
+          '',
       _formatDate(
         music?.originalReleaseDate ??
             release?.releaseDate ??

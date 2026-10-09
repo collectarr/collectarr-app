@@ -1,7 +1,6 @@
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_album.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_album_relations.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_data.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_dto.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
@@ -46,9 +45,12 @@ String? musicCardArtist(LibraryProjectionView item) {
   final album = _musicCatalogItem(item);
   final albumArtist = album?.artist?.trim();
   if (albumArtist != null && albumArtist.isNotEmpty) return albumArtist;
-  final creators = album?.contributions ?? const <MusicAlbumContribution>[];
+  final creators = [
+    ...?album?.credits,
+    ...?album?.discs.expand((disc) => disc.credits),
+  ];
   for (final creator in creators) {
-    final rawName = creator.displayName.trim();
+    final rawName = creator.name.trim();
     if (rawName.isEmpty) continue;
     final role = creator.role.toLowerCase();
     if (role.contains('artist') ||

@@ -2,10 +2,13 @@ import 'package:collectarr_app/features/library/add/controllers/library_add_dial
 import 'package:collectarr_app/features/library/kinds/music/add/music_add_manual_contents.dart';
 import 'package:collectarr_app/features/library/kinds/music/add/music_add_manual_draft.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_disc_format_family.dart';
+import 'package:collectarr_app/features/library/kinds/music/config/music_format_presets.dart';
 import 'package:collectarr_app/features/library/kinds/music/forms/music_disc_text_field.dart';
 import 'package:collectarr_app/features/library/kinds/music/vocabulary/music_vocabularies.dart';
 import 'package:collectarr_app/features/library/forms/library_field_spec.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_form_controls.dart';
+import 'package:collectarr_app/features/library/ui/primitives/library_ordered_pick_list_field.dart';
+import 'package:collectarr_app/features/library/ui/primitives/library_ordered_names_field.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_managed_vocabulary_field.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_multi_value_options_dialog.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_multi_value_pick_field.dart';
@@ -167,13 +170,15 @@ class _MusicAddManualDetailsPaneState extends State<MusicAddManualDetailsPane> {
   }
 
   Widget _discForm(MusicAddManualDisc disc, int discIndex) {
-    final family = disc.formatFamily ??
-        MusicDiscFormatFamily.fromFormatName(disc.format);
-    final isVinyl = family == MusicDiscFormatFamily.vinyl;
-    final isCassette = family == MusicDiscFormatFamily.cassette;
-    final isOptical = family == MusicDiscFormatFamily.cd ||
-        family == MusicDiscFormatFamily.sacd ||
-        family == MusicDiscFormatFamily.minidisc;
+    final presetFamily = musicFormatPresetFamily(disc.format);
+    final family = presetFamily ?? disc.formatFamily;
+    final capabilities = family?.capabilities;
+    final hasVinylControls = capabilities?.supportsVinylWeight == true ||
+        capabilities?.supportsRpm == true;
+    final hasGenericMatrix = capabilities?.supportsGenericMatrix == true;
+    final hasSideMatrices = capabilities?.supportsSideMatrices == true;
+    final hasColor = capabilities?.supportsColor == true;
+    final isCustomFormat = presetFamily == null;
 
     final titleAndFormatRow = LayoutBuilder(
       builder: (context, constraints) {
@@ -197,7 +202,7 @@ class _MusicAddManualDetailsPaneState extends State<MusicAddManualDetailsPane> {
             builtIns: MusicVocabularies.format.builtIns,
             onChanged: (value) {
               disc.format = value ?? '';
-              disc.formatFamily = MusicDiscFormatFamily.fromFormatName(value);
+              disc.formatFamily = musicFormatPresetFamily(value);
               _notify();
             },
           ),
@@ -207,7 +212,7 @@ class _MusicAddManualDetailsPaneState extends State<MusicAddManualDetailsPane> {
           child: LibraryFormField(
             label: 'Family',
             child: DropdownButtonFormField<MusicDiscFormatFamily>(
-              initialValue: family,
+              initialValue: disc.formatFamily,
               isExpanded: true,
               decoration: const InputDecoration(
                 isDense: true,
@@ -237,8 +242,10 @@ class _MusicAddManualDetailsPaneState extends State<MusicAddManualDetailsPane> {
               title,
               const SizedBox(height: 8),
               format,
-              const SizedBox(height: 8),
-              familyPicker,
+              if (isCustomFormat) ...[
+                const SizedBox(height: 8),
+                familyPicker,
+              ],
             ],
           );
         }
@@ -248,8 +255,10 @@ class _MusicAddManualDetailsPaneState extends State<MusicAddManualDetailsPane> {
             Expanded(child: title),
             const SizedBox(width: 12),
             format,
-            const SizedBox(width: 12),
-            familyPicker,
+            if (isCustomFormat) ...[
+              const SizedBox(width: 12),
+              familyPicker,
+            ],
           ],
         );
       },
@@ -329,6 +338,84 @@ class _MusicAddManualDetailsPaneState extends State<MusicAddManualDetailsPane> {
       },
     );
 
+    final recordingDetails = LibraryFormGroup(
+      title: 'Recording',
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          LibraryFormField(
+            label: 'Recording Date',
+            child: LibraryPartialDateInput(
+              value: disc.recordingDate,
+              onChanged: (value) {
+                disc.recordingDate = value;
+                _notify();
+              },
+            ),
+          ),
+          const SizedBox(height: 10),
+          LibraryOrderedPickListField(
+            label: 'Recording Locations',
+            listName: MusicVocabularyIds.recordingLocation.value,
+            mediaKind: 'music',
+            loadOptions: (db) => MusicVocabularies.nameOptions(
+              db,
+              MusicVocabularyIds.recordingLocation.value,
+            ),
+            values: [
+              for (final location in disc.recordingLocations)
+                LibraryNamedValue(id: location, name: location),
+            ],
+            onChanged: (values) {
+              disc.recordingLocations =
+                  values.map((value) => value.name).toList();
+              _notify();
+            },
+          ),
+          const SizedBox(height: 10),
+          LayoutBuilder(
+            builder: (context, constraints) {
+              final live = LibraryFormField(
+                label: 'Recording Type',
+                child: LibrarySegmentedField<bool>(
+                  value: disc.isLive ?? false,
+                  options: const {false: 'Studio', true: 'Live'},
+                  onChanged: (value) {
+                    disc.isLive = value;
+                    _notify();
+                  },
+                ),
+              );
+              final spars = LibraryManagedVocabularyField(
+                label: 'SPARS Code',
+                listName: MusicVocabularyIds.spars.value,
+                mediaKind: 'music',
+                value: disc.sparsCode,
+                builtIns: MusicVocabularies.spars.builtIns,
+                onChanged: (value) {
+                  disc.sparsCode = value ?? '';
+                  _notify();
+                },
+              );
+              if (constraints.maxWidth < 520) {
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [live, const SizedBox(height: 8), spars],
+                );
+              }
+              return Row(
+                children: [
+                  Expanded(child: live),
+                  const SizedBox(width: 12),
+                  Expanded(child: spars),
+                ],
+              );
+            },
+          ),
+        ],
+      ),
+    );
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -336,9 +423,11 @@ class _MusicAddManualDetailsPaneState extends State<MusicAddManualDetailsPane> {
         const SizedBox(height: 10),
         soundField,
         const SizedBox(height: 10),
-        if (isVinyl) ...[
+        if (hasVinylControls) ...[
           LibraryFormGroup(
-            title: 'Vinyl',
+            title: family == MusicDiscFormatFamily.vinyl
+                ? 'Vinyl'
+                : 'Technical Details',
             child: LayoutBuilder(
               builder: (context, constraints) {
                 final wide = constraints.maxWidth >= 600;
@@ -373,8 +462,10 @@ class _MusicAddManualDetailsPaneState extends State<MusicAddManualDetailsPane> {
                   return Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      colorField,
-                      const SizedBox(height: 8),
+                      if (hasColor) ...[
+                        colorField,
+                        const SizedBox(height: 8),
+                      ],
                       weight,
                       const SizedBox(height: 8),
                       rpm,
@@ -384,8 +475,10 @@ class _MusicAddManualDetailsPaneState extends State<MusicAddManualDetailsPane> {
                 return Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Expanded(flex: 3, child: colorField),
-                    const SizedBox(width: 10),
+                    if (hasColor) ...[
+                      Expanded(flex: 3, child: colorField),
+                      const SizedBox(width: 10),
+                    ],
                     Expanded(flex: 2, child: weight),
                     const SizedBox(width: 10),
                     Expanded(flex: 3, child: rpm),
@@ -396,7 +489,7 @@ class _MusicAddManualDetailsPaneState extends State<MusicAddManualDetailsPane> {
           ),
           const SizedBox(height: 10),
         ],
-        if (isOptical) ...[
+        if (hasGenericMatrix && !hasVinylControls) ...[
           LayoutBuilder(
             builder: (context, constraints) {
               final wide = constraints.maxWidth >= 600;
@@ -404,23 +497,27 @@ class _MusicAddManualDetailsPaneState extends State<MusicAddManualDetailsPane> {
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    colorField,
-                    const SizedBox(height: 8),
+                    if (hasColor) ...[
+                      colorField,
+                      const SizedBox(height: 8),
+                    ],
                     matrixRunout,
                   ],
                 );
               }
               return Row(
                 children: [
-                  Expanded(flex: 2, child: colorField),
-                  const SizedBox(width: 12),
+                  if (hasColor) ...[
+                    Expanded(flex: 2, child: colorField),
+                    const SizedBox(width: 12),
+                  ],
                   Expanded(flex: 3, child: matrixRunout),
                 ],
               );
             },
           ),
         ],
-        if (isVinyl) ...[
+        if (hasSideMatrices && !hasVinylControls) ...[
           LayoutBuilder(
             builder: (context, constraints) {
               final wide = constraints.maxWidth >= 600;
@@ -444,9 +541,9 @@ class _MusicAddManualDetailsPaneState extends State<MusicAddManualDetailsPane> {
             },
           ),
         ],
-        if (isCassette) ...[
-          colorField,
-        ],
+        const SizedBox(height: 10),
+        recordingDetails,
+        const SizedBox(height: 10),
       ],
     );
   }

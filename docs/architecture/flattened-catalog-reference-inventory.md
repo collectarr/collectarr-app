@@ -5,9 +5,9 @@ boundaries and remaining cleanup. It does not claim that the complete cutover
 has passed a build or test run.
 
 The pinned kind-owned Catalog Item field contract is
-`tool/core_contracts/catalog-item-v1.json`. After updating it from Core with
+`tool/core_contracts/catalog-item-v2.json`. After updating it from Core with
 `tool/update_core_contracts.ps1`, regenerate App's field-name projection with
-`dart run tool/generate_catalog_item_v1_fields.dart`.
+`dart run tool/generate_catalog_item_v2_fields.dart`.
 
 The Music ledger is `music-catalog-field-inventory.md`. The provisional
 ledgers for Anime, Board Game, Book, Comic, Game, Manga, Movie, and TV are in

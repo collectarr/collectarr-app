@@ -13,6 +13,6 @@ final class MusicTrackId extends LibraryEntityId {
 }
 
 @immutable
-final class MusicAlbumContributionId extends LibraryEntityId {
-  const MusicAlbumContributionId(super.value);
+final class MusicCreditId extends LibraryEntityId {
+  const MusicCreditId(super.value);
 }

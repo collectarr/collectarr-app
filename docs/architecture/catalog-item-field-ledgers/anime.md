@@ -1,8 +1,8 @@
-﻿# Anime Catalog Item and Collection Item Field Ledger
+# Anime Catalog Item and Collection Item Field Ledger
 
 **Status:** Provisional Core field inventory. No saved Edit-form capture is available for this kind, so displayed CLZ labels, tab locations, exact types, and literal CLZ parity are unverified. This ledger records the current pinned Core Catalog Item v1 fields only; it is not evidence of complete product parity.
 
-**Source:** `tool/core_contracts/catalog-item-v1.json`, kind `anime`. The contract is generated from Core's current kind-aware proposal validator. Regenerate this ledger after an intentional contract change and review every row against the kind's eventual Edit-form capture.
+**Source:** `tool/core_contracts/catalog-item-v2.json`, kind `anime`. The contract is generated from Core's current kind-aware proposal validator. Regenerate this ledger after an intentional contract change and review every row against the kind's eventual Edit-form capture.
 
 | Displayed label | Edit tab | Contract type | Target | Repeated | Core field | App field |
 | --- | --- | --- | --- | --- | --- | --- |

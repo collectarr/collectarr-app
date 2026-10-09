@@ -106,25 +106,13 @@ class MusicAddManualPane extends StatelessWidget {
           ),
         ),
         LibraryAddManualPaneTab(
-          id: 'classical',
-          label: 'Classical',
-          svgAsset: 'assets/tab_icons/violin.svg',
-          validate: (_) => _validateCredits(draft, classical: true),
-          content: MusicAddManualCreditsTab(
-            draft: draft,
-            accent: request.accent,
-            classical: true,
-          ),
-        ),
-        LibraryAddManualPaneTab(
-          id: 'people',
-          label: 'People',
+          id: 'credits',
+          label: 'Credits',
           svgAsset: 'assets/tab_icons/users.svg',
-          validate: (_) => _validateCredits(draft, classical: false),
+          validate: (_) => _validateCredits(draft),
           content: MusicAddManualCreditsTab(
             draft: draft,
             accent: request.accent,
-            classical: false,
           ),
         ),
         LibraryAddManualPaneTab(
@@ -185,25 +173,9 @@ class MusicAddManualPane extends StatelessWidget {
   }
 }
 
-LibraryFormValidationProblem? _validateCredits(
-  MusicAddManualDraft draft, {
-  required bool classical,
-}) {
-  final credits = classical
-      ? [
-          ...draft.composers,
-          ...draft.conductors,
-          ...draft.choruses,
-          ...draft.compositions,
-          ...draft.orchestras,
-        ]
-      : [
-          ...draft.songwriters,
-          ...draft.producers,
-          ...draft.engineers,
-          ...draft.musicians,
-        ];
-  if (credits.any((credit) => credit.name.trim().isEmpty)) {
+LibraryFormValidationProblem? _validateCredits(MusicAddManualDraft draft) {
+  if (draft.credits.any(
+      (credit) => credit.name.trim().isEmpty || credit.role.trim().isEmpty)) {
     return const LibraryFormValidationProblem(
       'Complete or remove each unfinished music credit',
     );

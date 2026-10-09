@@ -15,7 +15,7 @@ import 'package:collectarr_app/features/library/kinds/music/domain/music_album_i
 import 'package:collectarr_app/features/library/kinds/music/domain/music_external_link.dart';
 import 'package:collectarr_app/features/library/kinds/music/data/music_album_image_providers.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit/music_album_structure_tabs.dart';
-import 'package:collectarr_app/features/library/kinds/music/edit/music_album_credits_tab.dart';
+import 'package:collectarr_app/features/library/kinds/music/edit/music_credits_tab.dart';
 import 'package:collectarr_app/features/library/kinds/music/forms/music_grade_field.dart';
 import 'package:collectarr_app/features/library/kinds/music/vocabulary/music_vocabularies.dart';
 import 'package:collectarr_app/features/library/edit/schema/edit_schema_renderer.dart';
@@ -280,32 +280,14 @@ final class _MusicAlbumEditDialogState
       onNext: widget.request.onNext,
       extraTabs: [
         EditSchemaExtraTab(
-          id: 'classical',
-          label: 'Classical',
-          svgAsset: 'assets/tab_icons/violin.svg',
-          validate: () => _creditsEditor.hasIncompleteContributions(
-            classical: true,
-          )
-              ? 'Complete or remove each unfinished music credit'
-              : null,
-          content: MusicAlbumCreditsTab(
-            editor: _creditsEditor,
-            classical: true,
-            accent: widget.request.accent,
-          ),
-        ),
-        EditSchemaExtraTab(
-          id: 'people',
-          label: 'People',
+          id: 'credits',
+          label: 'Credits',
           svgAsset: 'assets/tab_icons/users.svg',
-          validate: () => _creditsEditor.hasIncompleteContributions(
-            classical: false,
-          )
+          validate: () => _creditsEditor.hasIncompleteCredits
               ? 'Complete or remove each unfinished music credit'
               : null,
           content: MusicAlbumCreditsTab(
             editor: _creditsEditor,
-            classical: false,
             accent: widget.request.accent,
           ),
         ),

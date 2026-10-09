@@ -25,7 +25,8 @@ void main() {
       'contractVersion',
       'openApiHash',
       'fieldSchemaHash',
-      'catalogItemHash',
+      'catalogItemV2Hash',
+      'musicCatalogV2Hash',
       'activeKindsHash',
     ]) {
       expect(app[key], core[key], reason: 'Manifest field $key drifted');

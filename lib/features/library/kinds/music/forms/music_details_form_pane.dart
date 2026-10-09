@@ -59,15 +59,10 @@ class MusicDetailsFormPane<TDraft> extends StatelessWidget {
             packageCondition,
             mediaCondition,
           ])),
-      _fields(['studios']),
-      Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Expanded(child: _fields([MusicFieldIdentities.countryId])),
-        const SizedBox(width: 14),
-        Expanded(child: _fields(['is_live'])),
-      ]),
+      _fields([MusicFieldIdentities.countryId]),
     ]);
     final right = _stack([
-      _fields(['extra', 'spars_code', MusicFieldIdentities.boxSetId]),
+      _fields(['extra', MusicFieldIdentities.boxSetId]),
     ]);
     return LayoutBuilder(
         builder: (context, constraints) => constraints.maxWidth >= 720

@@ -1,5 +1,7 @@
 import 'package:collectarr_app/features/library/kinds/music/domain/music_disc.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_disc_format_family.dart';
+import 'package:collectarr_app/core/models/partial_date.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_credit.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_track.dart';
 
 MusicDisc copyMusicDisc(
@@ -13,6 +15,15 @@ MusicDisc copyMusicDisc(
   bool replaceFormat = false,
   List<String>? soundTypes,
   bool replaceSoundTypes = false,
+  PartialDate? recordingDate,
+  bool replaceRecordingDate = false,
+  List<String>? recordingLocations,
+  bool replaceRecordingLocations = false,
+  bool? isLive,
+  bool replaceIsLive = false,
+  String? sparsCode,
+  bool replaceSparsCode = false,
+  List<MusicCredit>? credits,
   String? color,
   bool replaceColor = false,
   int? vinylWeightGrams,
@@ -37,6 +48,15 @@ MusicDisc copyMusicDisc(
     soundTypes: replaceSoundTypes
         ? (soundTypes ?? const [])
         : (soundTypes ?? disc.soundTypes),
+    recordingDate: replaceRecordingDate
+        ? recordingDate
+        : recordingDate ?? disc.recordingDate,
+    recordingLocations: replaceRecordingLocations
+        ? (recordingLocations ?? const [])
+        : (recordingLocations ?? disc.recordingLocations),
+    isLive: replaceIsLive ? isLive : isLive ?? disc.isLive,
+    sparsCode: replaceSparsCode ? sparsCode : sparsCode ?? disc.sparsCode,
+    credits: credits ?? disc.credits,
     color: replaceColor ? color : color ?? disc.color,
     vinylWeightGrams: replaceVinylWeightGrams
         ? vinylWeightGrams

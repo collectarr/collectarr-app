@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:collectarr_app/core/api/generated/catalog_item_v1_fields.dart';
+import 'package:collectarr_app/core/api/generated/catalog_item_v2_fields.dart';
 import 'package:crypto/crypto.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -17,7 +17,7 @@ void main() {
       File('tool/core_contracts/metadata-field-schema.json').readAsStringSync(),
     ) as Map<String, dynamic>;
     final catalogItemSchema = jsonDecode(
-      File('tool/core_contracts/catalog-item-v1.json').readAsStringSync(),
+      File('tool/core_contracts/catalog-item-v2.json').readAsStringSync(),
     ) as Map<String, dynamic>;
 
     expect(manifest['contractVersion'], isA<String>());
@@ -30,8 +30,8 @@ void main() {
       _fileHash('tool/core_contracts/metadata-field-schema.json'),
     );
     expect(
-      manifest['catalogItemHash'],
-      _fileHash('tool/core_contracts/catalog-item-v1.json'),
+      manifest['catalogItemV2Hash'],
+      _fileHash('tool/core_contracts/catalog-item-v2.json'),
     );
     expect(
       manifest['activeKindsHash'],
@@ -59,18 +59,18 @@ void main() {
     );
     expect(fieldSchema['contractVersion'], manifest['contractVersion']);
     expect(fieldSchema['fields'], isNotEmpty);
-    expect(catalogItemSchema['schemaVersion'], 1);
-    expect(catalogItemSchema['contractVersion'], '1.0.0');
+    expect(catalogItemSchema['schemaVersion'], 2);
+    expect(catalogItemSchema['contractVersion'], '2.0.0');
     final catalogKinds = catalogItemSchema['kinds'] as Map<String, dynamic>;
     expect(
-      catalogItemV1FieldsByKind.keys.toSet(),
+      catalogItemV2FieldsByKind.keys.toSet(),
       catalogKinds.keys.toSet(),
     );
     for (final entry in catalogKinds.entries) {
       final kindSchema = entry.value as Map<String, dynamic>;
       final properties = kindSchema['properties'] as Map<String, dynamic>;
       expect(
-        catalogItemV1FieldsByKind[entry.key],
+        catalogItemV2FieldsByKind[entry.key],
         properties.keys.toSet(),
         reason: 'Generated App fields drifted for ${entry.key}.',
       );
@@ -79,7 +79,25 @@ void main() {
     final musicSchema = catalogKinds['music'] as Map<String, dynamic>;
     final musicProperties = musicSchema['properties'] as Map<String, dynamic>;
     expect(musicProperties.keys, contains('discs'));
+    expect(musicProperties.keys, contains('credits'));
     expect(musicProperties.keys, contains('original_release_date'));
+    for (final field in [
+      'recording_date',
+      'studios',
+      'is_live',
+      'spars_code',
+      'composers',
+      'conductors',
+      'choruses',
+      'compositions',
+      'orchestras',
+      'songwriters',
+      'producers',
+      'engineers',
+      'musicians',
+    ]) {
+      expect(musicProperties, isNot(containsPair(field, anything)));
+    }
     expect(
         musicProperties.keys, isNot(contains('original_release_date_parts')));
     expect(musicProperties, isNot(containsPair('recording_id', anything)));

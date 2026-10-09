@@ -68,16 +68,19 @@ abstract class MusicWorkspaceProjectionValues
   String? get artist {
     final value = music.artist?.trim();
     if (value != null && value.isNotEmpty) return value;
-    for (final contribution in music.contributions) {
-      final role = contribution.role.trim().toLowerCase();
+    for (final credit in [
+      ...music.credits,
+      ...music.discs.expand((disc) => disc.credits),
+    ]) {
+      final role = credit.role.trim().toLowerCase();
       if (!(role.contains('artist') ||
           role.contains('performer') ||
           role.contains('musician') ||
           role.contains('band'))) {
         continue;
       }
-      final name = contribution.displayName?.trim();
-      if (name != null && name.isNotEmpty) return name;
+      final name = credit.name.trim();
+      if (name.isNotEmpty) return name;
     }
     return null;
   }
@@ -130,14 +133,18 @@ abstract class MusicWorkspaceProjectionValues
   int? get trackCount => music.trackCount;
 
   @override
-  bool? get isLive => music.isLive;
+  bool? get isLive => music.discs.any((disc) => disc.isLive == true);
 
   @override
   List<String> get genres => music.genres;
 
   @override
   List<Map<String, dynamic>> get credits => [
-        for (final credit in music.contributions) credit.toJson(),
+        for (final credit in music.credits)
+          {...credit.toJson(), 'scope': 'Album'},
+        for (final disc in music.discs)
+          for (final credit in disc.credits)
+            {...credit.toJson(), 'scope': 'Disc ${disc.discNumber}'},
         for (final credit in music.artistCredits) credit.toJson(),
       ];
 }

@@ -1,14 +1,14 @@
 {
-  "$id": "https://schemas.collectarr.app/catalog-item/v1",
+  "$id": "https://schemas.collectarr.app/catalog-item/v2",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "contractVersion": "1.0.0",
-  "coreCommit": "32e4f0cf773eae160dced45188e33fbb575df77f",
+  "contractVersion": "2.0.0",
+  "coreCommit": "0d6c7ebeb67eefe6a7fbc1d6d42f9ad42c29ea9b",
   "description": "Source-neutral Catalog Item documents. Fields are validated and projected using the schema owned by the declared kind.",
   "fieldStatus": {
     "music": "grounded_in_saved_clz_music_edit_form",
     "other_kinds": "provisional_clz_parity_unverified_without_edit_form_captures"
   },
-  "generatedAt": "2026-10-08T20:32:12.859760Z",
+  "generatedAt": "2026-10-09T13:23:24.233399Z",
   "kinds": {
     "anime": {
       "additionalProperties": false,
@@ -7194,7 +7194,14 @@
                     "type": "string"
                   },
                   "join_phrase": {
-                    "type": "string"
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
                   },
                   "name": {
                     "minLength": 1,
@@ -7204,7 +7211,14 @@
                     "type": "integer"
                   },
                   "sort_name": {
-                    "type": "string"
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
                   }
                 },
                 "required": [
@@ -7261,116 +7275,6 @@
             }
           ]
         },
-        "choruses": {
-          "items": {
-            "type": "string"
-          },
-          "type": "array"
-        },
-        "composers": {
-          "anyOf": [
-            {
-              "items": {
-                "additionalProperties": false,
-                "properties": {
-                  "id": {
-                    "minLength": 1,
-                    "type": "string"
-                  },
-                  "image_url": {
-                    "type": "string"
-                  },
-                  "instrument": {
-                    "type": "string"
-                  },
-                  "name": {
-                    "minLength": 1,
-                    "type": "string"
-                  },
-                  "person_id": {
-                    "minLength": 1,
-                    "type": "string"
-                  },
-                  "role_id": {
-                    "type": "string"
-                  },
-                  "sequence": {
-                    "type": "integer"
-                  },
-                  "sort_name": {
-                    "type": "string"
-                  }
-                },
-                "required": [
-                  "id",
-                  "name",
-                  "person_id",
-                  "sequence"
-                ],
-                "type": "object"
-              },
-              "type": "array"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        },
-        "compositions": {
-          "items": {
-            "type": "string"
-          },
-          "type": "array"
-        },
-        "conductors": {
-          "anyOf": [
-            {
-              "items": {
-                "additionalProperties": false,
-                "properties": {
-                  "id": {
-                    "minLength": 1,
-                    "type": "string"
-                  },
-                  "image_url": {
-                    "type": "string"
-                  },
-                  "instrument": {
-                    "type": "string"
-                  },
-                  "name": {
-                    "minLength": 1,
-                    "type": "string"
-                  },
-                  "person_id": {
-                    "minLength": 1,
-                    "type": "string"
-                  },
-                  "role_id": {
-                    "type": "string"
-                  },
-                  "sequence": {
-                    "type": "integer"
-                  },
-                  "sort_name": {
-                    "type": "string"
-                  }
-                },
-                "required": [
-                  "id",
-                  "name",
-                  "person_id",
-                  "sequence"
-                ],
-                "type": "object"
-              },
-              "type": "array"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        },
         "country": {
           "anyOf": [
             {
@@ -7391,6 +7295,80 @@
             }
           ]
         },
+        "credits": {
+          "anyOf": [
+            {
+              "items": {
+                "additionalProperties": false,
+                "properties": {
+                  "contributor_id": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "id": {
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "instruments": {
+                    "items": {
+                      "type": "string"
+                    },
+                    "type": "array"
+                  },
+                  "name": {
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "role": {
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "role_id": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "sequence": {
+                    "type": "integer"
+                  },
+                  "sort_name": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "id",
+                  "instruments",
+                  "name",
+                  "role",
+                  "sequence"
+                ],
+                "type": "object"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
         "discs": {
           "anyOf": [
             {
@@ -7401,6 +7379,80 @@
                     "anyOf": [
                       {
                         "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "credits": {
+                    "anyOf": [
+                      {
+                        "items": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "contributor_id": {
+                              "anyOf": [
+                                {
+                                  "type": "string"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "id": {
+                              "minLength": 1,
+                              "type": "string"
+                            },
+                            "instruments": {
+                              "items": {
+                                "type": "string"
+                              },
+                              "type": "array"
+                            },
+                            "name": {
+                              "minLength": 1,
+                              "type": "string"
+                            },
+                            "role": {
+                              "minLength": 1,
+                              "type": "string"
+                            },
+                            "role_id": {
+                              "anyOf": [
+                                {
+                                  "type": "string"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "sequence": {
+                              "type": "integer"
+                            },
+                            "sort_name": {
+                              "anyOf": [
+                                {
+                                  "type": "string"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            }
+                          },
+                          "required": [
+                            "id",
+                            "instruments",
+                            "name",
+                            "role",
+                            "sequence"
+                          ],
+                          "type": "object"
+                        },
+                        "type": "array"
                       },
                       {
                         "type": "null"
@@ -7433,6 +7485,16 @@
                   "id": {
                     "type": "string"
                   },
+                  "is_live": {
+                    "anyOf": [
+                      {
+                        "type": "boolean"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
                   "matrix_number": {
                     "anyOf": [
                       {
@@ -7463,6 +7525,41 @@
                       }
                     ]
                   },
+                  "recording_date": {
+                    "anyOf": [
+                      {
+                        "additionalProperties": false,
+                        "minProperties": 1,
+                        "properties": {
+                          "day": {
+                            "maximum": 31,
+                            "minimum": 1,
+                            "type": "integer"
+                          },
+                          "month": {
+                            "maximum": 12,
+                            "minimum": 1,
+                            "type": "integer"
+                          },
+                          "year": {
+                            "maximum": 9999,
+                            "minimum": 1,
+                            "type": "integer"
+                          }
+                        },
+                        "type": "object"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "recording_locations": {
+                    "items": {
+                      "type": "string"
+                    },
+                    "type": "array"
+                  },
                   "rpm": {
                     "anyOf": [
                       {
@@ -7478,6 +7575,16 @@
                       "type": "string"
                     },
                     "type": "array"
+                  },
+                  "spars_code": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
                   },
                   "title": {
                     "anyOf": [
@@ -7496,6 +7603,16 @@
                           "additionalProperties": false,
                           "properties": {
                             "artist": {
+                              "anyOf": [
+                                {
+                                  "type": "string"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "composition": {
                               "anyOf": [
                                 {
                                   "type": "string"
@@ -7574,59 +7691,12 @@
                   }
                 },
                 "required": [
+                  "credits",
                   "disc_number",
                   "id",
+                  "recording_locations",
                   "sound_types",
                   "tracks"
-                ],
-                "type": "object"
-              },
-              "type": "array"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        },
-        "engineers": {
-          "anyOf": [
-            {
-              "items": {
-                "additionalProperties": false,
-                "properties": {
-                  "id": {
-                    "minLength": 1,
-                    "type": "string"
-                  },
-                  "image_url": {
-                    "type": "string"
-                  },
-                  "instrument": {
-                    "type": "string"
-                  },
-                  "name": {
-                    "minLength": 1,
-                    "type": "string"
-                  },
-                  "person_id": {
-                    "minLength": 1,
-                    "type": "string"
-                  },
-                  "role_id": {
-                    "type": "string"
-                  },
-                  "sequence": {
-                    "type": "integer"
-                  },
-                  "sort_name": {
-                    "type": "string"
-                  }
-                },
-                "required": [
-                  "id",
-                  "name",
-                  "person_id",
-                  "sequence"
                 ],
                 "type": "object"
               },
@@ -7694,16 +7764,6 @@
           },
           "type": "array"
         },
-        "is_live": {
-          "anyOf": [
-            {
-              "type": "boolean"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        },
         "label": {
           "anyOf": [
             {
@@ -7713,61 +7773,6 @@
               "type": "null"
             }
           ]
-        },
-        "musicians": {
-          "anyOf": [
-            {
-              "items": {
-                "additionalProperties": false,
-                "properties": {
-                  "id": {
-                    "minLength": 1,
-                    "type": "string"
-                  },
-                  "image_url": {
-                    "type": "string"
-                  },
-                  "instrument": {
-                    "type": "string"
-                  },
-                  "name": {
-                    "minLength": 1,
-                    "type": "string"
-                  },
-                  "person_id": {
-                    "minLength": 1,
-                    "type": "string"
-                  },
-                  "role_id": {
-                    "type": "string"
-                  },
-                  "sequence": {
-                    "type": "integer"
-                  },
-                  "sort_name": {
-                    "type": "string"
-                  }
-                },
-                "required": [
-                  "id",
-                  "name",
-                  "person_id",
-                  "sequence"
-                ],
-                "type": "object"
-              },
-              "type": "array"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        },
-        "orchestras": {
-          "items": {
-            "type": "string"
-          },
-          "type": "array"
         },
         "original_release_date": {
           "anyOf": [
@@ -7808,84 +7813,6 @@
             }
           ]
         },
-        "producers": {
-          "anyOf": [
-            {
-              "items": {
-                "additionalProperties": false,
-                "properties": {
-                  "id": {
-                    "minLength": 1,
-                    "type": "string"
-                  },
-                  "image_url": {
-                    "type": "string"
-                  },
-                  "instrument": {
-                    "type": "string"
-                  },
-                  "name": {
-                    "minLength": 1,
-                    "type": "string"
-                  },
-                  "person_id": {
-                    "minLength": 1,
-                    "type": "string"
-                  },
-                  "role_id": {
-                    "type": "string"
-                  },
-                  "sequence": {
-                    "type": "integer"
-                  },
-                  "sort_name": {
-                    "type": "string"
-                  }
-                },
-                "required": [
-                  "id",
-                  "name",
-                  "person_id",
-                  "sequence"
-                ],
-                "type": "object"
-              },
-              "type": "array"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        },
-        "recording_date": {
-          "anyOf": [
-            {
-              "additionalProperties": false,
-              "minProperties": 1,
-              "properties": {
-                "day": {
-                  "maximum": 31,
-                  "minimum": 1,
-                  "type": "integer"
-                },
-                "month": {
-                  "maximum": 12,
-                  "minimum": 1,
-                  "type": "integer"
-                },
-                "year": {
-                  "maximum": 9999,
-                  "minimum": 1,
-                  "type": "integer"
-                }
-              },
-              "type": "object"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        },
         "release_date": {
           "anyOf": [
             {
@@ -7915,55 +7842,6 @@
             }
           ]
         },
-        "songwriters": {
-          "anyOf": [
-            {
-              "items": {
-                "additionalProperties": false,
-                "properties": {
-                  "id": {
-                    "minLength": 1,
-                    "type": "string"
-                  },
-                  "image_url": {
-                    "type": "string"
-                  },
-                  "instrument": {
-                    "type": "string"
-                  },
-                  "name": {
-                    "minLength": 1,
-                    "type": "string"
-                  },
-                  "person_id": {
-                    "minLength": 1,
-                    "type": "string"
-                  },
-                  "role_id": {
-                    "type": "string"
-                  },
-                  "sequence": {
-                    "type": "integer"
-                  },
-                  "sort_name": {
-                    "type": "string"
-                  }
-                },
-                "required": [
-                  "id",
-                  "name",
-                  "person_id",
-                  "sequence"
-                ],
-                "type": "object"
-              },
-              "type": "array"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        },
         "sort_title": {
           "anyOf": [
             {
@@ -7973,22 +7851,6 @@
               "type": "null"
             }
           ]
-        },
-        "spars_code": {
-          "anyOf": [
-            {
-              "type": "string"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        },
-        "studios": {
-          "items": {
-            "type": "string"
-          },
-          "type": "array"
         },
         "subtitle": {
           "anyOf": [
@@ -8017,20 +7879,11 @@
       },
       "required": [
         "artist_credits",
-        "choruses",
-        "composers",
-        "compositions",
-        "conductors",
+        "credits",
         "discs",
-        "engineers",
         "external_links",
         "extra",
         "genres",
-        "musicians",
-        "orchestras",
-        "producers",
-        "songwriters",
-        "studios",
         "title"
       ],
       "type": "object"
@@ -9496,6 +9349,6 @@
       "type": "object"
     }
   },
-  "schemaVersion": 1,
-  "title": "Collectarr Flattened Catalog Item v1 Proposal Payloads"
+  "schemaVersion": 2,
+  "title": "Collectarr Flattened Catalog Item v2 Proposal Payloads"
 }

@@ -1,10 +1,10 @@
 # Music v2 and Library Field Semantics Roadmap
 
-Status: active; checkpoints A1–A4 and the nine-kind metadata cutover are
-implemented and verified. The next stage is the strict Core Music v2 contract.
-Each completed checkpoint is committed separately with a detailed Conventional
-Commit message. Stages that touch Core contracts regenerate the Core bundle and
-update the App pin in the same stage.
+Status: active; checkpoints A1–A4, the nine-kind metadata cutover, and Music
+v2 contract/domain/editing checkpoints C–F are implemented. The next stage is
+precomputed Music workspace facts. Each completed checkpoint is committed
+separately with a detailed Conventional Commit message. Stages that touch Core
+contracts regenerate the Core bundle and update the App pin in the same stage.
 
 ## Architectural contract
 
@@ -107,38 +107,42 @@ and toolbar filters for Music, Book, Comic, Movie, TV, Anime, Manga, Board Game,
 and Game. Schema resolution and cross-kind contracts pass; workspace selection
 and existing filter interaction behavior remain explicit.
 
-### C. Core Music v2 contract
+### C. Core Music v2 contract (implemented)
 
 Define strict nested album/disc/credit/track transport and reject old root role
 arrays and root recording fields. Make credit contributor references optional,
 instruments a list, and disc IDs/track IDs/credit IDs stable and unique. Move
 recording fields to discs and replace detailed format-family values with the
 coarse family enum. Update Core schema/domain tests, regenerate its bundle, and
-pin that bundle in App before continuing.
+pin that bundle in App before continuing. Core schema tests, generated
+artifacts, and the App contract pin now describe the strict nested v2 shape.
 
-### D. App Music v2 domain and codec
+### D. App Music v2 domain and codec (implemented)
 
 Mirror the strict Core contract in App domain models and codecs. Remove old
 root contributor arrays, album recording fields, composition credits, and
 silent format-family inference. Keep artist credits semantically separate.
 Add strict JSON round-trip, unknown-field rejection, duplicate-ID rejection,
-optional contributor ID, and old-payload rejection tests.
+optional contributor ID, and old-payload rejection tests. Album recording
+fields and role-specific contribution models are removed from the App domain.
 
-### E. Disc format capabilities and presets
+### E. Disc format capabilities and presets (implemented)
 
 Add `MusicDiscCapabilities` for color, vinyl weight, RPM, generic matrix, and
 side matrices. Define Music-owned known-format presets and explicit family
-selection for custom formats. Hide Family for known formats and make normal
-editing show the format only.
+selection for custom formats. Family is hidden for known formats and normal
+editing shows the detailed format only.
 
-### F. Credit and disc editing
+### F. Credit and disc editing (implemented)
 
 Refactor controllers before widgets. Move disc recording metadata APIs into
 `MusicDiscListEditor`; add `MusicCreditListEditor` for album and disc scopes.
 Replace Classical and People tabs with one Credits table (`Name | Role |
 Instruments | Applies to`) where roles are vocabulary values. Put recording
 date, locations, SPARS, and live/studio controls on each disc's details view.
-Keep Tracks kind-owned and preserve track/disc lifecycle behavior.
+Keep Tracks kind-owned and preserve track/disc lifecycle behavior. The Add and
+Edit flows use one scope-aware Credits surface, and disc details own recording
+controls.
 
 ### G. Music workspace facts
 

@@ -102,7 +102,10 @@ Iterable<String?> musicLinkedMetadataValues(MusicAlbum music) => [
       music.artist,
       music.publisher,
       music.countryCode,
-      ...music.contributions.map((credit) => credit.displayName),
+      ...music.credits.map((credit) => credit.name),
+      ...music.discs.expand(
+        (disc) => disc.credits.map((credit) => credit.name),
+      ),
       ...music.genres,
     ];
 

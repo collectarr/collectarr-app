@@ -1,5 +1,5 @@
 {
-  "contractVersion": "1.0.0",
+  "contractVersion": "2.0.0",
   "fields": [
     {
       "editable": false,
@@ -2208,15 +2208,6 @@
     },
     {
       "editable": true,
-      "input": "date",
-      "key": "recording_date",
-      "kind": "music",
-      "label": "Recording date",
-      "section": "item",
-      "valueType": "partial_date"
-    },
-    {
-      "editable": true,
       "input": "text",
       "key": "packaging",
       "kind": "music",
@@ -2227,38 +2218,11 @@
     {
       "editable": true,
       "input": "list",
-      "key": "studios",
-      "kind": "music",
-      "label": "Studio",
-      "section": "item",
-      "valueType": "string_list"
-    },
-    {
-      "editable": true,
-      "input": "text",
-      "key": "is_live",
-      "kind": "music",
-      "label": "Is live",
-      "section": "technical",
-      "valueType": "boolean"
-    },
-    {
-      "editable": true,
-      "input": "list",
       "key": "extra",
       "kind": "music",
       "label": "Extra",
       "section": "technical",
       "valueType": "string_list"
-    },
-    {
-      "editable": true,
-      "input": "text",
-      "key": "spars_code",
-      "kind": "music",
-      "label": "SPARS code",
-      "section": "technical",
-      "valueType": "string"
     },
     {
       "editable": true,
@@ -4331,5 +4295,5 @@
       "valueType": "link_list"
     }
   ],
-  "generatedAt": "2026-10-08T20:32:12.859760Z"
+  "generatedAt": "2026-10-09T13:23:24.233399Z"
 }

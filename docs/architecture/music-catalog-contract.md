@@ -1,24 +1,60 @@
 # Music Catalog Contract
 
-Core exposes one `CatalogMusicItemResponse` for each concrete album edition at `/api/v1/metadata/music/items/{id}`. The search endpoint `/api/v1/metadata/music/items` returns a page (`items`, `next_offset`, `has_more`) whose items include album fields, discs, and tracks. Search and detail reads do not expose a Release Group → Release hierarchy.
+Core exposes one `CatalogMusicItemResponse` for each concrete album edition
+at `/api/v1/metadata/music/items/{id}`. Search returns pages of the same
+edition-level item shape. There is no Release Group to Release hierarchy.
 
-Core response models in `app/schemas/catalog_music_item.py` define the wire schema. `scripts/export_contract_bundle.py` exports them as `contracts/music-catalog-v1.json` and pins the artifact hash in the contract manifest. App copies the bundle with `tool/update_core_contracts.ps1`; the pinned file is `tool/core_contracts/music-catalog-v1.json`.
+The canonical Music v2 item contains edition metadata, `artist_credits`,
+album-level `credits`, `external_links`, artwork, and `discs`. Each disc owns
+its format family and format, sound and physical properties, recording date,
+recording locations, live/studio state, SPARS code, credits, and tracks. Each
+track owns its composition and track-specific data. Album release dates,
+label, country, barcode, catalog number, packaging, genres, box-set state, and
+artwork remain edition-level fields.
 
-Music owns the typed `MusicAlbum`, `MusicMedium`, and `MusicTrack` models under `lib/features/library/kinds/music/domain/`. The same metadata model is used at the Core boundary where the shapes agree; `MusicCatalogMapper` translates the remaining Core names and the contained `discs` list. Shared API transport retains only routing identity and the kind document. Mixed-kind UI receives a transient `CatalogDisplaySummary` projected by the owning kind codec. Run the contract check after refreshing the Core bundle:
+Music credits have stable IDs, a name and optional sort name, a role and
+optional role ID, `instruments[]`, a sequence, and an optional `contributor_id`
+that is present only when a real catalog contributor reference exists.
+`artist_credits` remain separate because their credited-name, join-phrase, and
+sequence semantics differ. Composition is track metadata, not a credit.
+
+Disc format family is intentionally coarse: `vinyl`, `opticalDisc`, `tape`,
+`digital`, or `other`. The format string carries the detailed format such as
+CD, SACD, SHM-CD, cassette, 12-inch vinyl, or FLAC. Known Music presets assign
+their family; custom formats require the user to choose one. The canonical
+contract never infers family from a format string.
+
+Core response models in `app/schemas/catalog_music_item.py` define the strict
+wire schema. Core exports `contracts/music-catalog-v2.json` and pins its hash
+in the contract manifest. App pins that bundle under `tool/core_contracts/`
+and generates the API client and Music field inventory from the v2 artifacts.
+Run the App contract check after refreshing the bundle:
 
 ```powershell
 dart run tool/check_music_catalog_contract.dart
 ```
 
-The pinned metadata-field schema assigns Music corrections to `catalog_item`. Music Admin reads artist, label, format, dates, identifiers, and images directly from the flat item response; the kind-owned contributor edits its contained disc tracks without following a Release Group or Release reference.
-
-The check verifies the pinned hash and exact root, disc, and track field sets accepted by the Music mapper against Core's exported schemas. Updating Core does not silently update App's pinned input; copying the new bundle is an explicit App change. This check does not replace Dart static analysis of the typed model and mapper.
+Both Core and App reject unknown fields. The v2 contract does not accept the
+former album-level recording fields or role-specific root arrays, and App has
+no v1 decoding or migration path. Reordering discs, tracks, or credits keeps
+their stable IDs and does not change their identities.
 
 ## Ownership
 
-- Core owns canonical album edition fields, disc and track content, credits, identifiers, and catalog links.
-- App stores one local Music entry with `MusicAlbum` metadata and `MusicPersonalData`; the values stay distinct inside that record. App owns condition, storage, personal images, listening history, and other personal state. Sync mirrors the complete local entry, and Core receives catalog metadata only.
-- Music has no synopsis field. Synopsis remains available for kinds that define it.
-- Each concrete edition has its own catalog identity, including editions with the same title.
+- Core owns canonical edition metadata, artist credits, album and disc credits,
+  discs, tracks, identifiers, and catalog links.
+- App stores one local Music entry with a `MusicAlbum` catalog document and
+  separate personal data. Condition, storage, personal images, listening
+  history, and other personal state remain entry-owned.
+- Album release dates describe the edition. Recording date, recording
+  locations, live/studio state, and SPARS describe a disc.
+- App workspace facts are derived from canonical Music data, immutable for a
+  projection, and never persisted.
+- Music has no synopsis field. Synopsis remains available for kinds that define
+  it.
+- Each concrete edition has its own catalog identity, including editions with
+  the same title.
 
-The supported App database is a fresh version 1 baseline. There is no upgrade path from earlier SQLite layouts. Core also requires a new, empty PostgreSQL database for its current schema baseline. Keep existing databases and backups separately; these steps do not rewrite or reset them.
+The supported App database is a fresh version 1 baseline. Core also requires a
+new, empty PostgreSQL database for its current schema baseline. No earlier
+database or contract format is migrated or silently accepted.

@@ -1,10 +1,10 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND.
-// Source: tool/core_contracts/catalog-item-v1.json
-// Contract SHA-256: f43d3683ec4af6b789b5c37ae4dfe6c8d2601f2b08082c55b18002aa81d1618e
-const catalogItemV1SchemaVersion = 1;
-const catalogItemV1ContractVersion = '1.0.0';
+// Source: tool/core_contracts/catalog-item-v2.json
+// Contract SHA-256: 30cf1e096f6ec0a9acba0909834dfbfbdb012e61d9dd9da96dcd01693d5ae7c0
+const catalogItemV2SchemaVersion = 2;
+const catalogItemV2ContractVersion = '2.0.0';
 
-const Map<String, Set<String>> catalogItemV1FieldsByKind = {
+const Map<String, Set<String>> catalogItemV2FieldsByKind = {
   'anime': {
     'age_rating',
     'audience_rating',
@@ -379,30 +379,18 @@ const Map<String, Set<String>> catalogItemV1FieldsByKind = {
     'barcode',
     'box_set',
     'catalog_number',
-    'choruses',
-    'composers',
-    'compositions',
-    'conductors',
     'country',
     'cover_image_url',
+    'credits',
     'discs',
-    'engineers',
     'external_links',
     'extra',
     'genres',
-    'is_live',
     'label',
-    'musicians',
-    'orchestras',
     'original_release_date',
     'packaging',
-    'producers',
-    'recording_date',
     'release_date',
-    'songwriters',
     'sort_title',
-    'spars_code',
-    'studios',
     'subtitle',
     'thumbnail_image_url',
     'title',

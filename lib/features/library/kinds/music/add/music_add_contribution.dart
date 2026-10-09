@@ -84,7 +84,7 @@ final musicKindAdd = StandardLibraryAddCapability<MusicAddDraft>(
               return [
                 catalogItem.releaseDateParts,
                 catalogItem.originalReleaseDateParts,
-                catalogItem.recordingDateParts,
+                ...catalogItem.discs.map((disc) => disc.recordingDate),
               ];
             },
           ),

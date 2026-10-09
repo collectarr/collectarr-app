@@ -119,24 +119,62 @@ CatalogItemDto testCatalogItem({
           publishing is Map ? publishing : (publishing as dynamic).toJson(),
     if (payload != null) ...payload,
   };
-  final kindData = <String, dynamic>{
-    'title': title,
-    if (displayTitle != null) 'display_title': displayTitle,
-    if (localizedTitle != null) 'localized_title': localizedTitle,
-    if (originalTitle != null) 'original_title': originalTitle,
-    if (titleExtension != null) 'title_extension': titleExtension,
-    if (searchAliases != null) 'search_aliases': searchAliases,
-    if (synopsis != null) 'synopsis': synopsis,
-    if (coverImageUrl != null) 'cover_image_url': coverImageUrl,
-    if (thumbnailImageUrl != null) 'thumbnail_image_url': thumbnailImageUrl,
-    if (coverImageData != null) 'cover_image_data': coverImageData,
-    if (sortKey != null) 'sort_key': sortKey,
-    if (releaseDate != null) 'release_date': releaseDate.toIso8601String(),
-    if (releaseYear != null) 'release_year': releaseYear,
-    if (editions != null) 'editions': editions,
-    if (trailerUrls != null) 'trailer_urls': trailerUrls,
-    ...mergedPayload,
-  };
+  final kindData = kind == 'music'
+      ? <String, dynamic>{
+          'title': title,
+          'revision': 1,
+          if (publisher != null) 'label': publisher,
+          if (barcode != null) 'barcode': barcode,
+          if (releaseDate != null)
+            'release_date': {
+              'year': releaseDate.year,
+              'month': releaseDate.month,
+              'day': releaseDate.day,
+            },
+          if (coverImageUrl != null) 'cover_image_url': coverImageUrl,
+          if (thumbnailImageUrl != null)
+            'thumbnail_image_url': thumbnailImageUrl,
+          'artist_credits': const <Map<String, dynamic>>[],
+          'genres': genres ?? const <String>[],
+          'extra': const <String>[],
+          'credits': const <Map<String, dynamic>>[],
+          'external_links': const <Map<String, dynamic>>[],
+          'discs': [
+            if (physicalFormat != null || physicalFormatLabel != null)
+              {
+                'id': 'test-disc-$id',
+                'disc_number': 1,
+                if ((physicalFormatLabel ?? physicalFormat)?.isNotEmpty == true)
+                  'format': physicalFormatLabel ?? physicalFormat,
+                'sound_types': const <String>[],
+                'recording_locations': const <String>[],
+                'credits': const <Map<String, dynamic>>[],
+                'tracks': const <Map<String, dynamic>>[],
+              },
+          ],
+          if (music is Map<String, dynamic>) ...music,
+          ...?payload,
+        }
+      : <String, dynamic>{
+          'title': title,
+          if (displayTitle != null) 'display_title': displayTitle,
+          if (localizedTitle != null) 'localized_title': localizedTitle,
+          if (originalTitle != null) 'original_title': originalTitle,
+          if (titleExtension != null) 'title_extension': titleExtension,
+          if (searchAliases != null) 'search_aliases': searchAliases,
+          if (synopsis != null) 'synopsis': synopsis,
+          if (coverImageUrl != null) 'cover_image_url': coverImageUrl,
+          if (thumbnailImageUrl != null)
+            'thumbnail_image_url': thumbnailImageUrl,
+          if (coverImageData != null) 'cover_image_data': coverImageData,
+          if (sortKey != null) 'sort_key': sortKey,
+          if (releaseDate != null)
+            'release_date': releaseDate.toIso8601String(),
+          if (releaseYear != null) 'release_year': releaseYear,
+          if (editions != null) 'editions': editions,
+          if (trailerUrls != null) 'trailer_urls': trailerUrls,
+          ...mergedPayload,
+        };
   return CatalogItemDto.raw(
     id: id,
     mediaKind: catalogMediaKindFromValue(kind),
@@ -468,8 +506,7 @@ MovieLibraryEntry testMovieLibraryEntryFrom(TestLibraryEntry item) =>
 AnimeLibraryEntry testAnimeLibraryEntryFrom(TestLibraryEntry item) =>
     AnimeLibraryEntry.fromJson(item.toJson());
 
-BoardGameLibraryEntry testBoardGameLibraryEntryFrom(
-        TestLibraryEntry item) =>
+BoardGameLibraryEntry testBoardGameLibraryEntryFrom(TestLibraryEntry item) =>
     BoardGameLibraryEntry.fromJson(item.toJson());
 
 GameLibraryEntry testGameLibraryEntryFrom(TestLibraryEntry item) =>
@@ -484,8 +521,7 @@ MusicLibraryEntry testMusicLibraryEntryFrom(TestLibraryEntry item) =>
 TvLibraryEntry testTvLibraryEntryFrom(TestLibraryEntry item) =>
     TvLibraryEntry.fromJson(item.toJson());
 
-LibraryEntryDispatch testLibraryEntryDispatchFrom(
-    TestLibraryEntry item) {
+LibraryEntryDispatch testLibraryEntryDispatchFrom(TestLibraryEntry item) {
   return switch (item.catalogRef.kind) {
     CatalogMediaKind.anime => OpaqueLibraryEntryDispatch(
         kind: CatalogMediaKind.anime,
@@ -548,8 +584,7 @@ LibraryEntryDispatch testComicLibraryEntryDispatchFrom(
       value: item,
     );
 
-LibraryEntryDispatch testGameLibraryEntryDispatchFrom(
-        GameLibraryEntry item) =>
+LibraryEntryDispatch testGameLibraryEntryDispatchFrom(GameLibraryEntry item) =>
     OpaqueLibraryEntryDispatch(
       kind: CatalogMediaKind.game,
       ref: LibraryEntryRef(kind: CatalogMediaKind.game, id: item.id),
@@ -589,16 +624,16 @@ LibraryWorkspaceContext testLibraryWorkspaceContext({
         title: title,
       );
   final mediaKind = catalogMediaKindFromApiValue(kind);
-  final libraryEntryDispatch = libraryEntry == null
-      ? null
-      : testLibraryEntryDispatchFrom(libraryEntry);
+  final libraryEntryDispatch =
+      libraryEntry == null ? null : testLibraryEntryDispatchFrom(libraryEntry);
   return LibraryWorkspaceContext(
     item: WorkspaceItem(
       target: CatalogTargetRef(CatalogItemRef(kind: mediaKind, id: itemId)),
       presentation: CatalogDisplaySummary(
         ref: CatalogItemRef(kind: mediaKind, id: itemId),
         kind: mediaKind,
-        primaryLabel: (resolvedCatalogItem.kindData['title'] as String?) ?? title,
+        primaryLabel:
+            (resolvedCatalogItem.kindData['title'] as String?) ?? title,
       ),
       kindPresentationData: catalogData ??
           workspaceCatalogDataFromTransport(
@@ -606,9 +641,8 @@ LibraryWorkspaceContext testLibraryWorkspaceContext({
               testCatalogItemWithKindMetadata(resolvedCatalogItem),
             ),
           ),
-      entrySummary: libraryEntry == null
-          ? null
-          : testLibraryEntrySummary(libraryEntry),
+      entrySummary:
+          libraryEntry == null ? null : testLibraryEntrySummary(libraryEntry),
       libraryEntryDispatch: libraryEntryDispatch,
     ),
     personal: PersonalOverlay(
@@ -659,9 +693,8 @@ LibraryWorkspaceContext LibraryWorkspaceSource({
         title: title,
       );
   final mediaKind = catalogMediaKindFromApiValue(kind);
-  final libraryEntryDispatch = libraryEntry == null
-      ? null
-      : testLibraryEntryDispatchFrom(libraryEntry);
+  final libraryEntryDispatch =
+      libraryEntry == null ? null : testLibraryEntryDispatchFrom(libraryEntry);
   return LibraryWorkspaceContext(
     item: WorkspaceItem(
       target: CatalogTargetRef(CatalogItemRef(kind: mediaKind, id: itemId)),
@@ -678,9 +711,7 @@ LibraryWorkspaceContext LibraryWorkspaceSource({
             ),
           ),
       entrySummary: libraryEntrySummary ??
-          (libraryEntry == null
-              ? null
-              : testLibraryEntrySummary(libraryEntry)),
+          (libraryEntry == null ? null : testLibraryEntrySummary(libraryEntry)),
       libraryEntryDispatch: libraryEntryDispatch,
     ),
     personal: PersonalOverlay(
