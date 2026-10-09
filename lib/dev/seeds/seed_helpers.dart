@@ -8,7 +8,7 @@ import 'package:collectarr_app/features/library/tracking/tracking_storage_record
 import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/dev/seeds/dev_seed_kind_contributor.dart';
 import 'package:collectarr_app/features/barcode/barcode_checksum.dart';
-import 'package:collectarr_app/features/catalog/catalog_transport_summary_registry.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_transport_summary_registry.dart';
 import 'package:collectarr_app/core/models/partial_date.dart';
 
 const String seedCoverImageData =

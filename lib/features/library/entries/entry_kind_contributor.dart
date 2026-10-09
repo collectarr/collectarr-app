@@ -1,6 +1,6 @@
 import 'package:collectarr_app/core/db/local_database.dart';
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_item_cache_repository.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/entries/library_entry_store.dart';
 import 'package:collectarr_app/features/library/entries/library_entry_record.dart';
 import 'package:collectarr_app/core/models/catalog_item_ref.dart';
@@ -36,7 +36,7 @@ typedef EntryKindCreate<TItem> = TItem Function({
 
 typedef EntryKindCreateWithCatalog<TItem> = TItem Function({
   required LibraryEntryCreatePayload payload,
-  required CatalogItemDto sourceCatalogItem,
+  required CatalogSearchCandidate sourceCatalogItem,
   required String id,
   required DateTime createdAt,
   required bool? existingIsDigital,
@@ -227,6 +227,7 @@ final class TypedEntryKindContributor<TItem> implements EntryKindContributor {
       throw StateError('The source catalog item is unavailable locally.');
     }
     final sourceEntry = await LibraryEntryStore(database).find(kind, source.id);
+    final sourceCandidate = CatalogSearchCandidate.fromItem(source);
     final createWithCatalog = createItemWithCatalog;
     final personal = createWithCatalog == null
         ? createItem!(
@@ -239,7 +240,7 @@ final class TypedEntryKindContributor<TItem> implements EntryKindContributor {
           )
         : createWithCatalog(
             payload: payload,
-            sourceCatalogItem: source,
+            sourceCatalogItem: sourceCandidate,
             id: id,
             createdAt: createdAt,
             existingIsDigital: existingIsDigital,
@@ -250,8 +251,8 @@ final class TypedEntryKindContributor<TItem> implements EntryKindContributor {
       ...toJson(personal),
       'catalog_data': source.kindData,
       'source_catalog_ref': (sourceEntry?.sourceCatalogRef ??
-              (source.origin == CatalogItemOrigin.core
-                  ? source.catalogItemRef
+              (!sourceCandidate.kindCapability.isPrivateLocal
+                  ? sourceCandidate.reference
                   : null))
           ?.toJson(),
     });

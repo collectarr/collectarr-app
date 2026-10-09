@@ -1,5 +1,6 @@
 import 'package:collectarr_app/core/models/library_entry_ref.dart';
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/config/library_entry_create_payload.dart';
 import 'package:collectarr_app/features/library/kinds/book/domain/book_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/book/domain/book_library_entry.dart';
@@ -64,24 +65,26 @@ final class BookLibraryEntryCreatePayload implements LibraryEntryCreatePayload {
 
   BookLibraryEntry toLibraryEntry({
     required String id,
-    required CatalogItemDto sourceCatalogItem,
+    required CatalogSearchCandidate sourceCatalogItem,
     required DateTime createdAt,
     required bool? existingIsDigital,
     required String? ownerUserId,
     required String? ownerLabel,
   }) {
-    if (sourceCatalogItem.mediaKind != CatalogMediaKind.book) {
+    if (sourceCatalogItem.reference.kind != CatalogMediaKind.book) {
       throw ArgumentError.value(
-        sourceCatalogItem.mediaKind,
+        sourceCatalogItem.reference.kind,
         'sourceCatalogItem',
         'Book entries require a Book catalog item.',
       );
     }
     return BookLibraryEntry(
       id: LibraryEntryId(id),
-      metadata: BookCatalogMetadata.fromJson(sourceCatalogItem.kindData),
-      sourceCatalogRef: sourceCatalogItem.origin == CatalogItemOrigin.core
-          ? sourceCatalogItem.catalogItemRef
+      metadata: sourceCatalogItem.kindCapability.mapTransport(
+        (item) => BookCatalogMetadata.fromJson(item.kindData),
+      ),
+      sourceCatalogRef: !sourceCatalogItem.kindCapability.isPrivateLocal
+          ? sourceCatalogItem.reference
           : null,
       personal: BookPersonalData(
         isDigital: isDigital ?? existingIsDigital,

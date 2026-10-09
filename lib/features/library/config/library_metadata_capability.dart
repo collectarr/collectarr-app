@@ -1,10 +1,10 @@
 import 'package:flutter/widgets.dart';
 import 'package:collectarr_app/core/api/api_client.dart';
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/api/dto/catalog_search_page.dart';
 import 'package:collectarr_app/core/api/dto/metadata_search_query.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_kind_transport_codec.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_context.dart';
 import 'package:dio/dio.dart';
 
@@ -24,7 +24,8 @@ typedef LibraryMetadataCatalogDecoder = JsonEncodable Function(
   JsonMap payload,
 );
 
-typedef LibraryMetadataCatalogDetailItemDecoder = CatalogItemDto Function(
+typedef LibraryMetadataCatalogDetailCandidateBuilder = CatalogSearchCandidate
+    Function(
   JsonMap payload,
 );
 
@@ -45,7 +46,7 @@ class LibraryMetadataCapability {
     this.searchQueryBuilder,
     this.catalogSearchBuilder,
     this.catalogSearchResultsAreDetailed = false,
-    this.catalogDetailItemDecoder,
+    this.catalogDetailCandidateBuilder,
   });
 
   final LibraryMetadataCatalogDecoder catalogMetadataDecoder;
@@ -55,7 +56,8 @@ class LibraryMetadataCapability {
   final LibraryMetadataSearchQueryBuilder? searchQueryBuilder;
   final LibraryMetadataCatalogSearchBuilder? catalogSearchBuilder;
   final bool catalogSearchResultsAreDetailed;
-  final LibraryMetadataCatalogDetailItemDecoder? catalogDetailItemDecoder;
+  final LibraryMetadataCatalogDetailCandidateBuilder?
+      catalogDetailCandidateBuilder;
 
   MetadataSearchQuery searchQueryFor({
     required LibraryWorkspaceContext source,

@@ -1,7 +1,8 @@
 import 'package:collectarr_app/features/library/kinds/music/domain/music_listening.dart';
 import 'package:collectarr_app/core/models/partial_date.dart';
 import 'package:collectarr_app/core/models/library_entry_ref.dart';
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/config/library_entry_create_payload.dart';
 import 'package:collectarr_app/features/library/kinds/music/catalog/music_catalog_mapper.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_album.dart';
@@ -97,29 +98,29 @@ final class MusicLibraryEntryCreatePayload
 
   MusicLibraryEntry toLibraryEntry({
     required String id,
-    required CatalogItemDto sourceCatalogItem,
+    required CatalogSearchCandidate sourceCatalogItem,
     required DateTime createdAt,
     required bool? existingIsDigital,
     required String? ownerUserId,
     required String? ownerLabel,
   }) {
-    if (sourceCatalogItem.mediaKind != CatalogMediaKind.music) {
+    if (sourceCatalogItem.reference.kind != CatalogMediaKind.music) {
       throw ArgumentError.value(
-        sourceCatalogItem.mediaKind,
+        sourceCatalogItem.reference.kind,
         'sourceCatalogItem',
         'Music entries require a Music catalog item.',
       );
     }
-    final sourceMetadata =
-        MusicCatalogMapper.mapMetadataItemToMusic(sourceCatalogItem);
+    final sourceMetadata = sourceCatalogItem.kindCapability
+        .mapTransport(MusicCatalogMapper.mapMetadataItemToMusic);
     final localMetadata = Map<String, dynamic>.from(sourceMetadata.toJson())
       ..remove('id')
       ..remove('kind');
     final item = MusicLibraryEntry(
       id: LibraryEntryId(id),
       metadata: MusicAlbum.fromJson(localMetadata),
-      sourceCatalogRef: sourceCatalogItem.origin == CatalogItemOrigin.core
-          ? sourceCatalogItem.catalogItemRef
+      sourceCatalogRef: !sourceCatalogItem.kindCapability.isPrivateLocal
+          ? sourceCatalogItem.reference
           : null,
       personal: MusicPersonalData(
         isDigital: isDigital ?? existingIsDigital,

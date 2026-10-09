@@ -6,7 +6,7 @@ import 'package:collectarr_app/core/models/tracking_activity_summary.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_item_cache_repository.dart';
-import 'package:collectarr_app/features/catalog/catalog_transport_summary_registry.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_transport_summary_registry.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/collection/repositories/loan_repository.dart';
 import 'package:collectarr_app/features/library/entries/library_entry_store.dart';

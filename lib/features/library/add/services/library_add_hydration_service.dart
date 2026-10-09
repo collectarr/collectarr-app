@@ -1,6 +1,6 @@
 import 'package:collectarr_app/core/api/api_client.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
-import 'package:collectarr_app/features/catalog/library_catalog_registry.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_transport_summary_registry.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 
 final class LibraryAddHydrationService {
@@ -22,7 +22,7 @@ final class LibraryAddHydrationService {
     return CatalogSearchCandidate.fromApiJson(
       json: json,
       metadataDecoder: libraryMetadataForKind(type.kind).catalogMetadataDecoder,
-      summaryBuilder: summarizeCatalogTransport,
+      summaryBuilder: summarizeCatalogTransportPayload,
     );
   }
 }

@@ -4,7 +4,6 @@ import '../actions/music_log_listen_action.dart';
 import '../add/music_add_contribution.dart';
 import '../reports/music_export_capability.dart';
 import '../data/music_catalog_transport_codec.dart';
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_album.dart';
 import 'package:collectarr_app/features/library/metadata/common_personal_library_fields.dart';
 
@@ -110,7 +109,7 @@ final musicKindIdentity = const LibraryKindIdentity(
 final musicKindMetadata = const LibraryMetadataCapability(
   catalogMetadataDecoder: MusicCatalogMapper.fromCatalogPayload,
   catalogTransportCodec: MusicCatalogTransportCodec(),
-  catalogDetailItemDecoder: _musicCatalogDetailItemDecoder,
+  catalogDetailCandidateBuilder: _musicCatalogDetailCandidateBuilder,
   searchQueryBuilder: musicMetadataSearchQuery,
   catalogSearchBuilder: searchMusicCatalogItems,
   catalogSearchResultsAreDetailed: true,
@@ -118,9 +117,13 @@ final musicKindMetadata = const LibraryMetadataCapability(
   compareBuilder: buildMusicMetadataComparePanels,
 );
 
-CatalogItemDto _musicCatalogDetailItemDecoder(Map<String, dynamic> payload) =>
-    MusicCatalogMapper.toCatalogItemDto(
-      MusicCatalogMapper.fromCatalogPayload(payload),
+CatalogSearchCandidate _musicCatalogDetailCandidateBuilder(
+  Map<String, dynamic> payload,
+) =>
+    CatalogSearchCandidate.fromItem(
+      MusicCatalogMapper.toCatalogItemDto(
+        MusicCatalogMapper.fromCatalogPayload(payload),
+      ),
     );
 
 final musicKindHierarchy = const LibraryHierarchyCapability(

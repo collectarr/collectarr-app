@@ -4,7 +4,7 @@ import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/core/models/library_entry_ref.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_import_transport.dart';
-import 'package:collectarr_app/features/catalog/catalog_transport_summary_registry.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_transport_summary_registry.dart';
 
 /// Display fields for a selectable edit candidate, without implying that its
 /// identity belongs to the Core catalog.

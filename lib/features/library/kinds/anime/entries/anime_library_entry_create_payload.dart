@@ -1,5 +1,6 @@
 import 'package:collectarr_app/core/models/library_entry_ref.dart';
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/config/library_entry_create_payload.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_library_entry.dart';
@@ -65,24 +66,26 @@ final class AnimeLibraryEntryCreatePayload
 
   AnimeLibraryEntry toLibraryEntry({
     required String id,
-    required CatalogItemDto sourceCatalogItem,
+    required CatalogSearchCandidate sourceCatalogItem,
     required DateTime createdAt,
     required bool? existingIsDigital,
     required String? ownerUserId,
     required String? ownerLabel,
   }) {
-    if (sourceCatalogItem.mediaKind != CatalogMediaKind.anime) {
+    if (sourceCatalogItem.reference.kind != CatalogMediaKind.anime) {
       throw ArgumentError.value(
-        sourceCatalogItem.mediaKind,
+        sourceCatalogItem.reference.kind,
         'sourceCatalogItem',
         'Anime entries require an Anime catalog item.',
       );
     }
     return AnimeLibraryEntry(
       id: LibraryEntryId(id),
-      metadata: AnimeMetadata.fromJson(sourceCatalogItem.kindData),
-      sourceCatalogRef: sourceCatalogItem.origin == CatalogItemOrigin.core
-          ? sourceCatalogItem.catalogItemRef
+      metadata: sourceCatalogItem.kindCapability.mapTransport(
+        (item) => AnimeMetadata.fromJson(item.kindData),
+      ),
+      sourceCatalogRef: !sourceCatalogItem.kindCapability.isPrivateLocal
+          ? sourceCatalogItem.reference
           : null,
       personal: AnimePersonalData(
         isDigital: isDigital ?? existingIsDigital,

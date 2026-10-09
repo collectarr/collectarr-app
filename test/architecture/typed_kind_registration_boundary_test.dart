@@ -123,9 +123,9 @@ void main() {
   test(
       'catalog transport registry stores behavior boundaries, not erased values',
       () {
-    final catalogRegistrySource =
-        File('lib/features/catalog/catalog_transport_summary_registry.dart')
-            .readAsStringSync();
+    final catalogRegistrySource = File(
+            'lib/features/catalog/transport/catalog_transport_summary_registry.dart')
+        .readAsStringSync();
 
     expect(
       catalogRegistrySource,

@@ -3,7 +3,7 @@ import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_transport_repository.dart';
-import 'package:collectarr_app/features/catalog/library_catalog_registry.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_transport_summary_registry.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 
 final class LibraryDetailHydrationService {
@@ -17,14 +17,14 @@ final class LibraryDetailHydrationService {
   }) async {
     final json = await api.getCatalogItemJson(kind: kind, id: itemId);
     final metadata = libraryMetadataForKind(kind);
-    final detailDecoder = metadata.catalogDetailItemDecoder;
-    final candidate = detailDecoder == null
+    final candidateBuilder = metadata.catalogDetailCandidateBuilder;
+    final candidate = candidateBuilder == null
         ? CatalogSearchCandidate.fromApiJson(
             json: json,
             metadataDecoder: metadata.catalogMetadataDecoder,
-            summaryBuilder: summarizeCatalogTransport,
+            summaryBuilder: summarizeCatalogTransportPayload,
           )
-        : CatalogSearchCandidate.fromItem(detailDecoder(json));
+        : candidateBuilder(json);
     await CatalogTransportRepository(database)
         .upsertTransports([candidate.toImportTransport()]);
   }

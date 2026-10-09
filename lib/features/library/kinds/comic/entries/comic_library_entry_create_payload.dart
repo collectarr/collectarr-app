@@ -1,5 +1,6 @@
 import 'package:collectarr_app/core/models/library_entry_ref.dart';
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_catalog_item.dart';
 import 'package:collectarr_app/features/library/config/library_entry_create_payload.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_library_entry.dart';
@@ -70,24 +71,26 @@ final class ComicLibraryEntryCreatePayload
 
   ComicLibraryEntry toLibraryEntry({
     required String id,
-    required CatalogItemDto sourceCatalogItem,
+    required CatalogSearchCandidate sourceCatalogItem,
     required DateTime createdAt,
     required bool? existingIsDigital,
     required String? ownerUserId,
     required String? ownerLabel,
   }) {
-    if (sourceCatalogItem.mediaKind != CatalogMediaKind.comic) {
+    if (sourceCatalogItem.reference.kind != CatalogMediaKind.comic) {
       throw ArgumentError.value(
-        sourceCatalogItem.mediaKind,
+        sourceCatalogItem.reference.kind,
         'sourceCatalogItem',
         'Comic entries require a Comic catalog item.',
       );
     }
     return ComicLibraryEntry(
       id: LibraryEntryId(id),
-      metadata: ComicCatalogItem.fromJson(sourceCatalogItem.kindData),
-      sourceCatalogRef: sourceCatalogItem.origin == CatalogItemOrigin.core
-          ? sourceCatalogItem.catalogItemRef
+      metadata: sourceCatalogItem.kindCapability.mapTransport(
+        (item) => ComicCatalogItem.fromJson(item.kindData),
+      ),
+      sourceCatalogRef: !sourceCatalogItem.kindCapability.isPrivateLocal
+          ? sourceCatalogItem.reference
           : null,
       createdAt: createdAt,
       personal: ComicPersonalData(

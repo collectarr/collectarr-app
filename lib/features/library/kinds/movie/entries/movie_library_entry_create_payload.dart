@@ -1,5 +1,6 @@
 import 'package:collectarr_app/core/models/library_entry_ref.dart';
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/config/library_entry_create_payload.dart';
 import 'package:collectarr_app/features/library/kinds/movie/domain/movie_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/movie/domain/movie_library_entry.dart';
@@ -65,24 +66,26 @@ final class MovieLibraryEntryCreatePayload
 
   MovieLibraryEntry toLibraryEntry({
     required String id,
-    required CatalogItemDto sourceCatalogItem,
+    required CatalogSearchCandidate sourceCatalogItem,
     required DateTime createdAt,
     required bool? existingIsDigital,
     required String? ownerUserId,
     required String? ownerLabel,
   }) {
-    if (sourceCatalogItem.mediaKind != CatalogMediaKind.movie) {
+    if (sourceCatalogItem.reference.kind != CatalogMediaKind.movie) {
       throw ArgumentError.value(
-        sourceCatalogItem.mediaKind,
+        sourceCatalogItem.reference.kind,
         'sourceCatalogItem',
         'Movie entries require a Movie catalog item.',
       );
     }
     return MovieLibraryEntry(
       id: LibraryEntryId(id),
-      metadata: MovieCatalogMetadata.fromJson(sourceCatalogItem.kindData),
-      sourceCatalogRef: sourceCatalogItem.origin == CatalogItemOrigin.core
-          ? sourceCatalogItem.catalogItemRef
+      metadata: sourceCatalogItem.kindCapability.mapTransport(
+        (item) => MovieCatalogMetadata.fromJson(item.kindData),
+      ),
+      sourceCatalogRef: !sourceCatalogItem.kindCapability.isPrivateLocal
+          ? sourceCatalogItem.reference
           : null,
       personal: MoviePersonalData(
         isDigital: isDigital ?? existingIsDigital,

@@ -2,7 +2,7 @@ import 'package:collectarr_app/core/api/api_client.dart';
 import 'package:collectarr_app/core/api/dto/metadata_search_query.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
-import 'package:collectarr_app/features/catalog/library_catalog_registry.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_transport_summary_registry.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:dio/dio.dart';
 
@@ -110,7 +110,7 @@ Future<LibraryMetadataSearchPage> searchLibraryMetadataPage(
       CatalogSearchCandidate.fromApiJson(
         json: row,
         metadataDecoder: decoder,
-        summaryBuilder: summarizeCatalogTransport,
+        summaryBuilder: summarizeCatalogTransportPayload,
       ),
   ];
   return LibraryMetadataSearchPage(
@@ -186,6 +186,6 @@ Future<CatalogSearchCandidate> lookupLibraryBarcode(
   return CatalogSearchCandidate.fromApiJson(
     json: row,
     metadataDecoder: capability.catalogMetadataDecoder,
-    summaryBuilder: summarizeCatalogTransport,
+    summaryBuilder: summarizeCatalogTransportPayload,
   );
 }
