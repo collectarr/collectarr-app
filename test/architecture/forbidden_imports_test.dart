@@ -92,6 +92,40 @@ final nativeTitle = <String, Object?>{'native_title': 'test'};
     );
   });
 
+  test('shared personal projection fields are not classified as kind leaks',
+      () {
+    const code = '''
+class SharedPersonalProjection {
+  final String? condition;
+  final String? status;
+  final int? rating;
+  final DateTime? startedAt;
+  final DateTime? completedAt;
+  final int timesCompleted;
+  final String? notes;
+  final DateTime? addedAt;
+  final DateTime? purchaseDate;
+  final Object? wishlist;
+  const SharedPersonalProjection();
+}
+
+Object? completedAtFromSync(Map<String, Object?> payload) => payload['completed_at'];
+''';
+    final visitor = _visitorForArchitectureTest(
+      code: code,
+      relativePath:
+          'lib/features/library/generic/personal_projection_test.dart',
+    );
+
+    visitor.unit.accept(visitor.visitor);
+
+    expect(
+      visitor.visitor.violations
+          .where((violation) => violation.startsWith('TK016 ')),
+      isEmpty,
+    );
+  });
+
   test('provider protocol fields stay outside the generic semantic scan', () {
     const code = '''
 String? providerValue(Map<String, dynamic> raw) => raw['cover_artist'] as String?;

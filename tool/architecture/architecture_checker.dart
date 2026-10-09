@@ -198,6 +198,19 @@ class ArchitectureRuleVisitor extends RecursiveAstVisitor<void> {
     'updated_at',
     'deletedAt',
     'deleted_at',
+    // Personal entry and tracking projections are shared contracts even when
+    // kind-local storage uses the same semantic names.
+    'condition',
+    'status',
+    'rating',
+    'startedAt',
+    'completedAt',
+    'completed_at',
+    'timesCompleted',
+    'notes',
+    'addedAt',
+    'purchaseDate',
+    'wishlist',
   };
 
   static const _forbiddenRuntimeTypeNames = {
