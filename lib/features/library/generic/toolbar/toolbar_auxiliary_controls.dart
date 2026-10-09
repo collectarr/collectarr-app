@@ -961,7 +961,7 @@ class LibraryCollectionStatusScopeMenuItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Row(children: [
-        LibraryCollectionStatusIcon(status: scope),
+        LibraryCollectionStatusIcon(collectionStatus: scope),
         const SizedBox(width: 6),
         Expanded(
             child: Text(scope.label,
@@ -987,7 +987,7 @@ class LibraryCollectionStatusScopeBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) =>
-      LibraryCollectionStatusIcon(status: scope);
+      LibraryCollectionStatusIcon(collectionStatus: scope);
 }
 
 Color libraryCollectionStatusScopeColor(

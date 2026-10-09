@@ -7,18 +7,18 @@ import 'package:flutter/material.dart';
 class LibraryAddStatusButton extends StatelessWidget {
   const LibraryAddStatusButton({
     super.key,
-    required this.status,
+    required this.collectionStatus,
     required this.onAdd,
     required this.onStatusChanged,
     this.isBusy = false,
   });
 
-  final LibraryCollectionStatusScope status;
+  final LibraryCollectionStatusScope collectionStatus;
   final VoidCallback? onAdd;
   final ValueChanged<LibraryCollectionStatusScope>? onStatusChanged;
   final bool isBusy;
 
-  String get _label => switch (status) {
+  String get _label => switch (collectionStatus) {
         LibraryCollectionStatusScope.all ||
         LibraryCollectionStatusScope.inCollection =>
           'Add to Collection',

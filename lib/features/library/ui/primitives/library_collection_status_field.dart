@@ -24,7 +24,7 @@ List<PopupMenuEntry<LibraryCollectionStatusScope>>
           height: 32,
           padding: const EdgeInsets.symmetric(horizontal: 8),
           child: Row(children: [
-            LibraryCollectionStatusIcon(status: status, size: 24),
+            LibraryCollectionStatusIcon(collectionStatus: status, size: 24),
             const SizedBox(width: 8),
             Expanded(
                 child: Text(status.label,
@@ -77,7 +77,8 @@ class LibraryCollectionStatusField extends StatelessWidget {
                       height: kLibraryFormControlHeight,
                     )),
                 child: Row(children: [
-                  LibraryCollectionStatusIcon(status: status, size: 24),
+                  LibraryCollectionStatusIcon(
+                      collectionStatus: status, size: 24),
                   const SizedBox(width: 8),
                   Expanded(child: Text(status.label)),
                   const Icon(Icons.arrow_drop_down, size: 20),

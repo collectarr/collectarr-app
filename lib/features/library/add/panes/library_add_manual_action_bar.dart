@@ -69,7 +69,7 @@ class LibraryAddManualActionBar extends StatelessWidget {
           const SizedBox(width: 8),
           Expanded(
             child: LibraryAddStatusButton(
-              status: libraryCollectionStatusFromValue(
+              collectionStatus: libraryCollectionStatusFromValue(
                   request.commonDraft?.collectionStatus),
               isBusy: request.isAdding,
               onAdd: _validatedAction(

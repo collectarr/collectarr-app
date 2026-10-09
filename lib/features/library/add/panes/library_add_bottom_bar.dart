@@ -91,7 +91,7 @@ class LibraryAddBottomBar extends StatelessWidget {
             Align(
               alignment: Alignment.centerRight,
               child: LibraryAddStatusButton(
-                status: addTarget == LibraryAddTarget.wishlist
+                collectionStatus: addTarget == LibraryAddTarget.wishlist
                     ? LibraryCollectionStatusScope.wishList
                     : addTarget == LibraryAddTarget.track
                         ? LibraryCollectionStatusScope.notInCollection

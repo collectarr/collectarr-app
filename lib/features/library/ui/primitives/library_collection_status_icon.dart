@@ -5,14 +5,14 @@ import 'package:flutter_svg/flutter_svg.dart';
 /// Collection status artwork shared by filters and Add actions.
 class LibraryCollectionStatusIcon extends StatelessWidget {
   const LibraryCollectionStatusIcon(
-      {super.key, required this.status, this.size = 20});
+      {super.key, required this.collectionStatus, this.size = 20});
 
-  final LibraryCollectionStatusScope status;
+  final LibraryCollectionStatusScope collectionStatus;
   final double size;
 
   @override
   Widget build(BuildContext context) {
-    final (asset, background) = switch (status) {
+    final (asset, background) = switch (collectionStatus) {
       LibraryCollectionStatusScope.all => ('all', const Color(0xFF777777)),
       LibraryCollectionStatusScope.inCollection => (
           'incollection',
