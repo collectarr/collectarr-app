@@ -187,16 +187,6 @@
                         "symbol":  "finishedAt"
                     },
                     {
-                        "path":  "lib/features/library/tracking/watch_session_codec.dart",
-                        "surface":  "member-declaration",
-                        "symbol":  "seenWhere"
-                    },
-                    {
-                        "path":  "lib/features/library/tracking/watch_session_codec.dart",
-                        "surface":  "member-declaration",
-                        "symbol":  "watchedAt"
-                    },
-                    {
                         "path":  "lib/features/library/ui/primitives/library_info_panel.dart",
                         "surface":  "member-declaration",
                         "symbol":  "variant"
