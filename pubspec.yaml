@@ -58,6 +58,7 @@ flutter:
     - assets/sidebar_icons/
     - assets/tab_icons/
     - assets/import_logos/
+    - web/icons/Icon-maskable-192.png
     - assets/fonts/CollectarrSans-OFL.txt
   fonts:
     - family: Collectarr Sans

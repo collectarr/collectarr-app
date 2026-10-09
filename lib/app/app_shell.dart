@@ -122,7 +122,16 @@ class _AppShellState extends ConsumerState<AppShell> {
           title: const Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(Icons.library_music_outlined, size: 19),
+              ClipRRect(
+                borderRadius: BorderRadius.all(Radius.circular(5)),
+                child: Image(
+                  key: Key('app.brand-logo'),
+                  image: AssetImage('web/icons/Icon-maskable-192.png'),
+                  width: 23,
+                  height: 23,
+                  fit: BoxFit.cover,
+                ),
+              ),
               SizedBox(width: 7),
               Text('Collectarr'),
             ],

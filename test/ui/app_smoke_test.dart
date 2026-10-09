@@ -120,6 +120,7 @@ void main() {
 
       expect(find.byType(AppShell), findsOneWidget);
       expect(find.byKey(const Key('app.open-navigation')), findsOneWidget);
+      expect(find.byKey(const Key('app.brand-logo')), findsOneWidget);
       expect(find.byKey(const Key('nav.settings')), findsOneWidget);
 
       Future<void> openDrawer() async {
