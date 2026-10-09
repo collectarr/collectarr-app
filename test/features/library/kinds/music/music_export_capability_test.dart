@@ -1,6 +1,19 @@
+import 'package:collectarr_app/core/models/catalog_item_ref.dart';
+import 'package:collectarr_app/features/library/domain/library_target_ref.dart';
+import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/kinds/music/config/music_field_identities.dart';
 import 'package:collectarr_app/features/library/kinds/music/config/music_workspace_field_metadata.dart';
-import 'package:collectarr_app/features/library/kinds/music/reports/music_export_capability.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_album.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_disc.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_ids.dart';
+import 'package:collectarr_app/features/library/kinds/music/workspace/music_catalog_workspace_fields.dart';
+import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_data.dart';
+import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_dto.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_workspace_context.dart';
+import 'package:collectarr_app/features/library/workspace/entry/personal_overlay.dart';
+import 'package:collectarr_app/features/library/workspace/entry/workspace_item.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -52,5 +65,44 @@ void main() {
       expect(columns, contains(field.id), reason: field.id);
       expect(columns[field.id]!.defaultVisible, isFalse, reason: field.id);
     }
+  });
+
+  test('Live / Studio export preserves the canonical boolean values', () {
+    final album = MusicAlbum(
+      title: 'Mixed Recording',
+      discs: [
+        MusicDisc(
+            id: const MusicDiscId('studio'), discNumber: 1, isLive: false),
+        MusicDisc(id: const MusicDiscId('live'), discNumber: 2, isLive: true),
+      ],
+    );
+    final source = LibraryWorkspaceContext(
+      item: WorkspaceItem(
+        target: const CatalogTargetRef(
+          CatalogItemRef(kind: CatalogMediaKind.music, id: 'mixed-recording'),
+        ),
+        kindPresentationData: MusicWorkspaceData.fromMusic(album),
+      ),
+      personal: const PersonalOverlay(),
+    );
+    final item = LibraryProjectionItem.fromShelf(
+      source,
+      const MusicRegistration(),
+    );
+    final column = musicExportCapability.itemColumns.singleWhere(
+      (column) => column.id == MusicWorkspaceFieldMetadata.isLive.id,
+    );
+
+    expect(
+      MusicCatalogWorkspaceFields.liveStudio.getValue(
+        LibraryProjectionContext(
+          item: source.item,
+          personal: source.personal,
+          dto: item.dto as MusicWorkspaceProjection,
+        ),
+      ),
+      {true, false},
+    );
+    expect(column.getValue(item), 'true | false');
   });
 }

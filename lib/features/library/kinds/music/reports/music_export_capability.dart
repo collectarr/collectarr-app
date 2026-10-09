@@ -8,7 +8,6 @@ import 'package:collectarr_app/features/library/kinds/music/workspace/music_ids.
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_catalog_workspace_fields.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_data.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_dto.dart';
-import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_field_labels.dart';
 import 'package:collectarr_app/features/library/kinds/music/config/music_workspace_field_metadata.dart';
 
 final musicExportCapability = LibraryExportCapability(
@@ -111,8 +110,7 @@ final musicExportCapability = LibraryExportCapability(
     if (MusicWorkspaceFieldMetadata.isLive.exportable)
       exportColumnFromWorkspaceField(
         field: MusicCatalogWorkspaceFields.liveStudio,
-        valueFormatter: (values) =>
-            values.map(musicLiveStudioLabel).join(' | '),
+        valueFormatter: (values) => values.join(' | '),
         defaultVisible: false,
         includeInPdf: false,
       ),
