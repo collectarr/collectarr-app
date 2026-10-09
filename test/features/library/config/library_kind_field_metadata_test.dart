@@ -151,6 +151,18 @@ void main() {
     }
   });
 
+  test('Music multi-value search indexes selected facts only', () {
+    expect(MusicFieldIdentities.discFormat.searchable, isTrue);
+    expect(MusicWorkspaceFieldMetadata.recordingLocations.searchable, isTrue);
+    expect(MusicWorkspaceFieldMetadata.creditContributor.searchable, isTrue);
+    expect(MusicWorkspaceFieldMetadata.creditRole.searchable, isFalse);
+    expect(MusicWorkspaceFieldMetadata.creditInstrument.searchable, isFalse);
+    expect(MusicWorkspaceFieldMetadata.sound.searchable, isFalse);
+    expect(MusicWorkspaceFieldMetadata.spars.searchable, isFalse);
+    expect(MusicWorkspaceFieldMetadata.rpm.searchable, isFalse);
+    expect(MusicWorkspaceFieldMetadata.vinylColor.searchable, isFalse);
+  });
+
   test('text cardinality is represented independently from value type', () {
     expect(MusicFieldIdentities.artist.valueType, LibraryFieldValueType.text);
     expect(

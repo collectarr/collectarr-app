@@ -481,6 +481,7 @@ abstract final class MusicWorkspaceFieldMetadata {
     cardinality: LibraryFieldCardinality.many,
     source: LibraryFieldSource.catalog,
     sourcePath: 'discs[].recording_locations[]',
+    searchable: true,
     filterable: true,
     groupable: true,
     exportable: true,

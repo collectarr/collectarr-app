@@ -196,11 +196,11 @@ Export semantic values and summaries separately. Music now exports its format
 summary beside raw disc formats, distinct recording dates/years, recording
 properties, and credit facts through kind-owned field getters and formatters.
 The shared report engine still owns encoding, selection, preview, and file
-handling. Index selected multi-value facts (disc format, recording location,
-credits) where search benefits. Diff nested Core corrections by stable
-disc/credit IDs so reorder is not delete/create. Extend CSV import only for
-fields it already supports; edit and export capability alone does not imply
-import support.
+handling. Searchable metadata selects disc format, recording location, and
+contributor facts; other technical and credit values stay out of the index.
+Diff nested Core corrections by stable disc/credit IDs so reorder is not
+delete/create. Extend CSV import only for fields it already supports; edit and
+export capability alone does not imply import support.
 
 ### L. Physical code layout and cleanup
 

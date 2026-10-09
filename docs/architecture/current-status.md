@@ -111,8 +111,10 @@ date fields and sorts to both Music workspace schemas. Facts reduction and
 sorting share one partial-date bound comparator, and sort callbacks read only
 the precomputed fact values. Music reports now export format summaries
 separately from raw disc formats and expose exportable disc and credit facts
-through kind-owned fields. Smart List many-value operator semantics, selected
-multi-value search indexing, nested correction alignment, performance
+through kind-owned fields. Workspace metadata now selects disc formats,
+recording locations, and contributor names for multi-value search indexing,
+while technical values and credit roles/instruments stay excluded. Smart List
+many-value operator semantics, nested correction alignment, performance
 benchmarks, and Windows build verification remain open.
 
 ## Local data
