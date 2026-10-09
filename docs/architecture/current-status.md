@@ -117,10 +117,16 @@ separately from raw disc formats and expose exportable disc and credit facts
 through kind-owned fields. Workspace metadata now selects disc formats,
 recording locations, and contributor names for multi-value search indexing,
 while technical values and credit roles/instruments stay excluded. Smart List
-many-value operator semantics, CSV import boundaries, performance benchmarks,
-and Windows build verification remain open. Core correction targets expose
-Music nested lists as correction-only object-list fields and validate proposals
-against the canonical v2 document, preserving nested IDs.
+many-value operators now match contained values with any-match semantics, and
+the opt-in workspace benchmark measures 1k/5k mixed-disc collections against
+the pre-facts checkpoint. Average disc-group switches are about 20–25% faster;
+projection now pays the one-time cost of building facts (about 5.4 ms at 1k
+and 27.0 ms at 5k in the recorded run). Scalar publisher filtering is slower
+under typed Smart List rules but remains below 3.3 ms at 5k. RSS is recorded
+as a coarse process high-water snapshot, not as an allocation count. CSV import
+boundaries and Windows build verification remain open. Core correction targets
+expose Music nested lists as correction-only object-list fields and validate
+proposals against the canonical v2 document, preserving nested IDs.
 
 ## Local data
 

@@ -235,14 +235,48 @@ legacy audit.
 
 ### M. Performance, documentation, and release gate
 
-Benchmark 1k and 5k albums, including multi-disc deluxe albums: initial
-projection, facts construction, group switch, sort, filter, and allocations or
-peak memory. Assert facts build once per canonical projection and no repeated
-disc traversal in comparators. Update `current-status.md` with ownership,
-cardinality, contained grouping, reducer, and derived-facts semantics.
-Complete Core schema/tests, generated bundle and App pin, formatting, analysis,
-architecture guards, unit/widget/integration tests, and Windows debug build
-before closing Music v2.
+**Benchmark and status update implemented; release gate still open.** The
+opt-in harness lives in
+[`music_workspace_benchmark_test.dart`](../../test/performance/music_workspace_benchmark_test.dart)
+and runs with
+`flutter test --no-pub --dart-define=RUN_MUSIC_WORKSPACE_BENCHMARK=true test/performance/music_workspace_benchmark_test.dart`.
+It builds 1k and 5k albums with 2–4 discs, one 8-disc deluxe edition per 100
+albums, 10 tracks per disc, and one credit per disc. It measures median
+projection time over three runs, facts construction, three contained group
+switches, sort, real filter-engine execution, and process RSS. An identity
+assertion for every projected item verifies that the projector reuses the
+facts constructed for `MusicWorkspaceData`; comparators use those facts
+instead of traversing discs.
+
+The baseline was measured on detached commit `b681270eb`, immediately before
+`MusicWorkspaceFacts` was introduced. Timings are milliseconds on this Windows
+workspace; the three-group figure is the mean of recording year, SPARS, and
+recording location/studio switches.
+
+| Operation | 1k baseline | 1k current | 5k baseline | 5k current |
+| --- | ---: | ---: | ---: | ---: |
+| Initial projection, median of 3 | 3.83 | 14.52 | 13.27 | 59.32 |
+| Facts construction | — | 5.42 | — | 27.04 |
+| Mean of 3 contained group switches | 19.71 | 14.79 | 86.91 | 69.35 |
+| Default sort | 2.02 | 1.88 | 4.01 | 3.69 |
+| Publisher filter through filter engine | 0.77 | 1.46 | 1.67 | 3.25 |
+| Disc Format many-value filter | — | 2.97 | — | 5.74 |
+
+Contained group switches improved about 20–25%, and sorting improved about
+7–8%. Projection is slower because it constructs immutable facts once; the
+facts alone took 5.4 ms at 1k and 27.0 ms at 5k. The typed publisher filter
+costs about 1.9× the old scalar filter and stays below 3.3 ms at 5k. Reusing
+the workspace's structural field registry and looking up field definitions by
+ID reduced the 5k typed-filter measurement from 31 ms to about 3.3 ms. RSS
+high-water snapshots are included in the test output. They are affected by
+garbage collection and the test runner, so they are directional memory
+measurements rather than allocation counts; the 5k current projection raised
+the process high-water by about 27.2 MB in the recorded run.
+
+`current-status.md` now records field ownership, cardinality, contained
+grouping, reducer, and derived-facts semantics. Complete Core schema/tests,
+generated bundle and App pin, formatting, analysis, architecture guards,
+unit/widget/integration tests, and Windows debug build before closing Music v2.
 
 ## Required fixtures and regression gates
 
