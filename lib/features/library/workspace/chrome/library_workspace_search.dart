@@ -1,6 +1,7 @@
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/features/library/config/library_search_target.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 import '../config/library_workspace_tokens.dart';
 
@@ -71,7 +72,6 @@ class LibraryToolbarSearch extends StatelessWidget {
         (onScanCover != null ? 1 : 0) +
         (onRandomPick != null ? 1 : 0);
     final inlineActionsWidth = inlineActionCount * 28.0 + 8;
-    const searchScopeWidth = 110.0;
     final inputBackground = Color.alphaBlend(
       (palette.isDark ? Colors.white : palette.accent).withValues(
         alpha: palette.isDark ? 0.045 : 0.03,
@@ -112,24 +112,9 @@ class LibraryToolbarSearch extends StatelessWidget {
                         ),
                         child: SizedBox(
                           height: inputHeight,
-                          child: Row(
+                          child: Stack(
                             children: [
-                              if (showSearchScope)
-                                SizedBox(
-                                  width: searchScopeWidth,
-                                  child: _ToolbarSearchScopeButton(
-                                    selected: searchTarget,
-                                    options: searchTargetOptions,
-                                    onSelected: onSearchTargetChanged!,
-                                  ),
-                                ),
-                              if (showSearchScope)
-                                VerticalDivider(
-                                  width: 1,
-                                  thickness: 1,
-                                  color: borderColor,
-                                ),
-                              Expanded(
+                              Positioned.fill(
                                 child: TextField(
                                   key: textFieldKey,
                                   controller: controller,
@@ -154,9 +139,11 @@ class LibraryToolbarSearch extends StatelessWidget {
                                           height: 1.05,
                                         ),
                                     border: InputBorder.none,
-                                    contentPadding: const EdgeInsets.symmetric(
-                                      horizontal: 10,
-                                      vertical: 8,
+                                    contentPadding: EdgeInsets.fromLTRB(
+                                      showSearchScope ? 50 : 10,
+                                      8,
+                                      10,
+                                      8,
                                     ),
                                     suffixIconConstraints: BoxConstraints(
                                       minWidth: inlineActionsWidth,
@@ -207,6 +194,15 @@ class LibraryToolbarSearch extends StatelessWidget {
                                   ),
                                 ),
                               ),
+                              if (showSearchScope)
+                                Align(
+                                  alignment: Alignment.centerLeft,
+                                  child: _ToolbarSearchScopeButton(
+                                    selected: searchTarget,
+                                    options: searchTargetOptions,
+                                    onSelected: onSearchTargetChanged!,
+                                  ),
+                                ),
                             ],
                           ),
                         ),
@@ -384,42 +380,109 @@ class _ToolbarSearchScopeButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
-    return PopupMenuButton<LibrarySearchTarget>(
-      key: const ValueKey('library-search-target-button'),
-      tooltip: 'Search scope',
-      initialValue: selected,
-      onSelected: onSelected,
-      padding: EdgeInsets.zero,
-      position: PopupMenuPosition.under,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 8),
-        child: Row(
-          children: [
-            Icon(Icons.album_outlined, size: 16, color: palette.textPrimary),
-            const SizedBox(width: 6),
-            Expanded(
-              child: Text(
-                _librarySearchTargetLabel(selected),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                      fontWeight: FontWeight.w700,
+    final buttonBackground =
+        palette.isDark ? const Color(0xFF383838) : palette.surface;
+    final hoveredBackground =
+        palette.isDark ? const Color(0xFF4A4A4A) : palette.surfaceBright;
+    final menuBackground =
+        palette.isDark ? const Color(0xFF444444) : palette.panelRaised;
+    final menuBorder =
+        palette.isDark ? const Color(0xFF666666) : palette.divider;
+    return Theme(
+      data: Theme.of(context).copyWith(
+        hoverColor: hoveredBackground,
+        focusColor: hoveredBackground,
+      ),
+      child: PopupMenuButton<LibrarySearchTarget>(
+        key: const ValueKey('library-search-target-button'),
+        tooltip: 'Search scope',
+        initialValue: selected,
+        onSelected: onSelected,
+        padding: EdgeInsets.zero,
+        position: PopupMenuPosition.under,
+        offset: const Offset(-18, 2),
+        constraints: const BoxConstraints(minWidth: 160, maxWidth: 220),
+        color: menuBackground,
+        surfaceTintColor: Colors.transparent,
+        elevation: 6,
+        menuPadding: const EdgeInsets.symmetric(vertical: 5),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(4),
+          side: BorderSide(color: menuBorder),
+        ),
+        itemBuilder: (context) => [
+          for (final option in options)
+            PopupMenuItem<LibrarySearchTarget>(
+              value: option,
+              height: 26,
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Row(
+                children: [
+                  _librarySearchTargetIcon(option, palette.textPrimary),
+                  const SizedBox(width: 8),
+                  Flexible(
+                    child: Text(
+                      _librarySearchTargetLabel(option),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        color: palette.textPrimary,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w400,
+                        height: 20 / 14,
+                      ),
                     ),
+                  ),
+                ],
               ),
             ),
-            Icon(Icons.arrow_drop_down, size: 18, color: palette.textMuted),
-          ],
+        ],
+        child: Container(
+          width: 44,
+          height: 26,
+          margin: const EdgeInsets.all(2),
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            color: buttonBackground,
+            borderRadius: BorderRadius.circular(4),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _librarySearchTargetIcon(selected, palette.textPrimary),
+              const SizedBox(width: 4),
+              Icon(
+                Icons.keyboard_arrow_down,
+                size: 14,
+                color: palette.textPrimary,
+              ),
+            ],
+          ),
         ),
       ),
-      itemBuilder: (context) => [
-        for (final option in options)
-          PopupMenuItem<LibrarySearchTarget>(
-            value: option,
-            child: Text(_librarySearchTargetLabel(option)),
-          ),
-      ],
     );
   }
+}
+
+Widget _librarySearchTargetIcon(LibrarySearchTarget target, Color color) {
+  final asset = switch (target) {
+    LibrarySearchTarget.all => 'assets/sidebar_icons/database.svg',
+    LibrarySearchTarget.mediaOnly => 'assets/sidebar_icons/compact-disc.svg',
+    LibrarySearchTarget.tracksOnly => 'assets/tab_icons/music.svg',
+  };
+  return SizedBox(
+    width: 18,
+    height: 14,
+    child: Center(
+      child: SvgPicture.asset(
+        key: ValueKey('library-search-target-icon-${target.name}'),
+        asset,
+        width: 14,
+        height: 14,
+        colorFilter: ColorFilter.mode(color, BlendMode.srcIn),
+      ),
+    ),
+  );
 }
 
 String _librarySearchTargetLabel(LibrarySearchTarget target) {

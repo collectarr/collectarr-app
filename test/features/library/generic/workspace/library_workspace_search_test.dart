@@ -74,11 +74,16 @@ void main() {
 
     expect(find.byKey(const ValueKey('library-search-target-button')),
         findsOneWidget);
-    expect(find.text('Albums & Tracks'), findsOneWidget);
+    expect(
+      find.byKey(const ValueKey('library-search-target-icon-all')),
+      findsOneWidget,
+    );
+    expect(find.text('Albums & Tracks'), findsNothing);
 
     await tester
         .tap(find.byKey(const ValueKey('library-search-target-button')));
     await tester.pumpAndSettle();
+    expect(find.byType(PopupMenuItem<LibrarySearchTarget>), findsNWidgets(3));
     await tester.tap(find.text('Tracks').last);
     await tester.pumpAndSettle();
 
