@@ -14,7 +14,9 @@ final class LibraryFieldRegistry<TDto extends LibraryWorkspaceDto> {
     required this.defaultVisibleColumns,
     required this.defaultSort,
     this.defaultGroup,
-  }) {
+  }) : _fieldsById = {
+          for (final field in fields) field.id.value: field,
+        } {
     _validate();
   }
 
@@ -28,6 +30,12 @@ final class LibraryFieldRegistry<TDto extends LibraryWorkspaceDto> {
   final Set<LibraryFieldIdRuntime> defaultVisibleColumns;
   final LibrarySortIdRuntime defaultSort;
   final LibraryGroupIdRuntime? defaultGroup;
+  final Map<String, LibraryFieldDefinition<dynamic, TDto, Object?>> _fieldsById;
+
+  LibraryFieldDefinition<dynamic, TDto, Object?>? fieldDefinitionForId(
+    String id,
+  ) =>
+      _fieldsById[id];
 
   /// Returns the registry view exposed to generic workspace code.
   ///

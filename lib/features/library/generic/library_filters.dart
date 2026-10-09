@@ -355,14 +355,11 @@ bool libraryFilterMatches(
     );
     for (final entry in filters.fieldCriteria.entries) {
       final candidates = <Object?>[];
-      for (final candidate in fieldRegistry.fields) {
-        if (candidate.id.value == entry.key) {
-          if (candidate.filterable &&
-              _fieldSourceAllowedForTarget(candidate.metadata, item.target)) {
-            candidates.add(candidate.getValue(context));
-          }
-          break;
-        }
+      final field = fieldRegistry.fieldDefinitionForId(entry.key);
+      if (field != null &&
+          field.filterable &&
+          _fieldSourceAllowedForTarget(field.metadata, item.target)) {
+        candidates.add(field.getValue(context));
       }
       for (final filter in filterDefinitions) {
         if (filter.metadata.id != entry.key ||

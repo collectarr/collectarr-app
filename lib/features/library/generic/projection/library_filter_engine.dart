@@ -1,7 +1,6 @@
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
-import 'package:collectarr_app/features/library/domain/library_target_ref.dart';
 import 'package:collectarr_app/features/library/generic/library_filters.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
@@ -156,11 +155,8 @@ class LibraryFilterEngine {
       filters,
       filterDefinitions:
           libraryPresentationForKind(type.kind).filterDefinitions,
-      fieldRegistry: item.target is EntryTargetRef
-          ? libraryKindWorkspaceForKind(type.kind)
-              .libraryEntryFields
-              .asStructural()
-          : libraryKindWorkspaceForKind(type.kind).fields.asStructural(),
+      fieldRegistry:
+          libraryKindWorkspaceForKind(type.kind).fieldsForTarget(item.target),
     )) {
       return false;
     }
