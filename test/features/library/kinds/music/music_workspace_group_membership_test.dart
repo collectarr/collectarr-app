@@ -14,7 +14,6 @@ import 'package:collectarr_app/features/library/kinds/music/domain/music_ids.dar
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_catalog_workspace_fields.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_data.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_dto.dart';
-import 'package:collectarr_app/features/library/kinds/music/workspace/music_ids.dart';
 import 'package:collectarr_app/features/library/kinds/music/presentation.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
@@ -49,6 +48,21 @@ void main() {
     );
     final workspace = libraryKindWorkspaceForKind(CatalogMediaKind.music);
     final grouping = const LibraryGroupingEngine();
+    final discFormatGroupId = workspace.fields.groups
+        .singleWhere(
+          (group) =>
+              group.id.value == MusicCatalogWorkspaceFields.discFormat.id.value,
+        )
+        .id;
+
+    expect(
+      workspace.fields.defaultSort.value,
+      MusicCatalogWorkspaceFields.artistSummary.id.value,
+    );
+    expect(
+      workspace.fields.defaultGroup?.value,
+      MusicCatalogWorkspaceFields.artist.id.value,
+    );
 
     void expectBucketsAndSingleMembership(
       String fieldId,
@@ -69,7 +83,7 @@ void main() {
     final formats = grouping.bucketsForItem(
       item,
       registration,
-      MusicGroupIds.discFormat,
+      discFormatGroupId,
     );
     expect(formats, ['CD', 'Vinyl']);
     expect(MusicCatalogWorkspaceFields.discFormat.getValue(context), formats);
@@ -81,7 +95,7 @@ void main() {
     final formatGroups = grouping.buildGroupEntries(
       [item],
       registration,
-      MusicGroupIds.discFormat,
+      discFormatGroupId,
     );
     expect(formatGroups.map((group) => group.bucket), ['CD', 'Vinyl']);
     for (final group in formatGroups) {

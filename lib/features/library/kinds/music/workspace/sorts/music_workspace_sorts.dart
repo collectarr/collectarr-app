@@ -1,12 +1,13 @@
 import 'package:collectarr_app/core/models/partial_date.dart';
-import 'package:collectarr_app/features/library/kinds/music/workspace/music_ids.dart';
+import 'package:collectarr_app/features/library/kinds/music/workspace/music_catalog_workspace_fields.dart';
+import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_fields.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_dto.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_facts.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 
 LibrarySortDefinition<MusicKind, MusicWorkspaceProjection> musicStatusSort() {
   return LibrarySortDefinition<MusicKind, MusicWorkspaceProjection>(
-    id: MusicSortIds.status,
+    id: LibrarySortId<MusicKind>(MusicWorkspaceFields.status.id.value),
     compare: (left, right) {
       int rank(LibraryProjectionContext<MusicWorkspaceProjection> context) {
         if (context.item.entrySummary != null) return 0;
@@ -26,7 +27,9 @@ LibrarySortDefinition<MusicKind, MusicWorkspaceProjection> musicStatusSort() {
 LibrarySortDefinition<MusicKind, MusicWorkspaceProjection>
     musicEarliestDiscRecordingDateSort() =>
         LibrarySortDefinition<MusicKind, MusicWorkspaceProjection>(
-          id: MusicSortIds.earliestDiscRecordingDate,
+          id: LibrarySortId<MusicKind>(
+            MusicCatalogWorkspaceFields.earliestDiscRecordingDate.id.value,
+          ),
           label: 'Earliest Disc Recording Date',
           group: 'Recording',
           compare: (left, right) => _compareNullableDates(
@@ -39,7 +42,9 @@ LibrarySortDefinition<MusicKind, MusicWorkspaceProjection>
 LibrarySortDefinition<MusicKind, MusicWorkspaceProjection>
     musicLatestDiscRecordingDateSort() =>
         LibrarySortDefinition<MusicKind, MusicWorkspaceProjection>(
-          id: MusicSortIds.latestDiscRecordingDate,
+          id: LibrarySortId<MusicKind>(
+            MusicCatalogWorkspaceFields.latestDiscRecordingDate.id.value,
+          ),
           label: 'Latest Disc Recording Date',
           group: 'Recording',
           compare: (left, right) => _compareNullableDates(

@@ -228,7 +228,10 @@ layers. Workspace column definitions, Music sorts, and date/money formatting
 now live in separate modules; the former mixed schema-support helper is
 deleted. A strict filename import audit found and removed the unused
 `music_domain.dart` barrel; the remaining Music edit helpers have active
-consumers. Remaining work is the final layout pass and cross-tree legacy audit.
+consumers. Music's unused `MusicSortIds`, `MusicGroupIds`, and `MusicFacetIds`
+registries are removed; default and reducer operation IDs now derive from the
+field IDs they expose. Remaining work is the final layout pass and cross-tree
+legacy audit.
 
 ### M. Performance, documentation, and release gate
 

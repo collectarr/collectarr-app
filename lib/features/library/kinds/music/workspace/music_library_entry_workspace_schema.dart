@@ -175,6 +175,10 @@ final musicLibraryEntryWorkspaceSchema =
     MusicFieldIds.rating,
     MusicFieldIds.updatedAt,
   },
-  defaultSort: MusicSortIds.artistSummary,
-  defaultGroup: MusicGroupIds.artist,
+  defaultSort: LibrarySortId<MusicKind>(
+    MusicCatalogWorkspaceFields.artistSummary.id.value,
+  ),
+  defaultGroup: LibraryGroupId<MusicKind, Object?>(
+    MusicCatalogWorkspaceFields.artist.id.value,
+  ),
 );
