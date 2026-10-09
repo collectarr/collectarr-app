@@ -129,7 +129,15 @@ void main() {
 
     expect(
       catalogRegistrySource,
-      contains('const List<CatalogKindTransportBoundary>'),
+      contains('final List<CatalogKindTransportBoundary>'),
+    );
+    expect(
+      catalogRegistrySource,
+      contains('for (final capability in collectarrKindMetadata.values)'),
+    );
+    expect(
+      catalogRegistrySource,
+      contains('capability.catalogTransportCodec'),
     );
     expect(
       catalogRegistrySource,

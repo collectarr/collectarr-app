@@ -37,8 +37,7 @@ void main() {
   });
 
   test('tv edit tabs are ordered by the technical tab order helper', () {
-    final builder = TvLibraryEditPresentationBuilder();
-    final tabs = builder.buildTabs(
+    final tabs = tvLibraryEditPresentation.buildTabs(
       context: const LibraryEditPresentationContext(
         isEntry: false,
         isTrackingOnly: false,
@@ -48,6 +47,7 @@ void main() {
         hasPhysicalFormats: true,
         hasCustomFields: false,
       ),
+      isEntry: false,
     );
 
     expect(

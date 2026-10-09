@@ -136,7 +136,7 @@ void main() {
       catalog
           .firstWhere((type) => _isKind(type, CatalogMediaKind.music))
           .singularLabel,
-      'Music',
+      'Album',
     );
     expect(
       catalog

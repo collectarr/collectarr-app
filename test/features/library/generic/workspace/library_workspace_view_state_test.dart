@@ -56,7 +56,7 @@ void main() {
 
     expect(defaults.viewMode, LibraryViewMode.grid);
     expect(defaults.detailsLayout, LibraryDetailsLayout.bottom);
-    expect(defaults.sortId, sort('comic.series'));
+    expect(defaults.sortId, sort('comic.release_date'));
     expect(defaults.coverSize, 128);
     expect(defaults.sidebarWidth, 250);
     expect(defaults.detailsWidth, 340);

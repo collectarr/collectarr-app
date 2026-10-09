@@ -41,9 +41,9 @@ void main() {
           .map((field) => field.id),
       [
         'title',
-        'series',
-        'issue_number',
-        'variant',
+        'comic.series',
+        'comic.issue_number',
+        'comic.variant',
         'edition_title',
         'barcode',
         'isbn',
@@ -92,7 +92,7 @@ void main() {
     format.setValue(draft, null);
     expect(format.value(draft), isNull);
 
-    final pageCount = _field('page_count')
+    final pageCount = _field('comic.page_count')
         as LibraryNumberFieldSpec<ComicCatalogItemFormValues>;
     pageCount.setValue(draft, 48);
     expect(pageCount.value(draft), 48);

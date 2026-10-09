@@ -70,9 +70,9 @@ void main() {
         publisher: 'FOX',
         releaseDate: DateTime.utc(1993, 9, 10),
         barcode: '024543123456',
-        variant: 'Complete Series',
         physicalFormat: '4k-uhd',
         physicalFormatLabel: '4K UHD',
+        payload: const {'variant_name': 'Complete Series'},
       )).asShelfCatalogItem),
       libraryEntrySummary: testLibraryEntrySummary(testLibraryEntry(
         id: 'entry-1',

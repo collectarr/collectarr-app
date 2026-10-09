@@ -14,11 +14,11 @@ void main() {
           id: 'comic-1',
           kind: 'comic',
           title: 'Amazing Fantasy',
-          itemNumber: '15',
           publisher: 'Marvel Comics',
           synopsis: 'A public synopsis',
           releaseDate: DateTime.utc(1962, 8, 10),
           releaseYear: 1962,
+          payload: const {'issue_number': '15'},
         ).asShelfCatalogItem),
       ),
     ]);

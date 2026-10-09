@@ -8,8 +8,7 @@ void main() {
       'lib/features/library/kinds/tv/provider/tv_seasons_provider.dart',
     ).readAsString();
 
-    expect(content, contains('tvSeasonsBySeriesProvider'));
-    expect(content, contains('tvSeasonsBySeriesRefProvider'));
+    expect(content, contains('tvSeasonsByCatalogItemIdProvider'));
     expect(content, contains('tvSeasonsByCatalogRefProvider'));
     expect(content, isNot(contains('getItemSeasons(')));
     expect(content, isNot(contains('itemSeasonsProvider')));

@@ -37,9 +37,14 @@ void main() {
       ),
     );
 
-    expect(tables, contains('ComicLibraryEntriesRows'));
-    expect(tables, isNot(contains('ComicMediaRows')));
-    expect(tables, isNot(contains('ComicReleaseRows')));
+    expect(
+      tables,
+      containsAll([
+        'ComicReadingRows',
+        'ComicTrackingUnitRows',
+        'ComicTrackingRows',
+      ]),
+    );
   });
 
   test('requires a real static const vocabulary collection', () {

@@ -70,10 +70,10 @@ void main() {
         publisher: 'Sunrise',
         releaseDate: DateTime.utc(1998, 4, 3),
         barcode: '123456789012',
-        variant: 'TV / Collector',
         editionTitle: 'Complete Series',
         physicalFormat: 'blu-ray',
         physicalFormatLabel: 'Blu-ray',
+        payload: const {'variant_name': 'TV / Collector'},
       )).asShelfCatalogItem),
       libraryEntrySummary: testLibraryEntrySummary(testLibraryEntry(
         id: 'entry-1',

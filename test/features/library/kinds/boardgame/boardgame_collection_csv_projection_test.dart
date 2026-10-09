@@ -60,12 +60,12 @@ void main() {
         kind: 'boardgame',
         title: 'Catan',
         itemNumber: '5th',
-        variant: 'Seafarers',
         physicalFormat: 'box',
         physicalFormatLabel: 'Boxed game',
         publisher: 'Kosmos',
         releaseDate: DateTime.utc(1995, 4, 1),
         barcode: '4002051693302',
+        payload: const {'variant_name': 'Seafarers'},
       )).asShelfCatalogItem),
       libraryEntrySummary: testLibraryEntrySummary(testLibraryEntry(
         id: 'entry-1',
