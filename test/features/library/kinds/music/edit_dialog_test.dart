@@ -3,9 +3,8 @@ import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
-import 'package:collectarr_app/features/library/kinds/music/music_physical_media_formats.dart';
+import 'package:collectarr_app/features/library/kinds/music/config/music_physical_media_formats.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit/music_album_edit_dialog.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_ids.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_album.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit/music_album_edit_schema.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
@@ -138,7 +137,7 @@ void main() {
             'sound_types': <String>[],
             'recording_locations': <String>[],
             'credits': <Map<String, Object?>>[],
-            'tracks': [],
+            'tracks': <Map<String, Object?>>[],
           },
         ],
       },
