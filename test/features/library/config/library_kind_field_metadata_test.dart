@@ -37,6 +37,7 @@ import 'package:collectarr_app/features/library/kinds/music/workspace/music_cata
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_catalog_item_workspace_schema.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_library_entry_workspace_schema.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_personal_workspace_fields.dart';
+import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_facets.dart';
 import 'package:collectarr_app/features/library/kinds/music/presentation.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_field_labels.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_groups.dart';
@@ -316,6 +317,7 @@ void main() {
       ...comicLibraryFacetDefinitions,
       ...gameLibraryFacetDefinitions,
       ...mangaLibraryFacetDefinitions,
+      ...musicLibraryFacetDefinitions,
     ];
 
     for (final definition in definitions) {

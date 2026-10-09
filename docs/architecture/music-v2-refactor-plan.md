@@ -185,8 +185,11 @@ any contained value, while not-equals requires no contained value to match.
 Mixed-edition regression coverage exercises every contained disc and credit
 group bucket, checks one membership per matching bucket, and verifies Smart List
 Disc Format filtering against the same field getter used by grouping. Live/Studio
-labels remain a presentation over boolean values. Broader filter/facet parity
-coverage remains open.
+labels remain a presentation over boolean values. Music's artist, publisher,
+genre, disc-format, and country facet buckets now resolve through definitions
+that share the catalog workspace field value getters; tests check typed module,
+registered module, and group/filter value parity. Broader parity for every
+filterable field remains open.
 
 ### J. Scalar date sorting (implemented)
 

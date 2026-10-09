@@ -2,6 +2,9 @@ import '../music_module_dependencies.dart';
 import 'package:collectarr_app/core/models/partial_date.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_album.dart';
 
+export 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_facets.dart'
+    show musicLibraryFacetModule, musicLibraryFacetDefinitions;
+
 const musicArtistFilterId = musicAddArtistFilterId;
 const musicLabelFilterId = musicAddLabelFilterId;
 const musicYearFilterId = musicAddYearFilterId;
@@ -127,5 +130,3 @@ MetadataSearchQuery musicMetadataSearchQuery({
     limit: 5,
   );
 }
-
-const musicLibraryFacetModule = LibraryFacetModule();

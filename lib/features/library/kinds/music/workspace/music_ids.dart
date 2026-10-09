@@ -155,16 +155,3 @@ abstract final class MusicGroupIds {
   static const boxSet =
       LibraryGroupId<MusicKind, String?>(MusicFieldIdentities.boxSetId);
 }
-
-abstract final class MusicFacetIds {
-  static const artist =
-      LibraryFacetId<MusicKind, String>(MusicFieldIdentities.artistId);
-  static const publisher =
-      LibraryFacetId<MusicKind, String>(MusicFieldIdentities.publisherId);
-  static const genre =
-      LibraryFacetId<MusicKind, String>(MusicFieldIdentities.genreId);
-  static const discFormat =
-      LibraryFacetId<MusicKind, String>(MusicFieldIdentities.discFormatId);
-  static const country =
-      LibraryFacetId<MusicKind, String>(MusicFieldIdentities.countryId);
-}

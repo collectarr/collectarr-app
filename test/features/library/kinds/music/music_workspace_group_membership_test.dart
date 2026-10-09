@@ -1,7 +1,9 @@
 import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/core/models/partial_date.dart';
 import 'package:collectarr_app/core/models/smart_list_criteria.dart';
+import 'package:collectarr_app/core/api/api_client.dart';
 import 'package:collectarr_app/features/library/domain/library_target_ref.dart';
+import 'package:collectarr_app/features/library/generic/library_facet_bucket_service.dart';
 import 'package:collectarr_app/features/library/generic/library_filters.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_album.dart';
@@ -24,7 +26,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   test('contained Music values place an album once in each matching bucket',
-      () {
+      () async {
     final album = _mixedAlbum();
     final data = MusicWorkspaceData.fromMusic(album);
     final personal = const PersonalOverlay();
@@ -147,6 +149,46 @@ void main() {
       ['Conductor', 'Producer'],
     );
     expectBucketsAndSingleMembership('music.credit.instrument', ['Piano']);
+
+    Set<String> stringValues(Object? value) {
+      if (value is String) return {value};
+      if (value is Iterable) return value.whereType<String>().toSet();
+      return const {};
+    }
+
+    final api = ApiClient(baseUrl: 'http://unused');
+    for (final facet in musicLibraryFacetDefinitions) {
+      final field = workspace.fields.fields
+          .singleWhere((field) => field.id.value == facet.metadata.id);
+      final expectedValues = stringValues(field.getValue(context));
+      expect(facet.metadata.filterable, isTrue);
+      expect(facet.extractValues(dto).toSet(), expectedValues);
+      expect(
+        musicLibraryFacetModule.typedGetFacetValues(dto, facet.id).toSet(),
+        expectedValues,
+      );
+      expect(
+        musicLibraryFacetModule.externalFacetBucketIdsByMode[facet.metadata.id],
+        facet.id,
+      );
+      expect(
+        musicLibraryFacetModule.getFacetValues!(item, facet.id).toSet(),
+        expectedValues,
+      );
+      final facetBuckets = await const LibraryFacetBucketService().load(
+        api: api,
+        facets: musicLibraryFacetModule,
+        facetId: facet.id,
+        items: [item],
+        itemIds: {item.target.id},
+        signature: 'mixed-edition',
+      );
+      expect(
+          facetBuckets.itemIdsByBucket.keys, unorderedEquals(expectedValues));
+      for (final value in expectedValues) {
+        expect(facetBuckets.itemIdsByBucket[value], {item.target.id});
+      }
+    }
 
     bool matchesDiscFormat(SmartListFieldOperator operator, String value) =>
         libraryFilterMatches(

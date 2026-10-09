@@ -7,6 +7,21 @@ import 'package:collectarr_app/features/library/workspace/config/library_typed_f
 import 'package:collectarr_app/features/library/workspace/schema/field_factories.dart';
 
 abstract final class MusicCatalogWorkspaceFields {
+  static Iterable<String> artistValues(MusicWorkspaceProjection dto) =>
+      dto.facts.artistNames;
+
+  static String? publisherValue(MusicWorkspaceProjection dto) =>
+      dto.music.publisher;
+
+  static Iterable<String> genreValues(MusicWorkspaceProjection dto) =>
+      dto.music.genres;
+
+  static Iterable<String> discFormatValues(MusicWorkspaceProjection dto) =>
+      dto.facts.discFormats;
+
+  static String? countryValue(MusicWorkspaceProjection dto) =>
+      dto.music.countryCode;
+
   static final title = textField<MusicKind, MusicWorkspaceProjection>(
     id: MusicFieldIds.title,
     metadata: MusicFieldIdentities.title,
@@ -17,7 +32,7 @@ abstract final class MusicCatalogWorkspaceFields {
       MusicWorkspaceProjection, Iterable<String>>(
     id: MusicFieldIds.artist,
     metadata: MusicFieldIdentities.artist,
-    getValue: (context) => context.dto.facts.artistNames,
+    getValue: (context) => artistValues(context.dto),
   );
 
   static final artistSummary = textField<MusicKind, MusicWorkspaceProjection>(
@@ -29,7 +44,7 @@ abstract final class MusicCatalogWorkspaceFields {
   static final publisher = textField<MusicKind, MusicWorkspaceProjection>(
     id: MusicFieldIds.publisher,
     metadata: MusicFieldIdentities.publisher,
-    getValue: (dto) => dto.music.publisher,
+    getValue: publisherValue,
   );
 
   static final barcode = textField<MusicKind, MusicWorkspaceProjection>(
@@ -48,7 +63,7 @@ abstract final class MusicCatalogWorkspaceFields {
       MusicWorkspaceProjection, Iterable<String>>(
     id: MusicFieldIds.genre,
     metadata: MusicFieldIdentities.genre,
-    getValue: (context) => context.dto.music.genres,
+    getValue: (context) => genreValues(context.dto),
   );
 
   static final formatSummary = textField<MusicKind, MusicWorkspaceProjection>(
@@ -61,7 +76,7 @@ abstract final class MusicCatalogWorkspaceFields {
       MusicWorkspaceProjection, Iterable<String>>(
     id: MusicFieldIds.discFormat,
     metadata: MusicFieldIdentities.discFormat,
-    getValue: (context) => context.dto.facts.discFormats,
+    getValue: (context) => discFormatValues(context.dto),
   );
 
   static final discFormatFamily = LibraryFieldDefinition<MusicKind,
@@ -195,7 +210,7 @@ abstract final class MusicCatalogWorkspaceFields {
   static final country = textField<MusicKind, MusicWorkspaceProjection>(
     id: MusicFieldIds.country,
     metadata: MusicFieldIdentities.country,
-    getValue: (dto) => dto.music.countryCode,
+    getValue: countryValue,
   );
 
   static final packaging = textField<MusicKind, MusicWorkspaceProjection>(
