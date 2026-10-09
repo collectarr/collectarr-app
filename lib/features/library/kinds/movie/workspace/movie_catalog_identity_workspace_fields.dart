@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_ids.dart';
+import 'package:collectarr_app/features/library/kinds/movie/config/movie_workspace_field_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/movie/config/movie_field_identities.dart';
 import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_workspace_dto.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_transport_bucket_mutators.dart';
@@ -9,79 +10,74 @@ import 'package:flutter/material.dart';
 abstract final class MovieCatalogIdentityWorkspaceFields {
   static final title = textField<MovieKind, MovieWorkspaceDto>(
     id: MovieFieldIds.title,
-    label: MovieFieldIdentities.titleLabel,
+    metadata: MovieFieldIdentities.title,
     getValue: (dto) => dto.title,
   );
 
   static final director = textField<MovieKind, MovieWorkspaceDto>(
     id: MovieFieldIds.director,
-    label: 'Director',
+    metadata: MovieWorkspaceFieldMetadata.director,
     getValue: (dto) => dto.director,
-    searchable: true,
   );
 
   static final studio = textField<MovieKind, MovieWorkspaceDto>(
     id: MovieFieldIds.studio,
-    label: 'Studio',
+    metadata: MovieWorkspaceFieldMetadata.studio,
     getValue: (dto) => dto.studio,
-    searchable: true,
   );
 
   static final cover =
       LibraryFieldDefinition<MovieKind, MovieWorkspaceDto, String?>(
     id: MovieFieldIds.cover,
-    label: 'Cover',
+    metadata: MovieWorkspaceFieldMetadata.cover,
     getValue: (context) => context.dto.coverImageUrl,
   );
 
   static final runtimeMinutes = numberField<MovieKind, MovieWorkspaceDto>(
     id: MovieFieldIds.runtimeMinutes,
-    label: MovieFieldIdentities.runtimeMinutesLabel,
+    metadata: MovieFieldIdentities.runtimeMinutes,
     getValue: (dto) => dto.runtimeMinutes,
   );
 
   static final genre = textField<MovieKind, MovieWorkspaceDto>(
     id: MovieFieldIds.genre,
-    label: MovieFieldIdentities.genreLabel,
+    metadata: MovieFieldIdentities.genre,
     getValue: (dto) => dto.genres.isNotEmpty ? dto.genres.join(', ') : null,
-    searchable: MovieFieldIdentities.genre.searchable,
   );
 
   static final audienceRating = textField<MovieKind, MovieWorkspaceDto>(
     id: MovieFieldIds.audienceRating,
-    label: MovieFieldIdentities.audienceRatingLabel,
+    metadata: MovieFieldIdentities.audienceRating,
     getValue: (dto) => dto.audienceRating,
   );
 
   static final movieOrTvSeries = textField<MovieKind, MovieWorkspaceDto>(
     id: MovieFieldIds.movieOrTvSeries,
-    label: 'Movie / TV Series',
+    metadata: MovieWorkspaceFieldMetadata.movieOrTvSeries,
     getValue: (dto) => 'Movie',
   );
 
   static final originalTitle = textField<MovieKind, MovieWorkspaceDto>(
     id: MovieFieldIds.originalTitle,
-    label: MovieFieldIdentities.originalTitleLabel,
+    metadata: MovieFieldIdentities.originalTitle,
     getValue: (dto) => dto.originalTitle,
-    searchable: MovieFieldIdentities.originalTitle.searchable,
   );
 
   static final writer = textField<MovieKind, MovieWorkspaceDto>(
     id: MovieFieldIds.writer,
-    label: 'Writer',
+    metadata: MovieWorkspaceFieldMetadata.writer,
     getValue: (dto) => dto.writer,
-    searchable: true,
   );
 
   static final producer = textField<MovieKind, MovieWorkspaceDto>(
     id: MovieFieldIds.producer,
-    label: 'Producer',
+    metadata: MovieWorkspaceFieldMetadata.producer,
     getValue: (dto) => dto.producer,
   );
 
   static final ageRating = textField<MovieKind, MovieWorkspaceDto>(
     id: MovieFieldIds.ageRating,
-    label: MovieFieldIdentities.ageRatingLabel,
+    metadata: MovieFieldIdentities.ageRating,
     getValue: (dto) => dto.ageRating,
   );
 }
@@ -152,7 +148,7 @@ final movieCatalogIdentityDefaultVisibleColumns = <LibraryFieldIdRuntime>{
 final movieCatalogIdentityColumnDefinitions = [
   LibraryColumnDefinition<MovieKind, MovieWorkspaceDto, String?>(
     id: MovieFieldIds.cover,
-    label: '',
+    metadata: MovieWorkspaceFieldMetadata.cover,
     getValue: MovieCatalogIdentityWorkspaceFields.cover.getValue,
     cellValue: (context) => context.dto.coverImageUrl == null
         ? const SizedBox.shrink()
@@ -162,8 +158,8 @@ final movieCatalogIdentityColumnDefinitions = [
             height: 32,
             fit: BoxFit.cover,
           ),
-    sortable: false,
-    groupable: false,
+    allowSortInteraction: false,
+    allowGroupInteraction: false,
     defaultWidth: 42,
     minWidth: 44,
   ),

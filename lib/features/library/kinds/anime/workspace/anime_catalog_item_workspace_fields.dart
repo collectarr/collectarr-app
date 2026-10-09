@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/library/kinds/anime/workspace/anime_ids.dart';
+import 'package:collectarr_app/features/library/kinds/anime/config/anime_workspace_field_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/anime/config/anime_field_identities.dart';
 import 'package:collectarr_app/features/library/kinds/anime/workspace/anime_workspace_dto.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
@@ -8,28 +9,26 @@ import 'package:flutter/material.dart';
 abstract final class AnimeAdditionalCatalogItemWorkspaceFields {
   static final publisher = textField<AnimeKind, AnimeWorkspaceDto>(
     id: AnimeFieldIds.publisher,
-    label: 'Publisher',
+    metadata: AnimeWorkspaceFieldMetadata.publisher,
     getValue: (dto) => dto.publisher,
-    searchable: true,
   );
 
   static final releaseDate = dateField<AnimeKind, AnimeWorkspaceDto>(
     id: AnimeFieldIds.releaseDate,
-    label: 'Release Date',
+    metadata: AnimeWorkspaceFieldMetadata.releaseDate,
     getValue: (dto) => dto.releaseDate,
   );
 
   static final releaseYear = numberField<AnimeKind, AnimeWorkspaceDto>(
     id: AnimeFieldIds.releaseYear,
-    label: 'Release Year',
+    metadata: AnimeWorkspaceFieldMetadata.releaseYear,
     getValue: (dto) => dto.releaseDate?.year,
   );
 
   static final barcode = textField<AnimeKind, AnimeWorkspaceDto>(
     id: AnimeFieldIds.barcode,
-    label: AnimeFieldIdentities.barcodeLabel,
+    metadata: AnimeFieldIdentities.barcode,
     getValue: (dto) => dto.barcode,
-    searchable: AnimeFieldIdentities.barcode.searchable,
   );
 }
 

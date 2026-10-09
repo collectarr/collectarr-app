@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/library/kinds/anime/workspace/anime_ids.dart';
+import 'package:collectarr_app/features/library/kinds/anime/config/anime_workspace_field_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/anime/config/anime_field_identities.dart';
 import 'package:collectarr_app/features/library/kinds/anime/workspace/anime_workspace_dto.dart';
 import 'package:collectarr_app/features/library/kinds/anime/workspace/anime_catalog_item_workspace_fields.dart';
@@ -11,83 +12,81 @@ import 'package:flutter/material.dart';
 abstract final class AnimeCatalogItemWorkspaceFields {
   static final title = textField<AnimeKind, AnimeWorkspaceDto>(
     id: AnimeFieldIds.title,
-    label: 'Title',
+    metadata: AnimeWorkspaceFieldMetadata.title,
     getValue: (dto) => dto.title,
   );
 
   static final studio = textField<AnimeKind, AnimeWorkspaceDto>(
     id: AnimeFieldIds.studio,
-    label: 'Studio',
+    metadata: AnimeWorkspaceFieldMetadata.studio,
     getValue: (dto) => dto.studio ?? dto.publisher,
   );
 
   static final cover =
       LibraryFieldDefinition<AnimeKind, AnimeWorkspaceDto, String?>(
     id: AnimeFieldIds.cover,
-    label: 'Cover',
+    metadata: AnimeWorkspaceFieldMetadata.cover,
     getValue: (context) => context.dto.coverImageUrl,
   );
 
   static final nativeTitle = textField<AnimeKind, AnimeWorkspaceDto>(
     id: AnimeFieldIds.nativeTitle,
-    label: AnimeFieldIdentities.nativeTitleLabel,
+    metadata: AnimeFieldIdentities.nativeTitle,
     getValue: (dto) => dto.metadata.nativeTitle,
   );
 
   static final romajiTitle = textField<AnimeKind, AnimeWorkspaceDto>(
     id: AnimeFieldIds.romajiTitle,
-    label: AnimeFieldIdentities.romajiTitleLabel,
+    metadata: AnimeFieldIdentities.romajiTitle,
     getValue: (dto) => dto.metadata.romajiTitle,
   );
 
   static final englishTitle = textField<AnimeKind, AnimeWorkspaceDto>(
     id: AnimeFieldIds.englishTitle,
-    label: AnimeFieldIdentities.englishTitleLabel,
+    metadata: AnimeFieldIdentities.englishTitle,
     getValue: (dto) => dto.metadata.englishTitle,
   );
 
   static final format = textField<AnimeKind, AnimeWorkspaceDto>(
     id: AnimeFieldIds.format,
-    label: AnimeFieldIdentities.formatLabel,
+    metadata: AnimeFieldIdentities.format,
     getValue: (dto) => dto.animeType,
-    searchable: AnimeFieldIdentities.format.searchable,
   );
 
   static final season = textField<AnimeKind, AnimeWorkspaceDto>(
     id: AnimeFieldIds.season,
-    label: 'Season',
+    metadata: AnimeWorkspaceFieldMetadata.season,
     getValue: (dto) => dto.metadata.season?.label,
   );
 
   static final seasonYear = numberField<AnimeKind, AnimeWorkspaceDto>(
     id: AnimeFieldIds.seasonYear,
-    label: 'Season Year',
+    metadata: AnimeWorkspaceFieldMetadata.seasonYear,
     getValue: (dto) => dto.metadata.seasonYear,
   );
 
   static final episodeCount = numberField<AnimeKind, AnimeWorkspaceDto>(
     id: AnimeFieldIds.episodeCount,
-    label: 'Episode Count',
+    metadata: AnimeWorkspaceFieldMetadata.episodeCount,
     getValue: (dto) => dto.episodeCount,
   );
 
   static final episodeRuntimeMinutes =
       numberField<AnimeKind, AnimeWorkspaceDto>(
     id: AnimeFieldIds.episodeRuntimeMinutes,
-    label: 'Episode Runtime (m)',
+    metadata: AnimeWorkspaceFieldMetadata.episodeRuntimeMinutes,
     getValue: (dto) => dto.metadata.episodeRuntimeMinutes,
   );
 
   static final airingStatus = textField<AnimeKind, AnimeWorkspaceDto>(
     id: AnimeFieldIds.airingStatus,
-    label: 'Airing Status',
+    metadata: AnimeWorkspaceFieldMetadata.airingStatus,
     getValue: (dto) => dto.airingStatus,
-    searchable: true,
   );
 
   static final sourceMaterial = textField<AnimeKind, AnimeWorkspaceDto>(
     id: AnimeFieldIds.sourceMaterial,
-    label: 'Source Material',
+    metadata: AnimeWorkspaceFieldMetadata.sourceMaterial,
     getValue: (dto) => dto.metadata.sourceMaterial.label,
   );
 }
@@ -171,7 +170,7 @@ final animeCatalogItemWorkspaceDefaultVisibleColumns = <LibraryFieldIdRuntime>{
 final animeCatalogItemWorkspaceColumnDefinitions = [
   LibraryColumnDefinition<AnimeKind, AnimeWorkspaceDto, String?>(
     id: AnimeFieldIds.cover,
-    label: '',
+    metadata: AnimeWorkspaceFieldMetadata.cover,
     getValue: AnimeCatalogItemWorkspaceFields.cover.getValue,
     cellValue: (context) => context.dto.coverImageUrl == null
         ? const SizedBox.shrink()
@@ -181,8 +180,8 @@ final animeCatalogItemWorkspaceColumnDefinitions = [
             height: 32,
             fit: BoxFit.cover,
           ),
-    sortable: false,
-    groupable: false,
+    allowSortInteraction: false,
+    allowGroupInteraction: false,
     defaultWidth: 42,
     minWidth: 44,
   ),

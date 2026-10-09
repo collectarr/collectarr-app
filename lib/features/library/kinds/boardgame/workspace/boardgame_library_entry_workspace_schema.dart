@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/library/kinds/boardgame/workspace/boardgame_ids.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/config/boardgame_workspace_field_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/data/boardgame_library_entry_projection.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/workspace/boardgame_workspace_dto.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_library_entry.dart';
@@ -11,7 +12,7 @@ abstract final class BoardGameLibraryEntryWorkspaceFields {
   static final condition =
       LibraryFieldDefinition<BoardGameKind, BoardGameWorkspaceDto, String?>(
     id: BoardGameFieldIds.condition,
-    label: 'Condition',
+    metadata: BoardGameWorkspaceFieldMetadata.condition,
     getValue: (context) {
       final entry = BoardGameLibraryEntryProjection.fromDispatch(
           context.item.libraryEntryDispatch);
@@ -22,21 +23,21 @@ abstract final class BoardGameLibraryEntryWorkspaceFields {
   static final location =
       LibraryFieldDefinition<BoardGameKind, BoardGameWorkspaceDto, String?>(
     id: BoardGameFieldIds.location,
-    label: 'Location',
+    metadata: BoardGameWorkspaceFieldMetadata.location,
     getValue: (context) => context.personal.locationPath,
   );
 
   static final pricePaid =
       LibraryFieldDefinition<BoardGameKind, BoardGameWorkspaceDto, int?>(
     id: BoardGameFieldIds.pricePaid,
-    label: 'Purchase Price',
+    metadata: BoardGameWorkspaceFieldMetadata.pricePaid,
     getValue: (context) => context.item.entrySummary?.pricePaidCents,
   );
 
   static final status =
       LibraryFieldDefinition<BoardGameKind, BoardGameWorkspaceDto, String?>(
     id: BoardGameFieldIds.status,
-    label: 'Status',
+    metadata: BoardGameWorkspaceFieldMetadata.status,
     getValue: (context) => context.personal.isWishlisted
         ? 'wishlist'
         : ((context.item.entrySummary != null) ? 'entry' : null),
@@ -45,28 +46,28 @@ abstract final class BoardGameLibraryEntryWorkspaceFields {
   static final rating =
       LibraryFieldDefinition<BoardGameKind, BoardGameWorkspaceDto, int?>(
     id: BoardGameFieldIds.rating,
-    label: 'Rating',
+    metadata: BoardGameWorkspaceFieldMetadata.rating,
     getValue: (context) => context.dto.personal.rating,
   );
 
   static final wishlist =
       LibraryFieldDefinition<BoardGameKind, BoardGameWorkspaceDto, bool>(
     id: BoardGameFieldIds.wishlist,
-    label: 'Wishlist',
+    metadata: BoardGameWorkspaceFieldMetadata.wishlist,
     getValue: (context) => context.personal.isWishlisted,
   );
 
   static final updatedAt =
       LibraryFieldDefinition<BoardGameKind, BoardGameWorkspaceDto, DateTime>(
     id: BoardGameFieldIds.updatedAt,
-    label: 'Updated',
+    metadata: BoardGameWorkspaceFieldMetadata.updatedAt,
     getValue: (context) => context.updatedAt,
   );
 
   static final addedAt =
       LibraryFieldDefinition<BoardGameKind, BoardGameWorkspaceDto, DateTime?>(
     id: BoardGameFieldIds.addedAt,
-    label: 'Added',
+    metadata: BoardGameWorkspaceFieldMetadata.addedAt,
     getValue: (context) => context.addedAt,
   );
 }
@@ -126,28 +127,29 @@ final boardgameLibraryEntryWorkspaceDefaultVisibleColumns =
 final boardgameLibraryEntryWorkspaceColumnDefinitions = [
   LibraryColumnDefinition<BoardGameKind, BoardGameWorkspaceDto, String?>(
     id: BoardGameFieldIds.status,
-    label: 'Status',
+    metadata: BoardGameWorkspaceFieldMetadata.status,
     getValue: BoardGameLibraryEntryWorkspaceFields.status.getValue,
     cellValue: (context) => Text(context.personal.isWishlisted
         ? 'Wishlist'
         : ((context.item.entrySummary != null) ? 'Entry' : '')),
-    sortable: false,
-    groupable: false,
+    allowSortInteraction: false,
+    allowGroupInteraction: false,
     defaultWidth: 52,
     minWidth: 44,
   ),
   LibraryColumnDefinition<BoardGameKind, BoardGameWorkspaceDto, bool>(
     id: BoardGameFieldIds.wishlist,
-    label: 'Wishlist',
+    metadata: BoardGameWorkspaceFieldMetadata.wishlist,
     getValue: BoardGameLibraryEntryWorkspaceFields.wishlist.getValue,
-    cellValue: (context) => Text(context.personal.isWishlisted ? 'Wishlist' : ''),
+    cellValue: (context) =>
+        Text(context.personal.isWishlisted ? 'Wishlist' : ''),
     group: 'Personal',
     defaultWidth: 82,
     minWidth: 70,
   ),
   LibraryColumnDefinition<BoardGameKind, BoardGameWorkspaceDto, DateTime>(
     id: BoardGameFieldIds.updatedAt,
-    label: 'Updated',
+    metadata: BoardGameWorkspaceFieldMetadata.updatedAt,
     getValue: BoardGameLibraryEntryWorkspaceFields.updatedAt.getValue,
     cellValue: (context) => Text(_formatDate(context.updatedAt)),
     group: 'Personal',
@@ -155,7 +157,7 @@ final boardgameLibraryEntryWorkspaceColumnDefinitions = [
   ),
   LibraryColumnDefinition<BoardGameKind, BoardGameWorkspaceDto, DateTime?>(
     id: BoardGameFieldIds.addedAt,
-    label: 'Added',
+    metadata: BoardGameWorkspaceFieldMetadata.addedAt,
     getValue: BoardGameLibraryEntryWorkspaceFields.addedAt.getValue,
     cellValue: (context) => Text(_formatDate(context.addedAt)),
     group: 'Personal',
@@ -173,8 +175,8 @@ final boardgameLibraryEntryWorkspaceColumnDefinitions = [
   ),
   columnFromField<BoardGameKind, BoardGameWorkspaceDto, int?>(
     BoardGameLibraryEntryWorkspaceFields.pricePaid,
-    cellValue: (context) =>
-        Text(_formatCents(context.item.entrySummary?.pricePaidCents, context.dto.currency)),
+    cellValue: (context) => Text(_formatCents(
+        context.item.entrySummary?.pricePaidCents, context.dto.currency)),
     group: 'Value',
     isNumeric: true,
     defaultWidth: 92,
@@ -182,7 +184,7 @@ final boardgameLibraryEntryWorkspaceColumnDefinitions = [
   ),
   LibraryColumnDefinition<BoardGameKind, BoardGameWorkspaceDto, int?>(
     id: BoardGameFieldIds.rating,
-    label: 'Rating',
+    metadata: BoardGameWorkspaceFieldMetadata.rating,
     getValue: BoardGameLibraryEntryWorkspaceFields.rating.getValue,
     cellValue: (context) => Text(context.dto.personal.rating?.toString() ?? ''),
     defaultWidth: 80,

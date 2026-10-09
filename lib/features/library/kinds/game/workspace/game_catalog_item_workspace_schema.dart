@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/library/kinds/game/workspace/game_ids.dart';
+import 'package:collectarr_app/features/library/kinds/game/config/game_workspace_field_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/game/config/game_field_identities.dart';
 import 'package:collectarr_app/features/library/kinds/game/workspace/game_workspace_dto.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
@@ -9,81 +10,75 @@ import 'package:flutter/material.dart';
 abstract final class GameCatalogItemWorkspaceFields {
   static final title = textField<GameKind, GameWorkspaceDto>(
     id: GameFieldIds.title,
-    label: 'Title',
+    metadata: GameWorkspaceFieldMetadata.title,
     getValue: (dto) => dto.title,
   );
 
   static final platform = textField<GameKind, GameWorkspaceDto>(
     id: GameFieldIds.platform,
-    label: 'Platform',
+    metadata: GameWorkspaceFieldMetadata.platform,
     getValue: (dto) => dto.platform,
-    searchable: true,
   );
 
   static final developer = textField<GameKind, GameWorkspaceDto>(
     id: GameFieldIds.developer,
-    label: 'Developer',
+    metadata: GameWorkspaceFieldMetadata.developer,
     getValue: (dto) => dto.developer,
-    searchable: true,
   );
 
   static final publisher = textField<GameKind, GameWorkspaceDto>(
     id: GameFieldIds.publisher,
-    label: 'Publisher',
+    metadata: GameWorkspaceFieldMetadata.publisher,
     getValue: (dto) => dto.publisher,
-    searchable: true,
   );
 
   static final releaseDate = dateField<GameKind, GameWorkspaceDto>(
     id: GameFieldIds.releaseDate,
-    label: GameFieldIdentities.releaseDateLabel,
+    metadata: GameFieldIdentities.releaseDate,
     getValue: (dto) => dto.releaseDate,
   );
 
   static final barcode = textField<GameKind, GameWorkspaceDto>(
     id: GameFieldIds.barcode,
-    label: GameFieldIdentities.barcodeLabel,
+    metadata: GameFieldIdentities.barcode,
     getValue: (dto) => dto.barcode,
-    searchable: GameFieldIdentities.barcode.searchable,
   );
 
   static final edition = textField<GameKind, GameWorkspaceDto>(
     id: GameFieldIds.edition,
-    label: 'Edition',
+    metadata: GameWorkspaceFieldMetadata.edition,
     getValue: (dto) => dto.edition,
   );
 
   static final cover =
       LibraryFieldDefinition<GameKind, GameWorkspaceDto, String?>(
     id: GameFieldIds.cover,
-    label: 'Cover',
+    metadata: GameWorkspaceFieldMetadata.cover,
     getValue: (context) => context.dto.coverImageUrl,
   );
 
   static final franchise = textField<GameKind, GameWorkspaceDto>(
     id: GameFieldIds.franchise,
-    label: GameFieldIdentities.franchiseLabel,
+    metadata: GameFieldIdentities.franchise,
     getValue: (dto) => dto.franchise,
-    searchable: GameFieldIdentities.franchise.searchable,
   );
 
   static final series = textField<GameKind, GameWorkspaceDto>(
     id: GameFieldIds.series,
-    label: 'Series',
+    metadata: GameWorkspaceFieldMetadata.series,
     getValue: (dto) => dto.seriesTitle,
   );
 
   static final ageRating = textField<GameKind, GameWorkspaceDto>(
     id: GameFieldIds.ageRating,
-    label: 'Age Rating',
+    metadata: GameWorkspaceFieldMetadata.ageRating,
     getValue: (dto) => dto.ageRating,
   );
 
   static final region = textField<GameKind, GameWorkspaceDto>(
     id: GameFieldIds.region,
-    label: 'Region',
+    metadata: GameWorkspaceFieldMetadata.region,
     getValue: (dto) => dto.region,
-    searchable: true,
   );
 }
 
@@ -150,7 +145,7 @@ final gameCatalogItemWorkspaceDefaultVisibleColumns = <LibraryFieldIdRuntime>{
 final gameCatalogItemWorkspaceColumnDefinitions = [
   LibraryColumnDefinition<GameKind, GameWorkspaceDto, String?>(
     id: GameFieldIds.cover,
-    label: '',
+    metadata: GameWorkspaceFieldMetadata.cover,
     getValue: GameCatalogItemWorkspaceFields.cover.getValue,
     cellValue: (context) => context.dto.coverImageUrl == null
         ? const SizedBox.shrink()
@@ -160,8 +155,8 @@ final gameCatalogItemWorkspaceColumnDefinitions = [
             height: 32,
             fit: BoxFit.cover,
           ),
-    sortable: false,
-    groupable: false,
+    allowSortInteraction: false,
+    allowGroupInteraction: false,
     defaultWidth: 42,
     minWidth: 44,
   ),

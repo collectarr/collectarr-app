@@ -9,33 +9,31 @@ import 'package:flutter/material.dart';
 abstract final class BookCatalogItemDetailsWorkspaceFields {
   static final publisher = textField<BookKind, BookWorkspaceDto>(
     id: BookFieldIds.publisher,
-    label: BookFieldIdentities.publisherLabel,
+    metadata: BookFieldIdentities.publisher,
     getValue: (dto) => dto.publisher,
-    searchable: BookFieldIdentities.publisher.searchable,
   );
 
   static final pageCount = numberField<BookKind, BookWorkspaceDto>(
     id: BookFieldIds.pageCount,
-    label: BookFieldIdentities.pageCountLabel,
+    metadata: BookFieldIdentities.pageCount,
     getValue: (dto) => dto.pageCount,
   );
 
   static final isbn = textField<BookKind, BookWorkspaceDto>(
     id: BookFieldIds.isbn,
-    label: BookFieldIdentities.isbnLabel,
+    metadata: BookFieldIdentities.isbn,
     getValue: (dto) => dto.isbn ?? dto.barcode,
-    searchable: BookFieldIdentities.isbn.searchable,
   );
 
   static final releaseDate = dateField<BookKind, BookWorkspaceDto>(
     id: BookFieldIds.releaseDate,
-    label: BookFieldIdentities.releaseDateLabel,
+    metadata: BookFieldIdentities.releaseDate,
     getValue: (dto) => dto.releaseDate,
   );
 
   static final format = textField<BookKind, BookWorkspaceDto>(
     id: BookFieldIds.format,
-    label: BookFieldIdentities.formatLabel,
+    metadata: BookFieldIdentities.format,
     getValue: (dto) => dto.format,
   );
 }

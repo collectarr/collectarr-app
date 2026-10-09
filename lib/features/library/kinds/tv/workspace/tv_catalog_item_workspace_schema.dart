@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/library/kinds/tv/workspace/tv_ids.dart';
+import 'package:collectarr_app/features/library/kinds/tv/config/tv_workspace_field_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/tv/config/tv_field_identities.dart';
 import 'package:collectarr_app/features/library/kinds/tv/workspace/tv_workspace_dto.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_transport_bucket_mutators.dart';
@@ -10,84 +11,79 @@ import 'package:flutter/material.dart';
 abstract final class TvCatalogItemWorkspaceFields {
   static final title = textField<TvKind, TvWorkspaceDto>(
     id: TvFieldIds.title,
-    label: 'Title',
+    metadata: TvWorkspaceFieldMetadata.title,
     getValue: (dto) => dto.title,
   );
 
   static final publisher = textField<TvKind, TvWorkspaceDto>(
     id: TvFieldIds.network,
-    label: 'Network / Studio',
+    metadata: TvWorkspaceFieldMetadata.publisher,
     getValue: (dto) => dto.publisher,
-    searchable: true,
   );
 
   static final barcode = textField<TvKind, TvWorkspaceDto>(
     id: TvFieldIds.barcode,
-    label: TvFieldIdentities.barcodeLabel,
+    metadata: TvFieldIdentities.barcode,
     getValue: (dto) => dto.barcode,
-    searchable: TvFieldIdentities.barcode.searchable,
   );
 
   static final series = textField<TvKind, TvWorkspaceDto>(
     id: TvFieldIds.series,
-    label: 'Series',
+    metadata: TvWorkspaceFieldMetadata.series,
     getValue: (dto) => dto.seriesTitle,
   );
 
   static final cover = LibraryFieldDefinition<TvKind, TvWorkspaceDto, String?>(
     id: TvFieldIds.cover,
-    label: 'Cover',
+    metadata: TvWorkspaceFieldMetadata.cover,
     getValue: (context) => context.dto.coverImageUrl,
   );
 
   static final firstAirDate = dateField<TvKind, TvWorkspaceDto>(
     id: TvFieldIds.firstAirDate,
-    label: 'First Air Date',
+    metadata: TvWorkspaceFieldMetadata.firstAirDate,
     getValue: (dto) => dto.firstAirDate,
   );
 
   static final lastAirDate = dateField<TvKind, TvWorkspaceDto>(
     id: TvFieldIds.lastAirDate,
-    label: 'Last Air Date',
+    metadata: TvWorkspaceFieldMetadata.lastAirDate,
     getValue: (dto) => dto.lastAirDate,
   );
 
   static final tvStatus = textField<TvKind, TvWorkspaceDto>(
     id: TvFieldIds.tvStatus,
-    label: 'Series Status',
+    metadata: TvWorkspaceFieldMetadata.tvStatus,
     getValue: (dto) => dto.tvStatus,
-    searchable: true,
   );
 
   static final streamingService = textField<TvKind, TvWorkspaceDto>(
     id: TvFieldIds.streamingService,
-    label: 'Streamer',
+    metadata: TvWorkspaceFieldMetadata.streamingService,
     getValue: (dto) => dto.streamingService,
-    searchable: true,
   );
 
   static final contentRating = textField<TvKind, TvWorkspaceDto>(
     id: TvFieldIds.contentRating,
-    label: 'Content Rating',
+    metadata: TvWorkspaceFieldMetadata.contentRating,
     getValue: (dto) => dto.contentRating,
-    searchable: true,
   );
 
   static final seasonCount = numberField<TvKind, TvWorkspaceDto>(
     id: TvFieldIds.seasonCount,
-    label: 'Seasons',
+    metadata: TvWorkspaceFieldMetadata.seasonCount,
     getValue: (dto) => dto.seasonCount,
   );
 
   static final episodeCount = numberField<TvKind, TvWorkspaceDto>(
     id: TvFieldIds.episodeCount,
-    label: 'Episodes',
+    metadata: TvWorkspaceFieldMetadata.episodeCount,
     getValue: (dto) => dto.episodeCount,
   );
 
   static final episodeRuntimeMinutes = numberField<TvKind, TvWorkspaceDto>(
     id: TvFieldIds.episodeRuntimeMinutes,
-    label: 'Episode Runtime (m)',
+    metadata: TvWorkspaceFieldMetadata.episodeRuntimeMinutes,
     getValue: (dto) => dto.episodeRuntimeMinutes,
   );
 }
@@ -159,7 +155,7 @@ final tvCatalogItemWorkspaceDefaultVisibleColumns = <LibraryFieldIdRuntime>{
 final tvCatalogItemWorkspaceColumnDefinitions = [
   LibraryColumnDefinition<TvKind, TvWorkspaceDto, String?>(
     id: TvFieldIds.cover,
-    label: '',
+    metadata: TvWorkspaceFieldMetadata.cover,
     getValue: TvCatalogItemWorkspaceFields.cover.getValue,
     cellValue: (context) => context.dto.coverImageUrl == null
         ? const SizedBox.shrink()
@@ -169,8 +165,8 @@ final tvCatalogItemWorkspaceColumnDefinitions = [
             height: 32,
             fit: BoxFit.cover,
           ),
-    sortable: false,
-    groupable: false,
+    allowSortInteraction: false,
+    allowGroupInteraction: false,
     defaultWidth: 42,
     minWidth: 44,
   ),

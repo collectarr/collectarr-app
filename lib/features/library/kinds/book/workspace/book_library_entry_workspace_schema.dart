@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/library/kinds/book/workspace/book_ids.dart';
+import 'package:collectarr_app/features/library/kinds/book/config/book_workspace_field_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/book/data/book_library_entry_projection.dart';
 import 'package:collectarr_app/features/library/kinds/book/workspace/book_workspace_dto.dart';
 import 'package:collectarr_app/features/library/kinds/book/domain/book_library_entry.dart';
@@ -11,7 +12,7 @@ abstract final class BookLibraryEntryWorkspaceFields {
   static final condition =
       LibraryFieldDefinition<BookKind, BookWorkspaceDto, String?>(
     id: BookFieldIds.condition,
-    label: 'Condition',
+    metadata: BookWorkspaceFieldMetadata.condition,
     getValue: (context) {
       final entry = BookLibraryEntryProjection.fromDispatch(
           context.item.libraryEntryDispatch);
@@ -22,21 +23,21 @@ abstract final class BookLibraryEntryWorkspaceFields {
   static final location =
       LibraryFieldDefinition<BookKind, BookWorkspaceDto, String?>(
     id: BookFieldIds.location,
-    label: 'Location',
+    metadata: BookWorkspaceFieldMetadata.location,
     getValue: (context) => context.personal.locationPath,
   );
 
   static final pricePaid =
       LibraryFieldDefinition<BookKind, BookWorkspaceDto, int?>(
     id: BookFieldIds.pricePaid,
-    label: 'Purchase Price',
+    metadata: BookWorkspaceFieldMetadata.pricePaid,
     getValue: (context) => context.item.entrySummary?.pricePaidCents,
   );
 
   static final status =
       LibraryFieldDefinition<BookKind, BookWorkspaceDto, String?>(
     id: BookFieldIds.status,
-    label: 'Status',
+    metadata: BookWorkspaceFieldMetadata.status,
     getValue: (context) => context.personal.isWishlisted
         ? 'wishlist'
         : ((context.item.entrySummary != null) ? 'entry' : null),
@@ -45,42 +46,42 @@ abstract final class BookLibraryEntryWorkspaceFields {
   static final rating =
       LibraryFieldDefinition<BookKind, BookWorkspaceDto, int?>(
     id: BookFieldIds.rating,
-    label: 'Rating',
+    metadata: BookWorkspaceFieldMetadata.rating,
     getValue: (context) => context.dto.personal.rating,
   );
 
   static final wishlist =
       LibraryFieldDefinition<BookKind, BookWorkspaceDto, bool>(
     id: BookFieldIds.wishlist,
-    label: 'Wishlist',
+    metadata: BookWorkspaceFieldMetadata.wishlist,
     getValue: (context) => context.personal.isWishlisted,
   );
 
   static final updatedAt =
       LibraryFieldDefinition<BookKind, BookWorkspaceDto, DateTime>(
     id: BookFieldIds.updatedAt,
-    label: 'Updated',
+    metadata: BookWorkspaceFieldMetadata.updatedAt,
     getValue: (context) => context.updatedAt,
   );
 
   static final addedAt =
       LibraryFieldDefinition<BookKind, BookWorkspaceDto, DateTime?>(
     id: BookFieldIds.addedAt,
-    label: 'Added',
+    metadata: BookWorkspaceFieldMetadata.addedAt,
     getValue: (context) => context.addedAt,
   );
 
   static final readStatus =
       LibraryFieldDefinition<BookKind, BookWorkspaceDto, String?>(
     id: BookFieldIds.readStatus,
-    label: 'Read Status',
+    metadata: BookWorkspaceFieldMetadata.readStatus,
     getValue: (context) => context.dto.personal.trackingStatus,
   );
 
   static final signedBy =
       LibraryFieldDefinition<BookKind, BookWorkspaceDto, String?>(
     id: BookFieldIds.signedBy,
-    label: 'Signed By',
+    metadata: BookWorkspaceFieldMetadata.signedBy,
     getValue: (context) {
       final entry = BookLibraryEntryProjection.fromDispatch(
           context.item.libraryEntryDispatch);
@@ -146,19 +147,19 @@ final bookLibraryEntryWorkspaceDefaultVisibleColumns = <LibraryFieldIdRuntime>{
 final bookLibraryEntryWorkspaceColumnDefinitions = [
   LibraryColumnDefinition<BookKind, BookWorkspaceDto, String?>(
     id: BookFieldIds.status,
-    label: 'Status',
+    metadata: BookWorkspaceFieldMetadata.status,
     getValue: BookLibraryEntryWorkspaceFields.status.getValue,
     cellValue: (context) => Text(context.personal.isWishlisted
         ? 'Wishlist'
         : ((context.item.entrySummary != null) ? 'Entry' : '')),
-    sortable: false,
-    groupable: false,
+    allowSortInteraction: false,
+    allowGroupInteraction: false,
     defaultWidth: 52,
     minWidth: 44,
   ),
   LibraryColumnDefinition<BookKind, BookWorkspaceDto, String?>(
     id: BookFieldIds.readStatus,
-    label: 'Read Status',
+    metadata: BookWorkspaceFieldMetadata.readStatus,
     getValue: BookLibraryEntryWorkspaceFields.readStatus.getValue,
     cellValue: (context) => Text(context.dto.personal.trackingStatus ?? ''),
     group: 'Personal',
@@ -166,7 +167,7 @@ final bookLibraryEntryWorkspaceColumnDefinitions = [
   ),
   LibraryColumnDefinition<BookKind, BookWorkspaceDto, int?>(
     id: BookFieldIds.rating,
-    label: 'Rating',
+    metadata: BookWorkspaceFieldMetadata.rating,
     getValue: BookLibraryEntryWorkspaceFields.rating.getValue,
     cellValue: (context) => Text(context.dto.personal.rating?.toString() ?? ''),
     group: 'Personal',
@@ -179,8 +180,8 @@ final bookLibraryEntryWorkspaceColumnDefinitions = [
   ),
   columnFromField<BookKind, BookWorkspaceDto, int?>(
     BookLibraryEntryWorkspaceFields.pricePaid,
-    cellValue: (context) =>
-        Text(_formatCents(context.item.entrySummary?.pricePaidCents, context.dto.currency)),
+    cellValue: (context) => Text(_formatCents(
+        context.item.entrySummary?.pricePaidCents, context.dto.currency)),
     group: 'Value',
     isNumeric: true,
     defaultWidth: 92,
@@ -193,16 +194,17 @@ final bookLibraryEntryWorkspaceColumnDefinitions = [
   ),
   LibraryColumnDefinition<BookKind, BookWorkspaceDto, bool>(
     id: BookFieldIds.wishlist,
-    label: 'Wishlist',
+    metadata: BookWorkspaceFieldMetadata.wishlist,
     getValue: BookLibraryEntryWorkspaceFields.wishlist.getValue,
-    cellValue: (context) => Text(context.personal.isWishlisted ? 'Wishlist' : ''),
+    cellValue: (context) =>
+        Text(context.personal.isWishlisted ? 'Wishlist' : ''),
     group: 'Personal',
     defaultWidth: 82,
     minWidth: 70,
   ),
   LibraryColumnDefinition<BookKind, BookWorkspaceDto, DateTime>(
     id: BookFieldIds.updatedAt,
-    label: 'Updated',
+    metadata: BookWorkspaceFieldMetadata.updatedAt,
     getValue: BookLibraryEntryWorkspaceFields.updatedAt.getValue,
     cellValue: (context) => Text(_formatDate(context.updatedAt)),
     group: 'Personal',

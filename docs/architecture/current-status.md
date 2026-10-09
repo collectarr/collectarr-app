@@ -91,10 +91,12 @@ run.
 
 The staged field-semantics and Music v2 roadmap is tracked in
 [`music-v2-refactor-plan.md`](music-v2-refactor-plan.md). Work starts with
-The cardinality/source/path contract and existing metadata declarations for all
-nine kinds are implemented and verified. Workspace field ownership and factory
-invariants are the next checkpoint; complete metadata coverage across all nine
-workspace schemas follows before any Core contract or Music domain changes.
+The cardinality/source/path contract and metadata coverage for every workspace
+field and column across all nine kinds are implemented and verified. Workspace
+field capabilities now come from kind metadata, and sort/group factory
+invariants reject unsupported registrations. Filter and facet metadata
+ownership is the next checkpoint, before any Core contract or Music domain
+changes.
 
 ## Local data
 

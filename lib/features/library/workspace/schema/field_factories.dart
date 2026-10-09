@@ -1,57 +1,56 @@
 import 'package:flutter/widgets.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_transport_bucket_mutators.dart';
+import 'package:collectarr_app/features/library/config/library_kind_field_metadata.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 
 LibraryFieldDefinition<TKind, TDto, String?>
     textField<TKind, TDto extends LibraryWorkspaceDto>({
+  required LibraryKindFieldMetadata metadata,
   required LibraryFieldId<TKind, String?> id,
-  required String label,
   required String? Function(TDto dto) getValue,
-  bool searchable = false,
 }) {
   return LibraryFieldDefinition<TKind, TDto, String?>(
+    metadata: metadata,
     id: id,
-    label: label,
     getValue: (context) => getValue(context.dto),
-    searchable: searchable,
   );
 }
 
 LibraryFieldDefinition<TKind, TDto, num?>
     numberField<TKind, TDto extends LibraryWorkspaceDto>({
+  required LibraryKindFieldMetadata metadata,
   required LibraryFieldId<TKind, num?> id,
-  required String label,
   required num? Function(TDto dto) getValue,
 }) {
   return LibraryFieldDefinition<TKind, TDto, num?>(
+    metadata: metadata,
     id: id,
-    label: label,
     getValue: (context) => getValue(context.dto),
   );
 }
 
 LibraryFieldDefinition<TKind, TDto, DateTime?>
     dateField<TKind, TDto extends LibraryWorkspaceDto>({
+  required LibraryKindFieldMetadata metadata,
   required LibraryFieldId<TKind, DateTime?> id,
-  required String label,
   required DateTime? Function(TDto dto) getValue,
 }) {
   return LibraryFieldDefinition<TKind, TDto, DateTime?>(
+    metadata: metadata,
     id: id,
-    label: label,
     getValue: (context) => getValue(context.dto),
   );
 }
 
 LibraryFieldDefinition<TKind, TDto, int?>
     moneyField<TKind, TDto extends LibraryWorkspaceDto>({
+  required LibraryKindFieldMetadata metadata,
   required LibraryFieldId<TKind, int?> id,
-  required String label,
   required int? Function(TDto dto) getValue,
 }) {
   return LibraryFieldDefinition<TKind, TDto, int?>(
+    metadata: metadata,
     id: id,
-    label: label,
     getValue: (context) => getValue(context.dto),
   );
 }
@@ -64,21 +63,21 @@ LibraryColumnDefinition<TKind, TDto, V>
   double? defaultWidth,
   double? minWidth,
   double? maxWidth,
-  bool sortable = true,
-  bool groupable = true,
+  bool allowSortInteraction = true,
+  bool allowGroupInteraction = true,
   bool isNumeric = false,
 }) {
   return LibraryColumnDefinition<TKind, TDto, V>(
+    metadata: field.metadata,
     id: field.id,
-    label: field.label,
     getValue: field.getValue,
     cellValue: cellValue,
     group: group,
     defaultWidth: defaultWidth,
     minWidth: minWidth,
     maxWidth: maxWidth,
-    sortable: sortable,
-    groupable: groupable,
+    allowSortInteraction: allowSortInteraction,
+    allowGroupInteraction: allowGroupInteraction,
     isNumeric: isNumeric,
   );
 }
@@ -90,6 +89,13 @@ LibrarySortDefinition<TKind, TDto> sortFromField<TKind,
   bool defaultAscending = true,
   int Function(V a, V b)? customCompare,
 }) {
+  if (!field.metadata.sortable) {
+    throw ArgumentError.value(
+      field.id.value,
+      'field',
+      'Field metadata does not allow sorting.',
+    );
+  }
   return LibrarySortDefinition<TKind, TDto>(
     id: LibrarySortId<TKind>(field.id.value),
     label: field.label,
@@ -123,6 +129,13 @@ LibraryGroupDefinition<TKind, TDto, V>
   CatalogTransportBucketValueMutator? bucketValueMutator,
   LibraryEntryGroupBucketValueMutator? entryBucketValueMutator,
 }) {
+  if (!field.metadata.groupable) {
+    throw ArgumentError.value(
+      field.id.value,
+      'field',
+      'Field metadata does not allow grouping.',
+    );
+  }
   return LibraryGroupDefinition<TKind, TDto, V>(
     id: LibraryGroupId<TKind, V>(field.id.value),
     label: field.label,

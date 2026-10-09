@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_ids.dart';
+import 'package:collectarr_app/features/library/kinds/comic/config/comic_workspace_field_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/comic/config/comic_field_identities.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_dto.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
@@ -10,85 +11,80 @@ import 'package:flutter/material.dart';
 abstract final class ComicCatalogItemWorkspaceFields {
   static final title = textField<ComicKind, ComicWorkspaceDto>(
     id: ComicFieldIds.title,
-    label: 'Title',
+    metadata: ComicWorkspaceFieldMetadata.title,
     getValue: (dto) => dto.title,
   );
 
   static final series = textField<ComicKind, ComicWorkspaceDto>(
     id: ComicFieldIds.series,
-    label: ComicFieldIdentities.seriesLabel,
+    metadata: ComicFieldIdentities.series,
     getValue: (dto) => dto.seriesTitle,
   );
 
   static final issueNumber = textField<ComicKind, ComicWorkspaceDto>(
     id: ComicFieldIds.issueNumber,
-    label: ComicFieldIdentities.issueNumberLabel,
+    metadata: ComicFieldIdentities.issueNumber,
     getValue: (dto) => dto.itemNumber,
   );
 
   static final cover =
       LibraryFieldDefinition<ComicKind, ComicWorkspaceDto, String?>(
     id: ComicFieldIds.cover,
-    label: 'Cover',
+    metadata: ComicWorkspaceFieldMetadata.cover,
     getValue: (context) => context.dto.coverImageUrl,
   );
 
   static final writer = textField<ComicKind, ComicWorkspaceDto>(
     id: ComicFieldIds.writer,
-    label: 'Writer',
+    metadata: ComicWorkspaceFieldMetadata.writer,
     getValue: (dto) => dto.writer,
-    searchable: true,
   );
 
   static final artist = textField<ComicKind, ComicWorkspaceDto>(
     id: ComicFieldIds.artist,
-    label: 'Artist',
+    metadata: ComicWorkspaceFieldMetadata.artist,
     getValue: (dto) => dto.artist,
-    searchable: true,
   );
 
   static final coverArtist = textField<ComicKind, ComicWorkspaceDto>(
     id: ComicFieldIds.coverArtist,
-    label: 'Cover Artist',
+    metadata: ComicWorkspaceFieldMetadata.coverArtist,
     getValue: (dto) => dto.coverArtist,
-    searchable: true,
   );
 
   static final imprint = textField<ComicKind, ComicWorkspaceDto>(
     id: ComicFieldIds.imprint,
-    label: ComicFieldIdentities.imprintLabel,
+    metadata: ComicFieldIdentities.imprint,
     getValue: (dto) => dto.imprint,
   );
 
   static final pageCount = numberField<ComicKind, ComicWorkspaceDto>(
     id: ComicFieldIds.pageCount,
-    label: ComicFieldIdentities.pageCountLabel,
+    metadata: ComicFieldIdentities.pageCount,
     getValue: (dto) => dto.pageCount,
   );
 
   static final publisher = textField<ComicKind, ComicWorkspaceDto>(
     id: ComicFieldIds.publisher,
-    label: 'Publisher',
+    metadata: ComicWorkspaceFieldMetadata.publisher,
     getValue: (dto) => dto.publisher,
-    searchable: true,
   );
 
   static final releaseDate = dateField<ComicKind, ComicWorkspaceDto>(
     id: ComicFieldIds.releaseDate,
-    label: 'Release Date',
+    metadata: ComicWorkspaceFieldMetadata.releaseDate,
     getValue: (dto) => dto.releaseDate,
   );
 
   static final barcode = textField<ComicKind, ComicWorkspaceDto>(
     id: ComicFieldIds.barcode,
-    label: 'Barcode',
+    metadata: ComicWorkspaceFieldMetadata.barcode,
     getValue: (dto) => dto.barcode,
-    searchable: true,
   );
 
   static final variant = textField<ComicKind, ComicWorkspaceDto>(
     id: ComicFieldIds.variant,
-    label: ComicFieldIdentities.variantLabel,
+    metadata: ComicFieldIdentities.variant,
     getValue: (dto) => dto.variant,
   );
 }
@@ -162,7 +158,7 @@ final comicCatalogItemWorkspaceDefaultVisibleColumns = <LibraryFieldIdRuntime>{
 final comicCatalogItemWorkspaceColumnDefinitions = [
   LibraryColumnDefinition<ComicKind, ComicWorkspaceDto, String?>(
     id: ComicFieldIds.cover,
-    label: '',
+    metadata: ComicWorkspaceFieldMetadata.cover,
     getValue: ComicCatalogItemWorkspaceFields.cover.getValue,
     cellValue: (context) => context.dto.coverImageUrl == null
         ? const SizedBox.shrink()
@@ -172,8 +168,8 @@ final comicCatalogItemWorkspaceColumnDefinitions = [
             height: 32,
             fit: BoxFit.cover,
           ),
-    sortable: false,
-    groupable: false,
+    allowSortInteraction: false,
+    allowGroupInteraction: false,
     defaultWidth: 42,
     minWidth: 44,
   ),

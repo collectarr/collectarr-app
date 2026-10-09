@@ -1,8 +1,7 @@
 # Music v2 and Library Field Semantics Roadmap
 
-Status: active; checkpoint A1 (the cardinality/source/path contract and the
-existing nine-kind metadata declarations) is implemented and verified.
-Checkpoint A2 (workspace metadata ownership and capability invariants) is next.
+Status: active; checkpoints A1 and A2 are implemented and verified. A3 (filter
+and facet metadata ownership) is next.
 Each completed checkpoint is committed separately with a detailed Conventional
 Commit message. Stages that touch Core contracts regenerate the Core bundle and
 update the App pin in the same stage.
@@ -36,10 +35,11 @@ definitions reference this metadata and keep typed value access and narrowly
 scoped presentation conversion. Columns and schemas explicitly select what
 the user sees; metadata does not auto-generate a workspace.
 
-Capability factories derive search/filter/sort/group/export/edit behavior from
-metadata and reject contradictory registrations. A many-valued field is not
-sortable by default. Semantic operation IDs derive from the field ID unless an
-operation is distinct, such as earliest and latest date reductions.
+Workspace search/sort/group behavior derives from metadata and rejects
+contradictory registrations. Filter and facet factories will adopt the same
+contract in A3. A many-valued field is not sortable by default. Semantic
+operation IDs derive from the field ID unless an operation is distinct, such as
+earliest and latest date reductions.
 
 ## Target Music model and behavior
 
@@ -85,10 +85,15 @@ and semantic source path to field metadata; migrate all currently registered
 field metadata across the nine kinds; remove `textList` and the old origin
 enum; validate IDs, paths, and list cardinality.
 
-**A2 — capability ownership (next):** make every workspace field definition
-reference its kind metadata and expose capabilities only through that metadata.
-Derive factory behavior from metadata and reject unsupported
-search/filter/sort/group registrations. Keep schema column selection explicit.
+**A2 — workspace capability ownership (implemented):** every workspace field
+and column references kind metadata; field capability getters and column
+sort/group affordances derive from it. Sort/group factories reject unsupported
+registrations, and schema column selection remains explicit. All nine kinds
+are covered without changing their workspace behavior.
+
+**A3 — filter and facet capability ownership (next):** make filter and facet
+definitions reference the same field metadata, add filterable invariants, and
+remove capability duplication from those registries.
 
 ### B. Nine-kind workspace metadata cutover
 

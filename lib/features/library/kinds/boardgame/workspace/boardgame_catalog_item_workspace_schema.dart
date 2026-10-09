@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/library/kinds/boardgame/workspace/boardgame_ids.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/config/boardgame_workspace_field_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/config/boardgame_field_identities.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/workspace/boardgame_workspace_dto.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
@@ -10,104 +11,102 @@ import 'package:flutter/material.dart';
 abstract final class BoardGameCatalogItemWorkspaceFields {
   static final title = textField<BoardGameKind, BoardGameWorkspaceDto>(
     id: BoardGameFieldIds.title,
-    label: 'Title',
+    metadata: BoardGameWorkspaceFieldMetadata.title,
     getValue: (dto) => dto.title,
   );
 
   static final publisher = textField<BoardGameKind, BoardGameWorkspaceDto>(
     id: BoardGameFieldIds.publisher,
-    label: BoardGameFieldIdentities.publisherLabel,
+    metadata: BoardGameFieldIdentities.publisher,
     getValue: (dto) => dto.publisher,
-    searchable: BoardGameFieldIdentities.publisher.searchable,
   );
 
   static final releaseDate = dateField<BoardGameKind, BoardGameWorkspaceDto>(
     id: BoardGameFieldIds.releaseDate,
-    label: BoardGameFieldIdentities.releaseDateLabel,
+    metadata: BoardGameFieldIdentities.releaseDate,
     getValue: (dto) => dto.releaseDate,
   );
 
   static final barcode = textField<BoardGameKind, BoardGameWorkspaceDto>(
     id: BoardGameFieldIds.barcode,
-    label: BoardGameFieldIdentities.barcodeLabel,
+    metadata: BoardGameFieldIdentities.barcode,
     getValue: (dto) => dto.barcode,
-    searchable: BoardGameFieldIdentities.barcode.searchable,
   );
 
   static final designer = textField<BoardGameKind, BoardGameWorkspaceDto>(
     id: BoardGameFieldIds.designer,
-    label: 'Designer',
+    metadata: BoardGameWorkspaceFieldMetadata.designer,
     getValue: (dto) => dto.metadata.designers.firstOrNull ?? dto.publisher,
   );
 
   static final cover =
       LibraryFieldDefinition<BoardGameKind, BoardGameWorkspaceDto, String?>(
     id: BoardGameFieldIds.cover,
-    label: 'Cover',
+    metadata: BoardGameWorkspaceFieldMetadata.cover,
     getValue: (context) => context.dto.coverImageUrl,
   );
 
   static final minPlayers = numberField<BoardGameKind, BoardGameWorkspaceDto>(
     id: BoardGameFieldIds.minPlayers,
-    label: BoardGameFieldIdentities.minPlayersLabel,
+    metadata: BoardGameFieldIdentities.minPlayers,
     getValue: (dto) => dto.metadata.minPlayers,
   );
 
   static final maxPlayers = numberField<BoardGameKind, BoardGameWorkspaceDto>(
     id: BoardGameFieldIds.maxPlayers,
-    label: BoardGameFieldIdentities.maxPlayersLabel,
+    metadata: BoardGameFieldIdentities.maxPlayers,
     getValue: (dto) => dto.metadata.maxPlayers,
   );
 
   static final bestPlayers = textField<BoardGameKind, BoardGameWorkspaceDto>(
     id: BoardGameFieldIds.bestPlayers,
-    label: BoardGameFieldIdentities.bestPlayersLabel,
+    metadata: BoardGameFieldIdentities.bestPlayers,
     getValue: (dto) => dto.metadata.bestPlayers,
   );
 
   static final recommendedPlayers =
       textField<BoardGameKind, BoardGameWorkspaceDto>(
     id: BoardGameFieldIds.recommendedPlayers,
-    label: BoardGameFieldIdentities.recommendedPlayersLabel,
+    metadata: BoardGameFieldIdentities.recommendedPlayers,
     getValue: (dto) => dto.metadata.recommendedPlayers,
   );
 
   static final minPlaytimeMinutes =
       numberField<BoardGameKind, BoardGameWorkspaceDto>(
     id: BoardGameFieldIds.minPlaytimeMinutes,
-    label: BoardGameFieldIdentities.minPlaytimeMinutesLabel,
+    metadata: BoardGameFieldIdentities.minPlaytimeMinutes,
     getValue: (dto) => dto.metadata.minPlaytimeMinutes,
   );
 
   static final maxPlaytimeMinutes =
       numberField<BoardGameKind, BoardGameWorkspaceDto>(
     id: BoardGameFieldIds.maxPlaytimeMinutes,
-    label: BoardGameFieldIdentities.maxPlaytimeMinutesLabel,
+    metadata: BoardGameFieldIdentities.maxPlaytimeMinutes,
     getValue: (dto) => dto.metadata.maxPlaytimeMinutes,
   );
 
   static final complexityWeight =
       numberField<BoardGameKind, BoardGameWorkspaceDto>(
     id: BoardGameFieldIds.complexityWeight,
-    label: BoardGameFieldIdentities.complexityWeightLabel,
+    metadata: BoardGameFieldIdentities.complexityWeight,
     getValue: (dto) => dto.metadata.complexityWeight,
   );
 
   static final bggRating = numberField<BoardGameKind, BoardGameWorkspaceDto>(
     id: BoardGameFieldIds.bggRating,
-    label: BoardGameFieldIdentities.bggRatingLabel,
+    metadata: BoardGameFieldIdentities.bggRating,
     getValue: (dto) => dto.metadata.bggRating,
   );
 
   static final bggRank = numberField<BoardGameKind, BoardGameWorkspaceDto>(
     id: BoardGameFieldIds.bggRank,
-    label: BoardGameFieldIdentities.bggRankLabel,
+    metadata: BoardGameFieldIdentities.bggRank,
     getValue: (dto) => dto.metadata.bggRank,
   );
 
   static final expansionFor = textField<BoardGameKind, BoardGameWorkspaceDto>(
     id: BoardGameFieldIds.expansionFor,
-    label: BoardGameFieldIdentities.expansionForLabel,
+    metadata: BoardGameFieldIdentities.expansionFor,
     getValue: (dto) => dto.metadata.expansionFor,
   );
 }
@@ -191,7 +190,7 @@ final boardgameCatalogItemWorkspaceDefaultVisibleColumns =
 final boardgameCatalogItemWorkspaceColumnDefinitions = [
   LibraryColumnDefinition<BoardGameKind, BoardGameWorkspaceDto, String?>(
     id: BoardGameFieldIds.cover,
-    label: '',
+    metadata: BoardGameWorkspaceFieldMetadata.cover,
     getValue: BoardGameCatalogItemWorkspaceFields.cover.getValue,
     cellValue: (context) => context.dto.coverImageUrl == null
         ? const SizedBox.shrink()
@@ -201,8 +200,8 @@ final boardgameCatalogItemWorkspaceColumnDefinitions = [
             height: 32,
             fit: BoxFit.cover,
           ),
-    sortable: false,
-    groupable: false,
+    allowSortInteraction: false,
+    allowGroupInteraction: false,
     defaultWidth: 42,
     minWidth: 44,
   ),

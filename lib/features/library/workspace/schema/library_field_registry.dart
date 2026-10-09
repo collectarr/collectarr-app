@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
+import 'package:collectarr_app/features/library/config/library_kind_field_metadata.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 
 /// Strongly typed registry owning column, sort, group, and default definitions for [TDto].
@@ -50,12 +51,8 @@ final class LibraryFieldRegistry<TDto extends LibraryWorkspaceDto> {
       fields: [
         for (final field in fields)
           LibraryFieldDefinition<dynamic, LibraryWorkspaceDto, Object?>(
+            metadata: field.metadata,
             id: field.id,
-            label: field.label,
-            origin: field.origin,
-            sortable: field.sortable,
-            groupable: field.groupable,
-            searchable: field.searchable,
             cellValue: field.cellValue,
             getValue: (context) => field.getValue(typedContext(context)),
           ),
@@ -63,12 +60,12 @@ final class LibraryFieldRegistry<TDto extends LibraryWorkspaceDto> {
       columns: [
         for (final column in columns)
           LibraryColumnDefinition<dynamic, LibraryWorkspaceDto, Object?>(
+            metadata: column.metadata,
             id: column.id,
-            label: column.label,
             group: column.group,
             displayName: column.displayName,
-            sortable: column.sortable,
-            groupable: column.groupable,
+            allowSortInteraction: column.sortable,
+            allowGroupInteraction: column.groupable,
             isNumeric: column.isNumeric,
             sortId: column.sortId,
             defaultWidth: column.defaultWidth,
@@ -365,8 +362,31 @@ final class LibraryFieldRegistry<TDto extends LibraryWorkspaceDto> {
   }
 
   void _validate() {
+    final metadataByFieldId = <String, LibraryKindFieldMetadata>{};
+    for (final field in fields) {
+      if (field.id.value != field.metadata.id) {
+        throw StateError(
+          'Field metadata ID ${field.metadata.id} does not match typed field '
+          'ID ${field.id.value} in $kindNamespace.',
+        );
+      }
+      if (metadataByFieldId.containsKey(field.id.value)) {
+        throw StateError(
+          'Duplicate field metadata ID ${field.id.value} registered for '
+          '$kindNamespace.',
+        );
+      }
+      metadataByFieldId[field.id.value] = field.metadata;
+    }
+
     final columnIds = <String>{};
     for (final col in columns) {
+      if (col.id.value != col.metadata.id) {
+        throw StateError(
+          'Column metadata ID ${col.metadata.id} does not match typed column '
+          'ID ${col.id.value} in $kindNamespace.',
+        );
+      }
       if (!col.id.value.startsWith('$kindNamespace.')) {
         throw StateError(
             'Column ID ${col.id.value} does not match kind namespace $kindNamespace.');
@@ -379,6 +399,13 @@ final class LibraryFieldRegistry<TDto extends LibraryWorkspaceDto> {
 
     final sortIds = <String>{};
     for (final sort in sorts) {
+      final metadata = metadataByFieldId[sort.id.value];
+      if (metadata != null && !metadata.sortable) {
+        throw StateError(
+          'Sort ${sort.id.value} is registered for a field whose metadata '
+          'does not allow sorting in $kindNamespace.',
+        );
+      }
       if (!sort.id.value.startsWith('$kindNamespace.')) {
         throw StateError(
             'Sort ID ${sort.id.value} does not match kind namespace $kindNamespace.');
@@ -391,6 +418,13 @@ final class LibraryFieldRegistry<TDto extends LibraryWorkspaceDto> {
 
     final groupIds = <String>{};
     for (final grp in groups) {
+      final metadata = metadataByFieldId[grp.id.value];
+      if (metadata != null && !metadata.groupable) {
+        throw StateError(
+          'Group ${grp.id.value} is registered for a field whose metadata '
+          'does not allow grouping in $kindNamespace.',
+        );
+      }
       if (!grp.id.value.startsWith('$kindNamespace.')) {
         throw StateError(
             'Group ID ${grp.id.value} does not match kind namespace $kindNamespace.');

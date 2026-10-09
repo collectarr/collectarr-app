@@ -12,13 +12,13 @@ LibraryColumnDefinition<MusicKind, MusicWorkspaceProjection, String?>
 }) {
   return LibraryColumnDefinition<MusicKind, MusicWorkspaceProjection, String?>(
     id: field.id,
-    label: 'Status',
+    metadata: field.metadata,
     getValue: field.getValue,
     cellValue: (context) => Text(context.personal.isWishlisted
         ? 'Wishlist'
         : ((context.item.entrySummary != null) ? 'Entry' : '')),
-    sortable: false,
-    groupable: false,
+    allowSortInteraction: false,
+    allowGroupInteraction: false,
     defaultWidth: 52,
     minWidth: 44,
   );
@@ -31,7 +31,8 @@ LibraryColumnDefinition<MusicKind, MusicWorkspaceProjection, String?>
 }) {
   return LibraryColumnDefinition<MusicKind, MusicWorkspaceProjection, String?>(
     id: field.id,
-    label: '',
+    metadata: field.metadata,
+    displayName: '',
     getValue: field.getValue,
     cellValue: (context) => context.dto.imageUrl == null
         ? const SizedBox.shrink()
@@ -45,8 +46,8 @@ LibraryColumnDefinition<MusicKind, MusicWorkspaceProjection, String?>
               fit: BoxFit.cover,
             ),
           ),
-    sortable: false,
-    groupable: false,
+    allowSortInteraction: false,
+    allowGroupInteraction: false,
     defaultWidth: 42,
     minWidth: 44,
   );
@@ -72,7 +73,7 @@ LibraryColumnDefinition<MusicKind, MusicWorkspaceProjection, bool>
 }) {
   return LibraryColumnDefinition<MusicKind, MusicWorkspaceProjection, bool>(
     id: field.id,
-    label: 'Wishlist',
+    metadata: field.metadata,
     getValue: field.getValue,
     cellValue: (context) =>
         Text(context.personal.isWishlisted ? 'Wishlist' : ''),
@@ -89,7 +90,7 @@ LibraryColumnDefinition<MusicKind, MusicWorkspaceProjection, DateTime>
 }) {
   return LibraryColumnDefinition<MusicKind, MusicWorkspaceProjection, DateTime>(
     id: field.id,
-    label: 'Updated',
+    metadata: field.metadata,
     getValue: field.getValue,
     cellValue: (context) => Text(_formatDate(field.getValue(context))),
     group: 'Personal',
@@ -106,7 +107,7 @@ LibraryColumnDefinition<MusicKind, MusicWorkspaceProjection, DateTime?>
   return LibraryColumnDefinition<MusicKind, MusicWorkspaceProjection,
       DateTime?>(
     id: field.id,
-    label: 'Added',
+    metadata: field.metadata,
     getValue: field.getValue,
     cellValue: (context) => Text(_formatDate(field.getValue(context))),
     group: 'Personal',
@@ -139,7 +140,7 @@ LibraryColumnDefinition<MusicKind, MusicWorkspaceProjection, int?>
 }) {
   return LibraryColumnDefinition<MusicKind, MusicWorkspaceProjection, int?>(
     id: field.id,
-    label: 'Rating',
+    metadata: field.metadata,
     getValue: field.getValue,
     cellValue: (context) => Text(field.getValue(context)?.toString() ?? ''),
     group: 'Personal',

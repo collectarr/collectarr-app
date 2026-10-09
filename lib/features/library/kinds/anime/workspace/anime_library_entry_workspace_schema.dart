@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/library/kinds/anime/workspace/anime_ids.dart';
+import 'package:collectarr_app/features/library/kinds/anime/config/anime_workspace_field_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/anime/data/anime_library_entry_projection.dart';
 import 'package:collectarr_app/features/library/kinds/anime/workspace/anime_workspace_dto.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_library_entry.dart';
@@ -11,7 +12,7 @@ abstract final class AnimeLibraryEntryWorkspaceFields {
   static final condition =
       LibraryFieldDefinition<AnimeKind, AnimeWorkspaceDto, String?>(
     id: AnimeFieldIds.condition,
-    label: 'Condition',
+    metadata: AnimeWorkspaceFieldMetadata.condition,
     getValue: (context) {
       final entry = AnimeLibraryEntryProjection.fromDispatch(
           context.item.libraryEntryDispatch);
@@ -22,21 +23,21 @@ abstract final class AnimeLibraryEntryWorkspaceFields {
   static final location =
       LibraryFieldDefinition<AnimeKind, AnimeWorkspaceDto, String?>(
     id: AnimeFieldIds.location,
-    label: 'Location',
+    metadata: AnimeWorkspaceFieldMetadata.location,
     getValue: (context) => context.personal.locationPath,
   );
 
   static final pricePaid =
       LibraryFieldDefinition<AnimeKind, AnimeWorkspaceDto, int?>(
     id: AnimeFieldIds.pricePaid,
-    label: 'Purchase Price',
+    metadata: AnimeWorkspaceFieldMetadata.pricePaid,
     getValue: (context) => context.item.entrySummary?.pricePaidCents,
   );
 
   static final status =
       LibraryFieldDefinition<AnimeKind, AnimeWorkspaceDto, String?>(
     id: AnimeFieldIds.status,
-    label: 'Status',
+    metadata: AnimeWorkspaceFieldMetadata.status,
     getValue: (context) => context.personal.isWishlisted
         ? 'wishlist'
         : ((context.item.entrySummary != null) ? 'entry' : null),
@@ -45,35 +46,35 @@ abstract final class AnimeLibraryEntryWorkspaceFields {
   static final rating =
       LibraryFieldDefinition<AnimeKind, AnimeWorkspaceDto, int?>(
     id: AnimeFieldIds.rating,
-    label: 'Rating',
+    metadata: AnimeWorkspaceFieldMetadata.rating,
     getValue: (context) => context.dto.personal.rating,
   );
 
   static final wishlist =
       LibraryFieldDefinition<AnimeKind, AnimeWorkspaceDto, bool>(
     id: AnimeFieldIds.wishlist,
-    label: 'Wishlist',
+    metadata: AnimeWorkspaceFieldMetadata.wishlist,
     getValue: (context) => context.personal.isWishlisted,
   );
 
   static final updatedAt =
       LibraryFieldDefinition<AnimeKind, AnimeWorkspaceDto, DateTime>(
     id: AnimeFieldIds.updatedAt,
-    label: 'Updated',
+    metadata: AnimeWorkspaceFieldMetadata.updatedAt,
     getValue: (context) => context.updatedAt,
   );
 
   static final addedAt =
       LibraryFieldDefinition<AnimeKind, AnimeWorkspaceDto, DateTime?>(
     id: AnimeFieldIds.addedAt,
-    label: 'Added',
+    metadata: AnimeWorkspaceFieldMetadata.addedAt,
     getValue: (context) => context.addedAt,
   );
 
   static final watchStatus =
       LibraryFieldDefinition<AnimeKind, AnimeWorkspaceDto, String?>(
     id: AnimeFieldIds.watchStatus,
-    label: 'Watch Status',
+    metadata: AnimeWorkspaceFieldMetadata.watchStatus,
     getValue: (context) => context.dto.personal.trackingStatus,
   );
 }
@@ -127,28 +128,29 @@ final animeLibraryEntryWorkspaceDefaultVisibleColumns = <LibraryFieldIdRuntime>{
 final animeLibraryEntryWorkspaceColumnDefinitions = [
   LibraryColumnDefinition<AnimeKind, AnimeWorkspaceDto, String?>(
     id: AnimeFieldIds.status,
-    label: 'Status',
+    metadata: AnimeWorkspaceFieldMetadata.status,
     getValue: AnimeLibraryEntryWorkspaceFields.status.getValue,
     cellValue: (context) => Text(context.personal.isWishlisted
         ? 'Wishlist'
         : ((context.item.entrySummary != null) ? 'Entry' : '')),
-    sortable: false,
-    groupable: false,
+    allowSortInteraction: false,
+    allowGroupInteraction: false,
     defaultWidth: 52,
     minWidth: 44,
   ),
   LibraryColumnDefinition<AnimeKind, AnimeWorkspaceDto, bool>(
     id: AnimeFieldIds.wishlist,
-    label: 'Wishlist',
+    metadata: AnimeWorkspaceFieldMetadata.wishlist,
     getValue: AnimeLibraryEntryWorkspaceFields.wishlist.getValue,
-    cellValue: (context) => Text(context.personal.isWishlisted ? 'Wishlist' : ''),
+    cellValue: (context) =>
+        Text(context.personal.isWishlisted ? 'Wishlist' : ''),
     group: 'Personal',
     defaultWidth: 82,
     minWidth: 70,
   ),
   LibraryColumnDefinition<AnimeKind, AnimeWorkspaceDto, DateTime>(
     id: AnimeFieldIds.updatedAt,
-    label: 'Updated',
+    metadata: AnimeWorkspaceFieldMetadata.updatedAt,
     getValue: AnimeLibraryEntryWorkspaceFields.updatedAt.getValue,
     cellValue: (context) => Text(_formatDate(context.updatedAt)),
     group: 'Personal',
@@ -156,7 +158,7 @@ final animeLibraryEntryWorkspaceColumnDefinitions = [
   ),
   LibraryColumnDefinition<AnimeKind, AnimeWorkspaceDto, DateTime?>(
     id: AnimeFieldIds.addedAt,
-    label: 'Added',
+    metadata: AnimeWorkspaceFieldMetadata.addedAt,
     getValue: AnimeLibraryEntryWorkspaceFields.addedAt.getValue,
     cellValue: (context) => Text(_formatDate(context.addedAt)),
     group: 'Personal',
@@ -174,8 +176,8 @@ final animeLibraryEntryWorkspaceColumnDefinitions = [
   ),
   columnFromField<AnimeKind, AnimeWorkspaceDto, int?>(
     AnimeLibraryEntryWorkspaceFields.pricePaid,
-    cellValue: (context) =>
-        Text(_formatCents(context.item.entrySummary?.pricePaidCents, context.dto.currency)),
+    cellValue: (context) => Text(_formatCents(
+        context.item.entrySummary?.pricePaidCents, context.dto.currency)),
     group: 'Value',
     isNumeric: true,
     defaultWidth: 92,
@@ -183,7 +185,7 @@ final animeLibraryEntryWorkspaceColumnDefinitions = [
   ),
   LibraryColumnDefinition<AnimeKind, AnimeWorkspaceDto, int?>(
     id: AnimeFieldIds.rating,
-    label: 'Rating',
+    metadata: AnimeWorkspaceFieldMetadata.rating,
     getValue: AnimeLibraryEntryWorkspaceFields.rating.getValue,
     cellValue: (context) => Text(context.dto.personal.rating?.toString() ?? ''),
     defaultWidth: 80,

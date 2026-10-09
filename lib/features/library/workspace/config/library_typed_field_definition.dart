@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/pick_lists/models/vocabulary_id.dart';
+import 'package:collectarr_app/features/library/config/library_kind_field_metadata.dart';
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/features/collection/commands/library_entry_commands.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_transport_bucket_mutators.dart';
@@ -61,12 +62,6 @@ class LibraryCellValue {
   bool get isEmpty => value == null;
 }
 
-enum LibraryValueOrigin {
-  canonical,
-  derived,
-  provenance,
-}
-
 typedef LibraryFieldValueGetter<TDto extends LibraryWorkspaceDto, TValue>
     = TValue Function(
   LibraryProjectionContext<TDto> context,
@@ -74,24 +69,24 @@ typedef LibraryFieldValueGetter<TDto extends LibraryWorkspaceDto, TValue>
 
 class LibraryFieldDefinition<TKind, TDto extends LibraryWorkspaceDto, TValue> {
   const LibraryFieldDefinition({
+    required this.metadata,
     required this.id,
-    required this.label,
     required this.getValue,
-    this.origin = LibraryValueOrigin.canonical,
     this.cellValue,
-    this.sortable = true,
-    this.groupable = true,
-    this.searchable = false,
   });
 
+  final LibraryKindFieldMetadata metadata;
   final LibraryFieldId<TKind, TValue> id;
-  final String label;
   final LibraryFieldValueGetter<TDto, TValue> getValue;
-  final LibraryValueOrigin origin;
   final LibraryCellValue Function(TValue value)? cellValue;
-  final bool sortable;
-  final bool groupable;
-  final bool searchable;
+
+  String get label => metadata.label;
+  bool get searchable => metadata.searchable;
+  bool get filterable => metadata.filterable;
+  bool get sortable => metadata.sortable;
+  bool get groupable => metadata.groupable;
+  bool get exportable => metadata.exportable;
+  bool get editable => metadata.editable;
 }
 
 class LibraryGroupDefinition<TKind, TDto extends LibraryWorkspaceDto, TValue> {
@@ -217,24 +212,25 @@ typedef LibraryColumnCellBuilder<TDto extends LibraryWorkspaceDto> = Widget
 );
 
 class LibraryColumnDefinition<TKind, TDto extends LibraryWorkspaceDto, TValue> {
-  const LibraryColumnDefinition({
+  LibraryColumnDefinition({
+    required this.metadata,
     required this.id,
-    required this.label,
     required this.getValue,
     this.cellValue,
     this.group = 'Main',
     this.displayName,
-    this.sortable = true,
-    this.groupable = true,
+    bool allowSortInteraction = true,
+    bool allowGroupInteraction = true,
     this.isNumeric = false,
     this.sortId,
     this.defaultWidth,
     this.minWidth,
     this.maxWidth,
-  });
+  })  : sortable = metadata.sortable && allowSortInteraction,
+        groupable = metadata.groupable && allowGroupInteraction;
 
+  final LibraryKindFieldMetadata metadata;
   final LibraryFieldId<TKind, TValue> id;
-  final String label;
   final LibraryFieldValueGetter<TDto, TValue> getValue;
   final LibraryColumnCellBuilder<TDto>? cellValue;
   final String group;
@@ -248,4 +244,5 @@ class LibraryColumnDefinition<TKind, TDto extends LibraryWorkspaceDto, TValue> {
   final double? maxWidth;
 
   String get resolvedDisplayName => displayName ?? label;
+  String get label => metadata.label;
 }

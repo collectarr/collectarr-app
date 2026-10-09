@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/library/kinds/game/workspace/game_ids.dart';
+import 'package:collectarr_app/features/library/kinds/game/config/game_workspace_field_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/game/data/game_library_entry_projection.dart';
 import 'package:collectarr_app/features/library/kinds/game/workspace/game_workspace_dto.dart';
 import 'package:collectarr_app/features/library/kinds/game/domain/game_library_entry.dart';
@@ -11,7 +12,7 @@ abstract final class GameLibraryEntryWorkspaceFields {
   static final condition =
       LibraryFieldDefinition<GameKind, GameWorkspaceDto, String?>(
     id: GameFieldIds.condition,
-    label: 'Condition',
+    metadata: GameWorkspaceFieldMetadata.condition,
     getValue: (context) {
       final entry = GameLibraryEntryProjection.fromDispatch(
           context.item.libraryEntryDispatch);
@@ -22,21 +23,21 @@ abstract final class GameLibraryEntryWorkspaceFields {
   static final location =
       LibraryFieldDefinition<GameKind, GameWorkspaceDto, String?>(
     id: GameFieldIds.location,
-    label: 'Location',
+    metadata: GameWorkspaceFieldMetadata.location,
     getValue: (context) => context.personal.locationPath,
   );
 
   static final pricePaid =
       LibraryFieldDefinition<GameKind, GameWorkspaceDto, int?>(
     id: GameFieldIds.pricePaid,
-    label: 'Purchase Price',
+    metadata: GameWorkspaceFieldMetadata.pricePaid,
     getValue: (context) => context.item.entrySummary?.pricePaidCents,
   );
 
   static final status =
       LibraryFieldDefinition<GameKind, GameWorkspaceDto, String?>(
     id: GameFieldIds.status,
-    label: 'Status',
+    metadata: GameWorkspaceFieldMetadata.status,
     getValue: (context) => context.personal.isWishlisted
         ? 'wishlist'
         : ((context.item.entrySummary != null) ? 'entry' : null),
@@ -45,35 +46,35 @@ abstract final class GameLibraryEntryWorkspaceFields {
   static final rating =
       LibraryFieldDefinition<GameKind, GameWorkspaceDto, int?>(
     id: GameFieldIds.rating,
-    label: 'Rating',
+    metadata: GameWorkspaceFieldMetadata.rating,
     getValue: (context) => context.dto.personal.rating,
   );
 
   static final wishlist =
       LibraryFieldDefinition<GameKind, GameWorkspaceDto, bool>(
     id: GameFieldIds.wishlist,
-    label: 'Wishlist',
+    metadata: GameWorkspaceFieldMetadata.wishlist,
     getValue: (context) => context.personal.isWishlisted,
   );
 
   static final updatedAt =
       LibraryFieldDefinition<GameKind, GameWorkspaceDto, DateTime>(
     id: GameFieldIds.updatedAt,
-    label: 'Updated',
+    metadata: GameWorkspaceFieldMetadata.updatedAt,
     getValue: (context) => context.updatedAt,
   );
 
   static final addedAt =
       LibraryFieldDefinition<GameKind, GameWorkspaceDto, DateTime?>(
     id: GameFieldIds.addedAt,
-    label: 'Added',
+    metadata: GameWorkspaceFieldMetadata.addedAt,
     getValue: (context) => context.addedAt,
   );
 
   static final completionStatus =
       LibraryFieldDefinition<GameKind, GameWorkspaceDto, String?>(
     id: GameFieldIds.completionStatus,
-    label: 'Completion',
+    metadata: GameWorkspaceFieldMetadata.completionStatus,
     getValue: (context) {
       final entry = GameLibraryEntryProjection.fromDispatch(
           context.item.libraryEntryDispatch);
@@ -84,7 +85,7 @@ abstract final class GameLibraryEntryWorkspaceFields {
   static final completeness =
       LibraryFieldDefinition<GameKind, GameWorkspaceDto, String?>(
     id: GameFieldIds.completeness,
-    label: 'Completeness',
+    metadata: GameWorkspaceFieldMetadata.completeness,
     getValue: (context) {
       final entry = GameLibraryEntryProjection.fromDispatch(
           context.item.libraryEntryDispatch);
@@ -97,7 +98,7 @@ abstract final class GameLibraryEntryWorkspaceFields {
   static final hasBox =
       LibraryFieldDefinition<GameKind, GameWorkspaceDto, bool?>(
     id: GameFieldIds.hasBox,
-    label: 'Has Box',
+    metadata: GameWorkspaceFieldMetadata.hasBox,
     getValue: (context) {
       final entry = GameLibraryEntryProjection.fromDispatch(
           context.item.libraryEntryDispatch);
@@ -108,7 +109,7 @@ abstract final class GameLibraryEntryWorkspaceFields {
   static final hasManual =
       LibraryFieldDefinition<GameKind, GameWorkspaceDto, bool?>(
     id: GameFieldIds.hasManual,
-    label: 'Has Manual',
+    metadata: GameWorkspaceFieldMetadata.hasManual,
     getValue: (context) {
       final entry = GameLibraryEntryProjection.fromDispatch(
           context.item.libraryEntryDispatch);
@@ -121,7 +122,7 @@ abstract final class GameLibraryEntryWorkspaceFields {
   static final priceChartingId =
       LibraryFieldDefinition<GameKind, GameWorkspaceDto, String?>(
     id: GameFieldIds.priceChartingId,
-    label: 'PriceCharting ID',
+    metadata: GameWorkspaceFieldMetadata.priceChartingId,
     getValue: (context) {
       final entry = GameLibraryEntryProjection.fromDispatch(
           context.item.libraryEntryDispatch);
@@ -134,7 +135,7 @@ abstract final class GameLibraryEntryWorkspaceFields {
   static final coreRegion =
       LibraryFieldDefinition<GameKind, GameWorkspaceDto, String?>(
     id: GameFieldIds.coreRegion,
-    label: 'Region',
+    metadata: GameWorkspaceFieldMetadata.coreRegion,
     getValue: (context) {
       final entry = GameLibraryEntryProjection.fromDispatch(
         context.item.libraryEntryDispatch,
@@ -148,49 +149,49 @@ abstract final class GameLibraryEntryWorkspaceFields {
   static final valueLocked =
       LibraryFieldDefinition<GameKind, GameWorkspaceDto, bool?>(
     id: GameFieldIds.valueLocked,
-    label: 'Value Locked',
+    metadata: GameWorkspaceFieldMetadata.valueLocked,
     getValue: (context) {
       final entry = GameLibraryEntryProjection.fromDispatch(
           context.item.libraryEntryDispatch);
       return entry is GameLibraryEntry
           ? entry.personal.details.valueIsLocked
           : null;
-      },
-    );
+    },
+  );
 
   static final loosePrice = numberField<GameKind, GameWorkspaceDto>(
     id: GameFieldIds.loosePrice,
-    label: 'Loose Price',
+    metadata: GameWorkspaceFieldMetadata.loosePrice,
     getValue: (dto) => dto.loosePrice,
   );
 
   static final cibPrice = numberField<GameKind, GameWorkspaceDto>(
     id: GameFieldIds.cibPrice,
-    label: 'CIB Price',
+    metadata: GameWorkspaceFieldMetadata.cibPrice,
     getValue: (dto) => dto.cibPrice,
   );
 
   static final newPrice = numberField<GameKind, GameWorkspaceDto>(
     id: GameFieldIds.newPrice,
-    label: 'New/Sealed Price',
+    metadata: GameWorkspaceFieldMetadata.newPrice,
     getValue: (dto) => dto.newPrice,
   );
 
   static final gradedPrice = numberField<GameKind, GameWorkspaceDto>(
     id: GameFieldIds.gradedPrice,
-    label: 'Graded Price',
+    metadata: GameWorkspaceFieldMetadata.gradedPrice,
     getValue: (dto) => dto.gradedPrice,
   );
 
   static final boxOnlyPrice = numberField<GameKind, GameWorkspaceDto>(
     id: GameFieldIds.boxOnlyPrice,
-    label: 'Box Only Price',
+    metadata: GameWorkspaceFieldMetadata.boxOnlyPrice,
     getValue: (dto) => dto.boxOnlyPrice,
   );
 
   static final manualOnlyPrice = numberField<GameKind, GameWorkspaceDto>(
     id: GameFieldIds.manualOnlyPrice,
-    label: 'Manual Only Price',
+    metadata: GameWorkspaceFieldMetadata.manualOnlyPrice,
     getValue: (dto) => dto.manualOnlyPrice,
   );
 }
@@ -275,28 +276,29 @@ final gameLibraryEntryWorkspaceDefaultVisibleColumns = <LibraryFieldIdRuntime>{
 final gameLibraryEntryWorkspaceColumnDefinitions = [
   LibraryColumnDefinition<GameKind, GameWorkspaceDto, String?>(
     id: GameFieldIds.status,
-    label: 'Status',
+    metadata: GameWorkspaceFieldMetadata.status,
     getValue: GameLibraryEntryWorkspaceFields.status.getValue,
     cellValue: (context) => Text(context.personal.isWishlisted
         ? 'Wishlist'
         : ((context.item.entrySummary != null) ? 'Entry' : '')),
-    sortable: false,
-    groupable: false,
+    allowSortInteraction: false,
+    allowGroupInteraction: false,
     defaultWidth: 52,
     minWidth: 44,
   ),
   LibraryColumnDefinition<GameKind, GameWorkspaceDto, bool>(
     id: GameFieldIds.wishlist,
-    label: 'Wishlist',
+    metadata: GameWorkspaceFieldMetadata.wishlist,
     getValue: GameLibraryEntryWorkspaceFields.wishlist.getValue,
-    cellValue: (context) => Text(context.personal.isWishlisted ? 'Wishlist' : ''),
+    cellValue: (context) =>
+        Text(context.personal.isWishlisted ? 'Wishlist' : ''),
     group: 'Personal',
     defaultWidth: 82,
     minWidth: 70,
   ),
   LibraryColumnDefinition<GameKind, GameWorkspaceDto, DateTime>(
     id: GameFieldIds.updatedAt,
-    label: 'Updated',
+    metadata: GameWorkspaceFieldMetadata.updatedAt,
     getValue: GameLibraryEntryWorkspaceFields.updatedAt.getValue,
     cellValue: (context) => Text(_formatDate(context.updatedAt)),
     group: 'Personal',
@@ -304,7 +306,7 @@ final gameLibraryEntryWorkspaceColumnDefinitions = [
   ),
   LibraryColumnDefinition<GameKind, GameWorkspaceDto, DateTime?>(
     id: GameFieldIds.addedAt,
-    label: 'Added',
+    metadata: GameWorkspaceFieldMetadata.addedAt,
     getValue: GameLibraryEntryWorkspaceFields.addedAt.getValue,
     cellValue: (context) => Text(_formatDate(context.addedAt)),
     group: 'Personal',
@@ -322,8 +324,8 @@ final gameLibraryEntryWorkspaceColumnDefinitions = [
   ),
   columnFromField<GameKind, GameWorkspaceDto, int?>(
     GameLibraryEntryWorkspaceFields.pricePaid,
-    cellValue: (context) =>
-        Text(_formatCents(context.item.entrySummary?.pricePaidCents, context.dto.currency)),
+    cellValue: (context) => Text(_formatCents(
+        context.item.entrySummary?.pricePaidCents, context.dto.currency)),
     group: 'Value',
     isNumeric: true,
     defaultWidth: 92,
@@ -331,7 +333,7 @@ final gameLibraryEntryWorkspaceColumnDefinitions = [
   ),
   LibraryColumnDefinition<GameKind, GameWorkspaceDto, int?>(
     id: GameFieldIds.rating,
-    label: 'Rating',
+    metadata: GameWorkspaceFieldMetadata.rating,
     getValue: GameLibraryEntryWorkspaceFields.rating.getValue,
     cellValue: (context) => Text(context.dto.personal.rating?.toString() ?? ''),
     defaultWidth: 80,

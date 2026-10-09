@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_ids.dart';
+import 'package:collectarr_app/features/library/kinds/comic/config/comic_workspace_field_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_dto.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_library_entry.dart';
 import 'package:collectarr_app/features/library/kinds/comic/entries/comic_entry_details.dart';
@@ -11,28 +12,28 @@ abstract final class ComicLibraryEntryWorkspaceFields {
   static final condition =
       LibraryFieldDefinition<ComicKind, ComicWorkspaceDto, String?>(
     id: ComicFieldIds.condition,
-    label: 'Condition',
+    metadata: ComicWorkspaceFieldMetadata.condition,
     getValue: (context) => _entry(context)?.personal.condition,
   );
 
   static final location =
       LibraryFieldDefinition<ComicKind, ComicWorkspaceDto, String?>(
     id: ComicFieldIds.location,
-    label: 'Location',
+    metadata: ComicWorkspaceFieldMetadata.location,
     getValue: (context) => context.personal.locationPath,
   );
 
   static final pricePaid =
       LibraryFieldDefinition<ComicKind, ComicWorkspaceDto, int?>(
     id: ComicFieldIds.pricePaid,
-    label: 'Purchase Price',
+    metadata: ComicWorkspaceFieldMetadata.pricePaid,
     getValue: (context) => _entry(context)?.personal.pricePaidCents,
   );
 
   static final status =
       LibraryFieldDefinition<ComicKind, ComicWorkspaceDto, String?>(
     id: ComicFieldIds.status,
-    label: 'Status',
+    metadata: ComicWorkspaceFieldMetadata.status,
     getValue: (context) => context.personal.isWishlisted
         ? 'wishlist'
         : ((context.item.entrySummary != null) ? 'entry' : null),
@@ -41,133 +42,133 @@ abstract final class ComicLibraryEntryWorkspaceFields {
   static final rating =
       LibraryFieldDefinition<ComicKind, ComicWorkspaceDto, int?>(
     id: ComicFieldIds.rating,
-    label: 'Rating',
+    metadata: ComicWorkspaceFieldMetadata.rating,
     getValue: (context) => _entry(context)?.personal.reading.rating,
   );
 
   static final wishlist =
       LibraryFieldDefinition<ComicKind, ComicWorkspaceDto, bool>(
     id: ComicFieldIds.wishlist,
-    label: 'Wishlist',
+    metadata: ComicWorkspaceFieldMetadata.wishlist,
     getValue: (context) => context.personal.isWishlisted,
   );
 
   static final updatedAt =
       LibraryFieldDefinition<ComicKind, ComicWorkspaceDto, DateTime>(
     id: ComicFieldIds.updatedAt,
-    label: 'Updated',
+    metadata: ComicWorkspaceFieldMetadata.updatedAt,
     getValue: (context) => context.updatedAt,
   );
 
   static final addedAt =
       LibraryFieldDefinition<ComicKind, ComicWorkspaceDto, DateTime?>(
     id: ComicFieldIds.addedAt,
-    label: 'Added',
+    metadata: ComicWorkspaceFieldMetadata.addedAt,
     getValue: (context) => context.addedAt,
   );
 
   static final grade =
       LibraryFieldDefinition<ComicKind, ComicWorkspaceDto, String?>(
     id: ComicFieldIds.grade,
-    label: 'Grade',
+    metadata: ComicWorkspaceFieldMetadata.grade,
     getValue: (context) => _entry(context)?.personal.grade,
   );
 
   static final keyComic =
       LibraryFieldDefinition<ComicKind, ComicWorkspaceDto, bool>(
     id: ComicFieldIds.keyComic,
-    label: 'Key Comic',
+    metadata: ComicWorkspaceFieldMetadata.keyComic,
     getValue: (context) => _entryDetails(context)?.keyComic == true,
   );
 
   static final keyReason =
       LibraryFieldDefinition<ComicKind, ComicWorkspaceDto, String?>(
     id: ComicFieldIds.keyReason,
-    label: 'Key Reason',
+    metadata: ComicWorkspaceFieldMetadata.keyReason,
     getValue: (context) => _entryDetails(context)?.keyReason,
   );
 
   static final keyCategory =
       LibraryFieldDefinition<ComicKind, ComicWorkspaceDto, String?>(
     id: ComicFieldIds.keyCategory,
-    label: 'Key Category',
+    metadata: ComicWorkspaceFieldMetadata.keyCategory,
     getValue: (context) => _entryDetails(context)?.keyCategory,
   );
 
   static final keySeverity =
       LibraryFieldDefinition<ComicKind, ComicWorkspaceDto, String?>(
     id: ComicFieldIds.keySeverity,
-    label: 'Key Severity',
+    metadata: ComicWorkspaceFieldMetadata.keySeverity,
     getValue: (context) => _entryDetails(context)?.keySeverity,
   );
 
   static final rawOrSlabbed =
       LibraryFieldDefinition<ComicKind, ComicWorkspaceDto, String?>(
     id: ComicFieldIds.rawOrSlabbed,
-    label: 'Raw / Slabbed',
+    metadata: ComicWorkspaceFieldMetadata.rawOrSlabbed,
     getValue: (context) => _entryDetails(context)?.rawOrSlabbed,
   );
 
   static final gradingCompany =
       LibraryFieldDefinition<ComicKind, ComicWorkspaceDto, String?>(
     id: ComicFieldIds.gradingCompany,
-    label: 'Grading Company',
+    metadata: ComicWorkspaceFieldMetadata.gradingCompany,
     getValue: (context) => _entryDetails(context)?.gradingCompany,
   );
 
   static final graderNotes =
       LibraryFieldDefinition<ComicKind, ComicWorkspaceDto, String?>(
     id: ComicFieldIds.graderNotes,
-    label: 'Grader Notes',
+    metadata: ComicWorkspaceFieldMetadata.graderNotes,
     getValue: (context) => _entryDetails(context)?.graderNotes,
   );
 
   static final signedBy =
       LibraryFieldDefinition<ComicKind, ComicWorkspaceDto, String?>(
     id: ComicFieldIds.signedBy,
-    label: 'Signed By',
+    metadata: ComicWorkspaceFieldMetadata.signedBy,
     getValue: (context) => _entryDetails(context)?.signedBy,
   );
 
   static final labelType =
       LibraryFieldDefinition<ComicKind, ComicWorkspaceDto, String?>(
     id: ComicFieldIds.labelType,
-    label: 'Label Type',
+    metadata: ComicWorkspaceFieldMetadata.labelType,
     getValue: (context) => _entryDetails(context)?.labelType,
   );
 
   static final customLabel =
       LibraryFieldDefinition<ComicKind, ComicWorkspaceDto, String?>(
     id: ComicFieldIds.customLabel,
-    label: 'Custom Label',
+    metadata: ComicWorkspaceFieldMetadata.customLabel,
     getValue: (context) => _entryDetails(context)?.customLabel,
   );
 
   static final pageQuality =
       LibraryFieldDefinition<ComicKind, ComicWorkspaceDto, String?>(
     id: ComicFieldIds.pageQuality,
-    label: 'Page Quality',
+    metadata: ComicWorkspaceFieldMetadata.pageQuality,
     getValue: (context) => _entryDetails(context)?.pageQuality,
   );
 
   static final certificationNumber =
       LibraryFieldDefinition<ComicKind, ComicWorkspaceDto, String?>(
     id: ComicFieldIds.certificationNumber,
-    label: 'Certification Number',
+    metadata: ComicWorkspaceFieldMetadata.certificationNumber,
     getValue: (context) => _entryDetails(context)?.certificationNumber,
   );
 
   static final coverPrice =
       LibraryFieldDefinition<ComicKind, ComicWorkspaceDto, int?>(
     id: ComicFieldIds.coverPrice,
-    label: 'Cover Price',
+    metadata: ComicWorkspaceFieldMetadata.coverPrice,
     getValue: (context) => _entryDetails(context)?.coverPriceCents,
   );
 
   static final lastBagBoardDate =
       LibraryFieldDefinition<ComicKind, ComicWorkspaceDto, DateTime?>(
     id: ComicFieldIds.lastBagBoardDate,
-    label: 'Last Bag & Board Date',
+    metadata: ComicWorkspaceFieldMetadata.lastBagBoardDate,
     getValue: (context) => _entryDetails(context)?.lastBagBoardDate,
   );
 }
@@ -256,13 +257,13 @@ final comicLibraryEntryWorkspaceDefaultVisibleColumns = <LibraryFieldIdRuntime>{
 final comicLibraryEntryWorkspaceColumnDefinitions = [
   LibraryColumnDefinition<ComicKind, ComicWorkspaceDto, String?>(
     id: ComicFieldIds.status,
-    label: 'Status',
+    metadata: ComicWorkspaceFieldMetadata.status,
     getValue: ComicLibraryEntryWorkspaceFields.status.getValue,
     cellValue: (context) => Text(context.personal.isWishlisted
         ? 'Wishlist'
         : ((context.item.entrySummary != null) ? 'Entry' : '')),
-    sortable: false,
-    groupable: false,
+    allowSortInteraction: false,
+    allowGroupInteraction: false,
     defaultWidth: 52,
     minWidth: 44,
   ),
@@ -278,16 +279,17 @@ final comicLibraryEntryWorkspaceColumnDefinitions = [
   ),
   LibraryColumnDefinition<ComicKind, ComicWorkspaceDto, bool>(
     id: ComicFieldIds.wishlist,
-    label: 'Wishlist',
+    metadata: ComicWorkspaceFieldMetadata.wishlist,
     getValue: ComicLibraryEntryWorkspaceFields.wishlist.getValue,
-    cellValue: (context) => Text(context.personal.isWishlisted ? 'Wishlist' : ''),
+    cellValue: (context) =>
+        Text(context.personal.isWishlisted ? 'Wishlist' : ''),
     group: 'Personal',
     defaultWidth: 82,
     minWidth: 70,
   ),
   LibraryColumnDefinition<ComicKind, ComicWorkspaceDto, DateTime>(
     id: ComicFieldIds.updatedAt,
-    label: 'Updated',
+    metadata: ComicWorkspaceFieldMetadata.updatedAt,
     getValue: ComicLibraryEntryWorkspaceFields.updatedAt.getValue,
     cellValue: (context) => Text(_formatDate(context.updatedAt)),
     group: 'Personal',
@@ -295,7 +297,7 @@ final comicLibraryEntryWorkspaceColumnDefinitions = [
   ),
   LibraryColumnDefinition<ComicKind, ComicWorkspaceDto, DateTime?>(
     id: ComicFieldIds.addedAt,
-    label: 'Added',
+    metadata: ComicWorkspaceFieldMetadata.addedAt,
     getValue: ComicLibraryEntryWorkspaceFields.addedAt.getValue,
     cellValue: (context) => Text(_formatDate(context.addedAt)),
     group: 'Personal',
@@ -322,7 +324,7 @@ final comicLibraryEntryWorkspaceColumnDefinitions = [
   ),
   LibraryColumnDefinition<ComicKind, ComicWorkspaceDto, int?>(
     id: ComicFieldIds.rating,
-    label: 'Rating',
+    metadata: ComicWorkspaceFieldMetadata.rating,
     getValue: ComicLibraryEntryWorkspaceFields.rating.getValue,
     cellValue: (context) =>
         Text(_entry(context)?.personal.reading.rating?.toString() ?? ''),

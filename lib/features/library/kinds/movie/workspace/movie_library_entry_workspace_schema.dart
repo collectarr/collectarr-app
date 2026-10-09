@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_ids.dart';
+import 'package:collectarr_app/features/library/kinds/movie/config/movie_workspace_field_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/movie/data/movie_library_entry_projection.dart';
 import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_workspace_dto.dart';
 import 'package:collectarr_app/features/library/kinds/movie/domain/movie_library_entry.dart';
@@ -11,7 +12,7 @@ abstract final class MovieLibraryEntryWorkspaceFields {
   static final condition =
       LibraryFieldDefinition<MovieKind, MovieWorkspaceDto, String?>(
     id: MovieFieldIds.condition,
-    label: 'Condition',
+    metadata: MovieWorkspaceFieldMetadata.condition,
     getValue: (context) {
       final entry = MovieLibraryEntryProjection.fromDispatch(
           context.item.libraryEntryDispatch);
@@ -22,21 +23,21 @@ abstract final class MovieLibraryEntryWorkspaceFields {
   static final location =
       LibraryFieldDefinition<MovieKind, MovieWorkspaceDto, String?>(
     id: MovieFieldIds.location,
-    label: 'Location',
+    metadata: MovieWorkspaceFieldMetadata.location,
     getValue: (context) => context.personal.locationPath,
   );
 
   static final pricePaid =
       LibraryFieldDefinition<MovieKind, MovieWorkspaceDto, int?>(
     id: MovieFieldIds.pricePaid,
-    label: 'Purchase Price',
+    metadata: MovieWorkspaceFieldMetadata.pricePaid,
     getValue: (context) => context.item.entrySummary?.pricePaidCents,
   );
 
   static final status =
       LibraryFieldDefinition<MovieKind, MovieWorkspaceDto, String?>(
     id: MovieFieldIds.status,
-    label: 'Status',
+    metadata: MovieWorkspaceFieldMetadata.status,
     getValue: (context) => context.personal.isWishlisted
         ? 'wishlist'
         : ((context.item.entrySummary != null) ? 'entry' : null),
@@ -45,35 +46,35 @@ abstract final class MovieLibraryEntryWorkspaceFields {
   static final rating =
       LibraryFieldDefinition<MovieKind, MovieWorkspaceDto, int?>(
     id: MovieFieldIds.rating,
-    label: 'Rating',
+    metadata: MovieWorkspaceFieldMetadata.rating,
     getValue: (context) => context.dto.personal.rating,
   );
 
   static final wishlist =
       LibraryFieldDefinition<MovieKind, MovieWorkspaceDto, bool>(
     id: MovieFieldIds.wishlist,
-    label: 'Wishlist',
+    metadata: MovieWorkspaceFieldMetadata.wishlist,
     getValue: (context) => context.personal.isWishlisted,
   );
 
   static final updatedAt =
       LibraryFieldDefinition<MovieKind, MovieWorkspaceDto, DateTime>(
     id: MovieFieldIds.updatedAt,
-    label: 'Updated',
+    metadata: MovieWorkspaceFieldMetadata.updatedAt,
     getValue: (context) => context.updatedAt,
   );
 
   static final addedAt =
       LibraryFieldDefinition<MovieKind, MovieWorkspaceDto, DateTime?>(
     id: MovieFieldIds.addedAt,
-    label: 'Added',
+    metadata: MovieWorkspaceFieldMetadata.addedAt,
     getValue: (context) => context.addedAt,
   );
 
   static final watchStatus =
       LibraryFieldDefinition<MovieKind, MovieWorkspaceDto, String?>(
     id: MovieFieldIds.watchStatus,
-    label: 'Watch Status',
+    metadata: MovieWorkspaceFieldMetadata.watchStatus,
     getValue: (context) => context.dto.personal.trackingStatus,
   );
 }
@@ -129,28 +130,29 @@ final movieLibraryEntryWorkspaceDefaultVisibleColumns = <LibraryFieldIdRuntime>{
 final movieLibraryEntryWorkspaceColumnDefinitions = [
   LibraryColumnDefinition<MovieKind, MovieWorkspaceDto, String?>(
     id: MovieFieldIds.status,
-    label: 'Status',
+    metadata: MovieWorkspaceFieldMetadata.status,
     getValue: MovieLibraryEntryWorkspaceFields.status.getValue,
     cellValue: (context) => Text(context.personal.isWishlisted
         ? 'Wishlist'
         : ((context.item.entrySummary != null) ? 'Entry' : '')),
-    sortable: false,
-    groupable: false,
+    allowSortInteraction: false,
+    allowGroupInteraction: false,
     defaultWidth: 52,
     minWidth: 44,
   ),
   LibraryColumnDefinition<MovieKind, MovieWorkspaceDto, bool>(
     id: MovieFieldIds.wishlist,
-    label: 'Wishlist',
+    metadata: MovieWorkspaceFieldMetadata.wishlist,
     getValue: MovieLibraryEntryWorkspaceFields.wishlist.getValue,
-    cellValue: (context) => Text(context.personal.isWishlisted ? 'Wishlist' : ''),
+    cellValue: (context) =>
+        Text(context.personal.isWishlisted ? 'Wishlist' : ''),
     group: 'Personal',
     defaultWidth: 82,
     minWidth: 70,
   ),
   LibraryColumnDefinition<MovieKind, MovieWorkspaceDto, DateTime>(
     id: MovieFieldIds.updatedAt,
-    label: 'Updated',
+    metadata: MovieWorkspaceFieldMetadata.updatedAt,
     getValue: MovieLibraryEntryWorkspaceFields.updatedAt.getValue,
     cellValue: (context) => Text(_formatDate(context.updatedAt)),
     group: 'Personal',
@@ -158,7 +160,7 @@ final movieLibraryEntryWorkspaceColumnDefinitions = [
   ),
   LibraryColumnDefinition<MovieKind, MovieWorkspaceDto, DateTime?>(
     id: MovieFieldIds.addedAt,
-    label: 'Added',
+    metadata: MovieWorkspaceFieldMetadata.addedAt,
     getValue: MovieLibraryEntryWorkspaceFields.addedAt.getValue,
     cellValue: (context) => Text(_formatDate(context.addedAt)),
     group: 'Personal',
@@ -176,8 +178,8 @@ final movieLibraryEntryWorkspaceColumnDefinitions = [
   ),
   columnFromField<MovieKind, MovieWorkspaceDto, int?>(
     MovieLibraryEntryWorkspaceFields.pricePaid,
-    cellValue: (context) =>
-        Text(_formatCents(context.item.entrySummary?.pricePaidCents, context.dto.currency)),
+    cellValue: (context) => Text(_formatCents(
+        context.item.entrySummary?.pricePaidCents, context.dto.currency)),
     group: 'Value',
     isNumeric: true,
     defaultWidth: 92,
@@ -185,7 +187,7 @@ final movieLibraryEntryWorkspaceColumnDefinitions = [
   ),
   LibraryColumnDefinition<MovieKind, MovieWorkspaceDto, int?>(
     id: MovieFieldIds.rating,
-    label: 'Rating',
+    metadata: MovieWorkspaceFieldMetadata.rating,
     getValue: MovieLibraryEntryWorkspaceFields.rating.getValue,
     cellValue: (context) => Text(context.dto.personal.rating?.toString() ?? ''),
     defaultWidth: 80,

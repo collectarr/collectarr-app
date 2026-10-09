@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/library/kinds/book/workspace/book_ids.dart';
+import 'package:collectarr_app/features/library/kinds/book/config/book_workspace_field_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/book/config/book_field_identities.dart';
 import 'package:collectarr_app/features/library/kinds/book/workspace/book_workspace_dto.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
@@ -8,61 +9,56 @@ import 'package:flutter/material.dart';
 abstract final class BookCatalogItemWorkspaceFields {
   static final title = textField<BookKind, BookWorkspaceDto>(
     id: BookFieldIds.title,
-    label: 'Title',
+    metadata: BookWorkspaceFieldMetadata.title,
     getValue: (dto) => dto.title,
   );
 
   static final author = textField<BookKind, BookWorkspaceDto>(
     id: BookFieldIds.author,
-    label: 'Author',
+    metadata: BookWorkspaceFieldMetadata.author,
     getValue: (dto) => dto.author,
-    searchable: true,
   );
 
   static final series = textField<BookKind, BookWorkspaceDto>(
     id: BookFieldIds.series,
-    label: BookFieldIdentities.seriesLabel,
+    metadata: BookFieldIdentities.series,
     getValue: (dto) => dto.seriesTitle,
   );
 
   static final cover =
       LibraryFieldDefinition<BookKind, BookWorkspaceDto, String?>(
     id: BookFieldIds.cover,
-    label: 'Cover',
+    metadata: BookWorkspaceFieldMetadata.cover,
     getValue: (context) => context.dto.coverImageUrl,
   );
 
   static final subtitle = textField<BookKind, BookWorkspaceDto>(
     id: BookFieldIds.subtitle,
-    label: BookFieldIdentities.subtitleLabel,
+    metadata: BookFieldIdentities.subtitle,
     getValue: (dto) => dto.subtitle,
-    searchable: BookFieldIdentities.subtitle.searchable,
   );
 
   static final translator = textField<BookKind, BookWorkspaceDto>(
     id: BookFieldIds.translator,
-    label: 'Translator',
+    metadata: BookWorkspaceFieldMetadata.translator,
     getValue: (dto) => dto.translator,
-    searchable: true,
   );
 
   static final editor = textField<BookKind, BookWorkspaceDto>(
     id: BookFieldIds.editor,
-    label: 'Editor',
+    metadata: BookWorkspaceFieldMetadata.editor,
     getValue: (dto) => dto.editor,
-    searchable: true,
   );
 
   static final illustrator = textField<BookKind, BookWorkspaceDto>(
     id: BookFieldIds.illustrator,
-    label: 'Illustrator',
+    metadata: BookWorkspaceFieldMetadata.illustrator,
     getValue: (dto) => dto.illustrator,
-    searchable: true,
   );
 
   static final coverArtist = textField<BookKind, BookWorkspaceDto>(
     id: BookFieldIds.coverArtist,
-    label: 'Cover Artist',
+    metadata: BookWorkspaceFieldMetadata.coverArtist,
     getValue: (dto) => dto.coverArtist,
   );
 }
@@ -110,7 +106,7 @@ final bookCatalogItemWorkspaceDefaultVisibleColumns = <LibraryFieldIdRuntime>{
 final bookCatalogItemWorkspaceColumnDefinitions = [
   LibraryColumnDefinition<BookKind, BookWorkspaceDto, String?>(
     id: BookFieldIds.cover,
-    label: '',
+    metadata: BookWorkspaceFieldMetadata.cover,
     getValue: BookCatalogItemWorkspaceFields.cover.getValue,
     cellValue: (context) => context.dto.coverImageUrl == null
         ? const SizedBox.shrink()
@@ -120,8 +116,8 @@ final bookCatalogItemWorkspaceColumnDefinitions = [
             height: 32,
             fit: BoxFit.cover,
           ),
-    sortable: false,
-    groupable: false,
+    allowSortInteraction: false,
+    allowGroupInteraction: false,
     defaultWidth: 42,
     minWidth: 44,
   ),

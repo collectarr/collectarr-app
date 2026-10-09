@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_ids.dart';
+import 'package:collectarr_app/features/library/kinds/movie/config/movie_workspace_field_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/movie/config/movie_field_identities.dart';
 import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_workspace_dto.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_transport_bucket_mutators.dart';
@@ -9,51 +10,49 @@ import 'package:flutter/material.dart';
 abstract final class MovieCatalogEditionWorkspaceFields {
   static final publisher = textField<MovieKind, MovieWorkspaceDto>(
     id: MovieFieldIds.publisher,
-    label: 'Studio / Publisher',
+    metadata: MovieWorkspaceFieldMetadata.publisher,
     getValue: (dto) => dto.publisher,
-    searchable: true,
   );
 
   static final releaseDate = dateField<MovieKind, MovieWorkspaceDto>(
     id: MovieFieldIds.releaseDate,
-    label: MovieFieldIdentities.releaseDateLabel,
+    metadata: MovieFieldIdentities.releaseDate,
     getValue: (dto) => dto.releaseDate,
   );
 
   static final barcode = textField<MovieKind, MovieWorkspaceDto>(
     id: MovieFieldIds.barcode,
-    label: MovieFieldIdentities.barcodeLabel,
+    metadata: MovieFieldIdentities.barcode,
     getValue: (dto) => dto.barcode,
-    searchable: MovieFieldIdentities.barcode.searchable,
   );
 
   static final format = textField<MovieKind, MovieWorkspaceDto>(
     id: MovieFieldIds.format,
-    label: MovieFieldIdentities.formatLabel,
+    metadata: MovieFieldIdentities.format,
     getValue: (dto) => dto.format,
   );
 
   static final releaseYear = numberField<MovieKind, MovieWorkspaceDto>(
     id: MovieFieldIds.releaseYear,
-    label: 'Release Year',
+    metadata: MovieWorkspaceFieldMetadata.releaseYear,
     getValue: (dto) => dto.releaseDate?.year,
   );
 
   static final edition = textField<MovieKind, MovieWorkspaceDto>(
     id: MovieFieldIds.edition,
-    label: 'Edition',
+    metadata: MovieWorkspaceFieldMetadata.edition,
     getValue: (dto) => dto.title,
   );
 
   static final audioTracks = textField<MovieKind, MovieWorkspaceDto>(
     id: MovieFieldIds.audioTracks,
-    label: 'Audio Tracks',
+    metadata: MovieWorkspaceFieldMetadata.audioTracks,
     getValue: (dto) => dto.metadata.audioTracks,
   );
 
   static final editionReleaseDate = dateField<MovieKind, MovieWorkspaceDto>(
     id: MovieFieldIds.editionReleaseDate,
-    label: 'Edition Release Date',
+    metadata: MovieWorkspaceFieldMetadata.editionReleaseDate,
     getValue: (dto) => dto.releaseDate,
   );
 }

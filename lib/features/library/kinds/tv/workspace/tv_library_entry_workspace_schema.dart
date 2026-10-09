@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/library/kinds/tv/data/tv_library_entry_projection.dart';
+import 'package:collectarr_app/features/library/kinds/tv/config/tv_workspace_field_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/tv/workspace/tv_ids.dart';
 import 'package:collectarr_app/features/library/kinds/tv/workspace/tv_workspace_dto.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_library_entry.dart';
@@ -11,7 +12,7 @@ abstract final class TvLibraryEntryWorkspaceFields {
   static final condition =
       LibraryFieldDefinition<TvKind, TvWorkspaceDto, String?>(
     id: TvFieldIds.condition,
-    label: 'Condition',
+    metadata: TvWorkspaceFieldMetadata.condition,
     getValue: (context) {
       final entry = TvLibraryEntryProjection.fromDispatch(
           context.item.libraryEntryDispatch);
@@ -22,19 +23,19 @@ abstract final class TvLibraryEntryWorkspaceFields {
   static final location =
       LibraryFieldDefinition<TvKind, TvWorkspaceDto, String?>(
     id: TvFieldIds.location,
-    label: 'Location',
+    metadata: TvWorkspaceFieldMetadata.location,
     getValue: (context) => context.personal.locationPath,
   );
 
   static final pricePaid = LibraryFieldDefinition<TvKind, TvWorkspaceDto, int?>(
     id: TvFieldIds.pricePaid,
-    label: 'Purchase Price',
+    metadata: TvWorkspaceFieldMetadata.pricePaid,
     getValue: (context) => context.item.entrySummary?.pricePaidCents,
   );
 
   static final status = LibraryFieldDefinition<TvKind, TvWorkspaceDto, String?>(
     id: TvFieldIds.status,
-    label: 'Status',
+    metadata: TvWorkspaceFieldMetadata.status,
     getValue: (context) => context.personal.isWishlisted
         ? 'wishlist'
         : ((context.item.entrySummary != null) ? 'entry' : null),
@@ -42,34 +43,34 @@ abstract final class TvLibraryEntryWorkspaceFields {
 
   static final rating = LibraryFieldDefinition<TvKind, TvWorkspaceDto, int?>(
     id: TvFieldIds.rating,
-    label: 'Rating',
+    metadata: TvWorkspaceFieldMetadata.rating,
     getValue: (context) => context.dto.personal.rating,
   );
 
   static final wishlist = LibraryFieldDefinition<TvKind, TvWorkspaceDto, bool>(
     id: TvFieldIds.wishlist,
-    label: 'Wishlist',
+    metadata: TvWorkspaceFieldMetadata.wishlist,
     getValue: (context) => context.personal.isWishlisted,
   );
 
   static final updatedAt =
       LibraryFieldDefinition<TvKind, TvWorkspaceDto, DateTime>(
     id: TvFieldIds.updatedAt,
-    label: 'Updated',
+    metadata: TvWorkspaceFieldMetadata.updatedAt,
     getValue: (context) => context.updatedAt,
   );
 
   static final addedAt =
       LibraryFieldDefinition<TvKind, TvWorkspaceDto, DateTime?>(
     id: TvFieldIds.addedAt,
-    label: 'Added',
+    metadata: TvWorkspaceFieldMetadata.addedAt,
     getValue: (context) => context.addedAt,
   );
 
   static final watchStatus =
       LibraryFieldDefinition<TvKind, TvWorkspaceDto, String?>(
     id: TvFieldIds.watchStatus,
-    label: 'Watch Status',
+    metadata: TvWorkspaceFieldMetadata.watchStatus,
     getValue: (context) => context.dto.personal.trackingStatus,
   );
 }
@@ -123,28 +124,29 @@ final tvLibraryEntryWorkspaceDefaultVisibleColumns = <LibraryFieldIdRuntime>{
 final tvLibraryEntryWorkspaceColumnDefinitions = [
   LibraryColumnDefinition<TvKind, TvWorkspaceDto, String?>(
     id: TvFieldIds.status,
-    label: 'Status',
+    metadata: TvWorkspaceFieldMetadata.status,
     getValue: TvLibraryEntryWorkspaceFields.status.getValue,
     cellValue: (context) => Text(context.personal.isWishlisted
         ? 'Wishlist'
         : ((context.item.entrySummary != null) ? 'Entry' : '')),
-    sortable: false,
-    groupable: false,
+    allowSortInteraction: false,
+    allowGroupInteraction: false,
     defaultWidth: 52,
     minWidth: 44,
   ),
   LibraryColumnDefinition<TvKind, TvWorkspaceDto, bool>(
     id: TvFieldIds.wishlist,
-    label: 'Wishlist',
+    metadata: TvWorkspaceFieldMetadata.wishlist,
     getValue: TvLibraryEntryWorkspaceFields.wishlist.getValue,
-    cellValue: (context) => Text(context.personal.isWishlisted ? 'Wishlist' : ''),
+    cellValue: (context) =>
+        Text(context.personal.isWishlisted ? 'Wishlist' : ''),
     group: 'Personal',
     defaultWidth: 82,
     minWidth: 70,
   ),
   LibraryColumnDefinition<TvKind, TvWorkspaceDto, DateTime>(
     id: TvFieldIds.updatedAt,
-    label: 'Updated',
+    metadata: TvWorkspaceFieldMetadata.updatedAt,
     getValue: TvLibraryEntryWorkspaceFields.updatedAt.getValue,
     cellValue: (context) => Text(_formatDate(context.updatedAt)),
     group: 'Personal',
@@ -152,7 +154,7 @@ final tvLibraryEntryWorkspaceColumnDefinitions = [
   ),
   LibraryColumnDefinition<TvKind, TvWorkspaceDto, DateTime?>(
     id: TvFieldIds.addedAt,
-    label: 'Added',
+    metadata: TvWorkspaceFieldMetadata.addedAt,
     getValue: TvLibraryEntryWorkspaceFields.addedAt.getValue,
     cellValue: (context) => Text(_formatDate(context.addedAt)),
     group: 'Personal',
@@ -170,8 +172,8 @@ final tvLibraryEntryWorkspaceColumnDefinitions = [
   ),
   columnFromField<TvKind, TvWorkspaceDto, int?>(
     TvLibraryEntryWorkspaceFields.pricePaid,
-    cellValue: (context) =>
-        Text(_formatCents(context.item.entrySummary?.pricePaidCents, context.dto.currency)),
+    cellValue: (context) => Text(_formatCents(
+        context.item.entrySummary?.pricePaidCents, context.dto.currency)),
     group: 'Value',
     isNumeric: true,
     defaultWidth: 92,
@@ -179,7 +181,7 @@ final tvLibraryEntryWorkspaceColumnDefinitions = [
   ),
   LibraryColumnDefinition<TvKind, TvWorkspaceDto, int?>(
     id: TvFieldIds.rating,
-    label: 'Rating',
+    metadata: TvWorkspaceFieldMetadata.rating,
     getValue: TvLibraryEntryWorkspaceFields.rating.getValue,
     cellValue: (context) => Text(context.dto.personal.rating?.toString() ?? ''),
     defaultWidth: 80,

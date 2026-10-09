@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/models/catalog_item_ref.dart';
+import 'package:collectarr_app/features/library/kinds/music/config/music_workspace_field_metadata.dart';
 import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/features/collection/commands/library_entry_commands.dart';
 import 'package:collectarr_app/features/library/kinds/music/data/music_library_entry_projection.dart';
@@ -14,26 +15,26 @@ import 'package:collectarr_app/features/library/workspace/schema/field_factories
 abstract final class MusicLibraryEntryWorkspaceFields {
   static final title = textField<MusicKind, MusicWorkspaceProjection>(
     id: MusicFieldIds.title,
-    label: MusicFieldIdentities.titleLabel,
+    metadata: MusicFieldIdentities.title,
     getValue: (dto) => dto.primaryLabel,
   );
 
   static final artist = textField<MusicKind, MusicWorkspaceProjection>(
     id: MusicFieldIds.artist,
-    label: MusicFieldIdentities.artistLabel,
+    metadata: MusicFieldIdentities.artist,
     getValue: (dto) => dto.artist,
   );
 
   static final publisher = textField<MusicKind, MusicWorkspaceProjection>(
     id: MusicFieldIds.publisher,
-    label: MusicFieldIdentities.publisherLabel,
+    metadata: MusicFieldIdentities.publisher,
     getValue: (dto) => dto.publisher,
   );
 
   static final condition =
       LibraryFieldDefinition<MusicKind, MusicWorkspaceProjection, String?>(
     id: MusicFieldIds.condition,
-    label: 'Condition',
+    metadata: MusicWorkspaceFieldMetadata.condition,
     getValue: (context) {
       final entry = MusicLibraryEntryProjection.fromDispatch(
         context.item.libraryEntryDispatch,
@@ -45,21 +46,21 @@ abstract final class MusicLibraryEntryWorkspaceFields {
   static final location =
       LibraryFieldDefinition<MusicKind, MusicWorkspaceProjection, String?>(
     id: MusicFieldIds.location,
-    label: 'Location',
+    metadata: MusicWorkspaceFieldMetadata.location,
     getValue: (context) => context.personal.locationPath,
   );
 
   static final pricePaid =
       LibraryFieldDefinition<MusicKind, MusicWorkspaceProjection, int?>(
     id: MusicFieldIds.pricePaid,
-    label: 'Purchase Price',
+    metadata: MusicWorkspaceFieldMetadata.pricePaid,
     getValue: (context) => context.item.entrySummary?.pricePaidCents,
   );
 
   static final status =
       LibraryFieldDefinition<MusicKind, MusicWorkspaceProjection, String?>(
     id: MusicFieldIds.status,
-    label: 'Status',
+    metadata: MusicWorkspaceFieldMetadata.status,
     getValue: (context) => context.personal.isWishlisted
         ? 'wishlist'
         : ((context.item.entrySummary != null) ? 'entry' : null),
@@ -68,42 +69,42 @@ abstract final class MusicLibraryEntryWorkspaceFields {
   static final cover =
       LibraryFieldDefinition<MusicKind, MusicWorkspaceProjection, String?>(
     id: MusicFieldIds.cover,
-    label: 'Cover',
+    metadata: MusicWorkspaceFieldMetadata.cover,
     getValue: (context) => context.dto.imageUrl,
   );
 
   static final rating =
       LibraryFieldDefinition<MusicKind, MusicWorkspaceProjection, int?>(
     id: MusicFieldIds.rating,
-    label: 'Rating',
+    metadata: MusicWorkspaceFieldMetadata.rating,
     getValue: (context) => context.dto.personal.rating,
   );
 
   static final wishlist =
       LibraryFieldDefinition<MusicKind, MusicWorkspaceProjection, bool>(
     id: MusicFieldIds.wishlist,
-    label: 'Wishlist',
+    metadata: MusicWorkspaceFieldMetadata.wishlist,
     getValue: (context) => context.personal.isWishlisted,
   );
 
   static final updatedAt =
       LibraryFieldDefinition<MusicKind, MusicWorkspaceProjection, DateTime>(
     id: MusicFieldIds.updatedAt,
-    label: 'Updated',
+    metadata: MusicWorkspaceFieldMetadata.updatedAt,
     getValue: (context) => context.updatedAt,
   );
 
   static final addedAt =
       LibraryFieldDefinition<MusicKind, MusicWorkspaceProjection, DateTime?>(
     id: MusicFieldIds.addedAt,
-    label: 'Added',
+    metadata: MusicWorkspaceFieldMetadata.addedAt,
     getValue: (context) => context.addedAt,
   );
 
   static final signedBy =
       LibraryFieldDefinition<MusicKind, MusicWorkspaceProjection, String?>(
     id: MusicFieldIds.signedBy,
-    label: 'Signed By',
+    metadata: MusicWorkspaceFieldMetadata.signedBy,
     getValue: (context) {
       final entry = MusicLibraryEntryProjection.fromDispatch(
         context.item.libraryEntryDispatch,
@@ -117,7 +118,7 @@ abstract final class MusicLibraryEntryWorkspaceFields {
   static final grade =
       LibraryFieldDefinition<MusicKind, MusicWorkspaceProjection, String?>(
     id: MusicFieldIds.grade,
-    label: 'Grade',
+    metadata: MusicWorkspaceFieldMetadata.grade,
     getValue: (context) {
       final entry = MusicLibraryEntryProjection.fromDispatch(
         context.item.libraryEntryDispatch,
@@ -129,7 +130,7 @@ abstract final class MusicLibraryEntryWorkspaceFields {
   static final storage =
       LibraryFieldDefinition<MusicKind, MusicWorkspaceProjection, String?>(
     id: MusicFieldIds.storage,
-    label: 'Storage',
+    metadata: MusicWorkspaceFieldMetadata.storage,
     getValue: (context) {
       final entry = MusicLibraryEntryProjection.fromDispatch(
         context.item.libraryEntryDispatch,
@@ -150,21 +151,21 @@ abstract final class MusicLibraryEntryWorkspaceFields {
   static final purchaseDate =
       LibraryFieldDefinition<MusicKind, MusicWorkspaceProjection, DateTime?>(
     id: MusicFieldIds.purchaseDate,
-    label: 'Purchase date',
+    metadata: MusicWorkspaceFieldMetadata.purchaseDate,
     getValue: (context) => context.item.entrySummary?.purchaseDate,
   );
 
   static final marketValue =
       LibraryFieldDefinition<MusicKind, MusicWorkspaceProjection, int?>(
     id: MusicFieldIds.marketValue,
-    label: 'Market value',
+    metadata: MusicWorkspaceFieldMetadata.marketValue,
     getValue: (context) => context.item.entrySummary?.marketValueCents,
   );
 
   static final indexNumber =
       LibraryFieldDefinition<MusicKind, MusicWorkspaceProjection, int?>(
     id: MusicFieldIds.indexNumber,
-    label: 'Index number',
+    metadata: MusicWorkspaceFieldMetadata.indexNumber,
     getValue: (context) {
       final entry = MusicLibraryEntryProjection.fromDispatch(
         context.item.libraryEntryDispatch,
@@ -176,7 +177,7 @@ abstract final class MusicLibraryEntryWorkspaceFields {
   static final lastCleaned =
       LibraryFieldDefinition<MusicKind, MusicWorkspaceProjection, DateTime?>(
     id: MusicFieldIds.lastCleaned,
-    label: 'Last cleaned',
+    metadata: MusicWorkspaceFieldMetadata.lastCleaned,
     getValue: (context) {
       final entry = MusicLibraryEntryProjection.fromDispatch(
         context.item.libraryEntryDispatch,
