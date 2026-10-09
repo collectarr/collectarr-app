@@ -212,14 +212,17 @@ abstract final class BookWorkspaceFieldMetadata {
     addedAt,
     author,
     condition,
+    country,
     cover,
     coverArtist,
     editor,
     illustrator,
+    language,
     location,
     pricePaid,
     rating,
     readStatus,
+    releaseYear,
     signedBy,
     status,
     genre,
@@ -247,6 +250,36 @@ abstract final class BookWorkspaceFieldMetadata {
     cardinality: LibraryFieldCardinality.many,
     source: LibraryFieldSource.catalog,
     sourcePath: 'subjects[]',
+    filterable: true,
+  );
+
+  static const country = LibraryKindFieldMetadata(
+    id: 'book.country',
+    label: 'Country',
+    valueType: LibraryFieldValueType.text,
+    cardinality: LibraryFieldCardinality.one,
+    source: LibraryFieldSource.catalog,
+    sourcePath: 'country',
+    filterable: true,
+  );
+
+  static const language = LibraryKindFieldMetadata(
+    id: 'book.language',
+    label: 'Language',
+    valueType: LibraryFieldValueType.text,
+    cardinality: LibraryFieldCardinality.one,
+    source: LibraryFieldSource.catalog,
+    sourcePath: 'language',
+    filterable: true,
+  );
+
+  static const releaseYear = LibraryKindFieldMetadata(
+    id: 'book.release_year',
+    label: 'Release Year',
+    valueType: LibraryFieldValueType.number,
+    cardinality: LibraryFieldCardinality.one,
+    source: LibraryFieldSource.derived,
+    sourcePath: 'release_date.year',
     filterable: true,
   );
 }

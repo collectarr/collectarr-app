@@ -7,6 +7,8 @@ import 'package:collectarr_app/features/library/config/library_duplicate_present
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
+import 'package:collectarr_app/features/library/config/library_entry_field_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/anime/config/anime_workspace_field_metadata.dart';
 import 'package:collectarr_app/features/library/config/workspace_presentation_support.dart';
 import 'package:collectarr_app/features/library/kinds/anime/workspace/anime_card_presentation.dart';
 import 'package:collectarr_app/features/library/kinds/anime/workspace/anime_workspace_data.dart';
@@ -323,6 +325,7 @@ const animeStatsLabels = LibraryMediaStatsLabels(
 
 final animeLibraryFilterDefinitions = <LibraryFilterDefinition<Object?>>[
   LibraryFilterDefinition<Object?>(
+    metadata: AnimeWorkspaceFieldMetadata.series,
     id: 'series',
     label: 'Series',
     anyLabel: 'Any series',
@@ -331,11 +334,13 @@ final animeLibraryFilterDefinitions = <LibraryFilterDefinition<Object?>>[
         : null,
   ),
   LibraryFilterDefinition<Object?>(
+    metadata: LibraryEntryFieldMetadata.location,
     id: 'location',
     label: 'Location',
     anyLabel: 'Any location',
   ),
   LibraryFilterDefinition<Object?>(
+    metadata: LibraryEntryFieldMetadata.tag,
     id: 'tag',
     label: 'Tag',
     anyLabel: 'Any tag',
@@ -345,6 +350,7 @@ final animeLibraryFilterDefinitions = <LibraryFilterDefinition<Object?>>[
     )?.personal.tags?.split(','),
   ),
   LibraryFilterDefinition<Object?>(
+    metadata: AnimeWorkspaceFieldMetadata.publisher,
     id: 'publisher',
     label: 'Studio',
     anyLabel: 'Any studio',
@@ -353,6 +359,7 @@ final animeLibraryFilterDefinitions = <LibraryFilterDefinition<Object?>>[
         : null,
   ),
   LibraryFilterDefinition<Object?>(
+    metadata: AnimeWorkspaceFieldMetadata.releaseYear,
     id: 'year',
     label: 'Year',
     anyLabel: 'Any year',
@@ -361,6 +368,7 @@ final animeLibraryFilterDefinitions = <LibraryFilterDefinition<Object?>>[
         : null,
   ),
   LibraryFilterDefinition<Object?>(
+    metadata: LibraryEntryFieldMetadata.condition,
     id: 'condition',
     label: 'Condition',
     anyLabel: 'Any condition',
@@ -369,6 +377,7 @@ final animeLibraryFilterDefinitions = <LibraryFilterDefinition<Object?>>[
     )?.personal.condition,
   ),
   LibraryFilterDefinition<Object?>(
+    metadata: AnimeWorkspaceFieldMetadata.country,
     id: 'country',
     label: 'Country',
     anyLabel: 'Any country',
@@ -377,6 +386,7 @@ final animeLibraryFilterDefinitions = <LibraryFilterDefinition<Object?>>[
         : null,
   ),
   LibraryFilterDefinition<Object?>(
+    metadata: AnimeWorkspaceFieldMetadata.language,
     id: 'language',
     label: 'Language',
     anyLabel: 'Any language',

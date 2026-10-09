@@ -1,4 +1,4 @@
-﻿import 'package:collectarr_app/features/library/config/library_kind_field_metadata.dart';
+import 'package:collectarr_app/features/library/config/library_kind_field_metadata.dart';
 
 /// Additional kind-owned semantics for workspace fields.
 abstract final class MusicWorkspaceFieldMetadata {
@@ -230,6 +230,7 @@ abstract final class MusicWorkspaceFieldMetadata {
     condition,
     cover,
     grade,
+    isLive,
     indexNumber,
     lastCleaned,
     lastListened,
@@ -239,11 +240,109 @@ abstract final class MusicWorkspaceFieldMetadata {
     pricePaid,
     purchaseDate,
     rating,
+    originalReleaseYear,
+    recordingYear,
+    releaseYear,
     signedBy,
+    sound,
+    spars,
     status,
     storage,
+    studios,
     trackCount,
     updatedAt,
+    vinylColor,
     wishlist,
+    rpm,
   ];
+
+  static const isLive = LibraryKindFieldMetadata(
+    id: 'music.is_live',
+    label: 'Live recording',
+    valueType: LibraryFieldValueType.boolean,
+    cardinality: LibraryFieldCardinality.one,
+    source: LibraryFieldSource.catalog,
+    sourcePath: 'is_live',
+    filterable: true,
+  );
+
+  static const originalReleaseYear = LibraryKindFieldMetadata(
+    id: 'music.original_release_year',
+    label: 'Original Release Year',
+    valueType: LibraryFieldValueType.number,
+    cardinality: LibraryFieldCardinality.one,
+    source: LibraryFieldSource.derived,
+    sourcePath: 'original_release_date.year',
+    filterable: true,
+  );
+
+  static const recordingYear = LibraryKindFieldMetadata(
+    id: 'music.recording_year',
+    label: 'Recording Year',
+    valueType: LibraryFieldValueType.number,
+    cardinality: LibraryFieldCardinality.one,
+    source: LibraryFieldSource.derived,
+    sourcePath: 'recording_date.year',
+    filterable: true,
+  );
+
+  static const releaseYear = LibraryKindFieldMetadata(
+    id: 'music.release_year',
+    label: 'Release Year',
+    valueType: LibraryFieldValueType.number,
+    cardinality: LibraryFieldCardinality.one,
+    source: LibraryFieldSource.derived,
+    sourcePath: 'release_date.year',
+    filterable: true,
+  );
+
+  static const sound = LibraryKindFieldMetadata(
+    id: 'music.sound',
+    label: 'Sound',
+    valueType: LibraryFieldValueType.text,
+    cardinality: LibraryFieldCardinality.many,
+    source: LibraryFieldSource.catalog,
+    sourcePath: 'discs[].sound_types[]',
+    filterable: true,
+  );
+
+  static const spars = LibraryKindFieldMetadata(
+    id: 'music.spars',
+    label: 'SPARS',
+    valueType: LibraryFieldValueType.text,
+    cardinality: LibraryFieldCardinality.one,
+    source: LibraryFieldSource.catalog,
+    sourcePath: 'spars_code',
+    filterable: true,
+  );
+
+  static const studios = LibraryKindFieldMetadata(
+    id: 'music.studios',
+    label: 'Studio',
+    valueType: LibraryFieldValueType.text,
+    cardinality: LibraryFieldCardinality.many,
+    source: LibraryFieldSource.catalog,
+    sourcePath: 'studios[]',
+    filterable: true,
+  );
+
+  static const vinylColor = LibraryKindFieldMetadata(
+    id: 'music.vinyl_color',
+    label: 'Vinyl Color',
+    valueType: LibraryFieldValueType.text,
+    cardinality: LibraryFieldCardinality.many,
+    source: LibraryFieldSource.catalog,
+    sourcePath: 'discs[].color',
+    filterable: true,
+  );
+
+  static const rpm = LibraryKindFieldMetadata(
+    id: 'music.rpm',
+    label: 'RPM',
+    valueType: LibraryFieldValueType.text,
+    cardinality: LibraryFieldCardinality.many,
+    source: LibraryFieldSource.catalog,
+    sourcePath: 'discs[].rpm',
+    filterable: true,
+  );
 }

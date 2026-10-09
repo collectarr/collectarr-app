@@ -1,4 +1,6 @@
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
+import 'package:collectarr_app/features/library/config/library_entry_field_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/music/config/music_workspace_field_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/music/data/music_library_entry_projection.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_album.dart';
 import 'package:collectarr_app/features/library/kinds/music/presentation_builder.dart';
@@ -58,6 +60,7 @@ const musicLibraryBucketLabelOverrides = LibraryPresentationLabels();
 final musicLibraryFilterDefinitions = <LibraryFilterDefinition<Object?>>[
   if (MusicFieldIdentities.artist.filterable)
     LibraryFilterDefinition<Object?>(
+      metadata: MusicFieldIdentities.artist,
       id: MusicFieldIdentities.artistId,
       label: MusicFieldIdentities.artistLabel,
       anyLabel: 'Any artist',
@@ -66,11 +69,13 @@ final musicLibraryFilterDefinitions = <LibraryFilterDefinition<Object?>>[
           : null,
     ),
   LibraryFilterDefinition<Object?>(
+    metadata: LibraryEntryFieldMetadata.location,
     id: 'location',
     label: 'Location',
     anyLabel: 'Any location',
   ),
   LibraryFilterDefinition<Object?>(
+    metadata: LibraryEntryFieldMetadata.tag,
     id: 'tag',
     label: 'Tag',
     anyLabel: 'Any tag',
@@ -81,6 +86,7 @@ final musicLibraryFilterDefinitions = <LibraryFilterDefinition<Object?>>[
   ),
   if (MusicFieldIdentities.publisher.filterable)
     LibraryFilterDefinition<Object?>(
+      metadata: MusicFieldIdentities.publisher,
       id: MusicFieldIdentities.publisherId,
       label: MusicFieldIdentities.publisherLabel,
       anyLabel: 'Any label',
@@ -89,6 +95,7 @@ final musicLibraryFilterDefinitions = <LibraryFilterDefinition<Object?>>[
           : null,
     ),
   LibraryFilterDefinition<Object?>(
+    metadata: MusicWorkspaceFieldMetadata.releaseYear,
     id: 'year',
     label: 'Year',
     anyLabel: 'Any year',
@@ -97,6 +104,7 @@ final musicLibraryFilterDefinitions = <LibraryFilterDefinition<Object?>>[
         : null,
   ),
   LibraryFilterDefinition<Object?>(
+    metadata: LibraryEntryFieldMetadata.condition,
     id: 'condition',
     label: 'Condition',
     anyLabel: 'Any condition',
@@ -106,6 +114,7 @@ final musicLibraryFilterDefinitions = <LibraryFilterDefinition<Object?>>[
   ),
   if (MusicFieldIdentities.country.filterable)
     LibraryFilterDefinition<Object?>(
+      metadata: MusicFieldIdentities.country,
       id: MusicFieldIdentities.countryId,
       label: MusicFieldIdentities.countryLabel,
       anyLabel: 'Any country',
@@ -115,6 +124,7 @@ final musicLibraryFilterDefinitions = <LibraryFilterDefinition<Object?>>[
     ),
   if (MusicFieldIdentities.format.filterable)
     LibraryFilterDefinition<Object?>(
+      metadata: MusicFieldIdentities.format,
       id: MusicFieldIdentities.formatId,
       label: MusicFieldIdentities.formatLabel,
       anyLabel: 'Any format',
@@ -124,6 +134,7 @@ final musicLibraryFilterDefinitions = <LibraryFilterDefinition<Object?>>[
     ),
   if (MusicFieldIdentities.packaging.filterable)
     LibraryFilterDefinition<Object?>(
+      metadata: MusicFieldIdentities.packaging,
       id: MusicFieldIdentities.packagingId,
       label: MusicFieldIdentities.packagingLabel,
       anyLabel: 'Any packaging',
@@ -133,6 +144,7 @@ final musicLibraryFilterDefinitions = <LibraryFilterDefinition<Object?>>[
     ),
   if (MusicFieldIdentities.genre.filterable)
     LibraryFilterDefinition<Object?>(
+      metadata: MusicFieldIdentities.genre,
       id: MusicFieldIdentities.genreId,
       label: MusicFieldIdentities.genreLabel,
       anyLabel: 'Any genre',
@@ -141,6 +153,7 @@ final musicLibraryFilterDefinitions = <LibraryFilterDefinition<Object?>>[
           : const <String>[],
     ),
   LibraryFilterDefinition<Object?>(
+    metadata: MusicWorkspaceFieldMetadata.studios,
     id: 'studios',
     label: 'Studio',
     anyLabel: 'Any studio',
@@ -149,6 +162,7 @@ final musicLibraryFilterDefinitions = <LibraryFilterDefinition<Object?>>[
         : null,
   ),
   LibraryFilterDefinition<Object?>(
+    metadata: MusicWorkspaceFieldMetadata.isLive,
     id: 'is_live',
     label: 'Live recording',
     anyLabel: 'Any live status',
@@ -159,6 +173,7 @@ final musicLibraryFilterDefinitions = <LibraryFilterDefinition<Object?>>[
         : null,
   ),
   LibraryFilterDefinition<Object?>(
+    metadata: MusicWorkspaceFieldMetadata.sound,
     id: 'sound',
     label: 'Sound',
     anyLabel: 'Any sound type',
@@ -170,6 +185,7 @@ final musicLibraryFilterDefinitions = <LibraryFilterDefinition<Object?>>[
         : const <String>[],
   ),
   LibraryFilterDefinition<Object?>(
+    metadata: MusicWorkspaceFieldMetadata.spars,
     id: 'spars',
     label: 'SPARS',
     anyLabel: 'Any SPARS code',
@@ -178,6 +194,7 @@ final musicLibraryFilterDefinitions = <LibraryFilterDefinition<Object?>>[
         : null,
   ),
   LibraryFilterDefinition<Object?>(
+    metadata: MusicWorkspaceFieldMetadata.vinylColor,
     id: 'vinyl_color',
     label: 'Vinyl color',
     anyLabel: 'Any vinyl color',
@@ -189,6 +206,7 @@ final musicLibraryFilterDefinitions = <LibraryFilterDefinition<Object?>>[
         : const <String>[],
   ),
   LibraryFilterDefinition<Object?>(
+    metadata: MusicWorkspaceFieldMetadata.rpm,
     id: 'rpm',
     label: 'RPM',
     anyLabel: 'Any RPM',
@@ -200,6 +218,7 @@ final musicLibraryFilterDefinitions = <LibraryFilterDefinition<Object?>>[
         : const <String>[],
   ),
   LibraryFilterDefinition<Object?>(
+    metadata: MusicWorkspaceFieldMetadata.recordingYear,
     id: 'recording_year',
     label: 'Recording year',
     anyLabel: 'Any recording year',
@@ -212,6 +231,7 @@ final musicLibraryFilterDefinitions = <LibraryFilterDefinition<Object?>>[
         : null,
   ),
   LibraryFilterDefinition<Object?>(
+    metadata: MusicWorkspaceFieldMetadata.originalReleaseYear,
     id: 'original_release_year',
     label: 'Original release year',
     anyLabel: 'Any original release year',

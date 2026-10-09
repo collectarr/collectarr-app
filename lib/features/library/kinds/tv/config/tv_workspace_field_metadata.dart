@@ -1,4 +1,4 @@
-﻿import 'package:collectarr_app/features/library/config/library_kind_field_metadata.dart';
+import 'package:collectarr_app/features/library/config/library_kind_field_metadata.dart';
 
 /// Additional kind-owned semantics for workspace fields.
 abstract final class TvWorkspaceFieldMetadata {
@@ -162,6 +162,7 @@ abstract final class TvWorkspaceFieldMetadata {
     cardinality: LibraryFieldCardinality.one,
     source: LibraryFieldSource.catalog,
     sourcePath: 'series',
+    filterable: true,
     sortable: true,
     groupable: true,
     editable: true,
@@ -256,15 +257,18 @@ abstract final class TvWorkspaceFieldMetadata {
     addedAt,
     condition,
     contentRating,
+    country,
     cover,
     episodeCount,
     episodeRuntimeMinutes,
     firstAirDate,
     lastAirDate,
     location,
+    language,
     publisher,
     pricePaid,
     rating,
+    releaseYear,
     seasonCount,
     series,
     status,
@@ -275,4 +279,34 @@ abstract final class TvWorkspaceFieldMetadata {
     watchStatus,
     wishlist,
   ];
+
+  static const country = LibraryKindFieldMetadata(
+    id: 'tv.country',
+    label: 'Country',
+    valueType: LibraryFieldValueType.text,
+    cardinality: LibraryFieldCardinality.one,
+    source: LibraryFieldSource.catalog,
+    sourcePath: 'country',
+    filterable: true,
+  );
+
+  static const language = LibraryKindFieldMetadata(
+    id: 'tv.language',
+    label: 'Language',
+    valueType: LibraryFieldValueType.text,
+    cardinality: LibraryFieldCardinality.one,
+    source: LibraryFieldSource.catalog,
+    sourcePath: 'language',
+    filterable: true,
+  );
+
+  static const releaseYear = LibraryKindFieldMetadata(
+    id: 'tv.release_year',
+    label: 'Release Year',
+    valueType: LibraryFieldValueType.number,
+    cardinality: LibraryFieldCardinality.one,
+    source: LibraryFieldSource.derived,
+    sourcePath: 'release_date.year',
+    filterable: true,
+  );
 }

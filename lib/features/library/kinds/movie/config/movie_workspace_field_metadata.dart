@@ -1,4 +1,4 @@
-﻿import 'package:collectarr_app/features/library/config/library_kind_field_metadata.dart';
+import 'package:collectarr_app/features/library/config/library_kind_field_metadata.dart';
 
 /// Additional kind-owned semantics for workspace fields.
 abstract final class MovieWorkspaceFieldMetadata {
@@ -166,6 +166,7 @@ abstract final class MovieWorkspaceFieldMetadata {
     cardinality: LibraryFieldCardinality.one,
     source: LibraryFieldSource.derived,
     sourcePath: 'release_year',
+    filterable: true,
     sortable: true,
     groupable: true,
   );
@@ -248,17 +249,20 @@ abstract final class MovieWorkspaceFieldMetadata {
     addedAt,
     audioTracks,
     condition,
+    country,
     cover,
     director,
     edition,
     editionReleaseDate,
     location,
+    language,
     movieOrTvSeries,
     pricePaid,
     producer,
     publisher,
     rating,
     releaseYear,
+    series,
     status,
     studio,
     updatedAt,
@@ -266,4 +270,34 @@ abstract final class MovieWorkspaceFieldMetadata {
     wishlist,
     writer,
   ];
+
+  static const country = LibraryKindFieldMetadata(
+    id: 'movie.country',
+    label: 'Country',
+    valueType: LibraryFieldValueType.text,
+    cardinality: LibraryFieldCardinality.one,
+    source: LibraryFieldSource.catalog,
+    sourcePath: 'country',
+    filterable: true,
+  );
+
+  static const language = LibraryKindFieldMetadata(
+    id: 'movie.language',
+    label: 'Language',
+    valueType: LibraryFieldValueType.text,
+    cardinality: LibraryFieldCardinality.one,
+    source: LibraryFieldSource.catalog,
+    sourcePath: 'language',
+    filterable: true,
+  );
+
+  static const series = LibraryKindFieldMetadata(
+    id: 'movie.series',
+    label: 'Series',
+    valueType: LibraryFieldValueType.text,
+    cardinality: LibraryFieldCardinality.one,
+    source: LibraryFieldSource.derived,
+    sourcePath: 'series_title',
+    filterable: true,
+  );
 }

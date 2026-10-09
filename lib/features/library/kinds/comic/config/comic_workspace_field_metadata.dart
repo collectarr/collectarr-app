@@ -118,6 +118,7 @@ abstract final class ComicWorkspaceFieldMetadata {
     cardinality: LibraryFieldCardinality.one,
     source: LibraryFieldSource.libraryEntry,
     sourcePath: 'grade',
+    filterable: true,
     sortable: true,
     groupable: true,
     editable: true,
@@ -385,6 +386,7 @@ abstract final class ComicWorkspaceFieldMetadata {
     character,
     certificationNumber,
     condition,
+    country,
     cover,
     coverArtist,
     coverPrice,
@@ -397,6 +399,7 @@ abstract final class ComicWorkspaceFieldMetadata {
     keyComic,
     keyReason,
     keySeverity,
+    language,
     labelType,
     lastBagBoardDate,
     location,
@@ -406,6 +409,7 @@ abstract final class ComicWorkspaceFieldMetadata {
     rating,
     rawOrSlabbed,
     releaseDate,
+    releaseYear,
     storyArc,
     signedBy,
     status,
@@ -442,6 +446,36 @@ abstract final class ComicWorkspaceFieldMetadata {
     cardinality: LibraryFieldCardinality.many,
     source: LibraryFieldSource.catalog,
     sourcePath: 'story_arcs[].name',
+    filterable: true,
+  );
+
+  static const country = LibraryKindFieldMetadata(
+    id: 'comic.country',
+    label: 'Country',
+    valueType: LibraryFieldValueType.text,
+    cardinality: LibraryFieldCardinality.one,
+    source: LibraryFieldSource.catalog,
+    sourcePath: 'country',
+    filterable: true,
+  );
+
+  static const language = LibraryKindFieldMetadata(
+    id: 'comic.language',
+    label: 'Language',
+    valueType: LibraryFieldValueType.text,
+    cardinality: LibraryFieldCardinality.one,
+    source: LibraryFieldSource.catalog,
+    sourcePath: 'language',
+    filterable: true,
+  );
+
+  static const releaseYear = LibraryKindFieldMetadata(
+    id: 'comic.release_year',
+    label: 'Release Year',
+    valueType: LibraryFieldValueType.number,
+    cardinality: LibraryFieldCardinality.one,
+    source: LibraryFieldSource.derived,
+    sourcePath: 'release_date.year',
     filterable: true,
   );
 }

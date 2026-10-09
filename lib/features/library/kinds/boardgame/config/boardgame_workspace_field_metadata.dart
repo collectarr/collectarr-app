@@ -135,13 +135,16 @@ abstract final class BoardGameWorkspaceFieldMetadata {
     addedAt,
     category,
     condition,
+    country,
     cover,
     designer,
     family,
     location,
     mechanic,
+    language,
     pricePaid,
     rating,
+    releaseYear,
     status,
     title,
     theme,
@@ -186,6 +189,36 @@ abstract final class BoardGameWorkspaceFieldMetadata {
     cardinality: LibraryFieldCardinality.many,
     source: LibraryFieldSource.catalog,
     sourcePath: 'themes[]',
+    filterable: true,
+  );
+
+  static const country = LibraryKindFieldMetadata(
+    id: 'boardgame.country',
+    label: 'Country',
+    valueType: LibraryFieldValueType.text,
+    cardinality: LibraryFieldCardinality.one,
+    source: LibraryFieldSource.catalog,
+    sourcePath: 'country',
+    filterable: true,
+  );
+
+  static const language = LibraryKindFieldMetadata(
+    id: 'boardgame.language',
+    label: 'Language',
+    valueType: LibraryFieldValueType.text,
+    cardinality: LibraryFieldCardinality.one,
+    source: LibraryFieldSource.catalog,
+    sourcePath: 'language',
+    filterable: true,
+  );
+
+  static const releaseYear = LibraryKindFieldMetadata(
+    id: 'boardgame.release_year',
+    label: 'Release Year',
+    valueType: LibraryFieldValueType.number,
+    cardinality: LibraryFieldCardinality.one,
+    source: LibraryFieldSource.derived,
+    sourcePath: 'release_date.year',
     filterable: true,
   );
 }

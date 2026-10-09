@@ -1,6 +1,7 @@
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_identifier_types.dart';
+import 'package:collectarr_app/features/library/config/library_kind_field_metadata.dart';
 import 'package:flutter/material.dart';
 
 typedef LibraryFilterValueBuilder<T> = T? Function(
@@ -17,19 +18,29 @@ enum LibraryFilterInputKind { dropdown, autocomplete }
 class LibraryFilterDefinition<T> {
   static const missingValue = '__missing__';
 
-  const LibraryFilterDefinition({
+  LibraryFilterDefinition({
     required this.id,
     required this.label,
+    required this.metadata,
     this.anyLabel = 'Any',
     this.icon,
     this.value,
     this.missingValueLabel,
     this.inputKind = LibraryFilterInputKind.dropdown,
     this.matches,
-  });
+  }) {
+    if (!metadata.filterable) {
+      throw ArgumentError.value(
+        metadata.id,
+        'metadata',
+        'Filter metadata must allow filtering.',
+      );
+    }
+  }
 
   final String id;
   final String label;
+  final LibraryKindFieldMetadata metadata;
   final String anyLabel;
   final IconData? icon;
   final LibraryFilterValueBuilder<T>? value;

@@ -1,4 +1,6 @@
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
+import 'package:collectarr_app/features/library/config/library_entry_field_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/manga/config/manga_workspace_field_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/manga/data/manga_library_entry_projection.dart';
 import 'package:collectarr_app/features/library/kinds/manga/presentation_builder.dart';
 import 'package:collectarr_app/features/library/kinds/manga/workspace/manga_card_presentation.dart';
@@ -66,6 +68,7 @@ const mangaLibraryBucketLabelOverrides = LibraryPresentationLabels(
 final mangaLibraryFilterDefinitions = <LibraryFilterDefinition<Object?>>[
   if (MangaFieldIdentities.series.filterable)
     LibraryFilterDefinition<Object?>(
+      metadata: MangaFieldIdentities.series,
       id: MangaFieldIdentities.seriesId,
       label: MangaFieldIdentities.seriesLabel,
       anyLabel: 'Any series',
@@ -74,11 +77,13 @@ final mangaLibraryFilterDefinitions = <LibraryFilterDefinition<Object?>>[
           : null,
     ),
   LibraryFilterDefinition<Object?>(
+    metadata: LibraryEntryFieldMetadata.location,
     id: 'location',
     label: 'Location',
     anyLabel: 'Any location',
   ),
   LibraryFilterDefinition<Object?>(
+    metadata: LibraryEntryFieldMetadata.tag,
     id: 'tag',
     label: 'Tag',
     anyLabel: 'Any tag',
@@ -89,6 +94,7 @@ final mangaLibraryFilterDefinitions = <LibraryFilterDefinition<Object?>>[
   ),
   if (MangaFieldIdentities.publisher.filterable)
     LibraryFilterDefinition<Object?>(
+      metadata: MangaFieldIdentities.publisher,
       id: MangaFieldIdentities.publisherId,
       label: MangaFieldIdentities.publisherLabel,
       anyLabel: 'Any publisher',
@@ -97,6 +103,7 @@ final mangaLibraryFilterDefinitions = <LibraryFilterDefinition<Object?>>[
           : null,
     ),
   LibraryFilterDefinition<Object?>(
+    metadata: MangaWorkspaceFieldMetadata.releaseYear,
     id: 'year',
     label: 'Year',
     anyLabel: 'Any year',
@@ -105,6 +112,7 @@ final mangaLibraryFilterDefinitions = <LibraryFilterDefinition<Object?>>[
         : null,
   ),
   LibraryFilterDefinition<Object?>(
+    metadata: LibraryEntryFieldMetadata.condition,
     id: 'condition',
     label: 'Condition',
     anyLabel: 'Any condition',
@@ -113,6 +121,7 @@ final mangaLibraryFilterDefinitions = <LibraryFilterDefinition<Object?>>[
     )?.personal.condition,
   ),
   LibraryFilterDefinition<Object?>(
+    metadata: MangaWorkspaceFieldMetadata.country,
     id: 'country',
     label: 'Country',
     anyLabel: 'Any country',
@@ -121,6 +130,7 @@ final mangaLibraryFilterDefinitions = <LibraryFilterDefinition<Object?>>[
         : null,
   ),
   LibraryFilterDefinition<Object?>(
+    metadata: MangaWorkspaceFieldMetadata.language,
     id: 'language',
     label: 'Language',
     anyLabel: 'Any language',

@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/library/workspace/schema/library_group_values.dart';
+import 'package:collectarr_app/features/library/config/library_entry_field_metadata.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/config/generic_library_media_presentation_builder.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_identifier_types.dart';
@@ -9,10 +10,11 @@ const genericPreviewLabels = LibraryMediaPreviewLabels(
   values: {'item_count': 'Items'},
 );
 
-const genericLibraryFilterDefinitions = <LibraryFilterDefinition<Object?>>[
+final genericLibraryFilterDefinitions = <LibraryFilterDefinition<Object?>>[
   LibraryFilterDefinition<Object?>(
     id: 'location',
     label: 'Location',
+    metadata: LibraryEntryFieldMetadata.location,
     anyLabel: 'Any location',
   ),
 ];
@@ -64,7 +66,7 @@ String _titleBucket(LibraryBucketingContext context) {
   return trimmed.substring(0, 1).toUpperCase();
 }
 
-const genericLibraryMediaPresentation = LibraryMediaPresentation(
+final genericLibraryMediaPresentation = LibraryMediaPresentation(
   searchFieldLabels: LibraryMediaSearchFieldLabels(
     queryHint: 'Search catalog...',
     emptySearchMessage: 'Enter a search query.',

@@ -1,4 +1,4 @@
-﻿import 'package:collectarr_app/features/library/config/library_kind_field_metadata.dart';
+import 'package:collectarr_app/features/library/config/library_kind_field_metadata.dart';
 
 /// Additional kind-owned semantics for workspace fields.
 abstract final class AnimeWorkspaceFieldMetadata {
@@ -139,6 +139,7 @@ abstract final class AnimeWorkspaceFieldMetadata {
     cardinality: LibraryFieldCardinality.one,
     source: LibraryFieldSource.derived,
     sourcePath: 'release_year',
+    filterable: true,
     sortable: true,
     groupable: true,
   );
@@ -255,9 +256,11 @@ abstract final class AnimeWorkspaceFieldMetadata {
     addedAt,
     airingStatus,
     condition,
+    country,
     cover,
     episodeCount,
     episodeRuntimeMinutes,
+    language,
     location,
     pricePaid,
     publisher,
@@ -266,6 +269,7 @@ abstract final class AnimeWorkspaceFieldMetadata {
     releaseYear,
     season,
     seasonYear,
+    series,
     sourceMaterial,
     status,
     studio,
@@ -274,4 +278,34 @@ abstract final class AnimeWorkspaceFieldMetadata {
     watchStatus,
     wishlist,
   ];
+
+  static const country = LibraryKindFieldMetadata(
+    id: 'anime.country',
+    label: 'Country',
+    valueType: LibraryFieldValueType.text,
+    cardinality: LibraryFieldCardinality.one,
+    source: LibraryFieldSource.catalog,
+    sourcePath: 'country',
+    filterable: true,
+  );
+
+  static const language = LibraryKindFieldMetadata(
+    id: 'anime.language',
+    label: 'Language',
+    valueType: LibraryFieldValueType.text,
+    cardinality: LibraryFieldCardinality.one,
+    source: LibraryFieldSource.catalog,
+    sourcePath: 'language',
+    filterable: true,
+  );
+
+  static const series = LibraryKindFieldMetadata(
+    id: 'anime.series',
+    label: 'Series',
+    valueType: LibraryFieldValueType.text,
+    cardinality: LibraryFieldCardinality.one,
+    source: LibraryFieldSource.derived,
+    sourcePath: 'series_title',
+    filterable: true,
+  );
 }

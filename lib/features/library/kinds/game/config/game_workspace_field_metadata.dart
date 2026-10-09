@@ -302,6 +302,7 @@ abstract final class GameWorkspaceFieldMetadata {
     cardinality: LibraryFieldCardinality.one,
     source: LibraryFieldSource.catalog,
     sourcePath: 'series',
+    filterable: true,
     sortable: true,
     groupable: true,
     editable: true,
@@ -375,6 +376,7 @@ abstract final class GameWorkspaceFieldMetadata {
     completionStatus,
     condition,
     coreRegion,
+    country,
     cover,
     developer,
     edition,
@@ -382,6 +384,7 @@ abstract final class GameWorkspaceFieldMetadata {
     gradedPrice,
     hasBox,
     hasManual,
+    language,
     location,
     loosePrice,
     manualOnlyPrice,
@@ -392,6 +395,7 @@ abstract final class GameWorkspaceFieldMetadata {
     publisher,
     rating,
     region,
+    releaseYear,
     series,
     status,
     title,
@@ -407,6 +411,36 @@ abstract final class GameWorkspaceFieldMetadata {
     cardinality: LibraryFieldCardinality.many,
     source: LibraryFieldSource.catalog,
     sourcePath: 'genres[]',
+    filterable: true,
+  );
+
+  static const country = LibraryKindFieldMetadata(
+    id: 'game.country',
+    label: 'Country',
+    valueType: LibraryFieldValueType.text,
+    cardinality: LibraryFieldCardinality.one,
+    source: LibraryFieldSource.catalog,
+    sourcePath: 'country',
+    filterable: true,
+  );
+
+  static const language = LibraryKindFieldMetadata(
+    id: 'game.language',
+    label: 'Language',
+    valueType: LibraryFieldValueType.text,
+    cardinality: LibraryFieldCardinality.one,
+    source: LibraryFieldSource.catalog,
+    sourcePath: 'language',
+    filterable: true,
+  );
+
+  static const releaseYear = LibraryKindFieldMetadata(
+    id: 'game.release_year',
+    label: 'Release Year',
+    valueType: LibraryFieldValueType.number,
+    cardinality: LibraryFieldCardinality.one,
+    source: LibraryFieldSource.derived,
+    sourcePath: 'release_date.year',
     filterable: true,
   );
 }

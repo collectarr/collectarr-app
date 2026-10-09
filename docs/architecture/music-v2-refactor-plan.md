@@ -1,7 +1,7 @@
 # Music v2 and Library Field Semantics Roadmap
 
-Status: active; checkpoints A1, A2, and A3 are implemented and verified. A4
-(presentation filter metadata ownership) is next.
+Status: active; checkpoints A1–A4 and the nine-kind metadata cutover are
+implemented and verified. The next stage is the strict Core Music v2 contract.
 Each completed checkpoint is committed separately with a detailed Conventional
 Commit message. Stages that touch Core contracts regenerate the Core bundle and
 update the App pin in the same stage.
@@ -35,11 +35,10 @@ definitions reference this metadata and keep typed value access and narrowly
 scoped presentation conversion. Columns and schemas explicitly select what
 the user sees; metadata does not auto-generate a workspace.
 
-Workspace search/sort/group and facet behavior derives from metadata and
-rejects contradictory registrations. Presentation filters will adopt the same
-contract in A4. A many-valued field is not sortable by default. Semantic
-operation IDs derive from the field ID unless an operation is distinct, such as
-earliest and latest date reductions.
+Workspace search/sort/group, facets, and toolbar filter capability derive from
+metadata and reject contradictory registrations. A many-valued field is not
+sortable by default. Semantic operation IDs derive from the field ID unless an
+operation is distinct, such as earliest and latest date reductions.
 
 ## Target Music model and behavior
 
@@ -96,16 +95,17 @@ reference field metadata, derive facet IDs and labels from it, and reject fields
 that are not filterable. Facet-only fields are included in each kind's metadata
 inventory.
 
-**A4 — presentation filter capability ownership (next):** make library toolbar
-filters reference field metadata and reject filters whose metadata is not
-filterable. Keep the existing presentation IDs stable in this checkpoint.
+**A4 — presentation filter capability ownership (implemented):** library
+toolbar filters reference field metadata and reject definitions whose metadata
+is not filterable. Existing interaction IDs and filter matching behavior stay
+stable in this checkpoint.
 
 ### B. Nine-kind workspace metadata cutover
 
-Complete metadata coverage for every workspace field in Music, Book, Comic,
-Movie, TV, Anime, Manga, Board Game, and Game. Preserve current source paths and
-capability behavior, prove cross-kind behavior is unchanged, and remove the
-duplicated capability declarations once every kind is migrated.
+**Implemented with A1–A4:** metadata covers workspace fields, workspace facets,
+and toolbar filters for Music, Book, Comic, Movie, TV, Anime, Manga, Board Game,
+and Game. Schema resolution and cross-kind contracts pass; workspace selection
+and existing filter interaction behavior remain explicit.
 
 ### C. Core Music v2 contract
 

@@ -1,4 +1,6 @@
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
+import 'package:collectarr_app/features/library/config/library_entry_field_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/config/boardgame_workspace_field_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/data/boardgame_library_entry_projection.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/presentation_builder.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/workspace/boardgame_workspace_dto.dart';
@@ -34,6 +36,7 @@ const boardGamesStatsLabels = LibraryMediaStatsLabels(
 final boardGamesLibraryFilterDefinitions = <LibraryFilterDefinition<Object?>>[
   if (BoardGameFieldIdentities.series.filterable)
     LibraryFilterDefinition<Object?>(
+      metadata: BoardGameFieldIdentities.series,
       id: BoardGameFieldIdentities.seriesId,
       label: BoardGameFieldIdentities.seriesLabel,
       anyLabel: 'Any series',
@@ -42,11 +45,13 @@ final boardGamesLibraryFilterDefinitions = <LibraryFilterDefinition<Object?>>[
           : null,
     ),
   LibraryFilterDefinition<Object?>(
+    metadata: LibraryEntryFieldMetadata.location,
     id: 'location',
     label: 'Location',
     anyLabel: 'Any location',
   ),
   LibraryFilterDefinition<Object?>(
+    metadata: LibraryEntryFieldMetadata.tag,
     id: 'tag',
     label: 'Tag',
     anyLabel: 'Any tag',
@@ -57,6 +62,7 @@ final boardGamesLibraryFilterDefinitions = <LibraryFilterDefinition<Object?>>[
   ),
   if (BoardGameFieldIdentities.publisher.filterable)
     LibraryFilterDefinition<Object?>(
+      metadata: BoardGameFieldIdentities.publisher,
       id: BoardGameFieldIdentities.publisherId,
       label: BoardGameFieldIdentities.publisherLabel,
       anyLabel: 'Any publisher',
@@ -65,6 +71,7 @@ final boardGamesLibraryFilterDefinitions = <LibraryFilterDefinition<Object?>>[
           : null,
     ),
   LibraryFilterDefinition<Object?>(
+    metadata: BoardGameWorkspaceFieldMetadata.releaseYear,
     id: 'year',
     label: 'Year',
     anyLabel: 'Any year',
@@ -73,6 +80,7 @@ final boardGamesLibraryFilterDefinitions = <LibraryFilterDefinition<Object?>>[
         : null,
   ),
   LibraryFilterDefinition<Object?>(
+    metadata: LibraryEntryFieldMetadata.condition,
     id: 'condition',
     label: 'Condition',
     anyLabel: 'Any condition',
@@ -81,6 +89,7 @@ final boardGamesLibraryFilterDefinitions = <LibraryFilterDefinition<Object?>>[
     )?.personal.condition,
   ),
   LibraryFilterDefinition<Object?>(
+    metadata: BoardGameWorkspaceFieldMetadata.country,
     id: 'country',
     label: 'Country',
     anyLabel: 'Any country',
@@ -89,6 +98,7 @@ final boardGamesLibraryFilterDefinitions = <LibraryFilterDefinition<Object?>>[
         : null,
   ),
   LibraryFilterDefinition<Object?>(
+    metadata: BoardGameWorkspaceFieldMetadata.language,
     id: 'language',
     label: 'Language',
     anyLabel: 'Any language',

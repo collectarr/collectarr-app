@@ -96,8 +96,9 @@ field and column across all nine kinds are implemented and verified. Workspace
 field capabilities now come from kind metadata, and sort/group factory
 invariants reject unsupported registrations. Workspace facet definitions also
 derive their IDs and labels from metadata and reject non-filterable fields.
-Metadata ownership for the library toolbar filters is the next checkpoint,
-before any Core contract or Music domain changes.
+Library toolbar filters now reference metadata and reject non-filterable fields.
+The nine-kind metadata cutover is complete; the next checkpoint is the strict
+Core Music v2 contract.
 
 ## Local data
 

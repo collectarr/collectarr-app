@@ -1,4 +1,6 @@
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
+import 'package:collectarr_app/features/library/config/library_entry_field_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/book/config/book_workspace_field_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/book/data/book_library_entry_projection.dart';
 import 'package:collectarr_app/features/library/kinds/book/presentation_builder.dart';
 import 'package:collectarr_app/features/library/kinds/book/workspace/book_workspace_dto.dart';
@@ -36,6 +38,7 @@ const bookLibraryBucketLabelOverrides = LibraryPresentationLabels();
 final bookLibraryFilterDefinitions = <LibraryFilterDefinition<Object?>>[
   if (BookFieldIdentities.series.filterable)
     LibraryFilterDefinition<Object?>(
+      metadata: BookFieldIdentities.series,
       id: BookFieldIdentities.seriesId,
       label: BookFieldIdentities.seriesLabel,
       anyLabel: 'Any series',
@@ -44,11 +47,13 @@ final bookLibraryFilterDefinitions = <LibraryFilterDefinition<Object?>>[
           : null,
     ),
   LibraryFilterDefinition<Object?>(
+    metadata: LibraryEntryFieldMetadata.location,
     id: 'location',
     label: 'Location',
     anyLabel: 'Any location',
   ),
   LibraryFilterDefinition<Object?>(
+    metadata: LibraryEntryFieldMetadata.tag,
     id: 'tag',
     label: 'Tag',
     anyLabel: 'Any tag',
@@ -59,6 +64,7 @@ final bookLibraryFilterDefinitions = <LibraryFilterDefinition<Object?>>[
   ),
   if (BookFieldIdentities.publisher.filterable)
     LibraryFilterDefinition<Object?>(
+      metadata: BookFieldIdentities.publisher,
       id: BookFieldIdentities.publisherId,
       label: BookFieldIdentities.publisherLabel,
       anyLabel: 'Any publisher',
@@ -67,6 +73,7 @@ final bookLibraryFilterDefinitions = <LibraryFilterDefinition<Object?>>[
           : null,
     ),
   LibraryFilterDefinition<Object?>(
+    metadata: BookWorkspaceFieldMetadata.releaseYear,
     id: 'year',
     label: 'Year',
     anyLabel: 'Any year',
@@ -75,6 +82,7 @@ final bookLibraryFilterDefinitions = <LibraryFilterDefinition<Object?>>[
         : null,
   ),
   LibraryFilterDefinition<Object?>(
+    metadata: LibraryEntryFieldMetadata.condition,
     id: 'condition',
     label: 'Condition',
     anyLabel: 'Any condition',
@@ -83,6 +91,7 @@ final bookLibraryFilterDefinitions = <LibraryFilterDefinition<Object?>>[
     )?.personal.condition,
   ),
   LibraryFilterDefinition<Object?>(
+    metadata: BookWorkspaceFieldMetadata.country,
     id: 'country',
     label: 'Country',
     anyLabel: 'Any country',
@@ -91,6 +100,7 @@ final bookLibraryFilterDefinitions = <LibraryFilterDefinition<Object?>>[
         : null,
   ),
   LibraryFilterDefinition<Object?>(
+    metadata: BookWorkspaceFieldMetadata.language,
     id: 'language',
     label: 'Language',
     anyLabel: 'Any language',

@@ -1,4 +1,6 @@
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
+import 'package:collectarr_app/features/library/config/library_entry_field_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/comic/config/comic_workspace_field_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/comic/data/comic_library_entry_projection.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/generic/quick_view.dart';
@@ -68,6 +70,7 @@ const comicLibraryBucketLabelOverrides = LibraryPresentationLabels();
 final comicLibraryFilterDefinitions = <LibraryFilterDefinition<Object?>>[
   if (ComicFieldIdentities.series.filterable)
     LibraryFilterDefinition<Object?>(
+      metadata: ComicFieldIdentities.series,
       id: ComicFieldIdentities.seriesId,
       label: ComicFieldIdentities.seriesLabel,
       anyLabel: 'Any series',
@@ -76,11 +79,13 @@ final comicLibraryFilterDefinitions = <LibraryFilterDefinition<Object?>>[
           : null,
     ),
   LibraryFilterDefinition<Object?>(
+    metadata: LibraryEntryFieldMetadata.location,
     id: 'location',
     label: 'Location',
     anyLabel: 'Any location',
   ),
   LibraryFilterDefinition<Object?>(
+    metadata: LibraryEntryFieldMetadata.tag,
     id: 'tag',
     label: 'Tag',
     anyLabel: 'Any tag',
@@ -90,6 +95,7 @@ final comicLibraryFilterDefinitions = <LibraryFilterDefinition<Object?>>[
     )?.personal.tags?.split(','),
   ),
   LibraryFilterDefinition<Object?>(
+    metadata: ComicWorkspaceFieldMetadata.publisher,
     id: 'publisher',
     label: 'Publisher',
     anyLabel: 'Any publisher',
@@ -98,6 +104,7 @@ final comicLibraryFilterDefinitions = <LibraryFilterDefinition<Object?>>[
         : null,
   ),
   LibraryFilterDefinition<Object?>(
+    metadata: ComicWorkspaceFieldMetadata.releaseYear,
     id: 'year',
     label: 'Year',
     anyLabel: 'Any year',
@@ -106,6 +113,7 @@ final comicLibraryFilterDefinitions = <LibraryFilterDefinition<Object?>>[
         : null,
   ),
   LibraryFilterDefinition<Object?>(
+    metadata: ComicWorkspaceFieldMetadata.grade,
     id: 'grade',
     label: 'Grade',
     anyLabel: 'Any grade',
@@ -134,6 +142,7 @@ final comicLibraryFilterDefinitions = <LibraryFilterDefinition<Object?>>[
             value,
   ),
   LibraryFilterDefinition<Object?>(
+    metadata: LibraryEntryFieldMetadata.condition,
     id: 'condition',
     label: 'Condition',
     anyLabel: 'Any condition',
@@ -142,6 +151,7 @@ final comicLibraryFilterDefinitions = <LibraryFilterDefinition<Object?>>[
     )?.personal.condition,
   ),
   LibraryFilterDefinition<Object?>(
+    metadata: ComicWorkspaceFieldMetadata.country,
     id: 'country',
     label: 'Country',
     anyLabel: 'Any country',
@@ -150,6 +160,7 @@ final comicLibraryFilterDefinitions = <LibraryFilterDefinition<Object?>>[
         : null,
   ),
   LibraryFilterDefinition<Object?>(
+    metadata: ComicWorkspaceFieldMetadata.language,
     id: 'language',
     label: 'Language',
     anyLabel: 'Any language',

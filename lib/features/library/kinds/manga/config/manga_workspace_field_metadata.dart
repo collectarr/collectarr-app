@@ -428,6 +428,7 @@ abstract final class MangaWorkspaceFieldMetadata {
     condition,
     cover,
     character,
+    country,
     demographic,
     dustJacketCondition,
     dustJacketPresent,
@@ -435,6 +436,7 @@ abstract final class MangaWorkspaceFieldMetadata {
     englishTitle,
     genre,
     insertsPresent,
+    language,
     localizedEdition,
     localizedPublisher,
     location,
@@ -447,6 +449,7 @@ abstract final class MangaWorkspaceFieldMetadata {
     rating,
     readingDirection,
     releaseDate,
+    releaseYear,
     romajiTitle,
     serializationPlatform,
     signedBy,
@@ -488,6 +491,36 @@ abstract final class MangaWorkspaceFieldMetadata {
     cardinality: LibraryFieldCardinality.many,
     source: LibraryFieldSource.catalog,
     sourcePath: 'themes[]',
+    filterable: true,
+  );
+
+  static const country = LibraryKindFieldMetadata(
+    id: 'manga.country',
+    label: 'Country',
+    valueType: LibraryFieldValueType.text,
+    cardinality: LibraryFieldCardinality.one,
+    source: LibraryFieldSource.catalog,
+    sourcePath: 'country',
+    filterable: true,
+  );
+
+  static const language = LibraryKindFieldMetadata(
+    id: 'manga.language',
+    label: 'Language',
+    valueType: LibraryFieldValueType.text,
+    cardinality: LibraryFieldCardinality.one,
+    source: LibraryFieldSource.catalog,
+    sourcePath: 'language',
+    filterable: true,
+  );
+
+  static const releaseYear = LibraryKindFieldMetadata(
+    id: 'manga.release_year',
+    label: 'Release Year',
+    valueType: LibraryFieldValueType.number,
+    cardinality: LibraryFieldCardinality.one,
+    source: LibraryFieldSource.derived,
+    sourcePath: 'release_date.year',
     filterable: true,
   );
 }
