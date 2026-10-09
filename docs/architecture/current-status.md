@@ -127,6 +127,10 @@ as a coarse process high-water snapshot, not as an allocation count. CSV import
 boundaries and Windows build verification remain open. Core correction targets
 expose Music nested lists as correction-only object-list fields and validate
 proposals against the canonical v2 document, preserving nested IDs.
+All filterable metadata is now available in Smart List rules, including the
+multi-value Board Game, Book, Comic, Game, and Manga facet fields on both
+catalog and library-entry targets. Their workspace getters follow the facet
+values, and Manga Character now reads the existing canonical character data.
 
 ## Local data
 

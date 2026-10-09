@@ -188,8 +188,12 @@ Disc Format filtering against the same field getter used by grouping. Live/Studi
 labels remain a presentation over boolean values. Music's artist, publisher,
 genre, disc-format, and country facet buckets now resolve through definitions
 that share the catalog workspace field value getters; tests check typed module,
-registered module, and group/filter value parity. Broader parity for every
-filterable field remains open.
+registered module, and group/filter value parity. Every filterable metadata
+field is now available to Smart List rules through either a typed workspace
+field or the kind's filter definitions. Multi-value facet fields for Board
+Games, Books, Comics, Games, and Manga are registered on both catalog and
+library-entry targets, with getters aligned to the facet values; Manga
+Character filtering now reads its canonical character list.
 
 ### J. Scalar date sorting (implemented)
 

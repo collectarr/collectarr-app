@@ -2,6 +2,12 @@ import 'package:collectarr_app/features/library/kinds/manga/manga_module.dart';
 import 'package:collectarr_app/features/library/kinds/manga/domain/manga_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/manga/workspace/manga_workspace.dart';
 import 'package:collectarr_app/features/library/kinds/manga/workspace/manga_workspace_dto.dart';
+import 'package:collectarr_app/core/models/catalog_item_ref.dart';
+import 'package:collectarr_app/features/library/domain/library_target_ref.dart';
+import 'package:collectarr_app/features/library/config/library_kind_field_metadata.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
+import 'package:collectarr_app/features/library/workspace/entry/personal_overlay.dart';
+import 'package:collectarr_app/features/library/workspace/entry/workspace_item.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_workspace_projections.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -59,6 +65,7 @@ void main() {
       personal: PersonalEntryProjection(),
       metadata: const MangaMetadata(
         publisher: 'VIZ Media',
+        characters: [MangaCharacter(name: 'Guts')],
         genres: ['Adventure'],
         themes: ['Samurai'],
         demographic: MangaDemographic.seinen,
@@ -70,9 +77,24 @@ void main() {
     };
     expect(facetValues['manga.publisher'], contains('VIZ Media'));
     expect(facetValues['manga.genre'], contains('Adventure'));
-    expect(facetValues['manga.character'], isEmpty);
+    expect(facetValues['manga.character'], contains('Guts'));
     expect(facetValues['manga.theme'], contains('Samurai'));
     expect(facetValues['manga.demographic'], contains('Seinen'));
+
+    final sourceItem = WorkspaceItem(
+      target: const CatalogTargetRef(
+        CatalogItemRef(kind: CatalogMediaKind.manga, id: 'vagabond'),
+      ),
+    );
+    final fieldContext = LibraryProjectionContext<LibraryWorkspaceDto>(
+      item: sourceItem,
+      personal: const PersonalOverlay(),
+      dto: dto,
+    );
+    final characterField =
+        mangaKindWorkspace.fields.fieldDefinitionForId('manga.character')!;
+    expect(characterField.metadata.cardinality, LibraryFieldCardinality.many);
+    expect(characterField.getValue(fieldContext), ['Guts']);
   });
 
   test('Manga workspace facets and vocabularies are kind-entry', () {

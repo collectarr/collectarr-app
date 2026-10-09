@@ -2,6 +2,7 @@ import 'package:collectarr_app/features/library/kinds/book/workspace/book_ids.da
 import 'package:collectarr_app/features/library/kinds/book/workspace/book_workspace_dto.dart';
 import 'package:collectarr_app/features/library/kinds/book/workspace/book_catalog_item_workspace_fields.dart';
 import 'package:collectarr_app/features/library/kinds/book/workspace/book_catalog_item_details_workspace_fields.dart';
+import 'package:collectarr_app/features/library/kinds/book/workspace/book_workspace_facets.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_workspace_schema.dart';
 
@@ -13,6 +14,7 @@ final bookCatalogItemWorkspaceSchema =
   fields: [
     ...bookCatalogItemWorkspaceFieldDefinitions,
     ...bookCatalogItemDetailsWorkspaceFieldDefinitions,
+    ...bookSmartListFacetFields,
   ],
   columns: [
     ...bookCatalogItemWorkspaceColumnDefinitions,

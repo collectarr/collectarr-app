@@ -2,7 +2,7 @@ import 'package:collectarr_app/features/library/kinds/game/workspace/game_worksp
 import 'package:collectarr_app/features/library/config/library_facet_types.dart';
 import 'package:collectarr_app/features/library/kinds/game/config/game_field_identities.dart';
 import 'package:collectarr_app/features/library/kinds/game/config/game_workspace_field_metadata.dart';
-import 'package:collectarr_app/features/library/workspace/schema/library_identifier_types.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 
 final gameLibraryFacetDefinitions =
     <LibraryFacetDefinition<GameKind, GameWorkspaceDto, String>>[
@@ -42,6 +42,15 @@ final gameLibraryFacetDefinitions =
       dto.region,
       dto.metadata.country,
     ]),
+  ),
+];
+
+final gameSmartListFacetFields =
+    <LibraryFieldDefinition<GameKind, GameWorkspaceDto, Object?>>[
+  LibraryFieldDefinition<GameKind, GameWorkspaceDto, Iterable<String>>(
+    metadata: GameWorkspaceFieldMetadata.genre,
+    id: const LibraryFieldId<GameKind, Iterable<String>>('game.genre'),
+    getValue: (context) => _values(context.dto.metadata.genres),
   ),
 ];
 

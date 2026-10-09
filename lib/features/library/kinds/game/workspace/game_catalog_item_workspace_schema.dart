@@ -2,6 +2,7 @@ import 'package:collectarr_app/features/library/kinds/game/workspace/game_ids.da
 import 'package:collectarr_app/features/library/kinds/game/config/game_workspace_field_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/game/config/game_field_identities.dart';
 import 'package:collectarr_app/features/library/kinds/game/workspace/game_workspace_dto.dart';
+import 'package:collectarr_app/features/library/kinds/game/workspace/game_facet_definitions.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/schema/field_factories.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_workspace_schema.dart';
@@ -197,7 +198,10 @@ final gameCatalogItemWorkspaceColumnDefinitions = [
 final gameCatalogItemWorkspaceSchema =
     LibraryWorkspaceSchema<GameKind, GameWorkspaceDto>(
   kindNamespace: 'game',
-  fields: gameCatalogItemWorkspaceFieldDefinitions,
+  fields: [
+    ...gameCatalogItemWorkspaceFieldDefinitions,
+    ...gameSmartListFacetFields,
+  ],
   columns: gameCatalogItemWorkspaceColumnDefinitions,
   sorts: gameCatalogItemWorkspaceSortDefinitions,
   groups: gameCatalogItemWorkspaceGroupDefinitions,

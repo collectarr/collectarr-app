@@ -2,7 +2,7 @@ import 'package:collectarr_app/features/library/kinds/boardgame/workspace/boardg
 import 'package:collectarr_app/features/library/config/library_facet_types.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/config/boardgame_field_identities.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/config/boardgame_workspace_field_metadata.dart';
-import 'package:collectarr_app/features/library/workspace/schema/library_identifier_types.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 
 final boardgameLibraryFacetDefinitions =
     <LibraryFacetDefinition<BoardGameKind, BoardGameWorkspaceDto, String>>[
@@ -44,6 +44,40 @@ final boardgameLibraryFacetDefinitions =
     extractValues: (dto) => _boardGameFacetValues([
       ...dto.metadata.themes,
     ]),
+  ),
+];
+
+final boardgameSmartListFacetFields =
+    <LibraryFieldDefinition<BoardGameKind, BoardGameWorkspaceDto, Object?>>[
+  LibraryFieldDefinition<BoardGameKind, BoardGameWorkspaceDto,
+      Iterable<String>>(
+    metadata: BoardGameWorkspaceFieldMetadata.category,
+    id: const LibraryFieldId<BoardGameKind, Iterable<String>>(
+        'boardgame.category'),
+    getValue: (context) =>
+        _boardGameFacetValues(context.dto.metadata.categories),
+  ),
+  LibraryFieldDefinition<BoardGameKind, BoardGameWorkspaceDto,
+      Iterable<String>>(
+    metadata: BoardGameWorkspaceFieldMetadata.family,
+    id: const LibraryFieldId<BoardGameKind, Iterable<String>>(
+        'boardgame.family'),
+    getValue: (context) => _boardGameFacetValues(context.dto.metadata.families),
+  ),
+  LibraryFieldDefinition<BoardGameKind, BoardGameWorkspaceDto,
+      Iterable<String>>(
+    metadata: BoardGameWorkspaceFieldMetadata.mechanic,
+    id: const LibraryFieldId<BoardGameKind, Iterable<String>>(
+        'boardgame.mechanic'),
+    getValue: (context) =>
+        _boardGameFacetValues(context.dto.metadata.mechanics),
+  ),
+  LibraryFieldDefinition<BoardGameKind, BoardGameWorkspaceDto,
+      Iterable<String>>(
+    metadata: BoardGameWorkspaceFieldMetadata.theme,
+    id: const LibraryFieldId<BoardGameKind, Iterable<String>>(
+        'boardgame.theme'),
+    getValue: (context) => _boardGameFacetValues(context.dto.metadata.themes),
   ),
 ];
 

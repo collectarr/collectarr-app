@@ -284,6 +284,43 @@ void main() {
     }
   });
 
+  test('filterable metadata fields are exposed to Smart List rules', () {
+    final registeredFieldIds = {
+      for (final workspace in collectarrKindWorkspaces.values)
+        for (final registry in [workspace.fields, workspace.libraryEntryFields])
+          for (final field in registry.fields) field.id.value,
+    };
+    final presentationFilterIds = {
+      for (final filter in [
+        ...animeLibraryFilterDefinitions,
+        ...boardGamesLibraryFilterDefinitions,
+        ...bookLibraryFilterDefinitions,
+        ...comicLibraryFilterDefinitions,
+        ...gamesLibraryFilterDefinitions,
+        ...mangaLibraryFilterDefinitions,
+        ...moviesLibraryFilterDefinitions,
+        ...musicLibraryFilterDefinitions,
+        ...tvLibraryFilterDefinitions,
+      ])
+        filter.metadata.id,
+    };
+    final missing = fields
+        .where((field) => field.filterable)
+        .where((field) =>
+            !registeredFieldIds.contains(field.id) &&
+            !presentationFilterIds.contains(field.id))
+        .map((field) => field.id)
+        .toList()
+      ..sort();
+
+    expect(
+      missing,
+      isEmpty,
+      reason:
+          'Filterable fields unavailable to Smart Lists: ${missing.join(', ')}',
+    );
+  });
+
   test('sort and group factories reject fields without those capabilities', () {
     const metadata = LibraryKindFieldMetadata(
       id: 'test.sample',

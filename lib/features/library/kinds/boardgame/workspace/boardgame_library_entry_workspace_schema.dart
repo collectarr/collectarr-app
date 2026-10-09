@@ -2,6 +2,7 @@ import 'package:collectarr_app/features/library/kinds/boardgame/workspace/boardg
 import 'package:collectarr_app/features/library/kinds/boardgame/config/boardgame_workspace_field_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/data/boardgame_library_entry_projection.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/workspace/boardgame_workspace_dto.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/workspace/boardgame_workspace_facets.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_library_entry.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/schema/field_factories.dart';
@@ -194,7 +195,10 @@ final boardgameLibraryEntryWorkspaceColumnDefinitions = [
 final boardgameLibraryEntryWorkspaceSchema =
     LibraryWorkspaceSchema<BoardGameKind, BoardGameWorkspaceDto>(
   kindNamespace: 'boardgame',
-  fields: boardgameLibraryEntryWorkspaceFieldDefinitions,
+  fields: [
+    ...boardgameLibraryEntryWorkspaceFieldDefinitions,
+    ...boardgameSmartListFacetFields,
+  ],
   columns: boardgameLibraryEntryWorkspaceColumnDefinitions,
   sorts: boardgameLibraryEntryWorkspaceSortDefinitions,
   groups: boardgameLibraryEntryWorkspaceGroupDefinitions,

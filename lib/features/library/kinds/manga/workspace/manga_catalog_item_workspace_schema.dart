@@ -2,6 +2,7 @@ import 'package:collectarr_app/features/library/kinds/manga/workspace/manga_ids.
 import 'package:collectarr_app/features/library/kinds/manga/config/manga_workspace_field_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/manga/config/manga_field_identities.dart';
 import 'package:collectarr_app/features/library/kinds/manga/workspace/manga_workspace_dto.dart';
+import 'package:collectarr_app/features/library/kinds/manga/workspace/manga_workspace_facets.dart';
 import 'package:collectarr_app/features/library/kinds/manga/workspace/manga_catalog_item_workspace_fields.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/schema/field_factories.dart';
@@ -132,6 +133,7 @@ final mangaCatalogItemWorkspaceFieldDefinitions = [
   MangaCatalogItemWorkspaceFields.readingDirection,
   MangaCatalogItemWorkspaceFields.translator,
   ...mangaAdditionalCatalogItemWorkspaceFieldDefinitions,
+  ...mangaSmartListFacetFields,
 ];
 
 final mangaCatalogItemWorkspaceGroupDefinitions = [

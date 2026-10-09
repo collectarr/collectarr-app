@@ -1,6 +1,7 @@
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_ids.dart';
 import 'package:collectarr_app/features/library/kinds/comic/config/comic_workspace_field_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_dto.dart';
+import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_facets.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_library_entry.dart';
 import 'package:collectarr_app/features/library/kinds/comic/entries/comic_entry_details.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
@@ -335,7 +336,10 @@ final comicLibraryEntryWorkspaceColumnDefinitions = [
 final comicLibraryEntryWorkspaceSchema =
     LibraryWorkspaceSchema<ComicKind, ComicWorkspaceDto>(
   kindNamespace: 'comic',
-  fields: comicLibraryEntryWorkspaceFieldDefinitions,
+  fields: [
+    ...comicLibraryEntryWorkspaceFieldDefinitions,
+    ...comicSmartListFacetFields,
+  ],
   columns: comicLibraryEntryWorkspaceColumnDefinitions,
   sorts: comicLibraryEntryWorkspaceSortDefinitions,
   groups: comicLibraryEntryWorkspaceGroupDefinitions,
