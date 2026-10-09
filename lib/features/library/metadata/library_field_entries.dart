@@ -36,7 +36,7 @@ class PersonalLibraryFieldSpec {
     this.syncable = false,
     this.minimum,
     this.defaultInteger,
-    this.editor,
+    this.inputKind,
     this.area,
     this.editOrder,
     this.manualAddOrder,
@@ -51,7 +51,7 @@ class PersonalLibraryFieldSpec {
   final bool syncable;
   final int? minimum;
   final int? defaultInteger;
-  final PersonalLibraryFieldEditor? editor;
+  final PersonalLibraryFieldEditor? inputKind;
   final PersonalLibraryFieldArea? area;
   final int? editOrder;
   final int? manualAddOrder;
@@ -67,7 +67,7 @@ PersonalLibraryFieldSpec relabelPersonalLibraryField(
         label: label,
         group: field.group,
         syncable: field.syncable,
-        editor: field.editor,
+        inputKind: field.inputKind,
         area: field.area,
         editOrder: field.editOrder,
         manualAddOrder: field.manualAddOrder,

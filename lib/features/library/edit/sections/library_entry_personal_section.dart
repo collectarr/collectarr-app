@@ -69,7 +69,7 @@ class _LibraryEntryPersonalSectionState
     PersonalLibraryFieldEditor editor,
   ) {
     for (final field in _fieldsFor(area)) {
-      if (field.editor == editor) return field;
+      if (field.inputKind == editor) return field;
     }
     return null;
   }
@@ -113,13 +113,13 @@ class _LibraryEntryPersonalSectionState
     final db = ref.read(localDatabaseProvider);
     final vocabularyFields = [
       for (final field in _fieldsFor(PersonalLibraryFieldArea.personalFields))
-        if (field.editor == PersonalLibraryFieldEditor.singleVocabulary ||
-            field.editor == PersonalLibraryFieldEditor.multiVocabulary)
+        if (field.inputKind == PersonalLibraryFieldEditor.singleVocabulary ||
+            field.inputKind == PersonalLibraryFieldEditor.multiVocabulary)
           field,
     ];
     final values = await Future.wait([
       for (final field in vocabularyFields)
-        if (field.editor == PersonalLibraryFieldEditor.multiVocabulary)
+        if (field.inputKind == PersonalLibraryFieldEditor.multiVocabulary)
           loadMultiValuePickListOptions(
             db,
             listName: field.vocabularyListName!,
@@ -234,7 +234,7 @@ class _LibraryEntryPersonalSectionState
       );
 
   Widget _buildPersonalField(PersonalLibraryFieldSpec field) {
-    switch (field.editor) {
+    switch (field.inputKind) {
       case PersonalLibraryFieldEditor.condition:
         return const SizedBox.shrink();
       case PersonalLibraryFieldEditor.partialDate:
@@ -400,7 +400,7 @@ class _LibraryEntryStatusStripState
                   for (var i = 0; i < fields.length; i++) ...[
                     if (i > 0) const SizedBox(width: 14),
                     Expanded(
-                      flex: switch (specs[i].editor) {
+                      flex: switch (specs[i].inputKind) {
                         PersonalLibraryFieldEditor.collectionStatus => 2,
                         PersonalLibraryFieldEditor.location => 4,
                         _ => 1,
@@ -438,7 +438,7 @@ class _LibraryEntryStatusStripState
     LibraryEntryEditDraft draft,
     PersonalLibraryFieldSpec field,
   ) {
-    switch (field.editor) {
+    switch (field.inputKind) {
       case PersonalLibraryFieldEditor.condition:
         return const SizedBox.shrink();
       case PersonalLibraryFieldEditor.collectionStatus:

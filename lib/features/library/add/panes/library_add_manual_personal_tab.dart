@@ -48,7 +48,7 @@ final class LibraryAddManualPersonalTab extends StatelessWidget {
       }, null);
     }
     final notesIndex = specs.indexWhere(
-      (field) => field.editor == PersonalLibraryFieldEditor.notes,
+      (field) => field.inputKind == PersonalLibraryFieldEditor.notes,
     );
     fields.insertAll(
       notesIndex < 0 ? fields.length : notesIndex,
@@ -72,7 +72,7 @@ final class LibraryAddManualPersonalTab extends StatelessWidget {
     PersonalLibraryFieldSpec field,
     LibraryAddCommonDraft current,
   ) {
-    switch (field.editor) {
+    switch (field.inputKind) {
       case PersonalLibraryFieldEditor.condition:
         _expectFieldKey(field, 'condition');
         return _conditionField(field, current);
@@ -123,7 +123,7 @@ final class LibraryAddManualPersonalTab extends StatelessWidget {
       case PersonalLibraryFieldEditor.collectionStatus:
       case PersonalLibraryFieldEditor.integer:
         throw StateError(
-          'Manual Add does not support ${field.editor} for ${field.key}.',
+          'Manual Add does not support ${field.inputKind} for ${field.key}.',
         );
       case null:
         throw StateError(
@@ -258,7 +258,7 @@ final class LibraryAddManualPersonalTab extends StatelessWidget {
   void _expectFieldKey(PersonalLibraryFieldSpec field, String expectedKey) {
     if (field.key != expectedKey) {
       throw StateError(
-        'Manual Add ${field.editor} editor expects "$expectedKey", '
+        'Manual Add ${field.inputKind} editor expects "$expectedKey", '
         'received "${field.key}".',
       );
     }
