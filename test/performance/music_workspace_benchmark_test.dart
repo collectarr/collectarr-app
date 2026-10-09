@@ -1,5 +1,7 @@
 import 'dart:convert';
+import 'dart:developer' as developer;
 import 'dart:io';
+import 'dart:isolate' as isolate;
 
 import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/core/models/partial_date.dart';
@@ -22,141 +24,226 @@ import 'package:collectarr_app/features/library/workspace/entry/library_workspac
 import 'package:collectarr_app/features/library/workspace/entry/personal_overlay.dart';
 import 'package:collectarr_app/features/library/workspace/entry/workspace_item.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:vm_service/vm_service.dart';
+import 'package:vm_service/vm_service_io.dart';
 
 const _runBenchmark = bool.fromEnvironment('RUN_MUSIC_WORKSPACE_BENCHMARK');
+const _selectedAlbumCount =
+    int.fromEnvironment('MUSIC_WORKSPACE_BENCHMARK_ALBUMS');
 const _repeatCount = 3;
 
 void main() {
   test(
     'Music workspace projection, facts, grouping, sorting, and filtering benchmark',
     () async {
-      for (final albumCount in [1000, 5000]) {
-        final albums = _benchmarkAlbums(albumCount);
-        _warmUp(albums.take(200).toList(growable: false));
-        final beforeProjectionRss = ProcessInfo.currentRss;
-        final beforeProjectionPeak = ProcessInfo.maxRss;
-        final items = _projectAlbums(albums);
-        final afterProjectionRss = ProcessInfo.currentRss;
-        final afterProjectionPeak = ProcessInfo.maxRss;
-        _verifyProjectionFactsAreReused(items);
-        final projectionTime = _measureProjection(albums);
-
-        final workspace = libraryKindWorkspaceForKind(CatalogMediaKind.music);
-        final registration = const MusicRegistration();
-        final groupTimes = <String, int>{};
-        for (final fieldId in [
-          'music.disc.recording_year',
-          'music.disc.spars',
-          'music.recording_location',
-        ]) {
-          final groupId = workspace.fields.groups
-              .singleWhere((group) => group.id.value == fieldId)
-              .id;
-          groupTimes[fieldId] = _measureAverage(() {
-            final buckets = const LibraryGroupingEngine().buildBuckets(
-              items,
-              registration,
-              groupId,
-            );
-            return buckets.length;
-          });
+      final allocationProfiler = await _VmAllocationProfiler.connect();
+      try {
+        final albumCounts = _selectedAlbumCount == 0
+            ? const [1000, 5000]
+            : [_selectedAlbumCount];
+        if (albumCounts.any((count) => count != 1000 && count != 5000)) {
+          throw ArgumentError.value(
+            _selectedAlbumCount,
+            'MUSIC_WORKSPACE_BENCHMARK_ALBUMS',
+            'must be 1000, 5000, or unset',
+          );
         }
+        for (final albumCount in albumCounts) {
+          final albums = _benchmarkAlbums(albumCount);
+          _warmUp(albums.take(200).toList(growable: false));
+          final beforeProjectionRss = ProcessInfo.currentRss;
+          final beforeProjectionPeak = ProcessInfo.maxRss;
+          await allocationProfiler.reset();
+          final items = _projectAlbums(albums);
+          final projectionAllocations = await allocationProfiler.read();
+          final afterProjectionRss = ProcessInfo.currentRss;
+          final afterProjectionPeak = ProcessInfo.maxRss;
+          _verifyProjectionFactsAreReused(items);
+          final projectionTime = _measureProjection(albums);
 
-        final sortTime = _measureAverage(() {
-          final sorted = List<LibraryProjectionItem>.of(items);
-          sorted.sort((left, right) => workspace.fields.compareEntries(
-                left,
-                right,
-                workspace.fields.defaultSort,
-              ));
-          return sorted.length;
-        });
-
-        final filterEngine = const LibraryFilterEngine();
-        const searchDocument = LibrarySearchDocument(
-          itemId: 'benchmark',
-          normalizedTokens: [],
-        );
-        const discFormatQuery = LibraryProjectionQuery(
-          filterSelection: LibraryFilterSelection(
-            fieldCriteria: {
-              'music.disc.format': SmartListFieldCriterion(
-                operator: SmartListFieldOperator.equals,
-                value: 'CD',
-              ),
-            },
-          ),
-        );
-        const publisherQuery = LibraryProjectionQuery(
-          filterSelection: LibraryFilterSelection(
-            fieldCriteria: {
-              'music.publisher': SmartListFieldCriterion(
-                operator: SmartListFieldOperator.equals,
-                value: 'Label 1',
-              ),
-            },
-          ),
-        );
-        final discFormatFilterTime = _measureAverage(() {
-          var matched = 0;
-          for (final item in items) {
-            if (filterEngine.matches(
-              item: item,
-              query: discFormatQuery,
-              searchDoc: searchDocument,
-              type: registration,
-            )) {
-              matched++;
-            }
+          final workspace = libraryKindWorkspaceForKind(CatalogMediaKind.music);
+          final registration = const MusicRegistration();
+          final groupTimes = <String, int>{};
+          for (final fieldId in [
+            'music.disc.recording_year',
+            'music.disc.spars',
+            'music.recording_location',
+          ]) {
+            final groupId = workspace.fields.groups
+                .singleWhere((group) => group.id.value == fieldId)
+                .id;
+            groupTimes[fieldId] = _measureAverage(() {
+              final buckets = const LibraryGroupingEngine().buildBuckets(
+                items,
+                registration,
+                groupId,
+              );
+              return buckets.length;
+            });
           }
-          return matched;
-        });
-        final publisherFilterTime = _measureAverage(() {
-          var matched = 0;
-          for (final item in items) {
-            if (filterEngine.matches(
-              item: item,
-              query: publisherQuery,
-              searchDoc: searchDocument,
-              type: registration,
-            )) {
-              matched++;
-            }
-          }
-          return matched;
-        });
 
-        final afterAllPeak = ProcessInfo.maxRss;
-        final factsTime = _measureFacts(albums);
-        stdout.writeln(jsonEncode({
-          'albums': albumCount,
-          'discs': albums.fold<int>(
-            0,
-            (total, album) => total + album.discs.length,
-          ),
-          'factsConstructionMs': _milliseconds(factsTime),
-          'initialProjectionMs': _milliseconds(projectionTime),
-          'averageGroupSwitchMs': {
-            for (final entry in groupTimes.entries)
-              entry.key: _milliseconds(entry.value),
-          },
-          'averageSortMs': _milliseconds(sortTime),
-          'averageDiscFormatFilterMs': _milliseconds(discFormatFilterTime),
-          'averagePublisherFilterMs': _milliseconds(publisherFilterTime),
-          'rssBeforeProjectionBytes': beforeProjectionRss,
-          'rssAfterProjectionBytes': afterProjectionRss,
-          'rssDeltaBytes': afterProjectionRss - beforeProjectionRss,
-          'peakRssBeforeProjectionBytes': beforeProjectionPeak,
-          'peakRssAfterProjectionBytes': afterProjectionPeak,
-          'singleProjectionPeakIncreaseBytes':
-              afterProjectionPeak - beforeProjectionPeak,
-          'peakRssAfterWorkspaceOpsBytes': afterAllPeak,
-          'peakRssIncreaseBytes': afterAllPeak - beforeProjectionPeak,
-        }));
+          final sortTime = _measureAverage(() {
+            final sorted = List<LibraryProjectionItem>.of(items);
+            sorted.sort((left, right) => workspace.fields.compareEntries(
+                  left,
+                  right,
+                  workspace.fields.defaultSort,
+                ));
+            return sorted.length;
+          });
+
+          final filterEngine = const LibraryFilterEngine();
+          const searchDocument = LibrarySearchDocument(
+            itemId: 'benchmark',
+            normalizedTokens: [],
+          );
+          const discFormatQuery = LibraryProjectionQuery(
+            filterSelection: LibraryFilterSelection(
+              fieldCriteria: {
+                'music.disc.format': SmartListFieldCriterion(
+                  operator: SmartListFieldOperator.equals,
+                  value: 'CD',
+                ),
+              },
+            ),
+          );
+          const publisherQuery = LibraryProjectionQuery(
+            filterSelection: LibraryFilterSelection(
+              fieldCriteria: {
+                'music.publisher': SmartListFieldCriterion(
+                  operator: SmartListFieldOperator.equals,
+                  value: 'Label 1',
+                ),
+              },
+            ),
+          );
+          final discFormatFilterTime = _measureAverage(() {
+            var matched = 0;
+            for (final item in items) {
+              if (filterEngine.matches(
+                item: item,
+                query: discFormatQuery,
+                searchDoc: searchDocument,
+                type: registration,
+              )) {
+                matched++;
+              }
+            }
+            return matched;
+          });
+          final publisherFilterTime = _measureAverage(() {
+            var matched = 0;
+            for (final item in items) {
+              if (filterEngine.matches(
+                item: item,
+                query: publisherQuery,
+                searchDoc: searchDocument,
+                type: registration,
+              )) {
+                matched++;
+              }
+            }
+            return matched;
+          });
+
+          final afterAllPeak = ProcessInfo.maxRss;
+          final factsTime = _measureFacts(albums);
+          stdout.writeln(jsonEncode({
+            'albums': albumCount,
+            'discs': albums.fold<int>(
+              0,
+              (total, album) => total + album.discs.length,
+            ),
+            'factsConstructionMs': _milliseconds(factsTime),
+            'initialProjectionMs': _milliseconds(projectionTime),
+            'averageGroupSwitchMs': {
+              for (final entry in groupTimes.entries)
+                entry.key: _milliseconds(entry.value),
+            },
+            'averageSortMs': _milliseconds(sortTime),
+            'averageDiscFormatFilterMs': _milliseconds(discFormatFilterTime),
+            'averagePublisherFilterMs': _milliseconds(publisherFilterTime),
+            'rssBeforeProjectionBytes': beforeProjectionRss,
+            'rssAfterProjectionBytes': afterProjectionRss,
+            'rssDeltaBytes': afterProjectionRss - beforeProjectionRss,
+            'peakRssBeforeProjectionBytes': beforeProjectionPeak,
+            'peakRssAfterProjectionBytes': afterProjectionPeak,
+            'singleProjectionPeakIncreaseBytes':
+                afterProjectionPeak - beforeProjectionPeak,
+            'peakRssAfterWorkspaceOpsBytes': afterAllPeak,
+            'peakRssIncreaseBytes': afterAllPeak - beforeProjectionPeak,
+            // VM Service counters are isolate-local and include the small
+            // benchmark/service overhead around the measured projection.
+            'projectionAllocatedBytes': projectionAllocations.allocatedBytes,
+            'projectionAllocatedInstances':
+                projectionAllocations.allocatedInstances,
+          }));
+        }
+      } finally {
+        await allocationProfiler.dispose();
       }
     },
     skip: !_runBenchmark,
   );
+}
+
+final class _VmAllocationProfiler {
+  _VmAllocationProfiler(this._service, this._isolateId);
+
+  final VmService _service;
+  final String _isolateId;
+
+  static Future<_VmAllocationProfiler> connect() async {
+    var info = await developer.Service.getInfo();
+    if (info.serverWebSocketUri == null) {
+      info = await developer.Service.controlWebServer(
+        enable: true,
+        silenceOutput: true,
+      );
+    }
+    final websocketUri = info.serverWebSocketUri;
+    final isolateId = developer.Service.getIsolateId(isolate.Isolate.current);
+    if (websocketUri == null || isolateId == null) {
+      throw StateError(
+        'The Music workspace benchmark requires the Dart VM service.',
+      );
+    }
+    return _VmAllocationProfiler(
+      await vmServiceConnectUri(websocketUri.toString()),
+      isolateId,
+    );
+  }
+
+  Future<void> reset() async {
+    await _service.getAllocationProfile(_isolateId, reset: true);
+  }
+
+  Future<_AllocationTotals> read() async {
+    final profile = await _service.getAllocationProfile(_isolateId);
+    final classes = profile.members ?? const [];
+    return _AllocationTotals(
+      allocatedBytes: classes.fold<int>(
+        0,
+        (total, stats) => total + (stats.accumulatedSize ?? 0),
+      ),
+      allocatedInstances: classes.fold<int>(
+        0,
+        (total, stats) => total + (stats.instancesAccumulated ?? 0),
+      ),
+    );
+  }
+
+  Future<void> dispose() => _service.dispose();
+}
+
+final class _AllocationTotals {
+  const _AllocationTotals({
+    required this.allocatedBytes,
+    required this.allocatedInstances,
+  });
+
+  final int allocatedBytes;
+  final int allocatedInstances;
 }
 
 int _measureFacts(List<MusicAlbum> albums) {

@@ -72,6 +72,35 @@ final class LibraryResolvedCoreCorrection {
   CatalogMediaKind get kind => source.request.type.kind;
 }
 
+/// Returns changed canonical fields that are writable for the resolved Core
+/// entity. The Core field schema is the sole allowlist; local and personal
+/// values that are absent from it cannot enter a proposal.
+Map<String, Object?> libraryCoreKindCorrectionChanges({
+  required Map<String, Object?> originalFields,
+  required Map<String, Object?> proposedFields,
+  required List<CanonicalCorrectionField> fieldSchema,
+  required String scope,
+  required String entityType,
+}) {
+  final changes = <String, Object?>{};
+  for (final field in fieldSchema) {
+    if (!field.writable ||
+        field.scope != scope ||
+        field.entityType != entityType ||
+        !_isSupportedCoreType(field.valueType) ||
+        !proposedFields.containsKey(field.key)) {
+      continue;
+    }
+    final proposed = proposedFields[field.key];
+    if (_valuesEqual(originalFields[field.key], proposed) ||
+        !_isCompatibleWithCoreType(field.valueType, proposed)) {
+      continue;
+    }
+    changes[field.key] = proposed;
+  }
+  return Map.unmodifiable(changes);
+}
+
 /// Resolves an edit into one exact Core canonical target.
 ///
 /// Local entries resolve through their optional source Core reference.
@@ -369,14 +398,17 @@ final class _LibraryCoreCorrectionReviewDialogState
     CanonicalCorrectionField field,
   ) {
     return _fieldControllers.putIfAbsent(field.key, () {
-      final hasProposal = widget.source.proposedFields.containsKey(field.key);
-      final proposed = widget.source.proposedFields[field.key];
-      final changedByKind = hasProposal &&
-          !_valuesEqual(widget.source.originalFields[field.key], proposed);
-      final initial =
-          changedByKind && _isCompatibleWithCoreType(field.valueType, proposed)
-              ? proposed
-              : value.currentFields[field.key];
+      final kindChanges = libraryCoreKindCorrectionChanges(
+        originalFields: widget.source.originalFields,
+        proposedFields: widget.source.proposedFields,
+        fieldSchema: value.fieldSchema,
+        scope: value.scope,
+        entityType: value.entityType,
+      );
+      final changedByKind = kindChanges.containsKey(field.key);
+      final initial = changedByKind
+          ? kindChanges[field.key]
+          : value.currentFields[field.key];
       return TextEditingController(
         text: _textForCoreValue(field.valueType, initial),
       );
@@ -391,12 +423,15 @@ final class _LibraryCoreCorrectionReviewDialogState
     });
     final proposedFields = <String, Object?>{};
     final errors = <String, String>{};
+    final kindChanges = libraryCoreKindCorrectionChanges(
+      originalFields: widget.source.originalFields,
+      proposedFields: widget.source.proposedFields,
+      fieldSchema: value.fieldSchema,
+      scope: value.scope,
+      entityType: value.entityType,
+    );
     for (final field in _editableFields(value)) {
-      final hasKindProposal =
-          widget.source.proposedFields.containsKey(field.key);
-      final kindProposal = widget.source.proposedFields[field.key];
-      final changedByKind = hasKindProposal &&
-          !_valuesEqual(widget.source.originalFields[field.key], kindProposal);
+      final changedByKind = kindChanges.containsKey(field.key);
       if (!changedByKind && !_touchedFields.contains(field.key)) continue;
 
       final parsed = _parseCoreValue(
