@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:dio/dio.dart';
 
 final class MusicOnlineCoverCandidate {
@@ -19,28 +21,88 @@ final class MusicOnlineCoverSearch {
               BaseOptions(
                 connectTimeout: const Duration(seconds: 15),
                 receiveTimeout: const Duration(seconds: 20),
-                responseType: ResponseType.json,
+                responseType: ResponseType.plain,
               ),
             );
 
   final Dio _client;
 
-  Future<List<MusicOnlineCoverCandidate>> search(String query) async {
+  Future<List<MusicOnlineCoverCandidate>> search(String query,
+      {String? barcode}) async {
     final normalizedQuery = query.trim();
     if (normalizedQuery.isEmpty) return const [];
 
-    final response = await _client.getUri<Object?>(
+    final artworkQuery = barcode == null
+        ? normalizedQuery
+        : normalizedQuery.replaceAll(barcode, '').trim();
+    var barcodeCovers = const <MusicOnlineCoverCandidate>[];
+    if (barcode != null && barcode.isNotEmpty) {
+      try {
+        barcodeCovers = await _searchBarcode(barcode);
+      } on DioException {
+        if (artworkQuery.isEmpty) rethrow;
+      }
+    }
+    if (artworkQuery.isEmpty) return barcodeCovers;
+    final response = await _client.getUri<String>(
       Uri.https('itunes.apple.com', '/search', {
-        'term': normalizedQuery,
+        'term': artworkQuery,
         'entity': 'album',
         'limit': '36',
       }),
+      options: Options(responseType: ResponseType.plain),
     );
-    final data = response.data;
+    // Apple serves JSON as text/javascript. Decode the wire body explicitly
+    // rather than relying on Dio's content-type based transformer.
+    final data = jsonDecode(response.data ?? '');
     if (data is! Map) {
       throw const FormatException('Online cover search returned invalid data.');
     }
-    return decodeMusicOnlineCoverCandidates(data);
+    final artwork = decodeMusicOnlineCoverCandidates(data);
+    return List.unmodifiable([
+      ...barcodeCovers,
+      ...artwork.where((candidate) =>
+          !barcodeCovers.any((cover) => cover.imageUrl == candidate.imageUrl))
+    ]);
+  }
+
+  Future<List<MusicOnlineCoverCandidate>> _searchBarcode(String barcode) async {
+    final response = await _client.getUri<String>(
+        Uri.https('musicbrainz.org', '/ws/2/release/', {
+          'query': 'barcode:$barcode',
+          'fmt': 'json',
+          'limit': '3',
+        }),
+        options: Options(responseType: ResponseType.plain));
+    final payload = jsonDecode(response.data ?? '') as Map<String, dynamic>;
+    final releases = payload['releases'] as List? ?? const [];
+    final covers = <MusicOnlineCoverCandidate>[];
+    for (final release in releases.whereType<Map<String, dynamic>>()) {
+      final id = release['id'];
+      if (id is! String || !RegExp(r'^[a-f0-9-]{36}$').hasMatch(id)) continue;
+      final archive = await _client.getUri<String>(
+          Uri.https('coverartarchive.org', '/release/$id'),
+          options: Options(
+              responseType: ResponseType.plain,
+              validateStatus: (status) => status == 200 || status == 404));
+      if (archive.statusCode == 404) continue;
+      final images =
+          (jsonDecode(archive.data ?? '') as Map)['images'] as List? ??
+              const [];
+      for (final image in images.whereType<Map<String, dynamic>>()) {
+        final url = image['image'];
+        if (url is! String || Uri.tryParse(url)?.scheme != 'https') continue;
+        covers.add(MusicOnlineCoverCandidate(
+            title: release['title'] as String? ?? '',
+            artist: image['front'] == true
+                ? 'Front cover'
+                : image['back'] == true
+                    ? 'Back cover'
+                    : 'Release artwork',
+            imageUrl: url));
+      }
+    }
+    return covers;
   }
 }
 

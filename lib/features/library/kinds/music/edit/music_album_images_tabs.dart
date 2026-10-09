@@ -56,7 +56,9 @@ final class _MusicAlbumCoversTabState extends State<MusicAlbumCoversTab> {
               MusicCoverEditor(
                 title: 'Front Cover',
                 albumId: widget.albumId,
-                searchQuery: _searchQuery,
+                searchArtist: widget.draft.values.artist,
+                searchTitle: widget.draft.values.title,
+                searchBarcode: widget.draft.values.barcode,
                 image: front,
                 coreCoverUrl: widget.draft.values.coverImageUrl,
                 restoreCoreCoverUrl: widget.draft.original.coverImageUrl,
@@ -67,7 +69,9 @@ final class _MusicAlbumCoversTabState extends State<MusicAlbumCoversTab> {
               MusicCoverEditor(
                 title: 'Back Cover',
                 albumId: widget.albumId,
-                searchQuery: _searchQuery,
+                searchArtist: widget.draft.values.artist,
+                searchTitle: widget.draft.values.title,
+                searchBarcode: widget.draft.values.barcode,
                 image: back,
                 coreCoverUrl: widget.draft.values.backCoverImageUrl,
                 restoreCoreCoverUrl: widget.draft.original.backCoverImageUrl,
@@ -104,11 +108,6 @@ final class _MusicAlbumCoversTabState extends State<MusicAlbumCoversTab> {
     }
     return null;
   }
-
-  String get _searchQuery => [
-        widget.draft.values.artist.trim(),
-        widget.draft.values.title.trim(),
-      ].where((value) => value.isNotEmpty).join(' ');
 
   void _replaceCover(String imageType, MusicAlbumImage? replacement) {
     final next = [
@@ -149,7 +148,9 @@ final class MusicCoverEditor extends StatefulWidget {
     super.key,
     required this.title,
     required this.albumId,
-    this.searchQuery = '',
+    this.searchArtist = '',
+    this.searchTitle = '',
+    this.searchBarcode = '',
     required this.image,
     required this.coreCoverUrl,
     required this.restoreCoreCoverUrl,
@@ -160,7 +161,9 @@ final class MusicCoverEditor extends StatefulWidget {
 
   final String title;
   final String albumId;
-  final String searchQuery;
+  final String searchArtist;
+  final String searchTitle;
+  final String searchBarcode;
   final MusicAlbumImage? image;
   final String? coreCoverUrl;
   final String? restoreCoreCoverUrl;
@@ -370,7 +373,9 @@ final class MusicCoverEditorState extends State<MusicCoverEditor> {
       final candidate = await showDialog<MusicOnlineCoverCandidate>(
         context: context,
         builder: (_) => MusicOnlineCoverPickerDialog(
-          initialQuery: widget.searchQuery,
+          artist: widget.searchArtist,
+          title: widget.searchTitle,
+          barcode: widget.searchBarcode,
         ),
       );
       if (candidate == null || !mounted) return;
@@ -395,7 +400,7 @@ final class MusicCoverEditorState extends State<MusicCoverEditor> {
           imageType:
               widget.title == 'Back Cover' ? 'back_cover' : 'front_cover',
           imageData: bytes,
-          description: '${candidate.title} — ${candidate.artist}',
+          description: '${candidate.title} â€” ${candidate.artist}',
           sortOrder: current?.sortOrder ?? 0,
           createdAt: current?.createdAt ?? DateTime.now().toUtc(),
         ),

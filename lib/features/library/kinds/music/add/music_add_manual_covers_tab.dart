@@ -27,10 +27,9 @@ class _MusicAddManualCoversTabState extends State<MusicAddManualCoversTab> {
       return MusicCoverEditor(
           title: back ? 'Back Cover' : 'Front Cover',
           albumId: 'manual-music',
-          searchQuery: [
-            widget.draft.artist.trim(),
-            widget.draft.catalogTitle.trim()
-          ].where((value) => value.isNotEmpty).join(' '),
+          searchArtist: widget.draft.artist,
+          searchTitle: widget.draft.catalogTitle,
+          searchBarcode: widget.draft.barcode,
           image: images
               .where((image) =>
                   image.purpose == MusicAlbumImagePurpose.cover &&
