@@ -51,15 +51,8 @@ abstract final class LibraryPageShellPresenter {
       content: content,
       bottomBar: LibraryCollectionTabBar(
         mediaKind: state.widget.type.kind.apiValue,
-        target: SmartListCriteriaTarget.catalog,
-        activeSmartListId: state._session.preferences.activeSmartListId,
-        onSmartListSelected: state._applySmartList,
-        onAllSelected: state._clearSmartList,
         accent: state.widget.accent,
-        onManageCollections: () => state._dialogCoordinator.showSmartListsFlow(
-          shelfState,
-          collectionManager: true,
-        ),
+        onCollectionSelected: (_) => state._onCollectionSelected(),
       ),
       accent: state.widget.accent,
       showAddButton: useFab,

@@ -315,6 +315,562 @@ class LibraryEntriesCompanion extends UpdateCompanion<LibraryEntry> {
   }
 }
 
+class $LibraryCollectionsTable extends LibraryCollections
+    with TableInfo<$LibraryCollectionsTable, LibraryCollection> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $LibraryCollectionsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+      'id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _kindMeta = const VerificationMeta('kind');
+  @override
+  late final GeneratedColumn<String> kind = GeneratedColumn<String>(
+      'kind', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _nameMeta = const VerificationMeta('name');
+  @override
+  late final GeneratedColumn<String> name = GeneratedColumn<String>(
+      'name', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _positionMeta =
+      const VerificationMeta('position');
+  @override
+  late final GeneratedColumn<int> position = GeneratedColumn<int>(
+      'position', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _isActiveMeta =
+      const VerificationMeta('isActive');
+  @override
+  late final GeneratedColumn<bool> isActive = GeneratedColumn<bool>(
+      'is_active', aliasedName, false,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('CHECK ("is_active" IN (0, 1))'),
+      defaultValue: const Constant(false));
+  @override
+  List<GeneratedColumn> get $columns => [id, kind, name, position, isActive];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'library_collections';
+  @override
+  VerificationContext validateIntegrity(Insertable<LibraryCollection> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('kind')) {
+      context.handle(
+          _kindMeta, kind.isAcceptableOrUnknown(data['kind']!, _kindMeta));
+    } else if (isInserting) {
+      context.missing(_kindMeta);
+    }
+    if (data.containsKey('name')) {
+      context.handle(
+          _nameMeta, name.isAcceptableOrUnknown(data['name']!, _nameMeta));
+    } else if (isInserting) {
+      context.missing(_nameMeta);
+    }
+    if (data.containsKey('position')) {
+      context.handle(_positionMeta,
+          position.isAcceptableOrUnknown(data['position']!, _positionMeta));
+    } else if (isInserting) {
+      context.missing(_positionMeta);
+    }
+    if (data.containsKey('is_active')) {
+      context.handle(_isActiveMeta,
+          isActive.isAcceptableOrUnknown(data['is_active']!, _isActiveMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  LibraryCollection map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return LibraryCollection(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
+      kind: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}kind'])!,
+      name: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}name'])!,
+      position: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}position'])!,
+      isActive: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}is_active'])!,
+    );
+  }
+
+  @override
+  $LibraryCollectionsTable createAlias(String alias) {
+    return $LibraryCollectionsTable(attachedDatabase, alias);
+  }
+}
+
+class LibraryCollection extends DataClass
+    implements Insertable<LibraryCollection> {
+  final String id;
+  final String kind;
+  final String name;
+  final int position;
+  final bool isActive;
+  const LibraryCollection(
+      {required this.id,
+      required this.kind,
+      required this.name,
+      required this.position,
+      required this.isActive});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['kind'] = Variable<String>(kind);
+    map['name'] = Variable<String>(name);
+    map['position'] = Variable<int>(position);
+    map['is_active'] = Variable<bool>(isActive);
+    return map;
+  }
+
+  LibraryCollectionsCompanion toCompanion(bool nullToAbsent) {
+    return LibraryCollectionsCompanion(
+      id: Value(id),
+      kind: Value(kind),
+      name: Value(name),
+      position: Value(position),
+      isActive: Value(isActive),
+    );
+  }
+
+  factory LibraryCollection.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return LibraryCollection(
+      id: serializer.fromJson<String>(json['id']),
+      kind: serializer.fromJson<String>(json['kind']),
+      name: serializer.fromJson<String>(json['name']),
+      position: serializer.fromJson<int>(json['position']),
+      isActive: serializer.fromJson<bool>(json['isActive']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'kind': serializer.toJson<String>(kind),
+      'name': serializer.toJson<String>(name),
+      'position': serializer.toJson<int>(position),
+      'isActive': serializer.toJson<bool>(isActive),
+    };
+  }
+
+  LibraryCollection copyWith(
+          {String? id,
+          String? kind,
+          String? name,
+          int? position,
+          bool? isActive}) =>
+      LibraryCollection(
+        id: id ?? this.id,
+        kind: kind ?? this.kind,
+        name: name ?? this.name,
+        position: position ?? this.position,
+        isActive: isActive ?? this.isActive,
+      );
+  LibraryCollection copyWithCompanion(LibraryCollectionsCompanion data) {
+    return LibraryCollection(
+      id: data.id.present ? data.id.value : this.id,
+      kind: data.kind.present ? data.kind.value : this.kind,
+      name: data.name.present ? data.name.value : this.name,
+      position: data.position.present ? data.position.value : this.position,
+      isActive: data.isActive.present ? data.isActive.value : this.isActive,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('LibraryCollection(')
+          ..write('id: $id, ')
+          ..write('kind: $kind, ')
+          ..write('name: $name, ')
+          ..write('position: $position, ')
+          ..write('isActive: $isActive')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, kind, name, position, isActive);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is LibraryCollection &&
+          other.id == this.id &&
+          other.kind == this.kind &&
+          other.name == this.name &&
+          other.position == this.position &&
+          other.isActive == this.isActive);
+}
+
+class LibraryCollectionsCompanion extends UpdateCompanion<LibraryCollection> {
+  final Value<String> id;
+  final Value<String> kind;
+  final Value<String> name;
+  final Value<int> position;
+  final Value<bool> isActive;
+  final Value<int> rowid;
+  const LibraryCollectionsCompanion({
+    this.id = const Value.absent(),
+    this.kind = const Value.absent(),
+    this.name = const Value.absent(),
+    this.position = const Value.absent(),
+    this.isActive = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  LibraryCollectionsCompanion.insert({
+    required String id,
+    required String kind,
+    required String name,
+    required int position,
+    this.isActive = const Value.absent(),
+    this.rowid = const Value.absent(),
+  })  : id = Value(id),
+        kind = Value(kind),
+        name = Value(name),
+        position = Value(position);
+  static Insertable<LibraryCollection> custom({
+    Expression<String>? id,
+    Expression<String>? kind,
+    Expression<String>? name,
+    Expression<int>? position,
+    Expression<bool>? isActive,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (kind != null) 'kind': kind,
+      if (name != null) 'name': name,
+      if (position != null) 'position': position,
+      if (isActive != null) 'is_active': isActive,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  LibraryCollectionsCompanion copyWith(
+      {Value<String>? id,
+      Value<String>? kind,
+      Value<String>? name,
+      Value<int>? position,
+      Value<bool>? isActive,
+      Value<int>? rowid}) {
+    return LibraryCollectionsCompanion(
+      id: id ?? this.id,
+      kind: kind ?? this.kind,
+      name: name ?? this.name,
+      position: position ?? this.position,
+      isActive: isActive ?? this.isActive,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (kind.present) {
+      map['kind'] = Variable<String>(kind.value);
+    }
+    if (name.present) {
+      map['name'] = Variable<String>(name.value);
+    }
+    if (position.present) {
+      map['position'] = Variable<int>(position.value);
+    }
+    if (isActive.present) {
+      map['is_active'] = Variable<bool>(isActive.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('LibraryCollectionsCompanion(')
+          ..write('id: $id, ')
+          ..write('kind: $kind, ')
+          ..write('name: $name, ')
+          ..write('position: $position, ')
+          ..write('isActive: $isActive, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $LibraryCollectionMembershipsTable extends LibraryCollectionMemberships
+    with
+        TableInfo<$LibraryCollectionMembershipsTable,
+            LibraryCollectionMembership> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $LibraryCollectionMembershipsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _entryKindMeta =
+      const VerificationMeta('entryKind');
+  @override
+  late final GeneratedColumn<String> entryKind = GeneratedColumn<String>(
+      'entry_kind', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _entryIdMeta =
+      const VerificationMeta('entryId');
+  @override
+  late final GeneratedColumn<String> entryId = GeneratedColumn<String>(
+      'entry_id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _collectionIdMeta =
+      const VerificationMeta('collectionId');
+  @override
+  late final GeneratedColumn<String> collectionId = GeneratedColumn<String>(
+      'collection_id', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: true,
+      defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'REFERENCES library_collections (id)'));
+  @override
+  List<GeneratedColumn> get $columns => [entryKind, entryId, collectionId];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'library_collection_memberships';
+  @override
+  VerificationContext validateIntegrity(
+      Insertable<LibraryCollectionMembership> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('entry_kind')) {
+      context.handle(_entryKindMeta,
+          entryKind.isAcceptableOrUnknown(data['entry_kind']!, _entryKindMeta));
+    } else if (isInserting) {
+      context.missing(_entryKindMeta);
+    }
+    if (data.containsKey('entry_id')) {
+      context.handle(_entryIdMeta,
+          entryId.isAcceptableOrUnknown(data['entry_id']!, _entryIdMeta));
+    } else if (isInserting) {
+      context.missing(_entryIdMeta);
+    }
+    if (data.containsKey('collection_id')) {
+      context.handle(
+          _collectionIdMeta,
+          collectionId.isAcceptableOrUnknown(
+              data['collection_id']!, _collectionIdMeta));
+    } else if (isInserting) {
+      context.missing(_collectionIdMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {entryKind, entryId};
+  @override
+  LibraryCollectionMembership map(Map<String, dynamic> data,
+      {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return LibraryCollectionMembership(
+      entryKind: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}entry_kind'])!,
+      entryId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}entry_id'])!,
+      collectionId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}collection_id'])!,
+    );
+  }
+
+  @override
+  $LibraryCollectionMembershipsTable createAlias(String alias) {
+    return $LibraryCollectionMembershipsTable(attachedDatabase, alias);
+  }
+}
+
+class LibraryCollectionMembership extends DataClass
+    implements Insertable<LibraryCollectionMembership> {
+  final String entryKind;
+  final String entryId;
+  final String collectionId;
+  const LibraryCollectionMembership(
+      {required this.entryKind,
+      required this.entryId,
+      required this.collectionId});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['entry_kind'] = Variable<String>(entryKind);
+    map['entry_id'] = Variable<String>(entryId);
+    map['collection_id'] = Variable<String>(collectionId);
+    return map;
+  }
+
+  LibraryCollectionMembershipsCompanion toCompanion(bool nullToAbsent) {
+    return LibraryCollectionMembershipsCompanion(
+      entryKind: Value(entryKind),
+      entryId: Value(entryId),
+      collectionId: Value(collectionId),
+    );
+  }
+
+  factory LibraryCollectionMembership.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return LibraryCollectionMembership(
+      entryKind: serializer.fromJson<String>(json['entryKind']),
+      entryId: serializer.fromJson<String>(json['entryId']),
+      collectionId: serializer.fromJson<String>(json['collectionId']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'entryKind': serializer.toJson<String>(entryKind),
+      'entryId': serializer.toJson<String>(entryId),
+      'collectionId': serializer.toJson<String>(collectionId),
+    };
+  }
+
+  LibraryCollectionMembership copyWith(
+          {String? entryKind, String? entryId, String? collectionId}) =>
+      LibraryCollectionMembership(
+        entryKind: entryKind ?? this.entryKind,
+        entryId: entryId ?? this.entryId,
+        collectionId: collectionId ?? this.collectionId,
+      );
+  LibraryCollectionMembership copyWithCompanion(
+      LibraryCollectionMembershipsCompanion data) {
+    return LibraryCollectionMembership(
+      entryKind: data.entryKind.present ? data.entryKind.value : this.entryKind,
+      entryId: data.entryId.present ? data.entryId.value : this.entryId,
+      collectionId: data.collectionId.present
+          ? data.collectionId.value
+          : this.collectionId,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('LibraryCollectionMembership(')
+          ..write('entryKind: $entryKind, ')
+          ..write('entryId: $entryId, ')
+          ..write('collectionId: $collectionId')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(entryKind, entryId, collectionId);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is LibraryCollectionMembership &&
+          other.entryKind == this.entryKind &&
+          other.entryId == this.entryId &&
+          other.collectionId == this.collectionId);
+}
+
+class LibraryCollectionMembershipsCompanion
+    extends UpdateCompanion<LibraryCollectionMembership> {
+  final Value<String> entryKind;
+  final Value<String> entryId;
+  final Value<String> collectionId;
+  final Value<int> rowid;
+  const LibraryCollectionMembershipsCompanion({
+    this.entryKind = const Value.absent(),
+    this.entryId = const Value.absent(),
+    this.collectionId = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  LibraryCollectionMembershipsCompanion.insert({
+    required String entryKind,
+    required String entryId,
+    required String collectionId,
+    this.rowid = const Value.absent(),
+  })  : entryKind = Value(entryKind),
+        entryId = Value(entryId),
+        collectionId = Value(collectionId);
+  static Insertable<LibraryCollectionMembership> custom({
+    Expression<String>? entryKind,
+    Expression<String>? entryId,
+    Expression<String>? collectionId,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (entryKind != null) 'entry_kind': entryKind,
+      if (entryId != null) 'entry_id': entryId,
+      if (collectionId != null) 'collection_id': collectionId,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  LibraryCollectionMembershipsCompanion copyWith(
+      {Value<String>? entryKind,
+      Value<String>? entryId,
+      Value<String>? collectionId,
+      Value<int>? rowid}) {
+    return LibraryCollectionMembershipsCompanion(
+      entryKind: entryKind ?? this.entryKind,
+      entryId: entryId ?? this.entryId,
+      collectionId: collectionId ?? this.collectionId,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (entryKind.present) {
+      map['entry_kind'] = Variable<String>(entryKind.value);
+    }
+    if (entryId.present) {
+      map['entry_id'] = Variable<String>(entryId.value);
+    }
+    if (collectionId.present) {
+      map['collection_id'] = Variable<String>(collectionId.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('LibraryCollectionMembershipsCompanion(')
+          ..write('entryKind: $entryKind, ')
+          ..write('entryId: $entryId, ')
+          ..write('collectionId: $collectionId, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 class $CatalogItemsCacheTable extends CatalogItemsCache
     with TableInfo<$CatalogItemsCacheTable, CatalogItemsCacheData> {
   @override
@@ -18749,6 +19305,10 @@ abstract class _$LocalDatabase extends GeneratedDatabase {
   _$LocalDatabase(QueryExecutor e) : super(e);
   $LocalDatabaseManager get managers => $LocalDatabaseManager(this);
   late final $LibraryEntriesTable libraryEntries = $LibraryEntriesTable(this);
+  late final $LibraryCollectionsTable libraryCollections =
+      $LibraryCollectionsTable(this);
+  late final $LibraryCollectionMembershipsTable libraryCollectionMemberships =
+      $LibraryCollectionMembershipsTable(this);
   late final $CatalogItemsCacheTable catalogItemsCache =
       $CatalogItemsCacheTable(this);
   late final $WishlistItemsCacheTable wishlistItemsCache =
@@ -18825,6 +19385,8 @@ abstract class _$LocalDatabase extends GeneratedDatabase {
   @override
   List<DatabaseSchemaEntity> get allSchemaEntities => [
         libraryEntries,
+        libraryCollections,
+        libraryCollectionMemberships,
         catalogItemsCache,
         wishlistItemsCache,
         syncQueue,
@@ -19039,6 +19601,543 @@ typedef $$LibraryEntriesTableProcessedTableManager = ProcessedTableManager<
     ),
     LibraryEntry,
     PrefetchHooks Function()>;
+typedef $$LibraryCollectionsTableCreateCompanionBuilder
+    = LibraryCollectionsCompanion Function({
+  required String id,
+  required String kind,
+  required String name,
+  required int position,
+  Value<bool> isActive,
+  Value<int> rowid,
+});
+typedef $$LibraryCollectionsTableUpdateCompanionBuilder
+    = LibraryCollectionsCompanion Function({
+  Value<String> id,
+  Value<String> kind,
+  Value<String> name,
+  Value<int> position,
+  Value<bool> isActive,
+  Value<int> rowid,
+});
+
+final class $$LibraryCollectionsTableReferences extends BaseReferences<
+    _$LocalDatabase, $LibraryCollectionsTable, LibraryCollection> {
+  $$LibraryCollectionsTableReferences(
+      super.$_db, super.$_table, super.$_typedResult);
+
+  static MultiTypedResultKey<$LibraryCollectionMembershipsTable,
+      List<LibraryCollectionMembership>> _libraryCollectionMembershipsRefsTable(
+          _$LocalDatabase db) =>
+      MultiTypedResultKey.fromTable(db.libraryCollectionMemberships,
+          aliasName:
+              'library_collections__id__library_collection_memberships__collection_id');
+
+  $$LibraryCollectionMembershipsTableProcessedTableManager
+      get libraryCollectionMembershipsRefs {
+    final manager = $$LibraryCollectionMembershipsTableTableManager(
+            $_db, $_db.libraryCollectionMemberships)
+        .filter(
+            (f) => f.collectionId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache = $_typedResult
+        .readTableOrNull(_libraryCollectionMembershipsRefsTable($_db));
+    return ProcessedTableManager(
+        manager.$state.copyWith(prefetchedData: cache));
+  }
+}
+
+class $$LibraryCollectionsTableFilterComposer
+    extends Composer<_$LocalDatabase, $LibraryCollectionsTable> {
+  $$LibraryCollectionsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get kind => $composableBuilder(
+      column: $table.kind, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get name => $composableBuilder(
+      column: $table.name, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get position => $composableBuilder(
+      column: $table.position, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<bool> get isActive => $composableBuilder(
+      column: $table.isActive, builder: (column) => ColumnFilters(column));
+
+  Expression<bool> libraryCollectionMembershipsRefs(
+      Expression<bool> Function(
+              $$LibraryCollectionMembershipsTableFilterComposer f)
+          f) {
+    final $$LibraryCollectionMembershipsTableFilterComposer composer =
+        $composerBuilder(
+            composer: this,
+            getCurrentColumn: (t) => t.id,
+            referencedTable: $db.libraryCollectionMemberships,
+            getReferencedColumn: (t) => t.collectionId,
+            builder: (joinBuilder,
+                    {$addJoinBuilderToRootComposer,
+                    $removeJoinBuilderFromRootComposer}) =>
+                $$LibraryCollectionMembershipsTableFilterComposer(
+                  $db: $db,
+                  $table: $db.libraryCollectionMemberships,
+                  $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                  joinBuilder: joinBuilder,
+                  $removeJoinBuilderFromRootComposer:
+                      $removeJoinBuilderFromRootComposer,
+                ));
+    return f(composer);
+  }
+}
+
+class $$LibraryCollectionsTableOrderingComposer
+    extends Composer<_$LocalDatabase, $LibraryCollectionsTable> {
+  $$LibraryCollectionsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get kind => $composableBuilder(
+      column: $table.kind, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get name => $composableBuilder(
+      column: $table.name, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get position => $composableBuilder(
+      column: $table.position, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<bool> get isActive => $composableBuilder(
+      column: $table.isActive, builder: (column) => ColumnOrderings(column));
+}
+
+class $$LibraryCollectionsTableAnnotationComposer
+    extends Composer<_$LocalDatabase, $LibraryCollectionsTable> {
+  $$LibraryCollectionsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get kind =>
+      $composableBuilder(column: $table.kind, builder: (column) => column);
+
+  GeneratedColumn<String> get name =>
+      $composableBuilder(column: $table.name, builder: (column) => column);
+
+  GeneratedColumn<int> get position =>
+      $composableBuilder(column: $table.position, builder: (column) => column);
+
+  GeneratedColumn<bool> get isActive =>
+      $composableBuilder(column: $table.isActive, builder: (column) => column);
+
+  Expression<T> libraryCollectionMembershipsRefs<T extends Object>(
+      Expression<T> Function(
+              $$LibraryCollectionMembershipsTableAnnotationComposer a)
+          f) {
+    final $$LibraryCollectionMembershipsTableAnnotationComposer composer =
+        $composerBuilder(
+            composer: this,
+            getCurrentColumn: (t) => t.id,
+            referencedTable: $db.libraryCollectionMemberships,
+            getReferencedColumn: (t) => t.collectionId,
+            builder: (joinBuilder,
+                    {$addJoinBuilderToRootComposer,
+                    $removeJoinBuilderFromRootComposer}) =>
+                $$LibraryCollectionMembershipsTableAnnotationComposer(
+                  $db: $db,
+                  $table: $db.libraryCollectionMemberships,
+                  $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                  joinBuilder: joinBuilder,
+                  $removeJoinBuilderFromRootComposer:
+                      $removeJoinBuilderFromRootComposer,
+                ));
+    return f(composer);
+  }
+}
+
+class $$LibraryCollectionsTableTableManager extends RootTableManager<
+    _$LocalDatabase,
+    $LibraryCollectionsTable,
+    LibraryCollection,
+    $$LibraryCollectionsTableFilterComposer,
+    $$LibraryCollectionsTableOrderingComposer,
+    $$LibraryCollectionsTableAnnotationComposer,
+    $$LibraryCollectionsTableCreateCompanionBuilder,
+    $$LibraryCollectionsTableUpdateCompanionBuilder,
+    (LibraryCollection, $$LibraryCollectionsTableReferences),
+    LibraryCollection,
+    PrefetchHooks Function({bool libraryCollectionMembershipsRefs})> {
+  $$LibraryCollectionsTableTableManager(
+      _$LocalDatabase db, $LibraryCollectionsTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$LibraryCollectionsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$LibraryCollectionsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$LibraryCollectionsTableAnnotationComposer(
+                  $db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> id = const Value.absent(),
+            Value<String> kind = const Value.absent(),
+            Value<String> name = const Value.absent(),
+            Value<int> position = const Value.absent(),
+            Value<bool> isActive = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              LibraryCollectionsCompanion(
+            id: id,
+            kind: kind,
+            name: name,
+            position: position,
+            isActive: isActive,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String id,
+            required String kind,
+            required String name,
+            required int position,
+            Value<bool> isActive = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              LibraryCollectionsCompanion.insert(
+            id: id,
+            kind: kind,
+            name: name,
+            position: position,
+            isActive: isActive,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (
+                    e.readTable(table),
+                    $$LibraryCollectionsTableReferences(db, table, e)
+                  ))
+              .toList(),
+          prefetchHooksCallback: ({libraryCollectionMembershipsRefs = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [
+                if (libraryCollectionMembershipsRefs)
+                  db.libraryCollectionMemberships
+              ],
+              addJoins: null,
+              getPrefetchedDataCallback: (items) async {
+                return [
+                  if (libraryCollectionMembershipsRefs)
+                    await $_getPrefetchedData<
+                            LibraryCollection,
+                            $LibraryCollectionsTable,
+                            LibraryCollectionMembership>(
+                        currentTable: table,
+                        referencedTable: $$LibraryCollectionsTableReferences
+                            ._libraryCollectionMembershipsRefsTable(db),
+                        managerFromTypedResult: (p0) =>
+                            $$LibraryCollectionsTableReferences(db, table, p0)
+                                .libraryCollectionMembershipsRefs,
+                        referencedItemsForCurrentItem:
+                            (item, referencedItems) => referencedItems
+                                .where((e) => e.collectionId == item.id),
+                        typedResults: items)
+                ];
+              },
+            );
+          },
+        ));
+}
+
+typedef $$LibraryCollectionsTableProcessedTableManager = ProcessedTableManager<
+    _$LocalDatabase,
+    $LibraryCollectionsTable,
+    LibraryCollection,
+    $$LibraryCollectionsTableFilterComposer,
+    $$LibraryCollectionsTableOrderingComposer,
+    $$LibraryCollectionsTableAnnotationComposer,
+    $$LibraryCollectionsTableCreateCompanionBuilder,
+    $$LibraryCollectionsTableUpdateCompanionBuilder,
+    (LibraryCollection, $$LibraryCollectionsTableReferences),
+    LibraryCollection,
+    PrefetchHooks Function({bool libraryCollectionMembershipsRefs})>;
+typedef $$LibraryCollectionMembershipsTableCreateCompanionBuilder
+    = LibraryCollectionMembershipsCompanion Function({
+  required String entryKind,
+  required String entryId,
+  required String collectionId,
+  Value<int> rowid,
+});
+typedef $$LibraryCollectionMembershipsTableUpdateCompanionBuilder
+    = LibraryCollectionMembershipsCompanion Function({
+  Value<String> entryKind,
+  Value<String> entryId,
+  Value<String> collectionId,
+  Value<int> rowid,
+});
+
+final class $$LibraryCollectionMembershipsTableReferences
+    extends BaseReferences<_$LocalDatabase, $LibraryCollectionMembershipsTable,
+        LibraryCollectionMembership> {
+  $$LibraryCollectionMembershipsTableReferences(
+      super.$_db, super.$_table, super.$_typedResult);
+
+  static $LibraryCollectionsTable _collectionIdTable(_$LocalDatabase db) =>
+      db.libraryCollections.createAlias(
+          'library_collection_memberships__collection_id__library_collections__id');
+
+  $$LibraryCollectionsTableProcessedTableManager get collectionId {
+    final $_column = $_itemColumn<String>('collection_id')!;
+
+    final manager =
+        $$LibraryCollectionsTableTableManager($_db, $_db.libraryCollections)
+            .filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_collectionIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+        manager.$state.copyWith(prefetchedData: [item]));
+  }
+}
+
+class $$LibraryCollectionMembershipsTableFilterComposer
+    extends Composer<_$LocalDatabase, $LibraryCollectionMembershipsTable> {
+  $$LibraryCollectionMembershipsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get entryKind => $composableBuilder(
+      column: $table.entryKind, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get entryId => $composableBuilder(
+      column: $table.entryId, builder: (column) => ColumnFilters(column));
+
+  $$LibraryCollectionsTableFilterComposer get collectionId {
+    final $$LibraryCollectionsTableFilterComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.collectionId,
+        referencedTable: $db.libraryCollections,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$LibraryCollectionsTableFilterComposer(
+              $db: $db,
+              $table: $db.libraryCollections,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
+}
+
+class $$LibraryCollectionMembershipsTableOrderingComposer
+    extends Composer<_$LocalDatabase, $LibraryCollectionMembershipsTable> {
+  $$LibraryCollectionMembershipsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get entryKind => $composableBuilder(
+      column: $table.entryKind, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get entryId => $composableBuilder(
+      column: $table.entryId, builder: (column) => ColumnOrderings(column));
+
+  $$LibraryCollectionsTableOrderingComposer get collectionId {
+    final $$LibraryCollectionsTableOrderingComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.collectionId,
+        referencedTable: $db.libraryCollections,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$LibraryCollectionsTableOrderingComposer(
+              $db: $db,
+              $table: $db.libraryCollections,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
+}
+
+class $$LibraryCollectionMembershipsTableAnnotationComposer
+    extends Composer<_$LocalDatabase, $LibraryCollectionMembershipsTable> {
+  $$LibraryCollectionMembershipsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get entryKind =>
+      $composableBuilder(column: $table.entryKind, builder: (column) => column);
+
+  GeneratedColumn<String> get entryId =>
+      $composableBuilder(column: $table.entryId, builder: (column) => column);
+
+  $$LibraryCollectionsTableAnnotationComposer get collectionId {
+    final $$LibraryCollectionsTableAnnotationComposer composer =
+        $composerBuilder(
+            composer: this,
+            getCurrentColumn: (t) => t.collectionId,
+            referencedTable: $db.libraryCollections,
+            getReferencedColumn: (t) => t.id,
+            builder: (joinBuilder,
+                    {$addJoinBuilderToRootComposer,
+                    $removeJoinBuilderFromRootComposer}) =>
+                $$LibraryCollectionsTableAnnotationComposer(
+                  $db: $db,
+                  $table: $db.libraryCollections,
+                  $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                  joinBuilder: joinBuilder,
+                  $removeJoinBuilderFromRootComposer:
+                      $removeJoinBuilderFromRootComposer,
+                ));
+    return composer;
+  }
+}
+
+class $$LibraryCollectionMembershipsTableTableManager extends RootTableManager<
+    _$LocalDatabase,
+    $LibraryCollectionMembershipsTable,
+    LibraryCollectionMembership,
+    $$LibraryCollectionMembershipsTableFilterComposer,
+    $$LibraryCollectionMembershipsTableOrderingComposer,
+    $$LibraryCollectionMembershipsTableAnnotationComposer,
+    $$LibraryCollectionMembershipsTableCreateCompanionBuilder,
+    $$LibraryCollectionMembershipsTableUpdateCompanionBuilder,
+    (
+      LibraryCollectionMembership,
+      $$LibraryCollectionMembershipsTableReferences
+    ),
+    LibraryCollectionMembership,
+    PrefetchHooks Function({bool collectionId})> {
+  $$LibraryCollectionMembershipsTableTableManager(
+      _$LocalDatabase db, $LibraryCollectionMembershipsTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$LibraryCollectionMembershipsTableFilterComposer(
+                  $db: db, $table: table),
+          createOrderingComposer: () =>
+              $$LibraryCollectionMembershipsTableOrderingComposer(
+                  $db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$LibraryCollectionMembershipsTableAnnotationComposer(
+                  $db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> entryKind = const Value.absent(),
+            Value<String> entryId = const Value.absent(),
+            Value<String> collectionId = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              LibraryCollectionMembershipsCompanion(
+            entryKind: entryKind,
+            entryId: entryId,
+            collectionId: collectionId,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String entryKind,
+            required String entryId,
+            required String collectionId,
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              LibraryCollectionMembershipsCompanion.insert(
+            entryKind: entryKind,
+            entryId: entryId,
+            collectionId: collectionId,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (
+                    e.readTable(table),
+                    $$LibraryCollectionMembershipsTableReferences(db, table, e)
+                  ))
+              .toList(),
+          prefetchHooksCallback: ({collectionId = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins: <
+                  T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic>>(state) {
+                if (collectionId) {
+                  state = state.withJoin(
+                    currentTable: table,
+                    currentColumn: table.collectionId,
+                    referencedTable:
+                        $$LibraryCollectionMembershipsTableReferences
+                            ._collectionIdTable(db),
+                    referencedColumn:
+                        $$LibraryCollectionMembershipsTableReferences
+                            ._collectionIdTable(db)
+                            .id,
+                  ) as T;
+                }
+
+                return state;
+              },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
+        ));
+}
+
+typedef $$LibraryCollectionMembershipsTableProcessedTableManager
+    = ProcessedTableManager<
+        _$LocalDatabase,
+        $LibraryCollectionMembershipsTable,
+        LibraryCollectionMembership,
+        $$LibraryCollectionMembershipsTableFilterComposer,
+        $$LibraryCollectionMembershipsTableOrderingComposer,
+        $$LibraryCollectionMembershipsTableAnnotationComposer,
+        $$LibraryCollectionMembershipsTableCreateCompanionBuilder,
+        $$LibraryCollectionMembershipsTableUpdateCompanionBuilder,
+        (
+          LibraryCollectionMembership,
+          $$LibraryCollectionMembershipsTableReferences
+        ),
+        LibraryCollectionMembership,
+        PrefetchHooks Function({bool collectionId})>;
 typedef $$CatalogItemsCacheTableCreateCompanionBuilder
     = CatalogItemsCacheCompanion Function({
   required String catalogKind,
@@ -28066,6 +29165,12 @@ class $LocalDatabaseManager {
   $LocalDatabaseManager(this._db);
   $$LibraryEntriesTableTableManager get libraryEntries =>
       $$LibraryEntriesTableTableManager(_db, _db.libraryEntries);
+  $$LibraryCollectionsTableTableManager get libraryCollections =>
+      $$LibraryCollectionsTableTableManager(_db, _db.libraryCollections);
+  $$LibraryCollectionMembershipsTableTableManager
+      get libraryCollectionMemberships =>
+          $$LibraryCollectionMembershipsTableTableManager(
+              _db, _db.libraryCollectionMemberships);
   $$CatalogItemsCacheTableTableManager get catalogItemsCache =>
       $$CatalogItemsCacheTableTableManager(_db, _db.catalogItemsCache);
   $$WishlistItemsCacheTableTableManager get wishlistItemsCache =>

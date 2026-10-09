@@ -18,6 +18,7 @@ class LibraryProjectionService {
     List<LibraryBucketScopeFilter> bucketScopeFilters = const [],
     List<LibraryBucket>? overrideBuckets,
     Set<String>? constrainedItemIds,
+    Set<String>? collectionEntryIds,
     LibraryFilterSelection filterSelection = LibraryFilterSelection.none,
     List<CustomFieldDefinition> customFieldDefinitions = const [],
     Map<String, List<String>> customFieldValuesByItem = const {},
@@ -39,6 +40,7 @@ class LibraryProjectionService {
       filterSelection: filterSelection,
       linkedMetadataFilter: linkedMetadataFilter,
       constrainedItemIds: constrainedItemIds,
+      collectionEntryIds: collectionEntryIds,
     );
 
     final engine = LibraryProjectionEngine();

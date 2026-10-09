@@ -1,5 +1,9 @@
 // ignore_for_file: use_build_context_synchronously
 import 'dart:async';
+import 'package:collectarr_app/core/models/library_entry_ref.dart';
+import 'package:collectarr_app/features/library/collections/library_collection_repository.dart';
+import 'package:collectarr_app/features/library/collections/library_collections_dialog.dart';
+import 'package:collectarr_app/state/local_database_provider.dart';
 import 'dart:math' as math;
 
 import 'package:collectarr_app/features/barcode/barcode_scan_sheet.dart';
@@ -94,7 +98,9 @@ class LibraryPageCollectionActionCoordinator {
     LibraryProjectionItem item,
     Offset position,
   ) async {
-    final contextSelectionIds = <String>{item.target.id};
+    final contextSelectionIds = _page.selection.itemIds.contains(item.target.id)
+        ? _page.selection.itemIds
+        : <String>{item.target.id};
     final selectionChanged =
         contextSelectionIds.length != _page.selection.itemIds.length ||
             !contextSelectionIds.containsAll(_page.selection.itemIds);
@@ -119,6 +125,27 @@ class LibraryPageCollectionActionCoordinator {
     );
     if (result == null || !_page.mounted) return;
     switch (result.action) {
+      case LibraryItemContextAction.moveToCollection:
+        final refs = projection.filteredItems
+            .where((entry) => contextSelectionIds.contains(entry.target.id))
+            .map((entry) => entry.source.libraryEntryRef)
+            .whereType<LibraryEntryRef>()
+            .toList();
+        final db = _page.ref.read(localDatabaseProvider);
+        final collections = await LibraryCollectionRepository(db)
+            .watch(_page.type.kind.apiValue)
+            .first;
+        if (!_page.mounted) return;
+        final destination = await chooseLibraryCollection(_page.context,
+            db: db,
+            kind: _page.type.kind.apiValue,
+            excluding: activeLibraryCollectionId(collections));
+        if (destination == null) return;
+        await LibraryCollectionRepository(db).move(refs, destination);
+        if (_page.mounted) {
+          _page.rebuild(_page.clearSelection);
+          _page.invalidateShelf();
+        }
       case LibraryItemContextAction.edit:
         if (isBatchSelection) {
           await bulkEditFlow(projection);

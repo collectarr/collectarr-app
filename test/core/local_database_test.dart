@@ -7,9 +7,9 @@ void main() {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
 
-    expect(db.schemaVersion, 2);
+    expect(db.schemaVersion, 3);
     final version = await db.customSelect('PRAGMA user_version').getSingle();
-    expect(version.data.values.single, 2);
+    expect(version.data.values.single, 3);
 
     final tables = await db
         .customSelect(
@@ -19,6 +19,8 @@ void main() {
     final names = tables.map((row) => row.data['name']).whereType<String>();
 
     expect(names, contains('library_entries'));
+    expect(names, contains('library_collections'));
+    expect(names, contains('library_collection_memberships'));
     expect(names, contains('catalog_items_cache'));
     expect(names, contains('comic_tracking_rows'));
     expect(names, contains('music_tracking_rows'));

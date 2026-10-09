@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'package:collectarr_app/features/library/collections/library_collection_repository.dart';
+
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
@@ -65,15 +67,19 @@ final class LibraryEntryStore {
   }
 
   Future<void> put(LibraryEntryRecord record) async {
-    await database.into(database.libraryEntries).insertOnConflictUpdate(
-          LibraryEntriesCompanion.insert(
-            id: record.id,
-            kind: record.kind.apiValue,
-            payloadJson: jsonEncode(record.toJson()),
-            updatedAt: record.updatedAt,
-            deletedAt: Value(record.deletedAt),
-          ),
-        );
+    await database.transaction(() async {
+      await database.into(database.libraryEntries).insertOnConflictUpdate(
+            LibraryEntriesCompanion.insert(
+              id: record.id,
+              kind: record.kind.apiValue,
+              payloadJson: jsonEncode(record.toJson()),
+              updatedAt: record.updatedAt,
+              deletedAt: Value(record.deletedAt),
+            ),
+          );
+      await LibraryCollectionRepository(database).assignNewEntry(
+          LibraryEntryRef(kind: record.kind, id: LibraryEntryId(record.id)));
+    });
   }
 
   Future<void> putKindJson(CatalogMediaKind kind, JsonMap json) async {

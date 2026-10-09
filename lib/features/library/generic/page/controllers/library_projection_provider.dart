@@ -27,6 +27,7 @@ class LibraryProjectionRequest {
     required this.bucketScopeFilters,
     required this.overrideBuckets,
     required this.constrainedItemIds,
+    this.collectionEntryIds,
     required this.filterSelection,
     required this.customFieldValuesByItem,
     required this.customFieldValuesByDefinitionByItem,
@@ -48,6 +49,7 @@ class LibraryProjectionRequest {
   final List<LibraryBucketScopeFilter> bucketScopeFilters;
   final List<LibraryBucket>? overrideBuckets;
   final Set<String>? constrainedItemIds;
+  final Set<String>? collectionEntryIds;
   final LibraryFilterSelection filterSelection;
   final Map<String, List<String>> customFieldValuesByItem;
   final Map<String, Map<String, String>> customFieldValuesByDefinitionByItem;
@@ -59,6 +61,7 @@ class LibraryProjectionRequest {
   bool operator ==(Object other) {
     return other is LibraryProjectionRequest &&
         shelf == other.shelf &&
+        setEquals(collectionEntryIds, other.collectionEntryIds) &&
         type == other.type &&
         viewState == other.viewState &&
         query == other.query &&
@@ -88,6 +91,7 @@ class LibraryProjectionRequest {
   @override
   int get hashCode => Object.hashAll([
         shelf,
+        Object.hashAll((collectionEntryIds?.toList() ?? <String>[])..sort()),
         type,
         viewState,
         query,
@@ -188,6 +192,7 @@ final libraryProjectionProvider = Provider.autoDispose
     bucketScopeFilters: request.bucketScopeFilters,
     overrideBuckets: request.overrideBuckets,
     constrainedItemIds: request.constrainedItemIds,
+    collectionEntryIds: request.collectionEntryIds,
     filterSelection: request.filterSelection,
     customFieldDefinitions: request.customFieldDefinitions,
     customFieldValuesByItem: request.customFieldValuesByItem,

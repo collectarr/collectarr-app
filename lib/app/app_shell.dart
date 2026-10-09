@@ -1,15 +1,13 @@
 import 'dart:async';
 
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
-import 'package:collectarr_app/core/models/smart_list_criteria.dart';
 import 'package:collectarr_app/core/routing/app_router.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/config/library_kind_style.dart';
 import 'package:collectarr_app/features/library/add/library_add_launcher.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
-import 'package:collectarr_app/features/library/generic/library_filters.dart';
-import 'package:collectarr_app/features/library/generic/smart_lists_dialog.dart';
-import 'package:collectarr_app/features/library/generic/page/collection_tabs.dart';
+import 'package:collectarr_app/features/library/collections/library_collections_dialog.dart';
+import 'package:collectarr_app/features/library/collections/library_collection_repository.dart';
 import 'package:collectarr_app/features/library/home/home_catalog.dart';
 import 'package:collectarr_app/features/library/home/home_kind_menu.dart';
 import 'package:collectarr_app/features/library/home/home_nav_models.dart';
@@ -365,17 +363,9 @@ class _AppShellState extends ConsumerState<AppShell> {
   }
 
   Future<void> _showManageCollections(LibraryKindRegistration type) async {
-    await showSmartListsDialog(
-      context: context,
-      db: ref.read(localDatabaseProvider),
-      mediaKind: type.kind.apiValue,
-      currentFilter: LibraryFilterSelection.none,
-      currentTarget: SmartListCriteriaTarget.catalog,
-      collectionManager: true,
-      allowCurrentViewUpdate: false,
-    );
+    await showLibraryCollectionsDialog(context, kind: type.kind.apiValue);
     if (mounted) {
-      ref.read(libraryCollectionTabsRevisionProvider.notifier).refresh();
+      ref.invalidate(libraryCollectionsProvider);
     }
   }
 

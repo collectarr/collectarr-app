@@ -1,245 +1,130 @@
-import 'dart:async';
-
 import 'package:collectarr_app/core/db/local_database.dart';
-import 'package:collectarr_app/core/models/smart_list_criteria.dart';
-import 'package:collectarr_app/features/collection/repositories/smart_list_repository.dart';
-import 'package:collectarr_app/features/library/generic/library_filters.dart';
+import 'package:collectarr_app/core/models/catalog_item_ref.dart';
+import 'package:collectarr_app/core/models/library_entry_ref.dart';
+import 'package:collectarr_app/features/library/collections/library_collection_repository.dart';
 import 'package:collectarr_app/features/library/generic/page/collection_tabs.dart';
-import 'package:collectarr_app/features/library/generic/smart_list.dart';
-import 'package:collectarr_app/features/library/generic/smart_lists_dialog.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
   late LocalDatabase db;
-
-  setUp(() async {
-    SharedPreferences.setMockInitialValues({});
+  late LibraryCollectionRepository repo;
+  setUp(() {
     db = LocalDatabase(NativeDatabase.memory());
+    repo = LibraryCollectionRepository(db);
+  });
+  tearDown(() => db.close());
+  Future<LibraryEntryRef> entry(String id,
+      {CatalogMediaKind kind = CatalogMediaKind.music}) async {
+    await db.into(db.libraryEntries).insert(LibraryEntriesCompanion.insert(
+        id: id,
+        kind: kind.apiValue,
+        payloadJson: '{}',
+        updatedAt: DateTime.utc(2026)));
+    final ref = LibraryEntryRef(kind: kind, id: LibraryEntryId(id));
+    await repo.assignNewEntry(ref);
+    return ref;
+  }
+
+  test(
+      'collections own exclusive membership, counts and destinations for new entries',
+      () async {
+    final album = await entry('album');
+    final main = (await repo.watch('music').first).single;
+    final vinyl = await repo.create('music', 'Vinyl');
+    expect(vinyl.count, 0);
+    await repo.move([album], vinyl.id);
+    var collections = await repo.watch('music').first;
+    expect(collections.firstWhere((c) => c.id == main.id).count, 0);
+    expect(collections.firstWhere((c) => c.id == vinyl.id).entryIds, {'album'});
+    await repo.activate(vinyl.id);
+    final newAlbum = await entry('new-album');
+    await repo.assignNewEntry(album);
+    collections = await repo.watch('music').first;
+    expect(collections.firstWhere((c) => c.id == vinyl.id).entryIds,
+        {album.id.value, newAlbum.id.value});
+    expect(activeLibraryCollectionId(collections), vinyl.id);
   });
 
-  tearDown(() async => db.close());
+  test('batch moves validate all entries and roll back cross-kind requests',
+      () async {
+    final album = await entry('album');
+    final book = await entry('book', kind: CatalogMediaKind.book);
+    final vinyl = await repo.create('music', 'Vinyl');
+    await expectLater(repo.move([album, book], vinyl.id), throwsArgumentError);
+    expect(
+        (await repo.watch('music').first)
+            .firstWhere((c) => c.id == vinyl.id)
+            .count,
+        0);
+    expect((await repo.watch('book').first).single.count, 1);
+  });
 
-  testWidgets('collection tabs select saved views and open their manager', (
-    tester,
-  ) async {
-    final list = await SmartListRepository(db).create(_smartList('Favorites'));
-    SmartList? selected;
-    var managerOpens = 0;
+  test(
+      'delete transfers membership and active selection without deleting albums',
+      () async {
+    final album = await entry('album');
+    final main = (await repo.watch('music').first).single;
+    final vinyl = await repo.create('music', 'Vinyl');
+    await repo.move([album], vinyl.id);
+    await repo.activate(vinyl.id);
+    await repo.delete(vinyl.id, moveTo: main.id);
+    final remaining = (await repo.watch('music').first).single;
+    expect(remaining.entryIds, {'album'});
+    expect(remaining.isActive, isTrue);
+    expect(await db.select(db.libraryEntries).get(), hasLength(1));
+    await expectLater(
+        repo.delete(main.id, moveTo: main.id), throwsArgumentError);
+  });
 
-    await tester.pumpWidget(
-      ProviderScope(
+  test('names and reordering are strict and kind isolated', () async {
+    await repo.ensureDefault('music');
+    final vinyl = await repo.create('music', 'Vinyl');
+    final main = (await repo.list('music')).first;
+    await repo.rename(vinyl.id, 'LPs');
+    await expectLater(repo.create('music', 'lps'), throwsArgumentError);
+    await expectLater(repo.rename(vinyl.id, '  '), throwsArgumentError);
+    await expectLater(
+        repo.reorder('music', [vinyl.id, vinyl.id]), throwsArgumentError);
+    await repo.reorder('music', [vinyl.id, main.id]);
+    expect((await repo.list('music')).map((c) => c.name),
+        ['LPs', 'Main Collection']);
+  });
+
+  testWidgets(
+      'collection tabs select real collections and open a compact manager',
+      (tester) async {
+    final vinyl = (await tester.runAsync(() async {
+      await repo.ensureDefault('music');
+      return repo.create('music', 'Vinyl');
+    }))!;
+    LibraryCollectionSummary? selected;
+    await tester.pumpWidget(ProviderScope(
         overrides: [localDatabaseProvider.overrideWithValue(db)],
         child: MaterialApp(
-          home: Scaffold(
-            body: Column(
-              children: [
-                const Expanded(child: SizedBox()),
-                LibraryCollectionTabBar(
-                  mediaKind: 'music',
-                  target: SmartListCriteriaTarget.catalog,
-                  activeSmartListId: null,
-                  onSmartListSelected: (value) => selected = value,
-                  onAllSelected: () => selected = null,
-                  accent: const Color(0xFFF2932F),
-                  onManageCollections: () async {
-                    managerOpens++;
-                  },
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
+            home: Scaffold(
+                body: Align(
+                    alignment: Alignment.bottomCenter,
+                    child: LibraryCollectionTabBar(
+                        mediaKind: 'music',
+                        accent: Colors.orange,
+                        onCollectionSelected: (value) => selected = value))))));
     await tester.pumpAndSettle();
-
-    expect(find.text('All'), findsOneWidget);
-    expect(find.text('Favorites'), findsOneWidget);
-    await tester.tap(find.text('Favorites'));
-    expect(selected?.id, list.id);
-
-    await tester.tap(find.byTooltip('Collections'));
+    expect(find.text('Main Collection'), findsOneWidget);
+    await tester.tap(find.text('Vinyl'));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Manage Collections'));
-    await tester.pumpAndSettle();
-    expect(managerOpens, 1);
-
+    expect(selected?.id, vinyl.id);
     await tester.tap(find.byKey(const ValueKey('library-collection-add')));
     await tester.pumpAndSettle();
-    expect(managerOpens, 2);
-  });
-
-  testWidgets('collection tab drag order is persisted per kind and target', (
-    tester,
-  ) async {
-    final repository = SmartListRepository(db);
-    final favorites = await repository.create(_smartList('Favorites'));
-    final recentlyAdded = await repository.create(_smartList('Recently Added'));
-
-    await tester.pumpWidget(
-      ProviderScope(
-        overrides: [localDatabaseProvider.overrideWithValue(db)],
-        child: MaterialApp(
-          home: Scaffold(
-            body: Column(
-              children: [
-                const Expanded(child: SizedBox()),
-                LibraryCollectionTabBar(
-                  mediaKind: 'music',
-                  target: SmartListCriteriaTarget.catalog,
-                  activeSmartListId: null,
-                  onSmartListSelected: (_) {},
-                  onAllSelected: () {},
-                  accent: const Color(0xFFF2932F),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-    await tester.pumpAndSettle();
-
-    final tabs = tester.widget<ReorderableListView>(
-      find.byType(ReorderableListView),
-    );
-    tabs.onReorderItem!(0, 1);
-    await tester.pumpAndSettle();
-
-    final preferences = await SharedPreferences.getInstance();
-    expect(
-      preferences.getStringList('library.collection_tabs.music.catalog'),
-      [recentlyAdded.id, favorites.id],
-    );
-    expect(
-      tester.getTopLeft(find.text('Recently Added')).dx,
-      lessThan(tester.getTopLeft(find.text('Favorites')).dx),
-    );
-  });
-
-  testWidgets('removed active collection returns the library to All', (
-    tester,
-  ) async {
-    final repository = SmartListRepository(db);
-    final removed = await repository.create(_smartList('Favorites'));
-    await repository.delete(removed.id);
-    var allSelected = 0;
-
-    await tester.pumpWidget(
-      ProviderScope(
-        overrides: [localDatabaseProvider.overrideWithValue(db)],
-        child: MaterialApp(
-          home: Scaffold(
-            body: Column(
-              children: [
-                const Expanded(child: SizedBox()),
-                LibraryCollectionTabBar(
-                  mediaKind: 'music',
-                  target: SmartListCriteriaTarget.catalog,
-                  activeSmartListId: removed.id,
-                  onSmartListSelected: (_) {},
-                  onAllSelected: () => allSelected++,
-                  accent: const Color(0xFFF2932F),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-    await tester.pumpAndSettle();
-
-    expect(allSelected, 1);
-    expect(find.text('All'), findsOneWidget);
-  });
-
-  testWidgets('collection manager creates and manages a collection', (
-    tester,
-  ) async {
-    late BuildContext pageContext;
-    await tester.pumpWidget(
-      MaterialApp(
-        home: Scaffold(
-          body: Builder(
-            builder: (context) {
-              pageContext = context;
-              return TextButton(
-                onPressed: () => unawaited(
-                  showSmartListsDialog(
-                    context: pageContext,
-                    db: db,
-                    mediaKind: 'music',
-                    currentFilter: LibraryFilterSelection.none,
-                    currentTarget: SmartListCriteriaTarget.catalog,
-                    collectionManager: true,
-                  ),
-                ),
-                child: const Text('Open manager'),
-              );
-            },
-          ),
-        ),
-      ),
-    );
-    await tester.tap(find.text('Open manager'));
-    await tester.pumpAndSettle();
-
     expect(find.text('Manage Collections'), findsOneWidget);
-    await tester.tap(find.widgetWithText(FilledButton, 'Add Collection'));
+    expect(find.text('Create new collection'), findsOneWidget);
+    expect(find.text('Private'), findsNWidgets(2));
+    expect(find.textContaining('sort:'), findsNothing);
+    expect(tester.takeException(), isNull);
+    await tester.pumpWidget(const SizedBox.shrink());
     await tester.pumpAndSettle();
-    expect(find.text('Add Collection'), findsNWidgets(2));
-    await tester.enterText(find.byType(TextField), 'Favorites');
-    await tester.tap(find.widgetWithText(FilledButton, 'Add'));
-    await tester.pumpAndSettle();
-
-    expect(find.text('Favorites'), findsOneWidget);
-    final collections = await SmartListRepository(db).getAll(
-      mediaKind: 'music',
-      target: SmartListCriteriaTarget.catalog,
-    );
-    expect(collections.map((item) => item.name), ['Favorites']);
-
-    expect(find.byTooltip('Rename collection'), findsOneWidget);
-    expect(find.byTooltip('Delete collection'), findsOneWidget);
-    await tester.tap(find.byTooltip('Collection actions'));
-    await tester.pumpAndSettle();
-    expect(find.text('Use current view'), findsOneWidget);
-
-    await tester.tapAt(tester.getTopLeft(find.text('Manage Collections')));
-    await tester.pumpAndSettle();
-    await tester.tap(find.byTooltip('Rename collection'));
-    await tester.pumpAndSettle();
-    expect(find.text('Rename Collection'), findsOneWidget);
-    await tester.enterText(find.byType(TextField), 'Pinned Albums');
-    await tester.tap(find.widgetWithText(FilledButton, 'Rename'));
-    await tester.pumpAndSettle();
-    expect(find.text('Pinned Albums'), findsOneWidget);
-
-    await tester.tap(find.byTooltip('Delete collection'));
-    await tester.pumpAndSettle();
-    expect(find.text('Delete Collection'), findsOneWidget);
-    await tester.tap(find.widgetWithText(FilledButton, 'Delete'));
-    await tester.pumpAndSettle();
-    expect(find.text('No collections yet. Add one to create a collection tab.'),
-        findsOneWidget);
-    expect(
-      await SmartListRepository(db).getAll(
-        mediaKind: 'music',
-        target: SmartListCriteriaTarget.catalog,
-      ),
-      isEmpty,
-    );
   });
 }
-
-SmartList _smartList(String name) => SmartList(
-      id: '',
-      name: name,
-      target: SmartListCriteriaTarget.catalog,
-      kinds: const ['music'],
-    );

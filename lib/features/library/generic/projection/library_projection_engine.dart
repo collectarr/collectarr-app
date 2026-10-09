@@ -51,6 +51,10 @@ class LibraryProjectionEngine {
       customFieldValuesByItem: customFieldValuesByItem,
     );
 
+    if (query.collectionEntryIds case final members?) {
+      allItems.removeWhere(
+          (item) => !members.contains(item.source.libraryEntryRef?.id.value));
+    }
     final scopedBucketItems = <LibraryProjectionItem>[];
     for (final item in allItems) {
       if (query.constrainedItemIds != null &&

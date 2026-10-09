@@ -130,9 +130,8 @@ class LibraryPageDialogCoordinator {
   // ---------------------------------------------------------------------------
 
   Future<void> showSmartListsFlow(
-    ShelfState? ignoredShelfState, {
-    bool collectionManager = false,
-  }) async {
+    ShelfState? ignoredShelfState,
+  ) async {
     final context = _page.context;
     final db = _page.ref.read(localDatabaseProvider);
     final customFieldCache = await _page.ref.read(
@@ -166,7 +165,6 @@ class LibraryPageDialogCoordinator {
           _page.searchQuery.isNotEmpty ? _page.searchQuery : null,
       currentTarget: SmartListCriteriaTarget.catalog,
       customFieldDefinitions: customFieldCache.definitions,
-      collectionManager: collectionManager,
     );
     if (result != null && _page.mounted && context.mounted) {
       _page.rebuild(() {

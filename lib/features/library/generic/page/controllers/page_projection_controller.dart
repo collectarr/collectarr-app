@@ -6,6 +6,15 @@ abstract final class _LibraryProjectionControllerOps {
     ShelfState shelf,
     LibraryWorkspaceViewState viewState,
   ) {
+    final collections = state.ref
+            .watch(libraryCollectionsProvider(state.widget.type.kind.apiValue))
+            .asData
+            ?.value ??
+        const <LibraryCollectionSummary>[];
+    final activeId = activeLibraryCollectionId(collections);
+    final members =
+        collections.where((c) => c.id == activeId).firstOrNull?.entryIds ??
+            const <String>{};
     final mode = state._activeGroupMode;
     final facetBuckets = state._facetBucketsForMode(mode, shelf);
     final constrainedItemIds = (state._usesExternalFacetBuckets(mode) &&
@@ -21,7 +30,29 @@ abstract final class _LibraryProjectionControllerOps {
       searchPinnedItemIds,
     );
     final bucketScopeFilters = state._sidebarBucketScopeFilters;
-    final overrideBuckets = facetBuckets?.buckets;
+    // Collection membership scopes both results and sidebar counts.
+    final overrideBuckets = facetBuckets == null
+        ? null
+        : [
+            for (final bucket in facetBuckets.buckets)
+              if (bucket.title == genericAllBucketLabel(state.widget.type) ||
+                  (facetBuckets.itemIdsByBucket[bucket.title] ??
+                          const <String>{})
+                      .any(members.contains))
+                LibraryBucket(
+                  title: bucket.title,
+                  count:
+                      bucket.title == genericAllBucketLabel(state.widget.type)
+                          ? members.length
+                          : (facetBuckets.itemIdsByBucket[bucket.title] ??
+                                  const <String>{})
+                              .where(members.contains)
+                              .length,
+                  coverUrl: bucket.coverUrl,
+                  startYear: bucket.startYear,
+                  missingNumbers: bucket.missingNumbers,
+                ),
+          ];
     final linkedMetadataFilter = state._session.facets.linkedMetadataFilter;
     final selectedBucket = state._usesExternalFacetBuckets(mode)
         ? null
@@ -59,6 +90,7 @@ abstract final class _LibraryProjectionControllerOps {
           bucketScopeFilters: bucketScopeFilters,
           overrideBuckets: overrideBuckets,
           constrainedItemIds: effectiveConstrainedItemIds,
+          collectionEntryIds: members,
           filterSelection: filterSelection,
           customFieldValuesByItem: customFieldValues,
           customFieldValuesByDefinitionByItem: customFieldValuesByDefinition,

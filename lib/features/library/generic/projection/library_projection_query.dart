@@ -21,6 +21,7 @@ final class LibraryProjectionQuery {
     this.filterSelection = LibraryFilterSelection.none,
     this.linkedMetadataFilter,
     this.constrainedItemIds,
+    this.collectionEntryIds,
   });
 
   final String searchQuery;
@@ -36,4 +37,5 @@ final class LibraryProjectionQuery {
   final LibraryFilterSelection filterSelection;
   final LibraryLinkedMetadataFilter? linkedMetadataFilter;
   final Set<String>? constrainedItemIds;
+  final Set<String>? collectionEntryIds;
 }

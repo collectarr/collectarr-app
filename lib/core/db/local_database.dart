@@ -2,11 +2,14 @@ import 'package:drift/drift.dart';
 import 'package:collectarr_app/core/db/open_connection.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_database_tables.g.dart';
 import 'universal_local_tables.dart';
+import 'package:collectarr_app/features/library/collections/library_collection_tables.dart';
 
 part 'local_database.g.dart';
 
 @DriftDatabase(tables: [
   LibraryEntries,
+  LibraryCollections,
+  LibraryCollectionMemberships,
   CatalogItemsCache,
   WishlistItemsCache,
   SyncQueue,
@@ -30,7 +33,7 @@ class LocalDatabase extends _$LocalDatabase {
       : super(executor ?? openConnection());
 
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 3;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -41,6 +44,10 @@ class LocalDatabase extends _$LocalDatabase {
                 pickListValuesCache, pickListValuesCache.sortName);
             await migrator.addColumn(
                 pickListValuesCache, pickListValuesCache.isHidden);
+          }
+          if (from < 3) {
+            await migrator.createTable(libraryCollections);
+            await migrator.createTable(libraryCollectionMemberships);
           }
         },
       );

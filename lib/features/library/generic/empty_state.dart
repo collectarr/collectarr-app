@@ -52,7 +52,7 @@ class LibraryEmptyState extends StatelessWidget {
                           Text(
                             hasActiveFilter
                                 ? 'No matching ${type.identity.pluralLabel.toLowerCase()}'
-                                : 'Your local ${type.identity.pluralLabel.toLowerCase()} shelf is empty',
+                                : 'This collection has no ${type.identity.pluralLabel.toLowerCase()} yet',
                             textAlign: TextAlign.center,
                             style:
                                 Theme.of(context).textTheme.panelTitle.copyWith(

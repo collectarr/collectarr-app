@@ -11,6 +11,7 @@ class LibraryItemContextMenuResult {
 
 enum LibraryItemContextAction {
   edit,
+  moveToCollection,
   compareMetadataWithServer,
   duplicate,
   addToEntry,
@@ -65,6 +66,9 @@ Future<LibraryItemContextMenuResult?> showLibraryItemContextMenu({
             ),
             const PopupMenuDivider(),
             _header('Collection', accent),
+            if (item.source.isEntry)
+              _item(context, LibraryItemContextAction.moveToCollection,
+                  Icons.drive_file_move_outline, 'Move to other collection...'),
             _item(
               context,
               LibraryItemContextAction.addToEntry,
@@ -109,6 +113,9 @@ Future<LibraryItemContextMenuResult?> showLibraryItemContextMenu({
               ),
             const PopupMenuDivider(),
             _header('Collection', accent),
+            if (item.source.isEntry)
+              _item(context, LibraryItemContextAction.moveToCollection,
+                  Icons.drive_file_move_outline, 'Move to other collection...'),
             if (!item.source.isEntry)
               _item(
                 context,

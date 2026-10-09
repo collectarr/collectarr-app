@@ -1,272 +1,104 @@
 import 'dart:async';
-
-import 'package:collectarr_app/core/models/smart_list_criteria.dart';
-import 'package:collectarr_app/features/collection/repositories/smart_list_repository.dart';
-import 'package:collectarr_app/features/library/generic/smart_list.dart';
+import 'package:collectarr_app/features/library/collections/library_collection_repository.dart';
+import 'package:collectarr_app/features/library/collections/library_collections_dialog.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
-final libraryCollectionTabsRevisionProvider =
-    NotifierProvider<LibraryCollectionTabsRevision, int>(
-  LibraryCollectionTabsRevision.new,
-);
-
-class LibraryCollectionTabsRevision extends Notifier<int> {
-  @override
-  int build() => 0;
-
-  void refresh() => state++;
-}
-
-/// Excel-style tabs backed by saved collection views for the active kind.
-class LibraryCollectionTabBar extends ConsumerStatefulWidget {
-  const LibraryCollectionTabBar({
-    super.key,
-    required this.mediaKind,
-    required this.target,
-    required this.activeSmartListId,
-    required this.onSmartListSelected,
-    required this.onAllSelected,
-    required this.accent,
-    this.onManageCollections,
-  });
-
+class LibraryCollectionTabBar extends ConsumerWidget {
+  const LibraryCollectionTabBar(
+      {super.key,
+      required this.mediaKind,
+      required this.accent,
+      this.onCollectionSelected});
   final String mediaKind;
-  final SmartListCriteriaTarget target;
-  final String? activeSmartListId;
-  final ValueChanged<SmartList> onSmartListSelected;
-  final VoidCallback onAllSelected;
   final Color accent;
-  final Future<void> Function()? onManageCollections;
-
+  final ValueChanged<LibraryCollectionSummary>? onCollectionSelected;
   @override
-  ConsumerState<LibraryCollectionTabBar> createState() =>
-      _LibraryCollectionTabBarState();
-}
-
-class _LibraryCollectionTabBarState
-    extends ConsumerState<LibraryCollectionTabBar> {
-  List<SmartList> _smartLists = const [];
-  int _loadGeneration = 0;
-
-  String get _orderKey =>
-      'library.collection_tabs.${widget.mediaKind}.${widget.target.value}';
-
-  @override
-  void initState() {
-    super.initState();
-    _loadSmartLists();
-  }
-
-  @override
-  void didUpdateWidget(LibraryCollectionTabBar oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (oldWidget.mediaKind != widget.mediaKind ||
-        oldWidget.target != widget.target) {
-      _loadSmartLists();
-    }
-  }
-
-  Future<void> _loadSmartLists() async {
-    final generation = ++_loadGeneration;
-    final mediaKind = widget.mediaKind;
-    final target = widget.target;
-    final orderKey = _orderKey;
-    final lists = await SmartListRepository(ref.read(localDatabaseProvider))
-        .getAll(mediaKind: mediaKind, target: target);
-    final preferences = await SharedPreferences.getInstance();
-    final savedOrder = preferences.getStringList(orderKey) ?? const [];
-    final remaining = {for (final list in lists) list.id: list};
-    final ordered = <SmartList>[
-      for (final id in savedOrder)
-        if (remaining.remove(id) case final list?) list,
-      ...remaining.values,
-    ];
-    if (mounted && generation == _loadGeneration) {
-      setState(() => _smartLists = ordered);
-      if (widget.activeSmartListId != null &&
-          !ordered.any((list) => list.id == widget.activeSmartListId)) {
-        widget.onAllSelected();
-      }
-    }
-  }
-
-  Future<void> _persistOrder() async {
-    final orderKey = _orderKey;
-    final orderedIds =
-        _smartLists.map((list) => list.id).toList(growable: false);
-    final preferences = await SharedPreferences.getInstance();
-    await preferences.setStringList(orderKey, orderedIds);
-  }
-
-  void _reorder(int oldIndex, int newIndex) {
-    if (oldIndex == newIndex) return;
-    setState(() {
-      final list = _smartLists.removeAt(oldIndex);
-      _smartLists.insert(newIndex, list);
-    });
-    unawaited(_persistOrder());
-  }
-
-  Future<void> _manageCollections() async {
-    final onManage = widget.onManageCollections;
-    if (onManage == null) return;
-    await onManage();
-    await _loadSmartLists();
-  }
-
-  void _selectMenuItem(String value) {
-    if (value == _allCollectionsMenuValue) {
-      widget.onAllSelected();
-    } else if (value == _manageCollectionsMenuValue) {
-      unawaited(_manageCollections());
-    } else {
-      final list = _smartLists.where((item) => item.id == value).firstOrNull;
-      if (list != null) widget.onSmartListSelected(list);
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    ref.listen(libraryCollectionTabsRevisionProvider, (previous, next) {
-      if (previous != next) _loadSmartLists();
-    });
-
+  Widget build(BuildContext context, WidgetRef ref) {
+    final collections = ref.watch(libraryCollectionsProvider(mediaKind));
+    final repo = LibraryCollectionRepository(ref.watch(localDatabaseProvider));
+    final values =
+        collections.asData?.value ?? const <LibraryCollectionSummary>[];
+    final activeId = activeLibraryCollectionId(values);
     final palette = appPalette(context);
-    final isAllActive = widget.activeSmartListId == null;
+    Future<void> select(LibraryCollectionSummary collection) async {
+      await repo.activate(collection.id);
+      onCollectionSelected?.call(collection);
+    }
+
     return Container(
-      height: 38,
-      color: palette.isDark ? const Color(0xFF272323) : palette.surface,
-      child: Column(
-        children: [
-          Container(height: 3, color: widget.accent),
+        height: 36,
+        color: palette.toolbar,
+        child: Column(children: [
+          Container(height: 3, color: accent),
           Expanded(
-            child: Row(
-              children: [
-                PopupMenuButton<String>(
-                  tooltip: 'Collections',
-                  onSelected: _selectMenuItem,
-                  itemBuilder: (context) => [
-                    PopupMenuItem<String>(
-                      value: _allCollectionsMenuValue,
-                      child: Row(
-                        children: [
-                          Icon(
-                            isAllActive ? Icons.check : Icons.grid_view,
-                            size: 17,
-                          ),
-                          const SizedBox(width: 9),
-                          const Flexible(
-                            child: Text(
-                              'All items',
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    if (_smartLists.isNotEmpty) const PopupMenuDivider(),
-                    for (final list in _smartLists)
-                      PopupMenuItem<String>(
-                        value: list.id,
-                        child: Row(
-                          children: [
-                            Icon(
-                              list.id == widget.activeSmartListId
-                                  ? Icons.check
-                                  : Icons.folder_outlined,
-                              size: 17,
-                            ),
-                            const SizedBox(width: 9),
-                            Flexible(
-                              child: Text(
-                                list.name,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    if (widget.onManageCollections != null) ...[
+              child: Row(children: [
+            PopupMenuButton<String>(
+                tooltip: 'Collections',
+                onSelected: (id) {
+                  if (id == '__manage__') {
+                    unawaited(
+                        showLibraryCollectionsDialog(context, kind: mediaKind));
+                  } else {
+                    unawaited(select(values.firstWhere((c) => c.id == id)));
+                  }
+                },
+                itemBuilder: (_) => [
+                      for (final collection in values)
+                        PopupMenuItem(
+                            value: collection.id,
+                            height: 30,
+                            child: Row(children: [
+                              Icon(
+                                  collection.id == activeId
+                                      ? Icons.check
+                                      : Icons.folder_outlined,
+                                  size: 17),
+                              const SizedBox(width: 8),
+                              Text(collection.name)
+                            ])),
                       const PopupMenuDivider(),
-                      const PopupMenuItem<String>(
-                        value: _manageCollectionsMenuValue,
-                        child: Row(
-                          children: [
-                            Icon(Icons.settings_outlined, size: 17),
-                            SizedBox(width: 9),
-                            Flexible(
-                              child: Text(
-                                'Manage Collections',
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
+                      const PopupMenuItem(
+                          value: '__manage__',
+                          height: 30,
+                          child: Text('Manage Collections')),
                     ],
-                  ],
-                  child: SizedBox(
-                    width: 38,
-                    height: 35,
-                    child: Icon(
-                      Icons.menu,
-                      size: 17,
-                      color: palette.textPrimary.withValues(alpha: 0.78),
-                    ),
-                  ),
-                ),
-                LibraryCollectionTab(
-                  label: 'All',
-                  isActive: isAllActive,
-                  accent: widget.accent,
-                  onTap: widget.onAllSelected,
-                ),
-                Expanded(
-                  child: ReorderableListView.builder(
+                child: const SizedBox(
+                    width: 34, child: Icon(Icons.menu, size: 17))),
+            Expanded(
+                child: ReorderableListView.builder(
                     scrollDirection: Axis.horizontal,
                     buildDefaultDragHandles: false,
-                    itemCount: _smartLists.length,
-                    onReorderItem: _reorder,
-                    itemBuilder: (context, index) {
-                      final list = _smartLists[index];
-                      return ReorderableDelayedDragStartListener(
-                        key: ValueKey('library-collection-tab-${list.id}'),
-                        index: index,
-                        child: LibraryCollectionTab(
-                          label: list.name,
-                          isActive: widget.activeSmartListId == list.id,
-                          accent: widget.accent,
-                          onTap: () => widget.onSmartListSelected(list),
-                        ),
-                      );
+                    itemCount: values.length,
+                    onReorderItem: (oldIndex, newIndex) async {
+                      final ids = values.map((c) => c.id).toList();
+                      final id = ids.removeAt(oldIndex);
+                      ids.insert(newIndex, id);
+                      await repo.reorder(mediaKind, ids);
                     },
-                  ),
-                ),
-                if (widget.onManageCollections != null)
-                  IconButton(
-                    key: const ValueKey('library-collection-add'),
-                    tooltip: 'Add collection',
-                    visualDensity: VisualDensity.compact,
-                    onPressed: _manageCollections,
-                    icon: Icon(
-                      Icons.add,
-                      size: 18,
-                      color: palette.textPrimary.withValues(alpha: 0.78),
-                    ),
-                  ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
+                    itemBuilder: (_, index) {
+                      final collection = values[index];
+                      return ReorderableDragStartListener(
+                          key: ValueKey(
+                              'library-collection-tab-${collection.id}'),
+                          index: index,
+                          child: LibraryCollectionTab(
+                              label: collection.name,
+                              isActive: collection.id == activeId,
+                              accent: accent,
+                              onTap: () => select(collection)));
+                    })),
+            IconButton(
+                key: const ValueKey('library-collection-add'),
+                tooltip: 'Manage Collections',
+                visualDensity: VisualDensity.compact,
+                onPressed: () =>
+                    showLibraryCollectionsDialog(context, kind: mediaKind),
+                icon: const Icon(Icons.add, size: 18)),
+          ]))
+        ]));
   }
 }
 
@@ -333,6 +165,3 @@ class LibraryCollectionTab extends StatelessWidget {
     );
   }
 }
-
-const _allCollectionsMenuValue = '\u0000all';
-const _manageCollectionsMenuValue = '\u0000manage';

@@ -1,5 +1,6 @@
 import 'package:collectarr_app/features/library/entries/library_entry_store.dart';
 import 'dart:async';
+import 'package:collectarr_app/features/library/collections/library_collection_repository.dart';
 import 'package:collectarr_app/core/logging/recoverable_error.dart';
 import 'package:collectarr_app/ui/error_card.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
@@ -16,8 +17,6 @@ import 'package:collectarr_app/features/library/config/library_search_target.dar
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/core/models/item_image.dart';
 import 'package:collectarr_app/core/models/library_entry_projection.dart';
-import 'package:collectarr_app/core/models/smart_list_criteria.dart';
-import 'package:collectarr_app/features/library/generic/smart_list.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/library/detail/library_detail_launcher.dart';
 import 'package:collectarr_app/features/library/detail/library_detail_hydration_service.dart';
@@ -741,12 +740,15 @@ class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
     _LibraryScopeControllerOps.clearFilters(this);
   }
 
-  void _applySmartList(SmartList smartList) {
-    _LibraryScopeControllerOps.applySmartList(this, smartList);
-  }
-
-  void _clearSmartList() {
-    _LibraryScopeControllerOps.clearSmartList(this);
+  void _onCollectionSelected() {
+    setState(() {
+      _session.facets.selectedBucket = null;
+      _session.facets.selectedLetter = null;
+      _session.preferences.scopeHistory = const [];
+      _session.selection.value = LibrarySelectionState.empty();
+      _session.selection.selectedId = null;
+      _session.selection.anchorId = null;
+    });
   }
 
   void _clearToolbarSearchChip() {
