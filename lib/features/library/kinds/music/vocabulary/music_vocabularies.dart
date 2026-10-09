@@ -561,14 +561,14 @@ abstract final class MusicVocabularies {
     id: MusicVocabularyIds.contributorName,
     label: 'Contributor',
     multiValue: true,
-    valuesFrom: const _MusicNameProjector('contributor_name'),
+    valuesFrom: _MusicNameProjector('contributor_name'),
   );
 
   static const instrument = VocabularyDefinition<String>(
     id: MusicVocabularyIds.instrument,
     label: 'Instrument',
     multiValue: true,
-    valuesFrom: const _MusicNameProjector('instrument'),
+    valuesFrom: _MusicNameProjector('instrument'),
   );
 
   static const country = VocabularyDefinition<String>(

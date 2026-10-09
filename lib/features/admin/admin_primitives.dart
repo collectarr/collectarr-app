@@ -5,7 +5,8 @@ const adminDialogShape = RoundedRectangleBorder(
 );
 
 class AdminMessageRow extends StatelessWidget {
-  const AdminMessageRow({required this.message, required this.isError});
+  const AdminMessageRow(
+      {super.key, required this.message, required this.isError});
 
   final String message;
   final bool isError;
@@ -27,7 +28,7 @@ class AdminMessageRow extends StatelessWidget {
 }
 
 class AdminStatusChip extends StatelessWidget {
-  const AdminStatusChip({required this.icon, required this.label});
+  const AdminStatusChip({super.key, required this.icon, required this.label});
 
   final IconData icon;
   final String label;

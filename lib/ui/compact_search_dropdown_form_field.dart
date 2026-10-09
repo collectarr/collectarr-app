@@ -11,11 +11,11 @@ class CompactSearchDropdownFormField<T> extends FormField<T> {
   CompactSearchDropdownFormField({
     super.key,
     required List<DropdownMenuItem<T>> items,
-    T? initialValue,
+    super.initialValue,
     ValueChanged<T?>? onChanged,
-    FormFieldSetter<T>? onSaved,
-    FormFieldValidator<T>? validator,
-    AutovalidateMode? autovalidateMode,
+    super.onSaved,
+    super.validator,
+    super.autovalidateMode,
     bool enabled = true,
     InputDecoration decoration = const InputDecoration(),
     Widget? hint,
@@ -62,10 +62,6 @@ class CompactSearchDropdownFormField<T> extends FormField<T> {
         _selectedItemBuilder = selectedItemBuilder,
         _barrierDismissible = barrierDismissible,
         super(
-          initialValue: initialValue,
-          onSaved: onSaved,
-          validator: validator,
-          autovalidateMode: autovalidateMode,
           enabled: enabled && onChanged != null,
           builder: (field) =>
               (field as _CompactSearchDropdownFormFieldState<T>)._buildField(),
@@ -332,8 +328,9 @@ class _CompactSearchDropdownFormFieldState<T> extends FormFieldState<T> {
       onTapOutside: (_) {
         if (_dropdown._barrierDismissible) _closeMenu();
       },
-      child: OverlayPortal.targetsRootOverlay(
+      child: OverlayPortal(
         controller: _overlayController,
+        overlayLocation: OverlayChildLocation.rootOverlay,
         overlayChildBuilder: _buildMenu,
         child: Focus(
           focusNode: _dropdown._focusNode,

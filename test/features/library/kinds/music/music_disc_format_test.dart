@@ -54,9 +54,13 @@ void main() {
       expect(json['recording_locations'], ['Abbey Road', 'Wembley']);
       expect(json['is_live'], isTrue);
       expect(json['spars_code'], 'DDD');
-      expect((json['credits'] as List).single['contributor_id'], isNull);
+      final credit =
+          (json['credits'] as List).cast<Map<String, dynamic>>().single;
+      expect(credit['contributor_id'], isNull);
       expect(
-          (json['credits'] as List).single['instruments'], ['Piano', 'Voice']);
+        credit['instruments'],
+        ['Piano', 'Voice'],
+      );
 
       final reconstructed = MusicDisc.fromJson(json);
       expect(reconstructed.recordingDate?.isoString, '2025-02');

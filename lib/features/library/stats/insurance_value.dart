@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_item_ref.dart';
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/catalog/catalog_replacement_value_repository.dart';
 import 'package:collectarr_app/features/library/entries/library_entries_repository.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';

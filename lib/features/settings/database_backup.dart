@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:typed_data';
 
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/sync/sync_cursor_store.dart';
@@ -173,13 +172,15 @@ class DatabaseBackup {
     ];
   }
 
-  Future<String> _schemaFingerprint(Iterable<dynamic> tables) async {
+  Future<String> _schemaFingerprint(
+    Iterable<TableInfo<Table, dynamic>> tables,
+  ) async {
     final schema = <Map<String, Object?>>[];
     final sortedTables = tables.toList()
-      ..sort((dynamic left, dynamic right) => (left.actualTableName as String)
-          .compareTo(right.actualTableName as String));
+      ..sort((left, right) =>
+          left.actualTableName.compareTo(right.actualTableName));
     for (final table in sortedTables) {
-      final tableName = table.actualTableName as String;
+      final tableName = table.actualTableName;
       final columns = await _readColumns(tableName);
       schema.add({
         'table': tableName,
@@ -251,12 +252,12 @@ class DatabaseBackup {
   Future<void> _replaceWith(ValidatedDatabaseBackup backup) async {
     await db.transaction(() async {
       // Clear all tables first.
-      for (final table in backup.tables) {
+      for (final table in backup._tables) {
         await db.customStatement(
           'DELETE FROM ${_quoteIdentifier(table.tableName)}',
         );
       }
-      for (final table in backup.tables) {
+      for (final table in backup._tables) {
         final quotedTableName = _quoteIdentifier(table.tableName);
         final columnNames = table.columns
             .map((column) => _quoteIdentifier(column.name))
@@ -293,9 +294,9 @@ class DatabaseBackup {
 }
 
 final class ValidatedDatabaseBackup {
-  const ValidatedDatabaseBackup._(this.tables);
+  const ValidatedDatabaseBackup._(this._tables);
 
-  final List<_ValidatedBackupTable> tables;
+  final List<_ValidatedBackupTable> _tables;
 }
 
 final class _ValidatedBackupTable {

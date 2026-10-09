@@ -1,6 +1,5 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
-import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/detail/adaptive_item_detail_presentation.dart';
 import 'package:collectarr_app/features/library/detail/library_detail_page.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
@@ -21,7 +20,7 @@ void main() {
     addTearDown(db.close);
     final type = libraryKindRegistrationForKind(CatalogMediaKind.comic);
 
-    final source = LibraryWorkspaceSource(
+    final source = testLibraryWorkspaceSource(
       itemId: 'comic-1',
       catalogData: testWorkspaceCatalogData(testCatalogItem(
         id: 'comic-1',

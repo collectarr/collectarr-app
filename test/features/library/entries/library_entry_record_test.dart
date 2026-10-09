@@ -1,5 +1,4 @@
 import 'package:collectarr_app/core/models/catalog_item_ref.dart';
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/entries/library_entry_record.dart';
 import 'package:flutter_test/flutter_test.dart';
 

@@ -24,12 +24,18 @@ class ItemImage implements ItemImageContent {
     required this.createdAt,
   });
 
+  @override
   final String id;
   final LibraryEntryRef libraryEntryRef;
+  @override
   final String imageType; // front_cover, back_cover, auxiliary
+  @override
   final Uint8List imageData;
+  @override
   final String? caption;
+  @override
   final int sortOrder;
+  @override
   final DateTime createdAt;
 
   factory ItemImage.fromJson(Map<String, Object?> json) {

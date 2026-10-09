@@ -1,4 +1,3 @@
-import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/kinds/anime/integrations/collection_csv/anime_collection_csv_import_profile.dart';
 import 'package:collectarr_app/features/library/kinds/anime/integrations/collection_csv/anime_collection_csv_projection.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -60,7 +59,7 @@ void main() {
 
   test('projects Anime catalog cells without video hierarchy erasure', () {
     final projection = const AnimeCollectionCsvProjection();
-    final entry = LibraryWorkspaceSource(
+    final entry = testLibraryWorkspaceSource(
       itemId: 'anime-1',
       catalogData: testWorkspaceCatalogData(
           testCatalogItemWithKindMetadata(testCatalogItem(

@@ -1,4 +1,3 @@
-import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/kinds/manga/integrations/collection_csv/manga_collection_csv_import_profile.dart';
 import 'package:collectarr_app/features/library/kinds/manga/integrations/collection_csv/manga_collection_csv_projection.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -60,7 +59,7 @@ void main() {
 
   test('projects Manga catalog cells with volume semantics', () {
     final projection = const MangaCollectionCsvProjection();
-    final entry = LibraryWorkspaceSource(
+    final entry = testLibraryWorkspaceSource(
       itemId: 'manga-1',
       catalogData: testWorkspaceCatalogData(
           testCatalogItemWithKindMetadata(testCatalogItem(

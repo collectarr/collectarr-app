@@ -1,5 +1,4 @@
 import 'package:collectarr_app/core/models/catalog_item_ref.dart';
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 
 class CollectionImportRow {
   const CollectionImportRow({

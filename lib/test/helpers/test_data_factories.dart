@@ -653,29 +653,6 @@ LibraryWorkspaceContext testLibraryWorkspaceContext({
 }
 
 LibraryWorkspaceContext testLibraryWorkspaceSource({
-  String itemId = 'test-item-1',
-  String kind = 'comic',
-  String title = 'Test Item',
-  CatalogItemDto? catalogItem,
-  LibraryWorkspaceKindData? catalogData,
-  TestLibraryEntry? libraryEntry,
-  LibraryEntrySummary? libraryEntrySummary,
-  WishlistItem? wishlistItem,
-  String? locationPath,
-}) =>
-    LibraryWorkspaceSource(
-      itemId: itemId,
-      kind: kind,
-      title: title,
-      catalogItem: catalogItem,
-      catalogData: catalogData,
-      libraryEntry: libraryEntry,
-      libraryEntrySummary: libraryEntrySummary,
-      wishlistItem: wishlistItem,
-      locationPath: locationPath,
-    );
-
-LibraryWorkspaceContext LibraryWorkspaceSource({
   required String itemId,
   String kind = 'comic',
   String title = 'Test Item',

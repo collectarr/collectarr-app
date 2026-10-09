@@ -39,7 +39,6 @@ final class SyntheticSpecimenDto implements LibraryWorkspaceDto {
   @override
   String? get imageUrl => null;
 
-  @override
   Iterable<String> get searchTokens => [
         specimen.specimenCode,
         specimen.epoch,

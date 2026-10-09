@@ -146,8 +146,9 @@ String _discText(Map<String, dynamic>? value) {
   final recordingDate = _partialDateText(value['recording_date']);
   if (recordingDate != null) lines.add('Recording date: $recordingDate');
   final locations = _strings(value['recording_locations']);
-  if (locations.isNotEmpty)
+  if (locations.isNotEmpty) {
     lines.add('Recording locations: ${locations.join(', ')}');
+  }
   if (value['is_live'] is bool) {
     lines
         .add('Recording type: ${value['is_live'] == true ? 'Live' : 'Studio'}');
@@ -190,10 +191,12 @@ Map<String, Map<String, dynamic>> _indexById(Object? values, String label) {
   final result = <String, Map<String, dynamic>>{};
   for (final value in _maps(values)) {
     final id = _text(value['id']);
-    if (id == null)
+    if (id == null) {
       throw FormatException('Music $label is missing its stable id.');
-    if (result.containsKey(id))
+    }
+    if (result.containsKey(id)) {
       throw FormatException('Duplicate Music $label id "$id".');
+    }
     result[id] = value;
   }
   return result;

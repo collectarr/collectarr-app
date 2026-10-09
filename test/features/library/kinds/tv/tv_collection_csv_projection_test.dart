@@ -1,4 +1,3 @@
-import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/kinds/tv/integrations/collection_csv/tv_collection_csv_import_profile.dart';
 import 'package:collectarr_app/features/library/kinds/tv/integrations/collection_csv/tv_collection_csv_projection.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -60,7 +59,7 @@ void main() {
 
   test('projects TV catalog cells without flattening episodes', () {
     final projection = const TvCollectionCsvProjection();
-    final entry = LibraryWorkspaceSource(
+    final entry = testLibraryWorkspaceSource(
       itemId: 'tv-1',
       catalogData: testWorkspaceCatalogData(
           testCatalogItemWithKindMetadata(testCatalogItem(

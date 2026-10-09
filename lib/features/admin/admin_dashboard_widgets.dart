@@ -11,6 +11,7 @@ import 'package:flutter/material.dart';
 
 class AdminPanel extends StatelessWidget {
   const AdminPanel({
+    super.key,
     required this.icon,
     required this.title,
     required this.child,

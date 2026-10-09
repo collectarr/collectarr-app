@@ -30,6 +30,7 @@ void main() {
     );
 
     // Verify 3 input text controls for YYYY, MM, DD
+    expect(changedDate, isNull);
     expect(find.byType(LibraryTextFormControl), findsNWidgets(3));
     expect(find.text('2024'), findsOneWidget);
     expect(find.text('10'), findsOneWidget);

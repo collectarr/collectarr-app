@@ -1,4 +1,3 @@
-import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/kinds/comic/integrations/comic_info/comic_info_export.dart';
 import 'package:collectarr_app/features/library/kinds/comic/integrations/comic_info/comic_info_xml.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_catalog_item.dart';
@@ -9,7 +8,7 @@ import '../../helpers/test_data_factories.dart';
 void main() {
   test('ComicInfo export is contributed from a typed Comic boundary', () {
     final previews = comicInfoExportPreviews([
-      LibraryWorkspaceSource(
+      testLibraryWorkspaceSource(
         itemId: 'comic-1',
         catalogData: testWorkspaceCatalogData(testCatalogItem(
           id: 'comic-1',

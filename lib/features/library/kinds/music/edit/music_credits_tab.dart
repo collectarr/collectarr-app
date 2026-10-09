@@ -25,7 +25,7 @@ final class MusicAlbumCreditsEditor {
   final MusicAlbumEditDraft _draft;
   final List<_MusicCreditEditRow> _rows;
 
-  List<_MusicCreditEditRow> get rows => List.unmodifiable(_rows);
+  List<_MusicCreditEditRow> get _rowsView => List.unmodifiable(_rows);
 
   List<({String id, String label})> get scopes => [
         (id: 'album', label: 'Album'),
@@ -150,7 +150,7 @@ final class _MusicAlbumCreditsTabState extends State<MusicAlbumCreditsTab> {
           ),
         ),
         const SizedBox(height: 8),
-        if (editor.rows.isEmpty)
+        if (editor._rowsView.isEmpty)
           const Padding(
             padding: EdgeInsets.symmetric(vertical: 24),
             child: Center(child: Text('No credits added.')),
@@ -171,7 +171,7 @@ final class _MusicAlbumCreditsTabState extends State<MusicAlbumCreditsTab> {
                 DataColumn(label: SizedBox.shrink()),
               ],
               rows: [
-                for (final row in editor.rows)
+                for (final row in editor._rowsView)
                   DataRow(
                     key: ValueKey(row.id),
                     cells: [

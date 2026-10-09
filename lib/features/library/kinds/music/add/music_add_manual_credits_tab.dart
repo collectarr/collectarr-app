@@ -139,8 +139,7 @@ final class _MusicAddManualCreditsTabState
                         SizedBox(
                           width: 150,
                           child: DropdownButtonFormField<String>(
-                            initialValue:
-                                credit.discId == null ? 'album' : credit.discId,
+                            initialValue: credit.discId ?? 'album',
                             isExpanded: true,
                             decoration: const InputDecoration(
                               isDense: true,

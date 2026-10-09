@@ -159,8 +159,9 @@ class WatchHistorySection extends ConsumerWidget {
     }
     final season = session.seasonNumber;
     final episode = session.episodeNumber;
-    if (season != null && episode != null)
+    if (season != null && episode != null) {
       return 'Season $season, Episode $episode';
+    }
     if (season != null) return 'Season $season';
     return 'This item';
   }

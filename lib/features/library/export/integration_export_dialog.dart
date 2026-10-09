@@ -112,7 +112,8 @@ class _IntegrationExportDialog extends ConsumerWidget {
       ExportFormat.xml => _toXml(),
       ExportFormat.markdown => _toMarkdown(type),
     };
-    Clipboard.setData(ClipboardData(text: data));
+    await Clipboard.setData(ClipboardData(text: data));
+    if (!context.mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text('Copied ${format.label} to clipboard')),
     );

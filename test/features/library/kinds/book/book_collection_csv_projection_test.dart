@@ -1,4 +1,3 @@
-import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/kinds/book/integrations/collection_csv/book_collection_csv_import_profile.dart';
 import 'package:collectarr_app/features/library/kinds/book/integrations/collection_csv/book_collection_csv_projection.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -60,7 +59,7 @@ void main() {
 
   test('projects Book catalog cells with edition semantics', () {
     final projection = const BookCollectionCsvProjection();
-    final entry = LibraryWorkspaceSource(
+    final entry = testLibraryWorkspaceSource(
       itemId: 'book-1',
       catalogData: testWorkspaceCatalogData(
           testCatalogItemWithKindMetadata(testCatalogItem(

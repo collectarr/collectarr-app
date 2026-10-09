@@ -6,7 +6,6 @@ import 'package:collectarr_app/features/library/kinds/music/domain/music_credit.
 import 'package:collectarr_app/features/library/kinds/music/domain/music_disc.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_disc_format_family.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_ids.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_track.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit/music_album_edit_draft.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -90,11 +89,13 @@ void main() {
 
     final album = MusicCatalogMapper.mapMetadataItemToMusic(source);
     final encoded = MusicCatalogMapper.toCatalogItemDto(album).kindData;
-    final artistCredits = encoded['artist_credits'] as List;
-    final albumCredits = encoded['credits'] as List;
-    final disc = (encoded['discs'] as List).single as Map;
-    final discCredits = disc['credits'] as List;
-    final track = (disc['tracks'] as List).single as Map;
+    final artistCredits =
+        (encoded['artist_credits'] as List).cast<Map<String, dynamic>>();
+    final albumCredits =
+        (encoded['credits'] as List).cast<Map<String, dynamic>>();
+    final disc = (encoded['discs'] as List).cast<Map<String, dynamic>>().single;
+    final discCredits = (disc['credits'] as List).cast<Map<String, dynamic>>();
+    final track = (disc['tracks'] as List).cast<Map<String, dynamic>>().single;
 
     expect(encoded['revision'], 7);
     expect(encoded['artist'], 'Display artist');

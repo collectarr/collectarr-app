@@ -9,7 +9,6 @@ import 'package:collectarr_app/features/library/workspace/chrome/library_workspa
 import 'package:collectarr_app/features/library/workspace/chrome/library_workspace_menus.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_tokens.dart';
 import 'package:collectarr_app/features/pick_lists/widgets/pick_list_chrome.dart';
-import 'package:collectarr_app/ui/theme/app_typography.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 

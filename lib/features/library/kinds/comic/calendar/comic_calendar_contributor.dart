@@ -1,5 +1,4 @@
 import 'package:collectarr_app/core/models/calendar_event.dart';
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/config/library_calendar_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/comic/data/comic_repository.dart';
 import 'package:collectarr_app/core/models/catalog_item_ref.dart';

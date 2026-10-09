@@ -1,6 +1,5 @@
 import 'package:collectarr_app/features/library/kinds/comic/integrations/collection_csv/comic_collection_csv_projection.dart';
 import 'package:collectarr_app/features/library/kinds/comic/integrations/collection_csv/comic_collection_csv_import_profile.dart';
-import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 
@@ -48,7 +47,7 @@ void main() {
 
   test('projects Comic catalog and entry cells at the CSV boundary', () {
     final projection = const ComicCollectionCsvProjection();
-    final entry = LibraryWorkspaceSource(
+    final entry = testLibraryWorkspaceSource(
       itemId: 'comic-1',
       catalogData: testWorkspaceCatalogData(
           testCatalogItemWithKindMetadata(testCatalogItem(

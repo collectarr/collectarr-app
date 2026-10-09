@@ -1,5 +1,4 @@
 import 'package:collectarr_app/features/collection/csv/import_export/import_export_wizard.dart';
-import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/actions/import_export_actions.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:flutter/material.dart';
@@ -25,7 +24,7 @@ void main() {
             body: ImportExportWizardDialog(
               profiles: collectionCsvKindProfiles,
               entries: [
-                LibraryWorkspaceSource(
+                testLibraryWorkspaceSource(
                   itemId: 'comic-1',
                   catalogData: testWorkspaceCatalogData(testCatalogItem(
                     id: 'comic-1',

@@ -1,5 +1,4 @@
 import 'package:collectarr_app/features/library/edit/sections/library_entry_personal_section.dart';
-import 'package:collectarr_app/features/library/edit/contracts/library_external_links_edit_session.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_entry_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_contributors.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_personal_field_registry.dart';
@@ -200,7 +199,6 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
     final mediaKind = widget.type.kind.apiValue;
     final libraryEntryRef =
         _draft.libraryEntry?.ref ?? _draft.libraryEntryDispatch?.ref;
-    final entrySession = _draft.session.entrySession;
     if (libraryEntryRef != null) {
       await _draft.userExternalLinks.load(
         db,

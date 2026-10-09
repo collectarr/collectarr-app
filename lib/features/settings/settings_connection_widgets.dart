@@ -15,7 +15,7 @@ import 'package:qr_flutter/qr_flutter.dart';
 // ---------------------------------------------------------------------------
 
 class SettingsPairingCodeDialog extends StatefulWidget {
-  const SettingsPairingCodeDialog();
+  const SettingsPairingCodeDialog({super.key});
 
   @override
   State<SettingsPairingCodeDialog> createState() =>
@@ -63,7 +63,7 @@ class _SettingsPairingCodeDialogState extends State<SettingsPairingCodeDialog> {
 }
 
 class SettingsPairingQrDialog extends StatelessWidget {
-  const SettingsPairingQrDialog({required this.code});
+  const SettingsPairingQrDialog({super.key, required this.code});
 
   final String code;
 
@@ -119,7 +119,7 @@ class SettingsPairingQrDialog extends StatelessWidget {
 }
 
 class SettingsSyncWebWarning extends StatelessWidget {
-  const SettingsSyncWebWarning();
+  const SettingsSyncWebWarning({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -155,7 +155,7 @@ class SettingsSyncWebWarning extends StatelessWidget {
 
 class SettingsDiagnosticRow extends StatelessWidget {
   const SettingsDiagnosticRow(
-      {required this.diagnostic, required this.idleLabel});
+      {super.key, required this.diagnostic, required this.idleLabel});
 
   final SettingsDiagnosticState? diagnostic;
   final String idleLabel;
@@ -185,6 +185,7 @@ class SettingsDiagnosticRow extends StatelessWidget {
 
 class SettingsStatusChip extends StatelessWidget {
   const SettingsStatusChip({
+    super.key,
     required this.icon,
     required this.label,
     this.isError = false,
@@ -211,6 +212,7 @@ class SettingsStatusChip extends StatelessWidget {
 
 class SettingsSyncServiceSummary extends StatelessWidget {
   const SettingsSyncServiceSummary({
+    super.key,
     required this.status,
     required this.devices,
   });
@@ -290,6 +292,7 @@ class SettingsSyncServiceSummary extends StatelessWidget {
 
 class SettingsSyncConflictSummary extends StatelessWidget {
   const SettingsSyncConflictSummary({
+    super.key,
     required this.changes,
     required this.onKeepLocal,
     required this.onDismiss,
