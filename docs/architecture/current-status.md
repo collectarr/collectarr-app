@@ -93,18 +93,19 @@ run.
   Core schema/contract tests pass. Music domain, edit, workspace grouping, and
   export tests pass; the Windows debug build and Windows integration smoke
   tests pass.
-- The full App test run still has 18 failing test cases. Failures include
-  assertions against removed registry/provider names and old field IDs, plus
-  cross-kind CSV projections whose expected values do not match current
-  workspace data. These need to be reconciled with the strict contracts and
-  verified before Stage M closes.
+- The full App unit/widget test suite now passes. Its stale expectations were
+  updated to the current typed registries, field IDs, versioned preference
+  keys, TV shared-tab composition, and current Comic Drift tables. CSV fixtures
+  now use canonical per-kind wire fields; this exposed and fixed Game export
+  cells that had repeated the edition title instead of exporting the item
+  number and edition title separately.
 - `tool/check_library_kind_boundaries.dart` still fails with 318 AST boundary
   violations and 364 complexity-budget findings, including stale baseline
   entries. The full Core suite also has 11 failures (106 passed, 36 skipped),
   including tests that require a local PostgreSQL service. Core lint, bundle,
   generated contract documentation, and targeted schema/contract tests pass.
-  Stage M remains open until these release-gate failures are resolved or
-  verified against the intended CI environment.
+  Stage M remains open until the repository-wide architecture guard and full
+  Core suite pass in the intended test environment.
 
 ## Active Music v2 refactor
 
