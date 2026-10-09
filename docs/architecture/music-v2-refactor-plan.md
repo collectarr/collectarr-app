@@ -223,7 +223,9 @@ role arrays, family guessing, format ambiguity, duplicate capability flags,
 and redundant sort/group/facet IDs. Do not add compatibility or migration
 layers. Workspace column definitions, Music sorts, and date/money formatting
 now live in separate modules; the former mixed schema-support helper is
-deleted. Remaining work is the physical layout pass and a complete orphan audit.
+deleted. A strict filename import audit found and removed the unused
+`music_domain.dart` barrel; the remaining Music edit helpers have active
+consumers. Remaining work is the final layout pass and cross-tree legacy audit.
 
 ### M. Performance, documentation, and release gate
 
