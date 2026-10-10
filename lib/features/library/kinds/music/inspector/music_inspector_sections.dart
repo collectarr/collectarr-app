@@ -2,7 +2,6 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 
 import 'package:collectarr_app/features/library/kinds/music/data/music_library_entry_projection.dart';
-import 'package:collectarr_app/features/library/details/library_inspector_title_card.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/config/library_search_target.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
@@ -34,11 +33,10 @@ import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:collectarr_app/features/library/generic/external_links.dart';
 
 MusicInspectorViewModel _musicModel(LibraryProjectionView item) =>
     MusicInspectorViewModel.from(item);
-
-MusicAlbum? _musicItem(LibraryProjectionView item) => _musicModel(item).music;
 
 Widget buildMusicInspectorHero(
         BuildContext context, LibraryInspectorRequest request) =>
@@ -50,7 +48,6 @@ List<Widget> buildMusicInspectorSections(
   Widget section(String title, Widget child) => LibraryDetailSection(
       title: title, accentColor: request.accent, children: [child]);
   return [
-    section('Overview', _MusicInspectorMain(inspector: request)),
     if (model.discs.isNotEmpty) ...[
       section('Track List', _MusicInspectorTracks(inspector: request)),
       section('Disc Details', _MusicDiscDetails(inspector: request)),
@@ -334,34 +331,22 @@ class _MusicListenEventTile extends ConsumerWidget {
   }
 }
 
-class _MusicInspectorHeader extends StatelessWidget {
+class _MusicInspectorHeader extends ConsumerWidget {
   const _MusicInspectorHeader({required this.inspector});
 
   final LibraryInspectorRequest inspector;
 
   @override
-  Widget build(BuildContext context) {
-    final music = _musicItem(inspector.item);
-    final artist = music?.artist?.trim();
-    return LibraryInspectorTitleCard(
-      item: inspector.item,
-      eyebrow: artist,
-      accent: inspector.accent,
-    );
-  }
-}
-
-class _MusicInspectorMain extends ConsumerWidget {
-  const _MusicInspectorMain({required this.inspector});
-  final LibraryInspectorRequest inspector;
-  @override
   Widget build(BuildContext context, WidgetRef ref) {
     final model = _musicModel(inspector.item);
     final music = model.music;
+    final palette = appPalette(context);
+
     final images = ref
         .watch(musicAlbumImagesProvider(inspector.item.target.id))
         .maybeWhen(
-            data: (images) => images, orElse: () => const <MusicAlbumImage>[]);
+            data: (images) => images,
+            orElse: () => const <MusicAlbumImage>[]);
     final front = images
         .where((image) =>
             image.purpose == MusicAlbumImagePurpose.cover &&
@@ -372,54 +357,308 @@ class _MusicInspectorMain extends ConsumerWidget {
             image.purpose == MusicAlbumImagePurpose.cover &&
             image.imageType == 'back_cover')
         .firstOrNull;
-    LibraryDetailField field(String label, String value) => LibraryDetailField(
-        label: label,
-        value: value,
-        onTap: inspector.onFilterByValue == null
-            ? null
-            : () => inspector.onFilterByValue!(value));
-    return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-      Center(
-          child: SizedBox(
-              width: 250,
-              height: 270,
+
+    final onFilter = inspector.onFilterByValue;
+    final isOwned = inspector.item.source.isEntry;
+    final artist = music.artist?.trim();
+    final year = music.releaseDateParts?.year ??
+        music.originalReleaseDateParts?.year;
+    final label = music.publisher?.trim();
+    final country = musicCountryName(music.countryCode);
+    final trackCount = model.tracks.where((track) => !track.isHeader).length;
+    final totalDuration = _formatTotalDuration(model.tracks);
+
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: palette.surface.withValues(alpha: 0.9),
+        borderRadius: BorderRadius.circular(6),
+        border: Border.all(color: palette.divider),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(10),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SizedBox(
+              width: 125,
               child: _MusicInspectorCover(
-                  title: music.title,
-                  item: music,
-                  imageUrl: music.coverImageUrl,
-                  frontCoverBytes: front?.imageData,
-                  backCoverBytes: back?.imageData,
-                  accent: inspector.accent))),
-      const SizedBox(height: 10),
-      LibraryDetailFieldTable(showHeader: false, fields: [
-        if (music.artist?.isNotEmpty == true) field('Artist', music.artist!),
-        if (music.publisher?.isNotEmpty == true)
-          field('Label', music.publisher!),
-        if (music.releaseDateParts != null)
-          field('Released', music.releaseDateParts!.toString()),
-        for (final genre in music.genres) field('Genre', genre),
-        if (inspector.trackingSummary?.rating != null)
-          LibraryDetailField(
-              label: 'Rating',
-              value: inspector.trackingSummary!.rating.toString()),
-        if (music.barcode?.isNotEmpty == true) field('Barcode', music.barcode!),
-        if (musicCountryName(music.countryCode) case final country?)
-          field('Country', country),
-        LibraryDetailField(label: 'Format', value: music.formatSummary ?? '-'),
-        LibraryDetailField(
-            label: 'Discs', value: model.discs.length.toString()),
-        LibraryDetailField(
-            label: 'Tracks',
-            value: model.tracks
-                .where((track) => !track.isHeader)
-                .length
-                .toString()),
-        if (_formatTotalDuration(model.tracks) case final duration?)
-          LibraryDetailField(label: 'Length', value: duration),
-        if (music.catalogNumber?.isNotEmpty == true)
-          field('Catalog number', music.catalogNumber!),
-      ]),
-    ]);
+                title: music.title,
+                item: music,
+                imageUrl: music.coverImageUrl,
+                frontCoverBytes: front?.imageData,
+                backCoverBytes: back?.imageData,
+                accent: const Color(0xFF2A9FD6),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: artist != null && artist.isNotEmpty
+                            ? InkWell(
+                                mouseCursor: onFilter != null
+                                    ? SystemMouseCursors.click
+                                    : MouseCursor.defer,
+                                onTap: onFilter != null
+                                    ? () => onFilter(artist)
+                                    : null,
+                                borderRadius: BorderRadius.circular(2),
+                                child: Text(
+                                  artist,
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .titleMedium
+                                      ?.copyWith(
+                                        color: palette.isDark
+                                            ? Colors.white
+                                            : palette.textPrimary,
+                                        fontWeight: FontWeight.w700,
+                                        fontSize: 15,
+                                        height: 1.2,
+                                      ),
+                                ),
+                              )
+                            : const SizedBox.shrink(),
+                      ),
+                      if (isOwned) ...[
+                        const SizedBox(width: 6),
+                        Tooltip(
+                          message: 'In Collection',
+                          child: Container(
+                            width: 20,
+                            height: 20,
+                            decoration: BoxDecoration(
+                              color: const Color(0xFF2A9FD6),
+                              borderRadius: BorderRadius.circular(3),
+                            ),
+                            child: const Center(
+                              child: Icon(
+                                Icons.check,
+                                size: 13,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    music.title,
+                    style: const TextStyle(
+                      color: Color(0xFF2A9FD6),
+                      fontSize: 19,
+                      fontWeight: FontWeight.w800,
+                      height: 1.15,
+                    ),
+                  ),
+                  const SizedBox(height: 5),
+                  if ((label != null && label.isNotEmpty) || year != null) ...[
+                    Wrap(
+                      crossAxisAlignment: WrapCrossAlignment.center,
+                      spacing: 4,
+                      children: [
+                        if (label != null && label.isNotEmpty)
+                          InkWell(
+                            mouseCursor: onFilter != null
+                                ? SystemMouseCursors.click
+                                : MouseCursor.defer,
+                            onTap: onFilter != null
+                                ? () => onFilter(label)
+                                : null,
+                            borderRadius: BorderRadius.circular(2),
+                            child: Text(
+                              label,
+                              style: TextStyle(
+                                color: palette.textPrimary,
+                                fontWeight: FontWeight.w600,
+                                fontSize: 13,
+                              ),
+                            ),
+                          ),
+                        if (year != null)
+                          InkWell(
+                            mouseCursor: onFilter != null
+                                ? SystemMouseCursors.click
+                                : MouseCursor.defer,
+                            onTap: onFilter != null
+                                ? () => onFilter(year.toString())
+                                : null,
+                            borderRadius: BorderRadius.circular(2),
+                            child: Text(
+                              '($year)',
+                              style: TextStyle(
+                                color: palette.textMuted,
+                                fontWeight: FontWeight.w600,
+                                fontSize: 13,
+                              ),
+                            ),
+                          ),
+                      ],
+                    ),
+                    const SizedBox(height: 4),
+                  ],
+                  if (music.genres.isNotEmpty) ...[
+                    Wrap(
+                      crossAxisAlignment: WrapCrossAlignment.center,
+                      spacing: 4,
+                      runSpacing: 2,
+                      children: [
+                        for (var i = 0; i < music.genres.length; i++) ...[
+                          InkWell(
+                            mouseCursor: onFilter != null
+                                ? SystemMouseCursors.click
+                                : MouseCursor.defer,
+                            onTap: onFilter != null
+                                ? () => onFilter(music.genres[i])
+                                : null,
+                            borderRadius: BorderRadius.circular(2),
+                            child: Text(
+                              music.genres[i],
+                              style: TextStyle(
+                                color: palette.textMuted,
+                                fontSize: 12,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ),
+                          if (i < music.genres.length - 1)
+                            Text(
+                              '|',
+                              style: TextStyle(
+                                color: palette.divider,
+                                fontSize: 11,
+                              ),
+                            ),
+                        ],
+                      ],
+                    ),
+                    const SizedBox(height: 4),
+                  ],
+                  if (music.barcode?.isNotEmpty == true || country != null) ...[
+                    Wrap(
+                      crossAxisAlignment: WrapCrossAlignment.center,
+                      spacing: 6,
+                      runSpacing: 2,
+                      children: [
+                        if (music.barcode?.isNotEmpty == true)
+                          Text(
+                            'Barcode ${music.barcode!}',
+                            style: TextStyle(
+                              color: palette.textMuted,
+                              fontSize: 12,
+                            ),
+                          ),
+                        if (music.barcode?.isNotEmpty == true &&
+                            country != null)
+                          Text(
+                            '•',
+                            style: TextStyle(
+                              color: palette.divider,
+                              fontSize: 10,
+                            ),
+                          ),
+                        if (country != null)
+                          Text(
+                            country,
+                            style: TextStyle(
+                              color: palette.textMuted,
+                              fontSize: 12,
+                            ),
+                          ),
+                      ],
+                    ),
+                    const SizedBox(height: 4),
+                  ],
+                  Builder(
+                    builder: (context) {
+                      final metrics = <String>[
+                        if (model.discs.isNotEmpty)
+                          '${model.discs.length} ${model.discs.length == 1 ? 'Disc' : 'Discs'}',
+                        if (trackCount > 0) '$trackCount Tracks',
+                        if (totalDuration != null) totalDuration,
+                      ];
+                      if (metrics.isEmpty) return const SizedBox.shrink();
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 4),
+                        child: Text(
+                          metrics.join(' | '),
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w700,
+                            color: palette.textPrimary,
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                  Wrap(
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    spacing: 8,
+                    runSpacing: 4,
+                    children: [
+                      if (music.catalogNumber?.isNotEmpty == true)
+                        Text(
+                          'cat no ${music.catalogNumber!}',
+                          style: TextStyle(
+                            color: palette.textMuted,
+                            fontSize: 12,
+                          ),
+                        ),
+                      InkWell(
+                        mouseCursor: SystemMouseCursors.click,
+                        onTap: () {
+                          final query = [
+                            if (music.artist?.trim().isNotEmpty == true)
+                              music.artist!.trim(),
+                            music.title.trim(),
+                            if (music.catalogNumber?.trim().isNotEmpty == true)
+                              music.catalogNumber!.trim(),
+                          ].join(' ');
+                          launchEbaySearch(query);
+                        },
+                        borderRadius: BorderRadius.circular(3),
+                        child: const Padding(
+                          padding:
+                              EdgeInsets.symmetric(horizontal: 2, vertical: 1),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                'eBay',
+                                style: TextStyle(
+                                  color: Color(0xFF2A9FD6),
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w700,
+                                  decoration: TextDecoration.underline,
+                                  decorationColor: Color(0xFF2A9FD6),
+                                ),
+                              ),
+                              SizedBox(width: 2),
+                              Icon(
+                                Icons.open_in_new,
+                                size: 11,
+                                color: Color(0xFF2A9FD6),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }
 
@@ -694,48 +933,55 @@ final class _MusicInspectorCoverState extends State<_MusicInspectorCover> {
         ),
       );
 
-  Widget _selectorDot(bool back) => Tooltip(
-        message: back ? 'Back cover' : 'Front cover',
-        child: GestureDetector(
-          onTap: () => setState(() => _showBack = back),
-          child: MouseRegion(
-            cursor: SystemMouseCursors.click,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 120),
-                width: _showBack == back ? 10 : 8,
-                height: _showBack == back ? 10 : 8,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: _showBack == back
-                      ? widget.accent
-                      : Colors.white.withValues(alpha: 0.55),
-                ),
+  Widget _selectorDot(bool back) {
+    final isSelected = _showBack == back;
+    return Tooltip(
+      message: back
+          ? (_hasBack ? 'Back cover' : 'Back cover (empty)')
+          : 'Front cover',
+      child: GestureDetector(
+        onTap: () => setState(() => _showBack = back),
+        child: MouseRegion(
+          cursor: SystemMouseCursors.click,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 120),
+              width: isSelected ? 8 : 6,
+              height: isSelected ? 8 : 6,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: isSelected
+                    ? const Color(0xFF2A9FD6)
+                    : Colors.white.withValues(alpha: 0.45),
               ),
             ),
           ),
         ),
-      );
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     return Column(
+      mainAxisSize: MainAxisSize.min,
       children: [
-        Expanded(
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(4),
-            child: _cover(back: _showBack),
+        ClipRRect(
+          borderRadius: BorderRadius.circular(4),
+          child: _cover(back: _showBack),
+        ),
+        const SizedBox(height: 6),
+        SizedBox(
+          height: 16,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              _selectorDot(false),
+              _selectorDot(true),
+            ],
           ),
         ),
-        if (_hasBack)
-          SizedBox(
-            height: 18,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [_selectorDot(false), _selectorDot(true)],
-            ),
-          ),
       ],
     );
   }
