@@ -1,6 +1,6 @@
 import 'package:collectarr_app/core/models/custom_field.dart';
-import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/core/models/library_entry_projection.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_workspace_context.dart';
 import 'package:flutter/material.dart';
 
 /// Describes the data type of a transferable field.
@@ -251,12 +251,18 @@ class TransferableField {
 final class TransferableLibraryEntry {
   const TransferableLibraryEntry({
     required this.ref,
-    required this.catalogRef,
     required this.value,
   });
 
+  static TransferableLibraryEntry? fromWorkspaceContext(
+      LibraryWorkspaceContext source) {
+    final value = source.libraryEntryDispatch?.value;
+    final ref = source.libraryEntryRef;
+    if (value == null || ref == null) return null;
+    return TransferableLibraryEntry(ref: ref, value: value);
+  }
+
   final LibraryEntryRef ref;
-  final CatalogItemRef catalogRef;
   final Object value;
 }
 

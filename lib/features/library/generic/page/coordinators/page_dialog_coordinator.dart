@@ -43,21 +43,6 @@ class LibraryPageDialogCoordinator {
 
   final LibraryPageCoordinatorContext _page;
 
-  TransferableLibraryEntry? _transferItem(LibraryProjectionItem item) {
-    final source = item.source;
-    final value = source.libraryEntryDispatch;
-    final ref = source.libraryEntryRef;
-    final catalogRef = source.sourceCatalogRef;
-    if (value == null || ref == null || catalogRef == null) {
-      return null;
-    }
-    return TransferableLibraryEntry(
-      ref: ref,
-      catalogRef: catalogRef,
-      value: value,
-    );
-  }
-
   // ---------------------------------------------------------------------------
   // Add / reveal
   // ---------------------------------------------------------------------------
@@ -394,7 +379,9 @@ class LibraryPageDialogCoordinator {
     );
     final items = <TransferableLibraryEntry>{
       for (final item in projection.filteredItems)
-        if (_transferItem(item) case final entry?) entry,
+        if (TransferableLibraryEntry.fromWorkspaceContext(item.source)
+            case final entry?)
+          entry,
     }.toList(growable: false);
     if (items.isEmpty || !_page.mounted) return;
 
@@ -438,7 +425,9 @@ class LibraryPageDialogCoordinator {
     final items = <TransferableLibraryEntry>{
       for (final item in projection.filteredItems)
         if (_page.selection.itemIds.contains(item.target.id))
-          if (_transferItem(item) case final entry?) entry,
+          if (TransferableLibraryEntry.fromWorkspaceContext(item.source)
+              case final entry?)
+            entry,
     }.toList(growable: false);
     if (items.isEmpty || !_page.mounted) return;
 
