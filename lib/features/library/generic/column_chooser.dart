@@ -19,6 +19,18 @@ Future<Set<String>?> showGenericLibraryColumnChooser({
   }
   final workspace = libraryKindWorkspaceForKind(type.kind);
   final fields = workspace.fields;
+  final availableColumns = {
+    for (final column in fields.columns) column.id.value
+  };
+  final labels = {
+    for (final column in fields.columns) column.id.value: column.metadata.label
+  };
+  final presets = libraryPresentationForKind(type.kind)
+      .columnFavorites
+      .where(
+        (preset) => availableColumns.containsAll(preset.columns),
+      )
+      .toList(growable: false);
   return showDialog<Set<String>>(
     context: context,
     builder: (context) => LibraryColumnChooserDialog(
@@ -31,15 +43,21 @@ Future<Set<String>?> showGenericLibraryColumnChooser({
       defaultColumns: {
         for (final column in fields.defaultVisibleColumns) column.value,
       },
-      columnLabel: (column) => workspace.columnDisplayName(
-        fields.decodeColumnId(column),
-      ),
+      primaryColumn: fields.primaryColumn.value,
+      presets: presets,
+      columnLabel: (column) {
+        final label =
+            workspace.columnDisplayName(fields.decodeColumnId(column));
+        return label.trim().isEmpty ? labels[column] ?? column : label;
+      },
       accent: type.identity.accent,
       columnGroup: (column) => workspace.columnGroup(
         fields.decodeColumnId(column),
       ),
       groupLabel: workspace.columnGroupLabel,
-      savedPresets: savedPresets,
+      savedPresets: savedPresets
+          .where((preset) => availableColumns.containsAll(preset.columns))
+          .toList(growable: false),
       pinnedFavoriteKeys: pinnedFavoriteKeys,
       onTogglePinnedFavorite: onTogglePinnedFavorite,
       onSavePreset: (label, columns) => store.savePreset(
