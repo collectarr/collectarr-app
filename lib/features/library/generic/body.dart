@@ -356,7 +356,7 @@ class LibraryBody extends StatelessWidget {
           type: type,
           projection: projection,
           item: selected,
-          libraryEntry: null,
+          libraryEntry: selected?.source.libraryEntrySummary,
           libraryEntryDispatch: selected?.source.libraryEntryDispatch,
           detailsLayout: viewState.detailsLayout,
           densityPreset: viewState.densityPreset,

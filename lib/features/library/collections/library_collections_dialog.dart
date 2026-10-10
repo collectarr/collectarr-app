@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/db/local_database.dart';
+import 'package:collectarr_app/features/library/config/library_kind_style.dart';
 import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/collections/library_collection_repository.dart';
@@ -25,7 +26,10 @@ Future<String?> chooseLibraryCollection(BuildContext context,
   if (!context.mounted) return null;
   return showDialog<String>(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (context) => Theme(
+          data: libraryAccentTheme(context,
+              libraryAccentForKind(catalogMediaKindFromApiValue(kind))),
+          child: AlertDialog(
               title: Text(title),
               content: SizedBox(
                   width: 380,
@@ -44,7 +48,7 @@ Future<String?> chooseLibraryCollection(BuildContext context,
                 TextButton(
                     onPressed: () => Navigator.of(context).pop(),
                     child: const Text('Cancel'))
-              ]));
+              ])));
 }
 
 final class _CollectionsDialog extends ConsumerWidget {

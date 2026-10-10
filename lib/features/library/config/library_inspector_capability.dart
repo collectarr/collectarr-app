@@ -52,6 +52,7 @@ class LibraryInspectorCapability {
     this.entityRegistry = const LibraryTargetInspectorRegistry(),
     this.mediaDetailContributionBuilder,
     this.showsDefaultPersonalSection = true,
+    this.showsActionBar = true,
     this.supportsLibraryEntryImages = true,
     this.trackingEditor,
     this.personalDetailFieldsBuilder,
@@ -60,6 +61,7 @@ class LibraryInspectorCapability {
   final LibraryTargetInspectorRegistry entityRegistry;
   final LibraryMediaDetailContributionBuilder? mediaDetailContributionBuilder;
   final bool showsDefaultPersonalSection;
+  final bool showsActionBar;
   final bool supportsLibraryEntryImages;
   final LibraryTrackingEditorCapability? trackingEditor;
   final LibraryPersonalDetailFieldsBuilder? personalDetailFieldsBuilder;

@@ -43,6 +43,22 @@ final class LibraryEntryMutations {
   final String? userEmail;
   final IdGenerator idGenerator;
 
+  Future<void> unlinkFromCore(LibraryEntryRef ref) async {
+    final now = DateTime.now().toUtc();
+    await mutationRunner.run(
+      action: () async {
+        final persisted =
+            await libraryEntries.unlinkFromCore(ref, updatedAt: now);
+        await syncQueue.enqueue(libraryEntries.syncChangeForMutation(
+          persisted,
+          action: 'upsert',
+          changedAt: now,
+        ));
+      },
+      eventsToEmit: [LibraryEntryUpdated(ref)],
+    );
+  }
+
   /// Creates an independent duplicate of the complete local record.
   ///
   /// Catalog and personal fields are copied verbatim. Images and custom-field

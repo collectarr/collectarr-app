@@ -18,6 +18,9 @@ import 'package:collectarr_app/features/library/inspector/inspector_loan_section
 import 'package:collectarr_app/features/library/inspector/inspector_reading_queue_section.dart';
 import 'package:collectarr_app/features/library/details/library_detail_wiring.dart';
 import 'package:collectarr_app/features/library/sharing/collection_share_dialog.dart';
+import 'package:collectarr_app/features/library/collections/library_collection_repository.dart';
+import 'package:collectarr_app/features/library/collections/library_collections_dialog.dart';
+import 'package:collectarr_app/features/library/config/library_kind_style.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/features/collection/commands/library_entry_commands.dart';
@@ -91,7 +94,8 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
         widget.libraryEntryDispatch ?? selected.source.libraryEntryDispatch;
     // Mixed inspector state carries only the structural summary. Concrete
     // kind-entry data remains available through libraryEntryDispatch after dispatch.
-    final activeLibraryEntry = widget.libraryEntry;
+    final activeLibraryEntry =
+        widget.libraryEntry ?? selected.source.libraryEntrySummary;
     final libraryEntries = activeLibraryEntry == null
         ? const <LibraryEntrySummary>[]
         : <LibraryEntrySummary>[activeLibraryEntry];
@@ -106,9 +110,10 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
     final canAddEntry = libraryEntryPolicyForKind(widget.type.kind)
         .canCreateCopyAt(selected.target);
     final onToggleEntry = selected.source.isEntry
-        ? activeLibraryEntry == null
-            ? widget.onRemoveEntry
-            : () => _removeLibraryEntry(activeLibraryEntry)
+        ? widget.onRemoveEntry ??
+            (activeLibraryEntry == null
+                ? null
+                : () => _removeLibraryEntry(activeLibraryEntry))
         : !canAddEntry
             ? null
             : widget.onAddEntry;
@@ -164,7 +169,9 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
         onLoan: onLoan,
         onRefreshMetadata: onRefreshMetadata,
         onShare: onShare,
-        onUnlinkFromCore: null,
+        onUnlinkFromCore: activeLibraryEntry?.sourceCatalogRef == null
+            ? null
+            : () => _unlinkFromCore(activeLibraryEntry!),
         accent: widget.accent,
       ),
     );
@@ -292,8 +299,13 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
         children: [
           InspectorUnifiedToolbar(
             item: selected,
+            accent: widget.accent,
             onEdit: entityActions.onEdit,
             onShare: entityActions.onShare,
+            onMoveToCollection: activeLibraryEntry == null || widget.db == null
+                ? null
+                : () => _moveToCollection(activeLibraryEntry),
+            onUnlinkFromCore: entityActions.onUnlinkFromCore,
             onDuplicate: entityActions.onDuplicate,
             onToggleEntry: entityActions.onToggleEntry,
             onLoan: entityActions.onLoan,
@@ -308,7 +320,8 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
               children: [
                 hero,
                 SizedBox(height: density.inspectorOuterGap),
-                if (!usesCustomInspectorPanel)
+                if (!usesCustomInspectorPanel &&
+                    inspectorCapability.showsActionBar)
                   InspectorActionBar(
                     type: widget.type,
                     item: selected,
@@ -418,7 +431,48 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
       context: context,
       title: item.dto.primaryLabel,
       items: <LibraryProjectionView>[item],
+      accent: widget.accent,
     );
+  }
+
+  Future<void> _moveToCollection(LibraryEntrySummary entry) async {
+    final db = widget.db!;
+    final repository = LibraryCollectionRepository(db);
+    final collections = await repository.watch(entry.ref.kind.apiValue).first;
+    if (!mounted) return;
+    final destination = await chooseLibraryCollection(
+      context,
+      db: db,
+      kind: entry.ref.kind.apiValue,
+      excluding: collections
+          .where((c) => c.entryIds.contains(entry.ref.id.value))
+          .firstOrNull
+          ?.id,
+    );
+    if (destination == null) return;
+    await repository.move([entry.ref], destination);
+  }
+
+  Future<void> _unlinkFromCore(LibraryEntrySummary entry) async {
+    final confirmed = await showDialog<bool>(
+        context: context,
+        builder: (context) => Theme(
+            data: libraryAccentTheme(context, widget.accent),
+            child: AlertDialog(
+              title: const Text('Unlink from Core'),
+              content: const Text(
+                  'Keep this item and all local data, and remove its link to Core?'),
+              actions: [
+                TextButton(
+                    onPressed: () => Navigator.pop(context, false),
+                    child: const Text('Cancel')),
+                FilledButton(
+                    onPressed: () => Navigator.pop(context, true),
+                    child: const Text('Unlink')),
+              ],
+            )));
+    if (confirmed != true || !mounted) return;
+    await ref.read(libraryEntryMutationsProvider).unlinkFromCore(entry.ref);
   }
 }
 

@@ -85,6 +85,29 @@ final class LibraryEntriesRepository {
         );
   }
 
+  /// Detaches provenance while retaining the complete local catalog and personal data.
+  Future<LibraryEntryMutationResult> unlinkFromCore(
+    LibraryEntryRef ref, {
+    required DateTime updatedAt,
+  }) async {
+    final existing =
+        await LibraryEntryStore(database).find(ref.kind, ref.id.value);
+    if (existing == null || existing.deletedAt != null) {
+      throw StateError('Active library entry not found: ${ref.key}');
+    }
+    return _persistence.replaceFromPayload(
+        ref.kind,
+        JsonMap.from(
+          LibraryEntryRecord(
+            id: existing.id,
+            kind: existing.kind,
+            catalogData: existing.catalogData,
+            personalData: existing.personalData,
+            updatedAt: updatedAt.toUtc(),
+          ).toJson(),
+        ));
+  }
+
   /// Clones the complete persisted record into a new local identity.
   ///
   /// Catalog and personal maps are copied without projecting through a

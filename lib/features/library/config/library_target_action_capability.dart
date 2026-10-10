@@ -41,6 +41,7 @@ final class LibraryTargetActionSet {
     loan: true,
     refreshMetadata: true,
     share: true,
+    unlinkFromCore: true,
   );
 
   final bool openDetails;

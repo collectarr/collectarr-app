@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/ui/accent_dialog_header.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
+import 'package:collectarr_app/features/library/config/library_kind_style.dart';
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 import 'package:flutter/services.dart';
@@ -16,10 +17,13 @@ Future<void> showCollectionShareDialog({
   required BuildContext context,
   required String title,
   required List<LibraryProjectionView> items,
+  Color? accent,
 }) {
   return showDialog<void>(
     context: context,
-    builder: (_) => _CollectionShareDialog(title: title, items: items),
+    builder: (context) => Theme(
+        data: libraryAccentTheme(context, accent ?? appPalette(context).accent),
+        child: _CollectionShareDialog(title: title, items: items)),
   );
 }
 

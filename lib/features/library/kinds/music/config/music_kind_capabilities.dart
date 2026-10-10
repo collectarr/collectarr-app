@@ -175,6 +175,7 @@ final musicKindInspector = LibraryInspectorCapability(
     ),
   ),
   showsDefaultPersonalSection: false,
+  showsActionBar: false,
   personalDetailFieldsBuilder: buildMusicPersonalDetailFields,
 );
 

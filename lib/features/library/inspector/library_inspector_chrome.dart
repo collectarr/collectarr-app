@@ -1,4 +1,5 @@
 import 'package:collectarr_app/ui/theme/app_theme.dart';
+import 'package:collectarr_app/features/library/config/library_kind_style.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
@@ -247,6 +248,8 @@ enum InspectorToolbarMenuAction {
   removeOrCollect,
   loan,
   refreshMetadata,
+  moveToCollection,
+  unlinkFromCore,
 }
 
 class InspectorUnifiedToolbar extends StatelessWidget {
@@ -256,6 +259,8 @@ class InspectorUnifiedToolbar extends StatelessWidget {
     required this.detailsLayout,
     this.onEdit,
     this.onShare,
+    this.onMoveToCollection,
+    this.accent,
     this.onDuplicate,
     this.onToggleEntry,
     this.onLoan,
@@ -270,6 +275,8 @@ class InspectorUnifiedToolbar extends StatelessWidget {
   final LibraryDetailsLayout detailsLayout;
   final VoidCallback? onEdit;
   final VoidCallback? onShare;
+  final VoidCallback? onMoveToCollection;
+  final Color? accent;
   final VoidCallback? onDuplicate;
   final VoidCallback? onToggleEntry;
   final VoidCallback? onLoan;
@@ -307,6 +314,16 @@ class InspectorUnifiedToolbar extends StatelessWidget {
           crossAxisAlignment: WrapCrossAlignment.center,
           alignment: WrapAlignment.end,
           children: [
+            if (onEdit != null)
+              InspectorToolIconButton(
+                  tooltip: 'Edit',
+                  onPressed: onEdit,
+                  icon: Icons.edit_outlined),
+            if (onShare != null)
+              InspectorToolIconButton(
+                  tooltip: 'Share',
+                  onPressed: onShare,
+                  icon: Icons.share_outlined),
             if (includeLayoutControl)
               LibraryDetailsLayoutDropdown(
                 detailsLayout: detailsLayout,
@@ -354,9 +371,29 @@ class InspectorUnifiedToolbar extends StatelessWidget {
                     onLoan?.call();
                   case InspectorToolbarMenuAction.refreshMetadata:
                     onRefreshMetadata?.call();
+                  case InspectorToolbarMenuAction.moveToCollection:
+                    onMoveToCollection?.call();
+                  case InspectorToolbarMenuAction.unlinkFromCore:
+                    onUnlinkFromCore?.call();
                 }
               },
               itemBuilder: (context) => [
+                if (onMoveToCollection != null)
+                  const PopupMenuItem<InspectorToolbarMenuAction>(
+                    value: InspectorToolbarMenuAction.moveToCollection,
+                    child: ListTile(
+                        dense: true,
+                        leading: Icon(Icons.drive_file_move_outline),
+                        title: Text('Move to other collection')),
+                  ),
+                if (onUnlinkFromCore != null)
+                  const PopupMenuItem<InspectorToolbarMenuAction>(
+                    value: InspectorToolbarMenuAction.unlinkFromCore,
+                    child: ListTile(
+                        dense: true,
+                        leading: Icon(Icons.link_off),
+                        title: Text('Unlink from Core')),
+                  ),
                 if (compactActions && onDuplicate != null)
                   const PopupMenuItem<InspectorToolbarMenuAction>(
                     value: InspectorToolbarMenuAction.duplicate,
@@ -422,7 +459,9 @@ class InspectorUnifiedToolbar extends StatelessWidget {
     );
 
     if (!framed) {
-      return content;
+      return accent == null
+          ? content
+          : Theme(data: libraryAccentTheme(context, accent!), child: content);
     }
 
     return Container(
