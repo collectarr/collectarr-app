@@ -1,3 +1,4 @@
+import 'ebay_search_preferences.dart';
 import 'package:collectarr_app/features/settings/library_layout_setting.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_tokens.dart';
 import 'dart:async';
@@ -748,6 +749,33 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                 icon: Icons.shopping_bag_outlined,
                 title: 'eBay search links',
                 child: Column(children: [
+                  DropdownButtonFormField<EbaySearchFilter>(
+                    isExpanded: true,
+                    initialValue: preferences.ebaySearchFilter,
+                    decoration:
+                        const InputDecoration(labelText: 'Listings filter'),
+                    items: EbaySearchFilter.values
+                        .map((value) => DropdownMenuItem(
+                            value: value, child: Text(value.label)))
+                        .toList(),
+                    onChanged: (value) {
+                      if (value != null) controller.setEbaySearchFilter(value);
+                    },
+                  ),
+                  const SizedBox(height: 12),
+                  DropdownButtonFormField<EbayRegion>(
+                    isExpanded: true,
+                    initialValue: preferences.ebayRegion,
+                    decoration: const InputDecoration(labelText: 'eBay region'),
+                    items: EbayRegion.values
+                        .map((value) => DropdownMenuItem(
+                            value: value, child: Text(value.label)))
+                        .toList(),
+                    onChanged: (value) {
+                      if (value != null) controller.setEbayRegion(value);
+                    },
+                  ),
+                  const SizedBox(height: 12),
                   toggle('Show eBay links', preferences.showEbayLinks,
                       controller.setShowEbayLinks),
                   toggle(

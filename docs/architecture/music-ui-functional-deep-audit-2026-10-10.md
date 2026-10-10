@@ -253,15 +253,22 @@ Persistent functional settings now include application skin (system/light/dark),
 independent Details template (application/light/dark/blue), main screen split,
 backdrop, back cover when space permits, wrapped column content, automatic
 column widths, status indicators, pencil icons, removal/duplication confirmation,
-and eBay visibility, wishlist-only scope, and its three display positions.
+and eBay visibility, wishlist-only scope, its three display positions, regional
+market selection and automatic/all/sold listing filters. Automatic uses all
+listings for wishlist entries and sold listings for collection entries. The
+Music cover link, inspector toolbar and Links section share that filter; the
+cover link uses the kind accent for its text, underline and icon.
 Wrapping measures visible rows lazily; auto sizing samples up to 200 entries,
 caps widths, and never replaces saved manual column widths. Split selection
 writes the existing per-kind workspace preference rather than a second setting.
 
 This closes the audited library surface/display controls. CLZ localization,
 separate sort-name display policies, automatic capitalization, application-wide
-Blue skin, and eBay region/filter selectors are not replicated by this change.
+Blue skin are not replicated by this change.
 These need their own consumers and are not represented by inert settings.
 
 Validation: full Flutter suite 830 passed / 1 skipped; analyzer clean; architecture
 boundary check has no violations; Windows debug build verified separately.
+
+Regional eBay follow-up: 26 focused settings/inspector tests pass, analyzer is
+clean, architecture boundaries have no violations, and Windows debug build passes.

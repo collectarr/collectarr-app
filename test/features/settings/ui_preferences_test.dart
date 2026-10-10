@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/settings/ebay_search_preferences.dart';
 import 'package:collectarr_app/features/settings/ui_preferences.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -24,6 +25,8 @@ void main() {
       ebayToolbar: false,
       ebayNextToCover: false,
       ebayLinksSection: false,
+      ebayRegion: EbayRegion.gb,
+      ebaySearchFilter: EbaySearchFilter.all,
     );
     await store.write(edited);
     final loaded = await store.read();
@@ -40,9 +43,13 @@ void main() {
     expect(loaded.ebayToolbar, isFalse);
     expect(loaded.ebayNextToCover, isFalse);
     expect(loaded.ebayLinksSection, isFalse);
+    expect(loaded.ebayRegion, EbayRegion.gb);
+    expect(loaded.ebaySearchFilter, EbaySearchFilter.all);
     await store.write(const UiPreferences());
     expect((await store.read()).showInspectorBackdrop, isTrue);
     expect((await store.read()).autoSizeColumns, isFalse);
+    expect((await store.read()).ebayRegion, EbayRegion.defaultRegion);
+    expect((await store.read()).ebaySearchFilter, EbaySearchFilter.automatic);
   });
 
   test('eBay visibility follows global and wishlist settings', () {

@@ -1,3 +1,4 @@
+import 'ebay_search_preferences.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -43,6 +44,8 @@ class UiPreferences {
     this.ebayToolbar = true,
     this.ebayNextToCover = true,
     this.ebayLinksSection = true,
+    this.ebaySearchFilter = EbaySearchFilter.automatic,
+    this.ebayRegion = EbayRegion.defaultRegion,
     this.isLoaded = false,
   });
 
@@ -82,6 +85,8 @@ class UiPreferences {
   final bool ebayToolbar;
   final bool ebayNextToCover;
   final bool ebayLinksSection;
+  final EbaySearchFilter ebaySearchFilter;
+  final EbayRegion ebayRegion;
   final bool isLoaded;
 
   bool allowsEbayLinks(bool isWishlisted) =>
@@ -111,6 +116,8 @@ class UiPreferences {
     bool? ebayToolbar,
     bool? ebayNextToCover,
     bool? ebayLinksSection,
+    EbaySearchFilter? ebaySearchFilter,
+    EbayRegion? ebayRegion,
     bool? isLoaded,
   }) {
     return UiPreferences(
@@ -142,6 +149,8 @@ class UiPreferences {
       ebayToolbar: ebayToolbar ?? this.ebayToolbar,
       ebayNextToCover: ebayNextToCover ?? this.ebayNextToCover,
       ebayLinksSection: ebayLinksSection ?? this.ebayLinksSection,
+      ebaySearchFilter: ebaySearchFilter ?? this.ebaySearchFilter,
+      ebayRegion: ebayRegion ?? this.ebayRegion,
       isLoaded: isLoaded ?? this.isLoaded,
     );
   }
@@ -192,6 +201,9 @@ class UiPreferencesStore {
 
   static const ebayLinksSectionKey = '$_prefix.ebay_links_section';
 
+  static const ebaySearchFilterKey = '$_prefix.ebay_search_filter';
+  static const ebayRegionKey = '$_prefix.ebay_region';
+
   Future<UiPreferences> read() async {
     final prefs = await SharedPreferences.getInstance();
     return UiPreferences(
@@ -225,6 +237,15 @@ class UiPreferencesStore {
       ebayToolbar: prefs.getBool(ebayToolbarKey) ?? true,
       ebayNextToCover: prefs.getBool(ebayNextToCoverKey) ?? true,
       ebayLinksSection: prefs.getBool(ebayLinksSectionKey) ?? true,
+      ebaySearchFilter: EbaySearchFilter.values
+              .where(
+                  (value) => value.name == prefs.getString(ebaySearchFilterKey))
+              .firstOrNull ??
+          EbaySearchFilter.automatic,
+      ebayRegion: EbayRegion.values
+              .where((value) => value.name == prefs.getString(ebayRegionKey))
+              .firstOrNull ??
+          EbayRegion.defaultRegion,
       isLoaded: true,
     );
   }
@@ -258,6 +279,9 @@ class UiPreferencesStore {
     await prefs.setBool(ebayToolbarKey, preferences.ebayToolbar);
     await prefs.setBool(ebayNextToCoverKey, preferences.ebayNextToCover);
     await prefs.setBool(ebayLinksSectionKey, preferences.ebayLinksSection);
+    await prefs.setString(
+        ebaySearchFilterKey, preferences.ebaySearchFilter.name);
+    await prefs.setString(ebayRegionKey, preferences.ebayRegion.name);
     await prefs.setBool(flatCoversKey, preferences.flatCovers);
     await prefs.setDouble(gridSpacingKey, preferences.gridSpacing);
     await prefs.setBool(showCoverTitlesKey, preferences.showCoverTitles);
@@ -353,6 +377,12 @@ class UiPreferencesController extends Notifier<UiPreferences> {
 
   Future<void> setEbayLinksSection(bool value) =>
       _update((s) => s.copyWith(ebayLinksSection: value));
+
+  Future<void> setEbaySearchFilter(EbaySearchFilter value) =>
+      _update((s) => s.copyWith(ebaySearchFilter: value));
+
+  Future<void> setEbayRegion(EbayRegion value) =>
+      _update((s) => s.copyWith(ebayRegion: value));
 
   Future<void> resetDefaults() =>
       _update((_) => const UiPreferences(isLoaded: true));

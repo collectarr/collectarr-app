@@ -363,7 +363,9 @@ class InspectorUnifiedToolbar extends ConsumerWidget {
         ? buildEbaySearchUri(
             query: ebayQuery,
             categoryPath: '/sch/11233/i.html',
-            soldOnly: !item.source.isWishlisted,
+            region: preferences.ebayRegion,
+            soldOnly: preferences.ebaySearchFilter
+                .soldOnlyFor(isWishlisted: item.source.isWishlisted),
           )
         : null;
     final content = LayoutBuilder(
@@ -583,7 +585,9 @@ class InspectorEbayLinksSection extends ConsumerWidget {
       query: [item.dto.secondaryLabel, item.dto.primaryLabel]
           .whereType<String>()
           .join(' '),
-      soldOnly: !item.source.isWishlisted,
+      region: preferences.ebayRegion,
+      soldOnly: preferences.ebaySearchFilter
+          .soldOnlyFor(isWishlisted: item.source.isWishlisted),
     );
     if (uri == null) return const SizedBox.shrink();
     return Align(

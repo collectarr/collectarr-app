@@ -132,7 +132,7 @@ class _LibraryDetailPageState extends ConsumerState<LibraryDetailPage> {
     final query = itemNumber != null
         ? '${dto.primaryLabel} #$itemNumber'
         : dto.primaryLabel;
-    await launchEbaySearch(query);
+    await launchEbaySearch(query, isWishlisted: item.source.isWishlisted);
   }
 
   Future<void> _removeLibraryEntry(LibraryEntrySummary item) async {

@@ -451,8 +451,8 @@ class _MusicInspectorHeader extends ConsumerWidget {
                   const SizedBox(height: 2),
                   Text(
                     music.title,
-                    style: const TextStyle(
-                      color: Color(0xFF2A9FD6),
+                    style: TextStyle(
+                      color: palette.accent,
                       fontSize: 19,
                       fontWeight: FontWeight.w800,
                       height: 1.15,
@@ -624,11 +624,13 @@ class _MusicInspectorHeader extends ConsumerWidget {
                                   true)
                                 music.catalogNumber!.trim(),
                             ].join(' ');
-                            launchEbaySearch(query);
+                            launchEbaySearch(query,
+                                isWishlisted:
+                                    inspector.item.source.isWishlisted);
                           },
                           borderRadius: BorderRadius.circular(3),
-                          child: const Padding(
-                            padding: EdgeInsets.symmetric(
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(
                                 horizontal: 2, vertical: 1),
                             child: Row(
                               mainAxisSize: MainAxisSize.min,
@@ -636,18 +638,18 @@ class _MusicInspectorHeader extends ConsumerWidget {
                                 Text(
                                   'eBay',
                                   style: TextStyle(
-                                    color: Color(0xFF2A9FD6),
+                                    color: palette.accent,
                                     fontSize: 12,
                                     fontWeight: FontWeight.w700,
                                     decoration: TextDecoration.underline,
-                                    decorationColor: Color(0xFF2A9FD6),
+                                    decorationColor: palette.accent,
                                   ),
                                 ),
-                                SizedBox(width: 2),
+                                const SizedBox(width: 2),
                                 Icon(
                                   Icons.open_in_new,
                                   size: 11,
-                                  color: Color(0xFF2A9FD6),
+                                  color: palette.accent,
                                 ),
                               ],
                             ),

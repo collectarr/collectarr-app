@@ -21,7 +21,9 @@ layout. Details template can differ from the application skin. Settings sections
 use scrollable tabs on medium/desktop screens and compact section navigation,
 with Appearance sub-tabs for customization, covers/layout, typography and
 behaviour/links. Confirmation and eBay position/visibility preferences are wired
-into actions and the inspector. See the deep audit for remaining CLZ settings.
+into actions and the inspector. eBay region and automatic/all/sold filters persist
+and are applied consistently across Music inspector positions. See the deep
+audit for remaining CLZ settings.
 
 Cloud Sharing publishes explicit snapshots through Sync. Partial visibility is
 public without personal fields; optional private sharing links are separate and
