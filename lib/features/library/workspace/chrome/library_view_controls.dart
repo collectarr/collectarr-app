@@ -98,11 +98,13 @@ class LibraryDetailsLayoutDropdown extends StatelessWidget {
     required this.detailsLayout,
     required this.onChanged,
     this.iconOnly = false,
+    this.inspectorStyle = false,
   });
 
   final LibraryDetailsLayout detailsLayout;
   final ValueChanged<LibraryDetailsLayout> onChanged;
   final bool iconOnly;
+  final bool inspectorStyle;
 
   @override
   Widget build(BuildContext context) {
@@ -124,59 +126,96 @@ class LibraryDetailsLayoutDropdown extends StatelessWidget {
             leadingLabel: 'Layout',
             valueLabel: _detailsLayoutMenuLabel(detailsLayout),
           );
+    final popup = PopupMenuButton<LibraryDetailsLayout>(
+      key: _detailsLayoutDropdownKey,
+      tooltip: _detailsLayoutTooltip(detailsLayout),
+      initialValue: detailsLayout,
+      onSelected: onChanged,
+      padding: EdgeInsets.zero,
+      color: libraryToolbarMenuSurface(context),
+      surfaceTintColor: Colors.transparent,
+      menuPadding: const EdgeInsets.symmetric(vertical: 4),
+      position: PopupMenuPosition.under,
+      constraints: const BoxConstraints(
+        minWidth: 0,
+        maxWidth: double.infinity,
+      ).copyWith(
+        minWidth: detailsMenuWidth,
+        maxWidth: detailsMenuWidth,
+      ),
+      shape: libraryToolbarDropdownMenuShape(context),
+      itemBuilder: (context) => [
+        for (final layout in LibraryDetailsLayout.values)
+          PopupMenuItem<LibraryDetailsLayout>(
+            height: _viewModeDropdownHeight,
+            padding: const EdgeInsets.symmetric(horizontal: 10),
+            value: layout,
+            child: LibraryWorkspaceMenuRow(
+              label: _detailsLayoutMenuLabel(layout),
+              leading: Icon(
+                _detailsLayoutIcon(layout),
+                size: 17,
+                color: layout == detailsLayout ? menuText : menuMuted,
+              ),
+              trailing: layout == detailsLayout
+                  ? Icon(Icons.check, size: 16, color: menuText)
+                  : null,
+              textStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    height: 1,
+                    fontWeight: layout == detailsLayout
+                        ? FontWeight.w700
+                        : FontWeight.w500,
+                    color: menuText,
+                  ),
+            ),
+          ),
+      ],
+      child: inspectorStyle
+          ? Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    _detailsLayoutIcon(detailsLayout),
+                    size: 15,
+                    color: menuText,
+                  ),
+                  if (!iconOnly) ...[
+                    const SizedBox(width: 4),
+                    Text(
+                      'Layout',
+                      style: TextStyle(
+                        fontSize: 12.5,
+                        fontWeight: FontWeight.w500,
+                        color: menuText,
+                      ),
+                    ),
+                    const SizedBox(width: 2),
+                    Icon(
+                      Icons.keyboard_arrow_down,
+                      size: 15,
+                      color: menuMuted,
+                    ),
+                  ],
+                ],
+              ),
+            )
+          : _LibraryToolbarSplitLabelTrigger(
+              leadingLabel: 'Layout',
+              valueLabel: _detailsLayoutMenuLabel(detailsLayout),
+              valueIcon: _detailsLayoutIcon(detailsLayout),
+              iconOnly: iconOnly,
+            ),
+    );
+
+    if (inspectorStyle) {
+      return popup;
+    }
+
     return SizedBox(
       width: triggerWidth,
-      child: PopupMenuButton<LibraryDetailsLayout>(
-        key: _detailsLayoutDropdownKey,
-        tooltip: _detailsLayoutTooltip(detailsLayout),
-        initialValue: detailsLayout,
-        onSelected: onChanged,
-        padding: EdgeInsets.zero,
-        color: libraryToolbarMenuSurface(context),
-        surfaceTintColor: Colors.transparent,
-        menuPadding: const EdgeInsets.symmetric(vertical: 4),
-        position: PopupMenuPosition.under,
-        constraints: const BoxConstraints(
-          minWidth: 0,
-          maxWidth: double.infinity,
-        ).copyWith(
-          minWidth: detailsMenuWidth,
-          maxWidth: detailsMenuWidth,
-        ),
-        shape: libraryToolbarDropdownMenuShape(context),
-        itemBuilder: (context) => [
-          for (final layout in LibraryDetailsLayout.values)
-            PopupMenuItem<LibraryDetailsLayout>(
-              height: _viewModeDropdownHeight,
-              padding: const EdgeInsets.symmetric(horizontal: 10),
-              value: layout,
-              child: LibraryWorkspaceMenuRow(
-                label: _detailsLayoutMenuLabel(layout),
-                leading: Icon(
-                  _detailsLayoutIcon(layout),
-                  size: 17,
-                  color: layout == detailsLayout ? menuText : menuMuted,
-                ),
-                trailing: layout == detailsLayout
-                    ? Icon(Icons.check, size: 16, color: menuText)
-                    : null,
-                textStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      height: 1,
-                      fontWeight: layout == detailsLayout
-                          ? FontWeight.w700
-                          : FontWeight.w500,
-                      color: menuText,
-                    ),
-              ),
-            ),
-        ],
-        child: _LibraryToolbarSplitLabelTrigger(
-          leadingLabel: 'Layout',
-          valueLabel: _detailsLayoutMenuLabel(detailsLayout),
-          valueIcon: _detailsLayoutIcon(detailsLayout),
-          iconOnly: iconOnly,
-        ),
-      ),
+      child: popup,
     );
   }
 }
