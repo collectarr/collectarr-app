@@ -108,4 +108,27 @@ Verified:
 
 Final verification: 809 Flutter tests passed, one existing skipped; analyzer clean; Web release and Windows debug builds passed; no AST boundary violations or repeated kind implementation clusters. The architecture checker still reports complexity budgets (365), which are warnings rather than a clean complexity result.
 
-Remaining functional audit: nested folder Back navigation, vocabulary create/rename/delete and persisted user-favorite lifecycle across application restart. Reference collection CRUD/reorder has not been exercised against the user's CLZ data. Material icon shapes and font metrics remain deliberate/unresolved differences; this pass does not claim full pixel parity.
+The previously remaining checks for nested Back, vocabulary CRUD and durable favorites are covered in the follow-up below. Reference collection CRUD/reorder has not been exercised against the user's CLZ data. Material icon shapes and font metrics remain deliberate/unresolved differences; this pass does not claim full pixel parity.
+
+
+## Nested navigation, vocabulary CRUD and durable favorites audit
+
+Completed against disposable local Music fixtures. The authenticated CLZ account was not modified.
+
+| Flow | Evidence and outcome |
+| --- | --- |
+| Nested folders / Back | Created a Genre / Disc Format favorite through the manager, selected Audit Jazz, entered Disc Format and used Back to previous scope from the overflow menu. Genre and the one-album scope were restored. History tests also verify renamed buckets preserve unrelated scope state. |
+| Create vocabulary | Entering custom Audit Jazz in the Music form creates a reusable Genre option. The manager exposes it alongside built-ins. Creation remains in the value selector/form; the manager does not gain a separate New action. |
+| Rename selected vocabulary | Audit Jazz becomes Audit Renamed in item metadata and sidebar buckets; the selected one-album scope is retained. This previously failed because facet caching depended only on item IDs. |
+| Remove vocabulary | Removing Audit Renamed clears its item reference and moves the album into None. The three-entry fixture then has None = 2 and Rock = 1. Widget tests also verify canceled removal leaves the option intact. |
+| Duplicate vocabulary | A widget regression reproduces renaming a custom Genre to built-in Rock. The manager now rejects it with the existing Merge Mode message and retains the original value. Stored-name validation alone previously missed virtual built-in options. |
+| Sort favorite restart | Saved Audit Persisted Sort, canceled the sort draft, reloaded, then closed and relaunched the entire Playwright browser with the same temporary profile. The stored favorite and canonical direction survived. |
+| Nested favorite restart | Closed and relaunched the Playwright browser with the same temporary profile; the ordered music.genre / music.disc.format favorite survived. |
+| Column favorite durability | A storage-restart regression reconstructs preferences and the store, verifies exact ordered columns and stable ID, verifies isolation from Books and verifies deletion persists. This is an automated persistence check, not a live column-browser restart claim. |
+| Accent inheritance | Folder favorites and sidebar vocabulary managers now receive the kind-accent theme, including nested editors/confirmations and selection tint. A folder-dialog widget regression verifies palette accent, primary color and selection tint. The folder-manager settings action also has a descriptive tooltip. |
+
+The facet signature now incorporates update time and immutable metadata identity, so edits invalidate cached buckets even when membership is unchanged. Signature calculation reads existing shelf sources directly rather than reconstructing workspace DTOs. The unused membership-only signature helper was deleted. Vocabulary management captures selection/history before opening the modal and maps replacements into the current bucket and ancestor snapshots on close, preserving route state while asynchronous shelf refreshes run.
+
+Verification: 816 Flutter tests passed, one existing skipped; analyzer clean; Web release and Windows debug builds passed. No AST boundary violations or repeated kind implementation clusters; complexity warnings remain at 365. Browser checks used local temporary profiles and disposable data.
+
+No legacy aliases or migration paths were added. These three previously open audit areas are closed at the evidence levels described above. Full CLZ pixel parity and sharing remain outside this audit.
