@@ -89,8 +89,8 @@ abstract final class BoardGameWorkspaceFieldMetadata {
     label: 'Status',
     valueType: LibraryFieldValueType.text,
     cardinality: LibraryFieldCardinality.one,
-    source: LibraryFieldSource.derived,
-    sourcePath: 'status',
+    source: LibraryFieldSource.libraryEntry,
+    sourcePath: 'collection_status',
     sortable: true,
     groupable: true,
   );

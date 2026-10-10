@@ -160,6 +160,30 @@ fields or old role arrays should be restored for visual parity.
 
 ## Verification and retained evidence
 
+### Implementation follow-up
+
+Dirty Previous/Next/Cancel and route Back now use the shared unsaved-change
+guard. Save still closes the editor normally. Track-only search uses Music's
+contained search facts. Statistics entry titles and direct index/transfer/XML
+drawer destinations have been corrected. Pre-fill, Custom Fields, sharing and
+export dialogs use the active kind accent, including Save actions.
+
+The resumed live Opera CLI check confirms that CLZ Partial means public without
+personal fields, rather than an unlisted link. App and Sync now distinguish
+Partial from optional private sharing links. Private/public mode changes rotate
+the token, and disabling the private link revokes access. Publishing is an
+explicit snapshot operation; automatic republishing after entry changes remains
+unimplemented. No CLZ sharing settings were changed in this reference check.
+
+The action matrix in follow-up item 7 and frame-by-frame reorder equivalence
+remain open. These implementation checks do not establish complete live parity.
+
+The follow-up gate passes 826 App tests with one skip, analyzer with no issues,
+the architecture boundary check, and a Windows debug build. Sync passes all 41
+tests and Ruff checks. Regression coverage includes guarded route Back followed
+by Save, personal-value exclusion, Partial suppression of personal fields, and
+private/public token rotation.
+
 The Web release was rebuilt successfully for this audit. The preceding lifecycle
 fix has analyzer, Windows build and 820 passing tests with one skip recorded in
 its commit. This audit adds documentation/evidence only; it does not claim a new

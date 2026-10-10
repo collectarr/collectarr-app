@@ -26,6 +26,7 @@ class _CollectionCloudSharingPageState
   List<LibraryCollectionSummary> _collections = [];
   final _visibility = <String, String>{};
   final _personal = <String, bool>{};
+  final _privateLinks = <String, bool>{};
   final _urls = <String, String>{};
   bool _busy = true;
   bool _loaded = false;
@@ -71,12 +72,14 @@ class _CollectionCloudSharingPageState
         for (final collection in collections) {
           _visibility[collection.id] = 'private';
           _personal[collection.id] = false;
+          _privateLinks[collection.id] = false;
         }
         for (final row in response.data ?? const []) {
           final data = Map<String, dynamic>.from(row as Map);
           final id = data['collection_id'] as String;
           _visibility[id] = data['visibility'] as String;
           _personal[id] = data['include_personal'] as bool;
+          _privateLinks[id] = data['private_link_enabled'] as bool;
           if (data['token'] case final String token) {
             _urls[id] = _shareUrl(token);
           }
@@ -84,7 +87,7 @@ class _CollectionCloudSharingPageState
         _loaded = true;
         final visibilities = _visibility.values.toSet();
         _globalVisibility =
-            visibilities.length == 1 ? visibilities.single : 'partial';
+            visibilities.length == 1 ? visibilities.single : 'mixed';
       });
     } catch (error) {
       if (mounted) {
@@ -119,6 +122,7 @@ class _CollectionCloudSharingPageState
                 title: collection.name,
                 visibility: _visibility[collection.id]!,
                 includePersonal: _personal[collection.id]!,
+                privateLinkEnabled: _privateLinks[collection.id]!,
                 items: items));
         if (!mounted) return;
         final token = response.data?['token'] as String?;
@@ -147,11 +151,13 @@ class _CollectionCloudSharingPageState
   Widget _privacyPicker(String value, ValueChanged<String> changed) =>
       DropdownButton<String>(
           value: value,
-          items: const [
-            DropdownMenuItem(value: 'private', child: Text('Private')),
-            DropdownMenuItem(
-                value: 'partial', child: Text('Partial / unlisted')),
-            DropdownMenuItem(value: 'public', child: Text('Public'))
+          items: [
+            if (value == 'mixed')
+              const DropdownMenuItem(
+                  value: 'mixed', enabled: false, child: Text('Mixed')),
+            const DropdownMenuItem(value: 'private', child: Text('Private')),
+            const DropdownMenuItem(value: 'partial', child: Text('Partial')),
+            const DropdownMenuItem(value: 'public', child: Text('Public'))
           ],
           onChanged: _busy
               ? null
@@ -167,7 +173,7 @@ class _CollectionCloudSharingPageState
             appBar: AppBar(title: const Text('Cloud Sharing')),
             body: ListView(padding: const EdgeInsets.all(20), children: [
               const Text(
-                  'Private collections are inaccessible. Partial collections are accessible by link. Public collections also appear in the public directory.'),
+                  'Partial makes the collection public without personal fields. Private sharing links are optional. Save publishes the current collection snapshot.'),
               const SizedBox(height: 12),
               if (_busy) const LinearProgressIndicator(),
               if (_error != null) ...[
@@ -213,15 +219,35 @@ class _CollectionCloudSharingPageState
                                                             .length ==
                                                         1
                                                     ? value
-                                                    : 'partial';
+                                                    : 'mixed';
                                               }))
                                     ]),
+                                if (_visibility[collection.id] == 'private')
+                                  SwitchListTile(
+                                    contentPadding: EdgeInsets.zero,
+                                    title: const Text(
+                                        'Enable private sharing link'),
+                                    value: _privateLinks[collection.id]!,
+                                    onChanged: _busy
+                                        ? null
+                                        : (value) => setState(() =>
+                                            _privateLinks[collection.id] =
+                                                value),
+                                  ),
                                 CheckboxListTile(
                                     contentPadding: EdgeInsets.zero,
                                     title:
                                         const Text('Include personal fields'),
-                                    value: _personal[collection.id],
-                                    onChanged: _busy
+                                    value:
+                                        _visibility[collection.id] == 'partial'
+                                            ? false
+                                            : _personal[collection.id],
+                                    onChanged: _busy ||
+                                            _visibility[collection.id] ==
+                                                'partial' ||
+                                            (_visibility[collection.id] ==
+                                                    'private' &&
+                                                !_privateLinks[collection.id]!)
                                         ? null
                                         : (value) => setState(() =>
                                             _personal[collection.id] =

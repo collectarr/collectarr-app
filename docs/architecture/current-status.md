@@ -10,8 +10,15 @@ informational complexity findings.
 
 The latest [deep live Music UI audit](music-ui-functional-deep-audit-2026-10-10.md)
 covers sidebar destinations, all edit tabs, four viewport sizes and selected
-functional flows. It records outstanding dirty-navigation, track-search,
-Statistics-title and drawer-routing defects; UI parity is not yet complete.
+functional flows. Follow-up work fixes dirty-navigation (including route Back),
+contained track search, Statistics titles, and direct drawer routing for index,
+transfer and XML export. UI parity and the full live action matrix remain open.
+
+Cloud Sharing publishes explicit snapshots through Sync. Partial visibility is
+public without personal fields; optional private sharing links are separate and
+revocable. Collection status is library-entry-owned across all nine kinds and
+excluded from public catalog field selection. The live CLZ sharing page was
+rechecked through Opera DevTools CLI on 10 October; no remote settings were saved.
 
 - Music's active inspector uses kind-owned Overview, tracks, disc metadata,
   scoped credits and personal sections. Entry context enables Duplicate, Loan,
