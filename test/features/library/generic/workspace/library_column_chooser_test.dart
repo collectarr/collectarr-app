@@ -34,6 +34,35 @@ void main() {
     };
   }
 
+  testWidgets('clearing field search clears text and restores available fields',
+      (tester) async {
+    await tester.pumpWidget(MaterialApp(
+        home: Scaffold(
+            body: LibraryColumnChooserDialog(
+      availableColumns: availableColumns,
+      selectedColumns: const {'title'},
+      defaultColumns: const {'title'},
+      columnLabel: labelFor,
+      columnGroup: groupFor,
+    ))));
+    await tester.pumpAndSettle();
+    final search = find.byWidgetPredicate((widget) =>
+        widget is TextField && widget.decoration?.hintText == 'Search fields');
+    await tester.enterText(search, 'Barcode');
+    await tester.pumpAndSettle();
+    expect(find.text('Publisher'), findsNothing);
+    final clear =
+        find.descendant(of: search, matching: find.byIcon(Icons.close));
+    await tester.tap(clear);
+    await tester.pumpAndSettle();
+    expect(tester.widget<TextField>(search).controller!.text, isEmpty);
+    expect(find.text('Publisher'), findsOneWidget);
+    await tester.enterText(search, 'Release');
+    await tester.pumpAndSettle();
+    expect(find.text('Publisher'), findsNothing);
+    expect(find.text('Release Date'), findsOneWidget);
+  });
+
   testWidgets('column chooser renders the CLZ-style manager shell', (
     tester,
   ) async {

@@ -58,6 +58,7 @@ class _LibraryColumnChooserDialogState
   );
   late final TextEditingController _presetNameController =
       TextEditingController(text: _activePreset?.label ?? '');
+  final TextEditingController _searchController = TextEditingController();
   String _query = '';
 
   String? get _effectivePrimaryColumn =>
@@ -90,6 +91,7 @@ class _LibraryColumnChooserDialogState
 
   @override
   void dispose() {
+    _searchController.dispose();
     _presetNameController.dispose();
     super.dispose();
   }
@@ -137,6 +139,7 @@ class _LibraryColumnChooserDialogState
             children: [
               AccentDialogHeader(
                 title: 'Select Column Fields',
+                accent: accent,
                 onClose: () => Navigator.of(context).pop(),
               ),
               Expanded(
@@ -195,6 +198,7 @@ class _LibraryColumnChooserDialogState
                                           padding: const EdgeInsets.fromLTRB(
                                               12, 12, 12, 8),
                                           child: TextField(
+                                            controller: _searchController,
                                             decoration: InputDecoration(
                                               isDense: true,
                                               prefixIcon:
@@ -202,8 +206,12 @@ class _LibraryColumnChooserDialogState
                                               suffixIcon: _query.isEmpty
                                                   ? null
                                                   : _InlineClearButton(
-                                                      onPressed: () => setState(
-                                                          () => _query = ''),
+                                                      onPressed: () =>
+                                                          setState(() {
+                                                        _searchController
+                                                            .clear();
+                                                        _query = '';
+                                                      }),
                                                     ),
                                               hintText: 'Search fields',
                                               filled: true,

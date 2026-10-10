@@ -50,6 +50,7 @@ class _LibrarySortDialogState extends State<_LibrarySortDialog> {
   List<LibrarySortPreset> _savedPresets = const [];
   bool _loadingPresets = true;
   String? _editingPresetId;
+  final TextEditingController _searchController = TextEditingController();
   String _query = '';
   final Map<LibraryTableColumnGroup, bool> _expandedGroups = {
     LibraryTableColumnGroup.main: true,
@@ -71,6 +72,7 @@ class _LibrarySortDialogState extends State<_LibrarySortDialog> {
 
   @override
   void dispose() {
+    _searchController.dispose();
     _presetNameController.dispose();
     super.dispose();
   }
@@ -80,6 +82,7 @@ class _LibrarySortDialogState extends State<_LibrarySortDialog> {
     final palette = appPalette(context);
     final accent = widget.type.identity.accent;
     final viewport = MediaQuery.sizeOf(context);
+    final dialogWidth = (viewport.width - 48).clamp(0.0, 1180.0);
     final availableColumns = _filteredColumns();
     final matchingPreset = _matchingPreset;
     final favoriteCount =
@@ -110,7 +113,21 @@ class _LibrarySortDialogState extends State<_LibrarySortDialog> {
               children: [
                 AccentDialogHeader(
                   title: 'Select Sort Fields',
+                  accent: accent,
                   icon: Icons.sort,
+                  trailing: dialogWidth < 900
+                      ? PopupMenuButton<LibrarySortPreset>(
+                          tooltip: 'Sorting favorites',
+                          icon: const Icon(Icons.bookmarks_outlined,
+                              color: Colors.white),
+                          onSelected: _applyPreset,
+                          itemBuilder: (context) => [
+                            for (final preset in _combinedPresets)
+                              PopupMenuItem(
+                                  value: preset, child: Text(preset.label)),
+                          ],
+                        )
+                      : null,
                   onClose: () => Navigator.of(context).pop(),
                 ),
                 Expanded(
@@ -118,80 +135,83 @@ class _LibrarySortDialogState extends State<_LibrarySortDialog> {
                     padding: const EdgeInsets.fromLTRB(16, 14, 16, 12),
                     child: Row(
                       children: [
-                        SizedBox(
-                          width: 300,
-                          child: _PaneFrame(
-                            title: 'Sorting Favorites',
-                            count: favoriteCount,
-                            accent: accent,
-                            expandChild: true,
-                            trailing: LibraryDenseIconButton(
-                              tooltip: 'New preset',
-                              onPressed: _resetDraft,
-                              icon: Icons.add,
-                              tone: LibraryDenseButtonTone.subtle,
+                        if (dialogWidth >= 900) ...[
+                          SizedBox(
+                            width: 250,
+                            child: _PaneFrame(
+                              title: 'Sorting Favorites',
+                              count: favoriteCount,
+                              accent: accent,
+                              expandChild: true,
+                              trailing: LibraryDenseIconButton(
+                                tooltip: 'New preset',
+                                onPressed: _resetDraft,
+                                icon: Icons.add,
+                                tone: LibraryDenseButtonTone.subtle,
+                              ),
+                              child: _loadingPresets
+                                  ? const Center(
+                                      child: CircularProgressIndicator())
+                                  : ListView(
+                                      padding:
+                                          const EdgeInsets.fromLTRB(8, 8, 8, 8),
+                                      children: [
+                                        if (matchingPreset == null)
+                                          Padding(
+                                            padding: const EdgeInsets.only(
+                                                bottom: 8),
+                                            child: _SortPresetTile(
+                                              key: const ValueKey(
+                                                  'sort-preset-current-draft'),
+                                              title: _presetNameController.text
+                                                      .trim()
+                                                      .isEmpty
+                                                  ? 'Current draft'
+                                                  : _presetNameController.text
+                                                      .trim(),
+                                              summary: _sortRuleSummary(
+                                                widget.type,
+                                                _rules,
+                                              ),
+                                              accent: accent,
+                                              selected: true,
+                                              onTap: () {},
+                                            ),
+                                          ),
+                                        for (final preset in _combinedPresets)
+                                          Padding(
+                                            padding: const EdgeInsets.only(
+                                                bottom: 8),
+                                            child: _SortPresetTile(
+                                              key: ValueKey(
+                                                  'sort-preset-${preset.id ?? preset.label}'),
+                                              title: preset.label,
+                                              summary: _sortRuleSummary(
+                                                widget.type,
+                                                preset.rules,
+                                              ),
+                                              accent: accent,
+                                              icon: preset.icon,
+                                              selected: matchingPreset !=
+                                                      null &&
+                                                  (matchingPreset.id ==
+                                                          preset.id &&
+                                                      matchingPreset.label ==
+                                                          preset.label),
+                                              builtIn: preset.isBuiltIn,
+                                              onTap: () => _applyPreset(preset),
+                                              onDelete: preset.isSaved
+                                                  ? () =>
+                                                      _deletePreset(preset.id!)
+                                                  : null,
+                                            ),
+                                          ),
+                                      ],
+                                    ),
                             ),
-                            child: _loadingPresets
-                                ? const Center(
-                                    child: CircularProgressIndicator())
-                                : ListView(
-                                    padding:
-                                        const EdgeInsets.fromLTRB(8, 8, 8, 8),
-                                    children: [
-                                      if (matchingPreset == null)
-                                        Padding(
-                                          padding:
-                                              const EdgeInsets.only(bottom: 8),
-                                          child: _SortPresetTile(
-                                            key: const ValueKey(
-                                                'sort-preset-current-draft'),
-                                            title: _presetNameController.text
-                                                    .trim()
-                                                    .isEmpty
-                                                ? 'Current draft'
-                                                : _presetNameController.text
-                                                    .trim(),
-                                            summary: _sortRuleSummary(
-                                              widget.type,
-                                              _rules,
-                                            ),
-                                            accent: accent,
-                                            selected: true,
-                                            onTap: () {},
-                                          ),
-                                        ),
-                                      for (final preset in _combinedPresets)
-                                        Padding(
-                                          padding:
-                                              const EdgeInsets.only(bottom: 8),
-                                          child: _SortPresetTile(
-                                            key: ValueKey(
-                                                'sort-preset-${preset.id ?? preset.label}'),
-                                            title: preset.label,
-                                            summary: _sortRuleSummary(
-                                              widget.type,
-                                              preset.rules,
-                                            ),
-                                            accent: accent,
-                                            icon: preset.icon,
-                                            selected: matchingPreset != null &&
-                                                (matchingPreset.id ==
-                                                        preset.id &&
-                                                    matchingPreset.label ==
-                                                        preset.label),
-                                            builtIn: preset.isBuiltIn,
-                                            onTap: () => _applyPreset(preset),
-                                            onDelete: preset.isSaved
-                                                ? () =>
-                                                    _deletePreset(preset.id!)
-                                                : null,
-                                          ),
-                                        ),
-                                    ],
-                                  ),
                           ),
-                        ),
-                        const SizedBox(width: 12),
+                          const SizedBox(width: 12),
+                        ],
                         Expanded(
                           child: Column(
                             children: [
@@ -264,6 +284,7 @@ class _LibrarySortDialogState extends State<_LibrarySortDialog> {
                                                   const EdgeInsets.fromLTRB(
                                                       12, 12, 12, 8),
                                               child: TextField(
+                                                controller: _searchController,
                                                 decoration: InputDecoration(
                                                   hintText: 'Search fields',
                                                   isDense: true,
@@ -279,8 +300,11 @@ class _LibrarySortDialogState extends State<_LibrarySortDialog> {
                                                           tooltip:
                                                               'Clear search',
                                                           onPressed: () =>
-                                                              setState(() =>
-                                                                  _query = ''),
+                                                              setState(() {
+                                                            _searchController
+                                                                .clear();
+                                                            _query = '';
+                                                          }),
                                                           icon: const Icon(
                                                               Icons.close),
                                                         ),
@@ -543,16 +567,25 @@ class _LibrarySortDialogState extends State<_LibrarySortDialog> {
   }
 
   List<LibrarySortPreset> get _combinedPresets {
+    final available = (widget.availableColumns ??
+            [
+              for (final definition
+                  in libraryKindWorkspaceForKind(widget.type.kind).fields.sorts)
+                definition.id.value,
+            ])
+        .toSet();
     return [
       for (final favorite in librarySortFavoritesForType(widget.type))
-        LibrarySortPreset(
-          id: favorite.id,
-          label: favorite.label,
-          rules: favorite.rules,
-          icon: favorite.icon,
-          isBuiltIn: true,
-        ),
-      ..._savedPresets,
+        if (favorite.rules.every((rule) => available.contains(rule.column)))
+          LibrarySortPreset(
+            id: favorite.id,
+            label: favorite.label,
+            rules: favorite.rules,
+            icon: favorite.icon,
+            isBuiltIn: true,
+          ),
+      ..._savedPresets.where((preset) =>
+          preset.rules.every((rule) => available.contains(rule.column))),
     ];
   }
 
@@ -630,6 +663,7 @@ class _LibrarySortDialogState extends State<_LibrarySortDialog> {
       _rules = [_defaultRule()];
       _editingPresetId = null;
       _presetNameController.clear();
+      _searchController.clear();
       _query = '';
     });
   }
