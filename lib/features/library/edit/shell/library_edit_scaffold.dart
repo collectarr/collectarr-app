@@ -257,102 +257,109 @@ class _LibraryEditDialogScaffoldState extends State<LibraryEditDialogScaffold> {
             : (viewport.width > 1264 ? 1200.0 : viewport.width - 64));
     final maxHeight = viewport.height > 900 ? 850.0 : viewport.height - 24;
     final p = libraryEditPalette(appPalette(context));
-    return LibrarySchemaTextControllerScope(
-      store: _schemaTextControllers,
-      child: LibraryEditTabNavigationScope(
-        orderedTabIds: [
-          for (final sourceIndex in tabOrder)
-            if (sourceIndex >= 0 && sourceIndex < widget.tabIds.length)
-              widget.tabIds[sourceIndex],
-        ],
-        selectedTabId: _selectedTabId,
-        selectTabId: _selectTabId,
-        child: Theme(
-          data: editDialogTheme(
-            seedColor: widget.accent,
-            palette: p,
-            compactDesktop: isWideDesktop,
-          ),
-          child: LibraryDialogScaffold(
-            header: _LibraryEditTitleBar(
-              icon: widget.icon,
-              title: widget.title,
-              badges: widget.badges,
-              onClose: widget.onClose,
-              chromeVariant: widget.chromeVariant,
-              accent: widget.accent,
-              isBusy: widget.isBusy,
+    return PopScope<Object?>(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) {
+        if (!didPop && !widget.isBusy) widget.onCancel();
+      },
+      child: LibrarySchemaTextControllerScope(
+        store: _schemaTextControllers,
+        child: LibraryEditTabNavigationScope(
+          orderedTabIds: [
+            for (final sourceIndex in tabOrder)
+              if (sourceIndex >= 0 && sourceIndex < widget.tabIds.length)
+                widget.tabIds[sourceIndex],
+          ],
+          selectedTabId: _selectedTabId,
+          selectTabId: _selectTabId,
+          child: Theme(
+            data: editDialogTheme(
+              seedColor: widget.accent,
+              palette: p,
+              compactDesktop: isWideDesktop,
             ),
-            footer: widget.footerOverride ??
-                _LibraryEditFooter(
-                  onCancel: widget.onCancel,
-                  onSave: widget.onSave,
-                  onProposeToCore: widget.onProposeToCore,
-                  onPrevious: widget.onPrevious,
-                  onNext: widget.onNext,
-                  chromeVariant: widget.chromeVariant,
-                  accent: widget.accent,
-                  isBusy: widget.isBusy,
-                ),
-            maxWidth: maxWidth,
-            minHeight: 0,
-            maxHeight: maxHeight,
-            alignment: widget.alignment,
-            insetPadding: widget.insetPadding,
-            density: LibraryDensity.comfortable,
-            expandBody: false,
-            body: ConstrainedBox(
-              constraints: BoxConstraints(maxHeight: maxHeight),
-              child: Form(
-                key: widget.formKey,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    if (hasTabStrip)
-                      LibraryEditTabStripFrame(
-                        child: LibraryEditReorderableTabStrip(
-                          tabController: widget.tabController!,
-                          tabs: orderedTabs,
-                          accent: widget.accent,
-                          allowReorder:
-                              widget.allowTabReorder && !widget.isBusy,
-                          enabled: !widget.isBusy,
-                          onReorderItem: _onReorderItem,
-                        ),
-                      ),
-                    Flexible(
-                      fit: FlexFit.loose,
-                      child: Material(
-                        color: p.surfaceBright,
-                        child: hasTabStrip
-                            ? AnimatedBuilder(
-                                animation: widget.tabController!,
-                                builder: (context, _) {
-                                  final rawIndex = widget.tabController!.index;
-                                  final currentIndex = rawIndex < 0
-                                      ? 0
-                                      : rawIndex >= orderedViews.length
-                                          ? orderedViews.length - 1
-                                          : rawIndex;
-                                  return orderedViews[currentIndex];
-                                },
-                              )
-                            : widget.body!,
-                      ),
-                    ),
-                    if (widget.footerContent != null)
-                      Container(
-                        width: double.infinity,
-                        padding: const EdgeInsets.fromLTRB(10, 8, 10, 8),
-                        decoration: BoxDecoration(
-                          color: p.panelRaised,
-                          border: Border(
-                            top: BorderSide(color: p.divider),
+            child: LibraryDialogScaffold(
+              header: _LibraryEditTitleBar(
+                icon: widget.icon,
+                title: widget.title,
+                badges: widget.badges,
+                onClose: widget.onClose,
+                chromeVariant: widget.chromeVariant,
+                accent: widget.accent,
+                isBusy: widget.isBusy,
+              ),
+              footer: widget.footerOverride ??
+                  _LibraryEditFooter(
+                    onCancel: widget.onCancel,
+                    onSave: widget.onSave,
+                    onProposeToCore: widget.onProposeToCore,
+                    onPrevious: widget.onPrevious,
+                    onNext: widget.onNext,
+                    chromeVariant: widget.chromeVariant,
+                    accent: widget.accent,
+                    isBusy: widget.isBusy,
+                  ),
+              maxWidth: maxWidth,
+              minHeight: 0,
+              maxHeight: maxHeight,
+              alignment: widget.alignment,
+              insetPadding: widget.insetPadding,
+              density: LibraryDensity.comfortable,
+              expandBody: false,
+              body: ConstrainedBox(
+                constraints: BoxConstraints(maxHeight: maxHeight),
+                child: Form(
+                  key: widget.formKey,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      if (hasTabStrip)
+                        LibraryEditTabStripFrame(
+                          child: LibraryEditReorderableTabStrip(
+                            tabController: widget.tabController!,
+                            tabs: orderedTabs,
+                            accent: widget.accent,
+                            allowReorder:
+                                widget.allowTabReorder && !widget.isBusy,
+                            enabled: !widget.isBusy,
+                            onReorderItem: _onReorderItem,
                           ),
                         ),
-                        child: widget.footerContent!,
+                      Flexible(
+                        fit: FlexFit.loose,
+                        child: Material(
+                          color: p.surfaceBright,
+                          child: hasTabStrip
+                              ? AnimatedBuilder(
+                                  animation: widget.tabController!,
+                                  builder: (context, _) {
+                                    final rawIndex =
+                                        widget.tabController!.index;
+                                    final currentIndex = rawIndex < 0
+                                        ? 0
+                                        : rawIndex >= orderedViews.length
+                                            ? orderedViews.length - 1
+                                            : rawIndex;
+                                    return orderedViews[currentIndex];
+                                  },
+                                )
+                              : widget.body!,
+                        ),
                       ),
-                  ],
+                      if (widget.footerContent != null)
+                        Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.fromLTRB(10, 8, 10, 8),
+                          decoration: BoxDecoration(
+                            color: p.panelRaised,
+                            border: Border(
+                              top: BorderSide(color: p.divider),
+                            ),
+                          ),
+                          child: widget.footerContent!,
+                        ),
+                    ],
+                  ),
                 ),
               ),
             ),
