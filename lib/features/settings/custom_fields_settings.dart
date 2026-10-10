@@ -9,6 +9,7 @@ import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/ui/compact_search_dropdown_form_field.dart';
 import 'package:collectarr_app/ui/accent_alert_dialog.dart';
+import 'package:collectarr_app/ui/accent_dialog_header.dart';
 import 'package:uuid/uuid.dart';
 import 'package:collectarr_app/features/library/config/library_kind_style.dart';
 
@@ -25,7 +26,10 @@ Future<void> showCustomFieldsManagementDialog({
       child: Builder(
           builder: (context) => AccentAlertDialog(
                 backgroundColor: appPalette(context).panel,
-                title: const Text('Manage custom fields'),
+                title: AccentDialogHeader(
+                  title: 'Manage custom fields',
+                  accent: accent ?? appPalette(context).accent,
+                ),
                 content: SizedBox(
                   width: 920,
                   height: 560,

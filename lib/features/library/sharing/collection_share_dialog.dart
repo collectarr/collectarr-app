@@ -43,6 +43,7 @@ class _CollectionShareDialog extends StatelessWidget {
       titlePadding: EdgeInsets.zero,
       title: AccentDialogHeader(
         title: 'Share collection',
+        accent: Theme.of(context).colorScheme.primary,
       ),
       content: SizedBox(
         width: 360,
@@ -107,7 +108,7 @@ class _CollectionShareDialog extends StatelessWidget {
   void _copyAsText(BuildContext context) {
     final buffer = StringBuffer();
     buffer.writeln(title);
-    buffer.writeln('─' * title.length);
+    buffer.writeln('-' * title.length);
     for (final item in items) {
       buffer.writeln(
         '${item.dto.primaryLabel} [${item.target.stableKey}]',
@@ -312,7 +313,8 @@ class _ShareOption extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           child: Row(
             children: [
-              Icon(icon, size: 20, color: kAppAccent),
+              Icon(icon,
+                  size: 20, color: Theme.of(context).colorScheme.primary),
               const SizedBox(width: 12),
               Text(
                 label,

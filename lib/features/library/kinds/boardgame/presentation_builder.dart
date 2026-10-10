@@ -225,7 +225,7 @@ class BoardGameLibraryMediaPresentationBuilder
             value: (metadata?.minPlayers != null &&
                     metadata?.maxPlayers != null &&
                     metadata!.minPlayers != metadata.maxPlayers)
-                ? '${metadata.minPlayers}â€“${metadata.maxPlayers}'
+                ? '${metadata.minPlayers}–${metadata.maxPlayers}'
                 : '${metadata?.maxPlayers ?? metadata?.minPlayers}',
           ),
         if (metadata?.minPlaytimeMinutes != null ||

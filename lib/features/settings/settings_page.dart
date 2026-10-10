@@ -1442,7 +1442,7 @@ class _FontDiagnosticsPanel extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const Text('Primary: Inter â€¢ Monospace: JetBrains Mono'),
+        const Text('Primary: Inter • Monospace: JetBrains Mono'),
         const SizedBox(height: 8),
         Text(
           'Inter sample: The quick brown fox 12345',

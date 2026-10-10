@@ -14,6 +14,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:collectarr_app/ui/accent_alert_dialog.dart';
+import 'package:collectarr_app/ui/accent_dialog_header.dart';
+import 'package:collectarr_app/features/library/config/library_kind_style.dart';
 import 'package:flutter/services.dart';
 
 /// Supported export formats for collection integration.
@@ -38,10 +40,13 @@ Future<void> showIntegrationExportDialog({
 }) {
   return showDialog<void>(
     context: context,
-    builder: (_) => _IntegrationExportDialog(
-      type: type,
-      shelfState: shelfState,
-      format: format,
+    builder: (context) => Theme(
+      data: libraryAccentTheme(context, libraryAccentForKind(type.kind)),
+      child: _IntegrationExportDialog(
+        type: type,
+        shelfState: shelfState,
+        format: format,
+      ),
     ),
   );
 }
@@ -62,12 +67,10 @@ class _IntegrationExportDialog extends ConsumerWidget {
     final palette = appPalette(context);
     return AccentAlertDialog(
       backgroundColor: palette.panel,
-      title: const Row(
-        children: [
-          Icon(Icons.upload_outlined, size: 22),
-          SizedBox(width: 8),
-          Text('Export Collection'),
-        ],
+      title: AccentDialogHeader(
+        title: 'Export Collection',
+        icon: Icons.upload_outlined,
+        accent: libraryAccentForKind(type.kind),
       ),
       content: SizedBox(
         width: 340,
@@ -241,7 +244,8 @@ class _ExportFormatTile extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
           child: Row(
             children: [
-              Icon(format.icon, size: 20, color: kAppAccent),
+              Icon(format.icon,
+                  size: 20, color: Theme.of(context).colorScheme.primary),
               const SizedBox(width: 12),
               Expanded(
                 child: Column(

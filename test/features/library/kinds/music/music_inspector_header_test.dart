@@ -149,7 +149,8 @@ void main() {
 
     // 8. Catalog Number & eBay link
     expect(find.text('cat no 3984-25039-1'), findsOneWidget);
-    expect(find.text('eBay'), findsNWidgets(2));
+    expect(find.text('eBay'), findsOneWidget);
+    expect(find.byTooltip('Search sold prices on eBay'), findsOneWidget);
 
     // 9. Cover carousel selector dots (Front & Back)
     expect(find.byTooltip('Front cover'), findsOneWidget);

@@ -400,7 +400,7 @@ final class MusicCoverEditorState extends State<MusicCoverEditor> {
           imageType:
               widget.title == 'Back Cover' ? 'back_cover' : 'front_cover',
           imageData: bytes,
-          description: '${candidate.title} â€” ${candidate.artist}',
+          description: '${candidate.title} — ${candidate.artist}',
           sortOrder: current?.sortOrder ?? 0,
           createdAt: current?.createdAt ?? DateTime.now().toUtc(),
         ),
