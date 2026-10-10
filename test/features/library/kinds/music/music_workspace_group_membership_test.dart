@@ -18,6 +18,7 @@ import 'package:collectarr_app/features/library/kinds/music/presentation.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
+import 'package:collectarr_app/features/library/workspace/schema/library_group_values.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_context.dart';
 import 'package:collectarr_app/features/library/workspace/entry/personal_overlay.dart';
 import 'package:collectarr_app/features/library/workspace/entry/workspace_item.dart';
@@ -197,9 +198,11 @@ void main() {
         itemIds: {item.target.id},
         signature: 'mixed-edition',
       );
+      final expectedBuckets =
+          expectedValues.isEmpty ? {libraryEmptyGroupLabel} : expectedValues;
       expect(
-          facetBuckets.itemIdsByBucket.keys, unorderedEquals(expectedValues));
-      for (final value in expectedValues) {
+          facetBuckets.itemIdsByBucket.keys, unorderedEquals(expectedBuckets));
+      for (final value in expectedBuckets) {
         expect(facetBuckets.itemIdsByBucket[value], {item.target.id});
       }
     }

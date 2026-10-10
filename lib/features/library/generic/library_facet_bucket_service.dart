@@ -3,6 +3,7 @@ import 'package:collectarr_app/features/library/config/library_facet_module.dart
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/workspace/layout/library_bucket_sidebar.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_identifier_types.dart';
+import 'package:collectarr_app/features/library/workspace/schema/library_group_values.dart';
 
 class FacetBuckets {
   const FacetBuckets({
@@ -70,6 +71,15 @@ final class LibraryFacetBucketService {
         byBucket.putIfAbsent(name, () => <String>{}).add(normalizedItemId);
       }
     }
+    final assignedItemIds = {
+      for (final ids in byBucket.values) ...ids,
+    };
+    final emptyItemIds = validItemIds.difference(assignedItemIds);
+    if (emptyItemIds.isNotEmpty) {
+      byBucket
+          .putIfAbsent(libraryEmptyGroupLabel, () => <String>{})
+          .addAll(emptyItemIds);
+    }
     return byBucket;
   }
 
@@ -82,7 +92,11 @@ final class LibraryFacetBucketService {
     final sorted = [
       for (final entry in byBucket.entries)
         LibraryBucket(title: entry.key, count: entry.value.length),
-    ]..sort((a, b) => a.title.toLowerCase().compareTo(b.title.toLowerCase()));
+    ]..sort((a, b) {
+        if (a.title == libraryEmptyGroupLabel) return -1;
+        if (b.title == libraryEmptyGroupLabel) return 1;
+        return a.title.toLowerCase().compareTo(b.title.toLowerCase());
+      });
 
     return FacetBuckets(
       shelfSignature: signature,
