@@ -8,7 +8,7 @@ const double kLibraryDetailsMinHeight = 240;
 const double kLibraryDetailsDefaultHeight = 300;
 const double kLibraryWorkspaceMinWidth = 320;
 const double kLibraryWorkspaceMinHeight = 220;
-const double kLibraryPaneDividerWidth = 12;
+const double kLibraryPaneDividerWidth = 6;
 const double kLibraryPaneStoredMaxWidth = 4096;
 
 double clampLibraryPaneWidth(

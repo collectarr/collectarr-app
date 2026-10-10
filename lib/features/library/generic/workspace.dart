@@ -195,7 +195,7 @@ class LibraryWorkspace extends ConsumerWidget {
           selectedIds: selectedIds,
           itemIdOf: (item) => item.target.id,
           onSelectionChanged: onBoxSelectionChanged,
-          backgroundColor: palette.gridCanvas,
+          backgroundColor: libraryWorkspaceBackgroundColor(context),
           itemBuilder: (context, item) => LibraryCoverTile(
             key: ValueKey(item.target.id),
             item: item,
@@ -234,7 +234,7 @@ class LibraryWorkspace extends ConsumerWidget {
           selectedIds: selectedIds,
           itemIdOf: (item) => item.target.id,
           onSelectionChanged: onBoxSelectionChanged,
-          backgroundColor: palette.gridCanvas,
+          backgroundColor: libraryWorkspaceBackgroundColor(context),
           itemBuilder: (context, item) => LibraryWorkspaceCard(
             key: ValueKey(item.target.id),
             item: item,
@@ -263,7 +263,7 @@ class LibraryWorkspace extends ConsumerWidget {
           cardTileHeight: cardTileHeight,
           cardCoverWidth: cardCoverWidth,
           spacing: gridSpacing,
-          backgroundColor: palette.gridCanvas,
+          backgroundColor: libraryWorkspaceBackgroundColor(context),
         ),
       LibraryViewMode.cardFlow => LibraryFlowCarousel(
           items: items,
@@ -341,8 +341,8 @@ class LibraryWorkspace extends ConsumerWidget {
             8.0 +
             kLibraryTableEditWidth +
             8.0;
-        final contentWidth =
-            math.max(tableWidth + leadingActionsWidth + 16, constraints.maxWidth);
+        final contentWidth = math.max(
+            tableWidth + leadingActionsWidth + 16, constraints.maxWidth);
         final allSelected = items.isNotEmpty &&
             items.every((item) => selectedIds.contains(item.target.id));
         final hasPartialSelection =
@@ -416,7 +416,8 @@ class LibraryWorkspace extends ConsumerWidget {
                     beforeColumn,
                   ),
                   showCheckbox: true,
-                  isEntryChecked: (item) => selectedIds.contains(item.target.id),
+                  isEntryChecked: (item) =>
+                      selectedIds.contains(item.target.id),
                   onToggleEntryCheck: (item) =>
                       onToggleSelectionItem(item.target.id),
                   allChecked: allSelected,

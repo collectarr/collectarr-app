@@ -249,7 +249,6 @@ class LibraryBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final palette = appPalette(context);
     return LayoutBuilder(
       builder: (context, constraints) {
         final selected = projection.selectedItem;
@@ -495,7 +494,7 @@ class LibraryBody extends StatelessWidget {
           onLayoutSnapshotChanged: onLayoutSnapshotChanged,
         );
         return ColoredBox(
-          color: palette.canvas,
+          color: libraryWorkspaceBackgroundColor(context),
           child: canShowSidebar
               ? _LibrarySidebarResizableLayout(
                   sidebar: sidebar,

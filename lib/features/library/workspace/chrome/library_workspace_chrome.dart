@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import '../layout/library_pane_widths.dart';
 import '../layout/library_resizable_pane.dart';
 import '../config/library_workspace_config.dart';
+import '../config/library_workspace_tokens.dart';
 
 export 'compact_filter_surface.dart';
 export 'compact_library_top_chrome.dart';
@@ -220,7 +221,11 @@ class _LibraryDetailsAwareLayoutState extends State<LibraryDetailsAwareLayout> {
         Expanded(child: widget.content),
         if (!collapsed)
           if (widget.onRightWidthChanged == null)
-            const VerticalDivider(width: 1)
+            VerticalDivider(
+              width: kLibraryPaneDividerWidth,
+              thickness: kLibraryPaneDividerWidth,
+              color: libraryWorkspacePaneDividerColor(context),
+            )
           else
             LibraryResizableDivider(
               accentColor: widget.accentColor,
@@ -259,7 +264,11 @@ class _LibraryDetailsAwareLayoutState extends State<LibraryDetailsAwareLayout> {
         Expanded(child: widget.content),
         if (!collapsed)
           if (widget.onBottomHeightChanged == null)
-            const Divider(height: 1)
+            Divider(
+              height: kLibraryPaneDividerWidth,
+              thickness: kLibraryPaneDividerWidth,
+              color: libraryWorkspacePaneDividerColor(context),
+            )
           else
             LibraryResizableDivider(
               axis: Axis.vertical,

@@ -2,6 +2,17 @@ import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 
+// Shared paint for the folder panel and the collection browsing surface.
+Color libraryWorkspaceBackgroundColor(BuildContext context) =>
+    Theme.of(context).brightness == Brightness.dark
+        ? const Color(0xff383838)
+        : appPalette(context).panel;
+
+Color libraryWorkspacePaneDividerColor(BuildContext context) =>
+    Theme.of(context).brightness == Brightness.dark
+        ? const Color(0xff262626)
+        : appPalette(context).divider;
+
 const kLibraryToolbarCompactDropdownSize = 28.0;
 const kLibraryToolbarCompactDropdownWidth = 38.0;
 const kLibraryToolbarBandHeight = 38.0;

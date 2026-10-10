@@ -198,3 +198,14 @@ Selected screenshots contain only disposable Collectarr data:
 - [700 px My Images](evidence/music-deep-audit/my-images-700.png)
 - [Pre-fill scope and header accent](evidence/music-deep-audit/prefill.png)
 - [Successful returned loan](evidence/music-deep-audit/loan-returned.png)
+
+
+### Workspace backgrounds and panel dividers
+
+Live CLZ computed styles: folder-panel and view-content both use #383838;
+folder-panel-dragger and detail-panel-dragger use #262626 at 6 px.
+Collectarr now shares the folder background with cover grids, card browsing,
+physical shelves, grouped shelves, and the layout underneath empty content.
+Empty grids paint their configured background. Right and bottom inspector
+separators use the same continuous neutral divider; dragging keeps the kind
+accent. Pane width/height budgets now reserve the actual 6 px separator width.

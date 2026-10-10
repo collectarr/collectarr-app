@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/workspace/config/library_workspace_tokens.dart';
 import 'dart:math' as math;
 
 import 'package:collectarr_app/ui/theme/app_theme.dart';
@@ -21,10 +22,10 @@ Color libraryFolderHoverColor(BuildContext context) =>
 
 Color libraryFolderDepthColor(BuildContext context, int depth) =>
     Theme.of(context).brightness == Brightness.dark
-        ? const Color(0xff383838)
+        ? libraryWorkspaceBackgroundColor(context)
         : Color.alphaBlend(
             Colors.black.withValues(alpha: math.min(depth, 3) * 0.03),
-            appPalette(context).panel);
+            libraryWorkspaceBackgroundColor(context));
 
 double libraryFolderCountWidth(BuildContext context, Iterable<int> counts) {
   final painter = TextPainter(
