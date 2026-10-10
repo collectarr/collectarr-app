@@ -8,6 +8,11 @@ informational complexity findings.
 
 ## Implemented
 
+The latest [deep live Music UI audit](music-ui-functional-deep-audit-2026-10-10.md)
+covers sidebar destinations, all edit tabs, four viewport sizes and selected
+functional flows. It records outstanding dirty-navigation, track-search,
+Statistics-title and drawer-routing defects; UI parity is not yet complete.
+
 - Music's active inspector uses kind-owned Overview, tracks, disc metadata,
   scoped credits and personal sections. Entry context enables Duplicate, Loan,
   collection transfer and provenance unlinking; unlink preserves entry data
