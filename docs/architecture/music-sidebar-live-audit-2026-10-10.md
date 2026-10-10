@@ -8,7 +8,7 @@ CLZ was inspected in an authenticated, separate browser page. Collectarr used an
 
 | Surface | Live observation | Collectarr outcome |
 | --- | --- | --- |
-| Sidebar bucket selection | CLZ Vinyl Color `dad` reduces 39 albums to 4; All Albums restores 39. | Shared bucket selection and restoration are covered by sidebar tests. The rebuilt app was inspected under Has Back and Genre. Jazz selection succeeded, but the return-to-All interaction changed scope; complete parity of drilldown/reset behavior remains open. |
+| Sidebar bucket selection | CLZ Vinyl Color `dad` reduces 39 albums to 4; All Albums restores 39. | Rebuilt Genre None selection reduces three entries to the one empty entry; All Albums restores all three. Shared sidebar/scope tests pass. Nested drilldown/reset behavior remains a separate open check. |
 | Sidebar search | CLZ search `dad` leaves that bucket only; an unmatched query hides all rows, including All Albums and None. Search is local to folder names. | Collectarr has a local folder-name search and tests for sidebar behavior. Do not claim a completed live search parity check for this fixture. |
 | Group selector | CLZ exposes No Folders, Manage Favorites, Favorites, and grouped field lists. | All of these sections are present; Main expands to Artist, Disc Format, Disc Format Family, Genre, Label and date groups. |
 | Sorting editor | CLZ has available checkbox fields, ordered selected rules, ASC/DESC, remove, search, Cancel and Save. | Corresponding controls exist. Search clear now clears both the visible text and filtering state; a widget regression verifies a second query and cancellation. |
@@ -51,9 +51,30 @@ Catalog Item and Library Entry remain distinct workspace surfaces. Personal colu
 3. Compare flat chrome, selection color, exact icon shapes and 14 px bold field labels against screenshots before choosing further shared UI changes.
 4. Check 700 px and smaller column dialogs with saved favorites and long names; the sorting regression currently targets 700?650.
 
-Additional live discrepancy: Genre showed All Albums = 3, Jazz = 1 and Rock = 1, but no None row for the third entry. Investigate the canonical projection/bucket scope before treating empty-value grouping as verified. Do not conflate the absence of a visible row with a confirmed persistence bug.
+Resolved live discrepancy: Genre previously showed All Albums = 3, Jazz = 1 and Rock = 1, but no None row for the third entry. The facet loader omitted entries without values. It now creates the shared `[None]` bucket from valid shelf IDs not assigned to any named bucket, including a membership map used for filtering and collection-scoped counts. The rebuilt three-entry fixture shows All Albums = 3, None = 1, Jazz = 1 and Rock = 1. Selecting None shows only the empty-genre album; selecting All restores all three. This was a projection defect, not a persistence defect.
 
-The CDP browser stopped responding on 10 October. Automatic approval review rejected relaunching Chrome with the authenticated profile and remote debugging; no additional reason was provided. A standard Playwright launch with a fresh temporary profile succeeded. Rebuilt Collectarr sort dialogs were captured at both viewports, Genre grouping was opened, and the rebuilt column manager was captured at both viewports. The fresh profile does not carry the CLZ login; further CLZ live checks remain pending.
+The earlier CDP browser stopped responding on 10 October. Automatic approval review rejected relaunching Chrome with the authenticated profile and remote debugging; no additional reason was provided. A standard Playwright launch with a fresh temporary profile succeeded. Later, Opera DevTools MCP and its CLI successfully opened a separate Opera profile, which the user authenticated to CLZ. Live reference checks have resumed through that CLI. The ChatGPT Browser Connector is installed and enabled separately; this audit uses the working local CLI commands.
+
+## Resumed Opera CLI checks
+
+The authenticated CLZ viewport was 1844 x 945. Collectarr's three-entry fixture was verified at 1440 x 900, and its collection manager was also captured at 1844 x 945 to match the reference. These checks establish interaction behavior and measured geometry, not complete pixel parity.
+
+| Interaction | Observed result |
+| --- | --- |
+| Switch collection | CLZ music2 contains one album; music contains 39. Switching changes results and folder counts together. The original music2 selection was restored. |
+| Search folder names | Searching `dad` leaves only its bucket, while the result list remains at 39 until the bucket is selected. An unmatched query hides All Albums and None as well as named buckets. Search was cleared after inspection. |
+| Select / restore folder | Selecting `dad` reduces the results to four; All Albums restores 39. Counts remain 39 total, 35 None, four dad. |
+| Sort draft | Adding Label appends an ASC rule; the direction control changes it to DESC; removal removes that rule. Cancel and reopen preserve the original Artist ASC / Title ASC rules. No sort changes were saved. |
+| Column draft | Removing Genre changes the draft selected list. Cancel and reopen restore Genre in its original position among the nine configured columns. No column changes were saved. |
+| Manage Collections | CLZ displays draggable rows, album counts, red Private indicators, edit/delete actions, Create new collection and OK. Collectarr displays rows, item counts, a lock / Private label, edit/delete actions, Create new collection and OK. Creating, renaming, deleting, sharing and persisting reorder have not been checked in the live reference during this pass. |
+
+The CLZ sort dialog measures 600 px wide, starts 28 px below the viewport top, has a solid #f2932f header and #262626 body. Available field labels use Gilroy, 14 px, weight 700. The folder list measures 250 px wide with 27 px rows; its search is 26 px tall with #444444 background, and the selected folder is #5eb1de.
+
+Remaining collection-manager visual differences: Collectarr's Create/OK actions use orange rather than CLZ's blue, the Create button occupies more height, the Private indicator uses a lock rather than a red circle, and the dialog outline/corners and action spacing differ. Font files also differ. Shared sort/column favorite panes still change the composition relative to CLZ. Keep these differences open; this pass does not claim they have been corrected.
+
+The CLI's resize_page command returns `Browser.setContentsSize: Not supported` in this Opera version. Other tested commands (navigation, page snapshots, JavaScript inspection, click, fill, keyboard input and screenshots) work. Matching the local fixture to the measured reference viewport avoids treating a failed resize as a successful responsive check.
+
+Current validation after the facet fix: 805 Flutter tests passed, one existing skipped; focused facet/sidebar/scope checks passed 14 tests; analyzer clean; Web release and Windows debug builds passed. Live rebuilt None selection and return-to-All both passed.
 
 ## Validation
 
