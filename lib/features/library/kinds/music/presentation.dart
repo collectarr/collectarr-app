@@ -1,3 +1,5 @@
+import 'package:collectarr_app/features/library/kinds/music/workspace/music_ids.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/config/library_entry_field_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/music/config/music_workspace_field_metadata.dart';
@@ -331,6 +333,84 @@ final musicLibraryMediaPresentation = LibraryMediaPresentation(
   builder: musicLibraryMediaBuilder,
   bucketLabelBuilder: musicLibraryBucketLabelBuilder,
   cardPresentationBuilder: buildMusicCardPresentation,
+  sortFavorites: [
+    LibrarySortFavorite(
+      id: 'artist_title',
+      label: 'Artist / Title',
+      icon: Icons.sort_by_alpha,
+      rules: [
+        LibrarySortRule(
+            column: MusicFieldIds.artistSummary.value, ascending: true),
+        LibrarySortRule(column: MusicFieldIds.title.value, ascending: true)
+      ],
+    ),
+    LibrarySortFavorite(
+      id: 'title_asc',
+      label: 'Title A-Z',
+      icon: Icons.sort_by_alpha,
+      rules: [
+        LibrarySortRule(column: MusicFieldIds.title.value, ascending: true)
+      ],
+    ),
+    LibrarySortFavorite(
+      id: 'release_latest',
+      label: 'Latest release',
+      icon: Icons.event,
+      rules: [
+        LibrarySortRule(
+            column: MusicFieldIds.releaseDate.value, ascending: false),
+        LibrarySortRule(column: MusicFieldIds.title.value, ascending: true)
+      ],
+    ),
+    LibrarySortFavorite(
+      id: 'recent',
+      label: 'Recently added',
+      icon: Icons.update,
+      rules: [
+        LibrarySortRule(column: MusicFieldIds.addedAt.value, ascending: false),
+        LibrarySortRule(column: MusicFieldIds.title.value, ascending: true)
+      ],
+    ),
+    LibrarySortFavorite(
+      id: 'value_desc',
+      label: 'Value high to low',
+      icon: Icons.attach_money,
+      rules: [
+        LibrarySortRule(
+            column: MusicFieldIds.marketValue.value, ascending: false),
+        LibrarySortRule(column: MusicFieldIds.title.value, ascending: true)
+      ],
+    ),
+  ],
+  columnFavorites: [
+    LibraryTableColumnPreset(label: 'Essential', columns: {
+      MusicFieldIds.status.value,
+      MusicFieldIds.cover.value,
+      MusicFieldIds.artistSummary.value,
+      MusicFieldIds.title.value,
+      MusicFieldIds.releaseDate.value,
+      MusicFieldIds.genre.value,
+    }),
+    LibraryTableColumnPreset(label: 'Collection', columns: {
+      MusicFieldIds.status.value,
+      MusicFieldIds.artistSummary.value,
+      MusicFieldIds.title.value,
+      MusicFieldIds.condition.value,
+      MusicFieldIds.pricePaid.value,
+      MusicFieldIds.marketValue.value,
+      MusicFieldIds.location.value,
+      MusicFieldIds.addedAt.value,
+    }),
+    LibraryTableColumnPreset(label: 'Reference', columns: {
+      MusicFieldIds.artistSummary.value,
+      MusicFieldIds.title.value,
+      MusicFieldIds.publisher.value,
+      MusicFieldIds.catalogNumber.value,
+      MusicFieldIds.barcode.value,
+      MusicFieldIds.formatSummary.value,
+      MusicFieldIds.trackCount.value,
+    }),
+  ],
   compactBucketIcon: Icons.person_2_outlined,
   previewLabels: musicPreviewLabels,
   statsLabels: musicStatsLabels,

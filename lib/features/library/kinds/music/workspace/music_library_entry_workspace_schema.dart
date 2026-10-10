@@ -1,3 +1,4 @@
+import 'columns/music_catalog_workspace_columns.dart';
 import 'music_workspace_groups.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_ids.dart';
 import 'package:collectarr_app/features/library/kinds/music/config/music_field_identities.dart';
@@ -23,22 +24,7 @@ final musicLibraryEntryWorkspaceSchema =
     MusicWorkspaceFields.cover,
   ],
   columns: [
-    musicStatusColumn(field: MusicWorkspaceFields.status),
-    musicCoverColumn(field: MusicWorkspaceFields.cover),
-    columnFromField<MusicKind, MusicWorkspaceProjection, String?>(
-      MusicCatalogWorkspaceFields.artistSummary,
-      defaultWidth: 160,
-    ),
-    columnFromField<MusicKind, MusicWorkspaceProjection, String?>(
-      MusicCatalogWorkspaceFields.title,
-      defaultWidth: 260,
-      maxWidth: 520,
-    ),
-    columnFromField<MusicKind, MusicWorkspaceProjection, String?>(
-      MusicCatalogWorkspaceFields.publisher,
-      group: 'Release',
-      defaultWidth: 140,
-    ),
+    ...musicCatalogWorkspaceColumns,
     columnFromField<MusicKind, MusicWorkspaceProjection, String?>(
       MusicPersonalWorkspaceFields.condition,
       group: 'Personal',
@@ -101,6 +87,10 @@ final musicLibraryEntryWorkspaceSchema =
       sortFromField<MusicKind, MusicWorkspaceProjection, String>(
         MusicCatalogWorkspaceFields.title,
       ),
+    sortFromField<MusicKind, MusicWorkspaceProjection, DateTime>(
+      MusicCatalogWorkspaceFields.releaseDate,
+      defaultAscending: false,
+    ),
     musicEarliestDiscRecordingDateSort(),
     musicLatestDiscRecordingDateSort(),
     if (MusicFieldIdentities.publisher.sortable)

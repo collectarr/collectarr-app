@@ -4,12 +4,11 @@ import 'package:collectarr_app/features/library/kinds/music/config/music_field_i
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_catalog_workspace_fields.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_fields.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_dto.dart';
-import 'package:collectarr_app/features/library/kinds/music/workspace/columns/music_workspace_columns.dart';
+import 'columns/music_catalog_workspace_columns.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/sorts/music_workspace_sorts.dart';
 import 'package:collectarr_app/features/library/workspace/schema/field_factories.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_identifier_types.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_workspace_schema.dart';
-import 'package:flutter/material.dart';
 
 final musicCatalogItemWorkspaceSchema =
     LibraryWorkspaceSchema<MusicKind, MusicWorkspaceProjection>(
@@ -19,33 +18,7 @@ final musicCatalogItemWorkspaceSchema =
     MusicWorkspaceFields.status,
     MusicWorkspaceFields.cover,
   ],
-  columns: [
-    musicStatusColumn(field: MusicWorkspaceFields.status),
-    musicCoverColumn(field: MusicWorkspaceFields.cover),
-    columnFromField<MusicKind, MusicWorkspaceProjection, String?>(
-      MusicCatalogWorkspaceFields.artistSummary,
-      defaultWidth: 160,
-    ),
-    columnFromField<MusicKind, MusicWorkspaceProjection, String?>(
-      MusicCatalogWorkspaceFields.title,
-      defaultWidth: 260,
-      maxWidth: 520,
-    ),
-    columnFromField<MusicKind, MusicWorkspaceProjection, Iterable<String>>(
-      MusicCatalogWorkspaceFields.genre,
-      cellValue: (context) => Text(
-        MusicCatalogWorkspaceFields.genre.getValue(context).join(', '),
-      ),
-      defaultWidth: 150,
-    ),
-    musicAlbumDateColumn(
-      field: MusicCatalogWorkspaceFields.releaseDate,
-    ),
-    columnFromField<MusicKind, MusicWorkspaceProjection, num?>(
-      MusicCatalogWorkspaceFields.trackCount,
-      defaultWidth: 90,
-    ),
-  ],
+  columns: musicCatalogWorkspaceColumns,
   sorts: [
     if (MusicFieldIdentities.artistSummary.sortable)
       sortFromField<MusicKind, MusicWorkspaceProjection, String>(
