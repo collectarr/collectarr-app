@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:collectarr_app/features/library/add/models/library_add_prefill_defaults.dart';
 
 import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/core/models/library_entry_projection.dart';
@@ -73,7 +74,34 @@ final class LibraryAddBatchSubmissionResult {
 }
 
 final class LibraryAddSubmissionService {
-  const LibraryAddSubmissionService();
+  const LibraryAddSubmissionService({this.prefillLoader});
+  final Future<PrefillDefaults> Function(CatalogMediaKind)? prefillLoader;
+
+  Future<void> _applyPersonalDefaults(LibraryEntryMutations mutations,
+      LibraryEntryRef ref, PrefillDefaults? defaults,
+      {int? explicitRating}) async {
+    final changes = <String, dynamic>{
+      for (final entry in defaults?.personalValues.entries ??
+          const <MapEntry<String, dynamic>>[])
+        if (!{
+              'condition',
+              'purchase_date',
+              'purchase_store',
+              'price_paid_cents',
+              'currency',
+              'personal_notes',
+              'tags',
+              'location_id',
+              'owner_label',
+              'collection_status',
+              'is_digital',
+              'index_number'
+            }.contains(entry.key) &&
+            (entry.key != 'rating' || explicitRating == null))
+          entry.key: entry.value,
+    };
+    await mutations.updatePersonalData(ref, changes);
+  }
 
   Future<LibraryAddSubmissionResult> submit(
     LibraryAddSubmissionRequest request,
@@ -82,6 +110,7 @@ final class LibraryAddSubmissionService {
       return const LibraryAddSubmissionResult(submittedCount: 0);
     }
     final candidates = [for (final item in request.items) item.candidate];
+    final defaults = await prefillLoader?.call(request.kind);
     final itemIds = await const LibraryAddCoordinator().add(
       LibraryAddBatchRequest(
         dependencies: LibraryAddMutationDependencies(
@@ -92,7 +121,8 @@ final class LibraryAddSubmissionService {
         ),
         items: candidates,
         target: request.target,
-        commonDraft: request.commonDraft,
+        commonDraft:
+            defaults?.applyTo(request.commonDraft) ?? request.commonDraft,
         trackingDraft: request.trackingDraft,
         kindDraftsByCatalogRef: {
           for (final candidate in candidates)
@@ -100,7 +130,11 @@ final class LibraryAddSubmissionService {
         },
         upsertCatalogItems:
             request.upsertCatalogItems && request.catalog != null,
-        onLibraryEntryCreated: request.onLibraryEntryCreated,
+        onLibraryEntryCreated: (ref) async {
+          await _applyPersonalDefaults(request.entryMutations, ref, defaults,
+              explicitRating: request.trackingDraft.rating);
+          await request.onLibraryEntryCreated?.call(ref);
+        },
         onSubmissionCommitted: request.onSubmissionCommitted,
       ),
     );
@@ -122,17 +156,27 @@ final class LibraryAddSubmissionService {
     LibraryAddBatchRequest request,
   ) async {
     final items = request.items.toList(growable: false);
+    final defaults = items.isEmpty
+        ? null
+        : await prefillLoader?.call(items.first.summary.kind);
     final itemIds = await const LibraryAddCoordinator().add(
       LibraryAddBatchRequest(
         dependencies: request.dependencies,
         items: items,
         target: request.target,
         defaults: request.defaults,
-        commonDraft: request.commonDraft,
+        commonDraft: defaults?.applyTo(
+                request.commonDraft ?? request.defaults.toCommonDraft()) ??
+            request.commonDraft,
         trackingDraft: request.trackingDraft,
         kindDraftsByCatalogRef: request.kindDraftsByCatalogRef,
         upsertCatalogItems: request.upsertCatalogItems,
-        onLibraryEntryCreated: request.onLibraryEntryCreated,
+        onLibraryEntryCreated: (ref) async {
+          await _applyPersonalDefaults(
+              request.dependencies.entryMutations, ref, defaults,
+              explicitRating: request.trackingDraft?.rating);
+          await request.onLibraryEntryCreated?.call(ref);
+        },
         onSubmissionCommitted: request.onSubmissionCommitted,
       ),
     );

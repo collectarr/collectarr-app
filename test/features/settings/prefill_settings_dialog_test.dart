@@ -1,5 +1,6 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/features/settings/prefill_settings_dialog.dart';
+import 'package:collectarr_app/features/library/add/models/library_add_prefill_defaults.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:drift/drift.dart' show Value;
 import 'package:drift/native.dart';

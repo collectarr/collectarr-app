@@ -39,7 +39,7 @@ import 'package:collectarr_app/features/library/edit/sections/item_images_edit_s
 import 'package:collectarr_app/features/library/ui/library_dialog_scaffold.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
 import 'package:collectarr_app/features/library/location_picker_dialog.dart';
-import 'package:collectarr_app/features/settings/prefill_settings_dialog.dart';
+import 'package:collectarr_app/features/library/add/models/library_add_prefill_defaults.dart';
 import 'package:collectarr_app/state/api_provider.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/state/auth_provider.dart';
@@ -255,7 +255,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
   }
 
   Future<void> _loadPrefillDefaults() async {
-    final defaults = await PrefillDefaults.load();
+    final defaults = await PrefillDefaults.load(widget.type.kind);
     if (!mounted) return;
     if (defaults.tags != null) {
       _controller.setDefaultTags(defaults.tags);
@@ -263,6 +263,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
     if (defaults.locationId != null) {
       _controller.setDefaultLocationId(defaults.locationId);
     }
+    _controller.updateCommonDraft(defaults.applyTo);
     await _loadPickListOptions();
   }
 

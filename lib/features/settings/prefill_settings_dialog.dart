@@ -7,52 +7,18 @@ import 'package:collectarr_app/ui/accent_dialog_header.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-
-const _prefsPrefix = 'collectarr.prefill.';
-
-/// Defaults that are genuinely universal to collection actions.
-///
-/// Condition, grade, and reading/watch state are intentionally absent. They
-/// belong to the owning kind/tracking domain and must not be configured by a
-/// global Settings model. Older preference keys with those names are ignored
-/// when loading.
-class PrefillDefaults {
-  const PrefillDefaults({
-    this.locationId,
-    this.tags,
-  });
-
-  final String? locationId;
-  final String? tags;
-
-  static Future<PrefillDefaults> load() async {
-    final prefs = await SharedPreferences.getInstance();
-    return PrefillDefaults(
-      locationId: prefs.getString('${_prefsPrefix}location_id'),
-      tags: prefs.getString('${_prefsPrefix}tags'),
-    );
-  }
-
-  Future<void> save() async {
-    final prefs = await SharedPreferences.getInstance();
-    Future<void> set(String key, String? value) async {
-      if (value != null && value.isNotEmpty) {
-        await prefs.setString('$_prefsPrefix$key', value);
-      } else {
-        await prefs.remove('$_prefsPrefix$key');
-      }
-    }
-
-    await set('location_id', locationId);
-    await set('tags', tags);
-  }
-}
+import 'package:collectarr_app/features/library/add/models/library_add_prefill_defaults.dart';
+import 'package:collectarr_app/features/library/edit/draft/library_entry_edit_draft.dart';
+import 'package:collectarr_app/features/library/edit/sections/library_entry_personal_section.dart';
+import 'package:collectarr_app/features/library/entries/library_entry_record.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/features/library/config/library_kind_style.dart';
 
 class PrefillSettingsDialog extends ConsumerStatefulWidget {
-  const PrefillSettingsDialog({super.key, required this.accent});
+  const PrefillSettingsDialog({super.key, required this.accent, this.kind});
 
   final Color accent;
+  final CatalogMediaKind? kind;
 
   @override
   ConsumerState<PrefillSettingsDialog> createState() =>
@@ -64,6 +30,7 @@ class _PrefillSettingsDialogState extends ConsumerState<PrefillSettingsDialog> {
   bool _loaded = false;
   List<StorageLocation> _availableLocations = const [];
   String? _selectedLocationId;
+  LibraryEntryEditDraft? _personalDraft;
 
   @override
   void initState() {
@@ -74,17 +41,26 @@ class _PrefillSettingsDialogState extends ConsumerState<PrefillSettingsDialog> {
   @override
   void dispose() {
     _tagsController.dispose();
+    _personalDraft?.dispose();
     super.dispose();
   }
 
   Future<void> _load() async {
-    final defaults = await PrefillDefaults.load();
+    final defaults = await PrefillDefaults.load(widget.kind);
     final locations = await ref.read(allLocationsProvider.future);
     if (!mounted) return;
     setState(() {
       _tagsController.text = defaults.tags ?? '';
       _availableLocations = locations;
       _selectedLocationId = defaults.locationId;
+      if (widget.kind case final kind?) {
+        _personalDraft = LibraryEntryEditDraft(LibraryEntryRecord(
+            id: 'prefill',
+            kind: kind,
+            catalogData: const {'title': 'Default values'},
+            personalData: defaults.personalValues,
+            updatedAt: DateTime.now().toUtc()));
+      }
       _loaded = true;
     });
   }
@@ -98,7 +74,8 @@ class _PrefillSettingsDialogState extends ConsumerState<PrefillSettingsDialog> {
         side: BorderSide(color: widget.accent.withValues(alpha: 0.3)),
       ),
       child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 440, maxHeight: 520),
+        constraints: BoxConstraints(
+            maxWidth: widget.kind == null ? 440 : 900, maxHeight: 720),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -109,7 +86,9 @@ class _PrefillSettingsDialogState extends ConsumerState<PrefillSettingsDialog> {
                 child: CircularProgressIndicator(),
               )
             else
-              Padding(
+              Flexible(
+                  child: SingleChildScrollView(
+                      child: Padding(
                 padding:
                     const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 child: Column(
@@ -130,9 +109,15 @@ class _PrefillSettingsDialogState extends ConsumerState<PrefillSettingsDialog> {
                     const SizedBox(height: 10),
                     _textField('Tags', _tagsController,
                         hint: 'Comma-separated tags'),
+                    if (_personalDraft case final draft?) ...[
+                      const SizedBox(height: 16),
+                      LibraryEntryPersonalSection(draft: draft),
+                      const SizedBox(height: 12),
+                      LibraryEntryStatusStrip(draft: draft),
+                    ],
                   ],
                 ),
-              ),
+              ))),
             _footer(),
           ],
         ),
@@ -149,6 +134,7 @@ class _PrefillSettingsDialogState extends ConsumerState<PrefillSettingsDialog> {
           setState(() {
             _selectedLocationId = null;
             _tagsController.clear();
+            _personalDraft?.reset();
           });
         },
         child: const Text(
@@ -314,8 +300,9 @@ class _PrefillSettingsDialogState extends ConsumerState<PrefillSettingsDialog> {
                 locationId: _selectedLocationId,
                 tags:
                     _tagsController.text.isEmpty ? null : _tagsController.text,
+                personalValues: Map.of(_personalDraft?.values ?? const {}),
               );
-              await defaults.save();
+              await defaults.save(widget.kind);
               if (mounted) Navigator.of(context).pop(defaults);
             },
           ),
@@ -328,9 +315,12 @@ class _PrefillSettingsDialogState extends ConsumerState<PrefillSettingsDialog> {
 Future<PrefillDefaults?> showPrefillSettingsDialog({
   required BuildContext context,
   required Color accent,
+  CatalogMediaKind? kind,
 }) {
   return showDialog<PrefillDefaults>(
     context: context,
-    builder: (context) => PrefillSettingsDialog(accent: accent),
+    builder: (context) => Theme(
+        data: libraryAccentTheme(context, accent),
+        child: PrefillSettingsDialog(accent: accent, kind: kind)),
   );
 }
