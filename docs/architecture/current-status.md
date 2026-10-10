@@ -1,12 +1,25 @@
 # Current Architecture Status
 
-Last reviewed: 2026-10-10. This report reflects the current working tree and
+Last reviewed: 2026-10-11. This report reflects the current working tree and
 the post-audit release evidence recorded below. The architecture guard has no
 unreviewed AST violations; its exact baseline retains 44 reviewed field-leak
 findings, all still observed and none stale. The checker reports 364
 informational complexity findings. The latest display-settings gate reports 370.
 
 ## Implemented
+
+The latest [menu-by-menu live Music comparison](music-menu-audit-2026-10-11.md)
+opens all 24 Collectarr drawer destinations, 19 CLZ application destinations,
+workspace submenus and editor/settings/admin tabs. Debug interaction uncovered
+and fixed missing Material on compact dialog routes, unbounded stacked Admin
+cards, and field transfer incorrectly requiring Core provenance and passing a
+dispatch wrapper to kind accessors. Copying personal data for three independent
+Music entries now completes and survives reload. CSV/PDF/XML downloads and
+collection creation/persistence are verified on disposable Web fixtures. The
+full gate reports 836 tests passed / 1 skipped, clean analysis and architecture
+boundaries, and a successful Windows debug build. Online Core transactions and
+native pointer-driven comparison remain unverified; visual/workflow differences
+are listed explicitly in the report.
 
 The latest [deep live Music UI audit](music-ui-functional-deep-audit-2026-10-10.md)
 covers sidebar destinations, all edit tabs, four viewport sizes and selected
