@@ -69,7 +69,7 @@ class _LibraryColumnChooserDialogState
     final primary = _effectivePrimaryColumn;
     final selected = {..._selected, if (primary != null) primary};
     for (final preset in _allPresets) {
-      if (_sameColumnSet(preset.columns, selected)) {
+      if (_sameColumnOrder(preset.columns, selected)) {
         return preset;
       }
     }
@@ -102,8 +102,8 @@ class _LibraryColumnChooserDialogState
     final colorScheme = Theme.of(context).colorScheme;
     final accent = widget.accent ?? colorScheme.primary;
     final viewport = MediaQuery.sizeOf(context);
-    final dialogWidth = (viewport.width - 48).clamp(0.0, 1020.0);
-    final dialogHeight = (viewport.height - 36).clamp(0.0, 820.0);
+    final dialogWidth = (viewport.width - 32).clamp(0.0, 960.0);
+    final dialogHeight = (viewport.height - 52).clamp(0.0, 850.0);
     final query = _query.trim().toLowerCase();
     final columns = widget.availableColumns.where((column) {
       final label = widget.columnLabel(column).toLowerCase();
@@ -116,238 +116,267 @@ class _LibraryColumnChooserDialogState
           groupLabel.contains(query);
     }).toList(growable: false);
     final selectedColumns = _orderedVisibleColumns(_selected);
-    return Dialog(
-      backgroundColor: Colors.transparent,
-      insetPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 18),
-      child: SizedBox(
-        width: dialogWidth,
-        height: dialogHeight,
-        child: DecoratedBox(
-          decoration: BoxDecoration(
-            color: palette.panelRaised,
-            borderRadius: BorderRadius.zero,
-            border: Border.all(color: palette.divider),
-            boxShadow: const [
-              BoxShadow(
-                color: Color(0x66000000),
-                blurRadius: 24,
-                offset: Offset(0, 10),
-              ),
-            ],
-          ),
-          child: Column(
-            children: [
-              AccentDialogHeader(
-                title: 'Select Column Fields',
-                accent: accent,
-                onClose: () => Navigator.of(context).pop(),
-              ),
-              Expanded(
-                child: LayoutBuilder(
-                  builder: (context, constraints) {
-                    final compactHeight = constraints.maxHeight < 520;
-                    final favoritesHeight = compactHeight ? 148.0 : 210.0;
+    return Theme(
+      data: Theme.of(context).copyWith(
+        colorScheme: Theme.of(context).colorScheme.copyWith(
+            primary: accent, onPrimary: appContrastingTextColor(accent)),
+        extensions: [
+          ...Theme.of(context)
+              .extensions
+              .values
+              .where((extension) => extension is! AppThemePalette),
+          palette.copyWith(
+              accent: accent,
+              selection: Color.alphaBlend(
+                  accent.withValues(alpha: 0.22), palette.panel))
+        ],
+      ),
+      child: Dialog(
+        backgroundColor: Colors.transparent,
+        alignment: Alignment.topCenter,
+        insetPadding: const EdgeInsets.fromLTRB(16, 28, 16, 24),
+        child: SizedBox(
+          width: dialogWidth,
+          height: dialogHeight,
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              color: palette.panelRaised,
+              borderRadius: BorderRadius.zero,
+              border: Border.all(color: palette.divider),
+              boxShadow: const [
+                BoxShadow(
+                  color: Color(0x66000000),
+                  blurRadius: 24,
+                  offset: Offset(0, 10),
+                ),
+              ],
+            ),
+            child: Column(
+              children: [
+                AccentDialogHeader(
+                  title: 'Select Column Fields',
+                  accent: accent,
+                  flat: true,
+                  minHeight: 38,
+                  onClose: () => Navigator.of(context).pop(),
+                ),
+                Expanded(
+                  child: LayoutBuilder(
+                    builder: (context, constraints) {
+                      final compactHeight = constraints.maxHeight < 520;
+                      final favoritesHeight = compactHeight ? 112.0 : 148.0;
 
-                    return Padding(
-                      padding: const EdgeInsets.fromLTRB(16, 14, 16, 12),
-                      child: Column(
-                        children: [
-                          if (_allPresets.isNotEmpty ||
-                              widget.onSavePreset != null)
-                            SizedBox(
-                              height: favoritesHeight,
-                              child: _PresetShelf(
-                                accent: accent,
-                                presets: _allPresets,
-                                activePreset: _activePreset,
-                                pinnedFavoriteKeys: widget.pinnedFavoriteKeys,
-                                columnLabel: widget.columnLabel,
-                                nameController: _presetNameController,
-                                onApply: _applyPreset,
-                                onEdit: (preset) {
-                                  _presetNameController.text = preset.label;
-                                  _applyPreset(preset);
-                                },
-                                onTogglePin: widget.onTogglePinnedFavorite,
-                                onDelete: widget.onDeletePreset == null
-                                    ? null
-                                    : (preset) {
-                                        if (preset.id != null) {
-                                          _deletePreset(preset.id!);
-                                        }
-                                      },
-                                onSave: widget.onSavePreset == null
-                                    ? null
-                                    : _savePreset,
+                      return Padding(
+                        padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
+                        child: Column(
+                          children: [
+                            if (_allPresets.isNotEmpty ||
+                                widget.onSavePreset != null)
+                              SizedBox(
+                                height: favoritesHeight,
+                                child: _PresetShelf(
+                                  accent: accent,
+                                  presets: _allPresets,
+                                  activePreset: _activePreset,
+                                  pinnedFavoriteKeys: widget.pinnedFavoriteKeys,
+                                  columnLabel: widget.columnLabel,
+                                  nameController: _presetNameController,
+                                  onApply: _applyPreset,
+                                  onEdit: (preset) {
+                                    _presetNameController.text = preset.label;
+                                    _applyPreset(preset);
+                                  },
+                                  onTogglePin: widget.onTogglePinnedFavorite,
+                                  onDelete: widget.onDeletePreset == null
+                                      ? null
+                                      : (preset) {
+                                          if (preset.id != null) {
+                                            _deletePreset(preset.id!);
+                                          }
+                                        },
+                                  onSave: widget.onSavePreset == null
+                                      ? null
+                                      : _savePreset,
+                                ),
+                              ),
+                            const SizedBox(height: 12),
+                            Expanded(
+                              child: Flex(
+                                crossAxisAlignment: CrossAxisAlignment.stretch,
+                                direction: constraints.maxWidth < 520
+                                    ? Axis.vertical
+                                    : Axis.horizontal,
+                                children: [
+                                  Expanded(
+                                    flex: 5,
+                                    child: _PaneFrame(
+                                      title: 'Available fields',
+                                      count: columns.length,
+                                      accent: accent,
+                                      expandChild: true,
+                                      child: Column(
+                                        children: [
+                                          Padding(
+                                            padding: const EdgeInsets.fromLTRB(
+                                                12, 12, 12, 8),
+                                            child: TextField(
+                                              controller: _searchController,
+                                              decoration: InputDecoration(
+                                                isDense: true,
+                                                prefixIcon:
+                                                    const Icon(Icons.search),
+                                                suffixIcon: _query.isEmpty
+                                                    ? null
+                                                    : _InlineClearButton(
+                                                        onPressed: () =>
+                                                            setState(() {
+                                                          _searchController
+                                                              .clear();
+                                                          _query = '';
+                                                        }),
+                                                      ),
+                                                hintText: 'Search fields',
+                                                filled: true,
+                                                fillColor: palette.field,
+                                                border:
+                                                    const OutlineInputBorder(
+                                                  borderRadius:
+                                                      BorderRadius.all(
+                                                          Radius.circular(4)),
+                                                ),
+                                                contentPadding:
+                                                    const EdgeInsets.symmetric(
+                                                  horizontal: 10,
+                                                  vertical: 10,
+                                                ),
+                                              ),
+                                              onChanged: (value) => setState(
+                                                  () => _query = value),
+                                            ),
+                                          ),
+                                          Expanded(
+                                            child: ListView(
+                                              padding:
+                                                  const EdgeInsets.fromLTRB(
+                                                      12, 0, 12, 12),
+                                              children: _availableColumnTiles(
+                                                columns,
+                                                accent: accent,
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8, height: 8),
+                                  Expanded(
+                                    flex: 4,
+                                    child: _PaneFrame(
+                                      title: 'Selected columns',
+                                      count: selectedColumns.length,
+                                      accent: accent,
+                                      expandChild: true,
+                                      child: ReorderableListView.builder(
+                                        buildDefaultDragHandles: false,
+                                        padding: const EdgeInsets.fromLTRB(
+                                            12, 12, 12, 12),
+                                        itemCount: selectedColumns.length,
+                                        proxyDecorator:
+                                            (child, index, animation) {
+                                          return Material(
+                                            color: Color.alphaBlend(
+                                              accent.withValues(alpha: 0.18),
+                                              palette.panel,
+                                            ),
+                                            elevation: 6,
+                                            borderRadius:
+                                                BorderRadius.circular(6),
+                                            child: child,
+                                          );
+                                        },
+                                        onReorderItem: (oldIndex, newIndex) {
+                                          setState(() {
+                                            final reordered = selectedColumns
+                                                .toList(growable: true);
+                                            final column =
+                                                reordered.removeAt(oldIndex);
+                                            reordered.insert(newIndex, column);
+                                            _selected = reordered.toSet();
+                                          });
+                                        },
+                                        itemBuilder: (context, index) {
+                                          final column = selectedColumns[index];
+                                          return _SelectedColumnTile(
+                                            index: index,
+                                            dragHandleKey: ValueKey(
+                                                'selected-column-$column-handle'),
+                                            key: ValueKey(
+                                              'selected-column-$column',
+                                            ),
+                                            title: widget.columnLabel(column),
+                                            removable:
+                                                _effectivePrimaryColumn ==
+                                                        null ||
+                                                    column !=
+                                                        _effectivePrimaryColumn,
+                                            onRemove: () => setState(
+                                              () => _selected.remove(column),
+                                            ),
+                                          );
+                                        },
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
-                          const SizedBox(height: 12),
-                          Expanded(
-                            child: Row(
-                              children: [
-                                Expanded(
-                                  flex: 5,
-                                  child: _PaneFrame(
-                                    title: 'Available fields',
-                                    count: columns.length,
-                                    accent: accent,
-                                    expandChild: true,
-                                    child: Column(
-                                      children: [
-                                        Padding(
-                                          padding: const EdgeInsets.fromLTRB(
-                                              12, 12, 12, 8),
-                                          child: TextField(
-                                            controller: _searchController,
-                                            decoration: InputDecoration(
-                                              isDense: true,
-                                              prefixIcon:
-                                                  const Icon(Icons.search),
-                                              suffixIcon: _query.isEmpty
-                                                  ? null
-                                                  : _InlineClearButton(
-                                                      onPressed: () =>
-                                                          setState(() {
-                                                        _searchController
-                                                            .clear();
-                                                        _query = '';
-                                                      }),
-                                                    ),
-                                              hintText: 'Search fields',
-                                              filled: true,
-                                              fillColor: palette.field,
-                                              border: const OutlineInputBorder(
-                                                borderRadius: BorderRadius.all(
-                                                    Radius.circular(4)),
-                                              ),
-                                              contentPadding:
-                                                  const EdgeInsets.symmetric(
-                                                horizontal: 10,
-                                                vertical: 10,
-                                              ),
-                                            ),
-                                            onChanged: (value) =>
-                                                setState(() => _query = value),
-                                          ),
-                                        ),
-                                        Expanded(
-                                          child: ListView(
-                                            padding: const EdgeInsets.fromLTRB(
-                                                12, 0, 12, 12),
-                                            children: _availableColumnTiles(
-                                              columns,
-                                              accent: accent,
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(width: 12),
-                                Expanded(
-                                  flex: 4,
-                                  child: _PaneFrame(
-                                    title: 'Selected columns',
-                                    count: selectedColumns.length,
-                                    accent: accent,
-                                    expandChild: true,
-                                    child: ReorderableListView.builder(
-                                      padding: const EdgeInsets.fromLTRB(
-                                          12, 12, 12, 12),
-                                      itemCount: selectedColumns.length,
-                                      proxyDecorator:
-                                          (child, index, animation) {
-                                        return Material(
-                                          color: Color.alphaBlend(
-                                            accent.withValues(alpha: 0.18),
-                                            palette.panel,
-                                          ),
-                                          elevation: 6,
-                                          borderRadius:
-                                              BorderRadius.circular(6),
-                                          child: child,
-                                        );
-                                      },
-                                      onReorderItem: (oldIndex, newIndex) {
-                                        setState(() {
-                                          final reordered = selectedColumns
-                                              .toList(growable: true);
-                                          final column =
-                                              reordered.removeAt(oldIndex);
-                                          if (oldIndex < newIndex) {
-                                            newIndex -= 1;
-                                          }
-                                          reordered.insert(newIndex, column);
-                                          _selected = reordered.toSet();
-                                        });
-                                      },
-                                      itemBuilder: (context, index) {
-                                        final column = selectedColumns[index];
-                                        return _SelectedColumnTile(
-                                          key: ValueKey(
-                                            'selected-column-$column',
-                                          ),
-                                          title: widget.columnLabel(column),
-                                          removable: _effectivePrimaryColumn ==
-                                                  null ||
-                                              column != _effectivePrimaryColumn,
-                                          onRemove: () => setState(
-                                            () => _selected.remove(column),
-                                          ),
-                                        );
-                                      },
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
+                          ],
+                        ),
+                      );
+                    },
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+                  child: Row(
+                    children: [
+                      LibraryDenseButton(
+                        onPressed: () {
+                          setState(() {
+                            _selected = Set.of(widget.defaultColumns);
+                            _presetNameController.text =
+                                _activePreset?.label ?? '';
+                          });
+                        },
+                        label: 'Reset',
+                        icon: Icons.restart_alt,
+                        tone: LibraryDenseButtonTone.subtle,
                       ),
-                    );
-                  },
+                      const Spacer(),
+                      LibraryDenseButton(
+                        onPressed: () => Navigator.of(context).pop(),
+                        label: 'Cancel',
+                        tone: LibraryDenseButtonTone.subtle,
+                      ),
+                      const SizedBox(width: 8),
+                      LibraryDenseButton(
+                        onPressed: () {
+                          final result = Set<String>.of(_selected);
+                          if (_effectivePrimaryColumn != null) {
+                            result.add(_effectivePrimaryColumn!);
+                          }
+                          Navigator.of(context).pop(result);
+                        },
+                        label: 'Save',
+                        icon: Icons.check,
+                        tone: LibraryDenseButtonTone.accent,
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-                child: Row(
-                  children: [
-                    LibraryDenseButton(
-                      onPressed: () {
-                        setState(() {
-                          _selected = Set.of(widget.defaultColumns);
-                          _presetNameController.text =
-                              _activePreset?.label ?? '';
-                        });
-                      },
-                      label: 'Reset',
-                      icon: Icons.restart_alt,
-                      tone: LibraryDenseButtonTone.subtle,
-                    ),
-                    const Spacer(),
-                    LibraryDenseButton(
-                      onPressed: () => Navigator.of(context).pop(),
-                      label: 'Cancel',
-                      tone: LibraryDenseButtonTone.subtle,
-                    ),
-                    const SizedBox(width: 8),
-                    LibraryDenseButton(
-                      onPressed: () {
-                        final result = Set<String>.of(_selected);
-                        if (_effectivePrimaryColumn != null) {
-                          result.add(_effectivePrimaryColumn!);
-                        }
-                        Navigator.of(context).pop(result);
-                      },
-                      label: 'Save',
-                      icon: Icons.check,
-                      tone: LibraryDenseButtonTone.accent,
-                    ),
-                  ],
-                ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
@@ -467,8 +496,8 @@ class _LibraryColumnChooserDialogState
                 child: Text(
                   widget.columnLabel(column),
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        fontWeight:
-                            selected ? FontWeight.w700 : FontWeight.w500,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w700,
                         color: locked
                             ? palette.textMuted
                             : Theme.of(context).textTheme.bodyMedium?.color,
@@ -516,11 +545,14 @@ class _LibraryColumnChooserDialogState
         };
   }
 
-  bool _sameColumnSet(
+  bool _sameColumnOrder(
     Set<Object> first,
     Set<Object> second,
   ) {
-    return first.length == second.length && first.containsAll(second);
+    return first.length == second.length &&
+        List.generate(
+                first.length, (i) => first.elementAt(i) == second.elementAt(i))
+            .every((same) => same);
   }
 }
 
@@ -528,11 +560,15 @@ class _SelectedColumnTile extends StatelessWidget {
   const _SelectedColumnTile({
     super.key,
     required this.title,
+    required this.index,
+    required this.dragHandleKey,
     required this.removable,
     required this.onRemove,
   });
 
   final String title;
+  final int index;
+  final Key dragHandleKey;
   final bool removable;
   final VoidCallback onRemove;
 
@@ -550,7 +586,10 @@ class _SelectedColumnTile extends StatelessWidget {
         padding: const EdgeInsets.fromLTRB(8, 6, 4, 6),
         child: Row(
           children: [
-            Icon(Icons.drag_indicator, size: 16, color: palette.textMuted),
+            ReorderableDragStartListener(
+                index: index,
+                child: Icon(Icons.drag_handle,
+                    key: dragHandleKey, size: 16, color: palette.textMuted)),
             const SizedBox(width: 8),
             Expanded(
               child: Text(
@@ -636,7 +675,7 @@ class _PresetShelf extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 SizedBox(
-                  width: 160,
+                  width: MediaQuery.sizeOf(context).width < 520 ? 100 : 160,
                   child: TextField(
                     controller: nameController,
                     style: const TextStyle(fontSize: 12),
@@ -791,7 +830,7 @@ class _PaneFrame extends StatelessWidget {
       child: Column(
         children: [
           Container(
-            padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
+            padding: const EdgeInsets.fromLTRB(8, 6, 8, 6),
             decoration: BoxDecoration(
               color: Color.alphaBlend(
                   accent.withValues(alpha: 0.08), palette.surface),

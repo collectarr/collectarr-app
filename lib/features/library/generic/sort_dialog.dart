@@ -82,452 +82,480 @@ class _LibrarySortDialogState extends State<_LibrarySortDialog> {
     final palette = appPalette(context);
     final accent = widget.type.identity.accent;
     final viewport = MediaQuery.sizeOf(context);
-    final dialogWidth = (viewport.width - 48).clamp(0.0, 1180.0);
+    final dialogWidth = (viewport.width - 32).clamp(0.0, 960.0);
     final availableColumns = _filteredColumns();
     final matchingPreset = _matchingPreset;
     final favoriteCount =
         _combinedPresets.length + (matchingPreset == null ? 1 : 0);
 
-    return Dialog(
-      backgroundColor: Colors.transparent,
-      insetPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 18),
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 1180, maxHeight: 860),
-        child: SizedBox(
-          width: viewport.width - 48,
-          height: viewport.height - 36,
-          child: DecoratedBox(
-            decoration: BoxDecoration(
-              color: palette.panelRaised,
-              borderRadius: BorderRadius.zero,
-              border: Border.all(color: palette.divider),
-              boxShadow: const [
-                BoxShadow(
-                  color: Color(0x66000000),
-                  blurRadius: 28,
-                  offset: Offset(0, 14),
-                ),
-              ],
-            ),
-            child: Column(
-              children: [
-                AccentDialogHeader(
-                  title: 'Select Sort Fields',
-                  accent: accent,
-                  icon: Icons.sort,
-                  trailing: dialogWidth < 900
-                      ? PopupMenuButton<LibrarySortPreset>(
-                          tooltip: 'Sorting favorites',
-                          icon: const Icon(Icons.bookmarks_outlined,
-                              color: Colors.white),
-                          onSelected: _applyPreset,
-                          itemBuilder: (context) => [
-                            for (final preset in _combinedPresets)
-                              PopupMenuItem(
-                                  value: preset, child: Text(preset.label)),
-                          ],
-                        )
-                      : null,
-                  onClose: () => Navigator.of(context).pop(),
-                ),
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(16, 14, 16, 12),
-                    child: Row(
-                      children: [
-                        if (dialogWidth >= 900) ...[
-                          SizedBox(
-                            width: 250,
-                            child: _PaneFrame(
-                              title: 'Sorting Favorites',
-                              count: favoriteCount,
-                              accent: accent,
-                              expandChild: true,
-                              trailing: LibraryDenseIconButton(
-                                tooltip: 'New preset',
-                                onPressed: _resetDraft,
-                                icon: Icons.add,
-                                tone: LibraryDenseButtonTone.subtle,
+    return Theme(
+      data: Theme.of(context).copyWith(
+        colorScheme: Theme.of(context).colorScheme.copyWith(
+            primary: accent, onPrimary: appContrastingTextColor(accent)),
+        extensions: [
+          ...Theme.of(context)
+              .extensions
+              .values
+              .where((extension) => extension is! AppThemePalette),
+          palette.copyWith(
+              accent: accent,
+              selection: Color.alphaBlend(
+                  accent.withValues(alpha: 0.22), palette.panel))
+        ],
+      ),
+      child: Dialog(
+        backgroundColor: Colors.transparent,
+        alignment: Alignment.topCenter,
+        insetPadding: const EdgeInsets.fromLTRB(16, 28, 16, 24),
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 960, maxHeight: 850),
+          child: SizedBox(
+            width: viewport.width - 32,
+            height: (viewport.height - 52).clamp(0.0, 850.0),
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                color: palette.panelRaised,
+                borderRadius: BorderRadius.zero,
+                border: Border.all(color: palette.divider),
+                boxShadow: const [
+                  BoxShadow(
+                    color: Color(0x66000000),
+                    blurRadius: 28,
+                    offset: Offset(0, 14),
+                  ),
+                ],
+              ),
+              child: Column(
+                children: [
+                  AccentDialogHeader(
+                    title: 'Select Sort Fields',
+                    accent: accent,
+                    flat: true,
+                    minHeight: 38,
+                    icon: Icons.sort,
+                    trailing: dialogWidth < 900
+                        ? PopupMenuButton<LibrarySortPreset>(
+                            tooltip: 'Sorting favorites',
+                            icon: const Icon(Icons.bookmarks_outlined),
+                            onSelected: _applyPreset,
+                            itemBuilder: (context) => [
+                              for (final preset in _combinedPresets)
+                                PopupMenuItem(
+                                    value: preset, child: Text(preset.label)),
+                            ],
+                          )
+                        : null,
+                    onClose: () => Navigator.of(context).pop(),
+                  ),
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
+                      child: Row(
+                        children: [
+                          if (dialogWidth >= 900) ...[
+                            SizedBox(
+                              width: 210,
+                              child: _PaneFrame(
+                                title: 'Sorting Favorites',
+                                count: favoriteCount,
+                                accent: accent,
+                                expandChild: true,
+                                trailing: LibraryDenseIconButton(
+                                  tooltip: 'New preset',
+                                  onPressed: _resetDraft,
+                                  icon: Icons.add,
+                                  tone: LibraryDenseButtonTone.subtle,
+                                ),
+                                child: _loadingPresets
+                                    ? const Center(
+                                        child: CircularProgressIndicator())
+                                    : ListView(
+                                        padding: const EdgeInsets.fromLTRB(
+                                            8, 8, 8, 8),
+                                        children: [
+                                          if (matchingPreset == null)
+                                            Padding(
+                                              padding: const EdgeInsets.only(
+                                                  bottom: 8),
+                                              child: _SortPresetTile(
+                                                key: const ValueKey(
+                                                    'sort-preset-current-draft'),
+                                                title: _presetNameController
+                                                        .text
+                                                        .trim()
+                                                        .isEmpty
+                                                    ? 'Current draft'
+                                                    : _presetNameController.text
+                                                        .trim(),
+                                                summary: _sortRuleSummary(
+                                                  widget.type,
+                                                  _rules,
+                                                ),
+                                                accent: accent,
+                                                selected: true,
+                                                onTap: () {},
+                                              ),
+                                            ),
+                                          for (final preset in _combinedPresets)
+                                            Padding(
+                                              padding: const EdgeInsets.only(
+                                                  bottom: 8),
+                                              child: _SortPresetTile(
+                                                key: ValueKey(
+                                                    'sort-preset-${preset.id ?? preset.label}'),
+                                                title: preset.label,
+                                                summary: _sortRuleSummary(
+                                                  widget.type,
+                                                  preset.rules,
+                                                ),
+                                                accent: accent,
+                                                icon: preset.icon,
+                                                selected: matchingPreset !=
+                                                        null &&
+                                                    (matchingPreset.id ==
+                                                            preset.id &&
+                                                        matchingPreset.label ==
+                                                            preset.label),
+                                                builtIn: preset.isBuiltIn,
+                                                onTap: () =>
+                                                    _applyPreset(preset),
+                                                onDelete: preset.isSaved
+                                                    ? () => _deletePreset(
+                                                        preset.id!)
+                                                    : null,
+                                              ),
+                                            ),
+                                        ],
+                                      ),
                               ),
-                              child: _loadingPresets
-                                  ? const Center(
-                                      child: CircularProgressIndicator())
-                                  : ListView(
-                                      padding:
-                                          const EdgeInsets.fromLTRB(8, 8, 8, 8),
+                            ),
+                            const SizedBox(width: 12),
+                          ],
+                          Expanded(
+                            child: Column(
+                              children: [
+                                _PaneFrame(
+                                  title: 'Preset',
+                                  accent: accent,
+                                  child: Padding(
+                                    padding:
+                                        const EdgeInsets.fromLTRB(8, 8, 8, 8),
+                                    child: Row(
                                       children: [
-                                        if (matchingPreset == null)
-                                          Padding(
-                                            padding: const EdgeInsets.only(
-                                                bottom: 8),
-                                            child: _SortPresetTile(
-                                              key: const ValueKey(
-                                                  'sort-preset-current-draft'),
-                                              title: _presetNameController.text
-                                                      .trim()
-                                                      .isEmpty
-                                                  ? 'Current draft'
-                                                  : _presetNameController.text
-                                                      .trim(),
-                                              summary: _sortRuleSummary(
-                                                widget.type,
-                                                _rules,
-                                              ),
-                                              accent: accent,
-                                              selected: true,
-                                              onTap: () {},
+                                        Expanded(
+                                          child: TextField(
+                                            controller: _presetNameController,
+                                            decoration: InputDecoration(
+                                              labelText: 'Preset name',
+                                              filled: true,
+                                              fillColor: palette.field,
+                                              border:
+                                                  const OutlineInputBorder(),
+                                              suffixIcon: _presetNameController
+                                                      .text.isEmpty
+                                                  ? null
+                                                  : IconButton(
+                                                      tooltip:
+                                                          'Clear preset name',
+                                                      onPressed: () {
+                                                        setState(() {
+                                                          _editingPresetId =
+                                                              null;
+                                                          _presetNameController
+                                                              .clear();
+                                                        });
+                                                      },
+                                                      icon: const Icon(
+                                                          Icons.close),
+                                                    ),
                                             ),
+                                            onChanged: (_) => setState(() {}),
                                           ),
-                                        for (final preset in _combinedPresets)
-                                          Padding(
-                                            padding: const EdgeInsets.only(
-                                                bottom: 8),
-                                            child: _SortPresetTile(
-                                              key: ValueKey(
-                                                  'sort-preset-${preset.id ?? preset.label}'),
-                                              title: preset.label,
-                                              summary: _sortRuleSummary(
-                                                widget.type,
-                                                preset.rules,
-                                              ),
-                                              accent: accent,
-                                              icon: preset.icon,
-                                              selected: matchingPreset !=
-                                                      null &&
-                                                  (matchingPreset.id ==
-                                                          preset.id &&
-                                                      matchingPreset.label ==
-                                                          preset.label),
-                                              builtIn: preset.isBuiltIn,
-                                              onTap: () => _applyPreset(preset),
-                                              onDelete: preset.isSaved
-                                                  ? () =>
-                                                      _deletePreset(preset.id!)
-                                                  : null,
-                                            ),
-                                          ),
+                                        ),
+                                        const SizedBox(width: 10),
+                                        LibraryDenseButton(
+                                          label: 'Save favorite',
+                                          icon: Icons.bookmark_add_outlined,
+                                          onPressed: _presetNameController.text
+                                                  .trim()
+                                                  .isEmpty
+                                              ? null
+                                              : _savePresetOnly,
+                                          tone: LibraryDenseButtonTone.subtle,
+                                        ),
                                       ],
                                     ),
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-                        ],
-                        Expanded(
-                          child: Column(
-                            children: [
-                              _PaneFrame(
-                                title: 'Preset',
-                                accent: accent,
-                                child: Padding(
-                                  padding:
-                                      const EdgeInsets.fromLTRB(12, 12, 12, 12),
-                                  child: Row(
+                                  ),
+                                ),
+                                const SizedBox(height: 12),
+                                Expanded(
+                                  child: Flex(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.stretch,
+                                    direction: dialogWidth < 520
+                                        ? Axis.vertical
+                                        : Axis.horizontal,
                                     children: [
                                       Expanded(
-                                        child: TextField(
-                                          controller: _presetNameController,
-                                          decoration: InputDecoration(
-                                            labelText: 'Preset name',
-                                            filled: true,
-                                            fillColor: palette.field,
-                                            border: const OutlineInputBorder(),
-                                            suffixIcon: _presetNameController
-                                                    .text.isEmpty
-                                                ? null
-                                                : IconButton(
-                                                    tooltip:
-                                                        'Clear preset name',
-                                                    onPressed: () {
-                                                      setState(() {
-                                                        _editingPresetId = null;
-                                                        _presetNameController
-                                                            .clear();
-                                                      });
-                                                    },
-                                                    icon:
-                                                        const Icon(Icons.close),
+                                        flex: 5,
+                                        child: _PaneFrame(
+                                          title: 'Available fields',
+                                          count: availableColumns.length,
+                                          accent: accent,
+                                          expandChild: true,
+                                          child: Column(
+                                            children: [
+                                              Padding(
+                                                padding:
+                                                    const EdgeInsets.fromLTRB(
+                                                        12, 12, 12, 8),
+                                                child: TextField(
+                                                  controller: _searchController,
+                                                  decoration: InputDecoration(
+                                                    hintText: 'Search fields',
+                                                    isDense: true,
+                                                    filled: true,
+                                                    fillColor: palette.field,
+                                                    border:
+                                                        const OutlineInputBorder(),
+                                                    prefixIcon: const Icon(
+                                                        Icons.search),
+                                                    suffixIcon: _query.isEmpty
+                                                        ? null
+                                                        : IconButton(
+                                                            tooltip:
+                                                                'Clear search',
+                                                            onPressed: () =>
+                                                                setState(() {
+                                                              _searchController
+                                                                  .clear();
+                                                              _query = '';
+                                                            }),
+                                                            icon: const Icon(
+                                                                Icons.close),
+                                                          ),
                                                   ),
+                                                  onChanged: (value) =>
+                                                      setState(
+                                                          () => _query = value),
+                                                ),
+                                              ),
+                                              Expanded(
+                                                child: ListView(
+                                                  padding:
+                                                      const EdgeInsets.fromLTRB(
+                                                          12, 0, 12, 12),
+                                                  children: [
+                                                    for (final group
+                                                        in LibraryTableColumnGroup
+                                                            .values)
+                                                      if (_groupColumns(group,
+                                                              availableColumns)
+                                                          .isNotEmpty)
+                                                        _SortFieldGroupPanel(
+                                                          title: _groupLabel(
+                                                              group),
+                                                          accent: accent,
+                                                          expanded:
+                                                              _expandedGroups[
+                                                                      group] ??
+                                                                  true,
+                                                          onToggle: () =>
+                                                              setState(
+                                                            () => _expandedGroups[
+                                                                    group] =
+                                                                !(_expandedGroups[
+                                                                        group] ??
+                                                                    true),
+                                                          ),
+                                                          children: [
+                                                            for (final column
+                                                                in _groupColumns(
+                                                                    group,
+                                                                    availableColumns))
+                                                              _AvailableSortFieldTile(
+                                                                key: ValueKey(
+                                                                    'available-sort-$column'),
+                                                                label:
+                                                                    _sortColumnLabel(
+                                                                        widget
+                                                                            .type,
+                                                                        column),
+                                                                directionLabel:
+                                                                    _defaultAscending(
+                                                                            column)
+                                                                        ? 'ASC'
+                                                                        : 'DESC',
+                                                                selected:
+                                                                    _rules.any(
+                                                                  (rule) =>
+                                                                      rule.column ==
+                                                                      column,
+                                                                ),
+                                                                onTap: () =>
+                                                                    _toggleColumn(
+                                                                        column),
+                                                              ),
+                                                          ],
+                                                        ),
+                                                  ],
+                                                ),
+                                              ),
+                                            ],
                                           ),
-                                          onChanged: (_) => setState(() {}),
                                         ),
                                       ),
-                                      const SizedBox(width: 10),
-                                      LibraryDenseButton(
-                                        label: 'Save favorite',
-                                        icon: Icons.bookmark_add_outlined,
-                                        onPressed: _presetNameController.text
-                                                .trim()
-                                                .isEmpty
-                                            ? null
-                                            : _savePresetOnly,
-                                        tone: LibraryDenseButtonTone.subtle,
+                                      const SizedBox(width: 8, height: 8),
+                                      Expanded(
+                                        flex: 4,
+                                        child: _PaneFrame(
+                                          title: 'Selected fields',
+                                          count: _rules.length,
+                                          accent: accent,
+                                          expandChild: true,
+                                          child: ReorderableListView.builder(
+                                            padding: const EdgeInsets.fromLTRB(
+                                                12, 12, 12, 12),
+                                            itemCount: _rules.length,
+                                            buildDefaultDragHandles: false,
+                                            proxyDecorator:
+                                                (child, index, animation) {
+                                              return Material(
+                                                color: Color.alphaBlend(
+                                                  accent.withValues(
+                                                      alpha: 0.14),
+                                                  palette.panelRaised,
+                                                ),
+                                                elevation: 6,
+                                                borderRadius:
+                                                    BorderRadius.circular(6),
+                                                child: child,
+                                              );
+                                            },
+                                            onReorderItem:
+                                                (oldIndex, newIndex) {
+                                              setState(() {
+                                                final reordered = _rules.toList(
+                                                    growable: true);
+                                                final rule = reordered
+                                                    .removeAt(oldIndex);
+                                                reordered.insert(
+                                                    newIndex, rule);
+                                                _rules = reordered;
+                                              });
+                                            },
+                                            itemBuilder: (context, index) {
+                                              final rule = _rules[index];
+                                              final col = rule.column;
+                                              return _SelectedSortRuleTile(
+                                                key: ValueKey(
+                                                    'selected-sort-$col'),
+                                                index: index,
+                                                dragHandleKey: ValueKey(
+                                                  'selected-sort-$col-handle',
+                                                ),
+                                                title: _sortColumnLabel(
+                                                    widget.type, col),
+                                                ascending: rule.ascending,
+                                                canMoveUp: index > 0,
+                                                canMoveDown:
+                                                    index < _rules.length - 1,
+                                                removable: _rules.length > 1,
+                                                onMoveUp: () {
+                                                  if (index <= 0) {
+                                                    return;
+                                                  }
+                                                  setState(() {
+                                                    final reordered = _rules
+                                                        .toList(growable: true);
+                                                    final current = reordered
+                                                        .removeAt(index);
+                                                    reordered.insert(
+                                                        index - 1, current);
+                                                    _rules = reordered;
+                                                  });
+                                                },
+                                                onMoveDown: () {
+                                                  if (index >=
+                                                      _rules.length - 1) {
+                                                    return;
+                                                  }
+                                                  setState(() {
+                                                    final reordered = _rules
+                                                        .toList(growable: true);
+                                                    final current = reordered
+                                                        .removeAt(index);
+                                                    reordered.insert(
+                                                        index + 1, current);
+                                                    _rules = reordered;
+                                                  });
+                                                },
+                                                onToggleDirection: () {
+                                                  setState(() {
+                                                    _rules[index] =
+                                                        _rules[index].copyWith(
+                                                      ascending: !_rules[index]
+                                                          .ascending,
+                                                    );
+                                                  });
+                                                },
+                                                onRemove: () {
+                                                  if (_rules.length <= 1) {
+                                                    return;
+                                                  }
+                                                  setState(() {
+                                                    _rules.removeAt(index);
+                                                  });
+                                                },
+                                              );
+                                            },
+                                          ),
+                                        ),
                                       ),
                                     ],
                                   ),
                                 ),
-                              ),
-                              const SizedBox(height: 12),
-                              Expanded(
-                                child: Row(
-                                  children: [
-                                    Expanded(
-                                      flex: 5,
-                                      child: _PaneFrame(
-                                        title: 'Available fields',
-                                        count: availableColumns.length,
-                                        accent: accent,
-                                        expandChild: true,
-                                        child: Column(
-                                          children: [
-                                            Padding(
-                                              padding:
-                                                  const EdgeInsets.fromLTRB(
-                                                      12, 12, 12, 8),
-                                              child: TextField(
-                                                controller: _searchController,
-                                                decoration: InputDecoration(
-                                                  hintText: 'Search fields',
-                                                  isDense: true,
-                                                  filled: true,
-                                                  fillColor: palette.field,
-                                                  border:
-                                                      const OutlineInputBorder(),
-                                                  prefixIcon:
-                                                      const Icon(Icons.search),
-                                                  suffixIcon: _query.isEmpty
-                                                      ? null
-                                                      : IconButton(
-                                                          tooltip:
-                                                              'Clear search',
-                                                          onPressed: () =>
-                                                              setState(() {
-                                                            _searchController
-                                                                .clear();
-                                                            _query = '';
-                                                          }),
-                                                          icon: const Icon(
-                                                              Icons.close),
-                                                        ),
-                                                ),
-                                                onChanged: (value) => setState(
-                                                    () => _query = value),
-                                              ),
-                                            ),
-                                            Expanded(
-                                              child: ListView(
-                                                padding:
-                                                    const EdgeInsets.fromLTRB(
-                                                        12, 0, 12, 12),
-                                                children: [
-                                                  for (final group
-                                                      in LibraryTableColumnGroup
-                                                          .values)
-                                                    if (_groupColumns(group,
-                                                            availableColumns)
-                                                        .isNotEmpty)
-                                                      _SortFieldGroupPanel(
-                                                        title:
-                                                            _groupLabel(group),
-                                                        accent: accent,
-                                                        expanded:
-                                                            _expandedGroups[
-                                                                    group] ??
-                                                                true,
-                                                        onToggle: () =>
-                                                            setState(
-                                                          () => _expandedGroups[
-                                                                  group] =
-                                                              !(_expandedGroups[
-                                                                      group] ??
-                                                                  true),
-                                                        ),
-                                                        children: [
-                                                          for (final column
-                                                              in _groupColumns(
-                                                                  group,
-                                                                  availableColumns))
-                                                            _AvailableSortFieldTile(
-                                                              key: ValueKey(
-                                                                  'available-sort-$column'),
-                                                              label:
-                                                                  _sortColumnLabel(
-                                                                      widget
-                                                                          .type,
-                                                                      column),
-                                                              directionLabel:
-                                                                  _defaultAscending(
-                                                                          column)
-                                                                      ? 'ASC'
-                                                                      : 'DESC',
-                                                              selected:
-                                                                  _rules.any(
-                                                                (rule) =>
-                                                                    rule.column ==
-                                                                    column,
-                                                              ),
-                                                              onTap: () =>
-                                                                  _toggleColumn(
-                                                                      column),
-                                                            ),
-                                                        ],
-                                                      ),
-                                                ],
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                                    const SizedBox(width: 12),
-                                    Expanded(
-                                      flex: 4,
-                                      child: _PaneFrame(
-                                        title: 'Selected fields',
-                                        count: _rules.length,
-                                        accent: accent,
-                                        expandChild: true,
-                                        child: ReorderableListView.builder(
-                                          padding: const EdgeInsets.fromLTRB(
-                                              12, 12, 12, 12),
-                                          itemCount: _rules.length,
-                                          buildDefaultDragHandles: false,
-                                          proxyDecorator:
-                                              (child, index, animation) {
-                                            return Material(
-                                              color: Color.alphaBlend(
-                                                accent.withValues(alpha: 0.14),
-                                                palette.panelRaised,
-                                              ),
-                                              elevation: 6,
-                                              borderRadius:
-                                                  BorderRadius.circular(6),
-                                              child: child,
-                                            );
-                                          },
-                                          onReorderItem: (oldIndex, newIndex) {
-                                            setState(() {
-                                              final reordered =
-                                                  _rules.toList(growable: true);
-                                              final rule =
-                                                  reordered.removeAt(oldIndex);
-                                              if (oldIndex < newIndex) {
-                                                newIndex -= 1;
-                                              }
-                                              reordered.insert(newIndex, rule);
-                                              _rules = reordered;
-                                            });
-                                          },
-                                          itemBuilder: (context, index) {
-                                            final rule = _rules[index];
-                                            final col = rule.column;
-                                            return _SelectedSortRuleTile(
-                                              key: ValueKey(
-                                                  'selected-sort-$col'),
-                                              index: index,
-                                              dragHandleKey: ValueKey(
-                                                'selected-sort-$col-handle',
-                                              ),
-                                              title: _sortColumnLabel(
-                                                  widget.type, col),
-                                              ascending: rule.ascending,
-                                              canMoveUp: index > 0,
-                                              canMoveDown:
-                                                  index < _rules.length - 1,
-                                              removable: _rules.length > 1,
-                                              onMoveUp: () {
-                                                if (index <= 0) {
-                                                  return;
-                                                }
-                                                setState(() {
-                                                  final reordered = _rules
-                                                      .toList(growable: true);
-                                                  final current =
-                                                      reordered.removeAt(index);
-                                                  reordered.insert(
-                                                      index - 1, current);
-                                                  _rules = reordered;
-                                                });
-                                              },
-                                              onMoveDown: () {
-                                                if (index >=
-                                                    _rules.length - 1) {
-                                                  return;
-                                                }
-                                                setState(() {
-                                                  final reordered = _rules
-                                                      .toList(growable: true);
-                                                  final current =
-                                                      reordered.removeAt(index);
-                                                  reordered.insert(
-                                                      index + 1, current);
-                                                  _rules = reordered;
-                                                });
-                                              },
-                                              onToggleDirection: () {
-                                                setState(() {
-                                                  _rules[index] =
-                                                      _rules[index].copyWith(
-                                                    ascending: !_rules[index]
-                                                        .ascending,
-                                                  );
-                                                });
-                                              },
-                                              onRemove: () {
-                                                if (_rules.length <= 1) {
-                                                  return;
-                                                }
-                                                setState(() {
-                                                  _rules.removeAt(index);
-                                                });
-                                              },
-                                            );
-                                          },
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            'The first field is primary. Later fields break ties.',
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            style:
+                                Theme.of(context).textTheme.bodySmall?.copyWith(
+                                      color: palette.textMuted,
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        LibraryDenseButton(
+                          label: 'Cancel',
+                          onPressed: () => Navigator.of(context).pop(),
+                          tone: LibraryDenseButtonTone.subtle,
+                        ),
+                        const SizedBox(width: 8),
+                        LibraryDenseButton(
+                          label: 'Save',
+                          icon: Icons.check,
+                          onPressed: _saveAndClose,
+                          tone: LibraryDenseButtonTone.accent,
                         ),
                       ],
                     ),
                   ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: Text(
-                          'The first field is primary. Later fields break ties.',
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                          style:
-                              Theme.of(context).textTheme.bodySmall?.copyWith(
-                                    color: palette.textMuted,
-                                    fontWeight: FontWeight.w700,
-                                  ),
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      LibraryDenseButton(
-                        label: 'Cancel',
-                        onPressed: () => Navigator.of(context).pop(),
-                        tone: LibraryDenseButtonTone.subtle,
-                      ),
-                      const SizedBox(width: 8),
-                      LibraryDenseButton(
-                        label: 'Save',
-                        icon: Icons.check,
-                        onPressed: _saveAndClose,
-                        tone: LibraryDenseButtonTone.accent,
-                      ),
-                    ],
-                  ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),
@@ -750,7 +778,7 @@ class _PaneFrame extends StatelessWidget {
       child: Column(
         children: [
           Container(
-            padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
+            padding: const EdgeInsets.fromLTRB(8, 6, 8, 6),
             decoration: BoxDecoration(
               color: Color.alphaBlend(
                   accent.withValues(alpha: 0.08), palette.surface),
@@ -1022,8 +1050,8 @@ class _AvailableSortFieldTile extends StatelessWidget {
                 child: Text(
                   label,
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        fontWeight:
-                            selected ? FontWeight.w700 : FontWeight.w500,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w700,
                       ),
                 ),
               ),
@@ -1073,89 +1101,73 @@ class _SelectedSortRuleTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
-    return ReorderableDragStartListener(
-      index: index,
-      child: Container(
-        margin: const EdgeInsets.only(bottom: 6),
-        decoration: BoxDecoration(
-          color: palette.surfaceSubtle,
-          borderRadius: BorderRadius.circular(4),
-          border: Border.all(color: palette.divider),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(8, 6, 4, 6),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Row(
-                children: [
-                  ReorderableDragStartListener(
-                    index: index,
-                    child: Icon(
-                      Icons.drag_indicator,
-                      key: dragHandleKey,
-                      size: 16,
-                      color: palette.textMuted,
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      title,
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            fontWeight: FontWeight.w600,
-                          ),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 8),
-              Wrap(
-                spacing: 4,
-                runSpacing: 4,
-                children: [
-                  LibraryDenseButton(
-                    label: ascending ? 'ASC' : 'DESC',
-                    onPressed: onToggleDirection,
-                    tone: LibraryDenseButtonTone.subtle,
-                  ),
-                  LibraryDenseIconButton(
-                    tooltip: 'Move up',
-                    onPressed: canMoveUp ? onMoveUp : null,
-                    icon: Icons.arrow_upward,
-                    tone: LibraryDenseButtonTone.subtle,
-                  ),
-                  LibraryDenseIconButton(
-                    tooltip: 'Move down',
-                    onPressed: canMoveDown ? onMoveDown : null,
-                    icon: Icons.arrow_downward,
-                    tone: LibraryDenseButtonTone.subtle,
-                  ),
-                  removable
-                      ? LibraryDenseIconButton(
-                          tooltip: 'Remove sort field',
-                          onPressed: onRemove,
-                          icon: Icons.close,
-                          tone: LibraryDenseButtonTone.subtle,
-                        )
-                      : Tooltip(
-                          message: 'At least one sort field is required',
-                          child: Padding(
-                            padding: const EdgeInsets.all(4),
-                            child: Icon(
-                              Icons.lock_outline,
-                              size: 14,
-                              color: palette.textMuted,
-                            ),
-                          ),
-                        ),
-                ],
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
+    final leading = <Widget>[
+      ReorderableDragStartListener(
+          index: index,
+          child: Icon(Icons.drag_handle,
+              key: dragHandleKey, size: 16, color: palette.textMuted)),
+      const SizedBox(width: 6),
+      Expanded(
+          child: Text(title,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: Theme.of(context)
+                  .textTheme
+                  .bodyMedium
+                  ?.copyWith(fontSize: 14, fontWeight: FontWeight.w700))),
+    ];
+    final actions = <Widget>[
+      LibraryDenseButton(
+          label: ascending ? 'ASC' : 'DESC',
+          onPressed: onToggleDirection,
+          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+          tone: LibraryDenseButtonTone.subtle),
+      SizedBox(
+          width: 26,
+          height: 30,
+          child: PopupMenuButton<int>(
+              tooltip: 'Move sort field',
+              padding: EdgeInsets.zero,
+              icon: const Icon(Icons.more_vert, size: 16),
+              onSelected: (direction) =>
+                  direction < 0 ? onMoveUp() : onMoveDown(),
+              itemBuilder: (context) => [
+                    PopupMenuItem(
+                        value: -1,
+                        enabled: canMoveUp,
+                        child: const Text('Move up')),
+                    PopupMenuItem(
+                        value: 1,
+                        enabled: canMoveDown,
+                        child: const Text('Move down'))
+                  ])),
+      LibraryDenseIconButton(
+          tooltip: removable
+              ? 'Remove sort field'
+              : 'At least one sort field is required',
+          onPressed: removable ? onRemove : null,
+          icon: removable ? Icons.close : Icons.lock_outline,
+          tone: LibraryDenseButtonTone.subtle),
+    ];
+    return LayoutBuilder(
+        builder: (context, constraints) => Container(
+              height: constraints.maxWidth < 230 ? 68 : 38,
+              margin: const EdgeInsets.only(bottom: 4),
+              decoration: BoxDecoration(
+                  color: palette.surfaceSubtle,
+                  borderRadius: BorderRadius.circular(4),
+                  border: Border.all(color: palette.divider)),
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+              child: constraints.maxWidth < 230
+                  ? Column(children: [
+                      Row(children: leading),
+                      const SizedBox(height: 4),
+                      Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: actions)
+                    ])
+                  : Row(children: [...leading, ...actions]),
+            ));
   }
 }
 

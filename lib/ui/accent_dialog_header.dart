@@ -1,12 +1,12 @@
 import 'package:collectarr_app/features/library/config/library_kind_style.dart';
 import 'package:collectarr_app/features/library/ui/library_panel_header.dart';
 import 'package:collectarr_app/ui/library_accent_scope.dart';
+import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
 /// Uniform accent-colored header strip for all modal dialogs.
 ///
-/// Renders the application's main accent with the exact same gradient,
-/// lighting and border effect as the top app bar.
+/// Uses the app-bar gradient by default, or a solid accent when [flat] is true.
 class AccentDialogHeader extends StatelessWidget {
   const AccentDialogHeader({
     super.key,
@@ -18,12 +18,14 @@ class AccentDialogHeader extends StatelessWidget {
     this.minHeight,
     this.titleStyle,
     this.accent,
+    this.flat = false,
   });
 
   final String title;
   final double? minHeight;
   final TextStyle? titleStyle;
   final Color? accent;
+  final bool flat;
 
   final IconData? icon;
 
@@ -42,11 +44,43 @@ class AccentDialogHeader extends StatelessWidget {
     final colorScheme = Theme.of(context).colorScheme;
     final resolvedAccent = accent ??
         LibraryAccentScope.accentOf(context, fallback: colorScheme.primary);
-    const foreground = Colors.white;
+    final foreground =
+        flat ? appContrastingTextColor(resolvedAccent) : Colors.white;
     final effectiveOnClose = showCloseButton
         ? (onClose ?? () => Navigator.of(context).maybePop())
         : null;
 
+    final header = LibraryPanelHeader(
+      backgroundColor: Colors.transparent,
+      minHeight: minHeight,
+      foregroundColor: foreground,
+      borderColor: Colors.transparent,
+      onClose: effectiveOnClose,
+      trailing: trailing,
+      padding: const EdgeInsets.symmetric(horizontal: 14),
+      child: Row(
+        children: [
+          if (icon != null) ...[
+            Icon(icon, size: 20, color: foreground),
+            const SizedBox(width: 10),
+          ],
+          Expanded(
+            child: Text(
+              title,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                color: foreground,
+                fontSize: 15,
+                fontWeight: FontWeight.w800,
+                letterSpacing: 0.2,
+              ).merge(titleStyle),
+            ),
+          ),
+        ],
+      ),
+    );
+    if (flat) return ColoredBox(color: resolvedAccent, child: header);
     return AnimatedLibraryChromeGradient(
       accent: resolvedAccent,
       begin: Alignment.centerLeft,
@@ -59,36 +93,7 @@ class AccentDialogHeader extends StatelessWidget {
           ),
         ),
       ),
-      child: LibraryPanelHeader(
-        backgroundColor: Colors.transparent,
-        minHeight: minHeight,
-        foregroundColor: foreground,
-        borderColor: Colors.transparent,
-        onClose: effectiveOnClose,
-        trailing: trailing,
-        padding: const EdgeInsets.symmetric(horizontal: 14),
-        child: Row(
-          children: [
-            if (icon != null) ...[
-              Icon(icon, size: 20, color: foreground),
-              const SizedBox(width: 10),
-            ],
-            Expanded(
-              child: Text(
-                title,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  color: foreground,
-                  fontSize: 15,
-                  fontWeight: FontWeight.w800,
-                  letterSpacing: 0.2,
-                ).merge(titleStyle),
-              ),
-            ),
-          ],
-        ),
-      ),
+      child: header,
     );
   }
 }
