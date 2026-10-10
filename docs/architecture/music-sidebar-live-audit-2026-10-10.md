@@ -13,7 +13,7 @@ CLZ was inspected in an authenticated, separate browser page. Collectarr used an
 | Group selector | CLZ exposes No Folders, Manage Favorites, Favorites, and grouped field lists. | All of these sections are present; Main expands to Artist, Disc Format, Disc Format Family, Genre, Label and date groups. |
 | Sorting editor | CLZ has available checkbox fields, ordered selected rules, ASC/DESC, remove, search, Cancel and Save. | Corresponding controls exist. Search clear now clears both the visible text and filtering state; a widget regression verifies a second query and cancellation. |
 | Sort favorites | CLZ defaults to Artist / Title and also offers user favorites. | Music now owns canonical Artist / Title, Title A?Z, Latest release, Recently added and Value high to low presets. Recently added reads added_at; value reads market_value. Unsupported presets are excluded from the current dialog's available sort surface. |
-| Sort resize | Collectarr's old 300 px favorite pane crushed field names at 700 px. | Below 900 px dialog width, favorites move to a header menu. Selecting Latest release from that menu and keeping the editor free of Flutter layout exceptions are covered by a widget test. Desktop favorite pane is 250 px. |
+| Sort resize | Collectarr's old 300 px favorite pane crushed field names at 700 px. | Below 900 px dialog width, favorites move to a header menu. Selecting Latest release from that menu and keeping the editor free of Flutter layout exceptions are covered by a widget test. Desktop favorite pane is now 210 px. |
 | Column chooser | CLZ shows available grouped fields and a reorderable selected list with Cancel/Save. | Collectarr provides those controls plus a favorites shelf and Reset. Search clear is fixed and regression tested. |
 | Music columns | Collectarr previously displayed fallback headings and empty Genre/Release Date cells because the entry schema omitted default catalog columns. Shared default favorites also used unregistered generic IDs. | Both Music schemas now reuse explicit Music-owned catalog columns. Genre, Release Date, Track count, Label, Catalog Number, Barcode and Format Summary use their registered definitions. Music column favorites use canonical IDs. Contract tests verify every preset field exists in the entry schema. |
 
@@ -27,12 +27,12 @@ These are measured observations, not a claim of pixel equality.
 | Folder rows | 27 px | Shared row primitive uses 27 px. |
 | Folder search | 26 px; background #444444 | Dense search control present; final screenshot-level color comparison still pending. |
 | Count badge | #464950; selected badge white | Shared folder primitive already uses the CLZ dark badge/hover tone and contrasting selected badge. |
-| Selected folder | #5eb1de blue | Collectarr uses the kind accent, orange for Music. This remains a visual difference. |
-| Sort dialog width | 600 px; top at approximately 28 px | Collectarr remains wider and adds a favorites pane. Narrow layout is corrected, but its composition is not 1:1. |
-| Sort/column dialog header | 38 px, solid #f2932f | Collectarr uses its chrome gradient. Header accent now explicitly follows the kind. Flat background and exact height parity remain open. |
+| Selected folder | #5eb1de blue | Collectarr uses the kind accent, orange for Music. The user explicitly chose this appearance; blue selections are not a parity target. |
+| Sort dialog width | 600 px; top at approximately 28 px | Collectarr is capped at 960 px, starts 28 px below the top and retains its favorites pane/menu. Its composition intentionally remains different. |
+| Sort/column dialog header | 38 px, solid #f2932f | Sort, columns and collections now use a solid kind-accent header with a 38 px minimum height. Other dialogs retain their existing chrome. |
 | Dialog body | #262626 | Collectarr uses app palette panels and extra pane borders; still different. |
 | Available field labels | Gilroy, 14 px, weight 700 | Collectarr uses bundled Collectarr Sans. Weight and metrics should be assessed per control; these fonts are not identical. |
-| Selected sort row | Compact drag bars, ASC/DESC, close icon | Collectarr additionally shows move-up/down actions and uses Material drag/close icons. |
+| Selected sort row | Compact drag bars, ASC/DESC, close icon | Collectarr uses compact drag / ASC-DESC / remove controls and puts Move up/down in an overflow menu. Material icon shapes remain different. |
 | Sidebar manager icon | Font Awesome list icon | Collectarr uses Material format_list_bulleted. Shape differs despite equivalent purpose. |
 | Alphabetical/count sort | Font Awesome sort-alpha-down / sort-amount-down | Collectarr uses Material sort_by_alpha / sort inside a segmented control. Shapes differ. |
 | View chooser | List, Vertical Cards, Horizontal Cards, Covers, Shelves | Collectarr additionally has Flow Carousel; Shelves was disabled in the inspected web fixture. |
@@ -48,7 +48,7 @@ Catalog Item and Library Entry remain distinct workspace surfaces. Personal colu
 
 1. Resume the authenticated browser and verify folder search, alphabetical/count sorting, dictionary manager read-only controls, nested favorites and back navigation on matching fixtures.
 2. Confirm the rebuilt column editor labels, values, preset application, drag order persistence and Cancel/Save semantics.
-3. Compare flat chrome, selection color, exact icon shapes and 14 px bold field labels against screenshots before choosing further shared UI changes.
+3. Compare remaining exact icon shapes and font metrics. Preserve kind-accent selections and buttons, as requested by the user.
 4. Check 700 px and smaller column dialogs with saved favorites and long names; the sorting regression currently targets 700?650.
 
 Resolved live discrepancy: Genre previously showed All Albums = 3, Jazz = 1 and Rock = 1, but no None row for the third entry. The facet loader omitted entries without values. It now creates the shared `[None]` bucket from valid shelf IDs not assigned to any named bucket, including a membership map used for filtering and collection-scoped counts. The rebuilt three-entry fixture shows All Albums = 3, None = 1, Jazz = 1 and Rock = 1. Selecting None shows only the empty-genre album; selecting All restores all three. This was a projection defect, not a persistence defect.
@@ -85,3 +85,27 @@ Final full Flutter suite: 802 passed, one existing skipped. Targeted sidebar, so
 - `cedf20b57` ? canonical Music favorites and reused catalog columns.
 - `7c64f5f58` ? synchronized field search, explicit accents and narrow sort favorites menu.
 - Follow-up column-manager commit wires supported favorites, primary field protection and icon-only column labels.
+
+
+## Accent-preserving sorting, columns and collections follow-up
+
+The user explicitly rejected blue selections/buttons. All three updated dialogs keep the Collectarr palette and kind accent; color matching to CLZ blue is intentionally excluded. A rebuilt browser screenshot caught one sort row still using the global blue selection. The dialog palette now derives selection tint from the kind accent, and a widget regression verifies that palette relationship.
+
+Sorting and columns start 28 px below the viewport top, use a compact solid 38 px header, cap width at 960 px, and render field labels at 14 px / weight 700. Sorting keeps a smaller 210 px desktop favorites pane and a compact menu below 900 px. Available and selected fields stack below 520 px. Narrow selected sort rows place actions on a second line. Column favorites occupy less vertical space. These choices preserve our controls rather than claiming identical CLZ composition or fonts.
+
+Functional fixes: Flutter onReorderItem already normalizes the destination index; sorting and columns no longer adjust it twice. The visible left column drag handle now starts the gesture. Column favorite matching compares ordered fields, so different orders do not falsely identify the same preset.
+
+Manage Collections now has a compact Create action, aligned 38 px rows, dense edit/delete controls and an accent OK action. At narrow widths the Private label becomes a lock tooltip. Nested create/rename/destination/confirmation dialogs inherit the kind theme. Collections remain private local containers with exclusive membership; no sharing functionality was added.
+
+Verified:
+
+- Real widget drag down, Save and reopen for sorting and columns; Cancel preserves prior direction/column membership.
+- Existing preset application, favorites callbacks, primary-column protection and search-clear regressions pass.
+- Manage Collections widget flow: create Vinyl, drag collections and verify database order, cancel rename, delete into Main Collection, protect the last remaining collection. Existing repository tests verify membership transfer, active selection, strict names and kind isolation.
+- Both field dialogs render without overflow at 420 x 740; rebuilt browser screenshots also cover 1440 x 900 and 700 x 650.
+- Rebuilt Playwright fixture: folder-name search hides Rock for Jazz without changing the three-album result scope; vocabulary manager opens; selecting Jazz reduces results to one; Reset folders restores all three. This is a read-only vocabulary check, not a completed vocabulary CRUD audit.
+- Rebuilt None / All selection and collection-manager screenshots were also checked in this pass.
+
+Final verification: 809 Flutter tests passed, one existing skipped; analyzer clean; Web release and Windows debug builds passed; no AST boundary violations or repeated kind implementation clusters. The architecture checker still reports complexity budgets (365), which are warnings rather than a clean complexity result.
+
+Remaining functional audit: nested folder Back navigation, vocabulary create/rename/delete and persisted user-favorite lifecycle across application restart. Reference collection CRUD/reorder has not been exercised against the user's CLZ data. Material icon shapes and font metrics remain deliberate/unresolved differences; this pass does not claim full pixel parity.
