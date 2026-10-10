@@ -9,6 +9,7 @@ import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/selection/library_selection_state.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_tile.dart';
 import 'package:collectarr_app/features/library/workspace/layout/library_flow_carousel.dart';
+import 'package:collectarr_app/features/library/workspace/layout/library_folder_row.dart';
 import 'package:collectarr_app/features/library/workspace/layout/library_shelf_view.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_workspace_card.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
@@ -297,6 +298,7 @@ class LibraryWorkspace extends ConsumerWidget {
           shelfHeight: coverMainAxisExtent,
           bookWidth: viewState.coverSize,
           fallbackCoverAspectRatio: fallbackCoverAspectRatio,
+          backgroundColor: libraryFolderDepthColor(context, 0),
           emptyBuilder: _emptyBuilder,
         ),
     };
@@ -333,7 +335,18 @@ class LibraryWorkspace extends ConsumerWidget {
           viewState.columnWidths,
           target: schemaNode,
         );
-        final contentWidth = math.max(tableWidth + 16, constraints.maxWidth);
+        final leadingActionsWidth = kLibraryTableCheckboxWidth +
+            8.0 +
+            kLibraryTableStatusWidth +
+            8.0 +
+            kLibraryTableEditWidth +
+            8.0;
+        final contentWidth =
+            math.max(tableWidth + leadingActionsWidth + 16, constraints.maxWidth);
+        final allSelected = items.isNotEmpty &&
+            items.every((item) => selectedIds.contains(item.target.id));
+        final hasPartialSelection =
+            items.any((item) => selectedIds.contains(item.target.id));
         return ColoredBox(
           color: palette.panel,
           child: _LibraryHorizontalScrollbar(
@@ -402,6 +415,32 @@ class LibraryWorkspace extends ConsumerWidget {
                     column,
                     beforeColumn,
                   ),
+                  showCheckbox: true,
+                  isEntryChecked: (item) => selectedIds.contains(item.target.id),
+                  onToggleEntryCheck: (item) =>
+                      onToggleSelectionItem(item.target.id),
+                  allChecked: allSelected,
+                  hasPartialCheck: hasPartialSelection,
+                  onToggleAllChecked: (selectAll) {
+                    if (onBoxSelectionChanged != null) {
+                      onBoxSelectionChanged!(
+                        selectAll
+                            ? {for (final item in items) item.target.id}
+                            : <String>{},
+                      );
+                    } else if (items.isNotEmpty) {
+                      onApplySelection(
+                        selectAll
+                            ? {for (final item in items) item.target.id}
+                            : <String>{},
+                        items.first.target.id,
+                      );
+                    }
+                  },
+                  showStatus: true,
+                  statusBuilder: (item) => _buildCollectionStatusIcon(item),
+                  showEdit: true,
+                  onEditEntry: onEditItem,
                   headerHeight: density.tableHeaderHeight,
                   rowHeight: density.tableRowHeight,
                   columnSpacing: 8,
@@ -499,6 +538,40 @@ class LibraryWorkspace extends ConsumerWidget {
       workspace.fieldsForTarget(item.target).decodeColumnId(column),
     );
   }
+
+  Widget _buildCollectionStatusIcon(LibraryProjectionItem item) {
+    if (item.source.loans.isNotEmpty) {
+      return const Tooltip(
+        message: 'On Loan',
+        child: Icon(
+          Icons.schedule_rounded,
+          size: 15,
+          color: Colors.amber,
+        ),
+      );
+    }
+    if (item.source.isWishlisted) {
+      return const Tooltip(
+        message: 'Wishlist',
+        child: Icon(
+          Icons.bookmark_outline_rounded,
+          size: 15,
+          color: Colors.orangeAccent,
+        ),
+      );
+    }
+    if (item.source.isEntry) {
+      return const Tooltip(
+        message: 'In Collection',
+        child: Icon(
+          Icons.check_rounded,
+          size: 15,
+          color: Color(0xFF2A9FD6),
+        ),
+      );
+    }
+    return const SizedBox.shrink();
+  }
 }
 
 class _LibraryHorizontalScrollbar extends StatefulWidget {
@@ -523,13 +596,31 @@ class _LibraryHorizontalScrollbarState
 
   @override
   Widget build(BuildContext context) {
-    return Scrollbar(
-      controller: _scrollController,
-      child: SingleChildScrollView(
+    final palette = appPalette(context);
+    return ScrollbarTheme(
+      data: ScrollbarThemeData(
+        thickness: const WidgetStatePropertyAll<double>(6.0),
+        radius: const Radius.circular(3.0),
+        thumbColor: WidgetStateProperty.resolveWith<Color>((states) {
+          if (states.contains(WidgetState.dragged)) {
+            return palette.accent.withValues(alpha: 0.85);
+          }
+          if (states.contains(WidgetState.hovered)) {
+            return palette.accent.withValues(alpha: 0.65);
+          }
+          return Colors.white24;
+        }),
+        trackVisibility: const WidgetStatePropertyAll<bool>(false),
+        thumbVisibility: const WidgetStatePropertyAll<bool>(true),
+      ),
+      child: Scrollbar(
         controller: _scrollController,
-        primary: false,
-        scrollDirection: Axis.horizontal,
-        child: widget.child,
+        child: SingleChildScrollView(
+          controller: _scrollController,
+          primary: false,
+          scrollDirection: Axis.horizontal,
+          child: widget.child,
+        ),
       ),
     );
   }

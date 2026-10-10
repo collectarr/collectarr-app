@@ -1,14 +1,10 @@
-import 'package:collectarr_app/features/library/kinds/registry/library_kind_contributors.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
-import 'package:collectarr_app/features/library/inspector/library_duplicate_items.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
 import 'package:collectarr_app/features/library/keyboard/library_keyboard_shortcuts.dart';
-import 'package:collectarr_app/features/library/stats/stats_dashboard.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_utility_menu.dart';
 import 'package:collectarr_app/features/settings/prefill_settings_dialog.dart';
 import 'package:flutter/material.dart';
-import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 
 class LibraryToolsButton extends StatelessWidget {
   const LibraryToolsButton({
@@ -68,62 +64,12 @@ class LibraryToolsButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return LibraryUtilityMenu<LibraryQuickView>(
       buttonLabel: 'Tools',
-      quickViewsLabel: 'Views',
-      quickViews: [
-        for (final view in LibraryQuickView.values)
-          if (!view.requiresGrades ||
-              libraryEditPresentationForKind(type.kind)
-                  .collectionValueOptions
-                  .isNotEmpty)
-            LibraryUtilityQuickView(
-              value: view,
-              label: view.label,
-              icon: view.icon,
-            ),
-      ],
+      quickViewsLabel: '',
+      quickViews: const [],
       selectedQuickView: quickView,
       onQuickViewSelected: onQuickViewSelected,
       badgeCount: _utilityBadgeCount,
       actions: [
-        LibraryUtilityMenuAction(
-          icon: Icons.query_stats,
-          label: 'Statistics',
-          section: 'Browse',
-          onSelected: () {
-            final state = shelfState;
-            if (state != null) {
-              showStatsDashboardDialog(context, type: type, state: state);
-            } else {
-              _showGenericStatsDialog(context, type, counts);
-            }
-          },
-        ),
-        if (onRandomPick != null)
-          LibraryUtilityMenuAction(
-            icon: Icons.casino_outlined,
-            label: 'Random pick',
-            section: 'Browse',
-            onSelected: onRandomPick!,
-          ),
-        if (shelfState != null)
-          LibraryUtilityMenuAction(
-            icon: Icons.compare_arrows,
-            label: 'Find duplicates',
-            section: 'Browse',
-            onSelected: () {
-              final groups = findDuplicateShelfGroups(
-                shelfState!.entries,
-              );
-              showDuplicateItemsDialog(context, duplicateGroups: groups);
-            },
-          ),
-        LibraryUtilityMenuAction(
-          icon: Icons.filter_alt_off_outlined,
-          label: 'Clear filters',
-          section: 'Browse',
-          enabled: hasActiveFilters,
-          onSelected: onClearFilters,
-        ),
         if (onEditSort != null)
           LibraryUtilityMenuAction(
             icon: Icons.sort,
@@ -261,121 +207,5 @@ class LibraryToolsButton extends StatelessWidget {
 
   int get _utilityBadgeCount {
     return (selectedBucket != null ? 1 : 0) + (quickView != null ? 1 : 0);
-  }
-}
-
-void _showGenericStatsDialog(
-  BuildContext context,
-  LibraryKindRegistration type,
-  LibraryToolbarCounts counts,
-) {
-  final collectionValue = counts.collectionValue;
-  showDialog<void>(
-    context: context,
-    builder: (context) => AccentAlertDialog(
-      title: Text('${type.identity.pluralLabel} statistics'),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: [
-              _StatsChip('Shown', counts.shown),
-              _StatsChip('Total', counts.total),
-              _StatsChip('Entry', counts.entry),
-              _StatsChip('Wishlist', counts.wishlist),
-              _StatsChip('Missing covers', counts.missingCover),
-              _StatsChip('Missing metadata', counts.missingMetadata),
-            ],
-          ),
-          if (counts.totalPricePaidCents > 0 ||
-              counts.collectionValue != null ||
-              counts.totalSellPriceCents > 0) ...[
-            const SizedBox(height: 16),
-            const Divider(),
-            const SizedBox(height: 8),
-            Text(
-              'Collection Value',
-              style: Theme.of(context).textTheme.titleSmall,
-            ),
-            const SizedBox(height: 8),
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: [
-                if (counts.totalPricePaidCents > 0)
-                  _StatsChipMoney(
-                    'Total paid',
-                    counts.totalPricePaidCents,
-                    counts.priceCurrency,
-                  ),
-                if (collectionValue != null &&
-                    collectionValue.hasMixedCurrencies)
-                  _StatsChip(
-                    'Collection value',
-                    collectionValue.valuedCount,
-                  ),
-                if (collectionValue != null &&
-                    !collectionValue.hasMixedCurrencies &&
-                    collectionValue.totalValueCents != null &&
-                    collectionValue.totalValueCents! > 0)
-                  _StatsChipMoney(
-                    'Collection value',
-                    collectionValue.totalValueCents!,
-                    collectionValue.currency,
-                  ),
-                if (counts.totalSellPriceCents > 0)
-                  _StatsChipMoney(
-                    'Sold total',
-                    counts.totalSellPriceCents,
-                    counts.priceCurrency,
-                  ),
-              ],
-            ),
-          ],
-        ],
-      ),
-      actions: [
-        FilledButton(
-          onPressed: () => Navigator.of(context).pop(),
-          child: const Text('Done'),
-        ),
-      ],
-    ),
-  );
-}
-
-class _StatsChip extends StatelessWidget {
-  const _StatsChip(this.label, this.value);
-
-  final String label;
-  final int value;
-
-  @override
-  Widget build(BuildContext context) {
-    return Chip(
-      label: Text('$label $value'),
-      avatar: const Icon(Icons.query_stats, size: 16),
-    );
-  }
-}
-
-class _StatsChipMoney extends StatelessWidget {
-  const _StatsChipMoney(this.label, this.cents, this.currency);
-
-  final String label;
-  final int cents;
-  final String? currency;
-
-  @override
-  Widget build(BuildContext context) {
-    final cur = currency ?? 'USD';
-    final amount = (cents / 100).toStringAsFixed(2);
-    return Chip(
-      label: Text('$label $amount $cur'),
-      avatar: const Icon(Icons.attach_money, size: 16),
-    );
   }
 }

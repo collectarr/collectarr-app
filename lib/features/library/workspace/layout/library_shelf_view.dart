@@ -21,6 +21,7 @@ class LibraryShelfView<T> extends StatelessWidget {
     this.shelfHeight = 200.0,
     this.bookWidth = 120.0,
     this.fallbackCoverAspectRatio = 2 / 3,
+    this.backgroundColor,
     this.emptyBuilder,
   });
 
@@ -37,6 +38,7 @@ class LibraryShelfView<T> extends StatelessWidget {
   final double shelfHeight;
   final double bookWidth;
   final double fallbackCoverAspectRatio;
+  final Color? backgroundColor;
   final WidgetBuilder? emptyBuilder;
 
   @override
@@ -75,7 +77,7 @@ class LibraryShelfView<T> extends StatelessWidget {
             (i + booksPerShelf).clamp(0, items.length),
           ));
         }
-        return ListView.builder(
+        final listView = ListView.builder(
           padding: const EdgeInsets.only(bottom: 24),
           itemCount: shelves.length,
           itemBuilder: (context, shelfIndex) {
@@ -96,6 +98,13 @@ class LibraryShelfView<T> extends StatelessWidget {
             );
           },
         );
+        if (backgroundColor != null) {
+          return ColoredBox(
+            color: backgroundColor!,
+            child: listView,
+          );
+        }
+        return listView;
       },
     );
   }
