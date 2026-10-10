@@ -95,6 +95,76 @@ void main() {
   });
 
   testWidgets(
+      'manager creates, cancels rename and deletes into another collection on narrow screens',
+      (tester) async {
+    await tester.binding.setSurfaceSize(const Size(420, 740));
+    addTearDown(() => tester.binding.setSurfaceSize(null));
+    await tester.runAsync(() => repo.ensureDefault('music'));
+    await tester.pumpWidget(ProviderScope(
+        overrides: [localDatabaseProvider.overrideWithValue(db)],
+        child: MaterialApp(
+            home: Scaffold(
+                body: LibraryCollectionTabBar(
+                    mediaKind: 'music',
+                    accent: Colors.orange,
+                    onCollectionSelected: (_) {})))));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('library-collection-add')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Create new collection'));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byType(TextField), 'Vinyl');
+    await tester.tap(find.text('Create'));
+    await tester.runAsync(
+        () => Future<void>.delayed(const Duration(milliseconds: 100)));
+    await tester.pumpAndSettle();
+    final vinyl = (await tester.runAsync(() => repo.list('music')))!
+        .singleWhere((c) => c.name == 'Vinyl');
+    final mainId = (await tester.runAsync(() => repo.list('music')))!.first.id;
+    final start =
+        tester.getCenter(find.byKey(ValueKey('collection-drag-$mainId')));
+    final gesture = await tester.startGesture(start);
+    await gesture.moveTo(start + const Offset(0, 24));
+    await tester.pump(const Duration(milliseconds: 300));
+    await gesture.moveTo(start + const Offset(0, 60));
+    await tester.pump(const Duration(milliseconds: 300));
+    await gesture.up();
+    await tester.runAsync(
+        () => Future<void>.delayed(const Duration(milliseconds: 100)));
+    await tester.pumpAndSettle();
+    expect(
+        (await tester.runAsync(() => repo.list('music')))!.first.id, vinyl.id);
+    await tester.tap(find.descendant(
+        of: find.byKey(ValueKey(vinyl.id)),
+        matching: find.byTooltip('Rename collection')));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byType(TextField), 'Unsaved name');
+    await tester.tap(find.text('Cancel'));
+    await tester.pumpAndSettle();
+    expect(
+        find.descendant(
+            of: find.byKey(ValueKey(vinyl.id)), matching: find.text('Vinyl')),
+        findsOneWidget);
+    await tester.tap(find.descendant(
+        of: find.byKey(ValueKey(vinyl.id)),
+        matching: find.byTooltip('Delete collection')));
+    await tester.runAsync(
+        () => Future<void>.delayed(const Duration(milliseconds: 100)));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Main Collection').last);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Delete'));
+    await tester.runAsync(
+        () => Future<void>.delayed(const Duration(milliseconds: 100)));
+    await tester.pumpAndSettle();
+    expect((await tester.runAsync(() => repo.list('music')))!, hasLength(1));
+    expect(find.byTooltip('Keep at least one collection'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+    await tester.pumpWidget(const SizedBox.shrink());
+    await tester.pumpAndSettle();
+  });
+
+  testWidgets(
       'collection tabs select real collections and open a compact manager',
       (tester) async {
     final vinyl = (await tester.runAsync(() async {
