@@ -2,6 +2,7 @@ import 'package:collectarr_app/features/library/workspace/config/library_workspa
 import 'package:collectarr_app/features/library/workspace/table/library_workspace_table.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../../../helpers/test_constants.dart';
@@ -26,7 +27,6 @@ void main() {
       (tester) async {
     Object sortedBy = 'issue';
     String? tapped;
-    (Object, Object?)? reordered;
 
     await tester.pumpWidget(
       MaterialApp(
@@ -68,9 +68,6 @@ void main() {
               onEntryTap: (entry) => tapped = entry,
               onSortChanged: (sort) => sortedBy = sort,
               onColumnWidthChanged: (_, __) {},
-              onColumnReordered: (column, beforeColumn) {
-                reordered = (column, beforeColumn);
-              },
             ),
           ),
         ),
@@ -79,15 +76,11 @@ void main() {
 
     await tester.tap(find.text('title'));
     await tester.tap(find.text('Batman'));
-    await tester.drag(
-      find.byIcon(Icons.drag_indicator).last,
-      const Offset(-140, 0),
-    );
     await pumpUntilSettled(tester);
 
     expect(sortedBy, 'title');
     expect(tapped, 'Batman');
-    expect(reordered, ('issue', 'title'));
+    expect(find.byIcon(Icons.drag_indicator), findsNothing);
     expect(find.byKey(const ValueKey('sort-priority-title')), findsOneWidget);
     expect(find.byKey(const ValueKey('sort-priority-issue')), findsOneWidget);
   });
@@ -242,14 +235,12 @@ void main() {
     final afterTapBorder = afterTapBox.border! as Border;
     expect(afterTapBox.color, isNot(beforeTapBox.color));
     expect(afterTapBox.boxShadow, isNull);
-    expect(afterTapBorder.left.color, const Color(0xFFFFD400));
+    expect(afterTapBorder.left.color, kAppAccent);
     expect(afterTapBorder.left.width, 3);
   });
 
-  testWidgets('workspace table can reorder a column to the end',
+  testWidgets('workspace table column header does not render drag handles',
       (tester) async {
-    (Object, Object?)? reordered;
-
     await tester.pumpWidget(
       MaterialApp(
         home: Scaffold(
@@ -271,7 +262,7 @@ void main() {
                 'issue' => 'issue',
                 _ => null,
               },
-              columnLabelFor: (column) => column == 'title' ? '' : column,
+              columnLabelFor: (column) => column == 'title' ? 'Title' : 'Issue',
               columnIsNumeric: (column) => column == 'issue',
               cellBuilder: (entry, column) => Text(
                 column == 'title' ? entry : '#1',
@@ -280,24 +271,15 @@ void main() {
               onEntryTap: (_) {},
               onSortChanged: (_) {},
               onColumnWidthChanged: (_, __) {},
-              onColumnReordered: (column, beforeColumn) {
-                reordered = (column, beforeColumn);
-              },
             ),
           ),
         ),
       ),
     );
 
-    final start = tester.getCenter(find.byIcon(Icons.drag_indicator).first);
-    final issueHeader = tester.getCenter(find.text('issue'));
-    await tester.dragFrom(
-      start,
-      Offset(issueHeader.dx - start.dx + 30, 0),
-    );
-    await pumpUntilSettled(tester);
-
-    expect(reordered, ('title', null));
+    expect(find.byIcon(Icons.drag_indicator), findsNothing);
+    expect(find.text('Title'), findsOneWidget);
+    expect(find.text('Issue'), findsOneWidget);
   });
 
   testWidgets('workspace table scrollbar hover stays attached to its list view',
@@ -347,5 +329,94 @@ void main() {
     await pumpUntilSettled(tester);
 
     expect(tester.takeException(), isNull);
+  });
+
+  testWidgets(
+      'workspace table renders checkbox, status, and edit action and responds to callbacks',
+      (tester) async {
+    final checkedEntries = <String>{'Spider-Man'};
+    bool? allCheckedVal;
+    String? editedEntry;
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: SizedBox(
+            width: 500,
+            height: 200,
+            child: StatefulBuilder(
+              builder: (context, setState) {
+                return LibraryWorkspaceTable<String>(
+                  entries: const ['Spider-Man', 'Batman'],
+                  columns: const ['title'],
+                  sortColumn: 'title',
+                  sortAscending: true,
+                  columnWidthFor: (_) => 150,
+                  defaultColumnWidthFor: (_) => 150,
+                  columnSortFor: (_) => 'title',
+                  columnLabelFor: (_) => 'Title',
+                  columnIsNumeric: (_) => false,
+                  cellBuilder: (entry, _) => Text(entry),
+                  isSelected: (_) => false,
+                  onEntryTap: (_) {},
+                  onSortChanged: (_) {},
+                  onColumnWidthChanged: (_, __) {},
+                  showCheckbox: true,
+                  isEntryChecked: (entry) => checkedEntries.contains(entry),
+                  onToggleEntryCheck: (entry) {
+                    setState(() {
+                      if (checkedEntries.contains(entry)) {
+                        checkedEntries.remove(entry);
+                      } else {
+                        checkedEntries.add(entry);
+                      }
+                    });
+                  },
+                  allChecked: checkedEntries.length == 2,
+                  hasPartialCheck: checkedEntries.isNotEmpty,
+                  onToggleAllChecked: (selectAll) {
+                    allCheckedVal = selectAll;
+                  },
+                  showStatus: true,
+                  statusBuilder: (entry) => Icon(
+                    entry == 'Spider-Man'
+                        ? Icons.check_circle
+                        : Icons.bookmark,
+                    key: ValueKey('status-$entry'),
+                    size: 16,
+                  ),
+                  showEdit: true,
+                  onEditEntry: (entry) => editedEntry = entry,
+                );
+              },
+            ),
+          ),
+        ),
+      ),
+    );
+
+    // Verify status icons rendered
+    expect(find.byKey(const ValueKey('status-Spider-Man')), findsOneWidget);
+    expect(find.byKey(const ValueKey('status-Batman')), findsOneWidget);
+
+    // Verify edit icons rendered (2 rows)
+    final editIcons = find.byIcon(Icons.edit_outlined);
+    expect(editIcons, findsNWidgets(2));
+
+    // Tap edit icon on Batman (second row)
+    await tester.tap(editIcons.last);
+    await pumpUntilSettled(tester);
+    expect(editedEntry, 'Batman');
+
+    // Tap row checkbox for Batman to toggle it
+    // First checkbox in header, then Spider-Man, then Batman
+    final checkableBoxes = find.byType(InkWell);
+    // Tap header select-all checkbox
+    await tester.tap(checkableBoxes.first);
+    await pumpUntilSettled(tester);
+    expect(allCheckedVal, isTrue);
+
+    // Tap Batman's checkbox directly
+    await tester.tap(find.text('Batman'));
   });
 }

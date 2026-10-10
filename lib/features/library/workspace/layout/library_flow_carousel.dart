@@ -633,6 +633,9 @@ class _FlowCarouselCardState extends State<_FlowCarouselCard> {
         child: InkWell(
           mouseCursor: WidgetStateMouseCursor.clickable,
           borderRadius: kAppRadiusLarge,
+          hoverColor: Colors.transparent,
+          highlightColor: Colors.transparent,
+          splashColor: Colors.transparent,
           onTap: widget.onTap,
           onDoubleTap: widget.onDoubleTap,
           onSecondaryTapUp: widget.onSecondaryTapUp,
@@ -682,6 +685,7 @@ class _FlowCarouselCardState extends State<_FlowCarouselCard> {
                             accentColor: widget.accent,
                             enableFullscreen: false,
                             enableSecondaryControl: false,
+                            enableHoverCue: false,
                           ),
                         ),
                       ),

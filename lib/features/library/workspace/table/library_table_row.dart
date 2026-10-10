@@ -49,13 +49,9 @@ class LibraryTableInkRow extends StatelessWidget {
     final resolvedVerticalPadding =
         verticalPadding * densityMetrics.tableVerticalPaddingScale;
     final baseColor = odd ? oddColor : evenColor;
-    final resolvedSelectedColor = Color.alphaBlend(
-      selectedColor.withValues(alpha: 0.52),
-      baseColor,
-    );
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: selected ? resolvedSelectedColor : baseColor,
+        color: selected ? selectedColor : baseColor,
         border: Border(
           left: BorderSide(
             color: selected ? selectionRailColor : Colors.transparent,
