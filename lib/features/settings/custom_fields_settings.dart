@@ -10,33 +10,39 @@ import 'package:flutter/material.dart';
 import 'package:collectarr_app/ui/compact_search_dropdown_form_field.dart';
 import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 import 'package:uuid/uuid.dart';
+import 'package:collectarr_app/features/library/config/library_kind_style.dart';
 
 Future<void> showCustomFieldsManagementDialog({
   required BuildContext context,
   required LocalDatabase db,
   bool startCreating = false,
+  Color? accent,
 }) {
   return showDialog<void>(
     context: context,
-    builder: (context) => AccentAlertDialog(
-      backgroundColor: appPalette(context).panel,
-      title: const Text('Manage custom fields'),
-      content: SizedBox(
-        width: 920,
-        height: 560,
-        child: SingleChildScrollView(
-          child: CustomFieldsSettings(
-            db: db,
-            startCreating: startCreating,
-          ),
-        ),
-      ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.of(context).pop(),
-          child: const Text('Close'),
-        ),
-      ],
+    builder: (context) => Theme(
+      data: libraryAccentTheme(context, accent ?? appPalette(context).accent),
+      child: Builder(
+          builder: (context) => AccentAlertDialog(
+                backgroundColor: appPalette(context).panel,
+                title: const Text('Manage custom fields'),
+                content: SizedBox(
+                  width: 920,
+                  height: 560,
+                  child: SingleChildScrollView(
+                    child: CustomFieldsSettings(
+                      db: db,
+                      startCreating: startCreating,
+                    ),
+                  ),
+                ),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    child: const Text('Close'),
+                  ),
+                ],
+              )),
     ),
   );
 }

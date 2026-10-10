@@ -25,13 +25,17 @@ class MusicDiscTabButton extends StatelessWidget {
     return InkWell(
       onTap: onPressed,
       mouseCursor: SystemMouseCursors.click,
-      borderRadius: const BorderRadius.vertical(top: Radius.circular(3)),
-      child: Container(
+      borderRadius: const BorderRadius.vertical(top: Radius.circular(4)),
+      child: AnimatedContainer(
+        duration: MediaQuery.disableAnimationsOf(context)
+            ? Duration.zero
+            : const Duration(milliseconds: 250),
+        curve: Curves.ease,
         height: 32,
         padding: const EdgeInsets.only(left: 12, right: 8),
         decoration: BoxDecoration(
           color: selected ? const Color(0xFF383838) : const Color(0xFF131313),
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(3)),
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(4)),
           border: Border(
             top: BorderSide(
               color:
@@ -54,8 +58,8 @@ class MusicDiscTabButton extends StatelessWidget {
             Text(
               label,
               style: TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w700,
+                fontSize: 14,
+                fontWeight: FontWeight.w400,
                 color: selected ? Colors.white : const Color(0xFFAAAAAA),
               ),
             ),

@@ -108,6 +108,49 @@ final class LibraryEntriesRepository {
         ));
   }
 
+  Future<LibraryEntryMutationResult> updatePersonalData(
+      LibraryEntryRef ref, JsonMap changes,
+      {required DateTime updatedAt}) async {
+    final existing =
+        await LibraryEntryStore(database).find(ref.kind, ref.id.value);
+    if (existing == null || existing.deletedAt != null) {
+      throw StateError('Active library entry not found: ${ref.key}');
+    }
+    return _persistence.replaceFromPayload(
+        ref.kind,
+        JsonMap.from(LibraryEntryRecord(
+          id: existing.id,
+          kind: existing.kind,
+          catalogData: existing.catalogData,
+          personalData: {...existing.personalData, ...changes},
+          sourceCatalogRef: existing.sourceCatalogRef,
+          updatedAt: updatedAt.toUtc(),
+        ).toJson()));
+  }
+
+  Future<LibraryEntryMutationResult> linkToCore(
+      LibraryEntryRef ref, CatalogItemRef catalogRef,
+      {required DateTime updatedAt}) async {
+    if (ref.kind != catalogRef.kind) {
+      throw ArgumentError('Catalog kind must match entry kind.');
+    }
+    final existing =
+        await LibraryEntryStore(database).find(ref.kind, ref.id.value);
+    if (existing == null || existing.deletedAt != null) {
+      throw StateError('Active library entry not found: ${ref.key}');
+    }
+    return _persistence.replaceFromPayload(
+        ref.kind,
+        JsonMap.from(LibraryEntryRecord(
+          id: existing.id,
+          kind: existing.kind,
+          catalogData: existing.catalogData,
+          personalData: existing.personalData,
+          sourceCatalogRef: catalogRef,
+          updatedAt: updatedAt.toUtc(),
+        ).toJson()));
+  }
+
   /// Clones the complete persisted record into a new local identity.
   ///
   /// Catalog and personal maps are copied without projecting through a

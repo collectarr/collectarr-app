@@ -207,6 +207,32 @@ abstract final class MusicCatalogWorkspaceFields {
     getValue: (dto) => dto.facts.trackCount,
   );
 
+  static final discCount = numberField<MusicKind, MusicWorkspaceProjection>(
+    id: MusicFieldIds.discCount,
+    metadata: MusicWorkspaceFieldMetadata.discCount,
+    getValue: (dto) => dto.facts.discCount,
+  );
+
+  static final length = textField<MusicKind, MusicWorkspaceProjection>(
+    id: MusicFieldIds.length,
+    metadata: MusicWorkspaceFieldMetadata.length,
+    getValue: (dto) {
+      final totalDurationMs = dto.music.tracks.fold<int>(
+        0,
+        (total, track) => total + (track.durationMs ?? 0),
+      );
+      final totalSeconds = totalDurationMs == 0 ? null : (totalDurationMs / 1000).round();
+      if (totalSeconds == null || totalSeconds <= 0) return null;
+      final hours = totalSeconds ~/ 3600;
+      final minutes = (totalSeconds % 3600) ~/ 60;
+      final seconds = totalSeconds % 60;
+      if (hours > 0) {
+        return '$hours:${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
+      }
+      return '$minutes:${seconds.toString().padLeft(2, '0')}';
+    },
+  );
+
   static final country = textField<MusicKind, MusicWorkspaceProjection>(
     id: MusicFieldIds.country,
     metadata: MusicFieldIdentities.country,
@@ -253,7 +279,9 @@ abstract final class MusicCatalogWorkspaceFields {
     creditInstrument,
     trackComposition,
     releaseDate,
+    discCount,
     trackCount,
+    length,
     country,
     packaging,
     boxSet,

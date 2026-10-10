@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/core/models/item_image.dart';
 import 'package:collectarr_app/core/models/library_entry_projection.dart';
@@ -43,6 +44,21 @@ final class LibraryEntryMutations {
   final String? userEmail;
   final IdGenerator idGenerator;
 
+  Future<void> updatePersonalData(LibraryEntryRef ref, JsonMap changes) async {
+    if (changes.isEmpty) return;
+    final now = DateTime.now().toUtc();
+    await mutationRunner.run(
+        action: () async {
+          final persisted = await libraryEntries
+              .updatePersonalData(ref, changes, updatedAt: now);
+          await syncQueue.enqueue(libraryEntries.syncChangeForMutation(
+              persisted,
+              action: 'upsert',
+              changedAt: now));
+        },
+        eventsToEmit: [LibraryEntryUpdated(ref)]);
+  }
+
   Future<void> unlinkFromCore(LibraryEntryRef ref) async {
     final now = DateTime.now().toUtc();
     await mutationRunner.run(
@@ -57,6 +73,21 @@ final class LibraryEntryMutations {
       },
       eventsToEmit: [LibraryEntryUpdated(ref)],
     );
+  }
+
+  Future<void> linkToCore(
+      LibraryEntryRef ref, CatalogItemRef catalogRef) async {
+    final now = DateTime.now().toUtc();
+    await mutationRunner.run(
+        action: () async {
+          final persisted =
+              await libraryEntries.linkToCore(ref, catalogRef, updatedAt: now);
+          await syncQueue.enqueue(libraryEntries.syncChangeForMutation(
+              persisted,
+              action: 'upsert',
+              changedAt: now));
+        },
+        eventsToEmit: [LibraryEntryUpdated(ref)]);
   }
 
   /// Creates an independent duplicate of the complete local record.

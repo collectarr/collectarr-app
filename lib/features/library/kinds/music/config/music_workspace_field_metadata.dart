@@ -6,7 +6,7 @@ import 'package:collectarr_app/features/pick_lists/models/universal_vocabularies
 abstract final class MusicWorkspaceFieldMetadata {
   static const addedAt = LibraryKindFieldMetadata(
     id: 'music.added_at',
-    label: 'Added',
+    label: 'Added Date',
     valueType: LibraryFieldValueType.date,
     cardinality: LibraryFieldCardinality.one,
     source: LibraryFieldSource.libraryEntry,
@@ -221,15 +221,39 @@ abstract final class MusicWorkspaceFieldMetadata {
     editable: true,
   );
 
+  static const discCount = LibraryKindFieldMetadata(
+    id: 'music.disc_count',
+    label: 'Discs',
+    valueType: LibraryFieldValueType.number,
+    cardinality: LibraryFieldCardinality.one,
+    source: LibraryFieldSource.derived,
+    sourcePath: 'disc_count',
+    sortable: true,
+    groupable: true,
+    exportable: true,
+  );
+
+  static const length = LibraryKindFieldMetadata(
+    id: 'music.length',
+    label: 'Length',
+    valueType: LibraryFieldValueType.text,
+    cardinality: LibraryFieldCardinality.one,
+    source: LibraryFieldSource.derived,
+    sourcePath: 'length',
+    sortable: true,
+    exportable: true,
+  );
+
   static const trackCount = LibraryKindFieldMetadata(
     id: 'music.track_count',
-    label: 'Track count',
+    label: 'Tracks',
     valueType: LibraryFieldValueType.number,
     cardinality: LibraryFieldCardinality.one,
     source: LibraryFieldSource.derived,
     sourcePath: 'track_count',
     sortable: true,
     groupable: true,
+    exportable: true,
   );
 
   static const updatedAt = LibraryKindFieldMetadata(
@@ -306,6 +330,8 @@ abstract final class MusicWorkspaceFieldMetadata {
     storageDevice,
     storageSlot,
     recordingLocations,
+    discCount,
+    length,
     trackCount,
     trackComposition,
     updatedAt,

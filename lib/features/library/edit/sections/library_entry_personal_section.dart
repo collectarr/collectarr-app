@@ -411,6 +411,22 @@ class _LibraryEntryStatusStripState
                 ],
               );
             }
+            final locationIndex = specs.indexWhere((spec) =>
+                spec.inputKind == PersonalLibraryFieldEditor.location);
+            if (fields.length == 4 &&
+                locationIndex == 3 &&
+                constraints.maxWidth >= 440) {
+              return Column(mainAxisSize: MainAxisSize.min, children: [
+                Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                  for (var i = 0; i < 3; i++) ...[
+                    if (i > 0) const SizedBox(width: 12),
+                    Expanded(flex: i == 0 ? 2 : 1, child: fields[i]),
+                  ],
+                ]),
+                const SizedBox(height: 10),
+                fields[3],
+              ]);
+            }
             final width = (constraints.maxWidth - 12) / 2;
             return Wrap(
               spacing: 12,

@@ -113,7 +113,12 @@ final class _MusicAlbumEditDialogState
       model: _album,
       draft: _draft,
       maxDialogWidth: 1200,
-      insetPadding: const EdgeInsets.fromLTRB(24, 10, 24, 24),
+      insetPadding: EdgeInsets.fromLTRB(
+        MediaQuery.sizeOf(context).width <= 900 ? 0 : 24,
+        10,
+        MediaQuery.sizeOf(context).width <= 900 ? 0 : 24,
+        24,
+      ),
       title: musicEditHeaderTitle(
         title: _album.title,
         artist: _album.artist,

@@ -44,13 +44,14 @@ final musicCatalogItemWorkspaceSchema =
   groups: musicWorkspaceGroupDefinitions(includePersonal: false),
   primaryColumn: MusicCatalogWorkspaceFields.title.id,
   defaultVisibleColumns: {
-    MusicFieldIds.status,
-    MusicFieldIds.cover,
     MusicFieldIds.artistSummary,
     MusicFieldIds.title,
-    MusicFieldIds.genre,
     MusicFieldIds.releaseDate,
+    MusicFieldIds.discCount,
     MusicFieldIds.trackCount,
+    MusicFieldIds.length,
+    MusicFieldIds.genre,
+    MusicFieldIds.publisher,
   },
   defaultSort: LibrarySortId<MusicKind>(
     MusicCatalogWorkspaceFields.artistSummary.id.value,

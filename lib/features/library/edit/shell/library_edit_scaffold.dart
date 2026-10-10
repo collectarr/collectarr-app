@@ -413,8 +413,6 @@ class _LibraryEditTitleBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isWideDesktop =
-        chromeVariant == LibraryEditChromeVariant.movieDesktop;
     const headerMinHeight = 38.0;
     const foreground = Colors.white;
     return AnimatedLibraryChromeGradient(
@@ -465,7 +463,7 @@ class _LibraryEditTitleBar extends StatelessWidget {
                       fontFamily: kLibraryEditorFontFamily,
                       fontFamilyFallback: kClzFontFallback,
                       fontWeight: FontWeight.w700,
-                      fontSize: isWideDesktop ? 16 : 18,
+                      fontSize: 18,
                       height: 1,
                       letterSpacing: 0,
                       color: Colors.white,

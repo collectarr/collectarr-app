@@ -153,7 +153,7 @@ class LibraryEditStyledTabLabel extends StatelessWidget {
 /// callback-backed mode is used by schema dialogs, where the schema renderer
 /// owns the selected tab and visible-tab mapping. Both modes intentionally
 /// share the same visual and drag behavior.
-class LibraryEditReorderableTabStrip extends StatelessWidget {
+class LibraryEditReorderableTabStrip extends StatefulWidget {
   const LibraryEditReorderableTabStrip({
     super.key,
     required this.tabs,
@@ -179,10 +179,70 @@ class LibraryEditReorderableTabStrip extends StatelessWidget {
   final ValueChanged<int>? onSelect;
 
   @override
+  State<LibraryEditReorderableTabStrip> createState() =>
+      _LibraryEditReorderableTabStripState();
+}
+
+class _LibraryEditReorderableTabStripState
+    extends State<LibraryEditReorderableTabStrip> {
+  final _scroll = ScrollController();
+  bool _overflow = false;
+  bool _atStart = true;
+  bool _atEnd = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _scroll.addListener(_updateScroll);
+  }
+
+  @override
+  void dispose() {
+    _scroll.dispose();
+    super.dispose();
+  }
+
+  void _updateScroll() {
+    if (!mounted ||
+        !_scroll.hasClients ||
+        !_scroll.position.hasContentDimensions) {
+      return;
+    }
+    final overflow = _scroll.position.maxScrollExtent > 1;
+    final atStart = _scroll.offset <= 1;
+    final atEnd = _scroll.offset >= _scroll.position.maxScrollExtent - 1;
+    if (_overflow != overflow || _atStart != atStart || _atEnd != atEnd) {
+      setState(() {
+        _overflow = overflow;
+        _atStart = atStart;
+        _atEnd = atEnd;
+      });
+    }
+  }
+
+  void _step(int direction) {
+    _scroll.animateTo(
+        (_scroll.offset + direction * 220)
+            .clamp(0, _scroll.position.maxScrollExtent),
+        duration: MediaQuery.disableAnimationsOf(context)
+            ? Duration.zero
+            : const Duration(milliseconds: 250),
+        curve: Curves.ease);
+  }
+
+  List<Widget> get tabs => widget.tabs;
+  Color get accent => widget.accent;
+  TabController? get tabController => widget.tabController;
+  bool get enabled => widget.enabled;
+  bool get allowReorder => widget.allowReorder;
+  void Function(int, int)? get onReorderItem => widget.onReorderItem;
+  ValueChanged<int>? get onSelect => widget.onSelect;
+
+  @override
   Widget build(BuildContext context) {
     final controller = tabController;
     if (controller == null) {
-      return _buildStrip(context, selectedIndex);
+      return _buildStrip(context, widget.selectedIndex);
     }
     return AnimatedBuilder(
       animation: controller,
@@ -191,6 +251,7 @@ class LibraryEditReorderableTabStrip extends StatelessWidget {
   }
 
   Widget _buildStrip(BuildContext context, int currentIndex) {
+    WidgetsBinding.instance.addPostFrameCallback((_) => _updateScroll());
     final canReorder = enabled && allowReorder && onReorderItem != null;
 
     Widget buildTab(int index, {required bool draggable}) {
@@ -213,6 +274,7 @@ class LibraryEditReorderableTabStrip extends StatelessWidget {
 
     final Widget strip = canReorder
         ? ReorderableListView.builder(
+            scrollController: _scroll,
             scrollDirection: Axis.horizontal,
             physics: const ClampingScrollPhysics(),
             shrinkWrap: true,
@@ -228,6 +290,7 @@ class LibraryEditReorderableTabStrip extends StatelessWidget {
             itemBuilder: (context, index) => buildTab(index, draggable: true),
           )
         : SingleChildScrollView(
+            controller: _scroll,
             scrollDirection: Axis.horizontal,
             child: Row(
               mainAxisSize: MainAxisSize.min,
@@ -243,7 +306,25 @@ class LibraryEditReorderableTabStrip extends StatelessWidget {
       child: SizedBox(
         width: double.infinity,
         height: kLibraryEditTabStripHeight,
-        child: strip,
+        child: Row(children: [
+          if (_overflow)
+            SizedBox(
+                width: 24,
+                child: IconButton(
+                    padding: EdgeInsets.zero,
+                    tooltip: 'Scroll tabs left',
+                    onPressed: enabled && !_atStart ? () => _step(-1) : null,
+                    icon: const Icon(Icons.chevron_left, size: 18))),
+          Expanded(child: strip),
+          if (_overflow)
+            SizedBox(
+                width: 24,
+                child: IconButton(
+                    padding: EdgeInsets.zero,
+                    tooltip: 'Scroll tabs right',
+                    onPressed: enabled && !_atEnd ? () => _step(1) : null,
+                    icon: const Icon(Icons.chevron_right, size: 18))),
+        ]),
       ),
     );
   }

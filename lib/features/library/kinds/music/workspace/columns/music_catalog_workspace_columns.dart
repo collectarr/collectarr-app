@@ -19,19 +19,29 @@ final musicCatalogWorkspaceColumns =
     defaultWidth: 260,
     maxWidth: 520,
   ),
+  musicAlbumDateColumn(
+    field: MusicCatalogWorkspaceFields.releaseDate,
+  ),
+  columnFromField<MusicKind, MusicWorkspaceProjection, num?>(
+    MusicCatalogWorkspaceFields.discCount,
+    isNumeric: true,
+    defaultWidth: 70,
+  ),
+  columnFromField<MusicKind, MusicWorkspaceProjection, num?>(
+    MusicCatalogWorkspaceFields.trackCount,
+    isNumeric: true,
+    defaultWidth: 70,
+  ),
+  columnFromField<MusicKind, MusicWorkspaceProjection, String?>(
+    MusicCatalogWorkspaceFields.length,
+    defaultWidth: 80,
+  ),
   columnFromField<MusicKind, MusicWorkspaceProjection, Iterable<String>>(
     MusicCatalogWorkspaceFields.genre,
     cellValue: (context) => Text(
       MusicCatalogWorkspaceFields.genre.getValue(context).join(', '),
     ),
     defaultWidth: 150,
-  ),
-  musicAlbumDateColumn(
-    field: MusicCatalogWorkspaceFields.releaseDate,
-  ),
-  columnFromField<MusicKind, MusicWorkspaceProjection, num?>(
-    MusicCatalogWorkspaceFields.trackCount,
-    defaultWidth: 90,
   ),
   columnFromField<MusicKind, MusicWorkspaceProjection, String?>(
       MusicCatalogWorkspaceFields.publisher,

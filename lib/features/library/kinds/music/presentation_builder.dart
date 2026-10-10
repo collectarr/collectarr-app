@@ -19,6 +19,7 @@ import 'package:collectarr_app/features/library/kinds/music/music_country_name.d
 import 'package:collectarr_app/features/library/kinds/music/domain/music_credit.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_disc.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_data.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_library_entry.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/kinds/music/config/music_physical_media_formats.dart';
 import 'package:collectarr_app/features/library/widgets/format_badge.dart';
@@ -74,17 +75,36 @@ class MusicLibraryMediaPresentationBuilder
     final catalog = entry.kindPresentationData;
     if (catalog is! MusicWorkspaceData) return const [];
     final item = catalog.music;
+    final local = entry.item.libraryEntryDispatch?.value;
+    final index =
+        local is MusicLibraryEntry ? local.personal.indexNumber : null;
     final identifier = normalizeLibraryDuplicateIdentifier(
       item.barcode,
     );
-    if (identifier == null) return const [];
     return [
-      LibraryDuplicateCandidate(
-        key: 'identifier:$identifier',
-        label: 'Identifier $identifier',
-        reason: 'Same identifier',
-        confidenceScore: 78,
-      ),
+      if (index != null)
+        LibraryDuplicateCandidate(
+            key: 'index:$index',
+            label: 'Index $index',
+            reason: 'Same index',
+            confidenceScore: 70,
+            criterion: LibraryDuplicateCriterion.indexNumber),
+      if (item.artist?.trim().isNotEmpty == true)
+        LibraryDuplicateCandidate(
+          key:
+              'title-artist:${item.title.trim().toLowerCase()}:${item.artist!.trim().toLowerCase()}',
+          label: '${item.title} / ${item.artist}',
+          reason: 'Same title and artist',
+          confidenceScore: 75,
+          criterion: LibraryDuplicateCriterion.titleAndCreator,
+        ),
+      if (identifier != null)
+        LibraryDuplicateCandidate(
+          key: 'identifier:$identifier',
+          label: 'Identifier $identifier',
+          reason: 'Same identifier',
+          confidenceScore: 78,
+        ),
     ];
   }
 

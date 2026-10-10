@@ -88,6 +88,7 @@ abstract final class MusicFieldIds {
   static const country =
       LibraryFieldId<MusicKind, String?>(MusicFieldIdentities.countryId);
   static const discCount = LibraryFieldId<MusicKind, int?>('music.disc_count');
+  static const length = LibraryFieldId<MusicKind, String?>('music.length');
   static const signedBy = LibraryFieldId<MusicKind, String?>('music.signed_by');
   static const grade = LibraryFieldId<MusicKind, String?>('music.grade');
   static const storageSummary =

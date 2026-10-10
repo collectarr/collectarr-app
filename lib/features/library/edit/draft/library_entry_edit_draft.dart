@@ -33,6 +33,11 @@ final class LibraryEntryEditDraft extends ChangeNotifier {
     values[key] = value;
     notifyListeners();
   }
+
+  void reset() {
+    values.clear();
+    notifyListeners();
+  }
 }
 
 class LibraryEntryEditScope extends InheritedWidget {

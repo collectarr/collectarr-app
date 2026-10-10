@@ -383,16 +383,24 @@ final musicLibraryMediaPresentation = LibraryMediaPresentation(
     ),
   ],
   columnFavorites: [
+    LibraryTableColumnPreset(label: 'Standard', columns: {
+      MusicFieldIds.artistSummary.value,
+      MusicFieldIds.title.value,
+      MusicFieldIds.releaseDate.value,
+      MusicFieldIds.discCount.value,
+      MusicFieldIds.trackCount.value,
+      MusicFieldIds.length.value,
+      MusicFieldIds.genre.value,
+      MusicFieldIds.publisher.value,
+      MusicFieldIds.addedAt.value,
+    }),
     LibraryTableColumnPreset(label: 'Essential', columns: {
-      MusicFieldIds.status.value,
-      MusicFieldIds.cover.value,
       MusicFieldIds.artistSummary.value,
       MusicFieldIds.title.value,
       MusicFieldIds.releaseDate.value,
       MusicFieldIds.genre.value,
     }),
     LibraryTableColumnPreset(label: 'Collection', columns: {
-      MusicFieldIds.status.value,
       MusicFieldIds.artistSummary.value,
       MusicFieldIds.title.value,
       MusicFieldIds.condition.value,
