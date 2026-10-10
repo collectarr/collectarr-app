@@ -8,6 +8,7 @@ import 'package:collectarr_app/features/library/workspace/entry/library_workspac
 import 'package:collectarr_app/features/library/workspace/layout/library_workspace_grid.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_tile.dart';
+import 'package:collectarr_app/features/library/workspace/layout/library_folder_row.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
@@ -103,7 +104,7 @@ class LibraryGroupedShelfView extends StatelessWidget {
       mainAxisExtent: tileExtent * 1.08,
       selectionEnabled: false,
       itemIdOf: (item) => item.id,
-      backgroundColor: kAppGridCanvas,
+      backgroundColor: libraryFolderDepthColor(context, 0),
       itemBuilder: (context, folder) => LibraryGroupFolderTile(
         group: folder.group,
         accent: accent,
@@ -124,7 +125,7 @@ class LibraryGroupedShelfView extends StatelessWidget {
     final mainAxisExtent = defaultCoverSize * viewProfile.coverGridHeightFactor;
     final fallbackCoverAspectRatio = 1 / viewProfile.coverGridHeightFactor;
     return ColoredBox(
-      color: appPalette(context).gridCanvas,
+      color: libraryFolderDepthColor(context, 0),
       child: CustomScrollView(
         slivers: [
           if (_showsBulkCollapseControls)

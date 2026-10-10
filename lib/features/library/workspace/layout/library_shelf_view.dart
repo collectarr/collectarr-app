@@ -44,7 +44,10 @@ class LibraryShelfView<T> extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (items.isEmpty && emptyBuilder != null) {
-      return emptyBuilder!(context);
+      final empty = emptyBuilder!(context);
+      return backgroundColor == null
+          ? empty
+          : ColoredBox(color: backgroundColor!, child: empty);
     }
     return LayoutBuilder(
       builder: (context, constraints) {

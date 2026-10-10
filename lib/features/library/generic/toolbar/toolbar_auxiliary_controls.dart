@@ -1087,29 +1087,107 @@ class LibraryToolbarAlphabetRow extends StatelessWidget {
                       ])),
                 ));
           }
-          return Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-            for (final label in ['All', ...alphabet])
-              SizedBox(
+          return Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              for (final label in ['All', ...alphabet])
+                _AlphabetLetterButton(
+                  label: label,
                   width: (label == 'All' ? 44 : 28) * scale,
-                  child: InkWell(
-                    onTap: label == 'All' || available.contains(label)
-                        ? () => select(label)
-                        : null,
-                    child: Center(
-                        child: Text(label,
-                            style: TextStyle(
-                                fontSize: 12,
-                                fontWeight: FontWeight.w700,
-                                color: label == (selectedLetter ?? 'All')
-                                    ? accent
-                                    : label == 'All' ||
-                                            available.contains(label)
-                                        ? palette.textPrimary
-                                        : palette.textMuted
-                                            .withValues(alpha: 0.38)))),
-                  ))
-          ]);
+                  isSelected: label == (selectedLetter ?? 'All'),
+                  isAvailable: label == 'All' || available.contains(label),
+                  accent: accent,
+                  palette: palette,
+                  onTap: label == 'All' || available.contains(label)
+                      ? () => select(label)
+                      : null,
+                ),
+            ],
+          );
         }));
+  }
+}
+
+class _AlphabetLetterButton extends StatefulWidget {
+  const _AlphabetLetterButton({
+    required this.label,
+    required this.isSelected,
+    required this.isAvailable,
+    required this.accent,
+    required this.palette,
+    required this.onTap,
+    required this.width,
+  });
+
+  final String label;
+  final bool isSelected;
+  final bool isAvailable;
+  final Color accent;
+  final AppThemePalette palette;
+  final VoidCallback? onTap;
+  final double width;
+
+  @override
+  State<_AlphabetLetterButton> createState() => _AlphabetLetterButtonState();
+}
+
+class _AlphabetLetterButtonState extends State<_AlphabetLetterButton> {
+  bool _hovered = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final isSelected = widget.isSelected;
+    final isAvailable = widget.isAvailable;
+    final canTap = widget.onTap != null;
+
+    final textColor = isSelected
+        ? widget.accent
+        : _hovered && isAvailable
+            ? widget.palette.textPrimary
+            : isAvailable
+                ? widget.palette.textPrimary
+                : widget.palette.textMuted.withValues(alpha: 0.38);
+
+    final bgColor = isSelected
+        ? widget.accent.withValues(alpha: 0.22)
+        : _hovered && isAvailable
+            ? (widget.palette.isDark
+                ? const Color(0x33FFFFFF)
+                : const Color(0x1A000000))
+            : Colors.transparent;
+
+    return SizedBox(
+      width: widget.width,
+      height: 24,
+      child: MouseRegion(
+        cursor: canTap ? SystemMouseCursors.click : SystemMouseCursors.basic,
+        onEnter: (_) => setState(() => _hovered = true),
+        onExit: (_) => setState(() => _hovered = false),
+        child: InkWell(
+          mouseCursor: canTap ? SystemMouseCursors.click : SystemMouseCursors.basic,
+          onTap: widget.onTap,
+          borderRadius: BorderRadius.circular(3),
+          child: Container(
+            margin: const EdgeInsets.symmetric(horizontal: 1),
+            decoration: BoxDecoration(
+              color: bgColor,
+              borderRadius: BorderRadius.circular(3),
+            ),
+            child: Center(
+              child: Text(
+                widget.label,
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight:
+                      isSelected || _hovered ? FontWeight.w700 : FontWeight.w600,
+                  color: textColor,
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
   }
 }
 

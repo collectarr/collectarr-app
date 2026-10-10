@@ -109,7 +109,9 @@ void main() {
                     accent: Colors.orange,
                     onCollectionSelected: (_) {})))));
     await tester.pumpAndSettle();
-    await tester.tap(find.byKey(const ValueKey('library-collection-add')));
+    await tester.tap(find.byKey(const ValueKey('library-collection-menu')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Manage Collections'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Create new collection'));
     await tester.pumpAndSettle();
@@ -187,9 +189,11 @@ void main() {
     await tester.tap(find.text('Vinyl'));
     await tester.pumpAndSettle();
     expect(selected?.id, vinyl.id);
-    await tester.tap(find.byKey(const ValueKey('library-collection-add')));
+    await tester.tap(find.byKey(const ValueKey('library-collection-menu')));
     await tester.pumpAndSettle();
-    expect(find.text('Manage Collections'), findsOneWidget);
+    await tester.tap(find.text('Manage Collections'));
+    await tester.pumpAndSettle();
+    expect(find.text('Manage Collections'), findsWidgets);
     expect(find.text('Create new collection'), findsOneWidget);
     expect(find.text('Private'), findsNWidgets(2));
     expect(find.textContaining('sort:'), findsNothing);

@@ -21,11 +21,7 @@ Color libraryFolderHoverColor(BuildContext context) =>
 
 Color libraryFolderDepthColor(BuildContext context, int depth) =>
     Theme.of(context).brightness == Brightness.dark
-        ? Color(depth == 0
-            ? 0xff383838
-            : depth == 1
-                ? 0xff292929
-                : 0xff191919)
+        ? const Color(0xff383838)
         : Color.alphaBlend(
             Colors.black.withValues(alpha: math.min(depth, 3) * 0.03),
             appPalette(context).panel);

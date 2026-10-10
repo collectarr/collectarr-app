@@ -18,6 +18,9 @@ import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/reports/collection_report.dart';
 import 'package:collectarr_app/features/library/reports/collection_export_csv_txt.dart';
 import 'package:collectarr_app/features/library/reports/collection_import_data.dart';
+import 'package:collectarr_app/features/library/export/integration_export_dialog.dart';
+import 'package:collectarr_app/features/library/metadata/library_link_items_page.dart';
+import 'package:collectarr_app/features/library/sharing/collection_cloud_sharing_page.dart';
 import 'package:collectarr_app/features/library/stats/stats_dashboard.dart';
 import 'package:collectarr_app/features/pick_lists/widgets/pick_list_manager_page.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_pick_list_contributors.dart';
@@ -251,6 +254,14 @@ class _AppShellState extends ConsumerState<AppShell> {
           context: context,
           db: ref.read(localDatabaseProvider),
           registry: defaultPickListRegistry,
+          accent: accent,
+          initialMediaKind: type.kind.apiValue,
+          initialListName: defaultPickListRegistry
+              .definitionsForKind(type.kind.apiValue)
+              .where((definition) =>
+                  definition.listName.startsWith('${type.kind.apiValue}.'))
+              .firstOrNull
+              ?.listName,
         );
         return;
       case DrawerAction.manageCollections:
@@ -288,6 +299,7 @@ class _AppShellState extends ConsumerState<AppShell> {
           return showDuplicateItemsDialog(
             context,
             duplicateGroups: findDuplicateShelfGroups(entries),
+            entries: entries,
           );
         });
         return;
@@ -298,16 +310,22 @@ class _AppShellState extends ConsumerState<AppShell> {
         showCustomFieldsManagementDialog(
           context: context,
           db: ref.read(localDatabaseProvider),
+          accent: accent,
         );
         return;
       case DrawerAction.cloudSharing:
-        _goToSettingsSection(SettingsSection.connection);
+        _withShelf(
+            (shelf) => Navigator.of(context).push<void>(MaterialPageRoute(
+                  builder: (_) => CollectionCloudSharingPage(
+                      type: type, items: libraryItemsForShelf(shelf, type)),
+                )));
         return;
       case DrawerAction.prefillSettings:
-        showPrefillSettingsDialog(context: context, accent: accent);
+        showPrefillSettingsDialog(
+            context: context, accent: accent, kind: type.kind);
         return;
       case DrawerAction.settings:
-        _goToSettingsSection(SettingsSection.connection);
+        _goToSettingsSection(SettingsSection.appearance);
         return;
       case DrawerAction.libraries:
         _goToBranch(_AppShellState._branchLibraries);
@@ -320,7 +338,7 @@ class _AppShellState extends ConsumerState<AppShell> {
         return;
       case DrawerAction.reassignIndex:
       case DrawerAction.transferFieldData:
-        _openLibraryTool(action);
+        _openLibraryTool(action, type);
         return;
       case DrawerAction.backupRestore:
       case DrawerAction.clearDatabase:
@@ -339,7 +357,12 @@ class _AppShellState extends ConsumerState<AppShell> {
         });
         return;
       case DrawerAction.exportXml:
-        _openShelfImportExport(initialIndex: 0);
+        _withShelf((shelf) => showIntegrationExportDialog(
+              context: context,
+              type: type,
+              shelfState: _shelfForKind(shelf, type.kind),
+              format: ExportFormat.xml,
+            ));
         return;
       case DrawerAction.importData:
         _withShelf((shelf) {
@@ -351,10 +374,14 @@ class _AppShellState extends ConsumerState<AppShell> {
         });
         return;
       case DrawerAction.linkAlbums:
-        _showUnavailableAction(
-          'Link Albums',
-          'Album linking is not available in Collectarr yet.',
-        );
+        _withShelf(
+            (shelf) => Navigator.of(context).push<void>(MaterialPageRoute(
+                  builder: (_) => LibraryLinkItemsPage(
+                      type: type,
+                      entries: shelf.entries
+                          .where((entry) => entry.mediaKind == type.kind)
+                          .toList()),
+                )));
         return;
       case DrawerAction.keyboardShortcuts:
         showKeyboardShortcutsDialog(context);
@@ -376,43 +403,16 @@ class _AppShellState extends ConsumerState<AppShell> {
     );
   }
 
-  void _openLibraryTool(DrawerAction action) {
-    _goToBranch(_AppShellState._branchLibraries);
-    final toolName = action == DrawerAction.reassignIndex
-        ? 'Re-Assign Index Values'
-        : 'Transfer Field Data';
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Open the library Tools menu to use $toolName.'),
-      ),
-    );
-  }
-
-  void _showUnavailableAction(String title, String message) {
-    showDialog<void>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(title),
-        content: Text(message),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Close'),
-          ),
-        ],
-      ),
-    );
+  void _openLibraryTool(DrawerAction action, LibraryKindRegistration type) {
+    context.go(Uri(path: AppRoutes.libraries, queryParameters: {
+      'kind': type.kind.apiValue,
+      'tool': action.name,
+      'toolRequest': '${++_drawerRequestSequence}',
+    }).toString());
   }
 
   void _goToSettingsSection(SettingsSection section) {
     context.go('${AppRoutes.settings}?section=${section.name}');
-  }
-
-  void _openShelfImportExport({required int initialIndex}) {
-    final request = ++_drawerRequestSequence;
-    context.go(
-      '${AppRoutes.shelf}?wizard=$initialIndex&request=$request',
-    );
   }
 
   Future<void> _withShelf(
@@ -546,6 +546,7 @@ class _AppNavigationDrawerState extends State<AppNavigationDrawer> {
         : palette.textMuted;
 
     return Drawer(
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
       backgroundColor: drawerBg,
       width: (MediaQuery.sizeOf(context).width * 0.86)
           .clamp(0.0, 320.0)

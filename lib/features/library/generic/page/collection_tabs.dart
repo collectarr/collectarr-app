@@ -34,41 +34,58 @@ class LibraryCollectionTabBar extends ConsumerWidget {
         child: Column(children: [
           Container(height: 3, color: accent),
           Expanded(
-              child: Row(children: [
-            PopupMenuButton<String>(
-                tooltip: 'Collections',
-                onSelected: (id) {
-                  if (id == '__manage__') {
-                    unawaited(
-                        showLibraryCollectionsDialog(context, kind: mediaKind));
-                  } else {
-                    unawaited(select(values.firstWhere((c) => c.id == id)));
-                  }
-                },
-                itemBuilder: (_) => [
-                      for (final collection in values)
-                        PopupMenuItem(
-                            value: collection.id,
-                            height: 30,
-                            child: Row(children: [
-                              Icon(
-                                  collection.id == activeId
-                                      ? Icons.check
-                                      : Icons.folder_outlined,
-                                  size: 17),
-                              const SizedBox(width: 8),
-                              Text(collection.name)
-                            ])),
-                      const PopupMenuDivider(),
-                      const PopupMenuItem(
-                          value: '__manage__',
-                          height: 30,
-                          child: Text('Manage Collections')),
-                    ],
-                child: const SizedBox(
-                    width: 34, child: Icon(Icons.menu, size: 17))),
-            Expanded(
-                child: ReorderableListView.builder(
+            child: Row(
+              children: [
+                PopupMenuButton<String>(
+                  key: const ValueKey('library-collection-menu'),
+                  tooltip: 'Collections',
+                  onSelected: (id) {
+                    if (id == '__manage__') {
+                      unawaited(
+                          showLibraryCollectionsDialog(context, kind: mediaKind));
+                    } else {
+                      unawaited(select(values.firstWhere((c) => c.id == id)));
+                    }
+                  },
+                  itemBuilder: (_) => [
+                    for (final collection in values)
+                      PopupMenuItem(
+                        value: collection.id,
+                        height: 30,
+                        child: Row(
+                          children: [
+                            Icon(
+                              collection.id == activeId
+                                  ? Icons.check
+                                  : Icons.folder_outlined,
+                              size: 17,
+                            ),
+                            const SizedBox(width: 8),
+                            Text(collection.name),
+                          ],
+                        ),
+                      ),
+                    const PopupMenuDivider(),
+                    const PopupMenuItem(
+                      value: '__manage__',
+                      height: 30,
+                      child: Text('Manage Collections'),
+                    ),
+                  ],
+                  child: MouseRegion(
+                    cursor: SystemMouseCursors.click,
+                    child: SizedBox(
+                      width: 36,
+                      child: Center(
+                        child: _ClzCollectionMenuIcon(
+                          color: palette.textPrimary.withValues(alpha: 0.85),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                Expanded(
+                  child: ReorderableListView.builder(
                     scrollDirection: Axis.horizontal,
                     buildDefaultDragHandles: false,
                     itemCount: values.length,
@@ -81,24 +98,64 @@ class LibraryCollectionTabBar extends ConsumerWidget {
                     itemBuilder: (_, index) {
                       final collection = values[index];
                       return ReorderableDragStartListener(
-                          key: ValueKey(
-                              'library-collection-tab-${collection.id}'),
-                          index: index,
-                          child: LibraryCollectionTab(
-                              label: collection.name,
-                              isActive: collection.id == activeId,
-                              accent: accent,
-                              onTap: () => select(collection)));
-                    })),
-            IconButton(
-                key: const ValueKey('library-collection-add'),
-                tooltip: 'Manage Collections',
-                visualDensity: VisualDensity.compact,
-                onPressed: () =>
-                    showLibraryCollectionsDialog(context, kind: mediaKind),
-                icon: const Icon(Icons.add, size: 18)),
-          ]))
+                        key: ValueKey(
+                            'library-collection-tab-${collection.id}'),
+                        index: index,
+                        child: LibraryCollectionTab(
+                          label: collection.name,
+                          isActive: collection.id == activeId,
+                          accent: accent,
+                          onTap: () => select(collection),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ),
         ]));
+  }
+}
+
+class _ClzCollectionMenuIcon extends StatelessWidget {
+  const _ClzCollectionMenuIcon({required this.color});
+
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: 15,
+      height: 12,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Container(
+            height: 1.5,
+            decoration: BoxDecoration(
+              color: color,
+              borderRadius: BorderRadius.circular(0.5),
+            ),
+          ),
+          Container(
+            height: 1.5,
+            decoration: BoxDecoration(
+              color: color,
+              borderRadius: BorderRadius.circular(0.5),
+            ),
+          ),
+          Container(
+            height: 1.5,
+            decoration: BoxDecoration(
+              color: color,
+              borderRadius: BorderRadius.circular(0.5),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }
 

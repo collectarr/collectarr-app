@@ -366,7 +366,7 @@ class _ToolbarSearchInlineAction extends StatelessWidget {
   }
 }
 
-class _ToolbarSearchScopeButton extends StatelessWidget {
+class _ToolbarSearchScopeButton extends StatefulWidget {
   const _ToolbarSearchScopeButton({
     required this.selected,
     required this.options,
@@ -378,26 +378,33 @@ class _ToolbarSearchScopeButton extends StatelessWidget {
   final ValueChanged<LibrarySearchTarget> onSelected;
 
   @override
+  State<_ToolbarSearchScopeButton> createState() =>
+      _ToolbarSearchScopeButtonState();
+}
+
+class _ToolbarSearchScopeButtonState extends State<_ToolbarSearchScopeButton> {
+  bool _hovered = false;
+
+  @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
-    final buttonBackground =
-        palette.isDark ? const Color(0xFF383838) : palette.surface;
-    final hoveredBackground =
-        palette.isDark ? const Color(0xFF4A4A4A) : palette.surfaceBright;
+    final buttonBackground = _hovered
+        ? (palette.isDark ? const Color(0xFF4A4A4A) : palette.surfaceBright)
+        : (palette.isDark ? const Color(0xFF383838) : palette.surface);
     final menuBackground =
         palette.isDark ? const Color(0xFF444444) : palette.panelRaised;
     final menuBorder =
         palette.isDark ? const Color(0xFF666666) : palette.divider;
     return Theme(
       data: Theme.of(context).copyWith(
-        hoverColor: hoveredBackground,
-        focusColor: hoveredBackground,
+        hoverColor: palette.isDark ? const Color(0xFF4A4A4A) : palette.surfaceBright,
+        focusColor: palette.isDark ? const Color(0xFF4A4A4A) : palette.surfaceBright,
       ),
       child: PopupMenuButton<LibrarySearchTarget>(
         key: const ValueKey('library-search-target-button'),
         tooltip: 'Search scope',
-        initialValue: selected,
-        onSelected: onSelected,
+        initialValue: widget.selected,
+        onSelected: widget.onSelected,
         padding: EdgeInsets.zero,
         position: PopupMenuPosition.under,
         offset: const Offset(-18, 2),
@@ -411,7 +418,7 @@ class _ToolbarSearchScopeButton extends StatelessWidget {
           side: BorderSide(color: menuBorder),
         ),
         itemBuilder: (context) => [
-          for (final option in options)
+          for (final option in widget.options)
             PopupMenuItem<LibrarySearchTarget>(
               value: option,
               height: 26,
@@ -437,26 +444,37 @@ class _ToolbarSearchScopeButton extends StatelessWidget {
               ),
             ),
         ],
-        child: Container(
-          width: 44,
-          height: 26,
-          margin: const EdgeInsets.all(2),
-          alignment: Alignment.center,
-          decoration: BoxDecoration(
-            color: buttonBackground,
-            borderRadius: BorderRadius.circular(4),
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              _librarySearchTargetIcon(selected, palette.textPrimary),
-              const SizedBox(width: 4),
-              Icon(
-                Icons.keyboard_arrow_down,
-                size: 14,
-                color: palette.textPrimary,
+        child: MouseRegion(
+          cursor: SystemMouseCursors.click,
+          onEnter: (_) => setState(() => _hovered = true),
+          onExit: (_) => setState(() => _hovered = false),
+          child: Container(
+            width: 44,
+            height: 26,
+            margin: const EdgeInsets.all(2),
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              color: buttonBackground,
+              borderRadius: BorderRadius.circular(4),
+              border: Border.all(
+                color: _hovered
+                    ? palette.accent.withValues(alpha: 0.5)
+                    : Colors.transparent,
+                width: 1,
               ),
-            ],
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                _librarySearchTargetIcon(widget.selected, palette.textPrimary),
+                const SizedBox(width: 4),
+                Icon(
+                  Icons.keyboard_arrow_down,
+                  size: 14,
+                  color: palette.textPrimary,
+                ),
+              ],
+            ),
           ),
         ),
       ),

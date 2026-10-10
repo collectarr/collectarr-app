@@ -976,26 +976,8 @@ class LibraryCompactToolbarContent extends StatelessWidget {
                         child: Text(_librarySearchTargetLabel(option)),
                       ),
                   ],
-                  child: Container(
-                    height: 36,
-                    padding: const EdgeInsets.symmetric(horizontal: 10),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(18),
-                      border: Border.all(
-                        color: Theme.of(context).colorScheme.outlineVariant,
-                      ),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const Icon(Icons.tune, size: 16),
-                        const SizedBox(width: 4),
-                        Text(
-                          _librarySearchTargetLabel(searchTarget),
-                          style: Theme.of(context).textTheme.labelMedium,
-                        ),
-                      ],
-                    ),
+                  child: _CompactSearchScopeTrigger(
+                    label: _librarySearchTargetLabel(searchTarget),
                   ),
                 ),
               ],
@@ -1132,6 +1114,57 @@ class LibraryCompactToolbarContent extends StatelessWidget {
           ),
         ],
       ],
+    );
+  }
+}
+
+class _CompactSearchScopeTrigger extends StatefulWidget {
+  const _CompactSearchScopeTrigger({required this.label});
+  final String label;
+
+  @override
+  State<_CompactSearchScopeTrigger> createState() =>
+      _CompactSearchScopeTriggerState();
+}
+
+class _CompactSearchScopeTriggerState extends State<_CompactSearchScopeTrigger> {
+  bool _hovered = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final palette = appPalette(context);
+    final bgColor = _hovered
+        ? (palette.isDark ? const Color(0xFF4A4A4A) : palette.surfaceBright)
+        : Colors.transparent;
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      onEnter: (_) => setState(() => _hovered = true),
+      onExit: (_) => setState(() => _hovered = false),
+      child: Container(
+        height: 36,
+        padding: const EdgeInsets.symmetric(horizontal: 10),
+        decoration: BoxDecoration(
+          color: bgColor,
+          borderRadius: BorderRadius.circular(4),
+          border: Border.all(
+            color: _hovered
+                ? theme.colorScheme.primary
+                : theme.colorScheme.outlineVariant,
+          ),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(Icons.tune, size: 16),
+            const SizedBox(width: 4),
+            Text(
+              widget.label,
+              style: theme.textTheme.labelMedium,
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
