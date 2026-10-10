@@ -25,6 +25,7 @@ final class MusicAlbumCreditsEditor {
 
   final MusicAlbumEditDraft _draft;
   final List<_MusicCreditEditRow> _rows;
+  final Set<String> _editedRows = {};
 
   List<_MusicCreditEditRow> get _rowsView => List.unmodifiable(_rows);
 
@@ -37,6 +38,9 @@ final class MusicAlbumCreditsEditor {
   bool get hasIncompleteCredits => _rows.any(
         (row) => row.name.trim().isEmpty || row.role.trim().isEmpty,
       );
+  bool get hasVisibleIncompleteCredits => _rows.any((row) =>
+      _editedRows.contains(row.id) &&
+      (row.name.trim().isEmpty || row.role.trim().isEmpty));
 
   void add() {
     _rows.add(
@@ -56,11 +60,13 @@ final class MusicAlbumCreditsEditor {
   }
 
   void updateName(String id, String value) {
+    _editedRows.add(id);
     _row(id).name = value;
     _sync();
   }
 
   void updateRole(String id, String value) {
+    _editedRows.add(id);
     _row(id).role = value;
     _sync();
   }
@@ -182,8 +188,8 @@ final class _MusicAlbumCreditsTabState extends State<MusicAlbumCreditsTab> {
                           child: LibraryTextFormControl(
                             key: ValueKey('credit-name-${row.id}'),
                             initialValue: row.name,
-                            onChanged: (value) =>
-                                editor.updateName(row.id, value),
+                            onChanged: (value) => setState(
+                                () => editor.updateName(row.id, value)),
                           ),
                         ),
                       ),
@@ -278,7 +284,7 @@ final class _MusicAlbumCreditsTabState extends State<MusicAlbumCreditsTab> {
               ],
             ),
           ),
-        if (editor.hasIncompleteCredits)
+        if (editor.hasVisibleIncompleteCredits)
           const Padding(
             padding: EdgeInsets.only(top: 8),
             child: Text(

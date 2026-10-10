@@ -111,7 +111,7 @@ final class _MusicAlbumEditDialogState
       schema: musicAlbumEditSchema,
       model: _album,
       draft: _draft,
-      maxDialogWidth: 1024,
+      maxDialogWidth: 1200,
       insetPadding: const EdgeInsets.fromLTRB(24, 10, 24, 24),
       title: musicEditHeaderTitle(
         title: _album.title,

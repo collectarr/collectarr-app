@@ -536,10 +536,6 @@ class _LibraryEditFooter extends StatelessWidget {
       tapTargetSize: MaterialTapTargetSize.shrinkWrap,
     );
     final windowClass = AppWindowClass.of(context);
-    final proposalBackground = Color.alphaBlend(
-      accent.withValues(alpha: 0.18),
-      Colors.white,
-    );
     final showNav =
         !windowClass.isCompact || onPrevious != null || onNext != null;
 
@@ -627,10 +623,8 @@ class _LibraryEditFooter extends StatelessWidget {
           width: windowClass.isCompact ? 96 : 100,
           child: FilledButton(
             style: FilledButton.styleFrom(
-              backgroundColor: const Color(0xFF5EB1DE),
-              foregroundColor: isWideDesktop
-                  ? appContrastingTextColor(proposalBackground)
-                  : null,
+              backgroundColor: accent,
+              foregroundColor: appContrastingTextColor(accent),
               padding: const EdgeInsets.symmetric(horizontal: 10),
               minimumSize: Size(windowClass.isCompact ? 96 : 112,
                   kLibraryDialogFooterButtonHeight),

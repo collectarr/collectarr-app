@@ -58,13 +58,23 @@ class LibraryAlphaJumpBar extends StatelessWidget {
           bottom: BorderSide(color: palette.divider),
         ),
       ),
-      child: Row(
-        children: [
-          const SizedBox(width: 6),
-          for (final letter in _letters) _buildLetterChip(context, letter),
-          const SizedBox(width: 6),
-        ],
-      ),
+      child: LayoutBuilder(builder: (context, constraints) {
+        final minimumWidth =
+            560 * MediaQuery.textScalerOf(context).scale(11) / 11;
+        return SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: SizedBox(
+            width: constraints.maxWidth < minimumWidth
+                ? minimumWidth
+                : constraints.maxWidth,
+            child: Row(children: [
+              const SizedBox(width: 6),
+              for (final letter in _letters) _buildLetterChip(context, letter),
+              const SizedBox(width: 6),
+            ]),
+          ),
+        );
+      }),
     );
   }
 
@@ -75,7 +85,8 @@ class LibraryAlphaJumpBar extends StatelessWidget {
         isAll ? selectedLetter == null : selectedLetter == letter;
     final isAvailable = isAll || availableLetters.contains(letter);
 
-    return Expanded(
+    return Flexible(
+      flex: isAll || letter == '0-9' ? 2 : 1,
       child: Material(
         color: Colors.transparent,
         child: InkWell(
@@ -95,6 +106,9 @@ class LibraryAlphaJumpBar extends StatelessWidget {
             ),
             child: Text(
               letter,
+              maxLines: 1,
+              softWrap: false,
+              overflow: TextOverflow.clip,
               style: TextStyle(
                 fontSize: isAll ? 10 : 11,
                 fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600,

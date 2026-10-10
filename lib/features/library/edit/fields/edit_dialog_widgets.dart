@@ -47,6 +47,10 @@ ThemeData editDialogTheme({
 }) {
   palette = libraryEditPalette(palette);
   final accent = seedColor ?? palette.accent;
+  palette = palette.copyWith(
+      accent: accent,
+      selection:
+          Color.alphaBlend(accent.withValues(alpha: 0.22), palette.panel));
   final base = palette.isDark
       ? ThemeData.dark(useMaterial3: true)
       : ThemeData.light(useMaterial3: true);
@@ -160,12 +164,12 @@ ThemeData editDialogTheme({
           bodyLarge: base.textTheme.bodyLarge?.copyWith(
               fontSize: 14,
               height: 20 / 14,
-              fontWeight: FontWeight.w600,
+              fontWeight: FontWeight.w500,
               letterSpacing: 0),
           bodyMedium: base.textTheme.bodyMedium?.copyWith(
               fontSize: 14,
               height: 20 / 14,
-              fontWeight: FontWeight.w600,
+              fontWeight: FontWeight.w500,
               letterSpacing: 0),
           labelLarge: base.textTheme.labelLarge?.copyWith(
               fontSize: 14,

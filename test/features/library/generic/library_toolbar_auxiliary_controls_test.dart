@@ -1,9 +1,32 @@
 import 'package:collectarr_app/features/library/generic/toolbar/toolbar_auxiliary_controls.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
+import 'package:collectarr_app/features/library/workspace/layout/library_alpha_jump_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
+  testWidgets('narrow alphabet keeps All on one line and scrolls to Z',
+      (tester) async {
+    String? selected;
+    await tester.pumpWidget(MaterialApp(
+        home: Scaffold(
+            body: SizedBox(
+                width: 240,
+                child: LibraryAlphaJumpBar(
+                    availableLetters: const {'Z'},
+                    selectedLetter: null,
+                    accent: Colors.orange,
+                    onLetterSelected: (value) => selected = value)))));
+    final all = tester.widget<Text>(find.text('All'));
+    expect(all.maxLines, 1);
+    expect(all.softWrap, isFalse);
+    await tester.drag(
+        find.byType(SingleChildScrollView), const Offset(-500, 0));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Z'));
+    expect(selected, 'Z');
+    expect(tester.takeException(), isNull);
+  });
   testWidgets(
       'alphabet exposes Z inline and switches to a complete compact menu',
       (tester) async {

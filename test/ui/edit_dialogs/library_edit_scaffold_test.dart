@@ -10,6 +10,9 @@ void main() {
     await tester.pumpWidget(const MaterialApp(home: _EditScaffoldHarness()));
 
     expect(find.widgetWithText(FilledButton, 'Save'), findsOneWidget);
+    final save =
+        tester.widget<FilledButton>(find.widgetWithText(FilledButton, 'Save'));
+    expect(save.style!.backgroundColor!.resolve({}), Colors.teal);
     expect(find.text('Previous'), findsOneWidget);
     expect(find.text('Next'), findsOneWidget);
     expect(find.text('Cancel'), findsOneWidget);

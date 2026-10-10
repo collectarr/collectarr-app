@@ -80,7 +80,7 @@ void main() {
     await tester.pumpAndSettle();
 
     final dialogSurface = find.byKey(const ValueKey('library-dialog-surface'));
-    expect(tester.getSize(dialogSurface).width, lessThanOrEqualTo(1024));
+    expect(tester.getSize(dialogSurface).width, closeTo(1152, 1));
     expect(tester.getTopLeft(dialogSurface).dy, closeTo(10, 1));
 
     expect(find.text('Credits'), findsOneWidget);

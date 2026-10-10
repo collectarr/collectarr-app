@@ -47,7 +47,7 @@ class LibraryDetailTitleStatusCard extends StatelessWidget {
                   child: Text(
                     title,
                     style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                          fontWeight: FontWeight.w900,
+                          fontWeight: FontWeight.w700,
                           height: 1.05,
                         ),
                   ),

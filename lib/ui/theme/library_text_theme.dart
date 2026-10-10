@@ -31,7 +31,7 @@ extension LibraryTextTheme on TextTheme {
   /// Text shown inside editable controls and their selected values.
   TextStyle get controlText => (bodyMedium ?? const TextStyle()).copyWith(
         fontSize: 14,
-        fontWeight: FontWeight.w600,
+        fontWeight: FontWeight.w500,
         height: 20 / 14,
       );
 
