@@ -79,6 +79,7 @@ import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:collectarr_app/features/settings/ui_preferences.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:uuid/uuid.dart';

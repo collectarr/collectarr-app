@@ -253,24 +253,23 @@ abstract final class _LibraryPageLifecycleControllerOps {
       state._session.preferences.collapsedGroupBuckets = const <String>{};
       state._session.selection.anchorId = null;
       state._kindBrowserDelegate.closeItemDrilldown();
-      state.ref
-          .read(
-            libraryFacetControllerProvider(
-              oldWidget.type.kind.apiValue,
-            ).notifier,
-          )
-          .clearAll();
-      state.ref
-          .read(
-            libraryFacetControllerProvider(
-              state.widget.type.kind.apiValue,
-            ).notifier,
-          )
-          .clearAll();
+      final previousKind = oldWidget.type.kind.apiValue;
+      final nextKind = state.widget.type.kind.apiValue;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!state.mounted || state.widget.type.kind.apiValue != nextKind) {
+          return;
+        }
+        state.ref
+            .read(libraryFacetControllerProvider(previousKind).notifier)
+            .clearAll();
+        state.ref
+            .read(libraryFacetControllerProvider(nextKind).notifier)
+            .clearAll();
+      });
       state._session.facets.lastEnsureSignature = null;
       state._session.facets.lastEnsureFacetId = null;
       state._searchController.clear();
-      state._searchControllerOps.clearSearch();
+      state._searchControllerOps.state.clearSearch();
       state._primeCachedViewPreferences();
       // Start from the next kind's own cached defaults/chrome to avoid
       // a one-frame layout jump (e.g. right -> bottom details panel).

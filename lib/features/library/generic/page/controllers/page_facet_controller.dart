@@ -87,6 +87,22 @@ abstract final class _LibraryFacetControllerOps {
     String mode,
     LibraryFacetIdRuntime facetId,
   ) {
+    // Route hydration can reach this from initState/didUpdateWidget. Keep
+    // provider notifications outside the widget build phase.
+    if (SchedulerBinding.instance.schedulerPhase ==
+        SchedulerPhase.persistentCallbacks) {
+      final expectedKind = state.widget.type.kind;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!state.mounted || state.widget.type.kind != expectedKind) return;
+        final latestShelf = state.ref.read(shelfProvider).asData?.value;
+        if (latestShelf == null ||
+            facetIdForMode(state, state._activeGroupMode) != facetId) {
+          return;
+        }
+        ensureFacetBucketsLoaded(state, latestShelf, mode, facetId);
+      });
+      return;
+    }
     final signature = genericShelfSignature(state, shelf);
     final cached = _controllerState(state).bucketsByFacetId[facetId];
     if (cached != null && cached.shelfSignature == signature) {
