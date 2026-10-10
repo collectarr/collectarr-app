@@ -173,8 +173,8 @@ class LibraryDialogScaffold extends StatelessWidget {
     Widget result;
 
     if (windowClass.isCompact) {
-      result = DecoratedBox(
-        decoration: BoxDecoration(color: palette.panel),
+      result = Material(
+        color: palette.panel,
         child: scaffoldColumn,
       );
     } else {

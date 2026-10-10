@@ -259,11 +259,11 @@ class CollectionSchemaManagementPanel extends ConsumerWidget {
             if (constraints.maxWidth < 1120) {
               return Column(
                 children: [
-                  cards[0],
+                  cards[0].child,
                   const SizedBox(height: 12),
-                  cards[1],
+                  cards[1].child,
                   const SizedBox(height: 12),
-                  cards[2],
+                  cards[2].child,
                 ],
               );
             }
