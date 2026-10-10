@@ -48,7 +48,7 @@ extension LibraryTextTheme on TextTheme {
   TextStyle get tableHeader => (labelSmall ?? const TextStyle()).copyWith(
         fontSize: 13,
         fontWeight: FontWeight.w800,
-        letterSpacing: 0,
+        letterSpacing: 0.1,
       );
 
   /// Add-dialog title and other prominent Library chrome labels.

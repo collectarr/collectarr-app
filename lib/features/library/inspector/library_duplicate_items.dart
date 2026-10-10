@@ -26,15 +26,32 @@ class LibraryDuplicateGroup {
 }
 
 List<LibraryDuplicateGroup> findDuplicateShelfGroups(
-  List<LibraryWorkspaceContext> entries,
-) {
+  List<LibraryWorkspaceContext> entries, {
+  LibraryDuplicateCriterion criterion = LibraryDuplicateCriterion.automatic,
+}) {
   final candidatesByKey = <String, List<_CandidateEntry>>{};
   for (final entry in entries) {
     final registration = defaultLibraryKindRegistry.tryGet(entry.mediaKind);
     if (registration == null) continue;
-    for (final candidate in libraryPresentationForKind(registration.kind)
-        .builder
-        .buildDuplicateCandidates(entry)) {
+    final candidates = [
+      ...libraryPresentationForKind(registration.kind)
+          .builder
+          .buildDuplicateCandidates(entry)
+    ];
+    final title = normalizeLibraryDuplicateToken(entry.title);
+    if (criterion == LibraryDuplicateCriterion.title && title != null) {
+      candidates.add(LibraryDuplicateCandidate(
+          key: 'title:$title',
+          label: entry.title,
+          reason: 'Same title',
+          confidenceScore: 70,
+          criterion: criterion));
+    }
+    for (final candidate in candidates) {
+      if (criterion != LibraryDuplicateCriterion.automatic &&
+          candidate.criterion != criterion) {
+        continue;
+      }
       candidatesByKey
           .putIfAbsent(candidate.key, () => [])
           .add(_CandidateEntry(candidate, entry));
@@ -85,44 +102,86 @@ List<LibraryDuplicateGroup> findDuplicateShelfGroups(
 Future<void> showDuplicateItemsDialog(
   BuildContext context, {
   required List<LibraryDuplicateGroup> duplicateGroups,
+  List<LibraryWorkspaceContext>? entries,
 }) {
   return showDialog<void>(
     context: context,
     builder: (context) => _DuplicateItemsDialog(
       duplicateGroups: duplicateGroups,
+      entries: entries,
     ),
   );
 }
 
-class _DuplicateItemsDialog extends StatelessWidget {
+class _DuplicateItemsDialog extends StatefulWidget {
   const _DuplicateItemsDialog({
     required this.duplicateGroups,
+    this.entries,
   });
 
   final List<LibraryDuplicateGroup> duplicateGroups;
+  final List<LibraryWorkspaceContext>? entries;
+
+  @override
+  State<_DuplicateItemsDialog> createState() => _DuplicateItemsDialogState();
+}
+
+class _DuplicateItemsDialogState extends State<_DuplicateItemsDialog> {
+  LibraryDuplicateCriterion _criterion = LibraryDuplicateCriterion.automatic;
 
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
+    final duplicateGroups = widget.entries == null
+        ? widget.duplicateGroups
+        : findDuplicateShelfGroups(widget.entries!, criterion: _criterion);
     return AccentAlertDialog(
       backgroundColor: palette.panel,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       title: const Text('Local duplicate candidates'),
       content: SizedBox(
         width: 620,
-        child: duplicateGroups.isEmpty
-            ? const Text('No local duplicate candidates detected.')
-            : ConstrainedBox(
-                constraints: const BoxConstraints(maxHeight: 520),
-                child: ListView.separated(
-                  shrinkWrap: true,
-                  itemCount: duplicateGroups.length,
-                  separatorBuilder: (_, __) => const SizedBox(height: 10),
-                  itemBuilder: (context, index) {
-                    return _DuplicateGroupTile(group: duplicateGroups[index]);
-                  },
+        child: Column(mainAxisSize: MainAxisSize.min, children: [
+          if (widget.entries != null) ...[
+            DropdownButtonFormField<LibraryDuplicateCriterion>(
+              initialValue: _criterion,
+              decoration:
+                  const InputDecoration(labelText: 'Find duplicates by'),
+              items: [
+                for (final criterion in LibraryDuplicateCriterion.values)
+                  DropdownMenuItem(
+                      value: criterion,
+                      child: Text(switch (criterion) {
+                        LibraryDuplicateCriterion.automatic =>
+                          'Automatic matching',
+                        LibraryDuplicateCriterion.title => 'Title',
+                        LibraryDuplicateCriterion.titleAndCreator =>
+                          'Title and artist / creator',
+                        LibraryDuplicateCriterion.identifier =>
+                          'Barcode / identifier',
+                        LibraryDuplicateCriterion.indexNumber => 'Index',
+                      }))
+              ],
+              onChanged: (value) {
+                if (value != null) setState(() => _criterion = value);
+              },
+            ),
+            const SizedBox(height: 16),
+          ],
+          duplicateGroups.isEmpty
+              ? const Text('No local duplicate candidates detected.')
+              : ConstrainedBox(
+                  constraints: const BoxConstraints(maxHeight: 520),
+                  child: ListView.separated(
+                    shrinkWrap: true,
+                    itemCount: duplicateGroups.length,
+                    separatorBuilder: (_, __) => const SizedBox(height: 10),
+                    itemBuilder: (context, index) {
+                      return _DuplicateGroupTile(group: duplicateGroups[index]);
+                    },
+                  ),
                 ),
-              ),
+        ]),
       ),
       actions: [
         TextButton(

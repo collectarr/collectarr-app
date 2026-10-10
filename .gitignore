@@ -50,3 +50,4 @@ sqlite3_temp.dat
 .github/skills/
 .tmp*
 test_output.txt
+clz_*.png

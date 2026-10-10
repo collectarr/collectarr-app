@@ -2,6 +2,8 @@ import 'package:collectarr_app/features/collection/repositories/shelf_controller
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/stats/library_stats_page.dart';
 import 'package:flutter/material.dart';
+import 'package:collectarr_app/ui/library_accent_scope.dart';
+import 'package:collectarr_app/features/library/config/library_kind_style.dart';
 
 export 'package:collectarr_app/features/library/stats/library_stats_page.dart';
 
@@ -13,7 +15,11 @@ Future<void> showStatsDashboardDialog(
 }) {
   return Navigator.of(context).push<void>(
     MaterialPageRoute<void>(
-      builder: (context) => LibraryStatsPage(type: type, state: state),
+      builder: (context) => LibraryAccentScope(
+          kind: type.kind.apiValue,
+          accent: libraryAccentForKind(type.kind),
+          animationsEnabled: true,
+          child: LibraryStatsPage(type: type, state: state)),
     ),
   );
 }

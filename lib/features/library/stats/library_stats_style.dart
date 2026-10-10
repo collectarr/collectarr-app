@@ -1,5 +1,6 @@
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
+import 'package:collectarr_app/ui/library_accent_scope.dart';
 
 class LibraryStatsColors {
   const LibraryStatsColors({
@@ -31,21 +32,22 @@ class LibraryStatsColors {
 
 LibraryStatsColors libraryStatsColors(BuildContext context) {
   final palette = appPalette(context);
+  final accent = LibraryAccentScope.accentOf(context);
   return LibraryStatsColors(
     toolbar: palette.surface,
     panel: palette.surfaceSubtle,
     canvas: palette.surface,
-    accent: kAppAccent,
+    accent: accent,
     divider: palette.divider,
     textMuted: palette.textMuted,
     textPrimary: palette.textPrimary,
     panelBorder: palette.cardBorder,
     meterBackground: palette.field,
     pillBackground: Color.alphaBlend(
-      kAppAccent.withValues(alpha: 0.12),
+      accent.withValues(alpha: 0.12),
       palette.surfaceSubtle.withValues(alpha: 0.96),
     ),
-    pillBorder: kAppAccent.withValues(alpha: 0.42),
+    pillBorder: accent.withValues(alpha: 0.42),
   );
 }
 
