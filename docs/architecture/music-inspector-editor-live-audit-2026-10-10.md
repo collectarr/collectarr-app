@@ -80,7 +80,29 @@ All reference tabs were opened: Main, People, Details, Classical, Tracks, Person
 4. Use a populated mixed-disc fixture for live scope transfer, save/reopen, track search, multiple group buckets, inspector metadata filters and Previous/Next dirty drafts.
 5. Run real Find Online -> select result -> save -> reopen and image upload/crop/drop/paste checks with the backend. Share/Unlink require defined supported behavior; menu presence alone cannot close them.
 
-## Evidence and limits
+## Implementation follow-up
+
+The findings above describe the pre-fix comparison. The following changes have now landed:
+
+- Entry inspectors resolve the selected entry summary, enabling Duplicate and Loan. The toolbar exposes Edit, Share, collection transfer and Unlink from Core for linked entries. Unlink preserves canonical and personal data and creates a durable sync update. Removal uses the page's existing confirmation flow.
+- Music owns the active Overview, grouped Track List, Disc Details, Album details, Personal, Listening history, Credits and Links contributions. Recording data remains disc-owned; credits include role, instruments and album/disc scope. Front/back cover navigation supports remote URLs and local images. The unused inspector panel wrapper was deleted.
+- Music editor width is 1200 px with its existing fixed 10 px top anchor. Save and text selection follow the kind accent. Typography roles were adjusted for ordinary values, the title and My Images helper. The narrow alphabet strip scrolls when necessary and keeps All on one line.
+- New blank credit rows defer validation until interaction; selecting a valid role refreshes the error immediately. Inspector icon buttons expose accessible names and button actions.
+
+Live Playwright verification against disposable local entries established:
+
+- Find Online returned real image-provider results with dimensions; choosing a 600 x 600 Lupus Dei cover, saving and reopening retained the image.
+- Hiding the folder sidebar and restoring Has Back grouping restored folder controls and all three entries.
+- Adding Disc 1 and First Song (1:30), adding John with role Producer, changing Applies to from Album to Disc 1, saving and reopening retained both the track and scoped credit. The inspector displayed one disc, one track and the 1:30 total.
+- Desktop editor geometry, accent Save and the narrow layout were captured again. CLZ data was not edited.
+
+Share intentionally opens the existing local TXT/CSV export surface. Hosted public links, email sharing and CLZ privacy controls are not implemented. The alphabet field selector, complete manual inspector layout persistence, track-only search queries, dirty Previous/Next navigation and image upload/crop/drop/paste remain separate verification items; this follow-up does not claim complete CLZ parity.
+
+Validation after the credit refresh: 819 tests passed with one existing skipped test; analyzer clean; Web release and Windows debug builds passed. Architecture checks found no boundary violations or repeated kind implementation clusters, with 364 complexity warnings remaining. Widget regressions cover validation clearing, accessible inspector actions, entry unlink preservation, editor geometry, accent Save and narrow alphabet navigation.
+
+Additional temporary evidence: `fixed-online-reopened.png`, `fixed-sidebar-restored.png`, `fixed-music-reopened.png`, `fixed-music-save.log` and `fixed-music-narrow.png` under `%TEMP%/collectarr-browser-compare`.
+
+## Original audit evidence and limits
 
 Temporary browser artifacts are in `%TEMP%/collectarr-browser-compare`: `clz-editor-audit.log`, `clz-audit-editor-*.png`, `local-inspector-editor-tabs.log`, `local-editor-*.png`, `local-audit-inspector-more.png`, `local-inspector-narrow.png`, `local-sidebar-remainder.log`, and `local-final-menus.log`. Reference pane metrics are also in ignored `.tmp-reference-inspector-details.log`. These temporary artifacts are not permanent repository assets; the findings and metrics above are the committed record.
 

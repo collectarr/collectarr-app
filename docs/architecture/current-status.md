@@ -1,6 +1,6 @@
 # Current Architecture Status
 
-Last reviewed: 2026-10-09. This report reflects the current working tree and
+Last reviewed: 2026-10-10. This report reflects the current working tree and
 the post-audit release evidence recorded below. The architecture guard has no
 unreviewed AST violations; its exact baseline retains 44 reviewed field-leak
 findings, all still observed and none stale. The checker reports 364
@@ -8,6 +8,14 @@ informational complexity findings.
 
 ## Implemented
 
+- Music's active inspector uses kind-owned Overview, tracks, disc metadata,
+  scoped credits and personal sections. Entry context enables Duplicate, Loan,
+  collection transfer and provenance unlinking; unlink preserves entry data
+  and queues sync. Share uses local TXT/CSV export. See the
+  [live comparison and implementation evidence](music-inspector-editor-live-audit-2026-10-10.md).
+- Music editing keeps a fixed top anchor and a 1200 px desktop width, uses
+  kind accents for Save and selection, and refreshes credit validation after
+  role changes. Narrow alphabet navigation scrolls without wrapping All.
 - Core Catalog Items identify concrete editions, versions, issues, and album
   releases. App keeps kind-owned metadata in its kind document and personal
   state in a separate map on the same independently editable local entry.
