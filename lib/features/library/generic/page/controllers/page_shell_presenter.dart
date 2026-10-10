@@ -20,6 +20,29 @@ abstract final class LibraryPageShellPresenter {
         : state._projectionForShelf(shelfState, viewState);
     final useFab =
         state.ref.watch(uiPreferencesProvider.select((p) => p.fabAddButton));
+    if (projection != null) {
+      final uri = state.widget.routeUri;
+      final request = uri.queryParameters['toolRequest'];
+      final tool = uri.queryParameters['tool'];
+      if (request != null &&
+          request != state._handledToolRequest &&
+          (tool == 'reassignIndex' || tool == 'transferFieldData')) {
+        state._handledToolRequest = request;
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (!state.mounted || state.widget.routeUri != uri) return;
+          final parameters = Map<String, String>.of(uri.queryParameters)
+            ..remove('tool')
+            ..remove('toolRequest');
+          if (GoRouter.maybeOf(state.context) != null) {
+            state.context
+                .replace(uri.replace(queryParameters: parameters).toString());
+          }
+          unawaited(tool == 'reassignIndex'
+              ? state._dialogCoordinator.reassignIndexFlow(projection)
+              : state._dialogCoordinator.showTransferFieldDataFlow(projection));
+        });
+      }
+    }
     final toolbar = state._toolbarController.buildToolbar(
       context: context,
       projection: projection,

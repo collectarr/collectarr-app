@@ -119,6 +119,7 @@ class GenericLibraryPage extends ConsumerStatefulWidget {
 
 class GenericLibraryPageState extends ConsumerState<GenericLibraryPage>
     with LibraryPageUtilities {
+  String? _handledToolRequest;
   static bool _viewStateCacheWarmupStarted = false;
 
   // ---------------------------------------------------------------------------

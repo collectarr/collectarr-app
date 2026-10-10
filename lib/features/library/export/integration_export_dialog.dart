@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:collectarr_app/core/platform/save_export_file.dart';
 
 import 'package:collectarr_app/features/collection/csv/collection_csv_codec.dart';
 import 'package:collectarr_app/core/models/library_entry_ref.dart';
@@ -19,7 +20,7 @@ import 'package:flutter/services.dart';
 enum ExportFormat {
   csv('CSV', 'Spreadsheet', Icons.table_chart_outlined),
   json('JSON', 'Structured data for APIs', Icons.data_object),
-  xml('XML', 'For CLZ import', Icons.code),
+  xml('XML', 'Structured collection export', Icons.code),
   markdown('Markdown', 'Readable checklist', Icons.text_snippet_outlined);
 
   const ExportFormat(this.label, this.description, this.icon);
@@ -33,12 +34,14 @@ Future<void> showIntegrationExportDialog({
   required BuildContext context,
   required LibraryKindRegistration type,
   required ShelfState shelfState,
+  ExportFormat? format,
 }) {
   return showDialog<void>(
     context: context,
     builder: (_) => _IntegrationExportDialog(
       type: type,
       shelfState: shelfState,
+      format: format,
     ),
   );
 }
@@ -47,10 +50,12 @@ class _IntegrationExportDialog extends ConsumerWidget {
   const _IntegrationExportDialog({
     required this.type,
     required this.shelfState,
+    this.format,
   });
 
   final LibraryKindRegistration type;
   final ShelfState shelfState;
+  final ExportFormat? format;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -74,13 +79,26 @@ class _IntegrationExportDialog extends ConsumerWidget {
               style: TextStyle(color: palette.textMuted, fontSize: 12),
             ),
             const SizedBox(height: 16),
-            for (final format in ExportFormat.values) ...[
+            for (final format
+                in format == null ? ExportFormat.values : [format!]) ...[
               _ExportFormatTile(
                 format: format,
                 onTap: () => _export(context, ref, format),
               ),
               if (format != ExportFormat.values.last) const SizedBox(height: 8),
             ],
+            if (format == ExportFormat.xml)
+              FilledButton.icon(
+                onPressed: () async {
+                  final saved = await saveExportText(
+                      filename: '${type.kind.apiValue}.xml',
+                      content: _toXml(),
+                      mimeType: 'application/xml');
+                  if (saved && context.mounted) Navigator.pop(context);
+                },
+                icon: const Icon(Icons.download),
+                label: const Text('Download XML'),
+              ),
           ],
         ),
       ),

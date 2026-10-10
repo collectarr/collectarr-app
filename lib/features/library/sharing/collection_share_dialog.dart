@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'dart:io';
+import 'package:collectarr_app/core/platform/save_export_file.dart';
 
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/ui/accent_dialog_header.dart';
@@ -9,7 +9,6 @@ import 'package:flutter/material.dart';
 import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 import 'package:flutter/services.dart';
 import 'package:collectarr_app/features/collection/csv/csv_mechanics.dart';
-import 'package:file_selector/file_selector.dart';
 
 /// Shows a dialog to share the current collection view.
 /// Offers: copy as text list, copy as CSV, export as CSV file.
@@ -164,18 +163,15 @@ class _CollectionShareDialog extends StatelessWidget {
     try {
       final safeTitle = title.replaceAll(RegExp(r'[^\w\s]'), '').trim();
       final fileName = '${safeTitle}_collection.$ext';
-      final location = await getSaveLocation(
-        suggestedName: fileName,
-        acceptedTypeGroups: [
-          XTypeGroup(label: ext.toUpperCase(), extensions: [ext]),
-        ],
-      );
-      if (location == null) return;
-      final file = File(location.path);
-      await file.writeAsString(content);
+      if (!await saveExportText(
+          filename: fileName,
+          content: content,
+          mimeType: ext == 'json' ? 'application/json' : 'text/csv')) {
+        return;
+      }
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Saved to ${file.path}')),
+          SnackBar(content: Text('Saved $fileName')),
         );
         Navigator.pop(context);
       }
@@ -232,18 +228,13 @@ ${rows.toString()}</tbody>
     try {
       final safeTitle = title.replaceAll(RegExp(r'[^\w\s]'), '').trim();
       final fileName = '${safeTitle}_collection.html';
-      final location = await getSaveLocation(
-        suggestedName: fileName,
-        acceptedTypeGroups: [
-          const XTypeGroup(label: 'HTML', extensions: ['html']),
-        ],
-      );
-      if (location == null) return;
-      final file = File(location.path);
-      await file.writeAsString(html);
+      if (!await saveExportText(
+          filename: fileName, content: html, mimeType: 'text/html')) {
+        return;
+      }
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Saved to ${file.path}')),
+          SnackBar(content: Text('Saved $fileName')),
         );
         Navigator.pop(context);
       }

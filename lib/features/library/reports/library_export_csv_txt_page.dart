@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'dart:io';
+import 'package:collectarr_app/core/platform/save_export_file.dart';
 
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
@@ -8,7 +8,6 @@ import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/ui/library_accent_scope.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
-import 'package:file_selector/file_selector.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -395,23 +394,14 @@ class _LibraryExportCsvTxtPageState extends State<LibraryExportCsvTxtPage> {
     final suggestedName = '$base.$ext';
 
     try {
-      final location = await getSaveLocation(
-        suggestedName: suggestedName,
-        acceptedTypeGroups: [
-          XTypeGroup(
-            label: _fileType == ExportFileType.csv
-                ? 'CSV (*.csv)'
-                : 'Text (*.txt)',
-            extensions: [ext],
-          ),
-        ],
-      );
-      if (location == null) return;
-      final file = File(location.path);
-      await file.writeAsString(_generatedContent!, encoding: utf8);
+      final saved = await saveExportText(
+          filename: suggestedName,
+          content: _generatedContent!,
+          mimeType: ext == 'csv' ? 'text/csv' : 'text/plain');
+      if (!saved) return;
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Saved file to ${file.path}')),
+          SnackBar(content: Text('Saved $suggestedName')),
         );
       }
     } catch (e) {
