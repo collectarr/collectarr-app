@@ -167,9 +167,8 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
     return DecoratedBox(
       decoration: BoxDecoration(
         color: palette.toolbar,
-        border: showBottomBorder
-            ? Border(bottom: BorderSide(color: palette.divider))
-            : null,
+        border:
+            showBottomBorder ? libraryWorkspaceToolbarBorder(context) : null,
       ),
       child: Padding(
         padding: const EdgeInsets.symmetric(
@@ -1127,7 +1126,8 @@ class _CompactSearchScopeTrigger extends StatefulWidget {
       _CompactSearchScopeTriggerState();
 }
 
-class _CompactSearchScopeTriggerState extends State<_CompactSearchScopeTrigger> {
+class _CompactSearchScopeTriggerState
+    extends State<_CompactSearchScopeTrigger> {
   bool _hovered = false;
 
   @override

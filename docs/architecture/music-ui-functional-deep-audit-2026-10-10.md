@@ -209,3 +209,17 @@ physical shelves, grouped shelves, and the layout underneath empty content.
 Empty grids paint their configured background. Right and bottom inspector
 separators use the same continuous neutral divider; dragging keeps the kind
 accent. Pane width/height budgets now reserve the actual 6 px separator width.
+
+
+### Panel grip and toolbar seam follow-up
+
+The CLZ dragger also paints an ::after marker: five 2 x 2 light marks spaced
+6 px apart in a centered 34 px strip, rotated vertically for column resizing.
+Collectarr renders this pattern directly for both separator orientations,
+without a pill outline or external image dependency. The continuous 6 px
+seam remains visible and changes to the kind accent while dragging.
+
+Measured toolbar borders are #4A4A4A above and #262626 below in dark mode.
+Folder, collection, and unframed inspector toolbars now share those seams.
+Raster widget checks cover both grip orientations and opaque seam painting;
+existing resize callback and constrained sidebar/inspector tests still pass.

@@ -478,7 +478,8 @@ class InspectorUnifiedToolbar extends StatelessWidget {
                                   : Icons.add_circle_outline,
                               size: 18,
                             ),
-                            title: Text(item.source.isEntry ? 'Remove' : 'Collect'),
+                            title: Text(
+                                item.source.isEntry ? 'Remove' : 'Collect'),
                           ),
                         ),
                       ),
@@ -489,7 +490,8 @@ class InspectorUnifiedToolbar extends StatelessWidget {
                           type: MaterialType.transparency,
                           child: ListTile(
                             dense: true,
-                            leading: Icon(Icons.drive_file_move_outline, size: 18),
+                            leading:
+                                Icon(Icons.drive_file_move_outline, size: 18),
                             title: Text('Move to other collection'),
                           ),
                         ),
@@ -525,14 +527,16 @@ class InspectorUnifiedToolbar extends StatelessWidget {
                         type: MaterialType.transparency,
                         child: ListTile(
                           dense: true,
-                          leading: Icon(Icons.cloud_download_outlined, size: 18),
+                          leading:
+                              Icon(Icons.cloud_download_outlined, size: 18),
                           title: Text('Update from Core'),
                         ),
                       ),
                     ),
                   ],
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
                     child: Icon(
                       Icons.more_vert,
                       size: 18,
@@ -560,11 +564,7 @@ class InspectorUnifiedToolbar extends StatelessWidget {
         borderRadius: framed ? BorderRadius.circular(12) : null,
         border: framed
             ? Border.all(color: palette.divider)
-            : Border(
-                bottom: BorderSide(
-                  color: palette.divider.withValues(alpha: 0.6),
-                ),
-              ),
+            : libraryWorkspaceToolbarBorder(context),
       ),
       padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
       child: content,

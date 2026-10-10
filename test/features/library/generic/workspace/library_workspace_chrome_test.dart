@@ -1,3 +1,6 @@
+import 'dart:ui' as ui;
+
+import 'package:flutter/rendering.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_workspace_chrome.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/layout/library_resizable_pane.dart';
@@ -5,6 +8,56 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
+  for (final axis in Axis.values) {
+    testWidgets(
+        'panel divider paints a continuous seam and five grip marks ($axis)',
+        (tester) async {
+      final boundaryKey = GlobalKey();
+      final horizontal = axis == Axis.horizontal;
+      await tester.pumpWidget(MaterialApp(
+        theme: ThemeData.dark(),
+        home: Scaffold(
+          body: Center(
+            child: RepaintBoundary(
+              key: boundaryKey,
+              child: SizedBox(
+                width: horizontal ? 6 : 100,
+                height: horizontal ? 100 : 6,
+                child: LibraryResizableDivider(
+                  axis: axis,
+                  onDragDelta: (_) {},
+                ),
+              ),
+            ),
+          ),
+        ),
+      ));
+      await tester.pump();
+      final boundary = boundaryKey.currentContext!.findRenderObject()
+          as RenderRepaintBoundary;
+      await tester.runAsync(() async {
+        final image = await boundary.toImage(pixelRatio: 1);
+        final pixels =
+            (await image.toByteData(format: ui.ImageByteFormat.rawRgba))!;
+        // Every pixel belongs to either the solid seam or the visible grip.
+        var gripPixels = 0;
+        for (var offset = 0; offset < pixels.lengthInBytes; offset += 4) {
+          final red = pixels.getUint8(offset);
+          expect(pixels.getUint8(offset + 3), 255);
+          if (red > 200) {
+            gripPixels++;
+          } else {
+            expect(red, 0x26);
+            expect(pixels.getUint8(offset + 1), 0x26);
+            expect(pixels.getUint8(offset + 2), 0x26);
+          }
+        }
+        expect(gripPixels, 20); // Five visible 2 x 2 marks.
+        image.dispose();
+      });
+    });
+  }
+
   testWidgets('compact dropdown trigger renders icon and arrow', (
     tester,
   ) async {

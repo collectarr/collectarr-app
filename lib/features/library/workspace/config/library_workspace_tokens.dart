@@ -13,6 +13,11 @@ Color libraryWorkspacePaneDividerColor(BuildContext context) =>
         ? const Color(0xff262626)
         : appPalette(context).divider;
 
+Border libraryWorkspaceToolbarBorder(BuildContext context) => Border(
+      top: BorderSide(color: appPalette(context).divider),
+      bottom: BorderSide(color: libraryWorkspacePaneDividerColor(context)),
+    );
+
 const kLibraryToolbarCompactDropdownSize = 28.0;
 const kLibraryToolbarCompactDropdownWidth = 38.0;
 const kLibraryToolbarBandHeight = 38.0;

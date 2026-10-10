@@ -91,7 +91,10 @@ class LibraryToolbarFrame extends StatelessWidget {
     return DecoratedBox(
       decoration: BoxDecoration(
         color: backgroundColor,
-        border: Border(bottom: BorderSide(color: dividerColor)),
+        border: Border(
+          top: BorderSide(color: dividerColor),
+          bottom: BorderSide(color: libraryWorkspacePaneDividerColor(context)),
+        ),
       ),
       child: child,
     );

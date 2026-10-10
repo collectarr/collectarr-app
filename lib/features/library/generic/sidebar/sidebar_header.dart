@@ -114,10 +114,10 @@ class LibrarySidebarHeader extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 4),
       decoration: BoxDecoration(
         color: libraryFolderDepthColor(context, 0),
-        border: Border(bottom: BorderSide(color: palette.divider)),
+        border: libraryWorkspaceToolbarBorder(context),
       ),
       child: SizedBox(
-        height: kLibraryToolbarBandHeight - 1,
+        height: kLibraryToolbarBandHeight - 2,
         child: LayoutBuilder(
           builder: (context, constraints) {
             final width = constraints.maxWidth;
