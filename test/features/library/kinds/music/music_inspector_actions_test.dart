@@ -111,6 +111,7 @@ void main() {
   testWidgets(
       'entry inspector resolves summary, offers actions and renders Music v2 at 350px',
       (tester) async {
+    final semantics = tester.ensureSemantics();
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
     final entry = fixture();
@@ -161,6 +162,8 @@ void main() {
     await tester.drag(find.byType(Scrollable).first, const Offset(0, 3000));
     await tester.pumpAndSettle();
     expect(find.byTooltip('Share'), findsOneWidget);
+    expect(find.bySemanticsLabel('Edit'), findsOneWidget);
+    expect(find.bySemanticsLabel('Share'), findsOneWidget);
     await tester.tap(find.byTooltip('More inspector actions'));
     await tester.pumpAndSettle();
     expect(find.text('Duplicate'), findsOneWidget);
@@ -173,5 +176,6 @@ void main() {
     expect(find.text('Loans'), findsWidgets);
     expect(tester.takeException(), isNull);
     await tester.pumpWidget(const SizedBox.shrink());
+    semantics.dispose();
   });
 }

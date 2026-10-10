@@ -90,9 +90,13 @@ void main() {
         of: roleField,
         matching: find.byType(TextField),
       );
+      await tester.enterText(roleInput, '');
+      await tester.pump();
+      expect(find.text('Each credit needs a name and role.'), findsOneWidget);
       await tester.enterText(roleInput, 'Composer');
       await tester.pump();
       expect(draft.credits.single.role, 'Composer');
+      expect(find.text('Each credit needs a name and role.'), findsNothing);
 
       final albumScope = find.byType(DropdownButtonFormField<String>).first;
       await tester.tap(albumScope);

@@ -203,8 +203,8 @@ final class _MusicAlbumCreditsTabState extends State<MusicAlbumCreditsTab> {
                             mediaKind: 'music',
                             value: row.role.isEmpty ? null : row.role,
                             builtIns: MusicVocabularies.creditRole.builtIns,
-                            onChanged: (value) =>
-                                editor.updateRole(row.id, value ?? ''),
+                            onChanged: (value) => setState(
+                                () => editor.updateRole(row.id, value ?? '')),
                           ),
                         ),
                       ),

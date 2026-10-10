@@ -234,10 +234,17 @@ class InspectorToolIconButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return Tooltip(
       message: tooltip,
-      child: IconButton(
-        onPressed: onPressed,
-        icon: Icon(icon, size: 18),
-        visualDensity: VisualDensity.compact,
+      child: Semantics(
+        label: tooltip,
+        button: true,
+        enabled: onPressed != null,
+        onTap: onPressed,
+        excludeSemantics: true,
+        child: IconButton(
+          onPressed: onPressed,
+          icon: Icon(icon, size: 18),
+          visualDensity: VisualDensity.compact,
+        ),
       ),
     );
   }
