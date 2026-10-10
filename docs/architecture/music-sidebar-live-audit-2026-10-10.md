@@ -132,3 +132,8 @@ The facet signature now incorporates update time and immutable metadata identity
 Verification: 816 Flutter tests passed, one existing skipped; analyzer clean; Web release and Windows debug builds passed. No AST boundary violations or repeated kind implementation clusters; complexity warnings remain at 365. Browser checks used local temporary profiles and disposable data.
 
 No legacy aliases or migration paths were added. These three previously open audit areas are closed at the evidence levels described above. Full CLZ pixel parity and sharing remain outside this audit.
+
+
+## Inspector and editor continuation
+
+The [follow-up inspector/editor report](music-inspector-editor-live-audit-2026-10-10.md) records the next live comparison, entry-action wiring gaps, remaining blue editor controls, geometry/font differences, and explicitly unverified flows.
