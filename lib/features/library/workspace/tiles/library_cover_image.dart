@@ -22,6 +22,7 @@ class LibraryCoverImage extends ConsumerWidget {
     this.localImageType = 'front_cover',
     this.borderRadius = 4,
     this.fit = BoxFit.contain,
+    this.showPlaceholder = true,
     super.key,
   });
 
@@ -35,6 +36,7 @@ class LibraryCoverImage extends ConsumerWidget {
   final String localImageType;
   final double borderRadius;
   final BoxFit fit;
+  final bool showPlaceholder;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -53,13 +55,15 @@ class LibraryCoverImage extends ConsumerWidget {
           .value;
     }
 
-    final fallbackCover = LibraryGeneratedCover(
-      title: title,
-      itemNumber: itemNumber,
-      borderRadius: borderRadius,
-      aspectRatio: fallbackAspectRatio,
-      fit: fit,
-    );
+    final fallbackCover = showPlaceholder
+        ? LibraryGeneratedCover(
+            title: title,
+            itemNumber: itemNumber,
+            borderRadius: borderRadius,
+            aspectRatio: fallbackAspectRatio,
+            fit: fit,
+          )
+        : const SizedBox.expand();
 
     return LayoutBuilder(
       builder: (context, constraints) {

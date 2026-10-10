@@ -1,3 +1,6 @@
+import 'package:collectarr_app/features/settings/ui_preferences.dart';
+import 'package:collectarr_app/features/library/inspector/library_inspector_chrome.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_item_ref.dart';
@@ -111,6 +114,7 @@ void main() {
   testWidgets(
       'entry inspector resolves summary, offers actions and renders Music v2 at 350px',
       (tester) async {
+    SharedPreferences.setMockInitialValues({});
     final semantics = tester.ensureSemantics();
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
@@ -161,6 +165,19 @@ void main() {
     expect(tester.takeException(), isNull);
     await tester.drag(find.byType(Scrollable).first, const Offset(0, 3000));
     await tester.pumpAndSettle();
+    final container = ProviderScope.containerOf(
+        tester.element(find.byType(LibraryInspector)));
+    final preferences = container.read(uiPreferencesProvider.notifier);
+    expect(find.byType(InspectorBackdrop), findsOneWidget);
+    await preferences.setShowInspectorBackdrop(false);
+    await preferences.setShowEbayLinks(false);
+    await tester.pumpAndSettle();
+    expect(find.byType(InspectorBackdrop), findsNothing);
+    expect(find.byTooltip('Search sold prices on eBay'), findsNothing);
+    expect(find.text('Search eBay'), findsNothing);
+    await preferences.setShowInspectorBackdrop(true);
+    await preferences.setShowEbayLinks(true);
+    await tester.pumpAndSettle();
     expect(find.byTooltip('Share'), findsOneWidget);
     expect(find.bySemanticsLabel('Edit'), findsOneWidget);
     expect(find.bySemanticsLabel('Share'), findsOneWidget);
@@ -176,6 +193,7 @@ void main() {
     expect(find.text('Loans'), findsWidgets);
     expect(tester.takeException(), isNull);
     await tester.pumpWidget(const SizedBox.shrink());
+    await tester.pump(const Duration(milliseconds: 1));
     semantics.dispose();
   });
 }

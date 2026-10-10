@@ -480,7 +480,7 @@ class _SidebarSearchAndSort extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 3),
       decoration: BoxDecoration(
-        border: Border(bottom: BorderSide(color: dividerColor)),
+        border: Border(top: BorderSide(color: dividerColor)),
       ),
       child: LayoutBuilder(
         builder: (context, constraints) {

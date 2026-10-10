@@ -17,7 +17,7 @@ class LibraryTableCellText extends StatelessWidget {
     final isEmpty = value == null || value!.isEmpty;
     return Text(
       isEmpty ? emptyText : value!,
-      maxLines: 1,
+      maxLines: LibraryTableCellDisplayScope.wraps(context) ? 3 : 1,
       overflow: TextOverflow.ellipsis,
       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
             fontSize: fontSize,
@@ -26,4 +26,21 @@ class LibraryTableCellText extends StatelessWidget {
           ),
     );
   }
+}
+
+class LibraryTableCellDisplayScope extends InheritedWidget {
+  const LibraryTableCellDisplayScope({
+    super.key,
+    required this.wrap,
+    required super.child,
+  });
+  final bool wrap;
+  static bool wraps(BuildContext context) =>
+      context
+          .dependOnInheritedWidgetOfExactType<LibraryTableCellDisplayScope>()
+          ?.wrap ??
+      false;
+  @override
+  bool updateShouldNotify(LibraryTableCellDisplayScope oldWidget) =>
+      wrap != oldWidget.wrap;
 }

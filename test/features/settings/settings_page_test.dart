@@ -140,11 +140,11 @@ void main() {
     await tester.tap(find.text('Appearance'));
     await pumpUntilSettled(tester);
 
-    expect(find.text('Dark mode'), findsOneWidget);
+    expect(find.text('Application skin'), findsOneWidget);
     expect(find.text('Animations'), findsOneWidget);
   });
 
-  testWidgets('settings page renders two-pane layout on medium screen',
+  testWidgets('settings page renders scrollable section tabs on medium screen',
       (tester) async {
     SharedPreferences.setMockInitialValues({});
     tester.view.physicalSize = const Size(700, 900);
@@ -172,7 +172,7 @@ void main() {
     await tester.tap(find.text('Appearance'));
     await pumpUntilSettled(tester);
 
-    expect(find.text('Dark mode'), findsOneWidget);
+    expect(find.text('Application skin'), findsOneWidget);
     expect(find.text('Animations'), findsOneWidget);
   });
 

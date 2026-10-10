@@ -72,7 +72,7 @@ void main() {
     );
 
     expect(find.byIcon(Icons.grid_view_outlined), findsOneWidget);
-    expect(find.byIcon(Icons.arrow_drop_down), findsOneWidget);
+    expect(find.byIcon(Icons.keyboard_arrow_down), findsOneWidget);
   });
 
   testWidgets('workspace icon button triggers callback', (tester) async {

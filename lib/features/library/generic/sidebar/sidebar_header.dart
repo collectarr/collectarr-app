@@ -106,7 +106,7 @@ class LibrarySidebarHeader extends StatelessWidget {
       if (hideSidebar != null)
         _LibrarySidebarToolbarButton(
           tooltip: 'Hide folders panel',
-          icon: Icons.menu_open,
+          icon: Icons.chevron_left,
           onPressed: hideSidebar,
         ),
     ];

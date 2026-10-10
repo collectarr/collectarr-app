@@ -9,9 +9,9 @@ BoxDecoration libraryToolbarDropdownDecoration(
 }) {
   return BoxDecoration(
     color: backgroundColor ?? libraryToolbarControlSurface(context),
-    borderRadius: BorderRadius.circular(2),
-    border: Border.all(
-      color: borderColor ?? libraryToolbarControlBorder(context),
+    border: Border(
+      right: BorderSide(
+          color: borderColor ?? libraryToolbarControlBorder(context)),
     ),
   );
 }
@@ -61,7 +61,7 @@ class _LibraryToolbarCompactDropdownTriggerState
               ),
               const SizedBox(width: 1),
               Icon(
-                Icons.arrow_drop_down,
+                Icons.keyboard_arrow_down,
                 size: 14,
                 color: widget.arrowColor ??
                     libraryToolbarControlMutedText(context),

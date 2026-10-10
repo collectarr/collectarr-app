@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/workspace/table/library_table_cell.dart';
 import 'dart:math' as math;
 
 import 'package:collectarr_app/ui/theme/app_theme.dart';
@@ -280,7 +281,7 @@ class LibraryWorkspace extends ConsumerWidget {
           onEditItem: onEditItem,
           onItemContextMenu: onItemContextMenu,
         ),
-      LibraryViewMode.list => _buildTable(),
+      LibraryViewMode.list => _buildTable(uiPrefs),
       LibraryViewMode.shelves => LibraryShelfView<LibraryProjectionItem>(
           items: items,
           entryOf: (item) => item,
@@ -315,7 +316,7 @@ class LibraryWorkspace extends ConsumerWidget {
     );
   }
 
-  Widget _buildTable() {
+  Widget _buildTable(UiPreferences preferences) {
     if (items.isEmpty) {
       return Builder(builder: _emptyBuilder);
     }
@@ -330,17 +331,74 @@ class LibraryWorkspace extends ConsumerWidget {
           viewState.visibleColumnIds,
           target: schemaNode,
         );
+        final widths = Map.of(viewState.columnWidths);
+        String cellText(LibraryProjectionItem item, String id) {
+          final cell = _tableCell(item, id);
+          return switch (cell) {
+            LibraryTableCellText(:final value) => value ?? '-',
+            Text(:final data) => data ?? '',
+            _ => '',
+          };
+        }
+
+        final painter = TextPainter(
+          textDirection: Directionality.of(context),
+          textScaler: MediaQuery.textScalerOf(context),
+          maxLines: 3,
+        );
+        final style =
+            Theme.of(context).textTheme.bodyMedium?.copyWith(fontSize: 14);
+        if (preferences.autoSizeColumns) {
+          for (final column in visibleColumns) {
+            var width =
+                workspace.defaultTableColumnWidth(column, target: schemaNode);
+            for (final text in [
+              workspace.columnLabel(column, target: schemaNode),
+              ...items.take(200).map((item) => cellText(item, column.value))
+            ]) {
+              painter.text = TextSpan(text: text, style: style);
+              painter.layout();
+              width =
+                  math.max(width, painter.width + 24).clamp(60, 480).toDouble();
+            }
+            widths[column] = width;
+          }
+        }
+        double widthFor(String id) => workspace.tableColumnWidth(
+              workspace.fieldsForTarget(schemaNode).decodeColumnId(id),
+              widths,
+              target: schemaNode,
+            );
+        final heights = <String, double>{};
+        double heightFor(LibraryProjectionItem item) =>
+            heights.putIfAbsent(item.target.id, () {
+              final measure = TextPainter(
+                textDirection: Directionality.of(context),
+                textScaler: MediaQuery.textScalerOf(context),
+                maxLines: 3,
+              );
+              var height = density.tableRowHeight;
+              for (final column in visibleColumns) {
+                measure.text =
+                    TextSpan(text: cellText(item, column.value), style: style);
+                measure.layout(maxWidth: widthFor(column.value));
+                height = math.max(height, measure.height + 8);
+              }
+              measure.dispose();
+              return height;
+            });
+        painter.dispose();
         final tableWidth = workspace.tableWidthForColumns(
           viewState.visibleColumnIds,
-          viewState.columnWidths,
+          widths,
           target: schemaNode,
         );
         final leadingActionsWidth = kLibraryTableCheckboxWidth +
             8.0 +
-            kLibraryTableStatusWidth +
-            8.0 +
-            kLibraryTableEditWidth +
-            8.0;
+            (preferences.showCollectionIndicators
+                ? kLibraryTableStatusWidth + 8.0
+                : 0) +
+            (preferences.showEditIcons ? kLibraryTableEditWidth + 8.0 : 0);
         final contentWidth = math.max(
             tableWidth + leadingActionsWidth + 16, constraints.maxWidth);
         final allSelected = items.isNotEmpty &&
@@ -348,114 +406,115 @@ class LibraryWorkspace extends ConsumerWidget {
         final hasPartialSelection =
             items.any((item) => selectedIds.contains(item.target.id));
         return ColoredBox(
-          color: palette.panel,
+          color: libraryWorkspaceBackgroundColor(context),
           child: _LibraryHorizontalScrollbar(
             child: SizedBox(
               width: contentWidth,
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
-                child: LibraryWorkspaceTable<LibraryProjectionItem>(
-                  entries: items,
-                  columns: [for (final column in visibleColumns) column.value],
-                  sortColumn: viewState.sortId.value,
-                  sortAscending: viewState.sortAscending,
-                  sortRules: [
-                    for (final rule in viewState.sortRules)
-                      LibrarySortRule(
-                        column: rule.sortId.value,
-                        ascending: rule.ascending,
-                      ),
-                  ],
-                  columnWidthFor: (column) => workspace.tableColumnWidth(
-                    workspace
-                        .fieldsForTarget(schemaNode)
-                        .decodeColumnId(column),
-                    viewState.columnWidths,
-                    target: schemaNode,
+                child: LibraryTableCellDisplayScope(
+                  wrap: preferences.wrapColumnContent,
+                  child: LibraryWorkspaceTable<LibraryProjectionItem>(
+                    entries: items,
+                    columns: [
+                      for (final column in visibleColumns) column.value
+                    ],
+                    sortColumn: viewState.sortId.value,
+                    sortAscending: viewState.sortAscending,
+                    sortRules: [
+                      for (final rule in viewState.sortRules)
+                        LibrarySortRule(
+                          column: rule.sortId.value,
+                          ascending: rule.ascending,
+                        ),
+                    ],
+                    columnWidthFor: widthFor,
+                    defaultColumnWidthFor: (column) =>
+                        workspace.defaultTableColumnWidth(
+                      workspace
+                          .fieldsForTarget(schemaNode)
+                          .decodeColumnId(column),
+                      target: schemaNode,
+                    ),
+                    columnSortFor: (column) => workspace
+                        .columnSort(
+                            workspace
+                                .fieldsForTarget(schemaNode)
+                                .decodeColumnId(column),
+                            target: schemaNode)
+                        ?.value,
+                    columnLabelFor: (column) => workspace.columnLabel(
+                      workspace
+                          .fieldsForTarget(schemaNode)
+                          .decodeColumnId(column),
+                      target: schemaNode,
+                    ),
+                    columnIsNumeric: (column) => workspace.columnIsNumeric(
+                      workspace
+                          .fieldsForTarget(schemaNode)
+                          .decodeColumnId(column),
+                      target: schemaNode,
+                    ),
+                    cellBuilder: (entry, column) => _tableCell(entry, column),
+                    isSelected: _isHighlighted,
+                    onEntryTap: (item) => _selectionTap(item)(),
+                    onEntryDoubleTap: onOpenItem,
+                    onEntrySecondaryTapUp: onItemContextMenu == null
+                        ? null
+                        : (item, details) =>
+                            onItemContextMenu!(item, details.globalPosition),
+                    onSortChanged: (column) => onSortChanged(column),
+                    onColumnWidthChanged: (column, width) =>
+                        onColumnWidthChanged(column, width),
+                    onColumnReordered: (column, beforeColumn) =>
+                        onColumnReordered(
+                      column,
+                      beforeColumn,
+                    ),
+                    showCheckbox: true,
+                    isEntryChecked: (item) =>
+                        selectedIds.contains(item.target.id),
+                    onToggleEntryCheck: (item) =>
+                        onToggleSelectionItem(item.target.id),
+                    allChecked: allSelected,
+                    hasPartialCheck: hasPartialSelection,
+                    onToggleAllChecked: (selectAll) {
+                      if (onBoxSelectionChanged != null) {
+                        onBoxSelectionChanged!(
+                          selectAll
+                              ? {for (final item in items) item.target.id}
+                              : <String>{},
+                        );
+                      } else if (items.isNotEmpty) {
+                        onApplySelection(
+                          selectAll
+                              ? {for (final item in items) item.target.id}
+                              : <String>{},
+                          items.first.target.id,
+                        );
+                      }
+                    },
+                    showStatus: preferences.showCollectionIndicators,
+                    statusBuilder: (item) => _buildCollectionStatusIcon(item),
+                    showEdit: preferences.showEditIcons,
+                    onEditEntry: onEditItem,
+                    headerHeight: density.tableHeaderHeight,
+                    rowHeight: density.tableRowHeight,
+                    rowHeightFor:
+                        preferences.wrapColumnContent ? heightFor : null,
+                    columnSpacing: 8,
+                    horizontalMargin: 6,
+                    selectionRailWidth: 2,
+                    headerColor: libraryWorkspaceTableHeaderColor(context),
+                    dividerColor: libraryWorkspacePaneDividerColor(context),
+                    selectedColor: Color.lerp(Colors.black, accent, 0.45)!,
+                    oddColor: palette.tableOddRow,
+                    evenColor: palette.tableEvenRow,
+                    selectionRailColor: accent,
+                    bottomBorderColor: palette.tableBottomBorder,
+                    hoverColor: palette.tableHover,
+                    accentColor: accent,
                   ),
-                  defaultColumnWidthFor: (column) =>
-                      workspace.defaultTableColumnWidth(
-                    workspace
-                        .fieldsForTarget(schemaNode)
-                        .decodeColumnId(column),
-                    target: schemaNode,
-                  ),
-                  columnSortFor: (column) => workspace
-                      .columnSort(
-                          workspace
-                              .fieldsForTarget(schemaNode)
-                              .decodeColumnId(column),
-                          target: schemaNode)
-                      ?.value,
-                  columnLabelFor: (column) => workspace.columnLabel(
-                    workspace
-                        .fieldsForTarget(schemaNode)
-                        .decodeColumnId(column),
-                    target: schemaNode,
-                  ),
-                  columnIsNumeric: (column) => workspace.columnIsNumeric(
-                    workspace
-                        .fieldsForTarget(schemaNode)
-                        .decodeColumnId(column),
-                    target: schemaNode,
-                  ),
-                  cellBuilder: (entry, column) => _tableCell(entry, column),
-                  isSelected: _isHighlighted,
-                  onEntryTap: (item) => _selectionTap(item)(),
-                  onEntryDoubleTap: onOpenItem,
-                  onEntrySecondaryTapUp: onItemContextMenu == null
-                      ? null
-                      : (item, details) =>
-                          onItemContextMenu!(item, details.globalPosition),
-                  onSortChanged: (column) => onSortChanged(column),
-                  onColumnWidthChanged: (column, width) =>
-                      onColumnWidthChanged(column, width),
-                  onColumnReordered: (column, beforeColumn) =>
-                      onColumnReordered(
-                    column,
-                    beforeColumn,
-                  ),
-                  showCheckbox: true,
-                  isEntryChecked: (item) =>
-                      selectedIds.contains(item.target.id),
-                  onToggleEntryCheck: (item) =>
-                      onToggleSelectionItem(item.target.id),
-                  allChecked: allSelected,
-                  hasPartialCheck: hasPartialSelection,
-                  onToggleAllChecked: (selectAll) {
-                    if (onBoxSelectionChanged != null) {
-                      onBoxSelectionChanged!(
-                        selectAll
-                            ? {for (final item in items) item.target.id}
-                            : <String>{},
-                      );
-                    } else if (items.isNotEmpty) {
-                      onApplySelection(
-                        selectAll
-                            ? {for (final item in items) item.target.id}
-                            : <String>{},
-                        items.first.target.id,
-                      );
-                    }
-                  },
-                  showStatus: true,
-                  statusBuilder: (item) => _buildCollectionStatusIcon(item),
-                  showEdit: true,
-                  onEditEntry: onEditItem,
-                  headerHeight: density.tableHeaderHeight,
-                  rowHeight: density.tableRowHeight,
-                  columnSpacing: 8,
-                  horizontalMargin: 6,
-                  selectionRailWidth: 2,
-                  headerColor: palette.surface,
-                  dividerColor: palette.divider,
-                  selectedColor: Color.lerp(Colors.black, accent, 0.45)!,
-                  oddColor: palette.tableOddRow,
-                  evenColor: palette.tableEvenRow,
-                  selectionRailColor: accent,
-                  bottomBorderColor: palette.tableBottomBorder,
-                  hoverColor: palette.tableHover,
-                  accentColor: accent,
                 ),
               ),
             ),
@@ -565,7 +624,7 @@ class LibraryWorkspace extends ConsumerWidget {
       return const Tooltip(
         message: 'In Collection',
         child: Icon(
-          Icons.check_rounded,
+          Icons.check,
           size: 15,
           color: Color(0xFF2A9FD6),
         ),

@@ -187,41 +187,37 @@ extension LibraryWorkspaceDensityPresetMetrics
   }
 }
 
-Color libraryToolbarMenuSurface(BuildContext context) => Color.alphaBlend(
-      Colors.black.withValues(alpha: 0.05),
-      appPalette(context).panelRaised,
-    );
+Color libraryToolbarMenuSurface(BuildContext context) =>
+    appPalette(context).isDark
+        ? const Color(0xff444444)
+        : appPalette(context).panelRaised;
 
 Color libraryToolbarMenuBorder(BuildContext context) =>
-    appPalette(context).divider.withValues(alpha: 0.95);
+    appPalette(context).isDark
+        ? const Color(0xff666666)
+        : appPalette(context).divider;
 
 Color libraryToolbarMenuText(BuildContext context) =>
     appPalette(context).textPrimary;
-
 Color libraryToolbarMenuMutedText(BuildContext context) =>
     appPalette(context).textMuted;
-
-Color libraryToolbarMenuHover(BuildContext context) => Color.alphaBlend(
-      appPalette(context).textPrimary.withValues(
-            alpha: appPalette(context).isDark ? 0.14 : 0.08,
-          ),
-      libraryToolbarMenuSurface(context),
-    );
-
-Color libraryToolbarControlSurface(BuildContext context) => Color.alphaBlend(
-      Colors.white.withValues(alpha: 0.015),
-      appPalette(context).toolbar,
-    );
-
+Color libraryToolbarMenuHover(BuildContext context) =>
+    appPalette(context).isDark
+        ? const Color(0xff464950)
+        : appPalette(context).highlight;
+Color libraryToolbarControlSurface(BuildContext context) =>
+    libraryWorkspaceBackgroundColor(context);
 Color libraryToolbarControlBorder(BuildContext context) =>
-    appPalette(context).divider.withValues(alpha: 0.75);
+    appPalette(context).divider;
+Color libraryToolbarControlHover(BuildContext context) =>
+    appPalette(context).isDark
+        ? const Color(0xff464950)
+        : appPalette(context).panelRaised;
 
-Color libraryToolbarControlHover(BuildContext context) => Color.alphaBlend(
-      appPalette(context).textPrimary.withValues(
-            alpha: appPalette(context).isDark ? 0.12 : 0.07,
-          ),
-      libraryToolbarControlSurface(context),
-    );
+Color libraryWorkspaceTableHeaderColor(BuildContext context) =>
+    appPalette(context).isDark
+        ? const Color(0xff464950)
+        : appPalette(context).surface;
 
 Color libraryWorkspaceSelectionBackground(
   BuildContext context, {

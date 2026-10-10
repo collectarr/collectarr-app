@@ -141,7 +141,6 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final palette = appPalette(context);
     final pinnedColumnPresets = [
       for (final preset in columnFavoritePresets)
         if (pinnedColumnFavoriteKeys.contains(libraryColumnFavoriteKey(preset)))
@@ -166,7 +165,7 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
     }
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: palette.toolbar,
+        color: libraryWorkspaceBackgroundColor(context),
         border:
             showBottomBorder ? libraryWorkspaceToolbarBorder(context) : null,
       ),
@@ -1338,7 +1337,7 @@ class _ScopeDropdownTrigger extends StatelessWidget {
               ),
               const SizedBox(width: 6),
               Icon(
-                Icons.arrow_drop_down,
+                Icons.keyboard_arrow_down,
                 size: 18,
                 color: borderColor,
               ),

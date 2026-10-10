@@ -154,5 +154,7 @@ void main() {
 
     // 9. Cover carousel selector dots (Front & Back)
     expect(find.byTooltip('Front cover'), findsOneWidget);
+    await tester.pumpWidget(const SizedBox.shrink());
+    await tester.pump(const Duration(milliseconds: 1));
   });
 }

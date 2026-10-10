@@ -1,3 +1,5 @@
+import 'package:collectarr_app/features/library/ui/library_item_confirmation.dart';
+import 'package:collectarr_app/features/settings/ui_preferences.dart';
 // ignore_for_file: use_build_context_synchronously
 import 'dart:async';
 import 'package:collectarr_app/core/models/library_entry_ref.dart';
@@ -18,7 +20,6 @@ import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/selection/library_bulk_actions.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_item_context_menu.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_prefill_defaults.dart';
-import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -337,6 +338,11 @@ class LibraryPageCollectionActionCoordinator {
 
   Future<void> singleDuplicateFlow(LibraryProjectionItem item) async {
     if (!item.source.isEntry) return;
+    if (_page.ref.read(uiPreferencesProvider).confirmDuplication &&
+        !await confirmLibraryDuplication(_page.context, 1)) {
+      return;
+    }
+    if (!_page.mounted) return;
     await _page.bulkActions().duplicateSelected([item.source]);
     if (_page.mounted) {
       _page.invalidateShelf();
@@ -352,26 +358,9 @@ class LibraryPageCollectionActionCoordinator {
       projection.filteredItems,
       _page.selection.itemIds,
     );
-    final confirmed = await showDialog<bool>(
-      context: _page.context,
-      builder: (ctx) => AccentAlertDialog(
-        title: const Text('Duplicate items'),
-        content: Text(
-          'Create a copy of ${entries.length} '
-          'item${entries.length == 1 ? '' : 's'}?',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(ctx).pop(false),
-            child: const Text('Cancel'),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.of(ctx).pop(true),
-            child: const Text('Duplicate'),
-          ),
-        ],
-      ),
-    );
+    final confirmed =
+        !_page.ref.read(uiPreferencesProvider).confirmDuplication ||
+            await confirmLibraryDuplication(_page.context, entries.length);
     if (confirmed != true || !_page.mounted) return;
     final count = await _page.bulkActions().duplicateSelected(entries);
     _page.rebuild(_page.clearSelection);

@@ -185,6 +185,13 @@ class LibraryWorkspacePreferences {
     return snapshot;
   }
 
+  Future<void> writeDetailsLayout(LibraryDetailsLayout layout) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_key('details_layout'), layout.name);
+    _cachedChromeByConfig.remove(registration.identity.preferenceKey(''));
+    _cachedSnapshots.remove(registration.identity.preferenceKey(''));
+  }
+
   Future<void> write(LibraryWorkspacePreferenceSnapshot snapshot) async {
     final fields = libraryKindWorkspaceForKind(registration.kind).fields;
     final normalizedVisibleColumns = _normalizeVisibleColumns(

@@ -173,7 +173,7 @@ class LibraryToolbarSearch extends StatelessWidget {
                                           if (onScanBarcode != null)
                                             _ToolbarSearchInlineAction(
                                               tooltip: 'Scan barcode',
-                                              icon: Icons.qr_code_2,
+                                              icon: Icons.barcode_reader,
                                               onPressed: onScanBarcode!,
                                             ),
                                           if (onScanCover != null)
@@ -397,8 +397,10 @@ class _ToolbarSearchScopeButtonState extends State<_ToolbarSearchScopeButton> {
         palette.isDark ? const Color(0xFF666666) : palette.divider;
     return Theme(
       data: Theme.of(context).copyWith(
-        hoverColor: palette.isDark ? const Color(0xFF4A4A4A) : palette.surfaceBright,
-        focusColor: palette.isDark ? const Color(0xFF4A4A4A) : palette.surfaceBright,
+        hoverColor:
+            palette.isDark ? const Color(0xFF4A4A4A) : palette.surfaceBright,
+        focusColor:
+            palette.isDark ? const Color(0xFF4A4A4A) : palette.surfaceBright,
       ),
       child: PopupMenuButton<LibrarySearchTarget>(
         key: const ValueKey('library-search-target-button'),

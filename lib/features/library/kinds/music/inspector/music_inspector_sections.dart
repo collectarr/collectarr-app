@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/settings/ui_preferences.dart';
 import 'dart:io';
 import 'package:flutter/foundation.dart';
 
@@ -345,8 +346,7 @@ class _MusicInspectorHeader extends ConsumerWidget {
     final images = ref
         .watch(musicAlbumImagesProvider(inspector.item.target.id))
         .maybeWhen(
-            data: (images) => images,
-            orElse: () => const <MusicAlbumImage>[]);
+            data: (images) => images, orElse: () => const <MusicAlbumImage>[]);
     final front = images
         .where((image) =>
             image.purpose == MusicAlbumImagePurpose.cover &&
@@ -361,33 +361,33 @@ class _MusicInspectorHeader extends ConsumerWidget {
     final onFilter = inspector.onFilterByValue;
     final isOwned = inspector.item.source.isEntry;
     final artist = music.artist?.trim();
-    final year = music.releaseDateParts?.year ??
-        music.originalReleaseDateParts?.year;
+    final year =
+        music.releaseDateParts?.year ?? music.originalReleaseDateParts?.year;
     final label = music.publisher?.trim();
     final country = musicCountryName(music.countryCode);
     final trackCount = model.tracks.where((track) => !track.isHeader).length;
     final totalDuration = _formatTotalDuration(model.tracks);
 
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: palette.surface.withValues(alpha: 0.9),
-        borderRadius: BorderRadius.circular(6),
-        border: Border.all(color: palette.divider),
-      ),
-      child: Padding(
+    final preferences = ref.watch(uiPreferencesProvider);
+    return LayoutBuilder(builder: (context, constraints) {
+      final sideBySide = preferences.showInspectorBackCover &&
+          constraints.maxWidth >= 680 &&
+          (back != null || music.backCoverImageUrl?.isNotEmpty == true);
+      return Padding(
         padding: const EdgeInsets.all(10),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             SizedBox(
-              width: 125,
+              width: sideBySide ? 262 : 125,
               child: _MusicInspectorCover(
                 title: music.title,
                 item: music,
                 imageUrl: music.coverImageUrl,
                 frontCoverBytes: front?.imageData,
                 backCoverBytes: back?.imageData,
-                accent: const Color(0xFF2A9FD6),
+                sideBySide: sideBySide,
+                accent: inspector.accent,
               ),
             ),
             const SizedBox(width: 12),
@@ -469,9 +469,8 @@ class _MusicInspectorHeader extends ConsumerWidget {
                             mouseCursor: onFilter != null
                                 ? SystemMouseCursors.click
                                 : MouseCursor.defer,
-                            onTap: onFilter != null
-                                ? () => onFilter(label)
-                                : null,
+                            onTap:
+                                onFilter != null ? () => onFilter(label) : null,
                             borderRadius: BorderRadius.circular(2),
                             child: Text(
                               label,
@@ -611,45 +610,49 @@ class _MusicInspectorHeader extends ConsumerWidget {
                             fontSize: 12,
                           ),
                         ),
-                      InkWell(
-                        mouseCursor: SystemMouseCursors.click,
-                        onTap: () {
-                          final query = [
-                            if (music.artist?.trim().isNotEmpty == true)
-                              music.artist!.trim(),
-                            music.title.trim(),
-                            if (music.catalogNumber?.trim().isNotEmpty == true)
-                              music.catalogNumber!.trim(),
-                          ].join(' ');
-                          launchEbaySearch(query);
-                        },
-                        borderRadius: BorderRadius.circular(3),
-                        child: const Padding(
-                          padding:
-                              EdgeInsets.symmetric(horizontal: 2, vertical: 1),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Text(
-                                'eBay',
-                                style: TextStyle(
-                                  color: Color(0xFF2A9FD6),
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w700,
-                                  decoration: TextDecoration.underline,
-                                  decorationColor: Color(0xFF2A9FD6),
+                      if (preferences.ebayNextToCover &&
+                          preferences.allowsEbayLinks(
+                              inspector.item.source.isWishlisted))
+                        InkWell(
+                          mouseCursor: SystemMouseCursors.click,
+                          onTap: () {
+                            final query = [
+                              if (music.artist?.trim().isNotEmpty == true)
+                                music.artist!.trim(),
+                              music.title.trim(),
+                              if (music.catalogNumber?.trim().isNotEmpty ==
+                                  true)
+                                music.catalogNumber!.trim(),
+                            ].join(' ');
+                            launchEbaySearch(query);
+                          },
+                          borderRadius: BorderRadius.circular(3),
+                          child: const Padding(
+                            padding: EdgeInsets.symmetric(
+                                horizontal: 2, vertical: 1),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  'eBay',
+                                  style: TextStyle(
+                                    color: Color(0xFF2A9FD6),
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w700,
+                                    decoration: TextDecoration.underline,
+                                    decorationColor: Color(0xFF2A9FD6),
+                                  ),
                                 ),
-                              ),
-                              SizedBox(width: 2),
-                              Icon(
-                                Icons.open_in_new,
-                                size: 11,
-                                color: Color(0xFF2A9FD6),
-                              ),
-                            ],
+                                SizedBox(width: 2),
+                                Icon(
+                                  Icons.open_in_new,
+                                  size: 11,
+                                  color: Color(0xFF2A9FD6),
+                                ),
+                              ],
+                            ),
                           ),
                         ),
-                      ),
                     ],
                   ),
                 ],
@@ -657,8 +660,8 @@ class _MusicInspectorHeader extends ConsumerWidget {
             ),
           ],
         ),
-      ),
-    );
+      );
+    });
   }
 }
 
@@ -849,6 +852,7 @@ final class _MusicInspectorCover extends StatefulWidget {
     required this.imageUrl,
     this.frontCoverBytes,
     this.backCoverBytes,
+    this.sideBySide = false,
     required this.accent,
   });
 
@@ -857,6 +861,7 @@ final class _MusicInspectorCover extends StatefulWidget {
   final String? imageUrl;
   final Uint8List? frontCoverBytes;
   final Uint8List? backCoverBytes;
+  final bool sideBySide;
   final Color accent;
 
   @override
@@ -952,7 +957,7 @@ final class _MusicInspectorCoverState extends State<_MusicInspectorCover> {
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 color: isSelected
-                    ? const Color(0xFF2A9FD6)
+                    ? widget.accent
                     : Colors.white.withValues(alpha: 0.45),
               ),
             ),
@@ -964,6 +969,13 @@ final class _MusicInspectorCoverState extends State<_MusicInspectorCover> {
 
   @override
   Widget build(BuildContext context) {
+    if (widget.sideBySide && _hasBack) {
+      return Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Expanded(child: _cover(back: false)),
+        const SizedBox(width: 12),
+        Expanded(child: _cover(back: true)),
+      ]);
+    }
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [

@@ -566,7 +566,7 @@ IconData _viewModeIcon(LibraryViewMode mode) {
     LibraryViewMode.card => Icons.view_module,
     LibraryViewMode.horizontalCards => Icons.view_agenda,
     LibraryViewMode.cardFlow => Icons.view_carousel,
-    LibraryViewMode.list => Icons.view_list,
+    LibraryViewMode.list => Icons.menu,
     LibraryViewMode.shelves => Icons.shelves,
   };
 }
@@ -688,7 +688,7 @@ String _detailsLayoutTooltip(LibraryDetailsLayout layout) {
 IconData _detailsLayoutIcon(LibraryDetailsLayout layout) {
   return switch (layout) {
     LibraryDetailsLayout.right => Icons.view_sidebar,
-    LibraryDetailsLayout.bottom => Icons.vertical_split,
+    LibraryDetailsLayout.bottom => Icons.splitscreen,
     LibraryDetailsLayout.hidden => Icons.visibility_off,
   };
 }

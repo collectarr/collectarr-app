@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/settings/ui_preferences.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_contributors.dart';
 import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
@@ -347,6 +348,9 @@ class LibraryPageCoordinatorContext {
     required int count,
     String itemLabel = 'items',
   }) {
+    if (!ref.read(uiPreferencesProvider).confirmRemoval) {
+      return Future.value(true);
+    }
     return _confirmBulkRemove(
       context,
       count: count,
@@ -359,6 +363,9 @@ class LibraryPageCoordinatorContext {
     required String title,
     required String itemLabel,
   }) {
+    if (!ref.read(uiPreferencesProvider).confirmRemoval) {
+      return Future.value(true);
+    }
     return _confirmSingleRemove(
       context,
       title: title,

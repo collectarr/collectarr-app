@@ -140,7 +140,7 @@ class LibraryCollectionStatusScopeDropdown extends StatelessWidget {
                   ),
                   const SizedBox(width: 6),
                   Icon(
-                    Icons.arrow_drop_down,
+                    Icons.keyboard_arrow_down,
                     size: 18,
                     color: borderColor,
                   ),
@@ -219,7 +219,7 @@ class LibraryToolbarSortButton extends StatelessWidget {
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      const Icon(Icons.sort, size: 16),
+                      const Icon(Icons.sort_by_alpha, size: 16),
                       if (!iconOnly) ...[
                         const SizedBox(width: 7),
                         Text(
@@ -306,7 +306,7 @@ class LibraryToolbarSortButton extends StatelessWidget {
             ],
             child: const Padding(
               padding: EdgeInsets.symmetric(horizontal: 7, vertical: 7),
-              child: Icon(Icons.arrow_drop_down, size: 18),
+              child: Icon(Icons.keyboard_arrow_down, size: 18),
             ),
           ),
         ],
@@ -415,7 +415,7 @@ class _SortFavoritesManagerDialogState
           children: [
             AccentDialogHeader(
               title: 'Manage Sorting Favorites',
-              icon: Icons.sort,
+              icon: Icons.sort_by_alpha,
               trailing: Container(
                 padding: const EdgeInsets.symmetric(
                   horizontal: 10,
@@ -1164,7 +1164,8 @@ class _AlphabetLetterButtonState extends State<_AlphabetLetterButton> {
         onEnter: (_) => setState(() => _hovered = true),
         onExit: (_) => setState(() => _hovered = false),
         child: InkWell(
-          mouseCursor: canTap ? SystemMouseCursors.click : SystemMouseCursors.basic,
+          mouseCursor:
+              canTap ? SystemMouseCursors.click : SystemMouseCursors.basic,
           onTap: widget.onTap,
           borderRadius: BorderRadius.circular(3),
           child: Container(
@@ -1178,8 +1179,9 @@ class _AlphabetLetterButtonState extends State<_AlphabetLetterButton> {
                 widget.label,
                 style: TextStyle(
                   fontSize: 12,
-                  fontWeight:
-                      isSelected || _hovered ? FontWeight.w700 : FontWeight.w600,
+                  fontWeight: isSelected || _hovered
+                      ? FontWeight.w700
+                      : FontWeight.w600,
                   color: textColor,
                 ),
               ),

@@ -1,3 +1,5 @@
+import 'package:collectarr_app/features/settings/library_layout_setting.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_workspace_tokens.dart';
 import 'dart:async';
 import 'dart:convert';
 
@@ -243,62 +245,6 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
       );
     }
 
-    if (windowClass.isMedium) {
-      return Theme(
-        data: buildLibraryAccentTheme(Theme.of(context), accent),
-        child: Scaffold(
-          appBar: AppBar(
-            leading: _buildBackButton(context),
-            title:
-                const Text('Settings', style: TextStyle(color: Colors.white)),
-            foregroundColor: Colors.white,
-            iconTheme: const IconThemeData(color: Colors.white),
-            backgroundColor: libraryAccentChromeFallbackColor(accent),
-            surfaceTintColor: Colors.transparent,
-            flexibleSpace: LibraryAccentChrome(
-              key: ValueKey(accent),
-              accent: accent,
-              animationDuration: animationDuration,
-            ),
-          ),
-          body: Row(
-            children: [
-              SizedBox(
-                width: 240,
-                child: Material(
-                  color: appPalette(context).panel,
-                  child: ListView(
-                    padding: const EdgeInsets.symmetric(vertical: 8),
-                    children: SettingsSection.values.map((section) {
-                      final isSelected = section == _selectedSection;
-                      return ListTile(
-                        leading: Icon(section.icon,
-                            color: isSelected ? accent : null),
-                        title: Text(
-                          section.title,
-                          style: TextStyle(
-                            fontWeight:
-                                isSelected ? FontWeight.w700 : FontWeight.w500,
-                            color: isSelected ? accent : null,
-                          ),
-                        ),
-                        selected: isSelected,
-                        onTap: () => setState(() => _selectedSection = section),
-                      );
-                    }).toList(),
-                  ),
-                ),
-              ),
-              const VerticalDivider(width: 1, thickness: 1),
-              Expanded(
-                child: buildSection(_selectedSection),
-              ),
-            ],
-          ),
-        ),
-      );
-    }
-
     return Theme(
       data: buildLibraryAccentTheme(Theme.of(context), accent),
       child: DefaultTabController(
@@ -320,8 +266,8 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
               animationDuration: animationDuration,
             ),
             bottom: TabBar(
-              isScrollable: false,
-              tabAlignment: TabAlignment.fill,
+              isScrollable: true,
+              tabAlignment: TabAlignment.start,
               labelColor: Colors.white,
               unselectedLabelColor: Colors.white70,
               indicatorColor: Colors.white,
@@ -679,7 +625,153 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     );
   }
 
-  Widget _buildAppearanceSection(UiPreferences uiPreferences) {
+  Widget _buildAppearanceSection(UiPreferences preferences) {
+    final controller = ref.read(uiPreferencesProvider.notifier);
+    Widget toggle(String label, bool value, ValueChanged<bool> onChanged) =>
+        SwitchListTile(
+            contentPadding: EdgeInsets.zero,
+            title: Text(label),
+            value: value,
+            onChanged: onChanged);
+    return DefaultTabController(
+      length: 4,
+      child: Column(children: [
+        const TabBar(
+            isScrollable: true,
+            tabAlignment: TabAlignment.start,
+            tabs: [
+              Tab(text: 'Customization'),
+              Tab(text: 'Covers & layout'),
+              Tab(text: 'Typography'),
+              Tab(text: 'Behaviour & links'),
+            ]),
+        Expanded(
+            child: TabBarView(children: [
+          _SettingsTabBody(children: [
+            _SettingsPanel(
+                icon: Icons.palette_outlined,
+                title: 'Application',
+                child: Column(children: [
+                  DropdownButtonFormField<ThemeMode>(
+                    initialValue: ref.watch(appThemeModeProvider),
+                    decoration:
+                        const InputDecoration(labelText: 'Application skin'),
+                    items: const [
+                      DropdownMenuItem(
+                          value: ThemeMode.system, child: Text('System')),
+                      DropdownMenuItem(
+                          value: ThemeMode.light, child: Text('Light')),
+                      DropdownMenuItem(
+                          value: ThemeMode.dark, child: Text('Dark')),
+                    ],
+                    onChanged: (value) {
+                      if (value != null) {
+                        ref.read(appThemeModeProvider.notifier).setMode(value);
+                      }
+                    },
+                  ),
+                  toggle('Animations', preferences.animationsEnabled,
+                      controller.setAnimationsEnabled),
+                ])),
+            _SettingsPanel(
+                icon: Icons.view_sidebar,
+                title: 'Details panel',
+                child: Column(children: [
+                  DropdownButtonFormField<DetailsPanelTemplate>(
+                    isExpanded: true,
+                    initialValue: preferences.detailsPanelTemplate,
+                    decoration: const InputDecoration(
+                        labelText: 'Template for Details Panel'),
+                    items: DetailsPanelTemplate.values
+                        .map((value) => DropdownMenuItem(
+                            value: value,
+                            child: Text(
+                                value == DetailsPanelTemplate.application
+                                    ? 'Follow application'
+                                    : value.name[0].toUpperCase() +
+                                        value.name.substring(1))))
+                        .toList(),
+                    onChanged: (value) {
+                      if (value != null) {
+                        controller.setDetailsPanelTemplate(value);
+                      }
+                    },
+                  ),
+                  const SizedBox(height: 12),
+                  const LibraryLayoutSetting(),
+                  toggle('Show backdrop', preferences.showInspectorBackdrop,
+                      controller.setShowInspectorBackdrop),
+                  toggle(
+                      'Show back cover if space is available',
+                      preferences.showInspectorBackCover,
+                      controller.setShowInspectorBackCover),
+                ])),
+            _SettingsPanel(
+                icon: Icons.menu,
+                title: 'List view',
+                child: Column(children: [
+                  toggle('Wrap column content', preferences.wrapColumnContent,
+                      controller.setWrapColumnContent),
+                  toggle('Auto-size column widths', preferences.autoSizeColumns,
+                      controller.setAutoSizeColumns),
+                  toggle(
+                      'Show Collection Status indicators',
+                      preferences.showCollectionIndicators,
+                      controller.setShowCollectionIndicators),
+                  toggle('Show pencil icons (for editing)',
+                      preferences.showEditIcons, controller.setShowEditIcons),
+                ])),
+            _TabResetActions(
+                label: 'Reset appearance defaults',
+                onReset: _resetAppearanceDefaults),
+          ]),
+          _buildCoverAppearanceSection(preferences),
+          const _SettingsTabBody(children: [
+            _SettingsPanel(
+                icon: Icons.text_fields_outlined,
+                title: 'Typography',
+                child: _FontDiagnosticsPanel()),
+          ]),
+          _SettingsTabBody(children: [
+            _SettingsPanel(
+                icon: Icons.help_outline,
+                title: 'Ask for confirmation',
+                child: Column(children: [
+                  toggle('When removing items', preferences.confirmRemoval,
+                      controller.setConfirmRemoval),
+                  toggle(
+                      'When duplicating items',
+                      preferences.confirmDuplication,
+                      controller.setConfirmDuplication),
+                ])),
+            _SettingsPanel(
+                icon: Icons.shopping_bag_outlined,
+                title: 'eBay search links',
+                child: Column(children: [
+                  toggle('Show eBay links', preferences.showEbayLinks,
+                      controller.setShowEbayLinks),
+                  toggle(
+                      'Show for Wish List entries only',
+                      preferences.ebayWishlistOnly,
+                      controller.setEbayWishlistOnly),
+                  toggle('Toolbar', preferences.ebayToolbar,
+                      controller.setEbayToolbar),
+                  toggle(
+                      'Details panel: next to cover',
+                      preferences.ebayNextToCover,
+                      controller.setEbayNextToCover),
+                  toggle(
+                      'Details panel: Links section',
+                      preferences.ebayLinksSection,
+                      controller.setEbayLinksSection),
+                ])),
+          ]),
+        ])),
+      ]),
+    );
+  }
+
+  Widget _buildCoverAppearanceSection(UiPreferences uiPreferences) {
     return _SettingsTabBody(
       children: [
         _SettingsPanel(
@@ -688,35 +780,6 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              SwitchListTile(
-                contentPadding: EdgeInsets.zero,
-                secondary: Icon(
-                  ref.watch(appThemeModeProvider) == ThemeMode.dark
-                      ? Icons.dark_mode
-                      : Icons.light_mode,
-                ),
-                title: const Text('Dark mode'),
-                subtitle: const Text(
-                  'Switch between dark and light theme.',
-                ),
-                value: ref.watch(appThemeModeProvider) == ThemeMode.dark,
-                onChanged: (value) => ref
-                    .read(appThemeModeProvider.notifier)
-                    .setMode(value ? ThemeMode.dark : ThemeMode.light),
-              ),
-              SwitchListTile(
-                contentPadding: EdgeInsets.zero,
-                secondary: const Icon(Icons.gradient_outlined),
-                title: const Text('Animations'),
-                subtitle: const Text(
-                  'Enable or disable all UI animations, transitions and effects.',
-                ),
-                value: uiPreferences.animationsEnabled,
-                onChanged: (value) => ref
-                    .read(uiPreferencesProvider.notifier)
-                    .setAnimationsEnabled(value),
-              ),
-              const Divider(height: 24),
               Text('Cover grid',
                   style: Theme.of(context)
                       .textTheme
@@ -829,11 +892,6 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
               ),
             ],
           ),
-        ),
-        const _SettingsPanel(
-          icon: Icons.text_fields_outlined,
-          title: 'Typography',
-          child: _FontDiagnosticsPanel(),
         ),
       ],
     );
@@ -1567,13 +1625,8 @@ class _SettingsPanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    return Card(
-      elevation: 0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(8),
-        side: BorderSide(color: colorScheme.outlineVariant),
-      ),
+    return Material(
+      color: libraryWorkspaceBackgroundColor(context),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -1586,7 +1639,10 @@ class _SettingsPanel extends StatelessWidget {
                 Expanded(
                   child: Text(
                     title,
-                    style: Theme.of(context).textTheme.titleMedium,
+                    style: Theme.of(context)
+                        .textTheme
+                        .titleMedium
+                        ?.copyWith(fontWeight: FontWeight.w700),
                   ),
                 ),
               ],

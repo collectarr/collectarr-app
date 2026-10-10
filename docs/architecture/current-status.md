@@ -4,7 +4,7 @@ Last reviewed: 2026-10-10. This report reflects the current working tree and
 the post-audit release evidence recorded below. The architecture guard has no
 unreviewed AST violations; its exact baseline retains 44 reviewed field-leak
 findings, all still observed and none stale. The checker reports 364
-informational complexity findings.
+informational complexity findings. The latest display-settings gate reports 370.
 
 ## Implemented
 
@@ -13,6 +13,15 @@ covers sidebar destinations, all edit tabs, four viewport sizes and selected
 functional flows. Follow-up work fixes dirty-navigation (including route Back),
 contained track search, Statistics titles, and direct drawer routing for index,
 transfer and XML export. UI parity and the full live action matrix remain open.
+
+Library surfaces now share the folder canvas, CLZ-style table/header/menu shades,
+continuous panel draggers and toolbar seams. Display controls persist backdrop,
+back-cover layout, wrapping/auto-size, status/edit indicators and per-kind split
+layout. Details template can differ from the application skin. Settings sections
+use scrollable tabs on medium/desktop screens and compact section navigation,
+with Appearance sub-tabs for customization, covers/layout, typography and
+behaviour/links. Confirmation and eBay position/visibility preferences are wired
+into actions and the inspector. See the deep audit for remaining CLZ settings.
 
 Cloud Sharing publishes explicit snapshots through Sync. Partial visibility is
 public without personal fields; optional private sharing links are separate and

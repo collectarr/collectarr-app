@@ -57,6 +57,7 @@ class LibraryWorkspaceTable<T> extends StatefulWidget {
     this.onEditEntry,
     this.headerHeight = 30,
     this.rowHeight = 38,
+    this.rowHeightFor,
     this.columnSpacing = 10,
     this.horizontalMargin = 8,
     this.selectionRailWidth = 3,
@@ -103,6 +104,7 @@ class LibraryWorkspaceTable<T> extends StatefulWidget {
   final ValueChanged<T>? onEditEntry;
   final double headerHeight;
   final double rowHeight;
+  final double Function(T entry)? rowHeightFor;
   final double columnSpacing;
   final double horizontalMargin;
   final double selectionRailWidth;
@@ -143,7 +145,7 @@ class _LibraryWorkspaceTableState<T> extends State<LibraryWorkspaceTable<T>> {
     final palette = appPalette(context);
     final tableBorderRadius = BorderRadius.circular(2);
     final resolvedHeaderColor = widget.headerColor == kAppSurface
-        ? palette.surface
+        ? libraryWorkspaceTableHeaderColor(context)
         : widget.headerColor;
     final resolvedDividerColor = widget.dividerColor == kAppDivider
         ? palette.divider
@@ -212,7 +214,7 @@ class _LibraryWorkspaceTableState<T> extends State<LibraryWorkspaceTable<T>> {
             ),
             Expanded(
               child: ColoredBox(
-                color: palette.canvas,
+                color: libraryWorkspaceBackgroundColor(context),
                 child: ScrollbarTheme(
                   data: ScrollbarThemeData(
                     thickness: const WidgetStatePropertyAll<double>(6.0),
@@ -235,55 +237,58 @@ class _LibraryWorkspaceTableState<T> extends State<LibraryWorkspaceTable<T>> {
                       controller: _scrollController,
                       primary: false,
                       itemCount: widget.entries.length,
-                      itemExtent: resolvedRowHeight,
+                      itemExtent: widget.rowHeightFor == null
+                          ? resolvedRowHeight
+                          : null,
                       itemBuilder: (context, index) {
-                      final entry = widget.entries[index];
-                      return _LibraryWorkspaceTableRow<T>(
-                        entry: entry,
-                        columns: widget.columns,
-                        selected: widget.isSelected(entry),
-                        odd: index.isOdd,
-                        onTap: () => widget.onEntryTap(entry),
-                        onDoubleTap: widget.onEntryDoubleTap == null
-                            ? null
-                            : () => widget.onEntryDoubleTap!(entry),
-                        onSecondaryTapUp: widget.onEntrySecondaryTapUp == null
-                            ? null
-                            : (details) =>
-                                widget.onEntrySecondaryTapUp!(entry, details),
-                        columnWidthFor: widget.columnWidthFor,
-                        columnIsNumeric: widget.columnIsNumeric,
-                        cellBuilder: widget.cellBuilder,
-                        showCheckbox: widget.showCheckbox,
-                        isEntryChecked: widget.isEntryChecked,
-                        onToggleEntryCheck: widget.onToggleEntryCheck,
-                        showStatus: widget.showStatus,
-                        statusBuilder: widget.statusBuilder,
-                        showEdit: widget.showEdit,
-                        onEditEntry: widget.onEditEntry,
-                        rowHeight: resolvedRowHeight,
-                        columnSpacing: resolvedColumnSpacing,
-                        horizontalMargin: resolvedHorizontalMargin,
-                        selectionRailWidth: widget.selectionRailWidth,
-                        selectedColor: resolvedSelectedColor,
-                        oddColor: resolvedOddColor,
-                        evenColor: resolvedEvenColor,
-                        selectionRailColor: resolvedSelectionRailColor,
-                        bottomBorderColor: resolvedBottomBorderColor,
-                        hoverColor: resolvedHoverColor,
-                        accentColor: widget.accentColor,
-                      );
-                    },
+                        final entry = widget.entries[index];
+                        return _LibraryWorkspaceTableRow<T>(
+                          entry: entry,
+                          columns: widget.columns,
+                          selected: widget.isSelected(entry),
+                          odd: index.isOdd,
+                          onTap: () => widget.onEntryTap(entry),
+                          onDoubleTap: widget.onEntryDoubleTap == null
+                              ? null
+                              : () => widget.onEntryDoubleTap!(entry),
+                          onSecondaryTapUp: widget.onEntrySecondaryTapUp == null
+                              ? null
+                              : (details) =>
+                                  widget.onEntrySecondaryTapUp!(entry, details),
+                          columnWidthFor: widget.columnWidthFor,
+                          columnIsNumeric: widget.columnIsNumeric,
+                          cellBuilder: widget.cellBuilder,
+                          showCheckbox: widget.showCheckbox,
+                          isEntryChecked: widget.isEntryChecked,
+                          onToggleEntryCheck: widget.onToggleEntryCheck,
+                          showStatus: widget.showStatus,
+                          statusBuilder: widget.statusBuilder,
+                          showEdit: widget.showEdit,
+                          onEditEntry: widget.onEditEntry,
+                          rowHeight: widget.rowHeightFor?.call(entry) ??
+                              resolvedRowHeight,
+                          columnSpacing: resolvedColumnSpacing,
+                          horizontalMargin: resolvedHorizontalMargin,
+                          selectionRailWidth: widget.selectionRailWidth,
+                          selectedColor: resolvedSelectedColor,
+                          oddColor: resolvedOddColor,
+                          evenColor: resolvedEvenColor,
+                          selectionRailColor: resolvedSelectionRailColor,
+                          bottomBorderColor: resolvedBottomBorderColor,
+                          hoverColor: resolvedHoverColor,
+                          accentColor: widget.accentColor,
+                        );
+                      },
+                    ),
                   ),
                 ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
-    ),
-  );
-}
+    );
+  }
 }
 
 class _LibraryWorkspaceTableHeader extends StatelessWidget {
@@ -386,7 +391,8 @@ class _LibraryWorkspaceTableHeader extends StatelessWidget {
                 column: columns[index],
                 width: columnWidthFor(columns[index]),
                 defaultWidth: defaultColumnWidthFor(columns[index]),
-                sorted: columnSortFor(columns[index]) == sortColumn,
+                sorted: columnSortFor(columns[index]) == sortColumn ||
+                    _sortPriorityFor(columnSortFor(columns[index])) != null,
                 ascending: sortAscending,
                 sort: columnSortFor(columns[index]),
                 sortPriority: _sortPriorityFor(columnSortFor(columns[index])),
@@ -458,9 +464,10 @@ class _LibraryWorkspaceTableHeaderCell extends StatelessWidget {
     final headerMutedTextColor = headerTextColor.withValues(alpha: 0.72);
     final showSortIcon = sorted && width >= 64;
     final showSortPriority = sortPriority != null && width >= 80;
-    return SizedBox(
+    return Container(
       width: width,
       height: height,
+      color: sorted ? libraryWorkspacePaneDividerColor(context) : headerColor,
       child: Stack(
         children: [
           Positioned.fill(
@@ -520,12 +527,11 @@ class _LibraryWorkspaceTableHeaderCell extends StatelessWidget {
                 child: GestureDetector(
                   behavior: HitTestBehavior.opaque,
                   onHorizontalDragUpdate: (details) {
-                    final nextWidth = (width + details.delta.dx)
-                        .clamp(40.0, double.infinity);
+                    final nextWidth =
+                        (width + details.delta.dx).clamp(40.0, double.infinity);
                     onColumnWidthChanged(column, nextWidth.toDouble());
                   },
-                  onDoubleTap: () =>
-                      onColumnWidthChanged(column, defaultWidth),
+                  onDoubleTap: () => onColumnWidthChanged(column, defaultWidth),
                   child: SizedBox(
                     width: 10,
                     child: Center(
@@ -702,7 +708,8 @@ class _LibraryWorkspaceTableRow<T> extends StatelessWidget {
                 child: Tooltip(
                   message: 'Edit',
                   child: InkResponse(
-                    onTap: onEditEntry == null ? null : () => onEditEntry!(entry),
+                    onTap:
+                        onEditEntry == null ? null : () => onEditEntry!(entry),
                     radius: 12,
                     child: const Icon(
                       Icons.edit_outlined,

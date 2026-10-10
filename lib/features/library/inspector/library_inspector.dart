@@ -1,3 +1,6 @@
+import 'package:collectarr_app/features/library/ui/library_item_confirmation.dart';
+import 'package:collectarr_app/ui/theme/app_theme.dart';
+import 'package:collectarr_app/features/settings/ui_preferences.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_contributors.dart';
 import 'package:collectarr_app/features/library/config/library_search_target.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
@@ -31,7 +34,6 @@ import 'package:collectarr_app/features/library/workspace/config/library_workspa
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/ui/library_dialog_scaffold.dart';
 import 'package:collectarr_app/ui/accent_alert_dialog.dart';
-import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -286,63 +288,89 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
             )
           : null),
     ];
-    final palette = appPalette(context);
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: palette.panel,
-        border: Border(
-          left: BorderSide(color: palette.divider),
-        ),
-      ),
-      child: ListView(
-        padding: const EdgeInsets.fromLTRB(8, 0, 8, 12),
-        children: [
-          InspectorUnifiedToolbar(
-            item: selected,
-            accent: widget.accent,
-            onEdit: entityActions.onEdit,
-            onShare: entityActions.onShare,
-            onMoveToCollection: activeLibraryEntry == null || widget.db == null
-                ? null
-                : () => _moveToCollection(activeLibraryEntry),
-            onUnlinkFromCore: entityActions.onUnlinkFromCore,
-            onDuplicate: entityActions.onDuplicate,
-            onToggleEntry: entityActions.onToggleEntry,
-            onLoan: entityActions.onLoan,
-            onRefreshMetadata: entityActions.onRefreshMetadata,
-            onDetailsLayoutChanged: widget.onDetailsLayoutChanged,
-            detailsLayout: widget.detailsLayout,
-          ),
-          SizedBox(height: density.inspectorOuterGap),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 4),
-            child: Column(
-              children: [
-                hero,
-                SizedBox(height: density.inspectorOuterGap),
-                if (!usesCustomInspectorPanel &&
-                    inspectorCapability.showsActionBar)
-                  InspectorActionBar(
-                    type: widget.type,
+    final preferences = ref.watch(uiPreferencesProvider);
+    final template =
+        detailsPanelPalette(context, preferences.detailsPanelTemplate)
+            .copyWith(accent: widget.accent);
+    return Theme(
+      data: buildLibraryTheme(palette: template),
+      child: Builder(
+          builder: (context) => ColoredBox(
+                color: preferences.detailsPanelTemplate ==
+                        DetailsPanelTemplate.blue
+                    ? template.panel
+                    : libraryWorkspaceBackgroundColor(context),
+                child: Column(children: [
+                  InspectorUnifiedToolbar(
                     item: selected,
-                    onToggleEntry: entityActions.onToggleEntry,
-                    onToggleWishlist: entityActions.onToggleWishlist,
+                    accent: widget.accent,
                     onEdit: entityActions.onEdit,
-                    onOpenDetails: entityActions.onOpenDetails ?? () {},
-                    semanticActions: entityActions.semanticActions,
+                    onShare: entityActions.onShare,
+                    onMoveToCollection:
+                        activeLibraryEntry == null || widget.db == null
+                            ? null
+                            : () => _moveToCollection(activeLibraryEntry),
+                    onUnlinkFromCore: entityActions.onUnlinkFromCore,
+                    onDuplicate: entityActions.onDuplicate,
+                    onToggleEntry: entityActions.onToggleEntry,
+                    onLoan: entityActions.onLoan,
+                    onRefreshMetadata: entityActions.onRefreshMetadata,
+                    onDetailsLayoutChanged: widget.onDetailsLayoutChanged,
+                    detailsLayout: widget.detailsLayout,
                   ),
-              ],
-            ),
-          ),
-          if (activeBundleReleaseId != null) ...[
-            SizedBox(height: density.inspectorOuterGap),
-            bundleSection!,
-          ],
-          SizedBox(height: density.inspectorOuterGap),
-          ...effectivePrimarySections,
-          ...trailingSections,
-        ],
-      ),
+                  Expanded(
+                      child: Stack(fit: StackFit.expand, children: [
+                    if (preferences.showInspectorBackdrop)
+                      ExcludeSemantics(
+                          child: IgnorePointer(
+                              child: InspectorBackdrop(
+                                  item: selected,
+                                  libraryEntry: activeLibraryEntry,
+                                  backgroundColor:
+                                      preferences.detailsPanelTemplate ==
+                                              DetailsPanelTemplate.blue
+                                          ? template.panel
+                                          : null))),
+                    ListView(
+                      padding: const EdgeInsets.fromLTRB(8, 0, 8, 12),
+                      children: [
+                        SizedBox(height: density.inspectorOuterGap),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 4),
+                          child: Column(
+                            children: [
+                              hero,
+                              SizedBox(height: density.inspectorOuterGap),
+                              if (!usesCustomInspectorPanel &&
+                                  inspectorCapability.showsActionBar)
+                                InspectorActionBar(
+                                  type: widget.type,
+                                  item: selected,
+                                  onToggleEntry: entityActions.onToggleEntry,
+                                  onToggleWishlist:
+                                      entityActions.onToggleWishlist,
+                                  onEdit: entityActions.onEdit,
+                                  onOpenDetails:
+                                      entityActions.onOpenDetails ?? () {},
+                                  semanticActions:
+                                      entityActions.semanticActions,
+                                ),
+                            ],
+                          ),
+                        ),
+                        if (activeBundleReleaseId != null) ...[
+                          SizedBox(height: density.inspectorOuterGap),
+                          bundleSection!,
+                        ],
+                        SizedBox(height: density.inspectorOuterGap),
+                        ...effectivePrimarySections,
+                        InspectorEbayLinksSection(item: selected),
+                        ...trailingSections,
+                      ],
+                    ),
+                  ])),
+                ]),
+              )),
     );
   }
 
@@ -375,6 +403,11 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
     LibraryProjectionView item,
     LibraryEntrySummary libraryEntry,
   ) async {
+    if (ref.read(uiPreferencesProvider).confirmDuplication &&
+        !await confirmLibraryDuplication(context, 1)) {
+      return;
+    }
+    if (!mounted) return;
     final trackingSummary = item.source.trackingSummary;
     final duplicated =
         await ref.read(libraryEntryMutationsProvider).duplicateItem(

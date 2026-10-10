@@ -103,7 +103,6 @@ class _LibraryFlowCarouselState extends State<LibraryFlowCarousel> {
     if (widget.items.isEmpty) {
       return widget.emptyBuilder(context);
     }
-    final palette = appPalette(context);
     return LayoutBuilder(
       builder: (context, constraints) {
         _syncViewportFraction(constraints.maxWidth);
@@ -119,16 +118,7 @@ class _LibraryFlowCarouselState extends State<LibraryFlowCarousel> {
             onTap: _focusNode.requestFocus,
             child: DecoratedBox(
               decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [
-                    palette.surfaceSubtle,
-                    palette.gridCanvas,
-                    palette.surface,
-                  ],
-                ),
-              ),
+                  color: libraryWorkspaceBackgroundColor(context)),
               child: Stack(
                 fit: StackFit.expand,
                 children: [

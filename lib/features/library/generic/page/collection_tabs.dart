@@ -30,7 +30,7 @@ class LibraryCollectionTabBar extends ConsumerWidget {
 
     return Container(
         height: 36,
-        color: palette.toolbar,
+        color: palette.isDark ? const Color(0xff272323) : palette.toolbar,
         child: Column(children: [
           Container(height: 3, color: accent),
           Expanded(
@@ -41,8 +41,8 @@ class LibraryCollectionTabBar extends ConsumerWidget {
                   tooltip: 'Collections',
                   onSelected: (id) {
                     if (id == '__manage__') {
-                      unawaited(
-                          showLibraryCollectionsDialog(context, kind: mediaKind));
+                      unawaited(showLibraryCollectionsDialog(context,
+                          kind: mediaKind));
                     } else {
                       unawaited(select(values.firstWhere((c) => c.id == id)));
                     }
@@ -98,8 +98,8 @@ class LibraryCollectionTabBar extends ConsumerWidget {
                     itemBuilder: (_, index) {
                       final collection = values[index];
                       return ReorderableDragStartListener(
-                        key: ValueKey(
-                            'library-collection-tab-${collection.id}'),
+                        key:
+                            ValueKey('library-collection-tab-${collection.id}'),
                         index: index,
                         child: LibraryCollectionTab(
                           label: collection.name,

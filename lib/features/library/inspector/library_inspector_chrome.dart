@@ -1,3 +1,5 @@
+import 'package:collectarr_app/features/settings/ui_preferences.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/features/library/config/library_kind_style.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
@@ -20,54 +22,32 @@ class InspectorBackdrop extends StatelessWidget {
     super.key,
     required this.item,
     this.libraryEntry,
+    this.backgroundColor,
   });
 
   final LibraryProjectionView item;
   final LibraryEntrySummary? libraryEntry;
+  final Color? backgroundColor;
 
   @override
   Widget build(BuildContext context) {
-    final palette = appPalette(context);
     final dto = item.dto;
     final card = libraryCardPresentationForEntry(item);
     final libraryEntryRef = resolveLibraryEntryRef(item, libraryEntry);
     return Stack(
       fit: StackFit.expand,
       children: [
-        Opacity(
-          opacity: 0.38,
-          child: LibraryCoverImage(
-            title: dto.primaryLabel,
-            itemNumber: card.itemNumber,
-            imageUrl: dto.imageUrl,
-            libraryEntryRef: libraryEntryRef,
-          ),
+        LibraryCoverImage(
+          title: dto.primaryLabel,
+          itemNumber: card.itemNumber,
+          imageUrl: dto.imageUrl,
+          libraryEntryRef: libraryEntryRef,
+          fit: BoxFit.cover,
+          showPlaceholder: false,
         ),
-        DecoratedBox(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                palette.surface.withValues(alpha: 0.4),
-                palette.panel.withValues(alpha: 0.82),
-                palette.panel.withValues(alpha: 0.94),
-              ],
-            ),
-          ),
-        ),
-        DecoratedBox(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.centerLeft,
-              end: Alignment.centerRight,
-              colors: [
-                palette.panel.withValues(alpha: 0.94),
-                palette.surfaceSubtle.withValues(alpha: 0.72),
-                palette.panel.withValues(alpha: 0.9),
-              ],
-            ),
-          ),
+        ColoredBox(
+          color:
+              libraryWorkspaceBackgroundColor(context).withValues(alpha: 0.9),
         ),
       ],
     );
@@ -168,7 +148,7 @@ class InspectorActionBar extends StatelessWidget {
             _InspectorActionPillButton(
               tooltip: 'Edit metadata and collection fields',
               onPressed: onEdit,
-              icon: Icons.edit_outlined,
+              icon: Icons.edit,
               label: 'Edit',
             ),
             for (final action in semanticActions)
@@ -267,7 +247,7 @@ class _InspectorBarButton extends StatelessWidget {
     required this.onPressed,
     this.icon,
     this.label,
-    this.customLabel,
+    this.labelContent,
     this.semanticsLabel,
   });
 
@@ -275,7 +255,7 @@ class _InspectorBarButton extends StatelessWidget {
   final VoidCallback? onPressed;
   final IconData? icon;
   final String? label;
-  final Widget? customLabel;
+  final Widget? labelContent;
   final String? semanticsLabel;
 
   @override
@@ -306,11 +286,11 @@ class _InspectorBarButton extends StatelessWidget {
                     size: 15,
                     color: onPressed != null ? foreground : disabledColor,
                   ),
-                  if (label != null || customLabel != null)
+                  if (label != null || labelContent != null)
                     const SizedBox(width: 4),
                 ],
-                if (customLabel != null)
-                  customLabel!
+                if (labelContent != null)
+                  labelContent!
                 else if (label != null)
                   Text(
                     label!,
@@ -329,7 +309,7 @@ class _InspectorBarButton extends StatelessWidget {
   }
 }
 
-class InspectorUnifiedToolbar extends StatelessWidget {
+class InspectorUnifiedToolbar extends ConsumerWidget {
   const InspectorUnifiedToolbar({
     super.key,
     required this.item,
@@ -364,7 +344,7 @@ class InspectorUnifiedToolbar extends StatelessWidget {
   final bool includeLayoutControl;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final palette = appPalette(context);
     final dto = item.dto;
     final card = libraryCardPresentationForEntry(item);
@@ -377,11 +357,15 @@ class InspectorUnifiedToolbar extends StatelessWidget {
       dto.primaryLabel,
       if (releaseDate != null) releaseDate.year.toString(),
     ].join(' ');
-    final ebayUri = buildEbaySearchUri(
-      query: ebayQuery,
-      categoryPath: '/sch/11233/i.html',
-      soldOnly: true,
-    );
+    final preferences = ref.watch(uiPreferencesProvider);
+    final ebayUri = preferences.ebayToolbar &&
+            preferences.allowsEbayLinks(item.source.isWishlisted)
+        ? buildEbaySearchUri(
+            query: ebayQuery,
+            categoryPath: '/sch/11233/i.html',
+            soldOnly: !item.source.isWishlisted,
+          )
+        : null;
     final content = LayoutBuilder(
       builder: (context, constraints) {
         final compactActions = constraints.maxWidth < 420;
@@ -396,26 +380,26 @@ class InspectorUnifiedToolbar extends StatelessWidget {
                   _InspectorBarButton(
                     tooltip: 'Edit',
                     semanticsLabel: 'Edit',
-                    icon: Icons.edit_outlined,
+                    icon: Icons.edit,
                     label: compactActions ? null : 'Edit',
                     onPressed: onEdit,
                   ),
                 if (onShare != null) ...[
-                  const SizedBox(width: 2),
+                  _inspectorToolbarSeparator(context),
                   _InspectorBarButton(
                     tooltip: 'Share',
                     semanticsLabel: 'Share',
-                    icon: Icons.share_outlined,
+                    icon: Icons.share,
                     label: compactActions ? null : 'Share',
                     onPressed: onShare,
                   ),
                 ],
                 if (ebayUri != null) ...[
-                  const SizedBox(width: 2),
+                  _inspectorToolbarSeparator(context),
                   _InspectorBarButton(
                     tooltip: 'Search sold prices on eBay',
                     semanticsLabel: 'eBay',
-                    customLabel: Text(
+                    labelContent: Text(
                       'ebay',
                       style: TextStyle(
                         fontSize: 13,
@@ -427,7 +411,7 @@ class InspectorUnifiedToolbar extends StatelessWidget {
                     onPressed: () => launchUrl(ebayUri),
                   ),
                 ],
-                const SizedBox(width: 2),
+                _inspectorToolbarSeparator(context),
                 PopupMenuButton<InspectorToolbarMenuAction>(
                   tooltip: 'More inspector actions',
                   padding: EdgeInsets.zero,
@@ -560,7 +544,9 @@ class InspectorUnifiedToolbar extends StatelessWidget {
 
     final styled = Container(
       decoration: BoxDecoration(
-        color: framed ? palette.panel.withValues(alpha: 0.72) : null,
+        color: framed
+            ? palette.panel.withValues(alpha: 0.72)
+            : libraryWorkspaceBackgroundColor(context),
         borderRadius: framed ? BorderRadius.circular(12) : null,
         border: framed
             ? Border.all(color: palette.divider)
@@ -573,5 +559,39 @@ class InspectorUnifiedToolbar extends StatelessWidget {
     return accent == null
         ? styled
         : Theme(data: libraryAccentTheme(context, accent!), child: styled);
+  }
+}
+
+Widget _inspectorToolbarSeparator(BuildContext context) => SizedBox(
+      width: 5,
+      height: 26,
+      child: VerticalDivider(
+          width: 1, thickness: 1, color: appPalette(context).divider),
+    );
+
+class InspectorEbayLinksSection extends ConsumerWidget {
+  const InspectorEbayLinksSection({super.key, required this.item});
+  final LibraryProjectionView item;
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final preferences = ref.watch(uiPreferencesProvider);
+    if (!preferences.ebayLinksSection ||
+        !preferences.allowsEbayLinks(item.source.isWishlisted)) {
+      return const SizedBox.shrink();
+    }
+    final uri = buildEbaySearchUri(
+      query: [item.dto.secondaryLabel, item.dto.primaryLabel]
+          .whereType<String>()
+          .join(' '),
+      soldOnly: !item.source.isWishlisted,
+    );
+    if (uri == null) return const SizedBox.shrink();
+    return Align(
+        alignment: Alignment.centerLeft,
+        child: TextButton.icon(
+          onPressed: () => launchUrl(uri),
+          icon: const Icon(Icons.open_in_new, size: 14),
+          label: const Text('Search eBay'),
+        ));
   }
 }

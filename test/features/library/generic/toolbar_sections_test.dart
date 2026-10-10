@@ -74,7 +74,8 @@ void main() {
         findsOneWidget);
 
     await tester.tap(
-      find.descendant(of: sortButton, matching: find.byIcon(Icons.sort)),
+      find.descendant(
+          of: sortButton, matching: find.byIcon(Icons.sort_by_alpha)),
     );
     await tester.pump();
 

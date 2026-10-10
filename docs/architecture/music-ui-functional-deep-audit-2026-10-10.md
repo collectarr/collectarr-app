@@ -223,3 +223,45 @@ Measured toolbar borders are #4A4A4A above and #262626 below in dark mode.
 Folder, collection, and unframed inspector toolbars now share those seams.
 Raster widget checks cover both grip orientations and opaque seam painting;
 existing resize callback and constrained sidebar/inspector tests still pass.
+
+
+### Collection surfaces and customization settings
+
+Re-inspected the live CLZ Music Settings page through Opera without saving
+remote preferences. Its sections are Customization, Localization, Behaviour,
+Sorting, Auto Capitalization, and eBay search links. The desktop reference uses
+flat rectangular neutral panels and compact labeled controls.
+
+Implemented the collection-surface differences from the follow-up audit:
+- List empty canvas and toolbar bands use the same #383838 as folders.
+- Table rows alternate #383838 / #2E3035; header cells use #464950, with sorted
+  columns on #262626 and kind-accent sort indicators preserved.
+- Shared dropdown menus use #444444 with #666666 borders in dark mode.
+- Toolbar groups have fine vertical separators. Sort uses A-Z; list uses bars;
+  layout and chevron icons are aligned, edit/share use filled icons, and barcode
+  search uses a barcode icon. Collections use #272323.
+- The inspector toolbar stays above its scrolling content. Its backdrop paints
+  actual cover artwork beneath a 90% neutral overlay, with no generated fallback
+  artwork. The Music overview no longer adds an opaque bordered card.
+
+Settings keep Connection, Libraries, Appearance, Proposals, Data, Account, Logs.
+Medium and desktop widths use scrollable section tabs; compact screens retain
+section navigation. Appearance has Customization, Covers & layout, Typography,
+and Behaviour & links tabs, with rectangular panels.
+
+Persistent functional settings now include application skin (system/light/dark),
+independent Details template (application/light/dark/blue), main screen split,
+backdrop, back cover when space permits, wrapped column content, automatic
+column widths, status indicators, pencil icons, removal/duplication confirmation,
+and eBay visibility, wishlist-only scope, and its three display positions.
+Wrapping measures visible rows lazily; auto sizing samples up to 200 entries,
+caps widths, and never replaces saved manual column widths. Split selection
+writes the existing per-kind workspace preference rather than a second setting.
+
+This closes the audited library surface/display controls. CLZ localization,
+separate sort-name display policies, automatic capitalization, application-wide
+Blue skin, and eBay region/filter selectors are not replicated by this change.
+These need their own consumers and are not represented by inert settings.
+
+Validation: full Flutter suite 830 passed / 1 skipped; analyzer clean; architecture
+boundary check has no violations; Windows debug build verified separately.
