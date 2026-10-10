@@ -27,18 +27,40 @@ class LibraryPageBucketCoordinator {
     final definition = fields.findGroupDefinition(fields.decodeGroupId(mode));
     final vocabulary = definition?.bucketVocabulary;
     if (vocabulary != null) {
+      final selectedBefore = _page.selectedBucket;
+      final historyBefore = _page.scopeHistory;
       final changes = await showPickListManagerDialog(
         context: _page.context,
         db: _page.ref.read(localDatabaseProvider),
         registry: defaultPickListRegistry,
+        accent: _page.accent,
         initialListName: vocabulary.value,
         initialMediaKind: _page.type.kind.apiValue,
       );
       if (_page.mounted) {
-        final selected = _page.selectedBucket;
-        if (changes != null && selected != null) {
-          _page.rebuild(() =>
-              _page.selectedBucket = changes.apply(vocabulary.value, selected));
+        if (changes != null) {
+          _page.rebuild(() {
+            _page.selectedBucket = selectedBefore == null
+                ? null
+                : changes.apply(vocabulary.value, selectedBefore);
+            _page.scopeHistory = [
+              for (final scope in historyBefore)
+                if (scope.selectedBucket != null)
+                  scope.withSelectedBucket(changes.apply(
+                      (workspace.fieldsForGroupModeAcrossTargets(
+                                      scope.groupMode) ??
+                                  workspace.fields)
+                              .findGroupDefinition(
+                                  fields.decodeGroupId(scope.groupMode))
+                              ?.bucketVocabulary
+                              ?.value ??
+                          '',
+                      scope.selectedBucket!))
+                else
+                  scope,
+            ];
+          });
+          _page.syncRouteState();
         }
         _page.invalidateShelf();
       }

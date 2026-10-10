@@ -195,9 +195,15 @@ abstract final class _LibraryFacetControllerOps {
     GenericLibraryPageState state,
     ShelfState shelf,
   ) {
-    return libraryShelfSignature([
-      for (final item in libraryItemsForShelf(shelf, state.widget.type))
-        item.target.id,
+    return libraryFacetContentSignature([
+      for (final source in shelf.entries)
+        if (source.mediaKind == state.widget.type.kind &&
+            source.kindPresentationData != null)
+          (
+            id: source.target.id,
+            updatedAt: source.updatedAt,
+            metadata: source.kindPresentationData,
+          ),
     ]);
   }
 }

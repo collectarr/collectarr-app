@@ -4,8 +4,34 @@ import 'package:collectarr_app/features/library/workspace/chrome/library_workspa
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.dart';
+import 'package:collectarr_app/ui/theme/app_theme.dart';
 
 void main() {
+  testWidgets('folder favorite actions inherit the kind accent',
+      (tester) async {
+    await tester.pumpWidget(MaterialApp(
+        home: Builder(
+            builder: (context) => Scaffold(
+                body: TextButton(
+                    onPressed: () => showLibraryFolderFavoritesDialog(
+                        context: context,
+                        type: const MusicRegistration(),
+                        availableModes: libraryGroupModesForType(
+                            const MusicRegistration())),
+                    child: const Text('Open'))))));
+    await tester.tap(find.text('Open'));
+    await tester.pumpAndSettle();
+    final context = tester.element(find.text('Save'));
+    expect(
+        appPalette(context).accent, const MusicRegistration().identity.accent);
+    expect(Theme.of(context).colorScheme.primary, appPalette(context).accent);
+    expect(
+        appPalette(context).selection,
+        Color.alphaBlend(appPalette(context).accent.withValues(alpha: 0.22),
+            appPalette(context).panel));
+    await tester.tap(find.text('Cancel'));
+    await tester.pumpAndSettle();
+  });
   testWidgets('group mode dropdown exposes favorites and folders sections', (
     tester,
   ) async {

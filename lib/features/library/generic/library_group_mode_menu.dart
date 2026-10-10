@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:collectarr_app/features/library/config/library_group_mode_category.dart';
+import 'package:collectarr_app/features/library/config/library_kind_style.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/generic/library_folder_reorder_row.dart';
 import 'package:collectarr_app/features/library/generic/library_folder_reorder_list.dart';
@@ -28,10 +29,13 @@ Future<List<LibraryFolderPreset>?> showLibraryFolderFavoritesDialog({
 }) {
   return showDialog<List<LibraryFolderPreset>>(
     context: context,
-    builder: (dialogContext) => _GroupModeFavoritesDialog(
-      type: type,
-      availableModes: availableModes,
-      initialFavorites: initialFavorites,
+    builder: (dialogContext) => Theme(
+      data: libraryAccentTheme(context, type.identity.accent),
+      child: _GroupModeFavoritesDialog(
+        type: type,
+        availableModes: availableModes,
+        initialFavorites: initialFavorites,
+      ),
     ),
   );
 }
@@ -434,6 +438,7 @@ class _LibraryGroupModeDropdownMenuState
                       const SizedBox(width: 8),
                       IconButton(
                         key: const ValueKey('manageGroupFavoritesButton'),
+                        tooltip: 'Manage folder favorites',
                         onPressed: widget.onPinnedPresetsChanged == null
                             ? null
                             : () => _emitSelection(

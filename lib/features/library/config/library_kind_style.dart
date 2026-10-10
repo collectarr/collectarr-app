@@ -7,6 +7,22 @@ import 'package:flutter/material.dart';
 
 const Color kLibraryFallbackAccent = kAppAccent;
 
+ThemeData libraryAccentTheme(BuildContext context, Color accent) {
+  final theme = Theme.of(context);
+  final palette = appPalette(context);
+  return theme.copyWith(
+    colorScheme: theme.colorScheme
+        .copyWith(primary: accent, onPrimary: appContrastingTextColor(accent)),
+    extensions: [
+      ...theme.extensions.values.where((value) => value is! AppThemePalette),
+      palette.copyWith(
+          accent: accent,
+          selection:
+              Color.alphaBlend(accent.withValues(alpha: 0.22), palette.panel)),
+    ],
+  );
+}
+
 Color libraryAccentForKind(CatalogMediaKind kind) {
   if (cachedLibraryAccentHexForKind(kind) case final accentHex?) {
     return Color(accentHex);

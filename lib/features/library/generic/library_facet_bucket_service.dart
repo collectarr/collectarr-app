@@ -17,9 +17,16 @@ class FacetBuckets {
   final Map<String, Set<String>> itemIdsByBucket;
 }
 
-String libraryShelfSignature(Iterable<String> ids) {
-  final sorted = ids.toList()..sort();
-  return '${sorted.length}:${Object.hashAll(sorted)}';
+/// Facet caches depend on current metadata as well as shelf membership.
+/// Metadata identity is stable within a shelf snapshot and changes on reload.
+String libraryFacetContentSignature(
+    Iterable<({String id, DateTime updatedAt, Object? metadata})> items) {
+  final sorted = items.toList()..sort((a, b) => a.id.compareTo(b.id));
+  return '${sorted.length}:${Object.hashAll(sorted.map((item) => (
+        item.id,
+        item.updatedAt.microsecondsSinceEpoch,
+        identityHashCode(item.metadata),
+      )))}';
 }
 
 final class LibraryFacetBucketService {

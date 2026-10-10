@@ -29,6 +29,21 @@ class LibrarySidebarScopeSnapshot {
   final String? activeSmartListName;
   final String searchQuery;
 
+  LibrarySidebarScopeSnapshot withSelectedBucket(String? bucket) =>
+      LibrarySidebarScopeSnapshot(
+        groupMode: groupMode,
+        selectedBucket: bucket,
+        selectedLetter: selectedLetter,
+        linkedMetadataFilter: linkedMetadataFilter,
+        collectionStatusScope: collectionStatusScope,
+        bucketCompletionScope: bucketCompletionScope,
+        quickView: quickView,
+        filterSelection: filterSelection,
+        activeSmartListId: activeSmartListId,
+        activeSmartListName: activeSmartListName,
+        searchQuery: searchQuery,
+      );
+
   bool get isRootScope =>
       selectedBucket == null &&
       selectedLetter == null &&

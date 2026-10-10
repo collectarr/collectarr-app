@@ -6,6 +6,30 @@ import 'package:collectarr_app/features/library/workspace/schema/library_identif
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
+  test(
+      'facet cache signature changes for metadata edits without membership changes',
+      () {
+    final oldMetadata = Object();
+    final nextMetadata = Object();
+    final date = DateTime.utc(2026);
+    final first = (id: 'album', updatedAt: date, metadata: oldMetadata);
+    final other = (id: 'other', updatedAt: date, metadata: oldMetadata);
+    expect(libraryFacetContentSignature([first, other]),
+        libraryFacetContentSignature([other, first]));
+    expect(
+        libraryFacetContentSignature([first]),
+        isNot(libraryFacetContentSignature(
+            [(id: 'album', updatedAt: date, metadata: nextMetadata)])));
+    expect(
+        libraryFacetContentSignature([first]),
+        isNot(libraryFacetContentSignature([
+          (
+            id: 'album',
+            updatedAt: date.add(const Duration(microseconds: 1)),
+            metadata: oldMetadata
+          )
+        ])));
+  });
   final api = ApiClient(baseUrl: 'http://unused');
 
   Future<FacetBuckets> load(

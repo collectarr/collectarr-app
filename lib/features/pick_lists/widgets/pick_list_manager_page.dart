@@ -1,4 +1,5 @@
 import 'pick_list_chrome.dart';
+import 'package:collectarr_app/features/library/config/library_kind_style.dart';
 import 'dart:async';
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
@@ -50,17 +51,22 @@ Future<PickListManagerChanges?> showPickListManagerDialog(
         {required BuildContext context,
         required LocalDatabase db,
         required PickListRegistry registry,
+        Color? accent,
         String? initialListName,
         String? initialMediaKind}) =>
     showAppDialog<PickListManagerChanges>(
       context: context,
       barrierDismissible: false,
-      builder: (context) => PickListDialog(
-          child: PickListManagerPage(
-              db: db,
-              registry: registry,
-              initialListName: initialListName,
-              initialMediaKind: initialMediaKind)),
+      builder: (context) => Theme(
+          data: accent == null
+              ? Theme.of(context)
+              : libraryAccentTheme(context, accent),
+          child: PickListDialog(
+              child: PickListManagerPage(
+                  db: db,
+                  registry: registry,
+                  initialListName: initialListName,
+                  initialMediaKind: initialMediaKind))),
     );
 
 class PickListManagerPage extends StatefulWidget {
@@ -269,6 +275,13 @@ class _PickListManagerPageState extends State<PickListManagerPage> {
         sortName: edited.sortName,
         sortOrder: value.sortOrder);
     await _run(() async {
+      if (_values.any((candidate) =>
+          candidate.id != value.id &&
+          candidate.effectiveNormalizedValue ==
+              result.effectiveNormalizedValue)) {
+        throw StateError(
+            'This name already exists. Use Merge Mode to combine values.');
+      }
       await _merger.rename(value, result, mediaKind: _scopeKind);
       _changes.replacements[
           '${value.listName}:${value.effectiveNormalizedValue}'] = result.value;
