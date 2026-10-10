@@ -42,8 +42,7 @@ class PrefillDefaults {
   LibraryAddCommonDraft applyTo(LibraryAddCommonDraft draft) => draft.copyWith(
         condition: draft.condition ?? personalValues['condition'] as String?,
         purchaseDate: draft.purchaseDate ??
-            PartialDate.tryParse(personalValues['purchase_date_parts'] ??
-                    personalValues['purchase_date'])
+            PartialDate.tryParse(personalValues['purchase_date_parts'])
                 ?.asDateTime,
         pricePaidCents: draft.pricePaidCents ??
             (personalValues['price_paid_cents'] as num?)?.toInt(),
