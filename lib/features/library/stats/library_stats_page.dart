@@ -553,7 +553,7 @@ class _RecentAdditionsCard extends StatelessWidget {
     AppThemePalette palette,
   ) {
     final summary = entry.catalogSummary;
-    final title = summary?.primaryLabel ?? 'Untitled';
+    final title = entry.title;
     final subtitle = summary?.subtitle;
     final coverUrl = summary?.imageUrl;
     final projection =

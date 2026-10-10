@@ -14,6 +14,7 @@ final class LibraryFieldRegistry<TDto extends LibraryWorkspaceDto> {
     required this.defaultVisibleColumns,
     required this.defaultSort,
     this.defaultGroup,
+    this.containedSearchValues,
   }) : _fieldsById = {
           for (final field in fields) field.id.value: field,
         } {
@@ -30,6 +31,7 @@ final class LibraryFieldRegistry<TDto extends LibraryWorkspaceDto> {
   final Set<LibraryFieldIdRuntime> defaultVisibleColumns;
   final LibrarySortIdRuntime defaultSort;
   final LibraryGroupIdRuntime? defaultGroup;
+  final Iterable<String> Function(TDto dto)? containedSearchValues;
   final Map<String, LibraryFieldDefinition<dynamic, TDto, Object?>> _fieldsById;
 
   LibraryFieldDefinition<dynamic, TDto, Object?>? fieldDefinitionForId(
@@ -128,6 +130,9 @@ final class LibraryFieldRegistry<TDto extends LibraryWorkspaceDto> {
       defaultVisibleColumns: defaultVisibleColumns,
       defaultSort: defaultSort,
       defaultGroup: defaultGroup,
+      containedSearchValues: containedSearchValues == null
+          ? null
+          : (dto) => containedSearchValues!(dto as TDto),
     );
   }
 
@@ -153,6 +158,9 @@ final class LibraryFieldRegistry<TDto extends LibraryWorkspaceDto> {
       }
     }
   }
+
+  Iterable<String> containedSearchValuesFor(LibraryProjectionView item) =>
+      containedSearchValues?.call(item.dto as TDto) ?? const [];
 
   LibrarySortDefinition<dynamic, TDto>? sortDefinition(
           LibrarySortIdRuntime id) =>

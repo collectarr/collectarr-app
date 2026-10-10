@@ -3,6 +3,7 @@ import 'package:collectarr_app/features/library/edit/draft/library_entry_edit_dr
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_contributors.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_personal_field_registry.dart';
 import 'dart:async';
+import 'package:collectarr_app/features/library/edit/session/library_edit_navigation_guard.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/catalog_target_option.dart';
 import 'package:collectarr_app/core/models/custom_field.dart';
@@ -379,8 +380,8 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
       ],
       tabIds: [for (final tab in _tabSpecs) tab.id],
       views: _tabViews(),
-      onClose: () => Navigator.of(context).pop(),
-      onCancel: () => Navigator.of(context).pop(),
+      onClose: () => unawaited(_leave(() => Navigator.of(context).pop())),
+      onCancel: () => unawaited(_leave(() => Navigator.of(context).pop())),
       onSave: _isSaving
           ? null
           : () => unawaited(_submit(LibraryEditSubmitAction.save)),
@@ -392,8 +393,12 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
                   LibraryEntryEditScope.maybeOf(context) != null)
           ? null
           : () => unawaited(_proposeToCore()),
-      onPrevious: _isSaving ? null : widget.onPrevious,
-      onNext: _isSaving ? null : widget.onNext,
+      onPrevious: _isSaving || widget.onPrevious == null
+          ? null
+          : () => unawaited(_leave(widget.onPrevious!)),
+      onNext: _isSaving || widget.onNext == null
+          ? null
+          : () => unawaited(_leave(widget.onNext!)),
       tabOrderKey:
           'library_edit_tabs_${widget.type.kind.apiValue}_${widget.isEntryTarget ? 'entry' : 'catalog'}',
     );
@@ -401,6 +406,17 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
 
   static String? _requiredValidator(String? v) =>
       (v == null || v.trim().isEmpty) ? 'Required' : null;
+
+  Future<void> _leave(VoidCallback action) async {
+    if (_isSaving) return;
+    if (await confirmLeaveLibraryEdit(context,
+            hasUnsavedChanges: _draft.isDirty ||
+                (LibraryEntryEditScope.maybeOf(context)?.changes.isNotEmpty ??
+                    false)) &&
+        mounted) {
+      action();
+    }
+  }
 
   String _personalFieldLabel(String key) {
     final field = personalFieldContributorFor(widget.type.kind)

@@ -94,6 +94,9 @@ final class MusicWorkspaceFacts {
         allCredits.expand((credit) => credit.instruments),
       ),
       trackCompositions: Set<String>.unmodifiable(trackCompositions),
+      trackSearchValues: _stringSet(discs.expand((disc) => disc.tracks).expand(
+            (track) => [track.title, track.artist, track.composition],
+          )),
       contributorsByRole: immutableByRole,
     );
   }
@@ -124,6 +127,7 @@ final class MusicWorkspaceFacts {
     required this.creditRoles,
     required this.creditInstruments,
     required this.trackCompositions,
+    required this.trackSearchValues,
     required this.contributorsByRole,
   });
 
@@ -152,6 +156,7 @@ final class MusicWorkspaceFacts {
   final Set<String> creditRoles;
   final Set<String> creditInstruments;
   final Set<String> trackCompositions;
+  final Set<String> trackSearchValues;
   final Map<String, Set<String>> contributorsByRole;
 
   Set<String> contributorsForRole(String role) =>

@@ -16,6 +16,7 @@ class LibraryWorkspaceSchema<TKind, TDto extends LibraryWorkspaceDto> {
     required this.defaultVisibleColumns,
     required this.defaultSort,
     this.defaultGroup,
+    this.containedSearchValues,
   });
 
   final String kindNamespace;
@@ -28,6 +29,7 @@ class LibraryWorkspaceSchema<TKind, TDto extends LibraryWorkspaceDto> {
   final Set<LibraryFieldIdRuntime> defaultVisibleColumns;
   final LibrarySortId<TKind> defaultSort;
   final LibraryGroupIdRuntime? defaultGroup;
+  final Iterable<String> Function(TDto dto)? containedSearchValues;
 
   /// Creates an isolated runtime registry for this workspace surface.
   ///
@@ -44,6 +46,7 @@ class LibraryWorkspaceSchema<TKind, TDto extends LibraryWorkspaceDto> {
       defaultVisibleColumns: defaultVisibleColumns,
       defaultSort: defaultSort,
       defaultGroup: defaultGroup,
+      containedSearchValues: containedSearchValues,
     );
   }
 }

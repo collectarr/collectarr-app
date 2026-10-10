@@ -40,6 +40,7 @@ void main() {
     addTearDown(db.close);
 
     final type = const MusicRegistration();
+    var nextRequests = 0;
     final item = testCatalogItemWithKindMetadata(
       testCatalogItem(
         id: 'music-1',
@@ -52,6 +53,7 @@ void main() {
       item: CatalogSearchCandidate.fromItem(item),
       libraryEntry: null,
       accent: Colors.deepPurple,
+      onNext: () => nextRequests++,
     );
 
     await tester.pumpWidget(
@@ -86,6 +88,21 @@ void main() {
     expect(find.text('Credits'), findsOneWidget);
     expect(find.text('Classical'), findsNothing);
     expect(find.text('People'), findsNothing);
+
+    final titleInput = find.byType(TextFormField).first;
+    await tester.enterText(titleInput, 'Unsaved music title');
+    await tester.tap(find.text('Next'));
+    await tester.pumpAndSettle();
+    expect(nextRequests, 0);
+    expect(find.text('Unsaved changes'), findsOneWidget);
+    await tester.tap(find.text('Keep editing'));
+    await tester.pumpAndSettle();
+    expect(find.text('Unsaved music title'), findsOneWidget);
+    await tester.tap(find.text('Next'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Discard changes'));
+    await tester.pumpAndSettle();
+    expect(nextRequests, 1);
 
     final coversTab = find.text('Covers').last;
     await tester.ensureVisible(coversTab);

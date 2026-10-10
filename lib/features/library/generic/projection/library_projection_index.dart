@@ -26,11 +26,13 @@ class LibraryProjectionIndex {
     LibraryProjectionItem item, [
     Map<String, List<String>> customFieldValuesByItem = const {},
     Iterable<String> searchFieldValues = const [],
+    Iterable<String> containedSearchValues = const [],
   ]) {
     return _searchIndex.getOrBuild(
       item,
       customFieldValuesByItem,
       searchFieldValues,
+      containedSearchValues,
     );
   }
 

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:collectarr_app/features/library/edit/session/library_edit_navigation_guard.dart';
 
 import 'package:collectarr_app/features/library/edit/schema/edit_schema.dart';
 import 'package:collectarr_app/features/library/edit/schema/edit_schema_renderer.dart';
@@ -36,6 +37,7 @@ final class LibraryEditSchemaDialog<TModel, TDraft> extends StatefulWidget {
     this.badges = const <Widget>[],
     this.onPrevious,
     this.onNext,
+    this.hasUnsavedChanges,
     this.chromeVariant = LibraryEditChromeVariant.standard,
     this.maxDialogWidth,
     this.insetPadding,
@@ -58,6 +60,7 @@ final class LibraryEditSchemaDialog<TModel, TDraft> extends StatefulWidget {
   final LibraryCoreCorrectionSource Function()? coreCorrectionSourceBuilder;
   final VoidCallback? onPrevious;
   final VoidCallback? onNext;
+  final bool Function()? hasUnsavedChanges;
   final LibraryEditChromeVariant chromeVariant;
   final double? maxDialogWidth;
   final EdgeInsets? insetPadding;
@@ -209,8 +212,12 @@ class _LibraryEditSchemaDialogState<TModel, TDraft>
               widget.coreCorrectionSourceBuilder == null
           ? null
           : () => unawaited(_proposeToCore()),
-      onPrevious: _saving ? null : widget.onPrevious,
-      onNext: _saving ? null : widget.onNext,
+      onPrevious: _saving || widget.onPrevious == null
+          ? null
+          : () => unawaited(_leave(widget.onPrevious!)),
+      onNext: _saving || widget.onNext == null
+          ? null
+          : () => unawaited(_leave(widget.onNext!)),
       chromeVariant: widget.chromeVariant,
       maxDialogWidth: widget.maxDialogWidth,
       insetPadding: widget.insetPadding,
@@ -247,7 +254,19 @@ class _LibraryEditSchemaDialogState<TModel, TDraft>
 
   void _cancelIfIdle() {
     if (_saving) return;
-    widget.onCancel();
+    unawaited(_leave(widget.onCancel));
+  }
+
+  Future<void> _leave(VoidCallback action) async {
+    if (_saving) return;
+    final dirty = (widget.hasUnsavedChanges?.call() ??
+            widget.schema.isDirty?.call(widget.model, widget.draft) ??
+            false) ||
+        (LibraryEntryEditScope.maybeOf(context)?.changes.isNotEmpty ?? false);
+    if (await confirmLeaveLibraryEdit(context, hasUnsavedChanges: dirty) &&
+        mounted) {
+      action();
+    }
   }
 
   Future<void> _proposeToCore() async {

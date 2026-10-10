@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:collectarr_app/features/library/kinds/music/forms/music_personal_form_layout.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_entry_edit_draft.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
@@ -280,6 +281,16 @@ final class _MusicAlbumEditDialogState
       onCancel: () => Navigator.of(context).pop(),
       onPrevious: widget.request.onPrevious,
       onNext: widget.request.onNext,
+      hasUnsavedChanges: () =>
+          jsonEncode(_album.toJson()) !=
+              jsonEncode(_draft.toAlbum().toJson()) ||
+          _albumImagesDirty ||
+          (_listening?.hasChanges ?? false) ||
+          jsonEncode(_customFieldEdits) !=
+              jsonEncode({
+                for (final value in widget.request.customFieldValues)
+                  value.fieldDefinitionId: value.value,
+              }),
       extraTabs: [
         EditSchemaExtraTab(
           id: 'credits',

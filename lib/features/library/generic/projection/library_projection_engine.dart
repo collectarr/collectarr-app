@@ -81,12 +81,14 @@ class LibraryProjectionEngine {
         item,
         customFieldValuesByItem,
         fields.searchValuesFor(item),
+        fields.containedSearchValuesFor(item),
       );
       if (filterEngine.matches(
         item: item,
         query: query,
         searchDoc: searchDoc,
         type: type,
+        searchTarget: searchTarget,
         index: index,
         activeLoanLibraryEntryIds: activeLoanLibraryEntryIds,
         customFieldValuesByDefinitionByItem:

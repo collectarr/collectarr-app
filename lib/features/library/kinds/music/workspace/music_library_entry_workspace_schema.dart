@@ -17,6 +17,7 @@ import 'package:flutter/material.dart';
 final musicLibraryEntryWorkspaceSchema =
     LibraryWorkspaceSchema<MusicKind, MusicWorkspaceProjection>(
   kindNamespace: 'music',
+  containedSearchValues: (dto) => dto.facts.trackSearchValues,
   fields: [
     ...MusicCatalogWorkspaceFields.all,
     ...MusicPersonalWorkspaceFields.all,

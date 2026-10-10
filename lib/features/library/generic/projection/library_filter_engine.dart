@@ -6,6 +6,7 @@ import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_identifier_types.dart';
 import 'package:flutter/material.dart';
+import 'package:collectarr_app/features/library/config/library_search_target.dart';
 
 class LibraryFilterEngine {
   const LibraryFilterEngine({
@@ -19,12 +20,13 @@ class LibraryFilterEngine {
     required LibraryProjectionQuery query,
     required LibrarySearchDocument searchDoc,
     required LibraryKindRegistration type,
+    LibrarySearchTarget searchTarget = LibrarySearchTarget.all,
     LibraryProjectionIndex? index,
     Set<LibraryEntryRef> activeLoanLibraryEntryIds = const {},
     Map<String, Map<String, String>> customFieldValuesByDefinitionByItem =
         const {},
   }) {
-    if (!searchDoc.matches(query.searchQuery)) {
+    if (!searchDoc.matches(query.searchQuery, searchTarget: searchTarget)) {
       return false;
     }
     if (query.constrainedItemIds != null &&

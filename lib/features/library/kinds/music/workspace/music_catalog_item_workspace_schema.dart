@@ -13,6 +13,7 @@ import 'package:collectarr_app/features/library/workspace/schema/library_workspa
 final musicCatalogItemWorkspaceSchema =
     LibraryWorkspaceSchema<MusicKind, MusicWorkspaceProjection>(
   kindNamespace: 'music',
+  containedSearchValues: (dto) => dto.facts.trackSearchValues,
   fields: [
     ...MusicCatalogWorkspaceFields.all,
     MusicWorkspaceFields.status,

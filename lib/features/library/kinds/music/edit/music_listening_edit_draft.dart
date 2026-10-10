@@ -16,6 +16,7 @@ final class MusicListeningEditDraft extends ChangeNotifier
   final LibraryEntryRef libraryEntryRef;
   final Map<String, MusicListenEvent> _events;
   final Set<String> _changed = {};
+  bool get hasChanges => _changed.isNotEmpty;
   List<MusicListenEvent> get history =>
       _events.values.where((event) => !event.isDeleted).toList()
         ..sort((a, b) => b.listenedAt.compareTo(a.listenedAt));
