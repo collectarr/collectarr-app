@@ -156,7 +156,7 @@ class _KeyboardShortcutsDialog extends StatelessWidget {
                 shortcut,
                 style: TextStyle(
                   fontSize: 12,
-                  fontFamily: kClzMonospaceFontFamily,
+                  fontWeight: FontWeight.w600,
                   color: Theme.of(context).colorScheme.onSurface,
                 ),
               ),

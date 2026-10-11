@@ -6,8 +6,6 @@ import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/entries/library_entry_record.dart';
 import 'package:collectarr_app/features/library/actions/import_export_actions.dart';
-import 'package:collectarr_app/ui/theme/app_theme.dart';
-import 'package:collectarr_app/ui/theme/theme_primitives.dart';
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 import 'package:flutter/services.dart';
@@ -474,7 +472,6 @@ class _CsvPreview extends StatelessWidget {
           child: SelectableText(
             text,
             style: const TextStyle(
-              fontFamily: kClzMonospaceFontFamily,
               fontSize: 12,
             ),
           ),

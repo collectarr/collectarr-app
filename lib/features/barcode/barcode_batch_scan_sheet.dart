@@ -190,7 +190,7 @@ class _BarcodeBatchScanSheetState extends State<BarcodeBatchScanSheet> {
                               _scannedBarcodes[i].value,
                               style: const TextStyle(
                                 fontSize: 12,
-                                fontFamily: kClzMonospaceFontFamily,
+                                fontWeight: FontWeight.w600,
                               ),
                             ),
                           ),

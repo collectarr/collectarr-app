@@ -5,9 +5,9 @@ import 'package:collectarr_app/ui/theme/theme_palette.dart';
 import 'package:flutter/material.dart';
 
 const String kClzPrimaryFontFamily = kAppFontFamily;
-const String kClzMonospaceFontFamily = 'JetBrains Mono';
+const String kClzMonospaceFontFamily = kAppFontFamily;
 const List<String> kClzFontFallback = kAppFontFamilyFallback;
-const List<String> kClzMonospaceFontFallback = <String>[];
+const List<String> kClzMonospaceFontFallback = kAppFontFamilyFallback;
 const double kAppInputBorderRadius = 4;
 const WidgetStateMouseCursor appClickableMouseCursor =
     WidgetStateMouseCursor.clickable;

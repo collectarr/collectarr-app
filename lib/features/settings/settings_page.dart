@@ -1482,7 +1482,6 @@ class _FontDiagnosticsPanel extends StatelessWidget {
   const _FontDiagnosticsPanel();
 
   static const _primaryAsset = 'assets/fonts/PlusJakartaSans-Regular.ttf';
-  static const _monoAsset = 'assets/fonts/JetBrainsMono-Variable.ttf';
 
   Future<bool> _assetAvailable(String assetPath) async {
     try {
@@ -1498,8 +1497,7 @@ class _FontDiagnosticsPanel extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const Text(
-            'Primary: Gilroy (Fallback: Plus Jakarta Sans) • Monospace: JetBrains Mono'),
+        const Text('Primary: Gilroy (Fallback: Plus Jakarta Sans)'),
         const SizedBox(height: 12),
         FutureBuilder<bool>(
           future: _assetAvailable(_primaryAsset),
@@ -1507,18 +1505,6 @@ class _FontDiagnosticsPanel extends StatelessWidget {
             final ok = snapshot.data == true;
             return _FontStatusRow(
               label: 'Plus Jakarta Sans font asset',
-              value: ok ? 'Loaded' : 'Missing',
-              ok: ok,
-            );
-          },
-        ),
-        const SizedBox(height: 6),
-        FutureBuilder<bool>(
-          future: _assetAvailable(_monoAsset),
-          builder: (context, snapshot) {
-            final ok = snapshot.data == true;
-            return _FontStatusRow(
-              label: 'JetBrains Mono asset',
               value: ok ? 'Loaded' : 'Missing',
               ok: ok,
             );

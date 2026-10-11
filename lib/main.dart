@@ -10,7 +10,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 const _primaryFontAsset = 'assets/fonts/PlusJakartaSans-Regular.ttf';
-const _monoFontAsset = 'assets/fonts/JetBrainsMono-Variable.ttf';
 
 void main() {
   ProviderContainer? container;
@@ -63,16 +62,12 @@ void main() {
 Future<void> _logFontDiagnostics(ProviderContainer container) async {
   final logger = container.read(appLogProvider.notifier);
   final primaryLoaded = await _fontAssetAvailable(logger, _primaryFontAsset);
-  final monoLoaded = await _fontAssetAvailable(logger, _monoFontAsset);
   final details = <String>[
     'primaryFamily=$kClzPrimaryFontFamily',
     'primaryFallback=${kClzFontFallback.isEmpty ? 'none' : kClzFontFallback.join(', ')}',
     'primaryAsset=$_primaryFontAsset:${primaryLoaded ? 'loaded' : 'missing'}',
-    'monoFamily=$kClzMonospaceFontFamily',
-    'monoFallback=${kClzMonospaceFontFallback.isEmpty ? 'none' : kClzMonospaceFontFallback.join(', ')}',
-    'monoAsset=$_monoFontAsset:${monoLoaded ? 'loaded' : 'missing'}',
   ].join(' | ');
-  if (primaryLoaded && monoLoaded) {
+  if (primaryLoaded) {
     logger.info('fonts', 'Font assets loaded', detail: details);
     return;
   }

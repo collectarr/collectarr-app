@@ -5,7 +5,6 @@ import 'package:collectarr_app/core/sync/sync_warning_formatter.dart';
 import 'package:collectarr_app/features/settings/settings_connection_diagnostics.dart';
 import 'package:collectarr_app/features/settings/settings_formatting.dart';
 import 'package:collectarr_app/ui/accent_alert_dialog.dart';
-import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:qr_flutter/qr_flutter.dart';
@@ -550,7 +549,6 @@ class _PayloadPanel extends StatelessWidget {
             SelectableText(
               encoded,
               style: const TextStyle(
-                fontFamily: kClzMonospaceFontFamily,
                 fontSize: 12,
               ),
             ),
