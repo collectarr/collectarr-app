@@ -66,10 +66,10 @@ Future<void> _logFontDiagnostics(ProviderContainer container) async {
   final monoLoaded = await _fontAssetAvailable(logger, _monoFontAsset);
   final details = <String>[
     'primaryFamily=$kClzPrimaryFontFamily',
-    'primaryFallback=${kClzFontFallback.join(', ')}',
+    'primaryFallback=${kClzFontFallback.isEmpty ? 'none' : kClzFontFallback.join(', ')}',
     'primaryAsset=$_primaryFontAsset:${primaryLoaded ? 'loaded' : 'missing'}',
     'monoFamily=$kClzMonospaceFontFamily',
-    'monoFallback=${kClzMonospaceFontFallback.join(', ')}',
+    'monoFallback=${kClzMonospaceFontFallback.isEmpty ? 'none' : kClzMonospaceFontFallback.join(', ')}',
     'monoAsset=$_monoFontAsset:${monoLoaded ? 'loaded' : 'missing'}',
   ].join(' | ');
   if (primaryLoaded && monoLoaded) {

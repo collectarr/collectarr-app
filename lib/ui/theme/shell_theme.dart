@@ -110,7 +110,10 @@ ThemeData buildAppShellTheme({
         color: textColor,
         fontWeight: FontWeight.w700,
       ),
-      dataTextStyle: TextStyle(color: textColor),
+      dataTextStyle: TextStyle(
+        color: textColor,
+        fontWeight: FontWeight.w500,
+      ),
     ),
     tooltipTheme: TooltipThemeData(
       decoration: BoxDecoration(

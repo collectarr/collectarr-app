@@ -32,7 +32,7 @@ List<PopupMenuEntry<LibraryCollectionStatusScope>>
                     style: TextStyle(
                         color: appPalette(context).textPrimary,
                         fontSize: 14,
-                        fontWeight: FontWeight.w400)))
+                        fontWeight: FontWeight.w500)))
           ]));
   return [
     heading('Collection'),

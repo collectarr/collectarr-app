@@ -38,6 +38,7 @@ extension LibraryTextTheme on TextTheme {
   /// Supporting, explanatory, helper, or footnote text.
   TextStyle get supportingText => (bodySmall ?? const TextStyle()).copyWith(
         fontSize: 13,
+        fontWeight: FontWeight.w500,
         letterSpacing: 0.0,
       );
 
@@ -60,23 +61,38 @@ extension LibraryTextTheme on TextTheme {
 
   /// Detail-page title used by compact and sheet presentations.
   TextStyle get libraryDetailTitle =>
-      (titleMedium ?? const TextStyle()).copyWith(fontSize: 16);
+      (titleMedium ?? const TextStyle()).copyWith(
+        fontSize: 16,
+        fontWeight: FontWeight.w700,
+      );
 
   /// Standard Library body/result text.
   TextStyle get libraryBody =>
-      (bodyMedium ?? const TextStyle()).copyWith(fontSize: 14);
+      (bodyMedium ?? const TextStyle()).copyWith(
+        fontSize: 14,
+        fontWeight: FontWeight.w500,
+      );
 
   /// Metadata, rating, and secondary action text.
   TextStyle get libraryMeta =>
-      (labelMedium ?? const TextStyle()).copyWith(fontSize: 13);
+      (labelMedium ?? const TextStyle()).copyWith(
+        fontSize: 13,
+        fontWeight: FontWeight.w600,
+      );
 
   /// Compact captions, hosts, dates, and source labels.
   TextStyle get libraryCaption =>
-      (labelSmall ?? const TextStyle()).copyWith(fontSize: 13);
+      (labelSmall ?? const TextStyle()).copyWith(
+        fontSize: 13,
+        fontWeight: FontWeight.w600,
+      );
 
   /// Title fallback for the older panel chrome implementation.
   TextStyle get libraryChromeTitle =>
-      (bodyMedium ?? const TextStyle()).copyWith(fontSize: 14);
+      (bodyMedium ?? const TextStyle()).copyWith(
+        fontSize: 14,
+        fontWeight: FontWeight.w700,
+      );
 }
 
 /// Convenience getter on [BuildContext] to access [LibraryTextTheme].

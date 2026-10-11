@@ -432,7 +432,6 @@ final class _MusicAlbumStructureTabState
                           fontSize: 13,
                           fontWeight: FontWeight.w700,
                           fontFamily: kAppFontFamily,
-                          fontFamilyFallback: kAppFontFamilyFallback,
                           color: Colors.white,
                           height: 1,
                         ),

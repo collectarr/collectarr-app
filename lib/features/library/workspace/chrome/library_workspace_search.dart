@@ -1,7 +1,8 @@
+import 'package:collectarr_app/ui/library_accent_scope.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/features/library/config/library_search_target.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
+import 'package:collectarr_app/ui/app_icons.dart';
 
 import '../config/library_workspace_tokens.dart';
 
@@ -280,7 +281,10 @@ class _LibraryToolbarSearchState extends State<LibraryToolbarSearch> {
                                   child: TextField(
                                     key: widget.textFieldKey,
                                     controller: widget.controller,
-                                    cursorColor: widget.selectionColor,
+                                    cursorColor:
+                                        LibraryAccentScope.maybeOf(context)
+                                                ?.accent ??
+                                            widget.selectionColor,
                                     onChanged: widget.onChanged,
                                     onSubmitted: widget.onSearch,
                                     style: Theme.of(context)
@@ -534,7 +538,7 @@ class _ToolbarSearchScopeButtonState extends State<_ToolbarSearchScopeButton> {
                       style: TextStyle(
                         color: palette.textPrimary,
                         fontSize: 14,
-                        fontWeight: FontWeight.w400,
+                        fontWeight: FontWeight.w500,
                         height: 20 / 14,
                       ),
                     ),
@@ -582,21 +586,20 @@ class _ToolbarSearchScopeButtonState extends State<_ToolbarSearchScopeButton> {
 }
 
 Widget _librarySearchTargetIcon(LibrarySearchTarget target, Color color) {
-  final asset = switch (target) {
-    LibrarySearchTarget.all => 'assets/sidebar_icons/database.svg',
-    LibrarySearchTarget.mediaOnly => 'assets/sidebar_icons/compact-disc.svg',
-    LibrarySearchTarget.tracksOnly => 'assets/tab_icons/music.svg',
+  final icon = switch (target) {
+    LibrarySearchTarget.all => AppIcons.searchAll,
+    LibrarySearchTarget.mediaOnly => AppIcons.searchMedia,
+    LibrarySearchTarget.tracksOnly => AppIcons.searchTracks,
   };
   return SizedBox(
     width: 18,
     height: 14,
     child: Center(
-      child: SvgPicture.asset(
+      child: Icon(
+        icon,
         key: ValueKey('library-search-target-icon-${target.name}'),
-        asset,
-        width: 14,
-        height: 14,
-        colorFilter: ColorFilter.mode(color, BlendMode.srcIn),
+        size: 13,
+        color: color,
       ),
     ),
   );

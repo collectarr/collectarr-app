@@ -436,7 +436,7 @@ class _LibraryDenseMenuItemRow<T> extends StatelessWidget {
               ? (entry.active ? accent : foreground)
               : palette.textMuted),
       textStyle: TextStyle(
-          color: foreground, fontWeight: FontWeight.w400, fontSize: 14),
+          color: foreground, fontWeight: FontWeight.w500, fontSize: 14),
       trailing: entry.trailingLabel == null
           ? null
           : Text(entry.trailingLabel!,

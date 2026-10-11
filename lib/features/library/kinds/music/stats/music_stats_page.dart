@@ -234,7 +234,7 @@ class _MusicStatsPageState extends ConsumerState<MusicStatsPage> {
               shape: const RoundedRectangleBorder()),
           child: Text(name,
               style: TextStyle(
-                  fontWeight: active ? FontWeight.w700 : FontWeight.w400)));
+                  fontWeight: active ? FontWeight.w700 : FontWeight.w500)));
 }
 
 MusicWorkspaceData _music(LibraryWorkspaceContext entry) =>

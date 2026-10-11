@@ -475,7 +475,6 @@ class _CsvPreview extends StatelessWidget {
             text,
             style: const TextStyle(
               fontFamily: kClzMonospaceFontFamily,
-              fontFamilyFallback: kClzMonospaceFontFallback,
               fontSize: 12,
             ),
           ),

@@ -139,7 +139,7 @@ class LibraryUtilityMenu<T> extends StatelessWidget {
                   ? Icon(Icons.check, size: 16, color: accent)
                   : null,
               textStyle:
-                  const TextStyle(fontSize: 14, fontWeight: FontWeight.w400),
+                  const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
             ),
           ),
         );
@@ -176,7 +176,7 @@ class LibraryUtilityMenu<T> extends StatelessWidget {
                 leading: Icon(action.icon, size: 16),
                 trailing: action.trailing,
                 textStyle:
-                    const TextStyle(fontSize: 14, fontWeight: FontWeight.w400),
+                    const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
               ),
               if (action.description != null)
                 Padding(

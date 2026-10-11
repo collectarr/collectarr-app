@@ -538,7 +538,7 @@ PopupMenuItem<InspectorToolbarMenuAction> _inspectorMenuItem(
           leading: FaIcon(icon, size: 14, color: color),
           padding: EdgeInsets.zero,
           textStyle: TextStyle(
-              fontSize: 14, fontWeight: FontWeight.w400, color: color),
+              fontSize: 14, fontWeight: FontWeight.w500, color: color),
         );
       }),
     );

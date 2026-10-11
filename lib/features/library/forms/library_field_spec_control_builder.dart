@@ -18,7 +18,7 @@ import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:collectarr_app/ui/compact_search_dropdown_form_field.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_svg/flutter_svg.dart';
+import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_form_controls.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 
@@ -105,8 +105,6 @@ final class LibraryFieldSpecControlBuilder<TDraft>
                                         fontSize: 13,
                                         fontWeight: FontWeight.w700,
                                         fontFamily: kAppFontFamily,
-                                        fontFamilyFallback:
-                                            kAppFontFamilyFallback,
                                         color: appPalette(context).textMuted,
                                         height: 1,
                                       ),
@@ -142,14 +140,10 @@ final class LibraryFieldSpecControlBuilder<TDraft>
                             width: 22,
                             height: 16,
                             child: Center(
-                              child: SvgPicture.asset(
-                                'assets/sidebar_icons/calendar-days.svg',
-                                width: 14,
-                                height: 14,
-                                colorFilter: ColorFilter.mode(
-                                  appPalette(context).textMuted,
-                                  BlendMode.srcIn,
-                                ),
+                              child: Icon(
+                                AppIcons.calendar,
+                                size: 14,
+                                color: appPalette(context).textMuted,
                               ),
                             ),
                           ),

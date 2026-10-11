@@ -551,7 +551,6 @@ class _PayloadPanel extends StatelessWidget {
               encoded,
               style: const TextStyle(
                 fontFamily: kClzMonospaceFontFamily,
-                fontFamilyFallback: kClzMonospaceFontFallback,
                 fontSize: 12,
               ),
             ),

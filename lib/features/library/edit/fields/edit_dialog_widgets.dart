@@ -185,7 +185,6 @@ ThemeData editDialogTheme({
         )
         .apply(
           fontFamily: kLibraryEditorFontFamily,
-          fontFamilyFallback: kClzFontFallback,
           bodyColor: palette.textPrimary,
           displayColor: palette.textPrimary,
         ),

@@ -1505,7 +1505,6 @@ class _FontDiagnosticsPanel extends StatelessWidget {
           'Manrope sample: The quick brown fox 12345',
           style: textTheme.bodyMedium?.copyWith(
             fontFamily: kClzPrimaryFontFamily,
-            fontFamilyFallback: kClzFontFallback,
             fontWeight: FontWeight.w600,
           ),
         ),
@@ -1514,7 +1513,6 @@ class _FontDiagnosticsPanel extends StatelessWidget {
           'JetBrains Mono sample: ABCDEF 1234567890',
           style: textTheme.bodyMedium?.copyWith(
             fontFamily: kClzMonospaceFontFamily,
-            fontFamilyFallback: kClzMonospaceFontFallback,
           ),
         ),
         const SizedBox(height: 12),

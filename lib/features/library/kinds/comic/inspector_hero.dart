@@ -412,7 +412,7 @@ class _ComicInspectorHeroState extends ConsumerState<ComicInspectorHero> {
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
                       color: ink.withValues(alpha: 0.85),
                       height: 1.4,
-                      fontWeight: FontWeight.w400,
+                      fontWeight: FontWeight.w500,
                     ),
                 textAlign: TextAlign.start,
               ),
@@ -422,7 +422,7 @@ class _ComicInspectorHeroState extends ConsumerState<ComicInspectorHero> {
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
                       color: muted,
                       height: 1.4,
-                      fontWeight: FontWeight.w400,
+                      fontWeight: FontWeight.w500,
                     ),
                 textAlign: TextAlign.start,
               ),

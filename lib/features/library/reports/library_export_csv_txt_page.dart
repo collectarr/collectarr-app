@@ -448,7 +448,7 @@ class _LibraryExportCsvTxtPageState extends State<LibraryExportCsvTxtPage> {
                   'Export ${widget.type.identity.pluralLabel.toLowerCase()} to CSV / TXT: $itemLabel',
                   style: TextStyle(
                     fontSize: 26,
-                    fontWeight: FontWeight.w400,
+                    fontWeight: FontWeight.w700,
                     color: palette.textPrimary,
                   ),
                 ),
@@ -722,7 +722,7 @@ class _LibraryExportCsvTxtPageState extends State<LibraryExportCsvTxtPage> {
                 title,
                 style: TextStyle(
                   fontSize: 13,
-                  fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
+                  fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
                   color: textColor,
                 ),
               ),

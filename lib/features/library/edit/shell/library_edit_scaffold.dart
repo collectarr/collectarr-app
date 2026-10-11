@@ -10,8 +10,9 @@ import 'package:collectarr_app/features/library/forms/library_schema_text_contro
 import 'package:collectarr_app/ui/adaptive/window_class.dart';
 import 'package:collectarr_app/ui/library_accent_scope.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart' show listEquals;
+import 'package:flutter/material.dart';
+import 'package:collectarr_app/ui/app_icons.dart';
 
 enum LibraryEditChromeVariant {
   standard,
@@ -457,7 +458,7 @@ class _LibraryEditTitleBar extends StatelessWidget {
             maximumSize: const Size(24, 24),
             tapTargetSize: MaterialTapTargetSize.shrinkWrap,
           ),
-          icon: const Icon(Icons.close, size: 18, color: Colors.white),
+          icon: const Icon(AppIcons.close, size: 16, color: Colors.white),
         ),
         minHeight: headerMinHeight,
         padding: const EdgeInsets.fromLTRB(15, 6, 10, 6),
@@ -474,7 +475,6 @@ class _LibraryEditTitleBar extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
                       fontFamily: kLibraryEditorFontFamily,
-                      fontFamilyFallback: kClzFontFallback,
                       fontWeight: FontWeight.w800,
                       fontSize: 18,
                       height: 1,
@@ -561,7 +561,7 @@ class _LibraryEditFooter extends StatelessWidget {
                 ? OutlinedButton(
                     style: compactIconButtonStyle,
                     onPressed: onPrevious,
-                    child: const Icon(Icons.chevron_left, size: 16),
+                    child: const Icon(AppIcons.caretLeft, size: 16),
                   )
                 : OutlinedButton(
                     style: navButtonStyle,
@@ -569,8 +569,8 @@ class _LibraryEditFooter extends StatelessWidget {
                     child: const Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(Icons.chevron_left, size: 16),
-                          SizedBox(width: 2),
+                          Icon(AppIcons.caretLeft, size: 16),
+                          SizedBox(width: 4),
                           Flexible(
                               child: Text('Previous',
                                   maxLines: 1, softWrap: false)),
@@ -585,7 +585,7 @@ class _LibraryEditFooter extends StatelessWidget {
                 ? OutlinedButton(
                     style: compactIconButtonStyle,
                     onPressed: onNext,
-                    child: const Icon(Icons.chevron_right, size: 16),
+                    child: const Icon(AppIcons.caretRight, size: 16),
                   )
                 : OutlinedButton(
                     style: navButtonStyle,
@@ -595,7 +595,7 @@ class _LibraryEditFooter extends StatelessWidget {
                       children: [
                         Text('Next', maxLines: 1, softWrap: false),
                         SizedBox(width: 4),
-                        Icon(Icons.chevron_right, size: 16),
+                        Icon(AppIcons.caretRight, size: 16),
                       ],
                     ),
                   ),
@@ -624,7 +624,7 @@ class _LibraryEditFooter extends StatelessWidget {
             style: isWideDesktop ? compactIconButtonStyle : navButtonStyle,
             onPressed: isBusy ? null : onCancel,
             child: isWideDesktop
-                ? const Icon(Icons.close, size: 16)
+                ? const Icon(AppIcons.close, size: 16)
                 : const Text('Cancel'),
           ),
         ),

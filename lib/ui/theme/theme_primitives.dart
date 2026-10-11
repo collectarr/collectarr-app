@@ -6,11 +6,8 @@ import 'package:flutter/material.dart';
 
 const String kClzPrimaryFontFamily = kAppFontFamily;
 const String kClzMonospaceFontFamily = 'JetBrains Mono';
-const List<String> kClzFontFallback = [
-  'Segoe UI',
-  'Roboto',
-];
-const List<String> kClzMonospaceFontFallback = ['Consolas', 'Courier New'];
+const List<String> kClzFontFallback = <String>[];
+const List<String> kClzMonospaceFontFallback = <String>[];
 const double kAppInputBorderRadius = 4;
 const WidgetStateMouseCursor appClickableMouseCursor =
     WidgetStateMouseCursor.clickable;
@@ -277,7 +274,7 @@ ChipThemeData buildAppChipTheme(ThemeData base, AppThemePalette palette) {
       color: palette.textPrimary,
       fontFamily: kAppFontFamily,
       fontSize: kAppBodyFontSize,
-      fontWeight: kAppNormalFontWeight,
+      fontWeight: kAppSemiBoldFontWeight,
     ),
     side: BorderSide(color: palette.divider),
     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(3)),

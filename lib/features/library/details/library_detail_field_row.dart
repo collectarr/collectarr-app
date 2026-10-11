@@ -44,7 +44,7 @@ class LibraryDetailFieldRow extends StatelessWidget {
               field.label,
               style: Theme.of(context).textTheme.labelMedium?.copyWith(
                     color: palette.textMuted,
-                    fontWeight: FontWeight.w400,
+                    fontWeight: FontWeight.w600,
                     fontSize: 14,
                   ),
             ),
@@ -73,7 +73,7 @@ class LibraryDetailFieldRow extends StatelessWidget {
                                     .bodySmall
                                     ?.copyWith(
                                       color: onSurfaceColor,
-                                      fontWeight: FontWeight.w400,
+                                      fontWeight: FontWeight.w500,
                                       fontSize: 14,
                                       decoration: TextDecoration.none,
                                       decorationColor:
@@ -90,7 +90,7 @@ class LibraryDetailFieldRow extends StatelessWidget {
                     field.value,
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
                           color: onSurfaceColor,
-                          fontWeight: FontWeight.w400,
+                          fontWeight: FontWeight.w500,
                           fontSize: 14,
                         ),
                   ),

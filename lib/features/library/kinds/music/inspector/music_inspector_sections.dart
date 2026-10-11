@@ -74,7 +74,7 @@ List<Widget> buildMusicInspectorSections(
           'Notes',
           Text(model.entry!.personal.personalNotes!,
               style:
-                  const TextStyle(fontSize: 14, fontWeight: FontWeight.w400))),
+                  const TextStyle(fontSize: 14, fontWeight: FontWeight.w500))),
     if (model.entry?.personal.tags?.trim().isNotEmpty == true)
       section(
           'Tags',

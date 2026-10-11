@@ -157,7 +157,6 @@ class _KeyboardShortcutsDialog extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 12,
                   fontFamily: kClzMonospaceFontFamily,
-                  fontFamilyFallback: kClzMonospaceFontFallback,
                   color: Theme.of(context).colorScheme.onSurface,
                 ),
               ),

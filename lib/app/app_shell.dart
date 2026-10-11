@@ -39,7 +39,7 @@ import 'package:collectarr_app/ui/library_accent_scope.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_svg/flutter_svg.dart';
+import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:go_router/go_router.dart';
 
 class AppShell extends ConsumerStatefulWidget {
@@ -627,14 +627,10 @@ class _AppNavigationDrawerState extends State<AppNavigationDrawer> {
                       width: 36,
                       height: 36,
                       child: Center(
-                        child: SvgPicture.asset(
-                          'assets/sidebar_icons/bars.svg',
-                          width: 18,
-                          height: 18,
-                          colorFilter: const ColorFilter.mode(
-                            Colors.white,
-                            BlendMode.srcIn,
-                          ),
+                        child: Icon(
+                          AppIcons.menu,
+                          size: 18,
+                          color: Colors.white,
                         ),
                       ),
                     ),
@@ -659,25 +655,25 @@ class _AppNavigationDrawerState extends State<AppNavigationDrawer> {
                   _action(
                     context,
                     widget.addLabel,
-                    'assets/sidebar_icons/plus.svg',
+                    AppIcons.add,
                     DrawerAction.addFromCore,
                   ),
                   _action(
                     context,
                     'Manage Pick Lists',
-                    'assets/sidebar_icons/rectangle-list.svg',
+                    AppIcons.pickLists,
                     DrawerAction.managePickLists,
                   ),
                   _action(
                     context,
                     'Manage Collections',
-                    'assets/sidebar_icons/coins.svg',
+                    AppIcons.collections,
                     DrawerAction.manageCollections,
                   ),
                   _action(
                     context,
                     'Libraries',
-                    'assets/sidebar_icons/table-cells-large.svg',
+                    AppIcons.libraries,
                     DrawerAction.libraries,
                     key: const Key('nav.library'),
                   ),
@@ -686,32 +682,32 @@ class _AppNavigationDrawerState extends State<AppNavigationDrawer> {
                   _action(
                     context,
                     'Print to PDF',
-                    'assets/sidebar_icons/print.svg',
+                    AppIcons.print,
                     DrawerAction.printToPdf,
                   ),
                   _action(
                     context,
                     'Statistics',
-                    'assets/sidebar_icons/chart-column.svg',
+                    AppIcons.statistics,
                     DrawerAction.statistics,
                   ),
                   _action(
                     context,
                     'Find Duplicates',
-                    'assets/sidebar_icons/clone.svg',
+                    AppIcons.duplicates,
                     DrawerAction.findDuplicates,
                   ),
                   _action(
                     context,
                     'Loan Manager',
-                    'assets/sidebar_icons/clock.svg',
+                    AppIcons.loans,
                     DrawerAction.loanManager,
                     key: const Key('nav.more'),
                   ),
                   _action(
                     context,
                     'Calendar',
-                    'assets/sidebar_icons/calendar-days.svg',
+                    AppIcons.calendar,
                     DrawerAction.calendar,
                     key: const Key('nav.calendar'),
                   ),
@@ -724,7 +720,7 @@ class _AppNavigationDrawerState extends State<AppNavigationDrawer> {
                     _action(
                       context,
                       'Admin',
-                      'assets/sidebar_icons/shield-halved.svg',
+                      AppIcons.admin,
                       DrawerAction.admin,
                     ),
                   ],
@@ -736,25 +732,25 @@ class _AppNavigationDrawerState extends State<AppNavigationDrawer> {
                   _action(
                     context,
                     'Manage Custom Fields',
-                    'assets/sidebar_icons/pen-to-square.svg',
+                    AppIcons.customFields,
                     DrawerAction.manageCustomFields,
                   ),
                   _action(
                     context,
                     'Cloud Sync & Sharing',
-                    'assets/sidebar_icons/share-nodes.svg',
+                    AppIcons.cloudSharing,
                     DrawerAction.cloudSharing,
                   ),
                   _action(
                     context,
                     'Pre-fill Settings',
-                    'assets/sidebar_icons/file-signature.svg',
+                    AppIcons.prefill,
                     DrawerAction.prefillSettings,
                   ),
                   _action(
                     context,
                     'Settings',
-                    'assets/sidebar_icons/gear.svg',
+                    AppIcons.settings,
                     DrawerAction.settings,
                   ),
                   const _DrawerDivider(),
@@ -772,25 +768,25 @@ class _AppNavigationDrawerState extends State<AppNavigationDrawer> {
                       _action(
                         context,
                         'Re-Assign Index Values',
-                        'assets/sidebar_icons/arrow-down-1-9.svg',
+                        AppIcons.reassignIndex,
                         DrawerAction.reassignIndex,
                       ),
                       _action(
                         context,
                         'Backup / Restore',
-                        'assets/sidebar_icons/hard-drive.svg',
+                        AppIcons.backupRestore,
                         DrawerAction.backupRestore,
                       ),
                       _action(
                         context,
                         'Clear Database',
-                        'assets/sidebar_icons/trash.svg',
+                        AppIcons.clearDatabase,
                         DrawerAction.clearDatabase,
                       ),
                       _action(
                         context,
                         'Transfer Field Data',
-                        'assets/sidebar_icons/arrows-turn-right.svg',
+                        AppIcons.transferFieldData,
                         DrawerAction.transferFieldData,
                       ),
                     ],
@@ -810,25 +806,25 @@ class _AppNavigationDrawerState extends State<AppNavigationDrawer> {
                       _action(
                         context,
                         'Export to CSV / TXT',
-                        'assets/sidebar_icons/file-export.svg',
+                        AppIcons.exportCsv,
                         DrawerAction.exportCsv,
                       ),
                       _action(
                         context,
                         'Export to XML',
-                        'assets/sidebar_icons/file-export.svg',
+                        AppIcons.exportXml,
                         DrawerAction.exportXml,
                       ),
                       _action(
                         context,
                         'Import Data',
-                        'assets/sidebar_icons/file-import.svg',
+                        AppIcons.importData,
                         DrawerAction.importData,
                       ),
                       _action(
                         context,
                         'Link Albums',
-                        'assets/sidebar_icons/link.svg',
+                        AppIcons.link,
                         DrawerAction.linkAlbums,
                       ),
                     ],
@@ -848,7 +844,7 @@ class _AppNavigationDrawerState extends State<AppNavigationDrawer> {
                       _action(
                         context,
                         'Keyboard Shortcuts',
-                        'assets/sidebar_icons/keyboard.svg',
+                        AppIcons.keyboard,
                         DrawerAction.keyboardShortcuts,
                       ),
                     ],
@@ -865,7 +861,7 @@ class _AppNavigationDrawerState extends State<AppNavigationDrawer> {
   Widget _action(
     BuildContext context,
     String label,
-    String svgAsset,
+    IconData icon,
     DrawerAction action, {
     Key? key,
   }) {
@@ -892,11 +888,10 @@ class _AppNavigationDrawerState extends State<AppNavigationDrawer> {
                 width: 20,
                 height: 18,
                 child: Center(
-                  child: SvgPicture.asset(
-                    svgAsset,
-                    width: 16,
-                    height: 16,
-                    colorFilter: ColorFilter.mode(itemColor, BlendMode.srcIn),
+                  child: Icon(
+                    icon,
+                    size: 15,
+                    color: itemColor,
                   ),
                 ),
               ),
@@ -906,7 +901,6 @@ class _AppNavigationDrawerState extends State<AppNavigationDrawer> {
                   label,
                   style: TextStyle(
                     fontFamily: kAppFontFamily,
-                    fontFamilyFallback: kAppFontFamilyFallback,
                     fontSize: 14,
                     fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
                     color: itemColor,
@@ -935,7 +929,6 @@ class _DrawerSectionLabel extends StatelessWidget {
         label,
         style: TextStyle(
           fontFamily: kAppFontFamily,
-          fontFamilyFallback: kAppFontFamilyFallback,
           color: color,
           fontSize: 14,
           fontWeight: FontWeight.w700,
@@ -972,7 +965,6 @@ class _DrawerCollapsibleSectionLabel extends StatelessWidget {
                 label,
                 style: TextStyle(
                   fontFamily: kAppFontFamily,
-                  fontFamilyFallback: kAppFontFamilyFallback,
                   color: color,
                   fontSize: 14,
                   fontWeight: FontWeight.w700,
@@ -983,11 +975,10 @@ class _DrawerCollapsibleSectionLabel extends StatelessWidget {
               turns: isExpanded ? 0.5 : 0.0,
               duration: const Duration(milliseconds: 150),
               curve: Curves.easeInOut,
-              child: SvgPicture.asset(
-                'assets/sidebar_icons/chevron-down.svg',
-                width: 12,
-                height: 12,
-                colorFilter: ColorFilter.mode(color, BlendMode.srcIn),
+              child: Icon(
+                AppIcons.chevronDown,
+                size: 11,
+                color: color,
               ),
             ),
           ],

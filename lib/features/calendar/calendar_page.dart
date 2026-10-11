@@ -426,7 +426,7 @@ class _CalendarGrid extends StatelessWidget {
                 '$dayNumber',
                 style: TextStyle(
                   fontSize: 13,
-                  fontWeight: isToday ? FontWeight.w700 : FontWeight.w400,
+                  fontWeight: isToday ? FontWeight.w700 : FontWeight.w500,
                   color: isSelected || isToday ? accent : null,
                 ),
               ),
