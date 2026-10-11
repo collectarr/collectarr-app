@@ -8,6 +8,7 @@ import 'package:collectarr_app/features/library/ui/library_density_scope.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
+import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -725,9 +726,9 @@ class _SidebarSortSwitch extends StatelessWidget {
                       opacity: mode == sortMode ? 1 : 0.25,
                       child: Icon(
                           mode == LibraryFolderSortMode.alphabetical
-                              ? Icons.sort_by_alpha
-                              : Icons.sort,
-                          size: 18,
+                              ? AppIcons.sortAlpha
+                              : AppIcons.sortCount,
+                          size: 14,
                           color: appPalette(context).textPrimary),
                     )),
                 ]),

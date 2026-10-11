@@ -20,7 +20,7 @@ import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/features/settings/ui_preferences.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_svg/flutter_svg.dart';
+import 'package:collectarr_app/ui/app_icons.dart';
 
 const double _kLibraryToolbarBandVerticalPadding = 2;
 const double _kLibraryToolbarBandHorizontalPadding = 4;
@@ -642,7 +642,7 @@ class LibraryDesktopFilteringToolbar extends StatelessWidget {
                     onRandomPick: onRandomPick,
                     onSearch: onSearchChanged,
                     onChanged: onSearchInputChanged,
-                    selectionColor: appPalette(context).selection,
+                    selectionColor: accent,
                     searchTarget: searchTarget,
                     searchTargetOptions: searchTargetOptions,
                     onSearchTargetChanged: onSearchTargetChanged,
@@ -751,14 +751,10 @@ class LibrarySelectionToolbarBand extends StatelessWidget {
                   TextButton.icon(
                     onPressed: callbacks.onClearSelection,
                     style: actionButtonStyle,
-                    icon: SvgPicture.asset(
-                      'assets/sidebar_icons/xmark.svg',
-                      width: 13,
-                      height: 13,
-                      colorFilter: const ColorFilter.mode(
-                        Colors.white,
-                        BlendMode.srcIn,
-                      ),
+                    icon: const Icon(
+                      AppIcons.close,
+                      size: 13,
+                      color: Colors.white,
                     ),
                     label: const Text('Cancel'),
                   ),
@@ -771,16 +767,12 @@ class LibrarySelectionToolbarBand extends StatelessWidget {
                     child: TextButton.icon(
                       onPressed: callbacks.onSelectAll,
                       style: actionButtonStyle,
-                      icon: SvgPicture.asset(
+                      icon: Icon(
                         isAllSelected
-                            ? 'assets/sidebar_icons/square-check.svg'
-                            : 'assets/sidebar_icons/square.svg',
-                        width: 14,
-                        height: 14,
-                        colorFilter: const ColorFilter.mode(
-                          Colors.white,
-                          BlendMode.srcIn,
-                        ),
+                            ? AppIcons.selectAll
+                            : AppIcons.selectNone,
+                        size: 14,
+                        color: Colors.white,
                       ),
                       label: const Text('All'),
                     ),

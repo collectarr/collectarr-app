@@ -177,10 +177,10 @@ class AppThemePalette extends ThemeExtension<AppThemePalette> {
 
 const kAppTopBar = Color(0xFF4DBBD5);
 const kAppToolbar = Color(0xFF383838);
-const kAppPanel = Color(0xFF262626);
+const kAppPanel = Color(0xFF383838);
 const kAppPanelRaised = Color(0xFF383838);
-const kAppCanvas = Color(0xFF262626);
-const kAppGridCanvas = Color(0xFF262626);
+const kAppCanvas = Color(0xFF383838);
+const kAppGridCanvas = Color(0xFF383838);
 const kAppAccent = Color(0xFF10A8D8);
 const kAppSelection = Color(0xFF075F75);
 const kAppHighlight = Color(0xFFFFD400);

@@ -5,6 +5,7 @@ import 'package:collectarr_app/features/library/kinds/music/domain/music_album.d
 import 'package:collectarr_app/features/library/kinds/music/edit/music_edit_header_title.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit/music_album_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/music/forms/music_catalog_field_specs.dart';
+import 'package:collectarr_app/ui/app_icons.dart';
 
 final EditSchema<MusicAlbum, MusicAlbumEditDraft> musicAlbumEditSchema =
     EditSchema(
@@ -22,7 +23,7 @@ final EditSchema<MusicAlbum, MusicAlbumEditDraft> musicAlbumEditSchema =
     EditTabSpec<MusicAlbumEditDraft>(
       id: 'main',
       label: 'Main',
-      svgAsset: 'assets/tab_icons/music.svg',
+      icon: AppIcons.tabMain,
       sections: [
         musicMainFormSection<MusicAlbumEditDraft>(
           fields: musicAlbumFields<MusicAlbumEditDraft>(
@@ -33,7 +34,7 @@ final EditSchema<MusicAlbum, MusicAlbumEditDraft> musicAlbumEditSchema =
     EditTabSpec<MusicAlbumEditDraft>(
       id: 'details',
       label: 'Details',
-      svgAsset: 'assets/tab_icons/circle-info.svg',
+      icon: AppIcons.tabDetails,
       sections: [
         LibraryFormSectionSpec<MusicAlbumEditDraft>(
           id: 'details_layout',

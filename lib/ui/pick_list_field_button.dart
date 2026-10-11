@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/library/config/library_dialog_tokens.dart';
+import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
@@ -44,8 +45,8 @@ class PickListFieldButton extends StatelessWidget {
                                 : SystemMouseCursors.click,
                             borderRadius: const BorderRadius.horizontal(
                                 right: Radius.circular(3)),
-                            child: Icon(Icons.format_list_bulleted,
-                                size: 18,
+                            child: Icon(AppIcons.pickLists,
+                                size: 14,
                                 color: onPressed == null
                                     ? foreground.withValues(alpha: .45)
                                     : foreground)))))));

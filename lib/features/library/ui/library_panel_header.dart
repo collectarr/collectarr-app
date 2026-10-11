@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/library/ui/library_chrome_tokens.dart';
+import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/ui/theme/library_text_theme.dart';
 import 'package:flutter/material.dart';
 
@@ -122,7 +123,7 @@ class LibraryPanelHeader extends StatelessWidget {
                     maximumSize: const Size(24, 24),
                     tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                   ),
-                  icon: const Icon(Icons.close, size: 18),
+                  icon: const Icon(AppIcons.close, size: 16),
                 ),
               ],
             ],

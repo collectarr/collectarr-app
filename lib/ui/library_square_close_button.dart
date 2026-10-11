@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:flutter/material.dart';
 
 class LibrarySquareCloseButton extends StatelessWidget {
@@ -37,7 +38,7 @@ class LibrarySquareCloseButton extends StatelessWidget {
             side: BorderSide(color: resolvedBorderColor),
             foregroundColor: resolvedForegroundColor,
           ).copyWith(mouseCursor: WidgetStateMouseCursor.clickable),
-          child: const Icon(Icons.close, size: 18),
+          child: const Icon(AppIcons.close, size: 16),
         ),
       ),
     );

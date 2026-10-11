@@ -19,6 +19,7 @@ import 'package:collectarr_app/features/library/kinds/music/add/music_add_schema
 import 'package:collectarr_app/features/library/kinds/music/add/music_add_manual_tracks_tab.dart';
 import 'package:collectarr_app/features/library/kinds/music/vocabulary/music_vocabularies.dart';
 import 'package:flutter/material.dart';
+import 'package:collectarr_app/ui/app_icons.dart';
 
 class MusicAddManualPane extends StatelessWidget {
   const MusicAddManualPane({super.key, required this.request});
@@ -50,7 +51,7 @@ class MusicAddManualPane extends StatelessWidget {
         LibraryAddManualPaneTab.fromSchema<MusicAddManualDraft>(
           id: 'main',
           label: 'Main',
-          svgAsset: 'assets/tab_icons/music.svg',
+          icon: AppIcons.tabMain,
           schema: mainSchema,
           draft: draft,
           mediaKind: request.kind.apiValue,
@@ -62,7 +63,7 @@ class MusicAddManualPane extends StatelessWidget {
         LibraryAddManualPaneTab.fromForm<MusicAddManualDraft>(
           id: 'details',
           label: 'Details',
-          svgAsset: 'assets/tab_icons/circle-info.svg',
+          icon: AppIcons.tabDetails,
           schema: musicAddSchema,
           draft: draft,
           content: MusicAddManualDetailsPane(
@@ -108,7 +109,7 @@ class MusicAddManualPane extends StatelessWidget {
         LibraryAddManualPaneTab(
           id: 'credits',
           label: 'Credits',
-          svgAsset: 'assets/tab_icons/users.svg',
+          icon: AppIcons.tabCredits,
           validate: (_) => _validateCredits(draft),
           content: MusicAddManualCreditsTab(
             draft: draft,
@@ -118,7 +119,7 @@ class MusicAddManualPane extends StatelessWidget {
         LibraryAddManualPaneTab(
           id: 'tracks',
           label: 'Tracks',
-          svgAsset: 'assets/tab_icons/list-ol.svg',
+          icon: AppIcons.tabTracks,
           validate: (_) => _validateTrackDurations(draft),
           content: MusicAddManualTracksTab(
             request: request,
@@ -129,13 +130,13 @@ class MusicAddManualPane extends StatelessWidget {
         LibraryAddManualPaneTab(
           id: 'personal',
           label: 'Personal',
-          svgAsset: 'assets/tab_icons/user.svg',
+          icon: AppIcons.tabPersonal,
           content: MusicAddPersonalPane(request: request),
         ),
         LibraryAddManualPaneTab(
             id: 'custom_fields',
             label: 'Custom Fields',
-            svgAsset: 'assets/tab_icons/pen-to-square.svg',
+            icon: AppIcons.tabCustomFields,
             content: CustomFieldsEditSection(
                 definitions: request.customFieldDefinitions,
                 values: request.customFieldValues,
@@ -151,18 +152,18 @@ class MusicAddManualPane extends StatelessWidget {
         LibraryAddManualPaneTab(
           id: 'covers',
           label: 'Covers',
-          svgAsset: 'assets/tab_icons/camera.svg',
+          icon: AppIcons.tabCovers,
           content: MusicAddManualCoversTab(draft: draft, request: request),
         ),
         LibraryAddManualPaneTab(
             id: 'my_images',
             label: 'My Images',
-            svgAsset: 'assets/tab_icons/image.svg',
+            icon: AppIcons.tabImages,
             content: MusicAddImagesPane(request: request)),
         LibraryAddManualPaneTab(
           id: 'links',
           label: 'Links',
-          svgAsset: 'assets/tab_icons/globe.svg',
+          icon: AppIcons.tabLinks,
           content: MusicAddManualLinksTab(
             draft: draft,
             accent: request.accent,

@@ -31,6 +31,7 @@ import 'package:collectarr_app/features/library/edit/core_correction/library_cor
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:collectarr_app/ui/app_icons.dart';
 
 Widget buildMusicAlbumLibraryEditDialog(
   BuildContext context,
@@ -130,7 +131,7 @@ final class _MusicAlbumEditDialogState
       tabOrderKey: 'library_edit_tabs_music_album_v2',
       contributions: LibraryEditSchemaContributions(
         personal: LibraryEditPersonalTabContribution(
-          svgAsset: 'assets/tab_icons/user.svg',
+          icon: AppIcons.tabPersonal,
           afterTabId: 'tracks',
           layoutBuilder: musicPersonalFormLayout,
           additionalFieldsBuilder: (personal) => {
@@ -165,7 +166,7 @@ final class _MusicAlbumEditDialogState
               : MusicListeningDraftSection(draft: _listening!),
         ),
         customFields: LibraryEditCustomFieldsTabContribution(
-          svgAsset: 'assets/tab_icons/pen-to-square.svg',
+          icon: AppIcons.tabCustomFields,
           definitions: widget.request.customFieldDefinitions,
           values: _customFieldEdits,
           onChanged: (values) => setState(() {
@@ -186,7 +187,7 @@ final class _MusicAlbumEditDialogState
         ),
         images: _albumImagesReady
             ? LibraryEditImagesTabContribution(
-                svgAsset: 'assets/tab_icons/image.svg',
+                icon: AppIcons.tabImages,
                 afterTabId: 'covers',
                 images: [
                   for (final image in _albumImages)
@@ -254,7 +255,7 @@ final class _MusicAlbumEditDialogState
               )
             : null,
         links: LibraryEditLinksTabContribution(
-          svgAsset: 'assets/tab_icons/globe.svg',
+          icon: AppIcons.tabLinks,
           afterTabId: 'my_images',
           links: [
             for (final link in _draft.externalLinks)
@@ -300,7 +301,7 @@ final class _MusicAlbumEditDialogState
         EditSchemaExtraTab(
           id: 'credits',
           label: 'Credits',
-          svgAsset: 'assets/tab_icons/users.svg',
+          icon: AppIcons.tabCredits,
           validate: () => _creditsEditor.hasIncompleteCredits
               ? 'Complete or remove each unfinished music credit'
               : null,
@@ -312,7 +313,7 @@ final class _MusicAlbumEditDialogState
         EditSchemaExtraTab(
           id: 'tracks',
           label: 'Tracks',
-          svgAsset: 'assets/tab_icons/list-ol.svg',
+          icon: AppIcons.tabTracks,
           validate: () => _draft.trackList.hasInvalidTrackDurationInput
               ? 'Track lengths must use seconds, MM:SS, or HH:MM:SS'
               : null,
@@ -324,7 +325,7 @@ final class _MusicAlbumEditDialogState
         EditSchemaExtraTab(
           id: 'covers',
           label: 'Covers',
-          svgAsset: 'assets/tab_icons/camera.svg',
+          icon: AppIcons.tabCovers,
           content: _albumImagesReady
               ? MusicAlbumCoversTab(
                   albumId: _libraryItemId,
@@ -341,7 +342,7 @@ final class _MusicAlbumEditDialogState
           const EditSchemaExtraTab(
             id: 'my_images',
             label: 'My Images',
-            svgAsset: 'assets/tab_icons/image.svg',
+            icon: AppIcons.tabImages,
             content: Center(child: CircularProgressIndicator()),
           ),
       ],

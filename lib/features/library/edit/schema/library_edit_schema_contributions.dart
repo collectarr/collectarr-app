@@ -5,6 +5,7 @@ import 'package:collectarr_app/features/library/edit/fields/library_external_lin
 import 'package:collectarr_app/features/library/edit/sections/item_images_edit_section.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_personal_fields_layout.dart';
 import 'package:flutter/material.dart';
+import 'package:collectarr_app/ui/app_icons.dart';
 
 typedef LibraryEditPersonalAdditionalFieldsBuilder = Map<String, Widget>
     Function(LibraryEntryEditDraft draft);
@@ -20,7 +21,7 @@ final class LibraryEditPersonalTabContribution {
   const LibraryEditPersonalTabContribution({
     this.id = 'personal',
     this.label = 'Personal',
-    this.icon = Icons.person_outline,
+    this.icon = AppIcons.tabPersonal,
     this.svgAsset,
     this.afterTabId,
     this.layoutBuilder,
@@ -47,7 +48,7 @@ final class LibraryEditCustomFieldsTabContribution {
     required this.onChanged,
     this.id = 'custom_fields',
     this.label = 'Custom Fields',
-    this.icon = Icons.edit_note,
+    this.icon = AppIcons.tabCustomFields,
     this.svgAsset,
     this.afterTabId = 'personal',
     this.onCustomValueChanged,
@@ -72,7 +73,7 @@ final class LibraryEditImagesTabContribution {
     required this.onChanged,
     this.id = 'my_images',
     this.label = 'My Images',
-    this.icon = Icons.image_outlined,
+    this.icon = AppIcons.tabImages,
     this.svgAsset,
     this.afterTabId,
     this.helperText =
@@ -104,7 +105,7 @@ final class LibraryEditLinksTabContribution {
     required this.onChanged,
     this.id = 'links',
     this.label = 'Links',
-    this.icon = Icons.public,
+    this.icon = AppIcons.tabLinks,
     this.svgAsset,
     this.afterTabId,
     this.addLabel = 'Add Link',

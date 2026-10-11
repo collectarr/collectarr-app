@@ -92,11 +92,14 @@ class LibraryTextFormControl extends StatelessWidget {
   final Color? cursorColor;
 
   @override
-  Widget build(BuildContext context) => TextFormField(
+  Widget build(BuildContext context) {
+    final effectiveAccent = LibraryAccentScope.maybeOf(context)?.accent ??
+        Theme.of(context).textSelectionTheme.cursorColor ??
+        appPalette(context).accent;
+    final effectiveCursorColor = cursorColor ?? effectiveAccent;
+    return TextFormField(
         controller: controller,
-        cursorColor: cursorColor ??
-            Theme.of(context).textSelectionTheme.cursorColor ??
-            LibraryAccentScope.maybeOf(context)?.accent,
+        cursorColor: effectiveCursorColor,
         initialValue: initialValue,
         focusNode: focusNode,
         autofocus: autofocus,
@@ -124,6 +127,7 @@ class LibraryTextFormControl extends StatelessWidget {
                   : decoration?.contentPadding,
         ),
       );
+  }
 }
 
 class LibraryFormGroup extends StatelessWidget {

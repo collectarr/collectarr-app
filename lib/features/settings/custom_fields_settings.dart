@@ -7,6 +7,7 @@ import 'package:collectarr_app/features/collection/repositories/custom_field_rep
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
+import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 import 'package:collectarr_app/features/library/ui/library_management_page.dart';
 import 'package:collectarr_app/features/library/generic/library_custom_field_cache.dart';
@@ -24,8 +25,7 @@ Future<void> showCustomFieldsManagementPage({
     Navigator.of(context).push<void>(MaterialPageRoute(
       builder: (context) => LibraryManagementPage(
         title: 'Manage Custom Fields',
-        icon: Icons.fact_check_outlined,
-        svgAsset: 'assets/sidebar_icons/pen-to-square.svg',
+        icon: AppIcons.customFields,
         accent: accent ?? appPalette(context).accent,
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(24),

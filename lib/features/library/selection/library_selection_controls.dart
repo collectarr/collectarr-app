@@ -1,7 +1,7 @@
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_tokens.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
+import 'package:collectarr_app/ui/app_icons.dart';
 
 enum _BulkAction {
   exportCsvTxt,
@@ -167,7 +167,6 @@ class LibrarySelectionControls extends StatelessWidget {
     TextButton actionButton({
       required VoidCallback? onPressed,
       IconData? icon,
-      String? svgAsset,
       required String label,
       Color? foregroundColor,
       Color? backgroundColor,
@@ -190,14 +189,7 @@ class LibrarySelectionControls extends StatelessWidget {
                       .withValues(alpha: 0.86),
             );
 
-      final iconWidget = svgAsset != null
-          ? SvgPicture.asset(
-              svgAsset,
-              width: 15,
-              height: 15,
-              colorFilter: ColorFilter.mode(effectiveFg, BlendMode.srcIn),
-            )
-          : Icon(icon, size: 15);
+      final iconWidget = icon != null ? Icon(icon, size: 15) : null;
 
       return TextButton.icon(
         onPressed: onPressed,
@@ -214,7 +206,6 @@ class LibrarySelectionControls extends StatelessWidget {
     PopupMenuItem<_BulkAction> accentMenuItem({
       required _BulkAction value,
       IconData? icon,
-      String? svgAsset,
       required String label,
       required bool enabled,
     }) {
@@ -231,15 +222,7 @@ class LibrarySelectionControls extends StatelessWidget {
               width: 20,
               height: 20,
               child: Center(
-                child: svgAsset != null
-                    ? SvgPicture.asset(
-                        svgAsset,
-                        width: 15,
-                        height: 15,
-                        colorFilter:
-                            ColorFilter.mode(contentColor, BlendMode.srcIn),
-                      )
-                    : Icon(icon, size: 15, color: contentColor),
+                child: Icon(icon, size: 15, color: contentColor),
               ),
             ),
             const SizedBox(width: 8),
@@ -340,59 +323,51 @@ class LibrarySelectionControls extends StatelessWidget {
             ? [
                 accentMenuItem(
                   value: _BulkAction.exportCsvTxt,
-                  svgAsset: 'assets/sidebar_icons/file-export.svg',
-                  icon: Icons.table_view_outlined,
+                  icon: AppIcons.exportCsv,
                   label: 'Export to CSV / TXT',
                   enabled: callbacks.onExportCsvTxt != null,
                 ),
                 accentMenuItem(
                   value: _BulkAction.exportXml,
-                  svgAsset: 'assets/sidebar_icons/file-export.svg',
-                  icon: Icons.data_object_outlined,
+                  icon: AppIcons.exportXml,
                   label: 'Export to XML',
                   enabled: callbacks.onExportXml != null,
                 ),
                 const PopupMenuDivider(height: 7),
                 accentMenuItem(
                   value: _BulkAction.duplicate,
-                  svgAsset: 'assets/sidebar_icons/clone.svg',
-                  icon: Icons.copy_all_outlined,
+                  icon: AppIcons.duplicates,
                   label: 'Duplicate',
                   enabled: callbacks.onBulkDuplicate != null,
                 ),
                 accentMenuItem(
                   value: _BulkAction.mergeAlbums,
-                  svgAsset: 'assets/sidebar_icons/compress.svg',
-                  icon: Icons.call_merge,
+                  icon: AppIcons.merge,
                   label: mergeLabel ?? 'Merge Albums',
                   enabled: callbacks.onMerge != null,
                 ),
                 accentMenuItem(
                   value: _BulkAction.loan,
-                  svgAsset: 'assets/sidebar_icons/clock.svg',
-                  icon: Icons.schedule_outlined,
+                  icon: AppIcons.loans,
                   label: 'Loan',
                   enabled: callbacks.onBulkLoan != null,
                 ),
                 accentMenuItem(
                   value: _BulkAction.transferFieldData,
-                  svgAsset: 'assets/sidebar_icons/arrows-turn-right.svg',
-                  icon: Icons.swap_horiz,
+                  icon: AppIcons.transferFieldData,
                   label: 'Transfer Field Data',
                   enabled: callbacks.onTransferFieldData != null,
                 ),
                 accentMenuItem(
                   value: _BulkAction.moveToCollection,
-                  svgAsset: 'assets/sidebar_icons/database.svg',
-                  icon: Icons.dns_outlined,
+                  icon: AppIcons.searchAll,
                   label: 'Move to other collection',
                   enabled: callbacks.onMoveToCollection != null,
                 ),
                 const PopupMenuDivider(height: 7),
                 accentMenuItem(
                   value: _BulkAction.updateFromCore,
-                  svgAsset: 'assets/sidebar_icons/cloud-arrow-down.svg',
-                  icon: Icons.cloud_download_outlined,
+                  icon: AppIcons.updateFromCore,
                   label: 'Update from Core',
                   enabled: callbacks.onBulkRefreshMetadata != null,
                 ),
@@ -481,14 +456,12 @@ class LibrarySelectionControls extends StatelessWidget {
         children: [
           actionButton(
             onPressed: callbacks.onBulkEdit,
-            svgAsset: 'assets/sidebar_icons/pen-to-square.svg',
-            icon: Icons.edit_outlined,
+            icon: AppIcons.edit,
             label: 'Edit',
           ),
           actionButton(
             onPressed: callbacks.onBulkRemove,
-            svgAsset: 'assets/sidebar_icons/trash.svg',
-            icon: Icons.delete_outline,
+            icon: AppIcons.delete,
             label: 'Remove',
           ),
           LibrarySelectionToolbarDivider(
@@ -497,8 +470,7 @@ class LibrarySelectionControls extends StatelessWidget {
           ),
           actionButton(
             onPressed: callbacks.onPrintToPdf,
-            svgAsset: 'assets/sidebar_icons/print.svg',
-            icon: Icons.picture_as_pdf_outlined,
+            icon: AppIcons.print,
             label: 'Print to PDF',
           ),
           LibrarySelectionToolbarDivider(
