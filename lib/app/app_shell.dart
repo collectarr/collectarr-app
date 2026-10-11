@@ -12,7 +12,7 @@ import 'package:collectarr_app/features/library/home/home_catalog.dart';
 import 'package:collectarr_app/features/library/home/home_kind_menu.dart';
 import 'package:collectarr_app/features/library/home/home_nav_models.dart';
 import 'package:collectarr_app/features/library/home/home_top_nav.dart';
-import 'package:collectarr_app/features/library/inspector/library_duplicate_items.dart';
+import 'package:collectarr_app/features/library/duplicates/library_find_duplicates_page.dart';
 import 'package:collectarr_app/features/library/keyboard/library_keyboard_shortcuts.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/reports/collection_report.dart';
@@ -296,11 +296,13 @@ class _AppShellState extends ConsumerState<AppShell> {
           final entries = shelf.entries
               .where((entry) => entry.mediaKind == type.kind)
               .toList(growable: false);
-          return showDuplicateItemsDialog(
-            context,
-            duplicateGroups: findDuplicateShelfGroups(entries),
-            entries: entries,
-          );
+          return Navigator.of(context).push<void>(MaterialPageRoute(
+            builder: (_) => LibraryFindDuplicatesPage(
+              type: type,
+              entries: entries,
+              accent: accent,
+            ),
+          ));
         });
         return;
       case DrawerAction.loanManager:
