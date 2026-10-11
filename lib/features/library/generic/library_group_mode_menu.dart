@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import 'package:collectarr_app/features/library/ui/primitives/library_field_selection.dart';
+
 import 'package:collectarr_app/features/library/config/library_group_mode_category.dart';
 import 'package:collectarr_app/features/library/config/library_kind_style.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
@@ -1041,35 +1043,10 @@ class _GroupModeFavoritesDialogState extends State<_GroupModeFavoritesDialog> {
       );
 
   Widget _buildAvailableFields(BuildContext context) => Column(children: [
-        SizedBox(
-          height: 28,
-          child: TextField(
+        LibraryFieldSelectionSearch(
             key: const ValueKey('folderFavoritesFieldSearch'),
             controller: _fieldSearchController,
-            style: _fieldStyle,
-            onChanged: (value) => setState(() => _fieldSearch = value),
-            decoration: pickListInputDecoration(context, hintText: 'Search...')
-                .copyWith(
-              contentPadding: EdgeInsets.zero,
-              prefixIcon: const Icon(Icons.search, size: 16),
-              prefixIconConstraints:
-                  const BoxConstraints.tightFor(width: 30, height: 26),
-              suffixIcon: _fieldSearch.isEmpty
-                  ? null
-                  : IconButton(
-                      tooltip: 'Clear search',
-                      padding: EdgeInsets.zero,
-                      icon: const Icon(Icons.cancel, size: 16),
-                      onPressed: () => setState(() {
-                        _fieldSearch = '';
-                        _fieldSearchController.clear();
-                      }),
-                    ),
-              suffixIconConstraints:
-                  const BoxConstraints.tightFor(width: 26, height: 26),
-            ),
-          ),
-        ),
+            onChanged: (value) => setState(() => _fieldSearch = value)),
         const SizedBox(height: 10),
         Expanded(
             child: ListView(children: [
@@ -1142,84 +1119,23 @@ class _GroupModeFavoritesDialogState extends State<_GroupModeFavoritesDialog> {
               ),
       );
 
-  Widget _fieldRow(
-    BuildContext context, {
-    required Widget child,
-  }) =>
-      Container(
-        height: 28,
-        margin: const EdgeInsets.only(bottom: 1),
-        decoration: BoxDecoration(
-          color: Colors.transparent,
-          border: Border.all(color: _fieldBorder(context)),
-          borderRadius: BorderRadius.circular(4),
-        ),
-        clipBehavior: Clip.antiAlias,
-        child: child,
-      );
-
   Widget _buildEditorCategorySection(
-      BuildContext context, LibraryGroupModeCategory category) {
-    final expanded = _fieldSearch.isNotEmpty ||
-        (_expandedEditorSections[category.label] ?? true);
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 10),
-      child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-        Material(
-          color: pickListToolbar(context),
-          borderRadius: BorderRadius.circular(4),
-          clipBehavior: Clip.antiAlias,
-          child: InkWell(
-            onTap: () => _toggleEditorSection(category.label),
-            child: SizedBox(
-                height: 28,
-                child: Padding(
-                  padding: const EdgeInsets.only(left: 8),
-                  child: Row(children: [
-                    Expanded(child: Text(category.label)),
-                    SizedBox(
-                        width: 28,
-                        child: Icon(
-                            expanded
-                                ? Icons.keyboard_arrow_up
-                                : Icons.keyboard_arrow_down,
-                            size: 18)),
-                  ]),
-                )),
-          ),
-        ),
-        const SizedBox(height: 1),
-        if (expanded)
-          for (final mode in category.modes.cast<String>())
-            if (_matchesFieldSearch(mode))
-              _fieldRow(context,
-                  child: InkWell(
+          BuildContext context, LibraryGroupModeCategory category) =>
+      LibraryFieldSelectionCategory(
+          title: category.label,
+          expanded: _fieldSearch.isNotEmpty ||
+              (_expandedEditorSections[category.label] ?? true),
+          onToggle: () => _toggleEditorSection(category.label),
+          children: [
+            for (final mode in category.modes.cast<String>())
+              if (_matchesFieldSearch(mode))
+                LibraryFieldSelectionCheckbox(
+                    label: genericGroupModeLabel(mode, widget.type),
+                    selected: _draftModes.contains(mode),
                     onTap: _draftModes.contains(mode) || _draftModes.length < 3
                         ? () => _toggleDraftMode(mode)
-                        : null,
-                    child: Padding(
-                      padding: const EdgeInsets.only(left: 5, right: 7),
-                      child: Row(children: [
-                        Icon(
-                            _draftModes.contains(mode)
-                                ? Icons.check_box
-                                : Icons.check_box_outline_blank,
-                            size: 16,
-                            color: _draftModes.contains(mode)
-                                ? Theme.of(context).colorScheme.primary
-                                : libraryToolbarMenuMutedText(context)),
-                        const SizedBox(width: 5),
-                        Expanded(
-                            child: Text(
-                                genericGroupModeLabel(mode, widget.type),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis)),
-                      ]),
-                    ),
-                  )),
-      ]),
-    );
-  }
+                        : null),
+          ]);
 
   Widget _buildFooter(BuildContext context) => Container(
         padding: const EdgeInsets.all(10),

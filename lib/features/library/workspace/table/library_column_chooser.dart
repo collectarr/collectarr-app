@@ -1,8 +1,9 @@
-import '../chrome/library_workspace_menus.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_dense_controls.dart';
-import 'package:collectarr_app/ui/accent_dialog_header.dart';
+import 'package:collectarr_app/features/library/ui/primitives/library_field_selection.dart';
+import 'package:collectarr_app/features/library/generic/library_folder_reorder_list.dart';
+import 'package:collectarr_app/features/pick_lists/widgets/pick_list_chrome.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
@@ -58,14 +59,15 @@ class _LibraryColumnChooserDialogState
     widget.savedPresets,
   );
   late final TextEditingController _presetNameController =
-      TextEditingController(text: _activePreset?.label ?? '');
+      TextEditingController(
+          text: _activePreset?.label ?? 'My List View columns');
   final TextEditingController _searchController = TextEditingController();
   String _query = '';
   bool _showFavorites = false;
+  bool _nameEdited = false;
+  final Map<LibraryTableColumnGroup, bool> _expandedGroups = {};
 
-  String? get _effectivePrimaryColumn =>
-      widget.primaryColumn ??
-      (widget.availableColumns.contains('title') ? 'title' : null);
+  String? get _effectivePrimaryColumn => widget.primaryColumn;
 
   LibraryTableColumnPreset? get _activePreset {
     final primary = _effectivePrimaryColumn;
@@ -100,308 +102,112 @@ class _LibraryColumnChooserDialogState
 
   @override
   Widget build(BuildContext context) {
-    final palette = appPalette(context);
-    final colorScheme = Theme.of(context).colorScheme;
-    final accent = widget.accent ?? colorScheme.primary;
-    final viewport = MediaQuery.sizeOf(context);
-    final dialogWidth = (viewport.width - 32).clamp(0.0, 600.0);
-    final dialogHeight = (viewport.height - 52).clamp(0.0, 850.0);
+    final accent = widget.accent ?? Theme.of(context).colorScheme.primary;
     final query = _query.trim().toLowerCase();
-    final columns = widget.availableColumns.where((column) {
-      final label = widget.columnLabel(column).toLowerCase();
-      final description =
-          widget.columnDescription?.call(column)?.toLowerCase() ?? '';
-      final group = widget.columnGroup?.call(column);
-      final groupLabel = group == null ? '' : _groupLabel(group).toLowerCase();
-      return label.contains(query) ||
-          description.contains(query) ||
-          groupLabel.contains(query);
-    }).toList(growable: false);
-    final selectedColumns = _orderedVisibleColumns(_selected);
-    return Theme(
-      data: Theme.of(context).copyWith(
-        colorScheme: Theme.of(context).colorScheme.copyWith(
-            primary: accent, onPrimary: appContrastingTextColor(accent)),
-        extensions: [
-          ...Theme.of(context)
-              .extensions
-              .values
-              .where((extension) => extension is! AppThemePalette),
-          palette.copyWith(
-              accent: accent,
-              selection: Color.alphaBlend(
-                  accent.withValues(alpha: 0.22), palette.panel))
-        ],
-      ),
-      child: Dialog(
-        backgroundColor: Colors.transparent,
-        alignment: Alignment.topCenter,
-        insetPadding: const EdgeInsets.fromLTRB(16, 28, 16, 24),
-        child: SizedBox(
-          width: dialogWidth,
-          height: dialogHeight,
-          child: DecoratedBox(
-            decoration: BoxDecoration(
-              color: palette.panelRaised,
-              borderRadius:
-                  const BorderRadius.vertical(top: Radius.circular(4)),
-              border: Border.all(color: palette.divider),
-              boxShadow: const [
-                BoxShadow(
-                  color: Color(0x66000000),
-                  blurRadius: 24,
-                  offset: Offset(0, 10),
-                ),
-              ],
-            ),
-            child: Column(
-              children: [
-                AccentDialogHeader(
-                  title: 'Select Column Fields',
-                  titleStyle: const TextStyle(color: Colors.white),
-                  foregroundColor: Colors.white,
-                  trailing: IconButton(
-                      tooltip: 'Manage Favorites',
-                      icon: const Icon(Icons.settings,
-                          color: Colors.white, size: 16),
-                      onPressed: () =>
-                          setState(() => _showFavorites = !_showFavorites)),
-                  accent: accent,
-                  flat: true,
-                  minHeight: 38,
-                  onClose: () => Navigator.of(context).pop(),
-                ),
-                Expanded(
-                  child: LayoutBuilder(
-                    builder: (context, constraints) {
-                      final compactHeight = constraints.maxHeight < 520;
-                      final favoritesHeight = compactHeight ? 112.0 : 148.0;
-
-                      return Padding(
-                        padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
-                        child: Column(
-                          children: [
-                            if (_showFavorites &&
-                                (_allPresets.isNotEmpty ||
-                                    widget.onSavePreset != null))
-                              SizedBox(
-                                height: favoritesHeight,
-                                child: _PresetShelf(
-                                  accent: accent,
-                                  presets: _allPresets,
-                                  activePreset: _activePreset,
-                                  pinnedFavoriteKeys: widget.pinnedFavoriteKeys,
-                                  columnLabel: widget.columnLabel,
-                                  nameController: _presetNameController,
-                                  onApply: _applyPreset,
-                                  onEdit: (preset) {
-                                    _presetNameController.text = preset.label;
-                                    _applyPreset(preset);
-                                  },
-                                  onTogglePin: widget.onTogglePinnedFavorite,
-                                  onDelete: widget.onDeletePreset == null
-                                      ? null
-                                      : (preset) {
-                                          if (preset.id != null) {
-                                            _deletePreset(preset.id!);
-                                          }
-                                        },
-                                  onSave: widget.onSavePreset == null
-                                      ? null
-                                      : _savePreset,
-                                ),
-                              ),
-                            const SizedBox(height: 12),
-                            Expanded(
-                              child: Flex(
-                                crossAxisAlignment: CrossAxisAlignment.stretch,
-                                direction: constraints.maxWidth < 520
-                                    ? Axis.vertical
-                                    : Axis.horizontal,
-                                children: [
-                                  Expanded(
-                                    flex: 5,
-                                    child: _PaneFrame(
-                                      title: 'Available fields',
-                                      count: columns.length,
-                                      accent: accent,
-                                      expandChild: true,
-                                      child: Column(
-                                        children: [
-                                          Padding(
-                                            padding: const EdgeInsets.fromLTRB(
-                                                12, 12, 12, 8),
-                                            child: TextField(
-                                              controller: _searchController,
-                                              decoration: InputDecoration(
-                                                isDense: true,
-                                                prefixIcon:
-                                                    const Icon(Icons.search),
-                                                suffixIcon: _query.isEmpty
-                                                    ? null
-                                                    : _InlineClearButton(
-                                                        onPressed: () =>
-                                                            setState(() {
-                                                          _searchController
-                                                              .clear();
-                                                          _query = '';
-                                                        }),
-                                                      ),
-                                                hintText: 'Search fields',
-                                                filled: true,
-                                                fillColor: palette.field,
-                                                border:
-                                                    const OutlineInputBorder(
-                                                  borderRadius:
-                                                      BorderRadius.all(
-                                                          Radius.circular(4)),
-                                                ),
-                                                contentPadding:
-                                                    const EdgeInsets.symmetric(
-                                                  horizontal: 10,
-                                                  vertical: 4,
-                                                ),
-                                              ),
-                                              onChanged: (value) => setState(
-                                                  () => _query = value),
-                                            ),
-                                          ),
-                                          Expanded(
-                                            child: ListView(
-                                              padding:
-                                                  const EdgeInsets.fromLTRB(
-                                                      12, 0, 12, 12),
-                                              children: _availableColumnTiles(
-                                                columns,
-                                                accent: accent,
-                                              ),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                  const SizedBox(width: 8, height: 8),
-                                  Expanded(
-                                    flex: 4,
-                                    child: _PaneFrame(
-                                      title: 'Selected columns',
-                                      count: selectedColumns.length,
-                                      accent: accent,
-                                      expandChild: true,
-                                      child: ReorderableListView.builder(
-                                        buildDefaultDragHandles: false,
-                                        padding: const EdgeInsets.fromLTRB(
-                                            12, 12, 12, 12),
-                                        itemCount: selectedColumns.length,
-                                        proxyDecorator:
-                                            (child, index, animation) {
-                                          return Material(
-                                            color: Color.alphaBlend(
-                                              accent.withValues(alpha: 0.18),
-                                              palette.panel,
-                                            ),
-                                            elevation: 6,
-                                            borderRadius:
-                                                BorderRadius.circular(6),
-                                            child: child,
-                                          );
-                                        },
-                                        onReorderItem: (oldIndex, newIndex) {
-                                          setState(() {
-                                            final reordered = selectedColumns
-                                                .toList(growable: true);
-                                            final column =
-                                                reordered.removeAt(oldIndex);
-                                            reordered.insert(newIndex, column);
-                                            _selected = reordered.toSet();
-                                          });
-                                        },
-                                        itemBuilder: (context, index) {
-                                          final column = selectedColumns[index];
-                                          return _SelectedColumnTile(
-                                            index: index,
-                                            dragHandleKey: ValueKey(
-                                                'selected-column-$column-handle'),
-                                            key: ValueKey(
-                                              'selected-column-$column',
-                                            ),
-                                            title: widget.columnLabel(column),
-                                            removable:
-                                                _effectivePrimaryColumn ==
-                                                        null ||
-                                                    column !=
-                                                        _effectivePrimaryColumn,
-                                            onRemove: () => setState(
-                                              () => _selected.remove(column),
-                                            ),
-                                          );
-                                        },
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      );
-                    },
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-                  child: Row(
-                    children: [
-                      LibraryDenseButton(
-                        onPressed: () {
-                          setState(() {
-                            _selected = Set.of(widget.defaultColumns);
-                            _presetNameController.text =
-                                _activePreset?.label ?? '';
-                          });
-                        },
-                        label: 'Reset',
-                        icon: Icons.restart_alt,
-                        tone: LibraryDenseButtonTone.subtle,
-                      ),
-                      const Spacer(),
-                      LibraryDenseButton(
-                        onPressed: () => Navigator.of(context).pop(),
-                        label: 'Cancel',
-                        tone: LibraryDenseButtonTone.subtle,
-                      ),
-                      const SizedBox(width: 8),
-                      LibraryDenseButton(
-                        onPressed: () {
-                          final result = Set<String>.of(_selected);
-                          if (_effectivePrimaryColumn != null) {
-                            result.add(_effectivePrimaryColumn!);
-                          }
-                          Navigator.of(context).pop(result);
-                        },
-                        label: 'Save',
-                        icon: Icons.check,
-                        tone: LibraryDenseButtonTone.accent,
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  List<String> _orderedVisibleColumns(
-    Set<String> columns,
-  ) {
-    final effective = columns.isEmpty ? widget.defaultColumns : columns;
-    return [
-      for (final column in effective) column,
-    ];
+    final columns = widget.availableColumns
+        .where((column) =>
+            widget.columnLabel(column).toLowerCase().contains(query) ||
+            (widget.columnDescription
+                    ?.call(column)
+                    ?.toLowerCase()
+                    .contains(query) ??
+                false) ||
+            _groupLabel(widget.columnGroup?.call(column))
+                .toLowerCase()
+                .contains(query))
+        .toList();
+    final selectedColumns = _selected.toList();
+    return LibraryFieldSelectionDialog(
+        title: 'Select Column Fields',
+        accent: accent,
+        headerAction: IconButton(
+            tooltip: 'Manage Favorites',
+            icon: const Icon(Icons.settings, color: Colors.white, size: 16),
+            onPressed: () => setState(() => _showFavorites = !_showFavorites)),
+        onSave: _selected.isEmpty
+            ? null
+            : () async {
+                if (_nameEdited && widget.onSavePreset != null) {
+                  await _savePreset();
+                }
+                if (context.mounted) {
+                  Navigator.of(context).pop(Set<String>.of(_selected));
+                }
+              },
+        child:
+            Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+          SizedBox(
+              height: 34,
+              child: Builder(
+                  builder: (context) => TextField(
+                      controller: _presetNameController,
+                      style: librarySelectionFieldStyle,
+                      cursorColor: accent,
+                      onChanged: (_) => _nameEdited = true,
+                      decoration: pickListInputDecoration(context,
+                              hintText: 'My List View columns')
+                          .copyWith(
+                              contentPadding: const EdgeInsets.symmetric(
+                                  horizontal: 10, vertical: 6))))),
+          const SizedBox(height: 15),
+          const Text('Columns', style: TextStyle(height: 20 / 14)),
+          const SizedBox(height: 5),
+          if (_showFavorites &&
+              (_allPresets.isNotEmpty || widget.onSavePreset != null))
+            SizedBox(
+                height: 148,
+                child: _PresetShelf(
+                    accent: accent,
+                    presets: _allPresets,
+                    activePreset: _activePreset,
+                    pinnedFavoriteKeys: widget.pinnedFavoriteKeys,
+                    columnLabel: widget.columnLabel,
+                    nameController: _presetNameController,
+                    onApply: _applyPreset,
+                    onEdit: _applyPreset,
+                    onTogglePin: widget.onTogglePinnedFavorite,
+                    onDelete: widget.onDeletePreset == null
+                        ? null
+                        : (preset) {
+                            if (preset.id != null) _deletePreset(preset.id!);
+                          },
+                    onSave: widget.onSavePreset == null ? null : _savePreset)),
+          Expanded(
+              child: LibraryFieldSelectionPanes(
+            available: Column(children: [
+              LibraryFieldSelectionSearch(
+                  controller: _searchController,
+                  onChanged: (value) => setState(() => _query = value)),
+              const SizedBox(height: 10),
+              Expanded(
+                  child: ListView(
+                      children:
+                          _availableColumnTiles(columns, accent: accent))),
+            ]),
+            selected: LibraryFolderReorderList(
+                padding: const EdgeInsets.all(10),
+                rowSpacing: 3,
+                placeholderColor: const Color(0xff808080),
+                itemCount: selectedColumns.length,
+                onReorder: (oldIndex, newIndex) => setState(() {
+                      final reordered = selectedColumns.toList();
+                      final column = reordered.removeAt(oldIndex);
+                      reordered.insert(newIndex, column);
+                      _selected = reordered.toSet();
+                    }),
+                itemBuilder: (context, index) {
+                  final column = selectedColumns[index];
+                  return LibrarySelectedFieldRow(
+                      key: ValueKey('selected-column-$column'),
+                      handleKey: ValueKey('selected-column-$column-handle'),
+                      label: widget.columnLabel(column),
+                      removeTooltip: 'Remove column',
+                      onRemove: column == _effectivePrimaryColumn
+                          ? null
+                          : () => setState(() => _selected.remove(column)));
+                }),
+          )),
+        ]));
   }
 
   void _applyPreset(LibraryTableColumnPreset preset) {
@@ -437,97 +243,57 @@ class _LibraryColumnChooserDialogState
     setState(() => _savedPresets = updated);
   }
 
-  List<Widget> _availableColumnTiles(
-    List<String> columns, {
-    required Color accent,
-  }) {
+  List<Widget> _availableColumnTiles(List<String> columns,
+      {required Color accent}) {
     if (widget.columnGroup == null) {
-      return [
-        for (final column in columns) _columnCheckbox(column),
-      ];
+      return [for (final column in columns) _columnCheckbox(column)];
     }
     final grouped = <LibraryTableColumnGroup, List<String>>{};
     for (final column in columns) {
-      final group = widget.columnGroup!(column);
-      grouped.putIfAbsent(group, () => []).add(column);
+      grouped.putIfAbsent(widget.columnGroup!(column), () => []).add(column);
     }
+    for (final groupColumns in grouped.values) {
+      groupColumns.sort((a, b) => widget
+          .columnLabel(a)
+          .toLowerCase()
+          .compareTo(widget.columnLabel(b).toLowerCase()));
+    }
+    final groups = [
+      LibraryTableColumnGroup.images,
+      ...LibraryTableColumnGroup.values
+          .where((group) => group != LibraryTableColumnGroup.images)
+    ];
     return [
-      for (final group in LibraryTableColumnGroup.values)
+      for (final group in groups)
         if ((grouped[group] ?? const []).isNotEmpty)
-          _ColumnGroupPanel(
-            key: ValueKey('column-group-${group.name}-${_query.isNotEmpty}'),
-            title: _groupLabel(group),
-            accent: accent,
-            count: grouped[group]!.length,
-            selectedCount: grouped[group]!.where(_selected.contains).length,
-            onToggleAll: () => _toggleGroupColumns(grouped[group]!),
-            initiallyExpanded:
-                group == LibraryTableColumnGroup.main || _query.isNotEmpty,
-            children: [
-              for (final column in grouped[group]!) _columnCheckbox(column),
-            ],
-          ),
+          LibraryFieldSelectionCategory(
+              key: ValueKey('column-group-${group.name}'),
+              title: _groupLabel(group),
+              selected: grouped[group]!.every(_selected.contains),
+              expanded: _query.isNotEmpty ||
+                  (_expandedGroups[group] ??
+                      group == LibraryTableColumnGroup.main ||
+                          group == LibraryTableColumnGroup.images),
+              onToggle: () => setState(() => _expandedGroups[group] =
+                  !(_expandedGroups[group] ??
+                      group == LibraryTableColumnGroup.main ||
+                          group == LibraryTableColumnGroup.images)),
+              onToggleAll: () => _toggleGroupColumns(grouped[group]!),
+              children: [
+                for (final column in grouped[group]!) _columnCheckbox(column)
+              ]),
     ];
   }
 
-  Widget _columnCheckbox(String column) {
-    final palette = appPalette(context);
-    final selected = _selected.contains(column);
-    final locked =
-        _effectivePrimaryColumn != null && column == _effectivePrimaryColumn;
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        mouseCursor: WidgetStateMouseCursor.clickable,
-        key: ValueKey('available-column-$column'),
-        onTap: locked
-            ? null
-            : () => setState(() {
-                  if (selected) {
-                    _selected.remove(column);
-                  } else {
-                    _selected.add(column);
-                  }
-                }),
-        borderRadius: BorderRadius.circular(4),
-        child: Container(
-          margin: const EdgeInsets.symmetric(vertical: 1),
-          padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 5),
-          decoration: BoxDecoration(
-            border: Border.all(color: palette.divider),
-            borderRadius: BorderRadius.circular(3),
-          ),
-          child: Row(
-            children: [
-              Icon(
-                selected ? Icons.check_box : Icons.check_box_outline_blank,
-                size: 16,
-                color: locked
-                    ? palette.textMuted
-                    : selected
-                        ? (widget.accent ??
-                            Theme.of(context).colorScheme.primary)
-                        : palette.textMuted,
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Text(
-                  widget.columnLabel(column),
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w700,
-                        color: locked
-                            ? palette.textMuted
-                            : Theme.of(context).textTheme.bodyMedium?.color,
-                      ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
+  Widget _columnCheckbox(String column) => LibraryFieldSelectionCheckbox(
+      key: ValueKey('available-column-$column'),
+      label: widget.columnLabel(column),
+      selected: _selected.contains(column),
+      onTap: column == _effectivePrimaryColumn
+          ? null
+          : () => setState(() {
+                if (!_selected.remove(column)) _selected.add(column);
+              }));
 
   void _toggleGroupColumns(List<String> columns) {
     final primary = _effectivePrimaryColumn;
@@ -574,75 +340,6 @@ class _LibraryColumnChooserDialogState
         List.generate(
                 first.length, (i) => first.elementAt(i) == second.elementAt(i))
             .every((same) => same);
-  }
-}
-
-class _SelectedColumnTile extends StatelessWidget {
-  const _SelectedColumnTile({
-    super.key,
-    required this.title,
-    required this.index,
-    required this.dragHandleKey,
-    required this.removable,
-    required this.onRemove,
-  });
-
-  final String title;
-  final int index;
-  final Key dragHandleKey;
-  final bool removable;
-  final VoidCallback onRemove;
-
-  @override
-  Widget build(BuildContext context) {
-    final palette = appPalette(context);
-    return Container(
-      margin: const EdgeInsets.only(bottom: 4),
-      decoration: BoxDecoration(
-        color: palette.surfaceSubtle,
-        borderRadius: BorderRadius.circular(4),
-        border: Border.all(color: palette.divider),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(8, 6, 4, 6),
-        child: Row(
-          children: [
-            ReorderableDragStartListener(
-                index: index,
-                child: Icon(Icons.drag_handle,
-                    key: dragHandleKey, size: 16, color: palette.textMuted)),
-            const SizedBox(width: 8),
-            Expanded(
-              child: Text(
-                title,
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      fontWeight: FontWeight.w600,
-                    ),
-              ),
-            ),
-            removable
-                ? InkWell(
-                    mouseCursor: WidgetStateMouseCursor.clickable,
-                    onTap: onRemove,
-                    borderRadius: BorderRadius.circular(4),
-                    child: Padding(
-                      padding: const EdgeInsets.all(4),
-                      child:
-                          Icon(Icons.close, size: 14, color: palette.textMuted),
-                    ),
-                  )
-                : Tooltip(
-                    message: 'Title is always visible',
-                    child: Padding(
-                      padding: const EdgeInsets.all(4),
-                      child: Icon(Icons.lock_outline,
-                          size: 14, color: palette.textMuted),
-                    ),
-                  ),
-          ],
-        ),
-      ),
-    );
   }
 }
 
@@ -827,7 +524,6 @@ class _PaneFrame extends StatelessWidget {
     required this.title,
     required this.child,
     required this.accent,
-    this.count,
     this.expandChild = false,
     this.trailing,
   });
@@ -835,7 +531,6 @@ class _PaneFrame extends StatelessWidget {
   final String title;
   final Widget child;
   final Color accent;
-  final int? count;
   final bool expandChild;
   final Widget? trailing;
 
@@ -875,120 +570,11 @@ class _PaneFrame extends StatelessWidget {
                     ],
                   ),
                 ),
-                if (count != null)
-                  Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: palette.badgeBackground,
-                      borderRadius: BorderRadius.circular(999),
-                    ),
-                    child: Text(
-                      '$count',
-                      style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                            fontWeight: FontWeight.w700,
-                          ),
-                    ),
-                  ),
-                if (trailing != null) ...[
-                  const SizedBox(width: 8),
-                  trailing!,
-                ],
               ],
             ),
           ),
           if (expandChild) Expanded(child: child) else child,
         ],
-      ),
-    );
-  }
-}
-
-class _ColumnGroupPanel extends StatefulWidget {
-  const _ColumnGroupPanel({
-    super.key,
-    required this.title,
-    required this.children,
-    required this.initiallyExpanded,
-    required this.accent,
-    required this.count,
-    required this.selectedCount,
-    required this.onToggleAll,
-  });
-
-  final String title;
-  final List<Widget> children;
-  final bool initiallyExpanded;
-  final Color accent;
-  final int count;
-  final int selectedCount;
-  final VoidCallback onToggleAll;
-
-  @override
-  State<_ColumnGroupPanel> createState() => _ColumnGroupPanelState();
-}
-
-class _ColumnGroupPanelState extends State<_ColumnGroupPanel> {
-  late bool _expanded = widget.initiallyExpanded;
-
-  @override
-  Widget build(BuildContext context) {
-    final palette = appPalette(context);
-    return Column(
-      children: [
-        LibraryWorkspaceMenuTreeHeader(
-          label: widget.title,
-          expanded: _expanded,
-          highlighted: true,
-          onTap: () => setState(() => _expanded = !_expanded),
-          leading: Tooltip(
-            message: widget.selectedCount == widget.count
-                ? 'Clear group'
-                : 'Select group',
-            child: InkWell(
-              onTap: widget.onToggleAll,
-              child: Icon(
-                widget.selectedCount == widget.count
-                    ? Icons.check_box
-                    : widget.selectedCount == 0
-                        ? Icons.check_box_outline_blank
-                        : Icons.indeterminate_check_box,
-                size: 16,
-                color: widget.selectedCount == 0
-                    ? palette.textMuted
-                    : widget.accent,
-              ),
-            ),
-          ),
-        ),
-        if (_expanded) Column(children: widget.children),
-      ],
-    );
-  }
-}
-
-class _InlineClearButton extends StatelessWidget {
-  const _InlineClearButton({required this.onPressed});
-
-  final VoidCallback onPressed;
-
-  @override
-  Widget build(BuildContext context) {
-    final palette = appPalette(context);
-    return Padding(
-      padding: const EdgeInsets.only(right: 6),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          mouseCursor: WidgetStateMouseCursor.clickable,
-          onTap: onPressed,
-          borderRadius: BorderRadius.circular(4),
-          child: SizedBox(
-            width: 28,
-            height: 28,
-            child: Icon(Icons.close, size: 14, color: palette.textMuted),
-          ),
-        ),
       ),
     );
   }

@@ -116,3 +116,29 @@ explicit columns and scalar sorts; improve narrow layout and toolbar access;
 align table typography/date/alignment; simplify chooser geometry and favorites
 chrome. XML/merge require separate feature decisions. Do not revive legacy
 Classical/People or old Music recording fields merely to match CLZ labels.
+
+
+## Field chooser cutover ? 2026-10-11
+
+Select Sort Fields and Select Column Fields now use a shared 600px dialog,
+38px white-on-accent header, top alignment, two equal field panes, and a fixed
+Cancel/Save footer. Available categories and checkbox rows are 28px high;
+selected rows use the existing folder-favorite reorder list, insertion
+placeholder and hover/drag animation. The selected pane is inset, without
+extra available/selected headings or counts. Columns show the configuration
+name; sorting shows a field-priority summary and compact ASC/DESC controls.
+Folder Favorites shares the field search, category and checkbox primitives.
+
+The duplicated chooser pane/category/selected-row implementations were deleted.
+Title can be removed unless a caller explicitly requires a primary column.
+Sort priority follows the saved row order; at least one sort is retained.
+Favorites remain accessible from the header gear. Search and checkboxes use the
+current kind accent. Available fields are alphabetical within each category;
+selected fields retain their explicit order. Narrow dialogs stack the panes.
+
+Validation: 20 chooser/folder widget tests, including drag/save round trips,
+direction changes, Title removal and a 350px window; 277 library/Music/report
+regression tests; analyzer clean; Windows debug build succeeds. Live browser
+screenshots compare both choosers with CLZ and check 2508px/700px layouts.
+Manrope remains the app font; the geometry and weight approximate CLZ without
+copying its font files or restoring obsolete Music fields.

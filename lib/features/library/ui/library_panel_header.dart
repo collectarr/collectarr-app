@@ -115,6 +115,8 @@ class LibraryPanelHeader extends StatelessWidget {
                   visualDensity: VisualDensity.standard,
                   style: IconButton.styleFrom(
                     foregroundColor: fg,
+                    backgroundColor: Colors.transparent,
+                    side: BorderSide.none,
                     padding: EdgeInsets.zero,
                     minimumSize: const Size(24, 24),
                     maximumSize: const Size(24, 24),

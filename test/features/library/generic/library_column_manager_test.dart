@@ -33,6 +33,8 @@ void main() {
         containsAll(['Essential', 'Reference']));
     expect(dialog.presets.map((preset) => preset.label),
         contains('Collection'));
+    await tester.tap(find.byTooltip('Manage Favorites'));
+    await tester.pumpAndSettle();
     expect(
         find.byKey(const ValueKey('column-preset-Essential')), findsOneWidget);
     await tester.tap(find.text('Cancel'));
