@@ -17,7 +17,7 @@ void main() {
       MaterialApp(
         home: Scaffold(
           drawer: AppNavigationDrawer(
-            currentPath: '/libraries',
+            selectedAction: DrawerAction.libraries,
             isAdmin: true,
             accent: const Color(0xFFF2932F),
             addLabel: 'Add Albums from Core',

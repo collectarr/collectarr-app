@@ -55,6 +55,7 @@ class AppShell extends ConsumerStatefulWidget {
 class _AppShellState extends ConsumerState<AppShell> {
   bool _didRequestInitialOnlineFirstSync = false;
   int _drawerRequestSequence = 0;
+  DrawerAction? _openDrawerAction;
 
   BuildContext get _pageContext =>
       appPageNavigatorKey.currentState?.overlay?.context ?? context;
@@ -70,6 +71,23 @@ class _AppShellState extends ConsumerState<AppShell> {
       ref.read(syncControllerProvider.notifier).syncOnlineFirstIfEnabled();
     });
   }
+
+  @override
+  void didUpdateWidget(covariant AppShell oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.routeUri != widget.routeUri) _openDrawerAction = null;
+  }
+
+  DrawerAction? get _selectedDrawerAction =>
+      _openDrawerAction ??
+      switch (widget.routeUri.path) {
+        AppRoutes.libraries => DrawerAction.libraries,
+        AppRoutes.loans => DrawerAction.loanManager,
+        AppRoutes.calendar => DrawerAction.calendar,
+        AppRoutes.admin => DrawerAction.admin,
+        AppRoutes.settings => DrawerAction.settings,
+        _ => null,
+      };
 
   @override
   Widget build(BuildContext context) {
@@ -182,7 +200,7 @@ class _AppShellState extends ConsumerState<AppShell> {
           ],
         ),
         drawer: AppNavigationDrawer(
-          currentPath: widget.routeUri.path,
+          selectedAction: _selectedDrawerAction,
           isAdmin: auth.isAdmin,
           accent: accent,
           addLabel: 'Add ${activeType.identity.pluralLabel} from Core',
@@ -190,11 +208,11 @@ class _AppShellState extends ConsumerState<AppShell> {
             Navigator.of(drawerContext).pop();
             WidgetsBinding.instance.addPostFrameCallback((_) {
               if (!mounted) return;
-              _handleDrawerAction(
+              unawaited(_handleDrawerAction(
                 action,
                 type: activeType,
                 accent: accent,
-              );
+              ));
             });
           },
         ),
@@ -225,18 +243,48 @@ class _AppShellState extends ConsumerState<AppShell> {
     );
   }
 
-  void _handleDrawerAction(
+  Future<void> _handleDrawerAction(
     DrawerAction action, {
     required LibraryKindRegistration type,
     required Color accent,
-  }) {
+  }) async {
+    final routed = switch (action) {
+      DrawerAction.libraries ||
+      DrawerAction.loanManager ||
+      DrawerAction.calendar ||
+      DrawerAction.admin ||
+      DrawerAction.settings ||
+      DrawerAction.backupRestore ||
+      DrawerAction.clearDatabase ||
+      DrawerAction.addFromCore ||
+      DrawerAction.reassignIndex ||
+      DrawerAction.transferFieldData =>
+        true,
+      _ => false,
+    };
+    final previous = _openDrawerAction;
+    setState(() => _openDrawerAction = routed ? null : action);
+    try {
+      await _performDrawerAction(action, type: type, accent: accent);
+    } finally {
+      if (mounted && !routed && _openDrawerAction == action) {
+        setState(() => _openDrawerAction = previous);
+      }
+    }
+  }
+
+  Future<void> _performDrawerAction(
+    DrawerAction action, {
+    required LibraryKindRegistration type,
+    required Color accent,
+  }) async {
     final context = _pageContext;
     switch (action) {
       case DrawerAction.addFromCore:
         unawaited(_openCoreAdd(type, accent));
         return;
       case DrawerAction.managePickLists:
-        showPickListManagerDialog(
+        await showPickListManagerDialog(
           context: context,
           db: ref.read(localDatabaseProvider),
           registry: defaultPickListRegistry,
@@ -251,10 +299,10 @@ class _AppShellState extends ConsumerState<AppShell> {
         );
         return;
       case DrawerAction.manageCollections:
-        unawaited(_showManageCollections(type));
+        await _showManageCollections(type);
         return;
       case DrawerAction.printToPdf:
-        _withShelf((shelf) {
+        await _withShelf((shelf) {
           final items = libraryItemsForShelf(shelf, type);
           return printCollectionReport(
             context: context,
@@ -266,7 +314,7 @@ class _AppShellState extends ConsumerState<AppShell> {
         });
         return;
       case DrawerAction.statistics:
-        _withShelf((shelf) {
+        await _withShelf((shelf) {
           return showStatsDashboardDialog(
             context,
             type: type,
@@ -275,7 +323,7 @@ class _AppShellState extends ConsumerState<AppShell> {
         });
         return;
       case DrawerAction.findDuplicates:
-        _withShelf((shelf) {
+        await _withShelf((shelf) {
           final entries = shelf.entries
               .where((entry) => entry.mediaKind == type.kind)
               .toList(growable: false);
@@ -292,7 +340,7 @@ class _AppShellState extends ConsumerState<AppShell> {
         context.go(AppRoutes.loansForKind(type.kind));
         return;
       case DrawerAction.manageCustomFields:
-        showCustomFieldsManagementPage(
+        await showCustomFieldsManagementPage(
           context: context,
           db: ref.read(localDatabaseProvider),
           accent: accent,
@@ -300,14 +348,14 @@ class _AppShellState extends ConsumerState<AppShell> {
         );
         return;
       case DrawerAction.cloudSharing:
-        _withShelf(
+        await _withShelf(
             (shelf) => Navigator.of(context).push<void>(MaterialPageRoute(
                   builder: (_) => CollectionCloudSharingPage(
                       type: type, items: libraryItemsForShelf(shelf, type)),
                 )));
         return;
       case DrawerAction.prefillSettings:
-        showPrefillSettingsDialog(
+        await showPrefillSettingsDialog(
             context: context, accent: accent, kind: type.kind);
         return;
       case DrawerAction.settings:
@@ -331,7 +379,7 @@ class _AppShellState extends ConsumerState<AppShell> {
         _goToSettingsSection(SettingsSection.data, type.kind);
         return;
       case DrawerAction.exportCsv:
-        _withShelf((shelf) {
+        await _withShelf((shelf) {
           final items = libraryItemsForShelf(shelf, type);
           return exportCollectionCsvTxt(
             context: context,
@@ -343,7 +391,7 @@ class _AppShellState extends ConsumerState<AppShell> {
         });
         return;
       case DrawerAction.exportXml:
-        _withShelf((shelf) => showIntegrationExportDialog(
+        await _withShelf((shelf) => showIntegrationExportDialog(
               context: context,
               type: type,
               shelfState: _shelfForKind(shelf, type.kind),
@@ -351,7 +399,7 @@ class _AppShellState extends ConsumerState<AppShell> {
             ));
         return;
       case DrawerAction.importData:
-        _withShelf((shelf) {
+        await _withShelf((shelf) {
           return importCollectionData(
             context: context,
             type: type,
@@ -360,7 +408,7 @@ class _AppShellState extends ConsumerState<AppShell> {
         });
         return;
       case DrawerAction.linkAlbums:
-        _withShelf(
+        await _withShelf(
             (shelf) => Navigator.of(context).push<void>(MaterialPageRoute(
                   builder: (_) => LibraryLinkItemsPage(
                       type: type,
@@ -504,14 +552,14 @@ enum DrawerAction {
 class AppNavigationDrawer extends StatefulWidget {
   const AppNavigationDrawer({
     super.key,
-    required this.currentPath,
+    required this.selectedAction,
     required this.isAdmin,
     required this.accent,
     required this.addLabel,
     required this.onSelected,
   });
 
-  final String currentPath;
+  final DrawerAction? selectedAction;
   final bool isAdmin;
   final Color accent;
   final String addLabel;
@@ -609,7 +657,6 @@ class _AppNavigationDrawerState extends State<AppNavigationDrawer> {
                     'Libraries',
                     'assets/sidebar_icons/table-cells-large.svg',
                     DrawerAction.libraries,
-                    destination: AppRoutes.libraries,
                     key: const Key('nav.library'),
                   ),
                   const _DrawerDivider(),
@@ -637,7 +684,6 @@ class _AppNavigationDrawerState extends State<AppNavigationDrawer> {
                     'Loan Manager',
                     'assets/sidebar_icons/clock.svg',
                     DrawerAction.loanManager,
-                    destination: AppRoutes.loans,
                     key: const Key('nav.more'),
                   ),
                   _action(
@@ -645,7 +691,6 @@ class _AppNavigationDrawerState extends State<AppNavigationDrawer> {
                     'Calendar',
                     'assets/sidebar_icons/calendar-days.svg',
                     DrawerAction.calendar,
-                    destination: AppRoutes.calendar,
                     key: const Key('nav.calendar'),
                   ),
                   if (widget.isAdmin) ...[
@@ -659,7 +704,6 @@ class _AppNavigationDrawerState extends State<AppNavigationDrawer> {
                       'Admin',
                       'assets/sidebar_icons/shield-halved.svg',
                       DrawerAction.admin,
-                      destination: AppRoutes.admin,
                     ),
                   ],
                   const _DrawerDivider(),
@@ -690,7 +734,6 @@ class _AppNavigationDrawerState extends State<AppNavigationDrawer> {
                     'Settings',
                     'assets/sidebar_icons/gear.svg',
                     DrawerAction.settings,
-                    destination: AppRoutes.settings,
                   ),
                   const _DrawerDivider(),
                   _DrawerCollapsibleSectionLabel(
@@ -802,52 +845,54 @@ class _AppNavigationDrawerState extends State<AppNavigationDrawer> {
     String label,
     String svgAsset,
     DrawerAction action, {
-    String? destination,
     Key? key,
   }) {
     final palette = appPalette(context);
-    final selected = destination == widget.currentPath;
+    final selected = action == widget.selectedAction;
     final itemColor = selected
         ? widget.accent
         : (palette.isDark ? Colors.white : palette.textPrimary);
 
-    return InkWell(
-      key: key,
-      onTap: () => widget.onSelected(context, action),
-      hoverColor: palette.isDark ? const Color(0x26FFFFFF) : null,
-      child: Container(
-        color: selected
-            ? widget.accent.withValues(alpha: palette.isDark ? 0.2 : 0.1)
-            : Colors.transparent,
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
-        child: Row(
-          children: [
-            SizedBox(
-              width: 20,
-              height: 18,
-              child: Center(
-                child: SvgPicture.asset(
-                  svgAsset,
-                  width: 16,
-                  height: 16,
-                  colorFilter: ColorFilter.mode(itemColor, BlendMode.srcIn),
+    return Semantics(
+      selected: selected,
+      child: InkWell(
+        key: key,
+        onTap: () => widget.onSelected(context, action),
+        hoverColor: palette.isDark ? const Color(0x26FFFFFF) : null,
+        child: Container(
+          color: selected
+              ? widget.accent.withValues(alpha: palette.isDark ? 0.2 : 0.1)
+              : Colors.transparent,
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
+          child: Row(
+            children: [
+              SizedBox(
+                width: 20,
+                height: 18,
+                child: Center(
+                  child: SvgPicture.asset(
+                    svgAsset,
+                    width: 16,
+                    height: 16,
+                    colorFilter: ColorFilter.mode(itemColor, BlendMode.srcIn),
+                  ),
                 ),
               ),
-            ),
-            const SizedBox(width: 10),
-            Expanded(
-              child: Text(
-                label,
-                style: TextStyle(
-                  fontFamily: kAppFontFamily,
-                  fontFamilyFallback: kAppFontFamilyFallback,
-                  fontSize: 14,
-                  fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
-                  color: itemColor,
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  label,
+                  style: TextStyle(
+                    fontFamily: kAppFontFamily,
+                    fontFamilyFallback: kAppFontFamilyFallback,
+                    fontSize: 14,
+                    fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
+                    color: itemColor,
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

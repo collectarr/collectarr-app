@@ -9,6 +9,13 @@ reports 370. The latest dropdown and column-selector gate reports 371.
 
 ## Implemented
 
+Sidebar selection resolves routed destinations and tracks the lifetime of pages
+opened through drawer actions. Pushed tools such as Statistics, Print to PDF,
+Find Duplicates and export no longer leave Libraries highlighted merely because
+the underlying router URI is `/libraries`. Back restores the previous selection;
+routed navigation clears the pushed-page override. Navigation smoke tests cover
+the pushed Print page and restoration of Settings after Back.
+
 The [library dropdown audit](library-dropdown-parity-2026-10-11.md) consolidates
 neutral popup styling across workspace menus and edit pickers, keeps configured
 accent markers across overlays, and replaces the column launcher with an icon

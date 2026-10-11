@@ -172,6 +172,25 @@ void main() {
       expect(find.byKey(const Key('nav.library-kind-picker')), findsOneWidget);
       expect(find.byKey(const Key('nav.settings')), findsOneWidget);
       expect(find.byType(AppPageHeader), findsOneWidget);
+      await tester.tap(find.byKey(const Key('app.open-navigation')));
+      await pumpUntilSettled(tester);
+      expect(
+          tester
+              .widget<AppNavigationDrawer>(find.byType(AppNavigationDrawer))
+              .selectedAction,
+          DrawerAction.printToPdf);
+      expect(tester.widget<Text>(find.text('Libraries')).style?.fontWeight,
+          FontWeight.w500);
+      expect(
+          tester
+              .widget<Text>(find.descendant(
+                  of: find.byType(AppNavigationDrawer),
+                  matching: find.text('Print to PDF')))
+              .style
+              ?.fontWeight,
+          FontWeight.w700);
+      Navigator.of(tester.element(find.text('Libraries'))).pop();
+      await pumpUntilSettled(tester);
       await tester.tap(find.byKey(const Key('print_pdf.back')));
       await pumpUntilSettled(tester);
       expect(
@@ -179,6 +198,11 @@ void main() {
 
       await tester.tap(find.byKey(const Key('app.open-navigation')));
       await pumpUntilSettled(tester);
+      expect(
+          tester
+              .widget<AppNavigationDrawer>(find.byType(AppNavigationDrawer))
+              .selectedAction,
+          DrawerAction.settings);
       expect(find.text('My Shelf'), findsNothing);
       await tester.tap(find.text('Add Albums from Core'));
       await pumpUntilSettled(tester);
