@@ -665,9 +665,9 @@ class _LoanManagerPageState extends ConsumerState<LoanManagerPage> {
   Future<void> _printLoans(List<Loan> loans) async {
     try {
       final regular = pw.Font.ttf(
-          await rootBundle.load('assets/fonts/Manrope-Regular.ttf'));
+          await rootBundle.load('assets/fonts/PlusJakartaSans-Regular.ttf'));
       final bold =
-          pw.Font.ttf(await rootBundle.load('assets/fonts/Manrope-Bold.ttf'));
+          pw.Font.ttf(await rootBundle.load('assets/fonts/PlusJakartaSans-Bold.ttf'));
       final document =
           pw.Document(theme: pw.ThemeData.withFont(base: regular, bold: bold));
       document.addPage(pw.MultiPage(

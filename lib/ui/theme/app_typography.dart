@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
-/// Bundled geometric face, identical across web and desktop.
-const kAppFontFamily = 'Manrope';
-const kAppFontFamilyFallback = <String>[];
+/// System face with bundled geometric fallback, identical across web and desktop.
+const kAppFontFamily = 'Gilroy';
+const kAppFontFamilyFallback = ['Plus Jakarta Sans'];
 const kAppBodyFontSize = 14.0;
 const kAppCaptionFontSize = 13.0;
 const kAppNormalFontWeight = FontWeight.w500;
@@ -14,12 +14,14 @@ const kAppExtraBoldFontWeight = FontWeight.w800;
 TextTheme buildAppTextTheme(TextTheme base, Color foreground) {
   final themed = base.apply(
     fontFamily: kAppFontFamily,
+    fontFamilyFallback: kAppFontFamilyFallback,
     bodyColor: foreground,
     displayColor: foreground,
   );
   TextStyle role(TextStyle? baseStyle, double size, FontWeight weight) =>
       (baseStyle ?? const TextStyle()).copyWith(
         fontFamily: kAppFontFamily,
+        fontFamilyFallback: kAppFontFamilyFallback,
         fontSize: size,
         fontWeight: weight,
         letterSpacing: 0,

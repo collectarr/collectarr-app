@@ -9,7 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-const _primaryFontAsset = 'assets/fonts/Manrope-Regular.ttf';
+const _primaryFontAsset = 'assets/fonts/PlusJakartaSans-Regular.ttf';
 const _monoFontAsset = 'assets/fonts/JetBrainsMono-Variable.ttf';
 
 void main() {

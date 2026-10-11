@@ -59,19 +59,19 @@ flutter:
     - assets/collection_status/
     - assets/import_logos/
     - web/icons/Icon-maskable-192.png
-    - assets/fonts/Manrope-OFL.txt
+    - assets/fonts/PlusJakartaSans-OFL.txt
   fonts:
-    - family: Manrope
+    - family: Plus Jakarta Sans
       fonts:
-        - asset: assets/fonts/Manrope-Regular.ttf
+        - asset: assets/fonts/PlusJakartaSans-Regular.ttf
           weight: 400
-        - asset: assets/fonts/Manrope-Medium.ttf
+        - asset: assets/fonts/PlusJakartaSans-Medium.ttf
           weight: 500
-        - asset: assets/fonts/Manrope-SemiBold.ttf
+        - asset: assets/fonts/PlusJakartaSans-SemiBold.ttf
           weight: 600
-        - asset: assets/fonts/Manrope-Bold.ttf
+        - asset: assets/fonts/PlusJakartaSans-Bold.ttf
           weight: 700
-        - asset: assets/fonts/Manrope-ExtraBold.ttf
+        - asset: assets/fonts/PlusJakartaSans-ExtraBold.ttf
           weight: 800
     - family: Inter
       fonts:

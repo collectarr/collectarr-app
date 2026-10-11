@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 
 const String kClzPrimaryFontFamily = kAppFontFamily;
 const String kClzMonospaceFontFamily = 'JetBrains Mono';
-const List<String> kClzFontFallback = <String>[];
+const List<String> kClzFontFallback = kAppFontFamilyFallback;
 const List<String> kClzMonospaceFontFallback = <String>[];
 const double kAppInputBorderRadius = 4;
 const WidgetStateMouseCursor appClickableMouseCursor =

@@ -1481,7 +1481,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
 class _FontDiagnosticsPanel extends StatelessWidget {
   const _FontDiagnosticsPanel();
 
-  static const _primaryAsset = 'assets/fonts/Manrope-Regular.ttf';
+  static const _primaryAsset = 'assets/fonts/PlusJakartaSans-Regular.ttf';
   static const _monoAsset = 'assets/fonts/JetBrainsMono-Variable.ttf';
 
   Future<bool> _assetAvailable(String assetPath) async {
@@ -1499,10 +1499,11 @@ class _FontDiagnosticsPanel extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const Text('Primary: Manrope • Monospace: JetBrains Mono'),
+        const Text(
+            'Primary: Gilroy (Fallback: Plus Jakarta Sans) • Monospace: JetBrains Mono'),
         const SizedBox(height: 8),
         Text(
-          'Manrope sample: The quick brown fox 12345',
+          'Gilroy / Plus Jakarta Sans sample: The quick brown fox 12345',
           style: textTheme.bodyMedium?.copyWith(
             fontFamily: kClzPrimaryFontFamily,
             fontWeight: FontWeight.w600,
@@ -1521,7 +1522,7 @@ class _FontDiagnosticsPanel extends StatelessWidget {
           builder: (context, snapshot) {
             final ok = snapshot.data == true;
             return _FontStatusRow(
-              label: 'Manrope font asset',
+              label: 'Plus Jakarta Sans font asset',
               value: ok ? 'Loaded' : 'Missing',
               ok: ok,
             );
