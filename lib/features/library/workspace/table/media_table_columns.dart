@@ -124,6 +124,9 @@ String standardMediaTableColumnGroupLabel(LibraryTableColumnGroup group) {
     LibraryTableColumnGroup.edition => 'Edition',
     LibraryTableColumnGroup.value => 'Value',
     LibraryTableColumnGroup.personal => 'Personal',
+    LibraryTableColumnGroup.credits => 'Credits',
+    LibraryTableColumnGroup.images => 'Images',
+    LibraryTableColumnGroup.loan => 'Loan',
   };
 }
 
@@ -198,6 +201,9 @@ LibraryTableColumnGroup _tableColumnGroupFor(String? group) {
     'edition' => LibraryTableColumnGroup.edition,
     'value' => LibraryTableColumnGroup.value,
     'personal' => LibraryTableColumnGroup.personal,
+    'credits' => LibraryTableColumnGroup.credits,
+    'images' => LibraryTableColumnGroup.images,
+    'loan' => LibraryTableColumnGroup.loan,
     _ => LibraryTableColumnGroup.main,
   };
 }

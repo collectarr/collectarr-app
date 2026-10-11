@@ -19,6 +19,7 @@ class AccentDialogHeader extends StatelessWidget {
     this.titleStyle,
     this.accent,
     this.flat = false,
+    this.foregroundColor,
   });
 
   final String title;
@@ -26,6 +27,7 @@ class AccentDialogHeader extends StatelessWidget {
   final TextStyle? titleStyle;
   final Color? accent;
   final bool flat;
+  final Color? foregroundColor;
 
   final IconData? icon;
 
@@ -44,8 +46,8 @@ class AccentDialogHeader extends StatelessWidget {
     final colorScheme = Theme.of(context).colorScheme;
     final resolvedAccent = accent ??
         LibraryAccentScope.accentOf(context, fallback: colorScheme.primary);
-    final foreground =
-        flat ? appContrastingTextColor(resolvedAccent) : Colors.white;
+    final foreground = foregroundColor ??
+        (flat ? appContrastingTextColor(resolvedAccent) : Colors.white);
     final effectiveOnClose = showCloseButton
         ? (onClose ?? () => Navigator.of(context).maybePop())
         : null;

@@ -346,17 +346,19 @@ class LibraryWorkspace extends ConsumerWidget {
         final painter = TextPainter(
           textDirection: Directionality.of(context),
           textScaler: MediaQuery.textScalerOf(context),
-          maxLines: 3,
+          maxLines: null,
         );
-        final style =
-            Theme.of(context).textTheme.bodyMedium?.copyWith(fontSize: 14);
+        final style = Theme.of(context)
+            .textTheme
+            .bodyMedium
+            ?.copyWith(fontSize: 14, fontWeight: FontWeight.w500);
         if (preferences.autoSizeColumns) {
           for (final column in visibleColumns) {
             var width =
                 workspace.defaultTableColumnWidth(column, target: schemaNode);
             for (final text in [
               workspace.columnLabel(column, target: schemaNode),
-              ...items.take(200).map((item) => cellText(item, column.value))
+              ...items.map((item) => cellText(item, column.value))
             ]) {
               painter.text = TextSpan(text: text, style: style);
               painter.layout();
@@ -381,7 +383,7 @@ class LibraryWorkspace extends ConsumerWidget {
               final measure = TextPainter(
                 textDirection: Directionality.of(context),
                 textScaler: MediaQuery.textScalerOf(context),
-                maxLines: 3,
+                maxLines: null,
               );
               var height = effectiveRowHeight;
               for (final column in visibleColumns) {
@@ -472,6 +474,26 @@ class LibraryWorkspace extends ConsumerWidget {
                     onSortChanged: (column) => onSortChanged(column),
                     onColumnWidthChanged: (column, width) =>
                         onColumnWidthChanged(column, width),
+                    onColumnAutoSize: (column) {
+                      final measure = TextPainter(
+                          textDirection: Directionality.of(context),
+                          textScaler: MediaQuery.textScalerOf(context));
+                      var width = 40.0;
+                      for (final text in [
+                        workspace.columnLabel(
+                            workspace
+                                .fieldsForTarget(schemaNode)
+                                .decodeColumnId(column),
+                            target: schemaNode),
+                        ...items.map((item) => cellText(item, column))
+                      ]) {
+                        measure.text = TextSpan(text: text, style: style);
+                        measure.layout();
+                        width = math.max(width, measure.width + 24);
+                      }
+                      measure.dispose();
+                      onColumnWidthChanged(column, width);
+                    },
                     onColumnReordered: (column, beforeColumn) =>
                         onColumnReordered(
                       column,
@@ -508,8 +530,8 @@ class LibraryWorkspace extends ConsumerWidget {
                     rowHeight: effectiveRowHeight,
                     rowHeightFor:
                         preferences.wrapColumnContent ? heightFor : null,
-                    columnSpacing:
-                        math.max(4.0, 8.0 + (preferences.gridSpacing - 10.0) * 0.4),
+                    columnSpacing: math.max(
+                        4.0, 8.0 + (preferences.gridSpacing - 10.0) * 0.4),
                     horizontalMargin: 6,
                     selectionRailWidth: 2,
                     headerColor: libraryWorkspaceTableHeaderColor(context),

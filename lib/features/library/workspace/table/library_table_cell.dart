@@ -17,10 +17,11 @@ class LibraryTableCellText extends StatelessWidget {
     final isEmpty = value == null || value!.isEmpty;
     return Text(
       isEmpty ? emptyText : value!,
-      maxLines: LibraryTableCellDisplayScope.wraps(context) ? 3 : 1,
+      maxLines: LibraryTableCellDisplayScope.wraps(context) ? null : 1,
       overflow: TextOverflow.ellipsis,
       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
             fontSize: fontSize,
+            fontWeight: FontWeight.w500,
             color:
                 isEmpty ? Theme.of(context).colorScheme.onSurfaceVariant : null,
           ),

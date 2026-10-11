@@ -61,6 +61,7 @@ class _LibraryColumnChooserDialogState
       TextEditingController(text: _activePreset?.label ?? '');
   final TextEditingController _searchController = TextEditingController();
   String _query = '';
+  bool _showFavorites = false;
 
   String? get _effectivePrimaryColumn =>
       widget.primaryColumn ??
@@ -142,7 +143,8 @@ class _LibraryColumnChooserDialogState
           child: DecoratedBox(
             decoration: BoxDecoration(
               color: palette.panelRaised,
-              borderRadius: BorderRadius.zero,
+              borderRadius:
+                  const BorderRadius.vertical(top: Radius.circular(4)),
               border: Border.all(color: palette.divider),
               boxShadow: const [
                 BoxShadow(
@@ -156,6 +158,14 @@ class _LibraryColumnChooserDialogState
               children: [
                 AccentDialogHeader(
                   title: 'Select Column Fields',
+                  titleStyle: const TextStyle(color: Colors.white),
+                  foregroundColor: Colors.white,
+                  trailing: IconButton(
+                      tooltip: 'Manage Favorites',
+                      icon: const Icon(Icons.settings,
+                          color: Colors.white, size: 16),
+                      onPressed: () =>
+                          setState(() => _showFavorites = !_showFavorites)),
                   accent: accent,
                   flat: true,
                   minHeight: 38,
@@ -171,8 +181,9 @@ class _LibraryColumnChooserDialogState
                         padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
                         child: Column(
                           children: [
-                            if (_allPresets.isNotEmpty ||
-                                widget.onSavePreset != null)
+                            if (_showFavorites &&
+                                (_allPresets.isNotEmpty ||
+                                    widget.onSavePreset != null))
                               SizedBox(
                                 height: favoritesHeight,
                                 child: _PresetShelf(
@@ -248,7 +259,7 @@ class _LibraryColumnChooserDialogState
                                                 contentPadding:
                                                     const EdgeInsets.symmetric(
                                                   horizontal: 10,
-                                                  vertical: 10,
+                                                  vertical: 4,
                                                 ),
                                               ),
                                               onChanged: (value) => setState(
@@ -549,6 +560,9 @@ class _LibraryColumnChooserDialogState
           LibraryTableColumnGroup.edition => 'Edition',
           LibraryTableColumnGroup.value => 'Value',
           LibraryTableColumnGroup.personal => 'Personal',
+          LibraryTableColumnGroup.credits => 'Credits',
+          LibraryTableColumnGroup.images => 'Images',
+          LibraryTableColumnGroup.loan => 'Loan',
         };
   }
 

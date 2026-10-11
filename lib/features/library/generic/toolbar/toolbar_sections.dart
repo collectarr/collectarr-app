@@ -276,10 +276,12 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
                                 LibraryCoverSizeSlider(
                                   viewMode: viewState.viewMode,
                                   coverSize: viewState.coverSize,
-                                  minCoverSize: libraryViewProfileForKind(type.kind)
-                                      .minCoverSize,
-                                  maxCoverSize: libraryViewProfileForKind(type.kind)
-                                      .maxCoverSize,
+                                  minCoverSize:
+                                      libraryViewProfileForKind(type.kind)
+                                          .minCoverSize,
+                                  maxCoverSize:
+                                      libraryViewProfileForKind(type.kind)
+                                          .maxCoverSize,
                                   onChanged: onCoverSizeChanged,
                                 ),
                               if (viewState.viewMode.supportsCoverSize)
@@ -367,9 +369,11 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
         onChanged: onSpacingChanged!,
       );
     }
-    final hasProvider =
-        context.findAncestorWidgetOfExactType<ProviderScope>() != null ||
-        context.findAncestorWidgetOfExactType<UncontrolledProviderScope>() != null;
+    final hasProvider = context
+                .findAncestorWidgetOfExactType<ProviderScope>() !=
+            null ||
+        context.findAncestorWidgetOfExactType<UncontrolledProviderScope>() !=
+            null;
     if (!hasProvider) {
       return LibrarySpacingSlider(
         spacing: currentSpacing ?? 10.0,
@@ -819,7 +823,7 @@ class LibrarySelectionToolbarBand extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     leftOptions,
-                    const Spacer(),
+                    const SizedBox(width: 12),
                     centerActions,
                     const Spacer(),
                     Center(child: rightCountPill),

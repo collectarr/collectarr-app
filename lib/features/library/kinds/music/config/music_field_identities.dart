@@ -172,6 +172,7 @@ abstract final class MusicFieldIdentities {
     source: LibraryFieldSource.catalog,
     sourcePath: 'barcode',
     searchable: true,
+    sortable: true,
     exportable: true,
     editable: true,
   );
@@ -186,6 +187,7 @@ abstract final class MusicFieldIdentities {
     source: LibraryFieldSource.catalog,
     sourcePath: 'catalog_number',
     searchable: true,
+    sortable: true,
     exportable: true,
     editable: true,
   );

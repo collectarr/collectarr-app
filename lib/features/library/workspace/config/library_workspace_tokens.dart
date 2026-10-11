@@ -107,16 +107,16 @@ extension LibraryWorkspaceDensityPresetMetrics
   double get tableHeaderHeight {
     return switch (this) {
       LibraryWorkspaceDensityPreset.comfortable => 30.0,
-      LibraryWorkspaceDensityPreset.compact => 28.0,
+      LibraryWorkspaceDensityPreset.compact => 26.0,
       LibraryWorkspaceDensityPreset.ultraCompact => 26.0,
     };
   }
 
   double get tableRowHeight {
     return switch (this) {
-      LibraryWorkspaceDensityPreset.comfortable => 38.0,
-      LibraryWorkspaceDensityPreset.compact => 34.0,
-      LibraryWorkspaceDensityPreset.ultraCompact => 30.0,
+      LibraryWorkspaceDensityPreset.comfortable => 32.0,
+      LibraryWorkspaceDensityPreset.compact => 26.0,
+      LibraryWorkspaceDensityPreset.ultraCompact => 22.0,
     };
   }
 

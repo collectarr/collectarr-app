@@ -379,9 +379,7 @@ void main() {
                   },
                   showStatus: true,
                   statusBuilder: (entry) => Icon(
-                    entry == 'Spider-Man'
-                        ? Icons.check_circle
-                        : Icons.bookmark,
+                    entry == 'Spider-Man' ? Icons.check_circle : Icons.bookmark,
                     key: ValueKey('status-$entry'),
                     size: 16,
                   ),

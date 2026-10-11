@@ -21,9 +21,9 @@ typedef LibraryColumnReordered = void Function(
   String? beforeColumn,
 );
 
-const double kLibraryTableCheckboxWidth = 32.0;
-const double kLibraryTableStatusWidth = 26.0;
-const double kLibraryTableEditWidth = 26.0;
+const double kLibraryTableCheckboxWidth = 28.0;
+const double kLibraryTableStatusWidth = 28.0;
+const double kLibraryTableEditWidth = 28.0;
 
 class LibraryWorkspaceTable<T> extends StatefulWidget {
   const LibraryWorkspaceTable({
@@ -45,6 +45,7 @@ class LibraryWorkspaceTable<T> extends StatefulWidget {
     required this.onSortChanged,
     required this.onColumnWidthChanged,
     this.onColumnReordered,
+    this.onColumnAutoSize,
     this.showCheckbox = false,
     this.isEntryChecked,
     this.onToggleEntryCheck,
@@ -92,6 +93,7 @@ class LibraryWorkspaceTable<T> extends StatefulWidget {
   final ValueChanged<String> onSortChanged;
   final void Function(String column, double width) onColumnWidthChanged;
   final LibraryColumnReordered? onColumnReordered;
+  final ValueChanged<String>? onColumnAutoSize;
   final bool showCheckbox;
   final bool Function(T entry)? isEntryChecked;
   final ValueChanged<T>? onToggleEntryCheck;
@@ -199,6 +201,7 @@ class _LibraryWorkspaceTableState<T> extends State<LibraryWorkspaceTable<T>> {
               onSortChanged: widget.onSortChanged,
               onColumnWidthChanged: widget.onColumnWidthChanged,
               onColumnReordered: widget.onColumnReordered,
+              onColumnAutoSize: widget.onColumnAutoSize,
               showCheckbox: widget.showCheckbox,
               allChecked: widget.allChecked,
               hasPartialCheck: widget.hasPartialCheck,
@@ -304,6 +307,7 @@ class _LibraryWorkspaceTableHeader extends StatelessWidget {
     required this.onSortChanged,
     required this.onColumnWidthChanged,
     required this.onColumnReordered,
+    required this.onColumnAutoSize,
     this.showCheckbox = false,
     this.allChecked = false,
     this.hasPartialCheck = false,
@@ -329,6 +333,7 @@ class _LibraryWorkspaceTableHeader extends StatelessWidget {
   final ValueChanged<String> onSortChanged;
   final void Function(String column, double width) onColumnWidthChanged;
   final LibraryColumnReordered? onColumnReordered;
+  final ValueChanged<String>? onColumnAutoSize;
   final bool showCheckbox;
   final bool allChecked;
   final bool hasPartialCheck;
@@ -387,22 +392,46 @@ class _LibraryWorkspaceTableHeader extends StatelessWidget {
               SizedBox(width: columnSpacing),
             ],
             for (var index = 0; index < columns.length; index += 1) ...[
-              _LibraryWorkspaceTableHeaderCell(
-                column: columns[index],
-                width: columnWidthFor(columns[index]),
-                defaultWidth: defaultColumnWidthFor(columns[index]),
-                sorted: columnSortFor(columns[index]) == sortColumn ||
-                    _sortPriorityFor(columnSortFor(columns[index])) != null,
-                ascending: sortAscending,
-                sort: columnSortFor(columns[index]),
-                sortPriority: _sortPriorityFor(columnSortFor(columns[index])),
-                label: columnLabelFor(columns[index]),
-                onSortChanged: onSortChanged,
-                onColumnWidthChanged: onColumnWidthChanged,
-                height: headerHeight,
-                headerColor: headerColor,
-                accentColor: accentColor,
-                dividerColor: dividerColor,
+              DragTarget<String>(
+                onWillAcceptWithDetails: (details) =>
+                    onColumnReordered != null && details.data != columns[index],
+                onAcceptWithDetails: (details) =>
+                    onColumnReordered?.call(details.data, columns[index]),
+                builder: (context, candidates, rejected) => Draggable<String>(
+                  data: columns[index],
+                  maxSimultaneousDrags: onColumnReordered == null ? 0 : 1,
+                  feedback: Material(
+                      color: headerColor,
+                      child: Padding(
+                          padding: const EdgeInsets.all(8),
+                          child: Text(columnLabelFor(columns[index]),
+                              style: TextStyle(
+                                  color: accentColor,
+                                  fontWeight: FontWeight.w800)))),
+                  childWhenDragging: SizedBox(
+                      width: columnWidthFor(columns[index]),
+                      height: headerHeight),
+                  child: _LibraryWorkspaceTableHeaderCell(
+                    column: columns[index],
+                    width: columnWidthFor(columns[index]),
+                    defaultWidth: defaultColumnWidthFor(columns[index]),
+                    onAutoSize: onColumnAutoSize,
+                    sorted: columnSortFor(columns[index]) == sortColumn ||
+                        _sortPriorityFor(columnSortFor(columns[index])) != null,
+                    ascending: sortAscending,
+                    sort: columnSortFor(columns[index]),
+                    sortPriority: sortRules.length > 1
+                        ? _sortPriorityFor(columnSortFor(columns[index]))
+                        : null,
+                    label: columnLabelFor(columns[index]),
+                    onSortChanged: onSortChanged,
+                    onColumnWidthChanged: onColumnWidthChanged,
+                    height: headerHeight,
+                    headerColor: headerColor,
+                    accentColor: accentColor,
+                    dividerColor: dividerColor,
+                  ),
+                ),
               ),
               if (index + 1 < columns.length) SizedBox(width: columnSpacing),
             ],
@@ -430,6 +459,7 @@ class _LibraryWorkspaceTableHeaderCell extends StatelessWidget {
     required this.column,
     required this.width,
     required this.defaultWidth,
+    this.onAutoSize,
     required this.sorted,
     required this.ascending,
     required this.sort,
@@ -446,6 +476,7 @@ class _LibraryWorkspaceTableHeaderCell extends StatelessWidget {
   final String column;
   final double width;
   final double defaultWidth;
+  final ValueChanged<String>? onAutoSize;
   final bool sorted;
   final bool ascending;
   final String? sort;
@@ -485,7 +516,7 @@ class _LibraryWorkspaceTableHeaderCell extends StatelessWidget {
                       style: TextStyle(
                         color: headerTextColor,
                         fontWeight: FontWeight.w800,
-                        fontSize: 13,
+                        fontSize: 14,
                         letterSpacing: 0.1,
                       ),
                     ),
@@ -531,7 +562,9 @@ class _LibraryWorkspaceTableHeaderCell extends StatelessWidget {
                         (width + details.delta.dx).clamp(40.0, double.infinity);
                     onColumnWidthChanged(column, nextWidth.toDouble());
                   },
-                  onDoubleTap: () => onColumnWidthChanged(column, defaultWidth),
+                  onDoubleTap: () => onAutoSize != null
+                      ? onAutoSize!(column)
+                      : onColumnWidthChanged(column, defaultWidth),
                   child: SizedBox(
                     width: 10,
                     child: Center(
@@ -711,10 +744,10 @@ class _LibraryWorkspaceTableRow<T> extends StatelessWidget {
                     onTap:
                         onEditEntry == null ? null : () => onEditEntry!(entry),
                     radius: 12,
-                    child: const Icon(
+                    child: Icon(
                       Icons.edit_outlined,
                       size: 14,
-                      color: Colors.white54,
+                      color: accentColor,
                     ),
                   ),
                 ),

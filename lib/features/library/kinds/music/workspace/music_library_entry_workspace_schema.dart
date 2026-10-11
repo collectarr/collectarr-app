@@ -1,4 +1,5 @@
 import 'columns/music_catalog_workspace_columns.dart';
+import 'music_additional_workspace_fields.dart';
 import 'music_workspace_groups.dart';
 import 'package:collectarr_app/features/library/kinds/music/workspace/music_ids.dart';
 import 'package:collectarr_app/features/library/kinds/music/config/music_field_identities.dart';
@@ -26,6 +27,14 @@ final musicLibraryEntryWorkspaceSchema =
   ],
   columns: [
     ...musicCatalogWorkspaceColumns,
+    for (final field in MusicAdditionalWorkspaceFields.personal)
+      columnFromField(field,
+          group: field == MusicAdditionalWorkspaceFields.loanTo
+              ? 'Loan'
+              : 'Personal',
+          isNumeric: field == MusicAdditionalWorkspaceFields.quantity,
+          cellValue: (c) => Text(formatMusicCell(field.getValue(c))),
+          defaultWidth: 150),
     columnFromField<MusicKind, MusicWorkspaceProjection, String?>(
       MusicPersonalWorkspaceFields.condition,
       group: 'Personal',
@@ -80,6 +89,22 @@ final musicLibraryEntryWorkspaceSchema =
   ],
   sorts: [
     musicStatusSort(),
+    sortFromField(MusicAdditionalWorkspaceFields.subtitle),
+    sortFromField(MusicAdditionalWorkspaceFields.sortTitle),
+    sortFromField(MusicAdditionalWorkspaceFields.quantity, group: 'Personal'),
+    sortFromField(MusicAdditionalWorkspaceFields.owner, group: 'Personal'),
+    sortFromField(MusicAdditionalWorkspaceFields.purchaseStore,
+        group: 'Personal'),
+    sortFromField(MusicAdditionalWorkspaceFields.collectionStatus,
+        group: 'Personal'),
+    sortFromField(MusicAdditionalWorkspaceFields.loanTo, group: 'Loan'),
+    sortFromField(MusicAdditionalWorkspaceFields.releaseYear),
+    sortFromField(MusicAdditionalWorkspaceFields.releaseMonth),
+    sortFromField(MusicAdditionalWorkspaceFields.originalReleaseDate),
+    sortFromField(MusicAdditionalWorkspaceFields.originalReleaseYear),
+    sortFromField(MusicAdditionalWorkspaceFields.originalReleaseMonth),
+    sortFromField(MusicCatalogWorkspaceFields.catalogNumber),
+    sortFromField(MusicCatalogWorkspaceFields.barcode),
     if (MusicFieldIdentities.artistSummary.sortable)
       sortFromField<MusicKind, MusicWorkspaceProjection, String>(
         MusicCatalogWorkspaceFields.artistSummary,

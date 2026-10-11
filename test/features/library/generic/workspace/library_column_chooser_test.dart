@@ -116,6 +116,9 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Select Column Fields'), findsOneWidget);
+    expect(find.text('Column Favorites'), findsNothing);
+    await tester.tap(find.byTooltip('Manage Favorites'));
+    await tester.pumpAndSettle();
     expect(find.text('Column Favorites'), findsOneWidget);
     expect(find.text('Available fields'), findsOneWidget);
     expect(find.text('Selected columns'), findsOneWidget);
@@ -174,6 +177,8 @@ void main() {
     expect(find.byKey(const ValueKey('selected-column-issue')), findsOneWidget);
     expect(find.byKey(const ValueKey('selected-column-barcode')), findsNothing);
 
+    await tester.tap(find.byTooltip('Manage Favorites'));
+    await tester.pumpAndSettle();
     await tester.tap(find.byKey(const ValueKey('column-preset-Barcode View')));
     await tester.pumpAndSettle();
 
@@ -227,6 +232,9 @@ void main() {
 
     // The compact CLZ-style shelf no longer exposes pin buttons directly;
     // verify the dialog renders without error when the callback is provided.
+    expect(find.text('Column Favorites'), findsNothing);
+    await tester.tap(find.byTooltip('Manage Favorites'));
+    await tester.pumpAndSettle();
     expect(find.text('Column Favorites'), findsOneWidget);
     expect(toggledPreset, isNull);
     expect(

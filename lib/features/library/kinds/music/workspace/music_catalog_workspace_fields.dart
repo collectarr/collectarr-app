@@ -6,6 +6,8 @@ import 'package:collectarr_app/features/library/kinds/music/workspace/music_work
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/schema/field_factories.dart';
 
+import 'music_additional_workspace_fields.dart';
+
 abstract final class MusicCatalogWorkspaceFields {
   static Iterable<String> artistValues(MusicWorkspaceProjection dto) =>
       dto.facts.artistNames;
@@ -221,7 +223,8 @@ abstract final class MusicCatalogWorkspaceFields {
         0,
         (total, track) => total + (track.durationMs ?? 0),
       );
-      final totalSeconds = totalDurationMs == 0 ? null : (totalDurationMs / 1000).round();
+      final totalSeconds =
+          totalDurationMs == 0 ? null : (totalDurationMs / 1000).round();
       if (totalSeconds == null || totalSeconds <= 0) return null;
       final hours = totalSeconds ~/ 3600;
       final minutes = (totalSeconds % 3600) ~/ 60;
@@ -253,6 +256,7 @@ abstract final class MusicCatalogWorkspaceFields {
 
   static final all =
       <LibraryFieldDefinition<MusicKind, MusicWorkspaceProjection, Object?>>[
+    ...MusicAdditionalWorkspaceFields.catalog,
     title,
     artist,
     artistSummary,

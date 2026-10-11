@@ -61,7 +61,9 @@ LibraryColumnDefinition<MusicKind, MusicWorkspaceProjection, DateTime?>
 }) {
   return columnFromField<MusicKind, MusicWorkspaceProjection, DateTime?>(
     field,
-    cellValue: (context) => Text(formatMusicDate(field.getValue(context))),
+    cellValue: (context) =>
+        Text(formatMusicPartialDate(context.dto.music.releaseDateParts)),
+    isNumeric: true,
     defaultWidth: 118,
   );
 }

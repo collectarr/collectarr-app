@@ -10,6 +10,8 @@ import 'package:collectarr_app/features/library/kinds/music/workspace/music_work
 import 'package:collectarr_app/features/library/kinds/registry/library_entry_dispatch.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 
+import 'music_additional_workspace_fields.dart';
+
 abstract final class MusicPersonalWorkspaceFields {
   static final condition =
       LibraryFieldDefinition<MusicKind, MusicWorkspaceProjection, String?>(
@@ -202,6 +204,7 @@ abstract final class MusicPersonalWorkspaceFields {
 
   static final all =
       <LibraryFieldDefinition<MusicKind, MusicWorkspaceProjection, Object?>>[
+    ...MusicAdditionalWorkspaceFields.personal,
     condition,
     grade,
     location,

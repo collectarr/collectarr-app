@@ -94,7 +94,7 @@ class _LibrarySortDialogState extends State<_LibrarySortDialog> {
     final palette = appPalette(context);
     final accent = widget.type.identity.accent;
     final viewport = MediaQuery.sizeOf(context);
-    final dialogWidth = (viewport.width - 32).clamp(0.0, 960.0);
+    final dialogWidth = (viewport.width - 32).clamp(0.0, 600.0);
     final availableColumns = _filteredColumns();
     final matchingPreset = _matchingPreset;
     final favoriteCount =
@@ -120,14 +120,15 @@ class _LibrarySortDialogState extends State<_LibrarySortDialog> {
         alignment: Alignment.topCenter,
         insetPadding: const EdgeInsets.fromLTRB(16, 28, 16, 24),
         child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 960, maxHeight: 850),
+          constraints: const BoxConstraints(maxWidth: 600, maxHeight: 850),
           child: SizedBox(
             width: viewport.width - 32,
             height: (viewport.height - 52).clamp(0.0, 850.0),
             child: DecoratedBox(
               decoration: BoxDecoration(
                 color: palette.panelRaised,
-                borderRadius: BorderRadius.zero,
+                borderRadius:
+                    const BorderRadius.vertical(top: Radius.circular(4)),
                 border: Border.all(color: palette.divider),
                 boxShadow: const [
                   BoxShadow(
@@ -144,7 +145,8 @@ class _LibrarySortDialogState extends State<_LibrarySortDialog> {
                     accent: accent,
                     flat: true,
                     minHeight: 38,
-                    icon: Icons.sort,
+                    titleStyle: const TextStyle(color: Colors.white),
+                    foregroundColor: Colors.white,
                     trailing: dialogWidth < 900
                         ? PopupMenuButton<LibrarySortPreset>(
                             tooltip: 'Sorting favorites',
@@ -1235,6 +1237,9 @@ String _groupLabel(LibraryTableColumnGroup group) {
     LibraryTableColumnGroup.value => 'Value',
     LibraryTableColumnGroup.edition => 'Edition',
     LibraryTableColumnGroup.personal => 'Personal',
+    LibraryTableColumnGroup.credits => 'Credits',
+    LibraryTableColumnGroup.images => 'Images',
+    LibraryTableColumnGroup.loan => 'Loan',
   };
 }
 
