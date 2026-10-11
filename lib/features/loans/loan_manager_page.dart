@@ -192,9 +192,27 @@ class _LoanManagerPageState extends ConsumerState<LoanManagerPage> {
 
   Future<LibraryEntrySummary?> _resolveLibraryEntryFromBarcode(
       String barcode) async {
+    final workspace = await ref.read(shelfProvider.future);
+    final matching = <LibraryEntrySummary>[];
+    for (final source in workspace.entries) {
+      if (!source.isEntry ||
+          (widget.kind != null && source.mediaKind != widget.kind)) {
+        continue;
+      }
+      final card = libraryPresentationForKind(source.mediaKind)
+          .buildCardPresentation(
+              LibraryProjectionItem.fromShelf(
+                  source, libraryKindRegistrationForKind(source.mediaKind)),
+              coverFocused: false);
+      if (card.identifierCode == barcode) {
+        matching.add(source.libraryEntrySummary!);
+      }
+    }
+    if (matching.length == 1) return matching.single;
+    if (matching.length > 1) return _pickLibraryEntry(matching, barcode);
     final catalog = await CatalogLookupRepository(
       ref.read(localDatabaseProvider),
-    ).resolve(CatalogLookupQuery(value: barcode));
+    ).resolve(CatalogLookupQuery(value: barcode), kind: widget.kind);
     if (catalog == null) {
       return null;
     }
@@ -220,57 +238,70 @@ class _LoanManagerPageState extends ConsumerState<LoanManagerPage> {
   }
 
   Future<void> _loanByBarcode() async {
-    final barcode = _barcodeController.text.trim();
-    if (barcode.isEmpty) {
-      showAppToast(context, 'Enter or scan a barcode first.',
-          tone: AppToastTone.info);
-      return;
+    try {
+      final barcode = _barcodeController.text.trim();
+      if (barcode.isEmpty) {
+        showAppToast(context, 'Enter or scan a barcode first.',
+            tone: AppToastTone.info);
+        return;
+      }
+      final libraryEntry = await _resolveLibraryEntryFromBarcode(barcode);
+      if (!mounted) {
+        return;
+      }
+      if (libraryEntry == null) {
+        showAppToast(context, 'No collection item found for barcode $barcode.',
+            tone: AppToastTone.error);
+        return;
+      }
+      await _createLoan(libraryEntry);
+    } catch (error) {
+      if (mounted) {
+        showAppToast(context, 'Could not lend this item: $error',
+            tone: AppToastTone.error);
+      }
     }
-    final libraryEntry = await _resolveLibraryEntryFromBarcode(barcode);
-    if (!mounted) {
-      return;
-    }
-    if (libraryEntry == null) {
-      showAppToast(context, 'No collection item found for barcode $barcode.',
-          tone: AppToastTone.error);
-      return;
-    }
-    await _createLoan(libraryEntry);
   }
 
   Future<void> _returnByBarcode() async {
-    final barcode = _barcodeController.text.trim();
-    if (barcode.isEmpty) {
-      showAppToast(context, 'Enter or scan a barcode first.',
-          tone: AppToastTone.info);
-      return;
+    try {
+      final barcode = _barcodeController.text.trim();
+      if (barcode.isEmpty) {
+        showAppToast(context, 'Enter or scan a barcode first.',
+            tone: AppToastTone.info);
+        return;
+      }
+      final libraryEntry = await _resolveLibraryEntryFromBarcode(barcode);
+      if (!mounted) {
+        return;
+      }
+      if (libraryEntry == null) {
+        showAppToast(context, 'No collection item found for barcode $barcode.',
+            tone: AppToastTone.error);
+        return;
+      }
+      final activeLoans = _loans
+          .where((loan) =>
+              loan.libraryEntryRef == libraryEntry.ref && loan.isActive)
+          .toList();
+      if (activeLoans.isEmpty) {
+        showAppToast(context, 'No active loan found for that item.',
+            tone: AppToastTone.info);
+        return;
+      }
+      final loan = activeLoans.length == 1
+          ? activeLoans.single
+          : await _pickLoan(activeLoans, _catalogTitleFor(libraryEntry));
+      if (loan == null || !mounted) {
+        return;
+      }
+      await _returnLoan(loan);
+    } catch (error) {
+      if (mounted) {
+        showAppToast(context, 'Could not return this item: $error',
+            tone: AppToastTone.error);
+      }
     }
-    final libraryEntry = await _resolveLibraryEntryFromBarcode(barcode);
-    if (!mounted) {
-      return;
-    }
-    if (libraryEntry == null) {
-      showAppToast(context, 'No collection item found for barcode $barcode.',
-          tone: AppToastTone.error);
-      return;
-    }
-    final activeLoans = _loans
-        .where(
-            (loan) => loan.libraryEntryRef == libraryEntry.ref && loan.isActive)
-        .toList();
-    if (activeLoans.isEmpty) {
-      showAppToast(context, 'No active loan found for that item.',
-          tone: AppToastTone.info);
-      return;
-    }
-    final loan = activeLoans.length == 1
-        ? activeLoans.single
-        : await _pickLoan(activeLoans, _catalogTitleFor(libraryEntry));
-    if (loan == null || !mounted) {
-      return;
-    }
-    await LoanRepository(ref.read(localDatabaseProvider)).markReturned(loan.id);
-    await _load();
   }
 
   Future<Loan?> _pickLoan(List<Loan> loans, String title) async {
@@ -284,35 +315,48 @@ class _LoanManagerPageState extends ConsumerState<LoanManagerPage> {
   }
 
   Future<void> _createLoan(LibraryEntrySummary libraryEntry) async {
-    final catalogTitle = _catalogTitleFor(libraryEntry);
-    final draft = await showDialog<_LoanDraft>(
-      context: context,
-      builder: (context) => _LoanCreateDialog(
-        title: catalogTitle,
-        accent: LibraryAccentScope.accentOf(context),
-      ),
-    );
-    if (draft == null || !mounted) {
-      return;
+    try {
+      final catalogTitle = _catalogTitleFor(libraryEntry);
+      final draft = await showDialog<_LoanDraft>(
+        context: context,
+        builder: (context) => _LoanCreateDialog(
+          title: catalogTitle,
+          accent: LibraryAccentScope.accentOf(context),
+        ),
+      );
+      if (draft == null || !mounted) {
+        return;
+      }
+      final loan = Loan(
+          id: DateTime.now().microsecondsSinceEpoch.toString(),
+          libraryEntryRef: libraryEntry.ref,
+          borrowerName: draft.borrowerName,
+          lentDate: draft.lentDate,
+          dueDate: draft.dueDate,
+          notes: draft.notes);
+      await _writeLoan(loan, (repository) => repository.create(loan));
+      await _load();
+    } catch (error) {
+      if (mounted) {
+        showAppToast(context, 'Could not create loan: $error',
+            tone: AppToastTone.error);
+      }
     }
-    final repo = LoanRepository(ref.read(localDatabaseProvider));
-    await repo.create(
-      Loan(
-        id: DateTime.now().microsecondsSinceEpoch.toString(),
-        libraryEntryRef: libraryEntry.ref,
-        borrowerName: draft.borrowerName,
-        lentDate: draft.lentDate,
-        dueDate: draft.dueDate,
-        notes: draft.notes,
-      ),
-    );
-    await _load();
+  }
+
+  Future<void> _writeLoan(Loan loan,
+      Future<void> Function(LoanRepository repository) action) async {
+    final database = ref.read(localDatabaseProvider);
+    await database.transaction(() async {
+      await action(LoanRepository(database));
+      await enqueueLibraryEntrySnapshot(database, loan.libraryEntryRef);
+    });
+    ref.invalidate(shelfProvider);
   }
 
   Future<void> _returnLoan(Loan loan) async {
     try {
-      await LoanRepository(ref.read(localDatabaseProvider))
-          .markReturned(loan.id);
+      await _writeLoan(loan, (repository) => repository.markReturned(loan.id));
       await _load();
     } catch (error) {
       if (mounted) {
@@ -324,7 +368,7 @@ class _LoanManagerPageState extends ConsumerState<LoanManagerPage> {
 
   Future<void> _deleteLoan(Loan loan) async {
     try {
-      await LoanRepository(ref.read(localDatabaseProvider)).delete(loan.id);
+      await _writeLoan(loan, (repository) => repository.delete(loan.id));
       await _load();
     } catch (error) {
       if (mounted) {

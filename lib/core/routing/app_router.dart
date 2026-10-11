@@ -5,7 +5,6 @@ import 'package:collectarr_app/features/calendar/calendar_page.dart';
 import 'package:collectarr_app/features/collection/collection_page.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/features/loans/loan_manager_page.dart';
-import 'package:collectarr_app/ui/library_accent_scope.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/detail/library_detail_page.dart';
 import 'package:collectarr_app/features/library/home/home_page.dart';
@@ -28,6 +27,8 @@ abstract final class AppRoutes {
   static const libraries = '/libraries';
   static const shelf = '/shelf';
   static const loans = '/loans';
+  static String loansForKind(CatalogMediaKind kind) =>
+      Uri(path: loans, queryParameters: {'kind': kind.apiValue}).toString();
   static const calendar = '/calendar';
   static const activity = '/activity';
   static const admin = '/admin';
@@ -110,8 +111,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
               GoRoute(
                 path: AppRoutes.loans,
                 builder: (context, state) => LoanManagerPage(
-                    kind: catalogMediaKindFromApiValue(
-                        LibraryAccentScope.of(context).kind)),
+                    kind: state.uri.queryParameters['kind'] == null
+                        ? null
+                        : catalogMediaKindFromApiValue(
+                            state.uri.queryParameters['kind']!)),
               ),
             ],
           ),

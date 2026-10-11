@@ -86,7 +86,9 @@ class _AppShellState extends ConsumerState<AppShell> {
         );
     final navPreferences = ref.watch(libraryNavPreferencesProvider);
     final libraryTypes = selectableLibraryHomeTypes(catalog, navPreferences);
-    final selectedKind = ref.watch(selectedLibraryKindProvider);
+    final selectedKind =
+        GoRouterState.of(context).uri.queryParameters['kind'] ??
+            ref.watch<String>(selectedLibraryKindProvider);
     final activeLibrary = selectedLibraryHomeType(
       libraryTypes,
       canonicalLibraryNavKind(selectedKind) ?? selectedKind,
@@ -306,7 +308,7 @@ class _AppShellState extends ConsumerState<AppShell> {
         });
         return;
       case DrawerAction.loanManager:
-        _goToBranch(_AppShellState._branchLoans);
+        context.go(AppRoutes.loansForKind(type.kind));
         return;
       case DrawerAction.manageCustomFields:
         showCustomFieldsManagementPage(

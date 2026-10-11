@@ -83,6 +83,9 @@ class Loan {
       if (dueDate != null)
         'due_date':
             '${dueDate!.year}-${dueDate!.month.toString().padLeft(2, '0')}-${dueDate!.day.toString().padLeft(2, '0')}',
+      if (returnedDate != null)
+        'returned_date':
+            '${returnedDate!.year}-${returnedDate!.month.toString().padLeft(2, '0')}-${returnedDate!.day.toString().padLeft(2, '0')}',
       if (notes != null) 'notes': notes,
     };
   }

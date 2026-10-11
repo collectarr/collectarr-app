@@ -1,3 +1,4 @@
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/routing/app_router.dart';
 import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
@@ -262,7 +263,8 @@ class LibraryOverdueLoansAction extends ConsumerWidget {
             foregroundColor: Colors.white,
             backgroundColor: Colors.transparent,
             side: BorderSide.none),
-        onPressed: () => context.go(AppRoutes.loans),
+        onPressed: () => context.go(
+            AppRoutes.loansForKind(catalogMediaKindFromApiValue(selectedKind))),
         icon: Badge(
             label: Text('${overdue.length}'),
             child: const Icon(Icons.warning_amber_rounded)));
@@ -293,7 +295,9 @@ class _MediaLibraryOverdueActions extends StatelessWidget {
               overdueLoanCount: overdueLoanCount,
               selectedOverdueLoanCount: selectedOverdueLoanCount,
               selectedLabel: selectedLabel,
-              onPressed: () => context.go(AppRoutes.loans),
+              onPressed: () => context.go(AppRoutes.loansForKind(
+                  catalogMediaKindFromApiValue(
+                      LibraryAccentScope.of(context).kind))),
             ),
           ],
         ],

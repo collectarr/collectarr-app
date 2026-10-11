@@ -1,3 +1,7 @@
+import 'dart:io';
+import 'package:collectarr_app/dev/seeds/music_inspector_reference_seed.dart';
+import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
+import 'package:collectarr_app/features/library/entries/library_entry_record.dart';
 import 'dart:convert';
 import 'package:flutter/services.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
@@ -105,6 +109,11 @@ void main() {
     await tester.tap(find.widgetWithText(TextButton, 'Return'));
     await pumpUntilSettled(tester);
     expect((await loanRepo.getAllLoans()).single.isActive, false);
+    final changes = (await SyncQueueRepository(db).readPending()).changes;
+    expect(changes, hasLength(1));
+    final loanSnapshot = (changes.single.payload['personal_data']
+        as Map)[libraryEntrySyncLoansKey] as List;
+    expect((loanSnapshot.single as Map)['returned_date'], isNotNull);
     await tester.tap(find.text('Loan History'));
     await pumpUntilSettled(tester);
     expect(find.text('Alice'), findsOneWidget);
@@ -171,6 +180,55 @@ void main() {
     expect(find.textContaining('OVERDUE: 2020-01-15'), findsOneWidget);
     expect(find.widgetWithText(FilledButton, 'Return'), findsOneWidget);
     expect(find.widgetWithText(OutlinedButton, 'Delete'), findsOneWidget);
+    await tester.pumpWidget(const SizedBox.shrink());
+    await tester.pumpAndSettle();
+  });
+  testWidgets(
+      'barcode return resolves a local Music copy without a Core snapshot',
+      (tester) async {
+    SharedPreferences.setMockInitialValues({});
+    await tester.binding.setSurfaceSize(const Size(1100, 1000));
+    addTearDown(() => tester.binding.setSurfaceSize(null));
+    final database = LocalDatabase(NativeDatabase.memory());
+    addTearDown(database.close);
+    final fixture = jsonDecode(
+        File('tool/fixtures/music_inspector_reference.json')
+            .readAsStringSync()) as Map<String, dynamic>;
+    final catalog = fixture['catalog'] as Map;
+    for (final field in [
+      'cover_image_url',
+      'thumbnail_image_url',
+      'back_cover_image_url'
+    ]) {
+      catalog.remove(field);
+    }
+    await seedMusicInspectorReference(database, fixture);
+    await tester.pumpWidget(ProviderScope(
+        overrides: [localDatabaseProvider.overrideWithValue(database)],
+        child: const MaterialApp(
+            home: LoanManagerPage(kind: CatalogMediaKind.music))));
+    await pumpUntilSettled(tester);
+    await tester.tap(find.text('Lend / return by barcode'));
+    await pumpUntilSettled(tester);
+    final input = find.byWidgetPredicate((widget) =>
+        widget is TextField &&
+        widget.decoration?.labelText == 'Barcode / UPC / ISBN');
+    await tester.enterText(input, '039842503912');
+    await tester.tap(find.widgetWithText(OutlinedButton, 'Return'));
+    await pumpUntilSettled(tester);
+    final loans = await LoanRepository(database).getAllLoans();
+    expect(
+        loans
+            .firstWhere((loan) => loan.borrowerName == 'Alex Reference')
+            .isActive,
+        false);
+    final changes = (await SyncQueueRepository(database).readPending()).changes;
+    expect(changes, hasLength(1));
+    final snapshot = (changes.single.payload['personal_data']
+        as Map)[libraryEntrySyncLoansKey] as List;
+    expect(snapshot.where((loan) => (loan as Map)['returned_date'] != null),
+        hasLength(2));
+    expect(tester.takeException(), isNull);
     await tester.pumpWidget(const SizedBox.shrink());
     await tester.pumpAndSettle();
   });
