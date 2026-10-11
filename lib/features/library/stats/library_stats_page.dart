@@ -29,7 +29,14 @@ class LibraryStatsPage extends StatelessWidget {
     final capability = libraryStatsForKind(type.kind);
     final customPage = capability.buildCustomStatsPage(context, state, type);
     if (customPage != null) {
-      return customPage;
+      final accent = libraryAccentForKind(type.kind);
+      return LibraryAccentScope(
+          kind: type.kind.apiValue,
+          accent: accent,
+          animationsEnabled: false,
+          child: Theme(
+              data: buildLibraryAccentTheme(Theme.of(context), accent),
+              child: customPage));
     }
 
     final accent = libraryAccentForKind(type.kind);

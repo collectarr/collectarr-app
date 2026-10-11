@@ -6,6 +6,7 @@ import 'package:collectarr_app/features/library/kinds/registry/library_kind_capa
 import 'package:collectarr_app/features/library/stats/library_stats_cards.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
+import 'music_stats_page.dart';
 
 /// Music-specific collection aggregates: tracks, formats, artists, and labels.
 final class MusicStatsCapability implements LibraryStatsCapability {
@@ -243,7 +244,7 @@ final class MusicStatsCapability implements LibraryStatsCapability {
     ShelfState state,
     LibraryKindRegistration type,
   ) =>
-      null;
+      MusicStatsPage(state: state);
 
   static int totalRuntimeSeconds(Iterable<LibraryWorkspaceContext> entries) {
     var totalSeconds = 0;
@@ -389,7 +390,7 @@ final class MusicStatsCapability implements LibraryStatsCapability {
       Iterable<LibraryWorkspaceContext> entries) {
     return _countMany(
       entries,
-      (music) => [if (music.formatSummary != null) music.formatSummary!],
+      (music) => music.discs.map((disc) => disc.format).whereType<String>(),
     );
   }
 

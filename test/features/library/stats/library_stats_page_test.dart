@@ -1,3 +1,7 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:drift/native.dart';
+import 'package:collectarr_app/core/db/local_database.dart';
+import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_album.dart';
@@ -56,15 +60,19 @@ void main() {
       hasMixedCurrencies: false,
     );
 
+    final db = LocalDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
     await tester.pumpWidget(
-      MaterialApp(
-        home: Scaffold(
-          body: LibraryStatsPage(
-            type: musicType,
-            state: shelf,
-          ),
-        ),
-      ),
+      ProviderScope(
+          overrides: [localDatabaseProvider.overrideWithValue(db)],
+          child: MaterialApp(
+            home: Scaffold(
+              body: LibraryStatsPage(
+                type: musicType,
+                state: shelf,
+              ),
+            ),
+          )),
     );
     await pumpUntilSettled(tester);
 
@@ -80,7 +88,9 @@ void main() {
     expect(find.text('Albums by Format'), findsOneWidget);
     expect(find.text('Played'), findsOneWidget);
     expect(find.text('Most recent additions'), findsOneWidget);
-    expect(find.text('Greatest Album'), findsOneWidget);
+    expect(find.text('Greatest Album'), findsWidgets);
     expect(find.text('Rock Band'), findsWidgets);
+    await tester.pumpWidget(const SizedBox.shrink());
+    await tester.pumpAndSettle();
   });
 }
