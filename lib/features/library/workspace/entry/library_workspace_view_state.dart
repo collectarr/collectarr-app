@@ -1,6 +1,5 @@
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/layout/library_pane_widths.dart';
-import 'package:collectarr_app/features/library/workspace/table/library_table_layout.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_preferences.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
@@ -393,22 +392,6 @@ class LibraryWorkspaceViewState {
       columnWidths: {
         ...columnWidths,
         column: profile.clampColumnWidth(column, width),
-      },
-    );
-  }
-
-  LibraryWorkspaceViewState withReorderedColumn({
-    required LibraryFieldIdRuntime column,
-    required LibraryFieldIdRuntime? beforeColumn,
-  }) {
-    return copyWith(
-      visibleColumnIds: {
-        for (final column in reorderLibraryTableColumns(
-          columns: visibleColumnIds,
-          column: column,
-          beforeColumn: beforeColumn,
-        ))
-          column,
       },
     );
   }

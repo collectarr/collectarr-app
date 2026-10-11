@@ -37,10 +37,8 @@ v2 ownership, generic Credits and explicit scalar reducer sorts.
    fixture; its callback is conditional, so this does not establish that loan
    support is absent.
 5. Title is locked on in the column editor; CLZ shows a removable Title row.
-6. The table accepts and forwards `onColumnReordered`, but the header never
-   invokes it and contains no drag source/target. Column reordering works via
-   the chooser; direct header reordering is unwired. This audit does not claim
-   that CLZ supports direct header dragging.
+6. Headers must stay fixed: column order belongs to Select Column Fields.
+   Sorting, resize dragging and double-click auto-fit remain header actions.
 7. Collectarr column resize double-click resets to default width, rather than
    fitting current content. Auto-size is a separate setting and measures at
    most 200 entries with a 60–480 px clamp. These are implementation limits;
@@ -152,9 +150,8 @@ without bookmark/count decoration. At 700px the table uses the available width
 and retains the same controls; folder navigation moves to a dropdown and Add
 floats. A narrow inspector replaces the table when activated and has Back.
 Desktop resize preferences remain intact. Utility cells are 28px with no extra
-column spacing, and the application header checkbox is omitted. Header dragging
-can insert before/after the target, including the final position; double-click
-on a resize handle fits the column to all displayed values.
+column spacing, and the application header checkbox is omitted. Headers stay fixed; double-click on a resize handle fits the column to all
+displayed values.
 
 Selected local entries can now open an XML preview with copy/download. XML
 serializes typed canonical entry JSON recursively, including nested stable IDs,
@@ -170,3 +167,22 @@ an entry, selected both copies, chose the retained album and merged them into
 one active row with two discs/two tracks and 8:30 duration. No app exceptions
 were captured. Domain tests cover strict round-trip identity and rollback;
 widget tests cover menu eligibility updates and deferred dialog dispatch.
+
+
+## Fixed headers and spreadsheet separators ? 2026-10-11
+
+Live CLZ inspection confirms 1px solid #262626 right borders on header and
+body cells, including selection/status/edit columns. Collectarr now paints
+these boundaries above row selection/hover, using identical coordinates for
+header and rows and updating them after width changes. Resize handles cover
+the cell edge; their former inset line is removed. Header drag sources,
+targets, callbacks and unused state/layout reorder helpers are deleted.
+Column ordering remains in Select Column Fields. Pixel regression checks
+cover utility/data boundaries, selected rows and resizing.
+
+Validation: 18 table/layout/view-state tests pass, including raster checks
+before and after resizing; Flutter analyze reports no issues. Web and Windows
+debug builds pass. Collectarr browser captures at 2508px, 1000px and 700px
+show aligned borders and no captured app exceptions. CLZ border values were
+read from live computed styles; a subsequent CLZ screenshot request timed out
+in the Opera connector.

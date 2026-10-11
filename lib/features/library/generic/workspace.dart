@@ -64,7 +64,6 @@ class LibraryWorkspace extends ConsumerWidget {
     this.onBoxSelectionChanged,
     required this.onSortChanged,
     required this.onColumnWidthChanged,
-    required this.onColumnReordered,
     this.onItemContextMenu,
     this.initialCrossAxisCount,
   });
@@ -95,7 +94,6 @@ class LibraryWorkspace extends ConsumerWidget {
   final ValueChanged<Set<String>>? onBoxSelectionChanged;
   final ValueChanged<String> onSortChanged;
   final void Function(String column, double width) onColumnWidthChanged;
-  final void Function(String column, String? beforeColumn) onColumnReordered;
   final LibraryItemContextMenuCallback? onItemContextMenu;
   final int? initialCrossAxisCount;
 
@@ -493,11 +491,6 @@ class LibraryWorkspace extends ConsumerWidget {
                       measure.dispose();
                       onColumnWidthChanged(column, width);
                     },
-                    onColumnReordered: (column, beforeColumn) =>
-                        onColumnReordered(
-                      column,
-                      beforeColumn,
-                    ),
                     showCheckbox: true,
                     showHeaderCheckbox: false,
                     isEntryChecked: (item) =>

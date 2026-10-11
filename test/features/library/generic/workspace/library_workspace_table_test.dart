@@ -1,3 +1,6 @@
+import 'dart:ui' as ui;
+
+import 'package:flutter/rendering.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/table/library_workspace_table.dart';
 import 'package:flutter/gestures.dart';
@@ -23,10 +26,8 @@ DecoratedBox _rowDecorationForText(WidgetTester tester, String text) {
 }
 
 void main() {
-  testWidgets('header drag can append a column and resize handles fit content',
+  testWidgets('headers keep their order and resize handles fit content',
       (tester) async {
-    String? moved;
-    String? before = 'unset';
     String? fitted;
     await tester.pumpWidget(MaterialApp(
         home: Scaffold(
@@ -45,10 +46,6 @@ void main() {
       onEntryTap: (_) {},
       onSortChanged: (_) {},
       onColumnWidthChanged: (_, __) {},
-      onColumnReordered: (id, target) {
-        moved = id;
-        before = target;
-      },
       onColumnAutoSize: (id) => fitted = id,
     ))));
     final gesture = await tester.startGesture(tester.getCenter(find.text('a')));
@@ -57,14 +54,93 @@ void main() {
     await tester.pump();
     await gesture.up();
     await tester.pumpAndSettle();
-    expect(moved, 'a');
-    expect(before, isNull);
+    expect(find.byType(Draggable<String>), findsNothing);
+    expect(find.byType(DragTarget<String>), findsNothing);
+    expect(tester.getTopLeft(find.text('a')).dx,
+        lessThan(tester.getTopLeft(find.text('b')).dx));
+    expect(tester.getTopLeft(find.text('b')).dx,
+        lessThan(tester.getTopLeft(find.text('c')).dx));
     final handle = tester.getTopLeft(find.text('b')) + const Offset(145, 12);
     await tester.tapAt(handle);
     await tester.pump(const Duration(milliseconds: 50));
     await tester.tapAt(handle);
     await tester.pumpAndSettle();
     expect(fitted, 'b');
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('column separators align through selected rows and resizing',
+      (tester) async {
+    const boundaryKey = ValueKey('table-pixels');
+    const divider = Color(0xFF262626);
+    var width = 100.0;
+    await tester.pumpWidget(MaterialApp(
+      home: Scaffold(
+        body: StatefulBuilder(builder: (context, setState) {
+          return RepaintBoundary(
+            key: boundaryKey,
+            child: SizedBox(
+              width: 500,
+              height: 160,
+              child: LibraryWorkspaceTable<String>(
+                entries: const ['selected', 'other'],
+                columns: const ['a', 'b'],
+                sortColumn: 'a',
+                sortAscending: true,
+                columnWidthFor: (id) => id == 'a' ? width : 100,
+                defaultColumnWidthFor: (_) => 100,
+                columnSortFor: (id) => id,
+                columnLabelFor: (id) => id,
+                columnIsNumeric: (_) => false,
+                cellBuilder: (_, __) => const SizedBox.shrink(),
+                isSelected: (id) => id == 'selected',
+                onEntryTap: (_) {},
+                onSortChanged: (_) {},
+                onColumnWidthChanged: (_, next) => setState(() => width = next),
+                showCheckbox: true,
+                showHeaderCheckbox: false,
+                showStatus: true,
+                showEdit: true,
+                dividerColor: divider,
+                horizontalMargin: 8,
+                columnSpacing: 10,
+              ),
+            ),
+          );
+        }),
+      ),
+    ));
+
+    Future<void> expectGrid(double firstWidth) async {
+      await tester.pumpAndSettle();
+      final boundary =
+          tester.renderObject<RenderRepaintBoundary>(find.byKey(boundaryKey));
+      await tester.runAsync(() async {
+        final image = await boundary.toImage();
+        final bytes =
+            (await image.toByteData(format: ui.ImageByteFormat.rawRgba))!;
+        for (final x in [
+          35,
+          63,
+          91,
+          91 + firstWidth.toInt(),
+          201 + firstWidth.toInt()
+        ]) {
+          for (final y in [10, 30, 45, 67, 80, 105]) {
+            final offset = (y * image.width + x) * 4;
+            expect(bytes.getUint8(offset), 38, reason: 'grid at ($x, $y)');
+            expect(bytes.getUint8(offset + 1), 38);
+            expect(bytes.getUint8(offset + 2), 38);
+          }
+        }
+        image.dispose();
+      });
+    }
+
+    await expectGrid(100);
+    await tester.dragFrom(const Offset(188, 15), const Offset(40, 0));
+    expect(width, greaterThan(100));
+    await expectGrid(width);
     expect(tester.takeException(), isNull);
   });
 
@@ -210,7 +286,6 @@ void main() {
               onEntryTap: (_) {},
               onSortChanged: (_) {},
               onColumnWidthChanged: (_, __) {},
-              onColumnReordered: (_, __) {},
             ),
           ),
         ),

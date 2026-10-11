@@ -16,11 +16,6 @@ typedef LibraryColumnCellBuilder<T> = Widget Function(
   T entry,
   String column,
 );
-typedef LibraryColumnReordered = void Function(
-  String column,
-  String? beforeColumn,
-);
-
 const double kLibraryTableCheckboxWidth = 28.0;
 const double kLibraryTableStatusWidth = 28.0;
 const double kLibraryTableEditWidth = 28.0;
@@ -44,7 +39,6 @@ class LibraryWorkspaceTable<T> extends StatefulWidget {
     this.onEntrySecondaryTapUp,
     required this.onSortChanged,
     required this.onColumnWidthChanged,
-    this.onColumnReordered,
     this.onColumnAutoSize,
     this.showCheckbox = false,
     this.showHeaderCheckbox = true,
@@ -93,7 +87,6 @@ class LibraryWorkspaceTable<T> extends StatefulWidget {
   final void Function(T entry, TapUpDetails details)? onEntrySecondaryTapUp;
   final ValueChanged<String> onSortChanged;
   final void Function(String column, double width) onColumnWidthChanged;
-  final LibraryColumnReordered? onColumnReordered;
   final ValueChanged<String>? onColumnAutoSize;
   final bool showCheckbox;
   final bool showHeaderCheckbox;
@@ -202,7 +195,6 @@ class _LibraryWorkspaceTableState<T> extends State<LibraryWorkspaceTable<T>> {
               columnLabelFor: widget.columnLabelFor,
               onSortChanged: widget.onSortChanged,
               onColumnWidthChanged: widget.onColumnWidthChanged,
-              onColumnReordered: widget.onColumnReordered,
               onColumnAutoSize: widget.onColumnAutoSize,
               showCheckbox: widget.showCheckbox,
               showHeaderCheckbox: widget.showHeaderCheckbox,
@@ -215,7 +207,9 @@ class _LibraryWorkspaceTableState<T> extends State<LibraryWorkspaceTable<T>> {
               columnSpacing: resolvedColumnSpacing,
               horizontalMargin: resolvedHorizontalMargin,
               headerColor: resolvedHeaderColor,
-              dividerColor: resolvedDividerColor,
+              dividerColor: widget.dividerColor == kAppDivider
+                  ? libraryWorkspacePaneDividerColor(context)
+                  : resolvedDividerColor,
               accentColor: widget.accentColor,
             ),
             Expanded(
@@ -281,6 +275,9 @@ class _LibraryWorkspaceTableState<T> extends State<LibraryWorkspaceTable<T>> {
                           evenColor: resolvedEvenColor,
                           selectionRailColor: resolvedSelectionRailColor,
                           bottomBorderColor: resolvedBottomBorderColor,
+                          dividerColor: widget.dividerColor == kAppDivider
+                              ? libraryWorkspacePaneDividerColor(context)
+                              : resolvedDividerColor,
                           hoverColor: resolvedHoverColor,
                           accentColor: widget.accentColor,
                         );
@@ -309,7 +306,6 @@ class _LibraryWorkspaceTableHeader extends StatelessWidget {
     required this.columnLabelFor,
     required this.onSortChanged,
     required this.onColumnWidthChanged,
-    required this.onColumnReordered,
     required this.onColumnAutoSize,
     this.showCheckbox = false,
     this.showHeaderCheckbox = true,
@@ -336,7 +332,6 @@ class _LibraryWorkspaceTableHeader extends StatelessWidget {
   final LibraryColumnLabelFor columnLabelFor;
   final ValueChanged<String> onSortChanged;
   final void Function(String column, double width) onColumnWidthChanged;
-  final LibraryColumnReordered? onColumnReordered;
   final ValueChanged<String>? onColumnAutoSize;
   final bool showCheckbox;
   final bool showHeaderCheckbox;
@@ -354,116 +349,85 @@ class _LibraryWorkspaceTableHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: headerColor,
-        border: Border(
-          bottom: BorderSide(color: dividerColor),
+    return _LibraryTableColumnGrid(
+      columns: columns,
+      columnWidthFor: columnWidthFor,
+      columnSpacing: columnSpacing,
+      horizontalMargin: horizontalMargin,
+      showCheckbox: showCheckbox,
+      showStatus: showStatus,
+      showEdit: showEdit,
+      color: dividerColor,
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          color: headerColor,
+          border: Border(
+            bottom: BorderSide(color: dividerColor),
+          ),
         ),
-      ),
-      child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: horizontalMargin),
-        child: Row(
-          children: [
-            if (showCheckbox) ...[
-              SizedBox(
-                width: kLibraryTableCheckboxWidth,
-                height: headerHeight,
-                child: Center(
-                  child: showHeaderCheckbox
-                      ? _LibraryTableCheckbox(
-                          checked: allChecked,
-                          indeterminate: !allChecked && hasPartialCheck,
-                          accentColor: accentColor,
-                          onTap: onToggleAllChecked == null
-                              ? null
-                              : () => onToggleAllChecked!(!allChecked),
-                        )
-                      : const SizedBox.shrink(),
-                ),
-              ),
-            ],
-            if (showStatus) ...[
-              SizedBox(
-                width: kLibraryTableStatusWidth,
-                height: headerHeight,
-              ),
-            ],
-            if (showEdit) ...[
-              SizedBox(
-                width: kLibraryTableEditWidth,
-                height: headerHeight,
-              ),
-            ],
-            for (var index = 0; index < columns.length; index += 1) ...[
-              DragTarget<String>(
-                onWillAcceptWithDetails: (details) =>
-                    onColumnReordered != null && details.data != columns[index],
-                onAcceptWithDetails: (details) {
-                  final box = context.findRenderObject() as RenderBox;
-                  final after = box.globalToLocal(details.offset).dx >
-                      horizontalMargin +
-                          (showCheckbox ? kLibraryTableCheckboxWidth : 0) +
-                          (showStatus ? kLibraryTableStatusWidth : 0) +
-                          (showEdit ? kLibraryTableEditWidth : 0) +
-                          columns.take(index).fold<double>(
-                              0,
-                              (width, column) =>
-                                  width + columnWidthFor(column)) +
-                          index * columnSpacing +
-                          columnWidthFor(columns[index]) / 2;
-                  final before = after
-                      ? (index + 1 < columns.length ? columns[index + 1] : null)
-                      : columns[index];
-                  if (before != details.data) {
-                    onColumnReordered?.call(details.data, before);
-                  }
-                },
-                builder: (context, candidates, rejected) => Draggable<String>(
-                  data: columns[index],
-                  dragAnchorStrategy: pointerDragAnchorStrategy,
-                  maxSimultaneousDrags: onColumnReordered == null ? 0 : 1,
-                  feedback: Material(
-                      color: headerColor,
-                      child: Padding(
-                          padding: const EdgeInsets.all(8),
-                          child: Text(columnLabelFor(columns[index]),
-                              style: TextStyle(
-                                  color: accentColor,
-                                  fontWeight: FontWeight.w800)))),
-                  childWhenDragging: SizedBox(
-                      width: columnWidthFor(columns[index]),
-                      height: headerHeight),
-                  child: _LibraryWorkspaceTableHeaderCell(
-                    column: columns[index],
-                    width: columnWidthFor(columns[index]),
-                    defaultWidth: defaultColumnWidthFor(columns[index]),
-                    onAutoSize: onColumnAutoSize,
-                    sorted: columnSortFor(columns[index]) == sortColumn ||
-                        _sortPriorityFor(columnSortFor(columns[index])) != null,
-                    ascending: sortRules
-                            .where((rule) =>
-                                rule.column == columnSortFor(columns[index]))
-                            .firstOrNull
-                            ?.ascending ??
-                        sortAscending,
-                    sort: columnSortFor(columns[index]),
-                    sortPriority: sortRules.length > 1
-                        ? _sortPriorityFor(columnSortFor(columns[index]))
-                        : null,
-                    label: columnLabelFor(columns[index]),
-                    onSortChanged: onSortChanged,
-                    onColumnWidthChanged: onColumnWidthChanged,
-                    height: headerHeight,
-                    headerColor: headerColor,
-                    accentColor: accentColor,
-                    dividerColor: dividerColor,
+        child: Padding(
+          padding: EdgeInsets.symmetric(horizontal: horizontalMargin),
+          child: Row(
+            children: [
+              if (showCheckbox) ...[
+                SizedBox(
+                  width: kLibraryTableCheckboxWidth,
+                  height: headerHeight,
+                  child: Center(
+                    child: showHeaderCheckbox
+                        ? _LibraryTableCheckbox(
+                            checked: allChecked,
+                            indeterminate: !allChecked && hasPartialCheck,
+                            accentColor: accentColor,
+                            onTap: onToggleAllChecked == null
+                                ? null
+                                : () => onToggleAllChecked!(!allChecked),
+                          )
+                        : const SizedBox.shrink(),
                   ),
                 ),
-              ),
-              if (index + 1 < columns.length) SizedBox(width: columnSpacing),
+              ],
+              if (showStatus) ...[
+                SizedBox(
+                  width: kLibraryTableStatusWidth,
+                  height: headerHeight,
+                ),
+              ],
+              if (showEdit) ...[
+                SizedBox(
+                  width: kLibraryTableEditWidth,
+                  height: headerHeight,
+                ),
+              ],
+              for (var index = 0; index < columns.length; index += 1) ...[
+                _LibraryWorkspaceTableHeaderCell(
+                  column: columns[index],
+                  width: columnWidthFor(columns[index]),
+                  defaultWidth: defaultColumnWidthFor(columns[index]),
+                  onAutoSize: onColumnAutoSize,
+                  sorted: columnSortFor(columns[index]) == sortColumn ||
+                      _sortPriorityFor(columnSortFor(columns[index])) != null,
+                  ascending: sortRules
+                          .where((rule) =>
+                              rule.column == columnSortFor(columns[index]))
+                          .firstOrNull
+                          ?.ascending ??
+                      sortAscending,
+                  sort: columnSortFor(columns[index]),
+                  sortPriority: sortRules.length > 1
+                      ? _sortPriorityFor(columnSortFor(columns[index]))
+                      : null,
+                  label: columnLabelFor(columns[index]),
+                  onSortChanged: onSortChanged,
+                  onColumnWidthChanged: onColumnWidthChanged,
+                  height: headerHeight,
+                  headerColor: headerColor,
+                  accentColor: accentColor,
+                ),
+                if (index + 1 < columns.length) SizedBox(width: columnSpacing),
+              ],
             ],
-          ],
+          ),
         ),
       ),
     );
@@ -498,7 +462,6 @@ class _LibraryWorkspaceTableHeaderCell extends StatelessWidget {
     required this.height,
     required this.headerColor,
     required this.accentColor,
-    required this.dividerColor,
   });
 
   final String column;
@@ -515,7 +478,6 @@ class _LibraryWorkspaceTableHeaderCell extends StatelessWidget {
   final double height;
   final Color headerColor;
   final Color accentColor;
-  final Color dividerColor;
 
   @override
   Widget build(BuildContext context) {
@@ -596,16 +558,7 @@ class _LibraryWorkspaceTableHeaderCell extends StatelessWidget {
                   onDoubleTap: () => onAutoSize != null
                       ? onAutoSize!(column)
                       : onColumnWidthChanged(column, defaultWidth),
-                  child: SizedBox(
-                    width: 10,
-                    child: Center(
-                      child: VerticalDivider(
-                        width: 1,
-                        thickness: 1,
-                        color: dividerColor,
-                      ),
-                    ),
-                  ),
+                  child: const SizedBox(width: 10),
                 ),
               ),
             ),
@@ -686,6 +639,7 @@ class _LibraryWorkspaceTableRow<T> extends StatelessWidget {
     required this.evenColor,
     required this.selectionRailColor,
     required this.bottomBorderColor,
+    required this.dividerColor,
     required this.hoverColor,
     required this.accentColor,
   });
@@ -716,88 +670,173 @@ class _LibraryWorkspaceTableRow<T> extends StatelessWidget {
   final Color evenColor;
   final Color selectionRailColor;
   final Color bottomBorderColor;
+  final Color dividerColor;
   final Color hoverColor;
   final Color accentColor;
 
   @override
   Widget build(BuildContext context) {
     final isChecked = isEntryChecked?.call(entry) ?? false;
-    return LibraryTableInkRow(
-      selected: selected,
-      odd: odd,
-      onTap: onTap,
-      onDoubleTap: onDoubleTap,
-      onSecondaryTapUp: onSecondaryTapUp,
-      selectedColor: selectedColor,
-      oddColor: oddColor,
-      evenColor: evenColor,
-      selectionRailColor: selectionRailColor,
-      bottomBorderColor: bottomBorderColor,
-      hoverColor: hoverColor,
-      selectionRailWidth: selectionRailWidth,
+    return _LibraryTableColumnGrid(
+      columns: columns,
+      columnWidthFor: columnWidthFor,
+      columnSpacing: columnSpacing,
       horizontalMargin: horizontalMargin,
-      child: Row(
-        children: [
-          if (showCheckbox) ...[
-            SizedBox(
-              width: kLibraryTableCheckboxWidth,
-              height: rowHeight,
-              child: Center(
-                child: _LibraryTableCheckbox(
-                  checked: isChecked,
-                  accentColor: accentColor,
-                  onTap: onToggleEntryCheck == null
-                      ? null
-                      : () => onToggleEntryCheck!(entry),
+      showCheckbox: showCheckbox,
+      showStatus: showStatus,
+      showEdit: showEdit,
+      color: dividerColor,
+      child: LibraryTableInkRow(
+        // Table dimensions have already been scaled together with the header.
+        density: LibraryDensity.comfortable,
+        selected: selected,
+        odd: odd,
+        onTap: onTap,
+        onDoubleTap: onDoubleTap,
+        onSecondaryTapUp: onSecondaryTapUp,
+        selectedColor: selectedColor,
+        oddColor: oddColor,
+        evenColor: evenColor,
+        selectionRailColor: selectionRailColor,
+        bottomBorderColor: bottomBorderColor,
+        hoverColor: hoverColor,
+        selectionRailWidth: selectionRailWidth,
+        horizontalMargin: horizontalMargin,
+        verticalPadding: 0,
+        child: Row(
+          children: [
+            if (showCheckbox) ...[
+              SizedBox(
+                width: kLibraryTableCheckboxWidth,
+                height: rowHeight,
+                child: Center(
+                  child: _LibraryTableCheckbox(
+                    checked: isChecked,
+                    accentColor: accentColor,
+                    onTap: onToggleEntryCheck == null
+                        ? null
+                        : () => onToggleEntryCheck!(entry),
+                  ),
                 ),
               ),
-            ),
-          ],
-          if (showStatus) ...[
-            SizedBox(
-              width: kLibraryTableStatusWidth,
-              height: rowHeight,
-              child: Center(
-                child: statusBuilder?.call(entry) ?? const SizedBox.shrink(),
+            ],
+            if (showStatus) ...[
+              SizedBox(
+                width: kLibraryTableStatusWidth,
+                height: rowHeight,
+                child: Center(
+                  child: statusBuilder?.call(entry) ?? const SizedBox.shrink(),
+                ),
               ),
-            ),
-          ],
-          if (showEdit) ...[
-            SizedBox(
-              width: kLibraryTableEditWidth,
-              height: rowHeight,
-              child: Center(
-                child: Tooltip(
-                  message: 'Edit',
-                  child: InkResponse(
-                    onTap:
-                        onEditEntry == null ? null : () => onEditEntry!(entry),
-                    radius: 12,
-                    child: Icon(
-                      Icons.edit_outlined,
-                      size: 14,
-                      color: accentColor,
+            ],
+            if (showEdit) ...[
+              SizedBox(
+                width: kLibraryTableEditWidth,
+                height: rowHeight,
+                child: Center(
+                  child: Tooltip(
+                    message: 'Edit',
+                    child: InkResponse(
+                      onTap: onEditEntry == null
+                          ? null
+                          : () => onEditEntry!(entry),
+                      radius: 12,
+                      child: Icon(
+                        Icons.edit_outlined,
+                        size: 14,
+                        color: accentColor,
+                      ),
                     ),
                   ),
                 ),
               ),
-            ),
-          ],
-          for (final column in columns) ...[
-            SizedBox(
-              width: columnWidthFor(column),
-              height: rowHeight,
-              child: Align(
-                alignment: columnIsNumeric(column)
-                    ? Alignment.centerRight
-                    : Alignment.centerLeft,
-                child: cellBuilder(entry, column),
+            ],
+            for (final column in columns) ...[
+              SizedBox(
+                width: columnWidthFor(column),
+                height: rowHeight,
+                child: Align(
+                  alignment: columnIsNumeric(column)
+                      ? Alignment.centerRight
+                      : Alignment.centerLeft,
+                  child: cellBuilder(entry, column),
+                ),
               ),
-            ),
-            if (column != columns.last) SizedBox(width: columnSpacing),
+              if (column != columns.last) SizedBox(width: columnSpacing),
+            ],
           ],
-        ],
+        ),
       ),
     );
   }
+}
+
+/// Paints column edges above selection/hover without changing cell geometry.
+class _LibraryTableColumnGrid extends StatelessWidget {
+  const _LibraryTableColumnGrid({
+    required this.columns,
+    required this.columnWidthFor,
+    required this.columnSpacing,
+    required this.horizontalMargin,
+    required this.showCheckbox,
+    required this.showStatus,
+    required this.showEdit,
+    required this.color,
+    required this.child,
+  });
+
+  final List<String> columns;
+  final LibraryColumnWidthFor columnWidthFor;
+  final double columnSpacing;
+  final double horizontalMargin;
+  final bool showCheckbox;
+  final bool showStatus;
+  final bool showEdit;
+  final Color color;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    var edge = horizontalMargin;
+    final edges = <double>[];
+    for (final width in [
+      if (showCheckbox) kLibraryTableCheckboxWidth,
+      if (showStatus) kLibraryTableStatusWidth,
+      if (showEdit) kLibraryTableEditWidth,
+    ]) {
+      edge += width;
+      edges.add(edge);
+    }
+    for (final column in columns) {
+      edge += columnWidthFor(column);
+      edges.add(edge);
+      edge += columnSpacing;
+    }
+    return CustomPaint(
+      foregroundPainter: _LibraryTableColumnGridPainter(edges, color),
+      child: child,
+    );
+  }
+}
+
+class _LibraryTableColumnGridPainter extends CustomPainter {
+  const _LibraryTableColumnGridPainter(this.edges, this.color);
+
+  final List<double> edges;
+  final Color color;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()..color = color;
+    for (final edge in edges) {
+      canvas.drawRect(Rect.fromLTWH(edge - 1, 0, 1, size.height), paint);
+    }
+  }
+
+  @override
+  bool shouldRepaint(_LibraryTableColumnGridPainter oldDelegate) =>
+      color != oldDelegate.color ||
+      edges.length != oldDelegate.edges.length ||
+      Iterable<int>.generate(edges.length)
+          .any((index) => edges[index] != oldDelegate.edges[index]);
 }

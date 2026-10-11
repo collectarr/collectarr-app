@@ -116,48 +116,6 @@ void main() {
     ]);
   });
 
-  test('workspace view state reorders visible table columns', () {
-    final state = profile.defaults().copyWith(
-      visibleColumnIds: {
-        field('title'),
-        field('issue'),
-        field('grade'),
-      },
-    );
-
-    final reordered = state.withReorderedColumn(
-      column: field('grade'),
-      beforeColumn: field('issue'),
-    );
-
-    expect(reordered.visibleColumnIds.toList(), [
-      field('title'),
-      field('grade'),
-      field('issue'),
-    ]);
-  });
-
-  test('workspace view state reorders a visible column to the end', () {
-    final state = profile.defaults().copyWith(
-      visibleColumnIds: {
-        field('title'),
-        field('issue'),
-        field('grade'),
-      },
-    );
-
-    final reordered = state.withReorderedColumn(
-      column: field('title'),
-      beforeColumn: null,
-    );
-
-    expect(reordered.visibleColumnIds.toList(), [
-      field('issue'),
-      field('grade'),
-      field('title'),
-    ]);
-  });
-
   test('workspace view profile controls initial sort direction', () {
     final newestFirstProfile = LibraryWorkspaceViewProfile(
       registrationResolver: () => runtime,

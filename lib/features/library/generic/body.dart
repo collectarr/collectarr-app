@@ -126,7 +126,6 @@ class LibraryBody extends StatelessWidget {
     this.onBucketCompletionScopeChanged,
     required this.onSortChanged,
     required this.onColumnWidthChanged,
-    required this.onColumnReordered,
     required this.onCoverSizeChanged,
     required this.onSidebarWidthChanged,
     required this.onSidebarVisibilityChanged,
@@ -209,7 +208,6 @@ class LibraryBody extends StatelessWidget {
       onBucketCompletionScopeChanged;
   final ValueChanged<String> onSortChanged;
   final void Function(String column, double width) onColumnWidthChanged;
-  final void Function(String column, String? beforeColumn) onColumnReordered;
   final ValueChanged<double> onCoverSizeChanged;
   final ValueChanged<double> onSidebarWidthChanged;
   final ValueChanged<bool> onSidebarVisibilityChanged;
@@ -355,7 +353,6 @@ class LibraryBody extends StatelessWidget {
                   onSetCollapsedGroupBuckets: onSetCollapsedGroupBuckets,
                   onSortChanged: onSortChanged,
                   onColumnWidthChanged: onColumnWidthChanged,
-                  onColumnReordered: onColumnReordered,
                   onItemContextMenu: onItemContextMenu,
                 ),
               );

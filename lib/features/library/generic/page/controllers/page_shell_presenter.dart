@@ -216,14 +216,6 @@ abstract final class LibraryPageShellPresenter {
           state._viewProfile,
         ),
       ),
-      onColumnReordered: (column, beforeColumn) => state._updateViewState(
-        (stateValue) => stateValue.withReorderedColumn(
-          column: activeFields.decodeColumnId(column),
-          beforeColumn: beforeColumn == null
-              ? null
-              : activeFields.decodeColumnId(beforeColumn),
-        ),
-      ),
       onCoverSizeChanged: (size) => state._updateViewState(
         (stateValue) => stateValue.copyWith(coverSize: size),
       ),
