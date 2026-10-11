@@ -44,8 +44,8 @@ class LibraryDetailFieldRow extends StatelessWidget {
               field.label,
               style: Theme.of(context).textTheme.labelMedium?.copyWith(
                     color: palette.textMuted,
-                    fontWeight: FontWeight.w700,
-                    fontSize: 12,
+                    fontWeight: FontWeight.w400,
+                    fontSize: 14,
                   ),
             ),
           ),
@@ -68,24 +68,19 @@ class LibraryDetailFieldRow extends StatelessWidget {
                             Flexible(
                               child: Text(
                                 field.value,
-                                maxLines: 3,
-                                overflow: TextOverflow.ellipsis,
                                 style: Theme.of(context)
                                     .textTheme
                                     .bodySmall
                                     ?.copyWith(
                                       color: onSurfaceColor,
-                                      fontWeight: FontWeight.w700,
-                                      fontSize: 12,
-                                      decoration: TextDecoration.underline,
+                                      fontWeight: FontWeight.w400,
+                                      fontSize: 14,
+                                      decoration: TextDecoration.none,
                                       decorationColor:
                                           accent.withValues(alpha: 0.32),
                                     ),
                               ),
                             ),
-                            const SizedBox(width: 4),
-                            Icon(Icons.filter_alt_outlined,
-                                size: 14, color: palette.textMuted),
                           ],
                         ),
                       ),
@@ -93,12 +88,10 @@ class LibraryDetailFieldRow extends StatelessWidget {
                   )
                 : Text(
                     field.value,
-                    maxLines: 3,
-                    overflow: TextOverflow.ellipsis,
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
                           color: onSurfaceColor,
-                          fontWeight: FontWeight.w600,
-                          fontSize: 12,
+                          fontWeight: FontWeight.w400,
+                          fontSize: 14,
                         ),
                   ),
           ),

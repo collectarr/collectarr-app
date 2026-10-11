@@ -1,3 +1,7 @@
+import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart'
+    show LibraryCollectionStatusScopeUi;
+import 'package:collectarr_app/features/library/ui/primitives/library_collection_status_field.dart'
+    show libraryCollectionStatusFromValue;
 import 'package:collectarr_app/features/settings/ui_preferences.dart';
 import 'dart:io';
 import 'package:flutter/foundation.dart';
@@ -13,6 +17,7 @@ import 'package:collectarr_app/features/library/details/library_detail_models.da
 import 'package:collectarr_app/features/library/details/library_detail_section.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_album.dart';
+import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_data.dart';
 import 'package:collectarr_app/features/library/kinds/music/music_country_name.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_disc.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_track_list_entry.dart';
@@ -30,9 +35,6 @@ import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/services.dart';
-import 'package:pdf/pdf.dart';
-import 'package:pdf/widgets.dart' as pw;
-import 'package:printing/printing.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:collectarr_app/features/library/generic/external_links.dart';
 
@@ -47,18 +49,47 @@ List<Widget> buildMusicInspectorSections(
     BuildContext context, LibraryInspectorRequest request) {
   final model = _musicModel(request.item);
   Widget section(String title, Widget child) => LibraryDetailSection(
-      title: title, accentColor: request.accent, children: [child]);
+      title: title,
+      accentColor: request.accent,
+      collapsible: false,
+      children: [child]);
   return [
     if (model.discs.isNotEmpty) ...[
-      section('Track List', _MusicInspectorTracks(inspector: request)),
-      section('Disc Details', _MusicDiscDetails(inspector: request)),
+      Padding(
+          padding: const EdgeInsets.all(12),
+          child: _MusicInspectorTracks(inspector: request)),
     ],
-    section('Album details', _MusicProductDetails(inspector: request)),
+    if (model.music.credits.isNotEmpty ||
+        model.discs.any((disc) => disc.credits.isNotEmpty))
+      section('Credits', _MusicInspectorCredits(inspector: request)),
+    section('Details', _MusicProductDetails(inspector: request)),
+    if (model.discs.isNotEmpty)
+      section('Disc Details', _MusicDiscDetails(inspector: request)),
     if (model.entry != null) ...[
       section('Personal', _MusicInspectorDetailsPersonal(inspector: request)),
       section('Listening history', _MusicListeningSection(inspector: request)),
     ],
-    section('Credits', _MusicInspectorCredits(inspector: request)),
+    if (model.entry?.personal.personalNotes?.trim().isNotEmpty == true)
+      section(
+          'Notes',
+          Text(model.entry!.personal.personalNotes!,
+              style:
+                  const TextStyle(fontSize: 14, fontWeight: FontWeight.w400))),
+    if (model.entry?.personal.tags?.trim().isNotEmpty == true)
+      section(
+          'Tags',
+          Wrap(spacing: 8, runSpacing: 4, children: [
+            for (final tag in model.entry!.personal.tags!
+                .split('|')
+                .map((v) => v.trim())
+                .where((v) => v.isNotEmpty))
+              TextButton.icon(
+                  onPressed: request.onFilterByValue == null
+                      ? null
+                      : () => request.onFilterByValue!(tag),
+                  icon: const Icon(Icons.local_offer_outlined, size: 14),
+                  label: Text(tag))
+          ])),
     if (model.music.externalLinks.isNotEmpty)
       section(
           'Links',
@@ -369,300 +400,220 @@ class _MusicInspectorHeader extends ConsumerWidget {
     final totalDuration = _formatTotalDuration(model.tracks);
 
     final preferences = ref.watch(uiPreferencesProvider);
+    final boxSetAlbums = music.boxSet?.isNotEmpty == true
+        ? (ref.watch(shelfProvider).asData?.value.entries ??
+                const <LibraryWorkspaceContext>[])
+            .where((entry) =>
+                entry.kindPresentationData is MusicWorkspaceData &&
+                (entry.kindPresentationData as MusicWorkspaceData)
+                        .music
+                        .boxSet ==
+                    music.boxSet)
+            .toList()
+        : const <LibraryWorkspaceContext>[];
     return LayoutBuilder(builder: (context, constraints) {
       final sideBySide = preferences.showInspectorBackCover &&
           constraints.maxWidth >= 680 &&
           (back != null || music.backCoverImageUrl?.isNotEmpty == true);
-      return Padding(
-        padding: const EdgeInsets.all(10),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            SizedBox(
-              width: sideBySide ? 262 : 125,
-              child: _MusicInspectorCover(
-                title: music.title,
-                item: music,
-                imageUrl: music.coverImageUrl,
-                frontCoverBytes: front?.imageData,
-                backCoverBytes: back?.imageData,
-                sideBySide: sideBySide,
-                accent: inspector.accent,
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Expanded(
-                        child: artist != null && artist.isNotEmpty
-                            ? InkWell(
-                                mouseCursor: onFilter != null
-                                    ? SystemMouseCursors.click
-                                    : MouseCursor.defer,
-                                onTap: onFilter != null
-                                    ? () => onFilter(artist)
-                                    : null,
-                                borderRadius: BorderRadius.circular(2),
-                                child: Text(
-                                  artist,
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .titleMedium
-                                      ?.copyWith(
-                                        color: palette.isDark
-                                            ? Colors.white
-                                            : palette.textPrimary,
-                                        fontWeight: FontWeight.w700,
-                                        fontSize: 15,
-                                        height: 1.2,
-                                      ),
-                                ),
-                              )
-                            : const SizedBox.shrink(),
-                      ),
-                      if (isOwned) ...[
-                        const SizedBox(width: 6),
-                        Tooltip(
-                          message: 'In Collection',
-                          child: Container(
-                            width: 20,
-                            height: 20,
-                            decoration: BoxDecoration(
-                              color: const Color(0xFF2A9FD6),
-                              borderRadius: BorderRadius.circular(3),
-                            ),
-                            child: const Center(
-                              child: Icon(
-                                Icons.check,
-                                size: 13,
-                                color: Colors.white,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ],
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
+      final coverWidth = sideBySide
+          ? 430.0
+          : constraints.maxWidth >= 600
+              ? 210.0
+              : (constraints.maxWidth * .42).clamp(90.0, 150.0);
+      Widget valueLink(String value) => InkWell(
+          onTap: onFilter == null ? null : () => onFilter(value),
+          child: Text(value,
+              style: TextStyle(
+                  color: palette.textPrimary,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500)));
+      final metadata =
+          Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Wrap(spacing: 4, children: [
+          if (label?.isNotEmpty == true) valueLink(label!),
+          if (year != null) valueLink('($year)')
+        ]),
+        if (music.genres.isNotEmpty) ...[
+          const SizedBox(height: 4),
+          Wrap(spacing: 4, children: [
+            for (var i = 0; i < music.genres.length; i++) ...[
+              if (i > 0) const Text('|'),
+              valueLink(music.genres[i])
+            ]
+          ])
+        ],
+        if (MusicLibraryEntryProjection.fromDispatch(
+                    inspector.libraryEntryDispatch)
+                ?.personal
+                .rating
+            case final rating?) ...[
+          const SizedBox(height: 14),
+          Container(
+              width: 64,
+              height: 40,
+              decoration: BoxDecoration(
+                  color: inspector.accent,
+                  borderRadius: BorderRadius.circular(4)),
+              child:
+                  Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                const Icon(Icons.star, size: 22, color: Colors.white),
+                const SizedBox(width: 6),
+                Text('$rating',
+                    style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w700,
+                        color: Colors.white)),
+              ])),
+        ],
+        const SizedBox(height: 18),
+        if (music.barcode?.isNotEmpty == true)
+          Wrap(
+              spacing: 6,
+              crossAxisAlignment: WrapCrossAlignment.center,
+              children: [
+                const Icon(Icons.view_week_outlined, size: 20),
+                Text(music.barcode!,
+                    style: const TextStyle(
+                        fontSize: 14, fontWeight: FontWeight.w700))
+              ]),
+        if (country != null) valueLink(country),
+        Text(
+            [
+              if (music.formatSummary?.isNotEmpty == true) music.formatSummary!,
+              if (model.discs.isNotEmpty)
+                '${model.discs.length} ${model.discs.length == 1 ? 'Disc' : 'Discs'}',
+              if (trackCount > 0)
+                '$trackCount ${trackCount == 1 ? 'Track' : 'Tracks'}',
+              if (totalDuration != null) totalDuration
+            ].join(' | '),
+            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700)),
+        if (music.catalogNumber?.isNotEmpty == true) ...[
+          const SizedBox(height: 16),
+          Text.rich(TextSpan(children: [
+            TextSpan(
+                text: 'CAT NO  ',
+                style: TextStyle(color: palette.textMuted, fontSize: 10)),
+            TextSpan(
+                text: music.catalogNumber!,
+                style:
+                    const TextStyle(fontSize: 14, fontWeight: FontWeight.w700))
+          ]))
+        ],
+        if (preferences.ebayNextToCover &&
+            preferences
+                .allowsEbayLinks(inspector.item.source.isWishlisted)) ...[
+          const SizedBox(height: 12),
+          InkWell(
+              onTap: () => launchEbaySearch(
+                  [
+                    if (artist?.isNotEmpty == true) artist!,
                     music.title,
-                    style: TextStyle(
-                      color: palette.accent,
-                      fontSize: 19,
-                      fontWeight: FontWeight.w800,
-                      height: 1.15,
-                    ),
-                  ),
-                  const SizedBox(height: 5),
-                  if ((label != null && label.isNotEmpty) || year != null) ...[
-                    Wrap(
-                      crossAxisAlignment: WrapCrossAlignment.center,
-                      spacing: 4,
-                      children: [
-                        if (label != null && label.isNotEmpty)
-                          InkWell(
-                            mouseCursor: onFilter != null
-                                ? SystemMouseCursors.click
-                                : MouseCursor.defer,
-                            onTap:
-                                onFilter != null ? () => onFilter(label) : null,
-                            borderRadius: BorderRadius.circular(2),
-                            child: Text(
-                              label,
-                              style: TextStyle(
-                                color: palette.textPrimary,
-                                fontWeight: FontWeight.w600,
-                                fontSize: 13,
-                              ),
-                            ),
-                          ),
-                        if (year != null)
-                          InkWell(
-                            mouseCursor: onFilter != null
-                                ? SystemMouseCursors.click
-                                : MouseCursor.defer,
-                            onTap: onFilter != null
-                                ? () => onFilter(year.toString())
-                                : null,
-                            borderRadius: BorderRadius.circular(2),
-                            child: Text(
-                              '($year)',
-                              style: TextStyle(
-                                color: palette.textMuted,
-                                fontWeight: FontWeight.w600,
-                                fontSize: 13,
-                              ),
-                            ),
-                          ),
-                      ],
-                    ),
-                    const SizedBox(height: 4),
-                  ],
-                  if (music.genres.isNotEmpty) ...[
-                    Wrap(
-                      crossAxisAlignment: WrapCrossAlignment.center,
-                      spacing: 4,
-                      runSpacing: 2,
-                      children: [
-                        for (var i = 0; i < music.genres.length; i++) ...[
-                          InkWell(
-                            mouseCursor: onFilter != null
-                                ? SystemMouseCursors.click
-                                : MouseCursor.defer,
-                            onTap: onFilter != null
-                                ? () => onFilter(music.genres[i])
-                                : null,
-                            borderRadius: BorderRadius.circular(2),
-                            child: Text(
-                              music.genres[i],
-                              style: TextStyle(
-                                color: palette.textMuted,
-                                fontSize: 12,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                          ),
-                          if (i < music.genres.length - 1)
-                            Text(
-                              '|',
-                              style: TextStyle(
-                                color: palette.divider,
-                                fontSize: 11,
-                              ),
-                            ),
-                        ],
-                      ],
-                    ),
-                    const SizedBox(height: 4),
-                  ],
-                  if (music.barcode?.isNotEmpty == true || country != null) ...[
-                    Wrap(
-                      crossAxisAlignment: WrapCrossAlignment.center,
-                      spacing: 6,
-                      runSpacing: 2,
-                      children: [
-                        if (music.barcode?.isNotEmpty == true)
-                          Text(
-                            'Barcode ${music.barcode!}',
+                    if (music.catalogNumber?.isNotEmpty == true)
+                      music.catalogNumber!
+                  ].join(' '),
+                  isWishlisted: inspector.item.source.isWishlisted),
+              child: Text('Find sold listings on eBay',
+                  style: TextStyle(
+                      fontSize: 14,
+                      color: inspector.accent,
+                      decoration: TextDecoration.underline))),
+        ],
+      ]);
+      return Padding(
+          padding: const EdgeInsets.all(12),
+          child:
+              Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+            if (music.boxSet?.trim().isNotEmpty == true) ...[
+              Text(music.boxSet!,
+                  style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.w700,
+                      color: inspector.accent)),
+              const Divider(height: 18),
+              for (var i = 0; i < boxSetAlbums.length; i++)
+                Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 4),
+                    child: InkWell(
+                        onTap: onFilter == null
+                            ? null
+                            : () => onFilter(music.boxSet!),
+                        child: Text('${i + 1}  ${boxSetAlbums[i].title}',
                             style: TextStyle(
-                              color: palette.textMuted,
-                              fontSize: 12,
-                            ),
-                          ),
-                        if (music.barcode?.isNotEmpty == true &&
-                            country != null)
-                          Text(
-                            '•',
-                            style: TextStyle(
-                              color: palette.divider,
-                              fontSize: 10,
-                            ),
-                          ),
-                        if (country != null)
-                          Text(
-                            country,
-                            style: TextStyle(
-                              color: palette.textMuted,
-                              fontSize: 12,
-                            ),
-                          ),
-                      ],
-                    ),
-                    const SizedBox(height: 4),
-                  ],
-                  Builder(
-                    builder: (context) {
-                      final metrics = <String>[
-                        if (model.discs.isNotEmpty)
-                          '${model.discs.length} ${model.discs.length == 1 ? 'Disc' : 'Discs'}',
-                        if (trackCount > 0) '$trackCount Tracks',
-                        if (totalDuration != null) totalDuration,
-                      ];
-                      if (metrics.isEmpty) return const SizedBox.shrink();
-                      return Padding(
-                        padding: const EdgeInsets.only(bottom: 4),
-                        child: Text(
-                          metrics.join(' | '),
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w700,
-                            color: palette.textPrimary,
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                  Wrap(
-                    crossAxisAlignment: WrapCrossAlignment.center,
-                    spacing: 8,
-                    runSpacing: 4,
-                    children: [
-                      if (music.catalogNumber?.isNotEmpty == true)
-                        Text(
-                          'cat no ${music.catalogNumber!}',
-                          style: TextStyle(
-                            color: palette.textMuted,
-                            fontSize: 12,
-                          ),
-                        ),
-                      if (preferences.ebayNextToCover &&
-                          preferences.allowsEbayLinks(
-                              inspector.item.source.isWishlisted))
-                        InkWell(
-                          mouseCursor: SystemMouseCursors.click,
-                          onTap: () {
-                            final query = [
-                              if (music.artist?.trim().isNotEmpty == true)
-                                music.artist!.trim(),
-                              music.title.trim(),
-                              if (music.catalogNumber?.trim().isNotEmpty ==
-                                  true)
-                                music.catalogNumber!.trim(),
-                            ].join(' ');
-                            launchEbaySearch(query,
-                                isWishlisted:
-                                    inspector.item.source.isWishlisted);
-                          },
-                          borderRadius: BorderRadius.circular(3),
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 2, vertical: 1),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Text(
-                                  'eBay',
-                                  style: TextStyle(
-                                    color: palette.accent,
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w700,
-                                    decoration: TextDecoration.underline,
-                                    decorationColor: palette.accent,
-                                  ),
-                                ),
-                                const SizedBox(width: 2),
-                                Icon(
-                                  Icons.open_in_new,
-                                  size: 11,
-                                  color: palette.accent,
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      );
+                                fontSize: 14, color: inspector.accent)))),
+              const Divider(height: 32),
+            ],
+            if (artist?.isNotEmpty == true)
+              InkWell(
+                  onTap: onFilter == null ? null : () => onFilter(artist!),
+                  child: Text(artist!,
+                      style: const TextStyle(
+                          fontSize: 20, fontWeight: FontWeight.w700))),
+            const SizedBox(height: 4),
+            Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Expanded(
+                  child: Text(music.title,
+                      style: TextStyle(
+                          color: inspector.accent,
+                          fontSize: 24,
+                          fontWeight: FontWeight.w700,
+                          height: 1.1))),
+              if (model.entry?.personal.quantity case final quantity?
+                  when quantity > 1)
+                Padding(
+                    padding: const EdgeInsets.only(left: 8, top: 4),
+                    child: Text('Qty: $quantity',
+                        style: const TextStyle(fontWeight: FontWeight.w700))),
+              if (isOwned)
+                Padding(
+                    padding: const EdgeInsets.only(left: 8),
+                    child: Tooltip(
+                        message: 'In Collection',
+                        child: Container(
+                            width: 28,
+                            height: 28,
+                            decoration: BoxDecoration(
+                                color: inspector.accent,
+                                borderRadius: BorderRadius.circular(3)),
+                            child: Icon(Icons.check,
+                                size: 22,
+                                color: appContrastingTextColor(
+                                    inspector.accent))))),
+            ]),
+            if (music.subtitle?.isNotEmpty == true) ...[
+              const SizedBox(height: 10),
+              Text(music.subtitle!,
+                  style: TextStyle(fontSize: 16, color: palette.textMuted))
+            ],
+            const SizedBox(height: 12),
+            if (constraints.maxWidth < 280) ...[
+              SizedBox(
+                  width: coverWidth,
+                  child: _MusicInspectorCover(
+                      title: music.title,
+                      item: music,
+                      imageUrl: music.coverImageUrl,
+                      frontCoverBytes: front?.imageData,
+                      backCoverBytes: back?.imageData,
+                      sideBySide: false,
+                      accent: inspector.accent)),
+              const SizedBox(height: 12),
+              metadata,
+            ] else
+              Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                SizedBox(
+                    width: coverWidth,
+                    child: _MusicInspectorCover(
+                        title: music.title,
+                        item: music,
+                        imageUrl: music.coverImageUrl,
+                        frontCoverBytes: front?.imageData,
+                        backCoverBytes: back?.imageData,
+                        sideBySide: sideBySide,
+                        accent: inspector.accent)),
+                const SizedBox(width: 20),
+                Expanded(child: metadata),
+              ]),
+          ]));
     });
   }
 }
@@ -680,7 +631,6 @@ class _MusicInspectorTracks extends StatelessWidget {
     if (groups.isEmpty) {
       return const SizedBox.shrink();
     }
-    final palette = appPalette(context);
     final rawQuery = inspector.searchQuery?.trim().toLowerCase();
     final highlightTerms = inspector.searchTarget.includesTracks
         ? _musicSearchTerms(rawQuery)
@@ -689,37 +639,12 @@ class _MusicInspectorTracks extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Wrap(
-          spacing: 6,
-          runSpacing: 6,
-          children: [
-            Text(
-              '${tracks.where((track) => !track.isHeader).length} ${tracks.where((track) => !track.isHeader).length == 1 ? 'track' : 'tracks'}',
-              style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                    color: palette.textMuted,
-                    fontWeight: FontWeight.w700,
-                  ),
-            ),
-            TextButton.icon(
-              onPressed: tracks.isEmpty
-                  ? null
-                  : () => _copyTracks(context, tracks, item: model.music),
-              icon: const Icon(Icons.copy, size: 16),
-              label: const Text('Copy'),
-            ),
-            TextButton.icon(
-              onPressed: tracks.isEmpty
-                  ? null
-                  : () => _printTracks(context, tracks, item: model.music),
-              icon: const Icon(Icons.print_outlined, size: 16),
-              label: const Text('Print'),
-            ),
-          ],
-        ),
-        const SizedBox(height: 8),
         for (var index = 0; index < groups.length; index++) ...[
           _MusicDiscTable(
-            discNumber: groups[index].discNumber,
+            disc: model.discs.firstWhere(
+                (disc) => disc.discNumber == groups[index].discNumber),
+            storage: model.storageForDisc(groups[index].discNumber),
+            accent: inspector.accent,
             tracks: groups[index].tracks,
             highlightTerms: highlightTerms,
             onFilterByValue: inspector.onFilterByValue,
@@ -747,6 +672,8 @@ class _MusicDiscDetails extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         LibraryDetailFieldTable(
+          minCellWidth: 400,
+          labelWidth: 132,
           showHeader: false,
           fields: [
             if (model.discs.isNotEmpty)
@@ -816,9 +743,7 @@ class _MusicDiscDetailsCard extends StatelessWidget {
     ];
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: palette.surfaceSubtle,
-        border: Border.all(color: palette.divider),
-        borderRadius: BorderRadius.circular(4),
+        border: Border(bottom: BorderSide(color: palette.divider)),
       ),
       child: Padding(
         padding: const EdgeInsets.all(8),
@@ -834,6 +759,8 @@ class _MusicDiscDetailsCard extends StatelessWidget {
             ),
             const SizedBox(height: 4),
             LibraryDetailFieldTable(
+              minCellWidth: 400,
+              labelWidth: 132,
               showHeader: false,
               fields: [
                 for (final row in rows)
@@ -1031,14 +958,11 @@ class _MusicProductDetails extends StatelessWidget {
         ('Release date', release.releaseDateParts!.toString()),
       if (release.originalReleaseDateParts != null)
         ('Original release date', release.originalReleaseDateParts!.toString()),
-      if (release.localCoverImagePath?.trim().isNotEmpty == true)
-        ('Local cover', release.localCoverImagePath!),
-      if (release.localBackImagePath?.trim().isNotEmpty == true)
-        ('Local back', release.localBackImagePath!),
-      if (release.localThumbnailImagePath?.trim().isNotEmpty == true)
-        ('Local thumbnail', release.localThumbnailImagePath!),
+      if (release.extra.isNotEmpty) ('Extra', release.extra.join(' | ')),
     ];
     return LibraryDetailFieldTable(
+      minCellWidth: 400,
+      labelWidth: 132,
       showHeader: false,
       fields: [
         for (final row in rows)
@@ -1061,6 +985,21 @@ class _MusicInspectorDetailsPersonal extends StatelessWidget {
     );
     final personalRows = <(String, String)>[
       ('Index', entry?.personal.indexNumber?.toString() ?? '-'),
+      if (entry != null) ('Quantity', entry.personal.quantity.toString()),
+      if (entry?.personal.rating != null)
+        ('My Rating', '${entry!.personal.rating}/10'),
+      if (entry?.personal.ownerLabel != null)
+        ('Owner', entry!.personal.ownerLabel!),
+      if (entry?.personal.mediaCondition != null)
+        ('Media Condition', entry!.personal.mediaCondition!),
+      if (entry?.personal.marketValueCents != null)
+        (
+          'Current Value',
+          formatMoney(entry!.personal.marketValueCents, entry.personal.currency)
+        ),
+      if (entry?.personal.soldAt != null)
+        ('Sold Date', formatDate(entry!.personal.soldAt!)),
+      if (entry?.personal.soldTo != null) ('Sold To', entry!.personal.soldTo!),
       if (entry?.personal.isDigital != null)
         ('Media entries', entry!.personal.isDigital! ? 'Digital' : 'Physical'),
       if (entry?.personal.condition?.trim().isNotEmpty == true)
@@ -1070,7 +1009,11 @@ class _MusicInspectorDetailsPersonal extends StatelessWidget {
       if (source.locationPath?.trim().isNotEmpty == true)
         ('Location', source.locationPath!),
       if (entry?.personal.collectionStatus?.trim().isNotEmpty == true)
-        ('Collection status', entry!.personal.collectionStatus!),
+        (
+          'Collection status',
+          libraryCollectionStatusFromValue(entry!.personal.collectionStatus)
+              .label
+        ),
       if (entry?.personal.pricePaidCents != null)
         (
           'Price paid',
@@ -1081,11 +1024,6 @@ class _MusicInspectorDetailsPersonal extends StatelessWidget {
           'Sell price',
           formatMoney(entry!.personal.sellPriceCents, entry.personal.currency)
         ),
-      if (entry?.personal.marketValueCents != null)
-        (
-          'Market value',
-          formatMoney(entry!.personal.marketValueCents, entry.personal.currency)
-        ),
       if (entry?.personal.purchaseDate != null)
         ('Purchase date', formatDate(entry!.personal.purchaseDate!)),
       if (entry?.personal.purchaseStore?.trim().isNotEmpty == true)
@@ -1094,10 +1032,6 @@ class _MusicInspectorDetailsPersonal extends StatelessWidget {
         ('Signed by', entry!.personal.details.signedBy!),
       if (entry?.personal.details.lastCleanedDate != null)
         ('Last cleaned', formatDate(entry!.personal.details.lastCleanedDate!)),
-      if (entry?.personal.tags?.trim().isNotEmpty == true)
-        ('Tags', entry!.personal.tags!),
-      if (entry?.personal.personalNotes?.trim().isNotEmpty == true)
-        ('Notes', entry!.personal.personalNotes!),
       if (entry?.createdAt != null) ('Added', formatDate(entry!.createdAt!)),
       ('Modified', formatNullableDate(entry?.updatedAt) ?? '-'),
     ];
@@ -1109,6 +1043,8 @@ class _MusicInspectorDetailsPersonal extends StatelessWidget {
     }
 
     return LibraryDetailFieldTable(
+      minCellWidth: 400,
+      labelWidth: 132,
       showHeader: false,
       fields: asFacts(personalRows),
     );
@@ -1129,63 +1065,83 @@ class _MusicInspectorCredits extends StatelessWidget {
         for (final credit in disc.credits)
           (credit: credit, scope: 'Disc ${disc.discNumber}'),
     ];
-    return LibraryDetailFieldTable(showHeader: false, fields: [
-      for (final row in credits)
-        LibraryDetailField(
-          label: '${row.credit.role} / ${row.scope}',
-          value: [
-            row.credit.name,
-            if (row.credit.instruments.isNotEmpty)
-              row.credit.instruments.join(', ')
-          ].join(' - '),
-          onTap: inspector.onFilterByValue == null
-              ? null
-              : () => inspector.onFilterByValue!(row.credit.name),
-        ),
-    ]);
+    return LibraryDetailFieldTable(
+        showHeader: false,
+        labelWidth: 132,
+        minCellWidth: 400,
+        fields: [
+          if (release.artist?.isNotEmpty == true)
+            LibraryDetailField(label: 'Artist', value: release.artist!),
+          for (final row in credits)
+            LibraryDetailField(
+              label: row.scope == 'Album'
+                  ? row.credit.role
+                  : '${row.credit.role} / ${row.scope}',
+              value: [
+                row.credit.name,
+                if (row.credit.instruments.isNotEmpty)
+                  row.credit.instruments.join(', ')
+              ].join(' - '),
+              onTap: inspector.onFilterByValue == null
+                  ? null
+                  : () => inspector.onFilterByValue!(row.credit.name),
+            ),
+        ]);
   }
 }
 
 class _MusicDiscTable extends StatelessWidget {
   const _MusicDiscTable({
-    required this.discNumber,
+    required this.disc,
+    required this.storage,
+    required this.accent,
     required this.tracks,
     this.highlightTerms = const <String>[],
     this.onFilterByValue,
   });
 
-  final int discNumber;
+  final MusicDisc disc;
+  final MusicEntryDiscStorageView storage;
+  final Color accent;
   final List<MusicTrackListEntry> tracks;
   final List<String> highlightTerms;
   final ValueChanged<String>? onFilterByValue;
 
   @override
   Widget build(BuildContext context) {
-    final palette = appPalette(context);
     final discDuration = _formatTotalDuration(tracks);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-          children: [
-            Text(
-              'Disc #$discNumber',
-              style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                    fontWeight: FontWeight.w700,
-                  ),
-            ),
-            if (discDuration != null) ...[
-              const SizedBox(width: 8),
-              Text(
-                discDuration,
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: palette.textMuted,
-                      fontWeight: FontWeight.w700,
-                    ),
-              ),
-            ],
-          ],
-        ),
+        Container(
+            padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 6),
+            color: accent.withValues(alpha: .2),
+            child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Expanded(
+                  child: Text(
+                      [
+                        disc.title?.isNotEmpty == true
+                            ? disc.title!
+                            : 'Disc #${disc.discNumber}',
+                        if (storage.label != '-') '(${storage.label})',
+                        if (disc.matrixNumberSideA?.isNotEmpty == true ||
+                            disc.matrixNumberSideB?.isNotEmpty == true)
+                          '(${[
+                            if (disc.matrixNumberSideA?.isNotEmpty == true)
+                              'A: ${disc.matrixNumberSideA}',
+                            if (disc.matrixNumberSideB?.isNotEmpty == true)
+                              'B: ${disc.matrixNumberSideB}'
+                          ].join(' | ')})'
+                      ].join(' '),
+                      style: const TextStyle(
+                          fontSize: 14, fontWeight: FontWeight.w700))),
+              if (discDuration != null) ...[
+                const SizedBox(width: 8),
+                Text(discDuration,
+                    style: const TextStyle(
+                        fontSize: 14, fontWeight: FontWeight.w700))
+              ],
+            ])),
         const SizedBox(height: 6),
         for (final track in tracks)
           Padding(
@@ -1310,165 +1266,6 @@ Color inspectorActionColor(BuildContext context) {
   return palette.accent;
 }
 
-Future<void> _copyTracks(
-  BuildContext context,
-  List<MusicTrackListEntry> tracks, {
-  required MusicAlbum item,
-}) async {
-  final rows = <List<String>>[
-    [
-      'Album Artist',
-      'Album',
-      'Edition',
-      'Disc',
-      'Header/Section',
-      'Track Number',
-      'Track Title',
-      'Track Artist',
-      'Duration',
-      'Catalog Number',
-    ],
-    for (final track in tracks)
-      [
-        item.artist ?? '',
-        item.title,
-        track.albumTitle ?? '',
-        track.discNumber.toString(),
-        track.isHeader ? track.title : '',
-        track.position,
-        track.title,
-        track.isHeader || track.artist?.trim().isNotEmpty != true
-            ? ''
-            : track.artist!.trim(),
-        track.isHeader || track.durationSeconds == null
-            ? ''
-            : _formatTrackDuration(track.durationSeconds!),
-        track.catalogNumber ?? '',
-      ],
-  ];
-  await Clipboard.setData(
-    ClipboardData(text: _tracksToCsv(rows)),
-  );
-  if (context.mounted) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Copied track list')),
-    );
-  }
-}
-
-Future<void> _printTracks(
-  BuildContext context,
-  List<MusicTrackListEntry> tracks, {
-  required MusicAlbum item,
-}) async {
-  final rows = <List<String>>[
-    [
-      'Album Artist',
-      'Album',
-      'Edition',
-      'Disc',
-      'Header/Section',
-      'Track Number',
-      'Track Title',
-      'Track Artist',
-      'Duration',
-      'Catalog Number',
-    ],
-    for (final track in tracks)
-      [
-        item.artist ?? '',
-        item.title,
-        track.albumTitle ?? '',
-        track.discNumber.toString(),
-        track.isHeader ? track.title : '',
-        track.position,
-        track.title,
-        track.isHeader || track.artist?.trim().isNotEmpty != true
-            ? ''
-            : track.artist!.trim(),
-        track.isHeader || track.durationSeconds == null
-            ? ''
-            : _formatTrackDuration(track.durationSeconds!),
-        track.catalogNumber ?? '',
-      ],
-  ];
-  final doc = pw.Document(title: 'Track list');
-  doc.addPage(
-    pw.Page(
-      pageFormat: PdfPageFormat.a4,
-      margin: const pw.EdgeInsets.all(20),
-      build: (context) {
-        return pw.Column(
-          crossAxisAlignment: pw.CrossAxisAlignment.start,
-          children: [
-            pw.Text(
-              'Track list',
-              style: pw.TextStyle(
-                fontSize: 18,
-                fontWeight: pw.FontWeight.bold,
-              ),
-            ),
-            pw.SizedBox(height: 8),
-            pw.Table(
-              border: pw.TableBorder.all(color: PdfColors.grey300),
-              columnWidths: const {
-                0: pw.FlexColumnWidth(2),
-                1: pw.FlexColumnWidth(2),
-                2: pw.FlexColumnWidth(2),
-                3: pw.FixedColumnWidth(28),
-                4: pw.FlexColumnWidth(2),
-                5: pw.FixedColumnWidth(34),
-                6: pw.FlexColumnWidth(3),
-                7: pw.FlexColumnWidth(2),
-                8: pw.FixedColumnWidth(44),
-                9: pw.FlexColumnWidth(2)
-              },
-              children: [
-                pw.TableRow(
-                  decoration: const pw.BoxDecoration(color: PdfColors.grey200),
-                  children: [
-                    for (final value in rows.first) _pdfCell(value, bold: true)
-                  ],
-                ),
-                for (final row in rows.skip(1))
-                  pw.TableRow(
-                    children: [for (final value in row) _pdfCell(value)],
-                  ),
-              ],
-            ),
-          ],
-        );
-      },
-    ),
-  );
-  await Printing.layoutPdf(
-    onLayout: (_) => doc.save(),
-    name: 'track_list.pdf',
-  );
-}
-
-pw.Widget _pdfCell(String value, {bool bold = false}) {
-  return pw.Padding(
-    padding: const pw.EdgeInsets.all(4),
-    child: pw.Text(
-      value,
-      style: pw.TextStyle(
-        fontSize: 12,
-        fontWeight: bold ? pw.FontWeight.bold : pw.FontWeight.normal,
-      ),
-    ),
-  );
-}
-
-String _tracksToCsv(List<List<String>> rows) {
-  return rows
-      .map(
-        (row) =>
-            row.map((value) => '"${value.replaceAll('"', '""')}"').join(','),
-      )
-      .join('\n');
-}
-
 class _DiscTrackGroup {
   const _DiscTrackGroup({
     required this.discNumber,
@@ -1477,21 +1274,6 @@ class _DiscTrackGroup {
 
   final int discNumber;
   final List<MusicTrackListEntry> tracks;
-}
-
-int _compareMusicTrackPositions(
-  MusicTrackListEntry left,
-  MusicTrackListEntry right,
-) {
-  final leftNumber = _trackPositionNumber(left.position);
-  final rightNumber = _trackPositionNumber(right.position);
-  if (leftNumber != rightNumber) return leftNumber.compareTo(rightNumber);
-  return left.position.toLowerCase().compareTo(right.position.toLowerCase());
-}
-
-int _trackPositionNumber(String position) {
-  final match = RegExp(r'\d+').firstMatch(position);
-  return match == null ? 1 << 30 : int.tryParse(match.group(0)!) ?? 1 << 30;
 }
 
 List<_DiscTrackGroup> _groupTracksByDisc(List<MusicTrackListEntry> tracks) {
@@ -1507,10 +1289,7 @@ List<_DiscTrackGroup> _groupTracksByDisc(List<MusicTrackListEntry> tracks) {
   final groups = <_DiscTrackGroup>[];
   final sortedDiscs = byDisc.keys.toList(growable: false)..sort();
   for (final disc in sortedDiscs) {
-    final discTracks = byDisc[disc]!
-      ..sort(
-        _compareMusicTrackPositions,
-      );
+    final discTracks = byDisc[disc]!;
     groups.add(_DiscTrackGroup(discNumber: disc, tracks: discTracks));
   }
   return groups;

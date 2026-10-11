@@ -141,16 +141,16 @@ void main() {
     expect(find.text('Brutal Death Metal'), findsOneWidget);
 
     // 6. Barcode & Country
-    expect(find.text('Barcode 039842503912'), findsOneWidget);
+    expect(find.text('039842503912'), findsOneWidget);
     expect(find.textContaining('United States'), findsOneWidget);
 
     // 7. Metric strip (1 Disc | 1 Tracks | 3:30)
-    expect(find.text('1 Disc | 1 Tracks | 3:30'), findsOneWidget);
+    expect(find.text('1 Disc | 1 Track | 3:30'), findsOneWidget);
 
     // 8. Catalog Number & eBay link
-    expect(find.text('cat no 3984-25039-1'), findsOneWidget);
-    expect(find.text('eBay'), findsOneWidget);
-    expect(find.byTooltip('Search sold prices on eBay'), findsOneWidget);
+    expect(find.textContaining('3984-25039-1', findRichText: true),
+        findsOneWidget);
+    expect(find.text('Find sold listings on eBay'), findsOneWidget);
 
     // 9. Cover carousel selector dots (Front & Back)
     expect(find.byTooltip('Front cover'), findsOneWidget);
