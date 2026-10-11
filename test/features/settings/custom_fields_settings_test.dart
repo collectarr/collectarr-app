@@ -1,3 +1,5 @@
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/features/collection/repositories/custom_field_repository.dart';
@@ -7,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
+  setUp(() => SharedPreferences.setMockInitialValues({}));
   testWidgets(
       'custom fields settings renders scoped rows without tile warnings',
       (tester) async {
@@ -25,11 +28,10 @@ void main() {
     );
 
     await tester.pumpWidget(
-      MaterialApp(
-        home: Scaffold(
-          body: CustomFieldsSettings(db: db),
-        ),
-      ),
+      ProviderScope(
+          child: MaterialApp(
+        home: Scaffold(body: CustomFieldsSettings(db: db)),
+      )),
     );
     await tester.pumpAndSettle();
 

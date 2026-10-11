@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/settings/custom_fields_display_settings.dart';
 import 'package:collectarr_app/features/library/edit/sections/library_entry_personal_section.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_entry_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_contributors.dart';
@@ -131,14 +132,33 @@ class _LinkEntry {
 }
 
 class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
-    with SingleTickerProviderStateMixin {
+    with TickerProviderStateMixin {
   final _formKey = GlobalKey<FormState>();
   late final LibraryEditShellState _draft;
-  late final TabController _tabController;
+  late TabController _tabController;
   late List<LibraryEditTabSpec> _tabSpecs;
   late final List<_LinkEntry> _links;
   bool _linksEdited = false;
   bool _isSaving = false;
+  String _customTabName = 'Custom Fields';
+
+  Future<void> _loadCustomDisplay() async {
+    final display =
+        await CustomFieldsDisplaySettings.read(widget.type.kind.apiValue);
+    if (!mounted) return;
+    setState(() {
+      _customTabName = display.tabName;
+      if (!display.showEditTab) {
+        final previous = _tabController;
+        _tabSpecs.removeWhere((tab) => tab.id == 'custom');
+        _tabController = TabController(
+            length: _tabSpecs.length,
+            vsync: this,
+            initialIndex: previous.index.clamp(0, _tabSpecs.length - 1));
+        previous.dispose();
+      }
+    });
+  }
 
   bool get _isEntry => _draft.isEntry;
 
@@ -187,6 +207,7 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
           ),
     );
 
+    unawaited(_loadCustomDisplay());
     _tabController = TabController(
       length: _tabSpecs.length,
       vsync: this,
@@ -376,7 +397,10 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
       badges: const <Widget>[],
       tabController: _tabController,
       tabs: [
-        for (final tab in _tabSpecs) EditTab(icon: tab.icon, label: tab.label)
+        for (final tab in _tabSpecs)
+          EditTab(
+              icon: tab.icon,
+              label: tab.id == 'custom' ? _customTabName : tab.label)
       ],
       tabIds: [for (final tab in _tabSpecs) tab.id],
       views: _tabViews(),

@@ -127,7 +127,7 @@ class CollectionSchemaManagementPanel extends ConsumerWidget {
 
   Future<void> _openCustomFieldManager(
       BuildContext context, WidgetRef ref) async {
-    await showCustomFieldsManagementDialog(
+    await showCustomFieldsManagementPage(
       context: context,
       db: db,
     );
@@ -144,7 +144,7 @@ class CollectionSchemaManagementPanel extends ConsumerWidget {
   }
 
   Future<void> _createCustomField(BuildContext context, WidgetRef ref) async {
-    await showCustomFieldsManagementDialog(
+    await showCustomFieldsManagementPage(
       context: context,
       db: db,
       startCreating: true,

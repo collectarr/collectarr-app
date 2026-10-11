@@ -309,10 +309,11 @@ class _AppShellState extends ConsumerState<AppShell> {
         _goToBranch(_AppShellState._branchLoans);
         return;
       case DrawerAction.manageCustomFields:
-        showCustomFieldsManagementDialog(
+        showCustomFieldsManagementPage(
           context: context,
           db: ref.read(localDatabaseProvider),
           accent: accent,
+          mediaKind: type.kind.apiValue,
         );
         return;
       case DrawerAction.cloudSharing:

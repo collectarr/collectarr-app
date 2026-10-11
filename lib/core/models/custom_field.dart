@@ -2,14 +2,21 @@ import 'dart:convert';
 
 enum CustomFieldValueType {
   text('text', 'Text'),
-  longText('longText', 'Long text'),
+  longText('longText', 'Text Area'),
   number('number', 'Number'),
+  decimal('decimal', 'Decimal'),
+  percentage('percentage', 'Percentage'),
+  weight('weight', 'Weight'),
+  size('size', 'Size'),
+  fixedButtons('fixedButtons', 'Fixed Button Bar'),
+  fixedList('fixedList', 'Fixed List'),
+  duration('duration', 'Duration'),
   currency('currency', 'Currency'),
   date('date', 'Date'),
   time('time', 'Time'),
-  boolean('boolean', 'Yes / No'),
-  singleSelect('singleSelect', 'Single-select'),
-  multiSelect('multiSelect', 'Multi-select'),
+  boolean('boolean', 'Toggle'),
+  singleSelect('singleSelect', 'Pick List'),
+  multiSelect('multiSelect', 'Multi-Value Pick List'),
   url('url', 'URL'),
   person('person', 'Person / contact');
 
@@ -18,7 +25,18 @@ enum CustomFieldValueType {
   final String apiValue;
   final String label;
 
-  bool get supportsOptions => this == singleSelect || this == multiSelect;
+  bool get supportsOptions =>
+      this == singleSelect || this == multiSelect || isFixedChoice;
+
+  bool get isFixedChoice => this == fixedButtons || this == fixedList;
+
+  int? get maximumOptions => switch (this) {
+        fixedButtons => 4,
+        fixedList => 20,
+        _ => null,
+      };
+
+  bool get hasUnit => this == weight || this == size;
 
   bool get isMultiValue => this == multiSelect;
 
@@ -84,6 +102,8 @@ class CustomFieldDefinition {
   String get valueTypeLabel => valueType.label;
   bool get supportsOptions => valueType.supportsOptions;
   List<String> get optionValues => parseCustomFieldOptions(options);
+  String? get unit =>
+      valueType.hasUnit && optionValues.isNotEmpty ? optionValues.first : null;
 
   CustomFieldTargetScope get targetScope =>
       CustomFieldTargetScope.fromApiValue(editScope);
@@ -234,6 +254,10 @@ String displayCustomFieldValue(
       },
     CustomFieldValueType.multiSelect =>
       parseCustomFieldMultiValues(trimmed).join(', '),
+    CustomFieldValueType.percentage => '$trimmed%',
+    CustomFieldValueType.weight ||
+    CustomFieldValueType.size =>
+      '$trimmed ${definition.unit ?? (definition.valueType == CustomFieldValueType.weight ? 'kg' : 'cm')}',
     _ => trimmed,
   };
 }

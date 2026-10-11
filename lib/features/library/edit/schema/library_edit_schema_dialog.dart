@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/settings/custom_fields_display_settings.dart';
 import 'dart:async';
 import 'package:collectarr_app/features/library/edit/session/library_edit_navigation_guard.dart';
 
@@ -80,6 +81,21 @@ class _LibraryEditSchemaDialogState<TModel, TDraft>
   final _formKey = GlobalKey<FormState>();
   final _rendererKey = GlobalKey<EditSchemaRendererState<TModel, TDraft>>();
   bool _saving = false;
+  CustomFieldsDisplaySettings _customDisplay =
+      const CustomFieldsDisplaySettings();
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.contributions.customFields != null) {
+      unawaited(_loadCustomDisplay());
+    }
+  }
+
+  Future<void> _loadCustomDisplay() async {
+    final display = await CustomFieldsDisplaySettings.read(widget.mediaKind);
+    if (mounted) setState(() => _customDisplay = display);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -116,13 +132,14 @@ class _LibraryEditSchemaDialogState<TModel, TDraft>
     }
     final customFields = widget.contributions.customFields;
     if (customFields != null &&
+        _customDisplay.showEditTab &&
         !extraTabs.any((tab) => tab.id == customFields.id) &&
         !widget.schema.tabs.any((tab) => tab.id == customFields.id)) {
       _insertExtraTab(
         extraTabs,
         EditSchemaExtraTab(
           id: customFields.id,
-          label: customFields.label,
+          label: _customDisplay.tabName,
           icon: customFields.icon,
           svgAsset: customFields.svgAsset,
           content: CustomFieldsEditSection(

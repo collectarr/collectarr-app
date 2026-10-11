@@ -1,55 +1,43 @@
+import 'package:collectarr_app/features/settings/custom_field_editor_dialog.dart';
+import 'package:collectarr_app/features/settings/custom_fields_tab_settings_dialog.dart';
 import 'dart:async';
-import 'dart:convert';
-import 'package:collectarr_app/core/logging/recoverable_error.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/features/collection/repositories/custom_field_repository.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
-import 'package:collectarr_app/ui/compact_search_dropdown_form_field.dart';
 import 'package:collectarr_app/ui/accent_alert_dialog.dart';
-import 'package:collectarr_app/ui/accent_dialog_header.dart';
-import 'package:uuid/uuid.dart';
-import 'package:collectarr_app/features/library/config/library_kind_style.dart';
+import 'package:collectarr_app/features/library/ui/library_management_page.dart';
+import 'package:collectarr_app/features/library/generic/library_custom_field_cache.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:collectarr_app/features/settings/custom_field_type_picker.dart';
+import 'package:collectarr_app/features/settings/custom_fields_display_settings.dart';
 
-Future<void> showCustomFieldsManagementDialog({
+Future<void> showCustomFieldsManagementPage({
   required BuildContext context,
   required LocalDatabase db,
   bool startCreating = false,
   Color? accent,
-}) {
-  return showDialog<void>(
-    context: context,
-    builder: (context) => Theme(
-      data: libraryAccentTheme(context, accent ?? appPalette(context).accent),
-      child: Builder(
-          builder: (context) => AccentAlertDialog(
-                backgroundColor: appPalette(context).panel,
-                title: AccentDialogHeader(
-                  title: 'Manage custom fields',
-                  accent: accent ?? appPalette(context).accent,
-                ),
-                content: SizedBox(
-                  width: 920,
-                  height: 560,
-                  child: SingleChildScrollView(
-                    child: CustomFieldsSettings(
-                      db: db,
-                      startCreating: startCreating,
-                    ),
-                  ),
-                ),
-                actions: [
-                  TextButton(
-                    onPressed: () => Navigator.of(context).pop(),
-                    child: const Text('Close'),
-                  ),
-                ],
-              )),
-    ),
-  );
-}
+  String? mediaKind,
+}) =>
+    Navigator.of(context).push<void>(MaterialPageRoute(
+      builder: (context) => LibraryManagementPage(
+        title: 'Manage Custom Fields',
+        icon: Icons.fact_check_outlined,
+        svgAsset: 'assets/sidebar_icons/pen-to-square.svg',
+        accent: accent ?? appPalette(context).accent,
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(24),
+          child: Center(
+              child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 930),
+            child: CustomFieldsSettings(
+                db: db, mediaKind: mediaKind, startCreating: startCreating),
+          )),
+        ),
+      ),
+    ));
 
 /// Settings panel for managing custom field definitions.
 class CustomFieldsSettings extends StatefulWidget {
@@ -57,10 +45,12 @@ class CustomFieldsSettings extends StatefulWidget {
     super.key,
     required this.db,
     this.startCreating = false,
+    this.mediaKind,
   });
 
   final LocalDatabase db;
   final bool startCreating;
+  final String? mediaKind;
 
   @override
   State<CustomFieldsSettings> createState() => _CustomFieldsSettingsState();
@@ -71,12 +61,14 @@ class _CustomFieldsSettingsState extends State<CustomFieldsSettings> {
   List<CustomFieldDefinition> _definitions = const [];
   bool _loading = true;
   bool _openedInitialEditor = false;
+  CustomFieldsDisplaySettings _display = const CustomFieldsDisplaySettings();
 
   @override
   void initState() {
     super.initState();
     _repo = CustomFieldRepository(widget.db);
     _reload();
+    unawaited(_loadDisplay());
     if (widget.startCreating) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (!mounted || _openedInitialEditor) {
@@ -88,8 +80,23 @@ class _CustomFieldsSettingsState extends State<CustomFieldsSettings> {
     }
   }
 
+  Future<void> _loadDisplay() async {
+    final display = await CustomFieldsDisplaySettings.read(widget.mediaKind);
+    if (mounted) setState(() => _display = display);
+  }
+
+  Future<void> _configureTab() async {
+    final result = await showDialog<CustomFieldsDisplaySettings>(
+      context: context,
+      builder: (context) => CustomFieldsTabSettingsDialog(settings: _display),
+    );
+    if (result == null) return;
+    await result.save(widget.mediaKind);
+    if (mounted) setState(() => _display = result);
+  }
+
   Future<void> _reload() async {
-    final defs = await _repo.listDefinitions();
+    final defs = await _repo.listDefinitions(mediaKind: widget.mediaKind);
     if (mounted) {
       setState(() {
         _definitions = defs;
@@ -106,11 +113,28 @@ class _CustomFieldsSettingsState extends State<CustomFieldsSettings> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          decoration: BoxDecoration(
+              border: Border(
+                  bottom: BorderSide(color: appPalette(context).divider))),
+          child: Row(children: [
+            Expanded(
+                child: Text(_display.tabName,
+                    style: const TextStyle(
+                        fontSize: 22, fontWeight: FontWeight.w700))),
+            IconButton(
+                tooltip: 'Custom Fields settings',
+                onPressed: _configureTab,
+                icon: const Icon(Icons.settings_outlined, size: 18)),
+          ]),
+        ),
         if (_definitions.isEmpty)
           Padding(
-            padding: const EdgeInsets.only(bottom: 12),
+            padding: const EdgeInsets.all(16),
             child: Text(
-              'No custom fields defined yet. Add one to track extra data on your items.',
+              'You do not have any Custom Fields yet.',
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     color: Theme.of(context)
                         .colorScheme
@@ -137,10 +161,10 @@ class _CustomFieldsSettingsState extends State<CustomFieldsSettings> {
           },
         ),
         const SizedBox(height: 8),
-        OutlinedButton.icon(
+        FilledButton.icon(
           onPressed: () => _showEditor(),
           icon: const Icon(Icons.add),
-          label: const Text('Add custom field'),
+          label: const Text('Add Custom Field'),
         ),
       ],
     );
@@ -151,18 +175,40 @@ class _CustomFieldsSettingsState extends State<CustomFieldsSettings> {
     final item = reordered.removeAt(oldIndex);
     reordered.insert(newIndex, item);
     setState(() => _definitions = reordered);
-    for (var i = 0; i < reordered.length; i++) {
-      await _repo.upsertDefinition(reordered[i].copyWith(sortOrder: i));
-    }
+    await _repo.reorderDefinitions(reordered.map((def) => def.id).toList());
+    _invalidate();
   }
 
   Future<void> _showEditor({CustomFieldDefinition? existing}) async {
-    final result = await showDialog<CustomFieldDefinition>(
+    final type = existing?.valueType ??
+        await showDialog<CustomFieldValueType>(
+          context: context,
+          builder: (context) => const CustomFieldTypePicker(),
+        );
+    if (type == null || !mounted) return;
+    final display = existing == null
+        ? const CustomFieldDisplaySettings()
+        : await CustomFieldDisplaySettings.read(existing.id);
+    if (!mounted) return;
+    final all = await _repo.listDefinitions();
+    if (!mounted) return;
+    final nextOrder = all.fold<int>(
+        0,
+        (value, definition) =>
+            definition.sortOrder >= value ? definition.sortOrder + 1 : value);
+    final result = await showDialog<CustomFieldEditorResult>(
       context: context,
-      builder: (context) => _CustomFieldEditor(existing: existing),
+      builder: (context) => CustomFieldEditorDialog(
+          existing: existing,
+          initialType: type,
+          initialMediaKind: widget.mediaKind,
+          initialDisplay: display,
+          sortOrder: nextOrder),
     );
     if (result != null) {
-      await _repo.upsertDefinition(result);
+      await _repo.upsertDefinition(result.definition);
+      await result.display.save(result.definition.id);
+      _invalidate();
       await _reload();
     }
   }
@@ -189,8 +235,15 @@ class _CustomFieldsSettingsState extends State<CustomFieldsSettings> {
     );
     if (confirmed == true) {
       await _repo.deleteDefinition(def.id);
+      await CustomFieldDisplaySettings.delete(def.id);
+      _invalidate();
       await _reload();
     }
+  }
+
+  void _invalidate() {
+    final container = ProviderScope.containerOf(context, listen: false);
+    container.invalidate(libraryCustomFieldCacheProvider);
   }
 }
 
@@ -213,7 +266,7 @@ class _DefinitionTile extends StatelessWidget {
     final palette = appPalette(context);
     return Material(
       color: palette.panelRaised,
-      borderRadius: BorderRadius.circular(12),
+      borderRadius: BorderRadius.circular(4),
       clipBehavior: Clip.antiAlias,
       child: InkWell(
         mouseCursor: WidgetStateMouseCursor.clickable,
@@ -335,172 +388,6 @@ class _DefinitionTile extends StatelessWidget {
         ),
       ),
     );
-  }
-}
-
-class _CustomFieldEditor extends StatefulWidget {
-  const _CustomFieldEditor({this.existing});
-
-  final CustomFieldDefinition? existing;
-
-  @override
-  State<_CustomFieldEditor> createState() => _CustomFieldEditorState();
-}
-
-class _CustomFieldEditorState extends State<_CustomFieldEditor> {
-  final _formKey = GlobalKey<FormState>();
-  late final TextEditingController _nameController;
-  late final TextEditingController _optionsController;
-  late CustomFieldValueType _fieldType;
-  String? _mediaKind;
-
-  static final List<CustomFieldValueType> _fieldTypes =
-      CustomFieldValueType.values;
-
-  @override
-  void initState() {
-    super.initState();
-    final existing = widget.existing;
-    _nameController = TextEditingController(text: existing?.name ?? '');
-    _fieldType = existing?.valueType ?? CustomFieldValueType.text;
-    _mediaKind = existing?.mediaKind;
-    _optionsController = TextEditingController(
-      text: _decodeOptions(existing?.options),
-    );
-  }
-
-  @override
-  void dispose() {
-    _nameController.dispose();
-    _optionsController.dispose();
-    super.dispose();
-  }
-
-  String _decodeOptions(String? json) {
-    if (json == null || json.isEmpty) return '';
-    try {
-      final list = jsonDecode(json) as List;
-      return list.join(', ');
-    } catch (error, stackTrace) {
-      logRecoverableError(
-        source: 'custom_fields',
-        message: 'Failed to decode custom field options JSON.',
-        error: error,
-        stackTrace: stackTrace,
-      );
-      return '';
-    }
-  }
-
-  String? _encodeOptions() {
-    if (!_fieldType.supportsOptions) return null;
-    final items = _optionsController.text
-        .split(',')
-        .map((e) => e.trim())
-        .where((e) => e.isNotEmpty)
-        .toList();
-    return items.isEmpty ? null : encodeCustomFieldOptions(items);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final isNew = widget.existing == null;
-    return AccentAlertDialog(
-      title: Text(isNew ? 'New custom field' : 'Edit custom field'),
-      content: Form(
-        key: _formKey,
-        child: SizedBox(
-          width: 400,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextFormField(
-                controller: _nameController,
-                decoration: const InputDecoration(labelText: 'Field name'),
-                autofocus: true,
-                validator: (value) =>
-                    (value == null || value.trim().isEmpty) ? 'Required' : null,
-              ),
-              const SizedBox(height: 12),
-              CompactSearchDropdownFormField<CustomFieldValueType>(
-                initialValue: _fieldType,
-                dropdownColor: appPalette(context).panelRaised,
-                borderRadius: kAppMenuBorderRadius,
-                decoration: const InputDecoration(labelText: 'Field type'),
-                items: [
-                  for (final type in _fieldTypes)
-                    DropdownMenuItem<CustomFieldValueType>(
-                      value: type,
-                      child: Text(type.label),
-                    ),
-                ],
-                onChanged: (value) {
-                  if (value != null) setState(() => _fieldType = value);
-                },
-              ),
-              const SizedBox(height: 12),
-              CompactSearchDropdownFormField<String>(
-                initialValue: _mediaKind,
-                dropdownColor: appPalette(context).panelRaised,
-                borderRadius: kAppMenuBorderRadius,
-                decoration: const InputDecoration(
-                  labelText: 'Applies to',
-                  hintText: 'All libraries',
-                ),
-                items: [
-                  const DropdownMenuItem<String>(
-                    value: null,
-                    child: Text('All libraries'),
-                  ),
-                  for (final type in defaultLibraryKindRegistry.allKinds)
-                    DropdownMenuItem<String>(
-                      value: type.kind.apiValue,
-                      child: Text(type.identity.singularLabel),
-                    ),
-                ],
-                onChanged: (value) => setState(() => _mediaKind = value),
-              ),
-              if (_fieldType.supportsOptions) ...[
-                const SizedBox(height: 12),
-                TextFormField(
-                  controller: _optionsController,
-                  decoration: const InputDecoration(
-                    labelText: 'Options (comma-separated)',
-                    hintText: 'Option A, Option B, Option C',
-                  ),
-                  maxLines: 2,
-                ),
-              ],
-            ],
-          ),
-        ),
-      ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.of(context).pop(),
-          child: const Text('Cancel'),
-        ),
-        FilledButton(
-          onPressed: _submit,
-          child: Text(isNew ? 'Create' : 'Save'),
-        ),
-      ],
-    );
-  }
-
-  void _submit() {
-    if (!_formKey.currentState!.validate()) return;
-    final def = CustomFieldDefinition(
-      id: widget.existing?.id ?? const Uuid().v4(),
-      name: _nameController.text.trim(),
-      fieldType: _fieldType.apiValue,
-      mediaKind: _mediaKind,
-      editScope: CustomFieldTargetScope.libraryEntry.apiValue,
-      sortOrder: widget.existing?.sortOrder ?? 0,
-      options: _encodeOptions(),
-      createdAt: widget.existing?.createdAt ?? DateTime.now(),
-    );
-    Navigator.of(context).pop(def);
   }
 }
 
