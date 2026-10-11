@@ -19,6 +19,7 @@ LibraryCardPresentation buildMusicCardPresentation(
   final duration = musicCardDuration(item);
 
   return LibraryCardPresentation(
+    identifierCode: music?.music.barcode,
     releaseDate: music?.music.releaseDate,
     format: music?.facts.formatSummary,
     contextFacts: [

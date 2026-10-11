@@ -1,3 +1,5 @@
+import 'dart:convert';
+import 'package:flutter/services.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/loan.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
@@ -68,11 +70,48 @@ void main() {
     );
     await pumpUntilSettled(tester);
 
-    expect(find.text('Loans'), findsOneWidget);
+    expect(find.text('Loan Manager'), findsOneWidget);
     expect(find.text('Alice'), findsOneWidget);
-    expect(find.text('Action Comics #1'), findsOneWidget);
-    expect(find.text('1 total'), findsOneWidget);
-    expect(find.text('1 active'), findsOneWidget);
+    expect(find.text('Action Comics #1'), findsWidgets);
+    expect(find.text('1 items'), findsOneWidget);
+    expect(find.text('Current Loans'), findsOneWidget);
+    expect(find.text('Loan History'), findsOneWidget);
+    expect(find.byType(DataTable), findsOneWidget);
+    Uint8List? exported;
+    const printingChannel = MethodChannel('net.nfet.printing');
+    tester.binding.defaultBinaryMessenger
+        .setMockMethodCallHandler(printingChannel, (call) async {
+      if (call.method == 'sharePdf') {
+        final arguments = call.arguments as Map;
+        expect(arguments['name'], 'collectarr-loans.pdf');
+        exported = arguments['doc'] as Uint8List;
+        return 1;
+      }
+      return null;
+    });
+    addTearDown(() => tester.binding.defaultBinaryMessenger
+        .setMockMethodCallHandler(printingChannel, null));
+    await tester.tap(find.text('print to pdf'));
+    await pumpUntilSettled(tester);
+    expect(exported, isNotNull);
+    expect(ascii.decode(exported!.take(4).toList()), '%PDF');
+    expect(exported!.length, greaterThan(1000));
+    await tester.tap(find.text('Loan History'));
+    await pumpUntilSettled(tester);
+    expect(find.text('Alice'), findsNothing);
+    expect(find.text('0 items'), findsOneWidget);
+    await tester.tap(find.text('Current Loans'));
+    await pumpUntilSettled(tester);
+    await tester.tap(find.widgetWithText(TextButton, 'Return'));
+    await pumpUntilSettled(tester);
+    expect((await loanRepo.getAllLoans()).single.isActive, false);
+    await tester.tap(find.text('Loan History'));
+    await pumpUntilSettled(tester);
+    expect(find.text('Alice'), findsOneWidget);
+    expect(find.text('Action Comics #1'), findsWidgets);
+    expect(tester.takeException(), isNull);
+    await tester.pumpWidget(const SizedBox.shrink());
+    await tester.pumpAndSettle();
   });
 
   testWidgets('loan manager renders due-date-first card on compact screen',
@@ -126,11 +165,13 @@ void main() {
     );
     await pumpUntilSettled(tester);
 
-    expect(find.text('Loans'), findsOneWidget);
+    expect(find.text('Loan Manager'), findsOneWidget);
     expect(find.text('Bob'), findsOneWidget);
     expect(find.text('Detective Comics #27'), findsOneWidget);
     expect(find.textContaining('OVERDUE: 2020-01-15'), findsOneWidget);
     expect(find.widgetWithText(FilledButton, 'Return'), findsOneWidget);
     expect(find.widgetWithText(OutlinedButton, 'Delete'), findsOneWidget);
+    await tester.pumpWidget(const SizedBox.shrink());
+    await tester.pumpAndSettle();
   });
 }

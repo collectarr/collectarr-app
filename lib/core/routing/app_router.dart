@@ -5,6 +5,8 @@ import 'package:collectarr_app/features/calendar/calendar_page.dart';
 import 'package:collectarr_app/features/collection/collection_page.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/features/loans/loan_manager_page.dart';
+import 'package:collectarr_app/ui/library_accent_scope.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/detail/library_detail_page.dart';
 import 'package:collectarr_app/features/library/home/home_page.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_routes.dart';
@@ -107,7 +109,9 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             routes: [
               GoRoute(
                 path: AppRoutes.loans,
-                builder: (context, state) => const LoanManagerPage(),
+                builder: (context, state) => LoanManagerPage(
+                    kind: catalogMediaKindFromApiValue(
+                        LibraryAccentScope.of(context).kind)),
               ),
             ],
           ),
