@@ -30,7 +30,7 @@ void main() {
     await tester.tap(find.text('Favorites'));
     await tester.pumpAndSettle();
     expect(find.text('Chosen columns'), findsOneWidget);
-    final marker = tester.widget<Icon>(find.byIcon(Icons.check_circle));
+    final marker = tester.widget<Icon>(find.byIcon(Icons.check));
     expect(marker.color, accent);
   });
 }

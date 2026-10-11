@@ -78,7 +78,7 @@ abstract final class LibraryPageShellPresenter {
         onCollectionSelected: (_) => state._onCollectionSelected(),
       ),
       accent: state.widget.accent,
-      showAddButton: useFab,
+      showAddButton: useFab || MediaQuery.sizeOf(context).width < 900,
       isScanningCover: state._isScanningCover,
       onAdd: () => state._dialogCoordinator.showAddDialogFlow(),
       onEscape: state._handleKeyboardEscape,
@@ -451,6 +451,13 @@ abstract final class LibraryPageShellPresenter {
           : null,
       onExportCsvTxt: state._hasSelectedItemsInSelection(projection)
           ? () => state._sharingCoordinator.exportSelectedCsvTxtFlow(projection)
+          : null,
+      onExportXml: state._hasLibraryEntriesInSelection(projection)
+          ? () => state._sharingCoordinator.exportSelectedXmlFlow(projection)
+          : null,
+      onMerge: state._collectionActionCoordinator.canMergeSelection(projection)
+          ? () =>
+              state._collectionActionCoordinator.mergeSelectionFlow(projection)
           : null,
       onBulkDuplicate: state._hasLibraryEntriesInSelection(projection)
           ? () =>

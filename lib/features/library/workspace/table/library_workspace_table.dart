@@ -47,6 +47,7 @@ class LibraryWorkspaceTable<T> extends StatefulWidget {
     this.onColumnReordered,
     this.onColumnAutoSize,
     this.showCheckbox = false,
+    this.showHeaderCheckbox = true,
     this.isEntryChecked,
     this.onToggleEntryCheck,
     this.allChecked = false,
@@ -95,6 +96,7 @@ class LibraryWorkspaceTable<T> extends StatefulWidget {
   final LibraryColumnReordered? onColumnReordered;
   final ValueChanged<String>? onColumnAutoSize;
   final bool showCheckbox;
+  final bool showHeaderCheckbox;
   final bool Function(T entry)? isEntryChecked;
   final ValueChanged<T>? onToggleEntryCheck;
   final bool allChecked;
@@ -203,6 +205,7 @@ class _LibraryWorkspaceTableState<T> extends State<LibraryWorkspaceTable<T>> {
               onColumnReordered: widget.onColumnReordered,
               onColumnAutoSize: widget.onColumnAutoSize,
               showCheckbox: widget.showCheckbox,
+              showHeaderCheckbox: widget.showHeaderCheckbox,
               allChecked: widget.allChecked,
               hasPartialCheck: widget.hasPartialCheck,
               onToggleAllChecked: widget.onToggleAllChecked,
@@ -309,6 +312,7 @@ class _LibraryWorkspaceTableHeader extends StatelessWidget {
     required this.onColumnReordered,
     required this.onColumnAutoSize,
     this.showCheckbox = false,
+    this.showHeaderCheckbox = true,
     this.allChecked = false,
     this.hasPartialCheck = false,
     this.onToggleAllChecked,
@@ -335,6 +339,7 @@ class _LibraryWorkspaceTableHeader extends StatelessWidget {
   final LibraryColumnReordered? onColumnReordered;
   final ValueChanged<String>? onColumnAutoSize;
   final bool showCheckbox;
+  final bool showHeaderCheckbox;
   final bool allChecked;
   final bool hasPartialCheck;
   final ValueChanged<bool>? onToggleAllChecked;
@@ -365,40 +370,58 @@ class _LibraryWorkspaceTableHeader extends StatelessWidget {
                 width: kLibraryTableCheckboxWidth,
                 height: headerHeight,
                 child: Center(
-                  child: _LibraryTableCheckbox(
-                    checked: allChecked,
-                    indeterminate: !allChecked && hasPartialCheck,
-                    accentColor: accentColor,
-                    onTap: onToggleAllChecked == null
-                        ? null
-                        : () => onToggleAllChecked!(!allChecked),
-                  ),
+                  child: showHeaderCheckbox
+                      ? _LibraryTableCheckbox(
+                          checked: allChecked,
+                          indeterminate: !allChecked && hasPartialCheck,
+                          accentColor: accentColor,
+                          onTap: onToggleAllChecked == null
+                              ? null
+                              : () => onToggleAllChecked!(!allChecked),
+                        )
+                      : const SizedBox.shrink(),
                 ),
               ),
-              SizedBox(width: columnSpacing),
             ],
             if (showStatus) ...[
               SizedBox(
                 width: kLibraryTableStatusWidth,
                 height: headerHeight,
               ),
-              SizedBox(width: columnSpacing),
             ],
             if (showEdit) ...[
               SizedBox(
                 width: kLibraryTableEditWidth,
                 height: headerHeight,
               ),
-              SizedBox(width: columnSpacing),
             ],
             for (var index = 0; index < columns.length; index += 1) ...[
               DragTarget<String>(
                 onWillAcceptWithDetails: (details) =>
                     onColumnReordered != null && details.data != columns[index],
-                onAcceptWithDetails: (details) =>
-                    onColumnReordered?.call(details.data, columns[index]),
+                onAcceptWithDetails: (details) {
+                  final box = context.findRenderObject() as RenderBox;
+                  final after = box.globalToLocal(details.offset).dx >
+                      horizontalMargin +
+                          (showCheckbox ? kLibraryTableCheckboxWidth : 0) +
+                          (showStatus ? kLibraryTableStatusWidth : 0) +
+                          (showEdit ? kLibraryTableEditWidth : 0) +
+                          columns.take(index).fold<double>(
+                              0,
+                              (width, column) =>
+                                  width + columnWidthFor(column)) +
+                          index * columnSpacing +
+                          columnWidthFor(columns[index]) / 2;
+                  final before = after
+                      ? (index + 1 < columns.length ? columns[index + 1] : null)
+                      : columns[index];
+                  if (before != details.data) {
+                    onColumnReordered?.call(details.data, before);
+                  }
+                },
                 builder: (context, candidates, rejected) => Draggable<String>(
                   data: columns[index],
+                  dragAnchorStrategy: pointerDragAnchorStrategy,
                   maxSimultaneousDrags: onColumnReordered == null ? 0 : 1,
                   feedback: Material(
                       color: headerColor,
@@ -418,7 +441,12 @@ class _LibraryWorkspaceTableHeader extends StatelessWidget {
                     onAutoSize: onColumnAutoSize,
                     sorted: columnSortFor(columns[index]) == sortColumn ||
                         _sortPriorityFor(columnSortFor(columns[index])) != null,
-                    ascending: sortAscending,
+                    ascending: sortRules
+                            .where((rule) =>
+                                rule.column == columnSortFor(columns[index]))
+                            .firstOrNull
+                            ?.ascending ??
+                        sortAscending,
                     sort: columnSortFor(columns[index]),
                     sortPriority: sortRules.length > 1
                         ? _sortPriorityFor(columnSortFor(columns[index]))
@@ -495,6 +523,7 @@ class _LibraryWorkspaceTableHeaderCell extends StatelessWidget {
     final headerMutedTextColor = headerTextColor.withValues(alpha: 0.72);
     final showSortIcon = sorted && width >= 64;
     final showSortPriority = sortPriority != null && width >= 80;
+    var resizedWidth = width;
     return Container(
       width: width,
       height: height,
@@ -557,9 +586,11 @@ class _LibraryWorkspaceTableHeaderCell extends StatelessWidget {
                 label: 'Resize column',
                 child: GestureDetector(
                   behavior: HitTestBehavior.opaque,
+                  onHorizontalDragStart: (_) => resizedWidth = width,
                   onHorizontalDragUpdate: (details) {
-                    final nextWidth =
-                        (width + details.delta.dx).clamp(40.0, double.infinity);
+                    final nextWidth = (resizedWidth + details.delta.dx)
+                        .clamp(40.0, double.infinity);
+                    resizedWidth = nextWidth;
                     onColumnWidthChanged(column, nextWidth.toDouble());
                   },
                   onDoubleTap: () => onAutoSize != null
@@ -721,7 +752,6 @@ class _LibraryWorkspaceTableRow<T> extends StatelessWidget {
                 ),
               ),
             ),
-            SizedBox(width: columnSpacing),
           ],
           if (showStatus) ...[
             SizedBox(
@@ -731,7 +761,6 @@ class _LibraryWorkspaceTableRow<T> extends StatelessWidget {
                 child: statusBuilder?.call(entry) ?? const SizedBox.shrink(),
               ),
             ),
-            SizedBox(width: columnSpacing),
           ],
           if (showEdit) ...[
             SizedBox(
@@ -753,7 +782,6 @@ class _LibraryWorkspaceTableRow<T> extends StatelessWidget {
                 ),
               ),
             ),
-            SizedBox(width: columnSpacing),
           ],
           for (final column in columns) ...[
             SizedBox(

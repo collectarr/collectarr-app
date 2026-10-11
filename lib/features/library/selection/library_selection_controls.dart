@@ -22,6 +22,8 @@ typedef LibrarySelectionCallbacks = ({
   VoidCallback? onBulkEdit,
   VoidCallback? onPrintToPdf,
   VoidCallback? onExportCsvTxt,
+  VoidCallback? onExportXml,
+  VoidCallback? onMerge,
   VoidCallback? onBulkDuplicate,
   VoidCallback? onBulkLoan,
   VoidCallback? onTransferFieldData,
@@ -320,10 +322,10 @@ class LibrarySelectionControls extends StatelessWidget {
         onSelected: (action) {
           final callback = switch (action) {
             _BulkAction.exportCsvTxt => callbacks.onExportCsvTxt,
-            _BulkAction.exportXml => null,
+            _BulkAction.exportXml => callbacks.onExportXml,
             _BulkAction.exportCovrPrice => null,
             _BulkAction.duplicate => callbacks.onBulkDuplicate,
-            _BulkAction.mergeAlbums => null,
+            _BulkAction.mergeAlbums => callbacks.onMerge,
             _BulkAction.loan => callbacks.onBulkLoan,
             _BulkAction.transferFieldData => callbacks.onTransferFieldData,
             _BulkAction.moveToCollection => callbacks.onMoveToCollection,
@@ -348,7 +350,7 @@ class LibrarySelectionControls extends StatelessWidget {
                   svgAsset: 'assets/sidebar_icons/file-export.svg',
                   icon: Icons.data_object_outlined,
                   label: 'Export to XML',
-                  enabled: false,
+                  enabled: callbacks.onExportXml != null,
                 ),
                 const PopupMenuDivider(height: 7),
                 accentMenuItem(
@@ -363,7 +365,7 @@ class LibrarySelectionControls extends StatelessWidget {
                   svgAsset: 'assets/sidebar_icons/compress.svg',
                   icon: Icons.call_merge,
                   label: mergeLabel ?? 'Merge Albums',
-                  enabled: false,
+                  enabled: callbacks.onMerge != null,
                 ),
                 accentMenuItem(
                   value: _BulkAction.loan,
@@ -408,10 +410,10 @@ class LibrarySelectionControls extends StatelessWidget {
                     ),
                   ),
                 ),
-                const PopupMenuItem(
+                PopupMenuItem(
                   value: _BulkAction.exportXml,
-                  enabled: false,
-                  child: Material(
+                  enabled: callbacks.onExportXml != null,
+                  child: const Material(
                     type: MaterialType.transparency,
                     child: ListTile(
                       leading: Icon(Icons.data_object_outlined),

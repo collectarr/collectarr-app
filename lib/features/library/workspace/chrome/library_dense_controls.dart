@@ -19,7 +19,7 @@ class LibraryDenseMenuEntry<T> {
 
   final T value;
   final String label;
-  final IconData icon;
+  final IconData? icon;
   final bool active;
   final bool enabled;
   final String? trailingLabel;
@@ -430,7 +430,7 @@ class _LibraryDenseMenuItemRow<T> extends StatelessWidget {
       label: entry.label,
       padding: EdgeInsets.zero,
       leadingSpacing: 7,
-      leading: Icon(entry.active ? Icons.check_circle : entry.icon,
+      leading: Icon(entry.active ? Icons.check : entry.icon,
           size: 14,
           color: entry.enabled
               ? (entry.active ? accent : foreground)

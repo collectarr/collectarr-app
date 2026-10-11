@@ -245,7 +245,9 @@ class _ViewAndOrganizeSheetState extends State<ViewAndOrganizeSheet> {
             if (widget.onSpacingChanged != null) ...[
               const SizedBox(height: 16),
               _buildSectionHeader(
-                _viewMode == LibraryViewMode.list ? 'Row Height' : 'Item Spacing',
+                _viewMode == LibraryViewMode.list
+                    ? 'Row Height'
+                    : 'Item Spacing',
                 palette,
               ),
               Row(

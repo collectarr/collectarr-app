@@ -85,8 +85,9 @@ class _LibraryToolbarSearchState extends State<LibraryToolbarSearch> {
     if (widget.suggestions != oldWidget.suggestions) {
       _dismissed = false;
     }
-    final canShow =
-        widget.suggestions.isNotEmpty && widget.onSuggestionSelected != null && !_dismissed;
+    final canShow = widget.suggestions.isNotEmpty &&
+        widget.onSuggestionSelected != null &&
+        !_dismissed;
     if (canShow && !_overlayController.isShowing) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted &&
@@ -193,19 +194,17 @@ class _LibraryToolbarSearchState extends State<LibraryToolbarSearch> {
                                   fontWeight: FontWeight.w600,
                                 ),
                           ),
-                          if ((suggestion.subtitle ?? '')
-                              .trim()
-                              .isNotEmpty)
+                          if ((suggestion.subtitle ?? '').trim().isNotEmpty)
                             Text(
                               suggestion.subtitle!,
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                               style: Theme.of(context)
-                                .textTheme
-                                .bodySmall
-                                ?.copyWith(
-                                  color: palette.textMuted,
-                                ),
+                                  .textTheme
+                                  .bodySmall
+                                  ?.copyWith(
+                                    color: palette.textMuted,
+                                  ),
                             ),
                         ],
                       ),
@@ -224,8 +223,8 @@ class _LibraryToolbarSearchState extends State<LibraryToolbarSearch> {
   Widget build(BuildContext context) {
     final palette = appPalette(context);
     const inputHeight = 34.0;
-    final showSearchScope =
-        widget.searchTargetOptions.isNotEmpty && widget.onSearchTargetChanged != null;
+    final showSearchScope = widget.searchTargetOptions.isNotEmpty &&
+        widget.onSearchTargetChanged != null;
     final inlineActionCount = 1 +
         (widget.onScanBarcode != null ? 1 : 0) +
         (widget.onScanCover != null ? 1 : 0) +
@@ -316,7 +315,8 @@ class _LibraryToolbarSearchState extends State<LibraryToolbarSearch> {
                                         maxHeight: inputHeight,
                                       ),
                                       suffixIcon: Padding(
-                                        padding: const EdgeInsets.only(right: 4),
+                                        padding:
+                                            const EdgeInsets.only(right: 4),
                                         child: Row(
                                           mainAxisSize: MainAxisSize.min,
                                           children: [
@@ -329,16 +329,18 @@ class _LibraryToolbarSearchState extends State<LibraryToolbarSearch> {
                                                   : Icons.search,
                                               onPressed: widget.searchActive
                                                   ? () {
-                                                      widget.onClearSearch?.call();
+                                                      widget.onClearSearch
+                                                          ?.call();
                                                     }
-                                                  : () =>
-                                                      widget.onSearch(widget.controller.text),
+                                                  : () => widget.onSearch(
+                                                      widget.controller.text),
                                             ),
                                             if (widget.onScanBarcode != null)
                                               _ToolbarSearchInlineAction(
                                                 tooltip: 'Scan barcode',
                                                 icon: Icons.barcode_reader,
-                                                onPressed: widget.onScanBarcode!,
+                                                onPressed:
+                                                    widget.onScanBarcode!,
                                               ),
                                             if (widget.onScanCover != null)
                                               _ToolbarSearchInlineAction(

@@ -23,6 +23,51 @@ DecoratedBox _rowDecorationForText(WidgetTester tester, String text) {
 }
 
 void main() {
+  testWidgets('header drag can append a column and resize handles fit content',
+      (tester) async {
+    String? moved;
+    String? before = 'unset';
+    String? fitted;
+    await tester.pumpWidget(MaterialApp(
+        home: Scaffold(
+            body: LibraryWorkspaceTable<String>(
+      entries: const ['row'],
+      columns: const ['a', 'b', 'c'],
+      sortColumn: 'a',
+      sortAscending: true,
+      columnWidthFor: (_) => 150,
+      defaultColumnWidthFor: (_) => 150,
+      columnSortFor: (id) => id,
+      columnLabelFor: (id) => id,
+      columnIsNumeric: (_) => false,
+      cellBuilder: (_, id) => Text('value-$id'),
+      isSelected: (_) => false,
+      onEntryTap: (_) {},
+      onSortChanged: (_) {},
+      onColumnWidthChanged: (_, __) {},
+      onColumnReordered: (id, target) {
+        moved = id;
+        before = target;
+      },
+      onColumnAutoSize: (id) => fitted = id,
+    ))));
+    final gesture = await tester.startGesture(tester.getCenter(find.text('a')));
+    await gesture
+        .moveTo(tester.getTopLeft(find.text('c')) + const Offset(125, 12));
+    await tester.pump();
+    await gesture.up();
+    await tester.pumpAndSettle();
+    expect(moved, 'a');
+    expect(before, isNull);
+    final handle = tester.getTopLeft(find.text('b')) + const Offset(145, 12);
+    await tester.tapAt(handle);
+    await tester.pump(const Duration(milliseconds: 50));
+    await tester.tapAt(handle);
+    await tester.pumpAndSettle();
+    expect(fitted, 'b');
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets('workspace table renders rows and reports sort/tap changes',
       (tester) async {
     Object sortedBy = 'issue';

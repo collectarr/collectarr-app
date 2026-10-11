@@ -92,7 +92,8 @@ class LibraryAlphaJumpBar extends StatelessWidget {
         isSelected: isSelected,
         isAvailable: isAvailable,
         accent: accent,
-        onTap: isAvailable ? () => onLetterSelected(isAll ? null : letter) : null,
+        onTap:
+            isAvailable ? () => onLetterSelected(isAll ? null : letter) : null,
       ),
     );
   }
@@ -201,7 +202,8 @@ class _JumpBarLetterChipState extends State<_JumpBarLetterChip> {
             overflow: TextOverflow.clip,
             style: TextStyle(
               fontSize: widget.isAll ? 10 : 11,
-              fontWeight: isSelected || _hovered ? FontWeight.w700 : FontWeight.w600,
+              fontWeight:
+                  isSelected || _hovered ? FontWeight.w700 : FontWeight.w600,
               color: textColor,
               letterSpacing: 0.5,
             ),

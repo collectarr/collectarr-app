@@ -402,11 +402,10 @@ class LibraryWorkspace extends ConsumerWidget {
           target: schemaNode,
         );
         final leadingActionsWidth = kLibraryTableCheckboxWidth +
-            8.0 +
             (preferences.showCollectionIndicators
-                ? kLibraryTableStatusWidth + 8.0
+                ? kLibraryTableStatusWidth
                 : 0) +
-            (preferences.showEditIcons ? kLibraryTableEditWidth + 8.0 : 0);
+            (preferences.showEditIcons ? kLibraryTableEditWidth : 0);
         final contentWidth = math.max(
             tableWidth + leadingActionsWidth + 16, constraints.maxWidth);
         final allSelected = items.isNotEmpty &&
@@ -500,6 +499,7 @@ class LibraryWorkspace extends ConsumerWidget {
                       beforeColumn,
                     ),
                     showCheckbox: true,
+                    showHeaderCheckbox: false,
                     isEntryChecked: (item) =>
                         selectedIds.contains(item.target.id),
                     onToggleEntryCheck: (item) =>

@@ -280,9 +280,8 @@ class LibraryToolbarSortButton extends StatelessWidget {
                   height: kLibraryToolbarPopupItemHeight,
                   child: _LibraryToolbarSortMenuRow(
                     label: favorite.label,
-                    icon: favorite.icon,
+                    icon: null,
                     active: favorite.id == activeSortFavoriteId,
-                    trailingLabel: 'Pinned',
                   ),
                 ),
               if (pinnedFavorites.isNotEmpty && overflowFavorites.isNotEmpty)
@@ -293,7 +292,7 @@ class LibraryToolbarSortButton extends StatelessWidget {
                   height: kLibraryToolbarPopupItemHeight,
                   child: _LibraryToolbarSortMenuRow(
                     label: favorite.label,
-                    icon: favorite.icon,
+                    icon: null,
                     active: favorite.id == activeSortFavoriteId,
                   ),
                 ),
@@ -314,13 +313,11 @@ class _LibraryToolbarSortMenuRow extends StatelessWidget {
     required this.label,
     required this.icon,
     this.active = false,
-    this.trailingLabel,
   });
 
   final String label;
-  final IconData icon;
+  final IconData? icon;
   final bool active;
-  final String? trailingLabel;
 
   @override
   Widget build(BuildContext context) {
@@ -338,16 +335,6 @@ class _LibraryToolbarSortMenuRow extends StatelessWidget {
                 ),
           ),
         ),
-        if (trailingLabel != null) ...[
-          Text(
-            trailingLabel!,
-            style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                  color: palette.textMuted,
-                  fontWeight: FontWeight.w700,
-                ),
-          ),
-          const SizedBox(width: 8),
-        ],
         if (active) Icon(Icons.check, size: 16, color: palette.textPrimary),
       ],
     );
@@ -1052,7 +1039,7 @@ class LibraryToolbarAlphabetRow extends StatelessWidget {
         height: 28,
         child: LayoutBuilder(builder: (context, constraints) {
           final scale = MediaQuery.textScalerOf(context).scale(12) / 12;
-          if (constraints.maxWidth < 828 * scale) {
+          if (constraints.maxWidth < 480 * scale) {
             return Align(
                 alignment: Alignment.centerLeft,
                 child: PopupMenuButton<String>(
@@ -1088,7 +1075,9 @@ class LibraryToolbarAlphabetRow extends StatelessWidget {
               for (final label in ['All', ...alphabet])
                 _AlphabetLetterButton(
                   label: label,
-                  width: (label == 'All' ? 44 : 28) * scale,
+                  width: (label == 'All' ? 44 : 28) *
+                      scale *
+                      (constraints.maxWidth / (828 * scale)).clamp(0.0, 1.0),
                   isSelected: label == (selectedLetter ?? 'All'),
                   isAvailable: label == 'All' || available.contains(label),
                   accent: accent,

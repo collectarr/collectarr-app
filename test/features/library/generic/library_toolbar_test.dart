@@ -539,7 +539,7 @@ void main() {
       (tester) async {
     final searchController = TextEditingController();
     addTearDown(searchController.dispose);
-    tester.view.physicalSize = const Size(700, 900);
+    tester.view.physicalSize = const Size(550, 900);
     tester.view.devicePixelRatio = 1.0;
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
@@ -583,6 +583,8 @@ void main() {
                 onBulkUpdateKeyInfo: null,
                 onBulkMoveToEntry: null,
                 onBulkMoveToWishlist: null,
+                onExportXml: null,
+                onMerge: null,
                 onMoveToCollection: null,
                 onBulkRemove: () {},
                 onBulkRefreshMetadata: () {},

@@ -271,6 +271,43 @@ class LibraryPageCollectionActionCoordinator {
     _page.invalidateShelf();
   }
 
+  bool canMergeSelection(LibraryProjection? projection) {
+    if (projection == null ||
+        libraryEntryPolicyForKind(_page.type.kind).mergeEntries == null) {
+      return false;
+    }
+    final selected = projection.filteredItems
+        .where((item) => _page.selection.itemIds.contains(item.target.id))
+        .toList();
+    return selected.length >= 2 &&
+        selected.every((item) => item.source.libraryEntryRef != null);
+  }
+
+  Future<void> mergeSelectionFlow(LibraryProjection? projection) async {
+    if (!canMergeSelection(projection)) return;
+    final refs = [
+      for (final item in projection!.filteredItems)
+        if (_page.selection.itemIds.contains(item.target.id))
+          item.source.libraryEntryRef!
+    ];
+    try {
+      final kept =
+          await libraryEntryPolicyForKind(_page.type.kind).mergeEntries!(
+              _page.context, _page.ref.read(localDatabaseProvider), refs);
+      if (kept == null || !_page.mounted) return;
+      _page.rebuild(() {
+        _page.clearSelection();
+        _page.selectedId = kept.id.value;
+      });
+      _page.invalidateShelf();
+    } catch (error) {
+      if (_page.mounted) {
+        ScaffoldMessenger.of(_page.context)
+            .showSnackBar(SnackBar(content: Text('Merge failed: $error')));
+      }
+    }
+  }
+
   Future<void> bulkMoveToEntryFlow(LibraryProjection? projection) async {
     if (projection == null || _page.selection.itemIds.isEmpty) return;
     final entries = selectedShelfEntries(

@@ -210,6 +210,12 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
                         ),
                         const SizedBox(width: 4),
                       ],
+                      const _LibraryDesktopToolbarSeparator(),
+                      LibraryViewModeDropdown(
+                        viewMode: viewState.viewMode,
+                        onChanged: onViewModeChanged,
+                        iconOnly: true,
+                      ),
                       if (onEditSort != null)
                         const _LibraryDesktopToolbarSeparator(),
                       if (onEditSort != null)
@@ -222,12 +228,19 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
                           onManageFavoritesPressed: onManageSortFavorites,
                           iconOnly: true,
                         ),
-                      const _LibraryDesktopToolbarSeparator(),
-                      LibraryViewModeDropdown(
-                        viewMode: viewState.viewMode,
-                        onChanged: onViewModeChanged,
-                        iconOnly: true,
-                      ),
+                      if (viewState.viewMode == LibraryViewMode.list) ...[
+                        const _LibraryDesktopToolbarSeparator(),
+                        _LibraryDesktopToolbarSection(
+                          label: 'Columns',
+                          child: _LibraryColumnLauncher(
+                            activeLabel: activeColumnFavoriteLabel,
+                            onManageColumns: onEditColumns,
+                            pinnedPresets: pinnedColumnPresets,
+                            overflowPresets: overflowColumnPresets,
+                            onPresetSelected: onColumnFavoriteSelected,
+                          ),
+                        ),
+                      ],
                       if (viewState.detailsLayout ==
                           LibraryDetailsLayout.hidden) ...[
                         const _LibraryDesktopToolbarSeparator(),
@@ -244,17 +257,6 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
                         iconOnly: true,
                       ),
                       if (viewState.viewMode == LibraryViewMode.list) ...[
-                        const _LibraryDesktopToolbarSeparator(),
-                        _LibraryDesktopToolbarSection(
-                          label: 'Columns',
-                          child: _LibraryColumnLauncher(
-                            activeLabel: activeColumnFavoriteLabel,
-                            onManageColumns: onEditColumns,
-                            pinnedPresets: pinnedColumnPresets,
-                            overflowPresets: overflowColumnPresets,
-                            onPresetSelected: onColumnFavoriteSelected,
-                          ),
-                        ),
                         const _LibraryDesktopToolbarSeparator(),
                         _LibraryDesktopToolbarSection(
                           label: 'Row height',
@@ -485,17 +487,15 @@ class _LibraryColumnLauncher extends StatelessWidget {
       const LibraryDenseMenuEntry<Object>(
         value: _LibraryColumnLauncherAction.manage,
         label: 'Manage Favorites',
-        icon: Icons.tune,
+        icon: Icons.settings_outlined,
       ),
     ];
     for (final preset in [...pinnedPresets, ...overflowPresets]) {
       entries.add(LibraryDenseMenuEntry<Object>(
         value: preset,
         label: preset.label,
-        icon: Icons.bookmark_outline,
+        icon: null,
         active: preset.label == activeLabel,
-        trailingLabel: '${preset.columns.length}',
-        section: entries.length == 1 ? 'Favorites' : null,
       ));
     }
     return LibraryDenseSplitButton<Object>(
@@ -573,20 +573,22 @@ class LibraryDesktopFilteringToolbar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final showChromeRow = onCollectionStatusScopeChanged != null;
-    final showAlphabetRow = onLetterSelected != null;
+    final narrow = MediaQuery.sizeOf(context).width < 900;
+    final showAlphabetRow = onLetterSelected != null && !narrow;
     final leftControls = Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        LibraryToolbarPrimaryActions(
-          addLabel: 'Add ${type.identity.pluralLabel}',
-          onAdd: onAdd,
-          onScanBarcode: onScan,
-          onRefreshMetadata: onRefreshMetadata,
-          onRandomPick: onRandomPick,
-          onScanCover: onScanCover,
-          addBackgroundColor: accent,
-          addForegroundColor: appContrastingTextColor(accent),
-        ),
+        if (!narrow)
+          LibraryToolbarPrimaryActions(
+            addLabel: 'Add ${type.identity.pluralLabel}',
+            onAdd: onAdd,
+            onScanBarcode: onScan,
+            onRefreshMetadata: onRefreshMetadata,
+            onRandomPick: onRandomPick,
+            onScanCover: onScanCover,
+            addBackgroundColor: accent,
+            addForegroundColor: appContrastingTextColor(accent),
+          ),
         if (showChromeRow) ...[
           const SizedBox(width: 6),
           LibraryCollectionStatusScopeDropdown(
@@ -602,8 +604,9 @@ class LibraryDesktopFilteringToolbar extends StatelessWidget {
         builder: (context, constraints) {
           final sideWidth =
               (constraints.maxWidth * 0.3).clamp(0.0, 420.0).toDouble();
-          final searchWidth =
-              (constraints.maxWidth * 0.3).clamp(0.0, 380.0).toDouble();
+          final searchWidth = (constraints.maxWidth * (narrow ? 0.58 : 0.3))
+              .clamp(0.0, 480.0)
+              .toDouble();
           return Row(
             children: [
               ConstrainedBox(

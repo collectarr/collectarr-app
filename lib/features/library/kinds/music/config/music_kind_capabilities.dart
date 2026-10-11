@@ -1,3 +1,4 @@
+import '../actions/music_merge_albums.dart';
 import '../music_module_dependencies.dart';
 import 'music_kind_configuration.dart';
 import '../actions/music_log_listen_action.dart';
@@ -145,8 +146,8 @@ final musicKindTrackingTopology = const LibraryTrackingTopology(
   aggregateTargets: {LibraryTrackingTarget.libraryEntry},
 );
 
-final musicKindEntryPolicy =
-    const LibraryEntryPolicyCapability.allowEverywhere();
+final musicKindEntryPolicy = const LibraryEntryPolicyCapability.allowEverywhere(
+    mergeEntries: showMusicMergeAlbums);
 
 final musicKindActions = const LibraryTargetActionCapability(
   catalogItem: LibraryTargetActionSet.catalogItem,

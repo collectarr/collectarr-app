@@ -142,3 +142,31 @@ regression tests; analyzer clean; Windows debug build succeeds. Live browser
 screenshots compare both choosers with CLZ and check 2508px/700px layouts.
 Manrope remains the app font; the geometry and weight approximate CLZ without
 copying its font files or restoring obsolete Music fields.
+
+
+## Spreadsheet and selected-entry follow-through ? 2026-10-11
+
+The toolbar keeps View, Sort and Columns adjacent, then additional layout,
+density and spacing controls. Favorite menus use an active check and a gear,
+without bookmark/count decoration. At 700px the table uses the available width
+and retains the same controls; folder navigation moves to a dropdown and Add
+floats. A narrow inspector replaces the table when activated and has Back.
+Desktop resize preferences remain intact. Utility cells are 28px with no extra
+column spacing, and the application header checkbox is omitted. Header dragging
+can insert before/after the target, including the final position; double-click
+on a resize handle fits the column to all displayed values.
+
+Selected local entries can now open an XML preview with copy/download. XML
+serializes typed canonical entry JSON recursively, including nested stable IDs,
+arrays, booleans and escaped text; it is a Collectarr export, not a CLZ import
+compatibility format. Music exposes merge through its kind policy contribution.
+The user chooses the retained album and donor order; the transaction appends
+discs, preserves retained edition/personal data, remaps colliding contained IDs
+and header links, scopes donor album credits to their discs, moves attached
+records, and archives donors. It does not mutate Core catalog records.
+
+Browser validation on an isolated reference collection opened XML, duplicated
+an entry, selected both copies, chose the retained album and merged them into
+one active row with two discs/two tracks and 8:30 duration. No app exceptions
+were captured. Domain tests cover strict round-trip identity and rollback;
+widget tests cover menu eligibility updates and deferred dialog dispatch.
