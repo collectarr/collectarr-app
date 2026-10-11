@@ -367,3 +367,13 @@ AppThemePalette appPalette(BuildContext context) {
   return Theme.of(context).extension<AppThemePalette>() ??
       kDefaultAppThemePalette;
 }
+
+/// Shared canvas and panel colors for collection management and reports.
+Color appManagementCanvasColor(BuildContext context) =>
+    appPalette(context).isDark
+        ? const Color(0xFF252525)
+        : appPalette(context).canvas;
+Color appManagementPanelColor(BuildContext context) =>
+    appPalette(context).isDark
+        ? const Color(0xFF383838)
+        : appPalette(context).panelRaised;

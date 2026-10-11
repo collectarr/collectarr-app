@@ -179,6 +179,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
       return Theme(
         data: buildLibraryAccentTheme(Theme.of(context), accent),
         child: Scaffold(
+          backgroundColor: appManagementCanvasColor(context),
           appBar: AppBar(
             leading: _buildBackButton(context),
             title:
@@ -212,6 +213,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                       builder: (ctx) => Theme(
                         data: buildLibraryAccentTheme(Theme.of(ctx), accent),
                         child: Scaffold(
+                          backgroundColor: appManagementCanvasColor(context),
                           appBar: AppBar(
                             leading: const BackButton(
                               color: Colors.white,
@@ -253,6 +255,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
         initialIndex: SettingsSection.values.indexOf(_selectedSection),
         length: SettingsSection.values.length,
         child: Scaffold(
+          backgroundColor: appManagementCanvasColor(context),
           appBar: AppBar(
             leading: _buildBackButton(context),
             title:
@@ -273,7 +276,13 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
               unselectedLabelColor: Colors.white70,
               indicatorColor: Colors.white,
               tabs: SettingsSection.values
-                  .map((s) => Tab(icon: Icon(s.icon), text: s.title))
+                  .map((s) => Tab(
+                      height: 36,
+                      child: Row(mainAxisSize: MainAxisSize.min, children: [
+                        Icon(s.icon, size: 16),
+                        const SizedBox(width: 6),
+                        Text(s.title)
+                      ])))
                   .toList(),
             ),
           ),
@@ -629,11 +638,15 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
   Widget _buildAppearanceSection(UiPreferences preferences) {
     final controller = ref.read(uiPreferencesProvider.notifier);
     Widget toggle(String label, bool value, ValueChanged<bool> onChanged) =>
-        SwitchListTile(
+        CheckboxListTile(
+            controlAffinity: ListTileControlAffinity.leading,
+            dense: true,
             contentPadding: EdgeInsets.zero,
             title: Text(label),
             value: value,
-            onChanged: onChanged);
+            onChanged: (value) {
+              if (value != null) onChanged(value);
+            });
     return DefaultTabController(
       length: 4,
       child: Column(children: [
@@ -648,7 +661,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
             ]),
         Expanded(
             child: TabBarView(children: [
-          _SettingsTabBody(children: [
+          _SettingsTabBody(twoColumns: true, children: [
             _SettingsPanel(
                 icon: Icons.palette_outlined,
                 title: 'Application',
@@ -727,13 +740,13 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                 onReset: _resetAppearanceDefaults),
           ]),
           _buildCoverAppearanceSection(preferences),
-          const _SettingsTabBody(children: [
+          const _SettingsTabBody(twoColumns: true, children: [
             _SettingsPanel(
                 icon: Icons.text_fields_outlined,
                 title: 'Typography',
                 child: _FontDiagnosticsPanel()),
           ]),
-          _SettingsTabBody(children: [
+          _SettingsTabBody(twoColumns: true, children: [
             _SettingsPanel(
                 icon: Icons.help_outline,
                 title: 'Ask for confirmation',
@@ -1510,7 +1523,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
 class _FontDiagnosticsPanel extends StatelessWidget {
   const _FontDiagnosticsPanel();
 
-  static const _interAsset = 'assets/fonts/Inter-Variable.ttf';
+  static const _primaryAsset = 'assets/fonts/Manrope-Regular.ttf';
   static const _monoAsset = 'assets/fonts/JetBrainsMono-Variable.ttf';
 
   Future<bool> _assetAvailable(String assetPath) async {
@@ -1528,10 +1541,10 @@ class _FontDiagnosticsPanel extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const Text('Primary: Inter • Monospace: JetBrains Mono'),
+        const Text('Primary: Manrope • Monospace: JetBrains Mono'),
         const SizedBox(height: 8),
         Text(
-          'Inter sample: The quick brown fox 12345',
+          'Manrope sample: The quick brown fox 12345',
           style: textTheme.bodyMedium?.copyWith(
             fontFamily: kClzPrimaryFontFamily,
             fontFamilyFallback: kClzFontFallback,
@@ -1548,11 +1561,11 @@ class _FontDiagnosticsPanel extends StatelessWidget {
         ),
         const SizedBox(height: 12),
         FutureBuilder<bool>(
-          future: _assetAvailable(_interAsset),
+          future: _assetAvailable(_primaryAsset),
           builder: (context, snapshot) {
             final ok = snapshot.data == true;
             return _FontStatusRow(
-              label: 'Inter font asset',
+              label: 'Manrope font asset',
               value: ok ? 'Loaded' : 'Missing',
               ok: ok,
             );
@@ -1603,19 +1616,51 @@ class _FontStatusRow extends StatelessWidget {
 }
 
 class _SettingsTabBody extends StatelessWidget {
-  const _SettingsTabBody({required this.children});
+  const _SettingsTabBody({required this.children, this.twoColumns = false});
 
   final List<Widget> children;
+  final bool twoColumns;
 
   @override
-  Widget build(BuildContext context) {
-    return ListView.separated(
-      padding: const EdgeInsets.all(16),
-      itemCount: children.length,
-      separatorBuilder: (_, __) => const SizedBox(height: 12),
-      itemBuilder: (context, index) => children[index],
-    );
-  }
+  Widget build(BuildContext context) =>
+      LayoutBuilder(builder: (context, constraints) {
+        final wide = twoColumns && constraints.maxWidth >= 800;
+        return SingleChildScrollView(
+            padding: const EdgeInsets.all(16),
+            child: Center(
+                child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 960),
+                    child: wide
+                        ? Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                                for (var column = 0; column < 2; column++) ...[
+                                  if (column != 0) const SizedBox(width: 28),
+                                  Expanded(
+                                      child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.stretch,
+                                          children: [
+                                        for (var index = column;
+                                            index < children.length;
+                                            index += 2)
+                                          Padding(
+                                              padding: const EdgeInsets.only(
+                                                  bottom: 20),
+                                              child: children[index])
+                                      ])),
+                                ],
+                              ])
+                        : Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                                for (final child in children)
+                                  Padding(
+                                      padding:
+                                          const EdgeInsets.only(bottom: 20),
+                                      child: child)
+                              ]))));
+      });
 }
 
 class _TabResetActions extends StatelessWidget {
@@ -1662,20 +1707,18 @@ class _SettingsPanel extends StatelessWidget {
           children: [
             Row(
               children: [
-                Icon(icon),
-                const SizedBox(width: 8),
                 Expanded(
                   child: Text(
                     title,
                     style: Theme.of(context)
                         .textTheme
                         .titleMedium
-                        ?.copyWith(fontWeight: FontWeight.w700),
+                        ?.copyWith(fontWeight: FontWeight.w700, fontSize: 22),
                   ),
                 ),
               ],
             ),
-            const SizedBox(height: 16),
+            const Divider(height: 18),
             child,
           ],
         ),

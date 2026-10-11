@@ -224,14 +224,14 @@ void main() {
     await pumpUntilSettled(tester);
 
     await _openSettingsTab(tester, 'Appearance');
-    final animationTile = find.widgetWithText(SwitchListTile, 'Animations');
+    final animationTile = find.widgetWithText(CheckboxListTile, 'Animations');
     expect(animationTile, findsOneWidget);
-    expect(tester.widget<SwitchListTile>(animationTile).value, isTrue);
+    expect(tester.widget<CheckboxListTile>(animationTile).value, isTrue);
 
     await tester.tap(animationTile);
     await pumpUntilSettled(tester);
 
-    expect(tester.widget<SwitchListTile>(animationTile).value, isFalse);
+    expect(tester.widget<CheckboxListTile>(animationTile).value, isFalse);
     final prefs = await SharedPreferences.getInstance();
     expect(
       prefs.getBool(UiPreferencesStore.animationsEnabledKey),
