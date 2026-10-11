@@ -8,6 +8,17 @@ informational complexity findings. The latest display-settings gate reports 370.
 
 ## Implemented
 
+The [dedicated management pages](library-management-pages-2026-10-11.md) replace
+the Find Duplicates and Manage Custom Fields modals. Duplicate management uses
+grouped workspace columns, shared column favorites, Keep, individual removal
+and overlap-safe automatic removal preserving the oldest entry. Custom fields
+offer CLZ's fifteen observed types, previews, fixed-choice limits, transactional
+reorder/delete and persistent tab/control preferences. Debug Web CRUD and
+duplicate removal survive reload without framework errors at three widths.
+The final gate reports 848 tests passed / 1 skipped, clean analysis, no AST
+boundary violations (372 informational complexity reports) and a successful
+Windows debug build.
+
 The latest [menu-by-menu live Music comparison](music-menu-audit-2026-10-11.md)
 opens all 24 Collectarr drawer destinations, 19 CLZ application destinations,
 workspace submenus and editor/settings/admin tabs. Debug interaction uncovered

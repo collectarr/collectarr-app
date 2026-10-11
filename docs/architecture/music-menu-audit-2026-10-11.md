@@ -97,8 +97,9 @@ The UI reports **3 transferred, 0 skipped**. After reload, Purchase Store contai
    bundled Collectarr Sans, generally 14 px / 500. Editor labels already share
    13 px / 700, but matching numeric weights across different faces does not
    establish identical glyph geometry.
-3. **Accent leaks:** the duplicate-criteria picker still has a global cyan
-   header. The column-preset menu uses a cyan selected mark and a different dark
+3. **Accent leaks:** the former duplicate-criteria modal was replaced by the
+   kind-accent dedicated page described in the follow-up below. The existing
+   workspace column-preset menu uses a cyan selected mark and a different dark
    surface. These are separate from deliberate semantic collection-status colors.
 4. **Inspector composition:** extra Copy/Print controls, collapsible sections
    and boxed disc summaries differ from CLZ's simpler flowing Details/Personal
@@ -107,8 +108,9 @@ The UI reports **3 transferred, 0 skipped**. After reload, Purchase Store contai
 5. **Settings geometry:** full-width panels, a tall section-tab header and
    switches differ from CLZ's compact centered panels and checkboxes. Appearance
    tabs work, but the page is not a pixel-for-pixel copy.
-6. **Tool workflow layout:** duplicates/custom fields are modal rather than
-   dedicated pages. Transfer scopes and reassignment sort selection differ as
+6. **Tool workflow layout:** duplicates/custom fields now use dedicated pages;
+   see the [implementation and follow-up](library-management-pages-2026-10-11.md).
+   Transfer scopes and reassignment sort selection differ as
    described above. PDF/CSV download actions also retain green completion styling.
 
 Kind accent selections and Save remain intentional. CLZ's blue selections are
