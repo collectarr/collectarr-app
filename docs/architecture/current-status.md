@@ -4,10 +4,19 @@ Last reviewed: 2026-10-11. This report reflects the current working tree and
 the post-audit release evidence recorded below. The architecture guard has no
 unreviewed AST violations; its exact baseline retains 44 reviewed field-leak
 findings, all still observed and none stale. The checker reports 364
-informational complexity findings. The latest populated-inspector and management
-gate reports 375.
+informational complexity findings. The latest uniform-application-header gate
+reports 370.
 
 ## Implemented
+
+The [uniform application headers](uniform-application-headers-2026-10-11.md)
+keep the kind-accent bar, white kind icon, uppercase brand and three right-side
+actions visible across routed and pushed pages. Page headers share Back, icon
+and centered title. My Shelf and its route/private components are deleted.
+Core add opens over the current kind library; Settings and other routed tools
+retain kind context across reload and Back. Eleven pages passed live checks at
+four widths. The gate reports 853 tests passed / 1 skipped, clean analysis,
+no AST boundary violations and successful Windows and Web debug builds.
 
 The [populated inspector and management comparison](music-inspector-management-parity-2026-10-11.md)
 adds reproducible strict App/Core reference seeds, closer geometric typography,
