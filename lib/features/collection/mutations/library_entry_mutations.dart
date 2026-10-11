@@ -290,8 +290,8 @@ final class LibraryEntryMutations {
           fallbackOwnerLabel: userEmail,
         );
         await syncQueue.enqueue(
-          libraryEntries.syncChangeForMutation(
-            persisted,
+          await libraryEntries.syncChangeForCurrentEntry(
+            persisted.ref,
             action: 'upsert',
             changedAt: now,
           ),

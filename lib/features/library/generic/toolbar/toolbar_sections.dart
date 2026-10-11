@@ -1152,17 +1152,21 @@ class _CompactSearchScopeTriggerState
                 : theme.colorScheme.outlineVariant,
           ),
         ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Icon(Icons.tune, size: 16),
-            const SizedBox(width: 4),
-            Text(
-              widget.label,
-              style: theme.textTheme.labelMedium,
-            ),
-          ],
-        ),
+        child: LayoutBuilder(
+            builder: (context, constraints) => Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(Icons.tune, size: 16),
+                    if (constraints.maxWidth >= 50) ...[
+                      const SizedBox(width: 4),
+                      Flexible(
+                          child: Text(widget.label,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: theme.textTheme.labelMedium)),
+                    ],
+                  ],
+                )),
       ),
     );
   }

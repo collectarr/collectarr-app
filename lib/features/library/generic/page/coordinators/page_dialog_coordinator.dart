@@ -31,7 +31,6 @@ import 'package:collectarr_app/features/library/generic/transfer_field_data_dial
 import 'package:collectarr_app/features/library/generic/transferable_field.dart';
 import 'package:collectarr_app/features/library/generic/user_folders_dialog.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
-import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 
@@ -378,7 +377,7 @@ class LibraryPageDialogCoordinator {
       libraryCustomFieldCacheProvider(_page.type.kind.apiValue).future,
     );
     final items = <TransferableLibraryEntry>{
-      for (final item in projection.filteredItems)
+      for (final item in projection.allItems)
         if (TransferableLibraryEntry.fromWorkspaceContext(item.source)
             case final entry?)
           entry,
@@ -393,7 +392,26 @@ class LibraryPageDialogCoordinator {
       context: context,
       db: db,
       type: _page.type,
-      items: items,
+      allItems: [
+        for (final item in projection.allItems)
+          if (TransferableLibraryEntry.fromWorkspaceContext(item.source)
+              case final entry?)
+            entry
+      ],
+      currentItems: [
+        for (final item in projection.filteredItems)
+          if (TransferableLibraryEntry.fromWorkspaceContext(item.source)
+              case final entry?)
+            entry
+      ],
+      selectedItems: [
+        for (final item in projection.filteredItems)
+          if (_page.selection.itemIds.contains(item.target.id))
+            if (TransferableLibraryEntry.fromWorkspaceContext(item.source)
+                case final entry?)
+              entry
+      ],
+      initialScope: TransferItemScope.currentList,
       mutations: mutations,
       customFieldDefinitions: customFieldCache.definitions,
     );
@@ -439,7 +457,20 @@ class LibraryPageDialogCoordinator {
       context: context,
       db: db,
       type: _page.type,
-      items: items,
+      allItems: [
+        for (final item in projection.allItems)
+          if (TransferableLibraryEntry.fromWorkspaceContext(item.source)
+              case final entry?)
+            entry
+      ],
+      currentItems: [
+        for (final item in projection.filteredItems)
+          if (TransferableLibraryEntry.fromWorkspaceContext(item.source)
+              case final entry?)
+            entry
+      ],
+      selectedItems: items,
+      initialScope: TransferItemScope.checkboxed,
       mutations: mutations,
       customFieldDefinitions: customFieldCache.definitions,
     );
@@ -518,43 +549,55 @@ class LibraryPageDialogCoordinator {
 
   Future<void> reassignIndexFlow(LibraryProjection projection) async {
     final context = _page.context;
-    final items = projection.filteredItems;
+    final items =
+        projection.allItems.where((item) => item.source.isEntry).toList();
     if (items.isEmpty) return;
-    final confirmed = await showDialog<bool>(
+    final workspace = libraryKindWorkspaceForKind(_page.type.kind);
+    final rules = await showLibrarySortDialog(
       context: context,
-      builder: (ctx) => AccentAlertDialog(
-        title: const Text('Re-assign index values'),
-        content: Text(
-          'Assign sequential index numbers (1–${items.length}) '
-          'to ${items.length} item${items.length == 1 ? '' : 's'} '
-          'in their current display order?',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(ctx).pop(false),
-            child: const Text('Cancel'),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.of(ctx).pop(true),
-            child: const Text('Re-assign'),
-          ),
-        ],
-      ),
+      type: _page.type,
+      title: 'Re-Assign Index Values',
+      confirmLabel: 'Re-assign',
+      description:
+          'Re-assign the Index field for all ${items.length} entries, based on the sort order selected below.',
+      currentRules: _page.viewState == null
+          ? const <LibrarySortRule>[]
+          : [
+              for (final rule in _page.viewState!.sortRules)
+                LibrarySortRule(
+                    column: rule.sortId.value, ascending: rule.ascending)
+            ],
+      availableColumns: [
+        for (final sort in workspace.fields.sorts) sort.id.value
+      ],
     );
-    if (confirmed != true || !_page.mounted || !context.mounted) return;
+    if (rules == null || !_page.mounted || !context.mounted) return;
+    final decodedRules = _page.viewProfile.decodeSortRules(rules);
+    items.sort((a, b) => workspace.compareEntriesByRules(a, b, decodedRules));
 
     final coordinator = _page.ref.read(collectionCommandCoordinatorProvider);
     var count = 0;
-    for (var i = 0; i < items.length; i++) {
-      final libraryEntry = items[i].source.libraryEntrySummary;
-      if (libraryEntry == null) continue;
-      await coordinator.updateLibraryEntry(
-        libraryEntryEditForKind(_page.type.kind).buildIndexUpdateCommand(
-          libraryEntryRef: libraryEntry.ref,
-          indexNumber: i + 1,
-        ),
-      );
-      count++;
+    try {
+      await coordinator.mutationRunner.run(action: () async {
+        for (var i = 0; i < items.length; i++) {
+          final libraryEntry = items[i].source.libraryEntrySummary;
+          if (libraryEntry == null) continue;
+          await coordinator.updateLibraryEntry(
+            libraryEntryEditForKind(_page.type.kind).buildIndexUpdateCommand(
+              libraryEntryRef: libraryEntry.ref,
+              indexNumber: i + 1,
+            ),
+          );
+          count++;
+        }
+      });
+    } catch (error) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content:
+                Text("Reassignment failed; indexes were not changed: $error")));
+      }
+      return;
     }
     _page.ref.invalidate(shelfProvider);
     if (_page.mounted && context.mounted) {

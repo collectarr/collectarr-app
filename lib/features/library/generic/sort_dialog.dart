@@ -14,6 +14,9 @@ Future<List<LibrarySortRule>?> showLibrarySortDialog({
   required List<LibrarySortRule> currentRules,
   bool Function(String column)? defaultAscendingForColumn,
   List<String>? availableColumns,
+  String title = 'Select Sort Fields',
+  String confirmLabel = 'Save',
+  String? description,
 }) {
   return showDialog<List<LibrarySortRule>>(
     context: context,
@@ -22,6 +25,9 @@ Future<List<LibrarySortRule>?> showLibrarySortDialog({
       currentRules: currentRules,
       defaultAscendingForColumn: defaultAscendingForColumn,
       availableColumns: availableColumns,
+      title: title,
+      confirmLabel: confirmLabel,
+      description: description,
     ),
   );
 }
@@ -32,12 +38,18 @@ class _LibrarySortDialog extends StatefulWidget {
     required this.currentRules,
     this.defaultAscendingForColumn,
     this.availableColumns,
+    required this.title,
+    required this.confirmLabel,
+    this.description,
   });
 
   final LibraryKindRegistration type;
   final List<LibrarySortRule> currentRules;
   final bool Function(String column)? defaultAscendingForColumn;
   final List<String>? availableColumns;
+  final String title;
+  final String confirmLabel;
+  final String? description;
 
   @override
   State<_LibrarySortDialog> createState() => _LibrarySortDialogState();
@@ -128,7 +140,7 @@ class _LibrarySortDialogState extends State<_LibrarySortDialog> {
               child: Column(
                 children: [
                   AccentDialogHeader(
-                    title: 'Select Sort Fields',
+                    title: widget.title,
                     accent: accent,
                     flat: true,
                     minHeight: 38,
@@ -147,6 +159,10 @@ class _LibrarySortDialogState extends State<_LibrarySortDialog> {
                         : null,
                     onClose: () => Navigator.of(context).pop(),
                   ),
+                  if (widget.description != null)
+                    Padding(
+                        padding: const EdgeInsets.all(12),
+                        child: Text(widget.description!)),
                   Expanded(
                     child: Padding(
                       padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
@@ -546,7 +562,7 @@ class _LibrarySortDialogState extends State<_LibrarySortDialog> {
                         ),
                         const SizedBox(width: 8),
                         LibraryDenseButton(
-                          label: 'Save',
+                          label: widget.confirmLabel,
                           icon: Icons.check,
                           onPressed: _saveAndClose,
                           tone: LibraryDenseButtonTone.accent,
