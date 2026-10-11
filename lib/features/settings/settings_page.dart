@@ -6,6 +6,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:collectarr_app/core/device/device_identity.dart';
+import 'package:collectarr_app/core/fonts/system_font_loader.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/library_entry_ref.dart';
 import 'package:collectarr_app/core/api/dto/media_catalog.dart';
@@ -1494,17 +1495,24 @@ class _FontDiagnosticsPanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final gilroyLoaded = SystemFontLoader.isGilroyLoaded;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         const Text('Primary: Gilroy (Fallback: Plus Jakarta Sans)'),
         const SizedBox(height: 12),
+        _FontStatusRow(
+          label: 'Gilroy (System font)',
+          value: gilroyLoaded ? 'Loaded' : 'Not installed',
+          ok: gilroyLoaded,
+        ),
+        const SizedBox(height: 6),
         FutureBuilder<bool>(
           future: _assetAvailable(_primaryAsset),
           builder: (context, snapshot) {
             final ok = snapshot.data == true;
             return _FontStatusRow(
-              label: 'Plus Jakarta Sans font asset',
+              label: 'Plus Jakarta Sans (Fallback asset)',
               value: ok ? 'Loaded' : 'Missing',
               ok: ok,
             );

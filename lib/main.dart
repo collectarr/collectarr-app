@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:collectarr_app/core/fonts/system_font_loader.dart';
 import 'package:collectarr_app/core/logging/app_log.dart';
 import 'package:collectarr_app/core/routing/app_router.dart';
 import 'package:collectarr_app/state/theme_mode_provider.dart';
@@ -28,6 +29,7 @@ void main() {
             );
       };
 
+      await SystemFontLoader.loadSystemGilroy();
       await _logFontDiagnostics(container!);
 
       runApp(
@@ -62,12 +64,14 @@ void main() {
 Future<void> _logFontDiagnostics(ProviderContainer container) async {
   final logger = container.read(appLogProvider.notifier);
   final primaryLoaded = await _fontAssetAvailable(logger, _primaryFontAsset);
+  final gilroyLoaded = SystemFontLoader.isGilroyLoaded;
   final details = <String>[
     'primaryFamily=$kClzPrimaryFontFamily',
+    'gilroySystemLoaded=$gilroyLoaded',
     'primaryFallback=${kClzFontFallback.isEmpty ? 'none' : kClzFontFallback.join(', ')}',
     'primaryAsset=$_primaryFontAsset:${primaryLoaded ? 'loaded' : 'missing'}',
   ].join(' | ');
-  if (primaryLoaded) {
+  if (primaryLoaded || gilroyLoaded) {
     logger.info('fonts', 'Font assets loaded', detail: details);
     return;
   }
