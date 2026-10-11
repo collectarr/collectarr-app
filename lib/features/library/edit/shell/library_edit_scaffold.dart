@@ -537,7 +537,7 @@ class _LibraryEditFooter extends StatelessWidget {
       visualDensity: VisualDensity.standard,
       tapTargetSize: MaterialTapTargetSize.shrinkWrap,
       textStyle: const TextStyle(
-          fontSize: 14, fontWeight: FontWeight.w500, letterSpacing: 0),
+          fontSize: 14, fontWeight: kAppBoldFontWeight, letterSpacing: 0),
     );
     final compactIconButtonStyle = OutlinedButton.styleFrom(
       shape: kLibraryDialogFooterButtonShape,
@@ -635,13 +635,13 @@ class _LibraryEditFooter extends StatelessWidget {
           child: FilledButton(
             style: FilledButton.styleFrom(
               backgroundColor: accent,
-              foregroundColor: appContrastingTextColor(accent),
+              foregroundColor: Colors.white,
               padding: const EdgeInsets.symmetric(horizontal: 10),
               minimumSize: Size(windowClass.isCompact ? 96 : 112,
                   kLibraryDialogFooterButtonHeight),
               shape: kLibraryDialogFooterButtonShape,
               textStyle: const TextStyle(
-                  fontSize: 14, fontWeight: FontWeight.w500, letterSpacing: 0),
+                  fontSize: 14, fontWeight: kAppBoldFontWeight, letterSpacing: 0),
               visualDensity: VisualDensity.standard,
               tapTargetSize: MaterialTapTargetSize.shrinkWrap,
             ),

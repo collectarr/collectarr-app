@@ -55,6 +55,7 @@ dev_dependencies:
 flutter:
   uses-material-design: true
   assets:
+    - assets/icons/
     - assets/logos/
     - assets/collection_status/
     - assets/import_logos/

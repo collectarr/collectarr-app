@@ -104,7 +104,7 @@ class LibraryEditStyledTabLabel extends StatelessWidget {
     final activeBackground =
         palette.isDark ? _clzEditTabHighlight : palette.panelRaised;
     final idleForeground =
-        palette.isDark ? const Color(0xB3FFFFFF) : palette.textMuted;
+        palette.isDark ? const Color(0xFFC8C8C8) : palette.textMuted;
     final foreground = selected || highlighted
         ? (palette.isDark ? Colors.white : palette.textPrimary)
         : idleForeground;
@@ -132,9 +132,9 @@ class LibraryEditStyledTabLabel extends StatelessWidget {
       child: DefaultTextStyle.merge(
         style: TextStyle(
           color: foreground,
-          fontWeight: FontWeight.w500,
-          fontSize: 14,
-          height: 20 / 14,
+          fontWeight: kAppBoldFontWeight,
+          fontSize: 13,
+          height: 20 / 13,
           letterSpacing: 0,
         ),
         child: IconTheme.merge(

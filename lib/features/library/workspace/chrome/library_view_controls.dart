@@ -1,8 +1,10 @@
+import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/ui/library_accent_scope.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_workspace_chrome.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 const _viewModeDropdownKey = Key('library-view-mode-dropdown');
 const _detailsLayoutDropdownKey = Key('library-details-layout-dropdown');
@@ -66,8 +68,8 @@ class LibraryViewModeDropdown extends StatelessWidget {
               child: LibraryWorkspaceMenuRow(
                 padding: EdgeInsets.zero,
                 label: _viewModeLabel(mode),
-                leading: Icon(
-                  _viewModeIcon(mode),
+                leading: buildViewModeGlyph(
+                  mode,
                   size: 17,
                   color: mode == viewMode ? menuText : menuMuted,
                 ),
@@ -86,7 +88,11 @@ class LibraryViewModeDropdown extends StatelessWidget {
         child: _LibraryToolbarSplitLabelTrigger(
           leadingLabel: 'View',
           valueLabel: _viewModeLabel(viewMode),
-          valueIcon: _viewModeIcon(viewMode),
+          valueWidget: buildViewModeGlyph(
+            viewMode,
+            color: libraryToolbarControlText(context),
+            size: 15,
+          ),
           iconOnly: iconOnly,
         ),
       ),
@@ -619,13 +625,29 @@ String _viewModeTooltip(LibraryViewMode mode) {
 
 IconData _viewModeIcon(LibraryViewMode mode) {
   return switch (mode) {
-    LibraryViewMode.grid => Icons.grid_view,
+    LibraryViewMode.grid => AppIcons.viewCovers,
     LibraryViewMode.card => Icons.view_module,
-    LibraryViewMode.horizontalCards => Icons.view_agenda,
+    LibraryViewMode.horizontalCards => AppIcons.viewHorizontalCards,
     LibraryViewMode.cardFlow => Icons.view_carousel,
-    LibraryViewMode.list => Icons.menu,
+    LibraryViewMode.list => AppIcons.viewList,
     LibraryViewMode.shelves => Icons.shelves,
   };
+}
+
+Widget buildViewModeGlyph(
+  LibraryViewMode mode, {
+  required Color color,
+  double size = 16,
+}) {
+  if (mode == LibraryViewMode.card) {
+    return SvgPicture.asset(
+      AppIcons.viewVerticalCardsSvg,
+      width: size,
+      height: size,
+      colorFilter: ColorFilter.mode(color, BlendMode.srcIn),
+    );
+  }
+  return Icon(_viewModeIcon(mode), size: size, color: color);
 }
 
 String _detailsLayoutMenuLabel(LibraryDetailsLayout layout) {
@@ -667,27 +689,31 @@ class _LibraryToolbarSplitLabelTrigger extends StatelessWidget {
   const _LibraryToolbarSplitLabelTrigger({
     required this.leadingLabel,
     required this.valueLabel,
-    required this.valueIcon,
+    this.valueIcon,
+    this.valueWidget,
     this.iconOnly = false,
-  });
+  }) : assert(valueIcon != null || valueWidget != null);
 
   final String leadingLabel;
   final String valueLabel;
-  final IconData valueIcon;
+  final IconData? valueIcon;
+  final Widget? valueWidget;
   final bool iconOnly;
 
   @override
   Widget build(BuildContext context) {
+    final effectiveGlyph = valueWidget ??
+        Icon(
+          valueIcon!,
+          size: 15,
+          color: libraryToolbarControlText(context),
+        );
     if (iconOnly) {
       return DecoratedBox(
         decoration: libraryToolbarDropdownDecoration(context),
         child: Padding(
           padding: const EdgeInsets.all(8),
-          child: Icon(
-            valueIcon,
-            size: 15,
-            color: libraryToolbarControlText(context),
-          ),
+          child: effectiveGlyph,
         ),
       );
     }
@@ -698,11 +724,7 @@ class _LibraryToolbarSplitLabelTrigger extends StatelessWidget {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(
-              valueIcon,
-              size: 15,
-              color: libraryToolbarControlText(context),
-            ),
+            effectiveGlyph,
             if (!iconOnly) ...[
               const SizedBox(width: 8),
               Text(

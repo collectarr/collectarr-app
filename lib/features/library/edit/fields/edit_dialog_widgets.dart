@@ -74,8 +74,9 @@ ThemeData editDialogTheme({
     dialogTheme: DialogThemeData(
       backgroundColor: palette.panel,
       surfaceTintColor: Colors.transparent,
+      clipBehavior: Clip.antiAlias,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.zero,
+        borderRadius: BorderRadius.circular(6),
         side: BorderSide(color: palette.divider),
       ),
     ),
@@ -117,13 +118,13 @@ ThemeData editDialogTheme({
           : FloatingLabelBehavior.auto,
       labelStyle: TextStyle(
         color: palette.textMuted,
-        fontSize: compactDesktop ? 13 : null,
-        fontWeight: FontWeight.w800,
+        fontSize: compactDesktop ? 12 : null,
+        fontWeight: kAppBoldFontWeight,
       ),
       floatingLabelStyle: TextStyle(
         color: accent,
-        fontSize: compactDesktop ? 13 : null,
-        fontWeight: FontWeight.w800,
+        fontSize: compactDesktop ? 12 : null,
+        fontWeight: kAppBoldFontWeight,
       ),
       hintStyle: TextStyle(
         color: palette.textMuted.withValues(alpha: 0.7),
@@ -144,22 +145,22 @@ ThemeData editDialogTheme({
     ),
     filledButtonTheme: FilledButtonThemeData(
       style: FilledButton.styleFrom(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(2)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
       ).copyWith(mouseCursor: WidgetStateMouseCursor.clickable),
     ),
     outlinedButtonTheme: OutlinedButtonThemeData(
       style: OutlinedButton.styleFrom(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(2)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
       ).copyWith(mouseCursor: WidgetStateMouseCursor.clickable),
     ),
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(2)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
       ).copyWith(mouseCursor: WidgetStateMouseCursor.clickable),
     ),
     textButtonTheme: TextButtonThemeData(
       style: TextButton.styleFrom(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(2)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
       ).copyWith(mouseCursor: WidgetStateMouseCursor.clickable),
     ),
     iconButtonTheme: const IconButtonThemeData(
@@ -170,21 +171,22 @@ ThemeData editDialogTheme({
           bodyLarge: base.textTheme.bodyLarge?.copyWith(
               fontSize: 14,
               height: 20 / 14,
-              fontWeight: FontWeight.w500,
+              fontWeight: kAppSemiBoldFontWeight,
               letterSpacing: 0),
           bodyMedium: base.textTheme.bodyMedium?.copyWith(
               fontSize: 14,
               height: 20 / 14,
-              fontWeight: FontWeight.w500,
+              fontWeight: kAppSemiBoldFontWeight,
               letterSpacing: 0),
           labelLarge: base.textTheme.labelLarge?.copyWith(
               fontSize: 14,
               height: 20 / 14,
-              fontWeight: FontWeight.w700,
+              fontWeight: kAppBoldFontWeight,
               letterSpacing: 0),
         )
         .apply(
           fontFamily: kLibraryEditorFontFamily,
+          fontFamilyFallback: kAppFontFamilyFallback,
           bodyColor: palette.textPrimary,
           displayColor: palette.textPrimary,
         ),
@@ -803,8 +805,8 @@ class _LibraryDateFieldButtonState extends State<LibraryDateFieldButton> {
         Theme.of(context).inputDecorationTheme.floatingLabelStyle ??
             TextStyle(
               color: palette.accent,
-              fontSize: 13,
-              fontWeight: FontWeight.w600,
+              fontSize: 12,
+              fontWeight: kAppBoldFontWeight,
             );
     final scaledLabelHeight =
         MediaQuery.textScalerOf(context).scale(labelStyle.fontSize ?? 13) * 1.2;

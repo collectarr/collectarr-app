@@ -1,7 +1,9 @@
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
+import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/ui/library_accent_scope.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 /// Modal bottom sheet for configuring view mode, density, sorting, and layout on compact screens.
 Future<void> showViewAndOrganizeSheet({
@@ -165,7 +167,7 @@ class _ViewAndOrganizeSheetState extends State<ViewAndOrganizeSheet> {
               children: [
                 _buildChoiceChip(
                   key: const ValueKey('view_mode_grid'),
-                  icon: Icons.grid_view,
+                  icon: AppIcons.viewCovers,
                   label: 'Grid',
                   selected: _viewMode == LibraryViewMode.grid,
                   accent: accentData.accent,
@@ -177,7 +179,17 @@ class _ViewAndOrganizeSheetState extends State<ViewAndOrganizeSheet> {
                 ),
                 _buildChoiceChip(
                   key: const ValueKey('view_mode_card'),
-                  icon: Icons.view_module,
+                  leading: SvgPicture.asset(
+                    AppIcons.viewVerticalCardsSvg,
+                    width: 16,
+                    height: 16,
+                    colorFilter: ColorFilter.mode(
+                      _viewMode == LibraryViewMode.card
+                          ? accentData.accent
+                          : palette.textMuted,
+                      BlendMode.srcIn,
+                    ),
+                  ),
                   label: 'Cards',
                   selected: _viewMode == LibraryViewMode.card,
                   accent: accentData.accent,
@@ -189,7 +201,7 @@ class _ViewAndOrganizeSheetState extends State<ViewAndOrganizeSheet> {
                 ),
                 _buildChoiceChip(
                   key: const ValueKey('view_mode_list'),
-                  icon: Icons.view_list,
+                  icon: AppIcons.viewList,
                   label: 'List',
                   selected: _viewMode == LibraryViewMode.list,
                   accent: accentData.accent,
@@ -436,13 +448,15 @@ class _ViewAndOrganizeSheetState extends State<ViewAndOrganizeSheet> {
 
   Widget _buildChoiceChip({
     Key? key,
-    required IconData icon,
+    IconData? icon,
+    Widget? leading,
     required String label,
     required bool selected,
     required Color accent,
     required AppThemePalette palette,
     required VoidCallback onTap,
   }) {
+    assert(icon != null || leading != null);
     return Material(
       key: key,
       color: Colors.transparent,
@@ -466,11 +480,12 @@ class _ViewAndOrganizeSheetState extends State<ViewAndOrganizeSheet> {
             mainAxisSize: MainAxisSize.min,
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(
-                icon,
-                size: 16,
-                color: selected ? accent : palette.textMuted,
-              ),
+              leading ??
+                  Icon(
+                    icon!,
+                    size: 16,
+                    color: selected ? accent : palette.textMuted,
+                  ),
               const SizedBox(width: 6),
               Text(
                 label,

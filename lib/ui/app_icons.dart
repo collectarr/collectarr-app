@@ -92,6 +92,15 @@ abstract final class AppIcons {
       IconData(0xf15d, fontFamily: _solid, fontPackage: _fontPackage);
   static const IconData sortCount =
       IconData(0xf160, fontFamily: _solid, fontPackage: _fontPackage);
+  static const IconData viewList =
+      IconData(0xf0c9, fontFamily: _solid, fontPackage: _fontPackage);
+  static const IconData viewHorizontalCards =
+      IconData(0xf03a, fontFamily: _solid, fontPackage: _fontPackage);
+  static const IconData viewCovers =
+      IconData(0xf00a, fontFamily: _solid, fontPackage: _fontPackage);
+  static const IconData viewShelves =
+      IconData(0xf468, fontFamily: _solid, fontPackage: _fontPackage);
+  static const String viewVerticalCardsSvg = 'assets/icons/cards-black.svg';
 
   // --- Search Scope Targets ---
   static const IconData searchAll =
@@ -111,13 +120,13 @@ abstract final class AppIcons {
   static const IconData tabTracks =
       IconData(0xf0cb, fontFamily: _solid, fontPackage: _fontPackage);
   static const IconData tabPersonal =
-      IconData(0xf007, fontFamily: _regular, fontPackage: _fontPackage);
+      IconData(0xf007, fontFamily: _solid, fontPackage: _fontPackage);
   static const IconData tabCustomFields =
-      IconData(0xf044, fontFamily: _regular, fontPackage: _fontPackage);
+      IconData(0xf044, fontFamily: _solid, fontPackage: _fontPackage);
   static const IconData tabCovers =
-      IconData(0xf030, fontFamily: _regular, fontPackage: _fontPackage);
+      IconData(0xf030, fontFamily: _solid, fontPackage: _fontPackage);
   static const IconData tabImages =
-      IconData(0xf03e, fontFamily: _regular, fontPackage: _fontPackage);
+      IconData(0xf03e, fontFamily: _solid, fontPackage: _fontPackage);
   static const IconData tabLinks =
-      IconData(0xf0ac, fontFamily: _solid, fontPackage: _fontPackage);
+      IconData(0xf0c1, fontFamily: _solid, fontPackage: _fontPackage);
 }

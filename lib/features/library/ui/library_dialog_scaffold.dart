@@ -199,9 +199,17 @@ class LibraryDialogScaffold extends StatelessWidget {
             )
           : scaffoldColumn;
 
+      final effectiveShape = themeData?.dialogTheme.shape ??
+          Theme.of(context).dialogTheme.shape ??
+          RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(6),
+            side: BorderSide(color: palette.divider),
+          );
+
       result = Dialog(
         backgroundColor: palette.panel,
-        shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+        clipBehavior: Clip.antiAlias,
+        shape: effectiveShape,
         alignment: resolvedAlignment,
         insetPadding: insetPadding ??
             EdgeInsets.symmetric(
