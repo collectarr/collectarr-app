@@ -5,9 +5,10 @@ import 'package:collectarr_app/features/library/workspace/config/library_workspa
 
 // Shared paint for the folder panel and the collection browsing surface.
 Color libraryWorkspaceBackgroundColor(BuildContext context) =>
-    Theme.of(context).brightness == Brightness.dark
-        ? const Color(0xff383838)
-        : appPalette(context).panel;
+    appPalette(context).panel;
+
+Color libraryWorkspaceToolbarColor(BuildContext context) =>
+    appPalette(context).toolbar;
 
 Color libraryWorkspacePaneDividerColor(BuildContext context) =>
     Theme.of(context).brightness == Brightness.dark
@@ -202,7 +203,7 @@ Color libraryToolbarMenuHover(BuildContext context) =>
         ? const Color(0xff464950)
         : appPalette(context).highlight;
 Color libraryToolbarControlSurface(BuildContext context) =>
-    libraryWorkspaceBackgroundColor(context);
+    libraryWorkspaceToolbarColor(context);
 Color libraryToolbarControlBorder(BuildContext context) =>
     appPalette(context).divider;
 Color libraryToolbarControlHover(BuildContext context) =>

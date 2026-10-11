@@ -176,11 +176,11 @@ class AppThemePalette extends ThemeExtension<AppThemePalette> {
 }
 
 const kAppTopBar = Color(0xFF4DBBD5);
-const kAppToolbar = Color(0xFF2B2B2B);
-const kAppPanel = Color(0xFF1D1D1D);
-const kAppPanelRaised = Color(0xFF2F2F2F);
-const kAppCanvas = Color(0xFF141414);
-const kAppGridCanvas = Color(0xFF202020);
+const kAppToolbar = Color(0xFF383838);
+const kAppPanel = Color(0xFF262626);
+const kAppPanelRaised = Color(0xFF383838);
+const kAppCanvas = Color(0xFF262626);
+const kAppGridCanvas = Color(0xFF262626);
 const kAppAccent = Color(0xFF10A8D8);
 const kAppSelection = Color(0xFF075F75);
 const kAppHighlight = Color(0xFFFFD400);
@@ -191,15 +191,15 @@ const kAppTableEvenRow = Color(0xFF383838);
 const kAppTableBottomBorder = Color(0xFF2E2E2E);
 const kAppTableHover = Color(0xFF263940);
 const kAppField = Color(0xFF101010);
-const kAppMenuBorderRadius = BorderRadius.all(Radius.circular(6));
+const kAppMenuBorderRadius = BorderRadius.all(Radius.circular(4));
 
 // ── Extended surface & card tokens ──────────────────────────────────────────
 const kAppCardBackground = Color(0xFF181818);
 const kAppCardBorder = Color(0xFF363636);
-const kAppSurface = Color(0xFF303030);
+const kAppSurface = Color(0xFF383838);
 const kAppSurfaceDim = Color(0xFF151515);
-const kAppSurfaceBright = Color(0xFF3A3A3A);
-const kAppSurfaceSubtle = Color(0xFF2A2A2A);
+const kAppSurfaceBright = Color(0xFF464950);
+const kAppSurfaceSubtle = Color(0xFF2D2D2D);
 const kAppAccentLight = Color(0xFF82DDF2);
 const kAppTextSecondary = Color(0xFF9A9A9A);
 const kAppBorderSubtle = Color(0xFF4B4B4B);

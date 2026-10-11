@@ -171,7 +171,7 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
     }
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: libraryWorkspaceBackgroundColor(context),
+        color: libraryWorkspaceToolbarColor(context),
         border:
             showBottomBorder ? libraryWorkspaceToolbarBorder(context) : null,
       ),

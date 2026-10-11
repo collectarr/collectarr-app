@@ -30,7 +30,7 @@ Future<Set<String>?> showSortFavoritesManagerDialog({
   );
 }
 
-class LibraryCollectionStatusScopeDropdown extends StatelessWidget {
+class LibraryCollectionStatusScopeDropdown extends StatefulWidget {
   const LibraryCollectionStatusScopeDropdown({
     super.key,
     required this.collectionStatusScope,
@@ -42,11 +42,20 @@ class LibraryCollectionStatusScopeDropdown extends StatelessWidget {
       onCollectionStatusScopeChanged;
 
   @override
+  State<LibraryCollectionStatusScopeDropdown> createState() =>
+      _LibraryCollectionStatusScopeDropdownState();
+}
+
+class _LibraryCollectionStatusScopeDropdownState
+    extends State<LibraryCollectionStatusScopeDropdown> {
+  bool _hovered = false;
+
+  @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
     final accent = Theme.of(context).colorScheme.primary;
     final borderColor = libraryCollectionStatusScopeColor(
-      collectionStatusScope,
+      widget.collectionStatusScope,
       accent,
       palette.textMuted,
     );
@@ -70,7 +79,7 @@ class LibraryCollectionStatusScopeDropdown extends StatelessWidget {
     );
     final triggerWidth = measureLibraryToolbarDropdownWidth(
       context,
-      labels: [collectionStatusScope.label],
+      labels: [widget.collectionStatusScope.label],
       textStyle: dropdownTextStyle,
       leadingWidth: 20,
       leadingSpacing: 8,
@@ -83,7 +92,7 @@ class LibraryCollectionStatusScopeDropdown extends StatelessWidget {
       child: PopupMenuButton<LibraryCollectionStatusScope>(
         key: const Key('collection-status-scope-dropdown'),
         tooltip: 'Collection status scope',
-        onSelected: onCollectionStatusScopeChanged,
+        onSelected: widget.onCollectionStatusScopeChanged,
         padding: EdgeInsets.zero,
         menuPadding: EdgeInsets.zero,
         position: PopupMenuPosition.under,
@@ -104,46 +113,53 @@ class LibraryCollectionStatusScopeDropdown extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 8),
               child: LibraryCollectionStatusScopeMenuItem(
                 scope: scope,
-                isSelected: scope == collectionStatusScope,
+                isSelected: scope == widget.collectionStatusScope,
                 accent: accent,
                 muted: menuMuted,
                 textColor: menuText,
               ),
             ),
         ],
-        child: DecoratedBox(
-          decoration: BoxDecoration(
-            color: palette.panelRaised,
-            borderRadius: BorderRadius.circular(4),
-            border: Border.all(color: borderColor),
-          ),
-          child: SizedBox(
-            height: kLibraryToolbarTextDropdownHeight,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 10),
-              child: Row(
-                children: [
-                  LibraryCollectionStatusScopeBadge(
-                    scope: collectionStatusScope,
-                    accent: accent,
-                    muted: palette.textMuted,
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      collectionStatusScope.label,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: dropdownTextStyle,
+        child: MouseRegion(
+          cursor: SystemMouseCursors.click,
+          onEnter: (_) => setState(() => _hovered = true),
+          onExit: (_) => setState(() => _hovered = false),
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              color: _hovered && palette.isDark
+                  ? const Color(0xFF464950)
+                  : palette.panelRaised,
+              borderRadius: BorderRadius.circular(4),
+              border: Border.all(color: borderColor),
+            ),
+            child: SizedBox(
+              height: kLibraryToolbarTextDropdownHeight,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 10),
+                child: Row(
+                  children: [
+                    LibraryCollectionStatusScopeBadge(
+                      scope: widget.collectionStatusScope,
+                      accent: accent,
+                      muted: palette.textMuted,
                     ),
-                  ),
-                  const SizedBox(width: 6),
-                  Icon(
-                    Icons.keyboard_arrow_down,
-                    size: 18,
-                    color: borderColor,
-                  ),
-                ],
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        widget.collectionStatusScope.label,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: dropdownTextStyle,
+                      ),
+                    ),
+                    const SizedBox(width: 6),
+                    Icon(
+                      Icons.keyboard_arrow_down,
+                      size: 18,
+                      color: borderColor,
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
@@ -1125,19 +1141,19 @@ class _AlphabetLetterButtonState extends State<_AlphabetLetterButton> {
     final canTap = widget.onTap != null;
 
     final textColor = isSelected
-        ? widget.accent
+        ? Colors.white
         : _hovered && isAvailable
-            ? widget.palette.textPrimary
+            ? Colors.white
             : isAvailable
                 ? widget.palette.textPrimary
-                : widget.palette.textMuted.withValues(alpha: 0.38);
+                : widget.palette.textMuted.withValues(alpha: 0.25);
 
     final bgColor = isSelected
-        ? widget.accent.withValues(alpha: 0.22)
+        ? widget.accent
         : _hovered && isAvailable
             ? (widget.palette.isDark
-                ? const Color(0x33FFFFFF)
-                : const Color(0x1A000000))
+                ? const Color(0xFF464950)
+                : widget.palette.panelRaised)
             : Colors.transparent;
 
     return SizedBox(
@@ -1151,12 +1167,12 @@ class _AlphabetLetterButtonState extends State<_AlphabetLetterButton> {
           mouseCursor:
               canTap ? SystemMouseCursors.click : SystemMouseCursors.basic,
           onTap: widget.onTap,
-          borderRadius: BorderRadius.circular(3),
+          borderRadius: BorderRadius.circular(4),
           child: Container(
             margin: const EdgeInsets.symmetric(horizontal: 1),
             decoration: BoxDecoration(
               color: bgColor,
-              borderRadius: BorderRadius.circular(3),
+              borderRadius: BorderRadius.circular(4),
             ),
             child: Center(
               child: Text(

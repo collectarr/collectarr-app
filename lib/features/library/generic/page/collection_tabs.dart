@@ -5,6 +5,7 @@ import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class LibraryCollectionTabBar extends ConsumerWidget {
   const LibraryCollectionTabBar(
@@ -125,35 +126,11 @@ class _ClzCollectionMenuIcon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: 15,
-      height: 12,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Container(
-            height: 1.5,
-            decoration: BoxDecoration(
-              color: color,
-              borderRadius: BorderRadius.circular(0.5),
-            ),
-          ),
-          Container(
-            height: 1.5,
-            decoration: BoxDecoration(
-              color: color,
-              borderRadius: BorderRadius.circular(0.5),
-            ),
-          ),
-          Container(
-            height: 1.5,
-            decoration: BoxDecoration(
-              color: color,
-              borderRadius: BorderRadius.circular(0.5),
-            ),
-          ),
-        ],
+    return Center(
+      child: FaIcon(
+        FontAwesomeIcons.bars,
+        size: 14,
+        color: color,
       ),
     );
   }

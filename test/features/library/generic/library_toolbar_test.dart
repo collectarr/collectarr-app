@@ -104,8 +104,13 @@ void main() {
       ),
     );
 
+    final container = tester.widget<Container>(
+      find.ancestor(of: find.text(selectedLetter), matching: find.byType(Container)).first,
+    );
+    final decoration = container.decoration as BoxDecoration?;
+    expect(decoration?.color, accent);
     final selectedText = tester.widget<Text>(find.text(selectedLetter));
-    expect(selectedText.style?.color, accent);
+    expect(selectedText.style?.color, Colors.white);
   });
 
   testWidgets('alphabet buttons have a slightly wider touch target', (

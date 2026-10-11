@@ -308,7 +308,7 @@ class LibraryToolbar extends StatelessWidget {
         final accent = color ?? targetAccent;
         final palette = appPalette(context);
         return LibraryToolbarFrame(
-          backgroundColor: libraryWorkspaceBackgroundColor(context),
+          backgroundColor: libraryWorkspaceToolbarColor(context),
           dividerColor: palette.divider,
           child: LayoutBuilder(
             builder: (context, constraints) {

@@ -1,5 +1,4 @@
 import 'package:collectarr_app/ui/pick_list_field_button.dart';
-import 'package:collectarr_app/features/library/workspace/layout/library_folder_row.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
 import 'package:collectarr_app/features/library/generic/library_group_mode_menu.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
@@ -113,7 +112,7 @@ class LibrarySidebarHeader extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 4),
       decoration: BoxDecoration(
-        color: libraryFolderDepthColor(context, 0),
+        color: libraryWorkspaceToolbarColor(context),
         border: libraryWorkspaceToolbarBorder(context),
       ),
       child: SizedBox(
@@ -144,8 +143,8 @@ class LibrarySidebarHeader extends StatelessWidget {
             final hiddenActions = actions.skip(visibleCount).toList();
             final selector = DecoratedBox(
               decoration: BoxDecoration(
-                color: libraryFolderDepthColor(context, 0),
-                borderRadius: BorderRadius.circular(2),
+                color: libraryWorkspaceToolbarColor(context),
+                borderRadius: BorderRadius.circular(4),
               ),
               child: Padding(
                 padding: EdgeInsets.symmetric(horizontal: compact ? 0 : 3),

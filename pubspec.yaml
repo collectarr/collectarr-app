@@ -39,6 +39,7 @@ dependencies:
   go_router: ^18.0.1
   flutter_svg: ^2.3.0
   country_iso: ^1.0.0
+  font_awesome_flutter: ^11.0.0
 
 dev_dependencies:
   flutter_test:
