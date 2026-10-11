@@ -17,7 +17,9 @@ import 'package:collectarr_app/features/library/workspace/config/library_workspa
 import 'package:collectarr_app/features/library/workspace/chrome/library_dense_controls.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_view_state.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
+import 'package:collectarr_app/features/settings/ui_preferences.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 const double _kLibraryToolbarBandVerticalPadding = 2;
@@ -80,10 +82,14 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
     this.onGroupPresentationChanged,
     this.selectionCallbacks,
     this.selectedCount = 0,
+    this.currentSpacing,
+    this.onSpacingChanged,
     this.totalSelectableCount = 0,
     this.showBottomBorder = true,
   });
 
+  final double? currentSpacing;
+  final ValueChanged<double>? onSpacingChanged;
   final LibraryKindRegistration type;
   final LibraryWorkspaceViewState viewState;
   final LibraryToolbarCounts counts;
@@ -249,18 +255,40 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
                             onPresetSelected: onColumnFavoriteSelected,
                           ),
                         ),
-                      ] else if (viewState.viewMode.supportsCoverSize) ...[
                         const _LibraryDesktopToolbarSeparator(),
                         _LibraryDesktopToolbarSection(
-                          label: 'Covers',
-                          child: LibraryCoverSizeSlider(
-                            viewMode: viewState.viewMode,
-                            coverSize: viewState.coverSize,
-                            minCoverSize: libraryViewProfileForKind(type.kind)
-                                .minCoverSize,
-                            maxCoverSize: libraryViewProfileForKind(type.kind)
-                                .maxCoverSize,
-                            onChanged: onCoverSizeChanged,
+                          label: 'Row height',
+                          child: _buildSpacingSlider(
+                            context,
+                            tooltip: 'Table row height',
+                          ),
+                        ),
+                      ] else ...[
+                        const _LibraryDesktopToolbarSeparator(),
+                        _LibraryDesktopToolbarSection(
+                          label: viewState.viewMode.supportsCoverSize
+                              ? 'Covers & Spacing'
+                              : 'Spacing',
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              if (viewState.viewMode.supportsCoverSize)
+                                LibraryCoverSizeSlider(
+                                  viewMode: viewState.viewMode,
+                                  coverSize: viewState.coverSize,
+                                  minCoverSize: libraryViewProfileForKind(type.kind)
+                                      .minCoverSize,
+                                  maxCoverSize: libraryViewProfileForKind(type.kind)
+                                      .maxCoverSize,
+                                  onChanged: onCoverSizeChanged,
+                                ),
+                              if (viewState.viewMode.supportsCoverSize)
+                                const SizedBox(width: 8),
+                              _buildSpacingSlider(
+                                context,
+                                tooltip: 'Item spacing & padding',
+                              ),
+                            ],
                           ),
                         ),
                       ],
@@ -328,6 +356,37 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildSpacingSlider(BuildContext context, {required String tooltip}) {
+    if (onSpacingChanged != null) {
+      return LibrarySpacingSlider(
+        spacing: currentSpacing ?? 10.0,
+        tooltip: tooltip,
+        onChanged: onSpacingChanged!,
+      );
+    }
+    final hasProvider =
+        context.findAncestorWidgetOfExactType<ProviderScope>() != null ||
+        context.findAncestorWidgetOfExactType<UncontrolledProviderScope>() != null;
+    if (!hasProvider) {
+      return LibrarySpacingSlider(
+        spacing: currentSpacing ?? 10.0,
+        tooltip: tooltip,
+        onChanged: onSpacingChanged ?? (_) {},
+      );
+    }
+    return Consumer(
+      builder: (context, ref, _) {
+        final uiPrefs = ref.watch(uiPreferencesProvider);
+        return LibrarySpacingSlider(
+          spacing: uiPrefs.gridSpacing,
+          tooltip: tooltip,
+          onChanged: (val) =>
+              ref.read(uiPreferencesProvider.notifier).setGridSpacing(val),
+        );
+      },
     );
   }
 }

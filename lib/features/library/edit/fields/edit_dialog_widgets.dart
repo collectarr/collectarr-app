@@ -66,6 +66,11 @@ ThemeData editDialogTheme({
       primary: accent,
       onPrimary: appContrastingTextColor(accent),
     ),
+    textSelectionTheme: TextSelectionThemeData(
+      cursorColor: accent,
+      selectionColor: accent.withValues(alpha: 0.35),
+      selectionHandleColor: accent,
+    ),
     dialogTheme: DialogThemeData(
       backgroundColor: palette.panel,
       surfaceTintColor: Colors.transparent,

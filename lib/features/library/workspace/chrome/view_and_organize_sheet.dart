@@ -16,6 +16,8 @@ Future<void> showViewAndOrganizeSheet({
   required double minCoverSize,
   required double maxCoverSize,
   required ValueChanged<double> onCoverSizeChanged,
+  double? currentSpacing,
+  ValueChanged<double>? onSpacingChanged,
   VoidCallback? onOpenSortDialog,
   VoidCallback? onOpenFilterDialog,
   VoidCallback? onOpenColumnChooser,
@@ -39,6 +41,8 @@ Future<void> showViewAndOrganizeSheet({
         minCoverSize: minCoverSize,
         maxCoverSize: maxCoverSize,
         onCoverSizeChanged: onCoverSizeChanged,
+        currentSpacing: currentSpacing,
+        onSpacingChanged: onSpacingChanged,
         onOpenSortDialog: onOpenSortDialog,
         onOpenFilterDialog: onOpenFilterDialog,
         onOpenColumnChooser: onOpenColumnChooser,
@@ -60,6 +64,8 @@ class ViewAndOrganizeSheet extends StatefulWidget {
     required this.minCoverSize,
     required this.maxCoverSize,
     required this.onCoverSizeChanged,
+    this.currentSpacing,
+    this.onSpacingChanged,
     this.onOpenSortDialog,
     this.onOpenFilterDialog,
     this.onOpenColumnChooser,
@@ -75,6 +81,8 @@ class ViewAndOrganizeSheet extends StatefulWidget {
   final double minCoverSize;
   final double maxCoverSize;
   final ValueChanged<double> onCoverSizeChanged;
+  final double? currentSpacing;
+  final ValueChanged<double>? onSpacingChanged;
   final VoidCallback? onOpenSortDialog;
   final VoidCallback? onOpenFilterDialog;
   final VoidCallback? onOpenColumnChooser;
@@ -88,6 +96,7 @@ class _ViewAndOrganizeSheetState extends State<ViewAndOrganizeSheet> {
   late LibraryWorkspaceDensityPreset _density;
   late LibraryDetailsLayout _detailsLayout;
   late double _coverSize;
+  double? _spacing;
 
   @override
   void initState() {
@@ -99,6 +108,7 @@ class _ViewAndOrganizeSheetState extends State<ViewAndOrganizeSheet> {
       widget.minCoverSize,
       widget.maxCoverSize,
     );
+    _spacing = widget.currentSpacing;
   }
 
   @override
@@ -226,6 +236,36 @@ class _ViewAndOrganizeSheetState extends State<ViewAndOrganizeSheet> {
                     ),
                   ),
                   Icon(Icons.photo_size_select_large,
+                      size: 20, color: palette.textMuted),
+                ],
+              ),
+            ],
+
+            // Section: Spacing / Row Height
+            if (widget.onSpacingChanged != null) ...[
+              const SizedBox(height: 16),
+              _buildSectionHeader(
+                _viewMode == LibraryViewMode.list ? 'Row Height' : 'Item Spacing',
+                palette,
+              ),
+              Row(
+                children: [
+                  Icon(Icons.format_line_spacing,
+                      size: 16, color: palette.textMuted),
+                  Expanded(
+                    child: Slider(
+                      key: const ValueKey('spacing_slider'),
+                      value: (_spacing ?? 10.0).clamp(4.0, 24.0),
+                      min: 4,
+                      max: 24,
+                      activeColor: accentData.accent,
+                      onChanged: (val) {
+                        setState(() => _spacing = val);
+                        widget.onSpacingChanged!(val);
+                      },
+                    ),
+                  ),
+                  Icon(Icons.format_line_spacing,
                       size: 20, color: palette.textMuted),
                 ],
               ),

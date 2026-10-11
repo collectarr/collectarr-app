@@ -17,7 +17,7 @@ class LibraryToolbarSearchSuggestion {
   final String? subtitle;
 }
 
-class LibraryToolbarSearch extends StatelessWidget {
+class LibraryToolbarSearch extends StatefulWidget {
   const LibraryToolbarSearch({
     super.key,
     required this.controller,
@@ -62,15 +62,174 @@ class LibraryToolbarSearch extends StatelessWidget {
   final ValueChanged<LibraryToolbarSearchSuggestion>? onSuggestionSelected;
 
   @override
+  State<LibraryToolbarSearch> createState() => _LibraryToolbarSearchState();
+}
+
+class _LibraryToolbarSearchState extends State<LibraryToolbarSearch> {
+  final OverlayPortalController _overlayController = OverlayPortalController();
+  final LayerLink _layerLink = LayerLink();
+  final GlobalKey _searchBarKey = GlobalKey();
+  bool _dismissed = false;
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.suggestions.isNotEmpty && widget.onSuggestionSelected != null) {
+      _overlayController.show();
+    }
+  }
+
+  @override
+  void didUpdateWidget(covariant LibraryToolbarSearch oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.suggestions != oldWidget.suggestions) {
+      _dismissed = false;
+    }
+    final canShow =
+        widget.suggestions.isNotEmpty && widget.onSuggestionSelected != null && !_dismissed;
+    if (canShow && !_overlayController.isShowing) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted &&
+            !_overlayController.isShowing &&
+            !_dismissed &&
+            widget.suggestions.isNotEmpty &&
+            widget.onSuggestionSelected != null) {
+          _overlayController.show();
+        }
+      });
+    } else if (!canShow && _overlayController.isShowing) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted && _overlayController.isShowing) {
+          _overlayController.hide();
+        }
+      });
+    }
+  }
+
+  Widget _buildSuggestionsOverlay(BuildContext overlayContext) {
+    if (_dismissed ||
+        widget.suggestions.isEmpty ||
+        widget.onSuggestionSelected == null) {
+      return const SizedBox.shrink();
+    }
+    final renderBox =
+        _searchBarKey.currentContext?.findRenderObject() as RenderBox?;
+    final targetWidth =
+        renderBox?.hasSize == true ? renderBox!.size.width : widget.maxWidth;
+    final palette = appPalette(overlayContext);
+    final borderColor = Color.alphaBlend(
+      widget.selectionColor.withValues(alpha: palette.isDark ? 0.34 : 0.22),
+      palette.divider,
+    );
+    return TapRegion(
+      groupId: this,
+      onTapOutside: (_) {
+        if (_overlayController.isShowing) {
+          _overlayController.hide();
+        }
+        if (mounted) {
+          setState(() {
+            _dismissed = true;
+          });
+        }
+      },
+      child: CompositedTransformFollower(
+        link: _layerLink,
+        showWhenUnlinked: false,
+        targetAnchor: Alignment.bottomLeft,
+        followerAnchor: Alignment.topLeft,
+        offset: const Offset(0, 4),
+        child: SizedBox(
+          width: targetWidth,
+          child: Material(
+            color: palette.panel,
+            elevation: 12,
+            shadowColor: Colors.black.withValues(alpha: 0.5),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(2),
+              side: BorderSide(color: borderColor),
+            ),
+            clipBehavior: Clip.antiAlias,
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxHeight: 260),
+              child: ListView.builder(
+                shrinkWrap: true,
+                padding: EdgeInsets.zero,
+                itemCount: widget.suggestions.length,
+                itemBuilder: (context, index) {
+                  final suggestion = widget.suggestions[index];
+                  return InkWell(
+                    mouseCursor: WidgetStateMouseCursor.clickable,
+                    key: ValueKey(
+                      'library-search-suggestion-${suggestion.id}',
+                    ),
+                    onTap: () {
+                      widget.onSuggestionSelected?.call(suggestion);
+                      if (_overlayController.isShowing) {
+                        _overlayController.hide();
+                      }
+                      if (mounted) {
+                        setState(() {
+                          _dismissed = true;
+                        });
+                      }
+                    },
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 8,
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            suggestion.title,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodyMedium
+                                ?.copyWith(
+                                  fontWeight: FontWeight.w600,
+                                ),
+                          ),
+                          if ((suggestion.subtitle ?? '')
+                              .trim()
+                              .isNotEmpty)
+                            Text(
+                              suggestion.subtitle!,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: Theme.of(context)
+                                .textTheme
+                                .bodySmall
+                                ?.copyWith(
+                                  color: palette.textMuted,
+                                ),
+                            ),
+                        ],
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
     const inputHeight = 34.0;
     final showSearchScope =
-        searchTargetOptions.isNotEmpty && onSearchTargetChanged != null;
+        widget.searchTargetOptions.isNotEmpty && widget.onSearchTargetChanged != null;
     final inlineActionCount = 1 +
-        (onScanBarcode != null ? 1 : 0) +
-        (onScanCover != null ? 1 : 0) +
-        (onRandomPick != null ? 1 : 0);
+        (widget.onScanBarcode != null ? 1 : 0) +
+        (widget.onScanCover != null ? 1 : 0) +
+        (widget.onRandomPick != null ? 1 : 0);
     final inlineActionsWidth = inlineActionCount * 28.0 + 8;
     final inputBackground = Color.alphaBlend(
       (palette.isDark ? Colors.white : palette.accent).withValues(
@@ -82,198 +241,139 @@ class LibraryToolbarSearch extends StatelessWidget {
       palette.accent.withValues(alpha: palette.isDark ? 0.34 : 0.22),
       palette.divider,
     );
+
     return LayoutBuilder(
       builder: (context, constraints) {
         final showFilterChip =
-            selectedFilterLabel != null && constraints.maxWidth >= 340;
+            widget.selectedFilterLabel != null && constraints.maxWidth >= 340;
         final availableWidth = constraints.hasBoundedWidth
-            ? (constraints.maxWidth < maxWidth
+            ? (constraints.maxWidth < widget.maxWidth
                 ? constraints.maxWidth
-                : maxWidth)
-            : maxWidth;
-        final canShowSuggestions =
-            suggestions.isNotEmpty && onSuggestionSelected != null;
+                : widget.maxWidth)
+            : widget.maxWidth;
         return Row(
           mainAxisSize: MainAxisSize.min,
           children: [
             Flexible(
               child: ConstrainedBox(
                 constraints: BoxConstraints(maxWidth: availableWidth),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(2),
-                      child: DecoratedBox(
-                        decoration: BoxDecoration(
-                          color: inputBackground,
-                          border: Border.all(color: borderColor),
-                        ),
-                        child: SizedBox(
-                          height: inputHeight,
-                          child: Stack(
-                            children: [
-                              Positioned.fill(
-                                child: TextField(
-                                  key: textFieldKey,
-                                  controller: controller,
-                                  onChanged: onChanged,
-                                  onSubmitted: onSearch,
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .bodyMedium
-                                      ?.copyWith(
-                                        fontSize: 12.5,
-                                        height: 1.05,
-                                      ),
-                                  decoration: InputDecoration(
-                                    isDense: true,
-                                    hintText: hintText,
-                                    hintStyle: Theme.of(context)
+                child: TapRegion(
+                  groupId: this,
+                  child: OverlayPortal(
+                    controller: _overlayController,
+                    overlayLocation: OverlayChildLocation.rootOverlay,
+                    overlayChildBuilder: _buildSuggestionsOverlay,
+                    child: CompositedTransformTarget(
+                      link: _layerLink,
+                      child: ClipRRect(
+                        key: _searchBarKey,
+                        borderRadius: BorderRadius.circular(2),
+                        child: DecoratedBox(
+                          decoration: BoxDecoration(
+                            color: inputBackground,
+                            border: Border.all(color: borderColor),
+                          ),
+                          child: SizedBox(
+                            height: inputHeight,
+                            child: Stack(
+                              children: [
+                                Positioned.fill(
+                                  child: TextField(
+                                    key: widget.textFieldKey,
+                                    controller: widget.controller,
+                                    cursorColor: widget.selectionColor,
+                                    onChanged: widget.onChanged,
+                                    onSubmitted: widget.onSearch,
+                                    style: Theme.of(context)
                                         .textTheme
                                         .bodyMedium
                                         ?.copyWith(
-                                          color: palette.textMuted,
-                                          fontSize: 12,
+                                          fontSize: 12.5,
                                           height: 1.05,
                                         ),
-                                    border: InputBorder.none,
-                                    contentPadding: EdgeInsets.fromLTRB(
-                                      showSearchScope ? 50 : 10,
-                                      8,
-                                      10,
-                                      8,
-                                    ),
-                                    suffixIconConstraints: BoxConstraints(
-                                      minWidth: inlineActionsWidth,
-                                      maxWidth: inlineActionsWidth,
-                                      minHeight: inputHeight,
-                                      maxHeight: inputHeight,
-                                    ),
-                                    suffixIcon: Padding(
-                                      padding: const EdgeInsets.only(right: 4),
-                                      child: Row(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          _ToolbarSearchInlineAction(
-                                            tooltip: searchActive
-                                                ? 'Clear search'
-                                                : 'Search',
-                                            icon: searchActive
-                                                ? Icons.close
-                                                : Icons.search,
-                                            onPressed: searchActive
-                                                ? () {
-                                                    onClearSearch?.call();
-                                                  }
-                                                : () =>
-                                                    onSearch(controller.text),
+                                    decoration: InputDecoration(
+                                      isDense: true,
+                                      hintText: widget.hintText,
+                                      hintStyle: Theme.of(context)
+                                          .textTheme
+                                          .bodyMedium
+                                          ?.copyWith(
+                                            color: palette.textMuted,
+                                            fontSize: 12,
+                                            height: 1.05,
                                           ),
-                                          if (onScanBarcode != null)
+                                      border: InputBorder.none,
+                                      contentPadding: EdgeInsets.fromLTRB(
+                                        showSearchScope ? 50 : 10,
+                                        8,
+                                        10,
+                                        8,
+                                      ),
+                                      suffixIconConstraints: BoxConstraints(
+                                        minWidth: inlineActionsWidth,
+                                        maxWidth: inlineActionsWidth,
+                                        minHeight: inputHeight,
+                                        maxHeight: inputHeight,
+                                      ),
+                                      suffixIcon: Padding(
+                                        padding: const EdgeInsets.only(right: 4),
+                                        child: Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
                                             _ToolbarSearchInlineAction(
-                                              tooltip: 'Scan barcode',
-                                              icon: Icons.barcode_reader,
-                                              onPressed: onScanBarcode!,
+                                              tooltip: widget.searchActive
+                                                  ? 'Clear search'
+                                                  : 'Search',
+                                              icon: widget.searchActive
+                                                  ? Icons.close
+                                                  : Icons.search,
+                                              onPressed: widget.searchActive
+                                                  ? () {
+                                                      widget.onClearSearch?.call();
+                                                    }
+                                                  : () =>
+                                                      widget.onSearch(widget.controller.text),
                                             ),
-                                          if (onScanCover != null)
-                                            _ToolbarSearchInlineAction(
-                                              tooltip: 'Search by cover',
-                                              icon: Icons.image_search,
-                                              onPressed: onScanCover!,
-                                            ),
-                                          if (onRandomPick != null)
-                                            _ToolbarSearchInlineAction(
-                                              tooltip: 'Random pick',
-                                              icon: Icons.casino_outlined,
-                                              onPressed: onRandomPick!,
-                                            ),
-                                        ],
+                                            if (widget.onScanBarcode != null)
+                                              _ToolbarSearchInlineAction(
+                                                tooltip: 'Scan barcode',
+                                                icon: Icons.barcode_reader,
+                                                onPressed: widget.onScanBarcode!,
+                                              ),
+                                            if (widget.onScanCover != null)
+                                              _ToolbarSearchInlineAction(
+                                                tooltip: 'Search by cover',
+                                                icon: Icons.image_search,
+                                                onPressed: widget.onScanCover!,
+                                              ),
+                                            if (widget.onRandomPick != null)
+                                              _ToolbarSearchInlineAction(
+                                                tooltip: 'Random pick',
+                                                icon: Icons.casino_outlined,
+                                                onPressed: widget.onRandomPick!,
+                                              ),
+                                          ],
+                                        ),
                                       ),
                                     ),
                                   ),
                                 ),
-                              ),
-                              if (showSearchScope)
-                                Align(
-                                  alignment: Alignment.centerLeft,
-                                  child: _ToolbarSearchScopeButton(
-                                    selected: searchTarget,
-                                    options: searchTargetOptions,
-                                    onSelected: onSearchTargetChanged!,
+                                if (showSearchScope)
+                                  Align(
+                                    alignment: Alignment.centerLeft,
+                                    child: _ToolbarSearchScopeButton(
+                                      selected: widget.searchTarget,
+                                      options: widget.searchTargetOptions,
+                                      onSelected: widget.onSearchTargetChanged!,
+                                    ),
                                   ),
-                                ),
-                            ],
+                              ],
+                            ),
                           ),
                         ),
                       ),
                     ),
-                    if (canShowSuggestions) ...[
-                      const SizedBox(height: 4),
-                      DecoratedBox(
-                        decoration: BoxDecoration(
-                          color: palette.panel,
-                          border: Border.all(color: borderColor),
-                          borderRadius: BorderRadius.circular(2),
-                        ),
-                        child: ConstrainedBox(
-                          constraints: const BoxConstraints(maxHeight: 260),
-                          child: ListView.builder(
-                            shrinkWrap: true,
-                            padding: EdgeInsets.zero,
-                            itemCount: suggestions.length,
-                            itemBuilder: (context, index) {
-                              final suggestion = suggestions[index];
-                              return InkWell(
-                                mouseCursor: WidgetStateMouseCursor.clickable,
-                                key: ValueKey(
-                                  'library-search-suggestion-${suggestion.id}',
-                                ),
-                                onTap: () => onSuggestionSelected!(suggestion),
-                                child: Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 10,
-                                    vertical: 8,
-                                  ),
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        suggestion.title,
-                                        maxLines: 1,
-                                        overflow: TextOverflow.ellipsis,
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .bodyMedium
-                                            ?.copyWith(
-                                              fontWeight: FontWeight.w600,
-                                            ),
-                                      ),
-                                      if ((suggestion.subtitle ?? '')
-                                          .trim()
-                                          .isNotEmpty)
-                                        Text(
-                                          suggestion.subtitle!,
-                                          maxLines: 1,
-                                          overflow: TextOverflow.ellipsis,
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .bodySmall
-                                              ?.copyWith(
-                                                color: palette.textMuted,
-                                              ),
-                                        ),
-                                    ],
-                                  ),
-                                ),
-                              );
-                            },
-                          ),
-                        ),
-                      ),
-                    ],
-                  ],
+                  ),
                 ),
               ),
             ),
@@ -282,11 +382,11 @@ class LibraryToolbarSearch extends StatelessWidget {
               DecoratedBox(
                 decoration: BoxDecoration(
                   color: Color.alphaBlend(
-                    selectionColor.withValues(alpha: 0.14),
+                    widget.selectionColor.withValues(alpha: 0.14),
                     palette.surface,
                   ),
                   border: Border.all(
-                    color: selectionColor.withValues(alpha: 0.55),
+                    color: widget.selectionColor.withValues(alpha: 0.55),
                   ),
                   borderRadius: BorderRadius.circular(2),
                 ),
@@ -297,24 +397,21 @@ class LibraryToolbarSearch extends StatelessWidget {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Text(
-                        selectedFilterLabel!,
-                        style:
-                            Theme.of(context).textTheme.labelMedium?.copyWith(
-                                  fontWeight: FontWeight.w700,
-                                ),
+                        widget.selectedFilterLabel!,
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                          color: widget.selectionColor,
+                        ),
                       ),
-                      if (onClearFilter != null) ...[
-                        const SizedBox(width: 6),
+                      if (widget.onClearFilter != null) ...[
+                        const SizedBox(width: 4),
                         GestureDetector(
-                          behavior: HitTestBehavior.opaque,
-                          onTap: onClearFilter,
-                          child: MouseRegion(
-                            cursor: SystemMouseCursors.click,
-                            child: Icon(
-                              Icons.close,
-                              size: 14,
-                              color: palette.textMuted,
-                            ),
+                          onTap: widget.onClearFilter,
+                          child: Icon(
+                            Icons.close,
+                            size: 14,
+                            color: widget.selectionColor,
                           ),
                         ),
                       ],

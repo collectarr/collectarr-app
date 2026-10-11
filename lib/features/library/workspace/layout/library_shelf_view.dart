@@ -23,6 +23,7 @@ class LibraryShelfView<T> extends StatelessWidget {
     this.fallbackCoverAspectRatio = 2 / 3,
     this.backgroundColor,
     this.emptyBuilder,
+    this.bookHorizontalPadding = 1.0,
   });
 
   final List<T> items;
@@ -40,6 +41,7 @@ class LibraryShelfView<T> extends StatelessWidget {
   final double fallbackCoverAspectRatio;
   final Color? backgroundColor;
   final WidgetBuilder? emptyBuilder;
+  final double bookHorizontalPadding;
 
   @override
   Widget build(BuildContext context) {
@@ -52,7 +54,7 @@ class LibraryShelfView<T> extends StatelessWidget {
     return LayoutBuilder(
       builder: (context, constraints) {
         const shelfOverhang = 8.0;
-        const bookHorizontalPadding = 1.0;
+        final bookHorizontalPadding = this.bookHorizontalPadding;
         const bookInnerInset = 8.0;
         final availableShelfWidth =
             math.max(1.0, constraints.maxWidth - (shelfOverhang * 2));

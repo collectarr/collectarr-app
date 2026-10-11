@@ -301,6 +301,8 @@ class LibraryWorkspace extends ConsumerWidget {
           fallbackCoverAspectRatio: fallbackCoverAspectRatio,
           backgroundColor: libraryFolderDepthColor(context, 0),
           emptyBuilder: _emptyBuilder,
+          bookHorizontalPadding:
+              ((uiPrefs.gridSpacing - 4.0) / 4.0).clamp(0.5, 8.0),
         ),
     };
   }
@@ -370,6 +372,10 @@ class LibraryWorkspace extends ConsumerWidget {
               target: schemaNode,
             );
         final heights = <String, double>{};
+        final effectiveRowHeight = math.max(
+          22.0,
+          density.tableRowHeight + (preferences.gridSpacing - 10.0) * 1.5,
+        );
         double heightFor(LibraryProjectionItem item) =>
             heights.putIfAbsent(item.target.id, () {
               final measure = TextPainter(
@@ -377,7 +383,7 @@ class LibraryWorkspace extends ConsumerWidget {
                 textScaler: MediaQuery.textScalerOf(context),
                 maxLines: 3,
               );
-              var height = density.tableRowHeight;
+              var height = effectiveRowHeight;
               for (final column in visibleColumns) {
                 measure.text =
                     TextSpan(text: cellText(item, column.value), style: style);
@@ -499,10 +505,11 @@ class LibraryWorkspace extends ConsumerWidget {
                     showEdit: preferences.showEditIcons,
                     onEditEntry: onEditItem,
                     headerHeight: density.tableHeaderHeight,
-                    rowHeight: density.tableRowHeight,
+                    rowHeight: effectiveRowHeight,
                     rowHeightFor:
                         preferences.wrapColumnContent ? heightFor : null,
-                    columnSpacing: 8,
+                    columnSpacing:
+                        math.max(4.0, 8.0 + (preferences.gridSpacing - 10.0) * 0.4),
                     horizontalMargin: 6,
                     selectionRailWidth: 2,
                     headerColor: libraryWorkspaceTableHeaderColor(context),

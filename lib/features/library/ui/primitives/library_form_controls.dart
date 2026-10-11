@@ -1,5 +1,6 @@
 import 'package:collectarr_app/core/models/partial_date.dart';
 import 'package:collectarr_app/features/library/config/library_dialog_tokens.dart';
+import 'package:collectarr_app/ui/library_accent_scope.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -64,6 +65,7 @@ class LibraryTextFormControl extends StatelessWidget {
     this.textCapitalization = TextCapitalization.none,
     this.textInputAction,
     this.onFieldSubmitted,
+    this.cursorColor,
   }) : assert(controller == null || initialValue == null);
 
   final TextEditingController? controller;
@@ -87,10 +89,14 @@ class LibraryTextFormControl extends StatelessWidget {
   final TextCapitalization textCapitalization;
   final TextInputAction? textInputAction;
   final ValueChanged<String>? onFieldSubmitted;
+  final Color? cursorColor;
 
   @override
   Widget build(BuildContext context) => TextFormField(
         controller: controller,
+        cursorColor: cursorColor ??
+            Theme.of(context).textSelectionTheme.cursorColor ??
+            LibraryAccentScope.maybeOf(context)?.accent,
         initialValue: initialValue,
         focusNode: focusNode,
         autofocus: autofocus,

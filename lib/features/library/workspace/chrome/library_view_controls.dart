@@ -347,6 +347,59 @@ class LibraryCoverSizeSlider extends StatelessWidget {
   }
 }
 
+class LibrarySpacingSlider extends StatelessWidget {
+  const LibrarySpacingSlider({
+    super.key,
+    required this.spacing,
+    required this.onChanged,
+    this.minSpacing = 4.0,
+    this.maxSpacing = 24.0,
+    this.tooltip = 'Spacing & row height',
+    this.icon,
+  });
+
+  final double spacing;
+  final ValueChanged<double> onChanged;
+  final double minSpacing;
+  final double maxSpacing;
+  final String tooltip;
+  final IconData? icon;
+
+  @override
+  Widget build(BuildContext context) {
+    final iconColor = Theme.of(context).colorScheme.onSurfaceVariant;
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Tooltip(
+          message: tooltip,
+          child: Icon(
+            icon ?? Icons.format_line_spacing,
+            size: 18,
+            color: iconColor,
+          ),
+        ),
+        SizedBox(
+          width: 100,
+          child: SliderTheme(
+            data: const SliderThemeData(
+              overlayShape: RoundSliderOverlayShape(overlayRadius: 14),
+              thumbShape: RoundSliderThumbShape(enabledThumbRadius: 6),
+              trackHeight: 3,
+            ),
+            child: Slider(
+              value: spacing.clamp(minSpacing, maxSpacing),
+              min: minSpacing,
+              max: maxSpacing,
+              onChanged: onChanged,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
 class LibraryViewControls extends StatelessWidget {
   const LibraryViewControls({
     super.key,

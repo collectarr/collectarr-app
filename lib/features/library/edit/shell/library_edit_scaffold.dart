@@ -8,6 +8,7 @@ import 'package:collectarr_app/features/library/ui/library_panel_header.dart';
 import 'package:collectarr_app/features/library/config/library_kind_style.dart';
 import 'package:collectarr_app/features/library/forms/library_schema_text_controller_store.dart';
 import 'package:collectarr_app/ui/adaptive/window_class.dart';
+import 'package:collectarr_app/ui/library_accent_scope.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart' show listEquals;
@@ -278,7 +279,11 @@ class _LibraryEditDialogScaffoldState extends State<LibraryEditDialogScaffold> {
               palette: p,
               compactDesktop: isWideDesktop,
             ),
-            child: LibraryDialogScaffold(
+            child: LibraryAccentScope(
+              kind: '',
+              accent: widget.accent,
+              animationsEnabled: true,
+              child: LibraryDialogScaffold(
               header: _LibraryEditTitleBar(
                 icon: widget.icon,
                 title: widget.title,
@@ -366,8 +371,9 @@ class _LibraryEditDialogScaffoldState extends State<LibraryEditDialogScaffold> {
           ),
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 }
 
 /// Exposes the scaffold's visible tab order to form lifecycle coordinators.
