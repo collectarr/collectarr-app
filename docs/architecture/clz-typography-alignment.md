@@ -31,4 +31,5 @@ Navigator theme uses cyan. A widget test covers that actual overlay boundary.
 
 Live screenshots were compared at matched inspector widths and with populated
 reference metadata. Responsive page checks include 1844, 1000, 700 and 380px.
-See the comparison report for the final verification and remaining differences.
+See the [comparison report](music-inspector-management-parity-2026-10-11.md) for
+the final verification and remaining differences.

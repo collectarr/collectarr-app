@@ -4,9 +4,20 @@ Last reviewed: 2026-10-11. This report reflects the current working tree and
 the post-audit release evidence recorded below. The architecture guard has no
 unreviewed AST violations; its exact baseline retains 44 reviewed field-leak
 findings, all still observed and none stale. The checker reports 364
-informational complexity findings. The latest display-settings gate reports 370.
+informational complexity findings. The latest populated-inspector and management
+gate reports 375.
 
 ## Implemented
+
+The [populated inspector and management comparison](music-inspector-management-parity-2026-10-11.md)
+adds reproducible strict App/Core reference seeds, closer geometric typography,
+scoped inspector values, responsive Settings panels, atomic field transfer and
+sorted index reassignment, current/history loans with PDF export and complete
+sync snapshots, and collection-scoped Music statistics. Live actions and reload
+checks passed; five management pages were checked at four widths. The latest
+gate reports 853 tests passed / 1 skipped, clean analysis, no AST boundary
+violations and successful Windows and Web debug builds. The report explicitly
+lists remaining typography, Settings, borrower-profile and chart differences.
 
 The [dedicated management pages](library-management-pages-2026-10-11.md) replace
 the Find Duplicates and Manage Custom Fields modals. Duplicate management uses
