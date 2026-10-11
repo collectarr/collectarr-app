@@ -96,7 +96,20 @@ class _LibraryDropdownPickFieldState<TValue>
     if (oldWidget.value != widget.value ||
         oldWidget.options != widget.options) {
       final next = _currentLabel ?? '';
-      if (_controller.text != next) _controller.text = next;
+      if (_controller.text != next) {
+        // TextFormField notifies its enclosing Form when this controller changes.
+        // Synchronize after the parent's build and use the latest widget value.
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (!mounted) return;
+          final current = _currentLabel ?? '';
+          if (_controller.text != current) {
+            _controller.value = TextEditingValue(
+              text: current,
+              selection: TextSelection.collapsed(offset: current.length),
+            );
+          }
+        });
+      }
     }
   }
 

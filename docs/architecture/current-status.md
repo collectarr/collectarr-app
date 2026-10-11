@@ -5,9 +5,19 @@ the post-audit release evidence recorded below. The architecture guard has no
 unreviewed AST violations; its exact baseline retains 44 reviewed field-leak
 findings, all still observed and none stale. The checker reports 364
 informational complexity findings. The latest uniform-application-header gate
-reports 370.
+reports 370. The latest dropdown and column-selector gate reports 371.
 
 ## Implemented
+
+The [library dropdown audit](library-dropdown-parity-2026-10-11.md) consolidates
+neutral popup styling across workspace menus and edit pickers, keeps configured
+accent markers across overlays, and replaces the column launcher with an icon
+split control. Column categories share the grouping tree primitive and the
+chooser caps its width at 600 px. The live audit also found and fixed a Form
+notification during parent-driven dropdown controller synchronization. The
+regression reproduces before the fix and passes after it. Verification reports
+855 tests passed / 1 skipped, clean analysis and architecture checks, successful
+Windows/Web builds and 14 live checks without exceptions or overflows.
 
 The [uniform application headers](uniform-application-headers-2026-10-11.md)
 keep the kind-accent bar, white kind icon, uppercase brand and three right-side
