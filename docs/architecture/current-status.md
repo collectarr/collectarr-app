@@ -12,9 +12,14 @@ reports 370. The latest dropdown and column-selector gate reports 371.
 Sidebar selection resolves routed destinations and tracks the lifetime of pages
 opened through drawer actions. Pushed tools such as Statistics, Print to PDF,
 Find Duplicates and export no longer leave Libraries highlighted merely because
-the underlying router URI is `/libraries`. Back restores the previous selection;
-routed navigation clears the pushed-page override. Navigation smoke tests cover
-the pushed Print page and restoration of Settings after Back.
+the underlying router URI is `/libraries`. Sidebar page destinations replace
+one another over the current-kind Library root, so a single Back returns to
+Libraries. Navigation smoke tests cover Settings → Print → Duplicates → Back
+without retaining earlier tool pages. Modal actions retain their parent page.
+Music disc tabs and Add Disc have visible hover feedback, close controls have
+independent hover feedback, and edit/disc reorder proxies have no shadow.
+The CLZ font-face audit identified Gilroy Medium behind CSS weight 400; editor
+tabs use Manrope Medium, with heavier field/title labels for optical parity.
 
 The [library dropdown audit](library-dropdown-parity-2026-10-11.md) consolidates
 neutral popup styling across workspace menus and edit pickers, keeps configured

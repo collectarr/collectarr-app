@@ -189,12 +189,14 @@ void main() {
               .style
               ?.fontWeight,
           FontWeight.w700);
-      Navigator.of(tester.element(find.text('Libraries'))).pop();
+      await tester.tap(find.text('Find Duplicates'));
       await pumpUntilSettled(tester);
-      await tester.tap(find.byKey(const Key('print_pdf.back')));
+      expect(find.byKey(const Key('print_pdf.back')), findsNothing);
+      await tester.tap(find.byType(AppPageBackButton));
       await pumpUntilSettled(tester);
+      expect(router.canPop(), isFalse);
       expect(
-          router.routeInformationProvider.value.uri.path, AppRoutes.settings);
+          router.routeInformationProvider.value.uri.path, AppRoutes.libraries);
 
       await tester.tap(find.byKey(const Key('app.open-navigation')));
       await pumpUntilSettled(tester);
@@ -202,7 +204,7 @@ void main() {
           tester
               .widget<AppNavigationDrawer>(find.byType(AppNavigationDrawer))
               .selectedAction,
-          DrawerAction.settings);
+          DrawerAction.libraries);
       expect(find.text('My Shelf'), findsNothing);
       await tester.tap(find.text('Add Albums from Core'));
       await pumpUntilSettled(tester);

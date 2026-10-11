@@ -262,6 +262,28 @@ class _AppShellState extends ConsumerState<AppShell> {
         true,
       _ => false,
     };
+    final opensPage = switch (action) {
+      DrawerAction.printToPdf ||
+      DrawerAction.statistics ||
+      DrawerAction.findDuplicates ||
+      DrawerAction.manageCustomFields ||
+      DrawerAction.cloudSharing ||
+      DrawerAction.exportCsv ||
+      DrawerAction.importData ||
+      DrawerAction.linkAlbums =>
+        true,
+      _ => false,
+    };
+    if (opensPage) {
+      // Sidebar destinations replace one another and always sit above Library.
+      setState(() => _openDrawerAction = null);
+      context.go(AppRoutes.forKind(AppRoutes.libraries, type.kind.apiValue));
+      await WidgetsBinding.instance.endOfFrame;
+      if (!mounted) return;
+      appPageNavigatorKey.currentState?.popUntil((route) => route.isFirst);
+      await WidgetsBinding.instance.endOfFrame;
+      if (!mounted) return;
+    }
     final previous = _openDrawerAction;
     setState(() => _openDrawerAction = routed ? null : action);
     try {
