@@ -19,7 +19,6 @@ import 'package:collectarr_app/features/library/config/library_search_target.dar
 import 'package:collectarr_app/features/library/workspace/layout/library_alpha_jump_bar.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_workspace_chrome.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
-import 'package:collectarr_app/features/library/workspace/layout/library_ctrl_scroll_zoom.dart';
 import 'package:collectarr_app/features/library/workspace/layout/library_pane_widths.dart';
 import 'package:collectarr_app/features/library/workspace/layout/library_layout_snapshot.dart';
 import 'package:collectarr_app/features/library/workspace/layout/library_resizable_pane.dart';
@@ -314,17 +313,9 @@ class LibraryBody extends StatelessWidget {
                       ))
                   .toList();
           final workspace = workspaceOverride ??
-              LibraryCtrlScrollZoom(
-                viewMode: viewState.viewMode,
-                coverSize: viewState.coverSize,
-                minCoverSize:
-                    libraryViewProfileForKind(registration.kind).minCoverSize,
-                maxCoverSize:
-                    libraryViewProfileForKind(registration.kind).maxCoverSize,
-                onCoverSizeChanged: onCoverSizeChanged,
-                child: LibraryWorkspace(
-                  type: type,
-                  items: letterFilteredItems,
+              LibraryWorkspace(
+                type: type,
+                items: letterFilteredItems,
                   viewState: viewState,
                   selectedId: selectedId,
                   selectionEnabled: selectionEnabled,
@@ -354,8 +345,7 @@ class LibraryBody extends StatelessWidget {
                   onSortChanged: onSortChanged,
                   onColumnWidthChanged: onColumnWidthChanged,
                   onItemContextMenu: onItemContextMenu,
-                ),
-              );
+                );
           final details = LibraryInspector(
             type: type,
             projection: projection,
