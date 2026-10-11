@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_page_header.dart';
 import 'package:collectarr_app/features/library/kinds/music/data/music_library_entry_projection.dart';
 import 'dart:math' as math;
 
@@ -133,17 +134,11 @@ class _MusicStatsPageState extends ConsumerState<MusicStatsPage> {
     ];
     return Scaffold(
       backgroundColor: appManagementCanvasColor(context),
-      appBar: AppBar(
-          backgroundColor: appManagementPanelColor(context),
-          foregroundColor: appPalette(context).textPrimary,
-          toolbarHeight: 38,
-          centerTitle: true,
-          title: const Text('Statistics',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
-          leading: IconButton(
+      appBar: AppPageHeader(
+          icon: Icons.bar_chart,
+          title: const Text('Statistics'),
+          leading: AppPageBackButton(
               key: const Key('stats.back'),
-              tooltip: 'Back',
-              icon: const Icon(Icons.arrow_back),
               onPressed: () => Navigator.of(context).pop())),
       body: SingleChildScrollView(
           padding: const EdgeInsets.all(20),

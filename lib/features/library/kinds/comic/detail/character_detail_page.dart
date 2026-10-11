@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_page_header.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:collectarr_app/state/api_provider.dart';
 import 'package:collectarr_app/features/library/kinds/comic/data/comic_catalog_browse_api.dart';
@@ -42,9 +43,8 @@ class CharacterDetailPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final detail = ref.watch(_characterDetailProvider(characterName));
     return Scaffold(
-      appBar: AppBar(
-        title: Text(characterName),
-      ),
+      appBar:
+          AppPageHeader(icon: Icons.person_outline, title: Text(characterName)),
       body: detail.when(
         loading: () => const AppLoadingIndicator(),
         error: (error, _) => AppErrorCard(

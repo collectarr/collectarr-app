@@ -1,10 +1,10 @@
+import 'package:collectarr_app/ui/app_page_header.dart';
 import 'package:collectarr_app/features/collection/csv/collection_csv_models.dart';
 import 'package:collectarr_app/features/collection/csv/csv_mechanics.dart';
 import 'package:collectarr_app/features/collection/providers/collection_mutation_providers.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/config/library_kind_style.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
-import 'package:collectarr_app/ui/library_accent_scope.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:file_selector/file_selector.dart';
 import 'package:flutter/material.dart';
@@ -137,7 +137,7 @@ class _LibraryImportDataPageState extends ConsumerState<LibraryImportDataPage> {
     final accent = libraryAccentForKind(widget.type.kind);
 
     final active = _activeSource;
-    final String pageTitle = switch (active?.id) {
+    final pageTitle = switch (active?.id) {
       null => 'Import Data',
       'text' => 'Import from CSV / TXT File',
       _ => 'Import from ${active!.title}',
@@ -145,54 +145,13 @@ class _LibraryImportDataPageState extends ConsumerState<LibraryImportDataPage> {
 
     return Scaffold(
       backgroundColor: palette.surface,
-      appBar: AppBar(
-        leading: TextButton.icon(
-          key: const Key('import_data.back'),
-          style: TextButton.styleFrom(
-            foregroundColor: Colors.white,
-            padding: const EdgeInsets.symmetric(horizontal: 12),
+      appBar: AppPageHeader(
+          icon: Icons.file_upload_outlined,
+          leading: AppPageBackButton(
+            key: const Key('import_data.back'),
+            onPressed: _navigateBack,
           ),
-          icon: const Icon(Icons.arrow_back, color: Colors.white, size: 16),
-          label: const Text(
-            'Back',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 14,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          onPressed: _navigateBack,
-        ),
-        leadingWidth: 90,
-        title: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            SvgPicture.asset(
-              'assets/sidebar_icons/file-import.svg',
-              width: 18,
-              height: 18,
-              colorFilter:
-                  const ColorFilter.mode(Colors.white, BlendMode.srcIn),
-            ),
-            const SizedBox(width: 8),
-            Text(
-              pageTitle,
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ],
-        ),
-        backgroundColor: libraryAccentChromeFallbackColor(accent),
-        foregroundColor: Colors.white,
-        surfaceTintColor: Colors.transparent,
-        flexibleSpace: LibraryAccentChrome(
-          accent: accent,
-          animationDuration: Duration.zero,
-        ),
-      ),
+          title: Text(pageTitle)),
       body: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
         child: Center(

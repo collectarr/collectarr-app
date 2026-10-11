@@ -154,7 +154,7 @@ class MediaLibraryTitleBar extends ConsumerWidget {
         child: LayoutBuilder(
           builder: (context, constraints) {
             final titleWidth = _headerTitleWidth(
-              labels: [type.pluralLabel],
+              labels: [libraryNavLabel(type)],
               maxWidth: constraints.maxWidth,
             );
             return Padding(
@@ -171,7 +171,7 @@ class MediaLibraryTitleBar extends ConsumerWidget {
                         alignment: Alignment.centerLeft,
                         child: _MediaLibraryTitle(
                           icon: icon,
-                          label: type.pluralLabel,
+                          label: libraryNavLabel(type),
                         ),
                       ),
                     ),

@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_page_header.dart';
 import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
 import 'package:collectarr_app/features/library/detail/library_detail_page.dart';
@@ -36,30 +37,20 @@ Future<void> showAdaptiveItemDetail({
           accent: accent,
           animationsEnabled: true,
           child: Scaffold(
-            appBar: AppBar(
-              title: Text(
-                title,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: Theme.of(pageContext)
-                    .textTheme
-                    .libraryDetailTitle
-                    .copyWith(fontWeight: FontWeight.w700),
-              ),
-              leading: IconButton(
-                icon: const Icon(Icons.arrow_back),
-                tooltip: 'Back',
-                onPressed: () => Navigator.of(pageContext).pop(),
-              ),
-              actions: [
-                if (onEdit != null)
-                  IconButton(
-                    icon: const Icon(Icons.edit_outlined),
-                    tooltip: 'Edit item',
-                    onPressed: () => onEdit(libraryEntrySummary),
-                  ),
-              ],
-            ),
+            appBar: AppPageHeader(
+                icon: Icons.info_outline,
+                title:
+                    Text(title, maxLines: 1, overflow: TextOverflow.ellipsis),
+                leading: AppPageBackButton(
+                    onPressed: () => Navigator.of(pageContext).pop()),
+                actions: [
+                  if (onEdit != null)
+                    IconButton(
+                      icon: const Icon(Icons.edit_outlined),
+                      tooltip: 'Edit item',
+                      onPressed: () => onEdit(libraryEntrySummary),
+                    ),
+                ]),
             body: LibraryDetailPage(
               type: type,
               item: item,

@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_page_header.dart';
 import 'ebay_search_preferences.dart';
 import 'package:collectarr_app/features/settings/library_layout_setting.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_tokens.dart';
@@ -152,8 +153,6 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     final accentScope = LibraryAccentScope.maybeOf(context);
     final accent = accentScope?.accent ??
         libraryAccentForKind(catalogMediaKindFromValue(selectedLibraryKind));
-    final animationDuration = accentScope?.data.animationDuration ??
-        (uiPreferences.animationsEnabled ? kAppAnimNormal : Duration.zero);
     final isAndroidPlatform =
         Theme.of(context).platform == TargetPlatform.android;
     _syncTextControllers(settings);
@@ -180,20 +179,10 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
         data: buildLibraryAccentTheme(Theme.of(context), accent),
         child: Scaffold(
           backgroundColor: appManagementCanvasColor(context),
-          appBar: AppBar(
-            leading: _buildBackButton(context),
-            title:
-                const Text('Settings', style: TextStyle(color: Colors.white)),
-            foregroundColor: Colors.white,
-            iconTheme: const IconThemeData(color: Colors.white),
-            backgroundColor: libraryAccentChromeFallbackColor(accent),
-            surfaceTintColor: Colors.transparent,
-            flexibleSpace: LibraryAccentChrome(
-              key: ValueKey(accent),
-              accent: accent,
-              animationDuration: animationDuration,
-            ),
-          ),
+          appBar: AppPageHeader(
+              icon: Icons.settings_outlined,
+              leading: _buildBackButton(context),
+              title: const Text('Settings')),
           body: ListView.separated(
             padding: const EdgeInsets.symmetric(vertical: 8),
             itemCount: SettingsSection.values.length,
@@ -214,27 +203,10 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                         data: buildLibraryAccentTheme(Theme.of(ctx), accent),
                         child: Scaffold(
                           backgroundColor: appManagementCanvasColor(context),
-                          appBar: AppBar(
-                            leading: const BackButton(
-                              color: Colors.white,
-                              style: ButtonStyle(
-                                backgroundColor:
-                                    WidgetStatePropertyAll(Colors.transparent),
-                              ),
-                            ),
-                            title: Text(section.title,
-                                style: const TextStyle(color: Colors.white)),
-                            foregroundColor: Colors.white,
-                            iconTheme: const IconThemeData(color: Colors.white),
-                            backgroundColor:
-                                libraryAccentChromeFallbackColor(accent),
-                            surfaceTintColor: Colors.transparent,
-                            flexibleSpace: LibraryAccentChrome(
-                              key: ValueKey(accent),
-                              accent: accent,
-                              animationDuration: animationDuration,
-                            ),
-                          ),
+                          appBar: AppPageHeader(
+                              icon: Icons.settings_outlined,
+                              leading: AppPageBackButton(),
+                              title: Text(section.title)),
                           body: buildSection(section),
                         ),
                       ),
@@ -256,36 +228,26 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
         length: SettingsSection.values.length,
         child: Scaffold(
           backgroundColor: appManagementCanvasColor(context),
-          appBar: AppBar(
-            leading: _buildBackButton(context),
-            title:
-                const Text('Settings', style: TextStyle(color: Colors.white)),
-            foregroundColor: Colors.white,
-            iconTheme: const IconThemeData(color: Colors.white),
-            backgroundColor: libraryAccentChromeFallbackColor(accent),
-            surfaceTintColor: Colors.transparent,
-            flexibleSpace: LibraryAccentChrome(
-              key: ValueKey(accent),
-              accent: accent,
-              animationDuration: animationDuration,
-            ),
-            bottom: TabBar(
-              isScrollable: true,
-              tabAlignment: TabAlignment.start,
-              labelColor: Colors.white,
-              unselectedLabelColor: Colors.white70,
-              indicatorColor: Colors.white,
-              tabs: SettingsSection.values
-                  .map((s) => Tab(
-                      height: 36,
-                      child: Row(mainAxisSize: MainAxisSize.min, children: [
-                        Icon(s.icon, size: 16),
-                        const SizedBox(width: 6),
-                        Text(s.title)
-                      ])))
-                  .toList(),
-            ),
-          ),
+          appBar: AppPageHeader(
+              icon: Icons.settings_outlined,
+              leading: _buildBackButton(context),
+              title: const Text('Settings'),
+              bottom: TabBar(
+                isScrollable: true,
+                tabAlignment: TabAlignment.start,
+                labelColor: appPalette(context).textPrimary,
+                unselectedLabelColor: appPalette(context).textSecondary,
+                indicatorColor: accent,
+                tabs: SettingsSection.values
+                    .map((s) => Tab(
+                        height: 36,
+                        child: Row(mainAxisSize: MainAxisSize.min, children: [
+                          Icon(s.icon, size: 16),
+                          const SizedBox(width: 6),
+                          Text(s.title)
+                        ])))
+                    .toList(),
+              )),
           body: TabBarView(
             children: SettingsSection.values.map(buildSection).toList(),
           ),
@@ -295,16 +257,12 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
   }
 
   Widget _buildBackButton(BuildContext context) {
-    return IconButton(
-      key: const Key('settings.back'),
-      tooltip: 'Back to library',
-      style: IconButton.styleFrom(
-        foregroundColor: Colors.white,
-        backgroundColor: Colors.transparent,
-      ),
-      onPressed: () => context.go(AppRoutes.libraries),
-      icon: const Icon(Icons.arrow_back, color: Colors.white),
-    );
+    return AppPageBackButton(
+        key: const Key('settings.back'),
+        onPressed: () => context.go(AppRoutes.forKind(
+            AppRoutes.libraries,
+            LibraryAccentScope.maybeOf(context)?.kind ??
+                ref.read(selectedLibraryKindProvider))));
   }
 
   Widget _buildSectionContent({

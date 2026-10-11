@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_page_header.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
@@ -90,8 +91,9 @@ class _LibraryLinkItemsPageState extends ConsumerState<LibraryLinkItemsPage> {
         data:
             libraryAccentTheme(context, libraryAccentForKind(widget.type.kind)),
         child: Scaffold(
-          appBar:
-              AppBar(title: Text('Link ${widget.type.identity.pluralLabel}')),
+          appBar: AppPageHeader(
+              icon: Icons.link,
+              title: Text('Link ${widget.type.identity.pluralLabel}')),
           body: LayoutBuilder(builder: (context, constraints) {
             final entries = _unlinked;
             final list = ListView(children: [

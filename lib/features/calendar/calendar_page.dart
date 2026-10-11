@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_page_header.dart';
 import 'dart:async';
 import 'dart:convert';
 import 'dart:typed_data';
@@ -149,38 +150,32 @@ class _CalendarPageState extends ConsumerState<CalendarPage> {
   @override
   Widget build(BuildContext context) {
     final accent = LibraryAccentScope.accentOf(context);
-    final animationDuration = LibraryAccentScope.animationDurationOf(context);
     final eventsAsync = ref.watch(calendarEventsProvider);
     final windowClass = AppWindowClass.of(context);
     final effectiveMode = _effectiveViewMode(windowClass);
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Calendar'),
-        backgroundColor: libraryAccentChromeFallbackColor(accent),
-        surfaceTintColor: Colors.transparent,
-        flexibleSpace: LibraryAccentChrome(
-          accent: accent,
-          animationDuration: animationDuration,
-        ),
-        actions: [
-          IconButton(
-            tooltip: 'Activity',
-            onPressed: () => context.push(AppRoutes.activity),
-            icon: const Icon(Icons.timeline_outlined),
-          ),
-          IconButton(
-            tooltip: 'Export to calendar (.ics)',
-            onPressed: () => unawaited(_exportIcs()),
-            icon: const Icon(Icons.ios_share_outlined),
-          ),
-          IconButton(
-            tooltip: 'Today',
-            onPressed: _goToToday,
-            icon: const Icon(Icons.today),
-          ),
-        ],
-      ),
+      appBar: AppPageHeader(
+          icon: Icons.calendar_month_outlined,
+          title: const Text('Calendar'),
+          actions: [
+            IconButton(
+              tooltip: 'Activity',
+              onPressed: () => context.push(AppRoutes.forKind(
+                  AppRoutes.activity, LibraryAccentScope.of(context).kind)),
+              icon: const Icon(Icons.timeline_outlined),
+            ),
+            IconButton(
+              tooltip: 'Export to calendar (.ics)',
+              onPressed: () => unawaited(_exportIcs()),
+              icon: const Icon(Icons.ios_share_outlined),
+            ),
+            IconButton(
+              tooltip: 'Today',
+              onPressed: _goToToday,
+              icon: const Icon(Icons.today),
+            ),
+          ]),
       body: eventsAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (e, _) => Center(child: Text('Error: $e')),

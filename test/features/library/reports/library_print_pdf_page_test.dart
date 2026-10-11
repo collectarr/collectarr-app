@@ -80,7 +80,7 @@ void main() {
 
     // Header
     expect(find.text('Print to PDF'), findsOneWidget);
-    expect(find.byIcon(Icons.arrow_back), findsOneWidget);
+    expect(find.byKey(const Key('print_pdf.back')), findsOneWidget);
 
     // Section 1: Subset
     expect(find.text('Which Albums'), findsOneWidget);

@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_page_header.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
@@ -387,22 +388,16 @@ class _LoanManagerPageState extends ConsumerState<LoanManagerPage> {
       ..sort();
     return Scaffold(
       backgroundColor: appManagementCanvasColor(context),
-      appBar: AppBar(
-        toolbarHeight: 38,
-        centerTitle: true,
-        title: const Text('Loan Manager',
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
-        backgroundColor: appManagementPanelColor(context),
-        foregroundColor: appPalette(context).textPrimary,
-        surfaceTintColor: Colors.transparent,
-        actions: [
-          IconButton(
-            tooltip: 'Refresh loans',
-            onPressed: _load,
-            icon: const Icon(Icons.refresh),
-          ),
-        ],
-      ),
+      appBar: AppPageHeader(
+          icon: Icons.people_outline,
+          title: const Text('Loan Manager'),
+          actions: [
+            IconButton(
+              tooltip: 'Refresh loans',
+              onPressed: _load,
+              icon: const Icon(Icons.refresh),
+            ),
+          ]),
       body: _loading
           ? const Center(child: CircularProgressIndicator())
           : RefreshIndicator(

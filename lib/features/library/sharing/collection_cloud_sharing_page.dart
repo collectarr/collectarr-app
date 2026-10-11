@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_page_header.dart';
 import 'package:collectarr_app/features/library/collections/library_collection_repository.dart';
 import 'package:collectarr_app/features/library/config/library_kind_style.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
@@ -170,7 +171,8 @@ class _CollectionCloudSharingPageState
         data:
             libraryAccentTheme(context, libraryAccentForKind(widget.type.kind)),
         child: Scaffold(
-            appBar: AppBar(title: const Text('Cloud Sharing')),
+            appBar: AppPageHeader(
+                icon: Icons.cloud_outlined, title: const Text('Cloud Sharing')),
             body: ListView(padding: const EdgeInsets.all(20), children: [
               const Text(
                   'Partial makes the collection public without personal fields. Private sharing links are optional. Save publishes the current collection snapshot.'),

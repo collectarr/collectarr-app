@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_page_header.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/tv/provider/tv_seasons_provider.dart';
@@ -202,23 +203,20 @@ class _TvShelfDrilldownShell extends StatelessWidget {
     final palette = appPalette(context);
     return Scaffold(
       backgroundColor: palette.canvas,
-      appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: onBack,
-        ),
-        title: Text(titleItem.dto.primaryLabel),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            onPressed: onRefreshFromCore,
-          ),
-          IconButton(
-            icon: const Icon(Icons.info_outline),
-            onPressed: onOpenTitleDetails,
-          ),
-        ],
-      ),
+      appBar: AppPageHeader(
+          icon: Icons.tv,
+          leading: AppPageBackButton(onPressed: onBack),
+          title: Text(titleItem.dto.primaryLabel),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.refresh),
+              onPressed: onRefreshFromCore,
+            ),
+            IconButton(
+              icon: const Icon(Icons.info_outline),
+              onPressed: onOpenTitleDetails,
+            ),
+          ]),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

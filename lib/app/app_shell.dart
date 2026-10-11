@@ -11,7 +11,6 @@ import 'package:collectarr_app/features/library/collections/library_collection_r
 import 'package:collectarr_app/features/library/home/home_catalog.dart';
 import 'package:collectarr_app/features/library/home/home_kind_menu.dart';
 import 'package:collectarr_app/features/library/home/home_nav_models.dart';
-import 'package:collectarr_app/features/library/home/home_top_nav.dart';
 import 'package:collectarr_app/features/library/duplicates/library_find_duplicates_page.dart';
 import 'package:collectarr_app/features/library/keyboard/library_keyboard_shortcuts.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
@@ -44,9 +43,10 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 
 class AppShell extends ConsumerStatefulWidget {
-  const AppShell({super.key, required this.navigationShell});
+  const AppShell({super.key, required this.child, required this.routeUri});
 
-  final StatefulNavigationShell navigationShell;
+  final Widget child;
+  final Uri routeUri;
 
   @override
   ConsumerState<AppShell> createState() => _AppShellState();
@@ -56,14 +56,8 @@ class _AppShellState extends ConsumerState<AppShell> {
   bool _didRequestInitialOnlineFirstSync = false;
   int _drawerRequestSequence = 0;
 
-  /// Branch indices in the GoRouter StatefulShellRoute:
-  /// 0 = libraries, 1 = shelf, 2 = loans, 3 = calendar, 4 = admin, 5 = settings
-  static const _branchLibraries = 0;
-  static const _branchShelf = 1;
-  static const _branchLoans = 2;
-  static const _branchCalendar = 3;
-  static const _branchAdmin = 4;
-  static const _branchSettings = 5;
+  BuildContext get _pageContext =>
+      appPageNavigatorKey.currentState?.overlay?.context ?? context;
 
   @override
   void initState() {
@@ -86,9 +80,8 @@ class _AppShellState extends ConsumerState<AppShell> {
         );
     final navPreferences = ref.watch(libraryNavPreferencesProvider);
     final libraryTypes = selectableLibraryHomeTypes(catalog, navPreferences);
-    final selectedKind =
-        GoRouterState.of(context).uri.queryParameters['kind'] ??
-            ref.watch<String>(selectedLibraryKindProvider);
+    final selectedKind = widget.routeUri.queryParameters['kind'] ??
+        ref.watch<String>(selectedLibraryKindProvider);
     final activeLibrary = selectedLibraryHomeType(
       libraryTypes,
       canonicalLibraryNavKind(selectedKind) ?? selectedKind,
@@ -111,95 +104,85 @@ class _AppShellState extends ConsumerState<AppShell> {
       accent: accent,
       animationsEnabled: uiPreferences.animationsEnabled,
       child: Scaffold(
-        appBar: widget.navigationShell.currentIndex == _branchSettings
-            ? null
-            : AppBar(
-                toolbarHeight: 40,
-                automaticallyImplyLeading: false,
-                leadingWidth: 44,
-                leading: Builder(
-                  builder: (context) => IconButton(
-                    key: const Key('app.open-navigation'),
-                    tooltip: 'Open navigation',
-                    visualDensity: VisualDensity.compact,
-                    style: toolbarIconStyle,
-                    onPressed: () => Scaffold.of(context).openDrawer(),
-                    icon: const Icon(Icons.menu),
-                  ),
-                ),
-                titleSpacing: 2,
-                title: const Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    ClipRRect(
-                      borderRadius: BorderRadius.all(Radius.circular(5)),
-                      child: Image(
-                        key: Key('app.brand-logo'),
-                        image: AssetImage('web/icons/Icon-maskable-192.png'),
-                        width: 23,
-                        height: 23,
-                        fit: BoxFit.cover,
-                      ),
-                    ),
-                    SizedBox(width: 7),
-                    Text('Collectarr'),
-                  ],
-                ),
-                backgroundColor: libraryAccentChromeFallbackColor(accent),
-                foregroundColor: Colors.white,
-                surfaceTintColor: Colors.transparent,
-                elevation: 0,
-                scrolledUnderElevation: 0,
-                titleTextStyle: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 16,
-                  fontWeight: FontWeight.w800,
-                  letterSpacing: 0.2,
-                ),
-                iconTheme: const IconThemeData(color: Colors.white, size: 19),
-                flexibleSpace: LibraryAccentChrome(
-                  accent: accent,
-                  animationDuration: uiPreferences.animationsEnabled
-                      ? kAppAnimNormal
-                      : Duration.zero,
-                ),
-                actions: [
-                  LibraryOverdueLoansAction(
-                    selectedKind: activeLibrary,
-                    selectedLabel: activeType.identity.pluralLabel,
-                  ),
-                  MediaLibraryKindMenu(
-                    types: libraryTypes,
-                    registry: defaultLibraryKindRegistry,
-                    onSelected: (type) {
-                      ref
-                          .read(selectedLibraryKindProvider.notifier)
-                          .select(type.kind);
-                      final libraryUri = Uri(
-                        path: '/libraries',
-                        queryParameters: {'kind': type.kind},
-                      );
-                      context.go(libraryUri.toString());
-                    },
-                  ),
-                  SyncActionButton(style: toolbarIconStyle),
-                  IconButton(
-                    key: const Key('nav.settings'),
-                    tooltip: 'Settings',
-                    visualDensity: VisualDensity.compact,
-                    style: toolbarIconStyle,
-                    onPressed: () => widget.navigationShell.goBranch(
-                      _branchSettings,
-                      initialLocation: widget.navigationShell.currentIndex ==
-                          _branchSettings,
-                    ),
-                    icon: const Icon(Icons.settings_outlined),
-                  ),
-                  const SizedBox(width: 4),
-                ],
-              ),
+        appBar: AppBar(
+          toolbarHeight: 40,
+          automaticallyImplyLeading: false,
+          leadingWidth: 44,
+          leading: Builder(
+            builder: (context) => IconButton(
+              key: const Key('app.open-navigation'),
+              tooltip: 'Open navigation',
+              visualDensity: VisualDensity.compact,
+              style: toolbarIconStyle,
+              onPressed: () => Scaffold.of(context).openDrawer(),
+              icon: const Icon(Icons.menu),
+            ),
+          ),
+          titleSpacing: 2,
+          title: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(activeType.identity.icon,
+                  key: const Key('app.kind-icon'),
+                  size: 23,
+                  color: Colors.white),
+              const SizedBox(width: 7),
+              Flexible(
+                  child: Text(
+                      'COLLECTARR ${activeType.identity.title.toUpperCase()}',
+                      key: const Key('app.brand-title'),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis)),
+            ],
+          ),
+          backgroundColor: libraryAccentChromeFallbackColor(accent),
+          foregroundColor: Colors.white,
+          surfaceTintColor: Colors.transparent,
+          elevation: 0,
+          scrolledUnderElevation: 0,
+          titleTextStyle: const TextStyle(
+            color: Colors.white,
+            fontSize: 16,
+            fontWeight: FontWeight.w800,
+            letterSpacing: 0.2,
+          ),
+          iconTheme: const IconThemeData(color: Colors.white, size: 19),
+          flexibleSpace: LibraryAccentChrome(
+            accent: accent,
+            animationDuration: uiPreferences.animationsEnabled
+                ? kAppAnimNormal
+                : Duration.zero,
+          ),
+          actions: [
+            MediaLibraryKindMenu(
+              types: libraryTypes,
+              registry: defaultLibraryKindRegistry,
+              onSelected: (type) {
+                ref
+                    .read(selectedLibraryKindProvider.notifier)
+                    .select(type.kind);
+                final libraryUri = Uri(
+                  path: '/libraries',
+                  queryParameters: {'kind': type.kind},
+                );
+                context.go(libraryUri.toString());
+              },
+            ),
+            SyncActionButton(style: toolbarIconStyle),
+            IconButton(
+              key: const Key('nav.settings'),
+              tooltip: 'Settings',
+              visualDensity: VisualDensity.compact,
+              style: toolbarIconStyle,
+              onPressed: () => context
+                  .go(AppRoutes.forKind(AppRoutes.settings, activeLibrary)),
+              icon: const Icon(Icons.settings_outlined),
+            ),
+            const SizedBox(width: 4),
+          ],
+        ),
         drawer: AppNavigationDrawer(
-          currentBranch: widget.navigationShell.currentIndex,
+          currentPath: widget.routeUri.path,
           isAdmin: auth.isAdmin,
           accent: accent,
           addLabel: 'Add ${activeType.identity.pluralLabel} from Core',
@@ -223,7 +206,7 @@ class _AppShellState extends ConsumerState<AppShell> {
                   ? kAppAnimNormal
                   : Duration.zero,
               curve: Curves.easeOutCubic,
-              child: widget.navigationShell,
+              child: widget.child,
             ),
             const SyncStatusOverlay(),
           ],
@@ -247,9 +230,10 @@ class _AppShellState extends ConsumerState<AppShell> {
     required LibraryKindRegistration type,
     required Color accent,
   }) {
+    final context = _pageContext;
     switch (action) {
       case DrawerAction.addFromCore:
-        showLibraryAddDialog(context: context, type: type, accent: accent);
+        unawaited(_openCoreAdd(type, accent));
         return;
       case DrawerAction.managePickLists:
         showPickListManagerDialog(
@@ -268,9 +252,6 @@ class _AppShellState extends ConsumerState<AppShell> {
         return;
       case DrawerAction.manageCollections:
         unawaited(_showManageCollections(type));
-        return;
-      case DrawerAction.openShelf:
-        _goToBranch(_AppShellState._branchShelf);
         return;
       case DrawerAction.printToPdf:
         _withShelf((shelf) {
@@ -330,16 +311,16 @@ class _AppShellState extends ConsumerState<AppShell> {
             context: context, accent: accent, kind: type.kind);
         return;
       case DrawerAction.settings:
-        _goToSettingsSection(SettingsSection.appearance);
+        _goToSettingsSection(SettingsSection.appearance, type.kind);
         return;
       case DrawerAction.libraries:
-        _goToBranch(_AppShellState._branchLibraries);
+        context.go(AppRoutes.forKind(AppRoutes.libraries, type.kind.apiValue));
         return;
       case DrawerAction.calendar:
-        _goToBranch(_AppShellState._branchCalendar);
+        context.go(AppRoutes.forKind(AppRoutes.calendar, type.kind.apiValue));
         return;
       case DrawerAction.admin:
-        _goToBranch(_AppShellState._branchAdmin);
+        context.go(AppRoutes.forKind(AppRoutes.admin, type.kind.apiValue));
         return;
       case DrawerAction.reassignIndex:
       case DrawerAction.transferFieldData:
@@ -347,7 +328,7 @@ class _AppShellState extends ConsumerState<AppShell> {
         return;
       case DrawerAction.backupRestore:
       case DrawerAction.clearDatabase:
-        _goToSettingsSection(SettingsSection.data);
+        _goToSettingsSection(SettingsSection.data, type.kind);
         return;
       case DrawerAction.exportCsv:
         _withShelf((shelf) {
@@ -395,17 +376,20 @@ class _AppShellState extends ConsumerState<AppShell> {
   }
 
   Future<void> _showManageCollections(LibraryKindRegistration type) async {
-    await showLibraryCollectionsDialog(context, kind: type.kind.apiValue);
+    await showLibraryCollectionsDialog(_pageContext, kind: type.kind.apiValue);
     if (mounted) {
       ref.invalidate(libraryCollectionsProvider);
     }
   }
 
-  void _goToBranch(int branch) {
-    widget.navigationShell.goBranch(
-      branch,
-      initialLocation: branch == widget.navigationShell.currentIndex,
-    );
+  Future<void> _openCoreAdd(LibraryKindRegistration type, Color accent) async {
+    context.go(Uri(
+        path: AppRoutes.libraries,
+        queryParameters: {'kind': type.kind.apiValue}).toString());
+    await WidgetsBinding.instance.endOfFrame;
+    if (!mounted) return;
+    await showLibraryAddDialog(
+        context: _pageContext, type: type, accent: accent);
   }
 
   void _openLibraryTool(DrawerAction action, LibraryKindRegistration type) {
@@ -416,8 +400,9 @@ class _AppShellState extends ConsumerState<AppShell> {
     }).toString());
   }
 
-  void _goToSettingsSection(SettingsSection section) {
-    context.go('${AppRoutes.settings}?section=${section.name}');
+  void _goToSettingsSection(SettingsSection section, CatalogMediaKind kind) {
+    context.go(AppRoutes.forKind(AppRoutes.settings, kind.apiValue,
+        parameters: {'section': section.name}));
   }
 
   Future<void> _withShelf(
@@ -494,7 +479,6 @@ enum DrawerAction {
   addFromCore,
   managePickLists,
   manageCollections,
-  openShelf,
   printToPdf,
   statistics,
   findDuplicates,
@@ -520,14 +504,14 @@ enum DrawerAction {
 class AppNavigationDrawer extends StatefulWidget {
   const AppNavigationDrawer({
     super.key,
-    required this.currentBranch,
+    required this.currentPath,
     required this.isAdmin,
     required this.accent,
     required this.addLabel,
     required this.onSelected,
   });
 
-  final int currentBranch;
+  final String currentPath;
   final bool isAdmin;
   final Color accent;
   final String addLabel;
@@ -622,18 +606,10 @@ class _AppNavigationDrawerState extends State<AppNavigationDrawer> {
                   ),
                   _action(
                     context,
-                    'My Shelf',
-                    'assets/sidebar_icons/rectangle-list.svg',
-                    DrawerAction.openShelf,
-                    branch: _AppShellState._branchShelf,
-                    key: const Key('nav.shelf'),
-                  ),
-                  _action(
-                    context,
                     'Libraries',
                     'assets/sidebar_icons/table-cells-large.svg',
                     DrawerAction.libraries,
-                    branch: _AppShellState._branchLibraries,
+                    destination: AppRoutes.libraries,
                     key: const Key('nav.library'),
                   ),
                   const _DrawerDivider(),
@@ -661,7 +637,7 @@ class _AppNavigationDrawerState extends State<AppNavigationDrawer> {
                     'Loan Manager',
                     'assets/sidebar_icons/clock.svg',
                     DrawerAction.loanManager,
-                    branch: _AppShellState._branchLoans,
+                    destination: AppRoutes.loans,
                     key: const Key('nav.more'),
                   ),
                   _action(
@@ -669,7 +645,7 @@ class _AppNavigationDrawerState extends State<AppNavigationDrawer> {
                     'Calendar',
                     'assets/sidebar_icons/calendar-days.svg',
                     DrawerAction.calendar,
-                    branch: _AppShellState._branchCalendar,
+                    destination: AppRoutes.calendar,
                     key: const Key('nav.calendar'),
                   ),
                   if (widget.isAdmin) ...[
@@ -683,7 +659,7 @@ class _AppNavigationDrawerState extends State<AppNavigationDrawer> {
                       'Admin',
                       'assets/sidebar_icons/shield-halved.svg',
                       DrawerAction.admin,
-                      branch: _AppShellState._branchAdmin,
+                      destination: AppRoutes.admin,
                     ),
                   ],
                   const _DrawerDivider(),
@@ -714,7 +690,7 @@ class _AppNavigationDrawerState extends State<AppNavigationDrawer> {
                     'Settings',
                     'assets/sidebar_icons/gear.svg',
                     DrawerAction.settings,
-                    branch: _AppShellState._branchSettings,
+                    destination: AppRoutes.settings,
                   ),
                   const _DrawerDivider(),
                   _DrawerCollapsibleSectionLabel(
@@ -826,11 +802,11 @@ class _AppNavigationDrawerState extends State<AppNavigationDrawer> {
     String label,
     String svgAsset,
     DrawerAction action, {
-    int? branch,
+    String? destination,
     Key? key,
   }) {
     final palette = appPalette(context);
-    final selected = branch == widget.currentBranch;
+    final selected = destination == widget.currentPath;
     final itemColor = selected
         ? widget.accent
         : (palette.isDark ? Colors.white : palette.textPrimary);

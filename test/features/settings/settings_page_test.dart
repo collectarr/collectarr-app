@@ -133,7 +133,7 @@ void main() {
     expect(find.text('Personal sync service'), findsOneWidget);
 
     // Back to root
-    await tester.tap(find.byType(BackButton));
+    await tester.tap(find.text('Back'));
     await pumpUntilSettled(tester);
 
     // Tap into Appearance

@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_page_header.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:collectarr_app/features/library/kinds/book/data/book_author_repository.dart';
 import 'package:collectarr_app/state/api_provider.dart';
@@ -48,7 +49,8 @@ class BookAuthorDetailPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final detail = ref.watch(_bookAuthorDetailProvider(authorName));
     return Scaffold(
-      appBar: AppBar(title: Text(authorName)),
+      appBar:
+          AppPageHeader(icon: Icons.person_outline, title: Text(authorName)),
       body: detail.when(
         loading: () => const AppLoadingIndicator(),
         error: (error, _) => AppErrorCard(

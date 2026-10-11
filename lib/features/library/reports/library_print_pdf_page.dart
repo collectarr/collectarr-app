@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_page_header.dart';
 import 'dart:typed_data';
 
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
@@ -5,7 +6,6 @@ import 'package:collectarr_app/features/library/config/library_entry_helpers.dar
 import 'package:collectarr_app/features/library/config/library_kind_style.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
-import 'package:collectarr_app/ui/library_accent_scope.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:pdf/pdf.dart';
@@ -304,40 +304,12 @@ class _LibraryPrintPdfPageState extends State<LibraryPrintPdfPage> {
 
     return Scaffold(
       backgroundColor: palette.surface,
-      appBar: AppBar(
-        leading: IconButton(
-          key: const Key('print_pdf.back'),
-          tooltip: 'Back',
-          style: IconButton.styleFrom(
-            foregroundColor: Colors.white,
-            backgroundColor: Colors.transparent,
-          ),
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () => Navigator.of(context).pop(),
-        ),
-        title: const Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(Icons.print_outlined, color: Colors.white, size: 20),
-            SizedBox(width: 8),
-            Text(
-              'Print to PDF',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ],
-        ),
-        backgroundColor: libraryAccentChromeFallbackColor(accent),
-        foregroundColor: Colors.white,
-        surfaceTintColor: Colors.transparent,
-        flexibleSpace: LibraryAccentChrome(
-          accent: accent,
-          animationDuration: Duration.zero,
-        ),
-      ),
+      appBar: AppPageHeader(
+          icon: Icons.print_outlined,
+          leading: AppPageBackButton(
+              key: const Key('print_pdf.back'),
+              onPressed: () => Navigator.of(context).pop()),
+          title: const Text('Print to PDF')),
       body: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
         child: Center(

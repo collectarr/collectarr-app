@@ -2,7 +2,6 @@ import 'package:collectarr_app/features/activity/global_activity_page.dart';
 import 'package:collectarr_app/features/admin/admin_page.dart';
 import 'package:collectarr_app/features/auth/auth_page.dart';
 import 'package:collectarr_app/features/calendar/calendar_page.dart';
-import 'package:collectarr_app/features/collection/collection_page.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/features/loans/loan_manager_page.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
@@ -13,6 +12,7 @@ import 'package:collectarr_app/features/library/kinds/registry/library_kind_cont
 import 'package:collectarr_app/features/settings/settings_page.dart';
 import 'package:collectarr_app/state/auth_provider.dart';
 import 'package:collectarr_app/app/app_shell.dart';
+import 'package:collectarr_app/ui/app_page_header.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -25,10 +25,13 @@ abstract final class AppRoutes {
   static const auth = '/auth';
   static const restoring = '/restoring';
   static const libraries = '/libraries';
-  static const shelf = '/shelf';
   static const loans = '/loans';
+  static String forKind(String path, String kind,
+          {Map<String, String> parameters = const {}}) =>
+      Uri(path: path, queryParameters: {...parameters, 'kind': kind})
+          .toString();
   static String loansForKind(CatalogMediaKind kind) =>
-      Uri(path: loans, queryParameters: {'kind': kind.apiValue}).toString();
+      forKind(loans, kind.apiValue);
   static const calendar = '/calendar';
   static const activity = '/activity';
   static const admin = '/admin';
@@ -39,6 +42,8 @@ abstract final class AppRoutes {
 // ---------------------------------------------------------------------------
 // Router provider
 // ---------------------------------------------------------------------------
+
+final appPageNavigatorKey = GlobalKey<NavigatorState>();
 
 final appRouterProvider = Provider<GoRouter>((ref) {
   final notifier = _AuthChangeNotifier(ref);
@@ -76,122 +81,95 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const CollectarrRestoreScreen(),
       ),
 
-      // Main shell with tabs.
-      StatefulShellRoute.indexedStack(
-        builder: (context, state, navigationShell) {
-          return AppShell(navigationShell: navigationShell);
-        },
-        branches: [
-          StatefulShellBranch(
-            routes: [
-              GoRoute(
-                path: AppRoutes.libraries,
-                builder: (context, state) =>
-                    LibraryHomePage(routeUri: state.uri),
-              ),
-            ],
+      ShellRoute(
+        navigatorKey: appPageNavigatorKey,
+        builder: (context, state, child) => AppShell(
+          routeUri: state.uri,
+          child: child,
+        ),
+        routes: [
+          GoRoute(
+            path: AppRoutes.libraries,
+            builder: (context, state) => LibraryHomePage(routeUri: state.uri),
           ),
-          StatefulShellBranch(
-            routes: [
-              GoRoute(
-                path: AppRoutes.shelf,
-                builder: (context, state) => CollectionPage(
-                  showOverdueOnly:
-                      state.uri.queryParameters['filter'] == 'overdue',
-                  initialWizardIndex: int.tryParse(
-                    state.uri.queryParameters['wizard'] ?? '',
-                  ),
-                  wizardRequest: state.uri.queryParameters['request'],
-                ),
-              ),
-            ],
+          GoRoute(
+            path: AppRoutes.loans,
+            builder: (context, state) => LoanManagerPage(
+              kind: state.uri.queryParameters['kind'] == null
+                  ? null
+                  : catalogMediaKindFromApiValue(
+                      state.uri.queryParameters['kind']!),
+            ),
           ),
-          StatefulShellBranch(
-            routes: [
-              GoRoute(
-                path: AppRoutes.loans,
-                builder: (context, state) => LoanManagerPage(
-                    kind: state.uri.queryParameters['kind'] == null
-                        ? null
-                        : catalogMediaKindFromApiValue(
-                            state.uri.queryParameters['kind']!)),
-              ),
-            ],
+          GoRoute(
+            path: AppRoutes.calendar,
+            builder: (context, state) => const CalendarPage(),
           ),
-          StatefulShellBranch(
-            routes: [
-              GoRoute(
-                path: AppRoutes.calendar,
-                builder: (context, state) => const CalendarPage(),
-              ),
-            ],
+          GoRoute(
+            path: AppRoutes.admin,
+            builder: (context, state) => const AdminPage(),
           ),
-          StatefulShellBranch(
-            routes: [
-              GoRoute(
-                path: AppRoutes.admin,
-                builder: (context, state) => const AdminPage(),
+          GoRoute(
+            path: AppRoutes.settings,
+            builder: (context, state) => SettingsPage(
+              initialSection: settingsSectionFromRouteValue(
+                state.uri.queryParameters['section'],
               ),
-            ],
+            ),
           ),
-          StatefulShellBranch(
-            routes: [
-              GoRoute(
-                path: AppRoutes.settings,
-                builder: (context, state) => SettingsPage(
-                  initialSection: settingsSectionFromRouteValue(
-                    state.uri.queryParameters['section'],
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-
-      // Detail pages (outside shell Ã¢â‚¬â€ full-screen push).
-      GoRoute(
-        path: AppRoutes.detail,
-        redirect: (context, state) {
-          return state.extra is LibraryDetailPageRequest
-              ? null
-              : AppRoutes.libraries;
-        },
-        pageBuilder: (context, state) {
-          final request = state.extra as LibraryDetailPageRequest?;
-          final Widget child;
-          if (request == null) {
-            child = LibraryHomePage(routeUri: state.uri);
-          } else {
-            final builder = libraryInspectorForKind(request.type.kind)
-                    .detailPageBuilderForTarget(request.item.target) ??
-                _buildDefaultDetailPage;
-            child = builder(context, request);
-          }
-          return CustomTransitionPage<void>(
-            key: state.pageKey,
-            child: child,
-            transitionDuration: const Duration(milliseconds: 150),
-            reverseTransitionDuration: const Duration(milliseconds: 120),
-            transitionsBuilder:
-                (context, animation, secondaryAnimation, child) {
-              return FadeTransition(
-                opacity: CurvedAnimation(
-                  parent: animation,
-                  curve: Curves.easeOutCubic,
-                  reverseCurve: Curves.easeInCubic,
-                ),
-                child: child,
+          // Full-page item details retain the shared application chrome.
+          GoRoute(
+            path: AppRoutes.detail,
+            redirect: (context, state) {
+              return state.extra is LibraryDetailPageRequest
+                  ? null
+                  : AppRoutes.libraries;
+            },
+            pageBuilder: (context, state) {
+              final request = state.extra as LibraryDetailPageRequest?;
+              final Widget child;
+              if (request == null) {
+                child = LibraryHomePage(routeUri: state.uri);
+              } else {
+                final builder = libraryInspectorForKind(request.type.kind)
+                        .detailPageBuilderForTarget(request.item.target) ??
+                    _buildDefaultDetailPage;
+                child = builder(context, request);
+              }
+              return CustomTransitionPage<void>(
+                key: state.pageKey,
+                child: request == null
+                    ? child
+                    : Scaffold(
+                        appBar: AppPageHeader(
+                          title: Text(request.item.source.title),
+                          icon: request.type.identity.icon,
+                        ),
+                        body: child,
+                      ),
+                transitionDuration: const Duration(milliseconds: 150),
+                reverseTransitionDuration: const Duration(milliseconds: 120),
+                transitionsBuilder:
+                    (context, animation, secondaryAnimation, child) {
+                  return FadeTransition(
+                    opacity: CurvedAnimation(
+                      parent: animation,
+                      curve: Curves.easeOutCubic,
+                      reverseCurve: Curves.easeInCubic,
+                    ),
+                    child: child,
+                  );
+                },
               );
             },
-          );
-        },
+          ),
+          GoRoute(
+            path: AppRoutes.activity,
+            builder: (context, state) => const GlobalActivityPage(),
+          ),
+          ...collectarrKindRoutes,
+        ],
       ),
-      GoRoute(
-        path: AppRoutes.activity,
-        builder: (context, state) => const GlobalActivityPage(),
-      ),
-      ...collectarrKindRoutes,
     ],
   );
 });

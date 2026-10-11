@@ -10,6 +10,9 @@ import 'package:collectarr_app/features/library/providers/media_catalog_provider
 import 'package:collectarr_app/state/auth_provider.dart';
 import 'package:collectarr_app/features/sync/state/sync_controller.dart';
 import 'package:collectarr_app/app/app_shell.dart';
+import 'package:collectarr_app/features/library/add/library_add_dialog.dart';
+import 'package:collectarr_app/features/library/home/home_page.dart';
+import 'package:collectarr_app/ui/app_page_header.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
@@ -104,6 +107,94 @@ void main() {
 
   group('App Mandatory Destination Smoke Tests', () {
     testWidgets(
+        'direct Music settings route retains kind when returning to library',
+        (tester) async {
+      _mockAuthPreferences();
+      tester.view.physicalSize = kDesktopTestSize;
+      tester.view.devicePixelRatio = kDesktopTestDPR;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+      await tester.pumpWidget(_smokeApp(overrides: _testOverrides()));
+      await pumpUntilSettled(tester);
+      final container =
+          ProviderScope.containerOf(tester.element(find.byType(AppShell)));
+      final router = container.read(appRouterProvider);
+      router.go('/settings?kind=music');
+      await pumpUntilSettled(tester);
+      expect(find.text('COLLECTARR MUSIC'), findsOneWidget);
+      await tester.tap(find.byKey(const Key('settings.back')));
+      await pumpUntilSettled(tester);
+      expect(
+          router.routeInformationProvider.value.uri.path, AppRoutes.libraries);
+      expect(router.routeInformationProvider.value.uri.queryParameters['kind'],
+          'music');
+      expect(find.text('COLLECTARR MUSIC'), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets(
+        'Music header persists on pushed tools and Core add returns to library',
+        (tester) async {
+      _mockAuthPreferences();
+      tester.view.physicalSize = kDesktopTestSize;
+      tester.view.devicePixelRatio = kDesktopTestDPR;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+      await tester.pumpWidget(_smokeApp(overrides: _testOverrides()));
+      await pumpUntilSettled(tester);
+      final container =
+          ProviderScope.containerOf(tester.element(find.byType(AppShell)));
+      final router = container.read(appRouterProvider);
+      router.go('/libraries?kind=music');
+      await pumpUntilSettled(tester);
+      expect(find.text('COLLECTARR MUSIC'), findsOneWidget);
+      final kindIcon =
+          tester.widget<Icon>(find.byKey(const Key('app.kind-icon')));
+      expect(kindIcon.icon, Icons.music_note);
+      expect(kindIcon.color, Colors.white);
+
+      await tester.tap(find.byKey(const Key('nav.library-kind-picker')));
+      await pumpUntilSettled(tester);
+      expect(find.text('Music'), findsOneWidget);
+      expect(find.text('Albums'), findsNothing);
+      await tester.tap(find.text('Music'));
+      await pumpUntilSettled(tester);
+
+      await tester.tap(find.byKey(const Key('nav.settings')));
+      await pumpUntilSettled(tester);
+      expect(find.text('COLLECTARR MUSIC'), findsOneWidget);
+      expect(find.byType(AppPageHeader), findsOneWidget);
+      await tester.tap(find.byKey(const Key('app.open-navigation')));
+      await pumpUntilSettled(tester);
+      await tester.tap(find.text('Print to PDF'));
+      await pumpUntilSettled(tester);
+      expect(find.text('COLLECTARR MUSIC'), findsOneWidget);
+      expect(find.byKey(const Key('nav.library-kind-picker')), findsOneWidget);
+      expect(find.byKey(const Key('nav.settings')), findsOneWidget);
+      expect(find.byType(AppPageHeader), findsOneWidget);
+      await tester.tap(find.byKey(const Key('print_pdf.back')));
+      await pumpUntilSettled(tester);
+      expect(
+          router.routeInformationProvider.value.uri.path, AppRoutes.settings);
+
+      await tester.tap(find.byKey(const Key('app.open-navigation')));
+      await pumpUntilSettled(tester);
+      expect(find.text('My Shelf'), findsNothing);
+      await tester.tap(find.text('Add Albums from Core'));
+      await pumpUntilSettled(tester);
+      expect(
+          router.routeInformationProvider.value.uri.path, AppRoutes.libraries);
+      expect(router.routeInformationProvider.value.uri.queryParameters['kind'],
+          'music');
+      expect(find.byType(LibraryAddDialog), findsOneWidget);
+      Navigator.of(tester.element(find.byType(LibraryAddDialog))).pop();
+      await pumpUntilSettled(tester);
+      expect(find.byType(LibraryHomePage), findsOneWidget);
+      expect(find.text('COLLECTARR MUSIC'), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets(
         'desktop smoke: can navigate through all mandatory destinations',
         (tester) async {
       _mockAuthPreferences();
@@ -120,7 +211,7 @@ void main() {
 
       expect(find.byType(AppShell), findsOneWidget);
       expect(find.byKey(const Key('app.open-navigation')), findsOneWidget);
-      expect(find.byKey(const Key('app.brand-logo')), findsOneWidget);
+      expect(find.byKey(const Key('app.kind-icon')), findsOneWidget);
       expect(find.byKey(const Key('nav.settings')), findsOneWidget);
 
       Future<void> openDrawer() async {
@@ -130,12 +221,13 @@ void main() {
 
       await openDrawer();
       expect(find.byKey(const Key('nav.library')), findsOneWidget);
-      expect(find.byKey(const Key('nav.shelf')), findsOneWidget);
+      expect(find.byKey(const Key('nav.shelf')), findsNothing);
+      expect(find.text('My Shelf'), findsNothing);
       expect(find.byKey(const Key('nav.more')), findsOneWidget);
       expect(find.byKey(const Key('nav.calendar')), findsOneWidget);
 
-      // Navigate to Shelf
-      await tester.tap(find.byKey(const Key('nav.shelf')));
+      // Navigate to the library
+      await tester.tap(find.byKey(const Key('nav.library')));
       await pumpUntilSettled(tester);
       expect(find.byType(AppShell), findsOneWidget);
 
@@ -194,10 +286,11 @@ void main() {
       await tester.tap(find.byKey(const Key('app.open-navigation')));
       await pumpUntilSettled(tester);
       expect(find.byKey(const Key('nav.library')), findsOneWidget);
-      expect(find.byKey(const Key('nav.shelf')), findsOneWidget);
+      expect(find.byKey(const Key('nav.shelf')), findsNothing);
+      expect(find.text('My Shelf'), findsNothing);
 
-      // Navigate to Shelf via drawer
-      await tester.tap(find.byKey(const Key('nav.shelf')));
+      // Navigate to the library via drawer
+      await tester.tap(find.byKey(const Key('nav.library')));
       await pumpUntilSettled(tester);
       expect(find.byType(AppShell), findsOneWidget);
 

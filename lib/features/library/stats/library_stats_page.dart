@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_page_header.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/config/library_kind_style.dart';
@@ -39,46 +40,17 @@ class LibraryStatsPage extends StatelessWidget {
               child: customPage));
     }
 
-    final accent = libraryAccentForKind(type.kind);
     final colors = libraryStatsColors(context);
     final palette = appPalette(context);
 
     return Scaffold(
       backgroundColor: colors.canvas,
-      appBar: AppBar(
-        leading: IconButton(
-          key: const Key('stats.back'),
-          tooltip: 'Back',
-          style: IconButton.styleFrom(
-            foregroundColor: Colors.white,
-            backgroundColor: Colors.transparent,
-          ),
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () => Navigator.of(context).pop(),
-        ),
-        title: const Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(Icons.bar_chart, color: Colors.white, size: 20),
-            SizedBox(width: 8),
-            Text(
-              'Statistics',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ],
-        ),
-        backgroundColor: libraryAccentChromeFallbackColor(accent),
-        foregroundColor: Colors.white,
-        surfaceTintColor: Colors.transparent,
-        flexibleSpace: LibraryAccentChrome(
-          accent: accent,
-          animationDuration: Duration.zero,
-        ),
-      ),
+      appBar: AppPageHeader(
+          icon: Icons.bar_chart,
+          leading: AppPageBackButton(
+              key: const Key('stats.back'),
+              onPressed: () => Navigator.of(context).pop()),
+          title: const Text('Statistics')),
       body: LayoutBuilder(
         builder: (context, constraints) {
           final isWide = constraints.maxWidth >= 900;

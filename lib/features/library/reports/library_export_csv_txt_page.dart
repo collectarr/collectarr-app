@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_page_header.dart';
 import 'dart:convert';
 import 'package:collectarr_app/core/platform/save_export_file.dart';
 
@@ -6,11 +7,9 @@ import 'package:collectarr_app/features/library/config/library_entry_helpers.dar
 import 'package:collectarr_app/features/library/config/library_kind_style.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
-import 'package:collectarr_app/ui/library_accent_scope.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 
 enum ExportSubset { all, currentList, checkboxed }
 
@@ -430,46 +429,12 @@ class _LibraryExportCsvTxtPageState extends State<LibraryExportCsvTxtPage> {
 
     return Scaffold(
       backgroundColor: palette.surface,
-      appBar: AppBar(
-        leading: IconButton(
-          key: const Key('export_csv_txt.back'),
-          tooltip: 'Back',
-          style: IconButton.styleFrom(
-            foregroundColor: Colors.white,
-            backgroundColor: Colors.transparent,
-          ),
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () => Navigator.of(context).pop(),
-        ),
-        title: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            SvgPicture.asset(
-              'assets/sidebar_icons/file-export.svg',
-              width: 18,
-              height: 18,
-              colorFilter:
-                  const ColorFilter.mode(Colors.white, BlendMode.srcIn),
-            ),
-            const SizedBox(width: 8),
-            const Text(
-              'Export to CSV / TXT',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ],
-        ),
-        backgroundColor: libraryAccentChromeFallbackColor(accent),
-        foregroundColor: Colors.white,
-        surfaceTintColor: Colors.transparent,
-        flexibleSpace: LibraryAccentChrome(
-          accent: accent,
-          animationDuration: Duration.zero,
-        ),
-      ),
+      appBar: AppPageHeader(
+          icon: Icons.file_download_outlined,
+          leading: AppPageBackButton(
+              key: const Key('export_csv_txt.back'),
+              onPressed: () => Navigator.of(context).pop()),
+          title: const Text('Export to CSV / TXT')),
       body: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
         child: Center(

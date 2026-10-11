@@ -2,6 +2,7 @@ import 'package:collectarr_app/core/api/dto/media_catalog.dart';
 import 'package:collectarr_app/features/library/config/library_kind_style.dart';
 import 'package:collectarr_app/features/library/home/home_catalog.dart';
 import 'package:collectarr_app/features/library/home/home_counts.dart';
+import 'package:collectarr_app/features/library/home/home_nav_models.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/ui/library_accent_scope.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
@@ -57,7 +58,7 @@ class CompactLibraryKindPicker extends StatelessWidget {
               const SizedBox(width: 6),
               Flexible(
                 child: Text(
-                  selected.pluralLabel,
+                  libraryNavLabel(selected),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
@@ -159,7 +160,7 @@ class CompactLibraryKindPicker extends StatelessWidget {
                           size: 20,
                         ),
                         title: Text(
-                          itemType.pluralLabel,
+                          libraryNavLabel(itemType),
                           style: TextStyle(
                             fontSize: 14,
                             fontWeight:

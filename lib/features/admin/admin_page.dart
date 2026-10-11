@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_page_header.dart';
 import 'dart:async';
 import 'dart:convert';
 
@@ -35,7 +36,6 @@ import 'package:collectarr_app/state/auth_provider.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:collectarr_app/ui/compact_search_dropdown_form_field.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
-import 'package:collectarr_app/ui/library_accent_scope.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/ui/accent_alert_dialog.dart';
@@ -109,8 +109,6 @@ class _AdminPageState extends ConsumerState<AdminPage> {
 
   @override
   Widget build(BuildContext context) {
-    final accent = LibraryAccentScope.accentOf(context);
-    final animationDuration = LibraryAccentScope.animationDurationOf(context);
     final isAdmin = ref.watch(authControllerProvider).isAdmin;
 
     final tabs = <Tab>[
@@ -137,20 +135,14 @@ class _AdminPageState extends ConsumerState<AdminPage> {
     return DefaultTabController(
       length: tabs.length,
       child: Scaffold(
-        appBar: AppBar(
-          title: Text(isAdmin ? 'Admin' : 'Manage'),
-          backgroundColor: libraryAccentChromeFallbackColor(accent),
-          surfaceTintColor: Colors.transparent,
-          flexibleSpace: LibraryAccentChrome(
-            accent: accent,
-            animationDuration: animationDuration,
-          ),
-          bottom: TabBar(
-            isScrollable: true,
-            tabAlignment: TabAlignment.start,
-            tabs: tabs,
-          ),
-        ),
+        appBar: AppPageHeader(
+            icon: Icons.admin_panel_settings_outlined,
+            title: Text(isAdmin ? 'Admin' : 'Manage'),
+            bottom: TabBar(
+              isScrollable: true,
+              tabAlignment: TabAlignment.start,
+              tabs: tabs,
+            )),
         body: TabBarView(children: tabViews),
       ),
     );

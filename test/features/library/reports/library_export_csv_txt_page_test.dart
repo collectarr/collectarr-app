@@ -81,7 +81,7 @@ void main() {
     // Header checks
     expect(find.text('Export to CSV / TXT'), findsOneWidget);
     expect(find.text('Export albums to CSV / TXT: Albums'), findsOneWidget);
-    expect(find.byIcon(Icons.arrow_back), findsOneWidget);
+    expect(find.byKey(const Key('export_csv_txt.back')), findsOneWidget);
 
     // Section: Which Albums
     expect(find.text('Which Albums'), findsOneWidget);

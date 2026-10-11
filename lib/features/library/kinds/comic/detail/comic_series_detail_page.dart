@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_page_header.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/library_relation_node.dart';
@@ -40,9 +41,8 @@ class ComicSeriesDetailPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final detail = ref.watch(_comicSeriesDetailProvider(seriesId));
     return Scaffold(
-      appBar: AppBar(
-        title: Text(seriesTitle),
-      ),
+      appBar: AppPageHeader(
+          icon: Icons.collections_bookmark_outlined, title: Text(seriesTitle)),
       body: detail.when(
         loading: () => const AppLoadingIndicator(),
         error: (error, _) => AppErrorCard(
