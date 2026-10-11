@@ -1,0 +1,205 @@
+{
+  "catalog": {
+    "id": "657cf11a-3fa8-577d-9d36-20280ec4aca4",
+    "kind": "music",
+    "revision": 1,
+    "title": "Collectarr Inspector Reference",
+    "sort_title": "Collectarr Inspector Reference",
+    "subtitle": "Deluxe Edition",
+    "artist": "Powerwolf",
+    "artist_credits": [
+      {
+        "id": "a4b59466-6ce1-583d-8625-b113ab7aa0d8",
+        "name": "Powerwolf",
+        "sort_name": "Powerwolf",
+        "join_phrase": "",
+        "sequence": 1
+      }
+    ],
+    "original_release_date": {
+      "year": 2024,
+      "month": 5,
+      "day": 21
+    },
+    "release_date": {
+      "year": 2026,
+      "month": 2,
+      "day": 18
+    },
+    "label": "Metal Blade Records",
+    "barcode": "039842503912",
+    "catalog_number": "UI-REF-2026",
+    "genres": [
+      "Heavy Metal",
+      "Rock"
+    ],
+    "packaging": "Gatefold",
+    "country": "Germany",
+    "extra": [
+      "Booklet",
+      "Poster"
+    ],
+    "box_set": "Reference Collection",
+    "credits": [
+      {
+        "id": "2e4d43cd-9a46-5df6-9f9a-98030802b2ce",
+        "name": "John Reference",
+        "sort_name": "John Reference",
+        "role": "Producer",
+        "instruments": [],
+        "sequence": 1
+      },
+      {
+        "id": "9531db83-e4d9-5165-acb4-c02856f7a2a5",
+        "name": "Alex Reference",
+        "sort_name": "Alex Reference",
+        "role": "Engineer",
+        "instruments": [],
+        "sequence": 2
+      },
+      {
+        "id": "e65322b3-9534-5c37-a7e7-587175e224f8",
+        "name": "Taylor Reference",
+        "sort_name": "Taylor Reference",
+        "role": "Songwriter",
+        "instruments": [],
+        "sequence": 3
+      },
+      {
+        "id": "5bd1187c-0ebb-504c-96f1-81797af3e4ad",
+        "name": "Clara Reference",
+        "sort_name": "Clara Reference",
+        "role": "Composer",
+        "instruments": [],
+        "sequence": 4
+      },
+      {
+        "id": "63393a3e-76ed-5c94-a297-e80595ed14fd",
+        "name": "Reference Choir",
+        "sort_name": "Reference Choir",
+        "role": "Chorus",
+        "instruments": [],
+        "sequence": 5
+      },
+      {
+        "id": "b21fea53-cc37-5e04-a188-41275ca33ffa",
+        "name": "Reference Orchestra",
+        "sort_name": "Reference Orchestra",
+        "role": "Orchestra",
+        "instruments": [],
+        "sequence": 6
+      },
+      {
+        "id": "b561afda-6bb9-50e3-b2e3-b05534a6eee1",
+        "name": "Morgan Reference",
+        "sort_name": "Morgan Reference",
+        "role": "Musician",
+        "instruments": [
+          "Guitar"
+        ],
+        "sequence": 7
+      }
+    ],
+    "external_links": [
+      {
+        "url": "https://example.com/inspector-reference",
+        "title": "Reference page",
+        "description": "Edition information"
+      }
+    ],
+    "cover_image_url": "http://127.0.0.1:8770/music-inspector-front.png",
+    "back_cover_image_url": "http://127.0.0.1:8770/music-inspector-back.png",
+    "thumbnail_image_url": "http://127.0.0.1:8770/music-inspector-front.png",
+    "discs": [
+      {
+        "id": "67b2ec11-56f0-5cb5-bcbf-7235015ea317",
+        "disc_number": 1,
+        "title": "Original album",
+        "format_family": "vinyl",
+        "format": "Vinyl",
+        "sound_types": [
+          "Stereo"
+        ],
+        "recording_date": {
+          "year": 2024,
+          "month": 2,
+          "day": 18
+        },
+        "recording_locations": [
+          "Abbey Road"
+        ],
+        "is_live": false,
+        "spars_code": "DDD",
+        "credits": [
+          {
+            "id": "153bbeed-5549-59d1-bc78-0d161c45bbec",
+            "name": "Jane Reference",
+            "sort_name": "Jane Reference",
+            "role": "Conductor",
+            "instruments": [],
+            "sequence": 1
+          }
+        ],
+        "tracks": [
+          {
+            "id": "4bc46d7c-f05c-5245-8910-c4a8167cde4d",
+            "position": "1",
+            "position_order": 1,
+            "title": "Reference Overture",
+            "artist": "Powerwolf",
+            "composition": "Reference Work",
+            "duration_ms": 255000,
+            "is_header": false,
+            "parent_header_id": null,
+            "indent_level": 0
+          }
+        ],
+        "color": "Red",
+        "vinyl_weight_grams": 180,
+        "rpm": "45",
+        "matrix_number_side_a": "REF-A",
+        "matrix_number_side_b": "REF-B"
+      }
+    ]
+  },
+  "entry_id": "beba4847-5ae5-550a-bde8-1109394ec355",
+  "personal": {
+    "quantity": 2,
+    "rating": 8,
+    "media_condition": "Near Mint",
+    "is_digital": false,
+    "condition": "Very Good",
+    "grade": "NM",
+    "purchase_date": "2026-01-15T00:00:00.000Z",
+    "purchase_date_parts": {
+      "year": 2026,
+      "month": 1,
+      "day": 15
+    },
+    "price_paid_cents": 4599,
+    "currency": "SGD",
+    "personal_notes": "Inspector reference with all supported fields populated.",
+    "index_number": 101,
+    "tags": "Reference | Deluxe",
+    "owner_label": "Audit Owner",
+    "purchase_store": "Reference Records",
+    "collection_status": "in_collection",
+    "market_value_cents": 6500,
+    "signed_by": "Powerwolf",
+    "last_cleaned_date": "2026-02-01T00:00:00.000Z",
+    "last_cleaned_date_parts": {
+      "year": 2026,
+      "month": 2,
+      "day": 1
+    },
+    "media": [
+      {
+        "disc_id": "67b2ec11-56f0-5cb5-bcbf-7235015ea317",
+        "storage_device": "Record Cabinet",
+        "storage_slot": "Shelf 1"
+      }
+    ]
+  },
+  "created_at": "2026-01-15T12:00:00Z",
+  "updated_at": "2026-02-18T12:00:00Z"
+}
