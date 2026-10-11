@@ -405,7 +405,6 @@ class _ToolbarSearchScopeButtonState extends State<_ToolbarSearchScopeButton> {
       child: PopupMenuButton<LibrarySearchTarget>(
         key: const ValueKey('library-search-target-button'),
         tooltip: 'Search scope',
-        initialValue: widget.selected,
         onSelected: widget.onSelected,
         padding: EdgeInsets.zero,
         position: PopupMenuPosition.under,
@@ -414,9 +413,8 @@ class _ToolbarSearchScopeButtonState extends State<_ToolbarSearchScopeButton> {
         color: menuBackground,
         surfaceTintColor: Colors.transparent,
         elevation: 6,
-        menuPadding: const EdgeInsets.symmetric(vertical: 5),
+        menuPadding: EdgeInsets.zero,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(4),
           side: BorderSide(color: menuBorder),
         ),
         itemBuilder: (context) => [
@@ -424,7 +422,7 @@ class _ToolbarSearchScopeButtonState extends State<_ToolbarSearchScopeButton> {
             PopupMenuItem<LibrarySearchTarget>(
               value: option,
               height: 26,
-              padding: const EdgeInsets.symmetric(horizontal: 20),
+              padding: const EdgeInsets.symmetric(horizontal: 7),
               child: Row(
                 children: [
                   _librarySearchTargetIcon(option, palette.textPrimary),

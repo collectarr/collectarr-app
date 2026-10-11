@@ -83,7 +83,6 @@ class LibraryCollectionStatusScopeDropdown extends StatelessWidget {
       child: PopupMenuButton<LibraryCollectionStatusScope>(
         key: const Key('collection-status-scope-dropdown'),
         tooltip: 'Collection status scope',
-        initialValue: collectionStatusScope,
         onSelected: onCollectionStatusScopeChanged,
         padding: EdgeInsets.zero,
         menuPadding: EdgeInsets.zero,
@@ -96,12 +95,12 @@ class LibraryCollectionStatusScopeDropdown extends StatelessWidget {
           minWidth: 0,
           maxWidth: double.infinity,
         ).copyWith(minWidth: menuWidth, maxWidth: menuWidth),
-        shape: RoundedRectangleBorder(side: BorderSide(color: palette.divider)),
+        shape: libraryToolbarDropdownMenuShape(context),
         itemBuilder: (context) => [
           for (final scope in LibraryCollectionStatusScope.values)
             PopupMenuItem<LibraryCollectionStatusScope>(
               value: scope,
-              height: 24,
+              height: 26,
               padding: const EdgeInsets.symmetric(horizontal: 8),
               child: LibraryCollectionStatusScopeMenuItem(
                 scope: scope,
@@ -249,17 +248,12 @@ class LibraryToolbarSortButton extends StatelessWidget {
                 ? 'Sort favorites'
                 : 'Sort favorites: ${activeFavorite.label}',
             padding: EdgeInsets.zero,
-            color: Color.alphaBlend(
-              palette.accent.withValues(alpha: 0.025),
-              palette.panelRaised,
-            ),
+            color: libraryToolbarMenuSurface(context),
             surfaceTintColor: Colors.transparent,
             shadowColor: Colors.black.withValues(alpha: 0.22),
-            menuPadding: const EdgeInsets.symmetric(vertical: 2),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(4),
-              side: BorderSide(color: palette.divider.withValues(alpha: 0.9)),
-            ),
+            menuPadding: EdgeInsets.zero,
+            position: PopupMenuPosition.under,
+            shape: libraryToolbarDropdownMenuShape(context),
             onSelected: (value) {
               if (value == libraryManageSortFavoritesMenuValue) {
                 onManageFavoritesPressed?.call();
@@ -966,9 +960,9 @@ class LibraryCollectionStatusScopeMenuItem extends StatelessWidget {
         Expanded(
             child: Text(scope.label,
                 style: TextStyle(
-                  fontSize: 13,
+                  fontSize: 14,
                   height: 1,
-                  fontWeight: FontWeight.w600,
+                  fontWeight: FontWeight.w400,
                   color: textColor,
                 ))),
       ]);
@@ -1068,6 +1062,7 @@ class LibraryToolbarAlphabetRow extends StatelessWidget {
                     for (final label in ['All', ...alphabet])
                       PopupMenuItem(
                           value: label,
+                          height: 30,
                           enabled: label == 'All' || available.contains(label),
                           child: Text(label,
                               style: TextStyle(
@@ -1158,7 +1153,7 @@ class _AlphabetLetterButtonState extends State<_AlphabetLetterButton> {
 
     return SizedBox(
       width: widget.width,
-      height: 24,
+      height: 26,
       child: MouseRegion(
         cursor: canTap ? SystemMouseCursors.click : SystemMouseCursors.basic,
         onEnter: (_) => setState(() => _hovered = true),

@@ -243,7 +243,13 @@ void main() {
     expect(find.byKey(const ValueKey('library-column-split-button')),
         findsOneWidget);
     expect(find.byType(LibraryDenseSplitButton<Object>), findsOneWidget);
-    expect(find.text('Essential'), findsOneWidget);
+    expect(find.text('Essential'), findsNothing);
+    expect(
+        tester
+            .widget<LibraryDenseSplitButton<Object>>(
+                find.byType(LibraryDenseSplitButton<Object>))
+            .iconOnly,
+        isTrue);
 
     final splitButton = tester.widget<LibraryDenseSplitButton<Object>>(
       find.byType(LibraryDenseSplitButton<Object>),

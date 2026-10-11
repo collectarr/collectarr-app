@@ -5,6 +5,31 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
+  testWidgets('status menu stays below its trigger for a late selected status',
+      (tester) async {
+    var selected = LibraryCollectionStatusScope.sold;
+    await tester.pumpWidget(MaterialApp(
+      home: Scaffold(
+          body: Padding(
+        padding: const EdgeInsets.only(top: 120),
+        child: LibraryCollectionStatusScopeDropdown(
+          collectionStatusScope: selected,
+          onCollectionStatusScopeChanged: (value) => selected = value,
+        ),
+      )),
+    ));
+    final trigger = find.byKey(const Key('collection-status-scope-dropdown'));
+    final triggerBottom = tester.getRect(trigger).bottom;
+    await tester.tap(trigger);
+    await tester.pumpAndSettle();
+    expect(tester.getRect(find.text('All')).top,
+        greaterThanOrEqualTo(triggerBottom));
+    await tester.tapAt(const Offset(700, 550));
+    await tester.pumpAndSettle();
+    expect(find.text('All'), findsNothing);
+    expect(selected, LibraryCollectionStatusScope.sold);
+    expect(tester.takeException(), isNull);
+  });
   testWidgets('narrow alphabet keeps All on one line and scrolls to Z',
       (tester) async {
     String? selected;

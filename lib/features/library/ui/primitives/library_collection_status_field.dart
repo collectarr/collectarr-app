@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_dropdown_menu.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'package:collectarr_app/features/library/config/library_dialog_tokens.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_collection_status_icon.dart';
@@ -21,17 +22,17 @@ List<PopupMenuEntry<LibraryCollectionStatusScope>>
           LibraryCollectionStatusScope status) =>
       PopupMenuItem(
           value: status,
-          height: 32,
+          height: 26,
           padding: const EdgeInsets.symmetric(horizontal: 8),
           child: Row(children: [
-            LibraryCollectionStatusIcon(collectionStatus: status, size: 24),
+            LibraryCollectionStatusIcon(collectionStatus: status, size: 20),
             const SizedBox(width: 8),
             Expanded(
                 child: Text(status.label,
                     style: TextStyle(
                         color: appPalette(context).textPrimary,
                         fontSize: 14,
-                        fontWeight: FontWeight.w500)))
+                        fontWeight: FontWeight.w400)))
           ]));
   return [
     heading('Collection'),
@@ -64,6 +65,11 @@ class LibraryCollectionStatusField extends StatelessWidget {
           builder: (context, constraints) =>
               PopupMenuButton<LibraryCollectionStatusScope>(
             tooltip: 'Choose collection status',
+            position: PopupMenuPosition.under,
+            color: appDropdownMenuSurface(context),
+            shape: appDropdownMenuShape(context),
+            surfaceTintColor: Colors.transparent,
+            menuPadding: EdgeInsets.zero,
             constraints: BoxConstraints(minWidth: constraints.maxWidth),
             itemBuilder: libraryCollectionStatusMenuItems,
             onSelected: (value) =>
@@ -78,7 +84,7 @@ class LibraryCollectionStatusField extends StatelessWidget {
                     )),
                 child: Row(children: [
                   LibraryCollectionStatusIcon(
-                      collectionStatus: status, size: 24),
+                      collectionStatus: status, size: 20),
                   const SizedBox(width: 8),
                   Expanded(child: Text(status.label)),
                   const Icon(Icons.arrow_drop_down, size: 20),

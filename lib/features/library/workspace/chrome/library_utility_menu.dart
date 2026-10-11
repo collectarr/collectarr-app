@@ -1,3 +1,5 @@
+import 'library_workspace_menus.dart';
+import 'package:collectarr_app/ui/library_accent_scope.dart';
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_tokens.dart';
 
@@ -105,6 +107,9 @@ class LibraryUtilityMenu<T> extends StatelessWidget {
       child: PopupMenuButton<Object>(
         tooltip: tooltip,
         padding: EdgeInsets.zero,
+        color: libraryToolbarMenuSurface(context),
+        shape: libraryToolbarDropdownMenuShape(context),
+        menuPadding: EdgeInsets.zero,
         surfaceTintColor: Colors.transparent,
         position: PopupMenuPosition.under,
         onSelected: _handleSelected,
@@ -116,6 +121,7 @@ class LibraryUtilityMenu<T> extends StatelessWidget {
 
   List<PopupMenuEntry<Object>> _buildMenuItems(BuildContext context) {
     final items = <PopupMenuEntry<Object>>[];
+    final accent = LibraryAccentScope.accentOf(context);
 
     if (quickViews.isNotEmpty) {
       items.add(_buildSectionHeader(quickViewsLabel));
@@ -124,18 +130,16 @@ class LibraryUtilityMenu<T> extends StatelessWidget {
           PopupMenuItem<Object>(
             value: _LibraryUtilityQuickViewSelection<T>(view.value),
             height: kLibraryToolbarPopupItemHeight,
-            child: Material(
-              type: MaterialType.transparency,
-              child: ListTile(
-                dense: true,
-                minLeadingWidth: 18,
-                horizontalTitleGap: 8,
-                leading: Icon(view.icon, size: 18),
-                title: Text(view.label, style: const TextStyle(fontSize: 13)),
-                trailing: selectedQuickView == view.value
-                    ? const Icon(Icons.check, size: 16)
-                    : null,
-              ),
+            padding: const EdgeInsets.symmetric(horizontal: 7),
+            child: LibraryWorkspaceMenuRow(
+              padding: EdgeInsets.zero,
+              label: view.label,
+              leading: Icon(view.icon, size: 16),
+              trailing: selectedQuickView == view.value
+                  ? Icon(Icons.check, size: 16, color: accent)
+                  : null,
+              textStyle:
+                  const TextStyle(fontSize: 14, fontWeight: FontWeight.w400),
             ),
           ),
         );
@@ -161,24 +165,27 @@ class LibraryUtilityMenu<T> extends StatelessWidget {
           enabled: action.enabled && action.onSelected != null,
           height:
               action.description == null ? kLibraryToolbarPopupItemHeight : 42,
-          child: Material(
-            type: MaterialType.transparency,
-            child: ListTile(
-              dense: true,
-              minLeadingWidth: 18,
-              horizontalTitleGap: 8,
-              leading: Icon(action.icon, size: 18),
-              title: Text(action.label, style: const TextStyle(fontSize: 13)),
-              subtitle: action.description == null
-                  ? null
-                  : Text(
-                      action.description!,
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            fontSize: 13,
-                          ),
-                    ),
-              trailing: action.trailing,
-            ),
+          padding: const EdgeInsets.symmetric(horizontal: 7),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              LibraryWorkspaceMenuRow(
+                padding: EdgeInsets.zero,
+                label: action.label,
+                leading: Icon(action.icon, size: 16),
+                trailing: action.trailing,
+                textStyle:
+                    const TextStyle(fontSize: 14, fontWeight: FontWeight.w400),
+              ),
+              if (action.description != null)
+                Padding(
+                    padding: const EdgeInsets.only(left: 24),
+                    child: Text(action.description!,
+                        style: TextStyle(
+                            fontSize: 12,
+                            color: libraryToolbarMenuMutedText(context)))),
+            ],
           ),
         ),
       );

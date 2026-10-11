@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/library_accent_scope.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_workspace_chrome.dart';
@@ -5,7 +6,7 @@ import 'package:flutter/material.dart';
 
 const _viewModeDropdownKey = Key('library-view-mode-dropdown');
 const _detailsLayoutDropdownKey = Key('library-details-layout-dropdown');
-const _viewModeDropdownHeight = 36.0;
+const _viewModeDropdownHeight = 30.0;
 
 class LibraryViewModeDropdown extends StatelessWidget {
   const LibraryViewModeDropdown({
@@ -21,6 +22,7 @@ class LibraryViewModeDropdown extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final accent = LibraryAccentScope.accentOf(context);
     final menuText = libraryToolbarMenuText(context);
     final menuMuted = libraryToolbarMenuMutedText(context);
     final dropdownTextStyle = Theme.of(context).textTheme.bodyMedium?.copyWith(
@@ -44,12 +46,11 @@ class LibraryViewModeDropdown extends StatelessWidget {
       child: PopupMenuButton<LibraryViewMode>(
         key: _viewModeDropdownKey,
         tooltip: _viewModeTooltip(viewMode),
-        initialValue: viewMode,
         onSelected: onChanged,
         padding: EdgeInsets.zero,
         color: libraryToolbarMenuSurface(context),
         surfaceTintColor: Colors.transparent,
-        menuPadding: const EdgeInsets.symmetric(vertical: 4),
+        menuPadding: EdgeInsets.zero,
         position: PopupMenuPosition.under,
         constraints: const BoxConstraints(
           minWidth: 0,
@@ -60,9 +61,10 @@ class LibraryViewModeDropdown extends StatelessWidget {
           for (final mode in LibraryViewMode.values)
             PopupMenuItem<LibraryViewMode>(
               height: _viewModeDropdownHeight,
-              padding: const EdgeInsets.symmetric(horizontal: 10),
+              padding: const EdgeInsets.symmetric(horizontal: 7),
               value: mode,
               child: LibraryWorkspaceMenuRow(
+                padding: EdgeInsets.zero,
                 label: _viewModeLabel(mode),
                 leading: Icon(
                   _viewModeIcon(mode),
@@ -70,7 +72,7 @@ class LibraryViewModeDropdown extends StatelessWidget {
                   color: mode == viewMode ? menuText : menuMuted,
                 ),
                 trailing: mode == viewMode
-                    ? Icon(Icons.check, size: 16, color: menuText)
+                    ? Icon(Icons.check, size: 16, color: accent)
                     : null,
                 textStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
                       height: 1,
@@ -108,6 +110,7 @@ class LibraryDetailsLayoutDropdown extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final accent = LibraryAccentScope.accentOf(context);
     final menuText = libraryToolbarMenuText(context);
     final menuMuted = libraryToolbarMenuMutedText(context);
     final dropdownTextStyle = Theme.of(context).textTheme.bodyMedium?.copyWith(
@@ -129,12 +132,11 @@ class LibraryDetailsLayoutDropdown extends StatelessWidget {
     final popup = PopupMenuButton<LibraryDetailsLayout>(
       key: _detailsLayoutDropdownKey,
       tooltip: _detailsLayoutTooltip(detailsLayout),
-      initialValue: detailsLayout,
       onSelected: onChanged,
       padding: EdgeInsets.zero,
       color: libraryToolbarMenuSurface(context),
       surfaceTintColor: Colors.transparent,
-      menuPadding: const EdgeInsets.symmetric(vertical: 4),
+      menuPadding: EdgeInsets.zero,
       position: PopupMenuPosition.under,
       constraints: const BoxConstraints(
         minWidth: 0,
@@ -148,9 +150,10 @@ class LibraryDetailsLayoutDropdown extends StatelessWidget {
         for (final layout in LibraryDetailsLayout.values)
           PopupMenuItem<LibraryDetailsLayout>(
             height: _viewModeDropdownHeight,
-            padding: const EdgeInsets.symmetric(horizontal: 10),
+            padding: const EdgeInsets.symmetric(horizontal: 7),
             value: layout,
             child: LibraryWorkspaceMenuRow(
+              padding: EdgeInsets.zero,
               label: _detailsLayoutMenuLabel(layout),
               leading: Icon(
                 _detailsLayoutIcon(layout),
@@ -158,7 +161,7 @@ class LibraryDetailsLayoutDropdown extends StatelessWidget {
                 color: layout == detailsLayout ? menuText : menuMuted,
               ),
               trailing: layout == detailsLayout
-                  ? Icon(Icons.check, size: 16, color: menuText)
+                  ? Icon(Icons.check, size: 16, color: accent)
                   : null,
               textStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     height: 1,
@@ -414,6 +417,7 @@ class LibraryWorkspaceDensityDropdown extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final accent = LibraryAccentScope.accentOf(context);
     final menuText = libraryToolbarMenuText(context);
     final menuMuted = libraryToolbarMenuMutedText(context);
     final dropdownTextStyle = Theme.of(context).textTheme.bodyMedium?.copyWith(
@@ -436,12 +440,11 @@ class LibraryWorkspaceDensityDropdown extends StatelessWidget {
       width: triggerWidth,
       child: PopupMenuButton<LibraryWorkspaceDensityPreset>(
         tooltip: densityPreset.tooltip,
-        initialValue: densityPreset,
         onSelected: onChanged,
         padding: EdgeInsets.zero,
         color: libraryToolbarMenuSurface(context),
         surfaceTintColor: Colors.transparent,
-        menuPadding: const EdgeInsets.symmetric(vertical: 4),
+        menuPadding: EdgeInsets.zero,
         position: PopupMenuPosition.under,
         constraints: const BoxConstraints(
           minWidth: 0,
@@ -452,9 +455,10 @@ class LibraryWorkspaceDensityDropdown extends StatelessWidget {
           for (final preset in LibraryWorkspaceDensityPreset.values)
             PopupMenuItem<LibraryWorkspaceDensityPreset>(
               height: _viewModeDropdownHeight,
-              padding: const EdgeInsets.symmetric(horizontal: 10),
+              padding: const EdgeInsets.symmetric(horizontal: 7),
               value: preset,
               child: LibraryWorkspaceMenuRow(
+                padding: EdgeInsets.zero,
                 label: preset.label,
                 leading: Icon(
                   preset.icon,
@@ -462,7 +466,7 @@ class LibraryWorkspaceDensityDropdown extends StatelessWidget {
                   color: preset == densityPreset ? menuText : menuMuted,
                 ),
                 trailing: preset == densityPreset
-                    ? Icon(Icons.check, size: 16, color: menuText)
+                    ? Icon(Icons.check, size: 16, color: accent)
                     : null,
                 textStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
                       height: 1,

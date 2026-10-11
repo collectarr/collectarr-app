@@ -1,3 +1,4 @@
+import 'library_workspace_menus.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_tokens.dart';
@@ -44,11 +45,10 @@ Future<LibraryItemContextMenuResult?> showLibraryItemContextMenu({
       overlay.size.width - position.dx,
       overlay.size.height - position.dy,
     ),
-    color: appPalette(context).surfaceSubtle,
-    shape: RoundedRectangleBorder(
-      borderRadius: kAppMenuBorderRadius,
-      side: BorderSide(color: accent.withValues(alpha: 0.3)),
-    ),
+    color: libraryToolbarMenuSurface(context),
+    shape: libraryToolbarDropdownMenuShape(context),
+    surfaceTintColor: Colors.transparent,
+    menuPadding: EdgeInsets.zero,
     items: isBatchSelection
         ? [
             _header('Selection', accent),
@@ -202,6 +202,7 @@ PopupMenuItem<LibraryItemContextMenuResult> _item(
   return PopupMenuItem<LibraryItemContextMenuResult>(
     value: LibraryItemContextMenuResult(action),
     height: kLibraryToolbarPopupItemHeight,
+    padding: const EdgeInsets.symmetric(horizontal: 7),
     child: Row(
       children: [
         Icon(

@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/library_accent_scope.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/workspace/table/library_column_chooser.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_column_preset_store.dart';
@@ -12,6 +13,7 @@ Future<Set<String>?> showGenericLibraryColumnChooser({
   Set<String> pinnedFavoriteKeys = const {},
   ValueChanged<LibraryTableColumnPreset>? onTogglePinnedFavorite,
 }) async {
+  final accent = LibraryAccentScope.accentOf(context);
   final store = LibraryColumnPresetStore(type);
   final savedPresets = await store.read();
   if (!context.mounted) {
@@ -50,7 +52,7 @@ Future<Set<String>?> showGenericLibraryColumnChooser({
             workspace.columnDisplayName(fields.decodeColumnId(column));
         return label.trim().isEmpty ? labels[column] ?? column : label;
       },
-      accent: type.identity.accent,
+      accent: accent,
       columnGroup: (column) => workspace.columnGroup(
         fields.decodeColumnId(column),
       ),

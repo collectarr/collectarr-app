@@ -2,6 +2,7 @@ import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/ui/library_accent_scope.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_tokens.dart';
 import 'package:flutter/material.dart';
+import 'library_workspace_menus.dart';
 
 enum LibraryDenseButtonTone { surface, accent, subtle }
 
@@ -13,6 +14,7 @@ class LibraryDenseMenuEntry<T> {
     this.active = false,
     this.enabled = true,
     this.trailingLabel,
+    this.section,
   });
 
   final T value;
@@ -21,6 +23,7 @@ class LibraryDenseMenuEntry<T> {
   final bool active;
   final bool enabled;
   final String? trailingLabel;
+  final String? section;
 }
 
 class LibraryDenseButton extends StatefulWidget {
@@ -254,29 +257,24 @@ class LibraryDenseMenuButton<T> extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final palette = appPalette(context);
     final accent = LibraryAccentScope.accentOf(context);
     return PopupMenuButton<T>(
       tooltip: tooltip ?? label,
       onSelected: onSelected,
       padding: EdgeInsets.zero,
-      color: Color.alphaBlend(
-        accent.withValues(alpha: 0.025),
-        palette.panelRaised,
-      ),
+      color: libraryToolbarMenuSurface(context),
       surfaceTintColor: Colors.transparent,
       shadowColor: Colors.black.withValues(alpha: 0.22),
-      menuPadding: const EdgeInsets.symmetric(vertical: 2),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(4),
-        side: BorderSide(color: palette.divider.withValues(alpha: 0.9)),
-      ),
+      menuPadding: EdgeInsets.zero,
+      position: PopupMenuPosition.under,
+      shape: libraryToolbarDropdownMenuShape(context),
       itemBuilder: (context) => [
         for (final entry in entries)
           PopupMenuItem<T>(
             value: entry.value,
             enabled: entry.enabled,
             height: kLibraryToolbarPopupItemHeight,
+            padding: const EdgeInsets.symmetric(horizontal: 7),
             child: _LibraryDenseMenuItemRow(entry: entry, accent: accent),
           ),
       ],
@@ -301,6 +299,7 @@ class LibraryDenseSplitButton<T> extends StatelessWidget {
     required this.onSelected,
     this.tone = LibraryDenseButtonTone.surface,
     this.tooltip,
+    this.iconOnly = false,
   });
 
   final String label;
@@ -310,6 +309,8 @@ class LibraryDenseSplitButton<T> extends StatelessWidget {
   final ValueChanged<T> onSelected;
   final LibraryDenseButtonTone tone;
   final String? tooltip;
+
+  final bool iconOnly;
 
   @override
   Widget build(BuildContext context) {
@@ -336,30 +337,37 @@ class LibraryDenseSplitButton<T> extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Material(
-            color: Colors.transparent,
-            child: InkWell(
-              mouseCursor: WidgetStateMouseCursor.clickable,
-              onTap: onPressed,
-              borderRadius:
-                  const BorderRadius.horizontal(left: Radius.circular(4)),
-              child: Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(icon, size: 14, color: foreground),
-                    const SizedBox(width: 7),
-                    Text(
-                      label,
-                      style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                            color: foreground,
-                            fontWeight: FontWeight.w700,
-                            letterSpacing: 0.1,
-                          ),
-                    ),
-                  ],
+          Semantics(
+            label: iconOnly ? label : null,
+            button: iconOnly,
+            child: Material(
+              color: Colors.transparent,
+              child: InkWell(
+                mouseCursor: WidgetStateMouseCursor.clickable,
+                onTap: onPressed,
+                borderRadius:
+                    const BorderRadius.horizontal(left: Radius.circular(4)),
+                child: Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(icon, size: 14, color: foreground),
+                      if (!iconOnly) ...[
+                        const SizedBox(width: 7),
+                        Text(
+                          label,
+                          style:
+                              Theme.of(context).textTheme.labelLarge?.copyWith(
+                                    color: foreground,
+                                    fontWeight: FontWeight.w700,
+                                    letterSpacing: 0.1,
+                                  ),
+                        ),
+                      ],
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -370,25 +378,31 @@ class LibraryDenseSplitButton<T> extends StatelessWidget {
             tooltip: tooltip ?? label,
             padding: EdgeInsets.zero,
             onSelected: onSelected,
-            color: Color.alphaBlend(
-              accent.withValues(alpha: 0.025),
-              palette.panelRaised,
-            ),
+            color: libraryToolbarMenuSurface(context),
             surfaceTintColor: Colors.transparent,
             shadowColor: Colors.black.withValues(alpha: 0.22),
-            menuPadding: const EdgeInsets.symmetric(vertical: 2),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(4),
-              side: BorderSide(color: palette.divider.withValues(alpha: 0.9)),
-            ),
+            menuPadding: EdgeInsets.zero,
+            position: PopupMenuPosition.under,
+            shape: libraryToolbarDropdownMenuShape(context),
             itemBuilder: (context) => [
-              for (final entry in entries)
+              for (final entry in entries) ...[
+                if (entry.section != null)
+                  PopupMenuItem<T>(
+                      enabled: false,
+                      height: 24,
+                      padding: const EdgeInsets.symmetric(horizontal: 7),
+                      child: Text(entry.section!,
+                          style: TextStyle(
+                              fontSize: 14,
+                              color: libraryToolbarMenuMutedText(context)))),
                 PopupMenuItem<T>(
                   value: entry.value,
                   enabled: entry.enabled,
                   height: kLibraryToolbarPopupItemHeight,
+                  padding: const EdgeInsets.symmetric(horizontal: 7),
                   child: _LibraryDenseMenuItemRow(entry: entry, accent: accent),
                 ),
+              ],
             ],
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
@@ -412,38 +426,24 @@ class _LibraryDenseMenuItemRow<T> extends StatelessWidget {
   Widget build(BuildContext context) {
     final palette = appPalette(context);
     final foreground = entry.enabled ? palette.textPrimary : palette.textMuted;
-    return Row(
-      children: [
-        Icon(
-          entry.active ? Icons.check_circle : entry.icon,
+    return LibraryWorkspaceMenuRow(
+      label: entry.label,
+      padding: EdgeInsets.zero,
+      leadingSpacing: 7,
+      leading: Icon(entry.active ? Icons.check_circle : entry.icon,
           size: 14,
           color: entry.enabled
-              ? (entry.active ? accent : palette.textPrimary)
-              : palette.textMuted,
-        ),
-        const SizedBox(width: 7),
-        Expanded(
-          child: Text(
-            entry.label,
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: foreground,
-                  fontWeight: FontWeight.w400,
-                  fontSize: 14,
-                ),
-          ),
-        ),
-        if (entry.trailingLabel case final trailing?) ...[
-          const SizedBox(width: 7),
-          Text(
-            trailing,
-            style: Theme.of(context).textTheme.labelSmall?.copyWith(
+              ? (entry.active ? accent : foreground)
+              : palette.textMuted),
+      textStyle: TextStyle(
+          color: foreground, fontWeight: FontWeight.w400, fontSize: 14),
+      trailing: entry.trailingLabel == null
+          ? null
+          : Text(entry.trailingLabel!,
+              style: TextStyle(
                   color: palette.textMuted,
                   fontWeight: FontWeight.w700,
-                  fontSize: 13,
-                ),
-          ),
-        ],
-      ],
+                  fontSize: 13)),
     );
   }
 }

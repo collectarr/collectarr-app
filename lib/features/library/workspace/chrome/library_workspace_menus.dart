@@ -189,18 +189,21 @@ class LibraryWorkspaceMenuTreeHeader extends StatelessWidget {
     required this.expanded,
     required this.highlighted,
     required this.onTap,
+    this.leading,
   });
 
   final String label;
   final bool expanded;
   final bool highlighted;
   final VoidCallback onTap;
+  final Widget? leading;
 
   @override
   Widget build(BuildContext context) {
     return LibraryWorkspaceMenuRow(
       label: label,
       onTap: onTap,
+      leading: leading,
       padding: const EdgeInsets.fromLTRB(10, 7, 10, 7),
       trailing: Icon(
         expanded ? Icons.expand_less : Icons.expand_more,

@@ -1,3 +1,4 @@
+import '../chrome/library_workspace_menus.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_dense_controls.dart';
@@ -102,7 +103,7 @@ class _LibraryColumnChooserDialogState
     final colorScheme = Theme.of(context).colorScheme;
     final accent = widget.accent ?? colorScheme.primary;
     final viewport = MediaQuery.sizeOf(context);
-    final dialogWidth = (viewport.width - 32).clamp(0.0, 960.0);
+    final dialogWidth = (viewport.width - 32).clamp(0.0, 600.0);
     final dialogHeight = (viewport.height - 52).clamp(0.0, 850.0);
     final query = _query.trim().toLowerCase();
     final columns = widget.availableColumns.where((column) {
@@ -443,6 +444,7 @@ class _LibraryColumnChooserDialogState
       for (final group in LibraryTableColumnGroup.values)
         if ((grouped[group] ?? const []).isNotEmpty)
           _ColumnGroupPanel(
+            key: ValueKey('column-group-${group.name}-${_query.isNotEmpty}'),
             title: _groupLabel(group),
             accent: accent,
             count: grouped[group]!.length,
@@ -477,8 +479,13 @@ class _LibraryColumnChooserDialogState
                   }
                 }),
         borderRadius: BorderRadius.circular(4),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+        child: Container(
+          margin: const EdgeInsets.symmetric(vertical: 1),
+          padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 5),
+          decoration: BoxDecoration(
+            border: Border.all(color: palette.divider),
+            borderRadius: BorderRadius.circular(3),
+          ),
           child: Row(
             children: [
               Icon(
@@ -885,6 +892,7 @@ class _PaneFrame extends StatelessWidget {
 
 class _ColumnGroupPanel extends StatefulWidget {
   const _ColumnGroupPanel({
+    super.key,
     required this.title,
     required this.children,
     required this.initiallyExpanded,
@@ -912,72 +920,35 @@ class _ColumnGroupPanelState extends State<_ColumnGroupPanel> {
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
-      child: DecoratedBox(
-        decoration: BoxDecoration(
-          color: palette.surfaceSubtle,
-          borderRadius: BorderRadius.circular(6),
-          border: Border.all(color: palette.divider),
-        ),
-        child: Column(
-          children: [
-            Material(
-              color: Colors.transparent,
-              child: InkWell(
-                mouseCursor: WidgetStateMouseCursor.clickable,
-                onTap: () => setState(() => _expanded = !_expanded),
-                borderRadius:
-                    const BorderRadius.vertical(top: Radius.circular(6)),
-                child: Padding(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 10, vertical: 9),
-                  child: Row(
-                    children: [
-                      Icon(
-                        _expanded ? Icons.expand_more : Icons.chevron_right,
-                        size: 16,
-                        color: _expanded ? widget.accent : palette.textMuted,
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                          widget.title,
-                          style:
-                              Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                    fontWeight: FontWeight.w900,
-                                  ),
-                        ),
-                      ),
-                      LibraryDenseButton(
-                        label: widget.selectedCount == widget.count
-                            ? 'Clear'
-                            : 'All',
-                        onPressed: widget.onToggleAll,
-                        tone: LibraryDenseButtonTone.subtle,
-                      ),
-                      const SizedBox(width: 8),
-                      Text(
-                        '${widget.selectedCount}/${widget.count}',
-                        style:
-                            Theme.of(context).textTheme.labelMedium?.copyWith(
-                                  color: palette.textMuted,
-                                  fontWeight: FontWeight.w700,
-                                ),
-                      ),
-                    ],
-                  ),
-                ),
+    return Column(
+      children: [
+        LibraryWorkspaceMenuTreeHeader(
+          label: widget.title,
+          expanded: _expanded,
+          highlighted: true,
+          onTap: () => setState(() => _expanded = !_expanded),
+          leading: Tooltip(
+            message: widget.selectedCount == widget.count
+                ? 'Clear group'
+                : 'Select group',
+            child: InkWell(
+              onTap: widget.onToggleAll,
+              child: Icon(
+                widget.selectedCount == widget.count
+                    ? Icons.check_box
+                    : widget.selectedCount == 0
+                        ? Icons.check_box_outline_blank
+                        : Icons.indeterminate_check_box,
+                size: 16,
+                color: widget.selectedCount == 0
+                    ? palette.textMuted
+                    : widget.accent,
               ),
             ),
-            if (_expanded)
-              Padding(
-                padding: const EdgeInsets.only(bottom: 6),
-                child: Column(children: widget.children),
-              ),
-          ],
+          ),
         ),
-      ),
+        if (_expanded) Column(children: widget.children),
+      ],
     );
   }
 }

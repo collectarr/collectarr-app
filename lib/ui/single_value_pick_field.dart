@@ -1,3 +1,4 @@
+import 'app_dropdown_menu.dart';
 import 'dart:math' as math;
 
 import 'package:collectarr_app/ui/pick_list_field_button.dart';
@@ -162,6 +163,8 @@ class _SingleValuePickFieldState extends State<SingleValuePickField> {
             for (final option in matchingOptions)
               PopupMenuItem<String>(
                 value: option,
+                height: 30,
+                padding: const EdgeInsets.symmetric(horizontal: 7),
                 child: Row(
                   children: [
                     Icon(
@@ -171,7 +174,10 @@ class _SingleValuePickFieldState extends State<SingleValuePickField> {
                       size: 18,
                     ),
                     const SizedBox(width: 10),
-                    Expanded(child: Text(option)),
+                    Expanded(
+                        child: Text(option,
+                            style: const TextStyle(
+                                fontSize: 14, fontWeight: FontWeight.w400))),
                   ],
                 ),
               ),
@@ -196,6 +202,10 @@ class _SingleValuePickFieldState extends State<SingleValuePickField> {
               16,
         ),
       ),
+      color: appDropdownMenuSurface(context),
+      shape: appDropdownMenuShape(context),
+      surfaceTintColor: Colors.transparent,
+      menuPadding: EdgeInsets.zero,
       items: popupItems,
       popUpAnimationStyle: AnimationStyle.noAnimation,
     );

@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_dropdown_menu.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
@@ -188,14 +189,9 @@ extension LibraryWorkspaceDensityPresetMetrics
 }
 
 Color libraryToolbarMenuSurface(BuildContext context) =>
-    appPalette(context).isDark
-        ? const Color(0xff444444)
-        : appPalette(context).panelRaised;
-
+    appDropdownMenuSurface(context);
 Color libraryToolbarMenuBorder(BuildContext context) =>
-    appPalette(context).isDark
-        ? const Color(0xff666666)
-        : appPalette(context).divider;
+    appDropdownMenuBorder(context);
 
 Color libraryToolbarMenuText(BuildContext context) =>
     appPalette(context).textPrimary;

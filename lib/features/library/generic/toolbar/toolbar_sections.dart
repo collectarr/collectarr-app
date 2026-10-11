@@ -418,29 +418,27 @@ class _LibraryColumnLauncher extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final entries = <LibraryDenseMenuEntry<Object>>[];
-    for (final preset in [...pinnedPresets, ...overflowPresets]) {
-      entries.add(
-        LibraryDenseMenuEntry<Object>(
-          value: preset,
-          label: preset.label,
-          icon: Icons.bookmark_outline,
-          active: preset.label == activeLabel,
-          trailingLabel: '${preset.columns.length}',
-        ),
-      );
-    }
-    entries.add(
+    final entries = <LibraryDenseMenuEntry<Object>>[
       const LibraryDenseMenuEntry<Object>(
         value: _LibraryColumnLauncherAction.manage,
-        label: 'Manage columns',
+        label: 'Manage Favorites',
         icon: Icons.tune,
       ),
-    );
-
+    ];
+    for (final preset in [...pinnedPresets, ...overflowPresets]) {
+      entries.add(LibraryDenseMenuEntry<Object>(
+        value: preset,
+        label: preset.label,
+        icon: Icons.bookmark_outline,
+        active: preset.label == activeLabel,
+        trailingLabel: '${preset.columns.length}',
+        section: entries.length == 1 ? 'Favorites' : null,
+      ));
+    }
     return LibraryDenseSplitButton<Object>(
       key: const ValueKey('library-column-split-button'),
-      label: activeLabel ?? 'Custom columns',
+      label: 'Change columns',
+      iconOnly: true,
       icon: Icons.view_column_outlined,
       onPressed: onManageColumns,
       entries: entries,
@@ -452,7 +450,7 @@ class _LibraryColumnLauncher extends StatelessWidget {
         onManageColumns();
       },
       tone: LibraryDenseButtonTone.surface,
-      tooltip: 'Columns',
+      tooltip: 'Column Favorites',
     );
   }
 }
@@ -963,11 +961,18 @@ class LibraryCompactToolbarContent extends StatelessWidget {
                 const SizedBox(width: 6),
                 PopupMenuButton<LibrarySearchTarget>(
                   tooltip: 'Search scope',
+                  color: libraryToolbarMenuSurface(context),
+                  shape: libraryToolbarDropdownMenuShape(context),
+                  surfaceTintColor: Colors.transparent,
+                  position: PopupMenuPosition.under,
+                  menuPadding: EdgeInsets.zero,
                   onSelected: onSearchTargetChanged,
                   itemBuilder: (context) => [
                     for (final option in searchTargetOptions)
                       PopupMenuItem<LibrarySearchTarget>(
                         value: option,
+                        height: 30,
+                        padding: const EdgeInsets.symmetric(horizontal: 7),
                         child: Text(_librarySearchTargetLabel(option)),
                       ),
                   ],
@@ -1257,7 +1262,6 @@ class LibraryToolbarChromeRow extends StatelessWidget {
                 child: PopupMenuButton<LibraryCollectionStatusScope>(
                   key: const Key('collection-status-scope-dropdown'),
                   tooltip: 'Collection status scope',
-                  initialValue: collectionStatusScope,
                   onSelected: onCollectionStatusScopeChanged!,
                   padding: EdgeInsets.zero,
                   menuPadding: EdgeInsets.zero,
@@ -1272,13 +1276,13 @@ class LibraryToolbarChromeRow extends StatelessWidget {
                   ).copyWith(minWidth: dropdownWidth, maxWidth: dropdownWidth),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.zero,
-                    side: BorderSide(color: palette.divider),
+                    side: BorderSide(color: libraryToolbarMenuBorder(context)),
                   ),
                   itemBuilder: (context) => [
                     for (final scope in LibraryCollectionStatusScope.values)
                       PopupMenuItem<LibraryCollectionStatusScope>(
                         value: scope,
-                        height: 24,
+                        height: 26,
                         padding: const EdgeInsets.symmetric(horizontal: 8),
                         child: LibraryCollectionStatusScopeMenuItem(
                           scope: scope,

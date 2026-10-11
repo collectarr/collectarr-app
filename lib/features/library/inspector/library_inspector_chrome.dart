@@ -419,7 +419,7 @@ class InspectorUnifiedToolbar extends ConsumerWidget {
                   padding: EdgeInsets.zero,
                   color: libraryToolbarMenuSurface(context),
                   surfaceTintColor: Colors.transparent,
-                  menuPadding: const EdgeInsets.symmetric(vertical: 4),
+                  menuPadding: EdgeInsets.zero,
                   shape: libraryToolbarDropdownMenuShape(context),
                   position: PopupMenuPosition.under,
                   onSelected: (action) {
@@ -440,85 +440,33 @@ class InspectorUnifiedToolbar extends ConsumerWidget {
                   },
                   itemBuilder: (context) => [
                     if (onDuplicate != null)
-                      const PopupMenuItem<InspectorToolbarMenuAction>(
-                        value: InspectorToolbarMenuAction.duplicate,
-                        child: Material(
-                          type: MaterialType.transparency,
-                          child: ListTile(
-                            dense: true,
-                            leading: Icon(Icons.copy_all_outlined, size: 18),
-                            title: Text('Duplicate'),
-                          ),
-                        ),
-                      ),
+                      _inspectorMenuItem(InspectorToolbarMenuAction.duplicate,
+                          'Duplicate', Icons.copy_all_outlined),
                     if (onToggleEntry != null)
-                      PopupMenuItem<InspectorToolbarMenuAction>(
-                        value: InspectorToolbarMenuAction.removeOrCollect,
-                        child: Material(
-                          type: MaterialType.transparency,
-                          child: ListTile(
-                            dense: true,
-                            leading: Icon(
-                              item.source.isEntry
-                                  ? Icons.delete_outline
-                                  : Icons.add_circle_outline,
-                              size: 18,
-                            ),
-                            title: Text(
-                                item.source.isEntry ? 'Remove' : 'Collect'),
-                          ),
-                        ),
-                      ),
+                      _inspectorMenuItem(
+                          InspectorToolbarMenuAction.removeOrCollect,
+                          item.source.isEntry ? 'Remove' : 'Collect',
+                          item.source.isEntry
+                              ? Icons.delete_outline
+                              : Icons.add_circle_outline),
                     if (onMoveToCollection != null)
-                      const PopupMenuItem<InspectorToolbarMenuAction>(
-                        value: InspectorToolbarMenuAction.moveToCollection,
-                        child: Material(
-                          type: MaterialType.transparency,
-                          child: ListTile(
-                            dense: true,
-                            leading:
-                                Icon(Icons.drive_file_move_outline, size: 18),
-                            title: Text('Move to other collection'),
-                          ),
-                        ),
-                      ),
+                      _inspectorMenuItem(
+                          InspectorToolbarMenuAction.moveToCollection,
+                          'Move to other collection',
+                          Icons.drive_file_move_outline),
                     if (onUnlinkFromCore != null)
-                      const PopupMenuItem<InspectorToolbarMenuAction>(
-                        value: InspectorToolbarMenuAction.unlinkFromCore,
-                        child: Material(
-                          type: MaterialType.transparency,
-                          child: ListTile(
-                            dense: true,
-                            leading: Icon(Icons.link_off, size: 18),
-                            title: Text('Unlink from Core'),
-                          ),
-                        ),
-                      ),
-                    PopupMenuItem<InspectorToolbarMenuAction>(
-                      value: InspectorToolbarMenuAction.loan,
-                      enabled: onLoan != null,
-                      child: const Material(
-                        type: MaterialType.transparency,
-                        child: ListTile(
-                          dense: true,
-                          leading: Icon(Icons.handshake_outlined, size: 18),
-                          title: Text('Loan'),
-                        ),
-                      ),
-                    ),
-                    PopupMenuItem<InspectorToolbarMenuAction>(
-                      value: InspectorToolbarMenuAction.refreshMetadata,
-                      enabled: onRefreshMetadata != null,
-                      child: const Material(
-                        type: MaterialType.transparency,
-                        child: ListTile(
-                          dense: true,
-                          leading:
-                              Icon(Icons.cloud_download_outlined, size: 18),
-                          title: Text('Update from Core'),
-                        ),
-                      ),
-                    ),
+                      _inspectorMenuItem(
+                          InspectorToolbarMenuAction.unlinkFromCore,
+                          'Unlink from Core',
+                          Icons.link_off),
+                    _inspectorMenuItem(InspectorToolbarMenuAction.loan, 'Loan',
+                        Icons.handshake_outlined,
+                        enabled: onLoan != null),
+                    _inspectorMenuItem(
+                        InspectorToolbarMenuAction.refreshMetadata,
+                        'Update from Core',
+                        Icons.cloud_download_outlined,
+                        enabled: onRefreshMetadata != null),
                   ],
                   child: Padding(
                     padding:
@@ -563,6 +511,31 @@ class InspectorUnifiedToolbar extends ConsumerWidget {
         : Theme(data: libraryAccentTheme(context, accent!), child: styled);
   }
 }
+
+PopupMenuItem<InspectorToolbarMenuAction> _inspectorMenuItem(
+  InspectorToolbarMenuAction action,
+  String label,
+  IconData icon, {
+  bool enabled = true,
+}) =>
+    PopupMenuItem<InspectorToolbarMenuAction>(
+      value: action,
+      enabled: enabled,
+      height: 30,
+      padding: const EdgeInsets.symmetric(horizontal: 7),
+      child: Builder(builder: (context) {
+        final color = enabled
+            ? libraryToolbarMenuText(context)
+            : libraryToolbarMenuMutedText(context);
+        return LibraryWorkspaceMenuRow(
+          label: label,
+          leading: Icon(icon, size: 16, color: color),
+          padding: EdgeInsets.zero,
+          textStyle: TextStyle(
+              fontSize: 14, fontWeight: FontWeight.w400, color: color),
+        );
+      }),
+    );
 
 Widget _inspectorToolbarSeparator(BuildContext context) => SizedBox(
       width: 5,
