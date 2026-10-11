@@ -9,7 +9,6 @@ const double kLibraryEditTabStripContainerHeight = 33;
 const Color _clzEditTabBackground = Color(0xFF131313);
 const Color _clzEditTabHighlight = Color(0xFF383838);
 const Color _clzEditTabBorder = Color(0xFF262626);
-const Color _clzEditTabDragShadow = Color(0xFF666666);
 
 // Keep the current selection in memory so Previous/Next can open the next
 // item's editor on the same kind-and-scope tab without persisting it as a
@@ -133,7 +132,7 @@ class LibraryEditStyledTabLabel extends StatelessWidget {
       child: DefaultTextStyle.merge(
         style: TextStyle(
           color: foreground,
-          fontWeight: FontWeight.w400,
+          fontWeight: FontWeight.w500,
           fontSize: 14,
           height: 20 / 14,
           letterSpacing: 0,
@@ -343,20 +342,9 @@ class _LibraryEditReorderableTabStripState
           angle: math.pi / 180 * progress,
           child: Transform.scale(
             scale: 1 + 0.025 * progress,
-            child: DecoratedBox(
-              decoration: const BoxDecoration(
-                borderRadius: BorderRadius.all(Radius.circular(4)),
-                boxShadow: [
-                  BoxShadow(
-                    color: _clzEditTabDragShadow,
-                    offset: Offset(2, 2),
-                  ),
-                ],
-              ),
-              child: ClipRRect(
-                borderRadius: const BorderRadius.all(Radius.circular(4)),
-                child: child!,
-              ),
+            child: ClipRRect(
+              borderRadius: const BorderRadius.all(Radius.circular(4)),
+              child: child!,
             ),
           ),
         );

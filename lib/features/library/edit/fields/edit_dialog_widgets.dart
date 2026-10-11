@@ -113,11 +113,12 @@ ThemeData editDialogTheme({
       labelStyle: TextStyle(
         color: palette.textMuted,
         fontSize: compactDesktop ? 13 : null,
+        fontWeight: FontWeight.w800,
       ),
       floatingLabelStyle: TextStyle(
         color: accent,
         fontSize: compactDesktop ? 13 : null,
-        fontWeight: compactDesktop ? FontWeight.w600 : null,
+        fontWeight: FontWeight.w800,
       ),
       hintStyle: TextStyle(
         color: palette.textMuted.withValues(alpha: 0.7),

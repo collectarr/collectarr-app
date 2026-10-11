@@ -25,7 +25,7 @@ class LibraryFormField extends StatelessWidget {
                       style: TextStyle(
                         color: appPalette(context).textMuted,
                         fontSize: 13,
-                        fontWeight: FontWeight.w700,
+                        fontWeight: FontWeight.w800,
                         height: 20 / 14,
                         letterSpacing: 0,
                       ))),

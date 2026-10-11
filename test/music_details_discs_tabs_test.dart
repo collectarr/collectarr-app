@@ -200,23 +200,18 @@ void main() {
       expect(find.text('Autocap'), findsNothing);
 
       // Tap on the track selection checkbox to select track
-      final trackCheckboxFinder = find.byWidgetPredicate(
-        (widget) =>
-            widget is Container &&
-            widget.decoration is BoxDecoration &&
-            (widget.decoration as BoxDecoration).color == Colors.transparent,
-      );
-      if (trackCheckboxFinder.evaluate().isNotEmpty) {
-        await tester.tap(trackCheckboxFinder.first);
-        await tester.pumpAndSettle();
+      final trackCheckboxFinder = find.byKey(ValueKey(
+          'music-track-select-${draft.discs.first.tracks.first.id.value}'));
+      expect(trackCheckboxFinder, findsOneWidget);
+      await tester.tap(trackCheckboxFinder);
+      await tester.pumpAndSettle();
 
-        // Selection toolbar should now be visible with Cancel, All, Autocap, Remove
-        expect(find.text('Cancel'), findsOneWidget);
-        expect(find.text('All'), findsOneWidget);
-        expect(find.text('Autocap'), findsOneWidget);
-        expect(find.text('Remove'), findsOneWidget);
-        expect(find.text('1 of 1'), findsOneWidget);
-      }
+      // Selection toolbar should now be visible with Cancel, All, Autocap, Remove
+      expect(find.text('Cancel'), findsOneWidget);
+      expect(find.text('All'), findsOneWidget);
+      expect(find.text('Autocap'), findsOneWidget);
+      expect(find.text('Remove'), findsOneWidget);
+      expect(find.text('1 of 1'), findsOneWidget);
     });
   });
 }

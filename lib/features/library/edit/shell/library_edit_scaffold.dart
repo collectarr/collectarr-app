@@ -469,7 +469,7 @@ class _LibraryEditTitleBar extends StatelessWidget {
                     style: TextStyle(
                       fontFamily: kLibraryEditorFontFamily,
                       fontFamilyFallback: kClzFontFallback,
-                      fontWeight: FontWeight.w700,
+                      fontWeight: FontWeight.w800,
                       fontSize: 18,
                       height: 1,
                       letterSpacing: 0,

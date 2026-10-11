@@ -86,6 +86,8 @@ final class _MusicAlbumStructureTabState
             child: ReorderableListView.builder(
               scrollDirection: Axis.horizontal,
               buildDefaultDragHandles: false,
+              proxyDecorator: (child, index, animation) =>
+                  Material(type: MaterialType.transparency, child: child),
               itemCount: draft.discs.length,
               onReorderItem: (oldIndex, newIndex) => _change(() {
                 draft.discList.reorderDisc(oldIndex, newIndex);
@@ -122,37 +124,33 @@ final class _MusicAlbumStructureTabState
   }
 
   Widget _addDiscButton() {
-    return InkWell(
-      mouseCursor: SystemMouseCursors.click,
+    return Material(
+      color: const Color(0xFF494949),
       borderRadius: BorderRadius.circular(4),
-      onTap: () => _change(() {
-        draft.discList.addDisc();
-        _activeDiscId = draft.discs.last.id;
-        _selectedTrackIds.clear();
-      }),
-      child: Container(
-        height: 30,
-        padding: const EdgeInsets.symmetric(horizontal: 10),
-        decoration: BoxDecoration(
-          color: const Color(0xFF383838),
-          borderRadius: BorderRadius.circular(4),
-          border: Border.all(color: const Color(0xFF484848)),
-        ),
-        child: const Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(Icons.add, size: 14, color: Colors.white),
-            SizedBox(width: 4),
-            Text(
-              'Add Disc',
-              style: TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w600,
-                color: Colors.white,
-              ),
-            ),
-          ],
-        ),
+      child: InkWell(
+        key: const ValueKey('music-add-disc'),
+        mouseCursor: SystemMouseCursors.click,
+        borderRadius: BorderRadius.circular(4),
+        hoverColor: const Color(0xFF535353),
+        focusColor: const Color(0xFF535353),
+        onTap: () => _change(() {
+          draft.discList.addDisc();
+          _activeDiscId = draft.discs.last.id;
+          _selectedTrackIds.clear();
+        }),
+        child: const SizedBox(
+            height: 30,
+            child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: 10),
+                child: Row(mainAxisSize: MainAxisSize.min, children: [
+                  Icon(Icons.add, size: 14, color: Colors.white),
+                  SizedBox(width: 4),
+                  Text('Add Disc',
+                      style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.white)),
+                ]))),
       ),
     );
   }
@@ -164,8 +162,8 @@ final class _MusicAlbumStructureTabState
         const Text(
           'Disc Title',
           style: TextStyle(
-            fontSize: 12,
-            fontWeight: FontWeight.w600,
+            fontSize: 13,
+            fontWeight: FontWeight.w800,
             color: Color(0xFFAAAAAA),
           ),
         ),
@@ -226,7 +224,7 @@ final class _MusicAlbumStructureTabState
           'Tracks',
           style: TextStyle(
             fontSize: 13,
-            fontWeight: FontWeight.w700,
+            fontWeight: FontWeight.w800,
             color: Colors.white,
           ),
         ),
@@ -721,6 +719,7 @@ final class _MusicAlbumStructureTabState
         children: [
           // Select column (30px)
           InkWell(
+            key: ValueKey('music-track-select-${track.id.value}'),
             mouseCursor: SystemMouseCursors.click,
             onTap: () => _change(() {
               if (isSelected) {
