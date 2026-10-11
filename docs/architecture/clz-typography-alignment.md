@@ -1,29 +1,34 @@
 # CLZ typography alignment
 
-Reference: the saved Music Web MHTML in the local CLZ reference directory.
-Its `body.app` uses Gilroy at CSS weight 400; that font-face resolves to Gilroy
-Medium. CSS weight 700 resolves to Gilroy Bold. Body and controls are 14px,
-external form labels are 13px, and ordinary body line height is 20px at 14px.
+Live reference: authenticated CLZ Music Web, inspected in Opera on 2026-10-11.
+CLZ supplies Gilroy faces at 400, 700 and 900. Common text is 14px with a 20px
+line height; actual weights vary by surface. Inspector metadata and contributor
+names use stronger emphasis than ordinary form values.
 
-Collectarr uses its bundled OFL Collectarr Sans family throughout Shell and
-Library. This is a visual approximation, not Gilroy or exact glyph parity.
+Collectarr bundles the OFL Manrope family at 400/500/600/700/800. The previous
+CollectarrSans assets (Montserrat) have been removed, together with their
+fallback alias. Manrope is a licensed approximation, not Gilroy or identical
+glyph artwork.
+
+Measurements at 14px across ten reference strings gave mean width differences
+of 11.06% for the previous Medium face and 2.07% for Manrope Regular. These
+measurements inform the choice; they do not imply every glyph or weight matches.
 
 | Role | Size | Weight |
 | --- | --- | --- |
-| Body, folders, menu values, controls, table cells | 14px | Medium 500 |
-| Supporting text and counters | 13px | Medium 500 |
-| External form labels and table headings | 13px | Bold 700 |
-| Menu section headings | 14px | Bold 700 |
-| Panel titles | 16px | Bold 700 |
-| Dialog titles | 18px | Bold 700 |
+| Ordinary body, form values, menu options | 14px | Regular 400 |
+| Supporting text | 13px | Regular 400 |
+| Panel/menu/dialog headings | 14?22px | Bold 700 |
+| Inspector artist | 20px | Bold 700 |
+| Inspector album and box set title | 24px | Bold 700 |
+| Inspector metadata beside cover | 14px | Bold 700 |
 
-`app_typography.dart` owns the theme baseline. Role overrides are derived from
-the themed text styles, so they retain the bundled font and fallback family.
-Tabs, menus, dialog title/content styles, and shell navigation use the same
-family. Selected folder rows keep the ordinary Medium face; selection color
-provides emphasis. Library UI no longer requests synthetic ExtraBold 800.
-Monospace technical/log text and intentionally sized cover graphics retain
-their separate roles.
+`app_typography.dart` owns the baseline with zero tracking and proportional
+figures. Surface overrides retain the same bundled family. Technical logs
+retain monospace. Popup menus resolve the library accent before entering an
+overlay, so selections and favorites keep the kind color even when the parent
+Navigator theme uses cyan. A widget test covers that actual overlay boundary.
 
-This change aligns typography, not sidebar row geometry, badge placement,
-selection colors, or icon artwork. Live pixel comparison remains outstanding.
+Live screenshots were compared at matched inspector widths and with populated
+reference metadata. Responsive page checks include 1844, 1000, 700 and 380px.
+See the comparison report for the final verification and remaining differences.

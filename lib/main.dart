@@ -9,7 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-const _interFontAsset = 'assets/fonts/Inter-Variable.ttf';
+const _primaryFontAsset = 'assets/fonts/Manrope-Regular.ttf';
 const _monoFontAsset = 'assets/fonts/JetBrainsMono-Variable.ttf';
 
 void main() {
@@ -62,17 +62,17 @@ void main() {
 
 Future<void> _logFontDiagnostics(ProviderContainer container) async {
   final logger = container.read(appLogProvider.notifier);
-  final interLoaded = await _fontAssetAvailable(logger, _interFontAsset);
+  final primaryLoaded = await _fontAssetAvailable(logger, _primaryFontAsset);
   final monoLoaded = await _fontAssetAvailable(logger, _monoFontAsset);
   final details = <String>[
     'primaryFamily=$kClzPrimaryFontFamily',
     'primaryFallback=${kClzFontFallback.join(', ')}',
-    'primaryAsset=$_interFontAsset:${interLoaded ? 'loaded' : 'missing'}',
+    'primaryAsset=$_primaryFontAsset:${primaryLoaded ? 'loaded' : 'missing'}',
     'monoFamily=$kClzMonospaceFontFamily',
     'monoFallback=${kClzMonospaceFontFallback.join(', ')}',
     'monoAsset=$_monoFontAsset:${monoLoaded ? 'loaded' : 'missing'}',
   ].join(' | ');
-  if (interLoaded && monoLoaded) {
+  if (primaryLoaded && monoLoaded) {
     logger.info('fonts', 'Font assets loaded', detail: details);
     return;
   }

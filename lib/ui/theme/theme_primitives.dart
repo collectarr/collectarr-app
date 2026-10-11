@@ -7,7 +7,6 @@ import 'package:flutter/material.dart';
 const String kClzPrimaryFontFamily = kAppFontFamily;
 const String kClzMonospaceFontFamily = 'JetBrains Mono';
 const List<String> kClzFontFallback = [
-  'Collectarr Sans',
   'Segoe UI',
   'Roboto',
 ];

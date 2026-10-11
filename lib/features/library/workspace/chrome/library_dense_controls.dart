@@ -1,4 +1,5 @@
 import 'package:collectarr_app/ui/theme/app_theme.dart';
+import 'package:collectarr_app/ui/library_accent_scope.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_tokens.dart';
 import 'package:flutter/material.dart';
 
@@ -50,25 +51,26 @@ class _LibraryDenseButtonState extends State<LibraryDenseButton> {
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
+    final accent = LibraryAccentScope.accentOf(context);
     final enabled = widget.onPressed != null;
     final background = switch (widget.tone) {
       LibraryDenseButtonTone.accent => enabled
-          ? palette.accent
+          ? accent
           : Color.alphaBlend(
-              palette.accent.withValues(alpha: 0.45),
+              accent.withValues(alpha: 0.45),
               palette.panelRaised,
             ),
       LibraryDenseButtonTone.subtle => palette.surfaceSubtle,
       LibraryDenseButtonTone.surface => palette.panelRaised,
     };
     final borderColor = widget.tone == LibraryDenseButtonTone.accent
-        ? palette.accent.withValues(alpha: 0.74)
+        ? accent.withValues(alpha: 0.74)
         : palette.divider;
     final hoveredBackground = enabled
         ? Color.alphaBlend(
             (widget.tone == LibraryDenseButtonTone.accent
                     ? Colors.white
-                    : palette.accent)
+                    : accent)
                 .withValues(
                     alpha: widget.tone == LibraryDenseButtonTone.accent
                         ? 0.08
@@ -164,12 +166,13 @@ class _LibraryDenseIconButtonState extends State<LibraryDenseIconButton> {
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
+    final accent = LibraryAccentScope.accentOf(context);
     final enabled = widget.onPressed != null;
     final background = switch (widget.tone) {
       LibraryDenseButtonTone.accent => enabled
-          ? palette.accent
+          ? accent
           : Color.alphaBlend(
-              palette.accent.withValues(alpha: 0.45),
+              accent.withValues(alpha: 0.45),
               palette.panelRaised,
             ),
       LibraryDenseButtonTone.subtle => palette.surfaceSubtle,
@@ -179,7 +182,7 @@ class _LibraryDenseIconButtonState extends State<LibraryDenseIconButton> {
         ? Color.alphaBlend(
             (widget.tone == LibraryDenseButtonTone.accent
                     ? Colors.white
-                    : palette.accent)
+                    : accent)
                 .withValues(
                     alpha: widget.tone == LibraryDenseButtonTone.accent
                         ? 0.08
@@ -214,7 +217,7 @@ class _LibraryDenseIconButtonState extends State<LibraryDenseIconButton> {
                 borderRadius: BorderRadius.circular(4),
                 border: Border.all(
                   color: widget.tone == LibraryDenseButtonTone.accent
-                      ? palette.accent.withValues(alpha: 0.74)
+                      ? accent.withValues(alpha: 0.74)
                       : palette.divider,
                 ),
               ),
@@ -252,12 +255,13 @@ class LibraryDenseMenuButton<T> extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
+    final accent = LibraryAccentScope.accentOf(context);
     return PopupMenuButton<T>(
       tooltip: tooltip ?? label,
       onSelected: onSelected,
       padding: EdgeInsets.zero,
       color: Color.alphaBlend(
-        palette.accent.withValues(alpha: 0.025),
+        accent.withValues(alpha: 0.025),
         palette.panelRaised,
       ),
       surfaceTintColor: Colors.transparent,
@@ -273,7 +277,7 @@ class LibraryDenseMenuButton<T> extends StatelessWidget {
             value: entry.value,
             enabled: entry.enabled,
             height: kLibraryToolbarPopupItemHeight,
-            child: _LibraryDenseMenuItemRow(entry: entry),
+            child: _LibraryDenseMenuItemRow(entry: entry, accent: accent),
           ),
       ],
       child: LibraryDenseButton(
@@ -310,8 +314,9 @@ class LibraryDenseSplitButton<T> extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
+    final accent = LibraryAccentScope.accentOf(context);
     final background = switch (tone) {
-      LibraryDenseButtonTone.accent => palette.accent,
+      LibraryDenseButtonTone.accent => accent,
       LibraryDenseButtonTone.subtle => palette.surfaceSubtle,
       LibraryDenseButtonTone.surface => palette.panelRaised,
     };
@@ -319,7 +324,7 @@ class LibraryDenseSplitButton<T> extends StatelessWidget {
         ? appContrastingTextColor(background)
         : palette.textPrimary;
     final border = tone == LibraryDenseButtonTone.accent
-        ? palette.accent.withValues(alpha: 0.74)
+        ? accent.withValues(alpha: 0.74)
         : palette.divider;
 
     return DecoratedBox(
@@ -366,7 +371,7 @@ class LibraryDenseSplitButton<T> extends StatelessWidget {
             padding: EdgeInsets.zero,
             onSelected: onSelected,
             color: Color.alphaBlend(
-              palette.accent.withValues(alpha: 0.025),
+              accent.withValues(alpha: 0.025),
               palette.panelRaised,
             ),
             surfaceTintColor: Colors.transparent,
@@ -382,7 +387,7 @@ class LibraryDenseSplitButton<T> extends StatelessWidget {
                   value: entry.value,
                   enabled: entry.enabled,
                   height: kLibraryToolbarPopupItemHeight,
-                  child: _LibraryDenseMenuItemRow(entry: entry),
+                  child: _LibraryDenseMenuItemRow(entry: entry, accent: accent),
                 ),
             ],
             child: Padding(
@@ -398,9 +403,10 @@ class LibraryDenseSplitButton<T> extends StatelessWidget {
 }
 
 class _LibraryDenseMenuItemRow<T> extends StatelessWidget {
-  const _LibraryDenseMenuItemRow({required this.entry});
+  const _LibraryDenseMenuItemRow({required this.entry, required this.accent});
 
   final LibraryDenseMenuEntry<T> entry;
+  final Color accent;
 
   @override
   Widget build(BuildContext context) {
@@ -412,7 +418,7 @@ class _LibraryDenseMenuItemRow<T> extends StatelessWidget {
           entry.active ? Icons.check_circle : entry.icon,
           size: 14,
           color: entry.enabled
-              ? (entry.active ? palette.accent : palette.textPrimary)
+              ? (entry.active ? accent : palette.textPrimary)
               : palette.textMuted,
         ),
         const SizedBox(width: 7),
@@ -421,7 +427,7 @@ class _LibraryDenseMenuItemRow<T> extends StatelessWidget {
             entry.label,
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                   color: foreground,
-                  fontWeight: FontWeight.w500,
+                  fontWeight: FontWeight.w400,
                   fontSize: 14,
                 ),
           ),

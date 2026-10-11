@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 
 /// Bundled geometric face, identical across web and desktop.
-const kAppFontFamily = 'Collectarr Sans';
+const kAppFontFamily = 'Manrope';
 const kAppFontFamilyFallback = ['Segoe UI', 'Roboto'];
 const kAppBodyFontSize = 14.0;
 const kAppCaptionFontSize = 13.0;
-const kAppNormalFontWeight = FontWeight.w500;
+const kAppNormalFontWeight = FontWeight.w400;
 const kAppBoldFontWeight = FontWeight.w700;
 const kAppExtraBoldFontWeight = FontWeight.w800;
 
@@ -24,7 +24,6 @@ TextTheme buildAppTextTheme(TextTheme base, Color foreground) {
         fontWeight: weight,
         letterSpacing: 0,
         height: 20 / 14,
-        fontFeatures: const [FontFeature.tabularFigures()],
       );
   return themed.copyWith(
     titleLarge: role(themed.titleLarge, 18, kAppBoldFontWeight),
