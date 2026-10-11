@@ -465,6 +465,10 @@ abstract final class LibraryPageShellPresenter {
           : null,
       onBulkUpdateValues: null,
       onBulkUpdateKeyInfo: null,
+      onMoveToCollection: state._hasLibraryEntriesInSelection(projection)
+          ? () => state._collectionActionCoordinator
+              .moveSelectionToCollectionFlow(projection)
+          : null,
       onBulkMoveToEntry: state
               ._hasMoveToEntryEligibleItemsInSelection(projection)
           ? () =>

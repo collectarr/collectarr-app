@@ -32,6 +32,7 @@ void main() {
       onBulkUpdateKeyInfo: null,
       onBulkMoveToEntry: null,
       onBulkMoveToWishlist: null,
+      onMoveToCollection: null,
       onBulkRemove: () {},
       onBulkRefreshMetadata: () {},
     );
@@ -105,6 +106,7 @@ void main() {
       onBulkUpdateKeyInfo: null,
       onBulkMoveToEntry: () {},
       onBulkMoveToWishlist: () {},
+      onMoveToCollection: null,
       onBulkRemove: null,
       onBulkRefreshMetadata: null,
     );
@@ -178,6 +180,7 @@ void main() {
       onBulkUpdateKeyInfo: null,
       onBulkMoveToEntry: () {},
       onBulkMoveToWishlist: () {},
+      onMoveToCollection: null,
       onBulkRemove: null,
       onBulkRefreshMetadata: null,
     );
@@ -319,6 +322,7 @@ void main() {
       onBulkUpdateKeyInfo: null,
       onBulkMoveToEntry: null,
       onBulkMoveToWishlist: null,
+      onMoveToCollection: null,
       onBulkRemove: () {},
       onBulkRefreshMetadata: () {},
     );

@@ -112,7 +112,8 @@ class LibraryWorkspacePreferences {
         prefs.getDouble(_key('details_width')) ?? defaultDetailsWidth;
     final detailsHeight =
         prefs.getDouble(_key('details_height')) ?? defaultDetailsHeight;
-    final fields = libraryKindWorkspaceForKind(registration.kind).fields;
+    final fields =
+        libraryKindWorkspaceForKind(registration.kind).workspaceFields;
     final sortRules = _decodeSortRules(
       prefs.getStringList(_key('sort_rules')),
       fields,
@@ -193,7 +194,8 @@ class LibraryWorkspacePreferences {
   }
 
   Future<void> write(LibraryWorkspacePreferenceSnapshot snapshot) async {
-    final fields = libraryKindWorkspaceForKind(registration.kind).fields;
+    final fields =
+        libraryKindWorkspaceForKind(registration.kind).workspaceFields;
     final normalizedVisibleColumns = _normalizeVisibleColumns(
       snapshot.visibleColumns,
       fields,
@@ -290,10 +292,6 @@ class LibraryWorkspacePreferences {
         columns.add(colDef.id.value);
       }
     }
-    final primaryColumn = fields.findColumnDefinition(fields.primaryColumn);
-    if (primaryColumn != null) {
-      columns.add(primaryColumn.id.value);
-    }
     return columns.isEmpty
         ? defaultCols.map((column) => column.value).toSet()
         : columns;
@@ -384,10 +382,6 @@ class LibraryWorkspacePreferences {
       if (colDef != null) {
         normalized.add(colDef.id.value);
       }
-    }
-    final primaryColumn = fields.findColumnDefinition(fields.primaryColumn);
-    if (primaryColumn != null) {
-      normalized.add(primaryColumn.id.value);
     }
     return normalized.isEmpty
         ? defaultCols.map((column) => column.value).toSet()

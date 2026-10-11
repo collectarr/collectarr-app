@@ -57,6 +57,9 @@ abstract interface class LibraryKindWorkspace {
   );
   LibraryFieldRegistry<LibraryWorkspaceDto> get libraryEntryFields;
 
+  /// Explicit catalog and local-entry choices exposed by library controls.
+  LibraryFieldRegistry<LibraryWorkspaceDto> get workspaceFields;
+
   LibraryFieldRegistry<LibraryWorkspaceDto>? fieldsForGroupModeAcrossTargets(
       String raw);
   Object? groupValueAcrossTargets(
@@ -197,6 +200,30 @@ final class TypedLibraryKindWorkspace<TDto extends LibraryWorkspaceDto>
   @override
   LibraryFieldRegistry<LibraryWorkspaceDto> get libraryEntryFields =>
       libraryEntryWorkspace.fields;
+
+  @override
+  late final LibraryFieldRegistry<LibraryWorkspaceDto> workspaceFields =
+      LibraryFieldRegistry<LibraryWorkspaceDto>(
+    kindNamespace: fields.kindNamespace,
+    fields: _mergeChoices(fields.fields, libraryEntryFields.fields,
+        (definition) => definition.id.value),
+    columns: _mergeChoices(fields.columns, libraryEntryFields.columns,
+        (definition) => definition.id.value),
+    sorts: _mergeChoices(fields.sorts, libraryEntryFields.sorts,
+        (definition) => definition.id.value),
+    groups: _mergeChoices(fields.groups, libraryEntryFields.groups,
+        (definition) => definition.id.value),
+    primaryColumn: fields.primaryColumn,
+    defaultVisibleColumns: fields.defaultVisibleColumns,
+    defaultSort: fields.defaultSort,
+    defaultGroup: fields.defaultGroup,
+  );
+
+  static List<T> _mergeChoices<T>(
+          List<T> catalog, List<T> local, String Function(T) idOf) =>
+      {
+        for (final value in [...catalog, ...local]) idOf(value): value
+      }.values.toList(growable: false);
 
   @override
   LibraryFieldRegistry<LibraryWorkspaceDto>? fieldsForGroupModeAcrossTargets(

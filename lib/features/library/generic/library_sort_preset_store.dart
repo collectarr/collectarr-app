@@ -174,5 +174,5 @@ class LibrarySortPresetStore {
   }
 
   LibraryFieldRegistry<LibraryWorkspaceDto> get _fields =>
-      libraryKindWorkspaceForKind(config.kind).fields;
+      libraryKindWorkspaceForKind(config.kind).workspaceFields;
 }

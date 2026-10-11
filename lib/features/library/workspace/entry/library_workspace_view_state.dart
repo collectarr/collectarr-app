@@ -94,14 +94,14 @@ class LibraryWorkspaceViewProfile {
       viewMode: defaultViewMode,
       detailsLayout: defaultDetailsLayout,
       isSidebarVisible: defaultSidebarVisible,
-      sortId: workspace.fields.defaultSort,
+      sortId: workspace.workspaceFields.defaultSort,
       sortAscending: defaultSortAscending,
       coverSize: defaultCoverSize,
       sidebarWidth: defaultSidebarWidth,
       detailsWidth: defaultDetailsWidth,
       detailsHeight: defaultDetailsHeight,
       densityPreset: registration.identity.defaultDensityPreset,
-      visibleColumnIds: workspace.fields.defaultVisibleColumns,
+      visibleColumnIds: workspace.workspaceFields.defaultVisibleColumns,
       columnWidths: const {},
     );
     return defaults
@@ -113,7 +113,7 @@ class LibraryWorkspaceViewProfile {
   ) {
     final registration = registrationResolver();
     final workspace = libraryKindWorkspaceForKind(registration.kind);
-    final fields = workspace.fields;
+    final fields = workspace.workspaceFields;
     return LibraryWorkspaceViewState(
       viewMode: preferences.viewMode,
       detailsLayout: preferences.detailsLayout,
@@ -178,7 +178,7 @@ class LibraryWorkspaceViewProfile {
     Iterable<LibrarySortRule> rules,
   ) {
     return _decodeSortRules(
-      libraryKindWorkspaceForKind(registrationResolver().kind).fields,
+      libraryKindWorkspaceForKind(registrationResolver().kind).workspaceFields,
       rules,
     );
   }
@@ -187,15 +187,14 @@ class LibraryWorkspaceViewProfile {
     Iterable<LibrarySortRule> rules,
   ) {
     return _decodeSortRules(
-      libraryKindWorkspaceForKind(registrationResolver().kind)
-          .libraryEntryFields,
+      libraryKindWorkspaceForKind(registrationResolver().kind).workspaceFields,
       rules,
     );
   }
 
   Set<LibraryFieldIdRuntime> decodeColumnIds(Iterable<String> columns) {
     return _decodeVisibleColumns(
-      libraryKindWorkspaceForKind(registrationResolver().kind).fields,
+      libraryKindWorkspaceForKind(registrationResolver().kind).workspaceFields,
       columns,
     );
   }

@@ -29,6 +29,7 @@ typedef LibrarySelectionCallbacks = ({
   VoidCallback? onBulkUpdateKeyInfo,
   VoidCallback? onBulkMoveToEntry,
   VoidCallback? onBulkMoveToWishlist,
+  VoidCallback? onMoveToCollection,
   VoidCallback? onBulkRemove,
   VoidCallback? onBulkRefreshMetadata,
 });
@@ -325,8 +326,7 @@ class LibrarySelectionControls extends StatelessWidget {
             _BulkAction.mergeAlbums => null,
             _BulkAction.loan => callbacks.onBulkLoan,
             _BulkAction.transferFieldData => callbacks.onTransferFieldData,
-            _BulkAction.moveToCollection =>
-              callbacks.onBulkMoveToWishlist ?? callbacks.onBulkMoveToEntry,
+            _BulkAction.moveToCollection => callbacks.onMoveToCollection,
             _BulkAction.updateKeyInfo => callbacks.onBulkUpdateKeyInfo,
             _BulkAction.updateFromCore => callbacks.onBulkRefreshMetadata,
           };
@@ -384,8 +384,7 @@ class LibrarySelectionControls extends StatelessWidget {
                   svgAsset: 'assets/sidebar_icons/database.svg',
                   icon: Icons.dns_outlined,
                   label: 'Move to other collection',
-                  enabled: callbacks.onBulkMoveToWishlist != null ||
-                      callbacks.onBulkMoveToEntry != null,
+                  enabled: callbacks.onMoveToCollection != null,
                 ),
                 const PopupMenuDivider(height: 7),
                 accentMenuItem(

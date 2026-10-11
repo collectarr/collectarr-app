@@ -127,26 +127,7 @@ class LibraryPageCollectionActionCoordinator {
     if (result == null || !_page.mounted) return;
     switch (result.action) {
       case LibraryItemContextAction.moveToCollection:
-        final refs = projection.filteredItems
-            .where((entry) => contextSelectionIds.contains(entry.target.id))
-            .map((entry) => entry.source.libraryEntryRef)
-            .whereType<LibraryEntryRef>()
-            .toList();
-        final db = _page.ref.read(localDatabaseProvider);
-        final collections = await LibraryCollectionRepository(db)
-            .watch(_page.type.kind.apiValue)
-            .first;
-        if (!_page.mounted) return;
-        final destination = await chooseLibraryCollection(_page.context,
-            db: db,
-            kind: _page.type.kind.apiValue,
-            excluding: activeLibraryCollectionId(collections));
-        if (destination == null) return;
-        await LibraryCollectionRepository(db).move(refs, destination);
-        if (_page.mounted) {
-          _page.rebuild(_page.clearSelection);
-          _page.invalidateShelf();
-        }
+        await _moveToCollection(projection, contextSelectionIds);
       case LibraryItemContextAction.edit:
         if (isBatchSelection) {
           await bulkEditFlow(projection);
@@ -304,6 +285,36 @@ class LibraryPageCollectionActionCoordinator {
           defaultLocationId: prefill.locationId,
           defaultTags: prefill.tags,
         );
+    _page.rebuild(_page.clearSelection);
+    _page.invalidateShelf();
+  }
+
+  Future<void> moveSelectionToCollectionFlow(
+      LibraryProjection? projection) async {
+    if (projection == null || _page.selection.itemIds.isEmpty) return;
+    await _moveToCollection(projection, _page.selection.itemIds);
+  }
+
+  Future<void> _moveToCollection(
+      LibraryProjection projection, Set<String> selectedIds) async {
+    final refs = projection.filteredItems
+        .where((item) => selectedIds.contains(item.target.id))
+        .map((item) => item.source.libraryEntryRef)
+        .whereType<LibraryEntryRef>()
+        .toList(growable: false);
+    if (refs.isEmpty) return;
+    final db = _page.ref.read(localDatabaseProvider);
+    final collections = await LibraryCollectionRepository(db)
+        .watch(_page.type.kind.apiValue)
+        .first;
+    if (!_page.mounted) return;
+    final destination = await chooseLibraryCollection(_page.context,
+        db: db,
+        kind: _page.type.kind.apiValue,
+        excluding: activeLibraryCollectionId(collections));
+    if (destination == null || !_page.mounted) return;
+    await LibraryCollectionRepository(db).move(refs, destination);
+    if (!_page.mounted) return;
     _page.rebuild(_page.clearSelection);
     _page.invalidateShelf();
   }

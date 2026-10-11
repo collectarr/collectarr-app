@@ -580,8 +580,10 @@ class _LibrarySortDialogState extends State<_LibrarySortDialog> {
   }
 
   LibrarySortRule _defaultRule() {
-    final column =
-        libraryKindWorkspaceForKind(widget.type.kind).fields.defaultSort.value;
+    final column = libraryKindWorkspaceForKind(widget.type.kind)
+        .workspaceFields
+        .defaultSort
+        .value;
     return LibrarySortRule(
       column: column,
       ascending: _defaultAscending(column),
@@ -614,7 +616,9 @@ class _LibrarySortDialogState extends State<_LibrarySortDialog> {
     final available = (widget.availableColumns ??
             [
               for (final definition
-                  in libraryKindWorkspaceForKind(widget.type.kind).fields.sorts)
+                  in libraryKindWorkspaceForKind(widget.type.kind)
+                      .workspaceFields
+                      .sorts)
                 definition.id.value,
             ])
         .toSet();
@@ -646,8 +650,9 @@ class _LibrarySortDialogState extends State<_LibrarySortDialog> {
     final query = _query.trim().toLowerCase();
     final available = widget.availableColumns ??
         [
-          for (final def
-              in libraryKindWorkspaceForKind(widget.type.kind).fields.sorts)
+          for (final def in libraryKindWorkspaceForKind(widget.type.kind)
+              .workspaceFields
+              .sorts)
             def.id.value,
         ];
     return available.where((column) {
@@ -1215,7 +1220,7 @@ LibraryTableColumnGroup _sortFieldGroup(
   LibraryKindRegistration type,
   String column,
 ) {
-  final fields = libraryKindWorkspaceForKind(type.kind).fields;
+  final fields = libraryKindWorkspaceForKind(type.kind).workspaceFields;
   final groupStr =
       fields.sortDefinitionFor(fields.decodeSortId(column)).group.toLowerCase();
   return LibraryTableColumnGroup.values.firstWhere(
@@ -1237,7 +1242,7 @@ bool _defaultSortAscending(
   LibraryKindRegistration type,
   String column,
 ) {
-  final fields = libraryKindWorkspaceForKind(type.kind).fields;
+  final fields = libraryKindWorkspaceForKind(type.kind).workspaceFields;
   return fields.sortDefinitionFor(fields.decodeSortId(column)).defaultAscending;
 }
 
@@ -1257,7 +1262,7 @@ String _sortColumnLabel(
   String column,
 ) {
   try {
-    final fields = libraryKindWorkspaceForKind(type.kind).fields;
+    final fields = libraryKindWorkspaceForKind(type.kind).workspaceFields;
     return fields.sortDefinitionFor(fields.decodeSortId(column)).label;
   } on StateError {
     return librarySortColumnFallbackLabel(column);

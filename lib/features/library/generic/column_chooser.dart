@@ -20,7 +20,7 @@ Future<Set<String>?> showGenericLibraryColumnChooser({
     return null;
   }
   final workspace = libraryKindWorkspaceForKind(type.kind);
-  final fields = workspace.fields;
+  final fields = workspace.workspaceFields;
   final availableColumns = {
     for (final column in fields.columns) column.id.value
   };
@@ -45,17 +45,26 @@ Future<Set<String>?> showGenericLibraryColumnChooser({
       defaultColumns: {
         for (final column in fields.defaultVisibleColumns) column.value,
       },
-      primaryColumn: fields.primaryColumn.value,
+      primaryColumn: null,
       presets: presets,
       columnLabel: (column) {
-        final label =
-            workspace.columnDisplayName(fields.decodeColumnId(column));
+        final label = fields
+                .findColumnDefinition(fields.decodeColumnId(column))
+                ?.displayName ??
+            labels[column] ??
+            column;
         return label.trim().isEmpty ? labels[column] ?? column : label;
       },
       accent: accent,
-      columnGroup: (column) => workspace.columnGroup(
-        fields.decodeColumnId(column),
-      ),
+      columnGroup: (column) {
+        final group = fields
+            .findColumnDefinition(fields.decodeColumnId(column))
+            ?.group
+            .toLowerCase();
+        return LibraryTableColumnGroup.values.firstWhere(
+            (value) => value.name.toLowerCase() == group,
+            orElse: () => LibraryTableColumnGroup.main);
+      },
       groupLabel: workspace.columnGroupLabel,
       savedPresets: savedPresets
           .where((preset) => availableColumns.containsAll(preset.columns))

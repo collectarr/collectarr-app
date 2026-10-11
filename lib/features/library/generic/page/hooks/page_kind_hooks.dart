@@ -23,7 +23,7 @@ extension _PageKindHooks on GenericLibraryPageState {
   List<String> get _scopeAvailableSortColumns {
     return [
       for (final sortId in libraryKindWorkspaceForKind(widget.type.kind)
-          .fields
+          .workspaceFields
           .sorts
           .map((definition) => definition.id))
         sortId.value,

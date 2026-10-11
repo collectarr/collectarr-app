@@ -26,12 +26,13 @@ void main() {
     await tester.pumpAndSettle();
     final dialog = tester.widget<LibraryColumnChooserDialog>(
         find.byType(LibraryColumnChooserDialog));
-    expect(dialog.primaryColumn, 'music.title');
+    expect(dialog.primaryColumn, isNull);
+    expect(dialog.availableColumns, contains('music.added_at'));
     expect(dialog.columnLabel('music.cover'), 'Cover');
     expect(dialog.presets.map((preset) => preset.label),
         containsAll(['Essential', 'Reference']));
     expect(dialog.presets.map((preset) => preset.label),
-        isNot(contains('Collection')));
+        contains('Collection'));
     expect(
         find.byKey(const ValueKey('column-preset-Essential')), findsOneWidget);
     await tester.tap(find.text('Cancel'));

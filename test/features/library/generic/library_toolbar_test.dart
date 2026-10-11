@@ -583,6 +583,7 @@ void main() {
                 onBulkUpdateKeyInfo: null,
                 onBulkMoveToEntry: null,
                 onBulkMoveToWishlist: null,
+                onMoveToCollection: null,
                 onBulkRemove: () {},
                 onBulkRefreshMetadata: () {},
               ),

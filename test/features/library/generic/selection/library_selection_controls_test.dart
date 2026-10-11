@@ -25,6 +25,7 @@ void main() {
               onBulkUpdateKeyInfo: null,
               onBulkMoveToEntry: () {},
               onBulkMoveToWishlist: () {},
+              onMoveToCollection: null,
               onBulkRemove: () {
                 showDialog<void>(
                   context: testKey.currentContext!,
