@@ -1495,27 +1495,11 @@ class _FontDiagnosticsPanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final textTheme = Theme.of(context).textTheme;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         const Text(
             'Primary: Gilroy (Fallback: Plus Jakarta Sans) • Monospace: JetBrains Mono'),
-        const SizedBox(height: 8),
-        Text(
-          'Gilroy / Plus Jakarta Sans sample: The quick brown fox 12345',
-          style: textTheme.bodyMedium?.copyWith(
-            fontFamily: kClzPrimaryFontFamily,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        const SizedBox(height: 6),
-        Text(
-          'JetBrains Mono sample: ABCDEF 1234567890',
-          style: textTheme.bodyMedium?.copyWith(
-            fontFamily: kClzMonospaceFontFamily,
-          ),
-        ),
         const SizedBox(height: 12),
         FutureBuilder<bool>(
           future: _assetAvailable(_primaryAsset),
