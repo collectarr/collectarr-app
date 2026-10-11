@@ -814,11 +814,11 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                 leading: const Icon(Icons.space_bar),
                 title: const Text('Grid spacing'),
                 subtitle: Slider(
-                  value: uiPreferences.gridSpacing,
+                  value: uiPreferences.gridSpacing.clamp(4.0, 24.0),
                   min: 4,
-                  max: 14,
-                  divisions: 10,
-                  label: '${uiPreferences.gridSpacing.round()} px',
+                  max: 24,
+                  divisions: 20,
+                  label: '${uiPreferences.gridSpacing.clamp(4.0, 24.0).round()} px',
                   onChanged: (value) => ref
                       .read(uiPreferencesProvider.notifier)
                       .setGridSpacing(value.roundToDouble()),
@@ -836,11 +836,11 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                 leading: const Icon(Icons.photo_size_select_large),
                 title: const Text('Card cover width'),
                 subtitle: Slider(
-                  value: uiPreferences.cardCoverWidth,
+                  value: uiPreferences.cardCoverWidth.clamp(60.0, 120.0),
                   min: 60,
                   max: 120,
                   divisions: 12,
-                  label: '${uiPreferences.cardCoverWidth.round()} px',
+                  label: '${uiPreferences.cardCoverWidth.clamp(60.0, 120.0).round()} px',
                   onChanged: (value) => ref
                       .read(uiPreferencesProvider.notifier)
                       .setCardCoverWidth(value.roundToDouble()),
@@ -870,11 +870,11 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                 leading: const Icon(Icons.density_small),
                 title: const Text('Sidebar row padding'),
                 subtitle: Slider(
-                  value: uiPreferences.sidebarRowPadding,
+                  value: uiPreferences.sidebarRowPadding.clamp(0.0, 8.0),
                   min: 0,
                   max: 8,
                   divisions: 8,
-                  label: '${uiPreferences.sidebarRowPadding.round()} px',
+                  label: '${uiPreferences.sidebarRowPadding.clamp(0.0, 8.0).round()} px',
                   onChanged: (value) => ref
                       .read(uiPreferencesProvider.notifier)
                       .setSidebarRowPadding(value.roundToDouble()),

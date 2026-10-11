@@ -239,6 +239,38 @@ void main() {
     );
   });
 
+  testWidgets('settings page appearance renders sliders with gridSpacing 24.0 without throwing',
+      (tester) async {
+    SharedPreferences.setMockInitialValues({
+      UiPreferencesStore.gridSpacingKey: 24.0,
+      UiPreferencesStore.cardCoverWidthKey: 120.0,
+      UiPreferencesStore.sidebarRowPaddingKey: 8.0,
+    });
+    tester.view.physicalSize = const Size(1000, 1200);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    final db = LocalDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [localDatabaseProvider.overrideWithValue(db)],
+        child: MaterialApp(
+          theme: ThemeData(platform: TargetPlatform.windows),
+          home: const SettingsPage(initialSection: SettingsSection.appearance),
+        ),
+      ),
+    );
+    await pumpUntilSettled(tester);
+
+    expect(tester.takeException(), isNull);
+    await _openSettingsTab(tester, 'Covers & layout');
+    expect(find.text('Grid spacing'), findsOneWidget);
+    final sliderFinder = find.byType(Slider).first;
+    expect(tester.widget<Slider>(sliderFinder).value, 24.0);
+  });
+
   testWidgets('settings page warns that web sync can be browser-blocked',
       (tester) async {
     SharedPreferences.setMockInitialValues({});

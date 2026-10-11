@@ -56,7 +56,7 @@ class UiPreferences {
   /// Remove shadows and borders from cover tiles for a flatter look.
   final bool flatCovers;
 
-  /// Spacing between grid tiles in pixels (4–14).
+  /// Spacing between grid tiles in pixels (4–24).
   final double gridSpacing;
 
   /// Show title text below covers in grid view.
