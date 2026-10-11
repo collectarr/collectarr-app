@@ -939,28 +939,25 @@ class LibraryCompactToolbarContent extends StatelessWidget {
       children: [
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 8),
-          child: Row(
-            children: [
-              Expanded(
-                child: SearchBar(
-                  controller: searchController,
-                  constraints: const BoxConstraints.tightFor(height: 36),
-                  hintText:
-                      'Search ${type.identity.pluralLabel.toLowerCase()}...',
-                  leading: const Icon(Icons.search),
-                  trailing: searchActive
-                      ? [
-                          IconButton(
-                            tooltip: 'Clear search',
-                            onPressed: onClearSearch,
-                            icon: const Icon(Icons.clear, size: 18),
-                          ),
-                        ]
-                      : null,
-                  onChanged: onSearchInputChanged,
-                  onSubmitted: onSearchChanged,
-                ),
-              ),
+          child: LayoutBuilder(builder: (context, constraints) {
+            final search = SearchBar(
+              controller: searchController,
+              constraints: const BoxConstraints.tightFor(height: 36),
+              hintText: 'Search ${type.identity.pluralLabel.toLowerCase()}...',
+              leading: const Icon(Icons.search),
+              trailing: searchActive
+                  ? [
+                      IconButton(
+                        tooltip: 'Clear search',
+                        onPressed: onClearSearch,
+                        icon: const Icon(Icons.clear, size: 18),
+                      ),
+                    ]
+                  : null,
+              onChanged: onSearchInputChanged,
+              onSubmitted: onSearchChanged,
+            );
+            final actions = <Widget>[
               if (searchTargetOptions.isNotEmpty &&
                   onSearchTargetChanged != null) ...[
                 const SizedBox(width: 6),
@@ -1021,8 +1018,21 @@ class LibraryCompactToolbarContent extends StatelessWidget {
                 onCompareMetadataWithServer: onCompareMetadataWithServer,
                 extraActions: extraActions,
               ),
-            ],
-          ),
+            ];
+            if (constraints.maxWidth < 560) {
+              return Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    search,
+                    const SizedBox(height: 6),
+                    Wrap(
+                        crossAxisAlignment: WrapCrossAlignment.center,
+                        runSpacing: 4,
+                        children: actions),
+                  ]);
+            }
+            return Row(children: [Expanded(child: search), ...actions]);
+          }),
         ),
         Padding(
           padding: const EdgeInsets.fromLTRB(8, 0, 8, 8),
