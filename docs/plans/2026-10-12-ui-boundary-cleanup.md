@@ -1,0 +1,26 @@
+# UI boundary cleanup
+
+Complete the pending editor navigation/motion alignment, then make four
+reviewable commits without compatibility wrappers or speculative controllers:
+
+1. Remove confirmed dead mobile/barrel/adaptive APIs and their obsolete tests.
+   Keep AppWindowClass and the live AppPageHeader, loading/error and close UI.
+2. Make viewport classes, constraint-based form breakpoints, library density
+   geometry and shell header heights explicit. Remove kClz runtime aliases;
+   retain the user-installed Gilroy detection and bundled fallback. Consolidate
+   animation durations and resolve shared UI colors through the active palette.
+3. Keep AppShell as composition/state. Extract app bar, declarative drawer
+   destinations/rendering and plain action dispatch. Move kind shelf projection
+   next to collection projection. Preserve route/back/selection semantics.
+4. Remove impossible picker branches; share popup measurement/placement only.
+   Keep searchable and free-text controls separate; remove hardcoded dropdown
+   colors and obsolete helper files after their consumers have been updated.
+
+Validate each commit with analyzer and relevant tests. Check current editor
+and shell visually after meaningful changes; finish with a Windows debug build.
+Raw viewport-independent defaults belong to LibraryMetrics; component column
+thresholds describe available constraints, not additional device classes.
+
+Stage 1 complete: deleted mobile_ux.dart and ui.dart; removed AdaptiveLayout,
+fromConstraints and maybeOf. Kept AppPageHeader after confirming production
+consumers. Analyzer clean; 11 adaptive/desktop/mobile navigation checks pass.
