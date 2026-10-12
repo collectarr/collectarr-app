@@ -76,8 +76,8 @@ void main() {
         tester.widgetList<DecoratedBox>(find.byType(DecoratedBox)).firstWhere(
               (box) =>
                   box.decoration is BoxDecoration &&
-                  (box.decoration as BoxDecoration).color == Colors.deepPurple,
+                  (box.decoration as BoxDecoration).gradient != null,
             );
-    expect((headerBox.decoration as BoxDecoration).gradient, isNull);
+    expect((headerBox.decoration as BoxDecoration).gradient, isNotNull);
   });
 }

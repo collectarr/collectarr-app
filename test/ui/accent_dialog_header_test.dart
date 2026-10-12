@@ -7,8 +7,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   group('AccentDialogHeader', () {
-    testWidgets(
-        'renders white title, flat accent chrome, and white close button',
+    testWidgets('renders white title, gradient chrome, and white close button',
         (tester) async {
       var closed = false;
 
@@ -48,7 +47,7 @@ void main() {
       await tester.tap(closeFinder);
       expect(closed, isTrue);
 
-      // Verify flat accent chrome decoration is present
+      // Verify gradient chrome decoration is present
       final decoratedBoxes =
           tester.widgetList<DecoratedBox>(find.byType(DecoratedBox));
       final hasGradient = decoratedBoxes.any(
@@ -56,12 +55,7 @@ void main() {
             box.decoration is BoxDecoration &&
             (box.decoration as BoxDecoration).gradient != null,
       );
-      expect(hasGradient, isFalse);
-      expect(
-          decoratedBoxes.any((box) =>
-              box.decoration is BoxDecoration &&
-              (box.decoration as BoxDecoration).color == Colors.deepPurple),
-          isTrue);
+      expect(hasGradient, isTrue);
     });
 
     testWidgets('pops dialog when onClose is omitted', (tester) async {
@@ -116,7 +110,7 @@ void main() {
   });
 
   group('AccentAlertDialog', () {
-    testWidgets('renders white title and flat header in AlertDialog',
+    testWidgets('renders white title and gradient header in AlertDialog',
         (tester) async {
       await tester.pumpWidget(
         const MaterialApp(

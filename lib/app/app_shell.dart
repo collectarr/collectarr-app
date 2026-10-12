@@ -105,26 +105,28 @@ class _AppShellState extends ConsumerState<AppShell> {
             ref.read(selectedLibraryKindProvider.notifier).select(type.kind);
             context.go(AppRoutes.forKind(AppRoutes.libraries, type.kind));
           },
+          onOpenNavigation: () => unawaited(showAppNavigationDrawer(
+            context: context,
+            animationsEnabled: uiPreferences.animationsEnabled,
+            type: activeType,
+            selectedAction: _selectedDrawerAction,
+            isAdmin: auth.isAdmin,
+            accent: accent,
+            addLabel: 'Add ${activeType.identity.pluralLabel} from Core',
+            onSelected: (drawerContext, action) {
+              Navigator.of(drawerContext).pop();
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                if (!mounted) return;
+                unawaited(_actions.handle(
+                  action,
+                  type: activeType,
+                  accent: accent,
+                ));
+              });
+            },
+          )),
           onSettings: () =>
               context.go(AppRoutes.forKind(AppRoutes.settings, activeLibrary)),
-        ),
-        drawer: AppNavigationDrawer(
-          type: activeType,
-          selectedAction: _selectedDrawerAction,
-          isAdmin: auth.isAdmin,
-          accent: accent,
-          addLabel: 'Add ${activeType.identity.pluralLabel} from Core',
-          onSelected: (drawerContext, action) {
-            Navigator.of(drawerContext).pop();
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-              if (!mounted) return;
-              unawaited(_actions.handle(
-                action,
-                type: activeType,
-                accent: accent,
-              ));
-            });
-          },
         ),
         body: Stack(
           children: [

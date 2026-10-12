@@ -1,4 +1,6 @@
+import 'package:collectarr_app/features/library/config/library_kind_style.dart';
 import 'package:collectarr_app/ui/app_chrome.dart';
+import 'package:collectarr_app/ui/app_motion.dart';
 
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'app_shell_brand.dart';
@@ -7,6 +9,50 @@ import 'package:flutter/material.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
 
 import 'app_navigation_model.dart';
+
+Future<void> showAppNavigationDrawer({
+  required BuildContext context,
+  required LibraryKindRegistration type,
+  required DrawerAction? selectedAction,
+  required bool isAdmin,
+  required Color accent,
+  required String addLabel,
+  required bool animationsEnabled,
+  required void Function(BuildContext, DrawerAction) onSelected,
+}) =>
+    showGeneralDialog<void>(
+      context: context,
+      barrierDismissible: true,
+      barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
+      barrierColor: Colors.black54,
+      transitionDuration:
+          animationsEnabled && !MediaQuery.disableAnimationsOf(context)
+              ? appNavigationSlideDuration
+              : Duration.zero,
+      pageBuilder: (dialogContext, _, __) => GestureDetector(
+        onHorizontalDragEnd: (details) {
+          if ((details.primaryVelocity ?? 0) < -300) {
+            Navigator.of(dialogContext).pop();
+          }
+        },
+        child: AppNavigationDrawer(
+          type: type,
+          selectedAction: selectedAction,
+          isAdmin: isAdmin,
+          accent: accent,
+          addLabel: addLabel,
+          onSelected: onSelected,
+        ),
+      ),
+      transitionBuilder: (_, animation, __, child) => Align(
+        alignment: Alignment.centerLeft,
+        child: SlideTransition(
+          position: Tween<Offset>(begin: const Offset(-1, 0), end: Offset.zero)
+              .animate(animation),
+          child: child,
+        ),
+      ),
+    );
 
 class AppNavigationDrawer extends StatefulWidget {
   const AppNavigationDrawer({
@@ -50,32 +96,35 @@ class _AppNavigationDrawerState extends State<AppNavigationDrawer> {
       child: SafeArea(
         child: Column(
           children: [
-            Material(
-              key: const Key('drawer.header'),
-              color: widget.accent,
-              child: SizedBox(
-                height: drawerHeaderHeight,
-                width: double.infinity,
-                child: Row(children: [
-                  SizedBox(
-                    width: 44,
-                    child: IconButton(
-                      tooltip: 'Close navigation',
-                      style: appChromeIconButtonStyle(context),
-                      onPressed: () => Navigator.of(context).pop(),
-                      icon: const Icon(AppIcons.menu,
-                          size: 19, color: Colors.white),
+            AnimatedLibraryChrome(
+              accent: widget.accent,
+              child: Material(
+                key: const Key('drawer.header'),
+                color: Colors.transparent,
+                child: SizedBox(
+                  height: drawerHeaderHeight,
+                  width: double.infinity,
+                  child: Row(children: [
+                    SizedBox(
+                      width: 44,
+                      child: IconButton(
+                        tooltip: 'Close navigation',
+                        style: appChromeIconButtonStyle(context),
+                        onPressed: () => Navigator.of(context).pop(),
+                        icon: const Icon(AppIcons.menu,
+                            size: 19, color: Colors.white),
+                      ),
                     ),
-                  ),
-                  const SizedBox(width: 2),
-                  Expanded(
-                      child: AppShellBrand(
-                    icon: widget.type.identity.icon,
-                    kindTitle: widget.type.identity.title,
-                    iconKey: const Key('drawer.kind-icon'),
-                    titleKey: const Key('drawer.brand-title'),
-                  )),
-                ]),
+                    const SizedBox(width: 2),
+                    Expanded(
+                        child: AppShellBrand(
+                      icon: widget.type.identity.icon,
+                      kindTitle: widget.type.identity.title,
+                      iconKey: const Key('drawer.kind-icon'),
+                      titleKey: const Key('drawer.brand-title'),
+                    )),
+                  ]),
+                ),
               ),
             ),
             Expanded(
