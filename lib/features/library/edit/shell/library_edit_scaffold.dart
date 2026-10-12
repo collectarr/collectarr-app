@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_panel_title.dart';
 import 'package:collectarr_app/ui/app_motion.dart';
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_tab_strip.dart';
@@ -463,6 +464,8 @@ class _LibraryEditTitleBar extends StatelessWidget {
         padding: const EdgeInsets.fromLTRB(15, 6, 10, 6),
         child: Row(
           children: [
+            Icon(icon, size: 20, color: Colors.white),
+            const SizedBox(width: 10),
             Expanded(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -472,14 +475,7 @@ class _LibraryEditTitleBar extends StatelessWidget {
                     title,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      fontFamily: appFontFamily,
-                      fontWeight: FontWeight.w700,
-                      fontSize: 18,
-                      height: 1,
-                      letterSpacing: 0,
-                      color: Colors.white,
-                    ),
+                    style: appPanelTitleStyle,
                   ),
                   if (badges.isNotEmpty) ...[
                     const SizedBox(height: 2),

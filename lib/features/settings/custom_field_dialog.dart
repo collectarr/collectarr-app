@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/ui/accent_dialog_header.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
@@ -78,10 +79,10 @@ class CustomFieldDialog extends StatelessWidget {
               SizedBox(
                   height: 38,
                   child: AccentDialogHeader(
+                      icon: AppIcons.tabCustomFields,
+                      svgAsset: AppIcons.customFieldsSvg,
                       title: title,
                       minHeight: 38,
-                      titleStyle: const TextStyle(
-                          fontSize: 18, fontWeight: FontWeight.w700),
                       onClose: () => Navigator.of(context).pop())),
               Flexible(child: SingleChildScrollView(child: child)),
               Container(

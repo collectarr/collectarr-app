@@ -1,3 +1,5 @@
+import 'package:collectarr_app/ui/accent_alert_dialog.dart';
+import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/ui/app_page_header.dart';
 import 'dart:typed_data';
 
@@ -1879,7 +1881,8 @@ class _LibraryPrintPdfPageState extends State<LibraryPrintPdfPage> {
       context: context,
       builder: (dialogCtx) => StatefulBuilder(
         builder: (ctx, setDialogState) {
-          return AlertDialog(
+          return AccentAlertDialog(
+            headerIcon: AppIcons.columns,
             title: const Text('Manage Columns'),
             content: SizedBox(
               width: 320,
@@ -1937,7 +1940,8 @@ class _LibraryPrintPdfPageState extends State<LibraryPrintPdfPage> {
       context: context,
       builder: (dialogCtx) => StatefulBuilder(
         builder: (ctx, setDialogState) {
-          return AlertDialog(
+          return AccentAlertDialog(
+            headerIcon: AppIcons.sortAlpha,
             title: const Text('Manage Sort Order'),
             content: Column(
               mainAxisSize: MainAxisSize.min,

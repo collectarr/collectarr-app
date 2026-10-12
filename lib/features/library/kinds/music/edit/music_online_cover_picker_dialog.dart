@@ -1,3 +1,5 @@
+import 'package:collectarr_app/ui/app_icons.dart';
+import 'package:collectarr_app/ui/accent_dialog_header.dart';
 import 'package:collectarr_app/features/library/ui/library_metrics.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit/music_online_cover_search.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
@@ -83,7 +85,6 @@ final class _MusicOnlineCoverPickerDialogState
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
-    final accent = Theme.of(context).colorScheme.primary;
     final viewport = MediaQuery.sizeOf(context);
     final width = (viewport.width - 32).clamp(240.0, 1152.0).toDouble();
     final height = (viewport.height - 64).clamp(240.0, 600.0).toDouble();
@@ -95,24 +96,10 @@ final class _MusicOnlineCoverPickerDialogState
           height: height,
           child:
               Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-            Container(
-                color: accent,
-                height: 38,
-                padding: const EdgeInsets.only(left: 15, right: 6),
-                child: Row(children: [
-                  Expanded(
-                      child: Text('Find Cover',
-                          style: context.libraryTextTheme.panelTitle.copyWith(
-                              fontSize: 18,
-                              color: appContrastingTextColor(accent)))),
-                  IconButton(
-                      tooltip: 'Close',
-                      padding: EdgeInsets.zero,
-                      onPressed: () => Navigator.of(context).pop(),
-                      icon: Icon(Icons.close,
-                          size: 18,
-                          color: appContrastingTextColor(palette.accent))),
-                ])),
+            AccentDialogHeader(
+                title: 'Find Cover',
+                icon: AppIcons.tabImages,
+                onClose: () => Navigator.of(context).pop()),
             Padding(
                 padding: const EdgeInsets.fromLTRB(15, 14, 15, 8),
                 child: Row(children: [

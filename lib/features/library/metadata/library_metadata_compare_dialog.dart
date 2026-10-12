@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
 import 'package:collectarr_app/features/library/config/library_metadata_capability.dart';
@@ -124,7 +125,7 @@ class _LibraryMetadataCompareDialogState
     return LibraryDialogScaffold(
       title: Row(
         children: [
-          const Icon(Icons.compare_arrows),
+          const Icon(AppIcons.transferFieldData),
           const SizedBox(width: 8),
           Expanded(
             child: Text(

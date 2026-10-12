@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_dense_controls.dart';
@@ -118,6 +119,7 @@ class _LibraryColumnChooserDialogState
         .toList();
     final selectedColumns = _selected.toList();
     return LibraryFieldSelectionDialog(
+        icon: AppIcons.columns,
         title: 'Select Column Fields',
         accent: accent,
         headerAction: IconButton(

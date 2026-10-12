@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 import 'package:collectarr_app/ui/app_dialog.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
@@ -94,6 +95,7 @@ class _LibrarySortDialogState extends State<_LibrarySortDialog> {
   Widget build(BuildContext context) {
     final columns = _filteredColumns();
     return LibraryFieldSelectionDialog(
+        icon: AppIcons.sortAlpha,
         title: widget.title,
         accent: widget.type.identity.accent,
         confirmLabel: widget.confirmLabel,
@@ -215,7 +217,8 @@ class _LibrarySortDialogState extends State<_LibrarySortDialog> {
     var label = _presetNameController.text;
     final name = await showDialog<String>(
         context: context,
-        builder: (context) => AlertDialog(
+        builder: (context) => AccentAlertDialog(
+                headerIcon: AppIcons.sortAlpha,
                 title: const Text('Save Sorting Favorite'),
                 content: TextFormField(
                     initialValue: label,

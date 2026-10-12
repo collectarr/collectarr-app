@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_icons.dart';
 import 'dart:convert';
 
 import 'package:collectarr_app/core/sync/sync_change.dart';
@@ -33,6 +34,7 @@ class _SettingsPairingCodeDialogState extends State<SettingsPairingCodeDialog> {
   @override
   Widget build(BuildContext context) {
     return AccentAlertDialog(
+      headerIcon: AppIcons.sync,
       title: const Text('Apply pairing code'),
       content: SizedBox(
         width: 520,
@@ -70,6 +72,7 @@ class SettingsPairingQrDialog extends StatelessWidget {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     return AccentAlertDialog(
+      headerIcon: AppIcons.sync,
       title: const Text('Pairing QR'),
       content: SizedBox(
         width: 360,
@@ -440,6 +443,7 @@ class _SyncConflictDiffDialog extends StatelessWidget {
     final localPayload = change.localPayload ?? const <String, dynamic>{};
     final servicePayload = change.servicePayload ?? const <String, dynamic>{};
     return AccentAlertDialog(
+      headerIcon: AppIcons.sync,
       title: const Text('Sync conflict diff'),
       content: SizedBox(
         width: 860,

@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_icons.dart';
 import 'dart:convert';
 
 import 'package:collectarr_app/core/api/dto/admin_metadata.dart';
@@ -85,6 +86,7 @@ class _AdminProposalMetadataEditDialogState
   @override
   Widget build(BuildContext context) {
     return AccentAlertDialog(
+      headerIcon: AppIcons.inlineEdit,
       title: Text('Edit ${widget.proposal.kind} proposal'),
       content: SizedBox(
         width: 760,

@@ -1,3 +1,5 @@
+import 'package:collectarr_app/ui/accent_alert_dialog.dart';
+import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/ui/app_page_header.dart';
 import 'package:collectarr_app/features/collection/csv/collection_csv_models.dart';
 import 'package:collectarr_app/features/collection/csv/csv_mechanics.dart';
@@ -1406,7 +1408,8 @@ class _LibraryImportDataPageState extends ConsumerState<LibraryImportDataPage> {
   void _showSuccessDialog(int count) {
     showDialog<void>(
       context: context,
-      builder: (ctx) => AlertDialog(
+      builder: (ctx) => AccentAlertDialog(
+        headerIcon: AppIcons.importData,
         title: const Text('Import Complete'),
         content: Text(
           'Successfully imported $count $_pluralLabel into your collection.',

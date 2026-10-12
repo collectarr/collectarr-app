@@ -1,3 +1,5 @@
+import 'package:collectarr_app/ui/app_panel_title.dart';
+import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/features/library/config/library_kind_style.dart';
 import 'package:collectarr_app/features/library/ui/library_panel_header.dart';
 import 'package:collectarr_app/ui/accent_dialog_header.dart';
@@ -10,6 +12,7 @@ class AccentAlertDialog extends StatelessWidget {
   const AccentAlertDialog({
     super.key,
     this.title,
+    this.headerIcon,
     this.content,
     this.actions,
     this.icon,
@@ -31,6 +34,7 @@ class AccentAlertDialog extends StatelessWidget {
   });
 
   final Widget? title;
+  final IconData? headerIcon;
   final Widget? content;
   final List<Widget>? actions;
   final Widget? icon;
@@ -67,7 +71,7 @@ class AccentAlertDialog extends StatelessWidget {
       depth: currentDepth + 1,
       parentAlignment: resolvedAlignment,
       child: AlertDialog(
-        icon: icon,
+        icon: hasAccentHeader ? null : icon,
         iconPadding: iconPadding,
         iconColor: iconColor,
         title: titleWidget,
@@ -107,6 +111,9 @@ class AccentAlertDialog extends StatelessWidget {
     if (baseTitle is Text && (baseTitle.data?.trim().isNotEmpty ?? false)) {
       return AccentDialogHeader(
         title: baseTitle.data!,
+        icon: headerIcon ??
+            (icon is Icon ? (icon as Icon).icon : null) ??
+            AppIcons.tabDetails,
         onClose: headerOnClose,
       );
     }
@@ -127,14 +134,16 @@ class AccentAlertDialog extends StatelessWidget {
         onClose: headerOnClose ?? () => Navigator.of(context).maybePop(),
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
         child: DefaultTextStyle(
-          style: const TextStyle(
-            color: accentForeground,
-            fontSize: 15,
-            fontWeight: FontWeight.w700,
-          ),
+          style: appPanelTitleStyle,
           child: IconTheme(
             data: const IconThemeData(color: accentForeground),
-            child: baseTitle,
+            child: Row(children: [
+              if (headerIcon != null) ...[
+                Icon(headerIcon, size: 20, color: Colors.white),
+                const SizedBox(width: 10),
+              ],
+              Expanded(child: baseTitle),
+            ]),
           ),
         ),
       ),

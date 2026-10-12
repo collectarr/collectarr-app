@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_contributors.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_personal_field_registry.dart';
 import 'dart:async';
@@ -293,6 +294,7 @@ class LibraryAddDialogState extends ConsumerState<LibraryAddDialog> {
       final result = await showDialog<String>(
         context: context,
         builder: (dialogCtx) => AccentAlertDialog(
+          headerIcon: AppIcons.tags,
           title: const Text('Entry default tags'),
           content: SizedBox(
             width: 440,

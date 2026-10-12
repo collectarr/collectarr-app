@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/core/models/user_metadata_override.dart';
 import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/core/models/metadata_field_id.dart';
@@ -167,6 +168,7 @@ class _OverrideTile extends ConsumerWidget {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AccentAlertDialog(
+        headerIcon: AppIcons.delete,
         title: const Text('Remove correction?'),
         content: Text(
           'This will restore the original value for '

@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/features/library/add/controllers/library_add_dialog_requests.dart';
 import 'package:collectarr_app/features/library/kinds/music/add/music_add_manual_contents.dart';
 import 'package:collectarr_app/features/library/kinds/music/add/music_add_manual_draft.dart';
@@ -49,6 +50,7 @@ class _MusicAddManualDetailsPaneState extends State<MusicAddManualDetailsPane> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (dialogContext) => AccentAlertDialog(
+        headerIcon: AppIcons.delete,
         title: Text('Remove Disc ${discIndex + 1}?'),
         content: const Text(
           'This removes this disc and any tracks entered for it.',

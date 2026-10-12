@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_icons.dart';
 import 'dart:async';
 
 import 'package:collectarr_app/core/db/local_database.dart';
@@ -203,7 +204,7 @@ class _ReadingQueueDialogState extends State<_ReadingQueueDialog> {
     return LibraryDialogScaffold(
       title: Row(
         children: [
-          const Icon(Icons.bookmarks_outlined, size: 20),
+          const Icon(AppIcons.readingQueue, size: 20),
           const SizedBox(width: 8),
           const Expanded(child: Text('Reading Queue')),
           if (_entries.isNotEmpty)

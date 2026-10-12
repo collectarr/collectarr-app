@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/pick_lists/widgets/pick_list_select_dialog.dart';
 import 'package:collectarr_app/features/library/edit/sections/item_images_edit_section.dart';
@@ -795,6 +796,7 @@ extension ComicEditTabBuilders on ComicEditHost {
           return StatefulBuilder(
             builder: (context, setDialogState) {
               return AccentAlertDialog(
+                headerIcon: AppIcons.tabDetails,
                 title: Text(title),
                 content: SizedBox(
                   width: 620,

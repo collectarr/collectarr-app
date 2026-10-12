@@ -1,6 +1,7 @@
+import 'package:collectarr_app/ui/accent_dialog_header.dart';
+import 'package:collectarr_app/ui/app_icons.dart';
 import 'library_view_controls.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
-import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/ui/library_accent_scope.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
@@ -127,26 +128,10 @@ class _ViewAndOrganizeSheetState extends State<ViewAndOrganizeSheet> {
               ),
             ),
             const SizedBox(height: 12),
-            Row(
-              children: [
-                Icon(Icons.tune, size: 20, color: accentData.accent),
-                const SizedBox(width: 8),
-                Text(
-                  'View & Organize',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w700,
-                    color: palette.textPrimary,
-                  ),
-                ),
-                const Spacer(),
-                IconButton(
-                  icon: const Icon(Icons.close, size: 18),
-                  onPressed: () => Navigator.of(context).pop(),
-                  visualDensity: VisualDensity.compact,
-                ),
-              ],
-            ),
+            AccentDialogHeader(
+                title: 'View & Organize',
+                icon: AppIcons.toolbarTools,
+                onClose: () => Navigator.of(context).pop()),
             const Divider(height: 20),
 
             // Section 1: View Layout Mode

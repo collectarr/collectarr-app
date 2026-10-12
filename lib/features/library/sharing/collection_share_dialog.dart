@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_icons.dart';
 import 'dart:convert';
 import 'package:collectarr_app/core/platform/save_export_file.dart';
 
@@ -42,6 +43,7 @@ class _CollectionShareDialog extends StatelessWidget {
       backgroundColor: palette.panel,
       titlePadding: EdgeInsets.zero,
       title: AccentDialogHeader(
+        icon: AppIcons.collections,
         title: 'Share collection',
         accent: Theme.of(context).colorScheme.primary,
       ),

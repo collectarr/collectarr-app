@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/features/library/ui/library_form_layout.dart';
 import 'package:collectarr_app/features/library/ui/library_metrics.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_form_controls.dart';
@@ -1027,6 +1028,7 @@ Future<DateTime?> showLibraryDateEntryDialog(
       var selectedDate = initialDate;
       return StatefulBuilder(
         builder: (context, setDialogState) => AccentAlertDialog(
+          headerIcon: AppIcons.inlineEdit,
           title: Text(label),
           content: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 360),

@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/core/api/dto/media_catalog.dart';
 import 'package:collectarr_app/features/library/config/library_kind_style.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
@@ -519,6 +520,7 @@ Future<Color?> _showLibraryAccentPickerDialog(
         builder: (context, setState) {
           color = current();
           return AccentAlertDialog(
+            headerIcon: AppIcons.palette,
             title: Text('Accent: $title'),
             content: SizedBox(
               width: 420,

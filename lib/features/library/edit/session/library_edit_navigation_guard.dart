@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 import 'package:flutter/material.dart';
 
@@ -10,6 +11,7 @@ Future<bool> confirmLeaveLibraryEdit(
   return await showDialog<bool>(
         context: context,
         builder: (context) => AccentAlertDialog(
+          headerIcon: AppIcons.warning,
           title: const Text('Unsaved changes'),
           content: const Text(
             'This item has unsaved changes. Keep editing or discard them before leaving.',

@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_contributors.dart';
 import 'package:collectarr_app/core/models/storage_location.dart';
 import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
@@ -84,6 +85,7 @@ class _LibraryBulkEditDialogState extends ConsumerState<LibraryBulkEditDialog> {
     final conditions = _conditionOptions;
     final grades = _gradeOptions;
     return AccentAlertDialog(
+      headerIcon: AppIcons.inlineEdit,
       title: Text('Bulk edit (${widget.selectedCount} items)'),
       content: SizedBox(
         width: 460,

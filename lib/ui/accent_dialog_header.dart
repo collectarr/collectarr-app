@@ -1,3 +1,5 @@
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:collectarr_app/ui/app_panel_title.dart';
 import 'package:collectarr_app/features/library/config/library_kind_style.dart';
 import 'package:collectarr_app/features/library/ui/library_panel_header.dart';
 import 'package:collectarr_app/ui/library_accent_scope.dart';
@@ -5,28 +7,26 @@ import 'package:flutter/material.dart';
 
 /// Uniform accent-colored header strip for all modal dialogs.
 ///
-/// Uses the current kind accent as a solid header color.
+/// Uses the current kind's accent chrome and fixed white title metrics.
 class AccentDialogHeader extends StatelessWidget {
   const AccentDialogHeader({
     super.key,
     required this.title,
-    this.icon,
+    required this.icon,
     this.onClose,
     this.showCloseButton = true,
     this.trailing,
     this.minHeight,
-    this.titleStyle,
     this.accent,
-    this.foregroundColor,
+    this.svgAsset,
   });
 
   final String title;
   final double? minHeight;
-  final TextStyle? titleStyle;
   final Color? accent;
-  final Color? foregroundColor;
 
-  final IconData? icon;
+  final IconData icon;
+  final String? svgAsset;
 
   /// Called when the close button is tapped. If null and [showCloseButton] is true,
   /// tapping the close button will dismiss the dialog via [Navigator.maybePop].
@@ -43,14 +43,14 @@ class AccentDialogHeader extends StatelessWidget {
     final colorScheme = Theme.of(context).colorScheme;
     final resolvedAccent = accent ??
         LibraryAccentScope.accentOf(context, fallback: colorScheme.primary);
-    final foreground = foregroundColor ?? Colors.white;
+    const foreground = Colors.white;
     final effectiveOnClose = showCloseButton
         ? (onClose ?? () => Navigator.of(context).maybePop())
         : null;
 
     final header = LibraryPanelHeader(
       backgroundColor: Colors.transparent,
-      minHeight: minHeight,
+      minHeight: minHeight ?? 38,
       foregroundColor: foreground,
       borderColor: Colors.transparent,
       onClose: effectiveOnClose,
@@ -58,8 +58,15 @@ class AccentDialogHeader extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 14),
       child: Row(
         children: [
-          if (icon != null) ...[
-            Icon(icon, size: 20, color: foreground),
+          ...[
+            if (svgAsset != null)
+              SvgPicture.asset(svgAsset!,
+                  width: 20,
+                  height: 20,
+                  colorFilter:
+                      const ColorFilter.mode(Colors.white, BlendMode.srcIn))
+            else
+              Icon(icon, size: 20, color: foreground),
             const SizedBox(width: 10),
           ],
           Expanded(
@@ -67,12 +74,7 @@ class AccentDialogHeader extends StatelessWidget {
               title,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: TextStyle(
-                color: foreground,
-                fontSize: 15,
-                fontWeight: FontWeight.w800,
-                letterSpacing: 0.2,
-              ).merge(titleStyle),
+              style: appPanelTitleStyle,
             ),
           ),
         ],

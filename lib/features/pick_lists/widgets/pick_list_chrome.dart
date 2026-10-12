@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/ui/app_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
@@ -36,17 +37,18 @@ class PickListDialog extends StatelessWidget {
 }
 
 class PickListHeader extends StatelessWidget {
-  const PickListHeader({super.key, required this.title, this.onClose});
+  const PickListHeader(
+      {super.key,
+      required this.title,
+      this.icon = AppIcons.pickLists,
+      this.onClose});
   final String title;
+  final IconData icon;
   final VoidCallback? onClose;
 
   @override
   Widget build(BuildContext context) => AccentDialogHeader(
-      minHeight: 38,
-      title: title,
-      titleStyle: TextStyle(
-          fontFamily: appFontFamily, fontSize: 18, fontWeight: FontWeight.w700),
-      onClose: onClose);
+      icon: icon, minHeight: 38, title: title, onClose: onClose);
 }
 
 ButtonStyle pickListButtonStyle(BuildContext context,

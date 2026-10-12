@@ -110,6 +110,7 @@ class _LibraryFindDuplicatesPageState
       builder: (context) => Theme(
         data: libraryAccentTheme(context, widget.accent),
         child: AccentAlertDialog(
+          headerIcon: AppIcons.delete,
           title: Text(automatic ? 'Remove all duplicates' : 'Remove duplicate'),
           content: Text(automatic
               ? 'Keep the oldest entry in each group and remove ${entries.length} '

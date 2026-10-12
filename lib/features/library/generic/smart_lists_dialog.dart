@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/custom_field.dart';
@@ -150,6 +151,7 @@ class _SmartListsDialogState extends State<_SmartListsDialog> {
       context: context,
       builder: (dialogContext) => StatefulBuilder(
         builder: (context, setDialogState) => AccentAlertDialog(
+          headerIcon: AppIcons.smartLists,
           backgroundColor: appPalette(context).panel,
           title: const Text('Smart List kinds'),
           content: SizedBox(
@@ -201,6 +203,7 @@ class _SmartListsDialogState extends State<_SmartListsDialog> {
     return showDialog<String>(
       context: context,
       builder: (ctx) => AccentAlertDialog(
+        headerIcon: AppIcons.smartLists,
         backgroundColor: appPalette(ctx).panel,
         title: Text(title),
         content: TextField(
@@ -337,6 +340,7 @@ class _SmartListsDialogState extends State<_SmartListsDialog> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AccentAlertDialog(
+        headerIcon: AppIcons.smartLists,
         backgroundColor: appPalette(ctx).panel,
         title: Text('Overwrite Smart List'),
         content: Text(
@@ -371,6 +375,7 @@ class _SmartListsDialogState extends State<_SmartListsDialog> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AccentAlertDialog(
+        headerIcon: AppIcons.delete,
         backgroundColor: appPalette(ctx).panel,
         title: Text('Delete Smart List'),
         content: Text(
@@ -434,7 +439,7 @@ class _SmartListsDialogState extends State<_SmartListsDialog> {
       title: Row(
         children: [
           Icon(
-            Icons.auto_awesome_mosaic,
+            AppIcons.smartLists,
             size: 20,
           ),
           const SizedBox(width: 8),

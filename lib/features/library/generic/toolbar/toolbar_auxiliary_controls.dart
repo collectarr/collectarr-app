@@ -1339,6 +1339,10 @@ void showLibraryCompactCoverSizeSheet(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
+            AccentDialogHeader(
+                title: 'View & Layout',
+                icon: AppIcons.toolbarTools,
+                onClose: () => Navigator.of(context).pop()),
             ListTile(
               leading: const Icon(Icons.grid_view),
               title: const Text('Grid view'),

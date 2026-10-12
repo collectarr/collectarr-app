@@ -30,13 +30,12 @@ class _CanonicalItemInspectionDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
     final dialogWidth =
         (MediaQuery.sizeOf(context).width - 96).clamp(280.0, 820.0).toDouble();
     return AccentAlertDialog(
       title: Row(
         children: [
-          Icon(Icons.fact_check_outlined, color: colorScheme.primary),
+          const Icon(AppIcons.admin, color: Colors.white),
           const SizedBox(width: 8),
           Expanded(
             child: Text(
@@ -140,7 +139,7 @@ class _CanonicalItemSummary extends StatelessWidget {
               children: [
                 Row(
                   children: [
-                    Icon(Icons.fact_check_outlined, color: colorScheme.primary),
+                    const Icon(AppIcons.admin, color: Colors.white),
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
@@ -329,6 +328,7 @@ class _CoverInspectionDialogState extends State<_CoverInspectionDialog> {
   @override
   Widget build(BuildContext context) {
     return AccentAlertDialog(
+      headerIcon: AppIcons.tabImages,
       title: Text('Covers: ${item.displayTitle}'),
       content: SizedBox(
         width: 640,

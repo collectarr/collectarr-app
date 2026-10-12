@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/ui/app_page_header.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
@@ -666,8 +667,8 @@ class _LoanManagerPageState extends ConsumerState<LoanManagerPage> {
     try {
       final regular = pw.Font.ttf(
           await rootBundle.load('assets/fonts/PlusJakartaSans-Regular.ttf'));
-      final bold =
-          pw.Font.ttf(await rootBundle.load('assets/fonts/PlusJakartaSans-Bold.ttf'));
+      final bold = pw.Font.ttf(
+          await rootBundle.load('assets/fonts/PlusJakartaSans-Bold.ttf'));
       final document =
           pw.Document(theme: pw.ThemeData.withFont(base: regular, bold: bold));
       document.addPage(pw.MultiPage(
@@ -1032,6 +1033,7 @@ class _LibraryEntryPickerDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AccentAlertDialog(
+      headerIcon: AppIcons.loans,
       title: Text('Choose copy for $title'),
       content: SizedBox(
         width: 520,
@@ -1068,6 +1070,7 @@ class _ActiveLoanPickerDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AccentAlertDialog(
+      headerIcon: AppIcons.loans,
       title: Text('Choose active loan for $title'),
       content: SizedBox(
         width: 520,
@@ -1135,6 +1138,7 @@ class _LoanCreateDialogState extends State<_LoanCreateDialog> {
   @override
   Widget build(BuildContext context) {
     return AccentAlertDialog(
+      headerIcon: AppIcons.loans,
       title: Text('Loan out ${widget.title}'),
       content: SizedBox(
         width: 360,

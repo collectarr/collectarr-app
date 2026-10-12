@@ -1,3 +1,5 @@
+import 'package:collectarr_app/ui/accent_alert_dialog.dart';
+import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/features/library/edit/contracts/library_local_edit_change.dart';
@@ -133,7 +135,8 @@ class _MusicListeningDraftSectionState
     try {
       value = await showDialog<String>(
           context: context,
-          builder: (dialogContext) => AlertDialog(
+          builder: (dialogContext) => AccentAlertDialog(
+                headerIcon: AppIcons.inlineEdit,
                 title:
                     Text(existing == null ? 'Mark as listened' : 'Edit listen'),
                 content: LibraryTextFormControl(

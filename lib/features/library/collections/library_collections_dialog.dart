@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/features/library/config/library_kind_style.dart';
 import 'package:collectarr_app/core/models/catalog_item_ref.dart';
@@ -87,6 +88,7 @@ final class _CollectionsDialog extends ConsumerWidget {
                     children: [
                       AccentDialogHeader(
                           title: 'Manage Collections',
+                          icon: AppIcons.collections,
                           accent: accent,
                           minHeight: 38,
                           onClose: () => Navigator.of(context).pop()),

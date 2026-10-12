@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/accent_dialog_header.dart';
 import 'package:collectarr_app/ui/app_page_header.dart';
 import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
@@ -83,29 +84,10 @@ Future<void> showAdaptiveItemDetail({
           height: MediaQuery.of(sheetContext).size.height * 0.85,
           child: Column(
             children: [
-              Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        title,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: Theme.of(sheetContext)
-                            .textTheme
-                            .libraryDetailTitle
-                            .copyWith(fontWeight: FontWeight.w700),
-                      ),
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.close, size: 20),
-                      onPressed: () => Navigator.of(sheetContext).pop(),
-                    ),
-                  ],
-                ),
-              ),
+              AccentDialogHeader(
+                  title: title,
+                  icon: type.identity.icon,
+                  onClose: () => Navigator.of(sheetContext).pop()),
               const Divider(height: 1),
               Expanded(
                 child: LibraryDetailPage(

@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_contributors.dart';
 import 'package:collectarr_app/core/settings/connection_diagnostics.dart';
 import 'package:collectarr_app/core/api/dto/metadata_search_query.dart';
@@ -96,7 +97,7 @@ class _LibraryMetadataRefreshDialogState
     return LibraryDialogScaffold(
       title: Row(
         children: [
-          const Icon(Icons.sync, size: 20),
+          const Icon(AppIcons.sync, size: 20),
           const SizedBox(width: 8),
           Expanded(
             child: Text(
@@ -211,7 +212,7 @@ class _LibraryMetadataRefreshDialogState
                       dimension: 16,
                       child: CircularProgressIndicator(strokeWidth: 2),
                     )
-                  : const Icon(Icons.sync),
+                  : const Icon(AppIcons.sync),
               label: Text(_finished ? 'Run again' : 'Refresh'),
             ),
             if (_finished) ...[
@@ -646,7 +647,7 @@ String _shortError(Object error) {
 IconData _statusIcon(_RefreshRowStatus status) {
   return switch (status) {
     _RefreshRowStatus.waiting => Icons.radio_button_unchecked,
-    _RefreshRowStatus.running => Icons.sync,
+    _RefreshRowStatus.running => AppIcons.sync,
     _RefreshRowStatus.matched => Icons.check_circle,
     _RefreshRowStatus.missing => Icons.search_off,
     _RefreshRowStatus.failed => Icons.error_outline,

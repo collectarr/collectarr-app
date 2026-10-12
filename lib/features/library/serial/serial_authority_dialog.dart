@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/features/catalog/serial/serial_authority_repository.dart';
 import 'package:collectarr_app/ui/accent_dialog_header.dart';
@@ -319,6 +320,7 @@ class _SeriesManagerDialogState extends State<_SeriesManagerDialog> {
         return StatefulBuilder(
           builder: (context, setState) {
             return AccentAlertDialog(
+              headerIcon: AppIcons.merge,
               backgroundColor: kAppPanel,
               title: Text('Merge ${source.title} Into'),
               content: CompactSearchDropdownFormField<String>(

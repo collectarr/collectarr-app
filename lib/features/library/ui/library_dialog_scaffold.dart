@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_panel_title.dart';
 import 'package:collectarr_app/features/library/config/library_kind_style.dart';
 import 'package:collectarr_app/features/library/ui/library_chrome_tokens.dart';
 import 'package:collectarr_app/features/library/ui/library_density_scope.dart';
@@ -30,6 +31,7 @@ class LibraryDialogScaffold extends StatelessWidget {
     super.key,
     this.header,
     this.title,
+    this.headerIcon,
     this.contextBar,
     this.sidePanel,
     this.sidePanelPosition = LibraryDialogSidePanelPosition.end,
@@ -59,6 +61,7 @@ class LibraryDialogScaffold extends StatelessWidget {
 
   final Widget? header;
   final Widget? title;
+  final IconData? headerIcon;
   final Widget? contextBar;
   final Widget? sidePanel;
   final LibraryDialogSidePanelPosition sidePanelPosition;
@@ -115,14 +118,16 @@ class LibraryDialogScaffold extends StatelessWidget {
                       const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                   density: density,
                   child: DefaultTextStyle.merge(
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 15,
-                      fontWeight: FontWeight.w700,
-                    ),
+                    style: appPanelTitleStyle,
                     child: IconTheme(
                       data: const IconThemeData(color: Colors.white),
-                      child: title!,
+                      child: Row(children: [
+                        if (headerIcon != null) ...[
+                          Icon(headerIcon, size: 20, color: Colors.white),
+                          const SizedBox(width: 10),
+                        ],
+                        Expanded(child: title!),
+                      ]),
                     ),
                   ),
                 ),

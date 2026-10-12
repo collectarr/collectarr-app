@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/config/library_target_action_capability.dart';
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart'
@@ -25,6 +26,7 @@ Future<void> runMusicLogListenAction(
     final shouldSave = await showDialog<bool>(
       context: action.buildContext,
       builder: (dialogContext) => AccentAlertDialog(
+        headerIcon: AppIcons.tabMain,
         title: const Text('Log listen'),
         content: LibraryEditTextField(
           controller: notesController,

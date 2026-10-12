@@ -1,3 +1,5 @@
+import 'package:collectarr_app/ui/accent_alert_dialog.dart';
+import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/ui/app_page_header.dart';
 import 'dart:convert';
 import 'package:collectarr_app/core/platform/save_export_file.dart';
@@ -1521,7 +1523,8 @@ class _LibraryExportCsvTxtPageState extends State<LibraryExportCsvTxtPage> {
                   .map((c) => (id: c.id, label: c.label))
                   .toList();
 
-          return AlertDialog(
+          return AccentAlertDialog(
+            headerIcon: AppIcons.columns,
             backgroundColor: palette.panel,
             title: Text(
               'Manage Visible Columns',
@@ -1624,7 +1627,8 @@ class _LibraryExportCsvTxtPageState extends State<LibraryExportCsvTxtPage> {
       context: context,
       builder: (dialogCtx) => StatefulBuilder(
         builder: (context, setModalState) {
-          return AlertDialog(
+          return AccentAlertDialog(
+            headerIcon: AppIcons.sortAlpha,
             backgroundColor: palette.panel,
             title: Text(
               'Manage Sort Order',

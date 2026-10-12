@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/ui/app_page_header.dart';
 import 'ebay_search_preferences.dart';
 import 'package:collectarr_app/features/settings/library_layout_setting.dart';
@@ -1330,6 +1331,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
       final confirmed = await showDialog<bool>(
         context: context,
         builder: (ctx) => AccentAlertDialog(
+          headerIcon: AppIcons.backupRestore,
           title: const Text('Restore database'),
           content: const Text(
             'This will replace ALL local data with the backup contents. '
@@ -1371,6 +1373,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     final firstConfirm = await showDialog<bool>(
       context: context,
       builder: (ctx) => AccentAlertDialog(
+        headerIcon: AppIcons.delete,
         title: const Text('Clear database'),
         content: const Text(
           'This will permanently delete ALL local data. '
@@ -1397,6 +1400,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     final secondConfirm = await showDialog<bool>(
       context: context,
       builder: (ctx) => AccentAlertDialog(
+        headerIcon: AppIcons.delete,
         title: const Text('Are you absolutely sure?'),
         content: const Text(
           'All collection data, tracking history, custom fields, '

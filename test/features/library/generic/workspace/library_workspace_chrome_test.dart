@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_icons.dart';
 import 'dart:ui' as ui;
 
 import 'package:flutter/rendering.dart';
@@ -72,7 +73,7 @@ void main() {
     );
 
     expect(find.byIcon(Icons.grid_view_outlined), findsOneWidget);
-    expect(find.byIcon(Icons.keyboard_arrow_down), findsOneWidget);
+    expect(find.byIcon(AppIcons.chevronDown), findsOneWidget);
   });
 
   testWidgets('workspace icon button triggers callback', (tester) async {

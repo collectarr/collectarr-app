@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/core/models/library_entry_ref.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_tracking.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_tracking_mutation_provider.dart';
@@ -40,6 +41,7 @@ Future<void> showTvCustomEpisodeDialog(
       barrierDismissible: false,
       builder: (dialogContext) {
         return AccentAlertDialog(
+          headerIcon: AppIcons.inlineEdit,
           title: Text(existingEpisode == null ? 'Add episode' : 'Edit episode'),
           content: SingleChildScrollView(
             child: SizedBox(

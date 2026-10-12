@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/ui/app_page_header.dart';
 import 'dart:async';
 import 'dart:convert';
@@ -612,6 +613,7 @@ class _AdminPageState extends ConsumerState<AdminPage> {
     final result = await showDialog<bool>(
       context: context,
       builder: (context) => AccentAlertDialog(
+        headerIcon: AppIcons.admin,
         title: const Text('Approve proposal?'),
         content: SizedBox(
           width: 560,

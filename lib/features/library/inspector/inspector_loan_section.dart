@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/loan.dart';
 import 'package:collectarr_app/core/models/library_entry_projection.dart';
@@ -341,6 +342,7 @@ class _LoanCreateDialogState extends State<_LoanCreateDialog> {
   Widget build(BuildContext context) {
     final palette = appPalette(context);
     return AccentAlertDialog(
+      headerIcon: AppIcons.palette,
       backgroundColor: palette.panel,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       title: Text('Lend Item', style: TextStyle(color: widget.accent)),

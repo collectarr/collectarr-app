@@ -17,12 +17,14 @@ class LibraryFieldSelectionDialog extends StatelessWidget {
   const LibraryFieldSelectionDialog(
       {super.key,
       required this.title,
+      required this.icon,
       required this.accent,
       required this.child,
       required this.onSave,
       this.confirmLabel = 'Save',
       this.headerAction});
   final String title;
+  final IconData icon;
   final Color accent;
   final Widget child;
   final VoidCallback? onSave;
@@ -62,15 +64,10 @@ class LibraryFieldSelectionDialog extends StatelessWidget {
                         style: librarySelectionFieldStyle,
                         child: Column(children: [
                           AccentDialogHeader(
+                              icon: icon,
                               title: title,
                               accent: accent,
-                              foregroundColor: Colors.white,
                               minHeight: 38,
-                              titleStyle: TextStyle(
-                                  fontFamily: appFontFamily,
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.w700,
-                                  letterSpacing: 0),
                               trailing: headerAction,
                               onClose: () => Navigator.of(context).pop()),
                           Expanded(

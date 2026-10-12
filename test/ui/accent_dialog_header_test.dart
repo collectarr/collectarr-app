@@ -33,6 +33,9 @@ void main() {
       expect(titleFinder, findsOneWidget);
       final textWidget = tester.widget<Text>(titleFinder);
       expect(textWidget.style?.color, Colors.white);
+      expect(textWidget.style?.fontSize, 18);
+      expect(textWidget.style?.fontWeight, FontWeight.w700);
+      expect(textWidget.style?.height, 1);
 
       // Verify icon is white
       final iconFinder = find.byIcon(Icons.album);
@@ -68,7 +71,8 @@ void main() {
                   showDialog<void>(
                     context: context,
                     builder: (_) => const Dialog(
-                      child: AccentDialogHeader(title: 'Dialog Title'),
+                      child: AccentDialogHeader(
+                          icon: Icons.settings, title: 'Dialog Title'),
                     ),
                   );
                 },
@@ -97,6 +101,7 @@ void main() {
         const MaterialApp(
           home: Scaffold(
             body: AccentDialogHeader(
+              icon: Icons.settings,
               title: 'No Close',
               showCloseButton: false,
             ),

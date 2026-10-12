@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/core/models/library_entry_ref.dart';
 import 'package:collectarr_app/features/collection/csv/collection_csv_codec.dart';
@@ -62,6 +63,7 @@ class _ImportExportWizardDialogState
       initialIndex: widget.initialIndex,
       length: 2,
       child: AccentAlertDialog(
+        headerIcon: AppIcons.exportCsv,
         title: const Text('Import or export'),
         content: SizedBox(
           width: 860,

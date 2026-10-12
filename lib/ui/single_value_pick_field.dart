@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/features/library/ui/library_metrics.dart';
 import 'package:collectarr_app/ui/anchored_popup_geometry.dart';
 import 'package:collectarr_app/features/library/ui/library_density_scope.dart';
@@ -86,6 +87,7 @@ class _SingleValuePickFieldState extends State<SingleValuePickField> {
         final palette = appPalette(context);
         final currentValue = _emptyToNull(widget.controller.text);
         return AccentAlertDialog(
+          headerIcon: AppIcons.pickLists,
           backgroundColor: palette.panel,
           title: Text('Pick ${widget.label}'),
           contentPadding: EdgeInsets.zero,

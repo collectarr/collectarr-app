@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_icons.dart';
 import 'dart:async';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/custom_field.dart';
@@ -328,7 +329,7 @@ class _TransferFieldDataDialogState extends State<_TransferFieldDataDialog> {
     return AccentAlertDialog(
       title: const Row(
         children: [
-          Icon(Icons.swap_horiz, size: 24),
+          Icon(AppIcons.transferFieldData, size: 24),
           SizedBox(width: 8),
           Text('Transfer Field Data'),
         ],

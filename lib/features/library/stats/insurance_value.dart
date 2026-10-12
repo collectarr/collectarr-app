@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_icons.dart';
 import 'dart:async';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_item_ref.dart';
@@ -102,7 +103,7 @@ class _InsuranceValueDialog extends StatelessWidget {
       backgroundColor: palette.panel,
       title: const Row(
         children: [
-          Icon(Icons.shield_outlined, size: 22),
+          Icon(AppIcons.statistics, size: 22),
           SizedBox(width: 8),
           Text('Collection Value'),
         ],

@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/core/models/partial_date.dart';
 import 'package:collectarr_app/features/library/kinds/music/forms/music_catalog_field_specs.dart';
 import 'package:collectarr_app/features/library/forms/library_field_spec.dart';
@@ -6,7 +7,6 @@ import 'package:collectarr_app/features/library/ui/primitives/library_form_contr
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -97,7 +97,7 @@ void main() {
     expect(draft['title'], 'The Dark Side of the Moon');
   });
 
-  testWidgets('LibraryPartialDateFieldSpec renders calendar-days svg action',
+  testWidgets('LibraryPartialDateFieldSpec renders the shared calendar action',
       (tester) async {
     final spec = LibraryPartialDateFieldSpec<Map<String, Object?>>(
       id: 'recording_date',
@@ -135,6 +135,6 @@ void main() {
     );
 
     expect(find.text('Recording Date'), findsOneWidget);
-    expect(find.byType(SvgPicture), findsOneWidget);
+    expect(find.byIcon(AppIcons.calendar), findsOneWidget);
   });
 }

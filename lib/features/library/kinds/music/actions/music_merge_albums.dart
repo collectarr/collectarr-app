@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/library_entry_ref.dart';
@@ -257,7 +258,9 @@ class _MusicMergeDialogState extends State<_MusicMergeDialog> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   const AccentDialogHeader(
-                      title: 'Merge Albums', foregroundColor: Colors.white),
+                    icon: AppIcons.merge,
+                    title: 'Merge Albums',
+                  ),
                   Padding(
                       padding: const EdgeInsets.all(16),
                       child: Text('Merge ${widget.albums.length} albums',

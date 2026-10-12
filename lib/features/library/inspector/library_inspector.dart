@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/features/library/ui/library_item_confirmation.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/features/settings/ui_preferences.dart';
@@ -382,6 +383,7 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
     return showDialog<void>(
       context: context,
       builder: (context) => LibraryDialogScaffold(
+        headerIcon: AppIcons.tabDetails,
         title: Text(
           title,
         ),
@@ -491,7 +493,8 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
         context: context,
         builder: (context) => Theme(
             data: libraryAccentTheme(context, widget.accent),
-            child: AlertDialog(
+            child: AccentAlertDialog(
+              headerIcon: AppIcons.tabDetails,
               title: const Text('Unlink from Core'),
               content: const Text(
                   'Keep this item and all local data, and remove its link to Core?'),
@@ -554,6 +557,7 @@ class _InspectorReadingQueueActionButtonState
     await showDialog<void>(
       context: context,
       builder: (context) => AccentAlertDialog(
+        headerIcon: AppIcons.readingQueue,
         title: const Text('Reading Queue'),
         content: SizedBox(
           width: 360,

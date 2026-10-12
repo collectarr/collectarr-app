@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_icons.dart';
 import 'dart:math' as math;
 import 'dart:ui' as ui;
 
@@ -144,10 +145,10 @@ class BottomSheetLibraryCoverScanSourcePrompt
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Text(
-                'Scan cover',
-                style: Theme.of(context).textTheme.titleMedium,
-              ),
+              AccentDialogHeader(
+                  title: 'Scan cover',
+                  icon: AppIcons.tabCovers,
+                  onClose: () => Navigator.of(context).pop()),
               const SizedBox(height: 8),
               Text(
                 'Import a local cover photo. OCR and image cleanup can be layered in later without sending the image to the server.',

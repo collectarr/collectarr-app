@@ -1,3 +1,5 @@
+import 'package:collectarr_app/ui/accent_dialog_header.dart';
+import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/features/barcode/barcode_scan_platform.dart';
 import 'package:collectarr_app/features/barcode/scanned_code.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
@@ -98,28 +100,14 @@ class _BarcodeBatchScanSheetState extends State<BarcodeBatchScanSheet> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Row(
-              children: [
-                const Icon(Icons.qr_code_scanner),
-                const SizedBox(width: 8),
-                Text(
-                  widget.title,
-                  style: Theme.of(context).textTheme.titleMedium,
-                ),
-                const Spacer(),
-                if (_scannedBarcodes.isNotEmpty)
-                  Badge(
-                    label: Text(_scannedBarcodes.length.toString()),
-                    child: const Icon(Icons.inventory_2_outlined),
-                  ),
-                const SizedBox(width: 8),
-                IconButton(
-                  tooltip: 'Close',
-                  onPressed: () => Navigator.of(context).pop(<ScannedCode>[]),
-                  icon: const Icon(Icons.close),
-                ),
-              ],
-            ),
+            AccentDialogHeader(
+                title: widget.title,
+                icon: AppIcons.barcode,
+                trailing: _scannedBarcodes.isEmpty
+                    ? null
+                    : Text('${_scannedBarcodes.length}',
+                        style: const TextStyle(color: Colors.white)),
+                onClose: () => Navigator.of(context).pop(<ScannedCode>[])),
             const SizedBox(height: 8),
             Text(
               'Point camera at barcodes. Each unique barcode is added automatically.',

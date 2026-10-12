@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
 import 'package:collectarr_app/ui/accent_alert_dialog.dart';
@@ -48,6 +49,7 @@ class _BatchLoanDialogState extends State<BatchLoanDialog> {
   Widget build(BuildContext context) {
     final palette = appPalette(context);
     return AccentAlertDialog(
+      headerIcon: AppIcons.palette,
       backgroundColor: palette.panel,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       title: Text(

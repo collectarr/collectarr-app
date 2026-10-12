@@ -15,6 +15,22 @@ abstract final class AppIcons {
       IconData(0xf055, fontFamily: _solid, fontPackage: _fontPackage);
   static const IconData unlink =
       IconData(0xf127, fontFamily: _solid, fontPackage: _fontPackage);
+  static const IconData smartLists =
+      IconData(0xf0b0, fontFamily: _solid, fontPackage: _fontPackage);
+  static const IconData readingQueue =
+      IconData(0xf02e, fontFamily: _solid, fontPackage: _fontPackage);
+  static const IconData barcode =
+      IconData(0xf02a, fontFamily: _solid, fontPackage: _fontPackage);
+  static const IconData warning =
+      IconData(0xf071, fontFamily: _solid, fontPackage: _fontPackage);
+  static const IconData location =
+      IconData(0xf3c5, fontFamily: _solid, fontPackage: _fontPackage);
+  static const IconData sync =
+      IconData(0xf2f1, fontFamily: _solid, fontPackage: _fontPackage);
+  static const IconData tags =
+      IconData(0xf02c, fontFamily: _solid, fontPackage: _fontPackage);
+  static const IconData palette =
+      IconData(0xf53f, fontFamily: _solid, fontPackage: _fontPackage);
   // --- Navigation & Drawer ---
   static const IconData userManual =
       IconData(0xf518, fontFamily: _solid, fontPackage: _fontPackage);

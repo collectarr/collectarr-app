@@ -896,6 +896,7 @@ class _GroupModeFavoritesDialogState extends State<_GroupModeFavoritesDialog> {
           style: _fieldStyle.copyWith(color: appPalette(context).textPrimary),
           child: Column(children: [
             PickListHeader(
+              icon: AppIcons.folderOpen,
               title: 'Manage Folder Favorites',
               onClose: () => Navigator.of(context).pop(),
             ),

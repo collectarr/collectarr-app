@@ -139,9 +139,8 @@ class _LibraryAddModeBarState extends State<LibraryAddModeBar> {
     if (widget.suggestions != oldWidget.suggestions) {
       _dismissed = false;
     }
-    final canShow = widget.showSuggestions &&
-        widget.suggestions.isNotEmpty &&
-        !_dismissed;
+    final canShow =
+        widget.showSuggestions && widget.suggestions.isNotEmpty && !_dismissed;
     if (canShow && !_suggestionsOverlayController.isShowing) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted &&
@@ -209,9 +208,7 @@ class _LibraryAddModeBarState extends State<LibraryAddModeBar> {
   }
 
   Widget _buildSuggestionsOverlay(BuildContext overlayContext) {
-    if (_dismissed ||
-        !widget.showSuggestions ||
-        widget.suggestions.isEmpty) {
+    if (_dismissed || !widget.showSuggestions || widget.suggestions.isEmpty) {
       return const SizedBox.shrink();
     }
     final renderBox =
@@ -379,10 +376,11 @@ class _LibraryAddModeBarState extends State<LibraryAddModeBar> {
                                 hintText: searchLabels.queryHint,
                                 onSearch: (_) => _handleSearch(),
                                 onChanged: widget.onQueryChanged,
-                                onScanBarcode: () => widget
-                                    .onModeChanged(LibraryAddDialogMode.identifier),
-                                onScanCover:
-                                    widget.canScanCover ? widget.onScanCover : null,
+                                onScanBarcode: () => widget.onModeChanged(
+                                    LibraryAddDialogMode.identifier),
+                                onScanCover: widget.canScanCover
+                                    ? widget.onScanCover
+                                    : null,
                                 selectionColor: widget.accent,
                                 maxWidth: 620,
                               ),
@@ -523,10 +521,11 @@ class _LibraryAddModeBarState extends State<LibraryAddModeBar> {
                                   hintText: searchLabels.queryHint,
                                   onSearch: (_) => _handleSearch(),
                                   onChanged: widget.onQueryChanged,
-                                  onScanBarcode: () => widget
-                                      .onModeChanged(LibraryAddDialogMode.identifier),
-                                  onScanCover:
-                                      widget.canScanCover ? widget.onScanCover : null,
+                                  onScanBarcode: () => widget.onModeChanged(
+                                      LibraryAddDialogMode.identifier),
+                                  onScanCover: widget.canScanCover
+                                      ? widget.onScanCover
+                                      : null,
                                   selectionColor: widget.accent,
                                   maxWidth: 620,
                                 ),
