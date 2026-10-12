@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:collectarr_app/ui/library_accent_scope.dart';
 
 /// Default alignment for dialogs: positioned ~2/3 of the screen from the bottom
 /// (a bit above the middle of the screen).
@@ -56,9 +57,12 @@ class AppDialogRoute<T> extends RawDialogRoute<T> {
     super.settings,
     super.anchorPoint,
     super.traversalEdgeBehavior,
+    this.animationsEnabled = true,
   }) : super(
           barrierColor: barrierColor ?? Colors.black54,
-          transitionDuration: const Duration(milliseconds: 150),
+          transitionDuration: animationsEnabled
+              ? const Duration(milliseconds: 200)
+              : Duration.zero,
           transitionBuilder: _buildTransitions,
           pageBuilder: (buildContext, animation, secondaryAnimation) {
             final pageChild = Builder(builder: builder);
@@ -67,14 +71,42 @@ class AppDialogRoute<T> extends RawDialogRoute<T> {
           },
         );
 
+  final bool animationsEnabled;
+  late final AnimationController _backdrop;
+
+  @override
+  void install() {
+    super.install();
+    _backdrop = AnimationController(
+      vsync: navigator!,
+      duration:
+          animationsEnabled ? const Duration(milliseconds: 100) : Duration.zero,
+    );
+    animation!.addStatusListener(_animateBackdrop);
+  }
+
+  void _animateBackdrop(AnimationStatus status) {
+    if (status == AnimationStatus.forward) _backdrop.forward();
+    if (status == AnimationStatus.reverse) _backdrop.reverse();
+    if (status == AnimationStatus.completed) _backdrop.value = 1;
+    if (status == AnimationStatus.dismissed) _backdrop.value = 0;
+  }
+
+  @override
+  void dispose() {
+    animation!.removeStatusListener(_animateBackdrop);
+    _backdrop.dispose();
+    super.dispose();
+  }
+
   @override
   Widget buildModalBarrier() {
     if (barrierColor != null && (barrierColor!.a * 255.0).round() != 0) {
-      final Animation<Color?> color = animation!.drive(
+      final Animation<Color?> color = _backdrop.drive(
         ColorTween(
           begin: barrierColor!.withValues(alpha: 0.0),
           end: barrierColor,
-        ).chain(CurveTween(curve: barrierCurve)),
+        ),
       );
       return AnimatedBuilder(
         animation: color,
@@ -100,10 +132,8 @@ class AppDialogRoute<T> extends RawDialogRoute<T> {
     Animation<double> secondaryAnimation,
     Widget child,
   ) {
-    final curved =
-        CurvedAnimation(parent: animation, curve: Curves.easeOutQuad);
     return FadeTransition(
-      opacity: curved,
+      opacity: animation,
       child: child,
     );
   }
@@ -138,6 +168,8 @@ Future<T?> showAppDialog<T>({
       settings: routeSettings,
       anchorPoint: anchorPoint,
       traversalEdgeBehavior: traversalEdgeBehavior,
+      animationsEnabled: LibraryAccentScope.of(context).animationsEnabled &&
+          !MediaQuery.disableAnimationsOf(context),
     ),
   );
 }

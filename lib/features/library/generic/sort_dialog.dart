@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_dialog.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/generic/library_sort_preset_store.dart';
@@ -17,7 +18,7 @@ Future<List<LibrarySortRule>?> showLibrarySortDialog({
   String confirmLabel = 'Save',
   String? description,
 }) {
-  return showDialog<List<LibrarySortRule>>(
+  return showAppDialog<List<LibrarySortRule>>(
     context: context,
     builder: (context) => _LibrarySortDialog(
       type: type,

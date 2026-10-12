@@ -1,10 +1,11 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:collectarr_app/ui/library_accent_scope.dart';
 
 import 'library_folder_reorder_row.dart';
 
-/// Sortable rows with a visible insertion placeholder and no drop animation.
+/// Sortable rows with an insertion placeholder and a short return to the slot.
 class LibraryFolderReorderList extends StatefulWidget {
   const LibraryFolderReorderList({
     super.key,
@@ -28,7 +29,8 @@ class LibraryFolderReorderList extends StatefulWidget {
       _LibraryFolderReorderListState();
 }
 
-class _LibraryFolderReorderListState extends State<LibraryFolderReorderList> {
+class _LibraryFolderReorderListState extends State<LibraryFolderReorderList>
+    with SingleTickerProviderStateMixin {
   final _scrollController = ScrollController();
   final _viewportKey = GlobalKey();
   final _rowKeys = <int, GlobalKey>{};
@@ -37,10 +39,19 @@ class _LibraryFolderReorderListState extends State<LibraryFolderReorderList> {
   var _dragExtent = 0.0;
   Offset? _feedbackOffset;
   Timer? _scrollTimer;
+  late final _dropController = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 100),
+  );
+  OverlayEntry? _dropOverlay;
+  var _returning = false;
 
   @override
   void dispose() {
     _scrollTimer?.cancel();
+    _dropOverlay?.remove();
+    _dropOverlay?.dispose();
+    _dropController.dispose();
     _scrollController.dispose();
     super.dispose();
   }
@@ -57,7 +68,7 @@ class _LibraryFolderReorderListState extends State<LibraryFolderReorderList> {
   }
 
   void _move(DragTargetDetails<int> details) {
-    if (_dragIndex == null) return;
+    if (_dragIndex == null || _returning) return;
     _feedbackOffset = details.offset;
     _updateInsertion();
     _scrollTimer ??= Timer.periodic(const Duration(milliseconds: 16), (_) {
@@ -102,15 +113,61 @@ class _LibraryFolderReorderListState extends State<LibraryFolderReorderList> {
     if (next != _insertIndex) setState(() => _insertIndex = next);
   }
 
-  void _finish() {
+  Future<void> _finish(DraggableDetails details, double width) async {
     _scrollTimer?.cancel();
     _scrollTimer = null;
     _feedbackOffset = null;
     final from = _dragIndex;
     final to = _insertIndex;
     if (from == null) return;
+    final box =
+        _rowKeys[from]?.currentContext?.findRenderObject() as RenderBox?;
+    final animate = LibraryAccentScope.of(context).animationsEnabled &&
+        !MediaQuery.disableAnimationsOf(context);
+    if (animate && box != null && box.attached) {
+      final overlay = Overlay.of(context, rootOverlay: true);
+      final overlayBox = overlay.context.findRenderObject()! as RenderBox;
+      final start = overlayBox.globalToLocal(details.offset);
+      final end = overlayBox.globalToLocal(box.localToGlobal(Offset.zero));
+      final row = InheritedTheme.captureAll(
+          context,
+          SizedBox(
+            width: width,
+            child: LibraryFolderReorderRow.dragProxy(
+              widget.itemBuilder(context, from),
+              from,
+              const AlwaysStoppedAnimation(1),
+            ),
+          ));
+      setState(() => _returning = true);
+      _dropOverlay = OverlayEntry(
+          builder: (_) => AnimatedBuilder(
+                animation: _dropController,
+                child: IgnorePointer(child: row),
+                builder: (_, child) {
+                  final offset = Offset.lerp(start, end,
+                      Curves.easeOutQuad.transform(_dropController.value))!;
+                  return Positioned(
+                      left: offset.dx, top: offset.dy, child: child!);
+                },
+              ));
+      overlay.insert(_dropOverlay!);
+      try {
+        await _dropController.forward(from: 0).orCancel;
+      } on TickerCanceled {
+        return;
+      }
+      if (!mounted) return;
+      _dropOverlay!.remove();
+      _dropOverlay!.dispose();
+      _dropOverlay = null;
+      _returning = false;
+    }
+    if (!mounted) return;
     setState(() => _dragIndex = null);
-    if (from != to) widget.onReorder(from, to);
+    if (from != to && from < widget.itemCount && to < widget.itemCount) {
+      widget.onReorder(from, to);
+    }
   }
 
   @override
@@ -143,10 +200,12 @@ class _LibraryFolderReorderListState extends State<LibraryFolderReorderList> {
                     final row = widget.itemBuilder(context, index);
                     return Draggable<int>(
                       data: index,
-                      maxSimultaneousDrags:
-                          dragIndex == null || dragIndex == index ? 1 : 0,
+                      maxSimultaneousDrags: !_returning &&
+                              (dragIndex == null || dragIndex == index)
+                          ? 1
+                          : 0,
                       onDragStarted: () => _start(index),
-                      onDragEnd: (_) => _finish(),
+                      onDragEnd: (details) => _finish(details, width),
                       feedback: InheritedTheme.captureAll(
                         context,
                         SizedBox(

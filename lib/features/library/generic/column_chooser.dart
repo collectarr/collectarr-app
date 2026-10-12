@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_dialog.dart';
 import 'package:collectarr_app/ui/library_accent_scope.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/workspace/table/library_column_chooser.dart';
@@ -33,7 +34,7 @@ Future<Set<String>?> showGenericLibraryColumnChooser({
         (preset) => availableColumns.containsAll(preset.columns),
       )
       .toList(growable: false);
-  return showDialog<Set<String>>(
+  return showAppDialog<Set<String>>(
     context: context,
     builder: (context) => LibraryColumnChooserDialog(
       availableColumns: [

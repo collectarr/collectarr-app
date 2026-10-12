@@ -15,6 +15,16 @@ void main() {
     expect(save.style!.backgroundColor!.resolve({}), Colors.teal);
     expect(find.text('Previous'), findsOneWidget);
     expect(find.text('Next'), findsOneWidget);
+    for (final label in ['Previous', 'Next']) {
+      final button = find.widgetWithText(OutlinedButton, label);
+      expect(tester.getSize(button), const Size(100, 32));
+      final style = tester.widget<OutlinedButton>(button).style!;
+      expect(style.backgroundColor!.resolve({WidgetState.disabled}),
+          const Color(0xFF232323));
+      expect(style.backgroundColor!.resolve({WidgetState.hovered}),
+          const Color(0xFF535353));
+    }
+
     expect(find.text('Cancel'), findsOneWidget);
   });
 
