@@ -1,4 +1,6 @@
 import 'package:collectarr_app/ui/app_icons.dart';
+import 'package:collectarr_app/ui/accent_alert_dialog.dart';
+import 'package:collectarr_app/features/pick_lists/widgets/pick_list_chrome.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/features/library/config/library_kind_style.dart';
 import 'package:collectarr_app/core/models/catalog_item_ref.dart';
@@ -9,7 +11,6 @@ import 'package:collectarr_app/features/library/ui/primitives/library_form_contr
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/ui/accent_dialog_header.dart';
-import 'package:collectarr_app/features/library/workspace/chrome/library_dense_controls.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -30,7 +31,8 @@ Future<String?> chooseLibraryCollection(BuildContext context,
       builder: (context) => Theme(
           data: libraryAccentTheme(context,
               libraryAccentForKind(catalogMediaKindFromApiValue(kind))),
-          child: AlertDialog(
+          child: AccentAlertDialog(
+              headerIcon: AppIcons.collections,
               title: Text(title),
               content: SizedBox(
                   width: 380,
@@ -39,7 +41,7 @@ Future<String?> chooseLibraryCollection(BuildContext context,
                     for (final collection in collections)
                       if (collection.id != excluding)
                         ListTile(
-                            leading: const Icon(Icons.folder_outlined),
+                            leading: const Icon(AppIcons.collections),
                             title: Text(collection.name),
                             trailing: Text('${collection.count}'),
                             onTap: () =>
@@ -67,6 +69,10 @@ final class _CollectionsDialog extends ConsumerWidget {
         .accent;
     final basePalette = appPalette(context);
     final palette = basePalette.copyWith(
+        panel: basePalette.isDark ? const Color(0xff262626) : basePalette.panel,
+        panelRaised: basePalette.isDark
+            ? const Color(0xff383838)
+            : basePalette.panelRaised,
         accent: accent,
         selection: Color.alphaBlend(
             accent.withValues(alpha: 0.22), basePalette.panel));
@@ -76,7 +82,7 @@ final class _CollectionsDialog extends ConsumerWidget {
         builder: (context) => Dialog(
             backgroundColor: palette.panel,
             shape:
-                RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
             clipBehavior: Clip.antiAlias,
             alignment: Alignment.topCenter,
             insetPadding: const EdgeInsets.fromLTRB(16, 28, 16, 24),
@@ -94,13 +100,20 @@ final class _CollectionsDialog extends ConsumerWidget {
                           onClose: () => Navigator.of(context).pop()),
                       Container(
                           height: 40,
-                          color: palette.toolbar,
+                          color: pickListToolbar(context),
                           alignment: Alignment.centerRight,
                           padding: const EdgeInsets.symmetric(horizontal: 6),
-                          child: LibraryDenseButton(
-                              label: 'Create new collection',
-                              icon: Icons.add,
-                              tone: LibraryDenseButtonTone.accent,
+                          child: FilledButton.icon(
+                              style: _collectionButtonStyle(context).copyWith(
+                                minimumSize:
+                                    const WidgetStatePropertyAll(Size(0, 29)),
+                                maximumSize: const WidgetStatePropertyAll(
+                                    Size(double.infinity, 29)),
+                                padding: const WidgetStatePropertyAll(
+                                    EdgeInsets.symmetric(horizontal: 10)),
+                              ),
+                              label: const Text('Create new collection'),
+                              icon: const Icon(AppIcons.add, size: 14),
                               onPressed: () => showDialog<void>(
                                   context: context,
                                   builder: (_) => _CollectionNameDialog(
@@ -127,110 +140,38 @@ final class _CollectionsDialog extends ConsumerWidget {
                                   },
                                   itemBuilder: (context, index) {
                                     final collection = values[index];
-                                    return Container(
-                                        key: ValueKey(collection.id),
-                                        height: 38,
-                                        decoration: BoxDecoration(
-                                            border: Border(
-                                                bottom: BorderSide(
-                                                    color: palette.divider))),
-                                        child: LayoutBuilder(
-                                            builder: (context, constraints) {
-                                          final compact =
-                                              constraints.maxWidth < 480;
-                                          return Row(children: [
-                                            ReorderableDragStartListener(
-                                                index: index,
-                                                child: Padding(
-                                                    key: ValueKey(
-                                                        'collection-drag-${collection.id}'),
-                                                    padding: const EdgeInsets
-                                                        .symmetric(
-                                                        horizontal: 8),
-                                                    child: const Icon(
-                                                        Icons.drag_handle,
-                                                        size: 17))),
-                                            Expanded(
-                                                child: Text(collection.name,
-                                                    maxLines: 1,
-                                                    overflow:
-                                                        TextOverflow.ellipsis,
-                                                    style: context
-                                                        .libraryTextTheme
-                                                        .controlText
-                                                        .copyWith(
-                                                            fontWeight:
-                                                                FontWeight
-                                                                    .w700))),
-                                            SizedBox(
-                                                width: compact ? 64 : 82,
-                                                child: Text(
-                                                    '${collection.count} item${collection.count == 1 ? '' : 's'}',
-                                                    textAlign: TextAlign.right,
-                                                    style: context
-                                                        .libraryTextTheme
-                                                        .controlText)),
-                                            const SizedBox(width: 8),
-                                            Tooltip(
-                                                message: 'Private',
-                                                child: SizedBox(
-                                                    width: compact ? 20 : 82,
-                                                    child: Row(children: [
-                                                      const Icon(
-                                                          Icons.lock_outline,
-                                                          size: 14),
-                                                      if (!compact) ...[
-                                                        const SizedBox(
-                                                            width: 4),
-                                                        Expanded(
-                                                            child: Text(
-                                                                'Private',
-                                                                maxLines: 1,
-                                                                overflow:
-                                                                    TextOverflow
-                                                                        .ellipsis,
-                                                                style: context
-                                                                    .libraryTextTheme
-                                                                    .controlText))
-                                                      ]
-                                                    ]))),
-                                            LibraryDenseIconButton(
-                                                tooltip: 'Rename collection',
-                                                icon: Icons.edit,
-                                                onPressed: () => showDialog<
-                                                        void>(
-                                                    context: context,
-                                                    builder: (_) =>
-                                                        _CollectionNameDialog(
-                                                            repo: repo,
-                                                            kind: kind,
-                                                            collection:
-                                                                collection))),
-                                            LibraryDenseIconButton(
-                                                tooltip: values.length == 1
-                                                    ? 'Keep at least one collection'
-                                                    : 'Delete collection',
-                                                icon: Icons.delete_outline,
-                                                onPressed: values.length == 1
-                                                    ? null
-                                                    : () => _delete(
-                                                        context,
-                                                        db,
-                                                        repo,
-                                                        collection,
-                                                        values)),
-                                          ]);
-                                        }));
+                                    return _CollectionRow(
+                                      key: ValueKey(collection.id),
+                                      collection: collection,
+                                      index: index,
+                                      itemLabel: defaultLibraryKindRegistry
+                                          .require(catalogMediaKindFromApiValue(
+                                              kind))
+                                          .identity
+                                          .countLabel(collection.count)
+                                          .toLowerCase(),
+                                      onRename: () => showDialog<void>(
+                                          context: context,
+                                          builder: (_) => _CollectionNameDialog(
+                                              repo: repo,
+                                              kind: kind,
+                                              collection: collection)),
+                                      onDelete: values.length == 1
+                                          ? null
+                                          : () => _delete(context, db, repo,
+                                              collection, values),
+                                    );
                                   }))),
+                      const SizedBox(height: 15),
                       Container(
-                          color: palette.surfaceSubtle,
+                          color: palette.panelRaised,
                           padding: const EdgeInsets.all(10),
                           alignment: Alignment.centerRight,
                           child: SizedBox(
                               width: 100,
-                              child: LibraryDenseButton(
-                                  label: 'OK',
-                                  tone: LibraryDenseButtonTone.accent,
+                              child: FilledButton(
+                                  style: _collectionButtonStyle(context),
+                                  child: const Text('OK'),
                                   onPressed: () =>
                                       Navigator.of(context).pop()))),
                     ]))),
@@ -252,7 +193,8 @@ final class _CollectionsDialog extends ConsumerWidget {
     if (destination == null || !context.mounted) return;
     final confirmed = await showDialog<bool>(
         context: context,
-        builder: (context) => AlertDialog(
+        builder: (context) => AccentAlertDialog(
+                headerIcon: AppIcons.delete,
                 title: Text('Delete ${collection.name}?'),
                 content: Text(
                     '${collection.count} item${collection.count == 1 ? '' : 's'} will move to ${values.firstWhere((c) => c.id == destination).name}.'),
@@ -308,24 +250,206 @@ final class _CollectionNameDialogState extends State<_CollectionNameDialog> {
   }
 
   @override
-  Widget build(BuildContext context) => AlertDialog(
-          title: Text(widget.collection == null
-              ? 'Create new collection'
-              : 'Rename collection'),
+  Widget build(BuildContext context) => AccentAlertDialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
+          headerIcon:
+              widget.collection == null ? AppIcons.add : AppIcons.inlineEdit,
+          title: Text(
+              widget.collection == null ? 'Add Collection' : 'Edit Collection'),
+          contentPadding: const EdgeInsets.all(15),
+          actionsPadding: EdgeInsets.zero,
+          buttonPadding: EdgeInsets.zero,
           content: SizedBox(
-              width: 360,
-              child: LibraryTextFormControl(
-                  controller: _name,
-                  autofocus: true,
-                  decoration:
-                      InputDecoration(labelText: 'Name', errorText: _error),
-                  onFieldSubmitted: (_) => _save())),
+              width: 570,
+              child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    const Text('Collection Name',
+                        style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w700,
+                            height: 20 / 14)),
+                    const SizedBox(height: 5),
+                    LibraryTextFormControl(
+                        controller: _name,
+                        autofocus: true,
+                        decoration: InputDecoration(errorText: _error),
+                        onFieldSubmitted: (_) => _save()),
+                    const SizedBox(height: 10),
+                    const Text('Visibility',
+                        style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w700,
+                            height: 20 / 14)),
+                    const SizedBox(height: 5),
+                    Container(
+                        height: 32,
+                        color: appPalette(context).field,
+                        alignment: Alignment.center,
+                        child: const _CollectionPrivacyIndicator()),
+                  ])),
           actions: [
-            TextButton(
-                onPressed: _saving ? null : () => Navigator.of(context).pop(),
-                child: const Text('Cancel')),
-            FilledButton(
-                onPressed: _saving ? null : _save,
-                child: Text(widget.collection == null ? 'Create' : 'Save'))
+            Container(
+                width: double.infinity,
+                color: appPalette(context).panelRaised,
+                padding: const EdgeInsets.all(10),
+                child: Row(mainAxisAlignment: MainAxisAlignment.end, children: [
+                  FilledButton(
+                      style: pickListButtonStyle(context,
+                          primary: false, footer: true),
+                      onPressed:
+                          _saving ? null : () => Navigator.of(context).pop(),
+                      child: const Text('Cancel')),
+                  const SizedBox(width: 10),
+                  FilledButton(
+                      style: _collectionButtonStyle(context),
+                      onPressed: _saving ? null : _save,
+                      child: const Text('Save')),
+                ])),
           ]);
 }
+
+class _CollectionPrivacyIndicator extends StatelessWidget {
+  const _CollectionPrivacyIndicator();
+  @override
+  Widget build(BuildContext context) =>
+      Row(mainAxisSize: MainAxisSize.min, children: [
+        Icon(AppIcons.coverIndicator,
+            size: 12, color: Theme.of(context).colorScheme.error),
+        const SizedBox(width: 5),
+        Flexible(
+            child: Text('Private',
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                    color: Theme.of(context).colorScheme.error,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w400))),
+      ]);
+}
+
+class _CollectionRow extends StatefulWidget {
+  const _CollectionRow(
+      {super.key,
+      required this.collection,
+      required this.index,
+      required this.itemLabel,
+      required this.onRename,
+      this.onDelete});
+  final LibraryCollectionSummary collection;
+  final int index;
+  final String itemLabel;
+  final VoidCallback onRename;
+  final VoidCallback? onDelete;
+  @override
+  State<_CollectionRow> createState() => _CollectionRowState();
+}
+
+class _CollectionRowState extends State<_CollectionRow> {
+  bool _hovered = false;
+  @override
+  Widget build(BuildContext context) {
+    final palette = appPalette(context);
+    final border = palette.isDark ? const Color(0xff383838) : palette.divider;
+    Widget cell(Widget child, {double? width, bool padded = true}) => Container(
+          width: width,
+          height: 37,
+          padding: padded
+              ? const EdgeInsets.symmetric(horizontal: 8)
+              : EdgeInsets.zero,
+          alignment: Alignment.centerLeft,
+          decoration:
+              BoxDecoration(border: Border(right: BorderSide(color: border))),
+          child: child,
+        );
+    Widget action(IconData icon, String tooltip, VoidCallback? callback) =>
+        cell(
+            IconButton(
+                tooltip: tooltip,
+                onPressed: callback,
+                icon: Icon(icon, size: 14),
+                padding: EdgeInsets.zero,
+                constraints:
+                    const BoxConstraints.tightFor(width: 30, height: 37),
+                style: IconButton.styleFrom(
+                    foregroundColor: palette.textPrimary,
+                    hoverColor: palette.highlight,
+                    shape: const RoundedRectangleBorder(),
+                    tapTargetSize: MaterialTapTargetSize.shrinkWrap)),
+            width: 30,
+            padded: false);
+    return MouseRegion(
+        onEnter: (_) => setState(() => _hovered = true),
+        onExit: (_) => setState(() => _hovered = false),
+        child: Container(
+          height: 37,
+          decoration: BoxDecoration(
+              color: _hovered
+                  ? pickListToolbar(context)
+                  : widget.index.isEven
+                      ? (palette.isDark
+                          ? const Color(0xff2d2d2d)
+                          : palette.panelRaised)
+                      : palette.panel,
+              border: Border(
+                  bottom: BorderSide(color: border),
+                  left: BorderSide(color: border))),
+          child: DefaultTextStyle(
+              style: TextStyle(
+                  fontFamily: appFontFamily,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w400,
+                  height: 20 / 14,
+                  color: palette.textPrimary),
+              child: LayoutBuilder(builder: (context, constraints) {
+                final compact = constraints.maxWidth < 480;
+                return Row(children: [
+                  cell(
+                      ReorderableDragStartListener(
+                          index: widget.index,
+                          child: MouseRegion(
+                              cursor: SystemMouseCursors.grab,
+                              child: SizedBox(
+                                  key: ValueKey(
+                                      'collection-drag-${widget.collection.id}'),
+                                  width: 30,
+                                  height: 37,
+                                  child: Icon(AppIcons.menu,
+                                      size: 14, color: palette.textPrimary)))),
+                      width: 30,
+                      padded: false),
+                  Expanded(
+                      child: cell(Text(widget.collection.name,
+                          maxLines: 1, overflow: TextOverflow.ellipsis))),
+                  cell(
+                      Text('${widget.collection.count} ${widget.itemLabel}',
+                          maxLines: 1, overflow: TextOverflow.ellipsis),
+                      width: compact ? 70 : 84),
+                  cell(
+                      compact
+                          ? Tooltip(
+                              message: 'Private',
+                              child: Icon(AppIcons.coverIndicator,
+                                  size: 12,
+                                  color: Theme.of(context).colorScheme.error))
+                          : const _CollectionPrivacyIndicator(),
+                      width: compact ? 30 : 100),
+                  action(AppIcons.inlineEdit, 'Rename collection',
+                      widget.onRename),
+                  action(
+                      AppIcons.delete,
+                      widget.onDelete == null
+                          ? 'Keep at least one collection'
+                          : 'Delete collection',
+                      widget.onDelete),
+                ]);
+              })),
+        ));
+  }
+}
+
+ButtonStyle _collectionButtonStyle(BuildContext context) =>
+    pickListButtonStyle(context, footer: true).copyWith(
+      foregroundColor: const WidgetStatePropertyAll(Colors.white),
+    );

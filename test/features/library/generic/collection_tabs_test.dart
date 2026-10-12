@@ -116,7 +116,7 @@ void main() {
     await tester.tap(find.text('Create new collection'));
     await tester.pumpAndSettle();
     await tester.enterText(find.byType(TextField), 'Vinyl');
-    await tester.tap(find.text('Create'));
+    await tester.tap(find.text('Save'));
     await tester.runAsync(
         () => Future<void>.delayed(const Duration(milliseconds: 100)));
     await tester.pumpAndSettle();
