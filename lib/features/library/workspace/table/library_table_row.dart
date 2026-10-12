@@ -74,7 +74,8 @@ class LibraryTableInkRow extends StatelessWidget {
             padding: EdgeInsets.fromLTRB(
               resolvedHorizontalMargin,
               resolvedVerticalPadding,
-              resolvedHorizontalMargin - selectionRailWidth,
+              (resolvedHorizontalMargin - selectionRailWidth)
+                  .clamp(0.0, double.infinity),
               resolvedVerticalPadding,
             ),
             child: child,

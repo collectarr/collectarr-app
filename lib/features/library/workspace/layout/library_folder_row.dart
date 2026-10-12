@@ -86,9 +86,8 @@ class _LibraryFolderRowState extends State<LibraryFolderRow> {
         : _hovered
             ? libraryFolderHoverColor(context)
             : libraryFolderDepthColor(context, widget.depth);
-    final foreground = widget.selected
-        ? appContrastingTextColor(background)
-        : appPalette(context).textPrimary;
+    final foreground =
+        widget.selected ? Colors.white : appPalette(context).textPrimary;
     final style = libraryFolderTextStyle(context);
     return Padding(
       padding: EdgeInsets.only(bottom: widget.separateAfter ? 5 : 0),

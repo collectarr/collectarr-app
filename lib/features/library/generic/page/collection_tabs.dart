@@ -158,9 +158,8 @@ class LibraryCollectionTab extends StatelessWidget {
         : palette.isDark
             ? const Color(0xFF131313)
             : palette.surfaceSubtle;
-    final foreground = isActive
-        ? appContrastingTextColor(accent)
-        : palette.textPrimary.withValues(alpha: 0.78);
+    final foreground =
+        isActive || palette.isDark ? Colors.white : palette.textPrimary;
     return Padding(
       padding: const EdgeInsets.only(left: 1, top: 2, right: 1),
       child: Material(

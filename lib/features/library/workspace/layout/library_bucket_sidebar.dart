@@ -830,7 +830,7 @@ class _FolderTreeNodeView extends StatelessWidget {
                                 : Icons.chevron_right,
                             size: 16,
                             color: selected
-                                ? appContrastingTextColor(accent)
+                                ? appPalette(context).textPrimary
                                 : appPalette(context).textMuted),
                       )
                     : null,

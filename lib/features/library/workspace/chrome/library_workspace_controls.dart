@@ -143,27 +143,28 @@ class LibraryWorkspaceIconButton extends StatelessWidget {
 }
 
 class LibraryWorkspaceSeparator extends StatelessWidget {
-  const LibraryWorkspaceSeparator({
-    super.key,
-    required this.color,
-    this.horizontalPadding = 7,
-    this.height = 24,
-  });
-
-  final Color color;
+  const LibraryWorkspaceSeparator(
+      {super.key, this.color, this.horizontalPadding = 4, this.height = 32});
+  final Color? color;
   final double horizontalPadding;
   final double height;
-
   @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
-      child: SizedBox(
-        height: height,
-        child: VerticalDivider(width: 1, thickness: 1, color: color),
-      ),
-    );
-  }
+  Widget build(BuildContext context) => Padding(
+        padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
+        child: Container(
+            width: 2,
+            height: height,
+            decoration: BoxDecoration(
+              border: Border(
+                left: BorderSide(
+                    color: color ?? libraryWorkspacePaneDividerColor(context)),
+                right: BorderSide(
+                    color: Theme.of(context).brightness == Brightness.dark
+                        ? const Color(0xff4a4a4a)
+                        : Colors.white),
+              ),
+            )),
+      );
 }
 
 class LibraryWorkspaceControlStrip extends StatelessWidget {

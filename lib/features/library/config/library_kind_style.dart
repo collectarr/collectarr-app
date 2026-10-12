@@ -34,33 +34,6 @@ Color libraryDefaultAccentForKind(CatalogMediaKind kind) {
   return libraryKindRegistrationForKind(kind).identity.accent;
 }
 
-LinearGradient libraryChromeGradient(
-  Color accent, {
-  AlignmentGeometry begin = Alignment.topLeft,
-  AlignmentGeometry end = Alignment.bottomRight,
-  Brightness brightness = Brightness.dark,
-}) {
-  final isDark = brightness == Brightness.dark;
-  return LinearGradient(
-    begin: begin,
-    end: end,
-    colors: [
-      Color.alphaBlend(
-        isDark
-            ? Colors.black.withValues(alpha: 0.34)
-            : Colors.white.withValues(alpha: 0.42),
-        accent,
-      ),
-      Color.alphaBlend(
-        isDark
-            ? Colors.black.withValues(alpha: 0.62)
-            : Colors.white.withValues(alpha: 0.20),
-        accent,
-      ),
-    ],
-  );
-}
-
 Color libraryChromeBorderColor(
   Color accent, {
   Brightness brightness = Brightness.dark,
@@ -73,23 +46,19 @@ Color libraryChromeBorderColor(
   );
 }
 
-class AnimatedLibraryChromeGradient extends StatelessWidget {
-  const AnimatedLibraryChromeGradient({
+class AnimatedLibraryChrome extends StatelessWidget {
+  const AnimatedLibraryChrome({
     super.key,
     required this.accent,
     required this.child,
     this.duration,
     this.curve = Curves.easeOutCubic,
-    this.begin = Alignment.topLeft,
-    this.end = Alignment.bottomRight,
     this.borderBuilder,
   });
 
   final Color accent;
   final Duration? duration;
   final Curve curve;
-  final AlignmentGeometry begin;
-  final AlignmentGeometry end;
   final Widget child;
   final BoxBorder Function(Color animatedAccent, Brightness brightness)?
       borderBuilder;
@@ -108,12 +77,7 @@ class AnimatedLibraryChromeGradient extends StatelessWidget {
         final palette = appPalette(context);
         return DecoratedBox(
           decoration: BoxDecoration(
-            gradient: libraryChromeGradient(
-              animatedAccent,
-              brightness: palette.brightness,
-              begin: begin,
-              end: end,
-            ),
+            color: animatedAccent,
             border: borderBuilder?.call(animatedAccent, palette.brightness),
           ),
           child: child,

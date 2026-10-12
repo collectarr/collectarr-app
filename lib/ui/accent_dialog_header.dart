@@ -1,12 +1,11 @@
 import 'package:collectarr_app/features/library/config/library_kind_style.dart';
 import 'package:collectarr_app/features/library/ui/library_panel_header.dart';
 import 'package:collectarr_app/ui/library_accent_scope.dart';
-import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
 /// Uniform accent-colored header strip for all modal dialogs.
 ///
-/// Uses the app-bar gradient by default, or a solid accent when [flat] is true.
+/// Uses the current kind accent as a solid header color.
 class AccentDialogHeader extends StatelessWidget {
   const AccentDialogHeader({
     super.key,
@@ -18,7 +17,6 @@ class AccentDialogHeader extends StatelessWidget {
     this.minHeight,
     this.titleStyle,
     this.accent,
-    this.flat = false,
     this.foregroundColor,
   });
 
@@ -26,7 +24,6 @@ class AccentDialogHeader extends StatelessWidget {
   final double? minHeight;
   final TextStyle? titleStyle;
   final Color? accent;
-  final bool flat;
   final Color? foregroundColor;
 
   final IconData? icon;
@@ -46,8 +43,7 @@ class AccentDialogHeader extends StatelessWidget {
     final colorScheme = Theme.of(context).colorScheme;
     final resolvedAccent = accent ??
         LibraryAccentScope.accentOf(context, fallback: colorScheme.primary);
-    final foreground = foregroundColor ??
-        (flat ? appContrastingTextColor(resolvedAccent) : Colors.white);
+    final foreground = foregroundColor ?? Colors.white;
     final effectiveOnClose = showCloseButton
         ? (onClose ?? () => Navigator.of(context).maybePop())
         : null;
@@ -82,11 +78,8 @@ class AccentDialogHeader extends StatelessWidget {
         ],
       ),
     );
-    if (flat) return ColoredBox(color: resolvedAccent, child: header);
-    return AnimatedLibraryChromeGradient(
+    return AnimatedLibraryChrome(
       accent: resolvedAccent,
-      begin: Alignment.centerLeft,
-      end: Alignment.centerRight,
       borderBuilder: (animatedAccent, _) => Border(
         bottom: BorderSide(
           color: Color.alphaBlend(

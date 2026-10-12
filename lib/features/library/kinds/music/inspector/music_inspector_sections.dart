@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart'
     show LibraryCollectionStatusScopeUi;
 import 'package:collectarr_app/features/library/ui/primitives/library_collection_status_field.dart'
@@ -851,9 +852,11 @@ final class _MusicInspectorCoverState extends State<_MusicInspectorCover> {
 
   Uint8List? get _front => widget.frontCoverBytes ?? _frontBytes;
   Uint8List? get _back => widget.backCoverBytes ?? _backBytes;
+  bool get _hasFront =>
+      _front?.isNotEmpty == true || widget.imageUrl?.trim().isNotEmpty == true;
   bool get _hasBack =>
       _back?.isNotEmpty == true ||
-      widget.item.backCoverImageUrl?.isNotEmpty == true;
+      widget.item.backCoverImageUrl?.trim().isNotEmpty == true;
 
   Widget _cover({required bool back}) => AspectRatio(
         aspectRatio: 1.0,
@@ -870,26 +873,19 @@ final class _MusicInspectorCoverState extends State<_MusicInspectorCover> {
   Widget _selectorDot(bool back) {
     final isSelected = _showBack == back;
     return Tooltip(
-      message: back
-          ? (_hasBack ? 'Back cover' : 'Back cover (empty)')
-          : 'Front cover',
+      message: back ? 'Back cover' : 'Front cover',
       child: GestureDetector(
         onTap: () => setState(() => _showBack = back),
         child: MouseRegion(
           cursor: SystemMouseCursors.click,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 120),
-              width: isSelected ? 8 : 6,
-              height: isSelected ? 8 : 6,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: isSelected
-                    ? widget.accent
-                    : Colors.white.withValues(alpha: 0.45),
-              ),
-            ),
+          child: SizedBox.square(
+            dimension: 24,
+            child: Center(
+                child: Icon(AppIcons.coverIndicator,
+                    size: 13,
+                    color: isSelected
+                        ? Colors.white
+                        : Colors.white.withValues(alpha: 0.4))),
           ),
         ),
       ),
@@ -898,7 +894,7 @@ final class _MusicInspectorCoverState extends State<_MusicInspectorCover> {
 
   @override
   Widget build(BuildContext context) {
-    if (widget.sideBySide && _hasBack) {
+    if (widget.sideBySide && _hasFront && _hasBack) {
       return Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Expanded(child: _cover(back: false)),
         const SizedBox(width: 12),
@@ -910,19 +906,21 @@ final class _MusicInspectorCoverState extends State<_MusicInspectorCover> {
       children: [
         ClipRRect(
           borderRadius: BorderRadius.circular(4),
-          child: _cover(back: _showBack),
+          child: _cover(back: _hasBack && (!_hasFront || _showBack)),
         ),
-        const SizedBox(height: 6),
-        SizedBox(
-          height: 16,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              _selectorDot(false),
-              _selectorDot(true),
-            ],
+        if (_hasFront && _hasBack) ...[
+          const SizedBox(height: 5),
+          SizedBox(
+            height: 24,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                _selectorDot(false),
+                _selectorDot(true),
+              ],
+            ),
           ),
-        ),
+        ],
       ],
     );
   }

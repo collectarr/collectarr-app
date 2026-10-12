@@ -110,10 +110,8 @@ class AccentAlertDialog extends StatelessWidget {
         onClose: headerOnClose,
       );
     }
-    return AnimatedLibraryChromeGradient(
+    return AnimatedLibraryChrome(
       accent: resolvedAccent,
-      begin: Alignment.centerLeft,
-      end: Alignment.centerRight,
       borderBuilder: (animatedAccent, _) => Border(
         bottom: BorderSide(
           color: Color.alphaBlend(

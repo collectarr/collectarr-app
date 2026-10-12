@@ -21,7 +21,7 @@ class LibraryTableCellText extends StatelessWidget {
       overflow: TextOverflow.ellipsis,
       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
             fontSize: fontSize,
-            fontWeight: FontWeight.w500,
+            fontWeight: FontWeight.w400,
             color:
                 isEmpty ? Theme.of(context).colorScheme.onSurfaceVariant : null,
           ),

@@ -430,10 +430,8 @@ class _LibraryEditTitleBar extends StatelessWidget {
   Widget build(BuildContext context) {
     const headerMinHeight = 38.0;
     const foreground = Colors.white;
-    return AnimatedLibraryChromeGradient(
+    return AnimatedLibraryChrome(
       accent: accent,
-      begin: Alignment.centerLeft,
-      end: Alignment.centerRight,
       borderBuilder: (animatedAccent, _) => Border(
         bottom: BorderSide(
           color: Color.alphaBlend(

@@ -361,17 +361,7 @@ class LibraryDetailsPaneFrame extends StatelessWidget {
             height: 28,
             padding: const EdgeInsets.symmetric(horizontal: 8),
             decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.centerLeft,
-                end: Alignment.centerRight,
-                colors: [
-                  Color.alphaBlend(
-                    accentColor.withValues(alpha: 0.12),
-                    palette.surface,
-                  ),
-                  palette.surface,
-                ],
-              ),
+              color: palette.surface,
               border: Border(
                 bottom: BorderSide(color: accentDivider),
               ),

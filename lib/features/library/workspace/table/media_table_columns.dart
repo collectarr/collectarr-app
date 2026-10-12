@@ -9,8 +9,8 @@ import 'package:flutter/material.dart';
 const double kStandardMediaMinCoverSize = 96;
 const double kStandardMediaDefaultCoverSize = 128;
 const double kStandardMediaMaxCoverSize = 275;
-const double kStandardMediaTableColumnSpacing = 10;
-const double kStandardMediaTableHorizontalMargin = 8;
+const double kStandardMediaTableColumnSpacing = 0;
+const double kStandardMediaTableHorizontalMargin = 0;
 
 double standardMediaTableWidthForColumns({
   required LibraryFieldRegistry<LibraryWorkspaceDto> fields,
@@ -50,30 +50,14 @@ double defaultPlannedMediaTableColumnWidth(
   return definition?.isNumeric == true ? 88.0 : 140.0;
 }
 
-double minPlannedMediaTableColumnWidth(
-  LibraryFieldRegistry<LibraryWorkspaceDto> fields,
-  LibraryFieldIdRuntime columnId,
-) {
-  final definition = _tableColumnDefinition(fields, columnId);
-  return definition?.minWidth ?? 64.0;
-}
-
-double maxPlannedMediaTableColumnWidth(
-  LibraryFieldRegistry<LibraryWorkspaceDto> fields,
-  LibraryFieldIdRuntime columnId,
-) {
-  final definition = _tableColumnDefinition(fields, columnId);
-  return definition?.maxWidth ?? 260.0;
-}
-
 LibraryTableColumnSizing standardMediaTableColumnSizing(
   LibraryFieldRegistry<LibraryWorkspaceDto> fields,
   LibraryFieldIdRuntime columnId,
 ) {
   return LibraryTableColumnSizing(
     defaultWidth: defaultPlannedMediaTableColumnWidth(fields, columnId),
-    minWidth: minPlannedMediaTableColumnWidth(fields, columnId),
-    maxWidth: maxPlannedMediaTableColumnWidth(fields, columnId),
+    minWidth: 50,
+    maxWidth: double.infinity,
   );
 }
 

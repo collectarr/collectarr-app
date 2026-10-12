@@ -63,7 +63,6 @@ class LibraryFieldSelectionDialog extends StatelessWidget {
                           AccentDialogHeader(
                               title: title,
                               accent: accent,
-                              flat: true,
                               foregroundColor: Colors.white,
                               minHeight: 38,
                               titleStyle: TextStyle(

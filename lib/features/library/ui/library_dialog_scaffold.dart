@@ -96,10 +96,8 @@ class LibraryDialogScaffold extends StatelessWidget {
 
     final effectiveHeader = header ??
         (title != null
-            ? AnimatedLibraryChromeGradient(
+            ? AnimatedLibraryChrome(
                 accent: resolvedAccent,
-                begin: Alignment.centerLeft,
-                end: Alignment.centerRight,
                 borderBuilder: (animatedAccent, _) => Border(
                   bottom: BorderSide(
                     color: Color.alphaBlend(
@@ -203,7 +201,6 @@ class LibraryDialogScaffold extends StatelessWidget {
           Theme.of(context).dialogTheme.shape ??
           RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(6),
-            side: BorderSide(color: palette.divider),
           );
 
       result = Dialog(

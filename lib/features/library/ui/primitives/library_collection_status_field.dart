@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/features/library/ui/library_metrics.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_collection_status_icon.dart';
@@ -6,7 +7,8 @@ import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
 List<PopupMenuEntry<LibraryCollectionStatusScope>>
-    libraryCollectionStatusMenuItems(BuildContext context) {
+    libraryCollectionStatusMenuItems(BuildContext context,
+        {bool showIcons = true}) {
   PopupMenuEntry<LibraryCollectionStatusScope> heading(String label) =>
       PopupMenuItem(
           enabled: false,
@@ -24,14 +26,16 @@ List<PopupMenuEntry<LibraryCollectionStatusScope>>
           height: 26,
           padding: const EdgeInsets.symmetric(horizontal: 8),
           child: Row(children: [
-            LibraryCollectionStatusIcon(collectionStatus: status, size: 20),
-            const SizedBox(width: 8),
+            if (showIcons) ...[
+              LibraryCollectionStatusIcon(collectionStatus: status, size: 20),
+              const SizedBox(width: 8),
+            ],
             Expanded(
                 child: Text(status.label,
                     style: TextStyle(
                         color: appPalette(context).textPrimary,
                         fontSize: 14,
-                        fontWeight: FontWeight.w500)))
+                        fontWeight: FontWeight.w400)))
           ]));
   return [
     heading('Collection'),
@@ -72,24 +76,43 @@ class LibraryCollectionStatusField extends StatelessWidget {
             surfaceTintColor: Colors.transparent,
             menuPadding: EdgeInsets.zero,
             constraints: BoxConstraints(minWidth: constraints.maxWidth),
-            itemBuilder: libraryCollectionStatusMenuItems,
+            itemBuilder: (context) =>
+                libraryCollectionStatusMenuItems(context, showIcons: false),
             onSelected: (value) =>
                 onChanged(libraryCollectionStatusValue(value)),
-            child: InputDecorator(
-                decoration: const InputDecoration(
-                    isDense: true,
-                    contentPadding:
-                        EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    constraints: BoxConstraints.tightFor(
-                      height: LibraryMetrics.defaultFieldHeight,
-                    )),
-                child: Row(children: [
-                  LibraryCollectionStatusIcon(
-                      collectionStatus: status, size: 20),
-                  const SizedBox(width: 8),
-                  Expanded(child: Text(status.label)),
-                  const Icon(Icons.arrow_drop_down, size: 20),
-                ])),
+            child: MouseRegion(
+              cursor: SystemMouseCursors.click,
+              child: SizedBox(
+                height: LibraryMetrics.defaultFieldHeight,
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(4),
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).inputDecorationTheme.fillColor ??
+                          appPalette(context).surface,
+                      border: Border.all(color: appPalette(context).divider),
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                    child: Row(children: [
+                      Expanded(
+                          child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 7),
+                        child: Text(status.label,
+                            style: const TextStyle(
+                                fontSize: 14, fontWeight: FontWeight.w400)),
+                      )),
+                      ColoredBox(
+                          color: appPalette(context).divider,
+                          child: const SizedBox(
+                              width: 34,
+                              height: 34,
+                              child: Center(
+                                  child: Icon(AppIcons.caretDown, size: 12)))),
+                    ]),
+                  ),
+                ),
+              ),
+            ),
           ),
         ));
   }

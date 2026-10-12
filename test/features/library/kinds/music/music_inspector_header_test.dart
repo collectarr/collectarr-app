@@ -24,7 +24,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-MusicLibraryEntry _createFixture() => MusicLibraryEntry(
+MusicLibraryEntry _createFixture({String? front, String? back}) =>
+    MusicLibraryEntry(
       id: const LibraryEntryId('test-entry-1'),
       sourceCatalogRef: const CatalogItemRef(
         kind: CatalogMediaKind.music,
@@ -34,6 +35,8 @@ MusicLibraryEntry _createFixture() => MusicLibraryEntry(
       personal: const MusicPersonalData(indexNumber: 1),
       metadata: MusicAlbum(
         title: 'The Bleeding',
+        coverImageUrl: front,
+        backCoverImageUrl: back,
         artist: 'Cannibal Corpse',
         publisher: 'Metal Blade Records',
         catalogNumber: '3984-25039-1',
@@ -59,102 +62,119 @@ MusicLibraryEntry _createFixture() => MusicLibraryEntry(
     );
 
 void main() {
-  testWidgets(
-      'renders CLZ-styled music inspector hero card with cover and metadata',
-      (tester) async {
-    final db = LocalDatabase(NativeDatabase.memory());
-    addTearDown(db.close);
-    final entry = _createFixture();
-    await MusicEntryRepository(db).upsert(entry);
-    final summary = MusicLibraryEntryProjection.toSummary(entry);
+  for (final covers in [
+    (false, false),
+    (true, false),
+    (false, true),
+    (true, true)
+  ]) {
+    testWidgets(
+        'music inspector cover availability: front ${covers.$1}, back ${covers.$2}',
+        (tester) async {
+      final db = LocalDatabase(NativeDatabase.memory());
+      addTearDown(db.close);
+      final entry = _createFixture(
+          front: covers.$1 ? 'https://example.invalid/front.png' : null,
+          back: covers.$2 ? 'https://example.invalid/back.png' : null);
+      await MusicEntryRepository(db).upsert(entry);
+      final summary = MusicLibraryEntryProjection.toSummary(entry);
 
-    final source = LibraryWorkspaceContext(
-      item: WorkspaceItem(
-        target: EntryTargetRef(summary.ref),
-        entrySummary: summary,
-        libraryEntryDispatch: OpaqueLibraryEntryDispatch(
-          ref: summary.ref,
-          kind: CatalogMediaKind.music,
-          value: entry,
+      final source = LibraryWorkspaceContext(
+        item: WorkspaceItem(
+          target: EntryTargetRef(summary.ref),
+          entrySummary: summary,
+          libraryEntryDispatch: OpaqueLibraryEntryDispatch(
+            ref: summary.ref,
+            kind: CatalogMediaKind.music,
+            value: entry,
+          ),
+          kindPresentationData: MusicWorkspaceData.fromMusic(entry.metadata),
         ),
-        kindPresentationData: MusicWorkspaceData.fromMusic(entry.metadata),
-      ),
-      personal: const PersonalOverlay(),
-    );
+        personal: const PersonalOverlay(),
+      );
 
-    final item = LibraryProjectionItem.fromShelf(
-      source,
-      const MusicRegistration(),
-    );
-    final projection = LibraryProjection(
-      allItems: [item],
-      filteredItems: [item],
-      buckets: const [],
-      selectedItem: item,
-      counts: const LibraryToolbarCounts(),
-    );
+      final item = LibraryProjectionItem.fromShelf(
+        source,
+        const MusicRegistration(),
+      );
+      final projection = LibraryProjection(
+        allItems: [item],
+        filteredItems: [item],
+        buckets: const [],
+        selectedItem: item,
+        counts: const LibraryToolbarCounts(),
+      );
 
-    await tester.pumpWidget(
-      ProviderScope(
-        overrides: [localDatabaseProvider.overrideWithValue(db)],
-        child: MaterialApp(
-          home: Scaffold(
-            body: SizedBox(
-              width: 450,
-              child: LibraryInspector(
-                type: const MusicRegistration(),
-                projection: projection,
-                item: item,
-                libraryEntry: null,
-                accent: const Color(0xFF2A9FD6),
-                db: db,
-                onAddEntry: null,
-                onRemoveEntry: () {},
-                onAddWishlist: null,
-                onRemoveWishlist: null,
-                onEdit: (_) {},
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [localDatabaseProvider.overrideWithValue(db)],
+          child: MaterialApp(
+            home: Scaffold(
+              body: SizedBox(
+                width: 450,
+                child: LibraryInspector(
+                  type: const MusicRegistration(),
+                  projection: projection,
+                  item: item,
+                  libraryEntry: null,
+                  accent: const Color(0xFF2A9FD6),
+                  db: db,
+                  onAddEntry: null,
+                  onRemoveEntry: () {},
+                  onAddWishlist: null,
+                  onRemoveWishlist: null,
+                  onEdit: (_) {},
+                ),
               ),
             ),
           ),
         ),
-      ),
-    );
-    await tester.pumpAndSettle();
+      );
+      await tester.pumpAndSettle();
 
-    // 1. Artist (large, primary)
-    expect(find.text('Cannibal Corpse'), findsOneWidget);
+      // 1. Artist (large, primary)
+      expect(find.text('Cannibal Corpse'), findsOneWidget);
 
-    // 2. Title (cyan #2A9FD6)
-    final titleWidget = tester.widget<Text>(find.text('The Bleeding'));
-    expect(titleWidget.style?.color, const Color(0xFF2A9FD6));
+      // 2. Title (cyan #2A9FD6)
+      final titleWidget = tester.widget<Text>(find.text('The Bleeding'));
+      expect(titleWidget.style?.color, const Color(0xFF2A9FD6));
 
-    // 3. Collection badge (cyan ✓)
-    expect(find.byTooltip('In Collection'), findsOneWidget);
-    expect(find.byIcon(Icons.check), findsWidgets);
+      // 3. Collection badge (cyan ✓)
+      expect(find.byTooltip('In Collection'), findsOneWidget);
+      expect(find.byIcon(Icons.check), findsWidgets);
 
-    // 4. Label & Year
-    expect(find.text('Metal Blade Records'), findsOneWidget);
-    expect(find.text('(2017)'), findsOneWidget);
+      // 4. Label & Year
+      expect(find.text('Metal Blade Records'), findsOneWidget);
+      expect(find.text('(2017)'), findsOneWidget);
 
-    // 5. Pipe-separated Genres
-    expect(find.text('Death Metal'), findsOneWidget);
-    expect(find.text('Brutal Death Metal'), findsOneWidget);
+      // 5. Pipe-separated Genres
+      expect(find.text('Death Metal'), findsOneWidget);
+      expect(find.text('Brutal Death Metal'), findsOneWidget);
 
-    // 6. Barcode & Country
-    expect(find.text('039842503912'), findsOneWidget);
-    expect(find.textContaining('United States'), findsOneWidget);
+      // 6. Barcode & Country
+      expect(find.text('039842503912'), findsOneWidget);
+      expect(find.textContaining('United States'), findsOneWidget);
 
-    // 7. Metric strip (1 Disc | 1 Tracks | 3:30)
-    expect(find.text('1 Disc | 1 Track | 3:30'), findsOneWidget);
+      // 7. Metric strip (1 Disc | 1 Tracks | 3:30)
+      expect(find.text('1 Disc | 1 Track | 3:30'), findsOneWidget);
 
-    // 8. Catalog Number & eBay link
-    expect(find.textContaining('3984-25039-1', findRichText: true),
-        findsOneWidget);
-    expect(find.text('Find sold listings on eBay'), findsOneWidget);
+      // 8. Catalog Number & eBay link
+      expect(find.textContaining('3984-25039-1', findRichText: true),
+          findsOneWidget);
+      expect(find.text('Find sold listings on eBay'), findsOneWidget);
 
-    // 9. Cover carousel selector dots (Front & Back)
-    expect(find.byTooltip('Front cover'), findsOneWidget);
-    await tester.pumpWidget(const SizedBox.shrink());
-    await tester.pump(const Duration(milliseconds: 1));
-  });
+      // No cover switch when one or both covers are missing.
+      expect(find.byTooltip('Front cover'),
+          covers.$1 && covers.$2 ? findsOneWidget : findsNothing);
+      expect(find.byTooltip('Back cover'),
+          covers.$1 && covers.$2 ? findsOneWidget : findsNothing);
+      if (covers.$1 && covers.$2) {
+        await tester.tap(find.byTooltip('Back cover'));
+        await tester.pump();
+        expect(tester.takeException(), isNull);
+      }
+      await tester.pumpWidget(const SizedBox.shrink());
+      await tester.pump(const Duration(milliseconds: 1));
+    });
+  }
 }

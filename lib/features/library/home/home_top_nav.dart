@@ -51,10 +51,8 @@ class MediaLibraryNav extends ConsumerWidget {
     final windowClass = AppWindowClass.of(context);
     final isCompact = windowClass.isCompact;
 
-    return AnimatedLibraryChromeGradient(
+    return AnimatedLibraryChrome(
       accent: accentData.accent,
-      begin: Alignment.centerLeft,
-      end: Alignment.centerRight,
       borderBuilder: (animatedAccent, brightness) => Border(
         top: BorderSide(
           color: libraryChromeBorderColor(
@@ -131,10 +129,8 @@ class MediaLibraryTitleBar extends ConsumerWidget {
     final palette = appPalette(context);
     final icon = registry.tryGet(type.mediaKind)?.identity.icon ??
         libraryIconForKind(type.mediaKind);
-    return AnimatedLibraryChromeGradient(
+    return AnimatedLibraryChrome(
       accent: accentData.accent,
-      begin: Alignment.centerLeft,
-      end: Alignment.centerRight,
       borderBuilder: (animatedAccent, brightness) => Border(
         top: BorderSide(
           color: libraryChromeBorderColor(
@@ -626,10 +622,8 @@ class MediaLibraryCollapsedRailStrip extends ConsumerWidget {
       palette.surfaceSubtle.withValues(alpha: palette.isDark ? 0.9 : 1),
     );
     final handleForeground = appContrastingTextColor(handleBackground);
-    return AnimatedLibraryChromeGradient(
+    return AnimatedLibraryChrome(
       accent: accentData.accent,
-      begin: Alignment.topCenter,
-      end: Alignment.bottomCenter,
       child: SizedBox(
         width: 10,
         child: Align(

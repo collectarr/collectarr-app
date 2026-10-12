@@ -88,7 +88,6 @@ final class _CollectionsDialog extends ConsumerWidget {
                       AccentDialogHeader(
                           title: 'Manage Collections',
                           accent: accent,
-                          flat: true,
                           minHeight: 38,
                           onClose: () => Navigator.of(context).pop()),
                       Container(

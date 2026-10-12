@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-const double shellAppBarHeight = 40;
+const double shellAppBarHeight = 38;
 const double secondaryHeaderHeight = 38;
 const double drawerHeaderHeight = secondaryHeaderHeight;
 

@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/features/settings/ui_preferences.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -41,11 +42,11 @@ class LibraryToolbarPrimaryActions extends ConsumerWidget {
                 foregroundColor: addForegroundColor,
                 padding: const EdgeInsets.symmetric(horizontal: 9),
                 textStyle: const TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w700,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w400,
                 ),
               ),
-              icon: const Icon(Icons.add, size: 17),
+              icon: const Icon(AppIcons.add, size: 14),
               label: Text(addLabel),
             ),
           ),

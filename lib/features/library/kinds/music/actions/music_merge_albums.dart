@@ -257,9 +257,7 @@ class _MusicMergeDialogState extends State<_MusicMergeDialog> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   const AccentDialogHeader(
-                      title: 'Merge Albums',
-                      flat: true,
-                      foregroundColor: Colors.white),
+                      title: 'Merge Albums', foregroundColor: Colors.white),
                   Padding(
                       padding: const EdgeInsets.all(16),
                       child: Text('Merge ${widget.albums.length} albums',

@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_icons.dart';
 import 'dart:ui' as ui;
 
 import 'package:flutter/rendering.dart';
@@ -60,7 +61,8 @@ void main() {
         lessThan(tester.getTopLeft(find.text('b')).dx));
     expect(tester.getTopLeft(find.text('b')).dx,
         lessThan(tester.getTopLeft(find.text('c')).dx));
-    final handle = tester.getTopLeft(find.text('b')) + const Offset(145, 12);
+    final handle =
+        tester.getCenter(find.byKey(const ValueKey('resize-column-b')));
     await tester.tapAt(handle);
     await tester.pump(const Duration(milliseconds: 50));
     await tester.tapAt(handle);
@@ -138,8 +140,17 @@ void main() {
     }
 
     await expectGrid(100);
-    await tester.dragFrom(const Offset(188, 15), const Offset(40, 0));
-    expect(width, greaterThan(100));
+    final handle = find.byKey(const ValueKey("resize-column-a"));
+    expect(tester.getSize(handle).width, 5);
+    final start = tester.getCenter(handle);
+    final pointer = await tester.startGesture(start);
+    await pointer.moveTo(start + const Offset(30, 0));
+    await tester.pump();
+    expect(width, 130);
+    await pointer.moveTo(start + const Offset(60, 0));
+    await tester.pump();
+    expect(width, 160);
+    await pointer.up();
     await expectGrid(width);
     expect(tester.takeException(), isNull);
   });
@@ -518,7 +529,7 @@ void main() {
     expect(find.byKey(const ValueKey('status-Batman')), findsOneWidget);
 
     // Verify edit icons rendered (2 rows)
-    final editIcons = find.byIcon(Icons.edit_outlined);
+    final editIcons = find.byIcon(AppIcons.inlineEdit);
     expect(editIcons, findsNWidgets(2));
 
     // Tap edit icon on Batman (second row)

@@ -76,10 +76,8 @@ class _MediaLibraryRailState extends ConsumerState<MediaLibraryRail> {
     final selectedIcon =
         widget.registry.tryGet(selected.mediaKind)?.identity.icon ??
             libraryIconForKind(selected.mediaKind);
-    return AnimatedLibraryChromeGradient(
+    return AnimatedLibraryChrome(
       accent: accent,
-      begin: Alignment.topCenter,
-      end: Alignment.bottomCenter,
       borderBuilder: (animatedAccent, brightness) => Border(
         right: BorderSide(
           color: libraryChromeBorderColor(

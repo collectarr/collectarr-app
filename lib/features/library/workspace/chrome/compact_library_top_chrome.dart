@@ -86,10 +86,8 @@ class _CompactLibraryTopChromeState extends State<CompactLibraryTopChrome> {
     final palette = appPalette(context);
     final accentData = LibraryAccentScope.of(context);
 
-    return AnimatedLibraryChromeGradient(
+    return AnimatedLibraryChrome(
       accent: accentData.accent,
-      begin: Alignment.topLeft,
-      end: Alignment.bottomRight,
       borderBuilder: (Color? animatedAccent, Brightness brightness) => Border(
         bottom: BorderSide(
           color: libraryChromeBorderColor(

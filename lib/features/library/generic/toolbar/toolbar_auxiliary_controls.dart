@@ -1,3 +1,5 @@
+import 'package:collectarr_app/ui/app_icons.dart';
+import 'package:collectarr_app/features/library/ui/primitives/library_collection_status_field.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_collection_status_icon.dart';
 import 'dart:collection';
 
@@ -54,16 +56,12 @@ class _LibraryCollectionStatusScopeDropdownState
   Widget build(BuildContext context) {
     final palette = appPalette(context);
     final accent = Theme.of(context).colorScheme.primary;
-    final borderColor = libraryCollectionStatusScopeColor(
-      widget.collectionStatusScope,
-      accent,
-      palette.textMuted,
-    );
     final menuText = libraryToolbarMenuText(context);
     final menuMuted = libraryToolbarMenuMutedText(context);
     final dropdownTextStyle = Theme.of(context).textTheme.bodyMedium?.copyWith(
           height: 1,
-          fontWeight: FontWeight.w500,
+          fontSize: 14,
+          fontWeight: FontWeight.w400,
           color: palette.textPrimary,
         );
     final menuWidth = measureLibraryToolbarDropdownWidth(
@@ -82,9 +80,9 @@ class _LibraryCollectionStatusScopeDropdownState
       labels: [widget.collectionStatusScope.label],
       textStyle: dropdownTextStyle,
       leadingWidth: 20,
-      leadingSpacing: 8,
-      trailingWidth: 24,
-      horizontalPadding: 24,
+      leadingSpacing: 4,
+      trailingWidth: 14,
+      horizontalPadding: 10,
       minWidth: 0,
     );
     return SizedBox(
@@ -106,19 +104,18 @@ class _LibraryCollectionStatusScopeDropdownState
         ).copyWith(minWidth: menuWidth, maxWidth: menuWidth),
         shape: libraryToolbarDropdownMenuShape(context),
         itemBuilder: (context) => [
-          for (final scope in LibraryCollectionStatusScope.values)
-            PopupMenuItem<LibraryCollectionStatusScope>(
-              value: scope,
+          PopupMenuItem<LibraryCollectionStatusScope>(
+              value: LibraryCollectionStatusScope.all,
               height: 26,
               padding: const EdgeInsets.symmetric(horizontal: 8),
               child: LibraryCollectionStatusScopeMenuItem(
-                scope: scope,
-                isSelected: scope == widget.collectionStatusScope,
-                accent: accent,
-                muted: menuMuted,
-                textColor: menuText,
-              ),
-            ),
+                  scope: LibraryCollectionStatusScope.all,
+                  accent: accent,
+                  textColor: menuText,
+                  muted: menuMuted,
+                  isSelected: widget.collectionStatusScope ==
+                      LibraryCollectionStatusScope.all)),
+          ...libraryCollectionStatusMenuItems(context),
         ],
         child: MouseRegion(
           cursor: SystemMouseCursors.click,
@@ -126,16 +123,13 @@ class _LibraryCollectionStatusScopeDropdownState
           onExit: (_) => setState(() => _hovered = false),
           child: DecoratedBox(
             decoration: BoxDecoration(
-              color: _hovered && palette.isDark
-                  ? const Color(0xFF464950)
-                  : palette.panelRaised,
-              borderRadius: BorderRadius.circular(4),
-              border: Border.all(color: borderColor),
-            ),
+                color: _hovered
+                    ? libraryToolbarControlHover(context)
+                    : Colors.transparent),
             child: SizedBox(
               height: kLibraryToolbarTextDropdownHeight,
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 10),
+                padding: const EdgeInsets.symmetric(horizontal: 5),
                 child: Row(
                   children: [
                     LibraryCollectionStatusScopeBadge(
@@ -143,7 +137,7 @@ class _LibraryCollectionStatusScopeDropdownState
                       accent: accent,
                       muted: palette.textMuted,
                     ),
-                    const SizedBox(width: 8),
+                    const SizedBox(width: 4),
                     Expanded(
                       child: Text(
                         widget.collectionStatusScope.label,
@@ -152,11 +146,11 @@ class _LibraryCollectionStatusScopeDropdownState
                         style: dropdownTextStyle,
                       ),
                     ),
-                    const SizedBox(width: 6),
+                    const SizedBox(width: 2),
                     Icon(
-                      Icons.keyboard_arrow_down,
-                      size: 18,
-                      color: borderColor,
+                      AppIcons.chevronDown,
+                      size: 12,
+                      color: palette.textPrimary,
                     ),
                   ],
                 ),

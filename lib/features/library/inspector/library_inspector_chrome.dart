@@ -1,3 +1,5 @@
+import 'package:collectarr_app/features/library/workspace/chrome/library_workspace_controls.dart';
+import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/features/settings/ui_preferences.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
@@ -16,7 +18,6 @@ import 'package:collectarr_app/features/library/workspace/config/library_workspa
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_view_enums.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class InspectorBackdrop extends StatelessWidget {
@@ -255,7 +256,7 @@ class _InspectorBarButton extends StatelessWidget {
 
   final String tooltip;
   final VoidCallback? onPressed;
-  final FaIconData? icon;
+  final IconData? icon;
   final String? label;
   final Widget? labelContent;
   final String? semanticsLabel;
@@ -263,7 +264,7 @@ class _InspectorBarButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
-    final foreground = palette.textPrimary.withValues(alpha: 0.9);
+    final foreground = palette.textPrimary;
     final disabledColor = palette.textMuted.withValues(alpha: 0.4);
 
     return Tooltip(
@@ -275,6 +276,9 @@ class _InspectorBarButton extends StatelessWidget {
         onTap: onPressed,
         excludeSemantics: true,
         child: InkWell(
+          mouseCursor: onPressed == null
+              ? SystemMouseCursors.basic
+              : SystemMouseCursors.click,
           onTap: onPressed,
           hoverColor: palette.isDark ? const Color(0xFF464950) : null,
           borderRadius: BorderRadius.circular(4),
@@ -284,7 +288,7 @@ class _InspectorBarButton extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 if (icon != null) ...[
-                  FaIcon(
+                  Icon(
                     icon,
                     size: 14,
                     color: onPressed != null ? foreground : disabledColor,
@@ -385,7 +389,7 @@ class InspectorUnifiedToolbar extends ConsumerWidget {
                   _InspectorBarButton(
                     tooltip: 'Edit',
                     semanticsLabel: 'Edit',
-                    icon: FontAwesomeIcons.pencil,
+                    icon: AppIcons.inlineEdit,
                     label: compactActions ? null : 'Edit',
                     onPressed: onEdit,
                   ),
@@ -394,7 +398,7 @@ class InspectorUnifiedToolbar extends ConsumerWidget {
                   _InspectorBarButton(
                     tooltip: 'Share',
                     semanticsLabel: 'Share',
-                    icon: FontAwesomeIcons.shareNodes,
+                    icon: AppIcons.cloudSharing,
                     label: compactActions ? null : 'Share',
                     onPressed: onShare,
                   ),
@@ -443,44 +447,48 @@ class InspectorUnifiedToolbar extends ConsumerWidget {
                   itemBuilder: (context) => [
                     if (onDuplicate != null)
                       _inspectorMenuItem(InspectorToolbarMenuAction.duplicate,
-                          'Duplicate', FontAwesomeIcons.clone),
+                          'Duplicate', AppIcons.duplicates),
                     if (onToggleEntry != null)
                       _inspectorMenuItem(
                           InspectorToolbarMenuAction.removeOrCollect,
                           item.source.isEntry ? 'Remove' : 'Collect',
                           item.source.isEntry
-                              ? FontAwesomeIcons.trashCan
-                              : FontAwesomeIcons.circlePlus),
+                              ? AppIcons.delete
+                              : AppIcons.collect),
                     if (onMoveToCollection != null)
                       _inspectorMenuItem(
                           InspectorToolbarMenuAction.moveToCollection,
                           'Move to other collection',
-                          FontAwesomeIcons.database),
+                          AppIcons.collections),
                     if (onUnlinkFromCore != null)
                       _inspectorMenuItem(
                           InspectorToolbarMenuAction.unlinkFromCore,
                           'Unlink from Core',
-                          FontAwesomeIcons.linkSlash),
-                    _inspectorMenuItem(InspectorToolbarMenuAction.loan, 'Loan',
-                        FontAwesomeIcons.clock,
+                          AppIcons.unlink),
+                    _inspectorMenuItem(
+                        InspectorToolbarMenuAction.loan, 'Loan', AppIcons.loans,
                         enabled: onLoan != null),
                     _inspectorMenuItem(
                         InspectorToolbarMenuAction.refreshMetadata,
                         'Update from Core',
-                        FontAwesomeIcons.cloudArrowDown,
+                        AppIcons.updateFromCore,
                         enabled: onRefreshMetadata != null),
                   ],
-                  child: InkWell(
-                    borderRadius: BorderRadius.circular(4),
-                    hoverColor: palette.isDark ? const Color(0xFF464950) : null,
-                    child: Padding(
-                      padding:
-                          const EdgeInsets.symmetric(horizontal: 6, vertical: 5),
-                      child: FaIcon(
-                        FontAwesomeIcons.ellipsisVertical,
-                        size: 15,
-                        color: palette.textPrimary.withValues(alpha: 0.9),
-                      ),
+                  style: ButtonStyle(
+                      mouseCursor: WidgetStateMouseCursor.clickable,
+                      overlayColor: WidgetStateProperty.resolveWith((s) =>
+                          s.contains(WidgetState.hovered)
+                              ? (palette.isDark
+                                  ? const Color(0xff464950)
+                                  : palette.panelRaised)
+                              : null)),
+                  child: Padding(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 6, vertical: 5),
+                    child: Icon(
+                      AppIcons.more,
+                      size: 15,
+                      color: palette.textPrimary.withValues(alpha: 0.9),
                     ),
                   ),
                 ),
@@ -498,18 +506,22 @@ class InspectorUnifiedToolbar extends ConsumerWidget {
       },
     );
 
-    final styled = Container(
-      decoration: BoxDecoration(
-        color: framed
-            ? palette.panel.withValues(alpha: 0.72)
-            : libraryWorkspaceToolbarColor(context),
-        borderRadius: framed ? BorderRadius.circular(4) : null,
-        border: framed
-            ? Border.all(color: palette.divider)
-            : libraryWorkspaceToolbarBorder(context),
+    final styled = Material(
+      type: MaterialType.transparency,
+      child: Ink(
+        height: 38,
+        decoration: BoxDecoration(
+          color: framed
+              ? palette.panel.withValues(alpha: 0.72)
+              : libraryWorkspaceToolbarColor(context),
+          borderRadius: framed ? BorderRadius.circular(4) : null,
+          border: framed
+              ? Border.all(color: palette.divider)
+              : libraryWorkspaceToolbarBorder(context),
+        ),
+        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+        child: content,
       ),
-      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
-      child: content,
     );
 
     return accent == null
@@ -521,7 +533,7 @@ class InspectorUnifiedToolbar extends ConsumerWidget {
 PopupMenuItem<InspectorToolbarMenuAction> _inspectorMenuItem(
   InspectorToolbarMenuAction action,
   String label,
-  FaIconData icon, {
+  IconData icon, {
   bool enabled = true,
 }) =>
     PopupMenuItem<InspectorToolbarMenuAction>(
@@ -535,7 +547,7 @@ PopupMenuItem<InspectorToolbarMenuAction> _inspectorMenuItem(
             : libraryToolbarMenuMutedText(context);
         return LibraryWorkspaceMenuRow(
           label: label,
-          leading: FaIcon(icon, size: 14, color: color),
+          leading: Icon(icon, size: 14, color: color),
           padding: EdgeInsets.zero,
           textStyle: TextStyle(
               fontSize: 14, fontWeight: FontWeight.w500, color: color),
@@ -543,27 +555,8 @@ PopupMenuItem<InspectorToolbarMenuAction> _inspectorMenuItem(
       }),
     );
 
-Widget _inspectorToolbarSeparator(BuildContext context) => Container(
-      width: 2,
-      height: 20,
-      margin: const EdgeInsets.symmetric(horizontal: 4),
-      decoration: BoxDecoration(
-        border: Border(
-          left: BorderSide(
-            color: appPalette(context).isDark
-                ? const Color(0xFF262626)
-                : appPalette(context).divider,
-            width: 1,
-          ),
-          right: BorderSide(
-            color: appPalette(context).isDark
-                ? const Color(0xFF4A4A4A)
-                : Colors.white,
-            width: 1,
-          ),
-        ),
-      ),
-    );
+Widget _inspectorToolbarSeparator(BuildContext context) =>
+    const LibraryWorkspaceSeparator();
 
 class InspectorEbayLinksSection extends ConsumerWidget {
   const InspectorEbayLinksSection({super.key, required this.item});

@@ -1,3 +1,5 @@
+import 'package:collectarr_app/ui/app_icons.dart';
+import 'package:flutter/gestures.dart';
 import 'package:collectarr_app/features/library/workspace/table/library_table_row.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_tokens.dart';
@@ -140,7 +142,7 @@ class _LibraryWorkspaceTableState<T> extends State<LibraryWorkspaceTable<T>> {
     final resolvedColumnSpacing = widget.columnSpacing * densityScale;
     final resolvedHorizontalMargin = widget.horizontalMargin * densityScale;
     final palette = appPalette(context);
-    final tableBorderRadius = BorderRadius.circular(2);
+    final tableBorderRadius = BorderRadius.zero;
     final resolvedHeaderColor = widget.headerColor == kAppSurface
         ? libraryWorkspaceTableHeaderColor(context)
         : widget.headerColor;
@@ -178,7 +180,6 @@ class _LibraryWorkspaceTableState<T> extends State<LibraryWorkspaceTable<T>> {
       decoration: BoxDecoration(
         color: palette.surface,
         borderRadius: tableBorderRadius,
-        border: Border.all(color: resolvedDividerColor.withValues(alpha: 0.92)),
       ),
       child: ClipRRect(
         borderRadius: tableBorderRadius,
@@ -446,7 +447,7 @@ class _LibraryWorkspaceTableHeader extends StatelessWidget {
   }
 }
 
-class _LibraryWorkspaceTableHeaderCell extends StatelessWidget {
+class _LibraryWorkspaceTableHeaderCell extends StatefulWidget {
   const _LibraryWorkspaceTableHeaderCell({
     required this.column,
     required this.width,
@@ -480,90 +481,114 @@ class _LibraryWorkspaceTableHeaderCell extends StatelessWidget {
   final Color accentColor;
 
   @override
+  State<_LibraryWorkspaceTableHeaderCell> createState() =>
+      _LibraryWorkspaceTableHeaderCellState();
+}
+
+class _LibraryWorkspaceTableHeaderCellState
+    extends State<_LibraryWorkspaceTableHeaderCell> {
+  bool _dragging = false;
+  bool _hovered = false;
+  double _startX = 0;
+  double _startWidth = 0;
+
+  @override
   Widget build(BuildContext context) {
-    final headerTextColor = appContrastingTextColor(headerColor);
-    final headerMutedTextColor = headerTextColor.withValues(alpha: 0.72);
-    final showSortIcon = sorted && width >= 64;
-    final showSortPriority = sortPriority != null && width >= 80;
-    var resizedWidth = width;
-    return Container(
-      width: width,
-      height: height,
-      color: sorted ? libraryWorkspacePaneDividerColor(context) : headerColor,
-      child: Stack(
-        children: [
+    final textColor = appContrastingTextColor(widget.headerColor);
+    final showSort = widget.sorted && widget.width >= 64;
+    final showPriority = widget.sortPriority != null && widget.width >= 80;
+    return SizedBox(
+      width: widget.width,
+      height: widget.height,
+      child: Material(
+        color: widget.sorted
+            ? libraryWorkspacePaneDividerColor(context)
+            : widget.headerColor,
+        child: Stack(children: [
           Positioned.fill(
-            right: 8,
-            child: InkWell(
-              mouseCursor: WidgetStateMouseCursor.clickable,
-              onTap: sort == null ? null : () => onSortChanged(sort!),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      label,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        color: headerTextColor,
-                        fontWeight: FontWeight.w800,
-                        fontSize: 14,
-                        letterSpacing: 0.1,
-                      ),
-                    ),
-                  ),
-                  if (showSortIcon) ...[
-                    const SizedBox(width: 2),
-                    Icon(
-                      ascending
-                          ? Icons.arrow_drop_up_rounded
-                          : Icons.arrow_drop_down_rounded,
-                      size: 18,
-                      color: sorted ? accentColor : headerMutedTextColor,
-                    ),
-                  ],
-                  if (showSortPriority) ...[
-                    const SizedBox(width: 1),
-                    Text(
-                      sortPriority.toString(),
-                      key: ValueKey('sort-priority-$column'),
-                      style: TextStyle(
-                        color: sorted ? accentColor : headerMutedTextColor,
-                        fontSize: 12,
-                        fontWeight: FontWeight.w800,
-                      ),
-                    ),
-                  ],
-                ],
-              ),
-            ),
-          ),
-          Positioned(
-            right: 0,
-            top: 0,
-            bottom: 0,
-            child: MouseRegion(
-              cursor: SystemMouseCursors.resizeColumn,
-              child: Semantics(
-                label: 'Resize column',
-                child: GestureDetector(
-                  behavior: HitTestBehavior.opaque,
-                  onHorizontalDragStart: (_) => resizedWidth = width,
-                  onHorizontalDragUpdate: (details) {
-                    final nextWidth = (resizedWidth + details.delta.dx)
-                        .clamp(40.0, double.infinity);
-                    resizedWidth = nextWidth;
-                    onColumnWidthChanged(column, nextWidth.toDouble());
-                  },
-                  onDoubleTap: () => onAutoSize != null
-                      ? onAutoSize!(column)
-                      : onColumnWidthChanged(column, defaultWidth),
-                  child: const SizedBox(width: 10),
+              right: 5,
+              child: InkWell(
+                mouseCursor: _dragging
+                    ? SystemMouseCursors.resizeColumn
+                    : WidgetStateMouseCursor.clickable,
+                onTap: _dragging || widget.sort == null
+                    ? null
+                    : () => widget.onSortChanged(widget.sort!),
+                child: Padding(
+                  padding: const EdgeInsets.only(left: 5, right: 5),
+                  child: Row(children: [
+                    Expanded(
+                        child: Text(widget.label,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                                color: textColor,
+                                fontWeight: FontWeight.w700,
+                                fontSize: 14,
+                                letterSpacing: 0))),
+                    if (showSort) ...[
+                      const SizedBox(width: 2),
+                      Icon(
+                          widget.ascending
+                              ? AppIcons.caretUp
+                              : AppIcons.caretDown,
+                          size: 14,
+                          color: widget.accentColor),
+                    ],
+                    if (showPriority) ...[
+                      const SizedBox(width: 1),
+                      Text(widget.sortPriority.toString(),
+                          key: ValueKey('sort-priority-${widget.column}'),
+                          style: TextStyle(
+                              color: widget.accentColor,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w700)),
+                    ],
+                  ]),
                 ),
-              ),
-            ),
-          ),
-        ],
+              )),
+          Positioned(
+              right: 0,
+              top: 0,
+              bottom: 0,
+              child: MouseRegion(
+                cursor: SystemMouseCursors.resizeColumn,
+                onEnter: (_) => setState(() => _hovered = true),
+                onExit: (_) => setState(() => _hovered = false),
+                child: Semantics(
+                    label: 'Resize column: ${widget.label}',
+                    child: GestureDetector(
+                      behavior: HitTestBehavior.opaque,
+                      dragStartBehavior: DragStartBehavior.down,
+                      onHorizontalDragStart: (details) {
+                        _startX = details.globalPosition.dx;
+                        _startWidth = widget.width;
+                        setState(() => _dragging = true);
+                      },
+                      onHorizontalDragUpdate: (details) {
+                        final width =
+                            (_startWidth + details.globalPosition.dx - _startX)
+                                .clamp(50.0, double.infinity);
+                        widget.onColumnWidthChanged(
+                            widget.column, width.toDouble());
+                      },
+                      onHorizontalDragEnd: (_) =>
+                          setState(() => _dragging = false),
+                      onHorizontalDragCancel: () =>
+                          setState(() => _dragging = false),
+                      onDoubleTap: () => widget.onAutoSize != null
+                          ? widget.onAutoSize!(widget.column)
+                          : widget.onColumnWidthChanged(
+                              widget.column, widget.defaultWidth),
+                      child: Container(
+                          key: ValueKey('resize-column-${widget.column}'),
+                          width: 5,
+                          color: _dragging || _hovered
+                              ? widget.accentColor
+                              : Colors.transparent),
+                    )),
+              )),
+        ]),
       ),
     );
   }
@@ -742,7 +767,7 @@ class _LibraryWorkspaceTableRow<T> extends StatelessWidget {
                           : () => onEditEntry!(entry),
                       radius: 12,
                       child: Icon(
-                        Icons.edit_outlined,
+                        AppIcons.inlineEdit,
                         size: 14,
                         color: accentColor,
                       ),
@@ -759,7 +784,9 @@ class _LibraryWorkspaceTableRow<T> extends StatelessWidget {
                   alignment: columnIsNumeric(column)
                       ? Alignment.centerRight
                       : Alignment.centerLeft,
-                  child: cellBuilder(entry, column),
+                  child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 5),
+                      child: cellBuilder(entry, column)),
                 ),
               ),
               if (column != columns.last) SizedBox(width: columnSpacing),

@@ -9,13 +9,14 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   testWidgets('edit status fields use the same control height', (tester) async {
+    String? changedStatus;
     final fields = [
       SizedBox(
         key: const ValueKey('collection-status'),
         width: 240,
         child: LibraryCollectionStatusField(
           value: 'In Collection',
-          onChanged: (_) {},
+          onChanged: (value) => changedStatus = value,
         ),
       ),
       const SizedBox(
@@ -69,7 +70,7 @@ void main() {
         field: tester.getSize(find.byKey(ValueKey(field))).height,
     };
     final decorators = find.byType(InputDecorator);
-    expect(decorators, findsNWidgets(4));
+    expect(decorators, findsNWidgets(3));
     for (var index = 0; index < decorators.evaluate().length; index++) {
       expect(
         tester.getSize(decorators.at(index)).height,
@@ -81,6 +82,14 @@ void main() {
       {20 + 1 + LibraryMetrics.defaultFieldHeight},
       reason: 'Field heights differ: $heights',
     );
+    await tester.tap(find.byTooltip('Choose collection status'));
+    await tester.pumpAndSettle();
+    expect(find.text('Collection'), findsOneWidget);
+    expect(find.text('Wish List'), findsOneWidget);
+    await tester.tap(find.text('For Sale'));
+    await tester.pumpAndSettle();
+    expect(changedStatus, 'For Sale');
+    expect(tester.takeException(), isNull);
   });
 
   testWidgets('single value pick field exposes an inline picker menu',

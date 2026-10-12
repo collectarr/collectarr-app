@@ -22,7 +22,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
 
-const double _kLibraryToolbarBandVerticalPadding = 2;
+const double _kLibraryToolbarBandVerticalPadding = 0;
 const double _kLibraryToolbarBandHorizontalPadding = 4;
 
 void _noopDensityPresetChanged(LibraryWorkspaceDensityPreset _) {}
@@ -414,21 +414,8 @@ class _LibraryDesktopToolbarSection extends StatelessWidget {
 
 class _LibraryDesktopToolbarSeparator extends StatelessWidget {
   const _LibraryDesktopToolbarSeparator();
-
   @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 4),
-      child: SizedBox(
-        height: 18,
-        child: VerticalDivider(
-          width: 1,
-          thickness: 1,
-          color: appPalette(context).divider,
-        ),
-      ),
-    );
-  }
+  Widget build(BuildContext context) => const LibraryWorkspaceSeparator();
 }
 
 class _LibraryFolderPresetChip extends StatelessWidget {
@@ -587,14 +574,15 @@ class LibraryDesktopFilteringToolbar extends StatelessWidget {
             onRandomPick: onRandomPick,
             onScanCover: onScanCover,
             addBackgroundColor: accent,
-            addForegroundColor: appContrastingTextColor(accent),
+            addForegroundColor: Colors.white,
           ),
         if (showChromeRow) ...[
-          const SizedBox(width: 6),
+          const LibraryWorkspaceSeparator(),
           LibraryCollectionStatusScopeDropdown(
             collectionStatusScope: collectionStatusScope,
             onCollectionStatusScopeChanged: onCollectionStatusScopeChanged!,
           ),
+          const LibraryWorkspaceSeparator(),
         ],
       ],
     );
@@ -727,10 +715,8 @@ class LibrarySelectionToolbarBand extends StatelessWidget {
             ? 'Merge Albums'
             : 'Merge ${itemPluralLabel ?? 'Albums'}';
 
-    return AnimatedLibraryChromeGradient(
+    return AnimatedLibraryChrome(
       accent: effectiveAccent,
-      begin: Alignment.centerLeft,
-      end: Alignment.centerRight,
       borderBuilder: (animatedAccent, _) => Border(
         top: BorderSide(color: borderTop),
         bottom: showBottomBorder
@@ -1291,138 +1277,19 @@ class LibraryToolbarChromeRow extends StatelessWidget {
   final ValueChanged<String>? onJumpToNumberSubmitted;
 
   @override
-  Widget build(BuildContext context) {
-    final palette = appPalette(context);
-    final accent = Theme.of(context).colorScheme.primary;
-    final dropdownTextStyle = Theme.of(context).textTheme.bodyMedium?.copyWith(
-          height: 1,
-          fontWeight: FontWeight.w700,
-          color: palette.textPrimary,
-        );
-    final dropdownWidth = measureLibraryToolbarDropdownWidth(
-      context,
-      labels: LibraryCollectionStatusScope.values.map((scope) => scope.label),
-      textStyle: dropdownTextStyle,
-      leadingWidth: 20,
-      leadingSpacing: 8,
-      trailingWidth: 24,
-      horizontalPadding: 24,
-      minWidth: 132,
-    );
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-      child: onCollectionStatusScopeChanged == null
-          ? const SizedBox.shrink()
-          : Align(
-              alignment: Alignment.centerLeft,
-              child: SizedBox(
-                width: dropdownWidth,
-                child: PopupMenuButton<LibraryCollectionStatusScope>(
-                  key: const Key('collection-status-scope-dropdown'),
-                  tooltip: 'Collection status scope',
-                  onSelected: onCollectionStatusScopeChanged!,
-                  padding: EdgeInsets.zero,
-                  menuPadding: EdgeInsets.zero,
-                  position: PopupMenuPosition.under,
-                  color: Theme.of(context).brightness == Brightness.dark
-                      ? const Color(0xFF444444)
-                      : palette.panelRaised,
-                  surfaceTintColor: Colors.transparent,
-                  constraints: const BoxConstraints(
-                    minWidth: 0,
-                    maxWidth: double.infinity,
-                  ).copyWith(minWidth: dropdownWidth, maxWidth: dropdownWidth),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.zero,
-                    side: BorderSide(color: libraryToolbarMenuBorder(context)),
-                  ),
-                  itemBuilder: (context) => [
-                    for (final scope in LibraryCollectionStatusScope.values)
-                      PopupMenuItem<LibraryCollectionStatusScope>(
-                        value: scope,
-                        height: 26,
-                        padding: const EdgeInsets.symmetric(horizontal: 8),
-                        child: LibraryCollectionStatusScopeMenuItem(
-                          scope: scope,
-                          isSelected: scope == collectionStatusScope,
-                          accent: accent,
-                          muted: palette.textMuted,
-                          textColor: palette.textPrimary,
-                        ),
-                      ),
-                  ],
-                  child: _ScopeDropdownTrigger(
-                    scope: collectionStatusScope,
-                    accent: accent,
-                    height: kLibraryToolbarTextDropdownHeight,
-                    textStyle: dropdownTextStyle,
-                  ),
+  Widget build(BuildContext context) => Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+        child: onCollectionStatusScopeChanged == null
+            ? const SizedBox.shrink()
+            : Align(
+                alignment: Alignment.centerLeft,
+                child: LibraryCollectionStatusScopeDropdown(
+                  collectionStatusScope: collectionStatusScope,
+                  onCollectionStatusScopeChanged:
+                      onCollectionStatusScopeChanged!,
                 ),
               ),
-            ),
-    );
-  }
-}
-
-class _ScopeDropdownTrigger extends StatelessWidget {
-  const _ScopeDropdownTrigger({
-    required this.scope,
-    required this.accent,
-    required this.height,
-    this.textStyle,
-  });
-
-  final LibraryCollectionStatusScope scope;
-  final Color accent;
-  final double height;
-  final TextStyle? textStyle;
-
-  @override
-  Widget build(BuildContext context) {
-    final palette = appPalette(context);
-    final borderColor = libraryCollectionStatusScopeColor(
-      scope,
-      accent,
-      palette.textMuted,
-    );
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: palette.panelRaised,
-        borderRadius: BorderRadius.circular(4),
-        border: Border.all(color: borderColor),
-      ),
-      child: SizedBox(
-        height: height,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 10),
-          child: Row(
-            children: [
-              LibraryCollectionStatusScopeBadge(
-                scope: scope,
-                accent: accent,
-                muted: palette.textMuted,
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Text(
-                  scope.label,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: textStyle,
-                ),
-              ),
-              const SizedBox(width: 6),
-              Icon(
-                Icons.keyboard_arrow_down,
-                size: 18,
-                color: borderColor,
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
+      );
 }
 
 String _librarySearchTargetLabel(LibrarySearchTarget target) {

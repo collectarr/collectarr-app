@@ -347,11 +347,13 @@ class LibraryWorkspace extends ConsumerWidget {
           maxLines: null,
         );
         final style = Theme.of(context)
-            .textTheme
-            .bodyMedium
-            ?.copyWith(fontSize: 14, fontWeight: FontWeight.w500);
+                .textTheme
+                .bodyMedium
+                ?.copyWith(fontSize: 14, fontWeight: FontWeight.w400) ??
+            const TextStyle(fontSize: 14, fontWeight: FontWeight.w400);
         if (preferences.autoSizeColumns) {
           for (final column in visibleColumns) {
+            if (widths.containsKey(column)) continue;
             var width =
                 workspace.defaultTableColumnWidth(column, target: schemaNode);
             for (final text in [
@@ -387,7 +389,8 @@ class LibraryWorkspace extends ConsumerWidget {
               for (final column in visibleColumns) {
                 measure.text =
                     TextSpan(text: cellText(item, column.value), style: style);
-                measure.layout(maxWidth: widthFor(column.value));
+                measure.layout(
+                    maxWidth: math.max(1, widthFor(column.value) - 10));
                 height = math.max(height, measure.height + 8);
               }
               measure.dispose();
@@ -404,8 +407,8 @@ class LibraryWorkspace extends ConsumerWidget {
                 ? kLibraryTableStatusWidth
                 : 0) +
             (preferences.showEditIcons ? kLibraryTableEditWidth : 0);
-        final contentWidth = math.max(
-            tableWidth + leadingActionsWidth + 16, constraints.maxWidth);
+        final contentWidth =
+            math.max(tableWidth + leadingActionsWidth, constraints.maxWidth);
         final allSelected = items.isNotEmpty &&
             items.every((item) => selectedIds.contains(item.target.id));
         final hasPartialSelection =
@@ -416,7 +419,7 @@ class LibraryWorkspace extends ConsumerWidget {
             child: SizedBox(
               width: contentWidth,
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+                padding: EdgeInsets.zero,
                 child: LibraryTableCellDisplayScope(
                   wrap: preferences.wrapColumnContent,
                   child: LibraryWorkspaceTable<LibraryProjectionItem>(
@@ -475,18 +478,21 @@ class LibraryWorkspace extends ConsumerWidget {
                       final measure = TextPainter(
                           textDirection: Directionality.of(context),
                           textScaler: MediaQuery.textScalerOf(context));
-                      var width = 40.0;
-                      for (final text in [
-                        workspace.columnLabel(
-                            workspace
-                                .fieldsForTarget(schemaNode)
-                                .decodeColumnId(column),
-                            target: schemaNode),
-                        ...items.map((item) => cellText(item, column))
-                      ]) {
-                        measure.text = TextSpan(text: text, style: style);
+                      final fieldRegistry =
+                          workspace.fieldsForTarget(schemaNode);
+                      final label = workspace.columnLabel(
+                          fieldRegistry.decodeColumnId(column),
+                          target: schemaNode);
+                      measure.text = TextSpan(
+                          text: label,
+                          style: style.copyWith(fontWeight: FontWeight.w700));
+                      measure.layout();
+                      var width = math.max(50.0, measure.width + 24);
+                      for (final item in items) {
+                        measure.text = TextSpan(
+                            text: cellText(item, column), style: style);
                         measure.layout();
-                        width = math.max(width, measure.width + 24);
+                        width = math.max(width, measure.width + 10);
                       }
                       measure.dispose();
                       onColumnWidthChanged(column, width);
@@ -523,9 +529,8 @@ class LibraryWorkspace extends ConsumerWidget {
                     rowHeight: effectiveRowHeight,
                     rowHeightFor:
                         preferences.wrapColumnContent ? heightFor : null,
-                    columnSpacing: math.max(
-                        4.0, 8.0 + (preferences.gridSpacing - 10.0) * 0.4),
-                    horizontalMargin: 6,
+                    columnSpacing: 0,
+                    horizontalMargin: 0,
                     selectionRailWidth: 2,
                     headerColor: libraryWorkspaceTableHeaderColor(context),
                     dividerColor: libraryWorkspacePaneDividerColor(context),

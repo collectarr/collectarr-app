@@ -9,6 +9,12 @@ const String _regular = 'FontAwesomeRegular';
 /// Exposes native [IconData] instances so all widgets across the codebase
 /// can consume standard [Icon] widgets with compile-time constants.
 abstract final class AppIcons {
+  static const IconData coverIndicator =
+      IconData(0xf111, fontFamily: _solid, fontPackage: _fontPackage);
+  static const IconData collect =
+      IconData(0xf055, fontFamily: _solid, fontPackage: _fontPackage);
+  static const IconData unlink =
+      IconData(0xf127, fontFamily: _solid, fontPackage: _fontPackage);
   // --- Navigation & Drawer ---
   static const IconData menu =
       IconData(0xf0c9, fontFamily: _solid, fontPackage: _fontPackage);
@@ -80,6 +86,14 @@ abstract final class AppIcons {
       IconData(0xf0c8, fontFamily: _regular, fontPackage: _fontPackage);
   static const IconData edit =
       IconData(0xf044, fontFamily: _regular, fontPackage: _fontPackage);
+  static const IconData inlineEdit =
+      IconData(0xf303, fontFamily: _solid, fontPackage: _fontPackage);
+  static const IconData more =
+      IconData(0xf142, fontFamily: _solid, fontPackage: _fontPackage);
+  static const IconData caretDown =
+      IconData(0xf0d7, fontFamily: _solid, fontPackage: _fontPackage);
+  static const IconData caretUp =
+      IconData(0xf0d8, fontFamily: _solid, fontPackage: _fontPackage);
   static const IconData delete =
       IconData(0xf2ed, fontFamily: _regular, fontPackage: _fontPackage);
   static const IconData merge =

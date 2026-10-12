@@ -94,7 +94,8 @@ void main() {
     expect(pressed, isTrue);
   });
 
-  testWidgets('workspace separator renders a vertical divider', (tester) async {
+  testWidgets('workspace separator uses a full-height two-tone divider',
+      (tester) async {
     await tester.pumpWidget(
       const MaterialApp(
         home: Scaffold(
@@ -103,10 +104,17 @@ void main() {
       ),
     );
 
-    final divider =
-        tester.widget<VerticalDivider>(find.byType(VerticalDivider));
-
-    expect(divider.color, Colors.red);
+    final separator = find.descendant(
+      of: find.byType(LibraryWorkspaceSeparator),
+      matching: find.byType(Container),
+    );
+    expect(tester.getSize(separator), const Size(2, 32));
+    final decoration =
+        tester.widget<Container>(separator).decoration as BoxDecoration;
+    final border = decoration.border as Border;
+    expect(border.left.color, Colors.red);
+    expect(border.left.width, 1);
+    expect(border.right.width, 1);
   });
 
   testWidgets('details aware layout frames inspector with details header', (
