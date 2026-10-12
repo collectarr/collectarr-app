@@ -1,5 +1,4 @@
 import 'package:collectarr_app/features/library/ui/library_metrics.dart';
-import 'package:collectarr_app/ui/app_dropdown_menu.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_collection_status_icon.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_form_controls.dart';
@@ -66,8 +65,10 @@ class LibraryCollectionStatusField extends StatelessWidget {
               PopupMenuButton<LibraryCollectionStatusScope>(
             tooltip: 'Choose collection status',
             position: PopupMenuPosition.under,
-            color: appDropdownMenuSurface(context),
-            shape: appDropdownMenuShape(context),
+            color: appPalette(context).panelRaised,
+            shape: RoundedRectangleBorder(
+                borderRadius: appPalette(context).menuBorderRadius,
+                side: BorderSide(color: appPalette(context).divider)),
             surfaceTintColor: Colors.transparent,
             menuPadding: EdgeInsets.zero,
             constraints: BoxConstraints(minWidth: constraints.maxWidth),

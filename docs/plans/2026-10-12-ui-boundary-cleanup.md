@@ -39,3 +39,24 @@ is now ShelfKindProjection.forKind under collection/projection. Route and modal
 classification retains current behavior, including modal XML export. Seven
 navigation/metadata/statistics checks pass; analyzer clean; web traversal and
 sidebar capture show no app errors.
+
+Stage 4 complete: anchored popup bounds/placement are shared by searchable and
+editable selectors, preserving their separate interactions. Bounds exclude
+keyboard/safe areas and switch above the anchor when needed. A widget regression
+found and fixed follower sizing that previously painted options off-screen.
+Removed the impossible suffix branch and app_dropdown_menu.dart after updating
+all consumers to palette surface/divider/radius. Picker button height follows
+density; chrome actions stay white and popup search carets follow kind accent.
+
+Final verification: 98 UI/navigation/geometry/picker/transfer checks pass, plus
+eight focused checks after the final caret change. Analyze is clean; Windows
+and web debug builds pass. Live editor/sidebar/settings/transfer popup traversal
+reports no captured app exceptions. Architecture scan reports no AST boundary
+violations; existing complexity reports remain informational (365 entries).
+
+Palette audit found no direct kAppPanel/kAppSurface/kAppText runtime references
+in app/ or ui/ outside palette/theme definitions. Measured editor state colors
+and semantic status colors remain deliberate surface/domain contributions.
+The existing 6px clipped dialog shell is retained. Edit-tab reorder release uses
+Flutter's existing 250ms controller, matching the observed CLZ sortable option.
+Scaffold drawer opening retains its native swipe/navigation behavior.

@@ -1,4 +1,5 @@
 import 'package:collectarr_app/features/library/ui/library_metrics.dart';
+import 'package:collectarr_app/features/library/ui/library_density_scope.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
@@ -12,15 +13,14 @@ class PickListFieldButton extends StatelessWidget {
   });
 
   static const double width = 33;
-  static const double height = LibraryMetrics.defaultFieldHeight - 2;
   final String tooltip;
   final VoidCallback? onPressed;
 
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
-    final foreground =
-        palette.isDark ? const Color(0xffcccccc) : palette.textMuted;
+    final height = LibraryDensityScope.of(context).metrics.fieldHeight - 2;
+    final foreground = palette.textMuted;
     return Tooltip(
         message: tooltip,
         child: Semantics(
@@ -31,11 +31,8 @@ class PickListFieldButton extends StatelessWidget {
                 height: height,
                 child: DecoratedBox(
                     decoration: BoxDecoration(
-                        border: Border(
-                            left: BorderSide(
-                                color: palette.isDark
-                                    ? const Color(0xff666666)
-                                    : palette.divider))),
+                        border:
+                            Border(left: BorderSide(color: palette.divider))),
                     child: Material(
                         color: Colors.transparent,
                         child: InkWell(

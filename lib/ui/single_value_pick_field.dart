@@ -1,6 +1,6 @@
 import 'package:collectarr_app/features/library/ui/library_metrics.dart';
-import 'app_dropdown_menu.dart';
-import 'dart:math' as math;
+import 'package:collectarr_app/ui/anchored_popup_geometry.dart';
+import 'package:collectarr_app/features/library/ui/library_density_scope.dart';
 
 import 'package:collectarr_app/ui/pick_list_field_button.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
@@ -53,7 +53,6 @@ class _SingleValuePickFieldState extends State<SingleValuePickField> {
   late final FocusNode _ownedFocusNode;
   FocusNode get _focusNode => widget.focusNode ?? _ownedFocusNode;
   final GlobalKey _fieldAnchorKey = GlobalKey();
-  static const _suffixFieldExtent = LibraryMetrics.defaultFieldHeight;
   static const _suffixButtonExtent = 32.0;
 
   @override
@@ -140,16 +139,11 @@ class _SingleValuePickFieldState extends State<SingleValuePickField> {
     if (!widget.enabled) {
       return;
     }
-    final fieldBox =
-        _fieldAnchorKey.currentContext?.findRenderObject() as RenderBox?;
-    final overlayBox =
-        Overlay.of(context).context.findRenderObject() as RenderBox?;
-    if (fieldBox == null || overlayBox == null) {
+    final geometry = AnchoredPopupGeometry.measure(context, _fieldAnchorKey);
+    if (geometry == null || geometry.bounds.height <= 0) {
       await _openPickerDialog(options);
       return;
     }
-    final fieldOffset =
-        fieldBox.localToGlobal(Offset.zero, ancestor: overlayBox);
     final currentValue = _emptyToNull(widget.controller.text);
     final matchingOptions = options;
     final popupItems = matchingOptions.isEmpty
@@ -184,26 +178,17 @@ class _SingleValuePickFieldState extends State<SingleValuePickField> {
           ];
     final selected = await showMenu<String>(
       context: context,
-      position: RelativeRect.fromLTRB(
-        fieldOffset.dx,
-        fieldOffset.dy + fieldBox.size.height,
-        overlayBox.size.width - fieldOffset.dx - fieldBox.size.width,
-        overlayBox.size.height - fieldOffset.dy - fieldBox.size.height,
-      ),
+      position: geometry.menuPosition,
       constraints: BoxConstraints(
-        minWidth: fieldBox.size.width,
-        maxWidth: fieldBox.size.width,
-        maxHeight: math.max(
-          1.0,
-          overlayBox.size.height -
-              fieldOffset.dy -
-              fieldBox.size.height -
-              MediaQuery.viewInsetsOf(context).bottom -
-              16,
-        ),
+        minWidth: geometry.bounds.width,
+        maxWidth: geometry.bounds.width,
+        maxHeight: geometry.bounds.height,
       ),
-      color: appDropdownMenuSurface(context),
-      shape: appDropdownMenuShape(context),
+      color: appPalette(context).panelRaised,
+      shape: RoundedRectangleBorder(
+        borderRadius: appPalette(context).menuBorderRadius,
+        side: BorderSide(color: appPalette(context).divider),
+      ),
       surfaceTintColor: Colors.transparent,
       menuPadding: EdgeInsets.zero,
       items: popupItems,
@@ -234,7 +219,7 @@ class _SingleValuePickFieldState extends State<SingleValuePickField> {
               onTap: onPressed,
               child: SizedBox(
                 width: _suffixButtonExtent,
-                height: _suffixButtonExtent,
+                height: LibraryDensityScope.of(context).metrics.fieldHeight - 2,
                 child: Icon(
                   icon,
                   size: 18,
@@ -255,10 +240,7 @@ class _SingleValuePickFieldState extends State<SingleValuePickField> {
     );
     final hasBrowseAction =
         widget.onManage != null || widget.showPickerListAction;
-    final actionCount = [
-      true,
-      if (hasBrowseAction) true,
-    ].length;
+    final fieldHeight = LibraryDensityScope.of(context).metrics.fieldHeight;
     final suffixWidth =
         _suffixButtonExtent + (hasBrowseAction ? PickListFieldButton.width : 0);
     return KeyedSubtree(
@@ -279,39 +261,36 @@ class _SingleValuePickFieldState extends State<SingleValuePickField> {
           helperText: widget.helperText,
           errorText: widget.errorText,
           contentPadding: const EdgeInsets.symmetric(horizontal: 7),
-          constraints: const BoxConstraints(
-            minHeight: LibraryMetrics.defaultFieldHeight,
+          constraints: BoxConstraints(
+            minHeight: fieldHeight,
           ),
           suffixIconConstraints: BoxConstraints(
-            minWidth: actionCount == 0 ? 0 : suffixWidth,
-            maxWidth: actionCount == 0 ? 0 : suffixWidth,
-            minHeight: _suffixFieldExtent - 2,
+            minWidth: suffixWidth,
+            maxWidth: suffixWidth,
+            minHeight: fieldHeight - 2,
           ),
-          suffixIcon: actionCount == 0
-              ? null
-              : SizedBox(
-                  width: suffixWidth,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    mainAxisSize: MainAxisSize.max,
-                    children: [
-                      _suffixAction(
-                        tooltip: 'Pick ${widget.label}',
-                        onPressed: () => _openInlinePicker(normalizedOptions),
-                        icon: Icons.arrow_drop_down,
-                      ),
-                      if (hasBrowseAction)
-                        PickListFieldButton(
-                          tooltip:
-                              widget.manageTooltip ?? 'Browse ${widget.label}',
-                          onPressed: widget.enabled
-                              ? (widget.onManage ??
-                                  () => _openPickerDialog(normalizedOptions))
-                              : null,
-                        ),
-                    ],
-                  ),
+          suffixIcon: SizedBox(
+            width: suffixWidth,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              mainAxisSize: MainAxisSize.max,
+              children: [
+                _suffixAction(
+                  tooltip: 'Pick ${widget.label}',
+                  onPressed: () => _openInlinePicker(normalizedOptions),
+                  icon: Icons.arrow_drop_down,
                 ),
+                if (hasBrowseAction)
+                  PickListFieldButton(
+                    tooltip: widget.manageTooltip ?? 'Browse ${widget.label}',
+                    onPressed: widget.enabled
+                        ? (widget.onManage ??
+                            () => _openPickerDialog(normalizedOptions))
+                        : null,
+                  ),
+              ],
+            ),
+          ),
         ),
         onTap: widget.readOnly
             ? () => _openInlinePicker(normalizedOptions)

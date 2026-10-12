@@ -1,3 +1,5 @@
+import 'package:collectarr_app/features/library/ui/library_density_scope.dart';
+import 'package:collectarr_app/features/library/ui/library_metrics.dart';
 import 'package:collectarr_app/ui/pick_list_field_button.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
 import 'package:collectarr_app/features/library/generic/library_group_mode_menu.dart';
@@ -185,8 +187,12 @@ class LibrarySidebarHeader extends StatelessWidget {
                   const SizedBox(width: 4),
                   SizedBox(
                       width: action.isPickList ? PickListFieldButton.width : 30,
-                      height:
-                          action.isPickList ? PickListFieldButton.height : 30,
+                      height: action.isPickList
+                          ? LibraryDensityScope.of(context)
+                                  .metrics
+                                  .fieldHeight -
+                              2
+                          : 30,
                       child: action),
                 ],
                 if (overflow && slots > 0) ...[

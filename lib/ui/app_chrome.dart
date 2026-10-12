@@ -5,8 +5,8 @@ const double secondaryHeaderHeight = 38;
 const double drawerHeaderHeight = secondaryHeaderHeight;
 
 ButtonStyle appChromeIconButtonStyle(BuildContext context) {
-  final foreground =
-      Theme.of(context).appBarTheme.foregroundColor ?? Colors.white;
+  // The persistent kind bar keeps white action glyphs in both application skins.
+  const foreground = Colors.white;
   return IconButton.styleFrom(
     foregroundColor: foreground,
     disabledForegroundColor: foreground.withValues(alpha: .54),
