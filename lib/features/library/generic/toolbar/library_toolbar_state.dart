@@ -19,6 +19,7 @@ class LibraryToolbarState {
     this.searchActive = false,
     this.searchSuggestions = const <LibraryToolbarSearchSuggestion>[],
     this.selectedBucket,
+    this.linkedMetadataFilterLabel,
     required this.collectionStatusScope,
     required this.quickView,
     this.availableLetters = const <String>{},
@@ -53,6 +54,7 @@ class LibraryToolbarState {
   final bool searchActive;
   final List<LibraryToolbarSearchSuggestion> searchSuggestions;
   final String? selectedBucket;
+  final String? linkedMetadataFilterLabel;
   final LibraryCollectionStatusScope collectionStatusScope;
   final LibraryQuickView? quickView;
   final Set<String> availableLetters;

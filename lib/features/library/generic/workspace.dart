@@ -10,8 +10,8 @@ import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/selection/library_selection_state.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_tile.dart';
 import 'package:collectarr_app/features/library/workspace/layout/library_flow_carousel.dart';
-import 'package:collectarr_app/features/library/workspace/layout/library_folder_row.dart';
 import 'package:collectarr_app/features/library/workspace/layout/library_shelf_view.dart';
+import 'package:collectarr_app/features/library/workspace/layout/library_shelf_backdrop.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_workspace_card.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_tokens.dart';
@@ -297,7 +297,7 @@ class LibraryWorkspace extends ConsumerWidget {
           shelfHeight: coverMainAxisExtent,
           bookWidth: viewState.coverSize,
           fallbackCoverAspectRatio: fallbackCoverAspectRatio,
-          backgroundColor: libraryFolderDepthColor(context, 0),
+          backgroundColor: libraryShelfBackColor,
           emptyBuilder: _emptyBuilder,
           bookHorizontalPadding: 1.5,
           itemSpacing: gridSpacing,

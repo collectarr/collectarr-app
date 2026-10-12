@@ -93,8 +93,9 @@ class LibraryPageToolbarController {
         searchActive:
             searchState.query.isNotEmpty || searchState.pinnedItemId != null,
         searchSuggestions: searchSuggestions,
-        selectedBucket: _s._session.facets.linkedMetadataFilter?.chipLabel ??
-            _s._session.facets.selectedBucket,
+        selectedBucket: _s._session.facets.selectedBucket,
+        linkedMetadataFilterLabel:
+            _s._session.facets.linkedMetadataFilter?.chipLabel,
         collectionStatusScope: _s._session.facets.collectionStatusScope,
         quickView: _s._session.facets.quickView,
         availableLetters: LibraryAlphaJumpBar.lettersFromTitles(

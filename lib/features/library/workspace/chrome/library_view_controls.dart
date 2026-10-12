@@ -37,7 +37,7 @@ class LibraryViewModeDropdown extends StatelessWidget {
       textStyle: dropdownTextStyle,
     );
     final triggerWidth = iconOnly
-        ? 34.0
+        ? 46.0
         : _measureSplitTriggerWidth(
             context,
             leadingLabel: 'View',
@@ -129,7 +129,7 @@ class LibraryDetailsLayoutDropdown extends StatelessWidget {
       textStyle: dropdownTextStyle,
     );
     final triggerWidth = iconOnly
-        ? 34.0
+        ? 46.0
         : _measureSplitTriggerWidth(
             context,
             leadingLabel: 'Layout',
@@ -576,8 +576,16 @@ class _LibraryToolbarSplitLabelTrigger extends StatelessWidget {
       return DecoratedBox(
         decoration: libraryToolbarDropdownDecoration(context),
         child: Padding(
-          padding: const EdgeInsets.all(8),
-          child: effectiveGlyph,
+          padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 8),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              effectiveGlyph,
+              const SizedBox(width: 4),
+              Icon(AppIcons.chevronDown,
+                  size: 12, color: libraryToolbarControlText(context)),
+            ],
+          ),
         ),
       );
     }

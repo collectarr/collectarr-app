@@ -4,6 +4,7 @@ import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_tile.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
+import 'library_shelf_backdrop.dart';
 
 class LibraryShelfView<T> extends StatelessWidget {
   const LibraryShelfView({
@@ -49,9 +50,8 @@ class LibraryShelfView<T> extends StatelessWidget {
   Widget build(BuildContext context) {
     if (items.isEmpty && emptyBuilder != null) {
       final empty = emptyBuilder!(context);
-      return backgroundColor == null
-          ? empty
-          : ColoredBox(color: backgroundColor!, child: empty);
+      return ColoredBox(
+          color: backgroundColor ?? libraryShelfBackColor, child: empty);
     }
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -107,13 +107,11 @@ class LibraryShelfView<T> extends StatelessWidget {
             );
           },
         );
-        if (backgroundColor != null) {
-          return ColoredBox(
-            color: backgroundColor!,
-            child: listView,
-          );
-        }
-        return listView;
+        return LibraryShelfBackdrop(
+          shelfPitch: effectiveShelfHeight + 20,
+          color: backgroundColor ?? libraryShelfBackColor,
+          child: listView,
+        );
       },
     );
   }
@@ -157,12 +155,8 @@ class _ShelfRow<T> extends StatelessWidget {
     const shelfThickness = 8.0;
     const shelfShadow = 12.0;
     const shelfOverhang = 8.0;
-    final palette = appPalette(context);
-    final panelColor = palette.panel;
-    final shelfColor =
-        HSLColor.fromColor(panelColor).withLightness(0.18).toColor();
-    final shelfHighlight =
-        HSLColor.fromColor(panelColor).withLightness(0.24).toColor();
+    const shelfColor = libraryShelfPlankColor;
+    const shelfHighlight = libraryShelfHighlightColor;
     return SizedBox(
       height: shelfHeight + shelfThickness + shelfShadow,
       child: Stack(
@@ -204,7 +198,7 @@ class _ShelfRow<T> extends StatelessWidget {
             height: 1,
             child: DecoratedBox(
               decoration: BoxDecoration(
-                color: palette.divider.withValues(alpha: 0.72),
+                color: shelfHighlight,
               ),
             ),
           ),

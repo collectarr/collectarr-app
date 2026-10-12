@@ -52,6 +52,7 @@ class LibraryToolbar extends StatelessWidget {
     this.onDensityPresetChanged = _noopDensityPresetChanged,
     required this.onCoverSizeChanged,
     required this.selectedBucket,
+    this.linkedMetadataFilterLabel,
     required this.onClearBucket,
     required this.onRefreshMetadata,
     this.collectionStatusScope = LibraryCollectionStatusScope.all,
@@ -143,6 +144,7 @@ class LibraryToolbar extends StatelessWidget {
         onDensityPresetChanged = actions.onDensityPresetChanged,
         onCoverSizeChanged = actions.onCoverSizeChanged,
         selectedBucket = state.selectedBucket,
+        linkedMetadataFilterLabel = state.linkedMetadataFilterLabel,
         onClearBucket = actions.onClearBucket,
         onRefreshMetadata = actions.onRefreshMetadata,
         collectionStatusScope = state.collectionStatusScope,
@@ -227,6 +229,7 @@ class LibraryToolbar extends StatelessWidget {
   final ValueChanged<LibraryWorkspaceDensityPreset> onDensityPresetChanged;
   final ValueChanged<double> onCoverSizeChanged;
   final String? selectedBucket;
+  final String? linkedMetadataFilterLabel;
   final VoidCallback onClearBucket;
   final VoidCallback onRefreshMetadata;
   final LibraryCollectionStatusScope collectionStatusScope;
@@ -320,6 +323,7 @@ class LibraryToolbar extends StatelessWidget {
                   counts: counts,
                   viewMode: viewState.viewMode,
                   selectedBucket: selectedBucket,
+                  linkedMetadataFilterLabel: linkedMetadataFilterLabel,
                   onAdd: onAdd,
                   onScan: onScan,
                   onSearchChanged: onSearchChanged,
@@ -428,6 +432,7 @@ class LibraryToolbar extends StatelessWidget {
                       onDensityPresetChanged: onDensityPresetChanged,
                       onCoverSizeChanged: onCoverSizeChanged,
                       selectedBucket: selectedBucket,
+                      linkedMetadataFilterLabel: linkedMetadataFilterLabel,
                       onClearBucket: onClearBucket,
                       quickView: quickView,
                       activeSortFavoriteId: activeSortFavoriteId,

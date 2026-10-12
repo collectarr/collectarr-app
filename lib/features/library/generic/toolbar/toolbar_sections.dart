@@ -44,6 +44,7 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
     this.onDensityPresetChanged = _noopDensityPresetChanged,
     required this.onCoverSizeChanged,
     required this.selectedBucket,
+    this.linkedMetadataFilterLabel,
     required this.onClearBucket,
     required this.quickView,
     required this.hasActiveFilters,
@@ -105,6 +106,7 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
   final ValueChanged<double> onCoverSizeChanged;
   final VoidCallback? onEditSort;
   final String? selectedBucket;
+  final String? linkedMetadataFilterLabel;
   final VoidCallback onClearBucket;
   final LibraryQuickView? quickView;
   final bool hasActiveFilters;
@@ -210,7 +212,6 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
                         ),
                         const SizedBox(width: 4),
                       ],
-                      const _LibraryDesktopToolbarSeparator(),
                       LibraryViewModeDropdown(
                         viewMode: viewState.viewMode,
                         onChanged: onViewModeChanged,
@@ -302,31 +303,15 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
                     total: counts.total,
                     pluralLabel: type.identity.pluralLabel,
                   ),
-                  if (selectedBucket != null)
+                  if (linkedMetadataFilterLabel != null)
                     LibraryToolbarScopeChip(
-                      label: selectedBucket!,
+                      label: linkedMetadataFilterLabel!,
                       onClear: onClearBucket,
-                    ),
-                  if (folderPreset != null && onGroupModeChanged != null)
-                    _LibraryFolderPresetChip(
-                      label: genericFolderPresetLabel(folderPreset!, type),
-                      icon: genericFolderPresetIcon(folderPreset!, type),
-                      onPressed: onFolders,
-                      onReset: folderPreset! ==
-                              LibraryFolderPreset.single(
-                                libraryDefaultGroupMode(type),
-                              )
-                          ? null
-                          : () => onGroupModeChanged!(
-                                LibraryFolderPreset.single(
-                                  libraryDefaultGroupMode(type),
-                                ),
-                              ),
                     ),
                   LibraryToolsButton(
                     type: type,
                     counts: counts,
-                    selectedBucket: selectedBucket,
+                    selectedBucket: selectedBucket ?? linkedMetadataFilterLabel,
                     quickView: quickView,
                     hasActiveFilters: hasActiveFilters,
                     onQuickViewSelected: onQuickViewSelected,
@@ -410,39 +395,6 @@ class _LibraryDesktopToolbarSeparator extends StatelessWidget {
   const _LibraryDesktopToolbarSeparator();
   @override
   Widget build(BuildContext context) => const LibraryWorkspaceSeparator();
-}
-
-class _LibraryFolderPresetChip extends StatelessWidget {
-  const _LibraryFolderPresetChip({
-    required this.label,
-    required this.icon,
-    this.onPressed,
-    this.onReset,
-  });
-
-  final String label;
-  final IconData icon;
-  final VoidCallback? onPressed;
-  final VoidCallback? onReset;
-
-  @override
-  Widget build(BuildContext context) {
-    return InputChip(
-      visualDensity: VisualDensity.compact,
-      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-      avatar: Icon(icon, size: 14),
-      label: Text(
-        label,
-        style: Theme.of(context).textTheme.labelSmall?.copyWith(
-              fontWeight: FontWeight.w700,
-            ),
-      ),
-      onPressed: onPressed,
-      onDeleted: onReset,
-      deleteIcon: const Icon(Icons.restart_alt, size: 14),
-      deleteButtonTooltipMessage: 'Reset folders',
-    );
-  }
 }
 
 enum _LibraryColumnLauncherAction { manage }
@@ -840,6 +792,7 @@ class LibraryCompactToolbarContent extends StatelessWidget {
     required this.counts,
     required this.viewMode,
     required this.selectedBucket,
+    this.linkedMetadataFilterLabel,
     required this.onAdd,
     required this.onScan,
     required this.onSearchChanged,
@@ -905,6 +858,7 @@ class LibraryCompactToolbarContent extends StatelessWidget {
   final LibraryToolbarCounts counts;
   final LibraryViewMode viewMode;
   final String? selectedBucket;
+  final String? linkedMetadataFilterLabel;
   final VoidCallback onAdd;
   final VoidCallback onScan;
   final ValueChanged<String> onSearchChanged;
@@ -1044,7 +998,7 @@ class LibraryCompactToolbarContent extends StatelessWidget {
               LibraryToolsButton(
                 type: type,
                 counts: counts,
-                selectedBucket: selectedBucket,
+                selectedBucket: selectedBucket ?? linkedMetadataFilterLabel,
                 quickView: quickView,
                 hasActiveFilters: hasActiveFilters,
                 onQuickViewSelected: onQuickViewSelected,
@@ -1104,9 +1058,9 @@ class LibraryCompactToolbarContent extends StatelessWidget {
                         ),
                       ),
                     ),
-                    if (selectedBucket != null)
+                    if (linkedMetadataFilterLabel != null)
                       LibraryToolbarScopeChip(
-                        label: selectedBucket!,
+                        label: linkedMetadataFilterLabel!,
                         onClear: onClearBucket,
                       ),
                     LibraryItemCountLabel(

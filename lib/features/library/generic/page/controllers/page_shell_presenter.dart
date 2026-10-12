@@ -324,8 +324,9 @@ abstract final class LibraryPageShellPresenter {
         onCoverSizeChanged: (size) => state._updateViewState(
           (stateValue) => stateValue.copyWith(coverSize: size),
         ),
-        selectedBucket: state._session.facets.linkedMetadataFilter?.chipLabel ??
-            state._session.facets.selectedBucket,
+        selectedBucket: state._session.facets.selectedBucket,
+        linkedMetadataFilterLabel:
+            state._session.facets.linkedMetadataFilter?.chipLabel,
         onClearBucket: state._clearToolbarSearchChip,
         quickView: state._session.facets.quickView,
         activeSortFavoriteId: state._activeSortFavorite?.id,
