@@ -1,3 +1,5 @@
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/app/shell/app_navigation_drawer.dart';
 import 'package:collectarr_app/app/shell/app_navigation_model.dart';
 import 'package:flutter/material.dart';
@@ -18,6 +20,7 @@ void main() {
       MaterialApp(
         home: Scaffold(
           drawer: AppNavigationDrawer(
+            type: defaultLibraryKindRegistry.require(CatalogMediaKind.music),
             selectedAction: DrawerAction.libraries,
             isAdmin: true,
             accent: const Color(0xFFF2932F),
@@ -35,6 +38,20 @@ void main() {
     final scaffoldState = tester.state<ScaffoldState>(find.byType(Scaffold));
     scaffoldState.openDrawer();
     await tester.pumpAndSettle();
+
+    expect(find.text('COLLECTARR MUSIC'), findsOneWidget);
+    final header =
+        tester.widget<Material>(find.byKey(const Key('drawer.header')));
+    expect(header.color, const Color(0xFFF2932F));
+    final kindIcon =
+        tester.widget<Icon>(find.byKey(const Key('drawer.kind-icon')));
+    expect(
+        kindIcon.icon,
+        defaultLibraryKindRegistry
+            .require(CatalogMediaKind.music)
+            .identity
+            .icon);
+    expect(kindIcon.color, Colors.white);
 
     // Verify headers exist
     expect(find.text('Collection'), findsOneWidget);

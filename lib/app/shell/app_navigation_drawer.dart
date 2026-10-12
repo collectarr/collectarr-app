@@ -1,6 +1,7 @@
 import 'package:collectarr_app/ui/app_chrome.dart';
 
-import 'package:collectarr_app/ui/library_accent_scope.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
+import 'app_shell_brand.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
@@ -13,6 +14,7 @@ class AppNavigationDrawer extends StatefulWidget {
     required this.selectedAction,
     required this.isAdmin,
     required this.accent,
+    required this.type,
     required this.addLabel,
     required this.onSelected,
   });
@@ -20,6 +22,7 @@ class AppNavigationDrawer extends StatefulWidget {
   final DrawerAction? selectedAction;
   final bool isAdmin;
   final Color accent;
+  final LibraryKindRegistration type;
   final String addLabel;
   final void Function(BuildContext context, DrawerAction action) onSelected;
 
@@ -47,38 +50,32 @@ class _AppNavigationDrawerState extends State<AppNavigationDrawer> {
       child: SafeArea(
         child: Column(
           children: [
-            Container(
-              height: drawerHeaderHeight,
-              width: double.infinity,
-              padding: const EdgeInsets.symmetric(horizontal: 10),
-              color: libraryAccentChromeFallbackColor(widget.accent),
-              child: Row(
-                children: [
-                  InkWell(
-                    onTap: () => Navigator.of(context).pop(),
-                    borderRadius: BorderRadius.circular(18),
-                    child: SizedBox(
-                      width: 36,
-                      height: 36,
-                      child: Center(
-                        child: Icon(
-                          AppIcons.menu,
-                          size: 18,
-                          color: Colors.white,
-                        ),
-                      ),
+            Material(
+              key: const Key('drawer.header'),
+              color: widget.accent,
+              child: SizedBox(
+                height: drawerHeaderHeight,
+                width: double.infinity,
+                child: Row(children: [
+                  SizedBox(
+                    width: 44,
+                    child: IconButton(
+                      tooltip: 'Close navigation',
+                      style: appChromeIconButtonStyle(context),
+                      onPressed: () => Navigator.of(context).pop(),
+                      icon: const Icon(AppIcons.menu,
+                          size: 19, color: Colors.white),
                     ),
                   ),
-                  const SizedBox(width: 8),
-                  const Text(
-                    'Collectarr',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 16,
-                      fontWeight: FontWeight.w800,
-                    ),
-                  ),
-                ],
+                  const SizedBox(width: 2),
+                  Expanded(
+                      child: AppShellBrand(
+                    icon: widget.type.identity.icon,
+                    kindTitle: widget.type.identity.title,
+                    iconKey: const Key('drawer.kind-icon'),
+                    titleKey: const Key('drawer.brand-title'),
+                  )),
+                ]),
               ),
             ),
             Expanded(

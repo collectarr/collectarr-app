@@ -228,6 +228,9 @@ class _LibraryDetailsAwareLayoutState extends State<LibraryDetailsAwareLayout> {
             math.min(kLibraryWorkspaceMinWidth, constraints.maxWidth),
       );
       final paneWidth = math.min(width, maxPaneWidth);
+      // Clip the collapsing viewport without squeezing the inspector's fields
+      // below the minimum supported pane width during responsive transitions.
+      final contentWidth = math.max(kLibraryDetailsMinWidth, paneWidth);
       return Row(
         children: [
           Expanded(child: widget.content),
@@ -256,10 +259,10 @@ class _LibraryDetailsAwareLayoutState extends State<LibraryDetailsAwareLayout> {
               width: collapsed ? 0.0 : paneWidth,
               child: ClipRect(
                 child: OverflowBox(
-                  minWidth: 0,
-                  maxWidth: paneWidth,
+                  minWidth: contentWidth,
+                  maxWidth: contentWidth,
                   alignment: Alignment.centerLeft,
-                  child: SizedBox(width: paneWidth, child: inspectorPane),
+                  child: SizedBox(width: contentWidth, child: inspectorPane),
                 ),
               ),
             ),

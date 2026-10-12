@@ -109,6 +109,7 @@ class _AppShellState extends ConsumerState<AppShell> {
               context.go(AppRoutes.forKind(AppRoutes.settings, activeLibrary)),
         ),
         drawer: AppNavigationDrawer(
+          type: activeType,
           selectedAction: _selectedDrawerAction,
           isAdmin: auth.isAdmin,
           accent: accent,

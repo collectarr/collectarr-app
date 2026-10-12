@@ -228,6 +228,37 @@ void main() {
     });
   }
 
+  testWidgets('collapsing a populated inspector retains usable content width',
+      (tester) async {
+    await tester.binding.setSurfaceSize(const Size(1500, 900));
+    addTearDown(() => tester.binding.setSurfaceSize(null));
+    final contentWidths = <double>[];
+    Widget page(LibraryDetailsLayout layout) => MaterialApp(
+          home: Scaffold(
+              body: LibraryDetailsAwareLayout(
+            detailsLayout: layout,
+            frameInspector: false,
+            content: const SizedBox.expand(),
+            inspector: LayoutBuilder(builder: (context, constraints) {
+              contentWidths.add(constraints.maxWidth);
+              return const Row(
+                  children: [SizedBox(width: 160), SizedBox(width: 80)]);
+            }),
+          )),
+        );
+    await tester.pumpWidget(page(LibraryDetailsLayout.right));
+    await tester.pumpAndSettle();
+    for (final width in [390.0, 320.0, 200.0]) {
+      await tester.binding.setSurfaceSize(Size(width, 900));
+      await tester.pumpWidget(page(LibraryDetailsLayout.hidden));
+      for (var frame = 0; frame < 12; frame++) {
+        await tester.pump(const Duration(milliseconds: 30));
+        expect(tester.takeException(), isNull);
+      }
+    }
+    expect(contentWidths, everyElement(greaterThanOrEqualTo(260)));
+  });
+
   testWidgets('right divider drag decreases details width when dragged right', (
     tester,
   ) async {

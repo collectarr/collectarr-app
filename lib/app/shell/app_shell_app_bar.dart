@@ -1,3 +1,4 @@
+import 'app_shell_brand.dart';
 import 'package:collectarr_app/ui/app_chrome.dart';
 
 import 'package:collectarr_app/features/library/home/home_kind_menu.dart';
@@ -45,30 +46,17 @@ class AppShellAppBar extends StatelessWidget implements PreferredSizeWidget {
         ),
       ),
       titleSpacing: 2,
-      title: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(type.identity.icon,
-              key: const Key('app.kind-icon'), size: 23, color: Colors.white),
-          const SizedBox(width: 7),
-          Flexible(
-              child: Text('COLLECTARR ${type.identity.title.toUpperCase()}',
-                  key: const Key('app.brand-title'),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis)),
-        ],
+      title: AppShellBrand(
+        icon: type.identity.icon,
+        kindTitle: type.identity.title,
+        iconKey: const Key('app.kind-icon'),
+        titleKey: const Key('app.brand-title'),
       ),
       backgroundColor: libraryAccentChromeFallbackColor(accent),
       foregroundColor: Colors.white,
       surfaceTintColor: Colors.transparent,
       elevation: 0,
       scrolledUnderElevation: 0,
-      titleTextStyle: const TextStyle(
-        color: Colors.white,
-        fontSize: 16,
-        fontWeight: FontWeight.w800,
-        letterSpacing: 0.2,
-      ),
       iconTheme: const IconThemeData(color: Colors.white, size: 19),
       flexibleSpace: LibraryAccentChrome(
         accent: accent,
