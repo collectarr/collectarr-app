@@ -33,7 +33,7 @@ class LibraryMediaPresentation {
     this.emptyStateSummarySuffix = '',
     this.previewLabels = const LibraryMediaPreviewLabels(),
     this.statsLabels = const LibraryMediaStatsLabels(),
-    this.sortFavorites = defaultLibrarySortFavorites,
+    this.sortFavorites = const [],
     this.columnFavorites = defaultLibraryColumnFavorites,
     this.filterOptionLabels = const LibraryFilterOptionLabels(),
     this.filterDefinitions = const [],

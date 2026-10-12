@@ -1,3 +1,6 @@
+import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
+import 'package:collectarr_app/features/library/kinds/movie/config/movie_field_identities.dart';
+import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/config/library_entry_field_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/movie/config/movie_workspace_field_metadata.dart';
@@ -132,6 +135,24 @@ String moviesLibraryBucketLabelBuilder(LibraryBucketingContext context) {
 }
 
 final moviesLibraryMediaPresentation = LibraryMediaPresentation(
+  sortFavorites: [
+    LibrarySortFavorite(
+        id: 'title_asc',
+        label: 'Title A-Z',
+        icon: AppIcons.sortAlpha,
+        rules: [
+          LibrarySortRule(
+              column: MovieFieldIdentities.title.id, ascending: true)
+        ]),
+    LibrarySortFavorite(
+        id: 'release_latest',
+        label: 'Latest release',
+        icon: AppIcons.calendar,
+        rules: [
+          LibrarySortRule(
+              column: MovieFieldIdentities.releaseDate.id, ascending: false)
+        ]),
+  ],
   searchFieldLabels: const LibraryMediaSearchFieldLabels(
     queryHint: 'Search by title, studio, year, or release...',
     emptySearchMessage: 'Enter a title, creator, series, or keyword.',

@@ -1,3 +1,5 @@
+import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
+import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/config/library_entry_field_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/book/config/book_workspace_field_metadata.dart';
@@ -119,6 +121,24 @@ String bookLibraryBucketLabelBuilder(LibraryBucketingContext context) {
 }
 
 final bookLibraryMediaPresentation = LibraryMediaPresentation(
+  sortFavorites: [
+    LibrarySortFavorite(
+        id: 'title_asc',
+        label: 'Title A-Z',
+        icon: AppIcons.sortAlpha,
+        rules: [
+          LibrarySortRule(
+              column: BookWorkspaceFieldMetadata.title.id, ascending: true)
+        ]),
+    LibrarySortFavorite(
+        id: 'release_latest',
+        label: 'Latest release',
+        icon: AppIcons.calendar,
+        rules: [
+          LibrarySortRule(
+              column: BookFieldIdentities.releaseDate.id, ascending: false)
+        ]),
+  ],
   searchFieldLabels: const LibraryMediaSearchFieldLabels(
     queryHint: 'Enter title, creator, or keyword...',
     emptySearchMessage: 'Enter a title, creator, series, or keyword.',

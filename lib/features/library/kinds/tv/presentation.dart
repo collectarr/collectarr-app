@@ -1,3 +1,5 @@
+import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
+import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/config/library_entry_field_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/tv/config/tv_workspace_field_metadata.dart';
@@ -118,6 +120,16 @@ String tvLibraryBucketLabelBuilder(LibraryBucketingContext context) {
 }
 
 final tvLibraryMediaPresentation = LibraryMediaPresentation(
+  sortFavorites: [
+    LibrarySortFavorite(
+        id: 'title_asc',
+        label: 'Title A-Z',
+        icon: AppIcons.sortAlpha,
+        rules: [
+          LibrarySortRule(
+              column: TvWorkspaceFieldMetadata.title.id, ascending: true)
+        ]),
+  ],
   searchFieldLabels: const LibraryMediaSearchFieldLabels(
     queryHint: 'Enter series, episode, or keyword...',
     emptySearchMessage: 'Enter a series, episode, or keyword.',

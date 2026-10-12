@@ -1,3 +1,5 @@
+import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
+import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/config/library_entry_field_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/comic/config/comic_workspace_field_metadata.dart';
@@ -179,6 +181,43 @@ String comicLibraryBucketLabelBuilder(LibraryBucketingContext context) {
 }
 
 final comicLibraryCatalogItemPresentation = LibraryMediaPresentation(
+  sortFavorites: [
+    LibrarySortFavorite(
+        id: 'title_asc',
+        label: 'Title A-Z',
+        icon: AppIcons.sortAlpha,
+        rules: [
+          LibrarySortRule(
+              column: ComicWorkspaceFieldMetadata.title.id, ascending: true)
+        ]),
+    LibrarySortFavorite(
+        id: 'release_latest',
+        label: 'Latest release',
+        icon: AppIcons.calendar,
+        rules: [
+          LibrarySortRule(
+              column: ComicWorkspaceFieldMetadata.releaseDate.id,
+              ascending: false)
+        ]),
+    LibrarySortFavorite(
+        id: 'recent',
+        label: 'Recently updated',
+        icon: AppIcons.calendar,
+        rules: [
+          LibrarySortRule(
+              column: ComicWorkspaceFieldMetadata.updatedAt.id,
+              ascending: false)
+        ]),
+    LibrarySortFavorite(
+        id: 'value_desc',
+        label: 'Purchase price high to low',
+        icon: AppIcons.sortCount,
+        rules: [
+          LibrarySortRule(
+              column: ComicWorkspaceFieldMetadata.pricePaid.id,
+              ascending: false)
+        ]),
+  ],
   searchFieldLabels: const LibraryMediaSearchFieldLabels(
     queryHint: 'Search comics by series, issue, or exact title...',
     emptySearchMessage: 'Enter a title, creator, series, or keyword.',
