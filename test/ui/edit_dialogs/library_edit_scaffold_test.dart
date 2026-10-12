@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/edit/shell/library_edit_scaffold.dart';
 import 'package:flutter/material.dart';
@@ -18,6 +19,13 @@ void main() {
     for (final label in ['Previous', 'Next']) {
       final button = find.widgetWithText(OutlinedButton, label);
       expect(tester.getSize(button), const Size(100, 32));
+      expect(
+          find.descendant(
+              of: button,
+              matching: find.byIcon(label == 'Previous'
+                  ? AppIcons.chevronLeft
+                  : AppIcons.chevronRight)),
+          findsOneWidget);
       final style = tester.widget<OutlinedButton>(button).style!;
       expect(style.backgroundColor!.resolve({WidgetState.disabled}),
           const Color(0xFF232323));

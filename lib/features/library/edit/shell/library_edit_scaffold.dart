@@ -578,7 +578,7 @@ class _LibraryEditFooter extends StatelessWidget {
                 ? OutlinedButton(
                     style: compactIconButtonStyle,
                     onPressed: onPrevious,
-                    child: const Icon(AppIcons.caretLeft, size: 16),
+                    child: const Icon(AppIcons.chevronLeft, size: 16),
                   )
                 : OutlinedButton(
                     style: navButtonStyle,
@@ -586,7 +586,7 @@ class _LibraryEditFooter extends StatelessWidget {
                     child: const Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(AppIcons.caretLeft, size: 16),
+                          Icon(AppIcons.chevronLeft, size: 16),
                           SizedBox(width: 4),
                           Flexible(
                               child: Text('Previous',
@@ -602,7 +602,7 @@ class _LibraryEditFooter extends StatelessWidget {
                 ? OutlinedButton(
                     style: compactIconButtonStyle,
                     onPressed: onNext,
-                    child: const Icon(AppIcons.caretRight, size: 16),
+                    child: const Icon(AppIcons.chevronRight, size: 16),
                   )
                 : OutlinedButton(
                     style: navButtonStyle,
@@ -612,7 +612,7 @@ class _LibraryEditFooter extends StatelessWidget {
                       children: [
                         Text('Next', maxLines: 1, softWrap: false),
                         SizedBox(width: 4),
-                        Icon(AppIcons.caretRight, size: 16),
+                        Icon(AppIcons.chevronRight, size: 16),
                       ],
                     ),
                   ),
