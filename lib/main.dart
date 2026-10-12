@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:collectarr_app/core/fonts/system_font_loader.dart';
+import 'package:collectarr_app/core/fonts/local_font_controller.dart';
 import 'package:collectarr_app/core/logging/app_log.dart';
 import 'package:collectarr_app/core/routing/app_router.dart';
 import 'package:collectarr_app/state/theme_mode_provider.dart';
@@ -10,7 +10,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-const _primaryFontAsset = 'assets/fonts/PlusJakartaSans-Regular.ttf';
+const _fallbackFontAsset = 'assets/fonts/PlusJakartaSans-Regular.ttf';
 
 void main() {
   ProviderContainer? container;
@@ -29,7 +29,7 @@ void main() {
             );
       };
 
-      await SystemFontLoader.loadSystemGilroy();
+      await LocalFontController.instance.initialize();
       await _logFontDiagnostics(container!);
 
       runApp(
@@ -63,15 +63,19 @@ void main() {
 
 Future<void> _logFontDiagnostics(ProviderContainer container) async {
   final logger = container.read(appLogProvider.notifier);
-  final primaryLoaded = await _fontAssetAvailable(logger, _primaryFontAsset);
-  final gilroyLoaded = SystemFontLoader.isGilroyLoaded;
+  final fallbackLoaded = await _fontAssetAvailable(logger, _fallbackFontAsset);
+  final gilroyLoaded = LocalFontController.instance.isGilroyActive;
   final details = <String>[
-    'primaryFamily=$kAppFontFamily',
-    'gilroySystemLoaded=$gilroyLoaded',
+    'requestedFamily=$kAppFontFamily | activeFamily=$appFontFamily',
+    'gilroyActive=$gilroyLoaded'
+        ' weights=${LocalFontController.instance.faces.keys.join(',')}',
     'primaryFallback=${kAppFontFamilyFallback.isEmpty ? 'none' : kAppFontFamilyFallback.join(', ')}',
-    'primaryAsset=$_primaryFontAsset:${primaryLoaded ? 'loaded' : 'missing'}',
+    'fallbackAsset=$_fallbackFontAsset:${fallbackLoaded ? 'loaded' : 'missing'}',
   ].join(' | ');
-  if (primaryLoaded || gilroyLoaded) {
+  if (LocalFontController.instance.startupError case final error?) {
+    logger.warn('fonts', error);
+  }
+  if (fallbackLoaded || gilroyLoaded) {
     logger.info('fonts', 'Font assets loaded', detail: details);
     return;
   }
@@ -108,12 +112,15 @@ class CollectarrApp extends ConsumerWidget {
     final router = ref.watch(appRouterProvider);
     final themeMode = ref.watch(appThemeModeProvider);
     final palette = paletteForThemeMode(themeMode);
-    return MaterialApp.router(
-      title: 'Collectarr',
-      debugShowCheckedModeBanner: false,
-      theme: buildAppShellTheme(palette: palette),
-      builder: (context, child) => AppZoomWrapper(child: child!),
-      routerConfig: router,
+    return ListenableBuilder(
+      listenable: LocalFontController.instance,
+      builder: (context, _) => MaterialApp.router(
+        title: 'Collectarr',
+        debugShowCheckedModeBanner: false,
+        theme: buildAppShellTheme(palette: palette),
+        builder: (context, child) => AppZoomWrapper(child: child!),
+        routerConfig: router,
+      ),
     );
   }
 }

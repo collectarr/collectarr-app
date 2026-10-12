@@ -58,12 +58,12 @@ InputDecorationTheme buildAppInputDecorationTheme(
     isDense: true,
     contentPadding: contentPadding,
     labelStyle: (labelStyle ?? TextStyle(color: palette.textMuted)).copyWith(
-      fontFamily: kAppFontFamily,
+      fontFamily: appFontFamily,
       fontSize: kAppCaptionFontSize,
       fontWeight: kAppBoldFontWeight,
     ),
     hintStyle: (hintStyle ?? TextStyle(color: palette.textMuted)).copyWith(
-      fontFamily: kAppFontFamily,
+      fontFamily: appFontFamily,
       fontSize: kAppBodyFontSize,
       fontWeight: kAppNormalFontWeight,
       height: 16 / 14,
@@ -95,13 +95,13 @@ DialogThemeData buildAppDialogTheme(AppThemePalette palette) {
     ),
     titleTextStyle: TextStyle(
       color: palette.textPrimary,
-      fontFamily: kAppFontFamily,
+      fontFamily: appFontFamily,
       fontSize: 18,
       fontWeight: kAppBoldFontWeight,
     ),
     contentTextStyle: TextStyle(
       color: palette.textPrimary,
-      fontFamily: kAppFontFamily,
+      fontFamily: appFontFamily,
       fontSize: kAppBodyFontSize,
       fontWeight: kAppNormalFontWeight,
     ),
@@ -114,7 +114,7 @@ PopupMenuThemeData buildAppPopupMenuTheme(AppThemePalette palette) {
     surfaceTintColor: Colors.transparent,
     textStyle: TextStyle(
       color: palette.textPrimary,
-      fontFamily: kAppFontFamily,
+      fontFamily: appFontFamily,
       fontSize: kAppBodyFontSize,
       fontWeight: kAppNormalFontWeight,
     ),
@@ -151,7 +151,7 @@ DropdownMenuThemeData buildAppDropdownMenuTheme(
   return DropdownMenuThemeData(
     textStyle: TextStyle(
       color: palette.textPrimary,
-      fontFamily: kAppFontFamily,
+      fontFamily: appFontFamily,
       fontSize: kAppBodyFontSize,
       fontWeight: kAppNormalFontWeight,
     ),
@@ -244,7 +244,7 @@ SearchBarThemeData buildAppSearchBarTheme(AppThemePalette palette) {
     ),
     textStyle: WidgetStatePropertyAll(TextStyle(
       color: palette.textPrimary,
-      fontFamily: kAppFontFamily,
+      fontFamily: appFontFamily,
       fontSize: kAppBodyFontSize,
       fontWeight: kAppNormalFontWeight,
     )),
@@ -268,7 +268,7 @@ ChipThemeData buildAppChipTheme(ThemeData base, AppThemePalette palette) {
     selectedColor: palette.selection,
     labelStyle: TextStyle(
       color: palette.textPrimary,
-      fontFamily: kAppFontFamily,
+      fontFamily: appFontFamily,
       fontSize: kAppBodyFontSize,
       fontWeight: kAppSemiBoldFontWeight,
     ),

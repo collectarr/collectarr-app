@@ -33,7 +33,7 @@ ThemeData buildAppShellTheme({
       toolbarHeight: shellAppBarHeight,
       titleTextStyle: TextStyle(
         color: appBarTextColor,
-        fontFamily: kAppFontFamily,
+        fontFamily: appFontFamily,
         fontSize: 16,
         fontWeight: FontWeight.w700,
       ),
@@ -45,7 +45,7 @@ ThemeData buildAppShellTheme({
       labelTextStyle: WidgetStatePropertyAll(
         TextStyle(
           color: textColor,
-          fontFamily: kAppFontFamily,
+          fontFamily: appFontFamily,
           fontSize: 13,
           fontWeight: FontWeight.w700,
         ),
@@ -87,12 +87,10 @@ ThemeData buildAppShellTheme({
       indicatorColor: palette.accent,
       labelColor: textColor,
       unselectedLabelColor: palette.textMuted,
-      labelStyle: const TextStyle(
-          fontFamily: kAppFontFamily,
-          fontSize: 14,
-          fontWeight: FontWeight.w700),
-      unselectedLabelStyle: const TextStyle(
-        fontFamily: kAppFontFamily,
+      labelStyle: TextStyle(
+          fontFamily: appFontFamily, fontSize: 14, fontWeight: FontWeight.w700),
+      unselectedLabelStyle: TextStyle(
+        fontFamily: appFontFamily,
         fontSize: 14,
         fontWeight: FontWeight.w500,
       ),

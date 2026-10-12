@@ -1,9 +1,6 @@
 import 'package:collectarr_app/ui/theme/app_typography.dart';
 import 'package:flutter/material.dart';
 
-/// The bundled OFL geometric face shared by the entire application.
-const kLibraryEditorFontFamily = kAppFontFamily;
-
 /// Semantic text roles for Library UI.
 extension LibraryTextTheme on TextTheme {
   /// Panel and dialog title styling (prominent header).
@@ -67,22 +64,19 @@ extension LibraryTextTheme on TextTheme {
       );
 
   /// Standard Library body/result text.
-  TextStyle get libraryBody =>
-      (bodyMedium ?? const TextStyle()).copyWith(
+  TextStyle get libraryBody => (bodyMedium ?? const TextStyle()).copyWith(
         fontSize: 14,
         fontWeight: FontWeight.w500,
       );
 
   /// Metadata, rating, and secondary action text.
-  TextStyle get libraryMeta =>
-      (labelMedium ?? const TextStyle()).copyWith(
+  TextStyle get libraryMeta => (labelMedium ?? const TextStyle()).copyWith(
         fontSize: 13,
         fontWeight: FontWeight.w600,
       );
 
   /// Compact captions, hosts, dates, and source labels.
-  TextStyle get libraryCaption =>
-      (labelSmall ?? const TextStyle()).copyWith(
+  TextStyle get libraryCaption => (labelSmall ?? const TextStyle()).copyWith(
         fontSize: 13,
         fontWeight: FontWeight.w600,
       );

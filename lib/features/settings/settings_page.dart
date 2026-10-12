@@ -6,7 +6,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:collectarr_app/core/device/device_identity.dart';
-import 'package:collectarr_app/core/fonts/system_font_loader.dart';
+import 'package:collectarr_app/features/settings/local_font_settings_panel.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/library_entry_ref.dart';
 import 'package:collectarr_app/core/api/dto/media_catalog.dart';
@@ -703,7 +703,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
             _SettingsPanel(
                 icon: Icons.text_fields_outlined,
                 title: 'Typography',
-                child: _FontDiagnosticsPanel()),
+                child: LocalFontSettingsPanel()),
           ]),
           _SettingsTabBody(twoColumns: true, children: [
             _SettingsPanel(
@@ -819,7 +819,8 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                   min: 4,
                   max: 24,
                   divisions: 20,
-                  label: '${uiPreferences.gridSpacing.clamp(4.0, 24.0).round()} px',
+                  label:
+                      '${uiPreferences.gridSpacing.clamp(4.0, 24.0).round()} px',
                   onChanged: (value) => ref
                       .read(uiPreferencesProvider.notifier)
                       .setGridSpacing(value.roundToDouble()),
@@ -841,7 +842,8 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                   min: 60,
                   max: 120,
                   divisions: 12,
-                  label: '${uiPreferences.cardCoverWidth.clamp(60.0, 120.0).round()} px',
+                  label:
+                      '${uiPreferences.cardCoverWidth.clamp(60.0, 120.0).round()} px',
                   onChanged: (value) => ref
                       .read(uiPreferencesProvider.notifier)
                       .setCardCoverWidth(value.roundToDouble()),
@@ -875,7 +877,8 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                   min: 0,
                   max: 8,
                   divisions: 8,
-                  label: '${uiPreferences.sidebarRowPadding.clamp(0.0, 8.0).round()} px',
+                  label:
+                      '${uiPreferences.sidebarRowPadding.clamp(0.0, 8.0).round()} px',
                   onChanged: (value) => ref
                       .read(uiPreferencesProvider.notifier)
                       .setSidebarRowPadding(value.roundToDouble()),
@@ -1476,77 +1479,6 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
       return 'Session expiry unavailable';
     }
     return 'Session expires ${_formatSyncTime(expiresAt)}';
-  }
-}
-
-class _FontDiagnosticsPanel extends StatelessWidget {
-  const _FontDiagnosticsPanel();
-
-  static const _primaryAsset = 'assets/fonts/PlusJakartaSans-Regular.ttf';
-
-  Future<bool> _assetAvailable(String assetPath) async {
-    try {
-      await rootBundle.load(assetPath);
-      return true;
-    } catch (_) {
-      return false;
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final gilroyLoaded = SystemFontLoader.isGilroyLoaded;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        const Text('Primary: Gilroy (Fallback: Plus Jakarta Sans)'),
-        const SizedBox(height: 12),
-        _FontStatusRow(
-          label: 'Gilroy (System font)',
-          value: gilroyLoaded ? 'Loaded' : 'Not installed',
-          ok: gilroyLoaded,
-        ),
-        const SizedBox(height: 6),
-        FutureBuilder<bool>(
-          future: _assetAvailable(_primaryAsset),
-          builder: (context, snapshot) {
-            final ok = snapshot.data == true;
-            return _FontStatusRow(
-              label: 'Plus Jakarta Sans (Fallback asset)',
-              value: ok ? 'Loaded' : 'Missing',
-              ok: ok,
-            );
-          },
-        ),
-      ],
-    );
-  }
-}
-
-class _FontStatusRow extends StatelessWidget {
-  const _FontStatusRow({
-    required this.label,
-    required this.value,
-    required this.ok,
-  });
-
-  final String label;
-  final String value;
-  final bool ok;
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Icon(
-          ok ? Icons.check_circle_outline : Icons.error_outline,
-          size: 16,
-          color: ok ? Colors.greenAccent : Colors.orangeAccent,
-        ),
-        const SizedBox(width: 8),
-        Text('$label: $value'),
-      ],
-    );
   }
 }
 

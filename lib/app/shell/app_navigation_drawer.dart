@@ -170,7 +170,7 @@ class _AppNavigationDrawerState extends State<AppNavigationDrawer> {
                 child: Text(
                   label,
                   style: TextStyle(
-                    fontFamily: kAppFontFamily,
+                    fontFamily: appFontFamily,
                     fontSize: 14,
                     fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
                     color: itemColor,
@@ -198,7 +198,7 @@ class _DrawerSectionLabel extends StatelessWidget {
       child: Text(
         label,
         style: TextStyle(
-          fontFamily: kAppFontFamily,
+          fontFamily: appFontFamily,
           color: color,
           fontSize: 14,
           fontWeight: FontWeight.w700,
@@ -234,7 +234,7 @@ class _DrawerCollapsibleSectionLabel extends StatelessWidget {
               child: Text(
                 label,
                 style: TextStyle(
-                  fontFamily: kAppFontFamily,
+                  fontFamily: appFontFamily,
                   color: color,
                   fontSize: 14,
                   fontWeight: FontWeight.w700,

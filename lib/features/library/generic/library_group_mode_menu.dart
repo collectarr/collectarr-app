@@ -862,18 +862,18 @@ class _GroupModeFavoritesDialogState extends State<_GroupModeFavoritesDialog> {
       ? const Color(0xff666666)
       : libraryToolbarMenuBorder(context);
 
-  static const _headingStyle = TextStyle(
-    fontFamily: kAppFontFamily,
-    fontSize: 18,
-    fontWeight: FontWeight.w700,
-    height: 26 / 18,
-  );
-  static const _fieldStyle = TextStyle(
-    fontFamily: kAppFontFamily,
-    fontSize: 14,
-    fontWeight: FontWeight.w700,
-    height: 1,
-  );
+  static TextStyle get _headingStyle => TextStyle(
+        fontFamily: appFontFamily,
+        fontSize: 18,
+        fontWeight: FontWeight.w700,
+        height: 26 / 18,
+      );
+  static TextStyle get _fieldStyle => TextStyle(
+        fontFamily: appFontFamily,
+        fontSize: 14,
+        fontWeight: FontWeight.w700,
+        height: 1,
+      );
 
   @override
   Widget build(BuildContext context) {
@@ -918,7 +918,7 @@ class _GroupModeFavoritesDialogState extends State<_GroupModeFavoritesDialog> {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 5),
               child: Row(children: [
-                const Expanded(
+                Expanded(
                   child: Text('Folder Favorites', style: _headingStyle),
                 ),
                 Tooltip(

@@ -39,6 +39,11 @@ fresh native screenshot could not be obtained. Motion durations below are
 configured CSS/widget values, not measurements of playback curves.
 This pass does not certify every dedicated sidebar page or all write flows.
 
+Device-local font loading has since been implemented in
+[the font-loading stage](2026-10-12-local-font-loading.md). Browser users can
+import fonts or grant local font access; an untouched browser still uses the
+bundled fallback. The size/weight/geometry findings below remain separate work.
+
 ## Confirmed remaining differences
 
 | Priority | Surface | CLZ | Collectarr / implication |

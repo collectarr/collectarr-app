@@ -5,8 +5,8 @@ import 'package:collectarr_app/ui/library_accent_scope.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
-const librarySelectionFieldStyle = TextStyle(
-    fontFamily: kAppFontFamily,
+TextStyle get librarySelectionFieldStyle => TextStyle(
+    fontFamily: appFontFamily,
     fontSize: 14,
     fontWeight: FontWeight.w700,
     height: 1);
@@ -66,8 +66,8 @@ class LibraryFieldSelectionDialog extends StatelessWidget {
                               flat: true,
                               foregroundColor: Colors.white,
                               minHeight: 38,
-                              titleStyle: const TextStyle(
-                                  fontFamily: kAppFontFamily,
+                              titleStyle: TextStyle(
+                                  fontFamily: appFontFamily,
                                   fontSize: 18,
                                   fontWeight: FontWeight.w700,
                                   letterSpacing: 0),

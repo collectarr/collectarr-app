@@ -44,10 +44,8 @@ class PickListHeader extends StatelessWidget {
   Widget build(BuildContext context) => AccentDialogHeader(
       minHeight: 38,
       title: title,
-      titleStyle: const TextStyle(
-          fontFamily: kAppFontFamily,
-          fontSize: 18,
-          fontWeight: FontWeight.w700),
+      titleStyle: TextStyle(
+          fontFamily: appFontFamily, fontSize: 18, fontWeight: FontWeight.w700),
       onClose: onClose);
 }
 
@@ -62,10 +60,8 @@ ButtonStyle pickListButtonStyle(BuildContext context,
       minimumSize: Size(footer ? 100 : 0, 32),
       maximumSize: const Size(double.infinity, 32),
       padding: const EdgeInsets.symmetric(horizontal: 8),
-      textStyle: const TextStyle(
-          fontFamily: kAppFontFamily,
-          fontSize: 14,
-          fontWeight: FontWeight.w600),
+      textStyle: TextStyle(
+          fontFamily: appFontFamily, fontSize: 14, fontWeight: FontWeight.w600),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
       side: BorderSide.none,
       visualDensity: VisualDensity.standard,

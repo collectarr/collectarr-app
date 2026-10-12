@@ -12,6 +12,7 @@ dependencies:
   flutter_riverpod: ^3.4.3
   dio: ^5.11.1
   drift: ^2.34.0
+  web: ^1.1.1
   path: ^1.9.1
   path_provider: ^2.1.6
   shared_preferences: ^2.3.3

@@ -475,7 +475,7 @@ class _LibraryEditTitleBar extends StatelessWidget {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
-                      fontFamily: kLibraryEditorFontFamily,
+                      fontFamily: appFontFamily,
                       fontWeight: FontWeight.w800,
                       fontSize: 18,
                       height: 1,
@@ -536,7 +536,8 @@ class _LibraryEditFooter extends StatelessWidget {
       visualDensity: VisualDensity.standard,
       tapTargetSize: MaterialTapTargetSize.shrinkWrap,
       animationDuration: MediaQuery.disableAnimationsOf(context)
-          ? Duration.zero : appControlHoverDuration,
+          ? Duration.zero
+          : appControlHoverDuration,
       splashFactory: NoSplash.splashFactory,
       textStyle: const TextStyle(
           fontSize: 14, fontWeight: FontWeight.w400, letterSpacing: 0),

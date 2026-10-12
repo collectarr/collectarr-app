@@ -1,7 +1,9 @@
+import 'package:collectarr_app/core/fonts/local_font_controller.dart';
 import 'package:flutter/material.dart';
 
-/// System face with bundled geometric fallback, identical across web and desktop.
+/// The requested local face; appFontFamily resolves the current engine alias.
 const kAppFontFamily = 'Gilroy';
+String get appFontFamily => LocalFontController.instance.activeFamily;
 const kAppFontFamilyFallback = ['Plus Jakarta Sans'];
 const kAppBodyFontSize = 14.0;
 const kAppCaptionFontSize = 13.0;
@@ -13,14 +15,14 @@ const kAppExtraBoldFontWeight = FontWeight.w800;
 
 TextTheme buildAppTextTheme(TextTheme base, Color foreground) {
   final themed = base.apply(
-    fontFamily: kAppFontFamily,
+    fontFamily: appFontFamily,
     fontFamilyFallback: kAppFontFamilyFallback,
     bodyColor: foreground,
     displayColor: foreground,
   );
   TextStyle role(TextStyle? baseStyle, double size, FontWeight weight) =>
-      (baseStyle ?? const TextStyle()).copyWith(
-        fontFamily: kAppFontFamily,
+      (baseStyle ?? TextStyle()).copyWith(
+        fontFamily: appFontFamily,
         fontFamilyFallback: kAppFontFamilyFallback,
         fontSize: size,
         fontWeight: weight,
@@ -35,7 +37,8 @@ TextTheme buildAppTextTheme(TextTheme base, Color foreground) {
     bodyMedium: role(themed.bodyMedium, kAppBodyFontSize, kAppNormalFontWeight),
     bodySmall:
         role(themed.bodySmall, kAppCaptionFontSize, kAppNormalFontWeight),
-    labelLarge: role(themed.labelLarge, kAppBodyFontSize, kAppSemiBoldFontWeight),
+    labelLarge:
+        role(themed.labelLarge, kAppBodyFontSize, kAppSemiBoldFontWeight),
     labelMedium:
         role(themed.labelMedium, kAppCaptionFontSize, kAppSemiBoldFontWeight),
     labelSmall:

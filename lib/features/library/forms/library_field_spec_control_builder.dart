@@ -104,7 +104,7 @@ final class LibraryFieldSpecControlBuilder<TDraft>
                                       style: TextStyle(
                                         fontSize: 13,
                                         fontWeight: FontWeight.w700,
-                                        fontFamily: kAppFontFamily,
+                                        fontFamily: appFontFamily,
                                         color: appPalette(context).textMuted,
                                         height: 1,
                                       ),

@@ -324,8 +324,9 @@ final class _MusicAlbumStructureTabState
                 mouseCursor: SystemMouseCursors.click,
                 borderRadius: BorderRadius.circular(3),
                 onTap: () => _change(_selectedTrackIds.clear),
-                child: const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+                child: Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
@@ -421,8 +422,9 @@ final class _MusicAlbumStructureTabState
                     Set.of(_selectedTrackIds),
                   ),
                 ),
-                child: const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+                child: Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
@@ -431,7 +433,7 @@ final class _MusicAlbumStructureTabState
                         style: TextStyle(
                           fontSize: 13,
                           fontWeight: FontWeight.w700,
-                          fontFamily: kAppFontFamily,
+                          fontFamily: appFontFamily,
                           color: Colors.white,
                           height: 1,
                         ),
@@ -513,8 +515,9 @@ final class _MusicAlbumStructureTabState
                       .removeTracks(disc.id, Set.of(_selectedTrackIds));
                   _selectedTrackIds.clear();
                 }),
-                child: const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+                child: Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
