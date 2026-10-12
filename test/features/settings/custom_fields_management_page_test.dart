@@ -64,15 +64,29 @@ void main() {
     expect(find.text('Manage Custom Fields'), findsOneWidget);
     await chooseType(tester, 'fixedButtons');
     await tester.enterText(find.byType(TextFormField).first, 'Sleeve');
-    await tester.enterText(
-        find.widgetWithText(TextFormField, 'Options (comma-separated)'),
-        'A,B,C,D,E');
+    for (var i = 0; i < 5; i++) {
+      await tester.ensureVisible(find.byTooltip('Add field value'));
+      await tester.tap(find.byTooltip('Add field value'));
+      await tester.pumpAndSettle();
+      final option = find.byKey(ValueKey('custom_field.option.$i.${i + 1}'));
+      await tester.ensureVisible(option);
+      await tester.enterText(
+          find.descendant(of: option, matching: find.byType(TextFormField)),
+          'Value $i');
+    }
+    await tester.ensureVisible(find.widgetWithText(FilledButton, 'Add'));
     await tester.tap(find.widgetWithText(FilledButton, 'Add'));
     await tester.pumpAndSettle();
     expect(find.text('Maximum 4 options'), findsOneWidget);
-    await tester.enterText(
-        find.widgetWithText(TextFormField, 'Options (comma-separated)'),
-        'Mint,Good');
+    for (var i = 5; i > 2; i--) {
+      await tester.ensureVisible(find.byTooltip('Remove field value $i'));
+      await tester.tap(find.byTooltip('Remove field value $i'));
+      await tester.pumpAndSettle();
+    }
+    final options = find.byType(TextFormField);
+    await tester.enterText(options.at(1), 'Mint');
+    await tester.enterText(options.at(2), 'Good');
+    await tester.ensureVisible(find.widgetWithText(FilledButton, 'Add'));
     await tester.tap(find.widgetWithText(FilledButton, 'Add'));
     await tester.pumpAndSettle();
     var saved = (await repo.listDefinitions(mediaKind: 'music')).single;
@@ -83,10 +97,7 @@ void main() {
     await tester.enterText(
         find.byType(TextFormField).first, 'Sleeve condition');
     expect(
-        tester
-            .widget<TextFormField>(
-                find.widgetWithText(TextFormField, 'Options (comma-separated)'))
-            .enabled,
+        tester.widget<TextFormField>(find.byType(TextFormField).at(1)).enabled,
         isFalse);
     await tester.tap(find.widgetWithText(FilledButton, 'Save'));
     await tester.pumpAndSettle();
@@ -137,7 +148,7 @@ void main() {
     await tester.tap(find.byTooltip('Custom Fields settings'));
     await tester.pumpAndSettle();
     await tester.enterText(find.byType(TextField).first, 'My Details');
-    await tester.tap(find.text('Show tab in Edit screen'));
+    await tester.tap(find.text('No'));
     await tester.tap(find.widgetWithText(FilledButton, 'Save'));
     await tester.pumpAndSettle();
     final display = await CustomFieldsDisplaySettings.read('music');
@@ -149,6 +160,30 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('My Details'), findsOneWidget);
     expect(tester.takeException(), isNull);
+  });
+
+  test(
+      'every measured unit supported by the editor persists without conversion',
+      () async {
+    for (final type in [
+      CustomFieldValueType.weight,
+      CustomFieldValueType.size
+    ]) {
+      for (final unit in type.allowedUnits) {
+        final def = CustomFieldDefinition(
+            id: '${type.name}-$unit',
+            name: 'Measurement',
+            fieldType: type.apiValue,
+            options: encodeCustomFieldOptions([unit]),
+            createdAt: DateTime.utc(2026));
+        await repo.upsertDefinition(def);
+        expect(
+            (await repo.listDefinitions())
+                .firstWhere((d) => d.id == def.id)
+                .unit,
+            unit);
+      }
+    }
   });
 
   test('reordering visible fields preserves other kinds and validates ids',

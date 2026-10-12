@@ -1,3 +1,5 @@
+import 'package:collectarr_app/features/library/ui/primitives/library_form_controls.dart';
+import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/features/library/ui/library_metrics.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_dropdown_pick_field.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_multi_value_options_dialog.dart';
@@ -208,5 +210,107 @@ class LibraryVocabularyField extends StatelessWidget {
         );
       },
     );
+  }
+}
+
+/// Two equal, compact choices for a labelled yes/no value.
+class LibraryBooleanButtonField extends StatelessWidget {
+  const LibraryBooleanButtonField(
+      {super.key,
+      required this.label,
+      required this.value,
+      required this.onChanged,
+      this.width = 270});
+  final double? width;
+  final String label;
+  final bool value;
+  final ValueChanged<bool> onChanged;
+  @override
+  Widget build(BuildContext context) {
+    final palette = appPalette(context);
+    return LibraryFormField(
+        label: label,
+        labelStyle: const TextStyle(fontSize: 13, height: 20 / 13),
+        child: Align(
+            alignment: Alignment.centerLeft,
+            child: Container(
+                width: width,
+                height: 34,
+                clipBehavior: Clip.antiAlias,
+                decoration: BoxDecoration(
+                    border: Border.all(color: palette.divider),
+                    borderRadius: BorderRadius.circular(3)),
+                child: Row(children: [
+                  for (final option in [false, true])
+                    Expanded(
+                        child: Semantics(
+                            button: true,
+                            selected: value == option,
+                            child: Material(
+                                color: value == option
+                                    ? palette.divider
+                                    : palette.field,
+                                child: InkWell(
+                                    mouseCursor: SystemMouseCursors.click,
+                                    onTap: () => onChanged(option),
+                                    child: Center(
+                                        child: Text(option ? 'Yes' : 'No',
+                                            style: TextStyle(
+                                                fontSize: 14,
+                                                color: value == option
+                                                    ? palette.textPrimary
+                                                    : palette.textMuted)))))))
+                ]))));
+  }
+}
+
+/// Flat equal-width options; clicking the current option clears the value.
+class LibraryFixedChoiceButtonField extends StatelessWidget {
+  const LibraryFixedChoiceButtonField(
+      {super.key,
+      required this.label,
+      required this.value,
+      required this.options,
+      required this.onChanged});
+  final String label;
+  final String? value;
+  final List<String> options;
+  final ValueChanged<String?> onChanged;
+  @override
+  Widget build(BuildContext context) {
+    final palette = appPalette(context);
+    return LibraryFormField(
+        label: label,
+        labelStyle: const TextStyle(fontSize: 13, height: 20 / 13),
+        child: Container(
+            height: 34,
+            clipBehavior: Clip.antiAlias,
+            decoration: BoxDecoration(
+                border: Border.all(color: palette.divider),
+                borderRadius: BorderRadius.circular(3)),
+            child: Row(children: [
+              for (final option in options)
+                Expanded(
+                    child: Semantics(
+                        button: true,
+                        selected: value == option,
+                        child: Material(
+                            color: value == option
+                                ? palette.divider
+                                : palette.field,
+                            child: InkWell(
+                                mouseCursor: SystemMouseCursors.click,
+                                onTap: () =>
+                                    onChanged(value == option ? null : option),
+                                child: Center(
+                                    child: Text(option,
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: TextStyle(
+                                            fontSize: 14,
+                                            color: value == option
+                                                ? palette.textPrimary
+                                                : palette.textMuted)))))))
+            ])));
   }
 }

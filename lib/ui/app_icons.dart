@@ -41,8 +41,40 @@ abstract final class AppIcons {
       IconData(0xf073, fontFamily: _regular, fontPackage: _fontPackage);
   static const IconData admin =
       IconData(0xf3ed, fontFamily: _solid, fontPackage: _fontPackage);
-  static const IconData customFields =
-      IconData(0xf044, fontFamily: _regular, fontPackage: _fontPackage);
+  static const IconData customFieldPerson =
+      IconData(0xf007, fontFamily: _regular, fontPackage: _fontPackage);
+  static const IconData chevronUp =
+      IconData(0xf106, fontFamily: _solid, fontPackage: _fontPackage);
+  static const IconData customFieldHelp =
+      IconData(0xf15c, fontFamily: _solid, fontPackage: _fontPackage);
+  static const IconData customFieldDrag =
+      IconData(0xf0c9, fontFamily: _solid, fontPackage: _fontPackage);
+  static const String customFieldTextSvg = 'assets/icons/custom-field-text.svg';
+  static const IconData customFieldDate =
+      IconData(0xf133, fontFamily: _solid, fontPackage: _fontPackage);
+  static const IconData customFieldText =
+      IconData(0xf031, fontFamily: _solid, fontPackage: _fontPackage);
+  static const IconData customFieldTextArea =
+      IconData(0xf034, fontFamily: _solid, fontPackage: _fontPackage);
+  static const IconData customFieldToggle =
+      IconData(0xf205, fontFamily: _solid, fontPackage: _fontPackage);
+  static const IconData customFieldCurrency =
+      IconData(0xf3d1, fontFamily: _solid, fontPackage: _fontPackage);
+  static const IconData customFieldPercentage =
+      IconData(0x25, fontFamily: _solid, fontPackage: _fontPackage);
+  static const IconData customFieldWeight =
+      IconData(0xf5cd, fontFamily: _solid, fontPackage: _fontPackage);
+  static const IconData customFieldSize =
+      IconData(0xf546, fontFamily: _solid, fontPackage: _fontPackage);
+  static const IconData customFieldPickList =
+      IconData(0xf0ca, fontFamily: _solid, fontPackage: _fontPackage);
+  static const IconData customFieldMultiPickList =
+      IconData(0xf0ae, fontFamily: _solid, fontPackage: _fontPackage);
+  static const IconData customFieldFixedList =
+      IconData(0xf150, fontFamily: _solid, fontPackage: _fontPackage);
+  static const IconData customFieldDuration =
+      IconData(0xf017, fontFamily: _solid, fontPackage: _fontPackage);
+  static const String customFieldsSvg = 'assets/icons/custom-fields.svg';
   static const IconData cloudSharing =
       IconData(0xf1e0, fontFamily: _solid, fontPackage: _fontPackage);
   static const IconData prefill =

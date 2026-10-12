@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+  <!-- Original artwork: an editable input field with a diagonal pencil. -->
+  <path fill="currentColor" d="M3 8h8l-2 2H3v10h18v-8l2-2v10a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V10a2 2 0 0 1 2-2Z"/>
+  <path fill="currentColor" d="m19.1 1.6 3.3 3.3c.5.5.5 1.3 0 1.8l-1.6 1.6-5.1-5.1 1.6-1.6c.5-.5 1.3-.5 1.8 0ZM14.5 4.4l5.1 5.1-8.4 8.4-5.9 1.2 1.2-5.9 8.0-8.0Zm-6.3 9.9-.5 2.2 2.2-.5-1.7-1.7Z"/>
+</svg>

@@ -36,8 +36,6 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Release Notes'), findsOneWidget);
-    expect(find.text('Movie'), findsOneWidget);
-    expect(find.text('Library item'), findsOneWidget);
     expect(find.text('Text'), findsOneWidget);
   });
 }

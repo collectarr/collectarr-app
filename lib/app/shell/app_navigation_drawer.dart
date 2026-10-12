@@ -1,3 +1,4 @@
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:collectarr_app/features/library/config/library_kind_style.dart';
 import 'package:collectarr_app/ui/app_chrome.dart';
 import 'package:collectarr_app/ui/app_motion.dart';
@@ -204,11 +205,13 @@ class _AppNavigationDrawerState extends State<AppNavigationDrawer> {
                 width: 20,
                 height: 18,
                 child: Center(
-                  child: Icon(
-                    icon,
-                    size: 15,
-                    color: itemColor,
-                  ),
+                  child: destination.svgAsset != null
+                      ? SvgPicture.asset(destination.svgAsset!,
+                          width: 15,
+                          height: 15,
+                          colorFilter:
+                              ColorFilter.mode(itemColor, BlendMode.srcIn))
+                      : Icon(icon, size: 15, color: itemColor),
                 ),
               ),
               const SizedBox(width: 10),

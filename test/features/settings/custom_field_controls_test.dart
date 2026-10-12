@@ -72,11 +72,12 @@ void main() {
     await tester.pumpWidget(const SizedBox.shrink());
     await control(tester, CustomFieldValueType.duration,
         (value) => values = Map.of(value));
-    await tester.enterText(find.byType(TextFormField), '27:15');
+    await tester.enterText(find.byType(TextFormField).first, '27');
+    await tester.enterText(find.byType(TextFormField).last, '15');
     final form = tester.state<FormState>(find.byType(Form));
     expect(form.validate(), isTrue);
     expect(values['field'], '27:15');
-    await tester.enterText(find.byType(TextFormField), '27:60');
+    await tester.enterText(find.byType(TextFormField).last, '60');
     expect(form.validate(), isFalse);
   });
 }

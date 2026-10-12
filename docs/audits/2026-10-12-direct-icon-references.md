@@ -1,6 +1,6 @@
 # Direct icon reference inventory — 2026-10-12
 
-1673 occurrences, 452 distinct references, 334 files.
+1645 occurrences, 445 distinct references, 332 files.
 
 Scope: handwritten Dart under `lib/`, excluding the AppIcons catalog and generated files. `IconData(` identifies direct glyph construction; its count includes kind-owned icon definitions. SVG asset references are not included. This is a source inventory, not a claim that every icon needs the same glyph or should be moved out of kind ownership.
 
@@ -13,11 +13,11 @@ For remaining consumers, use an existing AppIcons semantic token when it represe
 | Direct reference | Occurrences | First consumer |
 |---|---:|---|
 | `Icons.close` | 40 | `lib/features/barcode/barcode_batch_scan_sheet.dart:119` |
-| `Icons.add` | 37 | `lib/features/library/add/panes/library_add_status_button.dart:58` |
+| `Icons.add` | 36 | `lib/features/library/add/panes/library_add_status_button.dart:58` |
 | `Icons.inventory_2_outlined` | 31 | `lib/features/admin/admin_bundle_correction_dialog.dart:514` |
-| `Icons.edit_outlined` | 30 | `lib/features/admin/admin_item_inspection.dart:94` |
 | `Icons.search` | 30 | `lib/features/admin/admin_users_panel.dart:169` |
-| `Icons.delete_outline` | 27 | `lib/features/admin/admin_bundle_correction_dialog.dart:244` |
+| `Icons.edit_outlined` | 28 | `lib/features/admin/admin_item_inspection.dart:94` |
+| `Icons.delete_outline` | 25 | `lib/features/admin/admin_bundle_correction_dialog.dart:244` |
 | `Icons.info_outline` | 22 | `lib/core/utils/app_toast.dart:20` |
 | `Icons.check` | 19 | `lib/features/barcode/barcode_batch_scan_sheet.dart:213` |
 | `Icons.album` | 19 | `lib/features/library/kinds/anime/anime_physical_media_formats.dart:53` |
@@ -26,9 +26,9 @@ For remaining consumers, use an existing AppIcons semantic token when it represe
 | `Icons.tune` | 18 | `lib/features/library/config/presentation/library_edit_presentation_builder_base.dart:71` |
 | `Icons.album_outlined` | 18 | `lib/features/library/kinds/anime/edit/tabs/anime_discs_tab.dart:39` |
 | `Icons.check_circle_outline` | 17 | `lib/core/models/activity_event.dart:64` |
-| `Icons.person_outline` | 17 | `lib/core/models/activity_event.dart:66` |
 | `Icons.error_outline` | 17 | `lib/core/utils/app_toast.dart:30` |
 | `Icons.description_outlined` | 17 | `lib/features/library/kinds/anime/add/anime_add_manual_pane.dart:97` |
+| `Icons.person_outline` | 16 | `lib/core/models/activity_event.dart:66` |
 | `Icons.chevron_right` | 15 | `lib/features/calendar/calendar_page.dart:297` |
 | `Icons.public` | 15 | `lib/features/library/kinds/anime/edit/anime_edit_presentation_builder.dart:186` |
 | `Icons.menu_book` | 15 | `lib/features/library/kinds/book/book_physical_media_formats.dart:49` |
@@ -65,7 +65,6 @@ For remaining consumers, use an existing AppIcons semantic token when it represe
 | `Icons.image_search_outlined` | 8 | `lib/features/admin/admin_dashboard_widgets.dart:111` |
 | `Icons.account_tree_outlined` | 8 | `lib/features/admin/admin_dashboard_widgets.dart:585` |
 | `Icons.fact_check_outlined` | 8 | `lib/features/admin/admin_item_inspection.dart:39` |
-| `Icons.settings_outlined` | 8 | `lib/features/admin/admin_page.dart:123` |
 | `Icons.edit_note_outlined` | 8 | `lib/features/admin/widgets/admin_proposal_tile.dart:69` |
 | `Icons.chevron_left` | 8 | `lib/features/calendar/calendar_page.dart:283` |
 | `Icons.photo_camera_outlined` | 8 | `lib/features/library/add/library_add_shared.dart:37` |
@@ -73,6 +72,7 @@ For remaining consumers, use an existing AppIcons semantic token when it represe
 | `Icons.radio_button_unchecked` | 8 | `lib/features/library/add/panes/library_add_search_pane.dart:510` |
 | `Icons.camera_alt_outlined` | 8 | `lib/features/library/kinds/anime/add/anime_add_manual_pane.dart:88` |
 | `Icons.hourglass_empty` | 7 | `lib/features/admin/admin_dashboard_widgets.dart:135` |
+| `Icons.settings_outlined` | 7 | `lib/features/admin/admin_page.dart:123` |
 | `Icons.qr_code_scanner` | 7 | `lib/features/auth/auth_page.dart:241` |
 | `Icons.check_circle` | 7 | `lib/features/auth/auth_page.dart:676` |
 | `Icons.place` | 7 | `lib/features/library/add/panes/library_add_bottom_bar.dart:181` |
@@ -92,7 +92,6 @@ For remaining consumers, use an existing AppIcons semantic token when it represe
 | `Icons.expand_less` | 6 | `lib/features/library/home/home_rail.dart:244` |
 | `Icons.work_outline` | 6 | `lib/features/library/kinds/anime/add/anime_add_manual_pane.dart:134` |
 | `Icons.cloud_done` | 6 | `lib/features/library/kinds/anime/anime_physical_media_formats.dart:63` |
-| `Icons.notes` | 6 | `lib/features/library/kinds/anime/edit/anime_edit_presentation_builder.dart:63` |
 | `Icons.workspace_premium` | 6 | `lib/features/library/kinds/comic/workspace/comic_card_presentation.dart:34` |
 | `Icons.headphones_outlined` | 6 | `lib/features/library/kinds/music/config/music_kind_capabilities.dart:161` |
 | `Icons.clear` | 5 | `lib/features/activity/global_activity_page.dart:218` |
@@ -106,6 +105,7 @@ For remaining consumers, use an existing AppIcons semantic token when it represe
 | `Icons.copy` | 5 | `lib/features/library/export/integration_export_dialog.dart:263` |
 | `Icons.restart_alt` | 5 | `lib/features/library/generic/toolbar/toolbar_sections.dart:442` |
 | `Icons.article_outlined` | 5 | `lib/features/library/kinds/anime/add/anime_add_manual_pane.dart:58` |
+| `Icons.notes` | 5 | `lib/features/library/kinds/anime/edit/anime_edit_presentation_builder.dart:63` |
 | `Icons.draw_outlined` | 5 | `lib/features/library/kinds/book/config/book_kind_configuration.dart:99` |
 | `Icons.label_important` | 5 | `lib/features/library/kinds/comic/stats/comic_stats_capability.dart:51` |
 | `Icons.check_box_outline_blank` | 5 | `lib/features/library/kinds/tv/tracking/tv_progress_episode_row.dart:85` |
@@ -114,7 +114,6 @@ For remaining consumers, use an existing AppIcons semantic token when it represe
 | `Icons.link_outlined` | 4 | `lib/features/admin/admin_item_inspection.dart:387` |
 | `Icons.upload_file_outlined` | 4 | `lib/features/collection/csv/import_export/import_export_wizard.dart:80` |
 | `Icons.bookmark_border` | 4 | `lib/features/collection/csv/import_export/import_export_wizard.dart:248` |
-| `Icons.drag_handle` | 4 | `lib/features/library/collections/library_collections_dialog.dart:149` |
 | `Icons.edit` | 4 | `lib/features/library/collections/library_collections_dialog.dart:197` |
 | `Icons.arrow_forward` | 4 | `lib/features/library/detail/library_metadata_corrections_section.dart:147` |
 | `Icons.view_column_outlined` | 4 | `lib/features/library/duplicates/library_find_duplicates_page.dart:291` |
@@ -150,8 +149,6 @@ For remaining consumers, use an existing AppIcons semantic token when it represe
 | `Icons.star_outline_rounded` | 3 | `lib/features/library/detail/library_detail_collection_sections.dart:184` |
 | `Icons.storefront_outlined` | 3 | `lib/features/library/detail/library_detail_page.dart:212` |
 | `Icons.cloud_upload_outlined` | 3 | `lib/features/library/edit/core_correction/library_core_correction.dart:288` |
-| `Icons.payments_outlined` | 3 | `lib/features/library/edit/fields/edit_dialog_widgets.dart:1102` |
-| `Icons.list_alt` | 3 | `lib/features/library/edit/sections/custom_fields_edit_section.dart:292` |
 | `Icons.broken_image` | 3 | `lib/features/library/generic/page/coordinators/page_cover_coordinator.dart:128` |
 | `Icons.view_module` | 3 | `lib/features/library/generic/toolbar/toolbar_auxiliary_controls.dart:1266` |
 | `Icons.photo_size_select_small` | 3 | `lib/features/library/generic/toolbar/toolbar_auxiliary_controls.dart:1324` |
@@ -169,7 +166,6 @@ For remaining consumers, use an existing AppIcons semantic token when it represe
 | `Icons.photo_library` | 3 | `lib/features/library/kinds/anime/edit/anime_edit_presentation_builder.dart:229` |
 | `Icons.calendar_today_outlined` | 3 | `lib/features/library/kinds/anime/workspace/anime_catalog_item_workspace_fields.dart:46` |
 | `Icons.import_contacts_outlined` | 3 | `lib/features/library/kinds/anime/workspace/anime_catalog_item_workspace_schema.dart:140` |
-| `Icons.timer_outlined` | 3 | `lib/features/library/kinds/boardgame/stats/boardgame_stats_capability.dart:216` |
 | `Icons.groups_2_outlined` | 3 | `lib/features/library/kinds/book/add/book_add_manual_pane.dart:168` |
 | `Icons.tablet_android` | 3 | `lib/features/library/kinds/book/book_physical_media_formats.dart:57` |
 | `Icons.menu_book_outlined` | 3 | `lib/features/library/kinds/book/detail/book_author_detail_page.dart:175` |
@@ -178,7 +174,6 @@ For remaining consumers, use an existing AppIcons semantic token when it represe
 | `Icons.layers_outlined` | 3 | `lib/features/library/kinds/comic/detail/comic_series_detail_page.dart:116` |
 | `Icons.music_note` | 3 | `lib/features/library/kinds/music/config/music_import_sources.dart:138` |
 | `Icons.auto_awesome` | 3 | `lib/features/library/kinds/music/forms/music_catalog_field_specs.dart:171` |
-| `Icons.view_week_outlined` | 3 | `lib/features/library/kinds/music/inspector/music_inspector_sections.dart:475` |
 | `Icons.file_download_outlined` | 3 | `lib/features/library/kinds/tv/tracking/tv_season_tracking_section.dart:405` |
 | `Icons.cancel` | 3 | `lib/features/library/ui/primitives/library_field_selection.dart:168` |
 | `Icons.format_line_spacing` | 3 | `lib/features/library/workspace/chrome/library_view_controls.dart:374` |
@@ -191,7 +186,6 @@ For remaining consumers, use an existing AppIcons semantic token when it represe
 | `Icons.bar_chart_outlined` | 2 | `lib/features/admin/admin_dashboard_widgets.dart:614` |
 | `Icons.dashboard_outlined` | 2 | `lib/features/admin/admin_page.dart:116` |
 | `Icons.admin_panel_settings_outlined` | 2 | `lib/features/admin/admin_page.dart:139` |
-| `Icons.numbers` | 2 | `lib/features/barcode/barcode_scan_sheet.dart:136` |
 | `Icons.calendar_month_outlined` | 2 | `lib/features/calendar/calendar_page.dart:159` |
 | `Icons.timeline_outlined` | 2 | `lib/features/calendar/calendar_page.dart:166` |
 | `Icons.copy_all_outlined` | 2 | `lib/features/collection/csv/import_export/import_export_wizard.dart:218` |
@@ -204,10 +198,11 @@ For remaining consumers, use an existing AppIcons semantic token when it represe
 | `Icons.keyboard_double_arrow_up` | 2 | `lib/features/library/add/services/library_cover_scan_service.dart:735` |
 | `Icons.crop_free` | 2 | `lib/features/library/add/services/library_cover_scan_service.dart:748` |
 | `Icons.auto_awesome_outlined` | 2 | `lib/features/library/add/services/library_cover_scan_service.dart:836` |
+| `Icons.drag_handle` | 2 | `lib/features/library/collections/library_collections_dialog.dart:149` |
 | `Icons.event` | 2 | `lib/features/library/config/presentation/library_sort_presentation.dart:30` |
 | `Icons.update` | 2 | `lib/features/library/config/presentation/library_sort_presentation.dart:39` |
-| `Icons.remove` | 2 | `lib/features/library/edit/fields/edit_dialog_widgets.dart:1135` |
-| `Icons.calendar_month` | 2 | `lib/features/library/edit/sections/custom_fields_edit_section.dart:405` |
+| `Icons.payments_outlined` | 2 | `lib/features/library/edit/fields/edit_dialog_widgets.dart:1104` |
+| `Icons.remove` | 2 | `lib/features/library/edit/fields/edit_dialog_widgets.dart:1137` |
 | `Icons.crop_rotate` | 2 | `lib/features/library/edit/sections/item_images_edit_section.dart:491` |
 | `Icons.table_chart_outlined` | 2 | `lib/features/library/export/integration_export_dialog.dart:23` |
 | `Icons.code` | 2 | `lib/features/library/export/integration_export_dialog.dart:25` |
@@ -221,7 +216,6 @@ For remaining consumers, use an existing AppIcons semantic token when it represe
 | `Icons.sort` | 2 | `lib/features/library/generic/tools_menu.dart:75` |
 | `Icons.auto_fix_high` | 2 | `lib/features/library/generic/tools_menu.dart:113` |
 | `Icons.keyboard_command_key` | 2 | `lib/features/library/generic/tools_menu.dart:199` |
-| `Icons.text_fields` | 2 | `lib/features/library/generic/transferable_field.dart:221` |
 | `Icons.favorite` | 2 | `lib/features/library/generic/user_folders_dialog.dart:249` |
 | `Icons.apps_rounded` | 2 | `lib/features/library/home/home_kind_menu.dart:58` |
 | `Icons.cloud_off_outlined` | 2 | `lib/features/library/home/home_rail.dart:363` |
@@ -230,6 +224,7 @@ For remaining consumers, use an existing AppIcons semantic token when it represe
 | `Icons.movie_filter_outlined` | 2 | `lib/features/library/kinds/anime/config/anime_kind_capabilities.dart:76` |
 | `Icons.sell` | 2 | `lib/features/library/kinds/anime/edit/anime_edit_presentation_builder.dart:51` |
 | `Icons.memory` | 2 | `lib/features/library/kinds/boardgame/boardgame_physical_media_formats.dart:48` |
+| `Icons.timer_outlined` | 2 | `lib/features/library/kinds/boardgame/stats/boardgame_stats_capability.dart:216` |
 | `Icons.group_outlined` | 2 | `lib/features/library/kinds/boardgame/workspace/boardgame_catalog_item_workspace_schema.dart:139` |
 | `Icons.headphones` | 2 | `lib/features/library/kinds/book/book_physical_media_formats.dart:59` |
 | `Icons.face_outlined` | 2 | `lib/features/library/kinds/comic/add/comic_add_manual_pane.dart:264` |
@@ -248,16 +243,14 @@ For remaining consumers, use an existing AppIcons semantic token when it represe
 | `Icons.people` | 2 | `lib/features/library/kinds/movie/edit_dialog.dart:29` |
 | `Icons.camera_alt` | 2 | `lib/features/library/kinds/movie/edit_dialog.dart:59` |
 | `Icons.cloud_download_outlined` | 2 | `lib/features/library/kinds/music/config/music_import_sources.dart:237` |
+| `Icons.view_week_outlined` | 2 | `lib/features/library/kinds/music/inspector/music_inspector_sections.dart:475` |
 | `Icons.bar_chart` | 2 | `lib/features/library/kinds/music/stats/music_stats_page.dart:138` |
-| `Icons.schedule` | 2 | `lib/features/library/kinds/music/workspace/music_card_presentation.dart:37` |
 | `Icons.tv` | 2 | `lib/features/library/kinds/tv/edit_presentation_builder.dart:9` |
 | `Icons.route_outlined` | 2 | `lib/features/library/kinds/tv/edit_presentation_builder.dart:27` |
 | `Icons.grid_on` | 2 | `lib/features/library/kinds/tv/tracking/tv_episode_rating_section.dart:54` |
 | `Icons.cloud_outlined` | 2 | `lib/features/library/kinds/tv/tracking/tv_season_tracking_section.dart:414` |
-| `Icons.link` | 2 | `lib/features/library/metadata/library_link_items_page.dart:95` |
 | `Icons.picture_as_pdf_outlined` | 2 | `lib/features/library/selection/library_selection_controls.dart:529` |
 | `Icons.star_half_rounded` | 2 | `lib/features/library/tracking/media_rating_field.dart:203` |
-| `Icons.checklist` | 2 | `lib/features/library/workspace/chrome/compact_selection_action_bar.dart:102` |
 | `Icons.drive_file_move_outline` | 2 | `lib/features/library/workspace/chrome/library_item_context_menu.dart:71` |
 | `Icons.density_small` | 2 | `lib/features/library/workspace/config/library_workspace_tokens.dart:70` |
 | `Icons.open_in_full` | 2 | `lib/features/library/workspace/tiles/library_cover_image.dart:866` |
@@ -286,6 +279,7 @@ For remaining consumers, use an existing AppIcons semantic token when it represe
 | `Icons.alternate_email` | 1 | `lib/features/auth/auth_page.dart:322` |
 | `Icons.science_outlined` | 1 | `lib/features/auth/auth_page.dart:371` |
 | `Icons.cloud_sync` | 1 | `lib/features/auth/auth_page.dart:753` |
+| `Icons.numbers` | 1 | `lib/features/barcode/barcode_scan_sheet.dart:136` |
 | `Icons.videocam_off_outlined` | 1 | `lib/features/barcode/barcode_scan_sheet.dart:195` |
 | `Icons.ios_share_outlined` | 1 | `lib/features/calendar/calendar_page.dart:171` |
 | `Icons.today` | 1 | `lib/features/calendar/calendar_page.dart:176` |
@@ -301,8 +295,8 @@ For remaining consumers, use an existing AppIcons semantic token when it represe
 | `Icons.insert_drive_file_outlined` | 1 | `lib/features/library/config/library_import_capability.dart:28` |
 | `Icons.smart_display` | 1 | `lib/features/library/detail/library_detail_trailers_section.dart:73` |
 | `Icons.keyboard_arrow_right` | 1 | `lib/features/library/details/library_detail_section.dart:161` |
-| `Icons.trending_up` | 1 | `lib/features/library/edit/fields/edit_dialog_widgets.dart:1137` |
-| `Icons.trending_down` | 1 | `lib/features/library/edit/fields/edit_dialog_widgets.dart:1138` |
+| `Icons.trending_up` | 1 | `lib/features/library/edit/fields/edit_dialog_widgets.dart:1139` |
+| `Icons.trending_down` | 1 | `lib/features/library/edit/fields/edit_dialog_widgets.dart:1140` |
 | `Icons.data_object` | 1 | `lib/features/library/export/integration_export_dialog.dart:24` |
 | `Icons.text_snippet_outlined` | 1 | `lib/features/library/export/integration_export_dialog.dart:26` |
 | `Icons.upload_outlined` | 1 | `lib/features/library/export/integration_export_dialog.dart:72` |
@@ -322,12 +316,14 @@ For remaining consumers, use an existing AppIcons semantic token when it represe
 | `Icons.splitscreen_outlined` | 1 | `lib/features/library/generic/toolbar/toolbar_auxiliary_controls.dart:1307` |
 | `Icons.close_fullscreen_outlined` | 1 | `lib/features/library/generic/toolbar/toolbar_auxiliary_controls.dart:1315` |
 | `Icons.photo_size_select_large_outlined` | 1 | `lib/features/library/generic/toolbar/toolbar_sections.dart:1103` |
+| `Icons.list_alt` | 1 | `lib/features/library/generic/toolbar_chrome.dart:40` |
 | `Icons.gavel` | 1 | `lib/features/library/generic/toolbar_chrome.dart:42` |
 | `Icons.select_all` | 1 | `lib/features/library/generic/toolbar_chrome.dart:65` |
 | `Icons.format_list_numbered` | 1 | `lib/features/library/generic/tools_menu.dart:151` |
 | `Icons.share_outlined` | 1 | `lib/features/library/generic/tools_menu.dart:193` |
 | `Icons.point_of_sale` | 1 | `lib/features/library/generic/transferable_field.dart:177` |
 | `Icons.receipt_long_outlined` | 1 | `lib/features/library/generic/transferable_field.dart:201` |
+| `Icons.text_fields` | 1 | `lib/features/library/generic/transferable_field.dart:221` |
 | `Icons.playlist_add_check` | 1 | `lib/features/library/generic/user_folders_dialog.dart:250` |
 | `Icons.schedule_rounded` | 1 | `lib/features/library/generic/workspace.dart:634` |
 | `Icons.bookmark_outline_rounded` | 1 | `lib/features/library/generic/workspace.dart:644` |
@@ -368,6 +364,7 @@ For remaining consumers, use an existing AppIcons semantic token when it represe
 | `Icons.library_music_outlined` | 1 | `lib/features/library/kinds/music/stats/music_stats_capability.dart:84` |
 | `Icons.queue_music_outlined` | 1 | `lib/features/library/kinds/music/stats/music_stats_capability.dart:102` |
 | `Icons.music_note_outlined` | 1 | `lib/features/library/kinds/music/workspace/music_card_presentation.dart:32` |
+| `Icons.schedule` | 1 | `lib/features/library/kinds/music/workspace/music_card_presentation.dart:37` |
 | `Icons.auto_stories` | 1 | `lib/features/library/kinds/registry/collectarr_kind_import_registry.dart:94` |
 | `Icons.import_contacts` | 1 | `lib/features/library/kinds/registry/collectarr_kind_import_registry.dart:110` |
 | `Icons.arrow_upward` | 1 | `lib/features/library/kinds/tv/tracking/tv_season_tracking_section.dart:731` |
@@ -376,6 +373,7 @@ For remaining consumers, use an existing AppIcons semantic token when it represe
 | `Icons.schedule_outlined` | 1 | `lib/features/library/kinds/tv/tracking/tv_session_history_section.dart:468` |
 | `Icons.add_location_alt_outlined` | 1 | `lib/features/library/location_picker_dialog.dart:83` |
 | `Icons.location_on_outlined` | 1 | `lib/features/library/location_picker_dialog.dart:126` |
+| `Icons.link` | 1 | `lib/features/library/metadata/library_link_items_page.dart:95` |
 | `Icons.ads_click` | 1 | `lib/features/library/metadata/library_metadata_refresh_dialog.dart:139` |
 | `Icons.filter_alt_outlined` | 1 | `lib/features/library/metadata/library_metadata_refresh_dialog.dart:149` |
 | `Icons.speed` | 1 | `lib/features/library/metadata/library_metadata_refresh_dialog.dart:182` |
@@ -397,6 +395,7 @@ For remaining consumers, use an existing AppIcons semantic token when it represe
 | `Icons.list_alt_outlined` | 1 | `lib/features/library/ui/primitives/library_multi_value_options_dialog.dart:99` |
 | `Icons.disc_full` | 1 | `lib/features/library/widgets/format_badge.dart:34` |
 | `Icons.shield` | 1 | `lib/features/library/widgets/format_badge.dart:156` |
+| `Icons.checklist` | 1 | `lib/features/library/workspace/chrome/compact_selection_action_bar.dart:102` |
 | `Icons.content_copy` | 1 | `lib/features/library/workspace/chrome/library_item_context_menu.dart:163` |
 | `Icons.qr_code` | 1 | `lib/features/library/workspace/chrome/library_item_context_menu.dart:170` |
 | `Icons.splitscreen` | 1 | `lib/features/library/workspace/chrome/library_view_controls.dart:634` |
@@ -418,12 +417,6 @@ For remaining consumers, use an existing AppIcons semantic token when it represe
 | `Icons.arrow_drop_up` | 1 | `lib/features/pick_lists/widgets/pick_list_values_table.dart:53` |
 | `Icons.select_all_outlined` | 1 | `lib/features/settings/collection_schema_management_panel.dart:628` |
 | `Icons.alt_route_outlined` | 1 | `lib/features/settings/collection_schema_management_panel.dart:992` |
-| `Icons.toggle_on_outlined` | 1 | `lib/features/settings/custom_field_type_picker.dart:16` |
-| `Icons.calculate_outlined` | 1 | `lib/features/settings/custom_field_type_picker.dart:22` |
-| `Icons.percent` | 1 | `lib/features/settings/custom_field_type_picker.dart:32` |
-| `Icons.scale_outlined` | 1 | `lib/features/settings/custom_field_type_picker.dart:37` |
-| `Icons.straighten` | 1 | `lib/features/settings/custom_field_type_picker.dart:42` |
-| `Icons.arrow_drop_down_circle_outlined` | 1 | `lib/features/settings/custom_field_type_picker.dart:62` |
 | `Icons.font_download_outlined` | 1 | `lib/features/settings/local_font_settings_panel.dart:117` |
 | `Icons.add_task_outlined` | 1 | `lib/features/settings/location_management_dialog.dart:438` |
 | `Icons.public_off_outlined` | 1 | `lib/features/settings/settings_connection_widgets.dart:138` |

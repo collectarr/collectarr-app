@@ -36,6 +36,12 @@ enum CustomFieldValueType {
         _ => null,
       };
 
+  List<String> get allowedUnits => switch (this) {
+        weight => const ['g', 'kg', 'lb', 'oz'],
+        size => const ['cm', 'in', 'mm'],
+        _ => const [],
+      };
+
   bool get hasUnit => this == weight || this == size;
 
   bool get isMultiValue => this == multiSelect;

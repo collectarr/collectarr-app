@@ -1,5 +1,8 @@
+import 'package:collectarr_app/features/settings/custom_field_select.dart';
 import 'package:collectarr_app/features/settings/custom_fields_display_settings.dart';
-import 'package:collectarr_app/ui/accent_alert_dialog.dart';
+import 'package:collectarr_app/features/settings/custom_field_dialog.dart';
+import 'package:collectarr_app/features/library/ui/primitives/library_form_controls.dart';
+import 'package:collectarr_app/features/library/ui/primitives/library_selection_fields.dart';
 import 'package:flutter/material.dart';
 
 class CustomFieldsTabSettingsDialog extends StatefulWidget {
@@ -23,36 +26,42 @@ class _CustomFieldsTabSettingsDialogState
   }
 
   @override
-  Widget build(BuildContext context) => AccentAlertDialog(
-        title: const Text('Custom Fields'),
-        content: SizedBox(
-          width: 400,
-          child: Column(mainAxisSize: MainAxisSize.min, children: [
-            TextField(
-                controller: _name,
-                decoration: const InputDecoration(labelText: 'Name')),
-            CheckboxListTile(
-              contentPadding: EdgeInsets.zero,
-              title: const Text('Show tab in Edit screen'),
-              value: _visible,
-              onChanged: (value) => setState(() => _visible = value ?? true),
-            ),
-          ]),
-        ),
+  Widget build(BuildContext context) => CustomFieldDialog(
+        title: 'Custom Fields',
         actions: [
           TextButton(
               onPressed: () => Navigator.pop(context),
               child: const Text('Cancel')),
           FilledButton(
-            onPressed: () {
-              if (_name.text.trim().isEmpty) return;
-              Navigator.pop(
-                  context,
-                  CustomFieldsDisplaySettings(
-                      tabName: _name.text.trim(), showEditTab: _visible));
-            },
-            child: const Text('Save'),
-          ),
+              onPressed: () {
+                if (_name.text.trim().isEmpty) return;
+                Navigator.pop(
+                    context,
+                    CustomFieldsDisplaySettings(
+                        tabName: _name.text.trim(), showEditTab: _visible));
+              },
+              child: const Text('Save'))
         ],
+        child: Padding(
+            padding: const EdgeInsets.all(15),
+            child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  CustomFieldDefinitionField(
+                      label: 'Name',
+                      labelStyle:
+                          const TextStyle(fontSize: 13, height: 20 / 13),
+                      child: LibraryTextFormControl(
+                          controller: _name, autofocus: true)),
+                  const SizedBox(height: 10),
+                  Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 5),
+                      child: LibraryBooleanButtonField(
+                          label: 'Show tab in Edit screen',
+                          value: _visible,
+                          onChanged: (value) =>
+                              setState(() => _visible = value))),
+                ])),
       );
 }

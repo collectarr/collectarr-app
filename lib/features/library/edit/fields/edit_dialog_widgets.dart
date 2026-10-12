@@ -624,6 +624,7 @@ class ValueContextChip extends StatelessWidget {
 
 const List<String> kLibraryCurrencyCodes = <String>[
   'USD',
+  'SGD',
   'EUR',
   'GBP',
   'RON',
@@ -648,6 +649,7 @@ String libraryCurrencySymbol(String? currency) {
   final normalized = currency?.trim().toUpperCase() ?? '';
   return switch (normalized) {
     'USD' => r'$',
+    'SGD' => r'S$',
     'EUR' => '€',
     'GBP' => '£',
     'RON' => 'lei',

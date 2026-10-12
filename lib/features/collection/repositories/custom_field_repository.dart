@@ -229,9 +229,7 @@ class CustomFieldRepository {
       }
     }
     if (definition.valueType.hasUnit) {
-      final allowed = definition.valueType == CustomFieldValueType.weight
-          ? {'kg', 'lb'}
-          : {'cm', 'in'};
+      final allowed = definition.valueType.allowedUnits;
       if (!allowed.contains(definition.unit)) {
         throw ArgumentError('Measured custom fields require a supported unit.');
       }

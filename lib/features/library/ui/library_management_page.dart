@@ -8,19 +8,21 @@ class LibraryManagementPage extends StatelessWidget {
   const LibraryManagementPage({
     super.key,
     required this.title,
-    required this.icon,
+    this.icon,
     required this.accent,
     required this.child,
     this.bottomBar,
     this.svgAsset,
-  });
+    this.backgroundColor,
+  }) : assert(icon != null || svgAsset != null);
 
   final String title;
-  final IconData icon;
+  final IconData? icon;
   final Color accent;
   final Widget child;
   final Widget? bottomBar;
   final String? svgAsset;
+  final Color? backgroundColor;
 
   @override
   Widget build(BuildContext context) => Theme(
@@ -28,7 +30,7 @@ class LibraryManagementPage extends StatelessWidget {
         child: Builder(builder: (context) {
           final palette = appPalette(context);
           return Scaffold(
-            backgroundColor: palette.surface,
+            backgroundColor: backgroundColor ?? palette.surface,
             appBar: AppPageHeader(
                 title: Text(title), icon: icon, svgAsset: svgAsset),
             body: child,

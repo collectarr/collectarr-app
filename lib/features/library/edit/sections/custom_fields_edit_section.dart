@@ -1,3 +1,7 @@
+import 'package:collectarr_app/ui/compact_search_dropdown_form_field.dart';
+import 'package:collectarr_app/ui/app_icons.dart';
+import 'package:collectarr_app/ui/theme/app_theme.dart';
+import 'package:collectarr_app/features/library/ui/primitives/library_multi_value_options_dialog.dart';
 import 'package:collectarr_app/features/library/ui/library_metrics.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_vocabulary_options_loader.dart';
 import 'package:collectarr_app/core/models/custom_field.dart';
@@ -32,8 +36,10 @@ class CustomFieldsEditSection extends StatefulWidget {
     this.mediaKind,
     this.onCustomValueChanged,
     this.displaySettings = const {},
+    this.preview = false,
   });
 
+  final bool preview;
   final List<CustomFieldDefinition> definitions;
   final Map<String, String?> values; // definitionId → value
   final Color accent;
@@ -57,15 +63,11 @@ class _CustomFieldsEditSectionState extends State<CustomFieldsEditSection> {
     super.initState();
     _values = Map.of(widget.values);
     _display = Map.of(widget.displaySettings);
-    unawaited(_loadDisplay());
+    if (!widget.preview) unawaited(_loadDisplay());
   }
 
   Future<void> _loadDisplay() async {
     for (final definition in widget.definitions) {
-      if (definition.valueType != CustomFieldValueType.singleSelect &&
-          definition.valueType != CustomFieldValueType.multiSelect) {
-        continue;
-      }
       if (_display.containsKey(definition.id)) continue;
       final display = await CustomFieldDisplaySettings.read(definition.id);
       if (!mounted) return;
@@ -123,11 +125,11 @@ class _CustomFieldsEditSectionState extends State<CustomFieldsEditSection> {
   Widget _buildFieldWithOptions(
       CustomFieldDefinition def, String? value, List<String> choices) {
     return switch (def.valueType) {
-      CustomFieldValueType.boolean => LibrarySwitchField(
-          value: value == 'true',
-          onChanged: (selected) => _update(def.id, selected.toString()),
+      CustomFieldValueType.boolean => LibraryBooleanButtonField(
           label: def.name,
-        ),
+          width: null,
+          value: value == 'true',
+          onChanged: (value) => _update(def.id, value.toString())),
       CustomFieldValueType.singleSelect => LibraryDropdownPickField<String>(
           label: def.name,
           value: value,
@@ -136,24 +138,29 @@ class _CustomFieldsEditSectionState extends State<CustomFieldsEditSection> {
               LibraryFieldOption<String>(value: option, label: option),
           ],
           clearOptionLabel: '—',
-          helperText: _scopeLabel(def.targetScope),
+          helperText: widget.preview ? null : _scopeLabel(def.targetScope),
           allowCustomValue: true,
-          openPicker: (
-              {required label, required selectedValue, required options}) {
-            final db = ProviderScope.containerOf(context, listen: false)
-                .read(localDatabaseProvider);
-            return showPickListSelectDialog(
-              context: context,
-              label: label,
-              pluralLabel: _display[def.id]?.pluralName,
-              options: options,
-              selectedValue: selectedValue,
-              listName: 'customField:${def.id}',
-              mediaKind: def.mediaKind ?? widget.mediaKind,
-              allowUserValues: true,
-              db: db,
-            );
-          },
+          openPicker: widget.preview
+              ? (
+                      {required label,
+                      required selectedValue,
+                      required options}) async =>
+                  selectedValue
+              : ({required label, required selectedValue, required options}) {
+                  final db = ProviderScope.containerOf(context, listen: false)
+                      .read(localDatabaseProvider);
+                  return showPickListSelectDialog(
+                    context: context,
+                    label: label,
+                    pluralLabel: _display[def.id]?.pluralName,
+                    options: options,
+                    selectedValue: selectedValue,
+                    listName: 'customField:${def.id}',
+                    mediaKind: def.mediaKind ?? widget.mediaKind,
+                    allowUserValues: true,
+                    db: db,
+                  );
+                },
           onChanged: (v) {
             _update(def.id, v);
             final normalized = v?.trim();
@@ -171,29 +178,22 @@ class _CustomFieldsEditSectionState extends State<CustomFieldsEditSection> {
           },
         ),
       CustomFieldValueType.multiSelect => _multiValueField(def, value, choices),
-      CustomFieldValueType.fixedButtons => LibraryFormField(
-          label: def.name,
-          child: Wrap(spacing: 4, runSpacing: 4, children: [
-            for (final option in choices)
-              ChoiceChip(
-                label: Text(option),
-                selected: value == option,
-                onSelected: (selected) {
-                  _update(def.id, selected ? option : null);
-                },
-              ),
-          ]),
-        ),
-      CustomFieldValueType.fixedList => LibrarySelectField<String>(
+      CustomFieldValueType.fixedButtons => LibraryFixedChoiceButtonField(
           label: def.name,
           value: value,
-          items: [
-            const DropdownMenuItem(value: null, child: Text('None')),
-            for (final option in choices)
-              DropdownMenuItem(value: option, child: Text(option)),
-          ],
-          onChanged: (selected) => _update(def.id, selected),
-        ),
+          options: choices,
+          onChanged: (selected) => _update(def.id, selected)),
+      CustomFieldValueType.fixedList => LibraryFormField(
+          label: def.name,
+          labelStyle: const TextStyle(fontSize: 13, height: 20 / 13),
+          child: CompactSearchDropdownFormField<String>(
+              initialValue: value,
+              items: [
+                const DropdownMenuItem(value: null, child: Text('None')),
+                for (final option in choices)
+                  DropdownMenuItem(value: option, child: Text(option))
+              ],
+              onChanged: (selected) => _update(def.id, selected))),
       CustomFieldValueType.date => _DateCustomField(
           label: def.name,
           value: value,
@@ -204,19 +204,14 @@ class _CustomFieldsEditSectionState extends State<CustomFieldsEditSection> {
           value: value,
           onChanged: (v) => _update(def.id, v),
         ),
-      CustomFieldValueType.duration => _textField(
-          def,
-          keyboardType: TextInputType.datetime,
-          validator: (value) => value == null ||
-                  value.isEmpty ||
-                  RegExp(r'^\d+:([0-5]\d)$').hasMatch(value)
-              ? null
-              : 'Use hours:minutes (for example 27:15)',
-        ),
+      CustomFieldValueType.duration => _DurationCustomField(
+          label: def.name,
+          value: value,
+          onChanged: (value) => _update(def.id, value)),
       CustomFieldValueType.longText => _textField(
           def,
           minLines: 4,
-          maxLines: 8,
+          maxLines: 4,
           keyboardType: TextInputType.multiline,
         ),
       CustomFieldValueType.number ||
@@ -237,7 +232,10 @@ class _CustomFieldsEditSectionState extends State<CustomFieldsEditSection> {
               def.valueType == CustomFieldValueType.percentage ? '%' : def.unit,
           inputFormatters: [
             TextInputFormatter.withFunction((oldValue, newValue) {
-              final pattern = def.valueType == CustomFieldValueType.number
+              final pattern = def.valueType == CustomFieldValueType.number ||
+                      (_display[def.id]?.numericStorage ==
+                              CustomFieldNumericStorage.number &&
+                          def.valueType != CustomFieldValueType.decimal)
                   ? RegExp(r'^-?\d*$')
                   : RegExp(r'^-?\d*(\.\d{0,2})?$');
               return pattern.hasMatch(newValue.text) ? newValue : oldValue;
@@ -268,51 +266,124 @@ class _CustomFieldsEditSectionState extends State<CustomFieldsEditSection> {
       for (final choice in choices)
         LibraryFieldOption<String>(value: choice, label: choice)
     ];
-    Future<Set<String>?> openPicker() => showAppDialog<Set<String>>(
-          context: context,
-          builder: (_) => PickListSelectionDialog(
+    Future<Set<String>?> openPicker() => widget.preview
+        ? showLibraryMultiValueOptionsDialog<String>(
+            context: context,
             label: def.name,
-            pluralLabel: _display[def.id]?.pluralName,
-            options: choices,
-            selectedValues: selected.toList(),
-            multiple: true,
-            listName: 'customField:${def.id}',
-            mediaKind: def.mediaKind ?? widget.mediaKind,
-            allowUserValues: true,
-            db: ProviderScope.containerOf(context, listen: false)
-                .read(localDatabaseProvider),
-          ),
-        );
+            options: options,
+            selectedValues: selected,
+            allowCustomValues: true)
+        : showAppDialog<Set<String>>(
+            context: context,
+            builder: (_) => PickListSelectionDialog(
+              label: def.name,
+              pluralLabel: _display[def.id]?.pluralName,
+              options: choices,
+              selectedValues: selected.toList(),
+              multiple: true,
+              listName: 'customField:${def.id}',
+              mediaKind: def.mediaKind ?? widget.mediaKind,
+              allowUserValues: true,
+              db: ProviderScope.containerOf(context, listen: false)
+                  .read(localDatabaseProvider),
+            ),
+          );
     if (_display[def.id]?.multiValueControl ==
         CustomFieldMultiValueControl.checkboxes) {
       return LibraryFormField(
         label: def.name,
+        labelStyle: const TextStyle(fontSize: 13, height: 20 / 13),
         action: IconButton(
             tooltip: 'Manage values',
-            icon: const Icon(Icons.list_alt, size: 16),
+            padding: EdgeInsets.zero,
+            constraints: const BoxConstraints.tightFor(width: 24, height: 20),
+            icon: const Icon(AppIcons.add, size: 14),
             onPressed: () async {
               final result = await openPicker();
               if (result != null && mounted) {
                 _update(def.id, encodeCustomFieldMultiValues(result));
               }
             }),
-        child: Column(children: [
-          for (final choice in choices)
-            CheckboxListTile(
-                dense: true,
-                contentPadding: EdgeInsets.zero,
-                title: Text(choice),
-                value: selected.contains(choice),
-                onChanged: (checked) {
-                  if (checked == true) {
-                    selected.add(choice);
-                  } else {
-                    selected.remove(choice);
-                  }
-                  _update(def.id, encodeCustomFieldMultiValues(selected));
-                }),
-        ]),
+        child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+            decoration: BoxDecoration(
+                color: appPalette(context).field,
+                border: Border.all(color: appPalette(context).divider),
+                borderRadius: BorderRadius.circular(3)),
+            child: Column(children: [
+              for (final choice in choices)
+                SizedBox(
+                    height: 24,
+                    child: Row(children: [
+                      SizedBox(
+                          width: 26,
+                          child: Checkbox(
+                              materialTapTargetSize:
+                                  MaterialTapTargetSize.shrinkWrap,
+                              visualDensity: VisualDensity.compact,
+                              value: selected.contains(choice),
+                              onChanged: (checked) {
+                                if (checked == true) {
+                                  selected.add(choice);
+                                } else {
+                                  selected.remove(choice);
+                                }
+                                _update(def.id,
+                                    encodeCustomFieldMultiValues(selected));
+                              })),
+                      Expanded(child: Text(choice))
+                    ])),
+            ])),
       );
+    }
+    final control = _display[def.id]?.multiValueControl;
+    if (control == CustomFieldMultiValueControl.dropdown ||
+        control == CustomFieldMultiValueControl.personList) {
+      final palette = appPalette(context);
+      return LibraryFormField(
+          label: def.name,
+          labelStyle: const TextStyle(fontSize: 13, height: 20 / 13),
+          action: IconButton(
+              tooltip: 'Add values',
+              padding: EdgeInsets.zero,
+              constraints: const BoxConstraints.tightFor(width: 24, height: 20),
+              icon: const Icon(AppIcons.add, size: 14),
+              onPressed: () async {
+                final result = await openPicker();
+                if (result != null && mounted) {
+                  _update(def.id, encodeCustomFieldMultiValues(result));
+                }
+              }),
+          child: Container(
+              decoration: BoxDecoration(
+                  color: palette.field,
+                  border: Border.all(color: palette.divider),
+                  borderRadius: BorderRadius.circular(3)),
+              child: Column(children: [
+                if (selected.isEmpty) const SizedBox(height: 34),
+                for (final name in selected)
+                  Container(
+                      height: 34,
+                      decoration: BoxDecoration(
+                          border: Border(
+                              bottom: BorderSide(color: palette.divider))),
+                      padding: const EdgeInsets.only(left: 7),
+                      child: Row(children: [
+                        Expanded(child: Text(name)),
+                        IconButton(
+                            tooltip: 'Remove $name',
+                            padding: EdgeInsets.zero,
+                            constraints: const BoxConstraints.tightFor(
+                                width: 32, height: 32),
+                            icon: const Icon(AppIcons.close, size: 14),
+                            onPressed: () {
+                              _update(
+                                  def.id,
+                                  encodeCustomFieldMultiValues(
+                                      selected.where((v) => v != name)));
+                            })
+                      ])),
+              ])));
     }
     return LibraryMultiValuePickField<String>(
       label: def.name,
@@ -343,6 +414,7 @@ class _CustomFieldsEditSectionState extends State<CustomFieldsEditSection> {
     final value = _values[def.id];
     return LibraryFormField(
       label: def.name,
+      labelStyle: const TextStyle(fontSize: 13, height: 20 / 13),
       child: LibraryTextFormControl(
         initialValue: value ?? '',
         keyboardType: keyboardType,
@@ -355,7 +427,11 @@ class _CustomFieldsEditSectionState extends State<CustomFieldsEditSection> {
                 : null),
         validator: validator,
         decoration: InputDecoration(
-            suffixText: suffixText, helperText: _scopeLabel(def.targetScope)),
+            prefixText: def.valueType == CustomFieldValueType.currency
+                ? '${libraryCurrencySymbol(_display[def.id]?.currencyCode ?? 'USD')} '
+                : null,
+            suffixText: suffixText,
+            helperText: widget.preview ? null : _scopeLabel(def.targetScope)),
         onChanged: (input) {
           final trimmed = input.trim();
           _update(def.id, trimmed.isEmpty ? null : trimmed);
@@ -387,8 +463,10 @@ class _DateCustomField extends StatelessWidget {
   Widget build(BuildContext context) {
     return LibraryFormField(
       label: label,
+      labelStyle: const TextStyle(fontSize: 13, height: 20 / 13),
       action: IconButton(
         tooltip: 'Pick date',
+        constraints: const BoxConstraints.tightFor(width: 24, height: 20),
         padding: EdgeInsets.zero,
         iconSize: 16,
         onPressed: () async {
@@ -402,7 +480,7 @@ class _DateCustomField extends StatelessWidget {
             onChanged(PartialDate.fromDateTime(date).isoString);
           }
         },
-        icon: const Icon(Icons.calendar_month),
+        icon: const Icon(AppIcons.calendar),
       ),
       child: LibraryPartialDateInput(
         value: PartialDate.tryParse(value),
@@ -502,4 +580,69 @@ TimeOfDay? _parseTimeOfDay(String? value) {
 
 String _formatTimeOfDay(TimeOfDay value) {
   return '${value.hour.toString().padLeft(2, '0')}:${value.minute.toString().padLeft(2, '0')}';
+}
+
+class _DurationCustomField extends StatefulWidget {
+  const _DurationCustomField(
+      {required this.label, required this.value, required this.onChanged});
+  final String label;
+  final String? value;
+  final ValueChanged<String?> onChanged;
+  @override
+  State<_DurationCustomField> createState() => _DurationCustomFieldState();
+}
+
+class _DurationCustomFieldState extends State<_DurationCustomField> {
+  late final TextEditingController _hours;
+  late final TextEditingController _minutes;
+  @override
+  void initState() {
+    super.initState();
+    final parts = widget.value?.split(':');
+    _hours = TextEditingController(text: parts?.first ?? '');
+    _minutes =
+        TextEditingController(text: parts?.length == 2 ? parts!.last : '');
+  }
+
+  @override
+  void dispose() {
+    _hours.dispose();
+    _minutes.dispose();
+    super.dispose();
+  }
+
+  void _changed(String _) {
+    widget.onChanged(_hours.text.isEmpty && _minutes.text.isEmpty
+        ? null
+        : '${_hours.text.isEmpty ? '0' : _hours.text}:${_minutes.text.isEmpty ? '00' : _minutes.text.padLeft(2, '0')}');
+  }
+
+  @override
+  Widget build(BuildContext context) => LibraryFormField(
+      label: widget.label,
+      child: Row(children: [
+        Expanded(
+            child: LibraryTextFormControl(
+                controller: _hours,
+                decoration: const InputDecoration(hintText: 'HH'),
+                keyboardType: TextInputType.number,
+                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                onChanged: _changed)),
+        const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 8), child: Text(':')),
+        Expanded(
+            child: LibraryTextFormControl(
+                controller: _minutes,
+                decoration: const InputDecoration(hintText: 'MM'),
+                keyboardType: TextInputType.number,
+                inputFormatters: [
+                  FilteringTextInputFormatter.digitsOnly,
+                  LengthLimitingTextInputFormatter(2)
+                ],
+                validator: (value) =>
+                    value != null && value.isNotEmpty && int.parse(value) > 59
+                        ? 'Minutes must be 0–59'
+                        : null,
+                onChanged: _changed)),
+      ]));
 }

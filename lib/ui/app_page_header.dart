@@ -13,15 +13,15 @@ class AppPageHeader extends StatelessWidget implements PreferredSizeWidget {
   const AppPageHeader({
     super.key,
     required this.title,
-    required this.icon,
+    this.icon,
     this.leading,
     this.actions,
     this.bottom,
     this.svgAsset,
-  });
+  }) : assert(icon != null || svgAsset != null);
 
   final Widget title;
-  final IconData icon;
+  final IconData? icon;
   final Widget? leading;
   final List<Widget>? actions;
   final PreferredSizeWidget? bottom;

@@ -55,15 +55,18 @@ class AppDrawerDestination {
   const AppDrawerDestination(
       {required this.action,
       required this.label,
-      required this.icon,
+      this.icon,
+      this.svgAsset,
       required this.section,
       required this.behavior,
       this.routePath,
       this.adminOnly = false,
-      this.widgetKey});
+      this.widgetKey})
+      : assert(icon != null || svgAsset != null);
   final DrawerAction action;
   final String label;
-  final IconData icon;
+  final IconData? icon;
+  final String? svgAsset;
   final AppDrawerSection section;
   final DrawerActionBehavior behavior;
   final String? routePath;
@@ -148,7 +151,7 @@ const appDrawerDestinations = <AppDrawerDestination>[
   AppDrawerDestination(
       action: DrawerAction.manageCustomFields,
       label: 'Manage Custom Fields',
-      icon: AppIcons.customFields,
+      svgAsset: AppIcons.customFieldsSvg,
       section: AppDrawerSection.customization,
       behavior: DrawerActionBehavior.overlayPage),
   AppDrawerDestination(

@@ -8,10 +8,15 @@ import 'package:flutter/services.dart';
 /// Compact external labels shared by catalog and personal forms.
 class LibraryFormField extends StatelessWidget {
   const LibraryFormField(
-      {super.key, required this.label, required this.child, this.action});
+      {super.key,
+      required this.label,
+      required this.child,
+      this.action,
+      this.labelStyle});
   final String label;
   final Widget child;
   final Widget? action;
+  final TextStyle? labelStyle;
 
   @override
   Widget build(BuildContext context) => Column(
@@ -29,7 +34,7 @@ class LibraryFormField extends StatelessWidget {
                         fontWeight: kAppBoldFontWeight,
                         height: 20 / 12,
                         letterSpacing: 0,
-                      ))),
+                      ).merge(labelStyle))),
               if (action != null) action!,
             ]),
           ),
