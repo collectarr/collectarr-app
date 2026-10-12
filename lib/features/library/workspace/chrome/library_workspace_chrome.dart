@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math' as math;
 
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
@@ -216,41 +217,56 @@ class _LibraryDetailsAwareLayoutState extends State<LibraryDetailsAwareLayout> {
     required bool collapsed,
     required Duration duration,
   }) {
-    return Row(
-      children: [
-        Expanded(child: widget.content),
-        if (!collapsed)
-          if (widget.onRightWidthChanged == null)
-            VerticalDivider(
-              width: kLibraryPaneDividerWidth,
-              thickness: kLibraryPaneDividerWidth,
-              color: libraryWorkspacePaneDividerColor(context),
-            )
-          else
-            LibraryResizableDivider(
-              accentColor: widget.accentColor,
-              onDragStart: () => _draggingRight = true,
-              onDragEnd: () {
-                _draggingRight = false;
-                _flushRightWidthPersist();
-              },
-              onDragDelta: _handleRightDrag,
-            ),
-        AnimatedContainer(
-          duration: _draggingRight ? Duration.zero : duration,
-          curve: Curves.easeOutCubic,
-          width: collapsed ? 0.0 : width,
-          child: ClipRect(
-            child: OverflowBox(
-              minWidth: 0,
-              maxWidth: width,
-              alignment: Alignment.centerLeft,
-              child: SizedBox(width: width, child: inspectorPane),
+    return LayoutBuilder(builder: (context, constraints) {
+      // Outgoing layouts also receive the new viewport constraints while the
+      // orientation cross-fades. Bound the animated pane on every frame, not
+      // only its target width, so a stored wide inspector cannot overflow.
+      final maxPaneWidth = math.max(
+        0.0,
+        constraints.maxWidth -
+            kLibraryPaneDividerWidth -
+            math.min(kLibraryWorkspaceMinWidth, constraints.maxWidth),
+      );
+      final paneWidth = math.min(width, maxPaneWidth);
+      return Row(
+        children: [
+          Expanded(child: widget.content),
+          if (!collapsed)
+            if (widget.onRightWidthChanged == null)
+              VerticalDivider(
+                width: kLibraryPaneDividerWidth,
+                thickness: kLibraryPaneDividerWidth,
+                color: libraryWorkspacePaneDividerColor(context),
+              )
+            else
+              LibraryResizableDivider(
+                accentColor: widget.accentColor,
+                onDragStart: () => _draggingRight = true,
+                onDragEnd: () {
+                  _draggingRight = false;
+                  _flushRightWidthPersist();
+                },
+                onDragDelta: _handleRightDrag,
+              ),
+          ConstrainedBox(
+            constraints: BoxConstraints(maxWidth: maxPaneWidth),
+            child: AnimatedContainer(
+              duration: _draggingRight ? Duration.zero : duration,
+              curve: Curves.easeOutCubic,
+              width: collapsed ? 0.0 : paneWidth,
+              child: ClipRect(
+                child: OverflowBox(
+                  minWidth: 0,
+                  maxWidth: paneWidth,
+                  alignment: Alignment.centerLeft,
+                  child: SizedBox(width: paneWidth, child: inspectorPane),
+                ),
+              ),
             ),
           ),
-        ),
-      ],
-    );
+        ],
+      );
+    });
   }
 
   Widget _buildBottomLayout({
@@ -259,42 +275,54 @@ class _LibraryDetailsAwareLayoutState extends State<LibraryDetailsAwareLayout> {
     required bool collapsed,
     required Duration duration,
   }) {
-    return Column(
-      children: [
-        Expanded(child: widget.content),
-        if (!collapsed)
-          if (widget.onBottomHeightChanged == null)
-            Divider(
-              height: kLibraryPaneDividerWidth,
-              thickness: kLibraryPaneDividerWidth,
-              color: libraryWorkspacePaneDividerColor(context),
-            )
-          else
-            LibraryResizableDivider(
-              axis: Axis.vertical,
-              accentColor: widget.accentColor,
-              onDragStart: () => _draggingBottom = true,
-              onDragEnd: () {
-                _draggingBottom = false;
-                _flushBottomHeightPersist();
-              },
-              onDragDelta: _handleBottomDrag,
-            ),
-        AnimatedContainer(
-          duration: _draggingBottom ? Duration.zero : duration,
-          curve: Curves.easeOutCubic,
-          height: collapsed ? 0.0 : height,
-          child: ClipRect(
-            child: OverflowBox(
-              minHeight: 0,
-              maxHeight: height,
-              alignment: Alignment.topCenter,
-              child: SizedBox(height: height, child: inspectorPane),
+    return LayoutBuilder(builder: (context, constraints) {
+      final maxPaneHeight = math.max(
+        0.0,
+        constraints.maxHeight -
+            kLibraryPaneDividerWidth -
+            math.min(kLibraryWorkspaceMinHeight, constraints.maxHeight),
+      );
+      final paneHeight = math.min(height, maxPaneHeight);
+      return Column(
+        children: [
+          Expanded(child: widget.content),
+          if (!collapsed)
+            if (widget.onBottomHeightChanged == null)
+              Divider(
+                height: kLibraryPaneDividerWidth,
+                thickness: kLibraryPaneDividerWidth,
+                color: libraryWorkspacePaneDividerColor(context),
+              )
+            else
+              LibraryResizableDivider(
+                axis: Axis.vertical,
+                accentColor: widget.accentColor,
+                onDragStart: () => _draggingBottom = true,
+                onDragEnd: () {
+                  _draggingBottom = false;
+                  _flushBottomHeightPersist();
+                },
+                onDragDelta: _handleBottomDrag,
+              ),
+          ConstrainedBox(
+            constraints: BoxConstraints(maxHeight: maxPaneHeight),
+            child: AnimatedContainer(
+              duration: _draggingBottom ? Duration.zero : duration,
+              curve: Curves.easeOutCubic,
+              height: collapsed ? 0.0 : paneHeight,
+              child: ClipRect(
+                child: OverflowBox(
+                  minHeight: 0,
+                  maxHeight: paneHeight,
+                  alignment: Alignment.topCenter,
+                  child: SizedBox(height: paneHeight, child: inspectorPane),
+                ),
+              ),
             ),
           ),
-        ),
-      ],
-    );
+        ],
+      );
+    });
   }
 }
 

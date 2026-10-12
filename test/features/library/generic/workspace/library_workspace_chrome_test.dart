@@ -159,6 +159,67 @@ void main() {
     expect(find.text('Inspector body'), findsOneWidget);
   });
 
+  for (final initialLayout in [
+    LibraryDetailsLayout.right,
+    LibraryDetailsLayout.bottom,
+  ]) {
+    testWidgets('resizing bounds outgoing $initialLayout inspector during fade',
+        (tester) async {
+      await tester.binding.setSurfaceSize(const Size(1500, 1000));
+      addTearDown(() => tester.binding.setSurfaceSize(null));
+      const inspectorKey = ValueKey('resize-test-inspector');
+      var persistenceCalls = 0;
+      Widget page(LibraryDetailsLayout layout) => MaterialApp(
+            home: Scaffold(
+              body: LibraryDetailsAwareLayout(
+                detailsLayout: layout,
+                frameInspector: false,
+                rightWidth: 1000,
+                maxRightWidth: 4096,
+                bottomHeight: 600,
+                maxBottomHeight: 4096,
+                onRightWidthChanged: (_) => persistenceCalls++,
+                onBottomHeightChanged: (_) => persistenceCalls++,
+                content: const ColoredBox(color: Colors.blue),
+                inspector: ColoredBox(key: inspectorKey, color: Colors.red),
+              ),
+            ),
+          );
+      await tester.pumpWidget(page(initialLayout));
+      await tester.pumpAndSettle();
+      expect(tester.takeException(), isNull);
+
+      await tester.binding.setSurfaceSize(const Size(744, 500));
+      final nextLayout = initialLayout == LibraryDetailsLayout.right
+          ? LibraryDetailsLayout.bottom
+          : LibraryDetailsLayout.right;
+      await tester.pumpWidget(page(nextLayout));
+      for (var frame = 0; frame < 12; frame++) {
+        await tester.pump(const Duration(milliseconds: 30));
+        expect(tester.takeException(), isNull,
+            reason: 'transition frame $frame');
+      }
+      final size = tester.getSize(find.byKey(inspectorKey).last);
+      if (nextLayout == LibraryDetailsLayout.right) {
+        expect(size.width, lessThanOrEqualTo(418));
+      } else {
+        expect(size.height, lessThanOrEqualTo(274));
+      }
+      expect(persistenceCalls, 0);
+
+      await tester.binding.setSurfaceSize(const Size(1500, 1000));
+      await tester.pumpWidget(page(initialLayout));
+      await tester.pumpAndSettle();
+      expect(tester.takeException(), isNull);
+      final restoredSize = tester.getSize(find.byKey(inspectorKey).last);
+      if (initialLayout == LibraryDetailsLayout.right) {
+        expect(restoredSize.width, 1000);
+      } else {
+        expect(restoredSize.height, 600);
+      }
+    });
+  }
+
   testWidgets('right divider drag decreases details width when dragged right', (
     tester,
   ) async {
