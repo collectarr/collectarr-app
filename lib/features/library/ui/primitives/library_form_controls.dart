@@ -1,5 +1,5 @@
+import 'package:collectarr_app/features/library/ui/library_metrics.dart';
 import 'package:collectarr_app/core/models/partial_date.dart';
-import 'package:collectarr_app/features/library/config/library_dialog_tokens.dart';
 import 'package:collectarr_app/ui/library_accent_scope.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
@@ -49,7 +49,7 @@ class LibraryTextFormControl extends StatelessWidget {
     this.validator,
     this.onChanged,
     this.decoration,
-    this.minimumHeight = kLibraryFormControlHeight,
+    this.minimumHeight = LibraryMetrics.defaultFieldHeight,
     this.keyboardType,
     this.inputFormatters,
     this.minLines,
@@ -98,35 +98,35 @@ class LibraryTextFormControl extends StatelessWidget {
         appPalette(context).accent;
     final effectiveCursorColor = cursorColor ?? effectiveAccent;
     return TextFormField(
-        controller: controller,
-        cursorColor: effectiveCursorColor,
-        initialValue: initialValue,
-        focusNode: focusNode,
-        autofocus: autofocus,
-        validator: validator,
-        onChanged: onChanged,
-        onFieldSubmitted: onFieldSubmitted,
-        keyboardType: keyboardType,
-        inputFormatters: inputFormatters,
-        minLines: minLines,
-        maxLines: maxLines,
-        expands: expands,
-        obscureText: obscureText,
-        enabled: enabled,
-        readOnly: readOnly,
-        style: style ?? context.libraryTextTheme.controlText,
-        textAlign: textAlign,
-        textAlignVertical: TextAlignVertical.center,
-        textCapitalization: textCapitalization,
-        textInputAction: textInputAction,
-        decoration: (decoration ?? const InputDecoration()).copyWith(
-          constraints: BoxConstraints(minHeight: minimumHeight),
-          contentPadding:
-              (maxLines == 1 && minimumHeight == kLibraryFormControlHeight)
-                  ? const EdgeInsets.symmetric(horizontal: 7, vertical: 6)
-                  : decoration?.contentPadding,
-        ),
-      );
+      controller: controller,
+      cursorColor: effectiveCursorColor,
+      initialValue: initialValue,
+      focusNode: focusNode,
+      autofocus: autofocus,
+      validator: validator,
+      onChanged: onChanged,
+      onFieldSubmitted: onFieldSubmitted,
+      keyboardType: keyboardType,
+      inputFormatters: inputFormatters,
+      minLines: minLines,
+      maxLines: maxLines,
+      expands: expands,
+      obscureText: obscureText,
+      enabled: enabled,
+      readOnly: readOnly,
+      style: style ?? context.libraryTextTheme.controlText,
+      textAlign: textAlign,
+      textAlignVertical: TextAlignVertical.center,
+      textCapitalization: textCapitalization,
+      textInputAction: textInputAction,
+      decoration: (decoration ?? const InputDecoration()).copyWith(
+        constraints: BoxConstraints(minHeight: minimumHeight),
+        contentPadding: (maxLines == 1 &&
+                minimumHeight == LibraryMetrics.defaultFieldHeight)
+            ? const EdgeInsets.symmetric(horizontal: 7, vertical: 6)
+            : decoration?.contentPadding,
+      ),
+    );
   }
 }
 
@@ -281,7 +281,7 @@ class LibrarySegmentedField<T> extends StatelessWidget {
         for (final entry in options.entries)
           Expanded(
               child: SizedBox(
-                  height: kLibraryFormControlHeight,
+                  height: LibraryMetrics.defaultFieldHeight,
                   child: OutlinedButton(
                     style: OutlinedButton.styleFrom(
                       backgroundColor: value == entry.key

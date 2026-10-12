@@ -1,6 +1,6 @@
+import 'package:collectarr_app/features/library/ui/library_metrics.dart';
 import 'package:collectarr_app/ui/app_dropdown_menu.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
-import 'package:collectarr_app/features/library/config/library_dialog_tokens.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_collection_status_icon.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_form_controls.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
@@ -80,7 +80,7 @@ class LibraryCollectionStatusField extends StatelessWidget {
                     contentPadding:
                         EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     constraints: BoxConstraints.tightFor(
-                      height: kLibraryFormControlHeight,
+                      height: LibraryMetrics.defaultFieldHeight,
                     )),
                 child: Row(children: [
                   LibraryCollectionStatusIcon(

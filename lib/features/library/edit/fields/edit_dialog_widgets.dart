@@ -1,4 +1,5 @@
-import 'package:collectarr_app/features/library/config/library_dialog_tokens.dart';
+import 'package:collectarr_app/features/library/ui/library_form_layout.dart';
+import 'package:collectarr_app/features/library/ui/library_metrics.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_form_controls.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_responsive_field_layout.dart';
 import 'package:collectarr_app/features/library/ui/library_section_state_message.dart';
@@ -111,7 +112,7 @@ ThemeData editDialogTheme({
         vertical: 6,
       ),
       constraints: const BoxConstraints(
-        minHeight: kLibraryFormControlHeight,
+        minHeight: LibraryMetrics.defaultFieldHeight,
       ),
       floatingLabelBehavior: compactDesktop
           ? FloatingLabelBehavior.always
@@ -509,8 +510,8 @@ class LibraryEditDenseFields extends StatelessWidget {
     required this.children,
     this.wideColumns = 2,
     this.ultraWideColumns = 3,
-    this.wideBreakpoint = kAppStackedBreakpoint,
-    this.ultraWideBreakpoint = kAppSpacedBreakpoint,
+    this.wideBreakpoint = kLibraryFormTwoColumnMinWidth,
+    this.ultraWideBreakpoint = kLibraryFormThreeColumnMinWidth,
     this.spacing = 10,
   });
 
@@ -823,7 +824,7 @@ class _LibraryDateFieldButtonState extends State<LibraryDateFieldButton> {
               ),
               child: ConstrainedBox(
                 constraints: const BoxConstraints(
-                  minHeight: kLibraryFormControlHeight,
+                  minHeight: LibraryMetrics.defaultFieldHeight,
                 ),
                 child: Row(
                   children: [
@@ -863,12 +864,12 @@ class _LibraryDateFieldButtonState extends State<LibraryDateFieldButton> {
                       onPressed: _pickWithCalendar,
                       icon: const Icon(Icons.calendar_today, size: 18),
                       constraints: const BoxConstraints.tightFor(
-                        width: kLibraryFormControlHeight,
-                        height: kLibraryFormControlHeight,
+                        width: LibraryMetrics.defaultFieldHeight,
+                        height: LibraryMetrics.defaultFieldHeight,
                       ),
                       padding: EdgeInsets.zero,
                       visualDensity: VisualDensity.compact,
-                      splashRadius: kLibraryFormControlHeight / 2,
+                      splashRadius: LibraryMetrics.defaultFieldHeight / 2,
                     ),
                   ],
                 ),

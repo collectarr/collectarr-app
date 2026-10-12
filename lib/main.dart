@@ -66,9 +66,9 @@ Future<void> _logFontDiagnostics(ProviderContainer container) async {
   final primaryLoaded = await _fontAssetAvailable(logger, _primaryFontAsset);
   final gilroyLoaded = SystemFontLoader.isGilroyLoaded;
   final details = <String>[
-    'primaryFamily=$kClzPrimaryFontFamily',
+    'primaryFamily=$kAppFontFamily',
     'gilroySystemLoaded=$gilroyLoaded',
-    'primaryFallback=${kClzFontFallback.isEmpty ? 'none' : kClzFontFallback.join(', ')}',
+    'primaryFallback=${kAppFontFamilyFallback.isEmpty ? 'none' : kAppFontFamilyFallback.join(', ')}',
     'primaryAsset=$_primaryFontAsset:${primaryLoaded ? 'loaded' : 'missing'}',
   ].join(' | ');
   if (primaryLoaded || gilroyLoaded) {

@@ -1,3 +1,5 @@
+import 'package:collectarr_app/ui/app_chrome.dart';
+import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/core/routing/app_router.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
@@ -26,8 +28,8 @@ class AppPageHeader extends StatelessWidget implements PreferredSizeWidget {
   final String? svgAsset;
 
   @override
-  Size get preferredSize =>
-      Size.fromHeight(38 + (bottom?.preferredSize.height ?? 0));
+  Size get preferredSize => Size.fromHeight(
+      secondaryHeaderHeight + (bottom?.preferredSize.height ?? 0));
 
   @override
   Widget build(BuildContext context) {
@@ -38,7 +40,7 @@ class AppPageHeader extends StatelessWidget implements PreferredSizeWidget {
         bottom: false,
         child: Column(mainAxisSize: MainAxisSize.min, children: [
           SizedBox(
-            height: 38,
+            height: secondaryHeaderHeight,
             child: Center(
               child: ConstrainedBox(
                 constraints: const BoxConstraints(maxWidth: 960),
@@ -122,7 +124,7 @@ class AppPageBackButton extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 4),
           textStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700),
         ),
-        icon: const Icon(Icons.chevron_left, size: 18),
+        icon: const Icon(AppIcons.chevronLeft, size: 18),
         label: const Text('Back'),
       );
 }

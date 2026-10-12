@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/library/config/library_dialog_tokens.dart';
+import 'package:collectarr_app/features/library/ui/library_metrics.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_form_controls.dart';
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
@@ -79,7 +79,8 @@ class _LibraryOrderedNamesFieldState extends State<LibraryOrderedNamesField> {
     );
     return Container(
       key: ValueKey(value.id),
-      constraints: const BoxConstraints(minHeight: kLibraryFormControlHeight),
+      constraints:
+          const BoxConstraints(minHeight: LibraryMetrics.defaultFieldHeight),
       decoration: BoxDecoration(
         color: palette.field,
         border: Border.all(color: palette.divider),
@@ -99,16 +100,16 @@ class _LibraryOrderedNamesFieldState extends State<LibraryOrderedNamesField> {
               ? ReorderableDragStartListener(
                   index: index,
                   child: SizedBox(
-                      height: kLibraryFormControlHeight,
+                      height: LibraryMetrics.defaultFieldHeight,
                       child:
                           Align(alignment: Alignment.centerLeft, child: name)))
               : SizedBox(
-                  height: kLibraryFormControlHeight,
+                  height: LibraryMetrics.defaultFieldHeight,
                   child: Align(alignment: Alignment.centerLeft, child: name)),
         )),
         SizedBox(
             width: 30,
-            height: kLibraryFormControlHeight,
+            height: LibraryMetrics.defaultFieldHeight,
             child: IconButton(
                 tooltip: 'Remove ${widget.label}',
                 padding: EdgeInsets.zero,
@@ -146,7 +147,7 @@ class _LibraryOrderedNamesFieldState extends State<LibraryOrderedNamesField> {
             )),
         child: widget.values.isEmpty
             ? SizedBox(
-                height: kLibraryFormControlHeight,
+                height: LibraryMetrics.defaultFieldHeight,
                 child: OutlinedButton(
                     onPressed: _picking ? null : _add,
                     style: widget.pickValue == null

@@ -1,7 +1,7 @@
+import 'package:collectarr_app/features/library/ui/library_metrics.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_vocabulary_options_loader.dart';
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/core/models/partial_date.dart';
-import 'package:collectarr_app/features/library/config/library_dialog_tokens.dart';
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_dropdown_pick_field.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_selection_fields.dart';
@@ -430,12 +430,12 @@ class _TimeCustomField extends StatelessWidget {
       decoration: InputDecoration(
         labelText: label,
         constraints: const BoxConstraints(
-          minHeight: kLibraryFormControlHeight,
+          minHeight: LibraryMetrics.defaultFieldHeight,
         ),
         contentPadding: const EdgeInsets.symmetric(horizontal: 10),
       ),
       child: SizedBox(
-        height: kLibraryFormControlHeight - 2,
+        height: LibraryMetrics.defaultFieldHeight - 2,
         child: Row(
           children: [
             Expanded(
@@ -446,7 +446,8 @@ class _TimeCustomField extends StatelessWidget {
             ),
             TextButton(
               style: TextButton.styleFrom(
-                minimumSize: const Size(0, kLibraryFormControlHeight - 8),
+                minimumSize:
+                    const Size(0, LibraryMetrics.defaultFieldHeight - 8),
                 padding: const EdgeInsets.symmetric(horizontal: 8),
                 tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                 visualDensity: VisualDensity.compact,
@@ -470,7 +471,7 @@ class _TimeCustomField extends StatelessWidget {
                 icon: const Icon(Icons.close, size: 16),
                 constraints: const BoxConstraints.tightFor(
                   width: 32,
-                  height: kLibraryFormControlHeight - 8,
+                  height: LibraryMetrics.defaultFieldHeight - 8,
                 ),
                 padding: EdgeInsets.zero,
                 visualDensity: VisualDensity.compact,

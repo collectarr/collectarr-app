@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/ui/library_metrics.dart';
 import 'package:collectarr_app/features/settings/custom_fields_display_settings.dart';
 import 'package:collectarr_app/features/library/edit/sections/library_entry_personal_section.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_entry_edit_draft.dart';
@@ -13,7 +14,6 @@ import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/core/models/tracking_summary.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
-import 'package:collectarr_app/features/library/config/library_dialog_tokens.dart';
 import 'package:collectarr_app/features/library/config/library_edit_tab_order.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
@@ -1100,7 +1100,8 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
         label: _personalFieldLabel('location_id'),
         child: InputDecorator(
           decoration: const InputDecoration(
-            constraints: BoxConstraints(minHeight: kLibraryFormControlHeight),
+            constraints:
+                BoxConstraints(minHeight: LibraryMetrics.defaultFieldHeight),
             contentPadding: EdgeInsets.symmetric(horizontal: 10),
             prefixIcon: Icon(Icons.place),
           ),

@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_motion.dart';
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_tab_strip.dart';
 import 'package:collectarr_app/features/library/config/library_dialog_tokens.dart';
@@ -534,7 +535,8 @@ class _LibraryEditFooter extends StatelessWidget {
       minimumSize: const Size(100, kLibraryDialogFooterButtonHeight),
       visualDensity: VisualDensity.standard,
       tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-      animationDuration: const Duration(milliseconds: 250),
+      animationDuration: MediaQuery.disableAnimationsOf(context)
+          ? Duration.zero : appControlHoverDuration,
       splashFactory: NoSplash.splashFactory,
       textStyle: const TextStyle(
           fontSize: 14, fontWeight: FontWeight.w400, letterSpacing: 0),

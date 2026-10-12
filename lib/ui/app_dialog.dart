@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_motion.dart';
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/ui/library_accent_scope.dart';
 
@@ -60,9 +61,8 @@ class AppDialogRoute<T> extends RawDialogRoute<T> {
     this.animationsEnabled = true,
   }) : super(
           barrierColor: barrierColor ?? Colors.black54,
-          transitionDuration: animationsEnabled
-              ? const Duration(milliseconds: 200)
-              : Duration.zero,
+          transitionDuration:
+              animationsEnabled ? appDialogFadeDuration : Duration.zero,
           transitionBuilder: _buildTransitions,
           pageBuilder: (buildContext, animation, secondaryAnimation) {
             final pageChild = Builder(builder: builder);
@@ -79,8 +79,7 @@ class AppDialogRoute<T> extends RawDialogRoute<T> {
     super.install();
     _backdrop = AnimationController(
       vsync: navigator!,
-      duration:
-          animationsEnabled ? const Duration(milliseconds: 100) : Duration.zero,
+      duration: animationsEnabled ? appBackdropFadeDuration : Duration.zero,
     );
     animation!.addStatusListener(_animateBackdrop);
   }

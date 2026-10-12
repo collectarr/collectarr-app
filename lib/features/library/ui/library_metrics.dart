@@ -9,6 +9,7 @@ enum LibraryDensity {
 
 /// The shared geometry vocabulary for Library surfaces.
 class LibraryMetrics {
+  static const double defaultFieldHeight = 34;
   const LibraryMetrics({
     required this.scale,
     required this.fieldHeight,
@@ -29,14 +30,12 @@ class LibraryMetrics {
     required this.gapSm,
     required this.gapMd,
     required this.gapLg,
-    required this.compactBreakpoint,
-    required this.wideBreakpoint,
   });
 
   const LibraryMetrics.comfortable()
       : this(
           scale: 1.0,
-          fieldHeight: 34,
+          fieldHeight: defaultFieldHeight,
           buttonHeight: 36,
           iconButtonSize: 32,
           searchScale: 1.0,
@@ -54,8 +53,6 @@ class LibraryMetrics {
           gapSm: 8,
           gapMd: 12,
           gapLg: 16,
-          compactBreakpoint: 720,
-          wideBreakpoint: 1100,
         );
 
   const LibraryMetrics.compact()
@@ -79,8 +76,6 @@ class LibraryMetrics {
           gapSm: 6,
           gapMd: 10,
           gapLg: 14,
-          compactBreakpoint: 720,
-          wideBreakpoint: 1040,
         );
 
   const LibraryMetrics.dense()
@@ -104,8 +99,6 @@ class LibraryMetrics {
           gapSm: 4,
           gapMd: 8,
           gapLg: 12,
-          compactBreakpoint: 680,
-          wideBreakpoint: 980,
         );
 
   final double scale;
@@ -127,8 +120,6 @@ class LibraryMetrics {
   final double gapSm;
   final double gapMd;
   final double gapLg;
-  final double compactBreakpoint;
-  final double wideBreakpoint;
 
   EdgeInsets get panelInsets => EdgeInsets.all(panelPadding);
 }

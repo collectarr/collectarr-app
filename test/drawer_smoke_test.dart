@@ -1,10 +1,10 @@
 import 'package:collectarr_app/app/app_shell.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
+import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  testWidgets('app shell drawer renders vector icons, headers, and dividers',
+  testWidgets('app shell drawer renders semantic icons, headers, and dividers',
       (tester) async {
     tester.view.physicalSize = const Size(1280, 1200);
     tester.view.devicePixelRatio = 1.0;
@@ -51,8 +51,9 @@ void main() {
     expect(find.text('Statistics'), findsOneWidget);
     expect(find.text('Backup / Restore'), findsOneWidget);
 
-    // Verify vector SVGs are rendered
-    expect(find.byType(SvgPicture), findsWidgets);
+    // Verify semantic glyphs from the shared icon catalog.
+    expect(find.byIcon(AppIcons.print), findsOneWidget);
+    expect(find.byIcon(AppIcons.settings), findsOneWidget);
 
     // Test tapping an action
     await tester.tap(find.text('Manage Collections'));
@@ -67,7 +68,7 @@ void main() {
     await tester.tap(find.text('Maintenance'));
     await tester.pump();
     await tester
-        .pump(const Duration(milliseconds: 175)); // halfway through 350ms
+        .pump(const Duration(milliseconds: 150)); // halfway through 300ms
     await tester.pumpAndSettle();
 
     // Maintenance items should be collapsed
@@ -77,7 +78,7 @@ void main() {
     await tester.tap(find.text('Maintenance'));
     await tester.pump();
     await tester
-        .pump(const Duration(milliseconds: 175)); // halfway through 350ms
+        .pump(const Duration(milliseconds: 150)); // halfway through 300ms
     await tester.pumpAndSettle();
     expect(find.text('Backup / Restore'), findsOneWidget);
   });

@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_chrome.dart';
 import 'dart:async';
 
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
@@ -110,12 +111,7 @@ class _AppShellState extends ConsumerState<AppShell> {
     final uiPreferences = ref.watch(uiPreferencesProvider);
     final mediaQuery = MediaQuery.maybeOf(context);
     final accentTheme = buildLibraryAccentTheme(Theme.of(context), accent);
-    final toolbarIconStyle = IconButton.styleFrom(
-        foregroundColor: Colors.white,
-        disabledForegroundColor: Colors.white54,
-        backgroundColor: Colors.transparent,
-        disabledBackgroundColor: Colors.transparent,
-        side: BorderSide.none);
+    final toolbarIconStyle = appChromeIconButtonStyle(context);
 
     final shell = LibraryAccentScope(
       kind: activeLibrary,
@@ -123,7 +119,7 @@ class _AppShellState extends ConsumerState<AppShell> {
       animationsEnabled: uiPreferences.animationsEnabled,
       child: Scaffold(
         appBar: AppBar(
-          toolbarHeight: 40,
+          toolbarHeight: shellAppBarHeight,
           automaticallyImplyLeading: false,
           leadingWidth: 44,
           leading: Builder(
@@ -133,7 +129,7 @@ class _AppShellState extends ConsumerState<AppShell> {
               visualDensity: VisualDensity.compact,
               style: toolbarIconStyle,
               onPressed: () => Scaffold.of(context).openDrawer(),
-              icon: const Icon(Icons.menu),
+              icon: const Icon(AppIcons.menu),
             ),
           ),
           titleSpacing: 2,
@@ -194,7 +190,7 @@ class _AppShellState extends ConsumerState<AppShell> {
               style: toolbarIconStyle,
               onPressed: () => context
                   .go(AppRoutes.forKind(AppRoutes.settings, activeLibrary)),
-              icon: const Icon(Icons.settings_outlined),
+              icon: const Icon(AppIcons.settings),
             ),
             const SizedBox(width: 4),
           ],
@@ -614,7 +610,7 @@ class _AppNavigationDrawerState extends State<AppNavigationDrawer> {
         child: Column(
           children: [
             Container(
-              height: 38,
+              height: drawerHeaderHeight,
               width: double.infinity,
               padding: const EdgeInsets.symmetric(horizontal: 10),
               color: libraryAccentChromeFallbackColor(widget.accent),
@@ -973,7 +969,7 @@ class _DrawerCollapsibleSectionLabel extends StatelessWidget {
             ),
             AnimatedRotation(
               turns: isExpanded ? 0.5 : 0.0,
-              duration: const Duration(milliseconds: 150),
+              duration: kAppAnimFast,
               curve: Curves.easeInOut,
               child: Icon(
                 AppIcons.chevronDown,
@@ -1001,7 +997,7 @@ class _DrawerCollapsibleSection extends StatelessWidget {
   Widget build(BuildContext context) {
     return ClipRect(
       child: AnimatedSize(
-        duration: const Duration(milliseconds: 350),
+        duration: kAppAnimNormal,
         curve: Curves.easeInOut,
         alignment: Alignment.topCenter,
         child: isExpanded

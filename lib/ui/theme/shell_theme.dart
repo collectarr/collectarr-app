@@ -1,3 +1,5 @@
+import 'package:collectarr_app/ui/app_chrome.dart';
+import 'package:collectarr_app/ui/theme/app_typography.dart';
 import 'package:collectarr_app/ui/theme/theme_palette.dart';
 import 'package:collectarr_app/ui/theme/theme_primitives.dart';
 import 'package:flutter/material.dart';
@@ -28,10 +30,10 @@ ThemeData buildAppShellTheme({
       backgroundColor: palette.topBar,
       foregroundColor: appBarTextColor,
       elevation: 0,
-      toolbarHeight: 42,
+      toolbarHeight: shellAppBarHeight,
       titleTextStyle: TextStyle(
         color: appBarTextColor,
-        fontFamily: kClzPrimaryFontFamily,
+        fontFamily: kAppFontFamily,
         fontSize: 16,
         fontWeight: FontWeight.w700,
       ),
@@ -43,7 +45,7 @@ ThemeData buildAppShellTheme({
       labelTextStyle: WidgetStatePropertyAll(
         TextStyle(
           color: textColor,
-          fontFamily: kClzPrimaryFontFamily,
+          fontFamily: kAppFontFamily,
           fontSize: 13,
           fontWeight: FontWeight.w700,
         ),
@@ -86,11 +88,11 @@ ThemeData buildAppShellTheme({
       labelColor: textColor,
       unselectedLabelColor: palette.textMuted,
       labelStyle: const TextStyle(
-          fontFamily: kClzPrimaryFontFamily,
+          fontFamily: kAppFontFamily,
           fontSize: 14,
           fontWeight: FontWeight.w700),
       unselectedLabelStyle: const TextStyle(
-        fontFamily: kClzPrimaryFontFamily,
+        fontFamily: kAppFontFamily,
         fontSize: 14,
         fontWeight: FontWeight.w500,
       ),

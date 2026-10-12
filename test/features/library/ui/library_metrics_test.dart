@@ -15,7 +15,6 @@ void main() {
       expect(metrics.resultRowHeight, 72);
       expect(metrics.panelPadding, 12);
       expect(metrics.gapMd, 12);
-      expect(metrics.wideBreakpoint, 1100);
     });
 
     test('reduces geometry consistently for compact and dense presets', () {

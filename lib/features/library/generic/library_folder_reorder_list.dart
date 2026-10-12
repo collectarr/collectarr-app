@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_motion.dart';
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -41,7 +42,7 @@ class _LibraryFolderReorderListState extends State<LibraryFolderReorderList>
   Timer? _scrollTimer;
   late final _dropController = AnimationController(
     vsync: this,
-    duration: const Duration(milliseconds: 100),
+    duration: appReorderReturnDuration,
   );
   OverlayEntry? _dropOverlay;
   var _returning = false;

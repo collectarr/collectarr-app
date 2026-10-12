@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/library/config/library_dialog_tokens.dart';
+import 'package:collectarr_app/features/library/ui/library_metrics.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_dropdown_pick_field.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_multi_value_options_dialog.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_multi_value_pick_field.dart';
@@ -37,7 +37,7 @@ class LibrarySelectField<T> extends StatelessWidget {
       initialValue: value,
       decoration: (decoration ?? InputDecoration(labelText: label)).copyWith(
         constraints: const BoxConstraints(
-          minHeight: kLibraryFormControlHeight,
+          minHeight: LibraryMetrics.defaultFieldHeight,
         ),
       ),
       items: items,
@@ -68,12 +68,12 @@ class LibrarySwitchField extends StatelessWidget {
       decoration: InputDecoration(
         errorText: errorText,
         constraints: const BoxConstraints(
-          minHeight: kLibraryFormControlHeight,
+          minHeight: LibraryMetrics.defaultFieldHeight,
         ),
         contentPadding: const EdgeInsets.symmetric(horizontal: 10),
       ),
       child: SizedBox(
-        height: kLibraryFormControlHeight - 2,
+        height: LibraryMetrics.defaultFieldHeight - 2,
         child: MergeSemantics(
           child: Row(
             children: [

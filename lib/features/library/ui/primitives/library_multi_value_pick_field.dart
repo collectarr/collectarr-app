@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/ui/library_metrics.dart';
 import 'dart:math' as math;
 import 'library_chip_input_layout.dart';
 
@@ -5,7 +6,6 @@ import 'package:collectarr_app/ui/pick_list_field_button.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_form_controls.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_value_chip.dart';
 import 'package:collectarr_app/features/library/forms/library_field_spec.dart';
-import 'package:collectarr_app/features/library/config/library_dialog_tokens.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -288,12 +288,12 @@ class _LibraryMultiValuePickFieldState<TValue>
         decoration: InputDecoration(
             errorText: widget.errorText,
             enabled: widget.enabled,
-            constraints:
-                const BoxConstraints(minHeight: kLibraryFormControlHeight),
+            constraints: const BoxConstraints(
+                minHeight: LibraryMetrics.defaultFieldHeight),
             contentPadding: EdgeInsets.zero,
             suffixIconConstraints: const BoxConstraints.tightFor(
                 width: PickListFieldButton.width,
-                height: kLibraryFormControlHeight - 2),
+                height: LibraryMetrics.defaultFieldHeight - 2),
             suffixIcon: PickListFieldButton(
                 tooltip: 'Select ${widget.label.toLowerCase()}',
                 onPressed:

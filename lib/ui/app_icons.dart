@@ -64,8 +64,6 @@ abstract final class AppIcons {
       IconData(0xf078, fontFamily: _solid, fontPackage: _fontPackage);
   static const IconData chevronLeft =
       IconData(0xf053, fontFamily: _solid, fontPackage: _fontPackage);
-  static const IconData chevronRight =
-      IconData(0xf054, fontFamily: _solid, fontPackage: _fontPackage);
   static const IconData caretLeft =
       IconData(0xf0d9, fontFamily: _solid, fontPackage: _fontPackage);
   static const IconData caretRight =
@@ -98,8 +96,6 @@ abstract final class AppIcons {
       IconData(0xf03a, fontFamily: _solid, fontPackage: _fontPackage);
   static const IconData viewCovers =
       IconData(0xf00a, fontFamily: _solid, fontPackage: _fontPackage);
-  static const IconData viewShelves =
-      IconData(0xf468, fontFamily: _solid, fontPackage: _fontPackage);
   static const String viewVerticalCardsSvg = 'assets/icons/cards-black.svg';
 
   // --- Search Scope Targets ---

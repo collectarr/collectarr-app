@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/library/config/library_dialog_tokens.dart';
+import 'package:collectarr_app/features/library/ui/library_metrics.dart';
 import 'package:collectarr_app/features/library/kinds/music/edit/music_online_cover_search.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
@@ -126,7 +126,7 @@ final class _MusicOnlineCoverPickerDialogState
                               hintText: 'Album title, artist or barcode',
                               isDense: true,
                               constraints: BoxConstraints(
-                                  minHeight: kLibraryFormControlHeight),
+                                  minHeight: LibraryMetrics.defaultFieldHeight),
                               contentPadding: EdgeInsets.symmetric(
                                   horizontal: 8, vertical: 7)),
                           onSubmitted: (_) => _searchOnline())),

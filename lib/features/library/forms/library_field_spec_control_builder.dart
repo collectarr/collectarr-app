@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/ui/library_metrics.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_vocabulary_options_loader.dart';
 import 'dart:async';
 import 'dart:math' as math;
@@ -5,7 +6,6 @@ import 'dart:math' as math;
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/partial_date.dart';
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
-import 'package:collectarr_app/features/library/config/library_dialog_tokens.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_edit_contributors.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_dropdown_pick_field.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_multi_value_options_dialog.dart';
@@ -323,19 +323,20 @@ final class LibraryFieldSpecControlBuilder<TDraft>
       decoration: InputDecoration(
         errorText: field.validate(draft),
         constraints: const BoxConstraints(
-          minHeight: kLibraryFormControlHeight,
+          minHeight: LibraryMetrics.defaultFieldHeight,
         ),
         contentPadding: const EdgeInsets.symmetric(horizontal: 10),
       ),
       child: SizedBox(
-        height: kLibraryFormControlHeight - 2,
+        height: LibraryMetrics.defaultFieldHeight - 2,
         child: Row(
           children: [
             Expanded(child: Text(value?.toString() ?? 'No image selected')),
             if (field.select != null)
               OutlinedButton.icon(
                 style: OutlinedButton.styleFrom(
-                  minimumSize: const Size(0, kLibraryFormControlHeight - 10),
+                  minimumSize:
+                      const Size(0, LibraryMetrics.defaultFieldHeight - 10),
                   padding: const EdgeInsets.symmetric(horizontal: 8),
                   tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                   visualDensity: VisualDensity.compact,
@@ -516,7 +517,7 @@ final class LibraryFieldSpecControlBuilder<TDraft>
         labelText: '',
         floatingLabelBehavior: FloatingLabelBehavior.never,
         constraints: const BoxConstraints(
-          minHeight: kLibraryFormControlHeight,
+          minHeight: LibraryMetrics.defaultFieldHeight,
         ),
       );
 

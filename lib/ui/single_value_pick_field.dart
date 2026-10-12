@@ -1,8 +1,8 @@
+import 'package:collectarr_app/features/library/ui/library_metrics.dart';
 import 'app_dropdown_menu.dart';
 import 'dart:math' as math;
 
 import 'package:collectarr_app/ui/pick_list_field_button.dart';
-import 'package:collectarr_app/features/library/config/library_dialog_tokens.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/ui/accent_alert_dialog.dart';
@@ -53,7 +53,7 @@ class _SingleValuePickFieldState extends State<SingleValuePickField> {
   late final FocusNode _ownedFocusNode;
   FocusNode get _focusNode => widget.focusNode ?? _ownedFocusNode;
   final GlobalKey _fieldAnchorKey = GlobalKey();
-  static const _suffixFieldExtent = kLibraryFormControlHeight;
+  static const _suffixFieldExtent = LibraryMetrics.defaultFieldHeight;
   static const _suffixButtonExtent = 32.0;
 
   @override
@@ -280,7 +280,7 @@ class _SingleValuePickFieldState extends State<SingleValuePickField> {
           errorText: widget.errorText,
           contentPadding: const EdgeInsets.symmetric(horizontal: 7),
           constraints: const BoxConstraints(
-            minHeight: kLibraryFormControlHeight,
+            minHeight: LibraryMetrics.defaultFieldHeight,
           ),
           suffixIconConstraints: BoxConstraints(
             minWidth: actionCount == 0 ? 0 : suffixWidth,

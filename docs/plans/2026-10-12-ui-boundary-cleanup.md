@@ -24,3 +24,11 @@ thresholds describe available constraints, not additional device classes.
 Stage 1 complete: deleted mobile_ux.dart and ui.dart; removed AdaptiveLayout,
 fromConstraints and maybeOf. Kept AppPageHeader after confirming production
 consumers. Analyzer clean; 11 adaptive/desktop/mobile navigation checks pass.
+
+Stage 2: shell app bar 40, secondary/drawer header 38 now share named chrome
+geometry. AppWindowClass is the viewport authority; unused density breakpoints
+are removed, while form constraints retain explicit 560/860 column thresholds.
+LibraryMetrics owns the 34px comfortable field default. Runtime kClz aliases
+are removed; Gilroy registration is preserved. Named dialog/backdrop/control/
+reorder motion contracts coexist with the general animation speed presets.
+Analyzer clean; 88 UI/library geometry/navigation checks pass.

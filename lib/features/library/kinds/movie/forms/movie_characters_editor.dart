@@ -1,5 +1,5 @@
+import 'package:collectarr_app/features/library/ui/library_metrics.dart';
 import 'package:collectarr_app/features/library/kinds/movie/domain/movie_metadata.dart';
-import 'package:collectarr_app/features/library/config/library_dialog_tokens.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_form_controls.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
@@ -99,7 +99,7 @@ class _MovieCharactersEditorState extends State<MovieCharactersEditor> {
         ),
         child: _characters.isEmpty
             ? SizedBox(
-                height: kLibraryFormControlHeight,
+                height: LibraryMetrics.defaultFieldHeight,
                 child: OutlinedButton(
                   onPressed: _addCharacter,
                   child: const SizedBox.expand(),

@@ -1,4 +1,4 @@
-import 'package:collectarr_app/ui/theme/app_theme.dart';
+import 'package:collectarr_app/features/library/ui/library_form_layout.dart';
 import 'package:flutter/material.dart';
 
 /// Item wrapper for [LibraryResponsiveFormRow] specifying flex proportions.
@@ -15,7 +15,7 @@ class LibraryResponsiveFormItem {
 /// A standard responsive form row for Library UI.
 ///
 /// Owns:
-/// - Stacking breakpoint (defaults to [kAppStackedBreakpoint])
+/// - Stacking breakpoint (defaults to [kLibraryFormTwoColumnMinWidth])
 /// - Horizontal gap between items
 /// - Vertical gap when stacked
 /// - Flex layout distribution
@@ -23,7 +23,7 @@ class LibraryResponsiveFormRow extends StatelessWidget {
   const LibraryResponsiveFormRow({
     super.key,
     required this.children,
-    this.breakpoint = kAppStackedBreakpoint,
+    this.breakpoint = kLibraryFormTwoColumnMinWidth,
     this.horizontalGap = 10.0,
     this.verticalGap = 10.0,
     this.crossAxisAlignment = CrossAxisAlignment.start,

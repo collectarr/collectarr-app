@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/library/config/library_dialog_tokens.dart';
+import 'package:collectarr_app/features/library/ui/library_metrics.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
@@ -12,7 +12,7 @@ class PickListFieldButton extends StatelessWidget {
   });
 
   static const double width = 33;
-  static const double height = kLibraryFormControlHeight - 2;
+  static const double height = LibraryMetrics.defaultFieldHeight - 2;
   final String tooltip;
   final VoidCallback? onPressed;
 

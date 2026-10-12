@@ -79,6 +79,9 @@ double resolveLibrarySidebarMinWidth(
       .toDouble();
 }
 
+// Minimum available content width for the workspace side-by-side layout.
+const double _workspaceSplitMinWidth = 860;
+
 class LibraryBody extends StatelessWidget {
   const LibraryBody({
     super.key,
@@ -251,7 +254,7 @@ class LibraryBody extends StatelessWidget {
         builder: (context, constraints) {
           final narrow = constraints.maxWidth < 1100;
           final selected = projection.selectedItem;
-          final compact = constraints.maxWidth < kAppSpacedBreakpoint;
+          final compact = constraints.maxWidth < _workspaceSplitMinWidth;
           final canShowSidebar = constraints.maxWidth >= 1000;
           final showSidebar = canShowSidebar && viewState.isSidebarVisible;
           final workspaceMinWidth = resolveLibraryWorkspaceMinWidth(
@@ -316,36 +319,36 @@ class LibraryBody extends StatelessWidget {
               LibraryWorkspace(
                 type: type,
                 items: letterFilteredItems,
-                  viewState: viewState,
-                  selectedId: selectedId,
-                  selectionEnabled: selectionEnabled,
-                  selectedIds: selectedItemIds,
-                  groupMode: groupMode,
-                  groupPresentation: groupPresentation,
-                  selectedBucket: selectedBucket,
-                  onBucketChanged: onBucketChanged,
-                  accent: accent,
-                  hasActiveFilter: hasActiveFilter,
-                  onAdd: onAdd,
-                  onClearFilters: onClearFilters,
-                  selectedAnchorId: selectedAnchorId,
-                  onApplySelection: onApplySelection,
-                  onActivateItem: (id) {
-                    onActivateItem(id);
-                    if (narrow && !selectionEnabled) showInspector(true);
-                  },
-                  onToggleSelectionItem: onToggleSelectionItem,
-                  onOpenItem: onOpenItem,
-                  onEditItem: (item) => onEditItem(item, null),
-                  onBoxSelectionChanged: onBoxSelectionChanged,
-                  collapsedGroupBuckets: collapsedGroupBuckets,
-                  onGroupBucketCollapsedToggled:
-                      onGroupBucketCollapsedToggled ?? (_) {},
-                  onSetCollapsedGroupBuckets: onSetCollapsedGroupBuckets,
-                  onSortChanged: onSortChanged,
-                  onColumnWidthChanged: onColumnWidthChanged,
-                  onItemContextMenu: onItemContextMenu,
-                );
+                viewState: viewState,
+                selectedId: selectedId,
+                selectionEnabled: selectionEnabled,
+                selectedIds: selectedItemIds,
+                groupMode: groupMode,
+                groupPresentation: groupPresentation,
+                selectedBucket: selectedBucket,
+                onBucketChanged: onBucketChanged,
+                accent: accent,
+                hasActiveFilter: hasActiveFilter,
+                onAdd: onAdd,
+                onClearFilters: onClearFilters,
+                selectedAnchorId: selectedAnchorId,
+                onApplySelection: onApplySelection,
+                onActivateItem: (id) {
+                  onActivateItem(id);
+                  if (narrow && !selectionEnabled) showInspector(true);
+                },
+                onToggleSelectionItem: onToggleSelectionItem,
+                onOpenItem: onOpenItem,
+                onEditItem: (item) => onEditItem(item, null),
+                onBoxSelectionChanged: onBoxSelectionChanged,
+                collapsedGroupBuckets: collapsedGroupBuckets,
+                onGroupBucketCollapsedToggled:
+                    onGroupBucketCollapsedToggled ?? (_) {},
+                onSetCollapsedGroupBuckets: onSetCollapsedGroupBuckets,
+                onSortChanged: onSortChanged,
+                onColumnWidthChanged: onColumnWidthChanged,
+                onItemContextMenu: onItemContextMenu,
+              );
           final details = LibraryInspector(
             type: type,
             projection: projection,
