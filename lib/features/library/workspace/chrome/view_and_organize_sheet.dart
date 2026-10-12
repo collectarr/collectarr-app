@@ -1,3 +1,4 @@
+import 'library_view_controls.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/ui/library_accent_scope.dart';
@@ -5,13 +6,11 @@ import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
-/// Modal bottom sheet for configuring view mode, density, sorting, and layout on compact screens.
+/// Modal bottom sheet for configuring view mode, sorting, and layout on compact screens.
 Future<void> showViewAndOrganizeSheet({
   required BuildContext context,
   required LibraryViewMode currentViewMode,
   required ValueChanged<LibraryViewMode> onViewModeChanged,
-  required LibraryWorkspaceDensityPreset currentDensity,
-  required ValueChanged<LibraryWorkspaceDensityPreset> onDensityChanged,
   required LibraryDetailsLayout currentDetailsLayout,
   required ValueChanged<LibraryDetailsLayout> onDetailsLayoutChanged,
   required double currentCoverSize,
@@ -35,8 +34,6 @@ Future<void> showViewAndOrganizeSheet({
       return ViewAndOrganizeSheet(
         currentViewMode: currentViewMode,
         onViewModeChanged: onViewModeChanged,
-        currentDensity: currentDensity,
-        onDensityChanged: onDensityChanged,
         currentDetailsLayout: currentDetailsLayout,
         onDetailsLayoutChanged: onDetailsLayoutChanged,
         currentCoverSize: currentCoverSize,
@@ -58,8 +55,6 @@ class ViewAndOrganizeSheet extends StatefulWidget {
     super.key,
     required this.currentViewMode,
     required this.onViewModeChanged,
-    required this.currentDensity,
-    required this.onDensityChanged,
     required this.currentDetailsLayout,
     required this.onDetailsLayoutChanged,
     required this.currentCoverSize,
@@ -75,8 +70,6 @@ class ViewAndOrganizeSheet extends StatefulWidget {
 
   final LibraryViewMode currentViewMode;
   final ValueChanged<LibraryViewMode> onViewModeChanged;
-  final LibraryWorkspaceDensityPreset currentDensity;
-  final ValueChanged<LibraryWorkspaceDensityPreset> onDensityChanged;
   final LibraryDetailsLayout currentDetailsLayout;
   final ValueChanged<LibraryDetailsLayout> onDetailsLayoutChanged;
   final double currentCoverSize;
@@ -95,7 +88,6 @@ class ViewAndOrganizeSheet extends StatefulWidget {
 
 class _ViewAndOrganizeSheetState extends State<ViewAndOrganizeSheet> {
   late LibraryViewMode _viewMode;
-  late LibraryWorkspaceDensityPreset _density;
   late LibraryDetailsLayout _detailsLayout;
   late double _coverSize;
   double? _spacing;
@@ -104,7 +96,6 @@ class _ViewAndOrganizeSheetState extends State<ViewAndOrganizeSheet> {
   void initState() {
     super.initState();
     _viewMode = widget.currentViewMode;
-    _density = widget.currentDensity;
     _detailsLayout = widget.currentDetailsLayout;
     _coverSize = widget.currentCoverSize.clamp(
       widget.minCoverSize,
@@ -235,12 +226,11 @@ class _ViewAndOrganizeSheetState extends State<ViewAndOrganizeSheet> {
                   Icon(Icons.photo_size_select_small,
                       size: 16, color: palette.textMuted),
                   Expanded(
-                    child: Slider(
+                    child: LibraryRangeSlider(
                       key: const ValueKey('cover_size_slider'),
                       value: _coverSize,
                       min: widget.minCoverSize,
                       max: widget.maxCoverSize,
-                      activeColor: accentData.accent,
                       onChanged: (val) {
                         setState(() => _coverSize = val);
                         widget.onCoverSizeChanged(val);
@@ -258,7 +248,7 @@ class _ViewAndOrganizeSheetState extends State<ViewAndOrganizeSheet> {
               const SizedBox(height: 16),
               _buildSectionHeader(
                 _viewMode == LibraryViewMode.list
-                    ? 'Row Height'
+                    ? 'Item Spacing'
                     : 'Item Spacing',
                 palette,
               ),
@@ -267,12 +257,11 @@ class _ViewAndOrganizeSheetState extends State<ViewAndOrganizeSheet> {
                   Icon(Icons.format_line_spacing,
                       size: 16, color: palette.textMuted),
                   Expanded(
-                    child: Slider(
+                    child: LibraryRangeSlider(
                       key: const ValueKey('spacing_slider'),
                       value: (_spacing ?? 10.0).clamp(4.0, 24.0),
                       min: 4,
                       max: 24,
-                      activeColor: accentData.accent,
                       onChanged: (val) {
                         setState(() => _spacing = val);
                         widget.onSpacingChanged!(val);
@@ -284,49 +273,6 @@ class _ViewAndOrganizeSheetState extends State<ViewAndOrganizeSheet> {
                 ],
               ),
             ],
-
-            // Section 3: Density
-            const SizedBox(height: 16),
-            _buildSectionHeader('Density', palette),
-            const SizedBox(height: 8),
-            Row(
-              children: [
-                Expanded(
-                  child: _buildChoiceChip(
-                    key: const ValueKey('density_comfortable'),
-                    icon: Icons.density_medium,
-                    label: 'Comfortable',
-                    selected:
-                        _density == LibraryWorkspaceDensityPreset.comfortable,
-                    accent: accentData.accent,
-                    palette: palette,
-                    onTap: () {
-                      setState(() =>
-                          _density = LibraryWorkspaceDensityPreset.comfortable);
-                      widget.onDensityChanged(
-                          LibraryWorkspaceDensityPreset.comfortable);
-                    },
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: _buildChoiceChip(
-                    key: const ValueKey('density_compact'),
-                    icon: Icons.density_small,
-                    label: 'Compact',
-                    selected: _density == LibraryWorkspaceDensityPreset.compact,
-                    accent: accentData.accent,
-                    palette: palette,
-                    onTap: () {
-                      setState(() =>
-                          _density = LibraryWorkspaceDensityPreset.compact);
-                      widget.onDensityChanged(
-                          LibraryWorkspaceDensityPreset.compact);
-                    },
-                  ),
-                ),
-              ],
-            ),
 
             // Section 4: Details Panel Layout
             const SizedBox(height: 16),

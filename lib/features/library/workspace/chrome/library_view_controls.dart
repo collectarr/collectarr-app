@@ -289,121 +289,99 @@ class LibraryGroupPresentationToggle extends StatelessWidget {
   }
 }
 
-class LibraryCoverSizeSlider extends StatelessWidget {
-  const LibraryCoverSizeSlider({
-    super.key,
-    required this.viewMode,
-    required this.coverSize,
-    required this.minCoverSize,
-    required this.maxCoverSize,
-    required this.onChanged,
-  });
-
-  final LibraryViewMode viewMode;
-  final double coverSize;
-  final double minCoverSize;
-  final double maxCoverSize;
-  final ValueChanged<double> onChanged;
-
+class LibraryRangeSlider extends StatelessWidget {
+  const LibraryRangeSlider(
+      {super.key,
+      required this.value,
+      required this.min,
+      required this.max,
+      required this.onChanged});
+  final double value, min, max;
+  final ValueChanged<double>? onChanged;
   @override
-  Widget build(BuildContext context) {
-    final coverSizeEnabled = viewMode.supportsCoverSize;
-    final iconColor = coverSizeEnabled
-        ? Theme.of(context).colorScheme.onSurfaceVariant
-        : Theme.of(context).disabledColor;
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Tooltip(
-          message: coverSizeEnabled
-              ? 'Cover size'
-              : 'Cover size is unavailable in this view',
-          child: Icon(
-            Icons.photo_size_select_small,
-            size: 18,
-            color: iconColor,
-          ),
+  Widget build(BuildContext context) => SliderTheme(
+        data: SliderTheme.of(context).copyWith(
+          trackHeight: 8,
+          trackGap: 0,
+          activeTrackColor: const Color(0xff717171),
+          inactiveTrackColor: const Color(0xff717171),
+          disabledActiveTrackColor: const Color(0xff717171),
+          disabledInactiveTrackColor: const Color(0xff717171),
+          thumbColor: Colors.white,
+          disabledThumbColor: Colors.white54,
+          overlayColor: Colors.transparent,
+          overlayShape: SliderComponentShape.noOverlay,
+          thumbShape: const RoundSliderThumbShape(
+              enabledThumbRadius: 10, elevation: 0, pressedElevation: 0),
+          trackShape: const RoundedRectSliderTrackShape(),
+          padding: const EdgeInsets.symmetric(horizontal: 7),
+          showValueIndicator: ShowValueIndicator.never,
         ),
-        Opacity(
-          opacity: coverSizeEnabled ? 1 : 0.45,
-          child: SizedBox(
-            width: 120,
-            child: IgnorePointer(
-              ignoring: !coverSizeEnabled,
-              child: SliderTheme(
-                data: SliderThemeData(
-                  overlayShape:
-                      const RoundSliderOverlayShape(overlayRadius: 14),
-                  thumbShape:
-                      const RoundSliderThumbShape(enabledThumbRadius: 6),
-                  trackHeight: 3,
-                ),
-                child: Slider(
-                  value: coverSize.clamp(minCoverSize, maxCoverSize),
+        child: Slider(
+            value: value.clamp(min, max),
+            min: min,
+            max: max,
+            onChanged: onChanged,
+            mouseCursor: WidgetStateMouseCursor.clickable),
+      );
+}
+
+class LibraryCoverSizeSlider extends StatelessWidget {
+  const LibraryCoverSizeSlider(
+      {super.key,
+      required this.viewMode,
+      required this.coverSize,
+      required this.minCoverSize,
+      required this.maxCoverSize,
+      required this.onChanged});
+  final LibraryViewMode viewMode;
+  final double coverSize, minCoverSize, maxCoverSize;
+  final ValueChanged<double> onChanged;
+  @override
+  Widget build(BuildContext context) => Tooltip(
+        message: 'Cover size',
+        child: Row(mainAxisSize: MainAxisSize.min, children: [
+          Icon(Icons.photo_size_select_small,
+              size: 18, color: Theme.of(context).colorScheme.onSurfaceVariant),
+          SizedBox(
+              width: 100,
+              child: LibraryRangeSlider(
+                  value: coverSize,
                   min: minCoverSize,
                   max: maxCoverSize,
-                  onChanged: coverSizeEnabled ? onChanged : null,
-                ),
-              ),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
+                  onChanged: viewMode.supportsCoverSize ? onChanged : null)),
+        ]),
+      );
 }
 
 class LibrarySpacingSlider extends StatelessWidget {
-  const LibrarySpacingSlider({
-    super.key,
-    required this.spacing,
-    required this.onChanged,
-    this.minSpacing = 4.0,
-    this.maxSpacing = 24.0,
-    this.tooltip = 'Spacing & row height',
-    this.icon,
-  });
-
-  final double spacing;
+  const LibrarySpacingSlider(
+      {super.key,
+      required this.spacing,
+      required this.onChanged,
+      this.minSpacing = 4,
+      this.maxSpacing = 24,
+      this.tooltip = 'Item spacing',
+      this.icon});
+  final double spacing, minSpacing, maxSpacing;
   final ValueChanged<double> onChanged;
-  final double minSpacing;
-  final double maxSpacing;
   final String tooltip;
   final IconData? icon;
-
   @override
-  Widget build(BuildContext context) {
-    final iconColor = Theme.of(context).colorScheme.onSurfaceVariant;
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Tooltip(
-          message: tooltip,
-          child: Icon(
-            icon ?? Icons.format_line_spacing,
-            size: 18,
-            color: iconColor,
-          ),
-        ),
-        SizedBox(
-          width: 100,
-          child: SliderTheme(
-            data: const SliderThemeData(
-              overlayShape: RoundSliderOverlayShape(overlayRadius: 14),
-              thumbShape: RoundSliderThumbShape(enabledThumbRadius: 6),
-              trackHeight: 3,
-            ),
-            child: Slider(
-              value: spacing.clamp(minSpacing, maxSpacing),
-              min: minSpacing,
-              max: maxSpacing,
-              onChanged: onChanged,
-            ),
-          ),
-        ),
-      ],
-    );
-  }
+  Widget build(BuildContext context) => Tooltip(
+        message: tooltip,
+        child: Row(mainAxisSize: MainAxisSize.min, children: [
+          Icon(icon ?? Icons.format_line_spacing,
+              size: 18, color: Theme.of(context).colorScheme.onSurfaceVariant),
+          SizedBox(
+              width: 100,
+              child: LibraryRangeSlider(
+                  value: spacing,
+                  min: minSpacing,
+                  max: maxSpacing,
+                  onChanged: onChanged)),
+        ]),
+      );
 }
 
 class LibraryViewControls extends StatelessWidget {
@@ -411,25 +389,21 @@ class LibraryViewControls extends StatelessWidget {
     super.key,
     required this.viewMode,
     required this.detailsLayout,
-    this.densityPreset = LibraryWorkspaceDensityPreset.compact,
     required this.coverSize,
     required this.minCoverSize,
     required this.maxCoverSize,
     required this.onViewModeChanged,
     required this.onDetailsLayoutChanged,
-    this.onDensityPresetChanged,
     required this.onCoverSizeChanged,
   });
 
   final LibraryViewMode viewMode;
   final LibraryDetailsLayout detailsLayout;
-  final LibraryWorkspaceDensityPreset densityPreset;
   final double coverSize;
   final double minCoverSize;
   final double maxCoverSize;
   final ValueChanged<LibraryViewMode> onViewModeChanged;
   final ValueChanged<LibraryDetailsLayout> onDetailsLayoutChanged;
-  final ValueChanged<LibraryWorkspaceDensityPreset>? onDensityPresetChanged;
   final ValueChanged<double> onCoverSizeChanged;
 
   @override
@@ -446,10 +420,6 @@ class LibraryViewControls extends StatelessWidget {
           detailsLayout: detailsLayout,
           onChanged: onDetailsLayoutChanged,
         ),
-        LibraryWorkspaceDensityDropdown(
-          densityPreset: densityPreset,
-          onChanged: (value) => onDensityPresetChanged?.call(value),
-        ),
         LibraryCoverSizeSlider(
           viewMode: viewMode,
           coverSize: coverSize,
@@ -458,92 +428,6 @@ class LibraryViewControls extends StatelessWidget {
           onChanged: onCoverSizeChanged,
         ),
       ],
-    );
-  }
-}
-
-class LibraryWorkspaceDensityDropdown extends StatelessWidget {
-  const LibraryWorkspaceDensityDropdown({
-    super.key,
-    required this.densityPreset,
-    required this.onChanged,
-    this.iconOnly = false,
-  });
-
-  final LibraryWorkspaceDensityPreset densityPreset;
-  final ValueChanged<LibraryWorkspaceDensityPreset> onChanged;
-  final bool iconOnly;
-
-  @override
-  Widget build(BuildContext context) {
-    final accent = LibraryAccentScope.accentOf(context);
-    final menuText = libraryToolbarMenuText(context);
-    final menuMuted = libraryToolbarMenuMutedText(context);
-    final dropdownTextStyle = Theme.of(context).textTheme.bodyMedium?.copyWith(
-          height: 1,
-          fontWeight: FontWeight.w500,
-          color: menuText,
-        );
-    final menuWidth = _measureDensityDropdownWidth(
-      context,
-      textStyle: dropdownTextStyle,
-    );
-    final triggerWidth = iconOnly
-        ? 34.0
-        : _measureSplitTriggerWidth(
-            context,
-            leadingLabel: 'Density',
-            valueLabel: densityPreset.label,
-          );
-    return SizedBox(
-      width: triggerWidth,
-      child: PopupMenuButton<LibraryWorkspaceDensityPreset>(
-        tooltip: densityPreset.tooltip,
-        onSelected: onChanged,
-        padding: EdgeInsets.zero,
-        color: libraryToolbarMenuSurface(context),
-        surfaceTintColor: Colors.transparent,
-        menuPadding: EdgeInsets.zero,
-        position: PopupMenuPosition.under,
-        constraints: const BoxConstraints(
-          minWidth: 0,
-          maxWidth: double.infinity,
-        ).copyWith(minWidth: menuWidth, maxWidth: menuWidth),
-        shape: libraryToolbarDropdownMenuShape(context),
-        itemBuilder: (context) => [
-          for (final preset in LibraryWorkspaceDensityPreset.values)
-            PopupMenuItem<LibraryWorkspaceDensityPreset>(
-              height: _viewModeDropdownHeight,
-              padding: const EdgeInsets.symmetric(horizontal: 7),
-              value: preset,
-              child: LibraryWorkspaceMenuRow(
-                padding: EdgeInsets.zero,
-                label: preset.label,
-                leading: Icon(
-                  preset.icon,
-                  size: 17,
-                  color: preset == densityPreset ? menuText : menuMuted,
-                ),
-                trailing: preset == densityPreset
-                    ? Icon(Icons.check, size: 16, color: accent)
-                    : null,
-                textStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      height: 1,
-                      fontWeight: preset == densityPreset
-                          ? FontWeight.w700
-                          : FontWeight.w500,
-                      color: menuText,
-                    ),
-              ),
-            ),
-        ],
-        child: _LibraryToolbarSplitLabelTrigger(
-          leadingLabel: 'Density',
-          valueLabel: densityPreset.label,
-          valueIcon: densityPreset.icon,
-          iconOnly: iconOnly,
-        ),
-      ),
     );
   }
 }
@@ -586,26 +470,6 @@ double _measureViewDropdownWidth(
     }
   }
   return (24 + 17 + 8 + maxLabelWidth + 28).clamp(108, double.infinity);
-}
-
-double _measureDensityDropdownWidth(
-  BuildContext context, {
-  required TextStyle? textStyle,
-}) {
-  final textScaler = MediaQuery.textScalerOf(context);
-  var maxLabelWidth = 0.0;
-  for (final preset in LibraryWorkspaceDensityPreset.values) {
-    final painter = TextPainter(
-      text: TextSpan(text: preset.label, style: textStyle),
-      maxLines: 1,
-      textDirection: Directionality.of(context),
-      textScaler: textScaler,
-    )..layout();
-    if (painter.width > maxLabelWidth) {
-      maxLabelWidth = painter.width;
-    }
-  }
-  return (24 + 17 + 8 + maxLabelWidth + 28).clamp(126, double.infinity);
 }
 
 String _viewModeLabel(LibraryViewMode mode) {

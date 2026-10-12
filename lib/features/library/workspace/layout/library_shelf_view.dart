@@ -24,6 +24,7 @@ class LibraryShelfView<T> extends StatelessWidget {
     this.backgroundColor,
     this.emptyBuilder,
     this.bookHorizontalPadding = 1.0,
+    this.itemSpacing = 0,
   });
 
   final List<T> items;
@@ -42,6 +43,7 @@ class LibraryShelfView<T> extends StatelessWidget {
   final Color? backgroundColor;
   final WidgetBuilder? emptyBuilder;
   final double bookHorizontalPadding;
+  final double itemSpacing;
 
   @override
   Widget build(BuildContext context) {
@@ -72,7 +74,8 @@ class LibraryShelfView<T> extends StatelessWidget {
         final effectiveShelfHeight = bookWidth <= 0
             ? shelfHeight
             : shelfHeight * (effectiveBookWidth / bookWidth);
-        final booksPerShelf = (availableShelfWidth / effectiveBookVisualWidth)
+        final booksPerShelf = ((availableShelfWidth + itemSpacing) /
+                (effectiveBookVisualWidth + itemSpacing))
             .floor()
             .clamp(1, 100);
         final shelves = <List<T>>[];
@@ -99,6 +102,7 @@ class LibraryShelfView<T> extends StatelessWidget {
               accent: accent,
               shelfHeight: effectiveShelfHeight,
               bookWidth: effectiveBookWidth,
+              itemSpacing: itemSpacing,
               fallbackCoverAspectRatio: fallbackCoverAspectRatio,
             );
           },
@@ -129,6 +133,7 @@ class _ShelfRow<T> extends StatelessWidget {
     required this.accent,
     required this.shelfHeight,
     required this.bookWidth,
+    required this.itemSpacing,
     required this.fallbackCoverAspectRatio,
   });
 
@@ -144,6 +149,7 @@ class _ShelfRow<T> extends StatelessWidget {
   final Color accent;
   final double shelfHeight;
   final double bookWidth;
+  final double itemSpacing;
   final double fallbackCoverAspectRatio;
 
   @override
@@ -209,6 +215,7 @@ class _ShelfRow<T> extends StatelessWidget {
             bottom: shelfThickness + shelfShadow,
             height: shelfHeight,
             child: Row(
+              spacing: itemSpacing,
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 for (final book in books) _buildBook(context, book),

@@ -1,35 +1,29 @@
 import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/features/library/ui/library_metrics.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
-import 'package:collectarr_app/features/library/ui/primitives/library_collection_status_icon.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_form_controls.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
 List<PopupMenuEntry<LibraryCollectionStatusScope>>
-    libraryCollectionStatusMenuItems(BuildContext context,
-        {bool showIcons = true}) {
+    libraryCollectionStatusEditMenuItems(BuildContext context) {
   PopupMenuEntry<LibraryCollectionStatusScope> heading(String label) =>
       PopupMenuItem(
           enabled: false,
           height: 26,
-          padding: const EdgeInsets.fromLTRB(8, 6, 8, 2),
+          padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
           child: Text(label,
               style: TextStyle(
                   color: appPalette(context).textMuted,
-                  fontSize: 13,
-                  fontWeight: FontWeight.w700)));
+                  fontSize: 14,
+                  fontWeight: FontWeight.w400)));
   PopupMenuEntry<LibraryCollectionStatusScope> item(
           LibraryCollectionStatusScope status) =>
       PopupMenuItem(
           value: status,
           height: 26,
-          padding: const EdgeInsets.symmetric(horizontal: 8),
+          padding: const EdgeInsets.symmetric(horizontal: 7),
           child: Row(children: [
-            if (showIcons) ...[
-              LibraryCollectionStatusIcon(collectionStatus: status, size: 20),
-              const SizedBox(width: 8),
-            ],
             Expanded(
                 child: Text(status.label,
                     style: TextStyle(
@@ -67,17 +61,20 @@ class LibraryCollectionStatusField extends StatelessWidget {
         child: LayoutBuilder(
           builder: (context, constraints) =>
               PopupMenuButton<LibraryCollectionStatusScope>(
+            popUpAnimationStyle: AnimationStyle.noAnimation,
             tooltip: 'Choose collection status',
             position: PopupMenuPosition.under,
-            color: appPalette(context).panelRaised,
+            color: appPalette(context).isDark
+                ? const Color(0xff444444)
+                : appPalette(context).panelRaised,
             shape: RoundedRectangleBorder(
-                borderRadius: appPalette(context).menuBorderRadius,
+                borderRadius: BorderRadius.zero,
                 side: BorderSide(color: appPalette(context).divider)),
             surfaceTintColor: Colors.transparent,
             menuPadding: EdgeInsets.zero,
             constraints: BoxConstraints(minWidth: constraints.maxWidth),
             itemBuilder: (context) =>
-                libraryCollectionStatusMenuItems(context, showIcons: false),
+                libraryCollectionStatusEditMenuItems(context),
             onSelected: (value) =>
                 onChanged(libraryCollectionStatusValue(value)),
             child: MouseRegion(

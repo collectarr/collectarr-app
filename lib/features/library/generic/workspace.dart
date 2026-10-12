@@ -141,7 +141,7 @@ class LibraryWorkspace extends ConsumerWidget {
     final uiPrefs = ref.watch(uiPreferencesProvider);
     final palette = appPalette(context);
     final gridSpacing = uiPrefs.gridSpacing;
-    final gridPadding = EdgeInsets.all(uiPrefs.gridSpacing);
+    const gridPadding = EdgeInsets.all(10);
     final registration = type;
     final defaultCoverSize =
         libraryViewProfileForKind(registration.kind).defaultCoverSize;
@@ -299,8 +299,8 @@ class LibraryWorkspace extends ConsumerWidget {
           fallbackCoverAspectRatio: fallbackCoverAspectRatio,
           backgroundColor: libraryFolderDepthColor(context, 0),
           emptyBuilder: _emptyBuilder,
-          bookHorizontalPadding:
-              ((uiPrefs.gridSpacing - 4.0) / 4.0).clamp(0.5, 8.0),
+          bookHorizontalPadding: 1.5,
+          itemSpacing: gridSpacing,
         ),
     };
   }

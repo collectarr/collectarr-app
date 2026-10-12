@@ -144,11 +144,7 @@ class LibraryWorkspacePreferences {
             prefs.getString(_key('view_mode')),
           ) ??
           defaultViewMode,
-      densityPreset: _enumByName(
-            registration.identity.availableDensityPresets,
-            prefs.getString(_key('density_preset')),
-          ) ??
-          defaultDensityPreset,
+      densityPreset: defaultDensityPreset,
       detailsLayout: _enumByName(
             LibraryDetailsLayout.values,
             prefs.getString(_key('details_layout')),
@@ -233,10 +229,6 @@ class LibraryWorkspacePreferences {
         normalizedSnapshot;
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_key('view_mode'), normalizedSnapshot.viewMode.name);
-    await prefs.setString(
-      _key('density_preset'),
-      normalizedSnapshot.densityPreset.name,
-    );
     await prefs.setString(
         _key('details_layout'), normalizedSnapshot.detailsLayout.name);
     await prefs.setBool(

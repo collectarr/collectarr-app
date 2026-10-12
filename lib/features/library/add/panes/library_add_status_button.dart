@@ -71,7 +71,7 @@ class LibraryAddStatusButton extends StatelessWidget {
         shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(3),
             side: BorderSide(color: palette.divider)),
-        itemBuilder: libraryCollectionStatusMenuItems,
+        itemBuilder: libraryCollectionStatusEditMenuItems,
         child: Container(
           width: 30,
           height: 34,

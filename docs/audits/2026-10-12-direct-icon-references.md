@@ -1,6 +1,6 @@
 # Direct icon reference inventory — 2026-10-12
 
-1678 occurrences, 453 distinct references, 334 files.
+1673 occurrences, 452 distinct references, 334 files.
 
 Scope: handwritten Dart under `lib/`, excluding the AppIcons catalog and generated files. `IconData(` identifies direct glyph construction; its count includes kind-owned icon definitions. SVG asset references are not included. This is a source inventory, not a claim that every icon needs the same glyph or should be moved out of kind ownership.
 
@@ -19,7 +19,7 @@ For remaining consumers, use an existing AppIcons semantic token when it represe
 | `Icons.search` | 30 | `lib/features/admin/admin_users_panel.dart:169` |
 | `Icons.delete_outline` | 27 | `lib/features/admin/admin_bundle_correction_dialog.dart:244` |
 | `Icons.info_outline` | 22 | `lib/core/utils/app_toast.dart:20` |
-| `Icons.check` | 20 | `lib/features/barcode/barcode_batch_scan_sheet.dart:213` |
+| `Icons.check` | 19 | `lib/features/barcode/barcode_batch_scan_sheet.dart:213` |
 | `Icons.album` | 19 | `lib/features/library/kinds/anime/anime_physical_media_formats.dart:53` |
 | `Icons.star` | 18 | `lib/core/models/activity_event.dart:69` |
 | `Icons.folder_outlined` | 18 | `lib/features/library/collections/library_collections_dialog.dart:41` |
@@ -104,8 +104,7 @@ For remaining consumers, use an existing AppIcons semantic token when it represe
 | `Icons.subdirectory_arrow_right` | 5 | `lib/features/library/bundles/bundle_release_contents_section.dart:275` |
 | `Icons.folder` | 5 | `lib/features/library/config/presentation/library_media_presentation.dart:32` |
 | `Icons.copy` | 5 | `lib/features/library/export/integration_export_dialog.dart:263` |
-| `Icons.folder_open_outlined` | 5 | `lib/features/library/generic/library_group_mode_menu.dart:157` |
-| `Icons.restart_alt` | 5 | `lib/features/library/generic/toolbar/toolbar_sections.dart:448` |
+| `Icons.restart_alt` | 5 | `lib/features/library/generic/toolbar/toolbar_sections.dart:442` |
 | `Icons.article_outlined` | 5 | `lib/features/library/kinds/anime/add/anime_add_manual_pane.dart:58` |
 | `Icons.draw_outlined` | 5 | `lib/features/library/kinds/book/config/book_kind_configuration.dart:99` |
 | `Icons.label_important` | 5 | `lib/features/library/kinds/comic/stats/comic_stats_capability.dart:51` |
@@ -120,7 +119,8 @@ For remaining consumers, use an existing AppIcons semantic token when it represe
 | `Icons.arrow_forward` | 4 | `lib/features/library/detail/library_metadata_corrections_section.dart:147` |
 | `Icons.view_column_outlined` | 4 | `lib/features/library/duplicates/library_find_duplicates_page.dart:291` |
 | `Icons.file_upload_outlined` | 4 | `lib/features/library/edit/sections/item_images_edit_section.dart:472` |
-| `Icons.arrow_back` | 4 | `lib/features/library/generic/sidebar/sidebar_header.dart:102` |
+| `Icons.arrow_back` | 4 | `lib/features/library/generic/sidebar/sidebar_header.dart:100` |
+| `Icons.folder_open_outlined` | 4 | `lib/features/library/generic/sidebar.dart:107` |
 | `Icons.filter_list` | 4 | `lib/features/library/generic/smart_lists_dialog.dart:491` |
 | `Icons.sticky_note_2_outlined` | 4 | `lib/features/library/generic/transferable_field.dart:121` |
 | `Icons.warning_amber_rounded` | 4 | `lib/features/library/home/home_top_nav.dart:266` |
@@ -181,9 +181,8 @@ For remaining consumers, use an existing AppIcons semantic token when it represe
 | `Icons.view_week_outlined` | 3 | `lib/features/library/kinds/music/inspector/music_inspector_sections.dart:475` |
 | `Icons.file_download_outlined` | 3 | `lib/features/library/kinds/tv/tracking/tv_season_tracking_section.dart:405` |
 | `Icons.cancel` | 3 | `lib/features/library/ui/primitives/library_field_selection.dart:168` |
-| `Icons.format_line_spacing` | 3 | `lib/features/library/workspace/chrome/library_view_controls.dart:383` |
-| `Icons.view_sidebar` | 3 | `lib/features/library/workspace/chrome/library_view_controls.dart:769` |
-| `Icons.density_small` | 3 | `lib/features/library/workspace/chrome/view_and_organize_sheet.dart:315` |
+| `Icons.format_line_spacing` | 3 | `lib/features/library/workspace/chrome/library_view_controls.dart:374` |
+| `Icons.view_sidebar` | 3 | `lib/features/library/workspace/chrome/library_view_controls.dart:633` |
 | `Icons.rule_outlined` | 3 | `lib/features/library/workspace/tiles/library_cover_tile.dart:282` |
 | `Icons.open_in_new_outlined` | 3 | `lib/features/settings/collection_schema_management_panel.dart:205` |
 | `Icons.palette_outlined` | 3 | `lib/features/settings/settings_library_nav_widgets.dart:175` |
@@ -212,7 +211,7 @@ For remaining consumers, use an existing AppIcons semantic token when it represe
 | `Icons.crop_rotate` | 2 | `lib/features/library/edit/sections/item_images_edit_section.dart:491` |
 | `Icons.table_chart_outlined` | 2 | `lib/features/library/export/integration_export_dialog.dart:23` |
 | `Icons.code` | 2 | `lib/features/library/export/integration_export_dialog.dart:25` |
-| `Icons.settings` | 2 | `lib/features/library/generic/library_group_mode_menu.dart:453` |
+| `Icons.settings` | 2 | `lib/features/library/generic/library_group_mode_menu.dart:454` |
 | `Icons.bookmarks_outlined` | 2 | `lib/features/library/generic/reading_queue_dialog.dart:206` |
 | `Icons.auto_awesome_mosaic` | 2 | `lib/features/library/generic/smart_lists_dialog.dart:437` |
 | `Icons.tag` | 2 | `lib/features/library/generic/toolbar/toolbar_auxiliary_controls.dart:1226` |
@@ -260,7 +259,7 @@ For remaining consumers, use an existing AppIcons semantic token when it represe
 | `Icons.star_half_rounded` | 2 | `lib/features/library/tracking/media_rating_field.dart:203` |
 | `Icons.checklist` | 2 | `lib/features/library/workspace/chrome/compact_selection_action_bar.dart:102` |
 | `Icons.drive_file_move_outline` | 2 | `lib/features/library/workspace/chrome/library_item_context_menu.dart:71` |
-| `Icons.density_medium` | 2 | `lib/features/library/workspace/chrome/view_and_organize_sheet.dart:297` |
+| `Icons.density_small` | 2 | `lib/features/library/workspace/config/library_workspace_tokens.dart:70` |
 | `Icons.open_in_full` | 2 | `lib/features/library/workspace/tiles/library_cover_image.dart:866` |
 | `Icons.equalizer` | 2 | `lib/features/library/workspace/tiles/library_item_badges.dart:59` |
 | `Icons.view_list_outlined` | 2 | `lib/features/settings/collection_schema_management_panel.dart:240` |
@@ -309,11 +308,10 @@ For remaining consumers, use an existing AppIcons semantic token when it represe
 | `Icons.upload_outlined` | 1 | `lib/features/library/export/integration_export_dialog.dart:72` |
 | `Icons.arrow_back_ios_new` | 1 | `lib/features/library/generic/body.dart:388` |
 | `Icons.filter_alt_off` | 1 | `lib/features/library/generic/empty_state.dart:79` |
-| `Icons.keyboard_arrow_down_rounded` | 1 | `lib/features/library/generic/library_group_mode_menu.dart:175` |
-| `Icons.delete` | 1 | `lib/features/library/generic/library_group_mode_menu.dart:1003` |
+| `Icons.delete` | 1 | `lib/features/library/generic/library_group_mode_menu.dart:1004` |
 | `FontAwesomeIcons.bars` | 1 | `lib/features/library/generic/page/collection_tabs.dart:131` |
 | `Icons.merge_type_outlined` | 1 | `lib/features/library/generic/sidebar/sidebar_bucket_manager_dialog.dart:279` |
-| `Icons.format_list_bulleted` | 1 | `lib/features/library/generic/sidebar/sidebar_header.dart:93` |
+| `Icons.format_list_bulleted` | 1 | `lib/features/library/generic/sidebar/sidebar_header.dart:91` |
 | `Icons.bookmark_added` | 1 | `lib/features/library/generic/smart_lists_dialog.dart:490` |
 | `Icons.play_arrow` | 1 | `lib/features/library/generic/smart_lists_dialog.dart:700` |
 | `Icons.drive_file_rename_outline` | 1 | `lib/features/library/generic/smart_lists_dialog.dart:705` |
@@ -323,7 +321,7 @@ For remaining consumers, use an existing AppIcons semantic token when it represe
 | `Icons.view_sidebar_outlined` | 1 | `lib/features/library/generic/toolbar/toolbar_auxiliary_controls.dart:1299` |
 | `Icons.splitscreen_outlined` | 1 | `lib/features/library/generic/toolbar/toolbar_auxiliary_controls.dart:1307` |
 | `Icons.close_fullscreen_outlined` | 1 | `lib/features/library/generic/toolbar/toolbar_auxiliary_controls.dart:1315` |
-| `Icons.photo_size_select_large_outlined` | 1 | `lib/features/library/generic/toolbar/toolbar_sections.dart:1109` |
+| `Icons.photo_size_select_large_outlined` | 1 | `lib/features/library/generic/toolbar/toolbar_sections.dart:1103` |
 | `Icons.gavel` | 1 | `lib/features/library/generic/toolbar_chrome.dart:42` |
 | `Icons.select_all` | 1 | `lib/features/library/generic/toolbar_chrome.dart:65` |
 | `Icons.format_list_numbered` | 1 | `lib/features/library/generic/tools_menu.dart:151` |
@@ -401,12 +399,13 @@ For remaining consumers, use an existing AppIcons semantic token when it represe
 | `Icons.shield` | 1 | `lib/features/library/widgets/format_badge.dart:156` |
 | `Icons.content_copy` | 1 | `lib/features/library/workspace/chrome/library_item_context_menu.dart:163` |
 | `Icons.qr_code` | 1 | `lib/features/library/workspace/chrome/library_item_context_menu.dart:170` |
-| `Icons.splitscreen` | 1 | `lib/features/library/workspace/chrome/library_view_controls.dart:770` |
-| `Icons.visibility_off` | 1 | `lib/features/library/workspace/chrome/library_view_controls.dart:771` |
+| `Icons.splitscreen` | 1 | `lib/features/library/workspace/chrome/library_view_controls.dart:634` |
+| `Icons.visibility_off` | 1 | `lib/features/library/workspace/chrome/library_view_controls.dart:635` |
 | `Icons.image_search` | 1 | `lib/features/library/workspace/chrome/library_workspace_search.dart:352` |
-| `Icons.dock` | 1 | `lib/features/library/workspace/chrome/view_and_organize_sheet.dart:340` |
-| `Icons.view_stream` | 1 | `lib/features/library/workspace/chrome/view_and_organize_sheet.dart:356` |
+| `Icons.dock` | 1 | `lib/features/library/workspace/chrome/view_and_organize_sheet.dart:286` |
+| `Icons.view_stream` | 1 | `lib/features/library/workspace/chrome/view_and_organize_sheet.dart:302` |
 | `Icons.segment_outlined` | 1 | `lib/features/library/workspace/config/library_typed_field_definition.dart:44` |
+| `Icons.density_medium` | 1 | `lib/features/library/workspace/config/library_workspace_tokens.dart:69` |
 | `Icons.table_rows` | 1 | `lib/features/library/workspace/config/library_workspace_tokens.dart:71` |
 | `Icons.segment` | 1 | `lib/features/library/workspace/config/library_workspace_view_enums.dart:36` |
 | `Icons.checklist_rounded` | 1 | `lib/features/library/workspace/layout/library_bucket_sidebar.dart:633` |

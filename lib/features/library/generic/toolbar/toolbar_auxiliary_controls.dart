@@ -1,5 +1,4 @@
 import 'package:collectarr_app/ui/app_icons.dart';
-import 'package:collectarr_app/features/library/ui/primitives/library_collection_status_field.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_collection_status_icon.dart';
 import 'dart:collection';
 
@@ -73,7 +72,7 @@ class _LibraryCollectionStatusScopeDropdownState
       leadingSpacing: 6,
       trailingWidth: 0,
       horizontalPadding: 16,
-      minWidth: 166,
+      minWidth: 160,
     );
     final triggerWidth = measureLibraryToolbarDropdownWidth(
       context,
@@ -88,6 +87,7 @@ class _LibraryCollectionStatusScopeDropdownState
     return SizedBox(
       width: triggerWidth,
       child: PopupMenuButton<LibraryCollectionStatusScope>(
+        popUpAnimationStyle: AnimationStyle.noAnimation,
         key: const Key('collection-status-scope-dropdown'),
         tooltip: 'Collection status scope',
         onSelected: widget.onCollectionStatusScopeChanged,
@@ -104,18 +104,18 @@ class _LibraryCollectionStatusScopeDropdownState
         ).copyWith(minWidth: menuWidth, maxWidth: menuWidth),
         shape: libraryToolbarDropdownMenuShape(context),
         itemBuilder: (context) => [
-          PopupMenuItem<LibraryCollectionStatusScope>(
-              value: LibraryCollectionStatusScope.all,
+          for (final scope in LibraryCollectionStatusScope.values)
+            PopupMenuItem<LibraryCollectionStatusScope>(
+              value: scope,
               height: 26,
-              padding: const EdgeInsets.symmetric(horizontal: 8),
+              padding: const EdgeInsets.symmetric(horizontal: 7),
               child: LibraryCollectionStatusScopeMenuItem(
-                  scope: LibraryCollectionStatusScope.all,
+                  scope: scope,
                   accent: accent,
                   textColor: menuText,
                   muted: menuMuted,
-                  isSelected: widget.collectionStatusScope ==
-                      LibraryCollectionStatusScope.all)),
-          ...libraryCollectionStatusMenuItems(context),
+                  isSelected: widget.collectionStatusScope == scope),
+            ),
         ],
         child: MouseRegion(
           cursor: SystemMouseCursors.click,

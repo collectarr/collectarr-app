@@ -250,19 +250,13 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
                           iconOnly: true,
                         ),
                       ],
-                      const _LibraryDesktopToolbarSeparator(),
-                      LibraryWorkspaceDensityDropdown(
-                        densityPreset: viewState.densityPreset,
-                        onChanged: onDensityPresetChanged,
-                        iconOnly: true,
-                      ),
                       if (viewState.viewMode == LibraryViewMode.list) ...[
                         const _LibraryDesktopToolbarSeparator(),
                         _LibraryDesktopToolbarSection(
-                          label: 'Row height',
+                          label: 'Item spacing',
                           child: _buildSpacingSlider(
                             context,
-                            tooltip: 'Table row height',
+                            tooltip: 'Item spacing',
                           ),
                         ),
                       ] else ...[
@@ -290,7 +284,7 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
                                 const SizedBox(width: 8),
                               _buildSpacingSlider(
                                 context,
-                                tooltip: 'Item spacing & padding',
+                                tooltip: 'Item spacing',
                               ),
                             ],
                           ),
