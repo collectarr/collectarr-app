@@ -1,4 +1,5 @@
-import 'package:collectarr_app/app/app_shell.dart';
+import 'package:collectarr_app/app/shell/app_navigation_drawer.dart';
+import 'package:collectarr_app/app/shell/app_navigation_model.dart';
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:flutter_test/flutter_test.dart';

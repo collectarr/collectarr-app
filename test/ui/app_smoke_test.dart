@@ -1,6 +1,10 @@
 /// Desktop and mobile smoke tests for navigation and mandatory destination keys.
 library;
 
+import 'package:collectarr_app/app/shell/app_navigation_drawer.dart';
+import 'package:collectarr_app/app/shell/app_navigation_model.dart';
+
+
 import 'dart:convert';
 
 import 'package:collectarr_app/core/routing/app_router.dart';

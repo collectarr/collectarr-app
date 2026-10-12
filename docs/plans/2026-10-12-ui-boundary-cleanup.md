@@ -32,3 +32,10 @@ LibraryMetrics owns the 34px comfortable field default. Runtime kClz aliases
 are removed; Gilroy registration is preserved. Named dialog/backdrop/control/
 reorder motion contracts coexist with the general animation speed presets.
 Analyzer clean; 88 UI/library geometry/navigation checks pass.
+
+Stage 3 complete: AppShell is 154 lines and delegates app bar, declarative
+navigation rendering/model and plain action dispatch. Kind shelf aggregation
+is now ShelfKindProjection.forKind under collection/projection. Route and modal
+classification retains current behavior, including modal XML export. Seven
+navigation/metadata/statistics checks pass; analyzer clean; web traversal and
+sidebar capture show no app errors.
