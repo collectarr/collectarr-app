@@ -4,6 +4,10 @@ Inspected on 2026-10-11 at 1844 × 945. This report supplements the
 [spreadsheet audit](2026-10-11-clz-music-table-audit.md) with current editor,
 typography and motion evidence. It records remaining work, not completed fixes.
 
+The current follow-up is [the October 12 post-cleanup audit](2026-10-12-clz-post-cleanup-ui-audit.md).
+It supersedes this remaining-work table, including the incorrect Genre
+full-width recommendation and editor/footer/motion findings fixed since then.
+
 ## Evidence and limits
 
 Live Opera inspection covered workspace, Select Sort Fields, Select Column
