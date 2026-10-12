@@ -1,176 +1,197 @@
 <p align="center">
-  <img src="docs/assets/collectarr-icon.svg" alt="Collectarr app icon" width="104" height="104">
+  <img src="docs/assets/collectarr-icon.svg" alt="Collectarr" width="104" height="104">
 </p>
 
-# 📚 Collectarr App
+# Collectarr App
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-![GitHub Release](https://img.shields.io/github/v/release/collectarr/collectarr-app)
+[![GitHub Release](https://img.shields.io/github/v/release/collectarr/collectarr-app)](https://github.com/collectarr/collectarr-app/releases)
 [![Issues](https://img.shields.io/github/issues/collectarr/collectarr-app)](https://github.com/collectarr/collectarr-app/issues)
-![Made with Flutter](https://img.shields.io/badge/Made%20with-Flutter-02569B?logo=flutter&logoColor=white)
-![Dart](https://img.shields.io/badge/Dart-3.12+-0175C2?logo=dart&logoColor=white)
-![Platform](https://img.shields.io/badge/Platform-Web%20%7C%20Windows%20%7C%20macOS%20%7C%20Linux%20%7C%20Android-lightgrey)
+![Flutter](https://img.shields.io/badge/Flutter-3.44.0-02569B?logo=flutter&logoColor=white)
 
-> A local-first, CLZ-inspired collection manager for serious collectors.
->
-> Current releases are treated as pre-1.0 beta releases.
+Collectarr is a local-first collection manager for **Music, Books, Comics,
+Manga, Movies, TV, Anime, Games and Board Games**. The Flutter app owns your
+entries, personal information, attachments and activity. Core supplies shared
+catalog metadata; Sync optionally carries your library between devices.
 
-Collectarr keeps your personal library local, fast, and offline-friendly, while
-using `collectarr-core` for canonical metadata and `collectarr-sync` for
-optional multi-device sync.
+The application is in beta. Windows and Web are the main local comparison and
+verification targets; release workflows also build Android, macOS and Linux.
+Platform-specific scanners, file access and font discovery can differ.
 
-The active local record model is one independently editable library entry per
-concrete collectible, with `catalog_data` and `personal_data` stored together.
-An optional `source_catalog_ref` records Core provenance only. Duplicating an
-entry creates a new independent local record. User proposals remain available
-and carry the same catalog fields as manual Add/Edit; provider search and
-ingest are not part of that flow. See
-[the Catalog Item v1 baseline and fresh database policy](docs/architecture/flattened-catalog-baseline.md).
+## What you can do
 
-The app keeps semantic behavior inside the owning kind: Comic, Manga, Book,
-Game, Board Game, Movie, TV, Anime, and Music each provide their typed domain,
-edit flows, persistence integration, and applicable actions.
+- Search Core or add an item manually, then edit your local copy independently.
+- Organize named collections with bottom tabs and Manage Collections; distinguish
+  collection membership from owned/wish-list status.
+- Browse covers/cards, shelves and list/table views, with search, alphabet
+  filtering, group folders, column selection and ordered sort rules.
+- Resize panels and columns; adjust cover size and item spacing.
+- Inspect details, manage front/back covers and My Images, find cover candidates
+  online, and keep external links.
+- Maintain pick lists and custom fields, including type-specific configuration,
+  previews and tab/display preferences.
+- Find duplicates, reassign index numbers, transfer compatible field values,
+  manage loans and view statistics.
+- Import supported fields, export CSV/TXT or integration formats, print reports,
+  back up the database and optionally publish collection snapshots through Sync.
+- Record kind-specific reading, watching, listening or play activity.
 
-## ✨ Why Collectarr
+Available fields/actions depend on the kind. A field being editable or
+exportable does not automatically make it importable or transferable.
 
-- 🗂️ **Local-first ownership** — your owned/wishlist state lives in the app
-- 🧩 **9 active media kinds** — comics, manga, anime, books, games, board games, movies, TV, music
-- 🛠️ **Collector workflows** — variants, barcode, bulk edit, custom fields, import/export
-- 🔍 **Canonical catalog** — search shared Core metadata and create new entries through manual Add
-- 🧪 **Power-user/admin tooling** — user proposals, catalog review, and image management
+## Local entry model
 
-## 🚀 Highlights
+Each independently managed collectible is a local `library_entry` containing
+`catalog_data` and `personal_data`. Its optional `source_catalog_ref` records
+Core provenance, not ownership of the entry. Duplicating creates a new independent
+entry. Personal edits do not propose a Core correction.
 
-- 📦 Offline Drift database with cached catalog snapshots
-- 🖼️ CLZ-style workspace (grid/table/carousel, filters, sidebars, inspector)
-- ➕ Search Core catalog, enter new catalog metadata manually, or submit it as a proposal for review
-- 🎵 Media-aware edit/inspector UX (music/game/video specific fields)
-- 🔁 Optional sync support through `collectarr-sync`
-- 📊 CSV import/export
-- 🎨 Animated accent theming across libraries
-- ✨ Cleaner auth/login shell and platform-aware tooling placement
-- 🧭 Metadata compare flows in edit UX (including context entrypoints for supported kinds)
+Sync packages complete entry snapshots, including supported personal attachments,
+plus explicit personal tracking entities. The app materializes pulled attachments
+into its local tables. Sync does not turn those snapshots into shared Core items.
 
-## ⚡ Quick start
+Kind-owned capabilities provide domain models, catalog codecs, edit contributions,
+field metadata, workspace projection and applicable actions. Shared infrastructure
+renders and orchestrates those contributions.
+
+Music uses album-level edition information, contained discs/tracks and generic
+credits. Recording date, locations, Live/Studio and SPARS belong to discs.
+The Credits tab can assign a contributor to the album or a disc. Workspace facts
+are derived, non-persistent values; multi-value groups and explicit earliest/latest
+recording-date sorts preserve mixed-disc semantics.
+
+## Development setup
+
+Use **Flutter 3.44.0**, the version pinned in CI, and the repository's dependency
+lockfile. Run commands from this checkout:
 
 ```powershell
-flutter pub get
+flutter pub get --enforce-lockfile
 dart run tool/generate_kind_registries.dart
+dart run tool/generate_kind_field_entries.dart
 dart run build_runner build --delete-conflicting-outputs
-flutter analyze
-flutter test
+flutter run -d windows
 ```
 
-### Local database and seed fixture
-
-The development fixture covers all nine kinds, local library entries, personal
-data, tracking data, and validated cover images. Native builds create
-`collectarr-library.sqlite` in the application's documents directory when
-started against a fresh v1 setup. Keep any existing database and its backups;
-the schema has no upgrade path, and reset helpers must not be run against user
-data.
-
-For a browser session with the fixture already loaded:
+For a local Web session:
 
 ```powershell
-.\scripts\run_web_for_copilot.ps1 -Seed -Route /libraries
-```
-
-### 🌐 Run on web
-
-```powershell
-flutter run -d chrome `
+flutter run -d chrome --web-hostname 127.0.0.1 --web-port 8080 `
   --dart-define=COLLECTARR_API_BASE_URL=http://localhost:8010 `
   --dart-define=COLLECTARR_SYNC_BASE_URL=http://localhost:8020 `
   --dart-define=COLLECTARR_SYNC_KEY=collectarr-sync-dev-key
 ```
 
-### 🪟 Run on Windows
+Connection settings can also be configured in **Settings → Connection**. The
+shared sync key is for a single-user development instance; per-user deployments
+need their configured authentication. On an Android emulator, host services use
+`10.0.2.2` instead of `localhost`; other devices need the host's reachable address.
+
+Core and Sync are separate services. Local browsing/editing uses the saved
+library, while catalog requests, online images, remote sync and sharing require
+the corresponding services.
+
+## Database and development fixtures
+
+Native builds store `collectarr-library.sqlite` in the application's documents
+directory. Web uses the browser origin/profile's IndexedDB-backed SQLite store.
+Clearing browser data or changing profiles can change which local library you see.
+
+The current schema starts from a fresh database. There is no runtime upgrade or
+old-payload adapter. Keep an existing database and its backups untouched when
+preparing an isolated development instance.
+
+Development seeds cover all nine kinds. Use fixtures only in a disposable test
+profile/database. The existing browser helper starts a predictable Web URL:
 
 ```powershell
-flutter run -d windows
+.\scripts\run_web_for_copilot.ps1 -Route /libraries
 ```
 
-## 🧱 Product boundaries
+Its `-Seed` option invokes a native database seed before launching Web; it does
+not populate the browser's separate IndexedDB store. Do not assume a native seed
+has appeared in a browser session. Reference Music fixtures are under
+[tool/fixtures](tool/fixtures).
 
-Collectarr App owns:
+## Checks
 
-- local storage and shelf UX
-- add/edit/import/export/inspector workflows
-- media-aware presentation + desktop ergonomics
-- canonical in-memory models and semantic behavior for each library kind
+```powershell
+dart format --output=none --set-exit-if-changed .
+dart run tool/check_music_catalog_contract.dart
+dart run tool/generate_catalog_item_v2_fields.dart --check
+dart run tool/check_library_kind_boundaries.dart
+flutter analyze --fatal-warnings --fatal-infos
+flutter test
+flutter test integration_test/app_smoke_test.dart
+flutter build windows --debug
+flutter build web --debug
+```
 
-`collectarr-core` owns the source-neutral catalog/API contract and review of
-user proposals. The App owns the complete local entry, its personal fields,
-attachments, activity, local storage, and sync payloads. Sync carries the
-entry's catalog and personal maps together as one local snapshot; it does not
-create a second canonical catalog. Proposals contain the same kind-owned
-catalog fields as manual Add/Edit and contain no provider IDs or personal data.
+CI additionally regenerates registries/Drift files and checks that generated
+files remain clean. Run integration/build checks on a suitable target for your
+platform. Documentation-only changes do not require rebuilding the application.
 
-After kind dispatch, app code keeps the concrete kind-owned type for field
-semantics. Cross-kind screens use explicit Core Catalog Item and local-entry
-references, with personal state overlaid on workspace rows. See the
-[current status](docs/architecture/current-status.md) for the remaining limits.
+## Core contract bundle
 
-## 🗺️ Roadmap
+The pinned bundle is in [tool/core_contracts](tool/core_contracts), including
+OpenAPI, active kinds, field metadata, Catalog Item v2, Music v2 and their manifest.
+For a coordinated contract change, regenerate in Core first, then pin it here:
 
-See the [current architecture status](docs/architecture/current-status.md),
-[kind architecture](docs/architecture/kinds.md), and
-[local persistence model](docs/architecture/local-persistence.md).
+```powershell
+# In collectarr-core:
+python -m scripts.export_contract_bundle
 
-Architecture references and remaining implementation tracks:
+# Back in collectarr-app, with the Core checkout alongside it:
+.\tool\update_core_contracts.ps1
+dart run tool/generate_catalog_item_v2_fields.dart
+dart run tool/check_music_catalog_contract.dart
+```
 
-- [Remaining cleanup audit and implementation sequence (2026-10-02)](docs/architecture/cleanup-audit-2026-10-02.md)
-- [Music UI comparison with CLZ and parity implementation plan (2026-10-02)](docs/architecture/music-clz-ui-parity-2026-10-02.md)
-- [Flattened Catalog Item baseline](docs/architecture/flattened-catalog-baseline.md)
-- [Add/Edit form unification](docs/architecture/add-edit-form-unification-plan.md)
-- [All-kind form and workspace schema reorganization](docs/architecture/kind-schema-reorganization-plan.md)
-- [UI readability and contrast](docs/architecture/ui-readability-plan.md)
+The pinning script verifies the bundle's hashes. Do not hand-edit generated
+contracts or maintain a second mapping of canonical fields.
 
-Current product tracks:
+## Settings, fonts and manual
 
-- keep Add search on the Core catalog and preserve manual Add/Edit proposals
-- remove the remaining derived catalog references from local tracking storage
-- keep personal collection state and sync in App and collectarr-sync
-- improve small text, accent contrast, and text scaling across Library screens
-- keep seed scripts, local Drift schemas, and contract tests synchronized
-- extend calendar support with a live subscribable ICS feed and reminders
-- add local notifications for loans, releases, sync conflicts, and imports
-- keep Plex/Jellyfin/Emby watched sync as a low-priority follow-up to the local watch-session flow
-- simplify `LibraryAddDialog` and its session controller around search, preview, and submit responsibilities
-- keep admin proposal/editor UX and stats surfaces aligned with Core contracts
+Settings groups Connection, Libraries, Appearance, Proposals, Data, Account and
+Logs. Library accents remain consistent across controls. Open fonts provide the
+fallback UI; optional user-supplied font loading depends on platform support.
+Licensed font files are not distributed as part of the manual/site.
 
-## 🔒 Release & Versioning Policy
+**Help → User Manual** opens the shared website's chapter for the active kind.
+The separate `collectarr-site` checkout contains the landing page, searchable
+manual and sanitized screenshots. Initial publication is still pending; see
+[manual hosting and preview](docs/user-manual-site.md). Override the manual root
+when building for a different host:
 
-Collectarr App uses Semantic Versioning 2.0.0 and configurable update channels (`stable`, `beta`, `nightly`).
+```powershell
+flutter run -d windows `
+  --dart-define=COLLECTARR_MANUAL_URL=http://127.0.0.1:4321/collectarr-site/manual/
+```
 
-See [docs/versioning-policy.md](docs/versioning-policy.md) for full details on versioning rules, update channel semantics, and release verification.
+## Releases and architecture
 
-Releases are manual (`workflow_dispatch`). Pushes to `main` run CI only.
+[Versioning policy](docs/versioning-policy.md) defines semantic versions and
+update channels. Pushes to `main` run CI. Release publishing is triggered by a
+manual workflow or a published GitHub release; see
+[the release workflow](.github/workflows/release.yml) for the active inputs.
+Published versions/assets are listed in [GitHub Releases](https://github.com/collectarr/collectarr-app/releases),
+not frozen into this README.
 
-Published release assets include:
+For implementation detail and remaining limits, read:
 
-- GitHub Release notes + tags (`v0.x.y-beta.n`)
-- GHCR web image: `ghcr.io/collectarr/collectarr-app-web`
-- Android `.apk`
-- Windows `.zip` + `.exe`
-- macOS `.zip` + `.dmg`
-- Linux `.tar.gz` + `.deb`
+- [Current architecture status](docs/architecture/current-status.md).
+- [Kind architecture](docs/architecture/kinds.md).
+- [Local persistence](docs/architecture/local-persistence.md).
+- [Latest custom-fields comparison](docs/audits/2026-10-12-custom-fields-parity.md).
 
-## 🔗 Related repos
+## Related repositories
 
-| Repo | Purpose |
-|------|---------|
-| `collectarr-core` | Source-neutral catalog, proposal review, image delivery, admin APIs |
-| `collectarr-sync` | Optional personal sync service |
+| Repository | Responsibility |
+| --- | --- |
+| [collectarr-core](https://github.com/collectarr/collectarr-core) | Canonical catalog, source-neutral proposals/corrections, search, images and admin API |
+| [collectarr-sync](https://github.com/collectarr/collectarr-sync) | Personal entry sync, conflicts, device pairing and published collection snapshots |
+| `collectarr-site` | Separate product site and shared user manual; currently prepared locally |
 
-## 💛 Support
+## Support
 
-[![Support me on Ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/saitatter)
-
-## User manual website
-
-The separate `collectarr-site` project contains the product website and a shared
-manual with kind-specific chapters. **Help → User Manual** opens the current
-kind's chapter in your browser. See [manual hosting and local preview](docs/user-manual-site.md)
-for deployment status and the `COLLECTARR_MANUAL_URL` build define.
+[![Support on Ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/saitatter)
