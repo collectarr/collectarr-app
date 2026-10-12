@@ -7,6 +7,7 @@ import 'package:collectarr_app/features/library/ui/primitives/library_field_sele
 import 'package:collectarr_app/features/library/generic/library_folder_reorder_list.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:flutter/material.dart';
+import 'package:collectarr_app/ui/app_icons.dart';
 
 Future<List<LibrarySortRule>?> showLibrarySortDialog({
   required BuildContext context,
@@ -99,8 +100,7 @@ class _LibrarySortDialogState extends State<_LibrarySortDialog> {
         onSave: _saveAndClose,
         headerAction: PopupMenuButton<LibrarySortPreset>(
             tooltip: 'Sorting favorites',
-            icon: const Icon(Icons.settings_outlined,
-                color: Colors.white, size: 16),
+            icon: const Icon(AppIcons.settings, color: Colors.white, size: 16),
             enabled: !_loadingPresets,
             onSelected: _applyPreset,
             itemBuilder: (context) => [

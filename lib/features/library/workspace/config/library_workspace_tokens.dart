@@ -189,9 +189,13 @@ extension LibraryWorkspaceDensityPresetMetrics
 }
 
 Color libraryToolbarMenuSurface(BuildContext context) =>
-    appPalette(context).panelRaised;
+    appPalette(context).isDark
+        ? const Color(0xff444444)
+        : appPalette(context).panelRaised;
 Color libraryToolbarMenuBorder(BuildContext context) =>
-    appPalette(context).divider;
+    appPalette(context).isDark
+        ? const Color(0xff666666)
+        : appPalette(context).divider;
 
 Color libraryToolbarMenuText(BuildContext context) =>
     appPalette(context).textPrimary;

@@ -1,7 +1,5 @@
-import 'package:collectarr_app/features/library/kinds/registry/library_kind_contributors.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
-import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
 import 'package:collectarr_app/features/library/config/library_search_target.dart';
 import 'package:collectarr_app/features/library/generic/library_group_mode_menu.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
@@ -21,6 +19,7 @@ import 'package:collectarr_app/features/settings/ui_preferences.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:collectarr_app/ui/app_icons.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
 
 const double _kLibraryToolbarBandVerticalPadding = 0;
 const double _kLibraryToolbarBandHorizontalPadding = 4;
@@ -221,6 +220,14 @@ class LibraryDesktopSecondaryToolbar extends StatelessWidget {
                         const _LibraryDesktopToolbarSeparator(),
                       if (onEditSort != null)
                         LibraryToolbarSortButton(
+                          fieldLabel: (id) {
+                            final fields =
+                                libraryKindWorkspaceForKind(type.kind)
+                                    .workspaceFields;
+                            return fields
+                                .sortDefinitionFor(fields.decodeSortId(id))
+                                .label;
+                          },
                           onPressed: onEditSort!,
                           sortFavorites: sortFavorites,
                           activeSortFavoriteId: activeSortFavoriteId,
@@ -435,7 +442,7 @@ class _LibraryColumnLauncher extends StatelessWidget {
       key: const ValueKey('library-column-split-button'),
       label: 'Change columns',
       iconOnly: true,
-      icon: Icons.view_column_outlined,
+      icon: AppIcons.columns,
       onPressed: onManageColumns,
       entries: entries,
       onSelected: (value) {

@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/features/library/generic/library_folder_reorder_row.dart';
 import 'package:collectarr_app/features/pick_lists/widgets/pick_list_chrome.dart';
 import 'package:collectarr_app/ui/accent_dialog_header.dart';
@@ -305,7 +306,7 @@ class LibrarySelectedFieldRow extends StatelessWidget {
         borderColor: palette.isDark ? const Color(0xff666666) : palette.divider,
         child: Row(children: [
           SizedBox(
-              width: 26, child: Icon(Icons.menu, key: handleKey, size: 16)),
+              width: 26, child: Icon(AppIcons.menu, key: handleKey, size: 16)),
           Expanded(
               child: Text(label,
                   style: librarySelectionFieldStyle,
@@ -346,7 +347,7 @@ class LibrarySelectedFieldRow extends StatelessWidget {
                               : states.contains(WidgetState.disabled)
                                   ? palette.textMuted
                                   : palette.textPrimary)),
-              icon: const Icon(Icons.close, size: 16)),
+              icon: const Icon(AppIcons.close, size: 16)),
         ]));
   }
 }

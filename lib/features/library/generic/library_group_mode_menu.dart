@@ -194,8 +194,9 @@ class _LibraryGroupModeMenuButtonState
                   _showGroupModeMenu(context);
                 }
               },
-              borderRadius: BorderRadius.zero,
-              child: child,
+              borderRadius: BorderRadius.circular(5),
+              hoverColor: libraryToolbarControlHover(context),
+              child: LibraryToolbarHoverSurface(child: child),
             ),
           ),
         );

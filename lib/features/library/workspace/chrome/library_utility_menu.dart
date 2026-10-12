@@ -1,4 +1,6 @@
 import 'library_workspace_menus.dart';
+import 'library_workspace_controls.dart';
+import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/ui/library_accent_scope.dart';
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_tokens.dart';
@@ -44,7 +46,7 @@ class LibraryUtilityMenu<T> extends StatelessWidget {
     required this.actions,
     required this.badgeCount,
     this.tooltip = 'Library tools',
-    this.defaultIcon = Icons.tune,
+    this.defaultIcon = AppIcons.toolbarTools,
     this.buttonLabel = 'Tools',
     this.quickViewsLabel = 'Quick Views',
   });
@@ -64,15 +66,7 @@ class LibraryUtilityMenu<T> extends StatelessWidget {
     final selected = _selectedQuickView();
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    final trigger = DecoratedBox(
-      decoration: BoxDecoration(
-        color: Color.alphaBlend(
-          colorScheme.surface.withValues(alpha: 0.88),
-          colorScheme.surfaceContainerLow,
-        ),
-        border: Border.all(color: colorScheme.outlineVariant),
-        borderRadius: BorderRadius.circular(2),
-      ),
+    final trigger = LibraryToolbarHoverSurface(
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 5),
         child: Row(
@@ -88,8 +82,8 @@ class LibraryUtilityMenu<T> extends StatelessWidget {
             ),
             const SizedBox(width: 1),
             Icon(
-              Icons.expand_more,
-              size: 15,
+              AppIcons.chevronDown,
+              size: 12,
               color: colorScheme.onSurfaceVariant,
             ),
           ],
@@ -105,6 +99,7 @@ class LibraryUtilityMenu<T> extends StatelessWidget {
         style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700),
       ),
       child: PopupMenuButton<Object>(
+        popUpAnimationStyle: AnimationStyle.noAnimation,
         tooltip: tooltip,
         padding: EdgeInsets.zero,
         color: libraryToolbarMenuSurface(context),

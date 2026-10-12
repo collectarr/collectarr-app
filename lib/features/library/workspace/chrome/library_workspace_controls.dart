@@ -1,6 +1,53 @@
 import 'package:flutter/material.dart';
+import 'package:collectarr_app/ui/app_icons.dart';
+import 'package:collectarr_app/ui/app_motion.dart';
 
 import '../config/library_workspace_tokens.dart';
+
+/// Paint hover above opaque popup children while leaving their gestures intact.
+class LibraryToolbarHoverSurface extends StatefulWidget {
+  const LibraryToolbarHoverSurface(
+      {super.key,
+      required this.child,
+      this.enabled = true,
+      this.backgroundColor});
+  final Widget child;
+  final bool enabled;
+  final Color? backgroundColor;
+
+  @override
+  State<LibraryToolbarHoverSurface> createState() =>
+      _LibraryToolbarHoverSurfaceState();
+}
+
+class _LibraryToolbarHoverSurfaceState
+    extends State<LibraryToolbarHoverSurface> {
+  bool _hovered = false;
+
+  @override
+  Widget build(BuildContext context) => MouseRegion(
+        cursor: widget.enabled
+            ? SystemMouseCursors.click
+            : SystemMouseCursors.basic,
+        onEnter: (_) {
+          if (widget.enabled) setState(() => _hovered = true);
+        },
+        onExit: (_) => setState(() => _hovered = false),
+        child: AnimatedContainer(
+          duration: MediaQuery.disableAnimationsOf(context)
+              ? Duration.zero
+              : appControlHoverDuration,
+          decoration: BoxDecoration(
+            color: _hovered && widget.enabled
+                ? libraryToolbarControlHover(context)
+                : widget.backgroundColor ??
+                    libraryToolbarControlSurface(context),
+            borderRadius: BorderRadius.circular(5),
+          ),
+          child: widget.child,
+        ),
+      );
+}
 
 BoxDecoration libraryToolbarDropdownDecoration(
   BuildContext context, {
@@ -40,6 +87,7 @@ class _LibraryToolbarCompactDropdownTriggerState
   @override
   Widget build(BuildContext context) {
     return MouseRegion(
+      cursor: SystemMouseCursors.click,
       onEnter: (_) => setState(() => _hovered = true),
       onExit: (_) => setState(() => _hovered = false),
       child: DecoratedBox(
@@ -61,7 +109,7 @@ class _LibraryToolbarCompactDropdownTriggerState
               ),
               const SizedBox(width: 1),
               Icon(
-                Icons.keyboard_arrow_down,
+                AppIcons.chevronDown,
                 size: 14,
                 color: widget.arrowColor ??
                     libraryToolbarControlMutedText(context),

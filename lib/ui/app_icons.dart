@@ -139,6 +139,16 @@ abstract final class AppIcons {
       IconData(0xf0ed, fontFamily: _solid, fontPackage: _fontPackage);
 
   // --- Sorting & View Controls ---
+  static const IconData check =
+      IconData(0xf00c, fontFamily: _solid, fontPackage: _fontPackage);
+  static const IconData toolbarTools =
+      IconData(0xf1de, fontFamily: _solid, fontPackage: _fontPackage);
+  static const IconData columns =
+      IconData(0xf0db, fontFamily: _solid, fontPackage: _fontPackage);
+  static const IconData sortAscending =
+      IconData(0xf30c, fontFamily: _solid, fontPackage: _fontPackage);
+  static const IconData sortDescending =
+      IconData(0xf309, fontFamily: _solid, fontPackage: _fontPackage);
   static const IconData sortAlpha =
       IconData(0xf15d, fontFamily: _solid, fontPackage: _fontPackage);
   static const IconData sortCount =

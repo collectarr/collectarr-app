@@ -358,7 +358,7 @@ class _LibraryEditDialogScaffoldState extends State<LibraryEditDialogScaffold> {
                             width: double.infinity,
                             padding: const EdgeInsets.fromLTRB(10, 8, 10, 8),
                             decoration: BoxDecoration(
-                              color: p.panelRaised,
+                              color: p.panel,
                               border: Border(
                                 top: BorderSide(color: p.divider),
                               ),
@@ -474,7 +474,7 @@ class _LibraryEditTitleBar extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
                       fontFamily: appFontFamily,
-                      fontWeight: FontWeight.w800,
+                      fontWeight: FontWeight.w700,
                       fontSize: 18,
                       height: 1,
                       letterSpacing: 0,
@@ -538,7 +538,10 @@ class _LibraryEditFooter extends StatelessWidget {
           : appControlHoverDuration,
       splashFactory: NoSplash.splashFactory,
       textStyle: const TextStyle(
-          fontSize: 14, fontWeight: FontWeight.w400, letterSpacing: 0),
+          fontSize: 14,
+          fontWeight: FontWeight.w400,
+          height: 20 / 14,
+          letterSpacing: 0),
     ).copyWith(
       overlayColor: const WidgetStatePropertyAll(Colors.transparent),
       backgroundColor: WidgetStateProperty.resolveWith((states) {
@@ -658,7 +661,8 @@ class _LibraryEditFooter extends StatelessWidget {
               shape: kLibraryDialogFooterButtonShape,
               textStyle: const TextStyle(
                   fontSize: 14,
-                  fontWeight: kAppBoldFontWeight,
+                  fontWeight: FontWeight.w400,
+                  height: 20 / 14,
                   letterSpacing: 0),
               visualDensity: VisualDensity.standard,
               tapTargetSize: MaterialTapTargetSize.shrinkWrap,
@@ -673,6 +677,7 @@ class _LibraryEditFooter extends StatelessWidget {
     return LibraryActionFooter(
       backgroundColor: appPalette(context).toolbar,
       borderColor: appPalette(context).divider,
+      padding: const EdgeInsets.all(10),
       child: windowClass.isCompact
           ? SingleChildScrollView(
               scrollDirection: Axis.horizontal,

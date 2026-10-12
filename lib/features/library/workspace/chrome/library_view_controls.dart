@@ -46,6 +46,7 @@ class LibraryViewModeDropdown extends StatelessWidget {
     return SizedBox(
       width: triggerWidth,
       child: PopupMenuButton<LibraryViewMode>(
+        popUpAnimationStyle: AnimationStyle.noAnimation,
         key: _viewModeDropdownKey,
         tooltip: _viewModeTooltip(viewMode),
         onSelected: onChanged,
@@ -60,7 +61,14 @@ class LibraryViewModeDropdown extends StatelessWidget {
         ).copyWith(minWidth: menuWidth, maxWidth: menuWidth),
         shape: libraryToolbarDropdownMenuShape(context),
         itemBuilder: (context) => [
-          for (final mode in LibraryViewMode.values)
+          for (final mode in const [
+            LibraryViewMode.list,
+            LibraryViewMode.card,
+            LibraryViewMode.horizontalCards,
+            LibraryViewMode.grid,
+            LibraryViewMode.shelves,
+            LibraryViewMode.cardFlow
+          ])
             PopupMenuItem<LibraryViewMode>(
               height: _viewModeDropdownHeight,
               padding: const EdgeInsets.symmetric(horizontal: 7),
@@ -136,6 +144,7 @@ class LibraryDetailsLayoutDropdown extends StatelessWidget {
             valueLabel: _detailsLayoutMenuLabel(detailsLayout),
           );
     final popup = PopupMenuButton<LibraryDetailsLayout>(
+      popUpAnimationStyle: AnimationStyle.noAnimation,
       key: _detailsLayoutDropdownKey,
       tooltip: _detailsLayoutTooltip(detailsLayout),
       onSelected: onChanged,
@@ -573,8 +582,10 @@ class _LibraryToolbarSplitLabelTrigger extends StatelessWidget {
           color: libraryToolbarControlText(context),
         );
     if (iconOnly) {
-      return DecoratedBox(
-        decoration: libraryToolbarDropdownDecoration(context),
+      return LibraryToolbarHoverSurface(
+          child: DecoratedBox(
+        decoration: libraryToolbarDropdownDecoration(context,
+            backgroundColor: Colors.transparent),
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 8),
           child: Row(
@@ -587,10 +598,12 @@ class _LibraryToolbarSplitLabelTrigger extends StatelessWidget {
             ],
           ),
         ),
-      );
+      ));
     }
-    return DecoratedBox(
-      decoration: libraryToolbarDropdownDecoration(context),
+    return LibraryToolbarHoverSurface(
+        child: DecoratedBox(
+      decoration: libraryToolbarDropdownDecoration(context,
+          backgroundColor: Colors.transparent),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
         child: Row(
@@ -624,7 +637,7 @@ class _LibraryToolbarSplitLabelTrigger extends StatelessWidget {
           ],
         ),
       ),
-    );
+    ));
   }
 }
 

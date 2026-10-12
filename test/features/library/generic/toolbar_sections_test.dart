@@ -8,6 +8,7 @@ import 'package:collectarr_app/features/library/workspace/chrome/library_view_co
 import 'package:collectarr_app/features/library/workspace/chrome/library_dense_controls.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:flutter/material.dart';
+import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -24,8 +25,8 @@ void main() {
       label: 'Series | Issue',
       icon: Icons.swap_vert,
       rules: [
-        LibrarySortRule(column: 'series', ascending: true),
-        LibrarySortRule(column: 'issue', ascending: true),
+        LibrarySortRule(column: 'comic.series', ascending: true),
+        LibrarySortRule(column: 'comic.issue_number', ascending: true),
       ],
     );
 
@@ -75,7 +76,7 @@ void main() {
 
     await tester.tap(
       find.descendant(
-          of: sortButton, matching: find.byIcon(Icons.sort_by_alpha)),
+          of: sortButton, matching: find.byIcon(AppIcons.sortAlpha)),
     );
     await tester.pump();
 

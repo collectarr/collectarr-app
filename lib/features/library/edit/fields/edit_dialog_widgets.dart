@@ -30,7 +30,7 @@ const BorderRadius kEditMenuBorderRadius = kAppMenuBorderRadius;
 /// Saved CLZ editor surfaces, scoped to dialogs rather than the workspace.
 AppThemePalette libraryEditPalette(AppThemePalette palette) => palette.isDark
     ? palette.copyWith(
-        panel: const Color(0xFF242424),
+        panel: const Color(0xFF262626),
         panelRaised: const Color(0xFF383838),
         surfaceBright: const Color(0xFF383838),
         surface: const Color(0xFF444444),

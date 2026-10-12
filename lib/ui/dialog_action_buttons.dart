@@ -20,6 +20,8 @@ class DialogActionButtons {
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
           minimumSize: const Size(112, kLibraryDialogFooterButtonHeight),
           visualDensity: VisualDensity.compact,
+          textStyle: const TextStyle(
+              fontSize: 14, fontWeight: FontWeight.w400, height: 20 / 14),
         ),
         onPressed: onPressed,
         child: Text(label),
@@ -47,7 +49,8 @@ class DialogActionButtons {
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
           minimumSize: const Size(112, kLibraryDialogFooterButtonHeight),
           shape: kLibraryDialogFooterButtonShape,
-          textStyle: const TextStyle(fontWeight: FontWeight.w700),
+          textStyle: const TextStyle(
+              fontSize: 14, fontWeight: FontWeight.w400, height: 20 / 14),
           visualDensity: VisualDensity.compact,
         ),
         onPressed: onPressed,
