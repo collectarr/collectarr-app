@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/library_accent_scope.dart';
 import 'package:collectarr_app/features/library/workspace/layout/library_folder_row.dart';
 import 'dart:async';
 import 'package:collectarr_app/features/library/generic/view_preference_store.dart';
@@ -581,13 +582,7 @@ class _SidebarSearchAndSort extends StatelessWidget {
               ],
               if (showSort) ...[
                 const SizedBox(width: 5),
-                _SidebarSortSwitch(
-                  sortMode: sortMode,
-                  accentColor: accentColor,
-                  dividerColor: dividerColor,
-                  mutedTextColor: mutedTextColor,
-                  onTap: onToggleSort,
-                ),
+                _SidebarSortSwitch(sortMode: sortMode, onTap: onToggleSort),
               ],
             ],
           );
@@ -669,72 +664,86 @@ class _SidebarStatusScopeButton extends StatelessWidget {
 }
 
 class _SidebarSortSwitch extends StatelessWidget {
-  const _SidebarSortSwitch(
-      {required this.sortMode,
-      required this.accentColor,
-      required this.dividerColor,
-      required this.mutedTextColor,
-      required this.onTap});
+  const _SidebarSortSwitch({required this.sortMode, required this.onTap});
   final LibraryFolderSortMode sortMode;
-  final Color accentColor, dividerColor, mutedTextColor;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
     final alphabetical = sortMode == LibraryFolderSortMode.alphabetical;
-    return Tooltip(
-      message: alphabetical ? 'Sort by count' : 'Sort alphabetically',
-      child: Semantics(
-        button: true,
-        label: alphabetical
-            ? 'Folders sorted alphabetically'
-            : 'Folders sorted by count',
-        child: Material(
-          color: appPalette(context).surface,
-          borderRadius: BorderRadius.circular(4),
-          child: InkWell(
-            onTap: onTap,
-            borderRadius: BorderRadius.circular(4),
-            child: SizedBox(
-              width: 60,
-              height: 26,
-              child: Stack(children: [
-                AnimatedAlign(
-                  duration: const Duration(milliseconds: 300),
-                  alignment: alphabetical
-                      ? Alignment.centerLeft
-                      : Alignment.centerRight,
-                  child: Padding(
-                    padding: const EdgeInsets.all(2),
-                    child: Container(
-                      width: 26,
-                      height: 22,
-                      decoration: BoxDecoration(
-                        color: libraryFolderHoverColor(context),
-                        border: Border.all(
-                            color: accentColor.withValues(alpha: 0.55)),
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                    ),
-                  ),
+    final duration = LibraryAccentScope.of(context).animationDuration;
+    final palette = appPalette(context);
+    return Material(
+      color: palette.surface,
+      borderRadius: BorderRadius.circular(4),
+      clipBehavior: Clip.antiAlias,
+      child: SizedBox(
+        width: 60,
+        height: 26,
+        child: Stack(children: [
+          AnimatedAlign(
+            duration: duration,
+            curve: Curves.easeOutCubic,
+            alignment:
+                alphabetical ? Alignment.centerLeft : Alignment.centerRight,
+            child: Padding(
+              padding: const EdgeInsets.all(2),
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  color: libraryFolderHoverColor(context),
+                  borderRadius: BorderRadius.circular(4),
                 ),
-                Row(children: [
-                  for (final mode in LibraryFolderSortMode.values)
-                    Expanded(
-                        child: AnimatedOpacity(
-                      duration: const Duration(milliseconds: 300),
-                      opacity: mode == sortMode ? 1 : 0.25,
-                      child: Icon(
-                          mode == LibraryFolderSortMode.alphabetical
-                              ? AppIcons.sortAlpha
-                              : AppIcons.sortCount,
-                          size: 14,
-                          color: appPalette(context).textPrimary),
-                    )),
-                ]),
-              ]),
+                child: const SizedBox(width: 26, height: 22),
+              ),
             ),
           ),
+          Row(children: [
+            for (final mode in LibraryFolderSortMode.values)
+              Expanded(child: _sortButton(context, mode, duration)),
+          ]),
+        ]),
+      ),
+    );
+  }
+
+  Widget _sortButton(
+      BuildContext context, LibraryFolderSortMode mode, Duration duration) {
+    final selected = mode == sortMode;
+    final label = mode == LibraryFolderSortMode.alphabetical
+        ? 'Sort alphabetically'
+        : 'Sort by count';
+    void select() {
+      Tooltip.dismissAllToolTips();
+      if (!selected) onTap();
+    }
+
+    return Tooltip(
+      message: label,
+      excludeFromSemantics: true,
+      child: Semantics(
+        button: true,
+        selected: selected,
+        label: label,
+        value: selected ? 'Selected' : null,
+        onTap: select,
+        excludeSemantics: true,
+        child: InkWell(
+          onTap: select,
+          mouseCursor: SystemMouseCursors.click,
+          hoverColor: libraryFolderHoverColor(context),
+          child: Center(
+              child: AnimatedOpacity(
+            duration: duration,
+            curve: Curves.easeOutCubic,
+            opacity: selected ? 1 : 0.25,
+            child: Icon(
+              mode == LibraryFolderSortMode.alphabetical
+                  ? AppIcons.sortAlpha
+                  : AppIcons.sortCount,
+              size: 18,
+              color: appPalette(context).textPrimary,
+            ),
+          )),
         ),
       ),
     );

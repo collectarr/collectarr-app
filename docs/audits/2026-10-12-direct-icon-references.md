@@ -409,7 +409,7 @@ For remaining consumers, use an existing AppIcons semantic token when it represe
 | `Icons.segment_outlined` | 1 | `lib/features/library/workspace/config/library_typed_field_definition.dart:44` |
 | `Icons.table_rows` | 1 | `lib/features/library/workspace/config/library_workspace_tokens.dart:71` |
 | `Icons.segment` | 1 | `lib/features/library/workspace/config/library_workspace_view_enums.dart:36` |
-| `Icons.checklist_rounded` | 1 | `lib/features/library/workspace/layout/library_bucket_sidebar.dart:638` |
+| `Icons.checklist_rounded` | 1 | `lib/features/library/workspace/layout/library_bucket_sidebar.dart:633` |
 | `Icons.menu_open` | 1 | `lib/features/library/workspace/table/library_view_table_controls.dart:33` |
 | `Icons.view_column` | 1 | `lib/features/library/workspace/table/library_view_table_controls.dart:44` |
 | `Icons.star_rate` | 1 | `lib/features/library/workspace/tiles/library_item_badges.dart:116` |
