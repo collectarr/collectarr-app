@@ -167,3 +167,10 @@ Published release assets include:
 ## 💛 Support
 
 [![Support me on Ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/saitatter)
+
+## User manual website
+
+The separate `collectarr-site` project contains the product website and a shared
+manual with kind-specific chapters. **Help → User Manual** opens the current
+kind's chapter in your browser. See [manual hosting and local preview](docs/user-manual-site.md)
+for deployment status and the `COLLECTARR_MANUAL_URL` build define.

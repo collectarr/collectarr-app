@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:collectarr_app/app/help/user_manual.dart';
 
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/routing/app_router.dart';
@@ -220,6 +221,9 @@ class AppShellActions {
                           .where((entry) => entry.mediaKind == type.kind)
                           .toList()),
                 )));
+        return;
+      case DrawerAction.userManual:
+        await openUserManual(context, kind: type.kind);
         return;
       case DrawerAction.keyboardShortcuts:
         showKeyboardShortcutsDialog(context);

@@ -16,6 +16,8 @@ abstract final class AppIcons {
   static const IconData unlink =
       IconData(0xf127, fontFamily: _solid, fontPackage: _fontPackage);
   // --- Navigation & Drawer ---
+  static const IconData userManual =
+      IconData(0xf518, fontFamily: _solid, fontPackage: _fontPackage);
   static const IconData menu =
       IconData(0xf0c9, fontFamily: _solid, fontPackage: _fontPackage);
   static const IconData add =

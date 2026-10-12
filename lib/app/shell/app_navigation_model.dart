@@ -25,6 +25,7 @@ enum DrawerAction {
   exportXml,
   importData,
   linkAlbums,
+  userManual,
   keyboardShortcuts,
 }
 
@@ -33,7 +34,8 @@ enum DrawerActionBehavior {
   overlayPage,
   modal,
   libraryTool,
-  libraryAdd
+  libraryAdd,
+  externalLink
 }
 
 enum AppDrawerSection {
@@ -221,6 +223,13 @@ const appDrawerDestinations = <AppDrawerDestination>[
       icon: AppIcons.link,
       section: AppDrawerSection.importExport,
       behavior: DrawerActionBehavior.overlayPage),
+  AppDrawerDestination(
+      action: DrawerAction.userManual,
+      label: 'User Manual',
+      icon: AppIcons.userManual,
+      section: AppDrawerSection.help,
+      behavior: DrawerActionBehavior.externalLink,
+      widgetKey: 'drawer.user-manual'),
   AppDrawerDestination(
       action: DrawerAction.keyboardShortcuts,
       label: 'Keyboard Shortcuts',

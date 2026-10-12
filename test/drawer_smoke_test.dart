@@ -100,6 +100,15 @@ void main() {
     expect(find.text('Print to PDF'), findsOneWidget);
     expect(find.text('Statistics'), findsOneWidget);
     expect(find.text('Backup / Restore'), findsOneWidget);
+    expect(find.text('User Manual'), findsOneWidget);
+    expect(find.byIcon(AppIcons.userManual), findsOneWidget);
+
+    await tester.ensureVisible(find.text('User Manual'));
+    await tester.tap(find.text('User Manual'));
+    await tester.pump();
+    expect(selectedAction, DrawerAction.userManual);
+
+    await tester.ensureVisible(find.text('Manage Collections'));
 
     // Verify semantic glyphs from the shared icon catalog.
     expect(find.byIcon(AppIcons.print), findsOneWidget);
