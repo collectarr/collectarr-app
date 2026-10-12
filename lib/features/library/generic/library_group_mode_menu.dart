@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_icons.dart';
 import 'dart:async';
 
 import 'package:collectarr_app/features/library/ui/primitives/library_field_selection.dart';
@@ -148,17 +149,17 @@ class _LibraryGroupModeMenuButtonState
         final child = widget.iconOnly
             ? LibraryToolbarCompactDropdownTrigger(icon: widget.icon)
             : Container(
-                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 5),
-                constraints: const BoxConstraints(minHeight: 28),
+                padding: const EdgeInsets.symmetric(horizontal: 5),
+                constraints: const BoxConstraints(minHeight: 30),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Icon(
-                      Icons.folder_open_outlined,
-                      size: 16,
+                      AppIcons.folderOpen,
+                      size: 14,
                       color: triggerColor,
                     ),
-                    const SizedBox(width: 6),
+                    const SizedBox(width: 4),
                     Flexible(
                       child: Text(
                         label,
@@ -172,8 +173,8 @@ class _LibraryGroupModeMenuButtonState
                     ),
                     const SizedBox(width: 2),
                     Icon(
-                      Icons.keyboard_arrow_down_rounded,
-                      size: 18,
+                      AppIcons.chevronDown,
+                      size: 14,
                       color: triggerColor,
                     ),
                   ],

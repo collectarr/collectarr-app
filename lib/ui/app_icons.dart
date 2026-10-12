@@ -20,6 +20,9 @@ abstract final class AppIcons {
       IconData(0xf0c9, fontFamily: _solid, fontPackage: _fontPackage);
   static const IconData add =
       IconData(0x2b, fontFamily: _solid, fontPackage: _fontPackage);
+  static const String pickListManageSvg = 'assets/icons/pick-list-manage.svg';
+  static const IconData folderOpen =
+      IconData(0xf07c, fontFamily: _solid, fontPackage: _fontPackage);
   static const IconData pickLists =
       IconData(0xf022, fontFamily: _regular, fontPackage: _fontPackage);
   static const IconData collections =

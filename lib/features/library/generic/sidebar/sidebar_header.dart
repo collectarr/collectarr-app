@@ -1,5 +1,3 @@
-import 'package:collectarr_app/features/library/ui/library_density_scope.dart';
-import 'package:collectarr_app/features/library/ui/library_metrics.dart';
 import 'package:collectarr_app/ui/pick_list_field_button.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
 import 'package:collectarr_app/features/library/generic/library_group_mode_menu.dart';
@@ -112,13 +110,13 @@ class LibrarySidebarHeader extends StatelessWidget {
         ),
     ];
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 5),
       decoration: BoxDecoration(
         color: libraryWorkspaceToolbarColor(context),
         border: libraryWorkspaceToolbarBorder(context),
       ),
       child: SizedBox(
-        height: kLibraryToolbarBandHeight - 2,
+        height: kLibraryToolbarBandHeight,
         child: LayoutBuilder(
           builder: (context, constraints) {
             final width = constraints.maxWidth;
@@ -149,7 +147,7 @@ class LibrarySidebarHeader extends StatelessWidget {
                 borderRadius: BorderRadius.circular(4),
               ),
               child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: compact ? 0 : 3),
+                padding: EdgeInsets.zero,
                 child: LibraryGroupModeMenuButton(
                   type: type,
                   folderPreset:
@@ -174,52 +172,47 @@ class LibrarySidebarHeader extends StatelessWidget {
               );
             }
             return Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Expanded(child: selector),
-                if (loadingWidth > 0) ...[
-                  const SizedBox(width: 6),
-                  const SizedBox(
-                      width: 16,
-                      height: 16,
-                      child: CircularProgressIndicator(strokeWidth: 2)),
-                ],
-                for (final action in actions.take(visibleCount)) ...[
-                  const SizedBox(width: 4),
-                  SizedBox(
-                      width: action.isPickList ? PickListFieldButton.width : 30,
-                      height: action.isPickList
-                          ? LibraryDensityScope.of(context)
-                                  .metrics
-                                  .fieldHeight -
-                              2
-                          : 30,
-                      child: action),
-                ],
-                if (overflow && slots > 0) ...[
-                  const SizedBox(width: 4),
-                  SizedBox(
-                    width: 30,
-                    height: 30,
-                    child: PopupMenuButton<int>(
-                      tooltip: 'More folder actions',
-                      padding: EdgeInsets.zero,
-                      icon: Icon(Icons.more_horiz,
-                          size: 16, color: palette.textMuted),
-                      onSelected: (index) => hiddenActions[index].onPressed(),
-                      itemBuilder: (context) => [
-                        for (var i = 0; i < hiddenActions.length; i++)
-                          PopupMenuItem<int>(
-                            value: i,
-                            child: Row(children: [
-                              Icon(hiddenActions[i].icon, size: 16),
-                              const SizedBox(width: 8),
-                              Text(hiddenActions[i].tooltip),
-                            ]),
-                          ),
-                      ],
+                Flexible(child: selector),
+                Row(mainAxisSize: MainAxisSize.min, children: [
+                  if (loadingWidth > 0) ...[
+                    const SizedBox(width: 6),
+                    const SizedBox(
+                        width: 16,
+                        height: 16,
+                        child: CircularProgressIndicator(strokeWidth: 2)),
+                  ],
+                  for (final action in actions.take(visibleCount)) ...[
+                    const SizedBox(width: 4),
+                    SizedBox(width: 30, height: 30, child: action),
+                  ],
+                  if (overflow && slots > 0) ...[
+                    const SizedBox(width: 4),
+                    SizedBox(
+                      width: 30,
+                      height: 30,
+                      child: PopupMenuButton<int>(
+                        tooltip: 'More folder actions',
+                        padding: EdgeInsets.zero,
+                        icon: Icon(Icons.more_horiz,
+                            size: 16, color: palette.textMuted),
+                        onSelected: (index) => hiddenActions[index].onPressed(),
+                        itemBuilder: (context) => [
+                          for (var i = 0; i < hiddenActions.length; i++)
+                            PopupMenuItem<int>(
+                              value: i,
+                              child: Row(children: [
+                                Icon(hiddenActions[i].icon, size: 16),
+                                const SizedBox(width: 8),
+                                Text(hiddenActions[i].tooltip),
+                              ]),
+                            ),
+                        ],
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ]),
               ],
             );
           },
@@ -249,7 +242,8 @@ class _LibrarySidebarToolbarButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (isPickList) {
-      return PickListFieldButton(tooltip: tooltip, onPressed: onPressed);
+      return PickListFieldButton(
+          tooltip: tooltip, onPressed: onPressed, embeddedInField: false);
     }
     final palette = appPalette(context);
     final resolvedActiveColor = activeColor ?? palette.textPrimary;
