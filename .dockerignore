@@ -1,0 +1,8 @@
+# Web image uses only the generated public bundle and nginx configuration.
+**
+!Dockerfile.web
+!deploy/
+!deploy/web-nginx.conf
+!build/
+!build/web/
+!build/web/**

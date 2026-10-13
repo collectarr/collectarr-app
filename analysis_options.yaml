@@ -16,6 +16,7 @@ analyzer:
     - web/**
     - windows/**
     - linux/**
+    - macos/**
   language:
     strict-casts: true
     strict-inference: true
