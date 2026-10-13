@@ -136,9 +136,6 @@ class _LibraryAddModeBarState extends State<LibraryAddModeBar> {
   void didUpdateWidget(covariant LibraryAddModeBar oldWidget) {
     super.didUpdateWidget(oldWidget);
     _syncAdvancedControllers(_resolveAdvancedFields());
-    if (widget.suggestions != oldWidget.suggestions) {
-      _dismissed = false;
-    }
     final canShow =
         widget.showSuggestions && widget.suggestions.isNotEmpty && !_dismissed;
     if (canShow && !_suggestionsOverlayController.isShowing) {
@@ -168,7 +165,17 @@ class _LibraryAddModeBarState extends State<LibraryAddModeBar> {
     super.dispose();
   }
 
+  void _handleQueryChanged(String value) {
+    setState(() => _dismissed = false);
+    widget.onQueryChanged(value);
+  }
+
   void _handleSearch() {
+    if (_suggestionsOverlayController.isShowing) {
+      _suggestionsOverlayController.hide();
+    }
+    setState(() => _dismissed = true);
+    widget.onDismissSuggestions();
     final fields = _resolveAdvancedFields();
     for (final field in fields) {
       widget.onAdvancedFilterChanged(
@@ -220,63 +227,66 @@ class _LibraryAddModeBarState extends State<LibraryAddModeBar> {
       widget.accent.withValues(alpha: palette.isDark ? 0.34 : 0.22),
       palette.divider,
     );
-    return TapRegion(
-      groupId: this,
-      onTapOutside: (_) {
-        if (_suggestionsOverlayController.isShowing) {
-          _suggestionsOverlayController.hide();
-        }
-        if (mounted) {
-          setState(() {
-            _dismissed = true;
-          });
-        }
-        widget.onDismissSuggestions();
-      },
-      child: CompositedTransformFollower(
-        link: _searchLayerLink,
-        showWhenUnlinked: false,
-        targetAnchor: Alignment.bottomLeft,
-        followerAnchor: Alignment.topLeft,
-        offset: const Offset(0, 4),
-        child: SizedBox(
-          width: targetWidth,
-          child: Material(
-            color: palette.panel,
-            elevation: 12,
-            shadowColor: Colors.black.withValues(alpha: 0.5),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(4),
-              side: BorderSide(color: borderColor),
-            ),
-            clipBehavior: Clip.antiAlias,
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxHeight: 280),
-              child: ListView.separated(
-                padding: EdgeInsets.zero,
-                shrinkWrap: true,
-                itemCount: widget.suggestions.length,
-                separatorBuilder: (_, __) =>
-                    Divider(height: 1, color: palette.divider),
-                itemBuilder: (context, index) {
-                  final item = widget.suggestions[index];
-                  return _SuggestionTile(
-                    type: widget.type,
-                    item: item,
-                    accent: widget.accent,
-                    onTap: () {
-                      if (_suggestionsOverlayController.isShowing) {
-                        _suggestionsOverlayController.hide();
-                      }
-                      if (mounted) {
-                        setState(() {
-                          _dismissed = true;
-                        });
-                      }
-                      widget.onSelectSuggestion(item);
-                    },
-                  );
-                },
+    return Align(
+      alignment: Alignment.topLeft,
+      child: TapRegion(
+        groupId: this,
+        onTapOutside: (_) {
+          if (_suggestionsOverlayController.isShowing) {
+            _suggestionsOverlayController.hide();
+          }
+          if (mounted) {
+            setState(() {
+              _dismissed = true;
+            });
+          }
+          widget.onDismissSuggestions();
+        },
+        child: CompositedTransformFollower(
+          link: _searchLayerLink,
+          showWhenUnlinked: false,
+          targetAnchor: Alignment.bottomLeft,
+          followerAnchor: Alignment.topLeft,
+          offset: const Offset(0, 4),
+          child: SizedBox(
+            width: targetWidth,
+            child: Material(
+              color: palette.panel,
+              elevation: 12,
+              shadowColor: Colors.black.withValues(alpha: 0.5),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(4),
+                side: BorderSide(color: borderColor),
+              ),
+              clipBehavior: Clip.antiAlias,
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxHeight: 280),
+                child: ListView.separated(
+                  padding: EdgeInsets.zero,
+                  shrinkWrap: true,
+                  itemCount: widget.suggestions.length,
+                  separatorBuilder: (_, __) =>
+                      Divider(height: 1, color: palette.divider),
+                  itemBuilder: (context, index) {
+                    final item = widget.suggestions[index];
+                    return _SuggestionTile(
+                      type: widget.type,
+                      item: item,
+                      accent: widget.accent,
+                      onTap: () {
+                        if (_suggestionsOverlayController.isShowing) {
+                          _suggestionsOverlayController.hide();
+                        }
+                        if (mounted) {
+                          setState(() {
+                            _dismissed = true;
+                          });
+                        }
+                        widget.onSelectSuggestion(item);
+                      },
+                    );
+                  },
+                ),
               ),
             ),
           ),
@@ -375,7 +385,7 @@ class _LibraryAddModeBarState extends State<LibraryAddModeBar> {
                                 controller: widget.queryController,
                                 hintText: searchLabels.queryHint,
                                 onSearch: (_) => _handleSearch(),
-                                onChanged: widget.onQueryChanged,
+                                onChanged: _handleQueryChanged,
                                 onScanBarcode: () => widget.onModeChanged(
                                     LibraryAddDialogMode.identifier),
                                 onScanCover: widget.canScanCover
@@ -520,7 +530,7 @@ class _LibraryAddModeBarState extends State<LibraryAddModeBar> {
                                   controller: widget.queryController,
                                   hintText: searchLabels.queryHint,
                                   onSearch: (_) => _handleSearch(),
-                                  onChanged: widget.onQueryChanged,
+                                  onChanged: _handleQueryChanged,
                                   onScanBarcode: () => widget.onModeChanged(
                                       LibraryAddDialogMode.identifier),
                                   onScanCover: widget.canScanCover
