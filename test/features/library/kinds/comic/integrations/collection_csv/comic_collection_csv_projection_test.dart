@@ -70,7 +70,8 @@ void main() {
         kind: 'comic',
         id: 'entry-1',
         itemId: 'comic-1',
-        details: const ComicEntryDetails(coverPriceCents: 399, rawOrSlabbed: 'Raw', keyComic: true),
+        details: const ComicEntryDetails(
+            coverPriceCents: 399, rawOrSlabbed: 'Raw', keyComic: true),
         updatedAt: DateTime.utc(2026, 5, 12),
       ),
     );

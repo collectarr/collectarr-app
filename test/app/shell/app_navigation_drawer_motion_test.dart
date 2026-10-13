@@ -37,5 +37,4 @@ void main() {
     expect(header, findsNothing);
     expect(tester.takeException(), isNull);
   });
-
 }

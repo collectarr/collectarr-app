@@ -76,19 +76,21 @@ void main() {
     );
 
     verifyCollectionCsvCatalogContract(
-      projection: projection, fixture: entry, expectedCells: [
-      'book-1',
-      'book',
-      'The Hobbit',
-      '1',
-      'Hardcover',
-      'First edition',
-      'Hardcover',
-      'Hardcover',
-      'Allen & Unwin',
-      '1937-09-21',
-      '9780261102217',
-    ]);
+        projection: projection,
+        fixture: entry,
+        expectedCells: [
+          'book-1',
+          'book',
+          'The Hobbit',
+          '1',
+          'Hardcover',
+          'First edition',
+          'Hardcover',
+          'Hardcover',
+          'Allen & Unwin',
+          '1937-09-21',
+          '9780261102217',
+        ]);
     expect(
       projection.entryCellsBeforeLocation(entry, clzFriendly: false),
       isEmpty,

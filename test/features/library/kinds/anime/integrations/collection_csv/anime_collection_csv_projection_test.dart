@@ -77,19 +77,21 @@ void main() {
     );
 
     verifyCollectionCsvCatalogContract(
-      projection: projection, fixture: entry, expectedCells: [
-      'anime-1',
-      'anime',
-      'Cowboy Bebop',
-      '1',
-      'TV / Collector',
-      'Complete Series',
-      'blu-ray',
-      'Blu-ray',
-      'Sunrise',
-      '1998-04-03',
-      '123456789012',
-    ]);
+        projection: projection,
+        fixture: entry,
+        expectedCells: [
+          'anime-1',
+          'anime',
+          'Cowboy Bebop',
+          '1',
+          'TV / Collector',
+          'Complete Series',
+          'blu-ray',
+          'Blu-ray',
+          'Sunrise',
+          '1998-04-03',
+          '123456789012',
+        ]);
     expect(
       projection.entryCellsAfterIndex(entry, clzFriendly: true),
       hasLength(9),

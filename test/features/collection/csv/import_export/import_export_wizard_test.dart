@@ -37,7 +37,7 @@ void main() {
                     releaseDate: DateTime.utc(2005, 7, 1),
                   ).asShelfCatalogItem),
                   libraryEntrySummary: testLibraryEntrySummary(testLibraryEntry(
-        kind: 'comic',
+                    kind: 'comic',
                     id: 'entry-1',
                     itemId: 'comic-1',
                     updatedAt: DateTime.utc(2026, 5, 24),

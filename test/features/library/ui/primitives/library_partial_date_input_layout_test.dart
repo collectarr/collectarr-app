@@ -4,10 +4,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  testWidgets('partial date separators share the field center and fixed geometry', (tester) async {
+  testWidgets(
+      'partial date separators share the field center and fixed geometry',
+      (tester) async {
     await tester.pumpWidget(MaterialApp(
       theme: buildLibraryTheme(),
-      home: Scaffold(body: Center(child: SizedBox(width: 300,
+      home: Scaffold(
+          body: Center(
+              child: SizedBox(
+        width: 300,
         child: LibraryPartialDateInput(onChanged: (_) {}),
       ))),
     ));

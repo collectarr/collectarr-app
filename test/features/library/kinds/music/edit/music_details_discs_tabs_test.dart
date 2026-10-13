@@ -18,8 +18,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   group('Music album details navigation and track editing', () {
-    testWidgets('shows General and one metadata tab per disc',
-        (tester) async {
+    testWidgets('shows General and one metadata tab per disc', (tester) async {
       final album = MusicAlbum(
         id: const CatalogItemRef(
             kind: CatalogMediaKind.music, id: 'test-album'),

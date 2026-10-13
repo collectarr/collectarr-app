@@ -12,17 +12,24 @@ LibraryWorkspaceContext collectionCsvFixture({
   TestLibraryEntry? personal,
   DateTime? updatedAt,
 }) {
-  final entry = personal ?? testLibraryEntry(
-    id: 'entry-1', itemId: catalog.id, kind: catalog.kind,
-    catalogTitle: catalog.kindData['title'] as String,
-    updatedAt: updatedAt ?? DateTime.utc(2026, 5, 15),
-  );
+  final entry = personal ??
+      testLibraryEntry(
+        id: 'entry-1',
+        itemId: catalog.id,
+        kind: catalog.kind,
+        catalogTitle: catalog.kindData['title'] as String,
+        updatedAt: updatedAt ?? DateTime.utc(2026, 5, 15),
+      );
   if (entry.catalogRef != catalog.catalogItemRef) {
-    throw ArgumentError('CSV fixture catalog and entry must share kind and Core identity.');
+    throw ArgumentError(
+        'CSV fixture catalog and entry must share kind and Core identity.');
   }
   return testLibraryWorkspaceSource(
-    itemId: catalog.id, kind: catalog.kind, catalogItem: catalog,
-    catalogData: testWorkspaceCatalogData(catalog), libraryEntry: entry,
+    itemId: catalog.id,
+    kind: catalog.kind,
+    catalogItem: catalog,
+    catalogData: testWorkspaceCatalogData(catalog),
+    libraryEntry: entry,
   );
 }
 

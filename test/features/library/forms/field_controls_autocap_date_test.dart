@@ -12,11 +12,13 @@ import 'package:flutter_test/flutter_test.dart';
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  testWidgets('partial date edits emit the changed component value', (tester) async {
+  testWidgets('partial date edits emit the changed component value',
+      (tester) async {
     PartialDate? changedDate;
     await tester.pumpWidget(MaterialApp(
       theme: buildLibraryTheme(palette: kDefaultAppThemePalette),
-      home: Scaffold(body: LibraryPartialDateInput(
+      home: Scaffold(
+          body: LibraryPartialDateInput(
         value: const PartialDate(year: 2024, month: 10, day: 6),
         onChanged: (value) => changedDate = value,
       )),
