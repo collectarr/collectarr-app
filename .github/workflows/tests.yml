@@ -51,14 +51,21 @@ jobs:
         run: flutter analyze --fatal-warnings --fatal-infos
 
       - name: Run unit and widget tests
-        run: dart run tool/run_tests.dart -- --coverage
+        run: |
+          set -o pipefail
+          mkdir -p build
+          dart run tool/run_tests.dart -- --coverage --reporter json | tee build/test-results.jsonl
+          dart run tool/testing/report_test_timings.dart build/test-results.jsonl
 
       - name: Save informational test coverage
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: app-correctness-coverage
-          path: coverage/lcov.info
+          path: |
+            coverage/lcov.info
+            build/test-timings.json
+            build/test-results.jsonl
           if-no-files-found: warn
 
       - name: Install Linux integration test dependencies

@@ -61,3 +61,8 @@ flutter test integration_test/library_edit_flow_test.dart -d windows
 Run them sequentially per checkout to avoid native SQLite library locks. CI runs
 the same files on Linux under Xvfb. Personal persistence uses a temporary database
 created by the test, closes it and reloads it; it never opens the user's database.
+
+CI also uploads machine test events and `build/test-timings.json`, listing the
+slowest files and directories by summed test-body duration. Concurrent test
+bodies overlap; this is not exclusive wall time and omits suite compilation.
+Inspect these hotspots before splitting jobs or adding timing thresholds.
