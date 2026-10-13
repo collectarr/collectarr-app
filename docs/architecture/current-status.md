@@ -1,11 +1,8 @@
 # Current Architecture Status
 
-Last reviewed: 2026-10-13. This report reflects the current working tree and
-the post-audit release evidence recorded below. The architecture guard has no
-unreviewed AST violations; its exact baseline retains 44 reviewed field-leak
-findings, all still observed and none stale. The checker reports 364
-informational complexity findings. The latest uniform-application-header gate
-reports 370. The latest dropdown and column-selector gate reports 371.
+Last reviewed: 2026-10-13. The current checker reports no AST architecture
+boundary violations and 359 informational complexity findings. Historical
+UI audit gates below describe their dated checkpoints, not current test counts.
 
 ## Music v1 release baseline
 
@@ -18,10 +15,13 @@ Documents database remains untouched and is never downgraded.
 Current album/disc/track/credit shapes are preserved. Packages and public
 contract labels start at 1.0.0/v1. Source ownership audits still include all kinds.
 
-Analyze, architecture boundaries, contract generation checks, the 67-test
-Music/database/settings gate and the Windows debug build pass. Full-suite
-fixture alignment is pending: do not merge/publish before the complete gate.
-Test cleanup follows the current [testing plan](test-suite-ownership.md).
+Current release verification passes analyze, architecture boundaries, pinned
+Music contracts, 903 correctness tests with coverage and zero skips, and four
+Windows native cases covering navigation, Core add and personal persistence.
+The benchmark passes separately for 1k/5k albums. Test ownership and explicit
+kind selection are documented in [test suite ownership](test-suite-ownership.md).
+Drift/kind generators leave generated files unchanged; pinned contract checks,
+whole-repository format, Windows debug and Web release builds pass.
 
 ## Implemented
 
@@ -252,55 +252,26 @@ rechecked through Opera DevTools CLI on 10 October; no remote settings were save
   Persisted Library Entry, tracking, admin, CSV import/export, and catalog edit
   payloads use the canonical `JsonMap` serialization boundary.
 
-## Active Music v2 refactor
+## Music domain and field ownership
 
-The staged field-semantics and Music v2 roadmap is tracked in
-[`current-status.md`](current-status.md). Field metadata now
-owns cardinality, source/path, and workspace capabilities across all nine
-kinds. The strict Core Music v2 bundle is pinned in App, and the App domain has
-stable album/disc credits, disc-owned recording metadata, coarse format
-families, explicit format presets, and one Credits tab with Album/Disc scope in
-Edit and manual Add.
-The former album-level recording fields and contribution model are removed.
-`MusicWorkspaceData` now constructs immutable `MusicWorkspaceFacts` once from
-the canonical album and reuses them through workspace projections, grouping,
-and existing disc recording filters. Checkpoint H also removed Music DTO proxy
-getters, made Catalog Item and Library Entry schemas share catalog field
-definitions, layered personal fields only onto Library Entry, and separated
-format/storage summaries from their many-valued semantic fields. Metadata,
-workspace schema, search-presentation, and export regression tests pass for
-this checkpoint. Checkpoint I now splits Music group definitions into
-catalog/disc/credit/personal modules, adds contained disc and credit fields to
-workspace groups and filters, and keeps `is_live` a many-valued boolean while
-rendering Live/Studio labels for grouping. Raw CSV/TXT export preserves the
-boolean values as `true`/`false`. Checkpoint J adds scalar earliest/latest
-disc recording date fields and sorts to both Music workspace schemas. Facts reduction and
-sorting share one partial-date bound comparator, and sort callbacks read only
-the precomputed fact values. Music reports now export format summaries
-separately from raw disc formats and expose exportable disc and credit facts
-through kind-owned fields. Workspace metadata now selects disc formats,
-recording locations, and contributor names for multi-value search indexing,
-while technical values and credit roles/instruments stay excluded. Smart List
-many-value operators now match contained values with any-match semantics, and
-the opt-in workspace benchmark measures 1k/5k mixed-disc collections against
-the pre-facts checkpoint. Contained group switches are about 30% faster at 1k
-and 23% faster at 5k. Projection pays the one-time facts cost (about 5.35 ms
-at 1k and 27.56 ms at 5k); typed publisher filtering is about 1.39 ms at 1k
-and 3.43 ms at 5k. The 5k default sort measured 5.35 ms versus a 4.01 ms
-baseline, and that regression is recorded in the benchmark report. VM
-allocation profiles and process peak-RSS increases are also recorded with
-their measurement limits. Music's
-schema-v1 CSV import boundary is verified. Windows debug build and
-desktop/mobile integration smoke tests pass. Core correction targets
-expose Music nested lists as correction-only object-list fields and validate
-proposals against the canonical v2 document, preserving nested IDs.
-All filterable metadata is now available in Smart List rules, including the
-multi-value Board Game, Book, Comic, Game, and Manga facet fields on both
-catalog and library-entry targets. Their workspace getters follow the facet
-values, and Manga Character now reads the existing canonical character data.
-Every Music group now has required field metadata; group IDs, labels, support,
-and bucket vocabularies derive from that metadata, with no permissive fallback.
-Tests assert complete group metadata and vocabulary parity.
+Field metadata owns cardinality, source/path and workspace capabilities.
+Music album edition data remains at root; discs own physical, technical and
+recording data. Stable album/disc credits have optional real contributor IDs,
+role vocabularies and instrument lists. Add/Edit expose one Credits tab with
+Album/Disc scope. Partial dates have one canonical representation.
+
+`MusicWorkspaceData` builds immutable derived facts once per album projection.
+Catalog and library-entry schemas share catalog fields; personal fields are
+layered only onto entries. Group/filter values use deduplicated contained facts;
+scalar earliest/latest date reducers share deterministic partial-date bounds.
+`is_live` remains a many-valued boolean, with Live/Studio display labels.
+Summaries are separate derived fields, never raw filter/group semantics.
+
+Exports distinguish summaries from semantic values. Selective multi-value search
+indexes disc formats, recording locations and contributors. Smart Lists apply
+contained-value operators. Corrections preserve stable nested IDs and exclude
+personal-only edits. These current canonical structures are labelled v1 for the
+initial release; no historical schema or API rollback is involved.
 
 ## Local data
 

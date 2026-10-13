@@ -5,24 +5,24 @@ are the only special categories. Integration flows live in `integration_test/`;
 performance measurements live in `benchmark/` and never add skipped tests to
 the correctness suite. Production code cannot depend on test support.
 
-## Delivery stages
+## Implemented ownership
 
-1. Move/rename existing tests according to production ownership, with unchanged
-   assertions and fixture semantics. Rewrite relative imports and fixture paths.
-2. Remove `lib/test/`, move fixtures into `test/support/`, guard the boundary.
-3. Split catalog/entry/workspace/add builders and typed kind fixtures.
-4. Share CSV scaffolding and app/provider/auth harnesses while retaining
-   per-kind expected values.
-5. Separate behavior, layout and motion assertions; remove repeated geometry
-   checks and historical refactor labels.
-6. Extract the Music benchmark and add an explicit artifact-producing workflow.
-7. Make Core DB cleanup explicit, register strict markers and split fast/DB CI.
-8. Add taxonomy checks, directory timings and informational coverage artifacts.
-9. Add a small number of persistence/add/edit/offline integration flows.
+Tests now follow production locations, with no root stray tests or `lib/test/`.
+Small catalog, entry, workspace, add and tracking builders live in support;
+entry details require an explicit matching kind. Book/Anime CSV expectations
+share scaffolding while remaining owned by their kind. Auth/provider/app setup
+is shared by widget and native flows.
 
-Each stage gets a conventional commit with the concrete changes, reasoning
+Drawer navigation is independent of its motion contract, and shared partial-date
+separator geometry has one layout test. The Music benchmark lives outside normal
+correctness discovery and writes a manual/weekly artifact. Architecture rules and
+taxonomy checks run through the shared checker; removed runtime abstractions are
+an AST ownership rule, not a historical cleanup proof scanner.
 
-and validation. Do not turn this work into a fixture DSL or a new test framework.
+CI publishes informational coverage and file/directory timings. Native flows
+exercise navigation, Core add and personal SQLite persistence/reload against
+isolated databases. Core's explicit fast/DB split avoids database work in pure
+tests and publishes separate coverage reports.
 
 ## Kind selection
 
@@ -38,8 +38,18 @@ Source tests which exercise isolated kind semantics may run without registering
 the kind publicly. Tests requiring that kind's DB tables need an explicit
 isolated fixture; they cannot rely on the Music-only release database.
 
-## Current state
+## Verified release selection
 
-Release baseline verification is still underway in the App worktree.
-Core DB lifecycle stage is implemented separately: pure tests no longer truncate
-tables, and the fast suite is validated with PostgreSQL unavailable.
+On 2026-10-13 the App release selection passed 903 correctness tests with zero
+failures/skips, generated coverage, and passed all four Windows native cases.
+The selector included 252 files and excluded 19 inactive kind files. Explicitly
+requesting unreleased kinds still requires suitable source/persistence fixtures;
+this result does not claim future-kind tables exist in the release database.
+
+Core passed 116 tests with PostgreSQL unavailable and 51 database tests against
+an isolated local test database. Both coverage artifacts were generated. App
+benchmark measurements for 1k/5k Music albums passed separately and never enter
+the correctness test count.
+
+This cleanup is complete; extend the existing small fixtures and harnesses for
+real consumers rather than adding a test framework or speculative abstractions.
