@@ -37,30 +37,30 @@ void main() {
   });
 
   test('tv edit tabs are ordered by the technical tab order helper', () {
-    final builder = TvLibraryEditPresentationBuilder();
-    final tabs = builder.buildTabs(
+    final tabs = tvLibraryEditPresentation.buildTabs(
       context: const LibraryEditPresentationContext(
-        isOwned: false,
+        isEntry: false,
         isTrackingOnly: false,
         hasTrackingContext: false,
         hasWishlistContext: false,
         isDigitalFormat: false,
         hasPhysicalFormats: true,
-        hasOwnedTargetOptions: false,
-        hasAdditionalTargetOptions: false,
         hasCustomFields: false,
       ),
+      isEntry: false,
     );
 
     expect(
       tabs.map((tab) => tab.id).toList(),
       [
         'media',
+        'edition',
         'personal',
         'episodes',
-        'episode_map',
+        'episode_media_map',
         'cast',
         'crew',
+        'specs',
         'cover',
         'photos',
         'links',

@@ -14,7 +14,7 @@ void main() {
     expect(contributor?.name, 'animeDevSeedContributor');
     expect(
       contributor?.declaredType,
-      startsWith('TypedDevSeedKindContributor<AnimeOwnedItem>'),
+      startsWith('TypedDevSeedKindContributor<AnimeLibraryEntry>'),
     );
   });
 
@@ -37,8 +37,14 @@ void main() {
       ),
     );
 
-    expect(tables, contains('ComicMediaRows'));
-    expect(tables, contains('ComicOwnedItemsRows'));
+    expect(
+      tables,
+      containsAll([
+        'ComicReadingRows',
+        'ComicTrackingUnitRows',
+        'ComicTrackingRows',
+      ]),
+    );
   });
 
   test('requires a real static const vocabulary collection', () {

@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/library/generic/filter_dialog.dart';
+import 'package:collectarr_app/features/library/generic/library_filters.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 
@@ -28,6 +28,21 @@ class LibrarySidebarScopeSnapshot {
   final String? activeSmartListId;
   final String? activeSmartListName;
   final String searchQuery;
+
+  LibrarySidebarScopeSnapshot withSelectedBucket(String? bucket) =>
+      LibrarySidebarScopeSnapshot(
+        groupMode: groupMode,
+        selectedBucket: bucket,
+        selectedLetter: selectedLetter,
+        linkedMetadataFilter: linkedMetadataFilter,
+        collectionStatusScope: collectionStatusScope,
+        bucketCompletionScope: bucketCompletionScope,
+        quickView: quickView,
+        filterSelection: filterSelection,
+        activeSmartListId: activeSmartListId,
+        activeSmartListName: activeSmartListName,
+        searchQuery: searchQuery,
+      );
 
   bool get isRootScope =>
       selectedBucket == null &&

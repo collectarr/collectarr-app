@@ -1,8 +1,11 @@
+import 'package:collectarr_app/ui/app_panel_title.dart';
+import 'package:collectarr_app/features/library/config/library_kind_style.dart';
 import 'package:collectarr_app/features/library/ui/library_chrome_tokens.dart';
 import 'package:collectarr_app/features/library/ui/library_density_scope.dart';
 import 'package:collectarr_app/features/library/ui/library_panel_header.dart';
 import 'package:collectarr_app/features/library/ui/library_resizable_surface.dart';
 import 'package:collectarr_app/ui/adaptive/window_class.dart';
+import 'package:collectarr_app/ui/app_dialog.dart';
 import 'package:collectarr_app/ui/library_accent_scope.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
@@ -28,6 +31,7 @@ class LibraryDialogScaffold extends StatelessWidget {
     super.key,
     this.header,
     this.title,
+    this.headerIcon,
     this.contextBar,
     this.sidePanel,
     this.sidePanelPosition = LibraryDialogSidePanelPosition.end,
@@ -57,6 +61,7 @@ class LibraryDialogScaffold extends StatelessWidget {
 
   final Widget? header;
   final Widget? title;
+  final IconData? headerIcon;
   final Widget? contextBar;
   final Widget? sidePanel;
   final LibraryDialogSidePanelPosition sidePanelPosition;
@@ -86,22 +91,46 @@ class LibraryDialogScaffold extends StatelessWidget {
   Widget build(BuildContext context) {
     final palette = appPalette(context);
     final resolvedAccent = accent ?? LibraryAccentScope.accentOf(context);
-    final headerAccent = palette.accent;
     final windowClass = AppWindowClass.of(context);
+    final currentDepth = ModalDialogDepthScope.of(context);
     final effectiveBody = body ?? const SizedBox.shrink();
     final effectivePadding =
         padding ?? (body != null ? EdgeInsets.zero : const EdgeInsets.all(12));
 
     final effectiveHeader = header ??
         (title != null
-            ? LibraryPanelHeader(
-                backgroundColor: headerAccent,
-                foregroundColor: appContrastingTextColor(headerAccent),
-                borderColor: headerAccent.withValues(alpha: 0.92),
-                onClose: onClose,
-                padding: const EdgeInsets.fromLTRB(12, 12, 12, 8),
-                density: density,
-                child: title!,
+            ? AnimatedLibraryChrome(
+                accent: resolvedAccent,
+                borderBuilder: (animatedAccent, _) => Border(
+                  bottom: BorderSide(
+                    color: Color.alphaBlend(
+                      Colors.white.withValues(alpha: 0.12),
+                      animatedAccent,
+                    ),
+                  ),
+                ),
+                child: LibraryPanelHeader(
+                  backgroundColor: Colors.transparent,
+                  foregroundColor: Colors.white,
+                  borderColor: Colors.transparent,
+                  onClose: onClose ?? () => Navigator.of(context).maybePop(),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                  density: density,
+                  child: DefaultTextStyle.merge(
+                    style: appPanelTitleStyle,
+                    child: IconTheme(
+                      data: const IconThemeData(color: Colors.white),
+                      child: Row(children: [
+                        if (headerIcon != null) ...[
+                          Icon(headerIcon, size: 20, color: Colors.white),
+                          const SizedBox(width: 10),
+                        ],
+                        Expanded(child: title!),
+                      ]),
+                    ),
+                  ),
+                ),
               )
             : null);
 
@@ -138,11 +167,17 @@ class LibraryDialogScaffold extends StatelessWidget {
       ],
     );
 
+    final inheritedAlignment = ModalDialogDepthScope.parentAlignmentOf(context);
+    final resolvedAlignment = alignment ??
+        (currentDepth > 0
+            ? Alignment.center
+            : (inheritedAlignment ?? kDefaultDialogAlignment));
+
     Widget result;
 
     if (windowClass.isCompact) {
-      result = DecoratedBox(
-        decoration: BoxDecoration(color: palette.panel),
+      result = Material(
+        color: palette.panel,
         child: scaffoldColumn,
       );
     } else {
@@ -167,16 +202,24 @@ class LibraryDialogScaffold extends StatelessWidget {
             )
           : scaffoldColumn;
 
+      final effectiveShape = themeData?.dialogTheme.shape ??
+          Theme.of(context).dialogTheme.shape ??
+          RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(6),
+          );
+
       result = Dialog(
         backgroundColor: palette.panel,
-        shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
-        alignment: alignment,
+        clipBehavior: Clip.antiAlias,
+        shape: effectiveShape,
+        alignment: resolvedAlignment,
         insetPadding: insetPadding ??
             EdgeInsets.symmetric(
               horizontal: windowClass.isMedium ? 16 : 32,
               vertical: windowClass.isMedium ? 16 : 24,
             ),
         child: ConstrainedBox(
+          key: const ValueKey('library-dialog-surface'),
           constraints: BoxConstraints(
             minWidth: effectiveMinWidth,
             maxWidth: effectiveMaxWidth,
@@ -192,9 +235,13 @@ class LibraryDialogScaffold extends StatelessWidget {
       result = Theme(data: themeData!, child: result);
     }
 
-    return LibraryDensityScope(
-      density: density,
-      child: result,
+    return ModalDialogDepthScope(
+      depth: currentDepth + 1,
+      parentAlignment: resolvedAlignment,
+      child: LibraryDensityScope(
+        density: density,
+        child: result,
+      ),
     );
   }
 }

@@ -1,40 +1,33 @@
 import 'package:collectarr_app/features/library/config/library_edit_presentation_models.dart';
 import 'package:collectarr_app/features/library/config/library_edit_tab_order.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_edit_shell_state.dart';
-import 'package:collectarr_app/features/library/domain/library_entity_scope.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:flutter/material.dart';
 
 abstract class LibraryEditPresentationBuilderBase
     extends LibraryEditPresentationBuilder {
   const LibraryEditPresentationBuilderBase({
-    required this.showOwnershipReferenceSection,
-    required this.useOwnedMainArtworkLayout,
+    required this.useEntryMainArtworkLayout,
     required this.useDetailsTab,
     required this.useArtworkCoverTab,
     required this.useArtworkPhotosTab,
     required this.trackingSectionTitle,
-    required this.ownedDigitalTrackingSectionTitle,
-    required this.ownedDigitalTrackingHint,
-    required this.ownershipReferenceTitle,
-    required this.ownedBundleLabel,
-    required this.ownedTabs,
+    required this.entryDigitalTrackingSectionTitle,
+    required this.entryDigitalTrackingHint,
+    required this.entryTabs,
     required this.trackedTabs,
     required this.catalogTabs,
     this.customTabBuilder,
   });
 
-  final bool showOwnershipReferenceSection;
-  final bool useOwnedMainArtworkLayout;
+  final bool useEntryMainArtworkLayout;
   final bool useDetailsTab;
   final bool useArtworkCoverTab;
   final bool useArtworkPhotosTab;
   final String trackingSectionTitle;
-  final String ownedDigitalTrackingSectionTitle;
-  final String ownedDigitalTrackingHint;
-  final String ownershipReferenceTitle;
-  final String ownedBundleLabel;
-  final List<LibraryEditTabSpec> ownedTabs;
+  final String entryDigitalTrackingSectionTitle;
+  final String entryDigitalTrackingHint;
+  final List<LibraryEditTabSpec> entryTabs;
   final List<LibraryEditTabSpec> trackedTabs;
   final List<LibraryEditTabSpec> catalogTabs;
   final Widget? Function({
@@ -42,7 +35,6 @@ abstract class LibraryEditPresentationBuilderBase
     required BuildContext context,
     required LibraryEditShellState draft,
     required Color accent,
-    required LibraryEntityScope scope,
     required CatalogSearchCandidate item,
     required VoidCallback markDirty,
   })? customTabBuilder;
@@ -53,7 +45,6 @@ abstract class LibraryEditPresentationBuilderBase
     required BuildContext context,
     required LibraryEditShellState draft,
     required Color accent,
-    required LibraryEntityScope scope,
     required CatalogSearchCandidate item,
     required VoidCallback markDirty,
   }) {
@@ -62,7 +53,6 @@ abstract class LibraryEditPresentationBuilderBase
       context: context,
       draft: draft,
       accent: accent,
-      scope: scope,
       item: item,
       markDirty: markDirty,
     );
@@ -72,7 +62,7 @@ abstract class LibraryEditPresentationBuilderBase
   List<LibraryEditTabSpec> buildTabs({
     required LibraryEditPresentationContext context,
   }) {
-    final tabs = context.scope == LibraryEntityScope.work
+    final tabs = !context.isEntry
         ? [
             ...catalogTabs,
             if (context.hasCustomFields)
@@ -82,8 +72,8 @@ abstract class LibraryEditPresentationBuilderBase
                 label: 'Custom',
               ),
           ]
-        : context.isOwned
-            ? ownedTabs
+        : context.isEntry
+            ? entryTabs
             : context.isTrackingOnly || context.hasWishlistContext
                 ? trackedTabs
                 : catalogTabs;
@@ -112,23 +102,18 @@ abstract class LibraryEditPresentationBuilderBase
     required LibraryEditPresentationContext context,
   }) {
     return LibraryEditPresentationState(
-      showsOwnershipReferenceSection: showOwnershipReferenceSection &&
-          context.isOwned &&
-          (context.hasOwnedTargetOptions || context.hasAdditionalTargetOptions),
-      usesOwnedMainArtworkLayout: useOwnedMainArtworkLayout && context.isOwned,
+      usesEntryMainArtworkLayout: useEntryMainArtworkLayout && context.isEntry,
       usesDetailsTab: useDetailsTab,
       usesArtworkCoverTab: useArtworkCoverTab,
-      usesArtworkPhotosTab: useArtworkPhotosTab && context.isOwned,
-      trackingSectionTitle: context.isOwned
+      usesArtworkPhotosTab: useArtworkPhotosTab && context.isEntry,
+      trackingSectionTitle: context.isEntry
           ? context.isDigitalFormat
-              ? ownedDigitalTrackingSectionTitle
+              ? entryDigitalTrackingSectionTitle
               : trackingSectionTitle
           : trackingSectionTitle,
-      trackingSectionHint: context.isOwned && context.isDigitalFormat
-          ? ownedDigitalTrackingHint
+      trackingSectionHint: context.isEntry && context.isDigitalFormat
+          ? entryDigitalTrackingHint
           : null,
-      ownershipReferenceTitle: ownershipReferenceTitle,
-      ownedBundleLabel: ownedBundleLabel,
     );
   }
 }

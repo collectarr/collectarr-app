@@ -34,6 +34,35 @@ void main() {
     };
   }
 
+  testWidgets('clearing field search clears text and restores available fields',
+      (tester) async {
+    await tester.pumpWidget(MaterialApp(
+        home: Scaffold(
+            body: LibraryColumnChooserDialog(
+      availableColumns: availableColumns,
+      selectedColumns: const {'title'},
+      defaultColumns: const {'title'},
+      columnLabel: labelFor,
+      columnGroup: groupFor,
+    ))));
+    await tester.pumpAndSettle();
+    final search = find.byWidgetPredicate((widget) =>
+        widget is TextField && widget.decoration?.hintText == 'Search fields');
+    await tester.enterText(search, 'Barcode');
+    await tester.pumpAndSettle();
+    expect(find.text('Publisher'), findsNothing);
+    final clear =
+        find.descendant(of: search, matching: find.byIcon(Icons.cancel));
+    await tester.tap(clear);
+    await tester.pumpAndSettle();
+    expect(tester.widget<TextField>(search).controller!.text, isEmpty);
+    expect(find.text('Publisher'), findsOneWidget);
+    await tester.enterText(search, 'Release');
+    await tester.pumpAndSettle();
+    expect(find.text('Publisher'), findsNothing);
+    expect(find.text('Release Date'), findsOneWidget);
+  });
+
   testWidgets('column chooser renders the CLZ-style manager shell', (
     tester,
   ) async {
@@ -87,9 +116,12 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Select Column Fields'), findsOneWidget);
+    expect(find.text('Column Favorites'), findsNothing);
+    await tester.tap(find.byTooltip('Manage Favorites'));
+    await tester.pumpAndSettle();
     expect(find.text('Column Favorites'), findsOneWidget);
-    expect(find.text('Available fields'), findsOneWidget);
-    expect(find.text('Selected columns'), findsOneWidget);
+    expect(find.text('Available fields'), findsNothing);
+    expect(find.text('Selected columns'), findsNothing);
     expect(
         find.byKey(const ValueKey('column-preset-Full View')), findsOneWidget);
     // Pin icons are no longer shown in the compact CLZ-style shelf.
@@ -145,6 +177,8 @@ void main() {
     expect(find.byKey(const ValueKey('selected-column-issue')), findsOneWidget);
     expect(find.byKey(const ValueKey('selected-column-barcode')), findsNothing);
 
+    await tester.tap(find.byTooltip('Manage Favorites'));
+    await tester.pumpAndSettle();
     await tester.tap(find.byKey(const ValueKey('column-preset-Barcode View')));
     await tester.pumpAndSettle();
 
@@ -198,6 +232,9 @@ void main() {
 
     // The compact CLZ-style shelf no longer exposes pin buttons directly;
     // verify the dialog renders without error when the callback is provided.
+    expect(find.text('Column Favorites'), findsNothing);
+    await tester.tap(find.byTooltip('Manage Favorites'));
+    await tester.pumpAndSettle();
     expect(find.text('Column Favorites'), findsOneWidget);
     expect(toggledPreset, isNull);
     expect(
@@ -208,5 +245,52 @@ void main() {
           ),
         ),
         'builtin:barcode_view');
+  });
+  testWidgets('columns preserve reordered selection and allow removing title',
+      (tester) async {
+    await tester.binding.setSurfaceSize(const Size(1440, 900));
+    addTearDown(() => tester.binding.setSurfaceSize(null));
+    Set<String>? result;
+    await tester.pumpWidget(MaterialApp(
+        home: Builder(
+            builder: (context) => Scaffold(
+                body: TextButton(
+                    onPressed: () async {
+                      result = await showDialog<Set<String>>(
+                          context: context,
+                          builder: (_) => LibraryColumnChooserDialog(
+                              availableColumns: availableColumns,
+                              selectedColumns: const {
+                                'title',
+                                'issue',
+                                'publisher'
+                              },
+                              defaultColumns: const {'title'},
+                              columnLabel: labelFor,
+                              columnGroup: groupFor));
+                    },
+                    child: const Text('Open'))))));
+    await tester.tap(find.text('Open'));
+    await tester.pumpAndSettle();
+    final title = find.byKey(const ValueKey('selected-column-title'));
+    final publisher = find.byKey(const ValueKey('selected-column-publisher'));
+    final start = tester.getCenter(
+        find.byKey(const ValueKey('selected-column-publisher-handle')));
+    final gesture = await tester.startGesture(start);
+    await gesture.moveBy(const Offset(0, -8));
+    await tester.pump();
+    await gesture.moveTo(tester.getTopLeft(title) + const Offset(12, 2));
+    await tester.pump(const Duration(milliseconds: 150));
+    await gesture.up();
+    await tester.pumpAndSettle();
+    expect(
+        tester.getTopLeft(publisher).dy, lessThan(tester.getTopLeft(title).dy));
+    await tester.tap(
+        find.descendant(of: title, matching: find.byTooltip('Remove column')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Save'));
+    await tester.pumpAndSettle();
+    expect(result!.toList(), ['publisher', 'issue']);
+    expect(tester.takeException(), isNull);
   });
 }

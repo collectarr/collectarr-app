@@ -1,4 +1,3 @@
-import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/integrations/collection_csv/boardgame_collection_csv_import_profile.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/integrations/collection_csv/boardgame_collection_csv_projection.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -53,7 +52,7 @@ void main() {
 
   test('projects BoardGame catalog cells with edition semantics', () {
     final projection = const BoardGameCollectionCsvProjection();
-    final entry = LibraryWorkspaceSource(
+    final entry = testLibraryWorkspaceSource(
       itemId: 'boardgame-1',
       catalogData: testWorkspaceCatalogData(
           testCatalogItemWithKindMetadata(testCatalogItem(
@@ -61,17 +60,16 @@ void main() {
         kind: 'boardgame',
         title: 'Catan',
         itemNumber: '5th',
-        variant: 'Seafarers',
         physicalFormat: 'box',
         physicalFormatLabel: 'Boxed game',
         publisher: 'Kosmos',
         releaseDate: DateTime.utc(1995, 4, 1),
         barcode: '4002051693302',
+        payload: const {'variant_name': 'Seafarers'},
       )).asShelfCatalogItem),
-      ownedSummary: testOwnedSummary(testOwnedItem(
-        id: 'owned-1',
+      libraryEntrySummary: testLibraryEntrySummary(testLibraryEntry(
+        id: 'entry-1',
         itemId: 'boardgame-1',
-        quantity: 1,
         updatedAt: DateTime.utc(2026, 5, 15),
       )),
     );
@@ -90,7 +88,7 @@ void main() {
       '4002051693302',
     ]);
     expect(
-      projection.ownedCellsAfterIndex(entry, clzFriendly: false),
+      projection.entryCellsAfterIndex(entry, clzFriendly: false),
       everyElement(isEmpty),
     );
   });

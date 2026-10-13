@@ -7,7 +7,7 @@ import 'package:analyzer/dart/ast/visitor.dart';
 import 'package:analyzer/source/line_info.dart';
 import 'package:path/path.dart' as p;
 
-import 'kind_field_ownership.dart';
+import 'kind_field_entries.dart';
 
 void main(List<String> args) => runArchitectureChecker(args);
 
@@ -21,9 +21,9 @@ class ArchitectureRuleVisitor extends RecursiveAstVisitor<void> {
     required this.kindName,
     required this.repoRoot,
     this.sourceContent,
-    Set<String>? kindOwnedFieldSymbols,
-  }) : kindOwnedFieldSymbols =
-            kindOwnedFieldSymbols ?? loadKindOwnedFieldSymbols(repoRoot);
+    Set<String>? kindEntryFieldSymbols,
+  }) : kindEntryFieldSymbols =
+            kindEntryFieldSymbols ?? loadKindEntryFieldSymbols(repoRoot);
 
   final String filePath;
   final String relativePath;
@@ -33,7 +33,7 @@ class ArchitectureRuleVisitor extends RecursiveAstVisitor<void> {
   final String? kindName;
   final String repoRoot;
   final String? sourceContent;
-  final Set<String> kindOwnedFieldSymbols;
+  final Set<String> kindEntryFieldSymbols;
 
   final List<String> violations = [];
   final List<String> complexityWarnings = [];
@@ -45,62 +45,62 @@ class ArchitectureRuleVisitor extends RecursiveAstVisitor<void> {
     'ComicMetadata',
     'ComicWorkspaceDto',
     'ComicCatalogItem',
-    'ComicOwnedDetails',
+    'ComicEntryDetails',
     'ComicStoryArc',
     'ComicGrade',
     'ComicKeyDraft',
     'ComicKeyReason',
     'ComicMedia',
     'ComicRelease',
-    'ComicOwnedItem',
+    'ComicLibraryEntry',
     // Movie & Video
     'MovieCatalogMetadata',
     'MovieWorkspaceDto',
     'MovieCatalogItem',
-    'MovieOwnedDetails',
+    'MovieEntryDetails',
     // Tv
     'TvCatalogMetadata',
     'TvSeriesMetadata',
     'TvWorkspaceDto',
     'TvCatalogItem',
-    'TvOwnedDetails',
+    'TvEntryDetails',
     // Anime
     'AnimeCatalogMetadata',
     'AnimeMetadata',
     'AnimeWorkspaceDto',
     'AnimeCatalogItem',
-    'AnimeOwnedDetails',
+    'AnimeEntryDetails',
     // Book
     'BookCatalogMetadata',
     'BookWorkspaceDto',
     'BookCatalogItem',
-    'BookOwnedDetails',
+    'BookEntryDetails',
     // Manga
     'MangaCatalogMetadata',
     'MangaMetadata',
     'MangaWorkspaceDto',
     'MangaCatalogItem',
-    'MangaOwnedDetails',
+    'MangaEntryDetails',
     // Game
     'GameCatalogMetadata',
     'GameWorkspaceDto',
     'GameCatalogItem',
-    'GameOwnedDetails',
+    'GameEntryDetails',
     // BoardGame
     'BoardGameMetadata',
     'BoardGameWorkspaceDto',
     'BoardGameCatalogItem',
-    'BoardgameOwnedDetails',
+    'BoardgameEntryDetails',
     // Music
     'MusicCatalogMetadata',
     'MusicWorkspaceDto',
     'MusicCatalogItem',
-    'MusicOwnedDetails',
+    'MusicEntryDetails',
   };
 
   static const _forbiddenContextualMemberNames = {
     // Domain vocabulary that must not be interpreted by a generic feature
-    // after kind dispatch.  Provider protocol models and kind-owned files are
+    // after kind dispatch.  Provider protocol models and kind-entry files are
     // excluded by the path checks below.
     'series',
     'issue',
@@ -130,10 +130,10 @@ class ArchitectureRuleVisitor extends RecursiveAstVisitor<void> {
     'rawOrSlabbed',
     'gradingCompany',
     'graderNotes',
-    'showsOwnedGradingSection',
+    'showsEntryGradingSection',
     'showsComicCollectorFields',
     'showsGameCompletenessFields',
-    'showsOwnedCoverPriceField',
+    'showsEntryCoverPriceField',
     'keyToggleLabel',
     'keyReasonLabel',
     'seriesHierarchy',
@@ -164,10 +164,10 @@ class ArchitectureRuleVisitor extends RecursiveAstVisitor<void> {
     'parent_id',
     'targetId',
     'target_id',
-    'ownedRef',
-    'owned_ref',
-    'ownedRefKey',
-    'owned_ref_key',
+    'libraryEntryRef',
+    'library_entry_ref',
+    'libraryEntryRefKey',
+    'library_entry_ref_key',
     'trackingEntryId',
     'tracking_entry_id',
     'source',
@@ -198,6 +198,19 @@ class ArchitectureRuleVisitor extends RecursiveAstVisitor<void> {
     'updated_at',
     'deletedAt',
     'deleted_at',
+    // Personal entry and tracking projections are shared contracts even when
+    // kind-local storage uses the same semantic names.
+    'condition',
+    'status',
+    'rating',
+    'startedAt',
+    'completedAt',
+    'completed_at',
+    'timesCompleted',
+    'notes',
+    'addedAt',
+    'purchaseDate',
+    'wishlist',
   };
 
   static const _forbiddenRuntimeTypeNames = {
@@ -206,6 +219,91 @@ class ArchitectureRuleVisitor extends RecursiveAstVisitor<void> {
     'LibraryMetadataItem',
     'LibraryCatalogItemView',
   };
+
+  static const _forbiddenFlattenedIdentityNames = {
+    'CatalogEntityRef',
+    'LibraryEntityRef',
+    'LibraryEntityScope',
+    'LibraryReleaseRef',
+    'CopyProjectionCapability',
+    'LibraryTrackingLookupScope',
+    'lookupReferenceFor',
+    'LibraryWorkspaceSource',
+    'LibraryWorkspaceCatalogData',
+    'LibraryBrowserNode',
+    'SmartListEntityType',
+    'PersonalStateDraft',
+  };
+  static const _forbiddenTargetReferenceMembers = {
+    'entityType',
+    'entity_type',
+    'rootId',
+    'root_id',
+    'rootScope',
+    'parentId',
+    'parent_id',
+    'parentRef',
+    'workRef',
+    'releaseRef',
+    'releaseGroupRef',
+  };
+  static const _forbiddenFieldScopeMembers = {
+    'entityScope',
+    'entity_scope',
+  };
+
+  @override
+  void visitSimpleIdentifier(SimpleIdentifier node) {
+    if (_forbiddenFlattenedIdentityNames.contains(node.name) &&
+        relativePath.startsWith('lib/') &&
+        !relativePath.startsWith('lib/test/') &&
+        !relativePath.endsWith('.g.dart') &&
+        !relativePath.endsWith('.freezed.dart')) {
+      final line = lineInfo.getLocation(node.offset).lineNumber;
+      violations.add(
+        'TK018 $relativePath:$line: Removed Work/Release identity '
+        'abstraction "${node.name}" must not return to production code.',
+      );
+    }
+    final isTargetReference = relativePath ==
+            'lib/core/models/catalog_item_ref.dart' ||
+        relativePath == 'lib/core/models/library_entry_ref.dart' ||
+        relativePath == 'lib/features/library/domain/library_target_ref.dart';
+    if (isTargetReference &&
+        _forbiddenTargetReferenceMembers.contains(node.name)) {
+      final line = lineInfo.getLocation(node.offset).lineNumber;
+      violations.add(
+        'TK019 $relativePath:$line: Flat target references cannot carry '
+        'entity type, root, parent, Work, or Release identity fields '
+        '("${node.name}").',
+      );
+    }
+    if (isBoundaryFile &&
+        _forbiddenKindDomainTypes.contains(node.name) &&
+        node.parent is! NamedType) {
+      final line = lineInfo.getLocation(node.offset).lineNumber;
+      violations.add(
+        'TK004 $relativePath:$line: Forbidden concrete kind reference '
+        '"${node.name}" in generic boundary code',
+      );
+    }
+    final isWorkspaceFieldSchema = relativePath ==
+            'lib/features/library/workspace/config/library_typed_field_definition.dart' ||
+        relativePath ==
+            'lib/features/library/workspace/schema/library_workspace_schema.dart' ||
+        relativePath ==
+            'lib/features/library/workspace/schema/library_field_registry.dart';
+    if (isWorkspaceFieldSchema &&
+        _forbiddenFieldScopeMembers.contains(node.name)) {
+      final line = lineInfo.getLocation(node.offset).lineNumber;
+      violations.add(
+        'TK020 $relativePath:$line: Workspace field definitions inherit '
+        'their target from the selected schema and must not repeat '
+        'entityScope ("${node.name}").',
+      );
+    }
+    super.visitSimpleIdentifier(node);
+  }
 
   @override
   void visitPropertyAccess(PropertyAccess node) {
@@ -230,6 +328,24 @@ class ArchitectureRuleVisitor extends RecursiveAstVisitor<void> {
       }
     }
     super.visitPropertyAccess(node);
+  }
+
+  @override
+  void visitFieldDeclaration(FieldDeclaration node) {
+    if (relativePath ==
+        'lib/features/library/workspace/entry/library_workspace_context.dart') {
+      for (final variable in node.fields.variables) {
+        final name = variable.name.lexeme;
+        if (name != 'item' && name != 'personal') {
+          final line = lineInfo.getLocation(variable.offset).lineNumber;
+          violations.add(
+            'TK021 $relativePath:$line: Workspace context may store only '
+            'its WorkspaceItem and PersonalOverlay owners ("$name").',
+          );
+        }
+      }
+    }
+    super.visitFieldDeclaration(node);
   }
 
   @override
@@ -375,7 +491,7 @@ class ArchitectureRuleVisitor extends RecursiveAstVisitor<void> {
     if (_isGenericMetadataMap(node)) {
       final line = lineInfo.getLocation(node.offset).lineNumber;
       violations.add(
-        'TK003 $relativePath:$line: Generic metadata map must be classified or moved to a kind-owned mapper',
+        'TK003 $relativePath:$line: Generic metadata map must be classified or moved to a kind-entry mapper',
       );
     }
 
@@ -408,24 +524,6 @@ class ArchitectureRuleVisitor extends RecursiveAstVisitor<void> {
       }
     }
     super.visitNamedType(node);
-  }
-
-  @override
-  void visitSimpleIdentifier(SimpleIdentifier node) {
-    if (isBoundaryFile) {
-      final idName = node.name;
-      if (_forbiddenKindDomainTypes.contains(idName)) {
-        final parent = node.parent;
-        // Don't duplicate if already caught as NamedType
-        if (parent is! NamedType) {
-          final line = lineInfo.getLocation(node.offset).lineNumber;
-          violations.add(
-            'TK004 $relativePath:$line: Forbidden concrete kind reference "$idName" in generic boundary code',
-          );
-        }
-      }
-    }
-    super.visitSimpleIdentifier(node);
   }
 
   @override
@@ -547,13 +645,13 @@ class ArchitectureRuleVisitor extends RecursiveAstVisitor<void> {
   }) {
     if (!_isInferredFieldLeakContext(relativePath) ||
         _neutralGenericFieldSymbols.contains(symbol) ||
-        !kindOwnedFieldSymbols.contains(symbol) ||
+        !kindEntryFieldSymbols.contains(symbol) ||
         (skipKnownPolicyMember &&
             _forbiddenContextualMemberNames.contains(symbol))) {
       return;
     }
     final line = lineInfo.getLocation(offset).lineNumber;
-    final message = 'TK016 $relativePath:$line: Kind-owned field "$symbol" '
+    final message = 'TK016 $relativePath:$line: Kind-entry field "$symbol" '
         'appears in generic code ($surface)';
     violations.add(message);
     kindFieldLeaks.add(KindFieldLeakFinding(
@@ -623,7 +721,7 @@ class ArchitectureRuleVisitor extends RecursiveAstVisitor<void> {
         ? lines[lineNumber - 1]
         : node.toSource();
     return RegExp(
-      r'\b(metadata|catalog|payload|semantic|details|owned|release|item)\b',
+      r'\b(metadata|catalog|payload|semantic|details|entry|release|item)\b',
       caseSensitive: false,
     ).hasMatch(declarationSource);
   }
@@ -677,7 +775,7 @@ bool _isInferredFieldLeakContext(String relativePath) {
   final fileName = p.basename(relativePath);
   return fileName.startsWith('catalog_') ||
       fileName.startsWith('library_') ||
-      fileName.startsWith('owned_') ||
+      fileName.startsWith('entry_') ||
       fileName.startsWith('tracking_') ||
       fileName.startsWith('personal_tracking_') ||
       fileName == 'activity_event.dart' ||
@@ -697,7 +795,7 @@ bool _isStructuralProjectionFile(String relativePath) {
     'lib/core/models/catalog_display_summary.dart',
     'lib/core/models/catalog_search_hit.dart',
     'lib/core/models/calendar_event.dart',
-    'lib/core/models/owned_item_projection.dart',
+    'lib/core/models/library_entry_projection.dart',
   }.contains(relativePath);
 }
 
@@ -936,14 +1034,14 @@ void _checkKindModuleLayout(String repoRoot, List<String> violations) {
       'library',
       'workspace',
       'schema',
-      'library_entity_workspace_schema.dart',
+      'library_workspace_schema.dart',
     ),
   );
   if (workspaceSchema.existsSync() &&
       workspaceSchema.readAsStringSync().contains('.withEntityScope(')) {
     violations.add(
       'TK014 lib/features/library/workspace/schema/'
-      'library_entity_workspace_schema.dart: Scoped field definitions must '
+      'library_workspace_schema.dart: Scoped field definitions must '
       'not be silently rebound to another entity scope.',
     );
   }
@@ -1014,7 +1112,7 @@ const _compositionRoots = {
   'lib/features/collection/csv/collection_csv_registry.dart',
   'lib/features/library/tracking/library_tracking_registry.dart',
   'lib/features/library/library_kind_registry.dart',
-  'lib/features/library/owned/owned_kind_contributor_registry.dart',
+  'lib/features/library/entries/entry_kind_contributor_registry.dart',
   'lib/features/providers/library_provider_registry.dart',
 };
 

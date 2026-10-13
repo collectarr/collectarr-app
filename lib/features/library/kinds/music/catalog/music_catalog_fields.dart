@@ -1,26 +1,24 @@
-import 'package:collectarr_app/core/api/dto/catalog/catalog_common_dto.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_album.dart';
+import 'package:collectarr_app/features/library/kinds/music/catalog/music_catalog_mapper.dart';
 
 /// Catalog fields consumed by the Music kind.
 final class MusicCatalogFields {
-  const MusicCatalogFields._(this._candidate, this._common);
+  const MusicCatalogFields._(this._candidate, this._metadata);
 
   final CatalogSearchCandidate _candidate;
-  final CatalogCommonDto? _common;
+  final MusicAlbum? _metadata;
 
-  String get title => _candidate.summary.primaryLabel;
-  String? get displayTitle => _common?.displayTitle;
-  String? get localizedTitle => _common?.localizedTitle;
-  String? get originalTitle => _common?.originalTitle;
-  String? get titleExtension => _common?.titleExtension;
-  List<String> get searchAliases => _common?.searchAliases ?? const [];
-  String? get sortKey => _common?.sortKey;
+  MusicAlbum? get metadata => _metadata;
+  String get title => _metadata?.title ?? _candidate.summary.primaryLabel;
+  String? get titleExtension => _metadata?.subtitle;
+  List<String> get searchAliases => const [];
+  String? get sortKey => _metadata?.sortTitle;
   String? get coverImageUrl =>
-      _common?.coverImageUrl ?? _candidate.summary.imageUrl;
-  String? get thumbnailImageUrl => _common?.thumbnailImageUrl;
-  String? get coverImageData => _common?.coverImageData;
-  DateTime? get releaseDate => _common?.releaseDate;
-  int? get releaseYear => _common?.releaseYear;
+      _metadata?.coverImageUrl ?? _candidate.summary.imageUrl;
+  String? get thumbnailImageUrl => _metadata?.thumbnailImageUrl;
+  DateTime? get releaseDate => _metadata?.releaseDate;
+  int? get releaseYear => _metadata?.releaseDateParts?.year;
 
   bool get hasReleaseDate => releaseDate != null || releaseYear != null;
 }
@@ -28,10 +26,11 @@ final class MusicCatalogFields {
 extension MusicCatalogCandidateFields on CatalogSearchCandidate {
   MusicCatalogFields get musicCatalogFields {
     try {
-      final common = kindCapability.mapTransport(
-        (item) => item.common,
+      final item = kindCapability.mapTransport((item) => item);
+      return MusicCatalogFields._(
+        this,
+        MusicCatalogMapper.mapMetadataItemToMusic(item),
       );
-      return MusicCatalogFields._(this, common);
     } on StateError {
       return MusicCatalogFields._(this, null);
     }

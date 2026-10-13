@@ -67,7 +67,7 @@ void main() {
     expect(find.text('Reset connection defaults'), findsOneWidget);
 
     await _openSettingsTab(tester, 'Libraries');
-    expect(find.text('Library navigation'), findsOneWidget);
+    expect(find.text('Library customization'), findsOneWidget);
     expect(find.text('Keyboard shortcuts'), findsOneWidget);
     expect(find.text('View shortcuts'), findsOneWidget);
 
@@ -83,6 +83,10 @@ void main() {
     expect(find.text('Copy Collectarr export'), findsOneWidget);
     expect(find.text('Copy CLZ-friendly export'), findsOneWidget);
     expect(find.text('Copy sync backup guide'), findsOneWidget);
+    await _openSettingsTab(tester, 'Proposals');
+    await _scrollToText(tester, 'Metadata proposals');
+    expect(find.text('Metadata proposals'), findsOneWidget);
+    expect(find.text('No local proposal submissions yet.'), findsOneWidget);
     await _openSettingsTab(tester, 'Account');
     expect(find.text('Device identity'), findsOneWidget);
     expect(find.text('Session expiry unavailable'), findsNothing);
@@ -116,6 +120,7 @@ void main() {
     expect(find.text('Connection'), findsOneWidget);
     expect(find.text('Libraries'), findsOneWidget);
     expect(find.text('Appearance'), findsOneWidget);
+    expect(find.text('Proposals'), findsOneWidget);
     expect(find.text('Data'), findsOneWidget);
     expect(find.text('Account'), findsOneWidget);
     expect(find.text('Logs'), findsOneWidget);
@@ -128,18 +133,18 @@ void main() {
     expect(find.text('Personal sync service'), findsOneWidget);
 
     // Back to root
-    await tester.tap(find.byType(BackButton));
+    await tester.tap(find.text('Back'));
     await pumpUntilSettled(tester);
 
     // Tap into Appearance
     await tester.tap(find.text('Appearance'));
     await pumpUntilSettled(tester);
 
-    expect(find.text('Dark mode'), findsOneWidget);
+    expect(find.text('Application skin'), findsOneWidget);
     expect(find.text('Animations'), findsOneWidget);
   });
 
-  testWidgets('settings page renders two-pane layout on medium screen',
+  testWidgets('settings page renders scrollable section tabs on medium screen',
       (tester) async {
     SharedPreferences.setMockInitialValues({});
     tester.view.physicalSize = const Size(700, 900);
@@ -167,7 +172,7 @@ void main() {
     await tester.tap(find.text('Appearance'));
     await pumpUntilSettled(tester);
 
-    expect(find.text('Dark mode'), findsOneWidget);
+    expect(find.text('Application skin'), findsOneWidget);
     expect(find.text('Animations'), findsOneWidget);
   });
 
@@ -193,7 +198,7 @@ void main() {
     await pumpUntilSettled(tester);
 
     await _openSettingsTab(tester, 'Libraries');
-    expect(find.text('Library navigation'), findsOneWidget);
+    expect(find.text('Library customization'), findsOneWidget);
     expect(find.text('Keyboard shortcuts'), findsNothing);
     expect(find.text('View shortcuts'), findsNothing);
   });
@@ -219,19 +224,51 @@ void main() {
     await pumpUntilSettled(tester);
 
     await _openSettingsTab(tester, 'Appearance');
-    final animationTile = find.widgetWithText(SwitchListTile, 'Animations');
+    final animationTile = find.widgetWithText(CheckboxListTile, 'Animations');
     expect(animationTile, findsOneWidget);
-    expect(tester.widget<SwitchListTile>(animationTile).value, isTrue);
+    expect(tester.widget<CheckboxListTile>(animationTile).value, isTrue);
 
     await tester.tap(animationTile);
     await pumpUntilSettled(tester);
 
-    expect(tester.widget<SwitchListTile>(animationTile).value, isFalse);
+    expect(tester.widget<CheckboxListTile>(animationTile).value, isFalse);
     final prefs = await SharedPreferences.getInstance();
     expect(
       prefs.getBool(UiPreferencesStore.animationsEnabledKey),
       isFalse,
     );
+  });
+
+  testWidgets('settings page appearance renders sliders with gridSpacing 24.0 without throwing',
+      (tester) async {
+    SharedPreferences.setMockInitialValues({
+      UiPreferencesStore.gridSpacingKey: 24.0,
+      UiPreferencesStore.cardCoverWidthKey: 120.0,
+      UiPreferencesStore.sidebarRowPaddingKey: 8.0,
+    });
+    tester.view.physicalSize = const Size(1000, 1200);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    final db = LocalDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [localDatabaseProvider.overrideWithValue(db)],
+        child: MaterialApp(
+          theme: ThemeData(platform: TargetPlatform.windows),
+          home: const SettingsPage(initialSection: SettingsSection.appearance),
+        ),
+      ),
+    );
+    await pumpUntilSettled(tester);
+
+    expect(tester.takeException(), isNull);
+    await _openSettingsTab(tester, 'Covers & layout');
+    expect(find.text('Grid spacing'), findsOneWidget);
+    final sliderFinder = find.byType(Slider).first;
+    expect(tester.widget<Slider>(sliderFinder).value, 24.0);
   });
 
   testWidgets('settings page warns that web sync can be browser-blocked',
@@ -279,8 +316,8 @@ void main() {
                 warningMessage: '1 sync change rejected',
                 rejectedChanges: [
                   SyncRejectedChange(
-                    entityType: 'owned_item',
-                    entityId: 'owned-item-123456',
+                    entityType: 'library_entry',
+                    entityId: 'entry-item-123456',
                     reason: 'stale_client_change',
                     currentClientChangedAt: DateTime.utc(2026, 5, 14, 9, 0),
                   ),
@@ -300,7 +337,7 @@ void main() {
     await _scrollToText(tester, 'Sync conflict review');
 
     expect(find.text('Sync conflict review'), findsOneWidget);
-    expect(find.text('owned_item:owned-it'), findsOneWidget);
+    expect(find.text('library_entry:entry-it'), findsOneWidget);
     expect(
       find.textContaining('This device is behind the service'),
       findsOneWidget,
@@ -332,8 +369,8 @@ void main() {
                 warningMessage: '1 sync change rejected',
                 rejectedChanges: [
                   SyncRejectedChange(
-                    entityType: 'owned_item',
-                    entityId: 'owned-item-123456',
+                    entityType: 'library_entry',
+                    entityId: 'entry-item-123456',
                     reason: 'stale_client_change',
                   ),
                 ],

@@ -1,21 +1,25 @@
+import 'package:collectarr_app/ui/accent_dialog_header.dart';
+import 'package:collectarr_app/ui/app_icons.dart';
+import 'library_view_controls.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/ui/library_accent_scope.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
-/// Modal bottom sheet for configuring view mode, density, sorting, and layout on compact screens.
+/// Modal bottom sheet for configuring view mode, sorting, and layout on compact screens.
 Future<void> showViewAndOrganizeSheet({
   required BuildContext context,
   required LibraryViewMode currentViewMode,
   required ValueChanged<LibraryViewMode> onViewModeChanged,
-  required LibraryWorkspaceDensityPreset currentDensity,
-  required ValueChanged<LibraryWorkspaceDensityPreset> onDensityChanged,
   required LibraryDetailsLayout currentDetailsLayout,
   required ValueChanged<LibraryDetailsLayout> onDetailsLayoutChanged,
   required double currentCoverSize,
   required double minCoverSize,
   required double maxCoverSize,
   required ValueChanged<double> onCoverSizeChanged,
+  double? currentSpacing,
+  ValueChanged<double>? onSpacingChanged,
   VoidCallback? onOpenSortDialog,
   VoidCallback? onOpenFilterDialog,
   VoidCallback? onOpenColumnChooser,
@@ -31,14 +35,14 @@ Future<void> showViewAndOrganizeSheet({
       return ViewAndOrganizeSheet(
         currentViewMode: currentViewMode,
         onViewModeChanged: onViewModeChanged,
-        currentDensity: currentDensity,
-        onDensityChanged: onDensityChanged,
         currentDetailsLayout: currentDetailsLayout,
         onDetailsLayoutChanged: onDetailsLayoutChanged,
         currentCoverSize: currentCoverSize,
         minCoverSize: minCoverSize,
         maxCoverSize: maxCoverSize,
         onCoverSizeChanged: onCoverSizeChanged,
+        currentSpacing: currentSpacing,
+        onSpacingChanged: onSpacingChanged,
         onOpenSortDialog: onOpenSortDialog,
         onOpenFilterDialog: onOpenFilterDialog,
         onOpenColumnChooser: onOpenColumnChooser,
@@ -52,14 +56,14 @@ class ViewAndOrganizeSheet extends StatefulWidget {
     super.key,
     required this.currentViewMode,
     required this.onViewModeChanged,
-    required this.currentDensity,
-    required this.onDensityChanged,
     required this.currentDetailsLayout,
     required this.onDetailsLayoutChanged,
     required this.currentCoverSize,
     required this.minCoverSize,
     required this.maxCoverSize,
     required this.onCoverSizeChanged,
+    this.currentSpacing,
+    this.onSpacingChanged,
     this.onOpenSortDialog,
     this.onOpenFilterDialog,
     this.onOpenColumnChooser,
@@ -67,14 +71,14 @@ class ViewAndOrganizeSheet extends StatefulWidget {
 
   final LibraryViewMode currentViewMode;
   final ValueChanged<LibraryViewMode> onViewModeChanged;
-  final LibraryWorkspaceDensityPreset currentDensity;
-  final ValueChanged<LibraryWorkspaceDensityPreset> onDensityChanged;
   final LibraryDetailsLayout currentDetailsLayout;
   final ValueChanged<LibraryDetailsLayout> onDetailsLayoutChanged;
   final double currentCoverSize;
   final double minCoverSize;
   final double maxCoverSize;
   final ValueChanged<double> onCoverSizeChanged;
+  final double? currentSpacing;
+  final ValueChanged<double>? onSpacingChanged;
   final VoidCallback? onOpenSortDialog;
   final VoidCallback? onOpenFilterDialog;
   final VoidCallback? onOpenColumnChooser;
@@ -85,20 +89,20 @@ class ViewAndOrganizeSheet extends StatefulWidget {
 
 class _ViewAndOrganizeSheetState extends State<ViewAndOrganizeSheet> {
   late LibraryViewMode _viewMode;
-  late LibraryWorkspaceDensityPreset _density;
   late LibraryDetailsLayout _detailsLayout;
   late double _coverSize;
+  double? _spacing;
 
   @override
   void initState() {
     super.initState();
     _viewMode = widget.currentViewMode;
-    _density = widget.currentDensity;
     _detailsLayout = widget.currentDetailsLayout;
     _coverSize = widget.currentCoverSize.clamp(
       widget.minCoverSize,
       widget.maxCoverSize,
     );
+    _spacing = widget.currentSpacing;
   }
 
   @override
@@ -124,26 +128,10 @@ class _ViewAndOrganizeSheetState extends State<ViewAndOrganizeSheet> {
               ),
             ),
             const SizedBox(height: 12),
-            Row(
-              children: [
-                Icon(Icons.tune, size: 20, color: accentData.accent),
-                const SizedBox(width: 8),
-                Text(
-                  'View & Organize',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w800,
-                    color: palette.textPrimary,
-                  ),
-                ),
-                const Spacer(),
-                IconButton(
-                  icon: const Icon(Icons.close, size: 18),
-                  onPressed: () => Navigator.of(context).pop(),
-                  visualDensity: VisualDensity.compact,
-                ),
-              ],
-            ),
+            AccentDialogHeader(
+                title: 'View & Organize',
+                icon: AppIcons.toolbarTools,
+                onClose: () => Navigator.of(context).pop()),
             const Divider(height: 20),
 
             // Section 1: View Layout Mode
@@ -155,7 +143,7 @@ class _ViewAndOrganizeSheetState extends State<ViewAndOrganizeSheet> {
               children: [
                 _buildChoiceChip(
                   key: const ValueKey('view_mode_grid'),
-                  icon: Icons.grid_view,
+                  icon: AppIcons.viewCovers,
                   label: 'Grid',
                   selected: _viewMode == LibraryViewMode.grid,
                   accent: accentData.accent,
@@ -167,7 +155,17 @@ class _ViewAndOrganizeSheetState extends State<ViewAndOrganizeSheet> {
                 ),
                 _buildChoiceChip(
                   key: const ValueKey('view_mode_card'),
-                  icon: Icons.view_module,
+                  leading: SvgPicture.asset(
+                    AppIcons.viewVerticalCardsSvg,
+                    width: 16,
+                    height: 16,
+                    colorFilter: ColorFilter.mode(
+                      _viewMode == LibraryViewMode.card
+                          ? accentData.accent
+                          : palette.textMuted,
+                      BlendMode.srcIn,
+                    ),
+                  ),
                   label: 'Cards',
                   selected: _viewMode == LibraryViewMode.card,
                   accent: accentData.accent,
@@ -179,7 +177,7 @@ class _ViewAndOrganizeSheetState extends State<ViewAndOrganizeSheet> {
                 ),
                 _buildChoiceChip(
                   key: const ValueKey('view_mode_list'),
-                  icon: Icons.view_list,
+                  icon: AppIcons.viewList,
                   label: 'List',
                   selected: _viewMode == LibraryViewMode.list,
                   accent: accentData.accent,
@@ -213,12 +211,11 @@ class _ViewAndOrganizeSheetState extends State<ViewAndOrganizeSheet> {
                   Icon(Icons.photo_size_select_small,
                       size: 16, color: palette.textMuted),
                   Expanded(
-                    child: Slider(
+                    child: LibraryRangeSlider(
                       key: const ValueKey('cover_size_slider'),
                       value: _coverSize,
                       min: widget.minCoverSize,
                       max: widget.maxCoverSize,
-                      activeColor: accentData.accent,
                       onChanged: (val) {
                         setState(() => _coverSize = val);
                         widget.onCoverSizeChanged(val);
@@ -231,48 +228,36 @@ class _ViewAndOrganizeSheetState extends State<ViewAndOrganizeSheet> {
               ),
             ],
 
-            // Section 3: Density
-            const SizedBox(height: 16),
-            _buildSectionHeader('Density', palette),
-            const SizedBox(height: 8),
-            Row(
-              children: [
-                Expanded(
-                  child: _buildChoiceChip(
-                    key: const ValueKey('density_comfortable'),
-                    icon: Icons.density_medium,
-                    label: 'Comfortable',
-                    selected:
-                        _density == LibraryWorkspaceDensityPreset.comfortable,
-                    accent: accentData.accent,
-                    palette: palette,
-                    onTap: () {
-                      setState(() =>
-                          _density = LibraryWorkspaceDensityPreset.comfortable);
-                      widget.onDensityChanged(
-                          LibraryWorkspaceDensityPreset.comfortable);
-                    },
+            // Section: Spacing / Row Height
+            if (widget.onSpacingChanged != null) ...[
+              const SizedBox(height: 16),
+              _buildSectionHeader(
+                _viewMode == LibraryViewMode.list
+                    ? 'Item Spacing'
+                    : 'Item Spacing',
+                palette,
+              ),
+              Row(
+                children: [
+                  Icon(Icons.format_line_spacing,
+                      size: 16, color: palette.textMuted),
+                  Expanded(
+                    child: LibraryRangeSlider(
+                      key: const ValueKey('spacing_slider'),
+                      value: (_spacing ?? 10.0).clamp(4.0, 24.0),
+                      min: 4,
+                      max: 24,
+                      onChanged: (val) {
+                        setState(() => _spacing = val);
+                        widget.onSpacingChanged!(val);
+                      },
+                    ),
                   ),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: _buildChoiceChip(
-                    key: const ValueKey('density_compact'),
-                    icon: Icons.density_small,
-                    label: 'Compact',
-                    selected: _density == LibraryWorkspaceDensityPreset.compact,
-                    accent: accentData.accent,
-                    palette: palette,
-                    onTap: () {
-                      setState(() =>
-                          _density = LibraryWorkspaceDensityPreset.compact);
-                      widget.onDensityChanged(
-                          LibraryWorkspaceDensityPreset.compact);
-                    },
-                  ),
-                ),
-              ],
-            ),
+                  Icon(Icons.format_line_spacing,
+                      size: 20, color: palette.textMuted),
+                ],
+              ),
+            ],
 
             // Section 4: Details Panel Layout
             const SizedBox(height: 16),
@@ -385,7 +370,7 @@ class _ViewAndOrganizeSheetState extends State<ViewAndOrganizeSheet> {
       title.toUpperCase(),
       style: TextStyle(
         fontSize: 12,
-        fontWeight: FontWeight.w800,
+        fontWeight: FontWeight.w700,
         letterSpacing: 0.8,
         color: palette.textMuted,
       ),
@@ -394,13 +379,15 @@ class _ViewAndOrganizeSheetState extends State<ViewAndOrganizeSheet> {
 
   Widget _buildChoiceChip({
     Key? key,
-    required IconData icon,
+    IconData? icon,
+    Widget? leading,
     required String label,
     required bool selected,
     required Color accent,
     required AppThemePalette palette,
     required VoidCallback onTap,
   }) {
+    assert(icon != null || leading != null);
     return Material(
       key: key,
       color: Colors.transparent,
@@ -424,17 +411,18 @@ class _ViewAndOrganizeSheetState extends State<ViewAndOrganizeSheet> {
             mainAxisSize: MainAxisSize.min,
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(
-                icon,
-                size: 16,
-                color: selected ? accent : palette.textMuted,
-              ),
+              leading ??
+                  Icon(
+                    icon!,
+                    size: 16,
+                    color: selected ? accent : palette.textMuted,
+                  ),
               const SizedBox(width: 6),
               Text(
                 label,
                 style: TextStyle(
                   fontSize: 13,
-                  fontWeight: selected ? FontWeight.w800 : FontWeight.w600,
+                  fontWeight: selected ? FontWeight.w700 : FontWeight.w600,
                   color: selected ? accent : palette.textPrimary,
                 ),
               ),

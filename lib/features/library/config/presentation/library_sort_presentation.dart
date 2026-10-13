@@ -15,44 +15,6 @@ class LibrarySortFavorite {
   final List<LibrarySortRule> rules;
 }
 
-const defaultLibrarySortFavorites = [
-  LibrarySortFavorite(
-    id: 'title_asc',
-    label: 'Title A-Z',
-    icon: Icons.sort_by_alpha,
-    rules: [
-      LibrarySortRule(column: 'title', ascending: true),
-    ],
-  ),
-  LibrarySortFavorite(
-    id: 'release_latest',
-    label: 'Latest release',
-    icon: Icons.event,
-    rules: [
-      LibrarySortRule(column: 'release_date', ascending: false),
-      LibrarySortRule(column: 'title', ascending: true),
-    ],
-  ),
-  LibrarySortFavorite(
-    id: 'recent',
-    label: 'Recently added',
-    icon: Icons.update,
-    rules: [
-      LibrarySortRule(column: 'updated', ascending: false),
-      LibrarySortRule(column: 'title', ascending: true),
-    ],
-  ),
-  LibrarySortFavorite(
-    id: 'value_desc',
-    label: 'Value high to low',
-    icon: Icons.attach_money,
-    rules: [
-      LibrarySortRule(column: 'price', ascending: false),
-      LibrarySortRule(column: 'title', ascending: true),
-    ],
-  ),
-];
-
 const defaultLibraryColumnFavorites = [
   LibraryTableColumnPreset(
     label: 'Essential',

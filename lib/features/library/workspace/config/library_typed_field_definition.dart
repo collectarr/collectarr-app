@@ -1,15 +1,16 @@
+import 'package:collectarr_app/features/pick_lists/models/vocabulary_id.dart';
+import 'package:collectarr_app/features/library/config/library_kind_field_metadata.dart';
 import 'package:flutter/material.dart';
-import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
+import 'package:collectarr_app/features/collection/commands/library_entry_commands.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_transport_bucket_mutators.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_identifier_types.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_projection_context.dart';
-import 'package:collectarr_app/features/library/domain/library_entity_scope.dart';
 
 export 'package:collectarr_app/features/library/workspace/schema/library_identifier_types.dart';
 export 'package:collectarr_app/features/library/workspace/schema/library_projection_context.dart';
-export 'package:collectarr_app/features/library/domain/library_entity_scope.dart';
 
-typedef LibraryOwnedGroupBucketValueMutator = UpdateOwnedItemCommand? Function(
+typedef LibraryEntryGroupBucketValueMutator = UpdateLibraryEntryCommand?
+    Function(
   Object item,
   String currentLabel, {
   String? replacement,
@@ -18,20 +19,14 @@ typedef LibraryOwnedGroupBucketValueMutator = UpdateOwnedItemCommand? Function(
 abstract interface class LibraryWorkspaceDto {
   const LibraryWorkspaceDto();
 
-  /// Kind-owned UI label. This is presentation, not a canonical catalog field.
+  /// Kind-entry UI label. This is presentation, not a canonical catalog field.
   String get primaryLabel;
 
-  /// Optional kind-owned secondary label for mixed workspace hosts.
+  /// Optional kind-entry secondary label for mixed workspace hosts.
   String? get secondaryLabel => null;
 
-  /// Kind-owned presentation image. This is not a canonical cover field.
+  /// Kind-entry presentation image. This is not a canonical cover field.
   String? get imageUrl;
-
-  /// Kind-owned searchable values exposed to generic index mechanics.
-  ///
-  /// The host may tokenize these values, but it must not inspect a catalog
-  /// payload to infer publisher/barcode/serial/video semantics.
-  Iterable<String> get searchTokens => const <String>[];
 }
 
 enum LibraryGroupPresentation { inlineHeaders, folderGrid }
@@ -67,12 +62,6 @@ class LibraryCellValue {
   bool get isEmpty => value == null;
 }
 
-enum LibraryValueOrigin {
-  canonical,
-  derived,
-  provenance,
-}
-
 typedef LibraryFieldValueGetter<TDto extends LibraryWorkspaceDto, TValue>
     = TValue Function(
   LibraryProjectionContext<TDto> context,
@@ -80,24 +69,24 @@ typedef LibraryFieldValueGetter<TDto extends LibraryWorkspaceDto, TValue>
 
 class LibraryFieldDefinition<TKind, TDto extends LibraryWorkspaceDto, TValue> {
   const LibraryFieldDefinition({
+    required this.metadata,
     required this.id,
-    required this.label,
     required this.getValue,
-    required this.entityScope,
-    this.origin = LibraryValueOrigin.canonical,
     this.cellValue,
-    this.sortable = true,
-    this.groupable = true,
   });
 
+  final LibraryKindFieldMetadata metadata;
   final LibraryFieldId<TKind, TValue> id;
-  final String label;
   final LibraryFieldValueGetter<TDto, TValue> getValue;
-  final LibraryEntityScope entityScope;
-  final LibraryValueOrigin origin;
   final LibraryCellValue Function(TValue value)? cellValue;
-  final bool sortable;
-  final bool groupable;
+
+  String get label => metadata.label;
+  bool get searchable => metadata.searchable;
+  bool get filterable => metadata.filterable;
+  bool get sortable => metadata.sortable;
+  bool get groupable => metadata.groupable;
+  bool get exportable => metadata.exportable;
+  bool get editable => metadata.editable;
 }
 
 class LibraryGroupDefinition<TKind, TDto extends LibraryWorkspaceDto, TValue> {
@@ -108,7 +97,8 @@ class LibraryGroupDefinition<TKind, TDto extends LibraryWorkspaceDto, TValue> {
     this.sidebarTitle,
     this.icon,
     this.presentation = LibraryGroupPresentation.inlineHeaders,
-    this.supportsBucketManagement = false,
+    bool supportsBucketManagement = false,
+    this.bucketVocabulary,
     this.supportsJump = false,
     this.sequenceValue,
     this.bucketManagerListLabel,
@@ -116,10 +106,11 @@ class LibraryGroupDefinition<TKind, TDto extends LibraryWorkspaceDto, TValue> {
     this.folderSetLabel,
     this.subgroupKey,
     this.category,
-    this.entityScope,
     this.bucketValueMutator,
-    this.ownedBucketValueMutator,
-  })  : hasSequenceValue = sequenceValue != null,
+    this.entryBucketValueMutator,
+  })  : supportsBucketManagement =
+            supportsBucketManagement || bucketVocabulary != null,
+        hasSequenceValue = sequenceValue != null,
         hasSubgroupKey = subgroupKey != null;
 
   final LibraryGroupId<TKind, TValue> id;
@@ -129,6 +120,9 @@ class LibraryGroupDefinition<TKind, TDto extends LibraryWorkspaceDto, TValue> {
   final IconData? icon;
   final LibraryGroupPresentation presentation;
   final bool supportsBucketManagement;
+
+  /// Existing pick-list manager for this grouping field, when available.
+  final VocabularyId<String>? bucketVocabulary;
   final bool supportsJump;
   final bool hasSequenceValue;
   final bool hasSubgroupKey;
@@ -138,9 +132,8 @@ class LibraryGroupDefinition<TKind, TDto extends LibraryWorkspaceDto, TValue> {
   final String? folderSetLabel;
   final String? Function(LibraryProjectionContext<TDto> context)? subgroupKey;
   final String? category;
-  final LibraryEntityScope? entityScope;
   final CatalogTransportBucketValueMutator? bucketValueMutator;
-  final LibraryOwnedGroupBucketValueMutator? ownedBucketValueMutator;
+  final LibraryEntryGroupBucketValueMutator? entryBucketValueMutator;
 
   String get resolvedSidebarTitle => sidebarTitle ?? label;
   String get resolvedCategory => category ?? 'Main';
@@ -156,6 +149,7 @@ class LibraryGroupDefinition<TKind, TDto extends LibraryWorkspaceDto, TValue> {
     IconData? icon,
     LibraryGroupPresentation? presentation,
     bool? supportsBucketManagement,
+    VocabularyId<String>? bucketVocabulary,
     bool? supportsJump,
     String? Function(LibraryProjectionContext<TDto> context)? sequenceValue,
     String? bucketManagerListLabel,
@@ -163,9 +157,8 @@ class LibraryGroupDefinition<TKind, TDto extends LibraryWorkspaceDto, TValue> {
     String? folderSetLabel,
     String? Function(LibraryProjectionContext<TDto> context)? subgroupKey,
     String? category,
-    LibraryEntityScope? entityScope,
     CatalogTransportBucketValueMutator? bucketValueMutator,
-    LibraryOwnedGroupBucketValueMutator? ownedBucketValueMutator,
+    LibraryEntryGroupBucketValueMutator? entryBucketValueMutator,
   }) {
     return LibraryGroupDefinition<TKind, TDto, TValue>(
       id: id ?? this.id,
@@ -176,6 +169,7 @@ class LibraryGroupDefinition<TKind, TDto extends LibraryWorkspaceDto, TValue> {
       presentation: presentation ?? this.presentation,
       supportsBucketManagement:
           supportsBucketManagement ?? this.supportsBucketManagement,
+      bucketVocabulary: bucketVocabulary ?? this.bucketVocabulary,
       supportsJump: supportsJump ?? this.supportsJump,
       sequenceValue: sequenceValue ?? this.sequenceValue,
       bucketManagerListLabel:
@@ -184,10 +178,9 @@ class LibraryGroupDefinition<TKind, TDto extends LibraryWorkspaceDto, TValue> {
       folderSetLabel: folderSetLabel ?? this.folderSetLabel,
       subgroupKey: subgroupKey ?? this.subgroupKey,
       category: category ?? this.category,
-      entityScope: entityScope ?? this.entityScope,
       bucketValueMutator: bucketValueMutator ?? this.bucketValueMutator,
-      ownedBucketValueMutator:
-          ownedBucketValueMutator ?? this.ownedBucketValueMutator,
+      entryBucketValueMutator:
+          entryBucketValueMutator ?? this.entryBucketValueMutator,
     );
   }
 }
@@ -204,7 +197,6 @@ class LibrarySortDefinition<TKind, TDto extends LibraryWorkspaceDto> {
     required this.compare,
     this.group = 'Main',
     this.defaultAscending = true,
-    this.entityScope,
   });
 
   final LibrarySortId<TKind> id;
@@ -212,7 +204,6 @@ class LibrarySortDefinition<TKind, TDto extends LibraryWorkspaceDto> {
   final LibrarySortComparator<TDto> compare;
   final String group;
   final bool defaultAscending;
-  final LibraryEntityScope? entityScope;
 }
 
 typedef LibraryColumnCellBuilder<TDto extends LibraryWorkspaceDto> = Widget
@@ -221,25 +212,25 @@ typedef LibraryColumnCellBuilder<TDto extends LibraryWorkspaceDto> = Widget
 );
 
 class LibraryColumnDefinition<TKind, TDto extends LibraryWorkspaceDto, TValue> {
-  const LibraryColumnDefinition({
+  LibraryColumnDefinition({
+    required this.metadata,
     required this.id,
-    required this.label,
     required this.getValue,
     this.cellValue,
     this.group = 'Main',
     this.displayName,
-    this.sortable = true,
-    this.groupable = true,
+    bool allowSortInteraction = true,
+    bool allowGroupInteraction = true,
     this.isNumeric = false,
     this.sortId,
     this.defaultWidth,
     this.minWidth,
     this.maxWidth,
-    this.entityScope,
-  });
+  })  : sortable = metadata.sortable && allowSortInteraction,
+        groupable = metadata.groupable && allowGroupInteraction;
 
+  final LibraryKindFieldMetadata metadata;
   final LibraryFieldId<TKind, TValue> id;
-  final String label;
   final LibraryFieldValueGetter<TDto, TValue> getValue;
   final LibraryColumnCellBuilder<TDto>? cellValue;
   final String group;
@@ -251,7 +242,7 @@ class LibraryColumnDefinition<TKind, TDto extends LibraryWorkspaceDto, TValue> {
   final double? defaultWidth;
   final double? minWidth;
   final double? maxWidth;
-  final LibraryEntityScope? entityScope;
 
   String get resolvedDisplayName => displayName ?? label;
+  String get label => metadata.label;
 }

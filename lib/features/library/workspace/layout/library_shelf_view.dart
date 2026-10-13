@@ -4,6 +4,7 @@ import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_tile.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
+import 'library_shelf_backdrop.dart';
 
 class LibraryShelfView<T> extends StatelessWidget {
   const LibraryShelfView({
@@ -21,7 +22,10 @@ class LibraryShelfView<T> extends StatelessWidget {
     this.shelfHeight = 200.0,
     this.bookWidth = 120.0,
     this.fallbackCoverAspectRatio = 2 / 3,
+    this.backgroundColor,
     this.emptyBuilder,
+    this.bookHorizontalPadding = 1.0,
+    this.itemSpacing = 0,
   });
 
   final List<T> items;
@@ -37,17 +41,22 @@ class LibraryShelfView<T> extends StatelessWidget {
   final double shelfHeight;
   final double bookWidth;
   final double fallbackCoverAspectRatio;
+  final Color? backgroundColor;
   final WidgetBuilder? emptyBuilder;
+  final double bookHorizontalPadding;
+  final double itemSpacing;
 
   @override
   Widget build(BuildContext context) {
     if (items.isEmpty && emptyBuilder != null) {
-      return emptyBuilder!(context);
+      final empty = emptyBuilder!(context);
+      return ColoredBox(
+          color: backgroundColor ?? libraryShelfBackColor, child: empty);
     }
     return LayoutBuilder(
       builder: (context, constraints) {
         const shelfOverhang = 8.0;
-        const bookHorizontalPadding = 1.0;
+        final bookHorizontalPadding = this.bookHorizontalPadding;
         const bookInnerInset = 8.0;
         final availableShelfWidth =
             math.max(1.0, constraints.maxWidth - (shelfOverhang * 2));
@@ -65,7 +74,8 @@ class LibraryShelfView<T> extends StatelessWidget {
         final effectiveShelfHeight = bookWidth <= 0
             ? shelfHeight
             : shelfHeight * (effectiveBookWidth / bookWidth);
-        final booksPerShelf = (availableShelfWidth / effectiveBookVisualWidth)
+        final booksPerShelf = ((availableShelfWidth + itemSpacing) /
+                (effectiveBookVisualWidth + itemSpacing))
             .floor()
             .clamp(1, 100);
         final shelves = <List<T>>[];
@@ -75,7 +85,7 @@ class LibraryShelfView<T> extends StatelessWidget {
             (i + booksPerShelf).clamp(0, items.length),
           ));
         }
-        return ListView.builder(
+        final listView = ListView.builder(
           padding: const EdgeInsets.only(bottom: 24),
           itemCount: shelves.length,
           itemBuilder: (context, shelfIndex) {
@@ -92,9 +102,15 @@ class LibraryShelfView<T> extends StatelessWidget {
               accent: accent,
               shelfHeight: effectiveShelfHeight,
               bookWidth: effectiveBookWidth,
+              itemSpacing: itemSpacing,
               fallbackCoverAspectRatio: fallbackCoverAspectRatio,
             );
           },
+        );
+        return LibraryShelfBackdrop(
+          shelfPitch: effectiveShelfHeight + 20,
+          color: backgroundColor ?? libraryShelfBackColor,
+          child: listView,
         );
       },
     );
@@ -115,6 +131,7 @@ class _ShelfRow<T> extends StatelessWidget {
     required this.accent,
     required this.shelfHeight,
     required this.bookWidth,
+    required this.itemSpacing,
     required this.fallbackCoverAspectRatio,
   });
 
@@ -130,6 +147,7 @@ class _ShelfRow<T> extends StatelessWidget {
   final Color accent;
   final double shelfHeight;
   final double bookWidth;
+  final double itemSpacing;
   final double fallbackCoverAspectRatio;
 
   @override
@@ -137,12 +155,8 @@ class _ShelfRow<T> extends StatelessWidget {
     const shelfThickness = 8.0;
     const shelfShadow = 12.0;
     const shelfOverhang = 8.0;
-    final palette = appPalette(context);
-    final panelColor = palette.panel;
-    final shelfColor =
-        HSLColor.fromColor(panelColor).withLightness(0.18).toColor();
-    final shelfHighlight =
-        HSLColor.fromColor(panelColor).withLightness(0.24).toColor();
+    const shelfColor = libraryShelfPlankColor;
+    const shelfHighlight = libraryShelfHighlightColor;
     return SizedBox(
       height: shelfHeight + shelfThickness + shelfShadow,
       child: Stack(
@@ -184,7 +198,7 @@ class _ShelfRow<T> extends StatelessWidget {
             height: 1,
             child: DecoratedBox(
               decoration: BoxDecoration(
-                color: palette.divider.withValues(alpha: 0.72),
+                color: shelfHighlight,
               ),
             ),
           ),
@@ -195,6 +209,7 @@ class _ShelfRow<T> extends StatelessWidget {
             bottom: shelfThickness + shelfShadow,
             height: shelfHeight,
             child: Row(
+              spacing: itemSpacing,
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 for (final book in books) _buildBook(context, book),

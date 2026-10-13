@@ -1,8 +1,9 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/catalog/catalog_kind_lookup.dart';
-import 'package:collectarr_app/features/library/kinds/music/data/music_repository.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_release_group.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_item_cache_repository.dart';
+import 'package:collectarr_app/features/library/kinds/music/catalog/music_catalog_mapper.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_album.dart';
 
 final class MusicCatalogLookup implements CatalogKindLookup {
   MusicCatalogLookup(this._db);
@@ -26,11 +27,12 @@ final class MusicCatalogLookup implements CatalogKindLookup {
   Future<CatalogSearchHit?> _findByBarcode(String barcode) async {
     final normalized = normalizeCatalogLookupValue(barcode);
     if (normalized.isEmpty) return null;
-    for (final group in await MusicRepository(_db).searchReleaseGroups()) {
-      if (group.releases.any((release) =>
-          _same(release.barcode, normalized) ||
-          _same(release.upc, normalized))) {
-        return _hit(group);
+    for (final dto in await CatalogItemCacheRepository(_db).findAll(
+      kind: kind,
+    )) {
+      final item = MusicCatalogMapper.mapMetadataItemToMusic(dto);
+      if (_same(item.barcode, normalized)) {
+        return _hit(dto.id, item);
       }
     }
     return null;
@@ -43,28 +45,29 @@ final class MusicCatalogLookup implements CatalogKindLookup {
     final normalizedTitle = normalizeCatalogLookupTitle(title);
     if (normalizedTitle.isEmpty) return null;
     final normalizedItemNumber = itemNumber?.trim();
-    for (final group in await MusicRepository(_db).searchReleaseGroups()) {
-      if (normalizeCatalogLookupTitle(group.title) != normalizedTitle) {
+    for (final dto in await CatalogItemCacheRepository(_db).findAll(
+      kind: kind,
+    )) {
+      final item = MusicCatalogMapper.mapMetadataItemToMusic(dto);
+      if (normalizeCatalogLookupTitle(item.title) != normalizedTitle) {
         continue;
       }
       if (normalizedItemNumber != null &&
           normalizedItemNumber.isNotEmpty &&
-          !group.releases.any(
-            (release) => release.catalogNumber?.trim() == normalizedItemNumber,
-          )) {
+          item.catalogNumber?.trim() != normalizedItemNumber) {
         continue;
       }
-      return _hit(group);
+      return _hit(dto.id, item);
     }
     return null;
   }
 
-  CatalogSearchHit _hit(MusicReleaseGroup group) {
+  CatalogSearchHit _hit(String id, MusicAlbum item) {
     return catalogLookupHit(
       kind: kind,
-      id: group.id.value,
-      title: group.title,
-      subtitle: group.primaryRelease?.catalogNumber,
+      id: id,
+      title: item.title,
+      subtitle: item.catalogNumber,
     );
   }
 

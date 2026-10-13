@@ -1,61 +1,60 @@
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/core/models/tracking_summary.dart';
-import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
+import 'package:collectarr_app/features/collection/commands/library_entry_commands.dart';
 import 'package:collectarr_app/features/library/config/library_chrome_config.dart';
 import 'package:collectarr_app/features/library/config/library_edit_presentation_models.dart';
 import 'package:collectarr_app/features/library/config/library_kind_vocabulary_capability.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
-import 'package:collectarr_app/features/library/config/library_owned_copy_semantics.dart';
-import 'package:collectarr_app/features/library/config/library_core_correction_capability.dart';
+import 'package:collectarr_app/features/library/config/library_entry_semantics.dart';
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
-import 'package:collectarr_app/features/library/add/models/library_add_release_option.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_edit_shell_state.dart';
 import 'package:collectarr_app/features/library/edit/draft/text_controller_group.dart';
-import 'package:collectarr_app/features/library/kinds/registry/library_owned_item_dispatch.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_entry_dispatch.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
-import 'package:collectarr_app/features/library/domain/library_entity_scope.dart';
+import 'package:collectarr_app/features/library/domain/library_target_ref.dart';
 
 export 'package:collectarr_app/features/library/config/library_chrome_config.dart';
 export 'package:collectarr_app/features/library/config/library_edit_presentation_models.dart';
 export 'package:collectarr_app/features/library/config/library_kind_vocabulary_capability.dart';
-export 'package:collectarr_app/features/library/config/owned_item_update_payload.dart';
-export 'package:collectarr_app/features/library/config/library_owned_copy_semantics.dart';
-export 'package:collectarr_app/features/library/config/library_core_correction_capability.dart';
+export 'package:collectarr_app/features/library/config/library_entry_update_payload.dart';
+export 'package:collectarr_app/features/library/config/library_entry_semantics.dart';
 
 typedef LibraryEditSessionFactory = LibraryEditSessionBundle Function({
   required CatalogSearchCandidate item,
-  LibraryOwnedItemDispatch? ownedItemDispatch,
+  LibraryEntryDispatch? libraryEntryDispatch,
   TrackingSummary? trackingSummary,
   required TextControllerGroup textControllers,
 });
 
-typedef LibraryOwnedIndexUpdatePayloadBuilder = OwnedItemUpdatePayload Function(
-    OwnedItemRef ownedRef, int indexNumber);
+typedef LibraryEntryIndexUpdatePayloadBuilder = LibraryEntryUpdatePayload
+    Function(LibraryEntryRef libraryEntryRef, int indexNumber);
 
-typedef LibraryOwnedConditionValueUpdatePayloadBuilder = OwnedItemUpdatePayload
-    Function(OwnedItemRef ownedRef, String? condition, String? collectionValue);
+typedef LibraryEntryConditionValueUpdatePayloadBuilder
+    = LibraryEntryUpdatePayload Function(LibraryEntryRef libraryEntryRef,
+        String? condition, String? collectionValue);
 
-typedef LibraryOwnedCollectionValueReader = String? Function(
-  LibraryOwnedItemDispatch? ownedItem,
+typedef LibraryEntryCollectionValueReader = String? Function(
+  LibraryEntryDispatch? libraryEntry,
 );
 
-typedef LibraryOwnedFormatHint = ({String? format, String? label});
+typedef LibraryEntryFormatHint = ({String? format, String? label});
 
-typedef LibraryOwnedFormatHintResolver = LibraryOwnedFormatHint Function(
+typedef LibraryEntryFormatHintResolver = LibraryEntryFormatHint Function(
   CatalogSearchCandidate item,
 );
 
-typedef LibraryOwnedBulkUpdatePayloadBuilder = OwnedItemUpdatePayload Function(
-  OwnedItemRef ownedRef,
+typedef LibraryEntryBulkUpdatePayloadBuilder = LibraryEntryUpdatePayload
+    Function(
+  LibraryEntryRef libraryEntryRef,
   String? condition,
   String? collectionValue,
   String? locationId,
   String? tags,
 );
 
-typedef LibraryOwnedPersonalDetailsUpdatePayloadBuilder = OwnedItemUpdatePayload
-    Function(
-  OwnedItemRef ownedRef,
+typedef LibraryEntryPersonalDetailsUpdatePayloadBuilder
+    = LibraryEntryUpdatePayload Function(
+  LibraryEntryRef libraryEntryRef,
   DateTime? purchaseDate,
   int? pricePaidCents,
   String? currency,
@@ -65,43 +64,31 @@ typedef LibraryOwnedPersonalDetailsUpdatePayloadBuilder = OwnedItemUpdatePayload
   String? locationId,
 );
 
-typedef LibraryOwnedTransferUpdatePayloadBuilder = OwnedItemUpdatePayload
+typedef LibraryEntryTransferUpdatePayloadBuilder = LibraryEntryUpdatePayload
     Function(
-  OwnedItemRef ownedRef,
+  LibraryEntryRef libraryEntryRef,
   Object updated,
 );
 
-typedef LibraryOwnedDetailsResetPayloadBuilder = OwnedItemUpdatePayload
+typedef LibraryEntryDetailsResetPayloadBuilder = LibraryEntryUpdatePayload
     Function();
 
-final class LibraryEntityEditContributor {
-  const LibraryEntityEditContributor({
-    required this.scope,
-    required this.builder,
+final class LibraryTargetEditRegistry {
+  const LibraryTargetEditRegistry({
+    required this.catalogItem,
+    required this.libraryEntry,
   });
 
-  final LibraryEntityScope scope;
-  final LibraryEditDialogBuilder builder;
-}
+  final LibraryEditDialogBuilder catalogItem;
+  final LibraryEditDialogBuilder libraryEntry;
 
-final class LibraryEntityEditRegistry {
-  const LibraryEntityEditRegistry({
-    required this.contributors,
-  });
-
-  final List<LibraryEntityEditContributor> contributors;
-
-  LibraryEditDialogBuilder? builderForScope(LibraryEntityScope scope) {
-    for (final contributor in contributors) {
-      if (contributor.scope == scope) return contributor.builder;
-    }
-    return null;
-  }
+  LibraryEditDialogBuilder builderForTarget(LibraryTargetRef? target) =>
+      target is EntryTargetRef ? libraryEntry : catalogItem;
 }
 
 /// Presentation-only configuration for the shared edit host.
 ///
-/// This object contains no draft construction or Owned mutation behavior.
+/// This object contains no draft construction or Entry mutation behavior.
 final class LibraryEditPresentationCapability {
   const LibraryEditPresentationCapability({
     required this.editRegistry,
@@ -114,7 +101,7 @@ final class LibraryEditPresentationCapability {
     required this.defaultCollectionValue,
   });
 
-  final LibraryEntityEditRegistry editRegistry;
+  final LibraryTargetEditRegistry editRegistry;
   final LibraryEditPresentation presentation;
   final LibraryEditChromeConfig editChrome;
   final LibraryKindVocabularyCapability? vocabularies;
@@ -127,110 +114,108 @@ final class LibraryEditPresentationCapability {
   bool get hasCollectionValuePickList => collectionValueOptions.isNotEmpty;
 }
 
-/// Kind-owned draft construction and typed edit-result assembly.
+/// Kind-entry draft construction and typed edit-result assembly.
 final class LibraryEditSessionCapability {
   const LibraryEditSessionCapability({this.createSession});
 
   final LibraryEditSessionFactory? createSession;
 }
 
-/// Kind-owned Owned field semantics and mutation payload builders.
-final class LibraryOwnedEditCapability {
-  const LibraryOwnedEditCapability({
-    required this.ownedCollectionValueReader,
-    required this.ownedDigitalFlagResolver,
-    required this.ownedFormatHintResolver,
-    this.ownedIndexUpdatePayloadBuilder,
-    this.ownedConditionValueUpdatePayloadBuilder,
-    this.ownedBulkUpdatePayloadBuilder,
-    this.ownedPersonalDetailsUpdatePayloadBuilder,
-    this.ownedTransferUpdatePayloadBuilder,
-    this.ownedDetailsResetPayloadBuilder,
+/// Kind-entry Entry field semantics and mutation payload builders.
+final class LibraryEntryEditCapability {
+  const LibraryEntryEditCapability({
+    required this.entryCollectionValueReader,
+    required this.entryDigitalFlagResolver,
+    required this.entryFormatHintResolver,
+    this.entryIndexUpdatePayloadBuilder,
+    this.entryConditionValueUpdatePayloadBuilder,
+    this.entryBulkUpdatePayloadBuilder,
+    this.entryPersonalDetailsUpdatePayloadBuilder,
+    this.entryTransferUpdatePayloadBuilder,
+    this.entryDetailsResetPayloadBuilder,
   });
 
-  final LibraryOwnedCollectionValueReader ownedCollectionValueReader;
-  final LibraryOwnedDigitalFlagResolver ownedDigitalFlagResolver;
-  final LibraryOwnedFormatHintResolver ownedFormatHintResolver;
-  final LibraryOwnedIndexUpdatePayloadBuilder? ownedIndexUpdatePayloadBuilder;
-  final LibraryOwnedConditionValueUpdatePayloadBuilder?
-      ownedConditionValueUpdatePayloadBuilder;
-  final LibraryOwnedBulkUpdatePayloadBuilder? ownedBulkUpdatePayloadBuilder;
-  final LibraryOwnedPersonalDetailsUpdatePayloadBuilder?
-      ownedPersonalDetailsUpdatePayloadBuilder;
-  final LibraryOwnedTransferUpdatePayloadBuilder?
-      ownedTransferUpdatePayloadBuilder;
-  final LibraryOwnedDetailsResetPayloadBuilder? ownedDetailsResetPayloadBuilder;
+  final LibraryEntryCollectionValueReader entryCollectionValueReader;
+  final LibraryEntryDigitalFlagResolver entryDigitalFlagResolver;
+  final LibraryEntryFormatHintResolver entryFormatHintResolver;
+  final LibraryEntryIndexUpdatePayloadBuilder? entryIndexUpdatePayloadBuilder;
+  final LibraryEntryConditionValueUpdatePayloadBuilder?
+      entryConditionValueUpdatePayloadBuilder;
+  final LibraryEntryBulkUpdatePayloadBuilder? entryBulkUpdatePayloadBuilder;
+  final LibraryEntryPersonalDetailsUpdatePayloadBuilder?
+      entryPersonalDetailsUpdatePayloadBuilder;
+  final LibraryEntryTransferUpdatePayloadBuilder?
+      entryTransferUpdatePayloadBuilder;
+  final LibraryEntryDetailsResetPayloadBuilder? entryDetailsResetPayloadBuilder;
 
-  String? readOwnedCollectionValue(LibraryOwnedItemDispatch? ownedItem) =>
-      ownedCollectionValueReader(ownedItem);
+  String? readEntryCollectionValue(LibraryEntryDispatch? libraryEntry) =>
+      entryCollectionValueReader(libraryEntry);
 
-  LibraryOwnedFormatHint resolveOwnedFormatHint(
+  LibraryEntryFormatHint resolveEntryFormatHint(
     CatalogSearchCandidate item,
   ) =>
-      ownedFormatHintResolver(item);
+      entryFormatHintResolver(item);
 
-  bool? resolveOwnedDigitalFlag(
-    OwnedItemSummary? ownedItem,
-    List<LibraryAddReleaseOption> releases, {
+  bool? resolveEntryDigitalFlag(
+    LibraryEntrySummary? libraryEntry, {
     String? fallbackFormat,
     String? fallbackLabel,
     Iterable<PhysicalMediaFormat> formats = const [],
   }) {
-    return ownedDigitalFlagResolver(
-      ownedItem,
-      releases,
+    return entryDigitalFlagResolver(
+      libraryEntry,
       fallbackFormat: fallbackFormat,
       fallbackLabel: fallbackLabel,
       formats: formats,
     );
   }
 
-  UpdateOwnedItemCommand buildIndexUpdateCommand({
-    required OwnedItemRef ownedRef,
+  UpdateLibraryEntryCommand buildIndexUpdateCommand({
+    required LibraryEntryRef libraryEntryRef,
     required int indexNumber,
   }) {
-    final builder = ownedIndexUpdatePayloadBuilder;
+    final builder = entryIndexUpdatePayloadBuilder;
     if (builder == null) {
-      throw StateError('No typed Owned index update builder is registered.');
+      throw StateError('No typed Entry index update builder is registered.');
     }
-    return UpdateOwnedItemCommand(
-      ownedRef: ownedRef,
-      payload: builder(ownedRef, indexNumber),
+    return UpdateLibraryEntryCommand(
+      libraryEntryRef: libraryEntryRef,
+      payload: builder(libraryEntryRef, indexNumber),
     );
   }
 
-  UpdateOwnedItemCommand buildConditionValueUpdateCommand({
-    required OwnedItemRef ownedRef,
+  UpdateLibraryEntryCommand buildConditionValueUpdateCommand({
+    required LibraryEntryRef libraryEntryRef,
     required String? condition,
     required String? collectionValue,
   }) {
-    final builder = ownedConditionValueUpdatePayloadBuilder;
+    final builder = entryConditionValueUpdatePayloadBuilder;
     if (builder == null) {
       throw StateError(
-        'No typed Owned condition/value update builder is registered.',
+        'No typed Entry condition/value update builder is registered.',
       );
     }
-    return UpdateOwnedItemCommand(
-      ownedRef: ownedRef,
-      payload: builder(ownedRef, condition, collectionValue),
+    return UpdateLibraryEntryCommand(
+      libraryEntryRef: libraryEntryRef,
+      payload: builder(libraryEntryRef, condition, collectionValue),
     );
   }
 
-  UpdateOwnedItemCommand buildBulkUpdateCommand({
-    required OwnedItemRef ownedRef,
+  UpdateLibraryEntryCommand buildBulkUpdateCommand({
+    required LibraryEntryRef libraryEntryRef,
     required String? condition,
     required String? collectionValue,
     required String? locationId,
     required String? tags,
   }) {
-    final builder = ownedBulkUpdatePayloadBuilder;
+    final builder = entryBulkUpdatePayloadBuilder;
     if (builder == null) {
-      throw StateError('No typed Owned bulk update builder is registered.');
+      throw StateError('No typed Entry bulk update builder is registered.');
     }
-    return UpdateOwnedItemCommand(
-      ownedRef: ownedRef,
+    return UpdateLibraryEntryCommand(
+      libraryEntryRef: libraryEntryRef,
       payload: builder(
-        ownedRef,
+        libraryEntryRef,
         condition,
         collectionValue,
         locationId,
@@ -239,8 +224,8 @@ final class LibraryOwnedEditCapability {
     );
   }
 
-  UpdateOwnedItemCommand buildPersonalDetailsUpdateCommand({
-    required OwnedItemRef ownedRef,
+  UpdateLibraryEntryCommand buildPersonalDetailsUpdateCommand({
+    required LibraryEntryRef libraryEntryRef,
     required DateTime? purchaseDate,
     required int? pricePaidCents,
     required String? currency,
@@ -249,16 +234,16 @@ final class LibraryOwnedEditCapability {
     required bool locationChanged,
     required String? locationId,
   }) {
-    final builder = ownedPersonalDetailsUpdatePayloadBuilder;
+    final builder = entryPersonalDetailsUpdatePayloadBuilder;
     if (builder == null) {
       throw StateError(
-        'No typed Owned personal details update builder is registered.',
+        'No typed Entry personal details update builder is registered.',
       );
     }
-    return UpdateOwnedItemCommand(
-      ownedRef: ownedRef,
+    return UpdateLibraryEntryCommand(
+      libraryEntryRef: libraryEntryRef,
       payload: builder(
-        ownedRef,
+        libraryEntryRef,
         purchaseDate,
         pricePaidCents,
         currency,
@@ -270,29 +255,29 @@ final class LibraryOwnedEditCapability {
     );
   }
 
-  UpdateOwnedItemCommand buildTransferUpdateCommand({
-    required OwnedItemRef ownedRef,
+  UpdateLibraryEntryCommand buildTransferUpdateCommand({
+    required LibraryEntryRef libraryEntryRef,
     required Object updated,
   }) {
-    final builder = ownedTransferUpdatePayloadBuilder;
+    final builder = entryTransferUpdatePayloadBuilder;
     if (builder == null) {
-      throw StateError('No typed Owned transfer update builder is registered.');
+      throw StateError('No typed Entry transfer update builder is registered.');
     }
-    return UpdateOwnedItemCommand(
-      ownedRef: ownedRef,
-      payload: builder(ownedRef, updated),
+    return UpdateLibraryEntryCommand(
+      libraryEntryRef: libraryEntryRef,
+      payload: builder(libraryEntryRef, updated),
     );
   }
 
-  UpdateOwnedItemCommand buildDetailsResetCommand({
-    required OwnedItemRef ownedRef,
+  UpdateLibraryEntryCommand buildDetailsResetCommand({
+    required LibraryEntryRef libraryEntryRef,
   }) {
-    final builder = ownedDetailsResetPayloadBuilder;
+    final builder = entryDetailsResetPayloadBuilder;
     if (builder == null) {
-      throw StateError('No typed Owned details reset builder is registered.');
+      throw StateError('No typed Entry details reset builder is registered.');
     }
-    return UpdateOwnedItemCommand(
-      ownedRef: ownedRef,
+    return UpdateLibraryEntryCommand(
+      libraryEntryRef: libraryEntryRef,
       payload: builder(),
     );
   }
@@ -302,27 +287,26 @@ final class LibraryOwnedEditCapability {
 /// narrow capabilities; this type is never exposed by the public registry.
 final class LibraryEditCapabilitySet {
   LibraryEditCapabilitySet({
-    required LibraryEntityEditRegistry editRegistry,
+    required LibraryTargetEditRegistry editRegistry,
     required LibraryEditPresentation presentation,
-    required this.coreCorrectionTargetResolver,
     LibraryEditSessionFactory? createSession,
-    required LibraryOwnedCollectionValueReader ownedCollectionValueReader,
-    required LibraryOwnedDigitalFlagResolver ownedDigitalFlagResolver,
-    required LibraryOwnedFormatHintResolver ownedFormatHintResolver,
+    required LibraryEntryCollectionValueReader entryCollectionValueReader,
+    required LibraryEntryDigitalFlagResolver entryDigitalFlagResolver,
+    required LibraryEntryFormatHintResolver entryFormatHintResolver,
     required List<String> conditions,
     required String defaultCondition,
     required String defaultCollectionValue,
     List<String> collectionValueOptions = const [],
     LibraryEditChromeConfig editChrome = const LibraryEditChromeConfig(),
     LibraryKindVocabularyCapability? vocabularies,
-    LibraryOwnedIndexUpdatePayloadBuilder? ownedIndexUpdatePayloadBuilder,
-    LibraryOwnedConditionValueUpdatePayloadBuilder?
-        ownedConditionValueUpdatePayloadBuilder,
-    LibraryOwnedBulkUpdatePayloadBuilder? ownedBulkUpdatePayloadBuilder,
-    LibraryOwnedPersonalDetailsUpdatePayloadBuilder?
-        ownedPersonalDetailsUpdatePayloadBuilder,
-    LibraryOwnedTransferUpdatePayloadBuilder? ownedTransferUpdatePayloadBuilder,
-    LibraryOwnedDetailsResetPayloadBuilder? ownedDetailsResetPayloadBuilder,
+    LibraryEntryIndexUpdatePayloadBuilder? entryIndexUpdatePayloadBuilder,
+    LibraryEntryConditionValueUpdatePayloadBuilder?
+        entryConditionValueUpdatePayloadBuilder,
+    LibraryEntryBulkUpdatePayloadBuilder? entryBulkUpdatePayloadBuilder,
+    LibraryEntryPersonalDetailsUpdatePayloadBuilder?
+        entryPersonalDetailsUpdatePayloadBuilder,
+    LibraryEntryTransferUpdatePayloadBuilder? entryTransferUpdatePayloadBuilder,
+    LibraryEntryDetailsResetPayloadBuilder? entryDetailsResetPayloadBuilder,
   })  : presentationCapability = LibraryEditPresentationCapability(
           editRegistry: editRegistry,
           presentation: presentation,
@@ -334,22 +318,21 @@ final class LibraryEditCapabilitySet {
           defaultCollectionValue: defaultCollectionValue,
         ),
         session = LibraryEditSessionCapability(createSession: createSession),
-        owned = LibraryOwnedEditCapability(
-          ownedCollectionValueReader: ownedCollectionValueReader,
-          ownedDigitalFlagResolver: ownedDigitalFlagResolver,
-          ownedFormatHintResolver: ownedFormatHintResolver,
-          ownedIndexUpdatePayloadBuilder: ownedIndexUpdatePayloadBuilder,
-          ownedConditionValueUpdatePayloadBuilder:
-              ownedConditionValueUpdatePayloadBuilder,
-          ownedBulkUpdatePayloadBuilder: ownedBulkUpdatePayloadBuilder,
-          ownedPersonalDetailsUpdatePayloadBuilder:
-              ownedPersonalDetailsUpdatePayloadBuilder,
-          ownedTransferUpdatePayloadBuilder: ownedTransferUpdatePayloadBuilder,
-          ownedDetailsResetPayloadBuilder: ownedDetailsResetPayloadBuilder,
+        entry = LibraryEntryEditCapability(
+          entryCollectionValueReader: entryCollectionValueReader,
+          entryDigitalFlagResolver: entryDigitalFlagResolver,
+          entryFormatHintResolver: entryFormatHintResolver,
+          entryIndexUpdatePayloadBuilder: entryIndexUpdatePayloadBuilder,
+          entryConditionValueUpdatePayloadBuilder:
+              entryConditionValueUpdatePayloadBuilder,
+          entryBulkUpdatePayloadBuilder: entryBulkUpdatePayloadBuilder,
+          entryPersonalDetailsUpdatePayloadBuilder:
+              entryPersonalDetailsUpdatePayloadBuilder,
+          entryTransferUpdatePayloadBuilder: entryTransferUpdatePayloadBuilder,
+          entryDetailsResetPayloadBuilder: entryDetailsResetPayloadBuilder,
         );
 
   final LibraryEditPresentationCapability presentationCapability;
   final LibraryEditSessionCapability session;
-  final LibraryCoreCorrectionTargetResolver coreCorrectionTargetResolver;
-  final LibraryOwnedEditCapability owned;
+  final LibraryEntryEditCapability entry;
 }

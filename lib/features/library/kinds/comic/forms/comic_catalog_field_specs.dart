@@ -1,32 +1,50 @@
 import 'dart:async';
 
-import 'package:collectarr_app/features/library/schema/library_field_spec.dart';
+import 'package:collectarr_app/core/models/partial_date.dart';
+import 'package:collectarr_app/features/library/forms/library_field_spec.dart';
+import 'package:collectarr_app/features/library/kinds/comic/config/comic_field_identities.dart';
 import 'package:collectarr_app/features/library/kinds/comic/forms/comic_catalog_form_values.dart';
 import 'package:collectarr_app/features/library/kinds/comic/vocabulary/comic_vocabularies.dart';
 
-List<LibraryFieldSpec<T>> comicMediaIdentityFields<T>({
-  required ComicMediaValuesReader<T> values,
+String? validateComicCatalogItem(ComicCatalogItemFormValues values) {
+  final pageCount = values.pageCount;
+  if (pageCount != null && pageCount < 0) {
+    return 'Page count cannot be negative';
+  }
+  return null;
+}
+
+List<LibraryFieldSpec<T>> comicCatalogItemIdentityFields<T>({
+  required ComicCatalogItemValuesReader<T> values,
   Iterable<String>? physicalFormatOptions,
   FutureOr<void> Function()? onManagePhysicalFormat,
+  bool includeTitle = true,
   bool includeSeries = true,
 }) =>
     [
+      if (includeTitle)
+        _text<T>(
+          id: 'title',
+          label: 'Title',
+          value: (draft) => values(draft).title,
+          setValue: (draft, value) => values(draft).title = value,
+        ),
       if (includeSeries)
         _text<T>(
-          id: 'series',
-          label: 'Series',
+          id: ComicFieldIdentities.seriesId,
+          label: ComicFieldIdentities.seriesLabel,
           value: (draft) => values(draft).seriesTitle,
           setValue: (draft, value) => values(draft).seriesTitle = value,
         ),
       _text<T>(
-        id: 'issue_number',
-        label: 'Issue number',
+        id: ComicFieldIdentities.issueNumberId,
+        label: ComicFieldIdentities.issueNumberLabel,
         value: (draft) => values(draft).issueNumber,
         setValue: (draft, value) => values(draft).issueNumber = value,
       ),
       _text<T>(
-        id: 'variant',
-        label: 'Variant',
+        id: ComicFieldIdentities.variantId,
+        label: ComicFieldIdentities.variantLabel,
         value: (draft) => values(draft).variant,
         setValue: (draft, value) => values(draft).variant = value,
       ),
@@ -42,6 +60,18 @@ List<LibraryFieldSpec<T>> comicMediaIdentityFields<T>({
         value: (draft) => values(draft).barcode,
         setValue: (draft, value) => values(draft).barcode = value,
       ),
+      _text<T>(
+        id: 'isbn',
+        label: 'ISBN',
+        value: (draft) => values(draft).isbn,
+        setValue: (draft, value) => values(draft).isbn = value,
+      ),
+      _text<T>(
+        id: 'upc',
+        label: 'UPC',
+        value: (draft) => values(draft).upc,
+        setValue: (draft, value) => values(draft).upc = value,
+      ),
       LibraryVocabularyFieldSpec<T, String>(
         id: 'physical_format',
         label: 'Format',
@@ -51,6 +81,7 @@ List<LibraryFieldSpec<T>> comicMediaIdentityFields<T>({
         options: _options(
           physicalFormatOptions ?? ComicVocabularies.physicalFormat.builtIns,
         ),
+        pickListKey: ComicVocabularyIds.physicalFormat.value,
         onManage: onManagePhysicalFormat == null
             ? null
             : (_) => onManagePhysicalFormat(),
@@ -59,18 +90,22 @@ List<LibraryFieldSpec<T>> comicMediaIdentityFields<T>({
         id: 'cover_date',
         label: 'Cover date',
         value: (draft) => values(draft).coverDate,
-        setValue: (draft, value) => values(draft).coverDate = value,
+        setValue: (draft, value) {
+          values(draft).coverDate = value;
+          values(draft).coverDateParts =
+              value == null ? null : PartialDate.fromDateTime(value);
+        },
       ),
       LibraryDateFieldSpec<T>(
         id: 'release_date',
-        label: 'Release date',
+        label: 'Release Date',
         value: (draft) => values(draft).releaseDate,
         setValue: (draft, value) => values(draft).releaseDate = value,
       ),
     ];
 
-List<LibraryFieldSpec<T>> comicMediaPublicationFields<T>({
-  required ComicMediaValuesReader<T> values,
+List<LibraryFieldSpec<T>> comicCatalogItemPublicationFields<T>({
+  required ComicCatalogItemValuesReader<T> values,
   Iterable<String>? publisherOptions,
   Iterable<String>? imprintOptions,
   Iterable<String>? seriesGroupOptions,
@@ -85,14 +120,16 @@ List<LibraryFieldSpec<T>> comicMediaPublicationFields<T>({
         value: (draft) => values(draft).publisher,
         setValue: (draft, value) => values(draft).publisher = value ?? '',
         options: publisherOptions ?? ComicVocabularies.publisher.builtIns,
+        pickListKey: ComicVocabularyIds.publisher.value,
         onManage: onManagePublisher,
       ),
       _vocabulary<T>(
-        id: 'imprint',
-        label: 'Imprint',
+        id: ComicFieldIdentities.imprintId,
+        label: ComicFieldIdentities.imprintLabel,
         value: (draft) => values(draft).imprint,
         setValue: (draft, value) => values(draft).imprint = value ?? '',
         options: imprintOptions ?? ComicVocabularies.imprint.builtIns,
+        pickListKey: ComicVocabularyIds.imprint.value,
         onManage: onManageImprint,
       ),
       _vocabulary<T>(
@@ -101,11 +138,12 @@ List<LibraryFieldSpec<T>> comicMediaPublicationFields<T>({
         value: (draft) => values(draft).seriesGroup,
         setValue: (draft, value) => values(draft).seriesGroup = value ?? '',
         options: seriesGroupOptions ?? ComicVocabularies.seriesGroup.builtIns,
+        pickListKey: ComicVocabularyIds.seriesGroup.value,
         onManage: onManageSeriesGroup,
       ),
       LibraryNumberFieldSpec<T>(
-        id: 'page_count',
-        label: 'Page count',
+        id: ComicFieldIdentities.pageCountId,
+        label: ComicFieldIdentities.pageCountLabel,
         value: (draft) => values(draft).pageCount,
         setValue: (draft, value) => values(draft).pageCount = value?.round(),
         minimum: 0,
@@ -141,6 +179,7 @@ List<LibraryFieldSpec<T>> comicMediaPublicationFields<T>({
         values: (draft) => _split(values(draft).crossover).toSet(),
         setValues: (draft, next) => values(draft).crossover = next.join(', '),
         options: const [],
+        pickListKey: ComicVocabularyIds.crossover.value,
       ),
       LibraryMultiVocabularyFieldSpec<T, String>(
         id: 'story_arcs',
@@ -148,64 +187,20 @@ List<LibraryFieldSpec<T>> comicMediaPublicationFields<T>({
         values: (draft) => values(draft).storyArcs.toSet(),
         setValues: (draft, next) => values(draft).storyArcs = next.toList(),
         options: const [],
+        pickListKey: ComicVocabularyIds.storyArc.value,
       ),
+      ...comicCatalogItemCoverFields(values: values),
+    ];
+
+List<LibraryFieldSpec<T>> comicCatalogItemCoverFields<T>({
+  required ComicCatalogItemValuesReader<T> values,
+}) =>
+    [
       _text<T>(
         id: 'cover_image_url',
         label: 'Cover image URL',
         value: (draft) => values(draft).coverImageUrl,
         setValue: (draft, value) => values(draft).coverImageUrl = value,
-      ),
-    ];
-
-List<LibraryFieldSpec<T>> comicReleaseFields<T>({
-  required ComicReleaseValuesReader<T> values,
-  Iterable<String>? publisherOptions,
-  Iterable<String>? imprintOptions,
-}) =>
-    [
-      _text<T>(
-        id: 'release_title',
-        label: 'Edition title',
-        value: (draft) => values(draft).title,
-        setValue: (draft, value) => values(draft).title = value,
-      ),
-      _vocabulary<T>(
-        id: 'publisher',
-        label: 'Publisher',
-        value: (draft) => values(draft).publisher,
-        setValue: (draft, value) => values(draft).publisher = value ?? '',
-        options: publisherOptions ?? ComicVocabularies.publisher.builtIns,
-      ),
-      _vocabulary<T>(
-        id: 'imprint',
-        label: 'Imprint',
-        value: (draft) => values(draft).imprint,
-        setValue: (draft, value) => values(draft).imprint = value ?? '',
-        options: imprintOptions ?? ComicVocabularies.imprint.builtIns,
-      ),
-      _text<T>(
-        id: 'isbn',
-        label: 'ISBN',
-        value: (draft) => values(draft).isbn,
-        setValue: (draft, value) => values(draft).isbn = value,
-      ),
-      _text<T>(
-        id: 'upc',
-        label: 'UPC',
-        value: (draft) => values(draft).upc,
-        setValue: (draft, value) => values(draft).upc = value,
-      ),
-      LibraryDateFieldSpec<T>(
-        id: 'release_date',
-        label: 'Release date',
-        value: (draft) => values(draft).releaseDate,
-        setValue: (draft, value) => values(draft).releaseDate = value,
-      ),
-      LibraryImageFieldSpec<T, String>(
-        id: 'cover_image_url',
-        label: 'Cover image',
-        value: (draft) => _nullable(values(draft).coverImageUrl),
-        setValue: (draft, value) => values(draft).coverImageUrl = value ?? '',
       ),
     ];
 
@@ -228,6 +223,7 @@ LibraryVocabularyFieldSpec<T, String> _vocabulary<T>({
   required String Function(T draft) value,
   required void Function(T draft, String?) setValue,
   required Iterable<String> options,
+  required String pickListKey,
   FutureOr<void> Function()? onManage,
 }) =>
     LibraryVocabularyFieldSpec<T, String>(
@@ -236,6 +232,7 @@ LibraryVocabularyFieldSpec<T, String> _vocabulary<T>({
       value: (draft) => _nullable(value(draft)),
       setValue: setValue,
       options: _options(options),
+      pickListKey: pickListKey,
       onManage: onManage == null ? null : (_) => onManage(),
     );
 

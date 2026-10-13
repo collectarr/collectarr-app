@@ -1,6 +1,5 @@
 import 'package:collectarr_app/features/library/kinds/movie/integrations/collection_csv/movie_collection_csv_import_profile.dart';
 import 'package:collectarr_app/features/library/kinds/movie/integrations/collection_csv/movie_collection_csv_projection.dart';
-import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 
@@ -45,13 +44,13 @@ void main() {
     expect(parsed.studio, 'Warner Bros.');
     expect(parsed.releaseDate, DateTime.utc(1982, 6, 25));
     expect(parsed.barcode, '883929087129');
-    expect(parsed.ownedCells, hasLength(9));
-    expect(parsed.ownedCells, everyElement(isEmpty));
+    expect(parsed.entryCells, hasLength(9));
+    expect(parsed.entryCells, everyElement(isEmpty));
   });
 
-  test('projects Movie catalog cells without Comic-owned semantics', () {
+  test('projects Movie catalog cells without Comic-entry semantics', () {
     final projection = const MovieCollectionCsvProjection();
-    final entry = LibraryWorkspaceSource(
+    final entry = testLibraryWorkspaceSource(
       itemId: 'movie-1',
       catalogData: testWorkspaceCatalogData(
           testCatalogItemWithKindMetadata(testCatalogItem(
@@ -67,10 +66,9 @@ void main() {
         physicalFormat: '4k-uhd',
         physicalFormatLabel: '4K UHD',
       )).asShelfCatalogItem),
-      ownedSummary: testOwnedSummary(testOwnedItem(
-        id: 'owned-1',
+      libraryEntrySummary: testLibraryEntrySummary(testLibraryEntry(
+        id: 'entry-1',
         itemId: 'movie-1',
-        quantity: 1,
         updatedAt: DateTime.utc(2026, 5, 15),
       )),
     );
@@ -89,20 +87,20 @@ void main() {
       '883929087129',
     ]);
     expect(
-      projection.ownedCellsBeforeQuantity(entry, clzFriendly: false),
+      projection.entryCellsBeforeLocation(entry, clzFriendly: false),
       isEmpty,
     );
     expect(
-      projection.ownedCellsAfterIndex(entry, clzFriendly: false),
+      projection.entryCellsAfterIndex(entry, clzFriendly: false),
       hasLength(9),
     );
     expect(
-      projection.ownedCellsBeforeQuantity(entry, clzFriendly: true),
-      [''],
+      projection.entryCellsBeforeLocation(entry, clzFriendly: true),
+      isEmpty,
     );
     expect(
-      projection.ownedCellsAfterIndex(entry, clzFriendly: true),
-      hasLength(8),
+      projection.entryCellsAfterIndex(entry, clzFriendly: true),
+      hasLength(9),
     );
   });
 }

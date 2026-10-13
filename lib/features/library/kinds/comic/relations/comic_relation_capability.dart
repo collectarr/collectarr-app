@@ -19,9 +19,8 @@ LibraryRelationTarget? _comicRelationTargetFor(
     return null;
   }
   final metadata = dto.comic;
-  final series = metadata.series;
-  final id = series?.seriesId?.trim();
-  final title = series?.seriesTitle?.trim();
+  final id = metadata.seriesId?.trim();
+  final title = metadata.seriesTitle?.trim();
   if (id == null || id.isEmpty || title == null || title.isEmpty) {
     return null;
   }

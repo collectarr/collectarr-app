@@ -1,40 +1,31 @@
 import 'package:collectarr_app/core/models/wishlist_item.dart';
-import 'package:collectarr_app/features/library/kinds/book/data/book_owned_item_projection.dart';
+import 'package:collectarr_app/features/library/kinds/book/data/book_library_entry_projection.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
-import 'package:collectarr_app/features/library/kinds/book/domain/book_owned_item.dart';
+import 'package:collectarr_app/features/library/kinds/book/domain/book_library_entry.dart';
 
 export 'package:collectarr_app/features/library/kinds/book/domain/book_metadata.dart';
 export 'package:collectarr_app/features/library/kinds/book/domain/book_ids.dart';
-export 'package:collectarr_app/features/library/kinds/book/domain/book_media.dart';
-export 'package:collectarr_app/features/library/kinds/book/domain/book_owned_item.dart';
-export 'package:collectarr_app/features/library/kinds/book/data/remote/book_core_mapper.dart';
-export 'package:collectarr_app/features/library/kinds/book/data/remote/book_remote_source.dart';
-export 'package:collectarr_app/features/library/kinds/book/data/local/book_local_tables.dart';
-export 'package:collectarr_app/features/library/kinds/book/data/local/book_local_mapper.dart';
-export 'package:collectarr_app/features/library/kinds/book/data/book_repository.dart';
-export 'package:collectarr_app/features/library/kinds/book/data/book_owned_repository.dart';
-export 'package:collectarr_app/features/library/kinds/book/ownership/book_owned_details.dart';
-export 'package:collectarr_app/features/library/kinds/book/ownership/book_owned_details_codec.dart';
+export 'package:collectarr_app/features/library/kinds/book/domain/book_library_entry.dart';
+export 'package:collectarr_app/features/library/kinds/book/data/book_entry_repository.dart';
+export 'package:collectarr_app/features/library/kinds/book/entries/book_entry_details.dart';
+export 'package:collectarr_app/features/library/kinds/book/entries/book_entry_details_codec.dart';
 export 'package:collectarr_app/features/library/kinds/book/add/book_add_draft.dart';
-export 'package:collectarr_app/features/library/kinds/book/catalog/book_catalog_item.dart';
-export 'package:collectarr_app/features/library/kinds/book/catalog/book_catalog_mapper.dart';
-export 'package:collectarr_app/features/library/kinds/book/catalog/book_catalog_release.dart';
 export 'package:collectarr_app/features/library/kinds/book/workspace/book_workspace.dart';
 export 'package:collectarr_app/features/library/kinds/book/workspace/book_workspace_dto.dart';
 
 final class BookPersonalOverlay {
   const BookPersonalOverlay({
-    this.ownedItem,
+    this.libraryEntry,
     this.trackingSummary,
     this.wishlistItem,
     this.locationPath,
     this.updatedAt,
   });
 
-  factory BookPersonalOverlay.fromShelf(LibraryWorkspaceSource source) {
+  factory BookPersonalOverlay.fromShelf(LibraryWorkspaceContext source) {
     return BookPersonalOverlay(
-      ownedItem: BookOwnedItemProjection.fromDispatch(
-        source.ownedItemDispatch,
+      libraryEntry: BookLibraryEntryProjection.fromDispatch(
+        source.libraryEntryDispatch,
       ),
       trackingSummary: source.trackingSummary,
       wishlistItem: source.wishlistItem,
@@ -43,7 +34,7 @@ final class BookPersonalOverlay {
     );
   }
 
-  final BookOwnedItem? ownedItem;
+  final BookLibraryEntry? libraryEntry;
   final TrackingSummary? trackingSummary;
   final WishlistItem? wishlistItem;
   final String? locationPath;

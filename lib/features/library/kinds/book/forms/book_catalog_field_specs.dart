@@ -2,13 +2,14 @@ import 'dart:async';
 
 import 'package:collectarr_app/features/library/kinds/book/forms/book_catalog_form_values.dart';
 import 'package:collectarr_app/features/library/kinds/book/vocabulary/book_vocabularies.dart';
-import 'package:collectarr_app/features/library/schema/library_field_spec.dart';
+import 'package:collectarr_app/features/library/forms/library_field_spec.dart';
+import 'package:collectarr_app/features/library/kinds/book/config/book_field_identities.dart';
 
 typedef BookFormValuesReader<TDraft> = BookCatalogFormValues Function(
   TDraft draft,
 );
 
-List<LibraryFieldSpec<TDraft>> bookWorkFields<TDraft>({
+List<LibraryFieldSpec<TDraft>> bookCatalogIdentityFields<TDraft>({
   required BookFormValuesReader<TDraft> values,
   bool includeTitle = true,
   Set<String>? include,
@@ -24,13 +25,13 @@ List<LibraryFieldSpec<TDraft>> bookWorkFields<TDraft>({
         ),
       LibraryTextFieldSpec<TDraft>(
         id: 'sort_title',
-        label: 'Sort title',
+        label: 'Sort Title',
         value: (draft) => values(draft).sortTitle,
         setValue: (draft, value) => values(draft).sortTitle = value,
       ),
       LibraryTextFieldSpec<TDraft>(
-        id: 'subtitle',
-        label: 'Subtitle',
+        id: BookFieldIdentities.subtitleId,
+        label: BookFieldIdentities.subtitleLabel,
         value: (draft) => values(draft).subtitle,
         setValue: (draft, value) => values(draft).subtitle = value,
       ),
@@ -41,9 +42,21 @@ List<LibraryFieldSpec<TDraft>> bookWorkFields<TDraft>({
         setValue: (draft, value) => values(draft).description = value,
         maxLines: 4,
       ),
+      LibraryTextFieldSpec<TDraft>(
+        id: 'original_title',
+        label: 'Original Title',
+        value: (draft) => values(draft).originalTitle,
+        setValue: (draft, value) => values(draft).originalTitle = value,
+      ),
+      LibraryTextFieldSpec<TDraft>(
+        id: 'localized_title',
+        label: 'Localized Title',
+        value: (draft) => values(draft).localizedTitle,
+        setValue: (draft, value) => values(draft).localizedTitle = value,
+      ),
     ].where((field) => include == null || include.contains(field.id)).toList();
 
-List<LibraryFieldSpec<TDraft>> bookWorkPublicationFields<TDraft>({
+List<LibraryFieldSpec<TDraft>> bookPublicationHistoryFields<TDraft>({
   required BookFormValuesReader<TDraft> values,
   Set<String>? include,
 }) =>
@@ -74,14 +87,20 @@ List<LibraryFieldSpec<TDraft>> bookWorkPublicationFields<TDraft>({
         setValue: (draft, value) => values(draft).genres = _split(value),
       ),
       LibraryTextFieldSpec<TDraft>(
+        id: 'subjects',
+        label: 'Subjects',
+        value: (draft) => values(draft).subjects.join(', '),
+        setValue: (draft, value) => values(draft).subjects = _split(value),
+      ),
+      LibraryTextFieldSpec<TDraft>(
         id: 'search_aliases',
-        label: 'Search aliases',
+        label: 'Search Aliases',
         value: (draft) => values(draft).searchAliases.join(', '),
         setValue: (draft, value) => values(draft).searchAliases = _split(value),
       ),
     ].where((field) => include == null || include.contains(field.id)).toList();
 
-List<LibraryFieldSpec<TDraft>> bookReleaseFields<TDraft>({
+List<LibraryFieldSpec<TDraft>> bookCatalogEditionFields<TDraft>({
   required BookFormValuesReader<TDraft> values,
   Set<String>? include,
   String titleLabel = 'Title',
@@ -106,19 +125,21 @@ List<LibraryFieldSpec<TDraft>> bookReleaseFields<TDraft>({
         value: (draft) => values(draft).binding,
         setValue: (draft, value) => values(draft).binding = value,
         options: bindingOptions ?? BookVocabularies.binding.builtIns,
+        pickListKey: BookVocabularyIds.binding.value,
         onManage: onManageBinding,
       ),
       _vocabulary<TDraft>(
-        id: 'format',
-        label: 'Format',
+        id: BookFieldIdentities.formatId,
+        label: BookFieldIdentities.formatLabel,
         value: (draft) => values(draft).format,
         setValue: (draft, value) => values(draft).format = value,
         options: formatOptions ?? BookVocabularies.format.builtIns,
+        pickListKey: BookVocabularyIds.format.value,
         onManage: onManageFormat,
       ),
       LibraryTextFieldSpec<TDraft>(
-        id: 'isbn',
-        label: 'ISBN',
+        id: BookFieldIdentities.isbnId,
+        label: BookFieldIdentities.isbnLabel,
         value: (draft) => values(draft).isbn,
         setValue: (draft, value) => values(draft).isbn = value,
       ),
@@ -129,11 +150,12 @@ List<LibraryFieldSpec<TDraft>> bookReleaseFields<TDraft>({
         setValue: (draft, value) => values(draft).upc = value,
       ),
       _vocabulary<TDraft>(
-        id: 'publisher',
-        label: 'Publisher',
+        id: BookFieldIdentities.publisherId,
+        label: BookFieldIdentities.publisherLabel,
         value: (draft) => values(draft).publisher,
         setValue: (draft, value) => values(draft).publisher = value,
         options: publisherOptions ?? BookVocabularies.publisher.builtIns,
+        pickListKey: BookVocabularyIds.publisher.value,
         onManage: onManagePublisher,
       ),
       LibraryTextFieldSpec<TDraft>(
@@ -149,14 +171,14 @@ List<LibraryFieldSpec<TDraft>> bookReleaseFields<TDraft>({
         setValue: (draft, value) => values(draft).imprint = value,
       ),
       LibraryDateFieldSpec<TDraft>(
-        id: 'release_date',
-        label: 'Release date',
+        id: BookFieldIdentities.releaseDateId,
+        label: BookFieldIdentities.releaseDateLabel,
         value: (draft) => values(draft).releaseDate,
         setValue: (draft, value) => values(draft).releaseDate = value,
       ),
       LibraryNumberFieldSpec<TDraft>(
-        id: 'page_count',
-        label: 'Page count',
+        id: BookFieldIdentities.pageCountId,
+        label: BookFieldIdentities.pageCountLabel,
         value: (draft) => values(draft).pageCount?.toDouble(),
         setValue: (draft, value) => values(draft).pageCount = value?.toInt(),
         minimum: 0,
@@ -167,6 +189,7 @@ List<LibraryFieldSpec<TDraft>> bookReleaseFields<TDraft>({
         value: (draft) => values(draft).language,
         setValue: (draft, value) => values(draft).language = value,
         options: languageOptions ?? BookVocabularies.language.builtIns,
+        pickListKey: BookVocabularyIds.language.value,
       ),
       LibraryTextFieldSpec<TDraft>(
         id: 'region',
@@ -198,6 +221,12 @@ List<LibraryFieldSpec<TDraft>> bookReleaseFields<TDraft>({
         value: (draft) => values(draft).description,
         setValue: (draft, value) => values(draft).description = value,
         maxLines: 4,
+      ),
+      LibraryTextFieldSpec<TDraft>(
+        id: BookFieldIdentities.seriesId,
+        label: BookFieldIdentities.seriesLabel,
+        value: (draft) => values(draft).seriesTitle,
+        setValue: (draft, value) => values(draft).seriesTitle = value,
       ),
       LibraryToggleFieldSpec<TDraft>(
         id: 'first_edition',
@@ -233,6 +262,7 @@ LibraryVocabularyFieldSpec<TDraft, String> _vocabulary<TDraft>({
   required String Function(TDraft draft) value,
   required void Function(TDraft draft, String value) setValue,
   required Iterable<String> options,
+  String? pickListKey,
   FutureOr<void> Function()? onManage,
 }) =>
     LibraryVocabularyFieldSpec<TDraft, String>(
@@ -247,6 +277,7 @@ LibraryVocabularyFieldSpec<TDraft, String> _vocabulary<TDraft>({
         for (final option in options)
           LibraryFieldOption<String>(value: option, label: option),
       ],
+      pickListKey: pickListKey,
       onManage: onManage == null ? null : (_) => onManage(),
     );
 

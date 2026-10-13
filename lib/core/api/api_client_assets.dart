@@ -18,27 +18,6 @@ class _AssetsApiClient {
         .toList(growable: false);
   }
 
-  Future<AdminImageCacheStats> adminImageCacheStats() async {
-    final response = await _client._dio
-        .get<Map<String, dynamic>>('/api/v1/admin/image-cache/stats');
-    final data = response.data;
-    if (data == null) {
-      throw StateError('/api/v1/admin/image-cache/stats returned empty body');
-    }
-    return AdminImageCacheStats.fromJson(data);
-  }
-
-  Future<AdminImageCachePurgeResult> adminPurgeImageCache() async {
-    final response = await _client._dio.post<Map<String, dynamic>>(
-      '/api/v1/admin/image-cache/purge',
-    );
-    final data = response.data;
-    if (data == null) {
-      throw StateError('/api/v1/admin/image-cache/purge returned empty body');
-    }
-    return AdminImageCachePurgeResult.fromJson(data);
-  }
-
   Future<AdminUser> adminUpdateUser(
     String userId, {
     String? role,
@@ -84,24 +63,26 @@ class _AssetsApiClient {
         {};
   }
 
-  Future<List<Map<String, dynamic>>> listCatalogItemImages({
-    required String catalogItemId,
+  Future<List<Map<String, dynamic>>> listEntityImages({
+    required String entityType,
+    required String entityId,
   }) async {
     final response = await _client._dio.get<List<dynamic>>(
-      '/api/v1/images/catalog-items/$catalogItemId',
+      '/api/v1/images/entity/$entityType/$entityId',
     );
     return (response.data ?? []).cast<Map<String, dynamic>>();
   }
 
-  Future<Map<String, dynamic>> addCatalogItemImage({
-    required String catalogItemId,
+  Future<Map<String, dynamic>> addEntityImage({
+    required String entityType,
+    required String entityId,
     required String imageType,
     required String imageDataBase64,
     String? sourceUrl,
     bool isPrimary = false,
   }) async {
     final response = await _client._dio.post<Map<String, dynamic>>(
-      '/api/v1/images/catalog-items/$catalogItemId',
+      '/api/v1/images/entity/$entityType/$entityId',
       data: {
         'image_type': imageType,
         'image_data_base64': imageDataBase64,
@@ -112,12 +93,11 @@ class _AssetsApiClient {
     return response.data ?? {};
   }
 
-  Future<void> deleteCatalogItemImage(String imageId) async {
+  Future<void> deleteEntityImage(String imageId) async {
     await _client._dio.delete<void>('/api/v1/images/$imageId');
   }
 
-  Future<Map<String, dynamic>> setCatalogItemImagePrimary(
-      String imageId) async {
+  Future<Map<String, dynamic>> setImagePrimary(String imageId) async {
     final response = await _client._dio.patch<Map<String, dynamic>>(
       '/api/v1/images/$imageId/primary',
     );

@@ -1,9 +1,9 @@
 import 'package:collectarr_app/features/library/edit/draft/library_edit_form_fields.dart';
-import 'package:collectarr_app/features/library/kinds/game/catalog/game_catalog_fields.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_link_dto.dart';
 import 'package:collectarr_app/core/models/tracking_summary.dart';
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
-import 'package:collectarr_app/features/library/kinds/game/data/game_owned_item_projection.dart';
-import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
+import 'package:collectarr_app/core/models/library_entry_projection.dart';
+import 'package:collectarr_app/features/library/kinds/game/data/game_library_entry_projection.dart';
+import 'package:collectarr_app/features/collection/commands/library_entry_commands.dart';
 import 'package:collectarr_app/features/library/edit/contracts/library_edit_kind_draft.dart';
 import 'package:collectarr_app/features/library/edit/draft/text_controller_group.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_edit_models.dart';
@@ -11,99 +11,160 @@ import 'package:collectarr_app/features/catalog/transport/catalog_search_candida
 
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/kinds/game/domain/game_metadata.dart';
-import 'package:collectarr_app/features/library/kinds/registry/library_owned_item_dispatch.dart';
-import 'package:collectarr_app/features/library/kinds/game/domain/game_owned_item.dart';
-import 'package:collectarr_app/features/library/kinds/game/ownership/game_owned_details_draft.dart';
-import 'package:collectarr_app/features/library/kinds/game/ownership/game_owned_item_update_payload.dart';
-import 'package:collectarr_app/features/library/edit/draft/personal_state_draft.dart';
-import 'game_edit_controller.dart';
-
-enum GameCanonicalEditField {
-  title,
-  displayTitle,
-  sortTitle,
-  originalTitle,
-  localizedTitle,
-  searchAliases,
-  synopsis,
-  coverImage,
-  thumbnailImage
-}
+import 'package:collectarr_app/features/library/kinds/game/forms/game_catalog_form_draft.dart';
+import 'package:collectarr_app/features/library/kinds/game/forms/game_catalog_form_values.dart';
+import 'package:collectarr_app/features/library/kinds/game/forms/game_catalog_form_adapters.dart';
+import 'package:collectarr_app/features/library/kinds/game/domain/game_valuation.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_entry_dispatch.dart';
+import 'package:collectarr_app/features/library/kinds/game/domain/game_library_entry.dart';
+import 'package:collectarr_app/features/library/kinds/game/entries/game_entry_details_draft.dart';
+import 'package:collectarr_app/features/library/kinds/game/entries/game_library_entry_update_payload.dart';
+import 'package:collectarr_app/features/library/edit/draft/library_entry_personal_bindings.dart';
+import 'package:collectarr_app/features/library/edit/fields/library_external_links_table.dart';
 
 class GameEditDraft
-    with LibraryWorkEditSessionLinkDefaults, LibraryCopyEditSessionDefaults
-    implements LibraryReleaseEditSession, LibraryCopyEditSession {
+    with
+        LibraryCatalogItemEditSessionLinkDefaults,
+        LibraryEntryEditSessionDefaults
+    implements
+        LibraryCatalogItemEditSession,
+        LibraryEntryEditSession,
+        GameCatalogFormDraft {
   GameEditDraft({
-    this.ownedItem,
+    this.libraryEntry,
     required this.gameCompleteness,
     required this.gameHasBox,
     required this.gameHasManual,
     required this.gamePriceChartingId,
+    this.gameValuations,
     required this.gameCoreRegion,
     required this.gameValueIsLocked,
-    required this.gameEdit,
+    required this.values,
+    required this.catalogTitle,
+    required this.externalLinks,
+    required this.originalExternalLinks,
   });
 
-  final GameOwnedItem? ownedItem;
+  final GameLibraryEntry? libraryEntry;
+
+  @override
+  final GameCatalogFormValues values;
+
+  @override
+  String catalogTitle;
 
   String? gameCompleteness;
   bool? gameHasBox;
   bool? gameHasManual;
   String? gamePriceChartingId;
+  final GameValuationSet? gameValuations;
   String? gameCoreRegion;
   bool gameValueIsLocked;
+  final List<LibraryExternalLinkDraftRow> externalLinks;
+  final Map<LibraryExternalLinkDraftRow, GameCatalogLink> originalExternalLinks;
+  bool _externalLinksEdited = false;
 
-  final GameEditController gameEdit;
+  void markExternalLinksEdited() => _externalLinksEdited = true;
+
+  GameCatalogLink _linkFromDraft(
+    LibraryExternalLinkDraftRow row,
+    int position,
+  ) {
+    final original = originalExternalLinks[row];
+    final title = _gameOptional(row.titleController.text);
+    return GameCatalogLink(
+      url: row.urlController.text.trim(),
+      id: original?.id,
+      label: title,
+      title: title,
+      site: original?.site,
+      name: original?.name,
+      kind: original?.kind ?? 'external',
+      description: _gameOptional(row.descriptionController.text),
+      position: position,
+      linkType: original?.linkType,
+    );
+  }
+
+  void dispose() {
+    for (final link in externalLinks) {
+      link.dispose();
+    }
+  }
 
   @override
-  JsonEncodable toDetailsDraft() => GameOwnedDetailsDraft(
+  void setExternalLinks(List<TrailerLinkDto> links) {
+    for (final row in externalLinks) {
+      row.dispose();
+    }
+    externalLinks.clear();
+    originalExternalLinks.clear();
+    for (final link in links) {
+      final row = LibraryExternalLinkDraftRow(
+        title: link.title ?? '',
+        url: link.url,
+        description: link.description ?? '',
+      );
+      externalLinks.add(row);
+      originalExternalLinks[row] = GameCatalogLink(
+        url: link.url,
+        title: link.title,
+        label: link.title,
+        description: link.description,
+        kind: link.kind,
+      );
+    }
+    _externalLinksEdited = true;
+  }
+
+  @override
+  JsonEncodable toDetailsDraft() => GameEntryDetailsDraft(
         completeness: gameCompleteness,
         hasBox: gameHasBox,
         hasManual: gameHasManual,
         priceChartingId: gamePriceChartingId,
+        valuations: gameValuations,
         coreRegion: gameCoreRegion,
         valueIsLocked: gameValueIsLocked,
       );
 
   @override
-  void initializePersonalState(PersonalStateDraft personal) {
-    final item = ownedItem;
+  void initializePersonalState(LibraryEntryPersonalBindings personal) {
+    final item = libraryEntry;
     if (item == null) return;
-    personal.ownerLabelController.text = item.ownerLabel ?? '';
-    personal.conditionController.text = item.condition ?? '';
-    personal.gradeController.text = item.grade ?? '';
-    personal.purchaseDateController.text =
-        item.purchaseDate == null ? '' : formatDate(item.purchaseDate!);
-    personal.priceController.text = item.pricePaidCents == null
+    personal.ownerLabelController.text = item.personal.ownerLabel ?? '';
+    personal.conditionController.text = item.personal.condition ?? '';
+    personal.gradeController.text = item.personal.grade ?? '';
+    personal.purchaseDateController.text = item.personal.purchaseDate == null
         ? ''
-        : (item.pricePaidCents! / 100).toStringAsFixed(2);
-    personal.currencyController.text = item.currency ?? '';
-    personal.quantityController.text = item.quantity.toString();
-    personal.indexNumberController.text = item.indexNumber?.toString() ?? '';
-    personal.notesController.text = item.personalNotes ?? '';
-    personal.tagsController.text = item.tags ?? '';
-    personal.sellPriceController.text = item.sellPriceCents == null
+        : formatDate(item.personal.purchaseDate!);
+    personal.priceController.text = item.personal.pricePaidCents == null
         ? ''
-        : (item.sellPriceCents! / 100).toStringAsFixed(2);
-    personal.soldToController.text = item.soldTo ?? '';
-    personal.purchaseStoreController.text = item.purchaseStore ?? '';
-    personal.marketValueController.text = item.marketValueCents == null
+        : (item.personal.pricePaidCents! / 100).toStringAsFixed(2);
+    personal.currencyController.text = item.personal.currency ?? '';
+    personal.indexNumberController.text =
+        item.personal.indexNumber?.toString() ?? '';
+    personal.notesController.text = item.personal.personalNotes ?? '';
+    personal.tagsController.text = item.personal.tags ?? '';
+    personal.sellPriceController.text = item.personal.sellPriceCents == null
         ? ''
-        : (item.marketValueCents! / 100).toStringAsFixed(2);
-    personal.selectedLocationId = item.locationId;
-    personal.soldAt = item.soldAt;
-    personal.collectionStatus = item.collectionStatus;
+        : (item.personal.sellPriceCents! / 100).toStringAsFixed(2);
+    personal.soldToController.text = item.personal.soldTo ?? '';
+    personal.purchaseStoreController.text = item.personal.purchaseStore ?? '';
+    personal.marketValueController.text = item.personal.marketValueCents == null
+        ? ''
+        : (item.personal.marketValueCents! / 100).toStringAsFixed(2);
+    personal.selectedLocationId = item.personal.locationId;
+    personal.soldAt = item.personal.soldAt;
+    personal.collectionStatus = item.personal.collectionStatus;
   }
 
   @override
-  GameOwnedItemUpdatePayload buildOwnedUpdatePayload({
-    required OwnedItemRef ownedRef,
-    required PersonalStateDraft personal,
+  GameLibraryEntryUpdatePayload buildEntryUpdatePayload({
+    required LibraryEntryRef libraryEntryRef,
+    required LibraryEntryPersonalBindings personal,
   }) {
-    final targetRef = personal.selectedOwnedTargetRef;
-    return GameOwnedItemUpdatePayload(
-      targetRef: targetRef == null ? const Patch.clear() : Patch.set(targetRef),
-      quantity: Patch.set(parseInt(personal.quantityController.text) ?? 1),
+    return GameLibraryEntryUpdatePayload(
       isDigital: const Patch.unchanged(),
       marketValueCents: const Patch.unchanged(),
       indexNumber: const Patch.unchanged(),
@@ -146,7 +207,7 @@ class GameEditDraft
       soldTo: personal.soldToController.text.trim().isEmpty
           ? const Patch.clear()
           : Patch.set(personal.soldToController.text.trim()),
-      details: Patch.set(toDetailsDraft() as GameOwnedDetailsDraft),
+      details: Patch.set(toDetailsDraft() as GameEntryDetailsDraft),
     );
   }
 
@@ -154,195 +215,93 @@ class GameEditDraft
   LibraryEditSelection applyCanonicalEdits(
     LibraryEditSelection selection,
     LibraryEditFormFields fields,
-  ) {
-    final aliases = fields
-        .controller(GameCanonicalEditField.searchAliases)
-        .text
-        .split(RegExp(r'[,\r\n]+'))
-        .map((entry) => entry.trim())
-        .where((entry) => entry.isNotEmpty)
-        .toList();
-    return selection.copyWith(
-      kindItem: CatalogSearchCandidate.fromItem(selection
-          .kindItem.kindCapability
-          .mapTransport((transport) => transport.copyWith(
-                title:
-                    fields.controller(GameCanonicalEditField.title).text.trim(),
-                displayTitle: emptyToNull(fields
-                    .controller(GameCanonicalEditField.displayTitle)
-                    .text),
-                sortKey: emptyToNull(
-                    fields.controller(GameCanonicalEditField.sortTitle).text),
-                originalTitle: emptyToNull(fields
-                    .controller(GameCanonicalEditField.originalTitle)
-                    .text),
-                localizedTitle: emptyToNull(fields
-                    .controller(GameCanonicalEditField.localizedTitle)
-                    .text),
-                searchAliases: aliases.isEmpty ? null : aliases,
-                synopsis: emptyToNull(
-                    fields.controller(GameCanonicalEditField.synopsis).text),
-                coverImageUrl: emptyToNull(
-                    fields.controller(GameCanonicalEditField.coverImage).text),
-                thumbnailImageUrl: emptyToNull(fields
-                    .controller(GameCanonicalEditField.thumbnailImage)
-                    .text),
-              ))),
-    );
-  }
+  ) =>
+      selection;
 
   @override
   LibraryEditFormSchema buildCanonicalFormSchema(
     LibraryEditFormFields fields,
     CatalogSearchCandidate item,
-  ) {
-    final metadata = item.gameCatalogFields;
-    fields.create(GameCanonicalEditField.title, initialValue: metadata.title);
-    fields.create(GameCanonicalEditField.displayTitle,
-        initialValue: metadata.displayTitle ?? '');
-    fields.create(GameCanonicalEditField.sortTitle,
-        initialValue: metadata.sortKey ?? '');
-    fields.create(GameCanonicalEditField.originalTitle,
-        initialValue: metadata.originalTitle ?? '');
-    fields.create(GameCanonicalEditField.localizedTitle,
-        initialValue: metadata.localizedTitle ?? '');
-    fields.create(GameCanonicalEditField.searchAliases,
-        initialValue: metadata.searchAliases.join(', '));
-    fields.create(GameCanonicalEditField.synopsis,
-        initialValue: metadata.synopsis ?? '');
-    fields.create(GameCanonicalEditField.coverImage,
-        initialValue: metadata.coverImageUrl ?? '');
-    fields.create(GameCanonicalEditField.thumbnailImage,
-        initialValue: metadata.thumbnailImageUrl ?? '');
-    return LibraryEditFormSchema(
-      fields: [
-        LibraryEditFormFieldSpec(
-          id: GameCanonicalEditField.title,
-          section: LibraryEditFormSection.details,
-          controller: fields.controller(GameCanonicalEditField.title),
-          label: 'Title',
-          required: true,
-        ),
-        LibraryEditFormFieldSpec(
-          id: GameCanonicalEditField.sortTitle,
-          section: LibraryEditFormSection.details,
-          controller: fields.controller(GameCanonicalEditField.sortTitle),
-          label: 'Sort title',
-        ),
-        LibraryEditFormFieldSpec(
-          id: GameCanonicalEditField.originalTitle,
-          section: LibraryEditFormSection.details,
-          controller: fields.controller(GameCanonicalEditField.originalTitle),
-          label: 'Original title',
-        ),
-        LibraryEditFormFieldSpec(
-          id: GameCanonicalEditField.localizedTitle,
-          section: LibraryEditFormSection.details,
-          controller: fields.controller(GameCanonicalEditField.localizedTitle),
-          label: 'Localized title',
-        ),
-        LibraryEditFormFieldSpec(
-          id: GameCanonicalEditField.displayTitle,
-          section: LibraryEditFormSection.details,
-          controller: fields.controller(GameCanonicalEditField.displayTitle),
-          label: 'Display title',
-        ),
-        LibraryEditFormFieldSpec(
-          id: GameCanonicalEditField.searchAliases,
-          section: LibraryEditFormSection.details,
-          controller: fields.controller(GameCanonicalEditField.searchAliases),
-          label: 'Search aliases',
-          visible: false,
-        ),
-        LibraryEditFormFieldSpec(
-          id: GameCanonicalEditField.thumbnailImage,
-          section: LibraryEditFormSection.details,
-          controller: fields.controller(GameCanonicalEditField.thumbnailImage),
-          label: 'Thumbnail image URL',
-          visible: false,
-        ),
-        LibraryEditFormFieldSpec(
-          id: GameCanonicalEditField.coverImage,
-          section: LibraryEditFormSection.artwork,
-          controller: fields.controller(GameCanonicalEditField.coverImage),
-          label: 'Cover Image URL',
-        ),
-        LibraryEditFormFieldSpec(
-          id: GameCanonicalEditField.synopsis,
-          section: LibraryEditFormSection.description,
-          controller: fields.controller(GameCanonicalEditField.synopsis),
-          label: 'Synopsis',
-          maxLines: 8,
-        ),
-      ],
-      sectionTitles: const {
-        LibraryEditFormSection.details: 'Details',
-        LibraryEditFormSection.artwork: 'Cover Image',
-        LibraryEditFormSection.description: 'Synopsis',
-      },
-    );
-  }
+  ) =>
+      LibraryEditFormSchema.empty;
 
   @override
   LibraryEditSelection applySelectionEdits(LibraryEditSelection selection) {
-    return gameEdit.applySelectionEdits(selection);
-  }
-
-  void dispose() {
-    gameEdit.dispose();
+    final metadata = selection.kindItem.kindCapability.mapTransport(
+      (transport) => GameCatalogMetadata.fromJson(transport.kindData),
+    );
+    var updated = applyGameCatalogFormValues(
+      current: metadata,
+      values: values,
+      title: catalogTitle,
+    );
+    if (_externalLinksEdited) {
+      final payload = updated.toJson()
+        ..['external_links'] = [
+          for (final (index, row) in externalLinks
+              .where((row) => row.urlController.text.trim().isNotEmpty)
+              .indexed)
+            _linkFromDraft(row, index + 1).toJson(),
+        ];
+      updated = GameCatalogMetadata.fromJson(payload);
+    }
+    final candidate = selection.kindItem.kindCapability.mapTransport(
+      (transport) => CatalogSearchCandidate.fromItem(
+        transport.replacingKindData(updated),
+        basedOn: selection.kindItem,
+      ),
+    );
+    return selection.copyWith(kindItem: candidate);
   }
 }
 
 LibraryEditSessionBundle createGameEditDraft({
   required CatalogSearchCandidate item,
-  LibraryOwnedItemDispatch? ownedItemDispatch,
+  LibraryEntryDispatch? libraryEntryDispatch,
   TrackingSummary? trackingSummary,
   required TextControllerGroup textControllers,
 }) {
-  final owned = GameOwnedItemProjection.fromDispatch(ownedItemDispatch);
-  final game = owned?.details;
-  final meta = item.kindCapability
-          .mapTransport((transport) => transport)
-          .kindMetadata is GameCatalogMetadata
-      ? item.kindCapability.mapTransport((transport) => transport).kindMetadata
-          as GameCatalogMetadata
-      : null;
-  final developerNames = (meta?.creators ?? const <Map<String, dynamic>>[])
-      .where((c) =>
-          c['role']?.toString().toLowerCase().contains('developer') ?? false)
-      .map((c) => c['name']?.toString().trim() ?? '')
-      .where((n) => n.isNotEmpty)
-      .join(', ');
-  final platforms = meta?.platforms ?? const <String>[];
-  final gameEdit = GameEditController(
-    initialPlatforms: platforms.join(', '),
-    initialDevelopers: developerNames,
-    initialSeriesTitle: meta?.series ?? '',
-    initialPublisher: meta?.publishers.join(', ') ?? '',
-    initialReleaseDate:
-        meta?.releaseDate != null ? formatDate(meta!.releaseDate!) : '',
-    initialReleaseYear: meta?.releaseDate?.year.toString() ?? '',
-    initialFranchise: meta?.franchise ?? '',
-    initialGenres: meta?.genres.join(', ') ?? '',
-    initialAgeRating: meta?.ageRating ?? '',
-    initialLanguage: meta?.languages.join(', ') ?? '',
-    initialCountry: meta?.country ?? '',
+  final entry = GameLibraryEntryProjection.fromDispatch(libraryEntryDispatch);
+  final game = entry?.personal.details;
+  final meta = item.kindCapability.mapTransport(
+    (transport) => GameCatalogMetadata.fromJson(transport.kindData),
   );
-
+  final linkRows = <LibraryExternalLinkDraftRow>[];
+  final originalLinks = <LibraryExternalLinkDraftRow, GameCatalogLink>{};
+  for (final link in meta.links.where((link) => link.isExternalLink)) {
+    final row = _gameLinkDraftRow(link);
+    linkRows.add(row);
+    originalLinks[row] = link;
+  }
   final draft = GameEditDraft(
-    ownedItem: owned,
+    libraryEntry: entry,
     gameCompleteness: game?.completeness,
     gameHasBox: game?.hasBox,
     gameHasManual: game?.hasManual,
     gamePriceChartingId: game?.priceChartingId,
+    gameValuations: game?.valuations,
     gameCoreRegion: game?.coreRegion,
     gameValueIsLocked: game?.valueIsLocked ?? false,
-    gameEdit: gameEdit,
+    values: gameCatalogFormValuesFromMetadata(meta),
+    catalogTitle: meta.title,
+    externalLinks: linkRows,
+    originalExternalLinks: originalLinks,
   );
   return LibraryEditSessionBundle(
-    workSession: draft,
-    releaseSession: draft,
-    copySession: draft,
+    catalogItemSession: draft,
+    entrySession: draft,
     disposeSession: draft.dispose,
   );
+}
+
+LibraryExternalLinkDraftRow _gameLinkDraftRow(GameCatalogLink link) =>
+    LibraryExternalLinkDraftRow(
+      title: link.title ?? link.label ?? link.name ?? '',
+      url: link.url,
+      description: link.description ?? '',
+    );
+
+String? _gameOptional(String value) {
+  final normalized = value.trim();
+  return normalized.isEmpty ? null : normalized;
 }

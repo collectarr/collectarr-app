@@ -1,16 +1,16 @@
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/catalog_item_ref.dart';
+import 'package:collectarr_app/core/models/library_entry_ref.dart';
 import 'package:collectarr_app/core/models/tracking_unit_summary.dart';
 import 'package:collectarr_app/core/models/watch_session.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/library/kinds/tv/provider/tv_seasons_provider.dart';
-import 'package:collectarr_app/features/library/kinds/tv/domain/tv_models.dart';
+import 'package:collectarr_app/features/library/kinds/tv/domain/tv_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_episode_identity.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_progress_episode_row.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_progress_presenter.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_progress_summary.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_tracking_unit.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_tracking.dart';
-import 'package:collectarr_app/features/library/kinds/tv/domain/tv_ids.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_tracking_mutation_provider.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_season_summary_card.dart';
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
@@ -28,7 +28,7 @@ class VideoSeasonTrackingSection extends ConsumerStatefulWidget {
     required this.accent,
   });
 
-  final CatalogEntityRef seriesRef;
+  final CatalogItemRef seriesRef;
   final String kind;
   final Color accent;
 
@@ -44,17 +44,22 @@ class _VideoSeasonTrackingSectionState
   bool _seasonMutationInFlight = false;
   bool _showCustomEpisodes = false;
 
+  LibraryEntryRef get entryRef => LibraryEntryRef(
+        kind: widget.seriesRef.kind,
+        id: LibraryEntryId(widget.seriesRef.id),
+      );
+
   @override
   Widget build(BuildContext context) {
     final seasonsAsync = ref.watch(
       tvSeasonsByCatalogRefProvider(widget.seriesRef),
     );
     final trackedUnits =
-        ref.watch(trackingUnitsByCatalogRefProvider(widget.seriesRef));
+        ref.watch(trackingUnitsByLibraryEntryRefProvider(entryRef));
     final watchSessions =
-        ref.watch(watchSessionsByCatalogRefProvider(widget.seriesRef));
+        ref.watch(watchSessionsByLibraryEntryRefProvider(entryRef));
     final customEpisodesAsync =
-        ref.watch(tvCustomEpisodesByCatalogRefProvider(widget.seriesRef));
+        ref.watch(tvCustomEpisodesByLibraryEntryRefProvider(entryRef));
     return seasonsAsync.when(
       loading: () => const SizedBox.shrink(),
       error: (_, __) => const SizedBox.shrink(),
@@ -77,8 +82,8 @@ class _VideoSeasonTrackingSectionState
             .where(
               (episode) => watchedEpisodeKeys.contains(
                 _episodeKey(
-                  selectedSeason.seasonNumber ?? 0,
-                  episode.episodeNumber?.toInt() ?? 0,
+                  selectedSeason.seasonNumber,
+                  episode.episodeNumber ?? episode.position,
                 ),
               ),
             )
@@ -160,8 +165,8 @@ class _VideoSeasonTrackingSectionState
                 const SizedBox(height: 12),
                 const SizedBox(height: 12),
                 _CustomEpisodesPanel(
-                  catalogRef: widget.seriesRef,
-                  providerSeason: selectedSeason,
+                  libraryEntryRef: entryRef,
+                  catalogSeason: selectedSeason,
                   showCustomEpisodes:
                       selectedSeason.episodes.isEmpty || _showCustomEpisodes,
                   onShowCustomEpisodesChanged: (value) {
@@ -172,14 +177,14 @@ class _VideoSeasonTrackingSectionState
                       _showCustomEpisodes = value;
                     });
                   },
-                  seasonNumber: selectedSeason.seasonNumber ?? 0,
+                  seasonNumber: selectedSeason.seasonNumber,
                   accent: widget.accent,
                   customEpisodesAsync: customEpisodesAsync,
                   watchedEpisodeKeys: watchedEpisodeKeys,
                   watchSessions: watchSessions,
                   pendingEpisodeKeys: _pendingEpisodeKeys,
                   onToggleEpisode: (epNum) => _toggleEpisode(
-                    selectedSeason.seasonNumber ?? 0,
+                    selectedSeason.seasonNumber,
                     epNum,
                     watchedEpisodeKeys: watchedEpisodeKeys,
                   ),
@@ -193,7 +198,7 @@ class _VideoSeasonTrackingSectionState
   }
 
   int _resolvedSeasonNumber(
-    List<TvSeason> seasons, {
+    List<TvSeasonMetadata> seasons, {
     required List<TrackingUnitSummary> trackedUnits,
   }) {
     final currentSelection = _selectedSeasonNumber;
@@ -225,10 +230,13 @@ class _VideoSeasonTrackingSectionState
         }
       }
     }
-    return seasons.first.seasonNumber ?? 0;
+    return seasons.first.seasonNumber;
   }
 
-  TvSeason? _seasonForNumber(List<TvSeason> seasons, int seasonNumber) {
+  TvSeasonMetadata? _seasonForNumber(
+    List<TvSeasonMetadata> seasons,
+    int seasonNumber,
+  ) {
     for (final season in seasons) {
       if (season.seasonNumber == seasonNumber) {
         return season;
@@ -237,19 +245,22 @@ class _VideoSeasonTrackingSectionState
     return null;
   }
 
-  String _seasonChipLabel(TvSeason season, Set<String> watchedEpisodeKeys) {
+  String _seasonChipLabel(
+    TvSeasonMetadata season,
+    Set<String> watchedEpisodeKeys,
+  ) {
     final watchedCount = season.episodes
         .where(
           (episode) => watchedEpisodeKeys.contains(
             _episodeKey(
-              season.seasonNumber ?? 0,
-              episode.episodeNumber?.toInt() ?? 0,
+              season.seasonNumber,
+              episode.episodeNumber ?? episode.position,
             ),
           ),
         )
         .length;
     if (season.episodes.isEmpty) {
-      return season.title ?? 'Season ${season.seasonNumber ?? 0}';
+      return season.title ?? 'Season ${season.seasonNumber}';
     }
     return '${season.title} ($watchedCount/${season.episodes.length})';
   }
@@ -268,7 +279,7 @@ class _VideoSeasonTrackingSectionState
     });
     try {
       await ref.read(tvTrackingUnitMutationsProvider).setEpisodeCompleted(
-            widget.seriesRef,
+            entryRef,
             seasonNumber: seasonNumber,
             episodeNumber: episodeNumber,
             completed: !watchedEpisodeKeys.contains(key),
@@ -283,7 +294,7 @@ class _VideoSeasonTrackingSectionState
   }
 
   Future<void> _setSeasonWatched(
-    TvSeason season, {
+    TvSeasonMetadata season, {
     required bool completed,
   }) async {
     if (_seasonMutationInFlight) {
@@ -296,10 +307,10 @@ class _VideoSeasonTrackingSectionState
       await ref
           .read(tvTrackingUnitMutationsProvider)
           .setSeasonEpisodesCompleted(
-            widget.seriesRef,
-            seasonNumber: season.seasonNumber ?? 0,
+            entryRef,
+            seasonNumber: season.seasonNumber,
             episodeNumbers: season.episodes.map(
-              (episode) => episode.episodeNumber?.toInt() ?? 0,
+              (episode) => episode.episodeNumber ?? episode.position,
             ),
             completed: completed,
           );
@@ -324,8 +335,8 @@ class _VideoSeasonTrackingSectionState
 /// Panel for displaying and managing custom episodes within a season.
 class _CustomEpisodesPanel extends ConsumerWidget {
   const _CustomEpisodesPanel({
-    required this.catalogRef,
-    required this.providerSeason,
+    required this.libraryEntryRef,
+    required this.catalogSeason,
     required this.showCustomEpisodes,
     required this.onShowCustomEpisodesChanged,
     required this.seasonNumber,
@@ -337,8 +348,8 @@ class _CustomEpisodesPanel extends ConsumerWidget {
     required this.onToggleEpisode,
   });
 
-  final CatalogEntityRef catalogRef;
-  final TvSeason providerSeason;
+  final LibraryEntryRef libraryEntryRef;
+  final TvSeasonMetadata catalogSeason;
   final bool showCustomEpisodes;
   final ValueChanged<bool> onShowCustomEpisodesChanged;
   final int seasonNumber;
@@ -356,7 +367,7 @@ class _CustomEpisodesPanel extends ConsumerWidget {
       data: (grouped) => grouped[seasonNumber] ?? const <TvCustomEpisode>[],
       orElse: () => const <TvCustomEpisode>[],
     );
-    final providerEpisodes = providerSeason.episodes;
+    final catalogEpisodes = catalogSeason.episodes;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -388,13 +399,13 @@ class _CustomEpisodesPanel extends ConsumerWidget {
               alignment: WrapAlignment.end,
               crossAxisAlignment: WrapCrossAlignment.center,
               children: [
-                if (providerEpisodes.isNotEmpty)
+                if (catalogEpisodes.isNotEmpty)
                   TextButton.icon(
-                    onPressed: () => _importProviderSeason(context, ref),
+                    onPressed: () => _importCatalogSeason(context, ref),
                     icon: const Icon(Icons.file_download_outlined, size: 16),
-                    label: const Text('Import provider season'),
+                    label: const Text('Import catalog season'),
                   ),
-                if (providerEpisodes.isNotEmpty)
+                if (catalogEpisodes.isNotEmpty)
                   TextButton.icon(
                     onPressed: () =>
                         onShowCustomEpisodesChanged(!showCustomEpisodes),
@@ -406,7 +417,7 @@ class _CustomEpisodesPanel extends ConsumerWidget {
                     ),
                     label: Text(
                       showCustomEpisodes
-                          ? 'Show provider episodes'
+                          ? 'Show catalog episodes'
                           : 'Show custom episodes',
                     ),
                   ),
@@ -424,13 +435,13 @@ class _CustomEpisodesPanel extends ConsumerWidget {
             ),
           ],
         ),
-        if (!showCustomEpisodes && providerEpisodes.isNotEmpty)
+        if (!showCustomEpisodes && catalogEpisodes.isNotEmpty)
           Padding(
             padding: const EdgeInsets.only(bottom: 6),
             child: TextButton.icon(
-              onPressed: () => _importProviderSeason(context, ref),
+              onPressed: () => _importCatalogSeason(context, ref),
               icon: const Icon(Icons.layers_outlined, size: 16),
-              label: const Text('Replace provider season with custom list'),
+              label: const Text('Replace catalog season with custom list'),
             ),
           ),
         if (showCustomEpisodes) ...[
@@ -487,41 +498,41 @@ class _CustomEpisodesPanel extends ConsumerWidget {
                 },
               ),
         ] else ...[
-          if (providerEpisodes.isEmpty)
+          if (catalogEpisodes.isEmpty)
             Padding(
               padding: const EdgeInsets.only(top: 4, bottom: 4),
               child: Text(
-                'No provider episodes found for this season.',
+                'No catalog episodes found for this season.',
                 style: TextStyle(color: palette.textMuted, fontSize: 12),
               ),
             )
           else ...[
             const SizedBox(height: 4),
-            for (final episode in providerEpisodes)
-              _ProviderEpisodeTile(
+            for (final episode in catalogEpisodes)
+              _CatalogEpisodeTile(
                 seasonNumber: seasonNumber,
                 accent: accent,
                 episode: episode,
-                watched: watchedEpisodeKeys
-                    .contains('$seasonNumber:${episode.episodeNumber}'),
+                watched: watchedEpisodeKeys.contains(
+                    '$seasonNumber:${episode.episodeNumber ?? episode.position}'),
                 watchCount: watchSessions
                     .whereType<TvWatchSession>()
                     .where(
                       (s) =>
                           s.seasonNumber == seasonNumber &&
                           s.episodeNumber ==
-                              (episode.episodeNumber?.toInt() ?? 0),
+                              (episode.episodeNumber ?? episode.position),
                     )
                     .length,
-                busy: pendingEpisodeKeys
-                    .contains('$seasonNumber:${episode.episodeNumber}'),
+                busy: pendingEpisodeKeys.contains(
+                    '$seasonNumber:${episode.episodeNumber ?? episode.position}'),
                 onWatchToggle: () =>
-                    onToggleEpisode(episode.episodeNumber?.toInt() ?? 0),
+                    onToggleEpisode(episode.episodeNumber ?? episode.position),
                 onDuplicate: () => _showCustomEpisodeDialog(
                   context,
                   ref,
                   seasonNumber: seasonNumber,
-                  providerEpisode: episode,
+                  catalogEpisode: episode,
                 ),
               ),
           ],
@@ -530,18 +541,18 @@ class _CustomEpisodesPanel extends ConsumerWidget {
     );
   }
 
-  Future<void> _importProviderSeason(
+  Future<void> _importCatalogSeason(
     BuildContext context,
     WidgetRef ref,
   ) async {
-    for (final episode in providerSeason.episodes) {
+    for (final episode in catalogSeason.episodes) {
       await ref.read(tvCustomEpisodeMutationsProvider).upsertCustomEpisode(
-            seriesId: TvSeriesId(catalogRef.id),
-            seasonNumber: providerSeason.seasonNumber ?? 0,
-            episodeNumber: episode.episodeNumber?.toInt() ?? 0,
-            title: episode.title ?? 'Untitled',
+            libraryEntryRef: libraryEntryRef,
+            seasonNumber: catalogSeason.seasonNumber,
+            episodeNumber: episode.episodeNumber ?? episode.position,
+            title: episode.episodeTitle ?? episode.title ?? 'Untitled',
             description: episode.description,
-            airDate: episode.airDate,
+            airDate: episode.airDate?.asDateTime,
             runtimeMinutes: episode.runtimeMinutes,
           );
     }
@@ -553,7 +564,7 @@ class _CustomEpisodesPanel extends ConsumerWidget {
     WidgetRef ref, {
     required int seasonNumber,
     TvCustomEpisode? existing,
-    TvEpisode? providerEpisode,
+    TvEpisodeMetadata? catalogEpisode,
   }) async {
     final result = await showDialog<_CustomEpisodeFormResult>(
       context: context,
@@ -562,16 +573,20 @@ class _CustomEpisodesPanel extends ConsumerWidget {
         title: existing == null ? 'Add custom episode' : 'Edit custom episode',
         confirmLabel: existing == null ? 'Add' : 'Save',
         initialEpisodeNumber: existing?.episodeNumber ??
-            providerEpisode?.episodeNumber?.toInt() ??
+            catalogEpisode?.episodeNumber ??
+            catalogEpisode?.position ??
             1,
-        initialTitle: existing?.title ?? providerEpisode?.title ?? '',
+        initialTitle: existing?.title ??
+            catalogEpisode?.episodeTitle ??
+            catalogEpisode?.title ??
+            '',
         initialOverview:
-            existing?.description ?? providerEpisode?.description ?? '',
+            existing?.description ?? catalogEpisode?.description ?? '',
         initialAirDate: _formatTvAirDate(existing?.airDate) ??
-            _formatTvAirDate(providerEpisode?.airDate) ??
+            _formatTvAirDate(catalogEpisode?.airDate?.asDateTime) ??
             '',
         initialRuntimeMinutes:
-            existing?.runtimeMinutes ?? providerEpisode?.runtimeMinutes,
+            existing?.runtimeMinutes ?? catalogEpisode?.runtimeMinutes,
         initialStillImageUrl: existing?.stillImageUrl ?? '',
         initialLocalImagePath: existing?.localImagePath ?? '',
         initialThumbnailImageUrl: existing?.thumbnailImageUrl ?? '',
@@ -580,7 +595,7 @@ class _CustomEpisodesPanel extends ConsumerWidget {
     if (result == null || !context.mounted) return;
     await ref.read(tvCustomEpisodeMutationsProvider).upsertCustomEpisode(
           id: existing?.id.value,
-          seriesId: TvSeriesId(catalogRef.id),
+          libraryEntryRef: libraryEntryRef,
           seasonNumber: seasonNumber,
           episodeNumber: result.episodeNumber,
           title: result.title,
@@ -601,7 +616,7 @@ class _CustomEpisodesPanel extends ConsumerWidget {
   ) async {
     await ref.read(tvCustomEpisodeMutationsProvider).upsertCustomEpisode(
           id: episode.id.value,
-          seriesId: TvSeriesId(catalogRef.id),
+          libraryEntryRef: libraryEntryRef,
           seasonNumber: episode.seasonNumber,
           episodeNumber: newEpisodeNumber < 1 ? 1 : newEpisodeNumber,
           title: episode.title,
@@ -621,8 +636,8 @@ class _CustomEpisodesPanel extends ConsumerWidget {
   }
 }
 
-class _ProviderEpisodeTile extends StatelessWidget {
-  const _ProviderEpisodeTile({
+class _CatalogEpisodeTile extends StatelessWidget {
+  const _CatalogEpisodeTile({
     required this.accent,
     required this.seasonNumber,
     required this.episode,
@@ -635,7 +650,7 @@ class _ProviderEpisodeTile extends StatelessWidget {
 
   final Color accent;
   final int seasonNumber;
-  final TvEpisode episode;
+  final TvEpisodeMetadata episode;
   final bool watched;
   final int watchCount;
   final bool busy;
@@ -648,9 +663,9 @@ class _ProviderEpisodeTile extends StatelessWidget {
       episode: VideoEpisodeProgressSummary(
         episode: VideoEpisodeIdentity(
           seasonNumber: seasonNumber,
-          episodeNumber: episode.episodeNumber?.toInt() ?? 0,
-          title: episode.title,
-          airDate: episode.airDate,
+          episodeNumber: episode.episodeNumber ?? episode.position,
+          title: episode.episodeTitle ?? episode.title,
+          airDate: episode.airDate?.asDateTime,
           runtimeMinutes: episode.runtimeMinutes,
         ),
         watchedCount: watchCount,
@@ -857,23 +872,23 @@ class _CustomEpisodeFormDialogState extends State<_CustomEpisodeFormDialog> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            TextField(
+            LibraryEditTextField(
               controller: _episodeNumberController,
-              decoration: const InputDecoration(labelText: 'Episode number'),
+              label: 'Episode number',
               keyboardType: TextInputType.number,
               onChanged: (_) => setState(() {}),
             ),
             const SizedBox(height: 8),
-            TextField(
+            LibraryEditTextField(
               controller: _titleController,
-              decoration: const InputDecoration(labelText: 'Title'),
+              label: 'Title',
               onChanged: (_) => setState(() {}),
             ),
             const SizedBox(height: 8),
-            TextField(
+            LibraryEditTextField(
               controller: _overviewController,
-              decoration:
-                  const InputDecoration(labelText: 'Overview (optional)'),
+              label: 'Overview (optional)',
+              minLines: 2,
               maxLines: 2,
             ),
             const SizedBox(height: 8),
@@ -886,32 +901,27 @@ class _CustomEpisodeFormDialogState extends State<_CustomEpisodeFormDialog> {
               }),
             ),
             const SizedBox(height: 8),
-            TextField(
+            LibraryEditTextField(
               controller: _runtimeController,
-              decoration: const InputDecoration(
-                labelText: 'Runtime minutes (optional)',
-              ),
+              label: 'Runtime minutes (optional)',
               keyboardType: TextInputType.number,
             ),
             const SizedBox(height: 8),
-            TextField(
+            LibraryEditTextField(
               controller: _stillImageUrlController,
-              decoration: const InputDecoration(
-                  labelText: 'Still image URL (optional)'),
+              label: 'Still image URL (optional)',
+              keyboardType: TextInputType.url,
             ),
             const SizedBox(height: 8),
-            TextField(
+            LibraryEditTextField(
               controller: _thumbnailImageUrlController,
-              decoration: const InputDecoration(
-                labelText: 'Thumbnail image URL (optional)',
-              ),
+              label: 'Thumbnail image URL (optional)',
+              keyboardType: TextInputType.url,
             ),
             const SizedBox(height: 8),
-            TextField(
+            LibraryEditTextField(
               controller: _localImagePathController,
-              decoration: const InputDecoration(
-                labelText: 'Local image path (optional)',
-              ),
+              label: 'Local image path (optional)',
             ),
           ],
         ),

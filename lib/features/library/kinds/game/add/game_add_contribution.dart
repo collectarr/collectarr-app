@@ -6,26 +6,23 @@ import 'game_manual_candidate.dart';
 final gameKindAdd = StandardLibraryAddCapability<GameAddDraft>(
   kind: CatalogMediaKind.game,
   initialDraftBuilder: GameAddDraft.new,
-  typedProviderCandidateProjectionBuilder: (candidate) =>
-      gameCatalogTransportFromTypedCandidate(
-          candidate as GameProviderCandidate),
   coreCatalogProjectionBuilder: gameCatalogTransportFromCoreItem,
   manualDraftBuilder: GameAddManualDraft.new,
   manualCandidateBuilder: buildGameManualCandidate,
-  ownedPayloadBuilder: (item, common, draft, details, {kindValue}) =>
-      GameOwnedItemCreatePayload(
-    catalogRef: item.reference,
-    details: details as GameOwnedDetailsDraft,
+  manualProposalBuilder: buildGameManualProposalData,
+  entryPayloadBuilder: (item, common, draft, details, {kindValue}) =>
+      GameLibraryEntryCreatePayload(
+    details: details as GameEntryDetailsDraft,
     condition: common.condition,
     grade: kindValue ?? draft.grade,
     purchaseDate: common.purchaseDate,
     pricePaidCents: common.pricePaidCents,
     currency: common.currency,
     personalNotes: common.personalNotes,
-    quantity: common.quantity,
     tags: common.tags,
     locationId: common.locationId,
     purchaseStore: common.purchaseStore,
+    ownerLabel: common.ownerLabel,
     collectionStatus: common.collectionStatus,
     isDigital: common.isDigital,
   ),
@@ -57,9 +54,6 @@ final gameKindAdd = StandardLibraryAddCapability<GameAddDraft>(
     ),
     core: LibraryAddCoreSearchCapability(
       inputBuilder: _buildGameCoreSearchInput,
-    ),
-    provider: LibraryAddProviderSearchCapability(
-      queryBuilder: _buildGameProviderQuery,
       ranking: buildLibraryAddSearchRanking(
         fields: [
           LibraryAddSearchRankField(
@@ -67,43 +61,28 @@ final gameKindAdd = StandardLibraryAddCapability<GameAddDraft>(
             exactWeight: 110,
             containsWeight: 44,
             metadataValues: (item) {
-              final metadata = item.kindCapability
-                  .mapTransport((transport) => transport)
-                  .kindMetadata;
-              return metadata is GameCatalogMetadata
-                  ? [metadata.platform, ...metadata.platforms]
-                  : const <Object?>[];
+              final metadata = item.kindCapability.mapTransport(
+                (transport) => GameCatalogMetadata.fromJson(transport.kindData),
+              );
+              return metadata.platforms;
             },
-            typedProviderValues: (candidate) =>
-                candidate is GameProviderCandidate
-                    ? [candidate.summary]
-                    : const <Object?>[],
           ),
           LibraryAddSearchRankField(
             id: gameYearFilterId,
             exactWeight: 55,
             containsWeight: 20,
             metadataValues: (item) {
-              final metadata = item.kindCapability
-                  .mapTransport((transport) => transport)
-                  .kindMetadata;
-              return metadata is GameCatalogMetadata
-                  ? [
-                      item.gameCatalogFields.releaseYear,
-                      metadata.releaseDate?.year
-                    ]
-                  : [item.gameCatalogFields.releaseYear];
+              final metadata = item.kindCapability.mapTransport(
+                (transport) => GameCatalogMetadata.fromJson(transport.kindData),
+              );
+              return [
+                item.gameCatalogFields.releaseYear,
+                metadata.releaseDate?.year,
+              ];
             },
-            typedProviderValues: (candidate) =>
-                candidate is GameProviderCandidate
-                    ? [candidate.series?.volumeStartYear]
-                    : const <Object?>[],
           ),
         ],
       ),
-      strategy:
-          LibraryAddTypedProviderSearchStrategy(searchGameProviderCandidates),
-      candidatePreviewLoader: loadGameProviderCandidatePreview,
     ),
   ),
   manualPaneBuilder: buildGameAddManualPane,
@@ -145,15 +124,6 @@ MetadataSearchQuery _buildGameCoreSearchInput(
     barcode: _optionalGameText(context.identifierCode),
     limit: limit,
   );
-}
-
-String _buildGameProviderQuery(LibraryAddSearchContext context) {
-  return buildLibraryAddSearchQuery([
-    context.query,
-    context.textValueFor(gamePlatformFilterId),
-    context.textValueFor(gameYearFilterId),
-    context.identifierCode,
-  ]);
 }
 
 String? _optionalGameText(String value) {

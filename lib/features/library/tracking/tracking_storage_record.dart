@@ -1,14 +1,15 @@
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/catalog_item_ref.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/core/models/personal_tracking_base.dart';
 import 'package:collectarr_app/core/models/tracking_progress_snapshot.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 
-/// Sentinel used by kind-owned tracking records for omitted nullable patches.
+/// Sentinel used by kind-entry tracking records for omitted nullable patches.
 const Object trackingStorageUnset = Object();
 
-/// Opaque kind-owned tracking operation passed across generic boundaries.
+/// Opaque kind-entry tracking operation passed across generic boundaries.
 ///
 /// The concrete kind defines the payload and the owning tracking codec is the
 /// only code allowed to interpret it.
@@ -23,8 +24,7 @@ abstract interface class TrackingKindPatch {
 /// ratings, or other domain state without routing through a universal model.
 abstract interface class TrackingStorageRecord {
   String get id;
-  CatalogEntityRef get catalogRef;
-  OwnedItemRef? get ownedRef;
+  LibraryEntryRef get libraryEntryRef;
   TrackingSourceType? get sourceType;
   MediaTrackingStatus? get status;
   int? get rating;
@@ -43,8 +43,7 @@ abstract interface class TrackingStorageRecord {
 
   TrackingStorageRecord copyWith({
     String? id,
-    CatalogEntityRef? catalogRef,
-    Object? ownedRef,
+    Object? libraryEntryRef,
     Object? sourceType,
     Object? status,
     Object? rating,
@@ -80,8 +79,7 @@ mixin TrackingStorageRecordBehavior on PersonalTrackingBase
   @override
   Map<String, dynamic> toSyncPayload() {
     return {
-      'catalog_ref': catalogRef.toJson(),
-      'owned_ref': ownedRef?.toJson(),
+      'library_entry_ref': libraryEntryRef.toJson(),
       'source_type': trackingSourceApiValue,
       'status': statusStorageValue,
       'rating': rating,

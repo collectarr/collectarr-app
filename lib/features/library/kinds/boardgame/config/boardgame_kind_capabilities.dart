@@ -1,23 +1,18 @@
 import '../boardgame_module_dependencies.dart';
 import 'boardgame_kind_configuration.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/release/boardgame_release_projection_capability.dart'
-    as boardgame_release;
+import '../data/boardgame_catalog_transport_codec.dart';
+import 'package:collectarr_app/features/library/metadata/common_personal_library_fields.dart';
+
+final boardGameKindPersonalFieldContributor = LibraryPersonalFieldContributor(
+  kind: CatalogMediaKind.boardgame,
+  fields: commonPersonalLibraryFields,
+);
 
 final boardGameKindPresentation = boardGamesLibraryMediaPresentation;
 
 final boardGameKindPhysicalMediaFormats = boardGamePhysicalMediaFormats;
 
 final boardGameKindTrackingProfile = boardGameTrackingProfile;
-
-final boardGameKindWorkCapability = const DefaultWorkProjectionCapability();
-
-final boardGameKindReleaseCapability =
-    boardgame_release.boardGameKindReleaseCapability;
-
-final boardGameKindReleaseDetailSource =
-    boardgame_release.boardGameKindReleaseDetailSource;
-
-final boardGameKindCatalogTarget = const BoardGameCatalogTargetCapability();
 
 final boardGameKindUiPolicy = const LibraryUiPolicy();
 
@@ -48,53 +43,37 @@ final boardGameKindIdentity = const LibraryKindIdentity(
 );
 
 final boardGameKindMetadata = const LibraryMetadataCapability(
-  defaultProviderId: 'bgg',
   catalogMetadataDecoder: BoardGameMetadata.fromJson,
+  catalogTransportCodec: BoardGameCatalogTransportCodec(),
   searchQueryBuilder: boardGameMetadataSearchQuery,
-  providers: [bggMetadataProvider],
 );
 
-final boardGameKindHierarchy = const LibraryHierarchyCapability(
-  browserDelegateBuilder: buildReleaseFolderBrowserDelegate,
-);
-
-final boardGameKindEntityVocabulary = const LibraryEntityVocabulary(
-  work: LibraryEntityLabel(singular: 'Game', plural: 'Games'),
-  release: LibraryEntityLabel(singular: 'Edition', plural: 'Editions'),
-  copy: LibraryEntityLabel(singular: 'Copy', plural: 'Copies'),
+final boardGameKindEntityVocabulary = const LibraryTargetVocabulary(
+  catalogItem: LibraryTargetLabel(singular: 'Game', plural: 'Games'),
+  libraryEntry: LibraryTargetLabel(singular: 'Entry', plural: 'Entries'),
 );
 
 final boardGameKindTrackingTopology = const LibraryTrackingTopology(
   sessionLabels: LibraryTrackingSessionLabels.play,
-  writableTargets: {LibraryTrackingTargetScope.work},
-  aggregateTargets: {LibraryTrackingTargetScope.work},
+  writableTargets: {LibraryTrackingTarget.libraryEntry},
+  aggregateTargets: {LibraryTrackingTarget.libraryEntry},
 );
 
-final boardGameKindActions = const LibraryEntityActionCapability(
-  work: LibraryEntityActionSet.work,
-  release: LibraryEntityActionSet.release,
-  copy: LibraryEntityActionSet.copy,
+final boardGameKindActions = const LibraryTargetActionCapability(
+  catalogItem: LibraryTargetActionSet.catalogItem,
+  libraryEntry: LibraryTargetActionSet.libraryEntry,
 );
 
 final boardGameKindInspector = LibraryInspectorCapability(
-  entityRegistry: LibraryEntityInspectorRegistry(
-    contributors: [
-      LibraryEntityInspectorContributor(
-        scope: LibraryEntityScope.work,
-        heroBuilder: buildBoardGameWorkInspectorHero,
-        sectionsBuilder: buildBoardGameWorkInspectorSections,
-      ),
-      LibraryEntityInspectorContributor(
-        scope: LibraryEntityScope.release,
-        heroBuilder: buildBoardGameReleaseInspectorHero,
-        sectionsBuilder: buildBoardGameReleaseInspectorSections,
-      ),
-      LibraryEntityInspectorContributor(
-        scope: LibraryEntityScope.copy,
-        heroBuilder: buildBoardGameCopyInspectorHero,
-        sectionsBuilder: buildBoardGameCopyInspectorSections,
-      ),
-    ],
+  entityRegistry: LibraryTargetInspectorRegistry(
+    catalogItem: LibraryTargetInspectorContributor(
+      heroBuilder: buildBoardGameCatalogItemInspectorHero,
+      sectionsBuilder: buildBoardGameCatalogItemInspectorSections,
+    ),
+    libraryEntry: LibraryTargetInspectorContributor(
+      heroBuilder: buildBoardGameLibraryEntryInspectorHero,
+      sectionsBuilder: buildBoardGameLibraryEntryInspectorSections,
+    ),
   ),
   showsDefaultPersonalSection: false,
 );

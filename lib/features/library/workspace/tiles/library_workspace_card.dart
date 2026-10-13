@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
+import 'package:collectarr_app/features/library/domain/library_target_ref.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_card_presentation.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/generic/toolbar/toolbar_auxiliary_controls.dart';
@@ -71,22 +71,6 @@ class LibraryWorkspaceCard extends StatelessWidget {
     final selectedTitleColor = appContrastingTextColor(resolvedSelectedColor);
     final kind = item.source.mediaKind;
     final registration = libraryKindRegistrationForKind(kind);
-    final targetParts = libraryCatalogTargetForKind(registration.kind).parts(
-      item.source.ownedSummary?.targetRef,
-    );
-    final rawEditions = libraryPresentationForKind(registration.kind)
-        .builder
-        .buildWorkspaceReleases(
-          item.source,
-        );
-    final referenceHierarchy = libraryWorkspaceReferenceHierarchySegments(
-      kind: item.source.mediaKind,
-      releases: rawEditions,
-      editionId: targetParts.firstId,
-      variantId: targetParts.secondId,
-      bundleReleaseId: targetParts.groupId,
-    );
-
     // Resolve the kind-supplied card presentation (or fall back to default).
     final coverFocused = cardLayout == LibraryCardLayout.vertical;
     final presentation =
@@ -95,7 +79,7 @@ class LibraryWorkspaceCard extends StatelessWidget {
       coverFocused: coverFocused,
     );
 
-    final strongSelection = selected && item.node is! LibraryWorkRef;
+    final strongSelection = selected && item.target is! CatalogTargetRef;
     final coverCacheWidth = _targetCacheWidth(context);
 
     if (cardLayout == LibraryCardLayout.vertical) {
@@ -115,7 +99,6 @@ class LibraryWorkspaceCard extends StatelessWidget {
       strongSelection: strongSelection,
       coverCacheWidth: coverCacheWidth,
       presentation: presentation,
-      referenceHierarchy: referenceHierarchy,
     );
   }
 
@@ -130,7 +113,6 @@ class LibraryWorkspaceCard extends StatelessWidget {
     required bool strongSelection,
     required int? coverCacheWidth,
     required LibraryCardPresentation presentation,
-    required List<String> referenceHierarchy,
   }) {
     final palette = appPalette(context);
     final gradeLabel = _coverGradeLabel(presentation);
@@ -193,7 +175,7 @@ class LibraryWorkspaceCard extends StatelessWidget {
                               left: 4,
                               top: 4,
                               child: LibraryCoverBadges(
-                                isOwned: item.source.isOwned,
+                                isEntry: item.source.isEntry,
                                 isTracked: item.source.isTracked,
                                 isWishlisted: item.source.isWishlisted,
                                 hasMissingCover: item.dto.imageUrl == null ||
@@ -210,7 +192,7 @@ class LibraryWorkspaceCard extends StatelessWidget {
                                 gradeLabel: gradeLabel,
                                 slabLabel: _coverSlabLabel(presentation),
                                 notesLabel: libraryNotesMarkerLabel(
-                                    item.source.ownedSummary?.notes),
+                                    item.source.libraryEntrySummary?.notes),
                               ),
                             ),
                           ],
@@ -233,7 +215,7 @@ class LibraryWorkspaceCard extends StatelessWidget {
                                         .titleSmall
                                         ?.copyWith(
                                           color: kLibraryCardTitleColor,
-                                          fontWeight: FontWeight.w800,
+                                          fontWeight: FontWeight.w700,
                                         ),
                                   ),
                                 ),
@@ -245,7 +227,7 @@ class LibraryWorkspaceCard extends StatelessWidget {
                             const SizedBox(height: 4),
                             Text(
                               [
-                                if (item.node is! LibraryWorkRef &&
+                                if (item.target is! CatalogTargetRef &&
                                     presentation.variant != null &&
                                     presentation.variant!.isNotEmpty)
                                   presentation.variant,
@@ -267,22 +249,6 @@ class LibraryWorkspaceCard extends StatelessWidget {
                                   ),
                             ),
                             const SizedBox(height: 8),
-                            if (referenceHierarchy.length > 1) ...[
-                              Text(
-                                referenceHierarchy.join('  ->  '),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .bodySmall
-                                    ?.copyWith(
-                                      color:
-                                          accentColor.withValues(alpha: 0.88),
-                                      fontWeight: FontWeight.w700,
-                                    ),
-                              ),
-                              const SizedBox(height: 8),
-                            ],
                             Wrap(
                               spacing: 6,
                               runSpacing: 6,
@@ -300,7 +266,7 @@ class LibraryWorkspaceCard extends StatelessWidget {
                                     accentColor: accentColor,
                                   ),
                                 if (_compactNotesLabel(
-                                        item.source.ownedSummary?.notes)
+                                        item.source.libraryEntrySummary?.notes)
                                     case final noteLabel?)
                                   LibraryCompactMetaPill(
                                     icon: Icons.sticky_note_2_outlined,
@@ -319,13 +285,15 @@ class LibraryWorkspaceCard extends StatelessWidget {
                                     label: item.source.locationPath!,
                                     accentColor: accentColor,
                                   ),
-                                if (item.source.ownedSummary?.pricePaidCents !=
+                                if (item.source.libraryEntrySummary
+                                        ?.pricePaidCents !=
                                     null)
                                   LibraryCompactMetaPill(
                                     icon: Icons.attach_money,
                                     label: moneyFormatter(
-                                      item.source.ownedSummary!.pricePaidCents,
-                                      item.source.ownedSummary!.currency,
+                                      item.source.libraryEntrySummary!
+                                          .pricePaidCents,
+                                      item.source.libraryEntrySummary!.currency,
                                     ),
                                     accentColor: accentColor,
                                   ),
@@ -338,7 +306,7 @@ class LibraryWorkspaceCard extends StatelessWidget {
                               ],
                             ),
                             const Spacer(),
-                            if (item.node is! LibraryWorkRef) ...[
+                            if (item.target is! CatalogTargetRef) ...[
                               Builder(
                                 builder: (context) {
                                   final format = presentation.format;
@@ -426,7 +394,9 @@ class LibraryWorkspaceCard extends StatelessWidget {
     final releaseDate = presentation.releaseDate;
     final format = presentation.format;
     final subtitle = [
-      if (item.node is! LibraryWorkRef && variant != null && variant.isNotEmpty)
+      if (item.target is! CatalogTargetRef &&
+          variant != null &&
+          variant.isNotEmpty)
         variant,
       if (releaseDate != null) dateFormatter(releaseDate),
       if (format != null && format.isNotEmpty) format,
@@ -484,7 +454,7 @@ class LibraryWorkspaceCard extends StatelessWidget {
                               left: 6,
                               top: 6,
                               child: LibraryCoverBadges(
-                                isOwned: item.source.isOwned,
+                                isEntry: item.source.isEntry,
                                 isTracked: item.source.isTracked,
                                 isWishlisted: item.source.isWishlisted,
                                 hasMissingCover: item.dto.imageUrl == null ||
@@ -498,7 +468,7 @@ class LibraryWorkspaceCard extends StatelessWidget {
                                 keyLabel: _coverKeyLabel(presentation),
                                 slabLabel: _coverSlabLabel(presentation),
                                 notesLabel: libraryNotesMarkerLabel(
-                                    item.source.ownedSummary?.notes),
+                                    item.source.libraryEntrySummary?.notes),
                               ),
                             ),
                           ],
@@ -518,7 +488,7 @@ class LibraryWorkspaceCard extends StatelessWidget {
                                   .titleSmall
                                   ?.copyWith(
                                     color: titleColor,
-                                    fontWeight: FontWeight.w800,
+                                    fontWeight: FontWeight.w700,
                                   ),
                             ),
                             if (subtitle.isNotEmpty) ...[
@@ -625,7 +595,7 @@ class LibraryWorkspaceCard extends StatelessWidget {
       title: item.dto.primaryLabel,
       itemNumber: presentation.itemNumber,
       imageUrl: item.dto.imageUrl,
-      ownedRef: item.source.ownedRef,
+      libraryEntryRef: item.source.libraryEntryRef,
       targetCacheWidth: coverCacheWidth,
       fallbackAspectRatio: 1 /
           libraryViewProfileForKind(item.source.mediaKind)
@@ -724,7 +694,7 @@ class _LibraryIssuePill extends StatelessWidget {
           label,
           style: TextStyle(
             color: palette.issueForeground,
-            fontSize: 12,
+            fontSize: 13,
             fontWeight: FontWeight.w700,
           ),
         ),

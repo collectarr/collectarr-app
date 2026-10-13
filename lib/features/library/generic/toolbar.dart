@@ -48,15 +48,11 @@ class LibraryToolbar extends StatelessWidget {
     this.onEditSort,
     required this.onSidebarVisibilityChanged,
     required this.onViewModeChanged,
-    this.browserMode = LibraryWorkspaceBrowserMode.work,
-    this.onBrowserModeChanged,
-    this.showReleaseFolderBack = false,
-    this.releaseFolderLabel,
-    this.onReleaseFolderBack,
     required this.onDetailsLayoutChanged,
     this.onDensityPresetChanged = _noopDensityPresetChanged,
     required this.onCoverSizeChanged,
     required this.selectedBucket,
+    this.linkedMetadataFilterLabel,
     required this.onClearBucket,
     required this.onRefreshMetadata,
     this.collectionStatusScope = LibraryCollectionStatusScope.all,
@@ -85,8 +81,6 @@ class LibraryToolbar extends StatelessWidget {
     this.onJumpToNumberSubmitted,
     required this.hasActiveFilters,
     required this.onClearFilters,
-    this.onEditFilters,
-    this.activeFilterCount = 0,
     this.onRandomPick,
     this.onScanCover,
     this.onDownloadAllCovers,
@@ -104,6 +98,7 @@ class LibraryToolbar extends StatelessWidget {
     this.onTransferFieldData,
     this.onReassignIndex,
     this.onPrintReport,
+    this.onExportCsvTxt,
     this.onShareCollection,
     this.onCompareMetadataWithServer,
     this.extraUtilityActions = const [],
@@ -145,15 +140,11 @@ class LibraryToolbar extends StatelessWidget {
         onEditSort = actions.onEditSort,
         onSidebarVisibilityChanged = actions.onSidebarVisibilityChanged,
         onViewModeChanged = actions.onViewModeChanged,
-        browserMode = config.browserMode,
-        onBrowserModeChanged = actions.onBrowserModeChanged,
-        showReleaseFolderBack = state.showReleaseFolderBack,
-        releaseFolderLabel = state.releaseFolderLabel,
-        onReleaseFolderBack = actions.onReleaseFolderBack,
         onDetailsLayoutChanged = actions.onDetailsLayoutChanged,
         onDensityPresetChanged = actions.onDensityPresetChanged,
         onCoverSizeChanged = actions.onCoverSizeChanged,
         selectedBucket = state.selectedBucket,
+        linkedMetadataFilterLabel = state.linkedMetadataFilterLabel,
         onClearBucket = actions.onClearBucket,
         onRefreshMetadata = actions.onRefreshMetadata,
         collectionStatusScope = state.collectionStatusScope,
@@ -182,8 +173,6 @@ class LibraryToolbar extends StatelessWidget {
         onJumpToNumberSubmitted = actions.onJumpToNumberSubmitted,
         hasActiveFilters = state.hasActiveFilters,
         onClearFilters = actions.onClearFilters,
-        onEditFilters = actions.onEditFilters,
-        activeFilterCount = state.activeFilterCount,
         onRandomPick = actions.onRandomPick,
         onScanCover = actions.onScanCover,
         onDownloadAllCovers = actions.onDownloadAllCovers,
@@ -201,6 +190,7 @@ class LibraryToolbar extends StatelessWidget {
         onTransferFieldData = actions.onTransferFieldData,
         onReassignIndex = actions.onReassignIndex,
         onPrintReport = actions.onPrintReport,
+        onExportCsvTxt = actions.onExportCsvTxt,
         onShareCollection = actions.onShareCollection,
         onCompareMetadataWithServer = actions.onCompareMetadataWithServer,
         extraUtilityActions = actions.extraUtilityActions,
@@ -235,15 +225,11 @@ class LibraryToolbar extends StatelessWidget {
   final VoidCallback? onEditSort;
   final ValueChanged<bool> onSidebarVisibilityChanged;
   final ValueChanged<LibraryViewMode> onViewModeChanged;
-  final LibraryWorkspaceBrowserMode browserMode;
-  final ValueChanged<LibraryWorkspaceBrowserMode>? onBrowserModeChanged;
-  final bool showReleaseFolderBack;
-  final String? releaseFolderLabel;
-  final VoidCallback? onReleaseFolderBack;
   final ValueChanged<LibraryDetailsLayout> onDetailsLayoutChanged;
   final ValueChanged<LibraryWorkspaceDensityPreset> onDensityPresetChanged;
   final ValueChanged<double> onCoverSizeChanged;
   final String? selectedBucket;
+  final String? linkedMetadataFilterLabel;
   final VoidCallback onClearBucket;
   final VoidCallback onRefreshMetadata;
   final LibraryCollectionStatusScope collectionStatusScope;
@@ -273,8 +259,6 @@ class LibraryToolbar extends StatelessWidget {
   final ValueChanged<String>? onJumpToNumberSubmitted;
   final bool hasActiveFilters;
   final VoidCallback onClearFilters;
-  final VoidCallback? onEditFilters;
-  final int activeFilterCount;
   final VoidCallback? onRandomPick;
   final VoidCallback? onScanCover;
   final VoidCallback? onDownloadAllCovers;
@@ -292,6 +276,7 @@ class LibraryToolbar extends StatelessWidget {
   final VoidCallback? onTransferFieldData;
   final VoidCallback? onReassignIndex;
   final VoidCallback? onPrintReport;
+  final VoidCallback? onExportCsvTxt;
   final VoidCallback? onShareCollection;
   final VoidCallback? onCompareMetadataWithServer;
   final List<LibraryUtilityMenuAction> extraUtilityActions;
@@ -326,11 +311,11 @@ class LibraryToolbar extends StatelessWidget {
         final accent = color ?? targetAccent;
         final palette = appPalette(context);
         return LibraryToolbarFrame(
-          backgroundColor: palette.toolbar,
+          backgroundColor: libraryWorkspaceToolbarColor(context),
           dividerColor: palette.divider,
           child: LayoutBuilder(
             builder: (context, constraints) {
-              if (constraints.maxWidth < kLibraryToolbarCompactBreakpoint) {
+              if (constraints.maxWidth < 600) {
                 return LibraryCompactToolbarContent(
                   type: type,
                   searchController: searchController,
@@ -338,6 +323,7 @@ class LibraryToolbar extends StatelessWidget {
                   counts: counts,
                   viewMode: viewState.viewMode,
                   selectedBucket: selectedBucket,
+                  linkedMetadataFilterLabel: linkedMetadataFilterLabel,
                   onAdd: onAdd,
                   onScan: onScan,
                   onSearchChanged: onSearchChanged,
@@ -377,8 +363,6 @@ class LibraryToolbar extends StatelessWidget {
                   hasActiveFilters: hasActiveFilters,
                   onClearFilters: onClearFilters,
                   onClearBucket: onClearBucket,
-                  onEditFilters: onEditFilters,
-                  activeFilterCount: activeFilterCount,
                   onRandomPick: onRandomPick,
                   onDownloadAllCovers: onDownloadAllCovers,
                   onSmartLists: onSmartLists,
@@ -444,15 +428,11 @@ class LibraryToolbar extends StatelessWidget {
                       onEditSort: onEditSort,
                       onSidebarVisibilityChanged: onSidebarVisibilityChanged,
                       onViewModeChanged: onViewModeChanged,
-                      browserMode: browserMode,
-                      onBrowserModeChanged: onBrowserModeChanged,
-                      showReleaseFolderBack: showReleaseFolderBack,
-                      releaseFolderLabel: releaseFolderLabel,
-                      onReleaseFolderBack: onReleaseFolderBack,
                       onDetailsLayoutChanged: onDetailsLayoutChanged,
                       onDensityPresetChanged: onDensityPresetChanged,
                       onCoverSizeChanged: onCoverSizeChanged,
                       selectedBucket: selectedBucket,
+                      linkedMetadataFilterLabel: linkedMetadataFilterLabel,
                       onClearBucket: onClearBucket,
                       quickView: quickView,
                       activeSortFavoriteId: activeSortFavoriteId,
@@ -464,8 +444,6 @@ class LibraryToolbar extends StatelessWidget {
                       hasActiveFilters: hasActiveFilters,
                       onQuickViewSelected: onQuickViewSelected,
                       onClearFilters: onClearFilters,
-                      onEditFilters: onEditFilters,
-                      activeFilterCount: activeFilterCount,
                       onRandomPick: onRandomPick,
                       onDownloadAllCovers: onDownloadAllCovers,
                       shelfState: shelfState,
@@ -478,6 +456,7 @@ class LibraryToolbar extends StatelessWidget {
                       onTransferFieldData: onTransferFieldData,
                       onReassignIndex: effectiveReassignIndex,
                       onPrintReport: onPrintReport,
+                      onExportCsvTxt: onExportCsvTxt,
                       onShareCollection: onShareCollection,
                       onCompareMetadataWithServer: onCompareMetadataWithServer,
                       extraActions: extraUtilityActions,

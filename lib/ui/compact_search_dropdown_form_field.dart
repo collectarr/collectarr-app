@@ -1,3 +1,5 @@
+import 'package:collectarr_app/ui/anchored_popup_geometry.dart';
+import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
@@ -11,11 +13,11 @@ class CompactSearchDropdownFormField<T> extends FormField<T> {
   CompactSearchDropdownFormField({
     super.key,
     required List<DropdownMenuItem<T>> items,
-    T? initialValue,
+    super.initialValue,
     ValueChanged<T?>? onChanged,
-    FormFieldSetter<T>? onSaved,
-    FormFieldValidator<T>? validator,
-    AutovalidateMode? autovalidateMode,
+    super.onSaved,
+    super.validator,
+    super.autovalidateMode,
     bool enabled = true,
     InputDecoration decoration = const InputDecoration(),
     Widget? hint,
@@ -62,10 +64,6 @@ class CompactSearchDropdownFormField<T> extends FormField<T> {
         _selectedItemBuilder = selectedItemBuilder,
         _barrierDismissible = barrierDismissible,
         super(
-          initialValue: initialValue,
-          onSaved: onSaved,
-          validator: validator,
-          autovalidateMode: autovalidateMode,
           enabled: enabled && onChanged != null,
           builder: (field) =>
               (field as _CompactSearchDropdownFormFieldState<T>)._buildField(),
@@ -188,8 +186,9 @@ class _CompactSearchDropdownFormFieldState<T> extends FormFieldState<T> {
   final FocusNode _searchFocusNode = FocusNode();
   final ScrollController _menuScrollController = ScrollController();
 
-  double _fieldWidth = 0;
-  double _menuHeight = 320;
+  AnchoredPopupGeometry? _popup;
+  double get _fieldWidth => _popup?.bounds.width ?? 0;
+  double get _menuHeight => _popup?.bounds.height ?? 0;
   String _searchQuery = '';
 
   CompactSearchDropdownFormField<T> get _dropdown =>
@@ -238,6 +237,7 @@ class _CompactSearchDropdownFormFieldState<T> extends FormFieldState<T> {
     if (_menuScrollController.hasClients) {
       _menuScrollController.jumpTo(0);
     }
+    if (_popup == null || _menuHeight <= 0) return;
     _overlayController.show();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted && _overlayController.isShowing) {
@@ -247,20 +247,9 @@ class _CompactSearchDropdownFormFieldState<T> extends FormFieldState<T> {
   }
 
   void _measureMenu() {
-    final anchor = _anchorKey.currentContext?.findRenderObject();
-    final overlay =
-        Overlay.of(context, rootOverlay: true).context.findRenderObject();
-    if (anchor is! RenderBox || overlay is! RenderBox) return;
-
-    final topLeft = anchor.localToGlobal(Offset.zero, ancestor: overlay);
-    final available = overlay.size.height -
-        topLeft.dy -
-        anchor.size.height -
-        MediaQuery.viewInsetsOf(context).bottom -
-        8;
-    final maxHeight = _dropdown._menuMaxHeight ?? 320;
-    _fieldWidth = anchor.size.width;
-    _menuHeight = math.max(44.0, math.min(maxHeight, available));
+    _popup = AnchoredPopupGeometry.measure(context, _anchorKey,
+        maxHeight: _dropdown._menuMaxHeight ?? 320, rootOverlay: true);
+    if (_popup == null || _menuHeight <= 0) _closeMenu();
   }
 
   void _closeMenu() {
@@ -332,8 +321,9 @@ class _CompactSearchDropdownFormFieldState<T> extends FormFieldState<T> {
       onTapOutside: (_) {
         if (_dropdown._barrierDismissible) _closeMenu();
       },
-      child: OverlayPortal.targetsRootOverlay(
+      child: OverlayPortal(
         controller: _overlayController,
+        overlayLocation: OverlayChildLocation.rootOverlay,
         overlayChildBuilder: _buildMenu,
         child: Focus(
           focusNode: _dropdown._focusNode,
@@ -403,10 +393,11 @@ class _CompactSearchDropdownFormFieldState<T> extends FormFieldState<T> {
 
   Widget _buildMenu(BuildContext overlayContext) {
     final theme = Theme.of(overlayContext);
-    final palette = _dropdown._dropdownColor ?? theme.colorScheme.surface;
+    final palette = appPalette(overlayContext);
+    final surface = _dropdown._dropdownColor ?? palette.panelRaised;
     final shape = RoundedRectangleBorder(
-      borderRadius: _dropdown._borderRadius ?? BorderRadius.circular(8),
-      side: BorderSide(color: theme.colorScheme.outlineVariant),
+      borderRadius: _dropdown._borderRadius ?? palette.menuBorderRadius,
+      side: BorderSide(color: palette.divider),
     );
     final options = _visibleItems;
     final itemHeight = _dropdown._itemHeight ?? 38;
@@ -415,127 +406,132 @@ class _CompactSearchDropdownFormFieldState<T> extends FormFieldState<T> {
         ) ??
         const EdgeInsets.symmetric(horizontal: 10, vertical: 3);
 
-    return TapRegion(
-      groupId: this,
-      onTapOutside: (_) {
-        if (_dropdown._barrierDismissible) _closeMenu();
-      },
-      child: CompositedTransformFollower(
-        link: _layerLink,
-        showWhenUnlinked: false,
-        targetAnchor: Alignment.bottomLeft,
-        followerAnchor: Alignment.topLeft,
-        offset: const Offset(0, 4),
-        child: Material(
-          color: palette,
-          elevation: _dropdown._elevation.toDouble(),
-          shape: shape,
-          clipBehavior: Clip.antiAlias,
-          child: SizedBox(
-            width: _fieldWidth,
-            height: _menuHeight,
-            child: Column(
-              children: [
-                SizedBox(
-                  height: math.min(42.0, _menuHeight),
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(8, 5, 8, 5),
-                    child: TextField(
-                      controller: _searchController,
-                      focusNode: _searchFocusNode,
-                      onChanged: (query) =>
-                          setState(() => _searchQuery = query),
-                      textInputAction: TextInputAction.search,
-                      style: theme.textTheme.bodySmall,
-                      decoration: InputDecoration(
-                        hintText: 'Search…',
-                        prefixIcon: const Icon(Icons.search, size: 18),
-                        prefixIconConstraints:
-                            const BoxConstraints(minWidth: 34, minHeight: 32),
-                        isDense: true,
-                        contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 7,
+    return CompositedTransformFollower(
+      link: _layerLink,
+      showWhenUnlinked: false,
+      targetAnchor: _popup!.targetAnchor,
+      followerAnchor: _popup!.followerAnchor,
+      offset: _popup!.followerOffset,
+      child: Align(
+        alignment: Alignment.topLeft,
+        child: TapRegion(
+          groupId: this,
+          onTapOutside: (_) {
+            if (_dropdown._barrierDismissible) _closeMenu();
+          },
+          child: Material(
+            color: surface,
+            elevation: _dropdown._elevation.toDouble(),
+            shape: shape,
+            clipBehavior: Clip.antiAlias,
+            child: SizedBox(
+              width: _fieldWidth,
+              height: _menuHeight,
+              child: Column(
+                children: [
+                  SizedBox(
+                    height: math.min(42.0, math.max(0.0, _menuHeight - 1)),
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(8, 5, 8, 5),
+                      child: TextField(
+                        controller: _searchController,
+                      cursorColor: theme.colorScheme.primary,
+                        focusNode: _searchFocusNode,
+                        onChanged: (query) =>
+                            setState(() => _searchQuery = query),
+                        textInputAction: TextInputAction.search,
+                        style: theme.textTheme.bodySmall,
+                        decoration: InputDecoration(
+                          hintText: 'Search…',
+                          prefixIcon: const Icon(Icons.search, size: 18),
+                          prefixIconConstraints:
+                              const BoxConstraints(minWidth: 34, minHeight: 32),
+                          isDense: true,
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 7,
+                          ),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          suffixIcon: _searchQuery.isEmpty
+                              ? null
+                              : IconButton(
+                                  visualDensity: VisualDensity.compact,
+                                  tooltip: 'Clear search',
+                                  onPressed: () {
+                                    _searchController.clear();
+                                    setState(() => _searchQuery = '');
+                                    _searchFocusNode.requestFocus();
+                                  },
+                                  icon: const Icon(Icons.close, size: 16),
+                                ),
                         ),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(6),
-                        ),
-                        suffixIcon: _searchQuery.isEmpty
-                            ? null
-                            : IconButton(
-                                visualDensity: VisualDensity.compact,
-                                tooltip: 'Clear search',
-                                onPressed: () {
-                                  _searchController.clear();
-                                  setState(() => _searchQuery = '');
-                                  _searchFocusNode.requestFocus();
-                                },
-                                icon: const Icon(Icons.close, size: 16),
-                              ),
                       ),
                     ),
                   ),
-                ),
-                Divider(height: 1, color: theme.colorScheme.outlineVariant),
-                Expanded(
-                  child: options.isEmpty
-                      ? Center(
-                          child: Text(
-                            'No matches',
-                            style: theme.textTheme.bodySmall?.copyWith(
-                              color: theme.colorScheme.onSurfaceVariant,
+                  Divider(height: 1, color: theme.colorScheme.outlineVariant),
+                  Expanded(
+                    child: options.isEmpty
+                        ? Center(
+                            child: Text(
+                              'No matches',
+                              style: theme.textTheme.bodySmall?.copyWith(
+                                color: theme.colorScheme.onSurfaceVariant,
+                              ),
                             ),
-                          ),
-                        )
-                      : Scrollbar(
-                          controller: _menuScrollController,
-                          thumbVisibility: options.length > 5,
-                          child: ListView.builder(
+                          )
+                        : Scrollbar(
                             controller: _menuScrollController,
-                            padding: const EdgeInsets.symmetric(vertical: 3),
-                            itemCount: options.length,
-                            itemExtent: itemHeight,
-                            itemBuilder: (context, index) {
-                              final item = options[index];
-                              final isSelected = item.value == value;
-                              return Material(
-                                color: isSelected
-                                    ? theme.colorScheme.primaryContainer
-                                        .withValues(alpha: 0.42)
-                                    : Colors.transparent,
-                                child: InkWell(
-                                  mouseCursor: WidgetStateMouseCursor.clickable,
-                                  onTap: item.enabled
-                                      ? () => _selectItem(item)
-                                      : null,
-                                  child: SizedBox(
-                                    height: itemHeight,
-                                    child: Padding(
-                                      padding: itemPadding,
-                                      child: Align(
-                                        alignment: _dropdown._alignment,
-                                        child: DefaultTextStyle.merge(
-                                          style: item.enabled
-                                              ? (_dropdown._style ??
-                                                  theme.textTheme.bodyMedium)
-                                              : theme.textTheme.bodyMedium
-                                                  ?.copyWith(
-                                                  color: theme.disabledColor,
-                                                ),
-                                          maxLines: 1,
-                                          overflow: TextOverflow.ellipsis,
-                                          child: ClipRect(child: item.child),
+                            thumbVisibility: options.length > 5,
+                            child: ListView.builder(
+                              controller: _menuScrollController,
+                              padding: const EdgeInsets.symmetric(vertical: 3),
+                              itemCount: options.length,
+                              itemExtent: itemHeight,
+                              itemBuilder: (context, index) {
+                                final item = options[index];
+                                final isSelected = item.value == value;
+                                return Material(
+                                  color: isSelected
+                                      ? theme.colorScheme.primaryContainer
+                                          .withValues(alpha: 0.42)
+                                      : Colors.transparent,
+                                  child: InkWell(
+                                    mouseCursor:
+                                        WidgetStateMouseCursor.clickable,
+                                    onTap: item.enabled
+                                        ? () => _selectItem(item)
+                                        : null,
+                                    child: SizedBox(
+                                      height: itemHeight,
+                                      child: Padding(
+                                        padding: itemPadding,
+                                        child: Align(
+                                          alignment: _dropdown._alignment,
+                                          child: DefaultTextStyle.merge(
+                                            style: item.enabled
+                                                ? (_dropdown._style ??
+                                                    theme.textTheme.bodyMedium)
+                                                : theme.textTheme.bodyMedium
+                                                    ?.copyWith(
+                                                    color: theme.disabledColor,
+                                                  ),
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                            child: ClipRect(child: item.child),
+                                          ),
                                         ),
                                       ),
                                     ),
                                   ),
-                                ),
-                              );
-                            },
+                                );
+                              },
+                            ),
                           ),
-                        ),
-                ),
-              ],
+                  ),
+                ],
+              ),
             ),
           ),
         ),

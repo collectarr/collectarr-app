@@ -1,4 +1,3 @@
-import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/kinds/book/integrations/collection_csv/book_collection_csv_import_profile.dart';
 import 'package:collectarr_app/features/library/kinds/book/integrations/collection_csv/book_collection_csv_projection.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -50,7 +49,7 @@ void main() {
       '9780261102217',
     ]);
     expect(
-      profile.importOwnedCells(
+      profile.importEntryCells(
         header: const ['Media Type'],
         values: const ['Book'],
       ),
@@ -60,7 +59,7 @@ void main() {
 
   test('projects Book catalog cells with edition semantics', () {
     final projection = const BookCollectionCsvProjection();
-    final entry = LibraryWorkspaceSource(
+    final entry = testLibraryWorkspaceSource(
       itemId: 'book-1',
       catalogData: testWorkspaceCatalogData(
           testCatalogItemWithKindMetadata(testCatalogItem(
@@ -68,18 +67,16 @@ void main() {
         kind: 'book',
         title: 'The Hobbit',
         itemNumber: '1',
-        variant: 'Hardcover',
         editionTitle: 'First edition',
-        physicalFormat: 'hardcover',
-        physicalFormatLabel: 'Hardcover',
+        physicalFormat: 'Hardcover',
         publisher: 'Allen & Unwin',
         releaseDate: DateTime.utc(1937, 9, 21),
         barcode: '9780261102217',
+        payload: const {'variant_name': 'Hardcover'},
       )).asShelfCatalogItem),
-      ownedSummary: testOwnedSummary(testOwnedItem(
-        id: 'owned-1',
+      libraryEntrySummary: testLibraryEntrySummary(testLibraryEntry(
+        id: 'entry-1',
         itemId: 'book-1',
-        quantity: 1,
         updatedAt: DateTime.utc(2026, 5, 15),
       )),
     );
@@ -91,18 +88,18 @@ void main() {
       '1',
       'Hardcover',
       'First edition',
-      'hardcover',
+      'Hardcover',
       'Hardcover',
       'Allen & Unwin',
       '1937-09-21',
       '9780261102217',
     ]);
     expect(
-      projection.ownedCellsBeforeQuantity(entry, clzFriendly: false),
+      projection.entryCellsBeforeLocation(entry, clzFriendly: false),
       isEmpty,
     );
     expect(
-      projection.ownedCellsAfterIndex(entry, clzFriendly: false),
+      projection.entryCellsAfterIndex(entry, clzFriendly: false),
       everyElement(isEmpty),
     );
   });

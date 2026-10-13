@@ -1,4 +1,9 @@
+import 'package:collectarr_app/features/library/workspace/chrome/library_workspace_controls.dart';
+import 'package:collectarr_app/ui/app_icons.dart';
+import 'package:collectarr_app/features/settings/ui_preferences.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
+import 'package:collectarr_app/features/library/config/library_kind_style.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
@@ -6,65 +11,46 @@ import 'package:collectarr_app/features/library/generic/external_links.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/ui/library_info_chip.dart';
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_view_controls.dart';
+import 'package:collectarr_app/features/library/workspace/chrome/library_workspace_menus.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_workspace_tokens.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_view_enums.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class InspectorBackdrop extends StatelessWidget {
   const InspectorBackdrop({
     super.key,
     required this.item,
-    this.ownedItem,
+    this.libraryEntry,
+    this.backgroundColor,
   });
 
   final LibraryProjectionView item;
-  final OwnedItemSummary? ownedItem;
+  final LibraryEntrySummary? libraryEntry;
+  final Color? backgroundColor;
 
   @override
   Widget build(BuildContext context) {
-    final palette = appPalette(context);
     final dto = item.dto;
     final card = libraryCardPresentationForEntry(item);
-    final ownedRef = resolveLibraryOwnedItemRef(item, ownedItem);
+    final libraryEntryRef = resolveLibraryEntryRef(item, libraryEntry);
     return Stack(
       fit: StackFit.expand,
       children: [
-        Opacity(
-          opacity: 0.38,
-          child: LibraryCoverImage(
-            title: dto.primaryLabel,
-            itemNumber: card.itemNumber,
-            imageUrl: dto.imageUrl,
-            ownedRef: ownedRef,
-          ),
+        LibraryCoverImage(
+          title: dto.primaryLabel,
+          itemNumber: card.itemNumber,
+          imageUrl: dto.imageUrl,
+          libraryEntryRef: libraryEntryRef,
+          fit: BoxFit.cover,
+          showPlaceholder: false,
         ),
-        DecoratedBox(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                palette.surface.withValues(alpha: 0.4),
-                palette.panel.withValues(alpha: 0.82),
-                palette.panel.withValues(alpha: 0.94),
-              ],
-            ),
-          ),
-        ),
-        DecoratedBox(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.centerLeft,
-              end: Alignment.centerRight,
-              colors: [
-                palette.panel.withValues(alpha: 0.94),
-                palette.surfaceSubtle.withValues(alpha: 0.72),
-                palette.panel.withValues(alpha: 0.9),
-              ],
-            ),
-          ),
+        ColoredBox(
+          color:
+              libraryWorkspaceBackgroundColor(context).withValues(alpha: 0.9),
         ),
       ],
     );
@@ -76,21 +62,21 @@ class InspectorActionBar extends StatelessWidget {
     super.key,
     required this.type,
     required this.item,
-    required this.onToggleOwned,
+    required this.onToggleEntry,
     required this.onToggleWishlist,
     required this.onEdit,
     required this.onOpenDetails,
-    this.semanticActions = const <LibraryEntitySemanticAction>[],
+    this.semanticActions = const <LibraryTargetSemanticAction>[],
     this.extraActions = const <Widget>[],
   });
 
   final LibraryKindRegistration type;
   final LibraryProjectionView item;
-  final VoidCallback? onToggleOwned;
+  final VoidCallback? onToggleEntry;
   final VoidCallback? onToggleWishlist;
   final VoidCallback? onEdit;
   final VoidCallback onOpenDetails;
-  final List<LibraryEntitySemanticAction> semanticActions;
+  final List<LibraryTargetSemanticAction> semanticActions;
   final List<Widget> extraActions;
 
   @override
@@ -113,15 +99,15 @@ class InspectorActionBar extends StatelessWidget {
               'Quick actions',
               style: Theme.of(context).textTheme.labelSmall?.copyWith(
                     color: palette.textMuted,
-                    fontWeight: FontWeight.w800,
+                    fontWeight: FontWeight.w700,
                     letterSpacing: 0.35,
                   ),
             ),
             LibraryStatusChip(
-              icon: item.source.isOwned
+              icon: item.source.isEntry
                   ? Icons.check_circle_outline
                   : Icons.inventory_2_outlined,
-              label: item.source.isOwned ? 'Owned' : 'Catalog only',
+              label: item.source.isEntry ? 'Entry' : 'Catalog only',
               foreground: palette.textPrimary,
               background: palette.surface,
               borderColor: palette.divider,
@@ -137,16 +123,16 @@ class InspectorActionBar extends StatelessWidget {
                 borderColor: palette.divider,
               ),
             _InspectorActionPillButton(
-              tooltip: item.source.isOwned
+              tooltip: item.source.isEntry
                   ? 'Remove from collection'
                   : item.source.isWishlisted
                       ? 'Convert wishlist to collection'
                       : 'Add to collection',
-              onPressed: onToggleOwned,
-              icon: item.source.isOwned
+              onPressed: onToggleEntry,
+              icon: item.source.isEntry
                   ? Icons.remove_circle_outline
                   : Icons.add_circle_outline,
-              label: item.source.isOwned ? 'Remove' : 'Collect',
+              label: item.source.isEntry ? 'Remove' : 'Collect',
             ),
             _InspectorActionPillButton(
               tooltip: item.source.isWishlisted
@@ -165,7 +151,7 @@ class InspectorActionBar extends StatelessWidget {
             _InspectorActionPillButton(
               tooltip: 'Edit metadata and collection fields',
               onPressed: onEdit,
-              icon: Icons.edit_outlined,
+              icon: Icons.edit,
               label: 'Edit',
             ),
             for (final action in semanticActions)
@@ -233,54 +219,132 @@ class InspectorToolIconButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return Tooltip(
       message: tooltip,
-      child: IconButton(
-        onPressed: onPressed,
-        icon: Icon(icon, size: 18),
-        visualDensity: VisualDensity.compact,
+      child: Semantics(
+        label: tooltip,
+        button: true,
+        enabled: onPressed != null,
+        onTap: onPressed,
+        excludeSemantics: true,
+        child: IconButton(
+          onPressed: onPressed,
+          icon: Icon(icon, size: 18),
+          visualDensity: VisualDensity.compact,
+        ),
       ),
     );
   }
 }
 
-enum InspectorToolbarMenuAction {
-  duplicate,
-  removeOrCollect,
-  loan,
-  refreshMetadata,
+class _InspectorBarButton extends StatelessWidget {
+  const _InspectorBarButton({
+    required this.tooltip,
+    required this.onPressed,
+    this.icon,
+    this.label,
+    this.labelContent,
+    this.semanticsLabel,
+  });
+
+  final String tooltip;
+  final VoidCallback? onPressed;
+  final IconData? icon;
+  final String? label;
+  final Widget? labelContent;
+  final String? semanticsLabel;
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = appPalette(context);
+    final foreground = palette.textPrimary;
+    final disabledColor = palette.textMuted.withValues(alpha: 0.4);
+
+    return Tooltip(
+      message: tooltip,
+      child: Semantics(
+        label: semanticsLabel ?? label ?? tooltip,
+        button: true,
+        enabled: onPressed != null,
+        onTap: onPressed,
+        excludeSemantics: true,
+        child: InkWell(
+          mouseCursor: onPressed == null
+              ? SystemMouseCursors.basic
+              : SystemMouseCursors.click,
+          onTap: onPressed,
+          hoverColor: palette.isDark ? const Color(0xFF464950) : null,
+          borderRadius: BorderRadius.circular(4),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (icon != null) ...[
+                  Icon(
+                    icon,
+                    size: 14,
+                    color: onPressed != null ? foreground : disabledColor,
+                  ),
+                  if (label != null || labelContent != null)
+                    const SizedBox(width: 6),
+                ],
+                if (labelContent != null)
+                  labelContent!
+                else if (label != null)
+                  Text(
+                    label!,
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w400,
+                      color: onPressed != null ? foreground : disabledColor,
+                    ),
+                  ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 }
 
-class InspectorUnifiedToolbar extends StatelessWidget {
+class InspectorUnifiedToolbar extends ConsumerWidget {
   const InspectorUnifiedToolbar({
     super.key,
     required this.item,
     required this.detailsLayout,
     this.onEdit,
     this.onShare,
+    this.onMoveToCollection,
+    this.accent,
     this.onDuplicate,
-    this.onToggleOwned,
+    this.onToggleEntry,
     this.onLoan,
     this.onRefreshMetadata,
     this.onUnlinkFromCore,
     this.onDetailsLayoutChanged,
     this.framed = false,
     this.includeLayoutControl = true,
+    this.contentMaxWidth,
   });
 
   final LibraryProjectionView item;
   final LibraryDetailsLayout detailsLayout;
   final VoidCallback? onEdit;
   final VoidCallback? onShare;
+  final VoidCallback? onMoveToCollection;
+  final Color? accent;
   final VoidCallback? onDuplicate;
-  final VoidCallback? onToggleOwned;
+  final VoidCallback? onToggleEntry;
   final VoidCallback? onLoan;
   final VoidCallback? onRefreshMetadata;
   final VoidCallback? onUnlinkFromCore;
   final ValueChanged<LibraryDetailsLayout>? onDetailsLayoutChanged;
   final bool framed;
   final bool includeLayoutControl;
+  final double? contentMaxWidth;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final palette = appPalette(context);
     final dto = item.dto;
     final card = libraryCardPresentationForEntry(item);
@@ -293,146 +357,222 @@ class InspectorUnifiedToolbar extends StatelessWidget {
       dto.primaryLabel,
       if (releaseDate != null) releaseDate.year.toString(),
     ].join(' ');
-    final ebayUri = buildEbaySearchUri(
-      query: ebayQuery,
-      categoryPath: '/sch/11233/i.html',
-      soldOnly: true,
-    );
+    final preferences = ref.watch(uiPreferencesProvider);
+    final ebayUri = preferences.ebayToolbar &&
+            preferences.allowsEbayLinks(item.source.isWishlisted)
+        ? buildEbaySearchUri(
+            query: ebayQuery,
+            categoryPath: '/sch/11233/i.html',
+            region: preferences.ebayRegion,
+            soldOnly: preferences.ebaySearchFilter
+                .soldOnlyFor(isWishlisted: item.source.isWishlisted),
+          )
+        : null;
     final content = LayoutBuilder(
       builder: (context, constraints) {
         final compactActions = constraints.maxWidth < 420;
-        return Wrap(
-          spacing: 6,
-          runSpacing: 6,
-          crossAxisAlignment: WrapCrossAlignment.center,
-          alignment: WrapAlignment.end,
+        return Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (onEdit != null)
+                  _InspectorBarButton(
+                    tooltip: 'Edit',
+                    semanticsLabel: 'Edit',
+                    icon: AppIcons.inlineEdit,
+                    label: compactActions ? null : 'Edit',
+                    onPressed: onEdit,
+                  ),
+                if (onShare != null) ...[
+                  _inspectorToolbarSeparator(context),
+                  _InspectorBarButton(
+                    tooltip: 'Share',
+                    semanticsLabel: 'Share',
+                    icon: AppIcons.cloudSharing,
+                    label: compactActions ? null : 'Share',
+                    onPressed: onShare,
+                  ),
+                ],
+                if (ebayUri != null) ...[
+                  _inspectorToolbarSeparator(context),
+                  _InspectorBarButton(
+                    tooltip: 'Find sold listings on eBay',
+                    semanticsLabel: 'eBay',
+                    labelContent: SvgPicture.asset(
+                      'assets/logos/referral-ebay.svg',
+                      height: 14,
+                      colorFilter: ColorFilter.mode(
+                        palette.isDark ? Colors.white : palette.textPrimary,
+                        BlendMode.srcIn,
+                      ),
+                    ),
+                    onPressed: () => launchUrl(ebayUri),
+                  ),
+                ],
+                _inspectorToolbarSeparator(context),
+                MenuAnchor(
+                  alignmentOffset: const Offset(-5, 4),
+                  style: MenuStyle(
+                    alignment: AlignmentDirectional.bottomStart,
+                    backgroundColor: WidgetStatePropertyAll(
+                        libraryToolbarMenuSurface(context)),
+                    surfaceTintColor:
+                        const WidgetStatePropertyAll(Colors.transparent),
+                    elevation: const WidgetStatePropertyAll(0),
+                    padding: const WidgetStatePropertyAll(EdgeInsets.zero),
+                    shape: WidgetStatePropertyAll(
+                        libraryToolbarDropdownMenuShape(context)),
+                  ),
+                  menuChildren: [
+                    if (onDuplicate != null)
+                      _inspectorMenuItem(
+                          'Duplicate', AppIcons.duplicateAction, onDuplicate),
+                    if (onToggleEntry != null)
+                      _inspectorMenuItem(
+                          item.source.isEntry ? 'Remove' : 'Collect',
+                          item.source.isEntry
+                              ? AppIcons.removeAction
+                              : AppIcons.collect,
+                          onToggleEntry),
+                    _inspectorMenuItem('Loan', AppIcons.loanAction, onLoan),
+                    if (onMoveToCollection != null)
+                      _inspectorMenuItem('Move to other collection',
+                          AppIcons.moveCollection, onMoveToCollection),
+                    if (onRefreshMetadata != null) ...[
+                      Divider(
+                          height: 1, color: libraryToolbarMenuBorder(context)),
+                      _inspectorMenuItem('Update from Core',
+                          AppIcons.updateFromCore, onRefreshMetadata),
+                    ],
+                    if (onUnlinkFromCore != null) ...[
+                      Divider(
+                          height: 1, color: libraryToolbarMenuBorder(context)),
+                      _inspectorMenuItem('Unlink from Core', AppIcons.unlink,
+                          onUnlinkFromCore),
+                    ],
+                  ],
+                  builder: (context, controller, child) => _InspectorBarButton(
+                    tooltip: 'More inspector actions',
+                    semanticsLabel: 'More inspector actions',
+                    icon: AppIcons.more,
+                    onPressed: () => controller.isOpen
+                        ? controller.close()
+                        : controller.open(),
+                  ),
+                ),
+              ],
+            ),
             if (includeLayoutControl)
               LibraryDetailsLayoutDropdown(
                 detailsLayout: detailsLayout,
                 onChanged: (val) => onDetailsLayoutChanged?.call(val),
                 iconOnly: compactActions,
+                inspectorStyle: true,
               ),
-            if (ebayUri != null)
-              compactActions
-                  ? InspectorToolIconButton(
-                      tooltip: 'Search sold prices on eBay',
-                      onPressed: () => launchUrl(ebayUri),
-                      icon: Icons.shopping_bag_outlined,
-                    )
-                  : _InspectorActionPillButton(
-                      tooltip: 'Search sold prices on eBay',
-                      onPressed: () => launchUrl(ebayUri),
-                      icon: Icons.shopping_bag_outlined,
-                      label: 'eBay',
-                    ),
-            if (!compactActions && onDuplicate != null)
-              InspectorToolIconButton(
-                tooltip: 'Duplicate owned copy',
-                onPressed: onDuplicate,
-                icon: Icons.copy_all_outlined,
-              ),
-            if (!compactActions && onToggleOwned != null)
-              InspectorToolIconButton(
-                tooltip: item.source.isOwned
-                    ? 'Remove from collection'
-                    : 'Add to collection',
-                onPressed: onToggleOwned,
-                icon: item.source.isOwned
-                    ? Icons.delete_outline
-                    : Icons.add_circle_outline,
-              ),
-            PopupMenuButton<InspectorToolbarMenuAction>(
-              tooltip: 'More inspector actions',
-              onSelected: (action) {
-                switch (action) {
-                  case InspectorToolbarMenuAction.duplicate:
-                    onDuplicate?.call();
-                  case InspectorToolbarMenuAction.removeOrCollect:
-                    onToggleOwned?.call();
-                  case InspectorToolbarMenuAction.loan:
-                    onLoan?.call();
-                  case InspectorToolbarMenuAction.refreshMetadata:
-                    onRefreshMetadata?.call();
-                }
-              },
-              itemBuilder: (context) => [
-                if (compactActions && onDuplicate != null)
-                  const PopupMenuItem<InspectorToolbarMenuAction>(
-                    value: InspectorToolbarMenuAction.duplicate,
-                    child: Material(
-                      type: MaterialType.transparency,
-                      child: ListTile(
-                        dense: true,
-                        leading: Icon(Icons.copy_all_outlined),
-                        title: Text('Duplicate'),
-                      ),
-                    ),
-                  ),
-                if (compactActions && onToggleOwned != null)
-                  PopupMenuItem<InspectorToolbarMenuAction>(
-                    value: InspectorToolbarMenuAction.removeOrCollect,
-                    enabled: onToggleOwned != null,
-                    child: Material(
-                      type: MaterialType.transparency,
-                      child: ListTile(
-                        dense: true,
-                        leading: Icon(
-                          item.source.isOwned
-                              ? Icons.delete_outline
-                              : Icons.add_circle_outline,
-                        ),
-                        title: Text(item.source.isOwned ? 'Remove' : 'Collect'),
-                      ),
-                    ),
-                  ),
-                PopupMenuItem<InspectorToolbarMenuAction>(
-                  value: InspectorToolbarMenuAction.loan,
-                  enabled: onLoan != null,
-                  child: const Material(
-                    type: MaterialType.transparency,
-                    child: ListTile(
-                      dense: true,
-                      leading: Icon(Icons.handshake_outlined),
-                      title: Text('Loan'),
-                    ),
-                  ),
-                ),
-                PopupMenuItem<InspectorToolbarMenuAction>(
-                  value: InspectorToolbarMenuAction.refreshMetadata,
-                  enabled: onRefreshMetadata != null,
-                  child: const Material(
-                    type: MaterialType.transparency,
-                    child: ListTile(
-                      dense: true,
-                      leading: Icon(Icons.cloud_download_outlined),
-                      title: Text('Update from Core'),
-                    ),
-                  ),
-                ),
-              ],
-              child: const Padding(
-                padding: EdgeInsets.all(4),
-                child: Icon(Icons.more_vert, size: 18),
-              ),
-            ),
           ],
         );
       },
     );
 
-    if (!framed) {
-      return content;
-    }
-
-    return Container(
-      decoration: BoxDecoration(
-        color: palette.panel.withValues(alpha: 0.72),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: palette.divider),
+    final styled = Material(
+      type: MaterialType.transparency,
+      child: Ink(
+        height: 38,
+        decoration: BoxDecoration(
+          color: framed
+              ? palette.panel.withValues(alpha: 0.72)
+              : libraryWorkspaceToolbarColor(context),
+          borderRadius: framed ? BorderRadius.circular(4) : null,
+          border: framed
+              ? Border.all(color: palette.divider)
+              : libraryWorkspaceToolbarBorder(context),
+        ),
+        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+        child: contentMaxWidth == null
+            ? content
+            : Center(
+                child: ConstrainedBox(
+                    constraints: BoxConstraints(maxWidth: contentMaxWidth!),
+                    child: content)),
       ),
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-      child: content,
     );
+
+    return accent == null
+        ? styled
+        : Theme(data: libraryAccentTheme(context, accent!), child: styled);
+  }
+}
+
+Widget _inspectorMenuItem(
+        String label, IconData icon, VoidCallback? callback) =>
+    Builder(
+      builder: (context) {
+        final color = callback == null
+            ? libraryToolbarMenuMutedText(context)
+            : libraryToolbarMenuText(context);
+        return MenuItemButton(
+          onPressed: callback,
+          style: ButtonStyle(
+            minimumSize: const WidgetStatePropertyAll(Size(0, 30)),
+            maximumSize:
+                const WidgetStatePropertyAll(Size(double.infinity, 30)),
+            padding: const WidgetStatePropertyAll(
+                EdgeInsets.symmetric(horizontal: 7)),
+            shape: const WidgetStatePropertyAll(RoundedRectangleBorder()),
+            visualDensity: VisualDensity.standard,
+            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+            mouseCursor: WidgetStatePropertyAll(callback == null
+                ? SystemMouseCursors.basic
+                : SystemMouseCursors.click),
+            backgroundColor: WidgetStateProperty.resolveWith((states) =>
+                states.contains(WidgetState.hovered)
+                    ? libraryToolbarMenuHover(context)
+                    : Colors.transparent),
+          ),
+          child: LibraryWorkspaceMenuRow(
+              label: label,
+              leading: Icon(icon, size: 14, color: color),
+              padding: EdgeInsets.zero,
+              textStyle: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w400,
+                  height: 24 / 14,
+                  color: color)),
+        );
+      },
+    );
+
+Widget _inspectorToolbarSeparator(BuildContext context) =>
+    const LibraryWorkspaceSeparator();
+
+class InspectorEbayLinksSection extends ConsumerWidget {
+  const InspectorEbayLinksSection({super.key, required this.item});
+  final LibraryProjectionView item;
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final preferences = ref.watch(uiPreferencesProvider);
+    if (!preferences.ebayLinksSection ||
+        !preferences.allowsEbayLinks(item.source.isWishlisted)) {
+      return const SizedBox.shrink();
+    }
+    final uri = buildEbaySearchUri(
+      query: [item.dto.secondaryLabel, item.dto.primaryLabel]
+          .whereType<String>()
+          .join(' '),
+      region: preferences.ebayRegion,
+      soldOnly: preferences.ebaySearchFilter
+          .soldOnlyFor(isWishlisted: item.source.isWishlisted),
+    );
+    if (uri == null) return const SizedBox.shrink();
+    return Align(
+        alignment: Alignment.centerLeft,
+        child: TextButton.icon(
+          onPressed: () => launchUrl(uri),
+          icon: const Icon(Icons.open_in_new, size: 14),
+          label: const Text('Search eBay'),
+        ));
   }
 }

@@ -1,16 +1,33 @@
 import 'package:collectarr_app/features/library/add/models/library_kind_add_draft.dart';
-import 'package:collectarr_app/features/library/kinds/anime/forms/anime_catalog_form_values.dart';
+import 'package:collectarr_app/features/library/kinds/anime/domain/anime_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/anime/domain/anime_metadata_children.dart';
+import 'package:collectarr_app/features/library/kinds/anime/forms/anime_credit_draft.dart';
+import 'package:collectarr_app/features/library/kinds/anime/forms/anime_catalog_form_draft.dart';
 
-final class AnimeAddManualDraft implements LibraryKindAddDraft {
+final class AnimeAddManualDraft
+    implements LibraryKindAddDraftWithResources, AnimeCatalogFormDraft {
   AnimeAddManualDraft({
-    AnimeMediaFormValues? media,
-    AnimeReleaseFormValues? release,
-  })  : media = media ?? AnimeMediaFormValues(),
-        release = release ?? AnimeReleaseFormValues();
-
-  final AnimeMediaFormValues media;
-  final AnimeReleaseFormValues release;
+    AnimeMetadata? metadata,
+    this.catalogTitle = '',
+  })  : metadata = metadata ?? const AnimeMetadata(),
+        characterBaseline = List.unmodifiable(
+          (metadata ?? const AnimeMetadata()).characters,
+        );
 
   @override
-  void dispose() {}
+  AnimeMetadata metadata;
+
+  @override
+  final List<AnimeCharacterMetadata> characterBaseline;
+  final List<EditableAnimeCredit> castCredits = [];
+  final List<EditableAnimeCredit> crewCredits = [];
+  @override
+  String catalogTitle;
+
+  @override
+  void dispose() {
+    for (final credit in [...castCredits, ...crewCredits]) {
+      credit.dispose();
+    }
+  }
 }

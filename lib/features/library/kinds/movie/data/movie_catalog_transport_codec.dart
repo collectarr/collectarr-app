@@ -1,49 +1,61 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_display_summary.dart';
-import 'package:collectarr_app/features/catalog/transport/catalog_transport_payload.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_kind_derived_data.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_kind_transport_codec.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_item_cache_repository.dart';
 import 'package:collectarr_app/features/catalog/serial/serial_authority_repository.dart';
 import 'package:collectarr_app/features/pick_lists/pick_list_repository.dart';
 import 'package:collectarr_app/features/pick_lists/pick_list_definition_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_pick_list_contributors.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_serial_authority_contributors.dart';
-import 'package:collectarr_app/features/library/kinds/movie/data/movie_repository.dart';
-import 'package:collectarr_app/features/library/kinds/movie/domain/movie_media.dart';
-import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_workspace_catalog_data.dart';
+import 'package:collectarr_app/features/library/kinds/movie/domain/movie_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/movie/workspace/movie_workspace_data.dart';
 
 final class MovieCatalogTransportCodec
-    implements CatalogKindTransportCodec<MovieMedia> {
+    implements CatalogKindTransportCodec<MovieCatalogMetadata> {
   const MovieCatalogTransportCodec();
 
   @override
   CatalogMediaKind get kind => CatalogMediaKind.movie;
 
   @override
-  MovieMedia decode(CatalogItemDto item) {
-    final metadata = item.kindMetadata;
-    if (metadata is MovieMedia) return metadata;
-    return MovieMedia.fromJson(catalogTransportPayloadFor(item));
-  }
+  MovieCatalogMetadata decode(CatalogItemDto item) =>
+      MovieCatalogMetadata.fromJson(item.kindData);
 
   @override
-  Future<void> upsert(LocalDatabase db, MovieMedia item) {
-    return MovieRepository(db).updateMedia(item);
-  }
+  MovieCatalogMetadata decodeKindData(Map<String, dynamic> kindData) =>
+      MovieCatalogMetadata.fromJson(kindData);
 
   @override
-  CatalogDisplaySummary summarize(MovieMedia item) =>
-      CatalogDisplaySummary.root(
+  CatalogItemDto encode(String id, MovieCatalogMetadata item) =>
+      CatalogItemDto.raw(
+        id: id,
+        mediaKind: kind,
+        kindData: item.toJson(),
+      );
+
+  @override
+  CatalogDisplaySummary summarize(
+    String catalogItemId,
+    MovieCatalogMetadata item,
+  ) =>
+      CatalogDisplaySummary.forCatalogItem(
         kind: kind,
-        id: item.id.value,
+        id: catalogItemId,
         primaryLabel: item.title,
         imageUrl: item.thumbnailImageUrl ?? item.coverImageUrl,
       );
 
   @override
-  MovieWorkspaceCatalogData workspaceData(CatalogItemDto item) =>
-      MovieWorkspaceCatalogData.fromTransport(item);
+  MovieWorkspaceData workspaceData(CatalogItemDto item) =>
+      MovieWorkspaceData(metadata: decode(item));
+
+  @override
+  MovieWorkspaceData workspaceDataFromKindData(
+    Map<String, dynamic> kindData,
+  ) =>
+      MovieWorkspaceData(metadata: MovieCatalogMetadata.fromJson(kindData));
 
   @override
   Future<Map<String, int>> countCatalogValues(
@@ -57,9 +69,7 @@ final class MovieCatalogTransportCodec
     return countPickListCatalogValuesByValue(
       contributor: contributor,
       listName: listName,
-      metadata: [
-        for (final item in await listTransport(db)) decode(item),
-      ],
+      metadata: await listCatalogAndEntryMetadata(db),
       normalizedValues: normalizedValues,
     );
   }
@@ -93,7 +103,7 @@ final class MovieCatalogTransportCodec
   Future<void> captureDerivedDataTyped(
     PickListRepository pickLists,
     SerialAuthorityRepository serialAuthority,
-    MovieMedia item,
+    MovieCatalogMetadata item,
   ) async {
     await captureCatalogKindDerivedData(
       kind: kind,
@@ -103,7 +113,7 @@ final class MovieCatalogTransportCodec
     );
   }
 
-  CatalogKindDerivedData? _derivedDataFromTyped(MovieMedia item) =>
+  CatalogKindDerivedData? _derivedDataFromTyped(MovieCatalogMetadata item) =>
       catalogDerivedDataFor(
         kind: kind,
         metadata: item,
@@ -112,40 +122,19 @@ final class MovieCatalogTransportCodec
       );
 
   @override
-  Future<void> upsertTransport(LocalDatabase db, CatalogItemDto item) {
-    return upsert(db, decode(item));
-  }
-
-  @override
-  Future<List<CatalogItemDto>> listTransport(LocalDatabase db) async {
-    final media = await MovieRepository(db).search();
-    return [
-      for (final item in media) _projection(item),
-    ];
-  }
+  Future<List<CatalogItemDto>> listTransport(LocalDatabase db) =>
+      CatalogItemCacheRepository(db).findAll(kind: kind);
 
   @override
   Future<List<CatalogDisplaySummary>> listSummaries(LocalDatabase db) async {
-    final media = await MovieRepository(db).search();
+    final items = await listTransport(db);
     return [
-      for (final item in media) summarize(item),
+      for (final item in items) summarize(item.id, decode(item)),
     ];
   }
 }
 
 int? _replacementValueFromPayload(CatalogItemDto item) {
-  final direct = item.payload['cover_price_cents'];
-  if (direct is num) return direct.toInt();
-  final publishing = item.payload['publishing'];
-  final nested = publishing is Map ? publishing['cover_price_cents'] : null;
-  return nested is num ? nested.toInt() : null;
-}
-
-CatalogItemDto _projection(MovieMedia item) {
-  final payload = Map<String, dynamic>.from(item.rawPayload);
-  payload['id'] ??= item.id.value;
-  payload['kind'] ??= 'movie';
-  payload['title'] ??= item.title;
-  final projection = CatalogItemDto.fromJson(payload);
-  return projection.withKindMetadata(MovieMedia.fromJson(projection.payload));
+  final value = item.kindData['cover_price_cents'];
+  return value is num ? value.toInt() : null;
 }

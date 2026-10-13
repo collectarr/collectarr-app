@@ -1,5 +1,4 @@
 import 'package:collectarr_app/features/collection/csv/import_export/import_export_wizard.dart';
-import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/actions/import_export_actions.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:flutter/material.dart';
@@ -25,7 +24,7 @@ void main() {
             body: ImportExportWizardDialog(
               profiles: collectionCsvKindProfiles,
               entries: [
-                LibraryWorkspaceSource(
+                testLibraryWorkspaceSource(
                   itemId: 'comic-1',
                   catalogData: testWorkspaceCatalogData(testCatalogItem(
                     id: 'comic-1',
@@ -35,10 +34,9 @@ void main() {
                     publisher: 'Marvel Comics',
                     releaseDate: DateTime.utc(2005, 7, 1),
                   ).asShelfCatalogItem),
-                  ownedSummary: testOwnedSummary(testOwnedItem(
-                    id: 'owned-1',
+                  libraryEntrySummary: testLibraryEntrySummary(testLibraryEntry(
+                    id: 'entry-1',
                     itemId: 'comic-1',
-                    quantity: 1,
                     updatedAt: DateTime.utc(2026, 5, 24),
                   )),
                 ),

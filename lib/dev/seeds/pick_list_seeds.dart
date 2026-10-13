@@ -3,7 +3,7 @@ import 'package:collectarr_app/features/pick_lists/pick_list_definition_contribu
 import 'package:collectarr_app/features/pick_lists/models/vocabulary_definition.dart';
 import 'package:collectarr_app/features/pick_lists/pick_list_repository.dart';
 
-/// Seeds only vocabulary definitions owned by a concrete kind.
+/// Seeds only vocabulary definitions entry by a concrete kind.
 ///
 /// Kind values are captured rather than replaced so checked-in built-ins and
 /// values discovered from the seeded catalog are both available.
@@ -18,7 +18,7 @@ Future<void> seedPickLists(PickListRepository repo) async {
   }
 }
 
-/// Returns the number of built-in values that every kind-owned vocabulary
+/// Returns the number of built-in values that every kind-entry vocabulary
 /// must contain after seeding. Empty definitions are intentionally omitted:
 /// they are populated only from catalog data or user input.
 Map<String, int> devSeedVocabularyMinimumCounts() {

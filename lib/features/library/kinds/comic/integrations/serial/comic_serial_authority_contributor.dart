@@ -2,7 +2,7 @@ import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/catalog/serial/serial_authority_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/comic/data/comic_repository.dart';
-import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_catalog_item.dart';
 
 /// Projects Comic's typed series identity into serial authority storage.
 final class ComicSerialAuthorityContributor
@@ -17,9 +17,8 @@ final class ComicSerialAuthorityContributor
     Iterable<Object?> metadata,
   ) sync* {
     for (final value in metadata) {
-      if (value is! ComicMedia) continue;
-      final title =
-          (value.seriesTitle ?? value.series?.seriesTitle ?? '').trim();
+      if (value is! ComicCatalogItem) continue;
+      final title = (value.seriesTitle ?? '').trim();
       if (title.isEmpty) {
         final itemTitle = value.title.trim();
         if (itemTitle.isEmpty) continue;
@@ -34,7 +33,7 @@ final class ComicSerialAuthorityContributor
         mediaKind: kind,
         title: title,
         sortTitle: title,
-        coreSeriesId: value.series?.seriesId,
+        coreSeriesId: value.seriesId,
       );
     }
   }
@@ -48,10 +47,10 @@ final class ComicSerialAuthorityContributor
       for (final item in media)
         if (item.id case final id?)
           SerialAuthorityCatalogRecord(
-            itemId: id.value,
+            itemId: id.id,
             title: item.title,
             seriesTitle: _seriesTitle(item),
-            coreSeriesId: item.series?.seriesId,
+            coreSeriesId: item.seriesId,
           ),
     ];
   }
@@ -68,7 +67,7 @@ final class ComicSerialAuthorityContributor
 
     final repository = ComicRepository(db);
     for (final item in await repository.search()) {
-      final id = item.id?.value;
+      final id = item.id?.id;
       if (id == null || !wanted.contains(id)) continue;
 
       final payload = Map<String, dynamic>.from(item.toJson())
@@ -84,12 +83,12 @@ final class ComicSerialAuthorityContributor
       }
       series['series_title'] = seriesTitle;
       payload['series'] = series;
-      await repository.updateMedia(ComicMedia.fromJson(payload));
+      await repository.updateCatalogItem(ComicCatalogItem.fromJson(payload));
     }
   }
 
-  static String? _seriesTitle(ComicMedia item) {
-    final value = (item.seriesTitle ?? item.series?.seriesTitle)?.trim();
+  static String? _seriesTitle(ComicCatalogItem item) {
+    final value = item.seriesTitle?.trim();
     return value == null || value.isEmpty ? null : value;
   }
 }

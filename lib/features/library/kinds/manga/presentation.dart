@@ -1,8 +1,13 @@
+import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
+import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
-import 'package:collectarr_app/features/library/kinds/manga/data/manga_owned_item_projection.dart';
+import 'package:collectarr_app/features/library/config/library_entry_field_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/manga/config/manga_workspace_field_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/manga/data/manga_library_entry_projection.dart';
 import 'package:collectarr_app/features/library/kinds/manga/presentation_builder.dart';
 import 'package:collectarr_app/features/library/kinds/manga/workspace/manga_card_presentation.dart';
 import 'package:collectarr_app/features/library/kinds/manga/workspace/manga_workspace_dto.dart';
+import 'package:collectarr_app/features/library/kinds/manga/config/manga_field_identities.dart';
 import 'package:collectarr_app/features/library/config/workspace_presentation_support.dart';
 
 const mangaMetadataLabels = LibraryMetadataLabels(
@@ -63,37 +68,44 @@ const mangaLibraryBucketLabelOverrides = LibraryPresentationLabels(
 );
 
 final mangaLibraryFilterDefinitions = <LibraryFilterDefinition<Object?>>[
+  if (MangaFieldIdentities.series.filterable)
+    LibraryFilterDefinition<Object?>(
+      metadata: MangaFieldIdentities.series,
+      id: MangaFieldIdentities.seriesId,
+      label: MangaFieldIdentities.seriesLabel,
+      anyLabel: 'Any series',
+      value: (item) => (item.dto is MangaWorkspaceDto)
+          ? (item.dto as MangaWorkspaceDto).seriesTitle
+          : null,
+    ),
   LibraryFilterDefinition<Object?>(
-    id: 'series',
-    label: 'Series',
-    anyLabel: 'Any series',
-    value: (item) => (item.dto is MangaWorkspaceDto)
-        ? (item.dto as MangaWorkspaceDto).seriesTitle
-        : null,
-  ),
-  LibraryFilterDefinition<Object?>(
+    metadata: LibraryEntryFieldMetadata.location,
     id: 'location',
     label: 'Location',
     anyLabel: 'Any location',
   ),
   LibraryFilterDefinition<Object?>(
+    metadata: LibraryEntryFieldMetadata.tag,
     id: 'tag',
     label: 'Tag',
     anyLabel: 'Any tag',
     inputKind: LibraryFilterInputKind.autocomplete,
-    value: (item) => MangaOwnedItemProjection.fromDispatch(
-      item.source.ownedItemDispatch,
-    )?.tags?.split(','),
+    value: (item) => MangaLibraryEntryProjection.fromDispatch(
+      item.source.libraryEntryDispatch,
+    )?.personal.tags?.split(','),
   ),
+  if (MangaFieldIdentities.publisher.filterable)
+    LibraryFilterDefinition<Object?>(
+      metadata: MangaFieldIdentities.publisher,
+      id: MangaFieldIdentities.publisherId,
+      label: MangaFieldIdentities.publisherLabel,
+      anyLabel: 'Any publisher',
+      value: (item) => (item.dto is MangaWorkspaceDto)
+          ? (item.dto as MangaWorkspaceDto).publisher
+          : null,
+    ),
   LibraryFilterDefinition<Object?>(
-    id: 'publisher',
-    label: 'Publisher',
-    anyLabel: 'Any publisher',
-    value: (item) => (item.dto is MangaWorkspaceDto)
-        ? (item.dto as MangaWorkspaceDto).publisher
-        : null,
-  ),
-  LibraryFilterDefinition<Object?>(
+    metadata: MangaWorkspaceFieldMetadata.releaseYear,
     id: 'year',
     label: 'Year',
     anyLabel: 'Any year',
@@ -102,14 +114,16 @@ final mangaLibraryFilterDefinitions = <LibraryFilterDefinition<Object?>>[
         : null,
   ),
   LibraryFilterDefinition<Object?>(
+    metadata: LibraryEntryFieldMetadata.condition,
     id: 'condition',
     label: 'Condition',
     anyLabel: 'Any condition',
-    value: (item) => MangaOwnedItemProjection.fromDispatch(
-      item.source.ownedItemDispatch,
-    )?.condition,
+    value: (item) => MangaLibraryEntryProjection.fromDispatch(
+      item.source.libraryEntryDispatch,
+    )?.personal.condition,
   ),
   LibraryFilterDefinition<Object?>(
+    metadata: MangaWorkspaceFieldMetadata.country,
     id: 'country',
     label: 'Country',
     anyLabel: 'Any country',
@@ -118,6 +132,7 @@ final mangaLibraryFilterDefinitions = <LibraryFilterDefinition<Object?>>[
         : null,
   ),
   LibraryFilterDefinition<Object?>(
+    metadata: MangaWorkspaceFieldMetadata.language,
     id: 'language',
     label: 'Language',
     anyLabel: 'Any language',
@@ -136,6 +151,25 @@ String mangaLibraryBucketLabelBuilder(LibraryBucketingContext context) {
 }
 
 final mangaLibraryMediaPresentation = LibraryMediaPresentation(
+  sortFavorites: [
+    LibrarySortFavorite(
+        id: 'title_asc',
+        label: 'Title A-Z',
+        icon: AppIcons.sortAlpha,
+        rules: [
+          LibrarySortRule(
+              column: MangaWorkspaceFieldMetadata.title.id, ascending: true)
+        ]),
+    LibrarySortFavorite(
+        id: 'release_latest',
+        label: 'Latest release',
+        icon: AppIcons.calendar,
+        rules: [
+          LibrarySortRule(
+              column: MangaWorkspaceFieldMetadata.releaseDate.id,
+              ascending: false)
+        ]),
+  ],
   searchFieldLabels: const LibraryMediaSearchFieldLabels(
     queryHint: 'Enter title, creator, or keyword...',
     emptySearchMessage: 'Enter a title, creator, series, or keyword.',

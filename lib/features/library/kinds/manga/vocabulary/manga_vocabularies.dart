@@ -1,15 +1,16 @@
 import 'package:collectarr_app/core/db/local_database.dart';
-import 'package:collectarr_app/features/library/kinds/manga/data/manga_owned_repository.dart';
+import 'package:collectarr_app/features/library/kinds/manga/data/manga_entry_repository.dart';
 import 'package:collectarr_app/features/pick_lists/models/vocabulary_definition.dart';
 import 'package:collectarr_app/features/pick_lists/models/vocabulary_id.dart';
 import 'package:collectarr_app/features/pick_lists/pick_list_definition_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/manga/domain/manga_metadata.dart';
-import 'package:collectarr_app/features/library/kinds/manga/domain/manga_owned_item.dart';
-import 'package:collectarr_app/features/library/kinds/manga/ownership/manga_owned_details.dart';
+import 'package:collectarr_app/features/library/kinds/manga/domain/manga_library_entry.dart';
+import 'package:collectarr_app/features/library/kinds/manga/entries/manga_entry_details.dart';
+import 'package:collectarr_app/features/library/kinds/manga/config/manga_field_identities.dart';
 
 abstract final class MangaVocabularyIds {
   static const condition = VocabularyId<String>('manga.condition');
-  static const publisher = VocabularyId<String>('manga.publisher');
+  static const publisher = MangaFieldIdentities.publisherVocabulary;
   static const imprint = VocabularyId<String>('manga.imprint');
   static const demographic = VocabularyId<String>('manga.demographic');
   static const serialization = VocabularyId<String>('manga.serialization');
@@ -17,81 +18,93 @@ abstract final class MangaVocabularyIds {
 }
 
 abstract final class MangaVocabularies {
-  static Future<int> countOwnedValue(
-    LocalDatabase db,
-    String semanticName,
-    String normalizedValue,
-  ) {
-    return countPickListOwnedValues(
-      items: MangaOwnedRepository(db).listActive(),
-      normalizedValue: normalizedValue,
-      valuesFrom: (item) => _ownedValues(item, semanticName),
-    );
+  static Future<List<String>> entryOptions(
+      LocalDatabase db, String semanticName) async {
+    return [
+      for (final item in await MangaEntryRepository(db).listActive())
+        ..._entryValues(item, semanticName)
+            .whereType<String>()
+            .where((value) => value.trim().isNotEmpty)
+    ];
   }
 
-  static Future<PickListOwnedMergeResult> previewOwnedMerge(
+  static Future<Map<String, int>> entryUsageCounts(
+          LocalDatabase db, String semanticName) =>
+      countPickListEntryUsages(
+          items: MangaEntryRepository(db).listActive(),
+          valuesFrom: (item) => _entryValues(item, semanticName));
+
+  static Future<PickListEntryMergeResult> previewEntryMerge(
     LocalDatabase db,
     String semanticName,
     Set<String> normalizedSourceValues,
   ) {
-    return previewPickListOwnedMerge(
-      items: MangaOwnedRepository(db).listActive(),
+    return previewPickListEntryMerge(
+      items: MangaEntryRepository(db).listActive(),
       idFrom: (item) => item.id.value,
-      valuesFrom: (item) => _ownedValues(item, semanticName),
+      valuesFrom: (item) => _entryValues(item, semanticName),
       normalizedSourceValues: normalizedSourceValues,
     );
   }
 
-  static Future<void> applyOwnedMerge(
+  static Future<void> applyEntryMerge(
     LocalDatabase db,
     String semanticName,
     Set<String> normalizedSourceValues,
     String targetValue,
   ) {
-    return applyPickListOwnedMerge(
-      items: MangaOwnedRepository(db).listActive(),
-      valuesFrom: (item) => _ownedValues(item, semanticName),
+    return applyPickListEntryMerge(
+      items: MangaEntryRepository(db).listActive(),
+      valuesFrom: (item) => _entryValues(item, semanticName),
       replaceValue: (item, sources, target) =>
-          _replaceOwnedValue(item, semanticName, sources, target),
-      save: MangaOwnedRepository(db).upsert,
+          _replaceEntryValue(item, semanticName, sources, target),
+      save: MangaEntryRepository(db).upsert,
       normalizedSourceValues: normalizedSourceValues,
       targetValue: targetValue,
     );
   }
 
-  static MangaOwnedItem _replaceOwnedValue(
-    MangaOwnedItem item,
+  static MangaLibraryEntry _replaceEntryValue(
+    MangaLibraryEntry item,
     String semanticName,
     Set<String> normalizedSourceValues,
     String targetValue,
   ) {
     switch (semanticName) {
       case 'condition':
-        return item.copyWith(condition: targetValue);
+        return item.copyWith(
+            personal: item.personal.copyWith(condition: targetValue));
       case 'grade':
-        return item.copyWith(grade: targetValue);
+        return item.copyWith(
+            personal: item.personal.copyWith(grade: targetValue));
       case 'purchase_store':
-        return item.copyWith(purchaseStore: targetValue);
+        return item.copyWith(
+            personal: item.personal.copyWith(purchaseStore: targetValue));
       case 'sold_to':
-        return item.copyWith(soldTo: targetValue);
+        return item.copyWith(
+            personal: item.personal.copyWith(soldTo: targetValue));
       case 'collection_status':
-        return item.copyWith(collectionStatus: targetValue);
+        return item.copyWith(
+            personal: item.personal.copyWith(collectionStatus: targetValue));
       case 'tags':
         return item.copyWith(
+            personal: item.personal.copyWith(
           tags: replacePickListDelimitedValue(
-            item.tags,
+            item.personal.tags,
             normalizedSourceValues,
             targetValue,
           ),
-        );
+        ));
     }
-    final key = _ownedDetailsKey(semanticName);
+    final key = _entryDetailsKey(semanticName);
     if (key == null) return item;
-    final details = item.details.toJson()..[key] = targetValue;
-    return item.copyWith(details: MangaOwnedDetails.fromJson(details));
+    final details = item.personal.details.toJson()..[key] = targetValue;
+    return item.copyWith(
+        personal: item.personal
+            .copyWith(details: MangaEntryDetails.fromJson(details)));
   }
 
-  static String? _ownedDetailsKey(String semanticName) =>
+  static String? _entryDetailsKey(String semanticName) =>
       switch (semanticName) {
         'raw_or_slabbed' => 'raw_or_slabbed',
         'grading_company' => 'grading_company',
@@ -104,16 +117,16 @@ abstract final class MangaVocabularies {
         _ => null,
       };
 
-  static Iterable<String?> _ownedValues(
-    MangaOwnedItem item,
+  static Iterable<String?> _entryValues(
+    MangaLibraryEntry item,
     String semanticName,
   ) sync* {
     final standard = switch (semanticName) {
-      'condition' => item.condition,
-      'grade' => item.grade,
-      'purchase_store' => item.purchaseStore,
-      'sold_to' => item.soldTo,
-      'collection_status' => item.collectionStatus,
+      'condition' => item.personal.condition,
+      'grade' => item.personal.grade,
+      'purchase_store' => item.personal.purchaseStore,
+      'sold_to' => item.personal.soldTo,
+      'collection_status' => item.personal.collectionStatus,
       _ => null,
     };
     if (standard != null) {
@@ -121,7 +134,7 @@ abstract final class MangaVocabularies {
       return;
     }
     if (semanticName == 'tags') {
-      yield* item.tags?.split(',') ?? const <String>[];
+      yield* item.personal.tags?.split(',') ?? const <String>[];
       return;
     }
     final key = switch (semanticName) {
@@ -136,7 +149,12 @@ abstract final class MangaVocabularies {
       _ => null,
     };
     if (key != null) {
-      yield* pickListTextValues(item.details.toJson()[key]);
+      yield* pickListTextValues(item.personal.details.toJson()[key]);
+    }
+    for (final vocabulary in all) {
+      if (vocabulary.key.split('.').last == semanticName) {
+        yield* vocabulary.valuesFrom?.call(item.metadata) ?? const <String>[];
+      }
     }
   }
 

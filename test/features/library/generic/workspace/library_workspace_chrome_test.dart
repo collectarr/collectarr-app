@@ -1,3 +1,7 @@
+import 'package:collectarr_app/ui/app_icons.dart';
+import 'dart:ui' as ui;
+
+import 'package:flutter/rendering.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/library_workspace_chrome.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/layout/library_resizable_pane.dart';
@@ -5,6 +9,56 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
+  for (final axis in Axis.values) {
+    testWidgets(
+        'panel divider paints a continuous seam and five grip marks ($axis)',
+        (tester) async {
+      final boundaryKey = GlobalKey();
+      final horizontal = axis == Axis.horizontal;
+      await tester.pumpWidget(MaterialApp(
+        theme: ThemeData.dark(),
+        home: Scaffold(
+          body: Center(
+            child: RepaintBoundary(
+              key: boundaryKey,
+              child: SizedBox(
+                width: horizontal ? 6 : 100,
+                height: horizontal ? 100 : 6,
+                child: LibraryResizableDivider(
+                  axis: axis,
+                  onDragDelta: (_) {},
+                ),
+              ),
+            ),
+          ),
+        ),
+      ));
+      await tester.pump();
+      final boundary = boundaryKey.currentContext!.findRenderObject()
+          as RenderRepaintBoundary;
+      await tester.runAsync(() async {
+        final image = await boundary.toImage(pixelRatio: 1);
+        final pixels =
+            (await image.toByteData(format: ui.ImageByteFormat.rawRgba))!;
+        // Every pixel belongs to either the solid seam or the visible grip.
+        var gripPixels = 0;
+        for (var offset = 0; offset < pixels.lengthInBytes; offset += 4) {
+          final red = pixels.getUint8(offset);
+          expect(pixels.getUint8(offset + 3), 255);
+          if (red > 200) {
+            gripPixels++;
+          } else {
+            expect(red, 0x26);
+            expect(pixels.getUint8(offset + 1), 0x26);
+            expect(pixels.getUint8(offset + 2), 0x26);
+          }
+        }
+        expect(gripPixels, 20); // Five visible 2 x 2 marks.
+        image.dispose();
+      });
+    });
+  }
+
   testWidgets('compact dropdown trigger renders icon and arrow', (
     tester,
   ) async {
@@ -19,7 +73,7 @@ void main() {
     );
 
     expect(find.byIcon(Icons.grid_view_outlined), findsOneWidget);
-    expect(find.byIcon(Icons.arrow_drop_down), findsOneWidget);
+    expect(find.byIcon(AppIcons.chevronDown), findsOneWidget);
   });
 
   testWidgets('workspace icon button triggers callback', (tester) async {
@@ -41,7 +95,8 @@ void main() {
     expect(pressed, isTrue);
   });
 
-  testWidgets('workspace separator renders a vertical divider', (tester) async {
+  testWidgets('workspace separator uses a full-height two-tone divider',
+      (tester) async {
     await tester.pumpWidget(
       const MaterialApp(
         home: Scaffold(
@@ -50,10 +105,17 @@ void main() {
       ),
     );
 
-    final divider =
-        tester.widget<VerticalDivider>(find.byType(VerticalDivider));
-
-    expect(divider.color, Colors.red);
+    final separator = find.descendant(
+      of: find.byType(LibraryWorkspaceSeparator),
+      matching: find.byType(Container),
+    );
+    expect(tester.getSize(separator), const Size(2, 32));
+    final decoration =
+        tester.widget<Container>(separator).decoration as BoxDecoration;
+    final border = decoration.border as Border;
+    expect(border.left.color, Colors.red);
+    expect(border.left.width, 1);
+    expect(border.right.width, 1);
   });
 
   testWidgets('details aware layout frames inspector with details header', (
@@ -104,6 +166,98 @@ void main() {
 
     expect(find.text('Details'), findsNothing);
     expect(find.text('Inspector body'), findsOneWidget);
+  });
+
+  for (final initialLayout in [
+    LibraryDetailsLayout.right,
+    LibraryDetailsLayout.bottom,
+  ]) {
+    testWidgets('resizing bounds outgoing $initialLayout inspector during fade',
+        (tester) async {
+      await tester.binding.setSurfaceSize(const Size(1500, 1000));
+      addTearDown(() => tester.binding.setSurfaceSize(null));
+      const inspectorKey = ValueKey('resize-test-inspector');
+      var persistenceCalls = 0;
+      Widget page(LibraryDetailsLayout layout) => MaterialApp(
+            home: Scaffold(
+              body: LibraryDetailsAwareLayout(
+                detailsLayout: layout,
+                frameInspector: false,
+                rightWidth: 1000,
+                maxRightWidth: 4096,
+                bottomHeight: 600,
+                maxBottomHeight: 4096,
+                onRightWidthChanged: (_) => persistenceCalls++,
+                onBottomHeightChanged: (_) => persistenceCalls++,
+                content: const ColoredBox(color: Colors.blue),
+                inspector: ColoredBox(key: inspectorKey, color: Colors.red),
+              ),
+            ),
+          );
+      await tester.pumpWidget(page(initialLayout));
+      await tester.pumpAndSettle();
+      expect(tester.takeException(), isNull);
+
+      await tester.binding.setSurfaceSize(const Size(744, 500));
+      final nextLayout = initialLayout == LibraryDetailsLayout.right
+          ? LibraryDetailsLayout.bottom
+          : LibraryDetailsLayout.right;
+      await tester.pumpWidget(page(nextLayout));
+      for (var frame = 0; frame < 12; frame++) {
+        await tester.pump(const Duration(milliseconds: 30));
+        expect(tester.takeException(), isNull,
+            reason: 'transition frame $frame');
+      }
+      final size = tester.getSize(find.byKey(inspectorKey).last);
+      if (nextLayout == LibraryDetailsLayout.right) {
+        expect(size.width, lessThanOrEqualTo(418));
+      } else {
+        expect(size.height, lessThanOrEqualTo(274));
+      }
+      expect(persistenceCalls, 0);
+
+      await tester.binding.setSurfaceSize(const Size(1500, 1000));
+      await tester.pumpWidget(page(initialLayout));
+      await tester.pumpAndSettle();
+      expect(tester.takeException(), isNull);
+      final restoredSize = tester.getSize(find.byKey(inspectorKey).last);
+      if (initialLayout == LibraryDetailsLayout.right) {
+        expect(restoredSize.width, 1000);
+      } else {
+        expect(restoredSize.height, 600);
+      }
+    });
+  }
+
+  testWidgets('collapsing a populated inspector retains usable content width',
+      (tester) async {
+    await tester.binding.setSurfaceSize(const Size(1500, 900));
+    addTearDown(() => tester.binding.setSurfaceSize(null));
+    final contentWidths = <double>[];
+    Widget page(LibraryDetailsLayout layout) => MaterialApp(
+          home: Scaffold(
+              body: LibraryDetailsAwareLayout(
+            detailsLayout: layout,
+            frameInspector: false,
+            content: const SizedBox.expand(),
+            inspector: LayoutBuilder(builder: (context, constraints) {
+              contentWidths.add(constraints.maxWidth);
+              return const Row(
+                  children: [SizedBox(width: 160), SizedBox(width: 80)]);
+            }),
+          )),
+        );
+    await tester.pumpWidget(page(LibraryDetailsLayout.right));
+    await tester.pumpAndSettle();
+    for (final width in [390.0, 320.0, 200.0]) {
+      await tester.binding.setSurfaceSize(Size(width, 900));
+      await tester.pumpWidget(page(LibraryDetailsLayout.hidden));
+      for (var frame = 0; frame < 12; frame++) {
+        await tester.pump(const Duration(milliseconds: 30));
+        expect(tester.takeException(), isNull);
+      }
+    }
+    expect(contentWidths, everyElement(greaterThanOrEqualTo(260)));
   });
 
   testWidgets('right divider drag decreases details width when dragged right', (

@@ -176,30 +176,30 @@ class AppThemePalette extends ThemeExtension<AppThemePalette> {
 }
 
 const kAppTopBar = Color(0xFF4DBBD5);
-const kAppToolbar = Color(0xFF2B2B2B);
-const kAppPanel = Color(0xFF1D1D1D);
-const kAppPanelRaised = Color(0xFF2F2F2F);
-const kAppCanvas = Color(0xFF141414);
-const kAppGridCanvas = Color(0xFF202020);
+const kAppToolbar = Color(0xFF383838);
+const kAppPanel = Color(0xFF383838);
+const kAppPanelRaised = Color(0xFF383838);
+const kAppCanvas = Color(0xFF383838);
+const kAppGridCanvas = Color(0xFF383838);
 const kAppAccent = Color(0xFF10A8D8);
 const kAppSelection = Color(0xFF075F75);
 const kAppHighlight = Color(0xFFFFD400);
 const kAppDivider = Color(0xFF4A4A4A);
 const kAppTextMuted = Color(0xFFB8B8B8);
-const kAppTableOddRow = Color(0xFF202428);
-const kAppTableEvenRow = Color(0xFF181B1E);
+const kAppTableOddRow = Color(0xFF2E3035);
+const kAppTableEvenRow = Color(0xFF383838);
 const kAppTableBottomBorder = Color(0xFF2E2E2E);
 const kAppTableHover = Color(0xFF263940);
 const kAppField = Color(0xFF101010);
-const kAppMenuBorderRadius = BorderRadius.all(Radius.circular(6));
+const kAppMenuBorderRadius = BorderRadius.all(Radius.circular(4));
 
 // ── Extended surface & card tokens ──────────────────────────────────────────
 const kAppCardBackground = Color(0xFF181818);
 const kAppCardBorder = Color(0xFF363636);
-const kAppSurface = Color(0xFF303030);
+const kAppSurface = Color(0xFF383838);
 const kAppSurfaceDim = Color(0xFF151515);
-const kAppSurfaceBright = Color(0xFF3A3A3A);
-const kAppSurfaceSubtle = Color(0xFF2A2A2A);
+const kAppSurfaceBright = Color(0xFF464950);
+const kAppSurfaceSubtle = Color(0xFF2D2D2D);
 const kAppAccentLight = Color(0xFF82DDF2);
 const kAppTextSecondary = Color(0xFF9A9A9A);
 const kAppBorderSubtle = Color(0xFF4B4B4B);
@@ -219,15 +219,6 @@ const kAppAnimNormal = Duration(milliseconds: 300);
 const kAppAnimSlow = Duration(milliseconds: 450);
 
 // ── Responsive layout breakpoints ───────────────────────────────────────────
-/// Below this width the sidebar is hidden and layout enters compact mode.
-const double kAppCompactBreakpoint = 640;
-
-/// Below this width the details pane moves from right to bottom.
-const double kAppSpacedBreakpoint = 860;
-
-/// Below this width inspector and edit dialogs stack vertically.
-const double kAppStackedBreakpoint = 560;
-
 // ── Semantic status banner colors ───────────────────────────────────────────
 const kAppBannerErrorBackground = Color(0xFF4A2630);
 const kAppBannerErrorBorder = Color(0xFF9D5D69);
@@ -367,3 +358,13 @@ AppThemePalette appPalette(BuildContext context) {
   return Theme.of(context).extension<AppThemePalette>() ??
       kDefaultAppThemePalette;
 }
+
+/// Shared canvas and panel colors for collection management and reports.
+Color appManagementCanvasColor(BuildContext context) =>
+    appPalette(context).isDark
+        ? const Color(0xFF252525)
+        : appPalette(context).canvas;
+Color appManagementPanelColor(BuildContext context) =>
+    appPalette(context).isDark
+        ? const Color(0xFF383838)
+        : appPalette(context).panelRaised;

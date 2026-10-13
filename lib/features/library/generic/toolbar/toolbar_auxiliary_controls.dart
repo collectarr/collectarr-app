@@ -1,3 +1,5 @@
+import 'package:collectarr_app/ui/app_icons.dart';
+import 'package:collectarr_app/features/library/ui/primitives/library_collection_status_icon.dart';
 import 'dart:collection';
 
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
@@ -29,7 +31,7 @@ Future<Set<String>?> showSortFavoritesManagerDialog({
   );
 }
 
-class LibraryCollectionStatusScopeDropdown extends StatelessWidget {
+class LibraryCollectionStatusScopeDropdown extends StatefulWidget {
   const LibraryCollectionStatusScopeDropdown({
     super.key,
     required this.collectionStatusScope,
@@ -41,52 +43,60 @@ class LibraryCollectionStatusScopeDropdown extends StatelessWidget {
       onCollectionStatusScopeChanged;
 
   @override
+  State<LibraryCollectionStatusScopeDropdown> createState() =>
+      _LibraryCollectionStatusScopeDropdownState();
+}
+
+class _LibraryCollectionStatusScopeDropdownState
+    extends State<LibraryCollectionStatusScopeDropdown> {
+  bool _hovered = false;
+
+  @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
     final accent = Theme.of(context).colorScheme.primary;
-    final borderColor = libraryCollectionStatusScopeColor(
-      collectionStatusScope,
-      accent,
-      palette.textMuted,
-    );
     final menuText = libraryToolbarMenuText(context);
     final menuMuted = libraryToolbarMenuMutedText(context);
     final dropdownTextStyle = Theme.of(context).textTheme.bodyMedium?.copyWith(
           height: 1,
-          fontWeight: FontWeight.w700,
+          fontSize: 14,
+          fontWeight: FontWeight.w400,
           color: palette.textPrimary,
         );
     final menuWidth = measureLibraryToolbarDropdownWidth(
       context,
       labels: LibraryCollectionStatusScope.values.map((scope) => scope.label),
-      textStyle: dropdownTextStyle,
+      textStyle: dropdownTextStyle?.copyWith(
+          fontSize: 14, fontWeight: FontWeight.w500),
       leadingWidth: 20,
-      leadingSpacing: 8,
-      trailingWidth: 24,
-      horizontalPadding: 24,
-      minWidth: 132,
+      leadingSpacing: 6,
+      trailingWidth: 0,
+      horizontalPadding: 16,
+      minWidth: 160,
     );
     final triggerWidth = measureLibraryToolbarDropdownWidth(
       context,
-      labels: [collectionStatusScope.label],
+      labels: [widget.collectionStatusScope.label],
       textStyle: dropdownTextStyle,
       leadingWidth: 20,
-      leadingSpacing: 8,
-      trailingWidth: 24,
-      horizontalPadding: 24,
+      leadingSpacing: 4,
+      trailingWidth: 14,
+      horizontalPadding: 10,
       minWidth: 0,
     );
     return SizedBox(
       width: triggerWidth,
       child: PopupMenuButton<LibraryCollectionStatusScope>(
+        popUpAnimationStyle: AnimationStyle.noAnimation,
         key: const Key('collection-status-scope-dropdown'),
         tooltip: 'Collection status scope',
-        initialValue: collectionStatusScope,
-        onSelected: onCollectionStatusScopeChanged,
+        onSelected: widget.onCollectionStatusScopeChanged,
         padding: EdgeInsets.zero,
-        menuPadding: const EdgeInsets.symmetric(vertical: 4),
+        menuPadding: EdgeInsets.zero,
         position: PopupMenuPosition.under,
-        color: libraryToolbarMenuSurface(context),
+        color: Theme.of(context).brightness == Brightness.dark
+            ? const Color(0xFF444444)
+            : libraryToolbarMenuSurface(context),
         surfaceTintColor: Colors.transparent,
         constraints: const BoxConstraints(
           minWidth: 0,
@@ -97,50 +107,53 @@ class LibraryCollectionStatusScopeDropdown extends StatelessWidget {
           for (final scope in LibraryCollectionStatusScope.values)
             PopupMenuItem<LibraryCollectionStatusScope>(
               value: scope,
-              height: kLibraryToolbarTextDropdownHeight,
-              padding: const EdgeInsets.symmetric(horizontal: 8),
+              height: 26,
+              padding: const EdgeInsets.symmetric(horizontal: 7),
               child: LibraryCollectionStatusScopeMenuItem(
-                scope: scope,
-                isSelected: scope == collectionStatusScope,
-                accent: accent,
-                muted: menuMuted,
-                textColor: menuText,
-              ),
+                  scope: scope,
+                  accent: accent,
+                  textColor: menuText,
+                  muted: menuMuted,
+                  isSelected: widget.collectionStatusScope == scope),
             ),
         ],
-        child: DecoratedBox(
-          decoration: BoxDecoration(
-            color: palette.panelRaised,
-            borderRadius: BorderRadius.circular(4),
-            border: Border.all(color: borderColor),
-          ),
-          child: SizedBox(
-            height: kLibraryToolbarTextDropdownHeight,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 10),
-              child: Row(
-                children: [
-                  LibraryCollectionStatusScopeBadge(
-                    scope: collectionStatusScope,
-                    accent: accent,
-                    muted: palette.textMuted,
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      collectionStatusScope.label,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: dropdownTextStyle,
+        child: MouseRegion(
+          cursor: SystemMouseCursors.click,
+          onEnter: (_) => setState(() => _hovered = true),
+          onExit: (_) => setState(() => _hovered = false),
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+                color: _hovered
+                    ? libraryToolbarControlHover(context)
+                    : Colors.transparent),
+            child: SizedBox(
+              height: kLibraryToolbarTextDropdownHeight,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 5),
+                child: Row(
+                  children: [
+                    LibraryCollectionStatusScopeBadge(
+                      scope: widget.collectionStatusScope,
+                      accent: accent,
+                      muted: palette.textMuted,
                     ),
-                  ),
-                  const SizedBox(width: 6),
-                  Icon(
-                    Icons.arrow_drop_down,
-                    size: 18,
-                    color: borderColor,
-                  ),
-                ],
+                    const SizedBox(width: 4),
+                    Expanded(
+                      child: Text(
+                        widget.collectionStatusScope.label,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: dropdownTextStyle,
+                      ),
+                    ),
+                    const SizedBox(width: 2),
+                    Icon(
+                      AppIcons.chevronDown,
+                      size: 12,
+                      color: palette.textPrimary,
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
@@ -160,6 +173,7 @@ class LibraryToolbarSortButton extends StatelessWidget {
     this.onSortFavoriteSelected,
     this.onManageFavoritesPressed,
     this.iconOnly = false,
+    this.fieldLabel,
   });
 
   final VoidCallback onPressed;
@@ -169,6 +183,7 @@ class LibraryToolbarSortButton extends StatelessWidget {
   final ValueChanged<LibrarySortFavorite>? onSortFavoriteSelected;
   final VoidCallback? onManageFavoritesPressed;
   final bool iconOnly;
+  final String Function(String id)? fieldLabel;
 
   @override
   Widget build(BuildContext context) {
@@ -188,34 +203,62 @@ class LibraryToolbarSortButton extends StatelessWidget {
         break;
       }
     }
+    final menuTextStyle = Theme.of(context).textTheme.bodyMedium?.copyWith(
+          fontSize: 14,
+          fontWeight: FontWeight.w400,
+        );
+    double labelWidth(String label) => measureLibraryToolbarDropdownWidth(
+          context,
+          labels: [label],
+          textStyle: menuTextStyle,
+          leadingWidth: 0,
+          leadingSpacing: 0,
+          trailingWidth: 0,
+          horizontalPadding: 0,
+          minWidth: 0,
+        );
+    var measuredMenuWidth = labelWidth('Manage Favorites') + 14 + 14;
+    for (final favorite in [...pinnedFavorites, ...overflowFavorites]) {
+      final contentWidth = fieldLabel == null
+          ? labelWidth(favorite.label)
+          : favorite.rules.fold<double>(
+                0,
+                (width, rule) =>
+                    width + labelWidth(fieldLabel!(rule.column)) + 19,
+              ) +
+              (favorite.rules.length - 1).clamp(0, double.infinity) *
+                  (labelWidth('|') + 12);
+      final width = 14 + 18 + 4 + contentWidth;
+      if (width > measuredMenuWidth) measuredMenuWidth = width;
+    }
+    final menuWidth = measuredMenuWidth.ceilToDouble().clamp(
+        180.0, (MediaQuery.sizeOf(context).width - 16).clamp(180.0, 900.0));
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: palette.panelRaised,
-        borderRadius: BorderRadius.circular(4),
-        border: Border.all(color: palette.divider),
+        color: libraryToolbarControlSurface(context),
+        border: Border(right: BorderSide(color: palette.divider)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           Tooltip(
-            message: activeFavorite == null
-                ? 'Change sorting'
-                : 'Sorting: ${activeFavorite.label}',
+            message: 'Change Sorting',
             child: Material(
               color: Colors.transparent,
               child: InkWell(
                 mouseCursor: WidgetStateMouseCursor.clickable,
                 onTap: onPressed,
+                hoverColor: libraryToolbarControlHover(context),
                 borderRadius: const BorderRadius.horizontal(
                   left: Radius.circular(4),
                 ),
                 child: Padding(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+                  padding: EdgeInsets.symmetric(
+                      horizontal: iconOnly ? 7 : 10, vertical: 7),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      const Icon(Icons.sort, size: 16),
+                      const Icon(AppIcons.sortAlpha, size: 16),
                       if (!iconOnly) ...[
                         const SizedBox(width: 7),
                         Text(
@@ -223,7 +266,7 @@ class LibraryToolbarSortButton extends StatelessWidget {
                           style:
                               Theme.of(context).textTheme.labelLarge?.copyWith(
                                     color: palette.textPrimary,
-                                    fontWeight: FontWeight.w800,
+                                    fontWeight: FontWeight.w700,
                                     letterSpacing: 0.1,
                                   ),
                         ),
@@ -234,28 +277,19 @@ class LibraryToolbarSortButton extends StatelessWidget {
               ),
             ),
           ),
-          Container(
-            width: 1,
-            height: 18,
-            color: palette.divider,
-          ),
           PopupMenuButton<Object>(
             key: const ValueKey('library-sort-split-button-menu'),
-            tooltip: activeFavorite == null
-                ? 'Sort favorites'
-                : 'Sort favorites: ${activeFavorite.label}',
+            popUpAnimationStyle: AnimationStyle.noAnimation,
+            tooltip: 'Sorting Favorites',
             padding: EdgeInsets.zero,
-            color: Color.alphaBlend(
-              palette.accent.withValues(alpha: 0.025),
-              palette.panelRaised,
-            ),
+            color: libraryToolbarMenuSurface(context),
             surfaceTintColor: Colors.transparent,
             shadowColor: Colors.black.withValues(alpha: 0.22),
-            menuPadding: const EdgeInsets.symmetric(vertical: 2),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(4),
-              side: BorderSide(color: palette.divider.withValues(alpha: 0.9)),
-            ),
+            menuPadding: EdgeInsets.zero,
+            constraints:
+                BoxConstraints(minWidth: menuWidth, maxWidth: menuWidth),
+            position: PopupMenuPosition.under,
+            shape: libraryToolbarDropdownMenuShape(context),
             onSelected: (value) {
               if (value == libraryManageSortFavoritesMenuValue) {
                 onManageFavoritesPressed?.call();
@@ -269,22 +303,36 @@ class LibraryToolbarSortButton extends StatelessWidget {
               PopupMenuItem<Object>(
                 value: libraryManageSortFavoritesMenuValue,
                 height: kLibraryToolbarPopupItemHeight,
+                padding: const EdgeInsets.symmetric(horizontal: 7),
                 child: const _LibraryToolbarSortMenuRow(
                   label: 'Manage Favorites',
-                  icon: Icons.settings_outlined,
+                  icon: null,
+                  trailingIcon: AppIcons.settings,
                 ),
               ),
               if (pinnedFavorites.isNotEmpty || overflowFavorites.isNotEmpty)
-                const PopupMenuDivider(height: 1),
+                PopupMenuItem<Object>(
+                  enabled: false,
+                  height: 22,
+                  child: Text('Favorites',
+                      style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w400,
+                          color: palette.isDark
+                              ? const Color(0xff666666)
+                              : palette.textMuted)),
+                ),
               for (final favorite in pinnedFavorites)
                 PopupMenuItem<Object>(
                   value: favorite,
                   height: kLibraryToolbarPopupItemHeight,
+                  padding: const EdgeInsets.symmetric(horizontal: 7),
                   child: _LibraryToolbarSortMenuRow(
                     label: favorite.label,
-                    icon: favorite.icon,
+                    icon: null,
+                    rules: favorite.rules,
+                    fieldLabel: fieldLabel,
                     active: favorite.id == activeSortFavoriteId,
-                    trailingLabel: 'Pinned',
                   ),
                 ),
               if (pinnedFavorites.isNotEmpty && overflowFavorites.isNotEmpty)
@@ -293,16 +341,21 @@ class LibraryToolbarSortButton extends StatelessWidget {
                 PopupMenuItem<Object>(
                   value: favorite,
                   height: kLibraryToolbarPopupItemHeight,
+                  padding: const EdgeInsets.symmetric(horizontal: 7),
                   child: _LibraryToolbarSortMenuRow(
                     label: favorite.label,
-                    icon: favorite.icon,
+                    icon: null,
+                    rules: favorite.rules,
+                    fieldLabel: fieldLabel,
                     active: favorite.id == activeSortFavoriteId,
                   ),
                 ),
             ],
-            child: const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 7, vertical: 7),
-              child: Icon(Icons.arrow_drop_down, size: 18),
+            child: const LibraryToolbarHoverSurface(
+              child: SizedBox(
+                  width: 18,
+                  height: 30,
+                  child: Center(child: Icon(AppIcons.chevronDown, size: 12))),
             ),
           ),
         ],
@@ -316,43 +369,68 @@ class _LibraryToolbarSortMenuRow extends StatelessWidget {
     required this.label,
     required this.icon,
     this.active = false,
-    this.trailingLabel,
+    this.rules = const [],
+    this.fieldLabel,
+    this.trailingIcon,
   });
 
   final String label;
-  final IconData icon;
+  final IconData? icon;
+  final IconData? trailingIcon;
   final bool active;
-  final String? trailingLabel;
+  final List<LibrarySortRule> rules;
+  final String Function(String id)? fieldLabel;
 
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
-    return Row(
-      children: [
-        Icon(icon,
-            size: 16, color: active ? palette.accent : palette.textMuted),
-        const SizedBox(width: 8),
-        Expanded(
-          child: Text(
-            label,
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  fontWeight: active ? FontWeight.w700 : FontWeight.w500,
-                ),
-          ),
-        ),
-        if (trailingLabel != null) ...[
-          Text(
-            trailingLabel!,
-            style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                  color: palette.textMuted,
-                  fontWeight: FontWeight.w700,
-                ),
-          ),
-          const SizedBox(width: 8),
-        ],
-        if (active) Icon(Icons.check, size: 16, color: palette.textPrimary),
-      ],
-    );
+    final textStyle = Theme.of(context).textTheme.bodyMedium?.copyWith(
+          fontSize: 14,
+          fontWeight: FontWeight.w400,
+        );
+    return Row(children: [
+      if (rules.isNotEmpty || active || icon != null)
+        SizedBox(
+            width: 18,
+            child: active
+                ? Icon(AppIcons.check, size: 14, color: palette.accent)
+                : icon == null
+                    ? null
+                    : Icon(icon, size: 14, color: palette.textMuted)),
+      if (rules.isNotEmpty || active || icon != null) const SizedBox(width: 4),
+      Expanded(
+          child: fieldLabel == null || rules.isEmpty
+              ? Text(label, style: textStyle)
+              : Wrap(
+                  spacing: 6,
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  children: [
+                      for (var index = 0; index < rules.length; index++)
+                        Row(mainAxisSize: MainAxisSize.min, children: [
+                          if (index > 0) ...[
+                            Text('|', style: textStyle),
+                            const SizedBox(width: 6),
+                          ],
+                          Text(fieldLabel!(rules[index].column),
+                              style: textStyle),
+                          const SizedBox(width: 3),
+                          Tooltip(
+                            message: rules[index].ascending
+                                ? 'Ascending'
+                                : 'Descending',
+                            child: Icon(
+                                rules[index].ascending
+                                    ? AppIcons.sortAscending
+                                    : AppIcons.sortDescending,
+                                semanticLabel: rules[index].ascending
+                                    ? 'Ascending'
+                                    : 'Descending',
+                                size: 16),
+                          ),
+                        ]),
+                    ])),
+      if (trailingIcon != null) Icon(trailingIcon, size: 14),
+    ]);
   }
 }
 
@@ -411,7 +489,7 @@ class _SortFavoritesManagerDialogState
           children: [
             AccentDialogHeader(
               title: 'Manage Sorting Favorites',
-              icon: Icons.sort,
+              icon: AppIcons.sortAlpha,
               trailing: Container(
                 padding: const EdgeInsets.symmetric(
                   horizontal: 10,
@@ -424,7 +502,7 @@ class _SortFavoritesManagerDialogState
                 child: Text(
                   '${_allFavorites.length} total',
                   style: theme.textTheme.labelMedium?.copyWith(
-                    fontWeight: FontWeight.w800,
+                    fontWeight: FontWeight.w700,
                   ),
                 ),
               ),
@@ -644,7 +722,7 @@ class _SortFavoritesPaneFrame extends StatelessWidget {
                       Text(
                         title,
                         style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                              fontWeight: FontWeight.w800,
+                              fontWeight: FontWeight.w700,
                               color: palette.accent,
                             ),
                       ),
@@ -663,7 +741,7 @@ class _SortFavoritesPaneFrame extends StatelessWidget {
                   child: Text(
                     '$count',
                     style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                          fontWeight: FontWeight.w800,
+                          fontWeight: FontWeight.w700,
                         ),
                   ),
                 ),
@@ -949,7 +1027,6 @@ class LibraryCollectionStatusScopeMenuItem extends StatelessWidget {
     required this.muted,
     required this.textColor,
   });
-
   final LibraryCollectionStatusScope scope;
   final bool isSelected;
   final Color accent;
@@ -957,26 +1034,18 @@ class LibraryCollectionStatusScopeMenuItem extends StatelessWidget {
   final Color textColor;
 
   @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      width: double.infinity,
-      child: LibraryWorkspaceMenuRow(
-        label: scope.label,
-        leading: LibraryCollectionStatusScopeBadge(
-          scope: scope,
-          accent: accent,
-          muted: muted,
-        ),
-        trailing:
-            isSelected ? Icon(Icons.check, size: 16, color: textColor) : null,
-        textStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              height: 1,
-              fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-              color: textColor,
-            ),
-      ),
-    );
-  }
+  Widget build(BuildContext context) => Row(children: [
+        LibraryCollectionStatusIcon(collectionStatus: scope),
+        const SizedBox(width: 6),
+        Expanded(
+            child: Text(scope.label,
+                style: TextStyle(
+                  fontSize: 14,
+                  height: 1,
+                  fontWeight: FontWeight.w400,
+                  color: textColor,
+                ))),
+      ]);
 }
 
 class LibraryCollectionStatusScopeBadge extends StatelessWidget {
@@ -986,29 +1055,13 @@ class LibraryCollectionStatusScopeBadge extends StatelessWidget {
     required this.accent,
     required this.muted,
   });
-
   final LibraryCollectionStatusScope scope;
   final Color accent;
   final Color muted;
 
   @override
-  Widget build(BuildContext context) {
-    final color = libraryCollectionStatusScopeColor(scope, accent, muted);
-    return Container(
-      width: 20,
-      height: 20,
-      decoration: BoxDecoration(
-        color: color,
-        borderRadius: BorderRadius.circular(4),
-      ),
-      alignment: Alignment.center,
-      child: Icon(
-        scope.icon,
-        size: 13,
-        color: appContrastingTextColor(color),
-      ),
-    );
-  }
+  Widget build(BuildContext context) =>
+      LibraryCollectionStatusIcon(collectionStatus: scope);
 }
 
 Color libraryCollectionStatusScopeColor(
@@ -1018,44 +1071,30 @@ Color libraryCollectionStatusScopeColor(
 ) {
   return switch (scope) {
     LibraryCollectionStatusScope.all => muted,
-    LibraryCollectionStatusScope.inCollection => accent,
-    LibraryCollectionStatusScope.forSale => const Color(0xFF2E7D32),
-    LibraryCollectionStatusScope.wishList => const Color(0xFFFF9800),
-    LibraryCollectionStatusScope.onOrder => const Color(0xFF0EA5E9),
-    LibraryCollectionStatusScope.sold => const Color(0xFFC44B4F),
-    LibraryCollectionStatusScope.notInCollection => const Color(0xFF9E9E9E),
+    LibraryCollectionStatusScope.inCollection => const Color(0xFF2AA4CC),
+    LibraryCollectionStatusScope.forSale => const Color(0xFF2D7427),
+    LibraryCollectionStatusScope.wishList => const Color(0xFFFF9B00),
+    LibraryCollectionStatusScope.onOrder => const Color(0xFF13627F),
+    LibraryCollectionStatusScope.sold => const Color(0xFFA63131),
+    LibraryCollectionStatusScope.notInCollection => const Color(0xFF605C5C),
   };
 }
 
-final RegExp _libraryToolbarLetterPattern = RegExp(r'[A-Z]');
-
 class LibraryToolbarAlphabetRow extends StatelessWidget {
-  const LibraryToolbarAlphabetRow({
-    super.key,
-    required this.letters,
-    required this.selectedLetter,
-    required this.accent,
-    required this.onLetterSelected,
-  });
-
+  const LibraryToolbarAlphabetRow(
+      {super.key,
+      required this.letters,
+      required this.selectedLetter,
+      required this.accent,
+      required this.onLetterSelected});
   final Set<String> letters;
   final String? selectedLetter;
   final Color accent;
   final ValueChanged<String?> onLetterSelected;
-
   @override
   Widget build(BuildContext context) {
-    final palette = appPalette(context);
-    final availableLetters = letters
-        .map((letter) => letter.trim().toUpperCase())
-        .where(
-          (letter) =>
-              letter == '#' ||
-              letter == '0-9' ||
-              (letter.length == 1 &&
-                  _libraryToolbarLetterPattern.hasMatch(letter)),
-        )
-        .toSet();
+    final available =
+        letters.map((letter) => letter.trim().toUpperCase()).toSet();
     const alphabet = [
       '#',
       '0-9',
@@ -1084,108 +1123,150 @@ class LibraryToolbarAlphabetRow extends StatelessWidget {
       'W',
       'X',
       'Y',
-      'Z',
+      'Z'
     ];
+    void select(String value) => onLetterSelected(
+        value == 'All' || value == selectedLetter ? null : value);
+    final palette = appPalette(context);
+    return SizedBox(
+        height: 28,
+        child: LayoutBuilder(builder: (context, constraints) {
+          final scale = MediaQuery.textScalerOf(context).scale(12) / 12;
+          if (constraints.maxWidth < 480 * scale) {
+            return Align(
+                alignment: Alignment.centerLeft,
+                child: PopupMenuButton<String>(
+                  tooltip: 'Filter A–Z',
+                  onSelected: select,
+                  itemBuilder: (_) => [
+                    for (final label in ['All', ...alphabet])
+                      PopupMenuItem(
+                          value: label,
+                          height: 30,
+                          enabled: label == 'All' || available.contains(label),
+                          child: Text(label,
+                              style: TextStyle(
+                                  fontWeight: label == (selectedLetter ?? 'All')
+                                      ? FontWeight.w700
+                                      : FontWeight.w500)))
+                  ],
+                  child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 8),
+                      child: Row(mainAxisSize: MainAxisSize.min, children: [
+                        const Icon(Icons.filter_alt, size: 17),
+                        const SizedBox(width: 4),
+                        Text(selectedLetter ?? 'A–Z',
+                            style:
+                                const TextStyle(fontWeight: FontWeight.w700)),
+                        const Icon(Icons.expand_more, size: 16)
+                      ])),
+                ));
+          }
+          return Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              for (final label in ['All', ...alphabet])
+                _AlphabetLetterButton(
+                  label: label,
+                  width: (label == 'All' ? 44 : 28) *
+                      scale *
+                      (constraints.maxWidth / (828 * scale)).clamp(0.0, 1.0),
+                  isSelected: label == (selectedLetter ?? 'All'),
+                  isAvailable: label == 'All' || available.contains(label),
+                  accent: accent,
+                  palette: palette,
+                  onTap: label == 'All' || available.contains(label)
+                      ? () => select(label)
+                      : null,
+                ),
+            ],
+          );
+        }));
+  }
+}
 
-    Widget buildLetterButton({
-      required String label,
-      required bool selected,
-      required bool enabled,
-      required VoidCallback? onTap,
-    }) {
-      final foreground = selected
-          ? accent
-          : enabled
-              ? palette.textPrimary
-              : palette.textMuted.withValues(alpha: 0.38);
-      final background = selected
-          ? Color.alphaBlend(
-              accent.withValues(alpha: 0.14),
-              palette.panelRaised,
-            )
-          : enabled
-              ? palette.surfaceSubtle.withValues(alpha: 0.42)
-              : Colors.transparent;
-      final borderColor = selected
-          ? accent.withValues(alpha: 0.9)
-          : enabled
-              ? palette.divider.withValues(alpha: 0.7)
-              : palette.divider.withValues(alpha: 0.24);
+class _AlphabetLetterButton extends StatefulWidget {
+  const _AlphabetLetterButton({
+    required this.label,
+    required this.isSelected,
+    required this.isAvailable,
+    required this.accent,
+    required this.palette,
+    required this.onTap,
+    required this.width,
+  });
 
-      return Padding(
-        padding: const EdgeInsets.only(right: 4),
-        child: Material(
-          color: background,
-          borderRadius: BorderRadius.circular(6),
-          child: InkWell(
-            mouseCursor: WidgetStateMouseCursor.clickable,
-            onTap: onTap,
-            borderRadius: BorderRadius.circular(6),
-            child: Container(
-              constraints: BoxConstraints(
-                minWidth: label == 'All' ? 40 : 28,
-                minHeight: 24,
-              ),
-              padding: EdgeInsets.symmetric(
-                horizontal: label == 'All' ? 10 : 4,
-                vertical: 4,
-              ),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(6),
-                border: Border.all(color: borderColor),
-              ),
-              alignment: Alignment.center,
+  final String label;
+  final bool isSelected;
+  final bool isAvailable;
+  final Color accent;
+  final AppThemePalette palette;
+  final VoidCallback? onTap;
+  final double width;
+
+  @override
+  State<_AlphabetLetterButton> createState() => _AlphabetLetterButtonState();
+}
+
+class _AlphabetLetterButtonState extends State<_AlphabetLetterButton> {
+  bool _hovered = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final isSelected = widget.isSelected;
+    final isAvailable = widget.isAvailable;
+    final canTap = widget.onTap != null;
+
+    final textColor = isSelected
+        ? Colors.white
+        : _hovered && isAvailable
+            ? Colors.white
+            : isAvailable
+                ? widget.palette.textPrimary
+                : widget.palette.textMuted.withValues(alpha: 0.25);
+
+    final bgColor = isSelected
+        ? (_hovered && canTap
+            ? Color.lerp(widget.accent, Colors.white, 0.12)!
+            : widget.accent)
+        : _hovered && isAvailable
+            ? (widget.palette.isDark
+                ? const Color(0xFF464950)
+                : widget.palette.panelRaised)
+            : Colors.transparent;
+
+    return SizedBox(
+      width: widget.width,
+      height: 26,
+      child: MouseRegion(
+        cursor: canTap ? SystemMouseCursors.click : SystemMouseCursors.basic,
+        onEnter: (_) => setState(() => _hovered = true),
+        onExit: (_) => setState(() => _hovered = false),
+        child: InkWell(
+          mouseCursor:
+              canTap ? SystemMouseCursors.click : SystemMouseCursors.basic,
+          onTap: widget.onTap,
+          borderRadius: BorderRadius.circular(4),
+          child: Container(
+            margin: const EdgeInsets.symmetric(horizontal: 1),
+            decoration: BoxDecoration(
+              color: bgColor,
+              borderRadius: BorderRadius.circular(4),
+            ),
+            child: Center(
               child: Text(
-                label,
+                widget.label,
                 style: TextStyle(
                   fontSize: 12,
-                  fontWeight: selected ? FontWeight.w800 : FontWeight.w600,
-                  color: foreground,
+                  fontWeight: isSelected || _hovered
+                      ? FontWeight.w700
+                      : FontWeight.w600,
+                  color: textColor,
                 ),
               ),
             ),
           ),
         ),
-      );
-    }
-
-    return SizedBox(
-      width: double.infinity,
-      height: 28,
-      child: LayoutBuilder(
-        builder: (context, constraints) {
-          return SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: ConstrainedBox(
-              constraints: BoxConstraints(minWidth: constraints.maxWidth),
-              child: Align(
-                alignment: Alignment.center,
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    buildLetterButton(
-                      label: 'All',
-                      selected: selectedLetter == null,
-                      enabled: true,
-                      onTap: () => onLetterSelected(null),
-                    ),
-                    for (final letter in alphabet)
-                      buildLetterButton(
-                        label: letter,
-                        selected: selectedLetter == letter,
-                        enabled: availableLetters.contains(letter),
-                        onTap: availableLetters.contains(letter)
-                            ? () => onLetterSelected(
-                                  selectedLetter == letter ? null : letter,
-                                )
-                            : null,
-                      ),
-                  ],
-                ),
-              ),
-            ),
-          );
-        },
       ),
     );
   }
@@ -1258,6 +1339,10 @@ void showLibraryCompactCoverSizeSheet(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
+            AccentDialogHeader(
+                title: 'View & Layout',
+                icon: AppIcons.toolbarTools,
+                onClose: () => Navigator.of(context).pop()),
             ListTile(
               leading: const Icon(Icons.grid_view),
               title: const Text('Grid view'),
@@ -1351,50 +1436,6 @@ void showLibraryCompactCoverSizeSheet(
       ),
     ),
   );
-}
-
-class LibraryFilterButton extends StatelessWidget {
-  const LibraryFilterButton({
-    super.key,
-    required this.activeCount,
-    required this.onPressed,
-  });
-
-  final int activeCount;
-  final VoidCallback onPressed;
-
-  @override
-  Widget build(BuildContext context) {
-    return Badge(
-      isLabelVisible: activeCount > 0,
-      largeSize: 14,
-      padding: const EdgeInsets.symmetric(horizontal: 4),
-      label: Text(
-        activeCount.toString(),
-        style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w800),
-      ),
-      child: DecoratedBox(
-        decoration: libraryToolbarDropdownDecoration(context),
-        child: SizedBox.square(
-          dimension: kLibraryToolbarControlHeight,
-          child: IconButton(
-            visualDensity: VisualDensity.compact,
-            padding: EdgeInsets.zero,
-            constraints: const BoxConstraints.tightFor(
-              width: kLibraryToolbarControlHeight,
-              height: kLibraryToolbarControlHeight,
-            ),
-            icon: Icon(
-              activeCount > 0 ? Icons.filter_alt : Icons.filter_alt_outlined,
-              size: 17,
-            ),
-            tooltip: 'Edit filters',
-            onPressed: onPressed,
-          ),
-        ),
-      ),
-    );
-  }
 }
 
 class LibraryItemCountLabel extends StatelessWidget {

@@ -1,15 +1,14 @@
 import 'package:collectarr_app/core/models/calendar_event.dart';
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/config/library_calendar_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/comic/data/comic_repository.dart';
-import 'package:collectarr_app/features/library/kinds/comic/domain/comic_ids.dart';
-import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
+import 'package:collectarr_app/core/models/catalog_item_ref.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_catalog_item.dart';
 
 /// Comic owns the meaning of a catalog release date for calendar projection.
 final class ComicCalendarContributor implements LibraryCalendarContributor {
   const ComicCalendarContributor({this.loadMedia});
 
-  final Future<ComicMedia?> Function(String id)? loadMedia;
+  final Future<ComicCatalogItem?> Function(String id)? loadMedia;
 
   @override
   CatalogMediaKind get kind => CatalogMediaKind.comic;
@@ -19,8 +18,9 @@ final class ComicCalendarContributor implements LibraryCalendarContributor {
     LibraryCalendarContext context,
   ) async {
     final events = <CalendarEvent>[];
-    for (final ref in context.catalogRefs) {
-      final id = ref.id;
+    for (final ref in context.libraryEntryRefs) {
+      if (ref.kind != kind) continue;
+      final id = ref.id.value;
       final comic = loadMedia != null
           ? await loadMedia!(id)
           : await _loadMedia(context, id);
@@ -32,13 +32,13 @@ final class ComicCalendarContributor implements LibraryCalendarContributor {
         date: DateTime.utc(date.year, date.month, date.day),
         title: comic.title,
         eventId: 'comic-release:$id',
-        catalogRef: ref,
+        libraryEntryRef: ref,
       ));
     }
     return events;
   }
 
-  Future<ComicMedia?> _loadMedia(
+  Future<ComicCatalogItem?> _loadMedia(
     LibraryCalendarContext context,
     String id,
   ) {
@@ -46,6 +46,8 @@ final class ComicCalendarContributor implements LibraryCalendarContributor {
     if (database == null) {
       throw StateError('Comic calendar contribution requires a database');
     }
-    return ComicRepository(database).getMedia(ComicMediaId(id));
+    return ComicRepository(database).getCatalogItem(
+      CatalogItemRef(kind: CatalogMediaKind.comic, id: id),
+    );
   }
 }

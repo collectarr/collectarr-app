@@ -1,5 +1,6 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/kinds/anime/anime_module.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/boardgame_module.dart';
 import 'package:collectarr_app/features/library/kinds/book/book_module.dart';
 import 'package:collectarr_app/features/library/kinds/comic/comic_module.dart';
 import 'package:collectarr_app/features/library/kinds/game/game_module.dart';
@@ -7,16 +8,13 @@ import 'package:collectarr_app/features/library/kinds/manga/manga_module.dart';
 import 'package:collectarr_app/features/library/kinds/movie/movie_module.dart';
 import 'package:collectarr_app/features/library/kinds/music/music_module.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tv_module.dart';
-import 'package:collectarr_app/features/library/metadata/library_field_ownership.dart';
+import 'package:collectarr_app/features/library/metadata/library_field_entries.dart';
 import 'package:collectarr_app/features/library/metadata/library_personal_field_contributor.dart';
 
 final Map<CatalogMediaKind, LibraryPersonalFieldContributor>
     collectarrKindPersonalFieldContributors = Map.unmodifiable({
   CatalogMediaKind.anime: animeKindPersonalFieldContributor,
-  CatalogMediaKind.boardgame: const LibraryPersonalFieldContributor(
-    kind: CatalogMediaKind.boardgame,
-    fields: [],
-  ),
+  CatalogMediaKind.boardgame: boardGameKindPersonalFieldContributor,
   CatalogMediaKind.book: bookKindPersonalFieldContributor,
   CatalogMediaKind.comic: comicKindPersonalFieldContributor,
   CatalogMediaKind.game: gameKindPersonalFieldContributor,
@@ -28,7 +26,6 @@ final Map<CatalogMediaKind, LibraryPersonalFieldContributor>
 
 final List<PersonalLibraryFieldSpec> libraryPersonalFields =
     List.unmodifiable(_deduplicateFields([
-  ...kUniversalPersonalLibraryFields,
   for (final contributor in collectarrKindPersonalFieldContributors.values)
     ...contributor.fields,
 ]));
@@ -37,6 +34,16 @@ final List<PersonalLibraryFieldSpec> librarySyncablePersonalFields =
     List.unmodifiable(
   libraryPersonalFields.where((field) => field.syncable),
 );
+
+LibraryPersonalFieldContributor personalFieldContributorFor(
+  CatalogMediaKind kind,
+) {
+  final contributor = collectarrKindPersonalFieldContributors[kind];
+  if (contributor == null) {
+    throw StateError('No personal field contributor is registered for $kind.');
+  }
+  return contributor;
+}
 
 bool isPersonalLibraryField(String key) =>
     libraryPersonalFields.any((field) => field.key == key);

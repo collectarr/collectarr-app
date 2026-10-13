@@ -1,127 +1,109 @@
 import 'package:collectarr_app/features/library/edit/draft/library_edit_form_fields.dart';
-import 'package:collectarr_app/features/library/kinds/book/catalog/book_catalog_fields.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
-import 'package:collectarr_app/features/library/kinds/book/data/book_owned_item_projection.dart';
+import 'package:collectarr_app/features/library/kinds/book/data/book_library_entry_projection.dart';
 import 'package:collectarr_app/core/models/tracking_summary.dart';
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
-import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
+import 'package:collectarr_app/core/models/library_entry_projection.dart';
+import 'package:collectarr_app/features/collection/commands/library_entry_commands.dart';
 import 'package:collectarr_app/features/library/edit/contracts/library_edit_kind_draft.dart';
 import 'package:collectarr_app/features/library/edit/draft/text_controller_group.dart';
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_edit_models.dart';
 import 'package:collectarr_app/features/library/kinds/book/domain/book_metadata.dart';
-import 'package:collectarr_app/features/library/kinds/registry/library_owned_item_dispatch.dart';
-import 'package:collectarr_app/features/library/kinds/book/domain/book_owned_item.dart';
-import 'package:collectarr_app/features/library/kinds/book/ownership/book_owned_details_draft.dart';
-import 'package:collectarr_app/features/library/kinds/book/ownership/book_owned_item_update_payload.dart';
-import 'package:collectarr_app/features/library/edit/draft/personal_state_draft.dart';
+import 'package:collectarr_app/features/library/kinds/book/forms/book_catalog_form_draft.dart';
+import 'package:collectarr_app/features/library/kinds/book/forms/book_catalog_form_values.dart';
+import 'package:collectarr_app/features/library/kinds/book/forms/book_catalog_form_adapters.dart';
+import 'package:collectarr_app/features/library/kinds/book/forms/book_catalog_external_link_draft.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_entry_dispatch.dart';
+import 'package:collectarr_app/features/library/kinds/book/domain/book_library_entry.dart';
+import 'package:collectarr_app/features/library/kinds/book/entries/book_entry_details_draft.dart';
+import 'package:collectarr_app/features/library/kinds/book/entries/book_library_entry_update_payload.dart';
+import 'package:collectarr_app/features/library/edit/draft/library_entry_personal_bindings.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:flutter/material.dart';
-
-enum BookCanonicalEditField {
-  title,
-  displayTitle,
-  sortTitle,
-  originalTitle,
-  localizedTitle,
-  searchAliases,
-  synopsis,
-  coverImage,
-  thumbnailImage
-}
 
 class BookEditDraft
-    with LibraryWorkEditSessionLinkDefaults, LibraryCopyEditSessionDefaults
-    implements LibraryReleaseEditSession, LibraryCopyEditSession {
+    with
+        LibraryCatalogItemEditSessionLinkDefaults,
+        LibraryEntryEditSessionDefaults
+    implements
+        LibraryCatalogItemEditSession,
+        LibraryEntryEditSession,
+        BookCatalogFormDraft {
   BookEditDraft({
-    this.ownedItem,
+    this.libraryEntry,
     this.signedBy,
     this.dustJacketPresent = false,
     this.dustJacketCondition,
-    required this.pageCountController,
-    required this.imprintController,
-    required this.releaseDateController,
-    required this.releaseYearController,
-    required this.publisherController,
-    required this.barcodeController,
-    required this.editionTitleController,
-    required this.variantController,
-    required this.formatController,
-    required this.languageController,
-    required this.countryController,
-    required this.authorsController,
-    required this.genresController,
-    required this.subjectsController,
-    required this.translatorsController,
+    required this.values,
+    required this.catalogTitle,
+    required this.externalLinks,
   });
 
-  final BookOwnedItem? ownedItem;
+  final BookLibraryEntry? libraryEntry;
+
+  @override
+  final BookCatalogFormValues values;
+
+  @override
+  String catalogTitle;
 
   String? signedBy;
   bool dustJacketPresent;
   String? dustJacketCondition;
-  final TextEditingController pageCountController;
-  final TextEditingController imprintController;
-  final TextEditingController releaseDateController;
-  final TextEditingController releaseYearController;
-  final TextEditingController publisherController;
-  final TextEditingController barcodeController;
-  final TextEditingController editionTitleController;
-  final TextEditingController variantController;
-  final TextEditingController formatController;
-  final TextEditingController languageController;
-  final TextEditingController countryController;
-  final TextEditingController authorsController;
-  final TextEditingController genresController;
-  final TextEditingController subjectsController;
-  final TextEditingController translatorsController;
+  final List<BookCatalogExternalLinkDraft> externalLinks;
+  bool _externalLinksEdited = false;
+
+  void markExternalLinksEdited() => _externalLinksEdited = true;
+
+  void dispose() {
+    for (final link in externalLinks) {
+      link.dispose();
+    }
+  }
 
   @override
-  JsonEncodable toDetailsDraft() => BookOwnedDetailsDraft(
+  JsonEncodable toDetailsDraft() => BookEntryDetailsDraft(
         signedBy: signedBy,
         dustJacketPresent: dustJacketPresent,
         dustJacketCondition: dustJacketCondition,
       );
 
   @override
-  void initializePersonalState(PersonalStateDraft personal) {
-    final item = ownedItem;
+  void initializePersonalState(LibraryEntryPersonalBindings personal) {
+    final item = libraryEntry;
     if (item == null) return;
-    personal.ownerLabelController.text = item.ownerLabel ?? '';
-    personal.conditionController.text = item.condition ?? '';
-    personal.gradeController.text = item.grade ?? '';
-    personal.purchaseDateController.text =
-        item.purchaseDate == null ? '' : formatDate(item.purchaseDate!);
-    personal.priceController.text = item.pricePaidCents == null
+    personal.ownerLabelController.text = item.personal.ownerLabel ?? '';
+    personal.conditionController.text = item.personal.condition ?? '';
+    personal.gradeController.text = item.personal.grade ?? '';
+    personal.purchaseDateController.text = item.personal.purchaseDate == null
         ? ''
-        : (item.pricePaidCents! / 100).toStringAsFixed(2);
-    personal.currencyController.text = item.currency ?? '';
-    personal.quantityController.text = item.quantity.toString();
-    personal.indexNumberController.text = item.indexNumber?.toString() ?? '';
-    personal.notesController.text = item.personalNotes ?? '';
-    personal.tagsController.text = item.tags ?? '';
-    personal.sellPriceController.text = item.sellPriceCents == null
+        : formatDate(item.personal.purchaseDate!);
+    personal.priceController.text = item.personal.pricePaidCents == null
         ? ''
-        : (item.sellPriceCents! / 100).toStringAsFixed(2);
-    personal.soldToController.text = item.soldTo ?? '';
-    personal.purchaseStoreController.text = item.purchaseStore ?? '';
-    personal.marketValueController.text = item.marketValueCents == null
+        : (item.personal.pricePaidCents! / 100).toStringAsFixed(2);
+    personal.currencyController.text = item.personal.currency ?? '';
+    personal.indexNumberController.text =
+        item.personal.indexNumber?.toString() ?? '';
+    personal.notesController.text = item.personal.personalNotes ?? '';
+    personal.tagsController.text = item.personal.tags ?? '';
+    personal.sellPriceController.text = item.personal.sellPriceCents == null
         ? ''
-        : (item.marketValueCents! / 100).toStringAsFixed(2);
-    personal.selectedLocationId = item.locationId;
-    personal.soldAt = item.soldAt;
-    personal.collectionStatus = item.collectionStatus;
+        : (item.personal.sellPriceCents! / 100).toStringAsFixed(2);
+    personal.soldToController.text = item.personal.soldTo ?? '';
+    personal.purchaseStoreController.text = item.personal.purchaseStore ?? '';
+    personal.marketValueController.text = item.personal.marketValueCents == null
+        ? ''
+        : (item.personal.marketValueCents! / 100).toStringAsFixed(2);
+    personal.selectedLocationId = item.personal.locationId;
+    personal.soldAt = item.personal.soldAt;
+    personal.collectionStatus = item.personal.collectionStatus;
   }
 
   @override
-  BookOwnedItemUpdatePayload buildOwnedUpdatePayload({
-    required OwnedItemRef ownedRef,
-    required PersonalStateDraft personal,
+  BookLibraryEntryUpdatePayload buildEntryUpdatePayload({
+    required LibraryEntryRef libraryEntryRef,
+    required LibraryEntryPersonalBindings personal,
   }) {
-    final targetRef = personal.selectedOwnedTargetRef;
-    return BookOwnedItemUpdatePayload(
-      targetRef: targetRef == null ? const Patch.clear() : Patch.set(targetRef),
-      quantity: Patch.set(parseInt(personal.quantityController.text) ?? 1),
+    return BookLibraryEntryUpdatePayload(
       isDigital: const Patch.unchanged(),
       marketValueCents: const Patch.unchanged(),
       indexNumber: const Patch.unchanged(),
@@ -164,34 +146,28 @@ class BookEditDraft
       soldTo: personal.soldToController.text.trim().isEmpty
           ? const Patch.clear()
           : Patch.set(personal.soldToController.text.trim()),
-      details: Patch.set(toDetailsDraft() as BookOwnedDetailsDraft),
+      details: Patch.set(toDetailsDraft() as BookEntryDetailsDraft),
     );
   }
 
-  void dispose() {
-    pageCountController.dispose();
-    imprintController.dispose();
-    releaseDateController.dispose();
-    releaseYearController.dispose();
-    publisherController.dispose();
-    barcodeController.dispose();
-    editionTitleController.dispose();
-    variantController.dispose();
-    formatController.dispose();
-    languageController.dispose();
-    countryController.dispose();
-    authorsController.dispose();
-    genresController.dispose();
-    subjectsController.dispose();
-    translatorsController.dispose();
-  }
-
-  List<TrailerLinkDto> _externalLinks = const [];
-  bool _externalLinksEdited = false;
-
   @override
   void setExternalLinks(List<TrailerLinkDto> links) {
-    _externalLinks = links;
+    for (final link in externalLinks) {
+      link.dispose();
+    }
+    externalLinks
+      ..clear()
+      ..addAll([
+        for (final link in links)
+          BookCatalogExternalLinkDraft(
+            original: BookExternalLink(
+              url: link.url,
+              description: link.description,
+              kind: link.kind,
+              title: link.title,
+            ),
+          ),
+      ]);
     _externalLinksEdited = true;
   }
 
@@ -199,283 +175,72 @@ class BookEditDraft
   LibraryEditSelection applyCanonicalEdits(
     LibraryEditSelection selection,
     LibraryEditFormFields fields,
-  ) {
-    final aliases = fields
-        .controller(BookCanonicalEditField.searchAliases)
-        .text
-        .split(RegExp(r'[,\r\n]+'))
-        .map((entry) => entry.trim())
-        .where((entry) => entry.isNotEmpty)
-        .toList();
-    return selection.copyWith(
-      kindItem: CatalogSearchCandidate.fromItem(selection
-          .kindItem.kindCapability
-          .mapTransport((transport) => transport.copyWith(
-                title:
-                    fields.controller(BookCanonicalEditField.title).text.trim(),
-                displayTitle: emptyToNull(fields
-                    .controller(BookCanonicalEditField.displayTitle)
-                    .text),
-                sortKey: emptyToNull(
-                    fields.controller(BookCanonicalEditField.sortTitle).text),
-                originalTitle: emptyToNull(fields
-                    .controller(BookCanonicalEditField.originalTitle)
-                    .text),
-                localizedTitle: emptyToNull(fields
-                    .controller(BookCanonicalEditField.localizedTitle)
-                    .text),
-                searchAliases: aliases.isEmpty ? null : aliases,
-                synopsis: emptyToNull(
-                    fields.controller(BookCanonicalEditField.synopsis).text),
-                coverImageUrl: emptyToNull(
-                    fields.controller(BookCanonicalEditField.coverImage).text),
-                thumbnailImageUrl: emptyToNull(fields
-                    .controller(BookCanonicalEditField.thumbnailImage)
-                    .text),
-              ))),
-    );
-  }
+  ) =>
+      selection;
 
   @override
   LibraryEditFormSchema buildCanonicalFormSchema(
     LibraryEditFormFields fields,
     CatalogSearchCandidate item,
-  ) {
-    final metadata = item.bookCatalogFields;
-    fields.create(BookCanonicalEditField.title, initialValue: metadata.title);
-    fields.create(BookCanonicalEditField.displayTitle,
-        initialValue: metadata.displayTitle ?? '');
-    fields.create(BookCanonicalEditField.sortTitle,
-        initialValue: metadata.sortKey ?? '');
-    fields.create(BookCanonicalEditField.originalTitle,
-        initialValue: metadata.originalTitle ?? '');
-    fields.create(BookCanonicalEditField.localizedTitle,
-        initialValue: metadata.localizedTitle ?? '');
-    fields.create(BookCanonicalEditField.searchAliases,
-        initialValue: metadata.searchAliases.join(', '));
-    fields.create(BookCanonicalEditField.synopsis,
-        initialValue: metadata.synopsis ?? '');
-    fields.create(BookCanonicalEditField.coverImage,
-        initialValue: metadata.coverImageUrl ?? '');
-    fields.create(BookCanonicalEditField.thumbnailImage,
-        initialValue: metadata.thumbnailImageUrl ?? '');
-    return LibraryEditFormSchema(
-      fields: [
-        LibraryEditFormFieldSpec(
-          id: BookCanonicalEditField.title,
-          section: LibraryEditFormSection.details,
-          controller: fields.controller(BookCanonicalEditField.title),
-          label: 'Title',
-          required: true,
-        ),
-        LibraryEditFormFieldSpec(
-          id: BookCanonicalEditField.sortTitle,
-          section: LibraryEditFormSection.details,
-          controller: fields.controller(BookCanonicalEditField.sortTitle),
-          label: 'Sort title',
-        ),
-        LibraryEditFormFieldSpec(
-          id: BookCanonicalEditField.originalTitle,
-          section: LibraryEditFormSection.details,
-          controller: fields.controller(BookCanonicalEditField.originalTitle),
-          label: 'Original title',
-        ),
-        LibraryEditFormFieldSpec(
-          id: BookCanonicalEditField.localizedTitle,
-          section: LibraryEditFormSection.details,
-          controller: fields.controller(BookCanonicalEditField.localizedTitle),
-          label: 'Localized title',
-        ),
-        LibraryEditFormFieldSpec(
-          id: BookCanonicalEditField.displayTitle,
-          section: LibraryEditFormSection.details,
-          controller: fields.controller(BookCanonicalEditField.displayTitle),
-          label: 'Display title',
-        ),
-        LibraryEditFormFieldSpec(
-          id: BookCanonicalEditField.searchAliases,
-          section: LibraryEditFormSection.details,
-          controller: fields.controller(BookCanonicalEditField.searchAliases),
-          label: 'Search aliases',
-          visible: false,
-        ),
-        LibraryEditFormFieldSpec(
-          id: BookCanonicalEditField.thumbnailImage,
-          section: LibraryEditFormSection.details,
-          controller: fields.controller(BookCanonicalEditField.thumbnailImage),
-          label: 'Thumbnail image URL',
-          visible: false,
-        ),
-        LibraryEditFormFieldSpec(
-          id: BookCanonicalEditField.coverImage,
-          section: LibraryEditFormSection.artwork,
-          controller: fields.controller(BookCanonicalEditField.coverImage),
-          label: 'Cover Image URL',
-        ),
-        LibraryEditFormFieldSpec(
-          id: BookCanonicalEditField.synopsis,
-          section: LibraryEditFormSection.description,
-          controller: fields.controller(BookCanonicalEditField.synopsis),
-          label: 'Synopsis',
-          maxLines: 8,
-        ),
-      ],
-      sectionTitles: const {
-        LibraryEditFormSection.details: 'Details',
-        LibraryEditFormSection.artwork: 'Cover Image',
-        LibraryEditFormSection.description: 'Synopsis',
-      },
-    );
-  }
+  ) =>
+      LibraryEditFormSchema.empty;
 
   @override
   LibraryEditSelection applySelectionEdits(LibraryEditSelection selection) {
-    final rawMetadata = selection.kindItem.kindCapability
-        .mapTransport((transport) => transport)
-        .kindMetadata;
-    final meta = rawMetadata is BookCatalogMetadata
-        ? rawMetadata
-        : BookCatalogMetadata.fromJson(selection.kindItem.kindCapability
-            .mapTransport((transport) => transport)
-            .payload);
-    final count = int.tryParse(pageCountController.text);
-    final impr = emptyToNull(imprintController.text);
-    final pub = emptyToNull(publisherController.text);
-    final barcode = emptyToNull(barcodeController.text);
-    final editionTitle = emptyToNull(editionTitleController.text);
-    final variant = emptyToNull(variantController.text);
-    final format = emptyToNull(formatController.text);
-    final language = emptyToNull(languageController.text);
-    final country = emptyToNull(countryController.text);
-
-    final updatedPublishing = meta.publishing != null
-        ? meta.publishing!.copyWith(
-            pageCount: count ?? meta.publishing!.pageCount,
-            imprint: impr ?? meta.publishing!.imprint,
-            originalPublisher: pub ?? meta.publishing!.originalPublisher,
-          )
-        : ((count != null || impr != null || pub != null)
-            ? CatalogPublishingDetailsDto(
-                imprint: impr,
-                pageCount: count,
-                originalPublisher: pub,
-              )
-            : null);
-
-    final updatedMetadata = meta.copyWith(
-      publisher: pub ?? meta.publisher,
-      barcode: barcode ?? meta.barcode,
-      editionTitle: editionTitle ?? meta.editionTitle,
-      variant: variant ?? meta.variant,
-      physicalFormat: format ?? meta.physicalFormat,
-      physicalFormatLabel: format ?? meta.physicalFormatLabel,
-      language: language ?? meta.language,
-      country: country ?? meta.country,
-      authors: _splitValues(authorsController.text, fallback: meta.authors),
-      genres: _splitValues(genresController.text, fallback: meta.genres),
-      subjects: _splitValues(subjectsController.text, fallback: meta.subjects),
-      translators: _splitValues(
-        translatorsController.text,
-        fallback: meta.translators,
-      ),
-      originalPublicationDate:
-          parseDate(releaseDateController.text) ?? meta.originalPublicationDate,
-      publishing: updatedPublishing != null && updatedPublishing.hasData
-          ? updatedPublishing
-          : null,
-      links: _externalLinksEdited ? _externalLinks : meta.links,
+    final meta = selection.kindItem.kindCapability.mapTransport(
+      (transport) => BookCatalogMetadata.fromJson(transport.kindData),
     );
-
-    final updatedItem = selection.kindItem.kindCapability.mapTransport(
+    final updatedMetadata = applyBookCatalogFormValues(
+      current: meta,
+      values: values,
+      title: catalogTitle,
+    ).copyWith(
+      externalLinks: _externalLinksEdited
+          ? [
+              for (final (index, link) in externalLinks
+                  .where(
+                      (link) => link.row.urlController.text.trim().isNotEmpty)
+                  .indexed)
+                link.toModel(index + 1),
+            ]
+          : meta.externalLinks,
+    );
+    final updatedCandidate = selection.kindItem.kindCapability.mapTransport(
       (transport) => CatalogSearchCandidate.fromItem(
-        transport.withKindMetadata(updatedMetadata),
+        transport.replacingKindData(updatedMetadata),
+        basedOn: selection.kindItem,
       ),
     );
-    return selection.copyWith(kindItem: updatedItem);
+    return selection.copyWith(kindItem: updatedCandidate);
   }
 }
 
 LibraryEditSessionBundle createBookEditDraft({
   required CatalogSearchCandidate item,
-  LibraryOwnedItemDispatch? ownedItemDispatch,
+  LibraryEntryDispatch? libraryEntryDispatch,
   TrackingSummary? trackingSummary,
   required TextControllerGroup textControllers,
 }) {
-  final owned = BookOwnedItemProjection.fromDispatch(ownedItemDispatch);
-  final book = owned?.details;
-  final rawMetadata =
-      item.kindCapability.mapTransport((transport) => transport).kindMetadata;
-  final BookCatalogMetadata metadata = rawMetadata is BookCatalogMetadata
-      ? rawMetadata
-      : BookCatalogMetadata.fromJson(
-          item.kindCapability.mapTransport((transport) => transport).payload);
+  final entry = BookLibraryEntryProjection.fromDispatch(libraryEntryDispatch);
+  final book = entry?.personal.details;
+  final metadata = item.kindCapability.mapTransport(
+    (transport) => BookCatalogMetadata.fromJson(transport.kindData),
+  );
   final draft = BookEditDraft(
-    ownedItem: owned,
+    libraryEntry: entry,
     signedBy: book?.signedBy,
     dustJacketPresent: book?.dustJacketPresent ?? false,
     dustJacketCondition: book?.dustJacketCondition,
-    pageCountController: textControllers.create(
-      text: metadata.publishing?.pageCount?.toString() ?? '',
-    ),
-    imprintController: textControllers.create(
-      text: metadata.publishing?.imprint ?? '',
-    ),
-    publisherController: textControllers.create(
-      text: metadata.publisher ?? metadata.publishing?.originalPublisher ?? '',
-    ),
-    barcodeController: textControllers.create(
-      text: metadata.barcode ?? '',
-    ),
-    releaseDateController: textControllers.create(
-      text: metadata.originalPublicationDate != null
-          ? formatDate(metadata.originalPublicationDate!)
-          : '',
-    ),
-    releaseYearController: textControllers.create(
-      text: metadata.originalPublicationDate?.year.toString() ?? '',
-    ),
-    editionTitleController: textControllers.create(
-      text: metadata.editionTitle ?? '',
-    ),
-    variantController: textControllers.create(
-      text: metadata.variant ?? '',
-    ),
-    formatController: textControllers.create(
-      text: metadata.physicalFormatLabel ?? metadata.physicalFormat ?? '',
-    ),
-    languageController: textControllers.create(
-      text: metadata.language ?? '',
-    ),
-    countryController: textControllers.create(
-      text: metadata.country ?? '',
-    ),
-    authorsController: textControllers.create(
-      text: metadata.authors.join(', '),
-    ),
-    genresController: textControllers.create(
-      text: metadata.genres.join(', '),
-    ),
-    subjectsController: textControllers.create(
-      text: metadata.subjects.join(', '),
-    ),
-    translatorsController: textControllers.create(
-      text: metadata.translators.join(', '),
-    ),
+    values: bookCatalogFormValuesFromMetadata(metadata),
+    catalogTitle: metadata.title,
+    externalLinks: [
+      for (final link in metadata.externalLinks)
+        BookCatalogExternalLinkDraft(original: link),
+    ],
   );
   return LibraryEditSessionBundle(
-    workSession: draft,
-    releaseSession: draft,
-    copySession: draft,
+    catalogItemSession: draft,
+    entrySession: draft,
     disposeSession: draft.dispose,
   );
-}
-
-List<String> _splitValues(String value, {required List<String> fallback}) {
-  final values = value
-      .split(RegExp(r'[,\r\n]+'))
-      .map((entry) => entry.trim())
-      .where((entry) => entry.isNotEmpty)
-      .toSet()
-      .toList();
-  return values.isEmpty ? fallback : values;
 }

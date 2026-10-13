@@ -62,8 +62,6 @@ final libraryDisplayListProvider = StreamProvider.autoDispose
   final query = LibraryWorkspaceQuery(
     kind: key.kind,
     collectionId: key.collectionId,
-    scopeId: key.scopeId,
-    presentationLevelId: filters.presentationLevelId,
     searchQuery: searchQuery,
     facetValues: filters.facetValues,
     sortId: filters.sortId,

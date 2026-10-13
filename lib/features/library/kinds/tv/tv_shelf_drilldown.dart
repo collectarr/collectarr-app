@@ -1,8 +1,8 @@
+import 'package:collectarr_app/ui/app_page_header.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
-import 'package:collectarr_app/features/library/kinds/tv/domain/tv_models.dart';
+import 'package:collectarr_app/features/library/kinds/tv/domain/tv_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/tv/provider/tv_seasons_provider.dart';
 import 'package:collectarr_app/features/library/kinds/tv/workspace/tv_workspace_projector.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
 import 'package:collectarr_app/features/library/workspace/tiles/library_cover_image.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
@@ -28,8 +28,8 @@ class TvShelfSeasonDrilldown extends ConsumerWidget {
   final VoidCallback onOpenTitleDetails;
 
   /// Optional typed TV season data used by deterministic widget tests and
-  /// callers that already have a TV-owned hierarchy snapshot.
-  final List<TvSeason>? seasonsOverride;
+  /// callers that already have a TV-entry hierarchy snapshot.
+  final List<TvSeasonMetadata>? seasonsOverride;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -39,7 +39,7 @@ class TvShelfSeasonDrilldown extends ConsumerWidget {
       return _buildWithSeasons(context, seasons);
     }
     final seasonsAsync = ref.watch(
-      tvSeasonsBySeriesProvider(titleItem.node.workId),
+      tvSeasonsByCatalogItemIdProvider(titleItem.target.id),
     );
     return seasonsAsync.when(
       loading: () => _TvShelfDrilldownShell(
@@ -68,7 +68,10 @@ class TvShelfSeasonDrilldown extends ConsumerWidget {
     );
   }
 
-  Widget _buildWithSeasons(BuildContext context, List<TvSeason> seasons) {
+  Widget _buildWithSeasons(
+    BuildContext context,
+    List<TvSeasonMetadata> seasons,
+  ) {
     final palette = appPalette(context);
     final projector = const TvWorkspaceProjector();
     final seasonItems = [
@@ -77,10 +80,9 @@ class TvShelfSeasonDrilldown extends ConsumerWidget {
           season: season,
           item: LibraryProjectionItem(
             source: titleItem.source,
-            node: titleItem.node,
             dto: projector.project(
-              source: titleItem.source,
-              entity: LibraryWorkRef(workId: titleItem.node.workId),
+              item: titleItem.source.item,
+              personal: titleItem.source.personal,
             ),
             customFieldBadges: titleItem.customFieldBadges,
           ),
@@ -124,8 +126,7 @@ class TvShelfSeasonDrilldown extends ConsumerWidget {
                               seasonItem.season.title!.isEmpty
                           ? 'Season ${seasonItem.season.seasonNumber}'
                           : seasonItem.season.title!,
-                      imageUrl: seasonItem.season.coverImageUrl ??
-                          titleItem.dto.imageUrl,
+                      imageUrl: titleItem.dto.imageUrl,
                       fit: BoxFit.cover,
                     ),
                     const SizedBox(height: 8),
@@ -146,7 +147,7 @@ class TvShelfSeasonDrilldown extends ConsumerWidget {
                       Row(
                         children: [
                           Text(
-                            'E${_episodeNumber(ep.episodeNumber)}',
+                            'E${_episodeNumber(ep.episodeNumber ?? ep.position)}',
                             style: TextStyle(
                               color: palette.accent,
                               fontSize: 12,
@@ -156,8 +157,9 @@ class TvShelfSeasonDrilldown extends ConsumerWidget {
                           const SizedBox(width: 4),
                           Expanded(
                             child: Text(
-                              ep.title ??
-                                  'Episode ${_episodeNumber(ep.episodeNumber)}',
+                              ep.episodeTitle ??
+                                  ep.title ??
+                                  'Episode ${_episodeNumber(ep.episodeNumber ?? ep.position)}',
                               style: TextStyle(
                                 color: palette.textSecondary,
                                 fontSize: 12,
@@ -201,23 +203,20 @@ class _TvShelfDrilldownShell extends StatelessWidget {
     final palette = appPalette(context);
     return Scaffold(
       backgroundColor: palette.canvas,
-      appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: onBack,
-        ),
-        title: Text(titleItem.dto.primaryLabel),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            onPressed: onRefreshFromCore,
-          ),
-          IconButton(
-            icon: const Icon(Icons.info_outline),
-            onPressed: onOpenTitleDetails,
-          ),
-        ],
-      ),
+      appBar: AppPageHeader(
+          icon: Icons.tv,
+          leading: AppPageBackButton(onPressed: onBack),
+          title: Text(titleItem.dto.primaryLabel),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.refresh),
+              onPressed: onRefreshFromCore,
+            ),
+            IconButton(
+              icon: const Icon(Icons.info_outline),
+              onPressed: onOpenTitleDetails,
+            ),
+          ]),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -245,14 +244,8 @@ class _TvShelfSeasonItem {
     required this.item,
   });
 
-  final TvSeason season;
+  final TvSeasonMetadata season;
   final LibraryProjectionView item;
 }
 
-String _episodeNumber(double? number) {
-  if (number == null) return '--';
-  final label = number == number.truncateToDouble()
-      ? number.toInt().toString()
-      : number.toString();
-  return label.padLeft(2, '0');
-}
+String _episodeNumber(int number) => number.toString().padLeft(2, '0');

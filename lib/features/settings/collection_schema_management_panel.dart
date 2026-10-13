@@ -7,7 +7,7 @@ import 'package:collectarr_app/features/collection/repositories/custom_field_rep
 import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
 import 'package:collectarr_app/features/pick_lists/widgets/pick_list_manager_page.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_pick_list_contributors.dart';
-import 'package:collectarr_app/features/library/v1/catalog_item_v1_kind_identities.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/settings/custom_fields_settings.dart';
 import 'package:collectarr_app/features/settings/location_management_dialog.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
@@ -127,7 +127,7 @@ class CollectionSchemaManagementPanel extends ConsumerWidget {
 
   Future<void> _openCustomFieldManager(
       BuildContext context, WidgetRef ref) async {
-    await showCustomFieldsManagementDialog(
+    await showCustomFieldsManagementPage(
       context: context,
       db: db,
     );
@@ -144,7 +144,7 @@ class CollectionSchemaManagementPanel extends ConsumerWidget {
   }
 
   Future<void> _createCustomField(BuildContext context, WidgetRef ref) async {
-    await showCustomFieldsManagementDialog(
+    await showCustomFieldsManagementPage(
       context: context,
       db: db,
       startCreating: true,
@@ -157,12 +157,12 @@ class CollectionSchemaManagementPanel extends ConsumerWidget {
       return const ['All libraries: 0'];
     }
     final stats = <String>['All libraries: ${data.globalCustomFieldCount}'];
-    for (final identity in catalogItemV1KindIdentities.values) {
-      final count = data.customFieldCountsByKind[identity.kind.apiValue];
+    for (final type in defaultLibraryKindRegistry.allKinds) {
+      final count = data.customFieldCountsByKind[type.kind.apiValue];
       if (count == null || count == 0) {
         continue;
       }
-      stats.add('${identity.countLabel(count)}: $count');
+      stats.add('${type.identity.countLabel(count)}: $count');
     }
     return stats;
   }
@@ -259,11 +259,11 @@ class CollectionSchemaManagementPanel extends ConsumerWidget {
             if (constraints.maxWidth < 1120) {
               return Column(
                 children: [
-                  cards[0],
+                  cards[0].child,
                   const SizedBox(height: 12),
-                  cards[1],
+                  cards[1].child,
                   const SizedBox(height: 12),
-                  cards[2],
+                  cards[2].child,
                 ],
               );
             }
@@ -326,7 +326,7 @@ class _CollectionSchemaCard extends StatelessWidget {
                     style: Theme.of(context)
                         .textTheme
                         .titleMedium
-                        ?.copyWith(fontWeight: FontWeight.w800),
+                        ?.copyWith(fontWeight: FontWeight.w700),
                   ),
                 ),
               ],
@@ -572,7 +572,7 @@ class _SchemaExplorerCardState extends ConsumerState<_SchemaExplorerCard> {
                     style: Theme.of(context)
                         .textTheme
                         .titleMedium
-                        ?.copyWith(fontWeight: FontWeight.w800),
+                        ?.copyWith(fontWeight: FontWeight.w700),
                   ),
                 ),
                 TextButton.icon(
@@ -909,7 +909,7 @@ class _SchemaTableDetailPane extends StatelessWidget {
                     style: Theme.of(context)
                         .textTheme
                         .titleMedium
-                        ?.copyWith(fontWeight: FontWeight.w800),
+                        ?.copyWith(fontWeight: FontWeight.w700),
                   ),
                 ),
                 _MiniBadge(
@@ -1323,7 +1323,7 @@ _SchemaTableCategory _inferCategory(String tableName) {
     return _SchemaTableCategory.join;
   }
   if (lower.contains('catalog') ||
-      lower.contains('owned') ||
+      lower.contains('entry') ||
       lower.contains('wishlist') ||
       lower.contains('tracking') ||
       lower.contains('watch') ||

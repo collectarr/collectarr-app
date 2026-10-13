@@ -1,5 +1,7 @@
 import 'package:collectarr_app/core/api/dto/media_catalog.dart';
-import 'package:collectarr_app/features/library/v1/catalog_item_v1_kind_identities.dart';
+import 'package:collectarr_app/features/library/config/library_kind_style.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
+import 'package:collectarr_app/features/library/home/home_nav_models.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_tokens.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
@@ -8,10 +10,12 @@ class MediaLibraryKindMenu extends StatelessWidget {
   const MediaLibraryKindMenu({
     super.key,
     required this.types,
+    required this.registry,
     required this.onSelected,
   });
 
   final List<CatalogMediaType> types;
+  final LibraryKindRegistry registry;
   final ValueChanged<CatalogMediaType> onSelected;
 
   @override
@@ -46,7 +50,8 @@ class MediaLibraryKindMenu extends StatelessWidget {
               padding: EdgeInsets.zero,
               child: _KindMenuRow(
                 type: type,
-                icon: catalogItemV1IdentityForKind(type.mediaKind).icon,
+                icon: registry.tryGet(type.mediaKind)?.identity.icon ??
+                    libraryIconForKind(type.mediaKind),
               ),
             ),
         ],
@@ -71,7 +76,7 @@ class _KindMenuRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final accent = catalogItemV1IdentityForKind(type.mediaKind).accent;
+    final accent = libraryAccentForKind(type.mediaKind);
     final palette = appPalette(context);
     return SizedBox(
       height: kLibraryToolbarPopupItemHeight,
@@ -90,7 +95,7 @@ class _KindMenuRow extends StatelessWidget {
           const SizedBox(width: 9),
           Expanded(
             child: Text(
-              type.pluralLabel,
+              libraryNavLabel(type),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: TextStyle(

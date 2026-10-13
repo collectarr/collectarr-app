@@ -1,11 +1,11 @@
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/personal_tracking_base.dart';
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_record.dart';
 import 'package:collectarr_app/core/models/tracking_progress_snapshot.dart';
 
-/// Anime-owned hierarchy coordinates for a tracking entry.
+/// Anime-entry hierarchy coordinates for a tracking entry.
 ///
 /// Anime episodes may use fractional episode numbers, so this typed model
 /// deliberately does not narrow them to the common entry's integer fallback.
@@ -24,7 +24,7 @@ final class AnimeTrackingCoordinates {
       seasonNumber != null || episodeNumber != null;
 }
 
-/// Kind-owned coordinate patch used by Anime edit/import flows.
+/// Kind-entry coordinate patch used by Anime edit/import flows.
 final class AnimeTrackingCoordinatesPatch implements TrackingKindPatch {
   const AnimeTrackingCoordinatesPatch({
     this.seasonNumber,
@@ -46,14 +46,13 @@ final class AnimeTrackingCoordinatesPatch implements TrackingKindPatch {
   final bool setEpisodeRatings;
 }
 
-/// An Anime tracking lifecycle entry with typed Anime-owned coordinates.
+/// An Anime tracking lifecycle entry with typed Anime-entry coordinates.
 final class AnimeTrackingState extends PersonalTrackingBase
     with TrackingStorageRecordBehavior {
   AnimeTrackingState({
     required this.id,
-    required this.catalogRef,
     required this.coordinates,
-    this.ownedRef,
+    required this.libraryEntryRef,
     Object? sourceType,
     super.status,
     super.rating,
@@ -73,9 +72,7 @@ final class AnimeTrackingState extends PersonalTrackingBase
   @override
   final String id;
   @override
-  final CatalogEntityRef catalogRef;
-  @override
-  final OwnedItemRef? ownedRef;
+  final LibraryEntryRef libraryEntryRef;
   @override
   final TrackingSourceType? sourceType;
   @override
@@ -96,8 +93,7 @@ final class AnimeTrackingState extends PersonalTrackingBase
   @override
   AnimeTrackingState copyWith({
     String? id,
-    CatalogEntityRef? catalogRef,
-    Object? ownedRef = trackingStorageUnset,
+    Object? libraryEntryRef = trackingStorageUnset,
     Object? sourceType = trackingStorageUnset,
     Object? status = trackingStorageUnset,
     Object? rating = trackingStorageUnset,
@@ -112,11 +108,10 @@ final class AnimeTrackingState extends PersonalTrackingBase
   }) {
     return AnimeTrackingState(
       id: id ?? this.id,
-      catalogRef: catalogRef ?? this.catalogRef,
       coordinates: coordinates,
-      ownedRef: identical(ownedRef, trackingStorageUnset)
-          ? this.ownedRef
-          : ownedRef as OwnedItemRef?,
+      libraryEntryRef: identical(libraryEntryRef, trackingStorageUnset)
+          ? this.libraryEntryRef
+          : libraryEntryRef as LibraryEntryRef,
       sourceType: identical(sourceType, trackingStorageUnset)
           ? this.sourceType
           : sourceType,
@@ -160,8 +155,7 @@ final class AnimeTrackingState extends PersonalTrackingBase
 
   AnimeTrackingState copyWithCoordinates({
     String? id,
-    CatalogEntityRef? catalogRef,
-    Object? ownedRef = trackingStorageUnset,
+    Object? libraryEntryRef = trackingStorageUnset,
     Object? sourceType = trackingStorageUnset,
     Object? status = trackingStorageUnset,
     Object? rating = trackingStorageUnset,
@@ -179,7 +173,6 @@ final class AnimeTrackingState extends PersonalTrackingBase
   }) {
     return AnimeTrackingState(
       id: id ?? this.id,
-      catalogRef: catalogRef ?? this.catalogRef,
       coordinates: AnimeTrackingCoordinates(
         seasonNumber: identical(seasonNumber, trackingStorageUnset)
             ? coordinates.seasonNumber
@@ -189,9 +182,9 @@ final class AnimeTrackingState extends PersonalTrackingBase
             : (episodeNumber as num?)?.toDouble(),
         episodeRatings: episodeRatings ?? coordinates.episodeRatings,
       ),
-      ownedRef: identical(ownedRef, trackingStorageUnset)
-          ? this.ownedRef
-          : ownedRef as OwnedItemRef?,
+      libraryEntryRef: identical(libraryEntryRef, trackingStorageUnset)
+          ? this.libraryEntryRef
+          : libraryEntryRef as LibraryEntryRef,
       sourceType: identical(sourceType, trackingStorageUnset)
           ? this.sourceType
           : sourceType,

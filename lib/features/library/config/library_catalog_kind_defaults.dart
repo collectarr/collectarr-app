@@ -1,6 +1,6 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/api/dto/media_catalog.dart';
-import 'package:collectarr_app/features/library/v1/catalog_item_v1_kind_identities.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.dart';
 
 class LibraryCatalogKindDefaults {
   const LibraryCatalogKindDefaults({
@@ -16,14 +16,19 @@ class LibraryCatalogKindDefaults {
 
 LibraryCatalogKindDefaults? libraryCatalogKindDefaultsForKind(
     CatalogMediaKind kind) {
-  final identity = catalogItemV1KindIdentities[kind];
-  if (identity == null) return null;
-  return LibraryCatalogKindDefaults(
-    singularLabel:
-        identity.normalizeCatalogLabels ? identity.singularLabel : null,
-    pluralLabel: identity.normalizeCatalogLabels ? identity.pluralLabel : null,
-    mediaFamily: identity.mediaFamily,
-  );
+  for (final registration in collectarrKindRegistrationsList) {
+    if (registration.kind != kind) continue;
+    return LibraryCatalogKindDefaults(
+      singularLabel: registration.identity.normalizeCatalogLabels
+          ? registration.identity.singularLabel
+          : null,
+      pluralLabel: registration.identity.normalizeCatalogLabels
+          ? registration.identity.pluralLabel
+          : null,
+      mediaFamily: registration.identity.mediaFamily,
+    );
+  }
+  return null;
 }
 
 String? catalogMediaFamilyForKind(CatalogMediaKind kind) {
@@ -85,9 +90,6 @@ CatalogMediaType normalizeCatalogMediaTypeDefaults(CatalogMediaType type) {
     singularLabel: singularLabel,
     pluralLabel: pluralLabel,
     routeSegments: type.routeSegments,
-    defaultProvider: type.defaultProvider,
-    providers: type.providers,
-    providerSearchPolicy: type.providerSearchPolicy,
     isTopLevel: type.isTopLevel,
     physicalFormats: type.physicalFormats,
   );

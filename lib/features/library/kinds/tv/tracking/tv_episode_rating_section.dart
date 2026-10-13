@@ -21,9 +21,9 @@ class TvEpisodeRatingSection extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final seasonsAsync = ref.watch(tvSeasonsBySeriesRefProvider(itemId));
+    final seasonsAsync = ref.watch(tvSeasonsByCatalogItemIdProvider(itemId));
     final ratings = ref
-            .watch(tvTrackingStateBySeriesIdProvider(itemId))
+            .watch(tvTrackingStateByCatalogItemIdProvider(itemId))
             .asData
             ?.value
             ?.coordinates
@@ -75,7 +75,7 @@ class TvEpisodeRatingSection extends ConsumerWidget {
                 const SizedBox(height: 10),
                 EpisodeRatingGrid(
                   seasons: seasons,
-                  seasonNumberOf: (season) => season.seasonNumber ?? 0,
+                  seasonNumberOf: (season) => season.seasonNumber,
                   episodeCountOf: (season) => season.episodes.length,
                   ratings: ratings,
                   compact: true,
@@ -119,8 +119,8 @@ class TvEpisodeRatingDisplaySection extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final seasonsAsync = ref.watch(tvSeasonsBySeriesRefProvider(itemId));
-    final tracking = ref.watch(tvTrackingStateBySeriesIdProvider(itemId));
+    final seasonsAsync = ref.watch(tvSeasonsByCatalogItemIdProvider(itemId));
+    final tracking = ref.watch(tvTrackingStateByCatalogItemIdProvider(itemId));
     final ratings = tracking.asData?.value?.coordinates.episodeRatings ??
         const <String, int>{};
 
@@ -159,7 +159,7 @@ class TvEpisodeRatingDisplaySection extends ConsumerWidget {
                 const SizedBox(height: 10),
                 EpisodeRatingGrid(
                   seasons: seasons,
-                  seasonNumberOf: (season) => season.seasonNumber ?? 0,
+                  seasonNumberOf: (season) => season.seasonNumber,
                   episodeCountOf: (season) => season.episodes.length,
                   ratings: ratings,
                   compact: true,

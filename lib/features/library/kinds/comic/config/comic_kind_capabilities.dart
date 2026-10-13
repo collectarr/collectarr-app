@@ -1,30 +1,20 @@
 import '../comic_module_dependencies.dart';
 import 'comic_kind_configuration.dart';
-import '../workspace/comic_hierarchy_contract_diagnostics.dart';
 import '../actions/comic_missing_issues_action.dart';
-import '../add/comic_add_contribution.dart';
-import 'package:collectarr_app/features/library/kinds/comic/release/comic_release_projection_capability.dart'
-    as comic_release;
+import '../data/comic_catalog_transport_codec.dart';
 import 'package:collectarr_app/features/library/workspace/shared/library_media_adapter_builder.dart';
+import 'package:collectarr_app/features/library/metadata/common_personal_library_fields.dart';
 
-final comicKindPresentation = comicLibraryMediaPresentation;
+final comicKindPresentation = comicLibraryCatalogItemPresentation;
 
 final comicKindPhysicalMediaFormats = comicPhysicalMediaFormats;
 
 final comicKindTrackingProfile = comicTrackingProfile;
 
-final comicKindWorkCapability = const DefaultWorkProjectionCapability();
-
-final comicKindCatalogTarget = const ComicCatalogTargetCapability();
-
 final comicKindViewProfile = standardMediaWorkspaceViewProfile(
   CatalogMediaKind.comic,
   comicKindUiPolicy,
 );
-
-final comicKindReleaseCapability = comic_release.comicKindReleaseCapability;
-
-final comicKindReleaseDetailSource = comic_release.comicKindReleaseDetailSource;
 
 final comicKindUiPolicy = const LibraryUiPolicy();
 
@@ -48,43 +38,31 @@ final comicKindIdentity = const LibraryKindIdentity(
 );
 
 final comicKindMetadata = LibraryMetadataCapability(
-  defaultProviderId: 'gcd',
-  catalogMetadataDecoder: ComicMedia.fromJson,
+  catalogMetadataDecoder: ComicCatalogItem.fromJson,
+  catalogTransportCodec: ComicCatalogTransportCodec(),
   searchQueryBuilder: comicMetadataSearchQuery,
   supportsServerCompare: true,
-  usesTreeProviderCandidates: true,
   compareBuilder: buildComicMetadataComparePanels,
-  providers: [
-    gcdMetadataProvider,
-    comicVineMetadataProvider,
-    mangadexMetadataProvider,
-    anilistMetadataProvider,
-    hardcoverMetadataProvider,
-  ],
 );
 
-final comicKindHierarchy = const LibraryHierarchyCapability(
-  fetchChildrenCallback: fetchComicVolumes,
-  childrenTitleBuilder: comicChildrenTitle,
-  contractDiagnosticLabelBuilder: comicHierarchyContractDiagnosticLabel,
-);
-
-final comicKindEntityVocabulary = const LibraryEntityVocabulary(
-  work: LibraryEntityLabel(singular: 'Issue', plural: 'Issues'),
-  release: LibraryEntityLabel(singular: 'Variant', plural: 'Variants'),
-  copy: LibraryEntityLabel(singular: 'Copy', plural: 'Copies'),
+// A Comic Catalog Item already represents one concrete issue or edition.
+// There is no Work -> issue -> variant child tree to fetch.
+final comicKindEntityVocabulary = const LibraryTargetVocabulary(
+  catalogItem: LibraryTargetLabel(singular: 'Issue', plural: 'Issues'),
+  libraryEntry: LibraryTargetLabel(singular: 'Entry', plural: 'Entries'),
 );
 
 final comicKindTrackingTopology = const LibraryTrackingTopology(
   sessionLabels: LibraryTrackingSessionLabels.read,
-  writableTargets: {LibraryTrackingTargetScope.content},
-  aggregateTargets: {LibraryTrackingTargetScope.work},
-  contentTargets: {LibraryTrackingTargetScope.content},
+  writableTargets: {LibraryTrackingTarget.content},
+  aggregateTargets: {LibraryTrackingTarget.libraryEntry},
+  contentTargets: {LibraryTrackingTarget.content},
 );
 
 final comicKindPersonalFieldContributor = const LibraryPersonalFieldContributor(
   kind: CatalogMediaKind.comic,
   fields: [
+    ...commonPersonalLibraryFields,
     PersonalLibraryFieldSpec(
       key: 'last_bag_board_date',
       label: 'Last bag/board date',
@@ -161,48 +139,36 @@ final comicKindPersonalFieldContributor = const LibraryPersonalFieldContributor(
   ],
 );
 
-final comicKindActions = const LibraryEntityActionCapability(
-  work: LibraryEntityActionSet.work,
-  release: LibraryEntityActionSet.release,
-  copy: LibraryEntityActionSet.copy,
-  semanticActions: {
-    LibraryEntityScope.work: [
-      LibraryEntitySemanticActionDefinition(
-        id: 'comic.missing_issues',
-        label: 'Missing issues',
-        icon: Icons.find_in_page_outlined,
-        invoke: runComicMissingIssuesAction,
-      ),
-    ],
-  },
+final comicKindActions = const LibraryTargetActionCapability(
+  catalogItem: LibraryTargetActionSet.catalogItem,
+  libraryEntry: LibraryTargetActionSet.libraryEntry,
+  catalogItemSemanticActions: [
+    LibraryTargetSemanticActionDefinition(
+      id: 'comic.missing_issues',
+      label: 'Missing issues',
+      icon: Icons.find_in_page_outlined,
+      invoke: runComicMissingIssuesAction,
+    ),
+  ],
 );
 
 final comicKindInspector = LibraryInspectorCapability(
-  entityRegistry: LibraryEntityInspectorRegistry(
-    contributors: [
-      LibraryEntityInspectorContributor(
-        scope: LibraryEntityScope.work,
-        heroBuilder: buildComicWorkInspectorHero,
-        sectionsBuilder: buildComicWorkInspectorSections,
-      ),
-      LibraryEntityInspectorContributor(
-        scope: LibraryEntityScope.release,
-        heroBuilder: buildComicReleaseInspectorHero,
-        sectionsBuilder: buildComicReleaseInspectorSections,
-      ),
-      LibraryEntityInspectorContributor(
-        scope: LibraryEntityScope.copy,
-        heroBuilder: buildComicCopyInspectorHero,
-        sectionsBuilder: buildComicCopyInspectorSections,
-      ),
-    ],
+  entityRegistry: LibraryTargetInspectorRegistry(
+    catalogItem: LibraryTargetInspectorContributor(
+      heroBuilder: buildComicCatalogItemInspectorHero,
+      sectionsBuilder: buildComicCatalogItemInspectorSections,
+    ),
+    libraryEntry: LibraryTargetInspectorContributor(
+      heroBuilder: buildComicLibraryEntryInspectorHero,
+      sectionsBuilder: buildComicLibraryEntryInspectorSections,
+    ),
   ),
   showsDefaultPersonalSection: false,
   personalDetailFieldsBuilder: buildComicPersonalDetailFields,
 );
 
 final comicKindLinkedMetadata =
-    TypedLibraryLinkedMetadataCapability<ComicMedia>(
+    TypedLibraryLinkedMetadataCapability<ComicCatalogItem>(
   comicLinkedMetadata,
   comicLinkedMetadataValues,
 );

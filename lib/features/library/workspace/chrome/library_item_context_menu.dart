@@ -1,3 +1,4 @@
+import 'library_workspace_menus.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_tokens.dart';
@@ -11,10 +12,11 @@ class LibraryItemContextMenuResult {
 
 enum LibraryItemContextAction {
   edit,
+  moveToCollection,
   compareMetadataWithServer,
   duplicate,
-  addToOwned,
-  removeFromOwned,
+  addToEntry,
+  removeFromEntry,
   addToWishlist,
   removeFromWishlist,
   removeTracking,
@@ -43,11 +45,10 @@ Future<LibraryItemContextMenuResult?> showLibraryItemContextMenu({
       overlay.size.width - position.dx,
       overlay.size.height - position.dy,
     ),
-    color: appPalette(context).surfaceSubtle,
-    shape: RoundedRectangleBorder(
-      borderRadius: kAppMenuBorderRadius,
-      side: BorderSide(color: accent.withValues(alpha: 0.3)),
-    ),
+    color: libraryToolbarMenuSurface(context),
+    shape: libraryToolbarDropdownMenuShape(context),
+    surfaceTintColor: Colors.transparent,
+    menuPadding: EdgeInsets.zero,
     items: isBatchSelection
         ? [
             _header('Selection', accent),
@@ -65,11 +66,14 @@ Future<LibraryItemContextMenuResult?> showLibraryItemContextMenu({
             ),
             const PopupMenuDivider(),
             _header('Collection', accent),
+            if (item.source.isEntry)
+              _item(context, LibraryItemContextAction.moveToCollection,
+                  Icons.drive_file_move_outline, 'Move to other collection...'),
             _item(
               context,
-              LibraryItemContextAction.addToOwned,
+              LibraryItemContextAction.addToEntry,
               Icons.inventory_2_outlined,
-              'Move selected to owned',
+              'Move selected to entry',
             ),
             _item(
               context,
@@ -79,7 +83,7 @@ Future<LibraryItemContextMenuResult?> showLibraryItemContextMenu({
             ),
             _item(
               context,
-              LibraryItemContextAction.removeFromOwned,
+              LibraryItemContextAction.removeFromEntry,
               Icons.delete_outline,
               'Remove selected',
               destructive: true,
@@ -100,7 +104,7 @@ Future<LibraryItemContextMenuResult?> showLibraryItemContextMenu({
                 Icons.compare_arrows,
                 'Compare metadata with server...',
               ),
-            if (item.source.isOwned)
+            if (item.source.isEntry)
               _item(
                 context,
                 LibraryItemContextAction.duplicate,
@@ -109,10 +113,13 @@ Future<LibraryItemContextMenuResult?> showLibraryItemContextMenu({
               ),
             const PopupMenuDivider(),
             _header('Collection', accent),
-            if (!item.source.isOwned)
+            if (item.source.isEntry)
+              _item(context, LibraryItemContextAction.moveToCollection,
+                  Icons.drive_file_move_outline, 'Move to other collection...'),
+            if (!item.source.isEntry)
               _item(
                 context,
-                LibraryItemContextAction.addToOwned,
+                LibraryItemContextAction.addToEntry,
                 Icons.add_circle_outline,
                 item.source.isWishlisted
                     ? 'Convert wishlist to collection'
@@ -121,7 +128,7 @@ Future<LibraryItemContextMenuResult?> showLibraryItemContextMenu({
             else
               _item(
                 context,
-                LibraryItemContextAction.removeFromOwned,
+                LibraryItemContextAction.removeFromEntry,
                 Icons.remove_circle_outline,
                 'Remove from collection',
                 destructive: true,
@@ -140,7 +147,7 @@ Future<LibraryItemContextMenuResult?> showLibraryItemContextMenu({
                 Icons.star_outline,
                 'Remove from wishlist',
               ),
-            if (item.source.isTracked && !item.source.isOwned)
+            if (item.source.isTracked && !item.source.isEntry)
               _item(
                 context,
                 LibraryItemContextAction.removeTracking,
@@ -195,6 +202,7 @@ PopupMenuItem<LibraryItemContextMenuResult> _item(
   return PopupMenuItem<LibraryItemContextMenuResult>(
     value: LibraryItemContextMenuResult(action),
     height: kLibraryToolbarPopupItemHeight,
+    padding: const EdgeInsets.symmetric(horizontal: 7),
     child: Row(
       children: [
         Icon(

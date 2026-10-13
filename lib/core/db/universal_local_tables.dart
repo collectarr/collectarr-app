@@ -1,5 +1,39 @@
 import 'package:drift/drift.dart';
 
+/// One independently editable local library record. Catalog and personal
+/// fields share the same row and lifecycle; Core is an optional source only.
+class LibraryEntries extends Table {
+  TextColumn get id => text()();
+  TextColumn get kind => text()();
+  TextColumn get payloadJson => text()();
+  DateTimeColumn get updatedAt => dateTime()();
+  DateTimeColumn get deletedAt => dateTime().nullable()();
+
+  @override
+  Set<Column> get primaryKey => {kind, id};
+}
+
+/// Cached source-neutral Catalog Item payload and local storage provenance.
+///
+/// Catalog Items are keyed by their owning kind and concrete item ID. Kind
+/// details remain inside the pinned kind payload rather than being split into
+/// a generic Work/Release graph.
+/// Offline cache for canonical Core items.
+///
+/// `payloadJson` contains the Core Catalog Item envelope and one kind-owned
+/// `kind_data` object; catalog values are never split into shared title,
+/// cover, or date columns.
+class CatalogItemsCache extends Table {
+  TextColumn get catalogKind => text()();
+  TextColumn get itemId => text()();
+  TextColumn get origin => text().withDefault(const Constant('core'))();
+  TextColumn get payloadJson => text()();
+  DateTimeColumn get fetchedAt => dateTime()();
+
+  @override
+  Set<Column> get primaryKey => {catalogKind, itemId};
+}
+
 /// Drift tables shared by multiple library kinds or by app-wide services.
 ///
 /// Kind-specific table semantics live beside their owning kind. This file is
@@ -22,7 +56,6 @@ class CustomFieldValuesCache extends Table {
   TextColumn get id => text()();
   TextColumn get targetId => text()();
   TextColumn get targetScope => text()();
-  TextColumn get catalogRefJson => text().nullable()();
   TextColumn get fieldDefinitionId => text()();
   TextColumn get value => text().nullable()();
   DateTimeColumn get updatedAt => dateTime()();
@@ -33,7 +66,7 @@ class CustomFieldValuesCache extends Table {
 
 class ItemImagesCache extends Table {
   TextColumn get id => text()();
-  TextColumn get ownedRefKey => text()();
+  TextColumn get libraryEntryRefKey => text()();
   TextColumn get imageType =>
       text().withDefault(const Constant('front_cover'))();
   BlobColumn get imageData => blob()();
@@ -48,10 +81,8 @@ class ItemImagesCache extends Table {
 class UserExternalLinksCache extends Table {
   TextColumn get id => text()();
 
-  /// The complete catalog target is transported opaquely by this universal
-  /// table. Kind integrations decide whether it is a work, release, or
-  /// another entity.
-  TextColumn get catalogRefJson => text()();
+  /// Personal links belong to one local entry, not the shared Core catalog.
+  TextColumn get libraryEntryRefKey => text().withDefault(const Constant(''))();
   TextColumn get label => text()();
   TextColumn get url => text()();
   TextColumn get kind => text()();
@@ -65,8 +96,8 @@ class UserExternalLinksCache extends Table {
 class WishlistItemsCache extends Table {
   TextColumn get id => text()();
 
-  /// Complete structural target reference. The owning kind interprets its
-  /// entity type; this universal table only stores and indexes the reference.
+  /// Concrete Catalog Item reference. This table stores and indexes the
+  /// reference without copying catalog data into wishlist state.
   TextColumn get catalogRefJson => text()();
   IntColumn get targetPriceCents => integer().nullable()();
   TextColumn get currency => text().nullable()();
@@ -77,21 +108,6 @@ class WishlistItemsCache extends Table {
 
   @override
   Set<Column> get primaryKey => {id};
-}
-
-/// Shared local persistence for one row per App-owned copy.
-///
-/// Kind-specific data stays inside the typed `kind_details` object in the
-/// payload; catalog identity is indexed separately for workspace queries.
-class OwnedCopiesV1Cache extends Table {
-  TextColumn get kind => text()();
-  TextColumn get catalogItemId => text()();
-  TextColumn get id => text()();
-  TextColumn get payloadJson => text()();
-  DateTimeColumn get deletedAt => dateTime().nullable()();
-
-  @override
-  Set<Column> get primaryKey => {kind, catalogItemId, id};
 }
 
 class SyncQueue extends Table {
@@ -108,7 +124,7 @@ class SyncQueue extends Table {
 
 class UserMetadataOverridesCache extends Table {
   TextColumn get id => text()();
-  TextColumn get targetRefJson => text()();
+  TextColumn get libraryEntryRefKey => text()();
   TextColumn get fieldKey => text()();
   TextColumn get originalValue => text().nullable()();
   TextColumn get overrideValue => text()();
@@ -121,7 +137,7 @@ class UserMetadataOverridesCache extends Table {
 
 class LoansCache extends Table {
   TextColumn get id => text()();
-  TextColumn get ownedRefKey => text()();
+  TextColumn get libraryEntryRefKey => text()();
   TextColumn get borrowerName => text()();
   DateTimeColumn get lentDate => dateTime()();
   DateTimeColumn get dueDate => dateTime().nullable()();
@@ -146,7 +162,6 @@ class LocationsCache extends Table {
 class SmartListsCache extends Table {
   TextColumn get id => text()();
   TextColumn get name => text()();
-  TextColumn get mediaKind => text().nullable()();
   TextColumn get criteriaJson => text()();
   DateTimeColumn get createdAt => dateTime()();
 
@@ -168,20 +183,20 @@ class UserFoldersCache extends Table {
 
 class UserFolderItemsCache extends Table {
   TextColumn get folderId => text()();
-  TextColumn get ownedRefKey => text()();
+  TextColumn get libraryEntryRefKey => text()();
   IntColumn get sortOrder => integer().withDefault(const Constant(0))();
 
   @override
-  Set<Column> get primaryKey => {folderId, ownedRefKey};
+  Set<Column> get primaryKey => {folderId, libraryEntryRefKey};
 }
 
 class ReadingQueueCache extends Table {
-  TextColumn get ownedRefKey => text()();
+  TextColumn get libraryEntryRefKey => text()();
   IntColumn get position => integer()();
   DateTimeColumn get addedAt => dateTime()();
 
   @override
-  Set<Column> get primaryKey => {ownedRefKey};
+  Set<Column> get primaryKey => {libraryEntryRefKey};
 }
 
 class PickListValuesCache extends Table {
@@ -189,6 +204,8 @@ class PickListValuesCache extends Table {
   TextColumn get listName => text()();
   TextColumn get mediaKind => text().nullable()();
   TextColumn get value => text()();
+  TextColumn get sortName => text().nullable()();
+  BoolColumn get isHidden => boolean().withDefault(const Constant(false))();
   IntColumn get sortOrder => integer().withDefault(const Constant(0))();
 
   @override
@@ -208,37 +225,4 @@ class SerialAuthorityCache extends Table {
 
   @override
   Set<Column> get primaryKey => {id};
-}
-
-class ProviderAccountsCache extends Table {
-  TextColumn get id => text()();
-  TextColumn get provider => text()();
-  TextColumn get displayName => text()();
-  TextColumn get authType => text()();
-  TextColumn get remoteAccountId => text().nullable()();
-  TextColumn get remoteHandle => text().nullable()();
-  TextColumn get username => text().nullable()();
-  TextColumn get avatarUrl => text().nullable()();
-  DateTimeColumn get connectedAt => dateTime().nullable()();
-  DateTimeColumn get lastSyncAt => dateTime().nullable()();
-  TextColumn get enabledCapabilitiesJson => text()();
-  TextColumn get syncPolicyJson => text()();
-
-  @override
-  Set<Column> get primaryKey => {id};
-}
-
-class ProviderItemLinksCache extends Table {
-  TextColumn get accountId => text()();
-  TextColumn get provider => text()();
-  TextColumn get remoteItemId => text()();
-  TextColumn get remoteEntryId => text().nullable()();
-  TextColumn get localEntityRefJson => text()();
-  TextColumn get baseSnapshotJson => text().nullable()();
-  DateTimeColumn get lastPulledAt => dateTime().nullable()();
-  DateTimeColumn get lastPushedAt => dateTime().nullable()();
-  TextColumn get remoteRevision => text().nullable()();
-
-  @override
-  Set<Column> get primaryKey => {accountId, remoteItemId};
 }

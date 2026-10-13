@@ -3,7 +3,6 @@ import 'dart:developer' as developer;
 
 import 'package:collectarr_app/core/api/dto/media_catalog.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
 import 'package:collectarr_app/core/utils/image_url.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
@@ -11,10 +10,9 @@ import 'package:flutter/foundation.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/features/library/home/home_nav_models.dart';
 import 'package:collectarr_app/features/library/home/library_switch_transition.dart';
-import 'package:collectarr_app/features/library/home/home_top_nav.dart';
 import 'package:collectarr_app/features/library/home/home_catalog.dart';
-import 'package:collectarr_app/features/library/home/home_counts.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_pages.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/providers/library_nav_preferences.dart';
 import 'package:collectarr_app/features/library/providers/media_catalog_provider.dart';
 import 'package:collectarr_app/features/library/providers/selected_library_provider.dart';
@@ -248,7 +246,6 @@ class _LibraryHomePageState extends ConsumerState<LibraryHomePage> {
 
   Widget _buildCachedKindBody({
     required CatalogMediaType selected,
-    required Widget resolvedTopBar,
     required Color accent,
     required Uri routeUri,
     required List<CatalogMediaType> visibleTypes,
@@ -258,8 +255,10 @@ class _LibraryHomePageState extends ConsumerState<LibraryHomePage> {
     _cachedKindPages[selected.kind] = KeyedSubtree(
       key: ValueKey('library-kind-${selected.kind}'),
       child: buildLibraryKindPage(
-        kind: catalogMediaKindFromApiValue(selected.kind),
-        topBar: resolvedTopBar,
+        registration: libraryKindRegistrationForKind(
+          catalogMediaKindFromApiValue(selected.kind),
+        ),
+        topBar: const SizedBox.shrink(),
         accent: accent,
         routeUri: routeUri,
         switchLayoutSnapshot: switchLayoutSnapshot,
@@ -323,9 +322,12 @@ class _LibraryHomePageState extends ConsumerState<LibraryHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    // The v1 workspace uses the App's registered kinds directly. Kind
-    // navigation does not depend on the legacy Core media catalog endpoint.
-    final catalog = fallbackMediaCatalog;
+    final catalogState = ref.watch(mediaCatalogProvider);
+    final catalog = catalogState.maybeWhen(
+      data: (value) => value,
+      orElse: () => fallbackMediaCatalog,
+    );
+    final isCatalogOffline = catalogState.hasError;
     final navPreferences = ref.watch(libraryNavPreferencesProvider);
     final selectedKind = ref.watch(selectedLibraryKindProvider);
     final uiPreferences = ref.watch(uiPreferencesProvider);
@@ -367,48 +369,45 @@ class _LibraryHomePageState extends ConsumerState<LibraryHomePage> {
       data: (value) => value,
       orElse: () => null,
     );
-    final overdueLoanOwnedRefs =
-        ref.watch(overdueLoanOwnedItemIdsProvider).maybeWhen(
-              data: (value) => value,
-              orElse: () => const <OwnedItemRef>{},
-            );
-    final shelfForOverdue = ref.watch(shelfProvider);
-    final overdueCounts = shelfForOverdue.maybeWhen(
-      data: (value) => overdueLoanCountsByKind(value, overdueLoanOwnedRefs),
-      orElse: () => const <String, int>{},
-    );
-    final overdueLoanCount = overdueLoanOwnedRefs.length;
-    final selectedOverdueLoanCount = overdueCounts[selected.kind] ?? 0;
-    final topBar = MediaLibraryActionsBar(
-      overdueLoanCount: overdueLoanCount,
-      selectedOverdueLoanCount: selectedOverdueLoanCount,
-      selectedLabel: selected.pluralLabel,
-      animationDuration:
-          uiPreferences.animationsEnabled ? kAppAnimNormal : Duration.zero,
-    );
+    final offlineBanner = isCatalogOffline
+        ? Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            color: kAppSurfaceSubtle,
+            child: Row(
+              children: [
+                Icon(Icons.cloud_off,
+                    size: 14, color: appPalette(context).textSecondary),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    'Using offline catalog — server unreachable',
+                    style: TextStyle(
+                        fontSize: 12, color: appPalette(context).textSecondary),
+                  ),
+                ),
+              ],
+            ),
+          )
+        : null;
     final accent = LibraryAccentScope.of(context).accent;
-    final resolvedTopBar = _CoverPrewarmTrigger(
-      onIntent: loadedShelf == null
-          ? null
-          : () => _requestCoverPrewarm(
-                context,
-                loadedShelf,
-                selected.kind,
-              ),
-      child: topBar,
-    );
     final content = Column(
       children: [
+        if (offlineBanner != null) offlineBanner,
         Expanded(
-          child: _buildCachedKindBody(
-            selected: selected,
-            resolvedTopBar: resolvedTopBar,
-            accent: accent,
-            routeUri: widget.routeUri,
-            visibleTypes: visibleTypes,
-            animationDuration: switchAnimationDuration,
-            switchLayoutSnapshot: _switchLayoutSnapshot,
-          ),
+          child: _CoverPrewarmTrigger(
+              onIntent: loadedShelf == null
+                  ? null
+                  : () =>
+                      _requestCoverPrewarm(context, loadedShelf, selected.kind),
+              child: _buildCachedKindBody(
+                selected: selected,
+                accent: accent,
+                routeUri: widget.routeUri,
+                visibleTypes: visibleTypes,
+                animationDuration: switchAnimationDuration,
+                switchLayoutSnapshot: _switchLayoutSnapshot,
+              )),
         ),
       ],
     );

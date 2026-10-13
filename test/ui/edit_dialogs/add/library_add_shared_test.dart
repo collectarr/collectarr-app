@@ -4,16 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  test('queued ingest derives short id and status label', () {
-    const ingest = LibraryQueuedProviderIngest(
-      id: '123456789abc',
-      status: 'running',
-    );
-
-    expect(ingest.shortId, '12345678');
-    expect(ingest.statusLabel, 'Running');
-  });
-
   testWidgets('cover scan prefill banner renders extracted hints', (
     tester,
   ) async {

@@ -46,7 +46,7 @@ final class LibraryEditFormSchema {
 
 /// Opaque controller registry shared by the kind edit session and renderer.
 ///
-/// Field identities and controller creation stay with the kind-owned session.
+/// Field identities and controller creation stay with the kind-entry session.
 final class LibraryEditFormFields {
   LibraryEditFormFields(this._textControllers);
 

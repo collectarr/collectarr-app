@@ -1,9 +1,8 @@
-import 'package:collectarr_app/features/library/domain/library_entity_scope.dart';
 import 'package:collectarr_app/features/library/generic/transferable_field.dart';
-import 'package:collectarr_app/features/library/kinds/comic/domain/comic_owned_item.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_library_entry.dart';
 import 'package:flutter/material.dart';
 
-/// Comic-owned transfer semantics stay typed until the generic transfer
+/// Comic-entry transfer semantics stay typed until the generic transfer
 /// dialog boundary. The adapter is deliberately created here, inside Comic.
 final class ComicTransferableField {
   const ComicTransferableField({
@@ -13,25 +12,22 @@ final class ComicTransferableField {
     required this.type,
     required this.read,
     required this.write,
-    this.scope = LibraryEntityScope.copy,
   });
 
   final String key;
   final String label;
   final IconData icon;
   final TransferableFieldType type;
-  final LibraryEntityScope scope;
-  final String? Function(ComicOwnedItem item) read;
-  final ComicOwnedItem Function(ComicOwnedItem item, String? value) write;
+  final String? Function(ComicLibraryEntry item) read;
+  final ComicLibraryEntry Function(ComicLibraryEntry item, String? value) write;
 
   TransferableField toTransferableField() {
-    return TransferableField.typed<ComicOwnedItem>(
+    return TransferableField.typed<ComicLibraryEntry>(
       key: key,
       label: label,
       icon: icon,
       type: type,
-      scope: scope,
-      decode: (value) => value as ComicOwnedItem,
+      decode: (value) => value as ComicLibraryEntry,
       read: read,
       write: write,
     );
@@ -44,81 +40,88 @@ final comicTransferableFields = <ComicTransferableField>[
     label: 'Grade',
     icon: Icons.workspace_premium_outlined,
     type: TransferableFieldType.text,
-    read: (item) => item.grade,
-    write: (item, value) => item.copyWith(grade: value),
+    read: (item) => item.personal.grade,
+    write: (item, value) =>
+        item.copyWith(personal: item.personal.copyWith(grade: value)),
   ),
   ComicTransferableField(
     key: 'rawOrSlabbed',
     label: 'Raw / Slabbed',
     icon: Icons.layers_outlined,
     type: TransferableFieldType.text,
-    read: (item) => item.details.rawOrSlabbed,
+    read: (item) => item.personal.details.rawOrSlabbed,
     write: (item, value) => item.copyWith(
-      details: item.details.copyWith(rawOrSlabbed: value),
-    ),
+        personal: item.personal.copyWith(
+      details: item.personal.details.copyWith(rawOrSlabbed: value),
+    )),
   ),
   ComicTransferableField(
     key: 'gradingCompany',
     label: 'Grading company',
     icon: Icons.verified_outlined,
     type: TransferableFieldType.text,
-    read: (item) => item.details.gradingCompany,
+    read: (item) => item.personal.details.gradingCompany,
     write: (item, value) => item.copyWith(
-      details: item.details.copyWith(gradingCompany: value),
-    ),
+        personal: item.personal.copyWith(
+      details: item.personal.details.copyWith(gradingCompany: value),
+    )),
   ),
   ComicTransferableField(
     key: 'graderNotes',
     label: 'Grader notes',
     icon: Icons.note_outlined,
     type: TransferableFieldType.text,
-    read: (item) => item.details.graderNotes,
+    read: (item) => item.personal.details.graderNotes,
     write: (item, value) => item.copyWith(
-      details: item.details.copyWith(graderNotes: value),
-    ),
+        personal: item.personal.copyWith(
+      details: item.personal.details.copyWith(graderNotes: value),
+    )),
   ),
   ComicTransferableField(
     key: 'signedBy',
     label: 'Signed by',
     icon: Icons.draw_outlined,
     type: TransferableFieldType.text,
-    read: (item) => item.details.signedBy,
+    read: (item) => item.personal.details.signedBy,
     write: (item, value) => item.copyWith(
-      details: item.details.copyWith(signedBy: value),
-    ),
+        personal: item.personal.copyWith(
+      details: item.personal.details.copyWith(signedBy: value),
+    )),
   ),
   ComicTransferableField(
     key: 'keyReason',
     label: 'Key reason',
     icon: Icons.vpn_key_outlined,
     type: TransferableFieldType.text,
-    read: (item) => item.details.keyReason,
+    read: (item) => item.personal.details.keyReason,
     write: (item, value) => item.copyWith(
-      details: item.details.copyWith(keyReason: value),
-    ),
+        personal: item.personal.copyWith(
+      details: item.personal.details.copyWith(keyReason: value),
+    )),
   ),
   ComicTransferableField(
     key: 'keyComic',
     label: 'Key issue',
     icon: Icons.vpn_key,
     type: TransferableFieldType.boolean,
-    read: (item) => item.details.keyComic ? 'true' : null,
+    read: (item) => item.personal.details.keyComic ? 'true' : null,
     write: (item, value) => item.copyWith(
-      details: item.details.copyWith(keyComic: value == 'true'),
-    ),
+        personal: item.personal.copyWith(
+      details: item.personal.details.copyWith(keyComic: value == 'true'),
+    )),
   ),
   ComicTransferableField(
     key: 'coverPriceCents',
     label: 'Cover price',
     icon: Icons.price_check,
     type: TransferableFieldType.integer,
-    scope: LibraryEntityScope.copy,
-    read: (item) => item.details.coverPriceCents?.toString(),
+    read: (item) => item.personal.details.coverPriceCents?.toString(),
     write: (item, value) => item.copyWith(
-      details: item.details.copyWith(
+        personal: item.personal.copyWith(
+      details: item.personal.details.copyWith(
         coverPriceCents: value != null ? int.tryParse(value) : null,
       ),
-    ),
+    )),
   ),
 ];
 

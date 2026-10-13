@@ -11,26 +11,52 @@ import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import '../../tool/check_library_kind_boundaries.dart';
 
 void main() {
-  test('generated kind ownership joins Drift columns and model aliases', () {
+  test('generated kind entries resolve field identity constants', () {
     final manifest = jsonDecode(
-      File('tool/architecture/generated/kind-field-ownership.json')
+      File('tool/architecture/generated/kind-field-entries.json')
           .readAsStringSync(),
     ) as Map<String, dynamic>;
     final kinds = manifest['kinds'] as Map<String, dynamic>;
     final comic = kinds['comic'] as Map<String, dynamic>;
     final fields = comic['fields'] as Map<String, dynamic>;
-    final storyArcs = fields['storyArcs'] as Map<String, dynamic>;
+    final issueNumber = fields['issueNumber'] as Map<String, dynamic>;
     final comicTables =
         (comic['tables'] as List<dynamic>).cast<Map<String, dynamic>>();
-    final comicMediaTable =
-        comicTables.firstWhere((table) => table['name'] == 'ComicMediaRows');
+    final comicTableNames = comicTables.map((table) => table['name']).toSet();
     final series = fields['series'] as Map<String, dynamic>;
+    final animeFields = (kinds['anime'] as Map<String, dynamic>)['fields']
+        as Map<String, dynamic>;
+    final boardGameFields = (kinds['boardgame']
+        as Map<String, dynamic>)['fields'] as Map<String, dynamic>;
+    final bookFields = (kinds['book'] as Map<String, dynamic>)['fields']
+        as Map<String, dynamic>;
+    final movieFields = (kinds['movie'] as Map<String, dynamic>)['fields']
+        as Map<String, dynamic>;
+    final musicFields = (kinds['music'] as Map<String, dynamic>)['fields']
+        as Map<String, dynamic>;
+    final tvFields =
+        (kinds['tv'] as Map<String, dynamic>)['fields'] as Map<String, dynamic>;
+    void expectWorkspaceId(
+      Map<String, dynamic> fields,
+      String fieldName,
+      String fieldId,
+    ) {
+      final field = fields[fieldName] as Map<String, dynamic>;
+      expect(field['workspaceFieldIds'], contains(fieldId));
+    }
 
-    expect(storyArcs['databaseColumns'], contains('storyArcsJson'));
-    expect(storyArcs['symbols'], contains('story_arcs'));
-    expect(comicMediaTable['source'],
-        'lib/features/library/kinds/comic/data/local/comic_local_tables.dart');
+    expect(issueNumber['databaseColumns'], contains('issueNumber'));
+    expect(issueNumber['symbols'], contains('issue_number'));
+    expect(comicTableNames, contains('ComicTrackingRows'));
+    expect(comicTableNames, isNot(contains('ComicMediaRows')));
+    expect(comicTableNames, isNot(contains('ComicReleaseRows')));
     expect(series['workspaceFieldIds'], contains('comic.series'));
+    expectWorkspaceId(animeFields, 'format', 'anime.format');
+    expectWorkspaceId(boardGameFields, 'publisher', 'boardgame.publisher');
+    expectWorkspaceId(bookFields, 'series', 'book.series');
+    expectWorkspaceId(movieFields, 'title', 'movie.title');
+    expectWorkspaceId(musicFields, 'artist', 'music.artist');
+    expectWorkspaceId(tvFields, 'barcode', 'tv.barcode');
     expect(
         kinds.keys, containsAll(['anime', 'book', 'comic', 'game', 'music']));
   });
@@ -38,12 +64,12 @@ void main() {
   test('inferred kind fields flag declarations and generic map keys', () {
     const code = '''
 class SharedCatalogView {
-  final String? seriesTitle;
-  const SharedCatalogView(this.seriesTitle);
+  final String? coverArtist;
+  const SharedCatalogView(this.coverArtist);
 }
 
-String? series(Map<String, dynamic> value) => value['series_title'] as String?;
-final storyArc = <String, Object?>{'story_arcs': const <String>[]};
+String? coverArtistFunc(Map<String, dynamic> value) => value['cover_artist'] as String?;
+final nativeTitle = <String, Object?>{'native_title': 'test'};
 ''';
     final visitor = _visitorForArchitectureTest(
       code: code,
@@ -54,21 +80,55 @@ final storyArc = <String, Object?>{'story_arcs': const <String>[]};
 
     expect(
       visitor.visitor.violations,
-      contains(contains('Kind-owned field "seriesTitle"')),
+      contains(contains('Kind-entry field "coverArtist"')),
     );
     expect(
       visitor.visitor.violations,
-      contains(contains('Kind-owned field "series_title"')),
+      contains(contains('Kind-entry field "cover_artist"')),
     );
     expect(
       visitor.visitor.violations,
-      contains(contains('Kind-owned field "story_arcs"')),
+      contains(contains('Kind-entry field "native_title"')),
+    );
+  });
+
+  test('shared personal projection fields are not classified as kind leaks',
+      () {
+    const code = '''
+class SharedPersonalProjection {
+  final String? condition;
+  final String? status;
+  final int? rating;
+  final DateTime? startedAt;
+  final DateTime? completedAt;
+  final int timesCompleted;
+  final String? notes;
+  final DateTime? addedAt;
+  final DateTime? purchaseDate;
+  final Object? wishlist;
+  const SharedPersonalProjection();
+}
+
+Object? completedAtFromSync(Map<String, Object?> payload) => payload['completed_at'];
+''';
+    final visitor = _visitorForArchitectureTest(
+      code: code,
+      relativePath:
+          'lib/features/library/generic/personal_projection_test.dart',
+    );
+
+    visitor.unit.accept(visitor.visitor);
+
+    expect(
+      visitor.visitor.violations
+          .where((violation) => violation.startsWith('TK016 ')),
+      isEmpty,
     );
   });
 
   test('provider protocol fields stay outside the generic semantic scan', () {
     const code = '''
-String? providerValue(Map<String, dynamic> raw) => raw['series_title'] as String?;
+String? providerValue(Map<String, dynamic> raw) => raw['cover_artist'] as String?;
 ''';
     final visitor = _visitorForArchitectureTest(
       code: code,
@@ -149,7 +209,7 @@ String? providerValue(Map<String, dynamic> raw) => raw['series_title'] as String
       staleReferences,
       isEmpty,
       reason: 'Library code must dispatch unknown kinds by failure and use '
-          'kind-owned hierarchy contributions instead of root aliases.',
+          'kind-entry hierarchy contributions instead of root aliases.',
     );
   });
 
@@ -217,15 +277,15 @@ class TestStats {}
     );
   });
 
-  test('architecture boundary checker allows structural owned projections', () {
+  test('architecture boundary checker allows structural entry projections', () {
     final repoRoot = Directory.current.path;
     const testCode = '''
-class OwnedItemSummary {
+class LibraryEntrySummary {
   final String? subtitle;
-  const OwnedItemSummary(this.subtitle);
+  const LibraryEntrySummary(this.subtitle);
 }
 ''';
-    final relativePath = 'lib/core/models/owned_item_projection.dart';
+    final relativePath = 'lib/core/models/library_entry_projection.dart';
     final parseResult = parseString(
       content: testCode,
       path: p.join(repoRoot, relativePath),
@@ -280,7 +340,7 @@ String label(ActivityEventKind kind) => switch (kind) {
       () {
     final repoRoot = Directory.current.path;
     const testCode = '''
-    import 'package:collectarr_app/features/library/kinds/comic/comic_module.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_catalog_item.dart';
 
 class TestValue {}
 ''';
@@ -309,12 +369,12 @@ class TestValue {}
     );
   });
   test(
-      'architecture boundary checker rejects generic referencing concrete ComicMedia',
+      'architecture boundary checker rejects generic referencing concrete ComicCatalogItem',
       () {
     final repoRoot = Directory.current.path;
     const testCode = '''
 class GenericClass {
-  void doSomething(ComicMedia metadata) {}
+  void doSomething(ComicCatalogItem metadata) {}
 }
 ''';
     final parseResult = parseString(
@@ -343,12 +403,12 @@ class GenericClass {
   });
 
   test(
-      'architecture boundary checker rejects value referencing concrete ComicOwnedDetails',
+      'architecture boundary checker rejects value referencing concrete ComicEntryDetails',
       () {
     final repoRoot = Directory.current.path;
     const testCode = '''
 class ValueClass {
-  void calculate(ComicOwnedDetails details) {}
+  void calculate(ComicEntryDetails details) {}
 }
 ''';
     final parseResult = parseString(
@@ -371,7 +431,7 @@ class ValueClass {
     parseResult.unit.accept(visitor);
     expect(visitor.violations, isNotEmpty);
     expect(
-      visitor.violations.any((v) => v.contains('ComicOwnedDetails')),
+      visitor.violations.any((v) => v.contains('ComicEntryDetails')),
       isTrue,
     );
   });
@@ -488,7 +548,7 @@ class GenericFieldHandler {
 
   test('architecture boundary checker rejects provider importing a kind', () {
     const testCode = '''
-import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_catalog_item.dart';
 
 class TestProvider {}
 ''';
@@ -629,7 +689,6 @@ class SettingsMetadata {
 
   test('composition roots may wire kind contributors', () {
     const testCode = '''
-import 'package:collectarr_app/features/library/kinds/comic/comic_module.dart';
 
 class DatabaseCompositionRoot {}
 ''';

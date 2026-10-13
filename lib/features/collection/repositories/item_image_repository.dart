@@ -1,55 +1,93 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/item_image.dart';
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/core/models/structural_ref_validation.dart';
 import 'package:drift/drift.dart';
 
 class ItemImageRepository {
   const ItemImageRepository(this._db);
 
+  static const _refQueryChunkSize = 400;
+
   final LocalDatabase _db;
 
-  Future<List<ItemImage>> listForOwnedRef(OwnedItemRef ownedRef) async {
-    requireKnownOwnedRef(ownedRef);
+  /// Presence metadata for workspace queries, without loading image blobs.
+  Future<Map<LibraryEntryRef, Set<String>>> typesForLibraryEntryRefs(
+      Iterable<LibraryEntryRef> libraryEntryRefs) async {
+    final refs = libraryEntryRefs.toSet().toList(growable: false);
+    for (final ref in refs) {
+      requireKnownLibraryEntryRef(ref);
+    }
+    final keys = refs.map((ref) => ref.key).toList(growable: false);
+    final types = <LibraryEntryRef, Set<String>>{};
+    final table = _db.itemImagesCache;
+    for (var start = 0; start < keys.length; start += _refQueryChunkSize) {
+      final end = (start + _refQueryChunkSize).clamp(0, keys.length).toInt();
+      final query = _db.selectOnly(table)
+        ..addColumns([table.libraryEntryRefKey, table.imageType])
+        ..where(table.libraryEntryRefKey.isIn(keys.sublist(start, end)));
+      for (final row in await query.get()) {
+        final ref =
+            LibraryEntryRef.fromKey(row.read(table.libraryEntryRefKey)!);
+        types.putIfAbsent(ref, () => {}).add(row.read(table.imageType)!);
+      }
+    }
+    return {
+      for (final entry in types.entries)
+        entry.key: Set.unmodifiable(entry.value)
+    };
+  }
+
+  Future<List<ItemImage>> listForLibraryEntryRef(
+      LibraryEntryRef libraryEntryRef) async {
+    requireKnownLibraryEntryRef(libraryEntryRef);
     final rows = await (_db.select(_db.itemImagesCache)
-          ..where((row) => row.ownedRefKey.equals(ownedRef.key))
+          ..where((row) => row.libraryEntryRefKey.equals(libraryEntryRef.key))
           ..orderBy([(row) => OrderingTerm.asc(row.sortOrder)]))
         .get();
     return rows.map(_fromRow).toList(growable: false);
   }
 
-  Future<Map<OwnedItemRef, List<ItemImage>>> listForOwnedRefs(
-    Iterable<OwnedItemRef> ownedRefs,
+  Future<Map<LibraryEntryRef, List<ItemImage>>> listForLibraryEntryRefs(
+    Iterable<LibraryEntryRef> libraryEntryRefs,
   ) async {
-    final refs = ownedRefs.toSet().toList(growable: false);
+    final refs = libraryEntryRefs.toSet().toList(growable: false);
     for (final ref in refs) {
-      requireKnownOwnedRef(ref);
+      requireKnownLibraryEntryRef(ref);
     }
     if (refs.isEmpty) {
-      return const <OwnedItemRef, List<ItemImage>>{};
+      return const <LibraryEntryRef, List<ItemImage>>{};
     }
     final keys = refs.map((ref) => ref.key).toList(growable: false);
-    final rows = await (_db.select(_db.itemImagesCache)
-          ..where((row) => row.ownedRefKey.isIn(keys))
-          ..orderBy([
-            (row) => OrderingTerm.asc(row.sortOrder),
-            (row) => OrderingTerm.asc(row.createdAt),
-          ]))
-        .get();
-    final grouped = <OwnedItemRef, List<ItemImage>>{};
+    final rows = <ItemImagesCacheData>[];
+    for (var start = 0; start < keys.length; start += _refQueryChunkSize) {
+      final end = (start + _refQueryChunkSize).clamp(0, keys.length).toInt();
+      rows.addAll(
+        await (_db.select(_db.itemImagesCache)
+              ..where((row) => row.libraryEntryRefKey.isIn(
+                    keys.sublist(start, end),
+                  ))
+              ..orderBy([
+                (row) => OrderingTerm.asc(row.sortOrder),
+                (row) => OrderingTerm.asc(row.createdAt),
+              ]))
+            .get(),
+      );
+    }
+    final grouped = <LibraryEntryRef, List<ItemImage>>{};
     for (final row in rows) {
-      final ref = OwnedItemRef.fromKey(row.ownedRefKey);
+      final ref = LibraryEntryRef.fromKey(row.libraryEntryRefKey);
       grouped.putIfAbsent(ref, () => <ItemImage>[]).add(_fromRow(row));
     }
     return grouped;
   }
 
   Future<void> add(ItemImage image) {
-    requireKnownOwnedRef(image.ownedRef);
+    requireKnownLibraryEntryRef(image.libraryEntryRef);
     return _db.into(_db.itemImagesCache).insert(
           ItemImagesCacheCompanion.insert(
             id: image.id,
-            ownedRefKey: image.ownedRef.key,
+            libraryEntryRefKey: image.libraryEntryRef.key,
             imageType: Value(image.imageType),
             imageData: image.imageData,
             caption: Value(image.caption),
@@ -89,19 +127,20 @@ class ItemImageRepository {
         .go();
   }
 
-  Future<void> deleteAllForOwnedRef(OwnedItemRef ownedRef) {
-    requireKnownOwnedRef(ownedRef);
+  Future<void> deleteAllForLibraryEntryRef(LibraryEntryRef libraryEntryRef) {
+    requireKnownLibraryEntryRef(libraryEntryRef);
     return (_db.delete(_db.itemImagesCache)
-          ..where((row) => row.ownedRefKey.equals(ownedRef.key)))
+          ..where((row) => row.libraryEntryRefKey.equals(libraryEntryRef.key)))
         .go();
   }
 
-  Future<int> countForOwnedRef(OwnedItemRef ownedRef) async {
-    requireKnownOwnedRef(ownedRef);
+  Future<int> countForLibraryEntryRef(LibraryEntryRef libraryEntryRef) async {
+    requireKnownLibraryEntryRef(libraryEntryRef);
     final count = _db.itemImagesCache.id.count();
     final query = _db.selectOnly(_db.itemImagesCache)
       ..addColumns([count])
-      ..where(_db.itemImagesCache.ownedRefKey.equals(ownedRef.key));
+      ..where(
+          _db.itemImagesCache.libraryEntryRefKey.equals(libraryEntryRef.key));
     final row = await query.getSingle();
     return row.read(count) ?? 0;
   }
@@ -109,7 +148,7 @@ class ItemImageRepository {
   ItemImage _fromRow(ItemImagesCacheData row) {
     return ItemImage(
       id: row.id,
-      ownedRef: OwnedItemRef.fromKey(row.ownedRefKey),
+      libraryEntryRef: LibraryEntryRef.fromKey(row.libraryEntryRefKey),
       imageType: row.imageType,
       imageData: row.imageData,
       caption: row.caption,

@@ -1,5 +1,5 @@
 import 'package:collectarr_app/features/collection/providers/local_cover_image_provider.dart';
-import 'package:collectarr_app/features/library/kinds/comic/data/comic_owned_item_projection.dart';
+import 'package:collectarr_app/features/library/kinds/comic/data/comic_library_entry_projection.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/features/library/generic/external_links.dart';
@@ -12,21 +12,14 @@ import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-Widget buildComicWorkInspectorHero(
+Widget buildComicCatalogItemInspectorHero(
   BuildContext context,
   LibraryInspectorRequest request,
 ) {
   return ComicInspectorHero(request: request);
 }
 
-Widget buildComicReleaseInspectorHero(
-  BuildContext context,
-  LibraryInspectorRequest request,
-) {
-  return ComicInspectorHero(request: request);
-}
-
-Widget buildComicCopyInspectorHero(
+Widget buildComicLibraryEntryInspectorHero(
   BuildContext context,
   LibraryInspectorRequest request,
 ) {
@@ -52,48 +45,48 @@ class _ComicInspectorHeroState extends ConsumerState<ComicInspectorHero> {
     final item = request.item;
     final dto = item.dto;
     final comic = dto is ComicWorkspaceDto ? dto.comic : null;
-    final ownedItem =
-        ComicOwnedItemProjection.fromDispatch(request.ownedItemDispatch);
+    final libraryEntry =
+        ComicLibraryEntryProjection.fromDispatch(request.libraryEntryDispatch);
     final surface = palette.surface;
     final border =
         palette.divider.withValues(alpha: palette.isDark ? 0.72 : 0.48);
     final ink = palette.textPrimary;
     final muted = palette.textMuted;
-    final ownedSummary = request.ownedItem;
-    final ownedRef = resolveLibraryOwnedItemRef(item, ownedSummary);
-    final localFront = ownedRef == null
+    final libraryEntrySummary = request.libraryEntry;
+    final libraryEntryRef = resolveLibraryEntryRef(item, libraryEntrySummary);
+    final localFront = libraryEntryRef == null
         ? null
         : ref
             .watch(
               localItemImageProvider((
-                ownedRef: ownedRef,
+                libraryEntryRef: libraryEntryRef,
                 imageType: 'front_cover',
               )),
             )
             .value;
-    final localBack = ownedRef == null
+    final localBack = libraryEntryRef == null
         ? null
         : ref
             .watch(
               localItemImageProvider((
-                ownedRef: ownedRef,
+                libraryEntryRef: libraryEntryRef,
                 imageType: 'back_cover',
               )),
             )
             .value;
-    final db = ownedRef == null ? null : ref.watch(localDatabaseProvider);
+    final db =
+        libraryEntryRef == null ? null : ref.watch(localDatabaseProvider);
     final adapter = dto is ComicWorkspaceDto ? dto : null;
     final comicDto = dto is ComicWorkspaceDto ? dto : null;
     final referenceLabel = (adapter?.itemNumber?.trim().isNotEmpty == true
             ? '#${adapter!.itemNumber!.trim()}'
             : null) ??
         adapter?.referenceFormatLabel ??
-        libraryOwnedReferenceLabel(ownedSummary,
-            mediaType: (item.source.catalogData?.kind ?? request.type.kind)
-                .apiValue) ??
+        libraryLibraryEntryReferenceLabel(libraryEntrySummary,
+            mediaType: item.target.kind.apiValue) ??
         request.type.identity.singularLabel.toUpperCase();
-    final seriesLabel = comic?.series?.seriesTitle?.trim().isNotEmpty == true
-        ? comic!.series!.seriesTitle!.trim()
+    final seriesLabel = comic?.seriesTitle?.trim().isNotEmpty == true
+        ? comic!.seriesTitle!.trim()
         : null;
     final editionLabel =
         adapter?.referenceFormatLabel?.trim().isNotEmpty == true
@@ -110,41 +103,44 @@ class _ComicInspectorHeroState extends ConsumerState<ComicInspectorHero> {
     final publisherLabel = [
       if (comicDto?.publisher?.trim().isNotEmpty == true)
         comicDto!.publisher!.trim(),
-      if (comic?.publishing?.imprint?.trim().isNotEmpty == true)
-        comic!.publishing!.imprint!.trim(),
+      if (comic?.imprint?.trim().isNotEmpty == true) comic!.imprint!.trim(),
     ].join(' / ');
     final subtitleParts = <String>[
       if (comic?.crossover?.trim().isNotEmpty == true) comic!.crossover!.trim(),
-      if (comic?.storyArcs.isNotEmpty == true) comic!.storyArcs.first.trim(),
-      if (comic?.publishing?.subtitle?.trim().isNotEmpty == true)
-        comic!.publishing!.subtitle!.trim(),
+      if (comic != null &&
+          comic.storyArcs.isNotEmpty &&
+          comic.storyArcs.first.name?.trim().isNotEmpty == true)
+        comic.storyArcs.first.name!.trim(),
+      if (comic?.subtitle?.trim().isNotEmpty == true) comic!.subtitle!.trim(),
       if (adapter?.variant?.trim().isNotEmpty == true) adapter!.variant!.trim(),
     ];
     final subtitleLabel = subtitleParts.join(' • ');
-    final isOwned = item.source.isOwned || ownedItem != null;
-    final statusLabel = isOwned
-        ? 'Owned'
+    final isEntry = item.source.isEntry || libraryEntry != null;
+    final statusLabel = isEntry
+        ? 'Entry'
         : item.source.isWishlisted
             ? 'Wishlist'
-            : 'Not owned';
+            : 'Not entry';
     final synopsis = comic?.synopsis?.trim();
     const String? plotDescription = null;
-    final comicDetails = ownedItem?.details;
+    final comicDetails = libraryEntry?.personal.details;
     final slabLabel = librarySlabMarkerLabel(
       comicDetails?.rawOrSlabbed,
       comicDetails?.gradingCompany,
     );
-    final slabGrade = ownedItem?.grade?.trim();
+    final slabGrade = libraryEntry?.personal.grade?.trim();
     final showSlabOverlay =
         comicDetails?.rawOrSlabbed?.trim().toLowerCase() == 'slabbed' &&
             slabLabel != null &&
             slabGrade != null &&
             slabGrade.isNotEmpty;
-    final currentValue = ownedItem?.marketValueCents != null
-        ? formatMoney(ownedItem!.marketValueCents, ownedItem.currency)
+    final currentValue = libraryEntry?.personal.marketValueCents != null
+        ? formatMoney(libraryEntry!.personal.marketValueCents,
+            libraryEntry.personal.currency)
         : null;
     final gradeValueLabel = [
-      if (ownedItem?.grade?.trim().isNotEmpty == true) ownedItem!.grade!.trim(),
+      if (libraryEntry?.personal.grade?.trim().isNotEmpty == true)
+        libraryEntry!.personal.grade!.trim(),
       if (currentValue != null) currentValue,
     ].join('  •  ');
     final keyReason = comicDetails?.keyReason?.trim().isNotEmpty == true
@@ -156,7 +152,8 @@ class _ComicInspectorHeroState extends ConsumerState<ComicInspectorHero> {
       if (seriesLabel != null) seriesLabel,
       if (referenceLabel.trim().isNotEmpty) referenceLabel,
       if (editionLabel.trim().isNotEmpty) editionLabel,
-      if (ownedItem?.grade?.trim().isNotEmpty == true) ownedItem!.grade!.trim(),
+      if (libraryEntry?.personal.grade?.trim().isNotEmpty == true)
+        libraryEntry!.personal.grade!.trim(),
     ].join(' ');
 
     return LayoutBuilder(
@@ -193,31 +190,29 @@ class _ComicInspectorHeroState extends ConsumerState<ComicInspectorHero> {
                     LibraryInteractiveCover(
                       title: dto.primaryLabel,
                       itemNumber: adapter?.itemNumber,
-                      imageUrl: back
-                          ? null
-                          : (dto.imageUrl ??
-                              comic?.releases.firstOrNull?.coverImageUrl),
+                      imageUrl:
+                          back ? null : (dto.imageUrl ?? comic?.coverImageUrl),
                       localBytes: back ? localBack : localFront,
-                      ownedRef: back ? null : ownedRef,
+                      libraryEntryRef: back ? null : libraryEntryRef,
                       accentColor: request.accent,
                       fit: BoxFit.cover,
                       enableHoverCue: true,
                       enableSecondaryControl: false,
                       onMissingSecondaryPressed:
-                          back || ownedRef == null || db == null
+                          back || libraryEntryRef == null || db == null
                               ? null
                               : () async {
                                   final savedType =
-                                      await pickAndStoreOwnedItemImage(
+                                      await pickAndStoreLibraryEntryImage(
                                     context: context,
                                     db: db,
-                                    ownedRef: ownedRef,
+                                    libraryEntryRef: libraryEntryRef,
                                     imageType: 'back_cover',
                                   );
                                   if (savedType == 'back_cover') {
                                     ref.invalidate(
                                       localItemImageProvider((
-                                        ownedRef: ownedRef,
+                                        libraryEntryRef: libraryEntryRef,
                                         imageType: 'back_cover',
                                       )),
                                     );
@@ -321,7 +316,7 @@ class _ComicInspectorHeroState extends ConsumerState<ComicInspectorHero> {
                   label: 'Status',
                   value: statusLabel,
                   icon: _ComicCollectionStatusIcon(
-                    owned: isOwned,
+                    entry: isEntry,
                     wishlisted: item.source.isWishlisted,
                     accent: request.accent,
                     muted: muted,
@@ -394,7 +389,7 @@ class _ComicInspectorHeroState extends ConsumerState<ComicInspectorHero> {
               'Plot',
               style: Theme.of(context).textTheme.labelSmall?.copyWith(
                     color: muted,
-                    fontWeight: FontWeight.w800,
+                    fontWeight: FontWeight.w700,
                   ),
             ),
             const SizedBox(height: 3),
@@ -417,7 +412,7 @@ class _ComicInspectorHeroState extends ConsumerState<ComicInspectorHero> {
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
                       color: ink.withValues(alpha: 0.85),
                       height: 1.4,
-                      fontWeight: FontWeight.w400,
+                      fontWeight: FontWeight.w500,
                     ),
                 textAlign: TextAlign.start,
               ),
@@ -427,7 +422,7 @@ class _ComicInspectorHeroState extends ConsumerState<ComicInspectorHero> {
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
                       color: muted,
                       height: 1.4,
-                      fontWeight: FontWeight.w400,
+                      fontWeight: FontWeight.w500,
                     ),
                 textAlign: TextAlign.start,
               ),
@@ -509,7 +504,7 @@ class _ComicHeroBlock extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
                 style: Theme.of(context).textTheme.labelLarge?.copyWith(
                       color: accent,
-                      fontWeight: FontWeight.w800,
+                      fontWeight: FontWeight.w700,
                     ),
               ),
               const SizedBox(height: 4),
@@ -524,7 +519,7 @@ class _ComicHeroBlock extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
                           color: appPalette(context).textPrimary,
-                          fontWeight: FontWeight.w800,
+                          fontWeight: FontWeight.w700,
                         ),
                   ),
                 ),
@@ -592,7 +587,7 @@ class _ComicMetaBadge extends StatelessWidget {
         );
     final valueStyle = Theme.of(context).textTheme.labelSmall?.copyWith(
           color: palette.textPrimary,
-          fontWeight: FontWeight.w800,
+          fontWeight: FontWeight.w700,
           fontSize: 12,
           letterSpacing: 0.08,
         );
@@ -661,7 +656,7 @@ class _ComicCoverToggleCheckbox extends StatelessWidget {
               label,
               style: Theme.of(context).textTheme.labelSmall?.copyWith(
                     color: palette.textMuted,
-                    fontWeight: FontWeight.w800,
+                    fontWeight: FontWeight.w700,
                     fontSize: 12,
                   ),
             ),
@@ -761,7 +756,7 @@ class _ComicKeyReasonBanner extends StatelessWidget {
               reason,
               style: Theme.of(context).textTheme.labelSmall?.copyWith(
                     color: palette.textPrimary,
-                    fontWeight: FontWeight.w800,
+                    fontWeight: FontWeight.w700,
                     fontSize: 12,
                   ),
             ),
@@ -835,7 +830,7 @@ class _ComicEbayCard extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
                 style: Theme.of(context).textTheme.labelSmall?.copyWith(
                       color: palette.textPrimary,
-                      fontWeight: FontWeight.w800,
+                      fontWeight: FontWeight.w700,
                     ),
               ),
             ),
@@ -854,25 +849,25 @@ class _ComicEbayCard extends StatelessWidget {
 
 class _ComicCollectionStatusIcon extends StatelessWidget {
   const _ComicCollectionStatusIcon({
-    required this.owned,
+    required this.entry,
     required this.wishlisted,
     required this.accent,
     required this.muted,
   });
 
-  final bool owned;
+  final bool entry;
   final bool wishlisted;
   final Color accent;
   final Color muted;
 
   @override
   Widget build(BuildContext context) {
-    final icon = owned
+    final icon = entry
         ? Icons.check_circle
         : wishlisted
             ? Icons.favorite
             : Icons.remove_circle_outline;
-    final color = owned
+    final color = entry
         ? accent
         : wishlisted
             ? Colors.red.shade400
@@ -904,7 +899,7 @@ class _ComicDetailLine extends StatelessWidget {
               label,
               style: Theme.of(context).textTheme.labelSmall?.copyWith(
                     color: palette.textMuted,
-                    fontWeight: FontWeight.w800,
+                    fontWeight: FontWeight.w700,
                     letterSpacing: 0.16,
                     height: 1,
                   ),

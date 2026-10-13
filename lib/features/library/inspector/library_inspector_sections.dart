@@ -1,5 +1,5 @@
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_contributors.dart';
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/core/models/tracking_summary.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_content.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
@@ -43,8 +43,8 @@ class InspectorPersonalSection extends StatelessWidget {
     super.key,
     required this.type,
     required this.item,
-    this.ownedItem,
-    this.ownedItemDispatch,
+    this.libraryEntry,
+    this.libraryEntryDispatch,
     this.trackingSummary,
     required this.accent,
     this.valueSnapshot,
@@ -53,8 +53,8 @@ class InspectorPersonalSection extends StatelessWidget {
 
   final LibraryKindRegistration type;
   final LibraryProjectionView item;
-  final OwnedItemSummary? ownedItem;
-  final LibraryOwnedItemDispatch? ownedItemDispatch;
+  final LibraryEntrySummary? libraryEntry;
+  final LibraryEntryDispatch? libraryEntryDispatch;
   final TrackingSummary? trackingSummary;
   final Color accent;
   final LibraryValueSnapshot? valueSnapshot;
@@ -62,35 +62,25 @@ class InspectorPersonalSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final existingOwnedItem = ownedItem;
-    final catalogReleases =
-        libraryPresentationForKind(type.kind).builder.buildWorkspaceReleases(
-              item.source,
-            );
+    final existingLibraryEntry = libraryEntry;
     final snapshot = valueSnapshot ??
         LibraryValueSnapshot.fromItem(
           item,
           purchasePriceCents: item.source.pricePaidCents,
           soldPriceCents: item.source.sellPriceCents,
           manualEstimatedValueCents: item.source.marketValueCents,
-          ownedCurrency: item.source.currency,
-          providerName:
-              item.source.marketValueCents != null ? 'Provider snapshot' : null,
+          entryCurrency: item.source.currency,
         );
     final paid = formatMoney(
-        ownedItem?.pricePaidCents ?? item.source.pricePaidCents,
-        ownedItem?.currency ?? item.source.currency);
-    final ownedCopyTypeLabel = existingOwnedItem?.isDigital == true
-        ? 'Digital copy'
-        : buildOwnedCopyLabelFromWorkspaceReleases(
-            existingOwnedItem,
-            catalogReleases,
-            0,
-            collectionValue:
-                libraryOwnedEditForKind(type.kind).readOwnedCollectionValue(
-              item.source.ownedItemDispatch,
-            ),
-          );
+        libraryEntry?.pricePaidCents ?? item.source.pricePaidCents,
+        libraryEntry?.currency ?? item.source.currency);
+    final libraryEntryTypeLabel = buildLibraryEntryContextLabel(
+      existingLibraryEntry,
+      collectionValue:
+          libraryEntryEditForKind(type.kind).readEntryCollectionValue(
+        item.source.libraryEntryDispatch,
+      ),
+    );
     final tracking = trackingSummary;
     final trackingRating = tracking?.rating;
     final trackingStatus = tracking?.statusStorageValue;
@@ -100,9 +90,10 @@ class InspectorPersonalSection extends StatelessWidget {
         libraryInspectorForKind(type.kind).buildPersonalDetailFields(
       context: context,
       item: item,
-      ownedItem: item.source.ownedSummary,
-      ownedItemDispatch: ownedItemDispatch ?? item.source.ownedItemDispatch,
-      currency: ownedItem?.currency ?? item.source.currency,
+      libraryEntry: item.source.libraryEntrySummary,
+      libraryEntryDispatch:
+          libraryEntryDispatch ?? item.source.libraryEntryDispatch,
+      currency: libraryEntry?.currency ?? item.source.currency,
     );
     return LibraryDetailSection(
       title: 'Personal',
@@ -118,8 +109,9 @@ class InspectorPersonalSection extends StatelessWidget {
           fields: [
             LibraryDetailField(
                 label: 'Status', value: genericLibraryStatusLabel(item)),
-            if (ownedCopyTypeLabel != null)
-              LibraryDetailField(label: 'Ownership', value: ownedCopyTypeLabel),
+            if (libraryEntryTypeLabel != null)
+              LibraryDetailField(
+                  label: 'EntryPolicy', value: libraryEntryTypeLabel),
             if (trackingStatus != null && trackingStatus.trim().isNotEmpty)
               LibraryDetailField(label: 'Tracking', value: trackingStatus),
             if (trackingStartedAt != null)
@@ -131,20 +123,9 @@ class InspectorPersonalSection extends StatelessWidget {
                   label: 'Finished',
                   value: formatNullableDate(trackingFinishedAt) ?? '-'),
             LibraryDetailField(
-                label: 'Quantity',
-                value:
-                    ownedItem == null ? '-' : ownedItem!.quantity.toString()),
-            LibraryDetailField(
                 label: 'Location',
                 value: genericLibraryDash(item.source.locationPath)),
             LibraryDetailField(label: 'Paid', value: paid.isEmpty ? '-' : paid),
-            if (snapshot.providerValueCents != null)
-              LibraryDetailField(
-                  label: 'Provider value',
-                  value: formatMoney(
-                    snapshot.providerValueCents,
-                    snapshot.currency,
-                  )),
             if (snapshot.manualEstimatedValueCents != null)
               LibraryDetailField(
                   label: 'Manual value',
@@ -153,37 +134,39 @@ class InspectorPersonalSection extends StatelessWidget {
                     snapshot.currency,
                   )),
             ...kindPersonalFields,
-            if (ownedItem?.soldAt != null)
+            if (libraryEntry?.soldAt != null)
               LibraryDetailField(
                 label: 'Sold',
-                value: formatNullableDate(ownedItem!.soldAt) ?? '-',
+                value: formatNullableDate(libraryEntry!.soldAt) ?? '-',
               ),
-            if (ownedItem?.soldTo != null &&
-                ownedItem!.soldTo!.trim().isNotEmpty)
+            if (libraryEntry?.soldTo != null &&
+                libraryEntry!.soldTo!.trim().isNotEmpty)
               LibraryDetailField(
                 label: 'Sold to',
-                value: ownedItem!.soldTo!,
+                value: libraryEntry!.soldTo!,
               ),
-            if (ownedItem?.sellPriceCents != null)
+            if (libraryEntry?.sellPriceCents != null)
               LibraryDetailField(
                 label: 'Sell price',
-                value: formatMoney(ownedItem!.sellPriceCents,
-                    ownedItem?.currency ?? item.source.currency),
+                value: formatMoney(libraryEntry!.sellPriceCents,
+                    libraryEntry?.currency ?? item.source.currency),
               ),
-            if (ownedItem?.sellPriceCents != null)
+            if (libraryEntry?.sellPriceCents != null)
               LibraryDetailField(
                 label: 'Profit / Loss',
                 value: formatMoney(
-                  ownedItem!.sellPriceCents! - (ownedItem!.pricePaidCents ?? 0),
-                  ownedItem?.currency ?? item.source.currency,
+                  libraryEntry!.sellPriceCents! -
+                      (libraryEntry!.pricePaidCents ?? 0),
+                  libraryEntry?.currency ?? item.source.currency,
                 ),
               ),
           ],
         ),
-        if (item.source.ownedSummary?.notes?.trim().isNotEmpty == true) ...[
+        if (item.source.libraryEntrySummary?.notes?.trim().isNotEmpty ==
+            true) ...[
           const SizedBox(height: 8),
           Text(
-            item.source.ownedSummary!.notes!,
+            item.source.libraryEntrySummary!.notes!,
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
                   color: appPalette(context).textMuted,
                 ),

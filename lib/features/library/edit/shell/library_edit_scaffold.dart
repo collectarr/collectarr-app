@@ -1,3 +1,5 @@
+import 'package:collectarr_app/ui/app_panel_title.dart';
+import 'package:collectarr_app/ui/app_motion.dart';
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_tab_strip.dart';
 import 'package:collectarr_app/features/library/config/library_dialog_tokens.dart';
@@ -5,9 +7,14 @@ import 'package:collectarr_app/features/library/ui/library_chrome_tokens.dart';
 import 'package:collectarr_app/features/library/ui/library_action_footer.dart';
 import 'package:collectarr_app/features/library/ui/library_dialog_scaffold.dart';
 import 'package:collectarr_app/features/library/ui/library_panel_header.dart';
+import 'package:collectarr_app/features/library/config/library_kind_style.dart';
+import 'package:collectarr_app/features/library/forms/library_schema_text_controller_store.dart';
 import 'package:collectarr_app/ui/adaptive/window_class.dart';
+import 'package:collectarr_app/ui/library_accent_scope.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
+import 'package:flutter/foundation.dart' show listEquals;
 import 'package:flutter/material.dart';
+import 'package:collectarr_app/ui/app_icons.dart';
 
 enum LibraryEditChromeVariant {
   standard,
@@ -24,9 +31,12 @@ class LibraryEditDialogScaffold extends StatefulWidget {
     required this.badges,
     this.tabController,
     this.tabs = const [],
+    this.tabIds = const [],
     this.views = const [],
     this.body,
     this.footerContent,
+    this.footerOverride,
+    this.isBusy = false,
     required this.onClose,
     required this.onCancel,
     required this.onSave,
@@ -36,6 +46,9 @@ class LibraryEditDialogScaffold extends StatefulWidget {
     this.chromeVariant = LibraryEditChromeVariant.standard,
     this.allowTabReorder = true,
     this.tabOrderKey,
+    this.alignment = Alignment.topCenter,
+    this.maxDialogWidth,
+    this.insetPadding,
   }) : assert(
           body != null ||
               (tabController != null &&
@@ -51,12 +64,20 @@ class LibraryEditDialogScaffold extends StatefulWidget {
   final List<Widget> badges;
   final TabController? tabController;
   final List<Widget> tabs;
+
+  /// Stable identities in the same source order as [tabs].
+  final List<String> tabIds;
   final List<Widget> views;
   final Widget? body;
   final Widget? footerContent;
+
+  /// Replaces the standard Edit actions while retaining the shared dialog
+  /// footer slot and layout.
+  final Widget? footerOverride;
+  final bool isBusy;
   final VoidCallback onClose;
   final VoidCallback onCancel;
-  final VoidCallback onSave;
+  final VoidCallback? onSave;
   final VoidCallback? onProposeToCore;
   final VoidCallback? onPrevious;
   final VoidCallback? onNext;
@@ -66,6 +87,11 @@ class LibraryEditDialogScaffold extends StatefulWidget {
   /// If non-null, the tab order is persisted to SharedPreferences under this key.
   final String? tabOrderKey;
 
+  /// Keeps the edit dialog's top edge stable as its content changes height.
+  final AlignmentGeometry? alignment;
+  final double? maxDialogWidth;
+  final EdgeInsets? insetPadding;
+
   @override
   State<LibraryEditDialogScaffold> createState() =>
       _LibraryEditDialogScaffoldState();
@@ -74,6 +100,7 @@ class LibraryEditDialogScaffold extends StatefulWidget {
 class _LibraryEditDialogScaffoldState extends State<LibraryEditDialogScaffold> {
   late List<int> _tabOrder;
   TabController? _observedTabController;
+  final _schemaTextControllers = LibrarySchemaTextControllerStore();
 
   @override
   void initState() {
@@ -90,20 +117,39 @@ class _LibraryEditDialogScaffoldState extends State<LibraryEditDialogScaffold> {
     _observedTabController = controller;
     if (controller == null) return;
 
-    final savedIndex = loadLibraryEditTabSelection(widget.tabOrderKey);
-    if (savedIndex != null && controller.length > 0) {
-      controller.index = savedIndex.clamp(0, controller.length - 1).toInt();
-    }
+    _restoreSelectedTab(controller);
     controller.addListener(_rememberSelectedTab);
     _rememberSelectedTab();
   }
 
+  void _restoreSelectedTab(TabController controller) {
+    final savedTabId = loadLibraryEditTabSelection(widget.tabOrderKey);
+    if (savedTabId == null || controller.length == 0 || widget.tabIds.isEmpty) {
+      return;
+    }
+    final sourceIndex = widget.tabIds.indexOf(savedTabId);
+    if (sourceIndex < 0) {
+      controller.index = 0;
+      return;
+    }
+    final visibleIndex = _tabOrder.indexOf(sourceIndex);
+    controller.index = (visibleIndex < 0 ? 0 : visibleIndex)
+        .clamp(0, controller.length - 1)
+        .toInt();
+  }
+
   void _rememberSelectedTab() {
     final controller = _observedTabController;
-    if (controller == null) return;
+    if (controller == null ||
+        controller.length == 0 ||
+        controller.index >= _tabOrder.length) {
+      return;
+    }
+    final sourceIndex = _tabOrder[controller.index];
+    if (sourceIndex < 0 || sourceIndex >= widget.tabIds.length) return;
     saveLibraryEditTabSelection(
       storageKey: widget.tabOrderKey,
-      index: controller.index,
+      tabId: widget.tabIds[sourceIndex],
     );
   }
 
@@ -114,6 +160,8 @@ class _LibraryEditDialogScaffoldState extends State<LibraryEditDialogScaffold> {
     );
     if (!mounted || order == null) return;
     setState(() => _tabOrder = order);
+    final controller = widget.tabController;
+    if (controller != null) _restoreSelectedTab(controller);
   }
 
   Future<void> _saveTabOrder() async {
@@ -127,7 +175,8 @@ class _LibraryEditDialogScaffoldState extends State<LibraryEditDialogScaffold> {
   void didUpdateWidget(LibraryEditDialogScaffold oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.tabController != widget.tabController ||
-        oldWidget.tabOrderKey != widget.tabOrderKey) {
+        oldWidget.tabOrderKey != widget.tabOrderKey ||
+        !listEquals(oldWidget.tabIds, widget.tabIds)) {
       _observeTabController(widget.tabController);
     }
     if (!widget.allowTabReorder) {
@@ -136,6 +185,8 @@ class _LibraryEditDialogScaffoldState extends State<LibraryEditDialogScaffold> {
     }
     if (widget.tabs.length != _tabOrder.length) {
       _tabOrder = List.generate(widget.tabs.length, (i) => i);
+      final controller = widget.tabController;
+      if (controller != null) _restoreSelectedTab(controller);
     }
   }
 
@@ -158,9 +209,32 @@ class _LibraryEditDialogScaffoldState extends State<LibraryEditDialogScaffold> {
     _saveTabOrder();
   }
 
+  String? _selectedTabId() {
+    final controller = widget.tabController;
+    if (controller == null || widget.tabIds.isEmpty) return null;
+    final index = controller.index;
+    if (index < 0 || index >= _tabOrder.length) return null;
+    final sourceIndex = _tabOrder[index];
+    return sourceIndex >= 0 && sourceIndex < widget.tabIds.length
+        ? widget.tabIds[sourceIndex]
+        : null;
+  }
+
+  void _selectTabId(String tabId) {
+    final controller = widget.tabController;
+    if (controller == null) return;
+    final sourceIndex = widget.tabIds.indexOf(tabId);
+    if (sourceIndex < 0) return;
+    final visibleIndex = _tabOrder.indexOf(sourceIndex);
+    if (visibleIndex >= 0 && visibleIndex < controller.length) {
+      controller.index = visibleIndex;
+    }
+  }
+
   @override
   void dispose() {
     _observedTabController?.removeListener(_rememberSelectedTab);
+    _schemaTextControllers.dispose();
     super.dispose();
   }
 
@@ -172,107 +246,166 @@ class _LibraryEditDialogScaffoldState extends State<LibraryEditDialogScaffold> {
     final tabOrder = widget.allowTabReorder
         ? _tabOrder
         : List<int>.generate(widget.tabs.length, (i) => i);
-    final orderedTabs = [for (final i in tabOrder) widget.tabs[i]];
+    final orderedTabs = [
+      for (final i in tabOrder)
+        KeyedSubtree(
+          key: ValueKey<String>('library-edit-tab-$i'),
+          child: widget.tabs[i],
+        ),
+    ];
     final orderedViews = [for (final i in tabOrder) widget.views[i]];
     final viewport = MediaQuery.sizeOf(context);
-    final windowClass = AppWindowClass.of(context);
-    final maxWidth = isWideDesktop
-        ? (viewport.width > 1440 ? 1220.0 : 1140.0)
-        : (viewport.width > 1440 ? 1180.0 : 1100.0);
+    final maxWidth = widget.maxDialogWidth ??
+        (isWideDesktop
+            ? (viewport.width > 1440 ? 1220.0 : 1140.0)
+            : (viewport.width > 1264 ? 1200.0 : viewport.width - 64));
     final maxHeight = viewport.height > 900 ? 850.0 : viewport.height - 24;
-    final p = appPalette(context);
-    return Theme(
-      data: editDialogTheme(
-        seedColor: widget.accent,
-        palette: p,
-        compactDesktop: isWideDesktop,
-      ),
-      child: LibraryDialogScaffold(
-        header: _LibraryEditTitleBar(
-          icon: widget.icon,
-          title: widget.title,
-          badges: widget.badges,
-          onClose: widget.onClose,
-          chromeVariant: widget.chromeVariant,
-          accent: widget.accent,
-        ),
-        footer: _LibraryEditFooter(
-          onCancel: widget.onCancel,
-          onSave: widget.onSave,
-          onProposeToCore: widget.onProposeToCore,
-          onPrevious: widget.onPrevious,
-          onNext: widget.onNext,
-          chromeVariant: widget.chromeVariant,
-          accent: widget.accent,
-        ),
-        maxWidth: maxWidth,
-        minHeight: 0,
-        maxHeight: maxHeight,
-        alignment: Alignment.topCenter,
-        insetPadding: EdgeInsets.fromLTRB(
-          windowClass.isMedium ? 16 : 32,
-          8,
-          windowClass.isMedium ? 16 : 32,
-          16,
-        ),
-        density: LibraryDensity.comfortable,
-        expandBody: false,
-        body: ConstrainedBox(
-          constraints: BoxConstraints(maxHeight: maxHeight),
-          child: Form(
-            key: widget.formKey,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                if (hasTabStrip)
-                  LibraryEditTabStripFrame(
-                    child: LibraryEditReorderableTabStrip(
-                      tabController: widget.tabController!,
-                      tabs: orderedTabs,
+    final p = libraryEditPalette(appPalette(context));
+    return PopScope<Object?>(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) {
+        if (!didPop && !widget.isBusy) widget.onCancel();
+      },
+      child: LibrarySchemaTextControllerScope(
+        store: _schemaTextControllers,
+        child: LibraryEditTabNavigationScope(
+          orderedTabIds: [
+            for (final sourceIndex in tabOrder)
+              if (sourceIndex >= 0 && sourceIndex < widget.tabIds.length)
+                widget.tabIds[sourceIndex],
+          ],
+          selectedTabId: _selectedTabId,
+          selectTabId: _selectTabId,
+          child: Theme(
+            data: editDialogTheme(
+              seedColor: widget.accent,
+              palette: p,
+              compactDesktop: isWideDesktop,
+            ),
+            child: LibraryAccentScope(
+              kind: '',
+              accent: widget.accent,
+              animationsEnabled: true,
+              child: LibraryDialogScaffold(
+                header: _LibraryEditTitleBar(
+                  icon: widget.icon,
+                  title: widget.title,
+                  badges: widget.badges,
+                  onClose: widget.onClose,
+                  chromeVariant: widget.chromeVariant,
+                  accent: widget.accent,
+                  isBusy: widget.isBusy,
+                ),
+                footer: widget.footerOverride ??
+                    _LibraryEditFooter(
+                      onCancel: widget.onCancel,
+                      onSave: widget.onSave,
+                      onProposeToCore: widget.onProposeToCore,
+                      onPrevious: widget.onPrevious,
+                      onNext: widget.onNext,
+                      chromeVariant: widget.chromeVariant,
                       accent: widget.accent,
-                      allowReorder: widget.allowTabReorder,
-                      onReorderItem: _onReorderItem,
+                      isBusy: widget.isBusy,
                     ),
-                  ),
-                Flexible(
-                  fit: FlexFit.loose,
-                  child: Material(
-                    color: p.surfaceBright,
-                    child: hasTabStrip
-                        ? AnimatedBuilder(
-                            animation: widget.tabController!,
-                            builder: (context, _) {
-                              final rawIndex = widget.tabController!.index;
-                              final currentIndex = rawIndex < 0
-                                  ? 0
-                                  : rawIndex >= orderedViews.length
-                                      ? orderedViews.length - 1
-                                      : rawIndex;
-                              return orderedViews[currentIndex];
-                            },
-                          )
-                        : widget.body!,
+                maxWidth: maxWidth,
+                minHeight: 0,
+                maxHeight: maxHeight,
+                alignment: widget.alignment,
+                insetPadding: widget.insetPadding,
+                density: LibraryDensity.comfortable,
+                expandBody: false,
+                body: ConstrainedBox(
+                  constraints: BoxConstraints(maxHeight: maxHeight),
+                  child: Form(
+                    key: widget.formKey,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        if (hasTabStrip)
+                          LibraryEditTabStripFrame(
+                            child: LibraryEditReorderableTabStrip(
+                              tabController: widget.tabController!,
+                              tabs: orderedTabs,
+                              accent: widget.accent,
+                              allowReorder:
+                                  widget.allowTabReorder && !widget.isBusy,
+                              enabled: !widget.isBusy,
+                              onReorderItem: _onReorderItem,
+                            ),
+                          ),
+                        Flexible(
+                          fit: FlexFit.loose,
+                          child: Material(
+                            color: p.surfaceBright,
+                            child: hasTabStrip
+                                ? AnimatedBuilder(
+                                    animation: widget.tabController!,
+                                    builder: (context, _) {
+                                      final rawIndex =
+                                          widget.tabController!.index;
+                                      final currentIndex = rawIndex < 0
+                                          ? 0
+                                          : rawIndex >= orderedViews.length
+                                              ? orderedViews.length - 1
+                                              : rawIndex;
+                                      return orderedViews[currentIndex];
+                                    },
+                                  )
+                                : widget.body!,
+                          ),
+                        ),
+                        if (widget.footerContent != null)
+                          Container(
+                            width: double.infinity,
+                            padding: const EdgeInsets.fromLTRB(10, 8, 10, 8),
+                            decoration: BoxDecoration(
+                              color: p.panel,
+                              border: Border(
+                                top: BorderSide(color: p.divider),
+                              ),
+                            ),
+                            child: widget.footerContent!,
+                          ),
+                      ],
+                    ),
                   ),
                 ),
-                if (widget.footerContent != null)
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.fromLTRB(10, 8, 10, 8),
-                    decoration: BoxDecoration(
-                      color: p.panelRaised,
-                      border: Border(
-                        top: BorderSide(color: p.divider),
-                      ),
-                    ),
-                    child: widget.footerContent!,
-                  ),
-              ],
+              ),
             ),
           ),
         ),
       ),
     );
   }
+}
+
+/// Exposes the scaffold's visible tab order to form lifecycle coordinators.
+final class LibraryEditTabNavigationScope extends InheritedWidget {
+  const LibraryEditTabNavigationScope({
+    super.key,
+    required this.orderedTabIds,
+    required this.selectedTabId,
+    required this.selectTabId,
+    required super.child,
+  });
+
+  final List<String> orderedTabIds;
+  final String? Function() selectedTabId;
+  final ValueChanged<String> selectTabId;
+
+  static LibraryEditTabNavigationScope? readOf(BuildContext context) {
+    final widget = context
+        .getElementForInheritedWidgetOfExactType<
+            LibraryEditTabNavigationScope>()
+        ?.widget;
+    return widget is LibraryEditTabNavigationScope ? widget : null;
+  }
+
+  @override
+  bool updateShouldNotify(LibraryEditTabNavigationScope oldWidget) =>
+      !listEquals(orderedTabIds, oldWidget.orderedTabIds) ||
+      !identical(selectedTabId, oldWidget.selectedTabId) ||
+      !identical(selectTabId, oldWidget.selectTabId);
 }
 
 class _LibraryEditTitleBar extends StatelessWidget {
@@ -283,6 +416,7 @@ class _LibraryEditTitleBar extends StatelessWidget {
     required this.onClose,
     required this.chromeVariant,
     required this.accent,
+    required this.isBusy,
   });
 
   final IconData icon;
@@ -291,51 +425,71 @@ class _LibraryEditTitleBar extends StatelessWidget {
   final VoidCallback onClose;
   final LibraryEditChromeVariant chromeVariant;
   final Color accent;
+  final bool isBusy;
 
   @override
   Widget build(BuildContext context) {
-    final isWideDesktop =
-        chromeVariant == LibraryEditChromeVariant.movieDesktop;
-    final headerMinHeight = isWideDesktop ? 46.0 : 48.0;
-    final foreground = appContrastingTextColor(accent);
-    return LibraryPanelHeader(
-      backgroundColor: accent,
-      foregroundColor: foreground,
-      borderColor: accent.withValues(alpha: 0.92),
-      onClose: onClose,
-      minHeight: headerMinHeight,
-      padding: const EdgeInsets.fromLTRB(10, 6, 10, 6),
-      child: Row(
-        children: [
-          Icon(icon, size: 16),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontWeight: FontWeight.w700,
-                    fontSize: isWideDesktop ? 13 : 14,
-                    color: foreground,
-                  ),
-                ),
-                if (badges.isNotEmpty) ...[
-                  const SizedBox(height: 2),
-                  Wrap(
-                    spacing: 4,
-                    runSpacing: 2,
-                    children: badges,
-                  ),
-                ],
-              ],
-            ),
+    const headerMinHeight = 38.0;
+    const foreground = Colors.white;
+    return AnimatedLibraryChrome(
+      accent: accent,
+      borderBuilder: (animatedAccent, _) => Border(
+        bottom: BorderSide(
+          color: Color.alphaBlend(
+            Colors.white.withValues(alpha: 0.12),
+            animatedAccent,
           ),
-        ],
+        ),
+      ),
+      child: LibraryPanelHeader(
+        backgroundColor: Colors.transparent,
+        foregroundColor: foreground,
+        borderColor: Colors.transparent,
+        trailing: IconButton(
+          tooltip: 'Close',
+          onPressed: isBusy ? null : onClose,
+          constraints: const BoxConstraints.tightFor(width: 24, height: 24),
+          padding: EdgeInsets.zero,
+          visualDensity: VisualDensity.standard,
+          style: IconButton.styleFrom(
+            foregroundColor: Colors.white,
+            padding: EdgeInsets.zero,
+            minimumSize: const Size(24, 24),
+            maximumSize: const Size(24, 24),
+            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+          ),
+          icon: const Icon(AppIcons.close, size: 16, color: Colors.white),
+        ),
+        minHeight: headerMinHeight,
+        padding: const EdgeInsets.fromLTRB(15, 6, 10, 6),
+        child: Row(
+          children: [
+            Icon(icon, size: 20, color: Colors.white),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: appPanelTitleStyle,
+                  ),
+                  if (badges.isNotEmpty) ...[
+                    const SizedBox(height: 2),
+                    Wrap(
+                      spacing: 4,
+                      runSpacing: 2,
+                      children: badges,
+                    ),
+                  ],
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -350,36 +504,64 @@ class _LibraryEditFooter extends StatelessWidget {
     this.onNext,
     required this.chromeVariant,
     required this.accent,
+    required this.isBusy,
   });
   final VoidCallback onCancel;
-  final VoidCallback onSave;
+  final VoidCallback? onSave;
   final VoidCallback? onProposeToCore;
   final VoidCallback? onPrevious;
   final VoidCallback? onNext;
   final LibraryEditChromeVariant chromeVariant;
   final Color accent;
+  final bool isBusy;
 
   @override
   Widget build(BuildContext context) {
     final isWideDesktop =
         chromeVariant == LibraryEditChromeVariant.movieDesktop;
-    final navButtonStyle = OutlinedButton.styleFrom(
+    final editorPalette = libraryEditPalette(appPalette(context));
+    final navigationStyle = OutlinedButton.styleFrom(
+      foregroundColor: editorPalette.textPrimary,
+      disabledForegroundColor: editorPalette.textPrimary,
+      side: BorderSide.none,
       shape: kLibraryDialogFooterButtonShape,
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 9),
-      minimumSize: const Size(112, kLibraryDialogFooterButtonHeight),
-      visualDensity: VisualDensity.compact,
+      padding: const EdgeInsets.symmetric(horizontal: 8),
+      minimumSize: const Size(100, kLibraryDialogFooterButtonHeight),
+      visualDensity: VisualDensity.standard,
+      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+      animationDuration: MediaQuery.disableAnimationsOf(context)
+          ? Duration.zero
+          : appControlHoverDuration,
+      splashFactory: NoSplash.splashFactory,
+      textStyle: const TextStyle(
+          fontSize: 14,
+          fontWeight: FontWeight.w400,
+          height: 20 / 14,
+          letterSpacing: 0),
+    ).copyWith(
+      overlayColor: const WidgetStatePropertyAll(Colors.transparent),
+      backgroundColor: WidgetStateProperty.resolveWith((states) {
+        if (states.contains(WidgetState.disabled)) {
+          return editorPalette.isDark
+              ? const Color(0xFF232323)
+              : editorPalette.panelRaised;
+        }
+        if (states.contains(WidgetState.hovered)) {
+          return editorPalette.isDark
+              ? const Color(0xFF535353)
+              : editorPalette.surfaceBright;
+        }
+        return editorPalette.isDark
+            ? const Color(0xFF494949)
+            : editorPalette.field;
+      }),
     );
-    final compactIconButtonStyle = OutlinedButton.styleFrom(
-      shape: kLibraryDialogFooterButtonShape,
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 9),
-      minimumSize: const Size(44, kLibraryDialogFooterButtonHeight),
-      visualDensity: VisualDensity.compact,
+    final compactIconButtonStyle = navigationStyle.copyWith(
+      minimumSize: const WidgetStatePropertyAll(
+          Size(44, kLibraryDialogFooterButtonHeight)),
     );
+    final navButtonStyle = navigationStyle;
     final windowClass = AppWindowClass.of(context);
-    final proposalBackground = Color.alphaBlend(
-      accent.withValues(alpha: 0.18),
-      Colors.white,
-    );
     final showNav =
         !windowClass.isCompact || onPrevious != null || onNext != null;
 
@@ -388,28 +570,37 @@ class _LibraryEditFooter extends StatelessWidget {
       children: [
         if (showNav) ...[
           SizedBox(
-            width: isWideDesktop || windowClass.isCompact ? 44 : 112,
+            height: kLibraryDialogFooterButtonHeight,
+            width: isWideDesktop || windowClass.isCompact ? 44 : 100,
             child: isWideDesktop || windowClass.isCompact
                 ? OutlinedButton(
                     style: compactIconButtonStyle,
                     onPressed: onPrevious,
-                    child: const Icon(Icons.chevron_left, size: 16),
+                    child: const Icon(AppIcons.chevronLeft, size: 16),
                   )
-                : OutlinedButton.icon(
+                : OutlinedButton(
                     style: navButtonStyle,
                     onPressed: onPrevious,
-                    icon: const Icon(Icons.chevron_left),
-                    label: const Text('Previous'),
+                    child: const Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(AppIcons.chevronLeft, size: 16),
+                          SizedBox(width: 4),
+                          Flexible(
+                              child: Text('Previous',
+                                  maxLines: 1, softWrap: false)),
+                        ]),
                   ),
           ),
-          const SizedBox(width: 8),
+          const SizedBox(width: 4),
           SizedBox(
-            width: isWideDesktop || windowClass.isCompact ? 44 : 112,
+            height: kLibraryDialogFooterButtonHeight,
+            width: isWideDesktop || windowClass.isCompact ? 44 : 100,
             child: isWideDesktop || windowClass.isCompact
                 ? OutlinedButton(
                     style: compactIconButtonStyle,
                     onPressed: onNext,
-                    child: const Icon(Icons.chevron_right, size: 16),
+                    child: const Icon(AppIcons.chevronRight, size: 16),
                   )
                 : OutlinedButton(
                     style: navButtonStyle,
@@ -417,9 +608,9 @@ class _LibraryEditFooter extends StatelessWidget {
                     child: const Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Text('Next'),
+                        Text('Next', maxLines: 1, softWrap: false),
                         SizedBox(width: 4),
-                        Icon(Icons.chevron_right),
+                        Icon(AppIcons.chevronRight, size: 16),
                       ],
                     ),
                   ),
@@ -430,54 +621,50 @@ class _LibraryEditFooter extends StatelessWidget {
           OutlinedButton.icon(
             style: OutlinedButton.styleFrom(
               shape: kLibraryDialogFooterButtonShape,
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 9),
+              padding: const EdgeInsets.symmetric(horizontal: 10),
               minimumSize: const Size(0, kLibraryDialogFooterButtonHeight),
-              visualDensity: VisualDensity.compact,
+              visualDensity: VisualDensity.standard,
+              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
             ),
-            onPressed: onProposeToCore,
+            onPressed: isBusy ? null : onProposeToCore,
             icon: const Icon(Icons.cloud_upload_outlined, size: 17),
             label: const Text('Propose to Core'),
           ),
           const SizedBox(width: 8),
         ],
         SizedBox(
-          width: isWideDesktop ? 44 : (windowClass.isCompact ? 92 : 112),
+          height: kLibraryDialogFooterButtonHeight,
+          width: isWideDesktop ? 44 : (windowClass.isCompact ? 92 : 100),
           child: OutlinedButton(
-            style: isWideDesktop
-                ? compactIconButtonStyle
-                : OutlinedButton.styleFrom(
-                    shape: kLibraryDialogFooterButtonShape,
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 10, vertical: 9),
-                    minimumSize: Size(windowClass.isCompact ? 92 : 112,
-                        kLibraryDialogFooterButtonHeight),
-                    visualDensity: VisualDensity.compact,
-                  ),
-            onPressed: onCancel,
+            style: isWideDesktop ? compactIconButtonStyle : navButtonStyle,
+            onPressed: isBusy ? null : onCancel,
             child: isWideDesktop
-                ? const Icon(Icons.close, size: 16)
+                ? const Icon(AppIcons.close, size: 16)
                 : const Text('Cancel'),
           ),
         ),
         const SizedBox(width: 8),
         SizedBox(
-          width: windowClass.isCompact ? 96 : 112,
-          child: FilledButton.icon(
+          height: kLibraryDialogFooterButtonHeight,
+          width: windowClass.isCompact ? 96 : 100,
+          child: FilledButton(
             style: FilledButton.styleFrom(
-              backgroundColor: isWideDesktop ? proposalBackground : accent,
-              foregroundColor: isWideDesktop
-                  ? appContrastingTextColor(proposalBackground)
-                  : null,
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 9),
+              backgroundColor: accent,
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(horizontal: 10),
               minimumSize: Size(windowClass.isCompact ? 96 : 112,
                   kLibraryDialogFooterButtonHeight),
               shape: kLibraryDialogFooterButtonShape,
-              textStyle: const TextStyle(fontWeight: FontWeight.w700),
-              visualDensity: VisualDensity.compact,
+              textStyle: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w400,
+                  height: 20 / 14,
+                  letterSpacing: 0),
+              visualDensity: VisualDensity.standard,
+              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
             ),
-            onPressed: onSave,
-            icon: const Icon(Icons.save_outlined, size: 18),
-            label: const Text('Save'),
+            onPressed: isBusy ? null : onSave,
+            child: const Text('Save'),
           ),
         ),
       ],
@@ -486,6 +673,7 @@ class _LibraryEditFooter extends StatelessWidget {
     return LibraryActionFooter(
       backgroundColor: appPalette(context).toolbar,
       borderColor: appPalette(context).divider,
+      padding: const EdgeInsets.all(10),
       child: windowClass.isCompact
           ? SingleChildScrollView(
               scrollDirection: Axis.horizontal,

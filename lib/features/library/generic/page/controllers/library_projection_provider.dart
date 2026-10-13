@@ -1,13 +1,11 @@
 import 'package:collectarr_app/core/models/custom_field.dart';
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/config/library_search_target.dart';
-import 'package:collectarr_app/features/library/generic/filter_dialog.dart';
+import 'package:collectarr_app/features/library/generic/library_filters.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
-import 'package:collectarr_app/features/library/generic/quick_view.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_registration.dart';
-import 'package:collectarr_app/features/library/workspace/config/library_workspace_view_enums.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_view_state.dart';
 import 'package:collectarr_app/features/library/workspace/layout/library_bucket_sidebar.dart';
 import 'package:flutter/foundation.dart';
@@ -19,8 +17,6 @@ class LibraryProjectionRequest {
     required this.shelf,
     required this.type,
     required this.viewState,
-    required this.browserMode,
-    required this.releaseFolderWorkId,
     required this.query,
     required this.linkedMetadataFilter,
     required this.selectedBucket,
@@ -31,19 +27,18 @@ class LibraryProjectionRequest {
     required this.bucketScopeFilters,
     required this.overrideBuckets,
     required this.constrainedItemIds,
+    this.collectionEntryIds,
     required this.filterSelection,
     required this.customFieldValuesByItem,
     required this.customFieldValuesByDefinitionByItem,
     this.customFieldDefinitions = const [],
-    required this.activeLoanOwnedItemIds,
+    required this.activeLoanLibraryEntryIds,
     required this.searchTarget,
   });
 
   final ShelfState shelf;
   final LibraryKindRegistration type;
   final LibraryWorkspaceViewState viewState;
-  final LibraryWorkspaceBrowserMode browserMode;
-  final String? releaseFolderWorkId;
   final String query;
   final LibraryLinkedMetadataFilter? linkedMetadataFilter;
   final String? selectedBucket;
@@ -54,21 +49,21 @@ class LibraryProjectionRequest {
   final List<LibraryBucketScopeFilter> bucketScopeFilters;
   final List<LibraryBucket>? overrideBuckets;
   final Set<String>? constrainedItemIds;
+  final Set<String>? collectionEntryIds;
   final LibraryFilterSelection filterSelection;
   final Map<String, List<String>> customFieldValuesByItem;
   final Map<String, Map<String, String>> customFieldValuesByDefinitionByItem;
   final List<CustomFieldDefinition> customFieldDefinitions;
-  final Set<OwnedItemRef> activeLoanOwnedItemIds;
+  final Set<LibraryEntryRef> activeLoanLibraryEntryIds;
   final LibrarySearchTarget searchTarget;
 
   @override
   bool operator ==(Object other) {
     return other is LibraryProjectionRequest &&
         shelf == other.shelf &&
+        setEquals(collectionEntryIds, other.collectionEntryIds) &&
         type == other.type &&
         viewState == other.viewState &&
-        browserMode == other.browserMode &&
-        releaseFolderWorkId == other.releaseFolderWorkId &&
         query == other.query &&
         linkedMetadataFilter == other.linkedMetadataFilter &&
         selectedBucket == other.selectedBucket &&
@@ -89,17 +84,16 @@ class LibraryProjectionRequest {
           other.customFieldValuesByDefinitionByItem,
         ) &&
         listEquals(customFieldDefinitions, other.customFieldDefinitions) &&
-        setEquals(activeLoanOwnedItemIds, other.activeLoanOwnedItemIds) &&
+        setEquals(activeLoanLibraryEntryIds, other.activeLoanLibraryEntryIds) &&
         searchTarget == other.searchTarget;
   }
 
   @override
   int get hashCode => Object.hashAll([
         shelf,
+        Object.hashAll((collectionEntryIds?.toList() ?? <String>[])..sort()),
         type,
         viewState,
-        browserMode,
-        releaseFolderWorkId,
         query,
         linkedMetadataFilter,
         selectedBucket,
@@ -114,7 +108,7 @@ class LibraryProjectionRequest {
         _stringListMapHash(customFieldValuesByItem),
         _stringNestedMapHash(customFieldValuesByDefinitionByItem),
         Object.hashAll(customFieldDefinitions),
-        Object.hashAll(activeLoanOwnedItemIds.toList(growable: false)),
+        Object.hashAll(activeLoanLibraryEntryIds.toList(growable: false)),
         searchTarget,
       ]);
 }
@@ -188,8 +182,6 @@ final libraryProjectionProvider = Provider.autoDispose
     shelf: request.shelf,
     type: request.type,
     viewState: request.viewState,
-    browserMode: request.browserMode,
-    releaseFolderWorkId: request.releaseFolderWorkId,
     query: request.query,
     linkedMetadataFilter: request.linkedMetadataFilter,
     selectedBucket: request.selectedBucket,
@@ -200,12 +192,13 @@ final libraryProjectionProvider = Provider.autoDispose
     bucketScopeFilters: request.bucketScopeFilters,
     overrideBuckets: request.overrideBuckets,
     constrainedItemIds: request.constrainedItemIds,
+    collectionEntryIds: request.collectionEntryIds,
     filterSelection: request.filterSelection,
     customFieldDefinitions: request.customFieldDefinitions,
     customFieldValuesByItem: request.customFieldValuesByItem,
     customFieldValuesByDefinitionByItem:
         request.customFieldValuesByDefinitionByItem,
-    activeLoanOwnedItemIds: request.activeLoanOwnedItemIds,
+    activeLoanLibraryEntryIds: request.activeLoanLibraryEntryIds,
     searchTarget: request.searchTarget,
   );
 });

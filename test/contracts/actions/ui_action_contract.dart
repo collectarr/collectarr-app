@@ -2,7 +2,7 @@ import 'dart:async';
 
 import '../contract_test_helpers.dart';
 
-/// Structural contract for a kind-owned action exposed to generic UI hosts.
+/// Structural contract for a kind-entry action exposed to generic UI hosts.
 ///
 /// The action context is intentionally generic. A production action contract
 /// must not grow fields for a particular kind.

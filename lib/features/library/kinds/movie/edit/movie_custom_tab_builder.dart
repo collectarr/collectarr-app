@@ -1,14 +1,10 @@
 import 'package:collectarr_app/features/library/edit/draft/library_edit_shell_state.dart';
-import 'package:collectarr_app/features/library/domain/library_entity_scope.dart';
 import 'package:collectarr_app/features/library/kinds/movie/edit/movie_edit_draft_contract.dart';
-import 'package:collectarr_app/features/library/kinds/movie/edit/movie_edit_controller.dart';
+import 'package:collectarr_app/features/library/kinds/movie/forms/movie_catalog_field_specs.dart';
+import 'package:collectarr_app/features/library/kinds/movie/forms/movie_catalog_form_edit_tab.dart';
 import 'package:collectarr_app/features/library/kinds/movie/edit/tabs/movie_cast_tab.dart';
 import 'package:collectarr_app/features/library/kinds/movie/edit/tabs/movie_crew_tab.dart';
-import 'package:collectarr_app/features/library/kinds/movie/edit/tabs/movie_discs_tab.dart';
-import 'package:collectarr_app/features/library/kinds/movie/edit/tabs/movie_edition_tab.dart';
 import 'package:collectarr_app/features/library/kinds/movie/edit/tabs/movie_links_tab.dart';
-import 'package:collectarr_app/features/library/kinds/movie/edit/tabs/movie_media_tab.dart';
-import 'package:collectarr_app/features/library/kinds/movie/edit/tabs/movie_specs_tab.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:flutter/material.dart';
 
@@ -17,55 +13,86 @@ Widget? buildMovieCustomTabView({
   required BuildContext context,
   required LibraryEditShellState draft,
   required Color accent,
-  required LibraryEntityScope scope,
   required CatalogSearchCandidate item,
   required VoidCallback markDirty,
 }) {
-  final movieEdit = (draft.session.workSession is MovieEditDraftContract)
-      ? (draft.session.workSession as MovieEditDraftContract).movieEdit
-      : MovieEditController(itemId: item.reference.id, catalogRef: item.reference);
+  final catalogDraft = draft.session.catalogItemSession;
+  if (catalogDraft is! MovieEditDraftContract) {
+    throw StateError(
+      'Movie tab "$tabId" requires the registered Movie edit draft.',
+    );
+  }
+  final movieEdit = catalogDraft.movieEdit;
 
   return switch (tabId) {
-    'edition' => MovieEditEditionTab(
-        draft: draft,
-        accent: accent,
-        physicalFormats: const [],
+    'edition' => MovieCatalogFormEditTab(
+        state: draft,
+        values: catalogDraft.catalogValues,
+        itemId: draft.target?.id ??
+            item.catalogRef?.id ??
+            (throw StateError('Movie editor requires an explicit target.')),
+        fieldIds: movieEditionFieldIds,
+        sectionLabel: 'Edition',
+        markDirty: markDirty,
       ),
-    'specs' => MovieEditSpecsTab(
-        draft: draft,
-        movieEdit: movieEdit,
-        accent: accent,
-        audioTrackOptions: const [],
-        subtitleOptions: const [],
-        layersOptions: const [],
-        colorOptions: const [],
+    'specs' => MovieCatalogFormEditTab(
+        state: draft,
+        values: catalogDraft.catalogValues,
+        itemId: draft.target?.id ??
+            item.catalogRef?.id ??
+            (throw StateError('Movie editor requires an explicit target.')),
+        fieldIds: movieSpecsFieldIds,
+        sectionLabel: 'Specs',
+        markDirty: markDirty,
       ),
     'cast' => MovieEditCastTab(
-        accent: accent,
         movieEdit: movieEdit,
+        catalogValues: catalogDraft.catalogValues,
+        accent: accent,
+        markDirty: markDirty,
       ),
     'crew' => MovieEditCrewTab(
-        accent: accent,
         movieEdit: movieEdit,
-      ),
-    'discs' => MovieEditDiscsTab(
-        item: item,
         accent: accent,
+        markDirty: markDirty,
       ),
     'links' => MovieEditLinksTab(
         item: item,
         accent: accent,
-        movieEdit: movieEdit,
+        userExternalLinks: draft.userExternalLinks,
+        isEntry:
+            draft.libraryEntry != null || draft.libraryEntryDispatch != null,
+        markDirty: markDirty,
       ),
-    'media' => MovieEditMediaTab(
-        draft: draft,
-        movieEdit: movieEdit,
-        accent: accent,
-        countryOptions: const [],
-        languageOptions: const [],
-        ageRatingOptions: const [],
-        audienceRatingOptions: const [],
-        genreOptions: const [],
+    'catalog_item' => MovieCatalogFormEditTab(
+        state: draft,
+        values: catalogDraft.catalogValues,
+        itemId: draft.target?.id ??
+            item.catalogRef?.id ??
+            (throw StateError('Movie editor requires an explicit target.')),
+        fieldIds: movieMainFieldIds,
+        sectionLabel: 'Main',
+        markDirty: markDirty,
+      ),
+    'synopsis' => MovieCatalogFormEditTab(
+        state: draft,
+        values: catalogDraft.catalogValues,
+        itemId: draft.target?.id ??
+            item.catalogRef?.id ??
+            (throw StateError('Movie editor requires an explicit target.')),
+        fieldIds: const {'synopsis'},
+        sectionLabel: 'Plot',
+        markDirty: markDirty,
+      ),
+    'cover' => MovieCatalogFormEditTab(
+        state: draft,
+        values: catalogDraft.catalogValues,
+        itemId: draft.target?.id ??
+            item.catalogRef?.id ??
+            (throw StateError('Movie editor requires an explicit target.')),
+        fieldIds: const {movieCoverImageUrlFieldId},
+        sectionLabel: 'Covers',
+        markDirty: markDirty,
       ),
     _ => null,
   };

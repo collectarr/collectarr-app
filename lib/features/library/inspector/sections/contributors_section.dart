@@ -87,7 +87,7 @@ class _ContributorGroup extends StatelessWidget {
             label,
             style: Theme.of(context).textTheme.labelSmall?.copyWith(
                   color: appPalette(context).textMuted,
-                  fontWeight: FontWeight.w800,
+                  fontWeight: FontWeight.w700,
                   letterSpacing: 0.2,
                 ),
           ),

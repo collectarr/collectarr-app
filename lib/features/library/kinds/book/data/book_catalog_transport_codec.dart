@@ -4,45 +4,59 @@ import 'package:collectarr_app/core/models/catalog_display_summary.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_transport_payload.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_kind_derived_data.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_kind_transport_codec.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_item_cache_repository.dart';
 import 'package:collectarr_app/features/catalog/serial/serial_authority_repository.dart';
 import 'package:collectarr_app/features/pick_lists/pick_list_repository.dart';
 import 'package:collectarr_app/features/pick_lists/pick_list_definition_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_pick_list_contributors.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_serial_authority_contributors.dart';
-import 'package:collectarr_app/features/library/kinds/book/data/book_repository.dart';
-import 'package:collectarr_app/features/library/kinds/book/domain/book_media.dart';
-import 'package:collectarr_app/features/library/kinds/book/workspace/book_workspace_catalog_data.dart';
+import 'package:collectarr_app/features/library/kinds/book/domain/book_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/book/workspace/book_workspace_data.dart';
 
 final class BookCatalogTransportCodec
-    implements CatalogKindTransportCodec<BookMedia> {
+    implements CatalogKindTransportCodec<BookCatalogMetadata> {
   const BookCatalogTransportCodec();
 
   @override
   CatalogMediaKind get kind => CatalogMediaKind.book;
 
   @override
-  BookMedia decode(CatalogItemDto item) {
-    final metadata = item.kindMetadata;
-    if (metadata is BookMedia) return metadata;
-    return BookMedia.fromJson(catalogTransportPayloadFor(item));
-  }
+  BookCatalogMetadata decode(CatalogItemDto item) =>
+      BookCatalogMetadata.fromJson(catalogTransportPayloadFor(item));
 
   @override
-  Future<void> upsert(LocalDatabase db, BookMedia item) {
-    return BookRepository(db).updateMedia(item);
-  }
+  BookCatalogMetadata decodeKindData(Map<String, dynamic> kindData) =>
+      BookCatalogMetadata.fromJson(kindData);
 
   @override
-  CatalogDisplaySummary summarize(BookMedia item) => CatalogDisplaySummary.root(
+  CatalogItemDto encode(String id, BookCatalogMetadata item) =>
+      CatalogItemDto.raw(
+        id: id,
+        mediaKind: kind,
+        kindData: item.toJson(),
+      );
+
+  @override
+  CatalogDisplaySummary summarize(
+    String catalogItemId,
+    BookCatalogMetadata item,
+  ) =>
+      CatalogDisplaySummary.forCatalogItem(
         kind: kind,
-        id: item.id.value,
+        id: catalogItemId,
         primaryLabel: item.title,
         imageUrl: item.thumbnailImageUrl ?? item.coverImageUrl,
       );
 
   @override
-  BookWorkspaceCatalogData workspaceData(CatalogItemDto item) =>
-      BookWorkspaceCatalogData.fromTransport(item);
+  BookWorkspaceData workspaceData(CatalogItemDto item) =>
+      BookWorkspaceData(metadata: decode(item));
+
+  @override
+  BookWorkspaceData workspaceDataFromKindData(
+    Map<String, dynamic> kindData,
+  ) =>
+      BookWorkspaceData(metadata: BookCatalogMetadata.fromJson(kindData));
 
   @override
   Future<Map<String, int>> countCatalogValues(
@@ -56,9 +70,7 @@ final class BookCatalogTransportCodec
     return countPickListCatalogValuesByValue(
       contributor: contributor,
       listName: listName,
-      metadata: [
-        for (final item in await listTransport(db)) decode(item),
-      ],
+      metadata: await listCatalogAndEntryMetadata(db),
       normalizedValues: normalizedValues,
     );
   }
@@ -85,24 +97,29 @@ final class BookCatalogTransportCodec
     SerialAuthorityRepository serialAuthority,
     CatalogItemDto item,
   ) async {
-    await captureDerivedDataTyped(pickLists, serialAuthority, decode(item));
+    await captureCatalogKindDerivedData(
+      kind: kind,
+      derived: _derivedDataForMetadata(_catalogMetadata(item)),
+      pickLists: pickLists,
+      serialAuthority: serialAuthority,
+    );
   }
 
   @override
   Future<void> captureDerivedDataTyped(
     PickListRepository pickLists,
     SerialAuthorityRepository serialAuthority,
-    BookMedia item,
+    BookCatalogMetadata item,
   ) async {
     await captureCatalogKindDerivedData(
       kind: kind,
-      derived: _derivedDataFromTyped(item),
+      derived: _derivedDataForMetadata(item),
       pickLists: pickLists,
       serialAuthority: serialAuthority,
     );
   }
 
-  CatalogKindDerivedData? _derivedDataFromTyped(BookMedia item) =>
+  CatalogKindDerivedData? _derivedDataForMetadata(BookCatalogMetadata item) =>
       catalogDerivedDataFor(
         kind: kind,
         metadata: item,
@@ -111,40 +128,23 @@ final class BookCatalogTransportCodec
       );
 
   @override
-  Future<void> upsertTransport(LocalDatabase db, CatalogItemDto item) {
-    return upsert(db, decode(item));
-  }
-
-  @override
-  Future<List<CatalogItemDto>> listTransport(LocalDatabase db) async {
-    final media = await BookRepository(db).search();
-    return [
-      for (final item in media) _projection(item),
-    ];
-  }
+  Future<List<CatalogItemDto>> listTransport(LocalDatabase db) =>
+      CatalogItemCacheRepository(db).findAll(kind: kind);
 
   @override
   Future<List<CatalogDisplaySummary>> listSummaries(LocalDatabase db) async {
-    final media = await BookRepository(db).search();
+    final items = await listTransport(db);
     return [
-      for (final item in media) summarize(item),
+      for (final item in items) summarize(item.id, decode(item)),
     ];
+  }
+
+  BookCatalogMetadata _catalogMetadata(CatalogItemDto item) {
+    return decode(item);
   }
 }
 
 int? _replacementValueFromPayload(CatalogItemDto item) {
-  final direct = item.payload['cover_price_cents'];
-  if (direct is num) return direct.toInt();
-  final publishing = item.payload['publishing'];
-  final nested = publishing is Map ? publishing['cover_price_cents'] : null;
-  return nested is num ? nested.toInt() : null;
-}
-
-CatalogItemDto _projection(BookMedia item) {
-  final payload = Map<String, dynamic>.from(item.rawPayload);
-  payload['id'] ??= item.id.value;
-  payload['kind'] ??= 'book';
-  payload['title'] ??= item.title;
-  final projection = CatalogItemDto.fromJson(payload);
-  return projection.withKindMetadata(BookMedia.fromJson(projection.payload));
+  final value = item.kindData['cover_price_cents'];
+  return value is num ? value.toInt() : null;
 }

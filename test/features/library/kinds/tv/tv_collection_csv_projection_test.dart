@@ -1,4 +1,3 @@
-import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/kinds/tv/integrations/collection_csv/tv_collection_csv_import_profile.dart';
 import 'package:collectarr_app/features/library/kinds/tv/integrations/collection_csv/tv_collection_csv_projection.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -50,7 +49,7 @@ void main() {
       '024543123456',
     ]);
     expect(
-      profile.importOwnedCells(
+      profile.importEntryCells(
         header: const ['Media Type'],
         values: const ['TV'],
       ),
@@ -60,7 +59,7 @@ void main() {
 
   test('projects TV catalog cells without flattening episodes', () {
     final projection = const TvCollectionCsvProjection();
-    final entry = LibraryWorkspaceSource(
+    final entry = testLibraryWorkspaceSource(
       itemId: 'tv-1',
       catalogData: testWorkspaceCatalogData(
           testCatalogItemWithKindMetadata(testCatalogItem(
@@ -71,14 +70,13 @@ void main() {
         publisher: 'FOX',
         releaseDate: DateTime.utc(1993, 9, 10),
         barcode: '024543123456',
-        variant: 'Complete Series',
         physicalFormat: '4k-uhd',
         physicalFormatLabel: '4K UHD',
+        payload: const {'variant_name': 'Complete Series'},
       )).asShelfCatalogItem),
-      ownedSummary: testOwnedSummary(testOwnedItem(
-        id: 'owned-1',
+      libraryEntrySummary: testLibraryEntrySummary(testLibraryEntry(
+        id: 'entry-1',
         itemId: 'tv-1',
-        quantity: 1,
         updatedAt: DateTime.utc(2026, 5, 15),
       )),
     );
@@ -97,8 +95,8 @@ void main() {
       '024543123456',
     ]);
     expect(
-      projection.ownedCellsAfterIndex(entry, clzFriendly: true),
-      hasLength(8),
+      projection.entryCellsAfterIndex(entry, clzFriendly: true),
+      hasLength(9),
     );
   });
 }

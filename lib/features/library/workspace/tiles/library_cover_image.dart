@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/core/utils/image_url.dart';
 import 'package:collectarr_app/features/collection/providers/local_cover_image_provider.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
@@ -16,12 +16,13 @@ class LibraryCoverImage extends ConsumerWidget {
     this.itemNumber,
     this.imageUrl,
     this.localBytes,
-    this.ownedRef,
+    this.libraryEntryRef,
     this.targetCacheWidth,
     this.fallbackAspectRatio = 2 / 3,
     this.localImageType = 'front_cover',
     this.borderRadius = 4,
     this.fit = BoxFit.contain,
+    this.showPlaceholder = true,
     super.key,
   });
 
@@ -29,38 +30,40 @@ class LibraryCoverImage extends ConsumerWidget {
   final String? itemNumber;
   final String? imageUrl;
   final Uint8List? localBytes;
-  final OwnedItemRef? ownedRef;
+  final LibraryEntryRef? libraryEntryRef;
   final int? targetCacheWidth;
   final double fallbackAspectRatio;
   final String localImageType;
   final double borderRadius;
   final BoxFit fit;
+  final bool showPlaceholder;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final url = normalizeNetworkImageUrl(imageUrl);
 
-    // Resolve local image: prefer explicit local bytes; query DB only when
-    // there is no usable remote URL to avoid first-load source swapping.
+    // An entry's chosen local cover takes precedence over catalog artwork.
     var local = localBytes;
-    if (local == null && ownedRef != null && url == null) {
+    if (local == null && libraryEntryRef != null) {
       local = ref
           .watch(
             localItemImageProvider((
-              ownedRef: ownedRef!,
+              libraryEntryRef: libraryEntryRef!,
               imageType: localImageType,
             )),
           )
           .value;
     }
 
-    final fallbackCover = LibraryGeneratedCover(
-      title: title,
-      itemNumber: itemNumber,
-      borderRadius: borderRadius,
-      aspectRatio: fallbackAspectRatio,
-      fit: fit,
-    );
+    final fallbackCover = showPlaceholder
+        ? LibraryGeneratedCover(
+            title: title,
+            itemNumber: itemNumber,
+            borderRadius: borderRadius,
+            aspectRatio: fallbackAspectRatio,
+            fit: fit,
+          )
+        : const SizedBox.expand();
 
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -400,7 +403,7 @@ class SlabFrameOverlay extends StatelessWidget {
                     style: TextStyle(
                       color: appContrastingTextColor(_labelColor),
                       fontSize: 12,
-                      fontWeight: FontWeight.w800,
+                      fontWeight: FontWeight.w700,
                       letterSpacing: 0.3,
                     ),
                   ),
@@ -423,7 +426,7 @@ class LibraryInteractiveCover extends StatefulWidget {
     this.fallbackAspectRatio = 2 / 3,
     this.secondaryImageUrl,
     this.secondaryLocalBytes,
-    this.ownedRef,
+    this.libraryEntryRef,
     this.borderRadius = 4,
     this.fit = BoxFit.contain,
     this.accentColor = kAppAccent,
@@ -442,7 +445,7 @@ class LibraryInteractiveCover extends StatefulWidget {
   final double fallbackAspectRatio;
   final String? secondaryImageUrl;
   final Uint8List? secondaryLocalBytes;
-  final OwnedItemRef? ownedRef;
+  final LibraryEntryRef? libraryEntryRef;
   final double borderRadius;
   final BoxFit fit;
   final Color accentColor;
@@ -464,7 +467,7 @@ class _LibraryInteractiveCoverState extends State<LibraryInteractiveCover> {
   @override
   void didUpdateWidget(covariant LibraryInteractiveCover oldWidget) {
     super.didUpdateWidget(oldWidget);
-    final coverChanged = oldWidget.ownedRef != widget.ownedRef ||
+    final coverChanged = oldWidget.libraryEntryRef != widget.libraryEntryRef ||
         oldWidget.imageUrl != widget.imageUrl ||
         oldWidget.secondaryImageUrl != widget.secondaryImageUrl ||
         oldWidget.localBytes != widget.localBytes ||
@@ -485,7 +488,7 @@ class _LibraryInteractiveCoverState extends State<LibraryInteractiveCover> {
   bool get _hasFront {
     return (widget.localBytes?.isNotEmpty ?? false) ||
         (widget.imageUrl?.trim().isNotEmpty ?? false) ||
-        (widget.ownedRef != null);
+        (widget.libraryEntryRef != null);
   }
 
   String? get _activeImageUrl =>
@@ -594,7 +597,7 @@ class _LibraryInteractiveCoverState extends State<LibraryInteractiveCover> {
                         Widget buildCover({
                           required String? imageUrl,
                           required Uint8List? localBytes,
-                          OwnedItemRef? ownedRef,
+                          LibraryEntryRef? libraryEntryRef,
                         }) {
                           return AspectRatio(
                             aspectRatio: coverAspectRatio,
@@ -609,7 +612,7 @@ class _LibraryInteractiveCoverState extends State<LibraryInteractiveCover> {
                                   itemNumber: widget.itemNumber,
                                   imageUrl: imageUrl,
                                   localBytes: localBytes,
-                                  ownedRef: ownedRef,
+                                  libraryEntryRef: libraryEntryRef,
                                   targetCacheWidth: widget.targetCacheWidth,
                                   fallbackAspectRatio:
                                       widget.fallbackAspectRatio,
@@ -628,7 +631,8 @@ class _LibraryInteractiveCoverState extends State<LibraryInteractiveCover> {
                           localBytes: showBackOnly
                               ? widget.secondaryLocalBytes
                               : widget.localBytes,
-                          ownedRef: showBackOnly ? null : widget.ownedRef,
+                          libraryEntryRef:
+                              showBackOnly ? null : widget.libraryEntryRef,
                         );
 
                         return ConstrainedBox(
@@ -661,7 +665,8 @@ class _LibraryInteractiveCoverState extends State<LibraryInteractiveCover> {
                                                     imageUrl: widget.imageUrl,
                                                     localBytes:
                                                         widget.localBytes,
-                                                    ownedRef: widget.ownedRef,
+                                                    libraryEntryRef:
+                                                        widget.libraryEntryRef,
                                                   ),
                                                 ),
                                                 const SizedBox(width: 12),
@@ -822,7 +827,7 @@ class _LibraryInteractiveCoverState extends State<LibraryInteractiveCover> {
                         itemNumber: widget.itemNumber,
                         imageUrl: _activeImageUrl,
                         localBytes: _activeLocalBytes,
-                        ownedRef: widget.ownedRef,
+                        libraryEntryRef: widget.libraryEntryRef,
                         targetCacheWidth: widget.targetCacheWidth,
                         fallbackAspectRatio: widget.fallbackAspectRatio,
                         borderRadius: widget.borderRadius,
@@ -878,7 +883,7 @@ class _LibraryInteractiveCoverState extends State<LibraryInteractiveCover> {
                                               style: TextStyle(
                                                 color: controlForeground,
                                                 fontSize: 12,
-                                                fontWeight: FontWeight.w800,
+                                                fontWeight: FontWeight.w700,
                                               ),
                                             ),
                                           ],
@@ -1031,7 +1036,7 @@ class LibraryGeneratedCover extends StatelessWidget {
                     style: TextStyle(
                       color: palette.$3,
                       fontSize: 20,
-                      fontWeight: FontWeight.w800,
+                      fontWeight: FontWeight.w700,
                       height: 0.95,
                     ),
                   ),
@@ -1057,7 +1062,7 @@ class LibraryGeneratedCover extends StatelessWidget {
                             ? kAppPanel
                             : palette.$3,
                         fontSize: 12,
-                        fontWeight: FontWeight.w800,
+                        fontWeight: FontWeight.w700,
                       ),
                     ),
                   ),

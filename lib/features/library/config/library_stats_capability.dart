@@ -16,10 +16,10 @@ class LibraryStatsTileDescriptor {
 
 /// Small financial projection used by the generic toolbar host.
 ///
-/// The host renders totals, while each kind decides how its Owned model
+/// The host renders totals, while each kind decides how its Entry model
 /// contributes the values.
-class LibraryOwnedFinancialSummary {
-  const LibraryOwnedFinancialSummary({
+class LibraryEntryFinancialSummary {
+  const LibraryEntryFinancialSummary({
     this.pricePaidCents,
     this.sellPriceCents,
     this.currency,
@@ -39,30 +39,48 @@ class LibraryStatsMetadataProjection {
   const LibraryStatsMetadataProjection({
     this.primaryGroup,
     this.secondaryGroup,
+    this.format,
+    this.displayYear,
+    this.categoryLabels = const [],
     this.hasCover = false,
     this.hasSynopsis,
     this.hasSecondaryMetadata = false,
     this.hasReleaseDate = false,
     this.hasItemNumber = false,
+    this.inlineFacts = const [],
   });
 
   final String? primaryGroup;
   final String? secondaryGroup;
+  final String? format;
+  final int? displayYear;
+  final List<String> categoryLabels;
   final bool hasCover;
   final bool? hasSynopsis;
   final bool hasSecondaryMetadata;
   final bool hasReleaseDate;
   final bool hasItemNumber;
+  final List<LibraryStatsInlineFact> inlineFacts;
+}
+
+/// Compact item facts rendered above the title in a generic stats row.
+///
+/// Kinds choose the meaning, icon, and text; the shared row owns the layout.
+class LibraryStatsInlineFact {
+  const LibraryStatsInlineFact({required this.text, this.icon});
+
+  final String text;
+  final IconData? icon;
 }
 
 abstract interface class LibraryStatsCapability {
-  LibraryOwnedFinancialSummary buildOwnedFinancialSummary(
-      LibraryWorkspaceSource entry);
+  LibraryEntryFinancialSummary buildEntryFinancialSummary(
+      LibraryWorkspaceContext entry);
 
-  /// Projects kind-owned metadata into structural facts for the generic stats
+  /// Projects kind-entry metadata into structural facts for the generic stats
   /// renderer. No kind field names or domain objects cross this boundary.
   LibraryStatsMetadataProjection? buildMetadataProjection(
-      LibraryWorkspaceSource entry);
+      LibraryWorkspaceContext entry);
 
   List<LibraryStatsTileDescriptor> buildSummaryTiles(
     ShelfState state,
@@ -74,15 +92,27 @@ abstract interface class LibraryStatsCapability {
     ShelfState state,
     LibraryKindRegistration type,
   );
+
+  Widget? buildCustomHeader(
+    BuildContext context,
+    ShelfState state,
+    LibraryKindRegistration type,
+  );
+
+  Widget? buildCustomStatsPage(
+    BuildContext context,
+    ShelfState state,
+    LibraryKindRegistration type,
+  );
 }
 
 class DefaultLibraryStatsCapability implements LibraryStatsCapability {
   const DefaultLibraryStatsCapability();
 
   @override
-  LibraryOwnedFinancialSummary buildOwnedFinancialSummary(
-      LibraryWorkspaceSource entry) {
-    return LibraryOwnedFinancialSummary(
+  LibraryEntryFinancialSummary buildEntryFinancialSummary(
+      LibraryWorkspaceContext entry) {
+    return LibraryEntryFinancialSummary(
       pricePaidCents: entry.pricePaidCents,
       sellPriceCents: entry.sellPriceCents,
       currency: entry.currency,
@@ -91,7 +121,7 @@ class DefaultLibraryStatsCapability implements LibraryStatsCapability {
 
   @override
   LibraryStatsMetadataProjection? buildMetadataProjection(
-      LibraryWorkspaceSource entry) {
+      LibraryWorkspaceContext entry) {
     final summary = entry.catalogSummary;
     if (summary == null) return null;
     return LibraryStatsMetadataProjection(
@@ -115,4 +145,20 @@ class DefaultLibraryStatsCapability implements LibraryStatsCapability {
     LibraryKindRegistration type,
   ) =>
       const [];
+
+  @override
+  Widget? buildCustomHeader(
+    BuildContext context,
+    ShelfState state,
+    LibraryKindRegistration type,
+  ) =>
+      null;
+
+  @override
+  Widget? buildCustomStatsPage(
+    BuildContext context,
+    ShelfState state,
+    LibraryKindRegistration type,
+  ) =>
+      null;
 }

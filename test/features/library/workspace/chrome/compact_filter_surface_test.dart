@@ -1,4 +1,4 @@
-import 'package:collectarr_app/features/library/generic/filter_dialog.dart';
+import 'package:collectarr_app/features/library/generic/library_filters.dart';
 import 'package:collectarr_app/features/library/workspace/chrome/compact_filter_surface.dart';
 import 'package:collectarr_app/ui/library_accent_scope.dart';
 import 'package:flutter/material.dart';
@@ -39,13 +39,13 @@ void main() {
     expect(find.byKey(const ValueKey('compact_filter_all_dialog_chip')),
         findsOneWidget);
     expect(find.byKey(const ValueKey('quick_filter_all')), findsOneWidget);
-    expect(find.byKey(const ValueKey('quick_filter_owned')), findsOneWidget);
+    expect(find.byKey(const ValueKey('quick_filter_entry')), findsOneWidget);
     expect(find.byKey(const ValueKey('quick_filter_wishlist')), findsOneWidget);
 
-    // Tap Owned filter chip
-    await tester.tap(find.byKey(const ValueKey('quick_filter_owned')));
+    // Tap Entry filter chip
+    await tester.tap(find.byKey(const ValueKey('quick_filter_entry')));
     await tester.pumpAndSettle();
-    expect(currentSelection.ownershipFilter, LibraryOwnershipFilter.owned);
+    expect(currentSelection.entriesFilter, LibraryEntryPolicyFilter.entry);
     expect(
         find.byKey(const ValueKey('compact_filter_clear_all')), findsOneWidget);
 

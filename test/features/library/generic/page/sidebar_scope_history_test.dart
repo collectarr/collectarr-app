@@ -3,6 +3,21 @@ import 'package:collectarr_app/features/library/generic/page/sidebar_scope_snaps
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
+  test('renamed history bucket retains the rest of its navigation scope', () {
+    const source = LibrarySidebarScopeSnapshot(
+      groupMode: 'music.genre',
+      selectedBucket: 'Jazz',
+      selectedLetter: 'J',
+      searchQuery: 'deluxe',
+      activeSmartListId: 'saved',
+      activeSmartListName: 'Deluxe',
+    );
+    final renamed = source.withSelectedBucket('New Jazz');
+    expect(renamed.selectedBucket, 'New Jazz');
+    expect(renamed.withSelectedBucket('Jazz'), source);
+    expect(renamed.withSelectedBucket(null).selectedBucket, isNull);
+    expect(popLibrarySidebarScopeHistory([renamed])!.target, renamed);
+  });
   LibrarySidebarScopeSnapshot buildScope({
     String groupMode = 'series',
     String? bucket,

@@ -1,4 +1,8 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/dev/seeds/music_seed_catalog_details.dart';
+import 'package:collectarr_app/dev/seeds/seed_kind_details.dart';
+
+export 'package:collectarr_app/dev/seeds/seed_kind_details.dart';
 
 /// Builds a catalog item for the development database seed.
 ///
@@ -38,13 +42,11 @@ CatalogItemDto seedCatalogItem({
   List<String>? characters,
   List<String>? storyArcs,
   List<Map<String, dynamic>>? creators,
-  List<CatalogEditionDto>? editions,
   List<TrailerLinkDto>? trailerUrls,
-  CatalogSeriesDetailsDto? series,
-  Object? video,
-  Object? music,
-  Object? game,
-  CatalogPublishingDetailsDto? publishing,
+  SeedSeriesDetails? series,
+  SeedVideoDetails? video,
+  MusicSeedCatalogDetails? music,
+  SeedPublishingDetails? publishing,
   Map<String, dynamic>? payload,
 }) {
   final resolvedCoverImageUrl = coverImageUrl ??
@@ -63,7 +65,7 @@ CatalogItemDto seedCatalogItem({
           : null);
   final resolvedPublishing = publishing ??
       (kind == CatalogMediaKind.comic
-          ? const CatalogPublishingDetailsDto(
+          ? const SeedPublishingDetails(
               imprint: 'IDW', subtitle: 'Director Cut')
           : null);
   final mergedPayload = <String, dynamic>{
@@ -74,7 +76,7 @@ CatalogItemDto seedCatalogItem({
       'physical_format_label': physicalFormatLabel,
     if (resolvedPublisher != null) 'publisher': resolvedPublisher,
     if (resolvedBarcode != null) 'barcode': resolvedBarcode,
-    if (variant != null) 'variant': variant,
+    if (variant != null) 'variant_name': variant,
     if (country != null) 'country': country,
     if (language != null) 'language': language,
     if (ageRating != null) 'age_rating': ageRating,
@@ -85,48 +87,34 @@ CatalogItemDto seedCatalogItem({
     if (characters != null) 'characters': characters,
     if (storyArcs != null) 'story_arcs': storyArcs,
     if (resolvedCreators != null) 'creators': resolvedCreators,
-    if (series != null) 'series': series.toJson(),
-    if (video != null) 'video': _encodeSeedDetails(video),
-    if (music != null) 'music': _encodeSeedDetails(music),
-    if (game != null) 'game': _encodeSeedDetails(game),
-    if (resolvedPublishing != null) 'publishing': resolvedPublishing.toJson(),
+    if (series != null) ...series.toJson(),
+    if (video != null) ...video.toJson(),
+    if (music != null) ...music.toJson(),
+    if (resolvedPublishing != null) ...resolvedPublishing.toJson(),
     if (payload != null) ...payload,
   };
-  final common = CatalogCommonDto(
-    title: title,
-    displayTitle: displayTitle,
-    localizedTitle: localizedTitle,
-    originalTitle: originalTitle,
-    titleExtension: titleExtension,
-    searchAliases: searchAliases,
-    synopsis: synopsis,
-    coverImageUrl: resolvedCoverImageUrl,
-    thumbnailImageUrl: thumbnailImageUrl ?? resolvedCoverImageUrl,
-    coverImageData: coverImageData,
-    sortKey: sortKey,
-    releaseDate: releaseDate,
-    releaseYear: releaseYear,
-    editions: editions ?? const [],
-    trailerUrls: trailerUrls ?? const [],
-  );
+  final kindData = <String, dynamic>{
+    'title': title,
+    if (displayTitle != null) 'display_title': displayTitle,
+    if (localizedTitle != null) 'localized_title': localizedTitle,
+    if (originalTitle != null) 'original_title': originalTitle,
+    if (titleExtension != null) 'title_extension': titleExtension,
+    if (searchAliases != null) 'search_aliases': searchAliases,
+    if (synopsis != null) 'synopsis': synopsis,
+    if (resolvedCoverImageUrl != null) 'cover_image_url': resolvedCoverImageUrl,
+    if ((thumbnailImageUrl ?? resolvedCoverImageUrl) != null)
+      'thumbnail_image_url': thumbnailImageUrl ?? resolvedCoverImageUrl,
+    if (coverImageData != null) 'cover_image_data': coverImageData,
+    if (sortKey != null) 'sort_key': sortKey,
+    if (releaseDate != null) 'release_date': releaseDate.toIso8601String(),
+    if (releaseYear != null) 'release_year': releaseYear,
+    if (trailerUrls?.isNotEmpty ?? false)
+      'trailer_urls': trailerUrls!.map((link) => link.toJson()).toList(),
+    ...mergedPayload,
+  };
   return CatalogItemDto.raw(
     id: id,
     mediaKind: kind,
-    common: common,
-    payload: mergedPayload,
+    kindData: kindData,
   );
-}
-
-Object _encodeSeedDetails(Object value) {
-  return switch (value) {
-    VideoCatalogDetailsDto details => details.toJson(),
-    MusicCatalogDetailsDto details => details.toJson(),
-    GameCatalogDetailsDto details => details.toJson(),
-    Map<Object?, Object?> value => Map<String, dynamic>.from(value),
-    _ => throw ArgumentError.value(
-        value,
-        'value',
-        'Seed catalog details must be a typed catalog DTO or JSON object',
-      ),
-  };
 }

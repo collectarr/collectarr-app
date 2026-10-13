@@ -2,13 +2,14 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/money.dart';
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/catalog_item_ref.dart';
+import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_record.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/dev/seeds/dev_seed_kind_contributor.dart';
 import 'package:collectarr_app/features/barcode/barcode_checksum.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_transport_summary_registry.dart';
+import 'package:collectarr_app/core/models/partial_date.dart';
 
 const String seedCoverImageData =
     'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+XbL0AAAAASUVORK5CYII=';
@@ -22,6 +23,35 @@ void seedNoopCatalogPayloadEnricher(
   Map<String, dynamic> payload,
 ) {}
 
+/// Development fixtures use the same kind codec as the UI for display labels.
+String seedTitle(CatalogItemDto item) =>
+    summarizeCatalogTransportPayload(item).primaryLabel;
+
+String? seedPublisher(CatalogItemDto item) =>
+    _seedText(item.kindData['publisher'] ?? item.kindData['label']);
+
+String? seedBarcode(CatalogItemDto item) => _seedText(
+      item.kindData['barcode'] ?? item.kindData['isbn'] ?? item.kindData['upc'],
+    );
+
+DateTime? seedReleaseDate(CatalogItemDto item) =>
+    PartialDate.tryParse(item.kindData['release_date'])?.asDateTime ??
+    DateTime.tryParse(item.kindData['release_date']?.toString() ?? '');
+
+String? seedPhysicalFormat(CatalogItemDto item) =>
+    _seedText(item.kindData['physical_format'] ?? item.kindData['format']);
+
+String? seedEditionTitle(CatalogItemDto item) => _seedText(
+    item.kindData['edition_title'] ?? item.kindData['title_extension']);
+
+String? seedCoverImageUrl(CatalogItemDto item) =>
+    summarizeCatalogTransportPayload(item).imageUrl;
+
+String? _seedText(Object? value) {
+  final text = value?.toString().trim();
+  return text == null || text.isEmpty ? null : text;
+}
+
 String seedOrdinal2(int value) => value.toString().padLeft(2, '0');
 
 Iterable<String> seedIds(CatalogMediaKind kind, int count) sync* {
@@ -30,7 +60,7 @@ Iterable<String> seedIds(CatalogMediaKind kind, int count) sync* {
   }
 }
 
-CatalogEntityRef seedCatalogRef(CatalogMediaKind kind, String itemId) {
+CatalogItemRef seedCatalogRef(CatalogMediaKind kind, String itemId) {
   final expectedPrefix = 'seed-${kind.apiValue}-';
   if (!itemId.startsWith(expectedPrefix)) {
     throw ArgumentError.value(
@@ -39,64 +69,40 @@ CatalogEntityRef seedCatalogRef(CatalogMediaKind kind, String itemId) {
       'Seed catalog IDs for ${kind.apiValue} must start with $expectedPrefix',
     );
   }
-  return CatalogEntityRef(
+  return CatalogItemRef(
     kind: kind,
-    entityType: CatalogEntityTypeId.root,
     id: itemId,
   );
 }
 
-OwnedItemRef seedOwnedRef(CatalogMediaKind kind, String itemId) {
-  return OwnedItemRef(kind: kind, id: OwnedItemId(itemId));
+LibraryEntryRef seedLibraryEntryRef(CatalogMediaKind kind, String id) {
+  return LibraryEntryRef(
+    kind: kind,
+    id: LibraryEntryId(id),
+  );
 }
 
-/// Rebuilds a transport fixture while preserving its common catalog fields.
+/// Rebuilds a transport fixture while preserving its kind-entry fields.
 /// Kind seeders use this only to add their own Core graph fields.
 CatalogItemDto withSeedPayload(
   CatalogItemDto item,
   Map<String, dynamic> additions,
 ) {
-  // Keep the additions in the raw kind payload. Reconstructing through the
-  // envelope parser would classify `editions` as the generic common field
-  // and drop kind-specific keys such as work_id, edition_title, or players.
   return CatalogItemDto.raw(
     id: item.id,
     mediaKind: item.mediaKind,
-    common: item.common,
-    payload: {
-      ...item.payload,
+    kindData: {
+      ...item.kindData,
       ...additions,
     },
   );
-}
-
-/// Returns the declared common editions, or one deterministic fallback edition
-/// so every kind fixture exercises its edition/release mapping path.
-List<Map<String, dynamic>> seedEditionPayloads(CatalogItemDto item) {
-  if (item.editions.isNotEmpty) {
-    return [for (final edition in item.editions) edition.toJson()];
-  }
-  return [
-    {
-      'id': '${item.id}-edition-01',
-      'title': item.editionTitle ?? item.title,
-      if (item.physicalFormat != null) 'format': item.physicalFormat,
-      if (item.publisher != null) 'publisher': item.publisher,
-      if (item.barcode != null) 'barcode': item.barcode,
-      if (item.payload['country'] != null) 'region': item.payload['country'],
-      if (item.payload['language'] != null)
-        'language': item.payload['language'],
-      if (item.releaseDate != null)
-        'release_date': item.releaseDate!.toIso8601String(),
-    },
-  ];
 }
 
 CatalogItemDto enrichSeedItem(
   CatalogItemDto item, {
   required DevSeedCatalogDefaults defaults,
 }) {
-  final payload = Map<String, dynamic>.from(item.toSyncPayload());
+  final payload = Map<String, dynamic>.from(item.toJson());
   payload.putIfAbsent('id', () => item.id);
 
   _normalizeNestedPayload(payload, 'video', const <String>[
@@ -121,43 +127,16 @@ CatalogItemDto enrichSeedItem(
   ]);
   _normalizeNestedPayload(payload, 'game', const <String>['platforms']);
 
-  payload.putIfAbsent('localized_title', () => item.displayTitle ?? item.title);
-  payload.putIfAbsent('original_title', () => item.originalTitle ?? item.title);
-  payload.putIfAbsent(
-    'title_extension',
-    () => item.releaseYear != null ? '${item.releaseYear}' : item.itemNumber,
-  );
   final seriesMap = payload['series'] is Map ? payload['series'] as Map : null;
   final seriesTitle = seriesMap?['series_title'] as String?;
   final pubMap = item.payload['publishing'] as Map?;
-  payload.putIfAbsent(
-    'search_aliases',
-    () => <String?>[
-      item.title,
-      item.displayTitle,
-      item.originalTitle,
-      seriesTitle,
-    ].whereType<String>().toList(growable: false),
-  );
-  payload.putIfAbsent('cover_image_data', () => seedCoverImageData);
+  final title = seedTitle(item);
   final placeholderCoverUrl =
-      'https://placehold.co/600x900/png?text=${Uri.encodeComponent(item.title)}';
+      'https://placehold.co/600x900/png?text=${Uri.encodeComponent(title)}';
+  payload.putIfAbsent('cover_image_data', () => seedCoverImageData);
   payload.putIfAbsent(
-      'cover_image_url', () => item.coverImageUrl ?? placeholderCoverUrl);
-  payload.putIfAbsent(
-    'thumbnail_image_url',
-    () => item.thumbnailImageUrl ?? payload['cover_image_url'],
-  );
-  payload.putIfAbsent(
-    'trailer_urls',
-    () => <TrailerLinkDto>[
-      TrailerLinkDto(
-        url: 'https://example.com/${item.kind}/${item.id}/trailer',
-        title: '${item.title} trailer',
-        source: 'seed',
-      ),
-    ].map((link) => link.toJson()).toList(growable: false),
-  );
+      'cover_image_url', () => seedCoverImageUrl(item) ?? placeholderCoverUrl);
+  payload.putIfAbsent('thumbnail_image_url', () => payload['cover_image_url']);
 
   if (pubMap != null || defaults.includePublishingDetails) {
     payload.putIfAbsent(
@@ -169,18 +148,18 @@ CatalogItemDto enrichSeedItem(
       () => defaults.coverPriceCents,
     );
     payload.putIfAbsent('currency', () => 'USD');
-    payload.putIfAbsent('imprint', () => item.publisher);
-    payload.putIfAbsent('subtitle', () => '${item.title} seed edition');
+    payload.putIfAbsent('imprint', () => seedPublisher(item));
+    payload.putIfAbsent('subtitle', () => '$title seed edition');
     payload.putIfAbsent('series_group', () => seriesTitle);
     payload.putIfAbsent('publication_place', () => 'US');
     payload.putIfAbsent('original_country', () => 'US');
     payload.putIfAbsent('original_language', () => defaults.originalLanguage);
     payload.putIfAbsent(
       'original_publication_date',
-      () => item.releaseDate?.toUtc().toIso8601String(),
+      () => seedReleaseDate(item)?.toUtc().toIso8601String(),
     );
     payload.putIfAbsent('original_publication_place', () => 'US');
-    payload.putIfAbsent('original_publisher', () => item.publisher);
+    payload.putIfAbsent('original_publisher', () => seedPublisher(item));
     payload.putIfAbsent('paper_type', () => defaults.paperType);
     payload.putIfAbsent('printed_by', () => 'Collectarr Seeds');
     payload.putIfAbsent(
@@ -229,43 +208,11 @@ void validateSeedCatalogQuality(
   for (final item in items) {
     final prefix = '${item.kind}/${item.id}';
     final mediaKind = catalogMediaKindFromApiValue(item.kind);
-    final payload = item.payload;
-
-    _requireText(issues, prefix, 'localized_title', item.localizedTitle);
-    _requireText(issues, prefix, 'original_title', item.originalTitle);
-    _requireText(issues, prefix, 'synopsis', item.synopsis);
-    _requireText(issues, prefix, 'cover_image_data', item.coverImageData);
-    _requireSeedImageUrl(issues, prefix, 'cover_image_url', item.coverImageUrl);
-    _requireSeedImageUrl(
-      issues,
-      prefix,
-      'thumbnail_image_url',
-      item.thumbnailImageUrl,
-    );
-    if (item.releaseYear == null || item.releaseYear! <= 0) {
-      issues.add('$prefix: release_year must be a positive integer');
-    }
-    if (item.releaseDate == null) {
-      issues.add('$prefix: release_date is required');
-    }
     final barcodeValidator = barcodeValidators[mediaKind];
     if (barcodeValidator == null) {
-      seedValidateStandardBarcode(issues, prefix, item.barcode);
+      seedValidateStandardBarcode(issues, prefix, seedBarcode(item));
     } else {
-      barcodeValidator(issues, prefix, item.barcode);
-    }
-    _requireTextList(
-        issues, prefix, 'search_aliases', payload['search_aliases']);
-    _requireTextList(issues, prefix, 'genres', payload['genres']);
-
-    if (item.trailerUrls.isEmpty) {
-      issues.add('$prefix: trailer_urls must contain at least one link');
-    } else {
-      for (var index = 0; index < item.trailerUrls.length; index++) {
-        if (item.trailerUrls[index].url.trim().isEmpty) {
-          issues.add('$prefix: trailer_urls[$index].url is empty');
-        }
-      }
+      barcodeValidator(issues, prefix, seedBarcode(item));
     }
 
     final validator = validators[mediaKind];
@@ -321,85 +268,6 @@ List<Map<String, dynamic>> seedRequireObjectList(
   return _requireObjectList(issues, prefix, field, value);
 }
 
-void seedValidateChildren(
-  List<String> issues,
-  String prefix,
-  String field,
-  List<Map<String, dynamic>> children, {
-  CatalogMediaKind? kind,
-  required String parentId,
-  required String parentKey,
-  required String titleKey,
-}) {
-  final ids = <String>{};
-  for (var index = 0; index < children.length; index++) {
-    final child = children[index];
-    final childPrefix = '$field[$index]';
-    final id = child['id']?.toString().trim() ?? '';
-    _requireText(issues, prefix, '$childPrefix.id', child['id']);
-    if (id.isNotEmpty && !ids.add(id)) {
-      issues.add('$prefix: duplicate $field id $id');
-    }
-    if (kind != null && child['kind']?.toString() != kind.apiValue) {
-      issues.add('$prefix: $childPrefix.kind must be ${kind.apiValue}');
-    }
-    if (child[parentKey]?.toString() != parentId) {
-      issues.add('$prefix: $childPrefix.$parentKey must reference $parentId');
-    }
-    _requireText(issues, prefix, '$childPrefix.$titleKey', child[titleKey]);
-  }
-}
-
-void seedValidateReleases(
-  List<String> issues,
-  String prefix,
-  CatalogItemDto item,
-  Object? rawReleases, {
-  required CatalogMediaKind kind,
-  required String parentKey,
-  required String titleKey,
-}) {
-  final releases = _requireObjectList(issues, prefix, 'releases', rawReleases);
-  seedValidateChildren(
-    issues,
-    prefix,
-    'releases',
-    releases,
-    kind: kind,
-    parentId: item.id,
-    parentKey: parentKey,
-    titleKey: titleKey,
-  );
-  for (var index = 0; index < releases.length; index++) {
-    final media = _requireObjectList(
-      issues,
-      prefix,
-      'releases[$index].media',
-      releases[index]['media'],
-    );
-    for (var mediaIndex = 0; mediaIndex < media.length; mediaIndex++) {
-      final child = media[mediaIndex];
-      _requireText(issues, prefix, 'releases[$index].media[$mediaIndex].id',
-          child['id']);
-      if (child['release_id']?.toString() !=
-          releases[index]['id']?.toString()) {
-        issues.add(
-            '$prefix: releases[$index].media[$mediaIndex].release_id must reference the parent release');
-      }
-      _requirePositiveInt(
-          issues,
-          prefix,
-          'releases[$index].media[$mediaIndex].media_number',
-          child['media_number']);
-      _requireText(
-          issues,
-          prefix,
-          'releases[$index].media[$mediaIndex].media_type',
-          child['media_type']);
-    }
-  }
-}
-
 void seedValidateBarcode(
   List<String> issues,
   String prefix,
@@ -426,27 +294,19 @@ void seedValidateStandardBarcode(
   seedValidateBarcode(issues, prefix, barcode);
 }
 
-void validateSeedOwnedQuality(Iterable<OwnedItemSummary> items) {
+void validateSeedEntryQuality(Iterable<LibraryEntrySummary> items) {
   final issues = <String>[];
   for (final item in items) {
     final prefix = '${item.ref.kind.apiValue}/${item.ref.id.value}';
-    if (item.title.trim().isEmpty) {
-      issues.add('$prefix: title is required');
-    }
-    final catalogRef = item.catalogRef;
-    if (catalogRef == null) {
-      issues.add('$prefix: catalog_ref is required');
-    } else if (catalogRef.mediaKind != item.ref.kind) {
+    final sourceCatalogRef = item.sourceCatalogRef;
+    if (sourceCatalogRef != null && sourceCatalogRef.kind != item.ref.kind) {
       issues.add(
-        '$prefix: catalog_ref kind ${catalogRef.kind} does not match '
-        'owned kind ${item.ref.kind}',
+        '$prefix: source_catalog_ref kind ${sourceCatalogRef.kind.apiValue} does not match '
+        'entry kind ${item.ref.kind}',
       );
     }
     if (!item.hasNotes || item.notes?.trim().isNotEmpty != true) {
       issues.add('$prefix: personal_notes is required');
-    }
-    if (item.quantity < 1) {
-      issues.add('$prefix: quantity must be at least 1');
     }
     if (item.purchaseDate == null) {
       issues.add('$prefix: purchase_date is required');
@@ -459,10 +319,10 @@ void validateSeedOwnedQuality(Iterable<OwnedItemSummary> items) {
       issues.add('$prefix: currency is required when a purchase price exists');
     }
   }
-  _throwSeedQualityIssues('owned', issues);
+  _throwSeedQualityIssues('entry', issues);
 }
 
-/// Adds the standard non-empty text issue used by kind-owned seed validators.
+/// Adds the standard non-empty text issue used by kind-entry seed validators.
 ///
 /// The validator itself stays with the owning kind; this helper only keeps the
 /// error wording and primitive check consistent across fixtures.
@@ -478,7 +338,7 @@ void seedRequireText(
 void validateSeedTrackingQuality(Iterable<TrackingStorageRecord> entries) {
   final issues = <String>[];
   for (final entry in entries) {
-    final prefix = '${entry.catalogRef.kind}/${entry.id}';
+    final prefix = '${entry.libraryEntryRef.kind.apiValue}/${entry.id}';
     if (entry.status == null) {
       issues.add('$prefix: status is required');
     }
@@ -512,7 +372,7 @@ void _requirePublishingQuality(
   String prefix,
   CatalogItemDto item,
 ) {
-  _requireText(issues, prefix, 'publisher', item.publisher);
+  _requireText(issues, prefix, 'publisher', seedPublisher(item));
   _requirePositiveInt(issues, prefix, 'page_count', item.payload['page_count']);
   _requirePositiveInt(
       issues, prefix, 'cover_price_cents', item.payload['cover_price_cents']);
@@ -527,28 +387,6 @@ void _requireText(
 ) {
   if (value is! String || value.trim().isEmpty) {
     issues.add('$prefix: $field must be a non-empty string');
-  }
-}
-
-void _requireSeedImageUrl(
-  List<String> issues,
-  String prefix,
-  String field,
-  String? value,
-) {
-  _requireText(issues, prefix, field, value);
-  if (value == null || value.trim().isEmpty) {
-    return;
-  }
-  final uri = Uri.tryParse(value.trim());
-  if (uri == null ||
-      !const {'http', 'https'}.contains(uri.scheme.toLowerCase()) ||
-      uri.host.isEmpty) {
-    issues.add('$prefix: $field must be an absolute HTTP(S) URL');
-  }
-  if (uri != null && uri.host == 'placehold.co') {
-    issues.add(
-        '$prefix: $field must point to a real seed cover, not a placeholder');
   }
 }
 
@@ -637,7 +475,7 @@ void _requirePlayerStats(List<String> issues, String prefix, Object? value) {
   }
 }
 
-/// Primitive catalog-fixture checks exposed to kind-owned quality validators.
+/// Primitive catalog-fixture checks exposed to kind-entry quality validators.
 void seedRequirePublishingQuality(
   List<String> issues,
   String prefix,

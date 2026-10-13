@@ -30,10 +30,10 @@ class LibraryMediaPresentation {
     this.cardPresentationBuilder,
     this.quickViewMatcher,
     this.compactBucketIcon = Icons.folder,
-    this.emptyStateProviderSummarySuffix = '',
+    this.emptyStateSummarySuffix = '',
     this.previewLabels = const LibraryMediaPreviewLabels(),
     this.statsLabels = const LibraryMediaStatsLabels(),
-    this.sortFavorites = defaultLibrarySortFavorites,
+    this.sortFavorites = const [],
     this.columnFavorites = defaultLibraryColumnFavorites,
     this.filterOptionLabels = const LibraryFilterOptionLabels(),
     this.filterDefinitions = const [],
@@ -50,7 +50,7 @@ class LibraryMediaPresentation {
   final LibraryCardPresentationBuilder? cardPresentationBuilder;
   final LibraryQuickViewMatcher? quickViewMatcher;
   final IconData compactBucketIcon;
-  final String emptyStateProviderSummarySuffix;
+  final String emptyStateSummarySuffix;
   final LibraryMediaPreviewLabels previewLabels;
   final LibraryMediaStatsLabels statsLabels;
   final List<LibrarySortFavorite> sortFavorites;
@@ -61,7 +61,7 @@ class LibraryMediaPresentation {
   final LibraryPresentationLabels statusLabels;
   final LibraryPresentationLabels bucketLabelOverrides;
 
-  /// Builds the kind-owned card contribution for a projected item.
+  /// Builds the kind-entry card contribution for a projected item.
   ///
   /// The media presentation is the presentation boundary; the kind contributor
   /// registration remains limited to navigation and capability dispatch.

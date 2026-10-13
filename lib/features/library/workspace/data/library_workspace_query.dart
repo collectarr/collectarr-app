@@ -11,8 +11,6 @@ class LibraryWorkspaceQuery {
     required this.groupId,
     required this.visibleColumnIds,
     this.collectionId,
-    this.scopeId,
-    this.presentationLevelId,
   });
 
   final CatalogMediaKind kind;
@@ -23,6 +21,4 @@ class LibraryWorkspaceQuery {
   final LibraryGroupIdRuntime? groupId;
   final Set<LibraryFieldIdRuntime> visibleColumnIds;
   final String? collectionId;
-  final String? scopeId;
-  final String? presentationLevelId;
 }

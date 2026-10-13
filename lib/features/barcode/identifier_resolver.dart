@@ -1,6 +1,6 @@
 import 'scanned_code.dart';
 
-/// Structural contract for a kind-owned identifier interpreter.
+/// Structural contract for a kind-entry identifier interpreter.
 ///
 /// The resolver may interpret a [ScannedCode], but generic barcode UI never
 /// decides what the returned identifier means.

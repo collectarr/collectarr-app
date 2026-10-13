@@ -1,45 +1,55 @@
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
-import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
-import 'package:collectarr_app/features/collection/mutations/owned_item_mutations.dart';
+import 'package:collectarr_app/core/models/library_entry_projection.dart';
+import 'package:collectarr_app/features/collection/commands/library_entry_commands.dart';
+import 'package:collectarr_app/features/collection/mutations/library_entry_mutations.dart';
 import 'package:collectarr_app/features/collection/mutations/tracking_mutations.dart';
+import 'package:collectarr_app/features/collection/runner/collection_mutation_runner.dart';
 
 final class CollectionCommandCoordinator {
   const CollectionCommandCoordinator({
-    required this.ownedMutations,
+    required this.entryMutations,
     required this.trackingMutations,
+    required this.mutationRunner,
   });
 
-  final OwnedItemMutations ownedMutations;
+  final LibraryEntryMutations entryMutations;
   final TrackingMutations trackingMutations;
+  final CollectionMutationRunner mutationRunner;
 
-  Future<OwnedItemRef> addOwnedItem(
-    AddOwnedItemCommand command, {
+  Future<LibraryEntryRef> addLibraryEntry(
+    AddLibraryEntryCommand command, {
     bool syncTracking = true,
   }) async {
-    final item = await ownedMutations.addOwnedItem(command);
-    if (syncTracking) {
-      final tracking = command.tracking;
-      await trackingMutations.syncOwnedTrackingState(
-        item,
-        targetRef: command.targetRef,
-        status: tracking?.status,
-        rating: tracking?.rating,
-        startedAt: tracking?.startedAt,
-        finishedAt: tracking?.finishedAt,
-        notes: tracking?.notes,
-      );
-    }
-    return item;
+    return mutationRunner.run(
+      action: () async {
+        final item = await entryMutations.addLibraryEntry(command);
+        if (syncTracking) {
+          final tracking = command.tracking;
+          await trackingMutations.syncEntryTrackingState(
+            item,
+            status: tracking?.status,
+            rating: tracking?.rating,
+            startedAt: tracking?.startedAt,
+            finishedAt: tracking?.finishedAt,
+            notes: tracking?.notes,
+          );
+        }
+        return item;
+      },
+    );
   }
 
-  Future<OwnedItemRef> updateOwnedItem(
-    OwnedItemUpdateRequest command, {
+  Future<LibraryEntryRef> updateLibraryEntry(
+    LibraryEntryUpdateRequest command, {
     bool syncTracking = true,
   }) async {
-    final item = await ownedMutations.updateOwnedItem(command);
-    if (syncTracking) {
-      await trackingMutations.syncOwnedTrackingState(item);
-    }
-    return item;
+    return mutationRunner.run(
+      action: () async {
+        final item = await entryMutations.updateLibraryEntry(command);
+        if (syncTracking) {
+          await trackingMutations.syncEntryTrackingState(item);
+        }
+        return item;
+      },
+    );
   }
 }

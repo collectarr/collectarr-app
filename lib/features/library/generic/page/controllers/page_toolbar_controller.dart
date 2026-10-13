@@ -45,7 +45,7 @@ class LibraryPageToolbarController {
       ranked.add((
         score,
         LibraryToolbarSearchSuggestion(
-          id: item.node.id,
+          id: item.target.id,
           title: title,
           subtitle: subtitle,
         ),
@@ -81,7 +81,6 @@ class LibraryPageToolbarController {
     final presentation = LibraryToolbarPresentation(
       config: LibraryToolbarConfig(
         type: _s.widget.type,
-        browserMode: _s._activeBrowserMode,
         includeDesktopSecondaryBand: false,
       ),
       state: LibraryToolbarState(
@@ -94,8 +93,9 @@ class LibraryPageToolbarController {
         searchActive:
             searchState.query.isNotEmpty || searchState.pinnedItemId != null,
         searchSuggestions: searchSuggestions,
-        selectedBucket: _s._session.facets.linkedMetadataFilter?.chipLabel ??
-            _s._session.facets.selectedBucket,
+        selectedBucket: _s._session.facets.selectedBucket,
+        linkedMetadataFilterLabel:
+            _s._session.facets.linkedMetadataFilter?.chipLabel,
         collectionStatusScope: _s._session.facets.collectionStatusScope,
         quickView: _s._session.facets.quickView,
         availableLetters: LibraryAlphaJumpBar.lettersFromTitles(
@@ -114,8 +114,6 @@ class LibraryPageToolbarController {
             _s._session.preferences.pinnedColumnFavoriteKeys,
         canJumpToNumber: _s._canJumpToKindDrilldown(projection),
         hasActiveFilters: _s._hasActiveFilter,
-        activeFilterCount:
-            _s._session.selection.filterSelection.activeFilterCount,
         shelfState: shelfState,
         groupMode: _s._activeSidebarGroupMode,
         folderPreset: _s._activeFolderPreset,
@@ -131,13 +129,6 @@ class LibraryPageToolbarController {
             ? 0
             : _s._session.selection.value.selectedCount,
         totalSelectableCount: projection?.filteredItems.length ?? 0,
-        showReleaseFolderBack:
-            _s._kindBrowserDelegate.hasReleaseFolderTitleItemId &&
-                libraryBrowserNavigationPolicy.shouldShowReleaseFolderBack(
-                  browserMode: _s._activeBrowserMode,
-                  releaseFolderWorkId: _s.activeReleaseFolderTitleItemId,
-                ),
-        releaseFolderLabel: _s._releaseFolderLabelForProjection(projection),
       ),
       actions: const LibraryToolbarActionRegistry().build(
         buildContext: context,
@@ -156,8 +147,6 @@ class LibraryPageToolbarController {
           ),
           view: LibraryToolbarViewContext(
             type: _s.widget.type,
-            activeBrowserMode: _s._activeBrowserMode,
-            activeReleaseFolderTitleItemId: _s.activeReleaseFolderTitleItemId,
             onShowAddDialogFlow: _s._dialogCoordinator.showAddDialogFlow,
             onShowColumnChooserFlow:
                 _s._dialogCoordinator.showColumnChooserFlow,
@@ -165,8 +154,6 @@ class LibraryPageToolbarController {
             onSetGroupingPanelVisibility: _s._setGroupingPanelVisibility,
             onSetGroupPresentation: _s._setGroupPresentation,
             onUpdateViewState: _s._updateViewState,
-            onSetBrowserMode: _s._setBrowserMode,
-            onCloseReleaseFolder: _s._closeReleaseFolder,
             onClearToolbarSearchChip: _s._clearToolbarSearchChip,
             onQuickViewSelected: (value) => _s._setQuickView(
               _s._session.facets.quickView == value ? null : value,
@@ -183,8 +170,6 @@ class LibraryPageToolbarController {
           ),
           grouping: LibraryToolbarGroupingContext(
             onClearFilters: _s._clearFilters,
-            onEditFilters: (value) =>
-                _s._dialogCoordinator.showFilterDialogFlow(value),
             onRandomPick: (value) {
               if (value == null) return;
               _s._collectionActionCoordinator.pickRandomItemFlow(value);
@@ -217,6 +202,10 @@ class LibraryPageToolbarController {
             onPrintReport: (value) {
               if (value == null) return;
               _s._reportCoordinator.printReportFlow(value);
+            },
+            onExportCsvTxt: (value) {
+              if (value == null) return;
+              _s._sharingCoordinator.exportCsvTxtFlow(value);
             },
             onMissingSequenceReport: (value) {
               if (value == null) return;

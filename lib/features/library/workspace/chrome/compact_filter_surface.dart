@@ -1,4 +1,5 @@
-import 'package:collectarr_app/features/library/generic/filter_dialog.dart';
+import 'package:collectarr_app/core/models/smart_list_criteria.dart';
+import 'package:collectarr_app/features/library/generic/library_filters.dart';
 import 'package:collectarr_app/features/library/config/presentation/library_filter_presentation.dart';
 import 'package:collectarr_app/features/library/config/presentation/library_sort_presentation.dart';
 import 'package:collectarr_app/ui/library_accent_scope.dart';
@@ -58,9 +59,9 @@ class CompactFilterSurface extends StatelessWidget {
                         ? 'Filters (${selection.activeFilterCount})'
                         : 'Filters',
                     style: TextStyle(
-                      fontSize: 12,
+                      fontSize: 13,
                       fontWeight: selection.hasActiveFilters
-                          ? FontWeight.w800
+                          ? FontWeight.w700
                           : FontWeight.w600,
                       color: selection.hasActiveFilters
                           ? accentData.accent
@@ -94,20 +95,20 @@ class CompactFilterSurface extends StatelessWidget {
               },
             ),
 
-            // Quick Filter: Owned
+            // Quick Filter: Entry
             _buildQuickChip(
-              key: const ValueKey('quick_filter_owned'),
-              label: 'Owned',
+              key: const ValueKey('quick_filter_entry'),
+              label: 'Entry',
               selected:
-                  selection.ownershipFilter == LibraryOwnershipFilter.owned,
+                  selection.entriesFilter == LibraryEntryPolicyFilter.entry,
               accent: accentData.accent,
               palette: palette,
               onSelected: (selected) {
                 onFilterChanged(
                   selection.copyWith(
-                    ownershipFilter: selected
-                        ? LibraryOwnershipFilter.owned
-                        : LibraryOwnershipFilter.all,
+                    entriesFilter: selected
+                        ? LibraryEntryPolicyFilter.entry
+                        : LibraryEntryPolicyFilter.all,
                   ),
                 );
               },
@@ -118,15 +119,15 @@ class CompactFilterSurface extends StatelessWidget {
               key: const ValueKey('quick_filter_wishlist'),
               label: 'Wishlist',
               selected:
-                  selection.ownershipFilter == LibraryOwnershipFilter.wishlist,
+                  selection.entriesFilter == LibraryEntryPolicyFilter.wishlist,
               accent: accentData.accent,
               palette: palette,
               onSelected: (selected) {
                 onFilterChanged(
                   selection.copyWith(
-                    ownershipFilter: selected
-                        ? LibraryOwnershipFilter.wishlist
-                        : LibraryOwnershipFilter.all,
+                    entriesFilter: selected
+                        ? LibraryEntryPolicyFilter.wishlist
+                        : LibraryEntryPolicyFilter.all,
                   ),
                 );
               },
@@ -188,6 +189,19 @@ class CompactFilterSurface extends StatelessWidget {
                     );
                   },
                 ),
+            for (final entry in selection.fieldCriteria.entries)
+              _buildRemovableChip(
+                key: ValueKey('active_smart_field_${entry.key}'),
+                label: _smartListCriterionLabel(entry.key, entry.value),
+                accent: accentData.accent,
+                palette: palette,
+                onDeleted: () {
+                  final criteria = Map<String, SmartListFieldCriterion>.from(
+                    selection.fieldCriteria,
+                  )..remove(entry.key);
+                  onFilterChanged(selection.copyWith(fieldCriteria: criteria));
+                },
+              ),
             if (selection.missingCover)
               _buildRemovableChip(
                 key: const ValueKey('active_filter_missing_cover'),
@@ -238,8 +252,8 @@ class CompactFilterSurface extends StatelessWidget {
         label: Text(
           label,
           style: TextStyle(
-            fontSize: 12,
-            fontWeight: selected ? FontWeight.w800 : FontWeight.w600,
+            fontSize: 13,
+            fontWeight: selected ? FontWeight.w700 : FontWeight.w600,
             color: selected ? accent : palette.textPrimary,
           ),
         ),
@@ -270,7 +284,7 @@ class CompactFilterSurface extends StatelessWidget {
         label: Text(
           label,
           style: TextStyle(
-            fontSize: 12,
+            fontSize: 13,
             fontWeight: FontWeight.w700,
             color: accent,
           ),
@@ -285,4 +299,18 @@ class CompactFilterSurface extends StatelessWidget {
       ),
     );
   }
+}
+
+String _smartListCriterionLabel(
+  String fieldId,
+  SmartListFieldCriterion criterion,
+) {
+  final operator = switch (criterion.operator) {
+    SmartListFieldOperator.equals => '=',
+    SmartListFieldOperator.notEquals => 'is not',
+    SmartListFieldOperator.contains => 'contains',
+    SmartListFieldOperator.isEmpty => 'is empty',
+  };
+  final value = criterion.value;
+  return '${libraryFallbackLabelForId(fieldId)} $operator${value == null ? '' : ' $value'}';
 }

@@ -1,9 +1,12 @@
 import '../movie_module_dependencies.dart';
 import 'movie_kind_configuration.dart';
+import '../data/movie_catalog_transport_codec.dart';
+import 'package:collectarr_app/features/library/metadata/common_personal_library_fields.dart';
 
 final movieKindPersonalFieldContributor = const LibraryPersonalFieldContributor(
   kind: CatalogMediaKind.movie,
   fields: [
+    ...commonPersonalLibraryFields,
     PersonalLibraryFieldSpec(
       key: 'features',
       label: 'Features',
@@ -50,15 +53,6 @@ final movieKindPhysicalMediaFormats = moviePhysicalMediaFormats;
 
 final movieKindTrackingProfile = movieTrackingProfile;
 
-final movieKindWorkCapability = const DefaultWorkProjectionCapability();
-
-final movieKindReleaseCapability =
-    const MovieReleaseProjectionCapability<LibraryWorkspaceDto>();
-
-final movieKindReleaseDetailSource = const MovieReleaseDetailSource();
-
-final movieKindCatalogTarget = const MovieCatalogTargetCapability();
-
 final LibraryRelationCapability? movieKindRelations = null;
 
 final movieKindToolbar = null;
@@ -85,10 +79,9 @@ final movieKindIdentity = const LibraryKindIdentity(
 );
 
 final movieKindMetadata = const LibraryMetadataCapability(
-  defaultProviderId: 'tmdb',
   catalogMetadataDecoder: MovieCatalogMetadata.fromJson,
+  catalogTransportCodec: MovieCatalogTransportCodec(),
   searchQueryBuilder: movieMetadataSearchQuery,
-  providers: [tmdbMetadataProvider],
 );
 
 final movieKindUiPolicy = const LibraryUiPolicy(
@@ -99,45 +92,32 @@ final movieKindHierarchy = LibraryHierarchyCapability(
   browserDelegateBuilder: buildMovieBrowserDelegate,
 );
 
-final movieKindEntityVocabulary = const LibraryEntityVocabulary(
-  work: LibraryEntityLabel(singular: 'Movie', plural: 'Movies'),
-  release: LibraryEntityLabel(singular: 'Edition', plural: 'Editions'),
-  copy: LibraryEntityLabel(singular: 'Copy', plural: 'Copies'),
+final movieKindEntityVocabulary = const LibraryTargetVocabulary(
+  catalogItem: LibraryTargetLabel(singular: 'Movie', plural: 'Movies'),
+  libraryEntry: LibraryTargetLabel(singular: 'Entry', plural: 'Entries'),
 );
 
 final movieKindTrackingTopology = const LibraryTrackingTopology(
   sessionLabels: LibraryTrackingSessionLabels.watch,
-  writableTargets: {LibraryTrackingTargetScope.work},
-  aggregateTargets: {LibraryTrackingTargetScope.work},
+  writableTargets: {LibraryTrackingTarget.libraryEntry},
+  aggregateTargets: {LibraryTrackingTarget.libraryEntry},
 );
 
-final movieKindActions = const LibraryEntityActionCapability(
-  work: LibraryEntityActionSet.work,
-  release: LibraryEntityActionSet.release,
-  copy: LibraryEntityActionSet.copy,
+final movieKindActions = const LibraryTargetActionCapability(
+  catalogItem: LibraryTargetActionSet.catalogItem,
+  libraryEntry: LibraryTargetActionSet.libraryEntry,
 );
 
 final movieKindInspector = LibraryInspectorCapability(
-  entityRegistry: LibraryEntityInspectorRegistry(
-    contributors: [
-      LibraryEntityInspectorContributor(
-        scope: LibraryEntityScope.work,
-        heroBuilder: buildMovieWorkInspectorHero,
-        sectionsBuilder: buildMovieWorkInspectorSections,
-        detailPageBuilder: buildLibraryReleaseDetailPage,
-      ),
-      LibraryEntityInspectorContributor(
-        scope: LibraryEntityScope.release,
-        heroBuilder: buildMovieReleaseInspectorHero,
-        sectionsBuilder: buildMovieReleaseInspectorSections,
-        detailPageBuilder: buildLibraryReleaseDetailPage,
-      ),
-      LibraryEntityInspectorContributor(
-        scope: LibraryEntityScope.copy,
-        heroBuilder: buildMovieCopyInspectorHero,
-        sectionsBuilder: buildMovieCopyInspectorSections,
-      ),
-    ],
+  entityRegistry: LibraryTargetInspectorRegistry(
+    catalogItem: LibraryTargetInspectorContributor(
+      heroBuilder: buildMovieInspectorHero,
+      sectionsBuilder: buildMovieInspectorSections,
+    ),
+    libraryEntry: LibraryTargetInspectorContributor(
+      heroBuilder: buildMovieLibraryEntryInspectorHero,
+      sectionsBuilder: buildMovieLibraryEntryInspectorSections,
+    ),
   ),
   showsDefaultPersonalSection: false,
 );

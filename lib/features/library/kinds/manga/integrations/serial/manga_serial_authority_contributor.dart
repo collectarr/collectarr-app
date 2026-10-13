@@ -1,8 +1,8 @@
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/catalog/serial/serial_authority_contributor.dart';
-import 'package:collectarr_app/features/library/kinds/manga/data/manga_repository.dart';
-import 'package:collectarr_app/features/library/kinds/manga/domain/manga_media.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_item_cache_repository.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_transport_repository.dart';
 import 'package:collectarr_app/features/library/kinds/manga/domain/manga_metadata.dart';
 
 /// Projects Manga's typed series identity into serial authority storage.
@@ -19,8 +19,7 @@ final class MangaSerialAuthorityContributor
   ) sync* {
     for (final value in metadata) {
       if (value is! MangaMetadata) continue;
-      final title =
-          (value.seriesTitle ?? value.series?.seriesTitle ?? '').trim();
+      final title = (value.seriesTitle ?? '').trim();
       if (title.isEmpty) {
         final itemTitle = value.title.trim();
         if (itemTitle.isEmpty) continue;
@@ -35,7 +34,6 @@ final class MangaSerialAuthorityContributor
         mediaKind: kind,
         title: title,
         sortTitle: title,
-        coreSeriesId: value.series?.seriesId,
       );
     }
   }
@@ -44,9 +42,9 @@ final class MangaSerialAuthorityContributor
   Future<List<SerialAuthorityCatalogRecord>> catalogRecords(
     LocalDatabase db,
   ) async {
-    final media = await MangaRepository(db).search();
+    final items = await CatalogItemCacheRepository(db).findAll(kind: kind);
     return [
-      for (final item in media) _recordFromMedia(item),
+      for (final item in items) _recordFromItem(item),
     ];
   }
 
@@ -60,35 +58,33 @@ final class MangaSerialAuthorityContributor
     final wanted = itemIds.toSet();
     if (wanted.isEmpty) return;
 
-    final repository = MangaRepository(db);
-    for (final item in await repository.search()) {
+    final cache = CatalogItemCacheRepository(db);
+    final items = await cache.findAll(kind: kind);
+    final catalog = CatalogTransportRepository(db);
+    for (final item in items) {
       if (!wanted.contains(item.id)) continue;
 
-      final payload = Map<String, dynamic>.from(item.rawPayload)
-        ..['series_title'] = seriesTitle;
-      final series = <String, dynamic>{'series_title': seriesTitle};
-      if (coreSeriesId != null && coreSeriesId.trim().isNotEmpty) {
-        series['series_id'] = coreSeriesId;
-      }
-      payload['series'] = series;
-      await repository.updateMedia(item.copyWith(rawPayload: payload));
+      final kindData = MangaMetadata.fromJson(item.kindData)
+          .copyWith(seriesTitle: seriesTitle)
+          .toJson();
+      await catalog.upsertTransportItems([
+        CatalogItemDto.raw(
+          id: item.id,
+          mediaKind: kind,
+          kindData: kindData,
+        ),
+      ]);
     }
   }
 
-  static SerialAuthorityCatalogRecord _recordFromMedia(MangaMedia item) {
-    final metadata = MangaMetadata.fromJson({
-      ...item.rawPayload,
-      'id': item.id,
-      'title': item.title,
-    });
-    final seriesTitle =
-        (metadata.seriesTitle ?? metadata.series?.seriesTitle)?.trim();
+  static SerialAuthorityCatalogRecord _recordFromItem(CatalogItemDto item) {
+    final metadata = MangaMetadata.fromJson(item.kindData);
+    final seriesTitle = metadata.seriesTitle?.trim();
     return SerialAuthorityCatalogRecord(
       itemId: item.id,
-      title: item.title,
+      title: metadata.title,
       seriesTitle:
           seriesTitle == null || seriesTitle.isEmpty ? null : seriesTitle,
-      coreSeriesId: metadata.series?.seriesId,
     );
   }
 }

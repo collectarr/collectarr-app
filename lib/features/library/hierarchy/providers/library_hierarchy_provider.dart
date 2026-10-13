@@ -6,8 +6,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// Resolves hierarchy behavior only for registered kinds.
 ///
-/// Unregistered kinds must not silently acquire generic hierarchy behavior.
-/// They have no owning hierarchy semantics and therefore fail at dispatch.
+/// Unknown/provider-only kinds must not silently acquire the generic hierarchy
+/// behavior. They have no owning hierarchy semantics and therefore fail at
+/// the dispatch boundary.
 LibraryHierarchyCapability requireLibraryHierarchyForKind(
   CatalogMediaKind kind,
 ) {
@@ -24,21 +25,16 @@ final libraryHierarchyProvider = FutureProvider.autoDispose.family<
     List<LibraryHierarchyNode>,
     ({
       CatalogMediaKind kind,
-      String? itemId,
+      String itemId,
     })>((ref, params) async {
   final hierarchy = requireLibraryHierarchyForKind(params.kind);
-  if (params.itemId != null) {
-    try {
-      final api = ref.watch(apiClientProvider);
-      final nodes = await hierarchy.fetchChildren(
-        api: api,
-        itemId: params.itemId!,
-      );
-      if (nodes.isNotEmpty) {
-        return nodes;
-      }
-    } catch (_) {}
+  try {
+    final api = ref.watch(apiClientProvider);
+    return await hierarchy.fetchChildren(
+      api: api,
+      itemId: params.itemId,
+    );
+  } catch (_) {
+    return const <LibraryHierarchyNode>[];
   }
-
-  return const <LibraryHierarchyNode>[];
 });

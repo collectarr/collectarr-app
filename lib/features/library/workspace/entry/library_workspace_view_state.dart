@@ -1,8 +1,6 @@
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/layout/library_pane_widths.dart';
-import 'package:collectarr_app/features/library/workspace/table/library_table_layout.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_preferences.dart';
-import 'package:collectarr_app/features/library/config/library_browser_navigation_policy.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_field_registry.dart';
@@ -92,18 +90,17 @@ class LibraryWorkspaceViewProfile {
           LibraryWorkspacePreferences.cachedChromeFor(registration));
     }
     final defaults = LibraryWorkspaceViewState(
-      browserMode: LibraryWorkspaceBrowserMode.work,
       viewMode: defaultViewMode,
       detailsLayout: defaultDetailsLayout,
       isSidebarVisible: defaultSidebarVisible,
-      sortId: workspace.fields.defaultSort,
+      sortId: workspace.workspaceFields.defaultSort,
       sortAscending: defaultSortAscending,
       coverSize: defaultCoverSize,
       sidebarWidth: defaultSidebarWidth,
       detailsWidth: defaultDetailsWidth,
       detailsHeight: defaultDetailsHeight,
       densityPreset: registration.identity.defaultDensityPreset,
-      visibleColumnIds: workspace.fields.defaultVisibleColumns,
+      visibleColumnIds: workspace.workspaceFields.defaultVisibleColumns,
       columnWidths: const {},
     );
     return defaults
@@ -115,13 +112,8 @@ class LibraryWorkspaceViewProfile {
   ) {
     final registration = registrationResolver();
     final workspace = libraryKindWorkspaceForKind(registration.kind);
-    final fields = workspace.fieldsForScope(
-      libraryBrowserNavigationPolicy.entityScopeForBrowserMode(
-        preferences.browserMode,
-      ),
-    );
+    final fields = workspace.workspaceFields;
     return LibraryWorkspaceViewState(
-      browserMode: preferences.browserMode,
       viewMode: preferences.viewMode,
       detailsLayout: preferences.detailsLayout,
       isSidebarVisible: preferences.isSidebarVisible,
@@ -182,20 +174,26 @@ class LibraryWorkspaceViewProfile {
   }
 
   List<LibrarySortRuleRuntime> decodeSortRules(
-    Iterable<LibrarySortRule> rules, {
-    LibraryEntityScope? scope,
-  }) {
+    Iterable<LibrarySortRule> rules,
+  ) {
     return _decodeSortRules(
-      libraryKindWorkspaceForKind(registrationResolver().kind).fieldsForScope(
-        scope ?? LibraryEntityScope.work,
-      ),
+      libraryKindWorkspaceForKind(registrationResolver().kind).workspaceFields,
+      rules,
+    );
+  }
+
+  List<LibrarySortRuleRuntime> decodeLibraryEntrySortRules(
+    Iterable<LibrarySortRule> rules,
+  ) {
+    return _decodeSortRules(
+      libraryKindWorkspaceForKind(registrationResolver().kind).workspaceFields,
       rules,
     );
   }
 
   Set<LibraryFieldIdRuntime> decodeColumnIds(Iterable<String> columns) {
     return _decodeVisibleColumns(
-      libraryKindWorkspaceForKind(registrationResolver().kind).fields,
+      libraryKindWorkspaceForKind(registrationResolver().kind).workspaceFields,
       columns,
     );
   }
@@ -203,7 +201,6 @@ class LibraryWorkspaceViewProfile {
 
 class LibraryWorkspaceViewState {
   LibraryWorkspaceViewState({
-    this.browserMode = LibraryWorkspaceBrowserMode.work,
     required this.viewMode,
     required this.detailsLayout,
     required this.isSidebarVisible,
@@ -227,7 +224,6 @@ class LibraryWorkspaceViewState {
         visibleColumnIds = Set.unmodifiable(visibleColumnIds),
         columnWidths = Map.unmodifiable(columnWidths);
 
-  final LibraryWorkspaceBrowserMode browserMode;
   final LibraryViewMode viewMode;
   final LibraryDetailsLayout detailsLayout;
   final bool isSidebarVisible;
@@ -248,7 +244,6 @@ class LibraryWorkspaceViewState {
 
   LibraryWorkspacePreferenceSnapshot toPreferenceSnapshot() {
     return LibraryWorkspacePreferenceSnapshot(
-      browserMode: browserMode,
       viewMode: viewMode,
       detailsLayout: detailsLayout,
       isSidebarVisible: isSidebarVisible,
@@ -276,7 +271,6 @@ class LibraryWorkspaceViewState {
   }
 
   LibraryWorkspaceViewState copyWith({
-    LibraryWorkspaceBrowserMode? browserMode,
     LibraryViewMode? viewMode,
     LibraryDetailsLayout? detailsLayout,
     bool? isSidebarVisible,
@@ -303,7 +297,6 @@ class LibraryWorkspaceViewState {
               ]
             : this.sortRules);
     return LibraryWorkspaceViewState(
-      browserMode: browserMode ?? this.browserMode,
       viewMode: viewMode ?? this.viewMode,
       detailsLayout: detailsLayout ?? this.detailsLayout,
       isSidebarVisible: isSidebarVisible ?? this.isSidebarVisible,
@@ -399,22 +392,6 @@ class LibraryWorkspaceViewState {
       columnWidths: {
         ...columnWidths,
         column: profile.clampColumnWidth(column, width),
-      },
-    );
-  }
-
-  LibraryWorkspaceViewState withReorderedColumn({
-    required LibraryFieldIdRuntime column,
-    required LibraryFieldIdRuntime? beforeColumn,
-  }) {
-    return copyWith(
-      visibleColumnIds: {
-        for (final column in reorderLibraryTableColumns(
-          columns: visibleColumnIds,
-          column: column,
-          beforeColumn: beforeColumn,
-        ))
-          column,
       },
     );
   }

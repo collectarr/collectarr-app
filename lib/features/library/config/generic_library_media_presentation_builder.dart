@@ -12,13 +12,6 @@ class GenericLibraryMediaPresentationBuilder
   final LibraryMetadataLabels metadataLabels;
 
   @override
-  CatalogSearchCandidate mergeProviderAddResult({
-    required CatalogSearchCandidate ingested,
-    required CatalogSearchCandidate edited,
-  }) =>
-      edited;
-
-  @override
   CatalogSearchCandidate mergeHydratedAddItem({
     required CatalogSearchCandidate hydrated,
     required CatalogSearchCandidate fallback,
@@ -38,7 +31,7 @@ class GenericLibraryMediaPresentationBuilder
       identityFacts: [
         if (includeIdentityFacts) ...[
           LibraryDetailField(label: 'Kind', value: singularLabel),
-          LibraryDetailField(label: 'ID', value: item.node.workId),
+          LibraryDetailField(label: 'ID', value: item.target.id),
           LibraryDetailField(label: 'Title', value: dto.primaryLabel),
         ],
       ],

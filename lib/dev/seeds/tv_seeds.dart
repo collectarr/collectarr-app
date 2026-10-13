@@ -1,6 +1,6 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/core/models/library_entry_ref.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_record.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
@@ -10,16 +10,16 @@ import 'package:collectarr_app/dev/seeds/seed_catalog_item_factory.dart';
 import 'package:collectarr_app/dev/seeds/dev_seed_kind_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_tracking_unit.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_tracking_state.dart';
-import 'package:collectarr_app/features/library/kinds/tv/ownership/tv_owned_details.dart';
-import 'package:collectarr_app/features/library/kinds/tv/data/tv_repository.dart';
-import 'package:collectarr_app/features/library/kinds/tv/data/tv_owned_item_projection.dart';
-import 'package:collectarr_app/features/library/kinds/tv/data/tv_owned_repository.dart';
+import 'package:collectarr_app/features/library/kinds/tv/entries/tv_entry_details.dart';
+import 'package:collectarr_app/features/library/kinds/tv/data/tv_library_entry_projection.dart';
 import 'package:collectarr_app/features/library/kinds/tv/data/tv_tracking_repository.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_ids.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_tracking.dart';
-import 'package:collectarr_app/features/library/kinds/tv/domain/tv_owned_item.dart';
+import 'package:collectarr_app/features/library/kinds/tv/domain/tv_library_entry.dart';
+import 'package:collectarr_app/features/library/kinds/tv/domain/tv_personal_data.dart';
+import 'package:collectarr_app/features/library/kinds/tv/domain/tv_metadata.dart';
 
-final tvDevSeedContributor = TypedDevSeedKindContributor<TvOwnedItem>(
+final tvDevSeedContributor = TypedDevSeedKindContributor<TvLibraryEntry>(
   kind: CatalogMediaKind.tv,
   catalogDefaults: DevSeedCatalogDefaults(
     includePublishingDetails: true,
@@ -37,11 +37,9 @@ final tvDevSeedContributor = TypedDevSeedKindContributor<TvOwnedItem>(
   validateCatalog: validateTvSeedCatalog,
   validateCatalogGraph: validateTvSeedCatalogGraph,
   validateBarcode: seedValidateStandardBarcode,
-  ownedItemsTyped: tvSeedOwnedItems,
-  ownedSummaryTyped: TvOwnedItemProjection.toSummary,
-  validateOwnedTyped: validateTvSeedOwned,
-  seedOwnedTyped: (db, now) =>
-      TvOwnedRepository(db).upsertAll(tvSeedOwnedItems(now)),
+  libraryEntriesTyped: tvSeedLibraryEntries,
+  libraryEntrySummaryTyped: TvLibraryEntryProjection.toSummary,
+  validateEntryTyped: validateTvSeedEntry,
   trackingRecords: tvSeedTrackingStates,
   trackingUnits: tvSeedTrackingUnits,
   watchSessions: tvSeedWatchSessions,
@@ -70,15 +68,7 @@ List<String> validateTvSeedCatalogGraph(CatalogItemDto item) {
     'seasons',
     item.payload['seasons'],
   );
-  seedValidateChildren(
-    issues,
-    prefix,
-    'seasons',
-    seasons,
-    parentId: item.id,
-    parentKey: 'series_id',
-    titleKey: 'title',
-  );
+  _validateContainedIds(issues, prefix, 'seasons', seasons);
   for (var index = 0; index < seasons.length; index++) {
     final season = seasons[index];
     seedRequirePositiveInt(
@@ -101,15 +91,10 @@ List<String> validateTvSeedCatalogGraph(CatalogItemDto item) {
         'seasons[$index].episodes[$episodeIndex].id',
         episode['id'],
       );
-      seedRequireText(
-        issues,
-        prefix,
-        'seasons[$index].episodes[$episodeIndex].season_id',
-        episode['season_id'],
-      );
-      if (episode['season_id']?.toString() != season['id']?.toString()) {
+      final episodeId = episode['id']?.toString().trim() ?? '';
+      if (episodeId.isEmpty) {
         issues.add(
-          '$prefix: seasons[$index].episodes[$episodeIndex].season_id must reference the parent season',
+          '$prefix: seasons[$index].episodes[$episodeIndex].id is required',
         );
       }
       seedRequireText(
@@ -126,22 +111,38 @@ List<String> validateTvSeedCatalogGraph(CatalogItemDto item) {
       );
     }
   }
-  seedValidateReleases(
+  final media = seedRequireObjectList(
     issues,
     prefix,
-    item,
-    item.payload['releases'],
-    kind: CatalogMediaKind.tv,
-    parentKey: 'series_id',
-    titleKey: 'title',
+    'media',
+    item.kindData['media'],
   );
+  _validateContainedIds(issues, prefix, 'media', media);
+  for (var index = 0; index < media.length; index++) {
+    seedRequirePositiveInt(
+      issues,
+      prefix,
+      'media[$index].position',
+      media[index]['position'],
+    );
+    seedRequirePositiveInt(
+      issues,
+      prefix,
+      'media[$index].media_number',
+      media[index]['media_number'],
+    );
+  }
+  if (item.kindData.containsKey('releases') ||
+      item.kindData.containsKey('editions')) {
+    issues.add('$prefix must not contain a release graph.');
+  }
   return issues;
 }
 
-List<String> validateTvSeedOwned(TvOwnedItem item) {
+List<String> validateTvSeedEntry(TvLibraryEntry item) {
   final issues = <String>[];
-  final prefix = '${item.catalogRef.kind}/${item.id}';
-  final details = item.details;
+  final prefix = 'tv/${item.id}';
+  final details = item.personal.details;
   seedRequireText(issues, prefix, 'tv.region', details.region);
   seedRequireText(issues, prefix, 'tv.packaging', details.packaging);
   seedRequireText(issues, prefix, 'tv.distributor', details.distributor);
@@ -153,36 +154,7 @@ Future<void> seedTvDatabase(
   Iterable<CatalogItemDto> items,
   DateTime now,
 ) async {
-  final repository = TvRepository(db);
   final trackingRepository = TvTrackingRepository(db);
-  for (final item in items.where(
-    (item) => item.mediaKind == CatalogMediaKind.tv,
-  )) {
-    final seriesId = TvSeriesId(item.id);
-    final seasons = await repository.seasonsFor(seriesId);
-    for (final season in seasons) {
-      for (final episode in season.episodes) {
-        final completed = episode.episodeNumber == 1;
-        await trackingRepository.upsertEpisodeProgress(
-          TvEpisodeProgress(
-            seriesId: seriesId,
-            seasonId: TvSeasonId(season.id),
-            episodeId: TvEpisodeId(episode.id),
-            seasonNumber: season.seasonNumber,
-            episodeNumber: episode.episodeNumber,
-            watchedCount: completed ? 2 : 1,
-            completed: completed,
-            lastWatchedAt: now.subtract(
-              Duration(days: episode.episodeNumber?.toInt() ?? 0),
-            ),
-            rating: completed ? 9 : null,
-            notes: completed ? 'Seed episode replay history.' : null,
-            updatedAt: now,
-          ),
-        );
-      }
-    }
-  }
   final customEpisodes = tvSeedCustomEpisodes(now);
   for (final episode in customEpisodes) {
     await trackingRepository.upsertCustomEpisode(episode);
@@ -212,10 +184,9 @@ Iterable<TvTrackingUnit> tvSeedTrackingUnits(
                 '${episodeNumber.toString().padLeft(2, '0')}';
         yield TvTrackingUnit(
           id: 'seed-unit-tv-${item.id}-$episodeId',
-          targetRef: CatalogEntityRef(
-            kind: item.mediaKind,
-            entityType: CatalogEntityTypeId.root,
-            id: item.id,
+          libraryEntryRef: seedLibraryEntryRef(
+            item.mediaKind,
+            'seed-entry-${item.id}',
           ),
           seasonNumber: seasonNumber,
           episodeNumber: episodeNumber,
@@ -234,91 +205,84 @@ int? _seedTvInt(Object? value) {
 }
 
 CatalogItemDto enrichTvSeedItem(CatalogItemDto item) {
+  final metadata = TvMetadata.fromJson(item.kindData);
   final seasonId = '${item.id}-season-01';
   final episodes = [
     for (var number = 1; number <= 2; number++)
       {
         'id': '${item.id}-episode-${number.toString().padLeft(2, '0')}',
-        'series_id': item.id,
-        'season_id': seasonId,
         'season_number': 1,
         'episode_number': number,
-        'episode_title': '${item.title} — Episode $number',
-        'description': 'Seed episode $number for ${item.title}.',
-        'air_date': item.releaseDate
+        'episode_title': '${metadata.title} â€” Episode $number',
+        'description': 'Seed episode $number for ${metadata.title}.',
+        'air_date': metadata.releaseDate
             ?.add(Duration(days: number * 7))
             .toUtc()
             .toIso8601String(),
         'runtime_minutes': item.payload['runtime_minutes'] ?? 42,
-        'cover_image_url': item.coverImageUrl,
+        'cover_image_url': metadata.coverImageUrl,
       },
   ];
-  final releaseId = '${item.id}-release-01';
-  final mediaId = '$releaseId-media-01';
-  final releases = [
-    {
-      'id': releaseId,
-      'kind': 'tv',
-      'series_id': item.id,
-      'title': item.editionTitle ?? '${item.title} Complete Series',
-      'format': item.physicalFormat,
-      'region_code': item.payload['country'],
-      'release_date': item.releaseDate?.toUtc().toIso8601String(),
-      'publisher': item.publisher,
-      'sku': item.barcode,
-      'episode_count': episodes.length,
-      'season_count': 1,
-      'runtime_minutes': item.payload['runtime_minutes'] ?? 42,
-      'language_audio': [item.payload['audio_tracks'] ?? 'English'],
-      'language_subtitles': [item.payload['subtitles'] ?? 'English'],
-      'content_rating': item.payload['age_rating'],
-      'media': [
+  final rawMedia = item.kindData['media'];
+  final media = rawMedia is List && rawMedia.isNotEmpty
+      ? [
+          for (var index = 0; index < rawMedia.length; index++)
+            if (rawMedia[index] is Map)
+              {
+                ...Map<String, dynamic>.from(rawMedia[index] as Map),
+                'position': index + 1,
+              },
+        ]
+      : [
+          {
+            'id': '${item.id}-media-01',
+            'position': 1,
+            'media_number': 1,
+            'media_type': metadata.physicalFormat ?? 'Digital',
+            'title': metadata.editionTitle ?? metadata.title,
+            'episode_count': episodes.length,
+            'runtime_minutes': item.payload['runtime_minutes'] ?? 42,
+            'region_code': item.payload['country'] ?? 'US',
+            'audio_tracks': item.payload['audio_tracks'] ?? 'English',
+            'subtitles': item.payload['subtitles'] ?? 'English',
+          },
+        ];
+  final data = Map<String, dynamic>.from(item.kindData)
+    ..remove('editions')
+    ..remove('releases');
+  return CatalogItemDto.raw(
+    id: item.id,
+    mediaKind: CatalogMediaKind.tv,
+    origin: item.origin,
+    kindData: {
+      ...data,
+      'seasons': [
         {
-          'id': mediaId,
-          'release_id': releaseId,
-          'media_number': 1,
-          'media_type': item.physicalFormat,
-          'title': item.title,
+          'id': seasonId,
+          'season_number': 1,
+          'title': 'Season 1',
           'episode_count': episodes.length,
-          'runtime_minutes': item.payload['runtime_minutes'] ?? 42,
-          'region_code': item.payload['country'],
-          'color': item.payload['color'],
-          'audio_tracks': item.payload['audio_tracks'],
-          'subtitles': item.payload['subtitles'],
-          'layers': item.payload['layers'],
           'episodes': episodes,
         },
       ],
-      'episode_mappings': [
-        for (var index = 0; index < episodes.length; index++)
-          {
-            'id': '$releaseId-map-${(index + 1).toString().padLeft(2, '0')}',
-            'release_id': releaseId,
-            'media_id': mediaId,
-            'episode_id': episodes[index]['id'],
-            'disc_number': 1,
-            'sequence_number': index + 1,
-          },
-      ],
+      'media': media,
     },
-  ];
-  final enriched = withSeedPayload(item, {
-    'seasons': [
-      {
-        'id': seasonId,
-        'series_id': item.id,
-        'season_number': 1,
-        'title': 'Season 1',
-        'description': 'Seed season for ${item.title}.',
-        'air_date': item.releaseDate?.toUtc().toIso8601String(),
-        'episode_count': episodes.length,
-        'cover_image_url': item.coverImageUrl,
-        'episodes': episodes,
-      },
-    ],
-    'releases': releases,
-  });
-  return enriched;
+  );
+}
+
+void _validateContainedIds(
+  List<String> issues,
+  String prefix,
+  String field,
+  List<Map<String, dynamic>> values,
+) {
+  final ids = <String>{};
+  for (var index = 0; index < values.length; index++) {
+    final id = values[index]['id']?.toString().trim() ?? '';
+    if (id.isEmpty || !ids.add(id)) {
+      issues.add('$prefix: $field[$index] needs a unique non-empty id');
+    }
+  }
 }
 
 List<CatalogItemDto> tvSeedCatalogItems() => [
@@ -344,7 +308,7 @@ List<CatalogItemDto> tvSeedCatalogItems() => [
         language: 'en',
         ageRating: 'TV-MA',
         sortKey: 'breaking-bad-0001',
-        series: const CatalogSeriesDetailsDto(
+        series: const SeedSeriesDetails(
           seriesId: 'seed-series-breaking-bad',
           seriesTitle: 'Breaking Bad Universe',
           volumeName: 'Breaking Bad',
@@ -352,14 +316,14 @@ List<CatalogItemDto> tvSeedCatalogItems() => [
           volumeStartYear: 2008,
           tags: 'drama, crime, thriller, prestige tv',
         ),
-        video: const VideoCatalogDetailsDto(
+        video: const SeedVideoDetails(
           runtimeMinutes: 47,
           nrDiscs: 16,
           screenRatio: '1.78:1',
           audioTracks: 'English DTS-HD MA 5.1, French DD 5.1, German DD 5.1',
           subtitles: 'English SDH, French, German, Spanish',
         ),
-        publishing: const CatalogPublishingDetailsDto(
+        publishing: const SeedPublishingDetails(
           coverPriceCents: 15999,
           currency: 'USD',
           imprint: 'Sony Pictures Home Entertainment',
@@ -380,30 +344,80 @@ List<CatalogItemDto> tvSeedCatalogItems() => [
         ],
         storyArcs: ['Heisenberg Rise and Fall'],
         genres: ['crime', 'drama', 'thriller'],
-        editions: [
-          CatalogEditionDto(
-            id: 'seed-ed-bb-barrel',
-            title: 'Complete Series Money Barrel Collector\'s Edition',
-            format: 'Blu-ray',
-            publisher: 'Sony Pictures',
-            releaseDate: DateTime.utc(2013, 11, 26),
-            region: 'Region A',
-            discs: const [
-              CatalogDiscDto(discNumber: 1, name: 'Season 1 (Episodes 1-7)'),
-              CatalogDiscDto(discNumber: 2, name: 'Season 2 (Episodes 1-7)'),
-              CatalogDiscDto(discNumber: 3, name: 'Season 2 (Episodes 8-13)'),
-              CatalogDiscDto(discNumber: 4, name: 'Season 3 (Episodes 1-7)'),
-              CatalogDiscDto(discNumber: 5, name: 'Season 3 (Episodes 8-13)'),
-              CatalogDiscDto(discNumber: 6, name: 'Season 4 (Episodes 1-7)'),
-              CatalogDiscDto(discNumber: 7, name: 'Season 4 (Episodes 8-13)'),
-              CatalogDiscDto(discNumber: 8, name: 'Season 5 Part 1'),
-              CatalogDiscDto(
-                  discNumber: 9, name: 'Season 5 Part 2 (Final Episodes)'),
-              CatalogDiscDto(
-                  discNumber: 10, name: 'Bonus: No Half Measures Documentary'),
-            ],
-          ),
-        ],
+        payload: {
+          'media': [
+            {
+              'id': 'seed-tv-01-media-01',
+              'position': 1,
+              'media_number': 1,
+              'media_type': 'Blu-ray',
+              'title': 'Season 1 (Episodes 1-7)'
+            },
+            {
+              'id': 'seed-tv-01-media-02',
+              'position': 2,
+              'media_number': 2,
+              'media_type': 'Blu-ray',
+              'title': 'Season 2 (Episodes 1-7)'
+            },
+            {
+              'id': 'seed-tv-01-media-03',
+              'position': 3,
+              'media_number': 3,
+              'media_type': 'Blu-ray',
+              'title': 'Season 2 (Episodes 8-13)'
+            },
+            {
+              'id': 'seed-tv-01-media-04',
+              'position': 4,
+              'media_number': 4,
+              'media_type': 'Blu-ray',
+              'title': 'Season 3 (Episodes 1-7)'
+            },
+            {
+              'id': 'seed-tv-01-media-05',
+              'position': 5,
+              'media_number': 5,
+              'media_type': 'Blu-ray',
+              'title': 'Season 3 (Episodes 8-13)'
+            },
+            {
+              'id': 'seed-tv-01-media-06',
+              'position': 6,
+              'media_number': 6,
+              'media_type': 'Blu-ray',
+              'title': 'Season 4 (Episodes 1-7)'
+            },
+            {
+              'id': 'seed-tv-01-media-07',
+              'position': 7,
+              'media_number': 7,
+              'media_type': 'Blu-ray',
+              'title': 'Season 4 (Episodes 8-13)'
+            },
+            {
+              'id': 'seed-tv-01-media-08',
+              'position': 8,
+              'media_number': 8,
+              'media_type': 'Blu-ray',
+              'title': 'Season 5 Part 1'
+            },
+            {
+              'id': 'seed-tv-01-media-09',
+              'position': 9,
+              'media_number': 9,
+              'media_type': 'Blu-ray',
+              'title': 'Season 5 Part 2 (Final Episodes)'
+            },
+            {
+              'id': 'seed-tv-01-media-10',
+              'position': 10,
+              'media_number': 10,
+              'media_type': 'Blu-ray',
+              'title': 'Bonus: No Half Measures Documentary'
+            },
+          ],
+        },
       ),
       seedCatalogItem(
         id: 'seed-tv-02',
@@ -426,14 +440,14 @@ List<CatalogItemDto> tvSeedCatalogItems() => [
         language: 'en',
         ageRating: 'TV-MA',
         sortKey: 'better-call-saul-0001',
-        series: const CatalogSeriesDetailsDto(
+        series: const SeedSeriesDetails(
           seriesId: 'seed-series-breaking-bad',
           seriesTitle: 'Breaking Bad Universe',
           volumeName: 'Better Call Saul',
           volumeNumber: '2',
           volumeStartYear: 2015,
         ),
-        video: const VideoCatalogDetailsDto(
+        video: const SeedVideoDetails(
           runtimeMinutes: 50,
           nrDiscs: 19,
           screenRatio: '1.78:1',
@@ -477,7 +491,7 @@ List<CatalogItemDto> tvSeedCatalogItems() => [
         language: 'en',
         ageRating: 'TV-MA',
         sortKey: 'the-wire-0001',
-        video: const VideoCatalogDetailsDto(
+        video: const SeedVideoDetails(
           runtimeMinutes: 58,
           nrDiscs: 20,
           screenRatio: '1.78:1 (16:9 Full HD Remaster)',
@@ -522,7 +536,7 @@ List<CatalogItemDto> tvSeedCatalogItems() => [
         language: 'en',
         ageRating: 'TV-MA',
         sortKey: 'chernobyl-0001',
-        video: const VideoCatalogDetailsDto(
+        video: const SeedVideoDetails(
           runtimeMinutes: 65,
           nrDiscs: 2,
           screenRatio: '2.00:1',
@@ -533,9 +547,9 @@ List<CatalogItemDto> tvSeedCatalogItems() => [
           {'name': 'Craig Mazin', 'role': 'creator'},
           {'name': 'Johan Renck', 'role': 'director'},
           {'name': 'Jared Harris', 'role': 'actor'},
-          {'name': 'Stellan Skarsgård', 'role': 'actor'},
+          {'name': 'Stellan SkarsgÃ¥rd', 'role': 'actor'},
           {'name': 'Emily Watson', 'role': 'actor'},
-          {'name': 'Hildur Guðnadóttir', 'role': 'composer'},
+          {'name': 'Hildur GuÃ°nadÃ³ttir', 'role': 'composer'},
         ],
         characters: [
           'Valery Legasov',
@@ -567,7 +581,7 @@ List<CatalogItemDto> tvSeedCatalogItems() => [
         ageRating: 'TV-MA',
         sortKey: 'true-detective-0001',
         itemNumber: '1',
-        video: const VideoCatalogDetailsDto(
+        video: const SeedVideoDetails(
           runtimeMinutes: 58,
           nrDiscs: 3,
           screenRatio: '1.78:1',
@@ -605,7 +619,7 @@ List<CatalogItemDto> tvSeedCatalogItems() => [
         language: 'en',
         ageRating: 'TV-MA',
         sortKey: 'mindhunter-0001',
-        video: const VideoCatalogDetailsDto(
+        video: const SeedVideoDetails(
           runtimeMinutes: 54,
           nrDiscs: 4,
           screenRatio: '2.20:1',
@@ -644,7 +658,7 @@ List<CatalogItemDto> tvSeedCatalogItems() => [
         language: 'en',
         ageRating: 'TV-MA',
         sortKey: 'severance-0001',
-        video: const VideoCatalogDetailsDto(
+        video: const SeedVideoDetails(
           runtimeMinutes: 52,
           nrDiscs: 2,
           screenRatio: '2.39:1',
@@ -690,7 +704,7 @@ List<CatalogItemDto> tvSeedCatalogItems() => [
         language: 'en',
         ageRating: 'TV-MA',
         sortKey: 'last-of-us-0001',
-        video: const VideoCatalogDetailsDto(
+        video: const SeedVideoDetails(
           runtimeMinutes: 60,
           nrDiscs: 4,
           screenRatio: '1.78:1',
@@ -728,7 +742,7 @@ List<CatalogItemDto> tvSeedCatalogItems() => [
         language: 'en',
         ageRating: 'TV-MA',
         sortKey: 'fargo-0001',
-        video: const VideoCatalogDetailsDto(
+        video: const SeedVideoDetails(
           runtimeMinutes: 55,
           nrDiscs: 3,
           screenRatio: '1.78:1',
@@ -770,7 +784,7 @@ List<CatalogItemDto> tvSeedCatalogItems() => [
         language: 'de',
         ageRating: 'TV-MA',
         sortKey: 'dark-0001',
-        video: const VideoCatalogDetailsDto(
+        video: const SeedVideoDetails(
           runtimeMinutes: 56,
           nrDiscs: 6,
           screenRatio: '2.00:1',
@@ -812,7 +826,7 @@ List<CatalogItemDto> tvSeedCatalogItems() => [
         language: 'en',
         ageRating: 'TV-MA',
         sortKey: 'succession-0001',
-        video: const VideoCatalogDetailsDto(
+        video: const SeedVideoDetails(
           runtimeMinutes: 62,
           nrDiscs: 12,
           screenRatio: '1.78:1',
@@ -858,7 +872,7 @@ List<CatalogItemDto> tvSeedCatalogItems() => [
         language: 'en',
         ageRating: 'TV-14',
         sortKey: 'arcane-0001',
-        video: const VideoCatalogDetailsDto(
+        video: const SeedVideoDetails(
           runtimeMinutes: 42,
           nrDiscs: 3,
           screenRatio: '2.39:1',
@@ -903,7 +917,7 @@ List<CatalogItemDto> tvSeedCatalogItems() => [
         language: 'en',
         ageRating: 'TV-14',
         sortKey: 'stranger-things-0001',
-        video: const VideoCatalogDetailsDto(
+        video: const SeedVideoDetails(
           runtimeMinutes: 51,
           nrDiscs: 4,
           screenRatio: '2.00:1',
@@ -947,7 +961,7 @@ List<CatalogItemDto> tvSeedCatalogItems() => [
         language: 'en',
         ageRating: 'TV-MA',
         sortKey: 'band-of-brothers-0001',
-        video: const VideoCatalogDetailsDto(
+        video: const SeedVideoDetails(
           runtimeMinutes: 60,
           nrDiscs: 6,
           screenRatio: '1.78:1',
@@ -990,7 +1004,7 @@ List<CatalogItemDto> tvSeedCatalogItems() => [
         language: 'en',
         ageRating: 'TV-MA',
         sortKey: 'game-of-thrones-0001',
-        video: const VideoCatalogDetailsDto(
+        video: const SeedVideoDetails(
           runtimeMinutes: 58,
           nrDiscs: 30,
           screenRatio: '1.78:1',
@@ -1017,16 +1031,24 @@ List<CatalogItemDto> tvSeedCatalogItems() => [
       ),
     ];
 
-List<TvOwnedItem> tvSeedOwnedItems(DateTime now) => [
-      for (final itemId in seedIds(CatalogMediaKind.tv, 15))
-        TvOwnedItem(
-          id: TvOwnedItemId('seed-owned-$itemId'),
-          catalogRef: seedCatalogRef(CatalogMediaKind.tv, itemId),
-          createdAt: now.subtract(const Duration(days: 280)),
-          updatedAt: now,
+List<TvLibraryEntry> tvSeedLibraryEntries(DateTime now) {
+  final metadataById = {
+    for (final item in tvSeedCatalogItems())
+      item.id: TvMetadata.fromJson(item.kindData),
+  };
+  return [
+    for (final itemId in seedIds(CatalogMediaKind.tv, 15))
+      TvLibraryEntry(
+        id: LibraryEntryId('seed-entry-$itemId'),
+        metadata: metadataById[itemId] ??
+            (throw StateError('Missing TV seed catalog item: $itemId')),
+        sourceCatalogRef: seedCatalogRef(CatalogMediaKind.tv, itemId),
+        createdAt: now.subtract(const Duration(days: 280)),
+        updatedAt: now,
+        personal: TvPersonalData(
           isDigital: false,
           condition: 'Near Mint',
-          details: const TvOwnedDetails(
+          details: TvEntryDetails(
             features: 'Commentary, deleted scenes, making-of documentary',
             hdrFormats: ['HDR10', 'Dolby Vision'],
             boxSetName: 'Complete Series Box Set',
@@ -1038,20 +1060,17 @@ List<TvOwnedItem> tvSeedOwnedItems(DateTime now) => [
           pricePaidCents: 4999,
           currency: 'USD',
           personalNotes: 'Complete box set in pristine condition.',
-          quantity: 1,
           purchaseStore: 'Amazon',
           collectionStatus: 'collected',
         ),
-    ];
+      ),
+  ];
+}
 
 List<TrackingStorageRecord> tvSeedTrackingStates(DateTime now) => [
       for (var i = 1; i <= 15; i++)
         TvTrackingState(
           id: 'seed-track-tv-${seedOrdinal2(i)}',
-          catalogRef: seedCatalogRef(
-            CatalogMediaKind.tv,
-            'seed-tv-${seedOrdinal2(i)}',
-          ),
           coordinates: TvTrackingCoordinates(
             seasonNumber: 1,
             episodeNumber: i.isEven ? 2 : 1,
@@ -1059,9 +1078,9 @@ List<TrackingStorageRecord> tvSeedTrackingStates(DateTime now) => [
               '1:${i.isEven ? 2 : 1}': 9 + (i % 2),
             },
           ),
-          ownedRef: seedOwnedRef(
+          libraryEntryRef: seedLibraryEntryRef(
             CatalogMediaKind.tv,
-            'seed-owned-seed-tv-${seedOrdinal2(i)}',
+            'seed-entry-seed-tv-${seedOrdinal2(i)}',
           ),
           sourceType: TrackingSourceType.physical,
           status: i <= 10
@@ -1082,10 +1101,9 @@ List<WatchSession> tvSeedWatchSessions(DateTime now) => [
       for (var i = 1; i <= 15; i++)
         TvWatchSession(
           id: 'seed-watch-tv-${seedOrdinal2(i)}',
-          seriesId: TvSeriesId('seed-tv-${seedOrdinal2(i)}'),
-          targetRef: seedCatalogRef(
-            CatalogMediaKind.tv,
-            'seed-tv-${seedOrdinal2(i)}',
+          libraryEntryRef: LibraryEntryRef(
+            kind: CatalogMediaKind.tv,
+            id: LibraryEntryId('seed-entry-seed-tv-${seedOrdinal2(i)}'),
           ),
           seasonNumber: 1,
           episodeNumber: i.isEven ? 2 : 1,
@@ -1102,7 +1120,10 @@ List<TvCustomEpisode> tvSeedCustomEpisodes(DateTime now) => [
       for (var i = 1; i <= 15; i++)
         TvCustomEpisode(
           id: TvEpisodeId('seed-custom-tv-${seedOrdinal2(i)}'),
-          seriesId: TvSeriesId('seed-tv-${seedOrdinal2(i)}'),
+          libraryEntryRef: seedLibraryEntryRef(
+            CatalogMediaKind.tv,
+            'seed-entry-seed-tv-${seedOrdinal2(i)}',
+          ),
           seasonNumber: 1,
           episodeNumber: 3,
           title: 'Seed bonus episode ${seedOrdinal2(i)}',

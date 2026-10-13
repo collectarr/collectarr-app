@@ -1,6 +1,14 @@
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 
-/// Structural duplicate candidate supplied by a kind-owned presentation.
+enum LibraryDuplicateCriterion {
+  automatic,
+  title,
+  titleAndCreator,
+  identifier,
+  indexNumber
+}
+
+/// Structural duplicate candidate supplied by a kind-entry presentation.
 ///
 /// The generic duplicate host groups candidates and renders their result. It
 /// does not know whether a kind produced a barcode, issue, ISBN, platform, or
@@ -12,6 +20,7 @@ final class LibraryDuplicateCandidate {
     required this.reason,
     required this.confidenceScore,
     this.entryLabel,
+    this.criterion = LibraryDuplicateCriterion.identifier,
   });
 
   final String key;
@@ -19,6 +28,7 @@ final class LibraryDuplicateCandidate {
   final String reason;
   final int confidenceScore;
   final String? entryLabel;
+  final LibraryDuplicateCriterion criterion;
 }
 
 String? normalizeLibraryDuplicateToken(Object? value) {
@@ -36,4 +46,4 @@ String? normalizeLibraryDuplicateIdentifier(Object? value) {
 }
 
 typedef LibraryDuplicateCandidateBuilder = List<LibraryDuplicateCandidate>
-    Function(LibraryWorkspaceSource entry);
+    Function(LibraryWorkspaceContext entry);

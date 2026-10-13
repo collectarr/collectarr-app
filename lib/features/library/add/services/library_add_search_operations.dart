@@ -7,69 +7,20 @@ import 'package:collectarr_app/features/library/add/models/library_add_search_co
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_cache_workflow.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
-import 'package:collectarr_app/features/providers/providers_sdk.dart';
 import 'package:dio/dio.dart';
 
 class LibraryAddCoreSearchResult {
   const LibraryAddCoreSearchResult({
     required this.items,
-    required this.shouldSearchProvider,
+    required this.rawItemCount,
+    this.nextOffset,
+    this.hasMore = false,
   });
 
   final List<CatalogSearchCandidate> items;
-  final bool shouldSearchProvider;
-}
-
-class LibraryAddProviderSearchDebounceDecision {
-  const LibraryAddProviderSearchDebounceDecision({
-    required this.shouldSkip,
-    required this.signature,
-    required this.at,
-  });
-
-  final bool shouldSkip;
-  final String signature;
-  final DateTime at;
-}
-
-class LibraryAddProviderSearchFailure {
-  const LibraryAddProviderSearchFailure({
-    required this.source,
-    required this.message,
-  });
-
-  final String source;
-  final String message;
-}
-
-class LibraryAddProviderSearchResult {
-  const LibraryAddProviderSearchResult({
-    required this.candidates,
-    required this.failures,
-  });
-
-  final List<ProviderSearchCandidate> candidates;
-  final List<LibraryAddProviderSearchFailure> failures;
-}
-
-LibraryAddProviderSearchDebounceDecision
-    evaluateLibraryAddProviderSearchDebounce({
-  required String provider,
-  required String query,
-  required Duration debounce,
-  required DateTime now,
-  String? previousSignature,
-  DateTime? previousAt,
-}) {
-  final signature = '$provider|${query.trim().toLowerCase()}';
-  final shouldSkip = previousSignature == signature &&
-      previousAt != null &&
-      now.difference(previousAt) < debounce;
-  return LibraryAddProviderSearchDebounceDecision(
-    shouldSkip: shouldSkip,
-    signature: signature,
-    at: now,
-  );
+  final int rawItemCount;
+  final int? nextOffset;
+  final bool hasMore;
 }
 
 Future<LibraryAddCoreSearchResult> runLibraryAddCoreSearch({
@@ -80,10 +31,9 @@ Future<LibraryAddCoreSearchResult> runLibraryAddCoreSearch({
   required Duration timeout,
   required LibraryAddSearchRanking ranking,
   required LibraryAddSearchContext searchContext,
-  required bool providerSearchAvailable,
   CancelToken? cancelToken,
 }) async {
-  final items = await searchAndCacheLibraryMetadata(
+  final page = await searchAndCacheLibraryMetadataPage(
     api: api,
     kind: type.kind,
     catalog: catalog,
@@ -91,7 +41,7 @@ Future<LibraryAddCoreSearchResult> runLibraryAddCoreSearch({
     cancelToken: cancelToken,
   ).timeout(timeout);
   final rankedItems = ranking.rankMetadata(
-    items,
+    page.items,
     searchContext,
   );
   final filteredItems = libraryAddForKind(type.kind)
@@ -100,9 +50,9 @@ Future<LibraryAddCoreSearchResult> runLibraryAddCoreSearch({
       .filterResults(rankedItems, searchContext);
   return LibraryAddCoreSearchResult(
     items: filteredItems,
-    shouldSearchProvider: providerSearchAvailable &&
-        ranking.shouldSearchProviderForCoreResults(
-            filteredItems, searchContext),
+    rawItemCount: page.items.length,
+    nextOffset: page.nextOffset,
+    hasMore: page.hasMore,
   );
 }
 
@@ -140,7 +90,6 @@ Future<LibraryAddCoreSearchResult> runLibraryAddIdentifierLookup({
   required CatalogTransportRepository catalog,
   required String identifierCode,
   required Duration timeout,
-  required bool providerSearchAvailable,
   CancelToken? cancelToken,
 }) async {
   final results = await lookupAndCacheLibraryBarcodes(
@@ -156,90 +105,6 @@ Future<LibraryAddCoreSearchResult> runLibraryAddIdentifierLookup({
   ];
   return LibraryAddCoreSearchResult(
     items: foundItems,
-    shouldSearchProvider: foundItems.isEmpty && providerSearchAvailable,
-  );
-}
-
-Future<LibraryAddProviderSearchResult> runLibraryAddProviderSearch({
-  ApiClient? api,
-  required LibraryKindRegistration type,
-  required String provider,
-  required String query,
-  required LibraryAddSearchRanking ranking,
-  required LibraryAddSearchContext searchContext,
-  ProviderConnectorRegistry? providerRegistry,
-  LibraryAddSearchScope? kindOverride,
-  ProviderCancellationToken? cancellationToken,
-}) async {
-  final targetKind = kindOverride == null ? type.kind : kindOverride.kind;
-  final normalizedProvider =
-      provider.trim().isEmpty ? null : provider.trim().toLowerCase();
-  final effectiveQuery = query.trim();
-
-  List<ProviderSearchCandidate> candidates = [];
-  final failures = <LibraryAddProviderSearchFailure>[];
-
-  if (providerRegistry != null && effectiveQuery.isNotEmpty) {
-    if (normalizedProvider != null && normalizedProvider != 'all') {
-      final p = providerRegistry.get(normalizedProvider);
-      if (p != null) {
-        try {
-          candidates =
-              await libraryAddForKind(type.kind).search.provider.search(
-                    p,
-                    query: effectiveQuery,
-                    kind: targetKind,
-                    context: searchContext,
-                    cancellationToken: cancellationToken,
-                  );
-        } catch (error) {
-          if (cancellationToken?.isCancelled == true ||
-              error is ProviderCancelledException) {
-            rethrow;
-          }
-          failures.add(
-            LibraryAddProviderSearchFailure(
-              source: p.descriptor.displayName,
-              message: error.toString(),
-            ),
-          );
-        }
-      }
-    } else {
-      final providers = providerRegistry.getForKind(targetKind);
-      await Future.wait(providers.map((p) async {
-        try {
-          candidates
-              .addAll(await libraryAddForKind(type.kind).search.provider.search(
-                    p,
-                    query: effectiveQuery,
-                    kind: targetKind,
-                    context: searchContext,
-                    cancellationToken: cancellationToken,
-                  ));
-        } catch (error) {
-          if (cancellationToken?.isCancelled == true ||
-              error is ProviderCancelledException) {
-            rethrow;
-          }
-          failures.add(
-            LibraryAddProviderSearchFailure(
-              source: p.descriptor.displayName,
-              message: error.toString(),
-            ),
-          );
-        }
-      }));
-    }
-  }
-
-  final ranked = ranking.rankProvider(candidates, searchContext);
-  return LibraryAddProviderSearchResult(
-    candidates: libraryAddForKind(type.kind)
-        .search
-        .provider
-        .resultPolicy
-        .filterResults(ranked, searchContext),
-    failures: failures,
+    rawItemCount: foundItems.length,
   );
 }

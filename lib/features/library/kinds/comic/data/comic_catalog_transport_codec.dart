@@ -1,6 +1,7 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_display_summary.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_item_cache_repository.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_transport_payload.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_kind_derived_data.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_kind_transport_codec.dart';
@@ -9,35 +10,45 @@ import 'package:collectarr_app/features/pick_lists/pick_list_repository.dart';
 import 'package:collectarr_app/features/pick_lists/pick_list_definition_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_pick_list_contributors.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_serial_authority_contributors.dart';
-import 'package:collectarr_app/features/library/kinds/comic/data/comic_repository.dart';
-import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
-import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_catalog_data.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_catalog_item.dart';
+import 'package:collectarr_app/features/library/kinds/comic/workspace/comic_workspace_data.dart';
 
 final class ComicCatalogTransportCodec
-    implements CatalogKindTransportCodec<ComicMedia> {
+    implements CatalogKindTransportCodec<ComicCatalogItem> {
   const ComicCatalogTransportCodec();
 
   @override
   CatalogMediaKind get kind => CatalogMediaKind.comic;
 
   @override
-  ComicMedia decode(CatalogItemDto item) {
-    final metadata = item.kindMetadata;
-    if (metadata is ComicMedia) return metadata;
-    return ComicMedia.fromJson(catalogTransportPayloadFor(item));
-  }
+  ComicCatalogItem decode(CatalogItemDto item) =>
+      ComicCatalogItem.fromJson(catalogTransportPayloadFor(item));
 
   @override
-  Future<void> upsert(LocalDatabase db, ComicMedia item) {
-    return ComicRepository(db).updateMedia(item);
-  }
+  ComicCatalogItem decodeKindData(Map<String, dynamic> kindData) =>
+      ComicCatalogItem.fromJson(kindData);
 
   @override
-  CatalogDisplaySummary summarize(ComicMedia item) => _comicSummary(item);
+  CatalogItemDto encode(String id, ComicCatalogItem item) => CatalogItemDto.raw(
+        id: id,
+        mediaKind: kind,
+        kindData: item.toJson(),
+      );
 
   @override
-  ComicWorkspaceCatalogData workspaceData(CatalogItemDto item) =>
-      ComicWorkspaceCatalogData.fromTransport(item);
+  CatalogDisplaySummary summarize(
+          String catalogItemId, ComicCatalogItem item) =>
+      _comicSummary(catalogItemId, item);
+
+  @override
+  ComicWorkspaceData workspaceData(CatalogItemDto item) =>
+      ComicWorkspaceData(comic: decode(item));
+
+  @override
+  ComicWorkspaceData workspaceDataFromKindData(
+    Map<String, dynamic> kindData,
+  ) =>
+      ComicWorkspaceData(comic: ComicCatalogItem.fromJson(kindData));
 
   @override
   Future<Map<String, int>> countCatalogValues(
@@ -51,9 +62,7 @@ final class ComicCatalogTransportCodec
     return countPickListCatalogValuesByValue(
       contributor: contributor,
       listName: listName,
-      metadata: [
-        for (final item in await listTransport(db)) decode(item),
-      ],
+      metadata: await listCatalogAndEntryMetadata(db),
       normalizedValues: normalizedValues,
     );
   }
@@ -87,7 +96,7 @@ final class ComicCatalogTransportCodec
   Future<void> captureDerivedDataTyped(
     PickListRepository pickLists,
     SerialAuthorityRepository serialAuthority,
-    ComicMedia item,
+    ComicCatalogItem item,
   ) async {
     await captureCatalogKindDerivedData(
       kind: kind,
@@ -97,7 +106,7 @@ final class ComicCatalogTransportCodec
     );
   }
 
-  CatalogKindDerivedData? _derivedDataFromTyped(ComicMedia item) =>
+  CatalogKindDerivedData? _derivedDataFromTyped(ComicCatalogItem item) =>
       catalogDerivedDataFor(
         kind: kind,
         metadata: item,
@@ -106,51 +115,31 @@ final class ComicCatalogTransportCodec
       );
 
   @override
-  Future<void> upsertTransport(LocalDatabase db, CatalogItemDto item) {
-    return upsert(db, decode(item));
-  }
-
-  @override
-  Future<List<CatalogItemDto>> listTransport(LocalDatabase db) async {
-    final media = await ComicRepository(db).search();
-    return [
-      for (final item in media) _projection(item),
-    ];
-  }
+  Future<List<CatalogItemDto>> listTransport(LocalDatabase db) =>
+      CatalogItemCacheRepository(db).findAll(kind: kind);
 
   @override
   Future<List<CatalogDisplaySummary>> listSummaries(LocalDatabase db) async {
-    final media = await ComicRepository(db).search();
     return [
-      for (final item in media) summarize(item),
+      for (final item in await listTransport(db))
+        summarize(item.id, decode(item)),
     ];
   }
 }
 
 int? _replacementValueFromPayload(CatalogItemDto item) {
-  final direct = item.payload['cover_price_cents'];
-  if (direct is num) return direct.toInt();
-  final publishing = item.payload['publishing'];
-  final nested = publishing is Map ? publishing['cover_price_cents'] : null;
-  return nested is num ? nested.toInt() : null;
+  final value = item.kindData['cover_price_cents'];
+  return value is num ? value.toInt() : null;
 }
 
-CatalogDisplaySummary _comicSummary(ComicMedia item) {
+CatalogDisplaySummary _comicSummary(
+    String catalogItemId, ComicCatalogItem item) {
   final issue = item.issueNumber?.trim();
-  return CatalogDisplaySummary.root(
+  return CatalogDisplaySummary.forCatalogItem(
     kind: CatalogMediaKind.comic,
-    id: item.id?.value ?? '',
+    id: catalogItemId,
     primaryLabel:
         issue == null || issue.isEmpty ? item.title : '${item.title} #$issue',
     imageUrl: item.thumbnailImageUrl ?? item.coverImageUrl,
   );
-}
-
-CatalogItemDto _projection(ComicMedia item) {
-  final payload = Map<String, dynamic>.from(item.rawPayload);
-  payload['id'] ??= item.id?.value ?? '';
-  payload['kind'] ??= 'comic';
-  payload['title'] ??= item.title;
-  final projection = CatalogItemDto.fromJson(payload);
-  return projection.withKindMetadata(ComicMedia.fromJson(projection.payload));
 }

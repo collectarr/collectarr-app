@@ -1,6 +1,5 @@
 import 'package:collectarr_app/core/api/dto/media_catalog.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
-import 'package:collectarr_app/features/library/add/models/library_add_release_option.dart';
 
 class PhysicalMediaFormat {
   const PhysicalMediaFormat({
@@ -115,70 +114,18 @@ bool? digitalPhysicalMediaFormatFlag(
   return format == null ? null : format.variantType == 'digital';
 }
 
-/// Technical release/format resolution shared by kind-owned semantics.
+/// Technical release/format resolution shared by kind-entry semantics.
 ///
 /// This helper deliberately receives primitive identity and explicit values;
-/// it does not inspect an Owned domain object or decide which kind's formats
+/// it does not inspect an Entry domain object or decide which kind's formats
 /// are valid.
 bool? resolveDigitalMediaFormatFlag({
   required bool? explicitDigital,
-  required String? editionId,
-  required String? variantId,
-  required List<LibraryAddReleaseOption> releases,
   String? fallbackFormat,
   String? fallbackLabel,
-  required Iterable<PhysicalMediaFormat> formats,
+  Iterable<PhysicalMediaFormat> formats = const [],
 }) {
-  if (explicitDigital != null) {
-    return explicitDigital;
-  }
-
-  LibraryAddReleaseOption? matchedRelease;
-  LibraryAddVariantOption? matchedVariant;
-  if (editionId != null) {
-    for (final release in releases) {
-      if (release.id == editionId) {
-        matchedRelease = release;
-        break;
-      }
-    }
-  }
-  if (variantId != null) {
-    final releasePool = matchedRelease == null
-        ? releases
-        : <LibraryAddReleaseOption>[matchedRelease];
-    for (final release in releasePool) {
-      for (final variant in release.variants) {
-        if (variant.id == variantId) {
-          matchedRelease ??= release;
-          matchedVariant = variant;
-          break;
-        }
-      }
-      if (matchedVariant != null) {
-        break;
-      }
-    }
-  }
-
-  final variantFlag = digitalPhysicalMediaFormatFlag(
-    matchedVariant?.formatId,
-    label: matchedVariant?.formatLabel ?? matchedVariant?.name,
-    formats: formats,
-  );
-  if (variantFlag != null) {
-    return variantFlag;
-  }
-
-  final editionFlag = digitalPhysicalMediaFormatFlag(
-    matchedRelease?.formatId,
-    label: matchedRelease?.formatLabel ?? matchedRelease?.title,
-    formats: formats,
-  );
-  if (editionFlag != null) {
-    return editionFlag;
-  }
-
+  if (explicitDigital != null) return explicitDigital;
   return digitalPhysicalMediaFormatFlag(
     fallbackFormat,
     label: fallbackLabel,

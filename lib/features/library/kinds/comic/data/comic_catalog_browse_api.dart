@@ -1,7 +1,7 @@
 import 'package:collectarr_app/core/api/api_client.dart';
 import 'package:collectarr_app/features/library/domain/library_facet_row.dart';
 
-/// Comic-owned access to creator, character, and story-arc catalog data.
+/// Comic-entry access to creator, character, and story-arc catalog data.
 ///
 /// The shared API client only transports JSON rows. Comic decides which
 /// endpoints and response fields represent its domain.

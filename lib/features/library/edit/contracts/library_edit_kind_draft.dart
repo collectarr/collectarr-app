@@ -1,14 +1,14 @@
-import 'package:collectarr_app/core/api/dto/catalog/catalog_common_dto.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_link_dto.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
-import 'package:collectarr_app/features/library/config/owned_item_update_payload.dart';
+import 'package:collectarr_app/core/models/library_entry_projection.dart';
+import 'package:collectarr_app/features/library/config/library_entry_update_payload.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_edit_models.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_edit_form_fields.dart';
-import 'package:collectarr_app/features/library/edit/draft/personal_state_draft.dart';
+import 'package:collectarr_app/features/library/edit/draft/library_entry_personal_bindings.dart';
 
-/// Work-facing semantic edit operations used by the shared shell.
-abstract interface class LibraryWorkEditSession {
+/// Kind-entry canonical edit operations for one Catalog Item.
+abstract interface class LibraryCatalogItemEditSession {
   LibraryEditFormSchema buildCanonicalFormSchema(
     LibraryEditFormFields fields,
     CatalogSearchCandidate item,
@@ -24,52 +24,42 @@ abstract interface class LibraryWorkEditSession {
   void setExternalLinks(List<TrailerLinkDto> links);
 }
 
-/// Release-facing semantic edit operations. Work and Release currently share
-/// the same selection mutation shape, but remain separate contracts so the
-/// generic shell cannot accidentally treat a release as a work aggregate.
-abstract interface class LibraryReleaseEditSession
-    implements LibraryWorkEditSession {}
-
-/// Copy-facing semantic edit operations used by the shared shell.
-abstract interface class LibraryCopyEditSession {
+/// Kind-entry personal edit operations for one Collection Item.
+abstract interface class LibraryEntryEditSession {
   JsonEncodable toDetailsDraft();
 
-  void initializePersonalState(PersonalStateDraft personal);
+  void initializePersonalState(LibraryEntryPersonalBindings personal);
 
-  OwnedItemUpdatePayload buildOwnedUpdatePayload({
-    required OwnedItemRef ownedRef,
-    required PersonalStateDraft personal,
+  LibraryEntryUpdatePayload buildEntryUpdatePayload({
+    required LibraryEntryRef libraryEntryRef,
+    required LibraryEntryPersonalBindings personal,
   });
 }
 
-/// Default external-link behavior for a kind that does not own link editing.
-mixin LibraryWorkEditSessionLinkDefaults implements LibraryWorkEditSession {
+/// Default external-link behavior for a kind without custom link editing.
+mixin LibraryCatalogItemEditSessionLinkDefaults
+    implements LibraryCatalogItemEditSession {
   @override
   void setExternalLinks(List<TrailerLinkDto> links) {}
 }
 
-/// Default Copy initialization for a kind-owned session with no personal
-/// details beyond the shared form state.
-mixin LibraryCopyEditSessionDefaults implements LibraryCopyEditSession {
+/// Default copy initialization for a kind with no additional personal fields.
+mixin LibraryEntryEditSessionDefaults implements LibraryEntryEditSession {
   @override
-  void initializePersonalState(PersonalStateDraft personal) {}
+  void initializePersonalState(LibraryEntryPersonalBindings personal) {}
 }
 
-/// The kind-owned edit composition returned to the generic UI shell.
-///
-/// The implementations may currently be backed by one concrete object, but
-/// the public contract is explicitly split by entity scope. The generic shell
-/// never receives a semantic aggregate session.
+/// The kind-entry edit composition returned to the generic UI shell.
 final class LibraryEditSessionBundle {
   const LibraryEditSessionBundle({
-    required this.workSession,
-    required this.releaseSession,
-    required this.copySession,
-    required this.disposeSession,
+    required this.catalogItemSession,
+    required this.entrySession,
+    this.disposeSession = _disposeNothing,
   });
 
-  final LibraryWorkEditSession workSession;
-  final LibraryReleaseEditSession releaseSession;
-  final LibraryCopyEditSession copySession;
+  final LibraryCatalogItemEditSession catalogItemSession;
+  final LibraryEntryEditSession entrySession;
   final void Function() disposeSession;
 }
+
+void _disposeNothing() {}

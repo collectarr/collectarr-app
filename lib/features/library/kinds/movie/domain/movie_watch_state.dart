@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
 
-/// Movie-specific watch state kept separate from owned-copy state.
+/// Movie-specific watch state kept separate from collection-item state.
 @immutable
 final class MovieWatchState {
   const MovieWatchState({

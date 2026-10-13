@@ -1,8 +1,10 @@
 import 'package:collectarr_app/core/api/api_client.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_transport_repository.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_transport_summary_registry.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
 
 final class LibraryDetailHydrationService {
   const LibraryDetailHydrationService();
@@ -13,14 +15,17 @@ final class LibraryDetailHydrationService {
     required CatalogMediaKind kind,
     required String itemId,
   }) async {
-    final dto = await api.getTypedMetadataItem(kind: kind, id: itemId);
-    final candidate = CatalogSearchCandidate.fromJson({
-      ...dto.raw,
-      'id': dto.id,
-      'title': dto.title,
-      'kind': dto.kind,
-    });
+    final json = await api.getCatalogItemJson(kind: kind, id: itemId);
+    final metadata = libraryMetadataForKind(kind);
+    final candidateBuilder = metadata.catalogDetailCandidateBuilder;
+    final candidate = candidateBuilder == null
+        ? CatalogSearchCandidate.fromApiJson(
+            json: json,
+            metadataDecoder: metadata.catalogMetadataDecoder,
+            summaryBuilder: summarizeCatalogTransportPayload,
+          )
+        : candidateBuilder(json);
     await CatalogTransportRepository(database)
-        .upsertTransports([candidate.kindCapability.toImportTransport()]);
+        .upsertTransports([candidate.toImportTransport()]);
   }
 }

@@ -123,10 +123,10 @@ class _LibraryDetailSectionState extends State<LibraryDetailSection> {
                                     .textTheme
                                     .labelSmall
                                     ?.copyWith(
-                                      color: palette.textMuted,
-                                      fontWeight: FontWeight.w900,
-                                      fontSize: 12,
-                                      letterSpacing: 0.35,
+                                      color: accent,
+                                      fontWeight: FontWeight.w700,
+                                      fontSize: 18,
+                                      letterSpacing: 0,
                                     ),
                               ),
                               if (widget.subtitle != null &&

@@ -1,47 +1,39 @@
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/core/models/catalog_display_summary.dart';
-import 'package:collectarr_app/core/models/money.dart';
-import 'package:collectarr_app/test/helpers/test_owned_item_fixture.dart';
+import 'package:collectarr_app/test/helpers/test_library_entry_fixture.dart';
 
-export 'test_owned_item_fixture.dart';
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
+export 'test_library_entry_fixture.dart';
+import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
+import 'package:collectarr_app/features/library/domain/library_target_ref.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_record.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
-import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
+import 'package:collectarr_app/features/collection/commands/library_entry_commands.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
-import 'package:collectarr_app/features/library/add/models/library_add_reference_type.dart';
 import 'package:collectarr_app/features/library/kinds/registry/catalog_workspace_data_dispatch.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_workspace_catalog_data.dart';
-import 'package:collectarr_app/features/library/kinds/anime/ownership/anime_owned_details.dart';
-import 'package:collectarr_app/features/library/kinds/anime/domain/anime_owned_item.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/ownership/boardgame_owned_details.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_owned_item.dart';
-import 'package:collectarr_app/features/library/kinds/book/ownership/book_owned_details.dart';
-import 'package:collectarr_app/features/library/kinds/book/domain/book_owned_item.dart';
-import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_details.dart';
-import 'package:collectarr_app/features/library/kinds/comic/domain/comic_owned_item.dart';
-import 'package:collectarr_app/features/library/kinds/game/ownership/game_owned_details.dart';
-import 'package:collectarr_app/features/library/kinds/game/domain/game_owned_item.dart';
-import 'package:collectarr_app/features/library/kinds/movie/ownership/movie_owned_details.dart';
-import 'package:collectarr_app/features/library/kinds/movie/domain/movie_owned_item.dart';
-import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_details.dart';
-import 'package:collectarr_app/features/library/kinds/tv/ownership/tv_owned_details.dart';
-import 'package:collectarr_app/features/library/kinds/tv/domain/tv_owned_item.dart';
-import 'package:collectarr_app/features/library/kinds/manga/ownership/manga_owned_details.dart';
-import 'package:collectarr_app/features/library/kinds/manga/domain/manga_owned_item.dart';
-import 'package:collectarr_app/features/library/kinds/anime/domain/anime_metadata.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_metadata.dart';
-import 'package:collectarr_app/features/library/kinds/book/domain/book_metadata.dart';
-import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
-import 'package:collectarr_app/features/library/kinds/game/domain/game_metadata.dart';
-import 'package:collectarr_app/features/library/kinds/manga/domain/manga_metadata.dart';
-import 'package:collectarr_app/features/library/kinds/movie/domain/movie_metadata.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_owned_item.dart';
-import 'package:collectarr_app/features/library/kinds/music/catalog/music_catalog_mapper.dart';
-import 'package:collectarr_app/features/library/kinds/tv/domain/tv_metadata.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_workspace_kind_data.dart';
+import 'package:collectarr_app/features/library/workspace/entry/personal_overlay.dart';
+import 'package:collectarr_app/features/library/workspace/entry/workspace_item.dart';
+import 'package:collectarr_app/features/library/kinds/anime/entries/anime_entry_details.dart';
+import 'package:collectarr_app/features/library/kinds/anime/domain/anime_library_entry.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/entries/boardgame_entry_details.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_library_entry.dart';
+import 'package:collectarr_app/features/library/kinds/book/entries/book_entry_details.dart';
+import 'package:collectarr_app/features/library/kinds/book/domain/book_library_entry.dart';
+import 'package:collectarr_app/features/library/kinds/comic/entries/comic_entry_details.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_library_entry.dart';
+import 'package:collectarr_app/features/library/kinds/game/entries/game_entry_details.dart';
+import 'package:collectarr_app/features/library/kinds/game/domain/game_library_entry.dart';
+import 'package:collectarr_app/features/library/kinds/movie/entries/movie_entry_details.dart';
+import 'package:collectarr_app/features/library/kinds/movie/domain/movie_library_entry.dart';
+import 'package:collectarr_app/features/library/kinds/music/entries/music_entry_details.dart';
+import 'package:collectarr_app/features/library/kinds/tv/entries/tv_entry_details.dart';
+import 'package:collectarr_app/features/library/kinds/tv/domain/tv_library_entry.dart';
+import 'package:collectarr_app/features/library/kinds/manga/entries/manga_entry_details.dart';
+import 'package:collectarr_app/features/library/kinds/manga/domain/manga_library_entry.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_library_entry.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_common_draft.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_kind_draft.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_tracking_draft.dart';
@@ -89,24 +81,25 @@ CatalogItemDto testCatalogItem({
   List<String>? characters,
   List<String>? storyArcs,
   List<Map<String, dynamic>>? creators,
-  List<CatalogEditionDto>? editions,
-  List<TrailerLinkDto>? trailerUrls,
-  CatalogSeriesDetailsDto? series,
+  List<Map<String, dynamic>>? editions,
+  List<Map<String, dynamic>>? trailerUrls,
+  dynamic series,
   dynamic video,
   dynamic music,
   dynamic game,
-  CatalogPublishingDetailsDto? publishing,
+  dynamic publishing,
   Map<String, dynamic>? payload,
 }) {
   final mergedPayload = <String, dynamic>{
     if (itemNumber != null) 'item_number': itemNumber,
     if (editionTitle != null) 'edition_title': editionTitle,
     if (physicalFormat != null) 'physical_format': physicalFormat,
-    if (physicalFormatLabel != null)
+    if (physicalFormatLabel != null && kind != 'movie')
       'physical_format_label': physicalFormatLabel,
     if (publisher != null) 'publisher': publisher,
     if (barcode != null) 'barcode': barcode,
-    if (variant != null) 'variant': variant,
+    if (variant != null)
+      (kind == 'movie' ? 'variant_name' : 'variant'): variant,
     if (country != null) 'country': country,
     if (language != null) 'language': language,
     if (ageRating != null) 'age_rating': ageRating,
@@ -117,35 +110,76 @@ CatalogItemDto testCatalogItem({
     if (characters != null) 'characters': characters,
     if (storyArcs != null) 'story_arcs': storyArcs,
     if (creators != null) 'creators': creators,
-    if (series != null) 'series': series.toJson(),
+    if (series != null)
+      'series': series is Map ? series : (series as dynamic).toJson(),
     if (video != null) 'video': video,
     if (music != null) 'music': music,
     if (game != null) 'game': game,
-    if (publishing != null) 'publishing': publishing.toJson(),
+    if (publishing != null)
+      'publishing':
+          publishing is Map ? publishing : (publishing as dynamic).toJson(),
     if (payload != null) ...payload,
   };
-  final common = CatalogCommonDto(
-    title: title,
-    displayTitle: displayTitle,
-    localizedTitle: localizedTitle,
-    originalTitle: originalTitle,
-    titleExtension: titleExtension,
-    searchAliases: searchAliases,
-    synopsis: synopsis,
-    coverImageUrl: coverImageUrl,
-    thumbnailImageUrl: thumbnailImageUrl,
-    coverImageData: coverImageData,
-    sortKey: sortKey,
-    releaseDate: releaseDate,
-    releaseYear: releaseYear,
-    editions: editions ?? const [],
-    trailerUrls: trailerUrls ?? const [],
-  );
+  final kindData = kind == 'music'
+      ? <String, dynamic>{
+          'title': title,
+          'revision': 1,
+          if (publisher != null) 'label': publisher,
+          if (barcode != null) 'barcode': barcode,
+          if (releaseDate != null)
+            'release_date': {
+              'year': releaseDate.year,
+              'month': releaseDate.month,
+              'day': releaseDate.day,
+            },
+          if (coverImageUrl != null) 'cover_image_url': coverImageUrl,
+          if (thumbnailImageUrl != null)
+            'thumbnail_image_url': thumbnailImageUrl,
+          'artist_credits': const <Map<String, dynamic>>[],
+          'genres': genres ?? const <String>[],
+          'extra': const <String>[],
+          'credits': const <Map<String, dynamic>>[],
+          'external_links': const <Map<String, dynamic>>[],
+          'discs': [
+            if (physicalFormat != null || physicalFormatLabel != null)
+              {
+                'id': 'test-disc-$id',
+                'disc_number': 1,
+                if ((physicalFormatLabel ?? physicalFormat)?.isNotEmpty == true)
+                  'format': physicalFormatLabel ?? physicalFormat,
+                'sound_types': const <String>[],
+                'recording_locations': const <String>[],
+                'credits': const <Map<String, dynamic>>[],
+                'tracks': const <Map<String, dynamic>>[],
+              },
+          ],
+          if (music is Map<String, dynamic>) ...music,
+          ...?payload,
+        }
+      : <String, dynamic>{
+          'title': title,
+          if (displayTitle != null) 'display_title': displayTitle,
+          if (localizedTitle != null) 'localized_title': localizedTitle,
+          if (originalTitle != null) 'original_title': originalTitle,
+          if (titleExtension != null) 'title_extension': titleExtension,
+          if (searchAliases != null) 'search_aliases': searchAliases,
+          if (synopsis != null) 'synopsis': synopsis,
+          if (coverImageUrl != null) 'cover_image_url': coverImageUrl,
+          if (thumbnailImageUrl != null)
+            'thumbnail_image_url': thumbnailImageUrl,
+          if (coverImageData != null) 'cover_image_data': coverImageData,
+          if (sortKey != null) 'sort_key': sortKey,
+          if (releaseDate != null)
+            'release_date': releaseDate.toIso8601String(),
+          if (releaseYear != null) 'release_year': releaseYear,
+          if (editions != null) 'editions': editions,
+          if (trailerUrls != null) 'trailer_urls': trailerUrls,
+          ...mergedPayload,
+        };
   return CatalogItemDto.raw(
     id: id,
     mediaKind: catalogMediaKindFromValue(kind),
-    common: common,
-    payload: mergedPayload,
+    kindData: kindData,
   );
 }
 
@@ -155,14 +189,19 @@ extension ShelfCatalogFixture on CatalogItemDto {
   CatalogSearchCandidate get asSearchCandidate =>
       CatalogSearchCandidate.fromItem(this);
 
-  CatalogDisplaySummary get asShelfCatalogSummary =>
-      CatalogSearchCandidate.fromItem(this).summary;
+  CatalogDisplaySummary get asShelfCatalogSummary => CatalogDisplaySummary(
+        ref: catalogItemRef,
+        kind: mediaKind,
+        primaryLabel: (kindData['title'] as String?) ?? id,
+        imageUrl: (kindData['cover_image_url'] as String?) ??
+            (kindData['thumbnail_image_url'] as String?),
+      );
 
-  LibraryWorkspaceCatalogData get asShelfCatalogData =>
+  LibraryWorkspaceKindData get asShelfCatalogData =>
       workspaceCatalogDataFromTransport(CatalogImportTransport.fromItem(this));
 }
 
-LibraryWorkspaceCatalogData testWorkspaceCatalogData(CatalogItemDto item) =>
+LibraryWorkspaceKindData testWorkspaceCatalogData(CatalogItemDto item) =>
     workspaceCatalogDataFromTransport(
       CatalogImportTransport.fromItem(item),
     );
@@ -172,62 +211,35 @@ CatalogItemDto testCatalogItemFromJson(Map<String, dynamic> json) {
 }
 
 CatalogItemDto testCatalogItemWithKindMetadata(CatalogItemDto item) {
-  if (item.kindMetadata is! Map) return item;
-  final payload = item.payload;
-  // Dispatch stays explicit so every fixture has a concrete kind type.
-  return switch (item.mediaKind) {
-    CatalogMediaKind.anime =>
-      item.withKindMetadata(AnimeMetadata.fromJson(payload)),
-    CatalogMediaKind.boardgame =>
-      item.withKindMetadata(BoardGameMetadata.fromJson(payload)),
-    CatalogMediaKind.book =>
-      item.withKindMetadata(BookCatalogMetadata.fromJson(payload)),
-    CatalogMediaKind.comic =>
-      item.withKindMetadata(ComicMedia.fromJson(payload)),
-    CatalogMediaKind.game =>
-      item.withKindMetadata(GameCatalogMetadata.fromJson(payload)),
-    CatalogMediaKind.manga =>
-      item.withKindMetadata(MangaMetadata.fromJson(payload)),
-    CatalogMediaKind.movie =>
-      item.withKindMetadata(MovieCatalogMetadata.fromJson(payload)),
-    CatalogMediaKind.music =>
-      item.withKindMetadata(MusicCatalogMapper.mapDtoToMusic(item)),
-    CatalogMediaKind.tv =>
-      item.withKindMetadata(TvSeriesMetadata.fromJson(payload)),
-    CatalogMediaKind.unknown => item,
-  };
+  return item;
 }
 
-CatalogEntityRef testCatalogRef(
+CatalogItemRef testCatalogRef(
   String id, {
   String kind = 'unknown',
-  CatalogEntityTypeId entityType = const CatalogEntityTypeId('work'),
 }) {
-  return CatalogEntityRef(
+  return CatalogItemRef(
     kind: catalogMediaKindFromApiValue(kind),
-    entityType: entityType,
     id: id,
   );
 }
 
-AddOwnedItemCommand typedAddOwnedItemCommand({
-  required CatalogEntityRef catalogRef,
+AddLibraryEntryCommand typedAddLibraryEntryCommand({
+  required CatalogItemRef catalogRef,
   required LibraryAddCommonDraft common,
   required JsonEncodable details,
   String? grade,
-  OwnedItemCreatePayload? typedPayload,
-  CatalogEntityRef? targetRef,
-  OwnedItemTrackingDraft? tracking,
+  LibraryEntryCreatePayload? typedPayload,
+  LibraryEntryTrackingDraft? tracking,
 }) {
   if (typedPayload != null) {
-    return AddOwnedItemCommand(
+    return AddLibraryEntryCommand(
       catalogRef: catalogRef,
       typedPayload: typedPayload,
-      targetRef: targetRef ?? catalogRef,
       tracking: tracking,
     );
   }
-  final add = libraryAddForKind(catalogRef.mediaKind);
+  final add = libraryAddForKind(catalogRef.kind);
   return add.buildCommandFromDetails(
     CatalogSearchCandidate.fromItem(
       testCatalogItem(
@@ -241,7 +253,6 @@ AddOwnedItemCommand typedAddOwnedItemCommand({
       pricePaidCents: common.pricePaidCents,
       currency: common.currency,
       personalNotes: common.personalNotes,
-      quantity: common.quantity,
       tags: common.tags,
       locationId: common.locationId,
       purchaseStore: common.purchaseStore,
@@ -249,8 +260,7 @@ AddOwnedItemCommand typedAddOwnedItemCommand({
       isDigital: common.isDigital,
     ),
     details,
-    draft: _addDraftWithGrade(catalogRef.mediaKind, grade),
-    targetRef: targetRef ?? catalogRef,
+    draft: _addDraftWithGrade(catalogRef.kind, grade),
     tracking: LibraryAddTrackingDraft(
       readStatus: mediaTrackingStatusToStorageValue(tracking?.status),
       rating: tracking?.rating,
@@ -277,15 +287,17 @@ LibraryAddKindDraft? _addDraftWithGrade(CatalogMediaKind kind, String? grade) {
   };
 }
 
-TestOwnedItem testOwnedItem({
-  String id = 'owned-1',
+TestLibraryEntry testLibraryEntry({
+  String id = 'entry-1',
   String itemId = 'test-item-1',
   String kind = 'comic',
-  CatalogEntityRef? catalogRef,
+  String catalogTitle = 'Test Item',
+  String? catalogIssueNumber,
+  CatalogItemRef? catalogRef,
   DateTime? createdAt,
   DateTime? updatedAt,
   bool? isDigital,
-  CatalogEntityRef? targetRef,
+  CatalogItemRef? targetRef,
   String? editionId,
   String? variantId,
   String? bundleReleaseId,
@@ -295,7 +307,6 @@ TestOwnedItem testOwnedItem({
   int? pricePaidCents,
   String? currency,
   String? personalNotes,
-  int quantity = 1,
   int? indexNumber,
   int? coverPriceCents,
   String? rawOrSlabbed,
@@ -344,14 +355,13 @@ TestOwnedItem testOwnedItem({
   bool? gameValueIsLocked,
 }) {
   final resolvedCatalogRef = catalogRef ??
-      CatalogEntityRef(
+      CatalogItemRef(
         kind: catalogMediaKindFromApiValue(kind),
-        entityType: const CatalogEntityTypeId('work'),
         id: itemId,
       );
 
-  final details = switch (resolvedCatalogRef.mediaKind) {
-    CatalogMediaKind.comic => ComicOwnedDetails(
+  final details = switch (resolvedCatalogRef.kind) {
+    CatalogMediaKind.comic => ComicEntryDetails(
         rawOrSlabbed: rawOrSlabbed,
         gradingCompany: gradingCompany,
         graderNotes: graderNotes,
@@ -367,7 +377,7 @@ TestOwnedItem testOwnedItem({
         coverPriceCents: coverPriceCents,
         lastBagBoardDate: lastBagBoardDate,
       ),
-    CatalogMediaKind.manga => MangaOwnedDetails(
+    CatalogMediaKind.manga => MangaEntryDetails(
         signedBy: signedBy,
         gradingCompany: gradingCompany,
         graderNotes: graderNotes,
@@ -375,7 +385,7 @@ TestOwnedItem testOwnedItem({
         printing: '1st Print',
         localizedEdition: 'English edition',
       ),
-    CatalogMediaKind.movie => MovieOwnedDetails(
+    CatalogMediaKind.movie => MovieEntryDetails(
         features: features,
         hdrFormats: hdrFormats ?? const <String>[],
         boxSetId: boxSetId,
@@ -384,7 +394,7 @@ TestOwnedItem testOwnedItem({
         packaging: packaging,
         distributor: distributor,
       ),
-    CatalogMediaKind.tv => TvOwnedDetails(
+    CatalogMediaKind.tv => TvEntryDetails(
         features: features,
         hdrFormats: hdrFormats ?? const <String>[],
         boxSetId: boxSetId,
@@ -393,7 +403,7 @@ TestOwnedItem testOwnedItem({
         packaging: packaging,
         distributor: distributor,
       ),
-    CatalogMediaKind.anime => AnimeOwnedDetails(
+    CatalogMediaKind.anime => AnimeEntryDetails(
         features: features,
         hdrFormats: hdrFormats ?? const <String>[],
         boxSetId: boxSetId,
@@ -402,7 +412,7 @@ TestOwnedItem testOwnedItem({
         packaging: packaging,
         distributor: distributor,
       ),
-    CatalogMediaKind.game => GameOwnedDetails(
+    CatalogMediaKind.game => GameEntryDetails(
         completeness: gameCompleteness,
         hasBox: gameHasBox,
         hasManual: gameHasManual,
@@ -410,51 +420,35 @@ TestOwnedItem testOwnedItem({
         coreRegion: gameCoreRegion,
         valueIsLocked: gameValueIsLocked,
       ),
-    CatalogMediaKind.boardgame => const BoardgameOwnedDetails(
+    CatalogMediaKind.boardgame => const BoardgameEntryDetails(
         editionLanguage: 'English',
         editionRegion: 'US',
         componentCondition: 'Very Good',
         componentCompleteness: 'Complete',
       ),
-    CatalogMediaKind.music => MusicOwnedDetails(
+    CatalogMediaKind.music => MusicEntryDetails(
         media: [
-          MusicOwnedMediumDetails(
-            mediumIndex: 1,
+          MusicEntryDiscDetails(
+            discId: 'disc-1',
             storageDevice: storageDevice,
             storageSlot: storageSlot,
           ),
         ],
       ),
-    CatalogMediaKind.book => BookOwnedDetails(
+    CatalogMediaKind.book => BookEntryDetails(
         signedBy: signedBy,
       ),
-    CatalogMediaKind.unknown =>
-      throw ArgumentError('Test owned item requires a registered kind: $kind'),
+    CatalogMediaKind.unknown => throw ArgumentError(
+        'Test collection item requires a registered kind: $kind'),
   };
 
-  final resolvedTargetRef = targetRef ??
-      (resolvedCatalogRef.mediaKind == CatalogMediaKind.music &&
-              editionId == null &&
-              variantId == null &&
-              bundleReleaseId == null
-          ? CatalogEntityRef(
-              kind: CatalogMediaKind.music,
-              entityType: const CatalogEntityTypeId('release'),
-              id: '${resolvedCatalogRef.rootScope.id}:release',
-              rootId: resolvedCatalogRef.rootScope.id,
-            )
-          : ((editionId == null && variantId == null && bundleReleaseId == null)
-              ? null
-              : _testTargetRef(
-                  resolvedCatalogRef,
-                  editionId: editionId,
-                  variantId: variantId,
-                  bundleReleaseId: bundleReleaseId,
-                )));
+  final resolvedTargetRef = targetRef;
 
-  return TestOwnedItem(
+  return TestLibraryEntry(
     id: id,
     catalogRef: resolvedCatalogRef,
+    catalogTitle: catalogTitle,
+    catalogIssueNumber: catalogIssueNumber,
     createdAt: createdAt,
     updatedAt: updatedAt ?? DateTime.utc(2025, 1, 1),
     isDigital: isDigital,
@@ -466,7 +460,6 @@ TestOwnedItem testOwnedItem({
     pricePaidCents: pricePaidCents,
     currency: currency,
     personalNotes: personalNotes,
-    quantity: quantity,
     indexNumber: indexNumber,
     tags: tags,
     deletedAt: deletedAt,
@@ -482,34 +475,10 @@ TestOwnedItem testOwnedItem({
   );
 }
 
-CatalogEntityRef _testTargetRef(
-  CatalogEntityRef root, {
-  String? editionId,
-  String? variantId,
-  String? bundleReleaseId,
-}) {
-  final referenceType = bundleReleaseId != null
-      ? LibraryAddReferenceType.bundleRelease
-      : editionId != null || variantId != null
-          ? LibraryAddReferenceType.edition
-          : LibraryAddReferenceType.media;
-  return libraryCatalogTargetForKind(root.kind).resolve(
-    root,
-    LibraryCatalogTargetSelection(
-      referenceType: referenceType,
-      firstId: editionId,
-      secondId: variantId,
-      groupId: bundleReleaseId,
-    ),
-  );
-}
-
-OwnedItemSummary testOwnedItemSummary(TestOwnedItem item) {
-  return OwnedItemSummary(
+LibraryEntrySummary testLibraryEntrySummary(TestLibraryEntry item) {
+  return LibraryEntrySummary(
     ref: item.ref,
-    title: item.itemId,
-    catalogRef: item.catalogRef,
-    targetRef: item.targetRef,
+    sourceCatalogRef: item.catalogRef,
     isDigital: item.isDigital,
     createdAt: item.createdAt,
     updatedAt: item.updatedAt,
@@ -522,140 +491,134 @@ OwnedItemSummary testOwnedItemSummary(TestOwnedItem item) {
     soldTo: item.soldTo,
     sellPriceCents: item.sellPriceCents,
     marketValueCents: item.marketValueCents,
-    quantity: item.quantity,
     ownerLabel: item.ownerLabel,
+    locationId: item.locationId,
     locationLabel: item.locationId,
     notes: item.personalNotes,
     hasNotes: item.personalNotes?.trim().isNotEmpty == true,
   );
 }
 
-OwnedItemSummary testOwnedSummary(TestOwnedItem item) =>
-    testOwnedItemSummary(item);
+ComicLibraryEntry testComicLibraryEntryFrom(TestLibraryEntry item) =>
+    ComicLibraryEntry.fromJson(item.toJson());
 
-ComicOwnedItem testComicOwnedItemFrom(TestOwnedItem item) =>
-    ComicOwnedItem.fromJson(item.toJson());
+BookLibraryEntry testBookLibraryEntryFrom(TestLibraryEntry item) =>
+    BookLibraryEntry.fromJson(item.toJson());
 
-BookOwnedItem testBookOwnedItemFrom(TestOwnedItem item) =>
-    BookOwnedItem.fromJson(item.toJson());
+MovieLibraryEntry testMovieLibraryEntryFrom(TestLibraryEntry item) =>
+    MovieLibraryEntry.fromJson(item.toJson());
 
-MovieOwnedItem testMovieOwnedItemFrom(TestOwnedItem item) =>
-    MovieOwnedItem.fromJson(item.toJson());
+AnimeLibraryEntry testAnimeLibraryEntryFrom(TestLibraryEntry item) =>
+    AnimeLibraryEntry.fromJson(item.toJson());
 
-AnimeOwnedItem testAnimeOwnedItemFrom(TestOwnedItem item) =>
-    AnimeOwnedItem.fromJson(item.toJson());
+BoardGameLibraryEntry testBoardGameLibraryEntryFrom(TestLibraryEntry item) =>
+    BoardGameLibraryEntry.fromJson(item.toJson());
 
-BoardGameOwnedItem testBoardGameOwnedItemFrom(TestOwnedItem item) =>
-    BoardGameOwnedItem.fromJson(item.toJson());
+GameLibraryEntry testGameLibraryEntryFrom(TestLibraryEntry item) =>
+    GameLibraryEntry.fromJson(item.toJson());
 
-GameOwnedItem testGameOwnedItemFrom(TestOwnedItem item) =>
-    GameOwnedItem.fromJson(item.toJson());
+MangaLibraryEntry testMangaLibraryEntryFrom(TestLibraryEntry item) =>
+    MangaLibraryEntry.fromJson(item.toJson());
 
-MangaOwnedItem testMangaOwnedItemFrom(TestOwnedItem item) =>
-    MangaOwnedItem.fromJson(item.toJson());
+MusicLibraryEntry testMusicLibraryEntryFrom(TestLibraryEntry item) =>
+    MusicLibraryEntry.fromJson(item.toJson());
 
-MusicOwnedItem testMusicOwnedItemFrom(TestOwnedItem item) =>
-    MusicOwnedItem.fromJson(item.toJson());
+TvLibraryEntry testTvLibraryEntryFrom(TestLibraryEntry item) =>
+    TvLibraryEntry.fromJson(item.toJson());
 
-TvOwnedItem testTvOwnedItemFrom(TestOwnedItem item) =>
-    TvOwnedItem.fromJson(item.toJson());
-
-LibraryOwnedItemDispatch testOwnedItemDispatchFrom(TestOwnedItem item) {
-  return switch (item.catalogRef.mediaKind) {
-    CatalogMediaKind.anime => OpaqueLibraryOwnedItemDispatch(
+LibraryEntryDispatch testLibraryEntryDispatchFrom(TestLibraryEntry item) {
+  return switch (item.catalogRef.kind) {
+    CatalogMediaKind.anime => OpaqueLibraryEntryDispatch(
         kind: CatalogMediaKind.anime,
         ref: item.ref,
-        value: testAnimeOwnedItemFrom(item),
+        value: testAnimeLibraryEntryFrom(item),
       ),
-    CatalogMediaKind.boardgame => OpaqueLibraryOwnedItemDispatch(
+    CatalogMediaKind.boardgame => OpaqueLibraryEntryDispatch(
         kind: CatalogMediaKind.boardgame,
         ref: item.ref,
-        value: testBoardGameOwnedItemFrom(item),
+        value: testBoardGameLibraryEntryFrom(item),
       ),
-    CatalogMediaKind.book => OpaqueLibraryOwnedItemDispatch(
+    CatalogMediaKind.book => OpaqueLibraryEntryDispatch(
         kind: CatalogMediaKind.book,
         ref: item.ref,
-        value: testBookOwnedItemFrom(item),
+        value: testBookLibraryEntryFrom(item),
       ),
-    CatalogMediaKind.comic => OpaqueLibraryOwnedItemDispatch(
+    CatalogMediaKind.comic => OpaqueLibraryEntryDispatch(
         kind: CatalogMediaKind.comic,
         ref: item.ref,
-        value: testComicOwnedItemFrom(item),
+        value: testComicLibraryEntryFrom(item),
       ),
-    CatalogMediaKind.game => OpaqueLibraryOwnedItemDispatch(
+    CatalogMediaKind.game => OpaqueLibraryEntryDispatch(
         kind: CatalogMediaKind.game,
         ref: item.ref,
-        value: testGameOwnedItemFrom(item),
+        value: testGameLibraryEntryFrom(item),
       ),
-    CatalogMediaKind.manga => OpaqueLibraryOwnedItemDispatch(
+    CatalogMediaKind.manga => OpaqueLibraryEntryDispatch(
         kind: CatalogMediaKind.manga,
         ref: item.ref,
-        value: testMangaOwnedItemFrom(item),
+        value: testMangaLibraryEntryFrom(item),
       ),
-    CatalogMediaKind.movie => OpaqueLibraryOwnedItemDispatch(
+    CatalogMediaKind.movie => OpaqueLibraryEntryDispatch(
         kind: CatalogMediaKind.movie,
         ref: item.ref,
-        value: testMovieOwnedItemFrom(item),
+        value: testMovieLibraryEntryFrom(item),
       ),
-    CatalogMediaKind.music => OpaqueLibraryOwnedItemDispatch(
+    CatalogMediaKind.music => OpaqueLibraryEntryDispatch(
         kind: CatalogMediaKind.music,
         ref: item.ref,
-        value: testMusicOwnedItemFrom(item),
+        value: testMusicLibraryEntryFrom(item),
       ),
-    CatalogMediaKind.tv => OpaqueLibraryOwnedItemDispatch(
+    CatalogMediaKind.tv => OpaqueLibraryEntryDispatch(
         kind: CatalogMediaKind.tv,
         ref: item.ref,
-        value: testTvOwnedItemFrom(item),
+        value: testTvLibraryEntryFrom(item),
       ),
     CatalogMediaKind.unknown => throw ArgumentError.value(
-        item.catalogRef.mediaKind,
+        item.catalogRef.kind,
         'item',
-        'Test Owned fixture requires an active kind',
+        'Test Entry fixture requires an active kind',
       ),
   };
 }
 
-OwnedItemRef _testOwnedItemRef(CatalogEntityRef catalogRef, String id) =>
-    OwnedItemRef(
-      kind: catalogRef.mediaKind,
-      id: OwnedItemId(id),
-    );
-
-LibraryOwnedItemDispatch testComicOwnedItemDispatchFrom(ComicOwnedItem item) =>
-    OpaqueLibraryOwnedItemDispatch(
+LibraryEntryDispatch testComicLibraryEntryDispatchFrom(
+        ComicLibraryEntry item) =>
+    OpaqueLibraryEntryDispatch(
       kind: CatalogMediaKind.comic,
-      ref: _testOwnedItemRef(item.catalogRef, item.id.value),
+      ref: LibraryEntryRef(kind: CatalogMediaKind.comic, id: item.id),
       value: item,
     );
 
-LibraryOwnedItemDispatch testGameOwnedItemDispatchFrom(GameOwnedItem item) =>
-    OpaqueLibraryOwnedItemDispatch(
+LibraryEntryDispatch testGameLibraryEntryDispatchFrom(GameLibraryEntry item) =>
+    OpaqueLibraryEntryDispatch(
       kind: CatalogMediaKind.game,
-      ref: _testOwnedItemRef(item.catalogRef, item.id.value),
+      ref: LibraryEntryRef(kind: CatalogMediaKind.game, id: item.id),
       value: item,
     );
 
-LibraryOwnedItemDispatch testMangaOwnedItemDispatchFrom(MangaOwnedItem item) =>
-    OpaqueLibraryOwnedItemDispatch(
+LibraryEntryDispatch testMangaLibraryEntryDispatchFrom(
+        MangaLibraryEntry item) =>
+    OpaqueLibraryEntryDispatch(
       kind: CatalogMediaKind.manga,
-      ref: _testOwnedItemRef(item.catalogRef, item.id.value),
+      ref: LibraryEntryRef(kind: CatalogMediaKind.manga, id: item.id),
       value: item,
     );
 
-LibraryOwnedItemDispatch testMovieOwnedItemDispatchFrom(MovieOwnedItem item) =>
-    OpaqueLibraryOwnedItemDispatch(
+LibraryEntryDispatch testMovieLibraryEntryDispatchFrom(
+        MovieLibraryEntry item) =>
+    OpaqueLibraryEntryDispatch(
       kind: CatalogMediaKind.movie,
-      ref: _testOwnedItemRef(item.catalogRef, item.id.value),
+      ref: LibraryEntryRef(kind: CatalogMediaKind.movie, id: item.id),
       value: item,
     );
 
-LibraryWorkspaceSource testLibraryWorkspaceSource({
+LibraryWorkspaceContext testLibraryWorkspaceContext({
   String itemId = 'test-item-1',
   String kind = 'comic',
   String title = 'Test Item',
   CatalogItemDto? catalogItem,
-  LibraryWorkspaceCatalogData? catalogData,
-  TestOwnedItem? ownedItem,
+  LibraryWorkspaceKindData? catalogData,
+  TestLibraryEntry? libraryEntry,
   WishlistItem? wishlistItem,
   String? locationPath,
 }) {
@@ -665,31 +628,103 @@ LibraryWorkspaceSource testLibraryWorkspaceSource({
         kind: kind,
         title: title,
       );
-  final ownedItemDispatch =
-      ownedItem == null ? null : testOwnedItemDispatchFrom(ownedItem);
-  return LibraryWorkspaceSource(
-    itemId: itemId,
-    catalogSummary: CatalogSearchCandidate.fromItem(
-      testCatalogItemWithKindMetadata(resolvedCatalogItem),
-    ).summary,
-    catalogData: catalogData ??
-        workspaceCatalogDataFromTransport(
-          CatalogImportTransport.fromItem(
-            testCatalogItemWithKindMetadata(resolvedCatalogItem),
+  final mediaKind = catalogMediaKindFromApiValue(kind);
+  final libraryEntryDispatch =
+      libraryEntry == null ? null : testLibraryEntryDispatchFrom(libraryEntry);
+  return LibraryWorkspaceContext(
+    item: WorkspaceItem(
+      target: CatalogTargetRef(CatalogItemRef(kind: mediaKind, id: itemId)),
+      presentation: CatalogDisplaySummary(
+        ref: CatalogItemRef(kind: mediaKind, id: itemId),
+        kind: mediaKind,
+        primaryLabel:
+            (resolvedCatalogItem.kindData['title'] as String?) ?? title,
+      ),
+      kindPresentationData: catalogData ??
+          workspaceCatalogDataFromTransport(
+            CatalogImportTransport.fromItem(
+              testCatalogItemWithKindMetadata(resolvedCatalogItem),
+            ),
           ),
-        ),
-    ownedSummary: ownedItem == null ? null : testOwnedItemSummary(ownedItem),
-    ownedItemDispatch: ownedItemDispatch,
-    wishlistItem: wishlistItem,
-    locationPath: locationPath,
+      entrySummary:
+          libraryEntry == null ? null : testLibraryEntrySummary(libraryEntry),
+      libraryEntryDispatch: libraryEntryDispatch,
+    ),
+    personal: PersonalOverlay(
+      wishlist: wishlistItem,
+      locationPath: locationPath,
+    ),
+  );
+}
+
+LibraryWorkspaceContext testLibraryWorkspaceSource({
+  required String itemId,
+  String kind = 'comic',
+  String title = 'Test Item',
+  CatalogItemDto? catalogItem,
+  LibraryWorkspaceKindData? catalogData,
+  TestLibraryEntry? libraryEntry,
+  LibraryEntrySummary? libraryEntrySummary,
+  WishlistItem? wishlistItem,
+  String? locationPath,
+}) {
+  final resolvedCatalogItem = catalogItem ??
+      testCatalogItem(
+        id: itemId,
+        kind: kind,
+        title: title,
+      );
+  final mediaKind = catalogMediaKindFromApiValue(kind);
+  final libraryEntryDispatch =
+      libraryEntry == null ? null : testLibraryEntryDispatchFrom(libraryEntry);
+  return LibraryWorkspaceContext(
+    item: WorkspaceItem(
+      target: CatalogTargetRef(CatalogItemRef(kind: mediaKind, id: itemId)),
+      presentation: CatalogDisplaySummary(
+        ref: CatalogItemRef(kind: mediaKind, id: itemId),
+        kind: mediaKind,
+        primaryLabel:
+            (resolvedCatalogItem.kindData['title'] as String?) ?? title,
+      ),
+      kindPresentationData: catalogData ??
+          workspaceCatalogDataFromTransport(
+            CatalogImportTransport.fromItem(
+              testCatalogItemWithKindMetadata(resolvedCatalogItem),
+            ),
+          ),
+      entrySummary: libraryEntrySummary ??
+          (libraryEntry == null ? null : testLibraryEntrySummary(libraryEntry)),
+      libraryEntryDispatch: libraryEntryDispatch,
+    ),
+    personal: PersonalOverlay(
+      wishlist: wishlistItem,
+      locationPath: locationPath,
+    ),
+  );
+}
+
+WishlistItem testWishlistItem({
+  String id = 'wish-1',
+  required String itemId,
+  String kind = 'comic',
+  DateTime? updatedAt,
+}) {
+  final dt = updatedAt ?? DateTime.utc(2026, 1, 1);
+  return WishlistItem(
+    id: id,
+    catalogRef: CatalogItemRef(
+      kind: catalogMediaKindFromApiValue(kind),
+      id: itemId,
+    ),
+    createdAt: dt,
+    updatedAt: dt,
   );
 }
 
 TrackingSummary trackingSummaryFromRecord(TrackingStorageRecord record) {
   return TrackingSummary(
     id: record.id,
-    catalogRef: record.catalogRef,
-    ownedRef: record.ownedRef,
+    libraryEntryRef: record.libraryEntryRef,
     sourceType: record.sourceType,
     status: record.status ?? MediaTrackingStatus.none,
     rating: record.rating,

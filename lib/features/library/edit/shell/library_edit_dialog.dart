@@ -1,34 +1,44 @@
+import 'package:collectarr_app/features/library/ui/library_metrics.dart';
+import 'package:collectarr_app/features/settings/custom_fields_display_settings.dart';
+import 'package:collectarr_app/features/library/edit/sections/library_entry_personal_section.dart';
+import 'package:collectarr_app/features/library/edit/draft/library_entry_edit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_contributors.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_personal_field_registry.dart';
 import 'dart:async';
+import 'package:collectarr_app/features/library/edit/session/library_edit_navigation_guard.dart';
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/catalog_target_option.dart';
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/core/models/item_image.dart';
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/core/models/tracking_summary.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
+import 'package:collectarr_app/features/library/config/library_edit_tab_order.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/edit/sections/custom_fields_edit_section.dart';
 import 'package:collectarr_app/features/library/ui/primitives/library_dropdown_pick_field.dart';
-import 'package:collectarr_app/features/library/schema/library_field_spec.dart';
+import 'package:collectarr_app/features/library/ui/primitives/library_money_amount_field.dart';
+import 'package:collectarr_app/features/library/ui/primitives/library_notes_field.dart';
+import 'package:collectarr_app/features/library/ui/primitives/library_personal_fields_layout.dart';
+import 'package:collectarr_app/features/library/ui/primitives/library_selection_fields.dart';
+import 'package:collectarr_app/features/library/forms/library_field_spec.dart';
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/edit/fields/library_external_links_table.dart';
+import 'package:collectarr_app/features/library/ui/primitives/library_form_controls.dart';
 import 'package:collectarr_app/features/library/edit/sections/item_images_edit_section.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_edit_shell_state.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_edit_models.dart';
 import 'package:collectarr_app/features/library/edit/shell/library_edit_scaffold.dart';
 import 'package:collectarr_app/features/library/edit/core_correction/library_core_correction.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
+import 'package:collectarr_app/features/library/domain/library_target_ref.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
 import 'package:collectarr_app/features/library/location_picker_dialog.dart';
 import 'package:collectarr_app/features/library/tracking/media_rating_field.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking_status_field.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
-import 'package:collectarr_app/ui/tag_pick_list_field.dart';
 import 'package:collectarr_app/features/pick_lists/pick_list_options.dart';
-import 'package:collectarr_app/features/pick_lists/pick_list_repository.dart';
 import 'package:collectarr_app/features/pick_lists/widgets/pick_list_select_dialog.dart';
 import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
 import 'package:collectarr_app/features/pick_lists/vocabulary_repository.dart';
@@ -42,8 +52,8 @@ class LibraryEditRenderer extends ConsumerStatefulWidget {
     super.key,
     required this.type,
     required this.kindItem,
-    required this.ownedItem,
-    this.ownedItemDispatch,
+    required this.libraryEntry,
+    this.libraryEntryDispatch,
     this.wishlistItem,
     this.trackingSummary,
     required this.accent,
@@ -54,39 +64,39 @@ class LibraryEditRenderer extends ConsumerStatefulWidget {
     this.itemImages = const [],
     this.onPrevious,
     this.onNext,
-    this.node,
-    this.scope = LibraryEntityScope.work,
-  }) : draft = null;
+    this.target,
+  })  : request = null,
+        isEntryTarget = target is EntryTargetRef || libraryEntry != null;
 
-  LibraryEditRenderer.fromDraft({
+  LibraryEditRenderer.fromRequest({
     super.key,
-    required LibraryEditShellState draft,
-    this.onPrevious,
-    this.onNext,
-    this.scope = LibraryEntityScope.work,
-  })  : draft = draft,
-        node = draft.node,
-        type = draft.type,
-        kindItem = draft.kindItem,
-        ownedItem = draft.ownedItem,
-        ownedItemDispatch = draft.ownedItemDispatch,
-        wishlistItem = draft.wishlistItem,
-        trackingSummary = draft.trackingSummary,
-        accent = draft.accent,
-        wishlistTargetOptions = draft.wishlistTargetOptions,
-        physicalFormats = draft.physicalFormats,
-        customFieldDefinitions = draft.customFieldDefinitions,
-        customFieldValues = draft.customFieldValues,
-        itemImages = draft.itemImages;
+    required LibraryEditDialogRequest request,
+  })  : request = request,
+        target = request.target,
+        type = request.type,
+        kindItem = request.kindItem,
+        libraryEntry = request.libraryEntry,
+        libraryEntryDispatch = request.libraryEntryDispatch,
+        wishlistItem = request.wishlistItem,
+        trackingSummary = request.trackingSummary,
+        accent = request.accent,
+        wishlistTargetOptions = request.wishlistTargetOptions,
+        physicalFormats = request.physicalFormats,
+        customFieldDefinitions = request.customFieldDefinitions,
+        customFieldValues = request.customFieldValues,
+        itemImages = request.itemImages,
+        onPrevious = request.onPrevious,
+        onNext = request.onNext,
+        isEntryTarget = request.isLibraryEntry;
 
   final LibraryKindRegistration type;
 
-  /// Concrete candidate retained only for kind-owned draft/custom boundaries.
+  /// Concrete candidate retained only for kind-entry draft/custom boundaries.
   final CatalogSearchCandidate kindItem;
-  final OwnedItemSummary? ownedItem;
+  final LibraryEntrySummary? libraryEntry;
 
-  /// Concrete kind-owned aggregate passed through the typed edit boundary.
-  final LibraryOwnedItemDispatch? ownedItemDispatch;
+  /// Concrete kind-entry aggregate passed through the typed edit boundary.
+  final LibraryEntryDispatch? libraryEntryDispatch;
   final WishlistItem? wishlistItem;
   final TrackingSummary? trackingSummary;
   final Color accent;
@@ -97,9 +107,9 @@ class LibraryEditRenderer extends ConsumerStatefulWidget {
   final List<ItemImage> itemImages;
   final VoidCallback? onPrevious;
   final VoidCallback? onNext;
-  final LibraryEntityRef? node;
-  final LibraryEntityScope scope;
-  final LibraryEditShellState? draft;
+  final LibraryTargetRef? target;
+  final bool isEntryTarget;
+  final LibraryEditDialogRequest? request;
 
   @override
   ConsumerState<LibraryEditRenderer> createState() =>
@@ -122,61 +132,82 @@ class _LinkEntry {
 }
 
 class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
-    with SingleTickerProviderStateMixin {
+    with TickerProviderStateMixin {
   final _formKey = GlobalKey<FormState>();
   late final LibraryEditShellState _draft;
-  late final TabController _tabController;
+  late TabController _tabController;
   late List<LibraryEditTabSpec> _tabSpecs;
   late final List<_LinkEntry> _links;
   bool _linksEdited = false;
+  bool _isSaving = false;
+  String _customTabName = 'Custom Fields';
 
-  bool get _isOwned => _draft.isOwned;
+  Future<void> _loadCustomDisplay() async {
+    final display =
+        await CustomFieldsDisplaySettings.read(widget.type.kind.apiValue);
+    if (!mounted) return;
+    setState(() {
+      _customTabName = display.tabName;
+      if (!display.showEditTab) {
+        final previous = _tabController;
+        _tabSpecs.removeWhere((tab) => tab.id == 'custom');
+        _tabController = TabController(
+            length: _tabSpecs.length,
+            vsync: this,
+            initialIndex: previous.index.clamp(0, _tabSpecs.length - 1));
+        previous.dispose();
+      }
+    });
+  }
+
+  bool get _isEntry => _draft.isEntry;
 
   LibraryEditPresentationCapability get _editCapability =>
       libraryEditPresentationForKind(widget.type.kind);
 
   LibraryEditPresentationContext get _editPresentationContext =>
       LibraryEditPresentationContext(
-        isOwned: _isOwned,
+        isEntry: _isEntry,
         isTrackingOnly: _draft.isTrackingOnly,
         hasTrackingContext: _draft.hasTrackingContext,
         hasWishlistContext: _draft.hasWishlistContext,
         isDigitalFormat: _draft.isDigitalFormat,
         hasPhysicalFormats: widget.physicalFormats.isNotEmpty,
-        hasOwnedTargetOptions: false,
-        hasAdditionalTargetOptions: widget.wishlistTargetOptions.isNotEmpty,
         hasCustomFields: widget.customFieldDefinitions.isNotEmpty,
-        scope: widget.scope,
       );
 
   @override
   void initState() {
     super.initState();
-    _draft = widget.draft ??
-        LibraryEditShellState.fromItem(
-          type: widget.type,
-          scope: widget.scope,
-          node: widget.node,
-          item: widget.kindItem,
-          ownedItem: widget.ownedItem,
-          ownedItemDispatch: widget.ownedItemDispatch,
-          wishlistItem: widget.wishlistItem,
-          trackingSummary: widget.trackingSummary,
-          accent: widget.accent,
-          wishlistTargetOptions: widget.wishlistTargetOptions,
-          physicalFormats: widget.physicalFormats,
-          customFieldDefinitions: widget.customFieldDefinitions,
-          customFieldValues: widget.customFieldValues,
-          itemImages: widget.itemImages,
-        );
+    final request = widget.request;
+    _draft = request != null
+        ? LibraryEditShellState.fromRequest(request)
+        : LibraryEditShellState.fromItem(
+            type: widget.type,
+            target: widget.target,
+            item: widget.kindItem,
+            libraryEntry: widget.libraryEntry,
+            libraryEntryDispatch: widget.libraryEntryDispatch,
+            wishlistItem: widget.wishlistItem,
+            trackingSummary: widget.trackingSummary,
+            accent: widget.accent,
+            wishlistTargetOptions: widget.wishlistTargetOptions,
+            physicalFormats: widget.physicalFormats,
+            customFieldDefinitions: widget.customFieldDefinitions,
+            customFieldValues: widget.customFieldValues,
+            itemImages: widget.itemImages,
+          );
 
     _links = [];
 
-    _tabSpecs = libraryEditPresentationForKind(widget.type.kind)
-        .presentation
-        .builderForScope(widget.scope)
-        .buildTabs(context: _editPresentationContext);
+    _tabSpecs = LibraryEditTabOrder.instance.orderTabs(
+      libraryEditPresentationForKind(widget.type.kind).presentation.buildTabs(
+            context: _editPresentationContext,
+            isEntry: widget.isEntryTarget,
+          ),
+    );
 
+    unawaited(_loadCustomDisplay());
     _tabController = TabController(
       length: _tabSpecs.length,
       vsync: this,
@@ -188,11 +219,26 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
   Future<void> _loadEditOptions() async {
     final db = ref.read(localDatabaseProvider);
     final mediaKind = widget.type.kind.apiValue;
+    final libraryEntryRef =
+        _draft.libraryEntry?.ref ?? _draft.libraryEntryDispatch?.ref;
+    if (libraryEntryRef != null) {
+      await _draft.userExternalLinks.load(
+        db,
+        libraryEntryRef,
+      );
+    }
     final locations = await LocationRepository(db).getAll();
     final owners = await loadSingleValuePickListOptions(
       db,
       listName: UniversalVocabularies.owners.key,
       mediaKind: mediaKind,
+      selectedValue: _draft.personal.ownerLabelController.text,
+    );
+    final purchaseStores = await loadSingleValuePickListOptions(
+      db,
+      listName: UniversalVocabularies.purchaseStore.key,
+      mediaKind: mediaKind,
+      selectedValue: _draft.personal.purchaseStoreController.text,
     );
     final tags = await loadTagPickListOptions(
       db,
@@ -214,8 +260,10 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
 
     if (mounted) {
       setState(() {
+        _draft.personal.availableLocations = locations;
         _draft.locationOptions = locations.map((l) => l.name).toList();
         _draft.ownerOptions = owners;
+        _draft.purchaseStoreOptions = purchaseStores;
         _draft.tagOptions = tags;
         _draft.kindVocabularies = kindVocabs;
       });
@@ -228,9 +276,7 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
     for (final link in _links) {
       link.dispose();
     }
-    if (widget.draft == null) {
-      _draft.dispose();
-    }
+    _draft.dispose();
     super.dispose();
   }
 
@@ -240,43 +286,58 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
   }
 
   Future<void> _submit(LibraryEditSubmitAction action) async {
+    if (_isSaving) return;
     if (_formKey.currentState?.validate() == false) return;
-    if (_linksEdited) {
-      final updatedLinks = <TrailerLinkDto>[
-        for (final l in _links)
-          if (l.urlController.text.trim().isNotEmpty)
-            TrailerLinkDto(
-              url: l.urlController.text.trim(),
-              title: emptyToNull(l.descriptionController.text.trim()),
-              description: emptyToNull(l.descriptionController.text.trim()),
-              source: 'manual',
-              isAutomatic: false,
-              kind: 'external',
-            ),
-      ];
-      _draft.session.setExternalLinks(updatedLinks);
-    }
-    final selection = _draft.session.save(
-      _draft,
-      submitAction: action,
-    );
-    await _persistPendingVocabularyValues();
-    if (!mounted) return;
-    _draft.markClean();
-    Navigator.of(context).pop(selection);
-  }
-
-  Future<void> _persistPendingVocabularyValues() async {
-    if (_draft.pendingVocabularyValues.isEmpty) return;
-    final repository = PickListRepository(ref.read(localDatabaseProvider));
-    for (final pending in _draft.pendingVocabularyValues.values) {
-      await repository.addValue(
-        pending.listName,
-        pending.value,
-        mediaKind: pending.mediaKind ?? widget.type.kind.apiValue,
+    setState(() => _isSaving = true);
+    try {
+      if (_linksEdited) {
+        final updatedLinks = <TrailerLinkDto>[
+          for (final l in _links)
+            if (l.urlController.text.trim().isNotEmpty)
+              TrailerLinkDto(
+                url: l.urlController.text.trim(),
+                title: emptyToNull(l.descriptionController.text.trim()),
+                description: emptyToNull(l.descriptionController.text.trim()),
+                source: 'manual',
+                isAutomatic: false,
+                kind: 'external',
+              ),
+        ];
+        _draft.session.setExternalLinks(updatedLinks);
+      }
+      final selection = _draft.session.save(
+        _draft,
+        submitAction: action,
       );
+      final prepared = selection.copyWith(
+        localChanges: [
+          ...selection.localChanges,
+          if (!_draft.pendingVocabularyValues.isEmpty)
+            _draft.pendingVocabularyValues.toEditChange(
+              defaultMediaKind: widget.type.kind.apiValue,
+            ),
+        ],
+      );
+      await commitLibraryEdit(context, prepared);
+      // Keep the draft dirty if the persistence transaction fails.
+      _draft.markClean();
+    } catch (error, stackTrace) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Could not save changes: $error')),
+        );
+      }
+      FlutterError.reportError(
+        FlutterErrorDetails(
+          exception: error,
+          stack: stackTrace,
+          library: 'collectarr_app',
+          context: ErrorDescription('while saving a library entry'),
+        ),
+      );
+    } finally {
+      if (mounted) setState(() => _isSaving = false);
     }
-    _draft.pendingVocabularyValues.clear();
   }
 
   Future<void> _proposeToCore() async {
@@ -285,21 +346,25 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
     final request = LibraryEditDialogRequest(
       type: widget.type,
       item: _draft.kindItem,
-      node: _draft.node,
-      ownedItem: _draft.ownedItem,
-      ownedItemDispatch: _draft.ownedItemDispatch,
+      target: _draft.target,
+      libraryEntry: _draft.libraryEntry,
+      libraryEntryDispatch: _draft.libraryEntryDispatch,
       accent: widget.accent,
-      scope: widget.scope,
     );
     final sent = await showLibraryCoreCorrectionReview(
       context: context,
       source: LibraryCoreCorrectionSource.fromTypedFields(
         request: request,
+        coreCatalogRef: coreCatalogRefForEditRequest(request),
         originalFields: {
-          ..._draft.kindItem.kindCapability.toImportTransport().payload,
+          ..._draft.kindItem.kindCapability.mapTransport(
+            (item) => item.kindData,
+          ),
         },
         proposedFields: {
-          ...proposed.kindItem.kindCapability.toImportTransport().payload,
+          ...proposed.kindItem.kindCapability.mapTransport(
+            (item) => item.kindData,
+          ),
         },
       ),
     );
@@ -314,35 +379,81 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
   Widget build(BuildContext context) {
     final title = libraryEditPresentationForKind(widget.type.kind)
         .presentation
-        .builderForScope(widget.scope)
+        .builderForTarget(widget.isEntryTarget)
         .buildDialogTitle(
           kindItem: widget.kindItem,
         );
 
     return LibraryEditDialogScaffold(
       formKey: _formKey,
+      footerContent: LibraryEntryEditScope.maybeOf(context) == null
+          ? null
+          : LibraryEntryStatusStrip(
+              draft: LibraryEntryEditScope.maybeOf(context)!),
       accent: widget.accent,
+      isBusy: _isSaving,
       icon: widget.type.identity.icon,
       title: title,
       badges: const <Widget>[],
       tabController: _tabController,
       tabs: [
-        for (final tab in _tabSpecs) EditTab(icon: tab.icon, label: tab.label)
+        for (final tab in _tabSpecs)
+          EditTab(
+              icon: tab.icon,
+              label: tab.id == 'custom' ? _customTabName : tab.label)
       ],
+      tabIds: [for (final tab in _tabSpecs) tab.id],
       views: _tabViews(),
-      onClose: () => Navigator.of(context).pop(),
-      onCancel: () => Navigator.of(context).pop(),
-      onSave: () => _submit(LibraryEditSubmitAction.save),
-      onProposeToCore: () => unawaited(_proposeToCore()),
-      onPrevious: widget.onPrevious,
-      onNext: widget.onNext,
+      onClose: () => unawaited(_leave(() => Navigator.of(context).pop())),
+      onCancel: () => unawaited(_leave(() => Navigator.of(context).pop())),
+      onSave: _isSaving
+          ? null
+          : () => unawaited(_submit(LibraryEditSubmitAction.save)),
+      onProposeToCore: _isSaving ||
+              (LibraryEntryEditScope.maybeOf(context)
+                          ?.record
+                          .sourceCatalogRef ==
+                      null &&
+                  LibraryEntryEditScope.maybeOf(context) != null)
+          ? null
+          : () => unawaited(_proposeToCore()),
+      onPrevious: _isSaving || widget.onPrevious == null
+          ? null
+          : () => unawaited(_leave(widget.onPrevious!)),
+      onNext: _isSaving || widget.onNext == null
+          ? null
+          : () => unawaited(_leave(widget.onNext!)),
       tabOrderKey:
-          'library_edit_tabs_${widget.type.kind.apiValue}_${widget.scope.name}',
+          'library_edit_tabs_${widget.type.kind.apiValue}_${widget.isEntryTarget ? 'entry' : 'catalog'}',
     );
   }
 
   static String? _requiredValidator(String? v) =>
       (v == null || v.trim().isEmpty) ? 'Required' : null;
+
+  Future<void> _leave(VoidCallback action) async {
+    if (_isSaving) return;
+    if (await confirmLeaveLibraryEdit(context,
+            hasUnsavedChanges: _draft.isDirty ||
+                (LibraryEntryEditScope.maybeOf(context)?.changes.isNotEmpty ??
+                    false)) &&
+        mounted) {
+      action();
+    }
+  }
+
+  String _personalFieldLabel(String key) {
+    final field = personalFieldContributorFor(widget.type.kind)
+        .fields
+        .where((candidate) => candidate.key == key)
+        .firstOrNull;
+    if (field == null) {
+      throw StateError(
+        'The ${widget.type.kind.apiValue} kind has no personal field "$key".',
+      );
+    }
+    return field.label;
+  }
 
   List<String> _kindVocabularyOptions({
     required String suffix,
@@ -406,6 +517,48 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
     );
   }
 
+  Widget _buildUniversalVocabularyField({
+    required String listName,
+    required String label,
+    required TextEditingController controller,
+    required List<String> options,
+  }) {
+    return LibraryDropdownPickField<String>(
+      label: label,
+      value: controller.text.trim().isEmpty ? null : controller.text.trim(),
+      options: [
+        for (final option in options)
+          LibraryFieldOption<String>(value: option, label: option),
+      ],
+      allowCustomValue: true,
+      openPicker: ({required label, required selectedValue, required options}) {
+        final db = ref.read(localDatabaseProvider);
+        return showPickListSelectDialog(
+          context: context,
+          label: label,
+          options: options,
+          selectedValue: selectedValue,
+          listName: listName,
+          mediaKind: widget.type.kind.apiValue,
+          allowUserValues: true,
+          db: db,
+        );
+      },
+      onChanged: (value) {
+        controller.text = value ?? '';
+        _draft.recordPendingVocabularyValue(
+          fieldId: listName,
+          listName: listName,
+          value: value,
+          options: options,
+          allowCustomValues: true,
+          mediaKind: widget.type.kind.apiValue,
+        );
+        _markDirty();
+      },
+    );
+  }
+
   List<Widget> _tabViews() {
     return [for (final tab in _tabSpecs) _tabViewFor(tab.id)];
   }
@@ -413,13 +566,12 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
   Widget _tabViewFor(String id) {
     final customView = libraryEditPresentationForKind(widget.type.kind)
         .presentation
-        .builderForScope(widget.scope)
+        .builderForTarget(widget.isEntryTarget)
         .buildCustomTabView(
           tabId: id,
           context: context,
           draft: _draft,
           accent: widget.accent,
-          scope: widget.scope,
           item: widget.kindItem,
           markDirty: _markDirty,
         );
@@ -643,7 +795,7 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
                   ),
                 ]),
                 const SizedBox(height: 10),
-                TextFormField(
+                LibraryTextFormControl(
                   controller: _draft.personal.wishlistNotesController,
                   decoration:
                       const InputDecoration(labelText: 'Wishlist notes'),
@@ -656,58 +808,61 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
       );
     }
 
+    final fields = <Widget>[];
+    final fullWidthFields = <Widget>[];
+    if (_draft.isDigitalFormat) {
+      fullWidthFields.add(
+        Text(
+          'Digital items do not expose physical storage fields.',
+          style: TextStyle(color: Theme.of(context).hintColor),
+        ),
+      );
+      fullWidthFields.add(_buildLocationPickerField());
+    } else {
+      fields.addAll([
+        _buildPersonalVocabularyField(
+          suffix: 'condition',
+          label: _personalFieldLabel('condition'),
+          controller: _draft.personal.conditionController,
+          fallback: _editCapability.conditions,
+        ),
+        _buildPersonalVocabularyField(
+          suffix: 'grade',
+          label: _personalFieldLabel('grade'),
+          controller: _draft.personal.gradeController,
+          fallback: _editCapability.collectionValueOptions,
+        ),
+        _buildLocationPickerField(),
+        _buildUniversalVocabularyField(
+          listName: UniversalVocabularies.owners.key,
+          label: _personalFieldLabel('owner_label'),
+          controller: _draft.personal.ownerLabelController,
+          options: _draft.ownerOptions,
+        ),
+      ]);
+    }
+    fullWidthFields.addAll([
+      LibraryVocabularyField(
+        controller: _draft.personal.tagsController,
+        options: _draft.tagOptions,
+        label: _personalFieldLabel('tags'),
+        multiSelect: true,
+        onChanged: (_) => _markDirty(),
+      ),
+      LibraryNotesField(
+        label: _personalFieldLabel('personal_notes'),
+        controller: _draft.personal.notesController,
+        onChanged: (_) => _markDirty(),
+      ),
+    ]);
     return EditTabShell(
       children: [
         EditSection(
           title: 'Personal',
           accent: widget.accent,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              if (_draft.isDigitalFormat) ...[
-                Text(
-                  'Digital copies do not expose physical storage fields.',
-                  style: TextStyle(color: Theme.of(context).hintColor),
-                ),
-                const SizedBox(height: 10),
-                _buildLocationPickerField(),
-              ] else ...[
-                LibraryEditResponsiveRow(children: [
-                  _buildPersonalVocabularyField(
-                    suffix: 'condition',
-                    label: 'Condition',
-                    controller: _draft.personal.conditionController,
-                    fallback: _editCapability.conditions,
-                  ),
-                  _buildPersonalVocabularyField(
-                    suffix: 'grade',
-                    label: 'Grade',
-                    controller: _draft.personal.gradeController,
-                    fallback: _editCapability.collectionValueOptions,
-                  ),
-                ]),
-                const SizedBox(height: 10),
-                LibraryEditResponsiveRow(children: [
-                  _buildLocationPickerField(),
-                  LibraryEditTextField(
-                    controller: _draft.personal.ownerLabelController,
-                    label: 'Owner',
-                  ),
-                ]),
-              ],
-              const SizedBox(height: 10),
-              LibraryEditResponsiveRow(children: [
-                TagPickListField(
-                  controller: _draft.personal.tagsController,
-                  options: _draft.tagOptions,
-                  label: 'Tags',
-                ),
-                LibraryEditTextField(
-                  controller: _draft.personal.notesController,
-                  label: 'Notes',
-                ),
-              ]),
-            ],
+          child: LibraryPersonalFieldsLayout(
+            fields: fields,
+            fullWidthFields: fullWidthFields,
           ),
         ),
       ],
@@ -720,46 +875,46 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
         EditSection(
           title: 'Purchase & Value',
           accent: widget.accent,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              LibraryEditResponsiveRow(children: [
-                LibraryEditTextField(
-                  controller: _draft.personal.priceController,
-                  label: 'Purchase Price',
-                  keyboardType:
-                      const TextInputType.numberWithOptions(decimal: true),
+          child: LibraryPersonalFieldsLayout(
+            fields: [
+              LibraryMoneyAmountField(
+                label: _personalFieldLabel('price_paid_cents'),
+                amountMinorUnits: parseMoneyCents(
+                  _draft.personal.priceController.text,
                 ),
-                LibraryEditTextField(
-                  controller: _draft.personal.currencyController,
-                  label: 'Currency',
+                currency: _draft.personal.currencyController.text,
+                controller: _draft.personal.priceController,
+                onChanged: (_) => _markDirty(),
+              ),
+              LibraryCurrencyField(
+                controller: _draft.personal.currencyController,
+                onChanged: (_) => _markDirty(),
+              ),
+              LibraryMoneyAmountField(
+                label: _personalFieldLabel('market_value_cents'),
+                amountMinorUnits: parseMoneyCents(
+                  _draft.personal.marketValueController.text,
                 ),
-              ]),
-              const SizedBox(height: 10),
-              LibraryEditResponsiveRow(children: [
-                LibraryEditTextField(
-                  controller: _draft.personal.marketValueController,
-                  label: 'Market Value',
-                  keyboardType:
-                      const TextInputType.numberWithOptions(decimal: true),
-                ),
-                LibraryEditTextField(
-                  controller: _draft.personal.purchaseStoreController,
-                  label: 'Store / Source',
-                ),
-              ]),
-              const SizedBox(height: 10),
+                currency: _draft.personal.currencyController.text,
+                controller: _draft.personal.marketValueController,
+                onChanged: (_) => _markDirty(),
+              ),
+              _buildUniversalVocabularyField(
+                listName: UniversalVocabularies.purchaseStore.key,
+                controller: _draft.personal.purchaseStoreController,
+                label: _personalFieldLabel('purchase_store'),
+                options: _draft.purchaseStoreOptions,
+              ),
               LibraryDateFieldButton(
-                label: 'Purchase Date',
+                label: _personalFieldLabel('purchase_date'),
                 value: _draft.personal.purchaseDateController.text.isEmpty
                     ? null
                     : DateTime.tryParse(
                         _draft.personal.purchaseDateController.text),
                 onChanged: (date) {
-                  setState(() {
-                    _draft.personal.purchaseDateController.text =
-                        date?.toIso8601String().split('T').first ?? '';
-                  });
+                  _draft.personal.purchaseDateController.text =
+                      date?.toIso8601String().split('T').first ?? '';
+                  _markDirty();
                 },
               ),
             ],
@@ -781,18 +936,18 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
               LibraryEditResponsiveRow(children: [
                 LibraryEditTextField(
                   controller: _draft.personal.sellPriceController,
-                  label: 'Sale Price',
+                  label: _personalFieldLabel('sell_price_cents'),
                   keyboardType:
                       const TextInputType.numberWithOptions(decimal: true),
                 ),
                 LibraryEditTextField(
                   controller: _draft.personal.soldToController,
-                  label: 'Sold To',
+                  label: _personalFieldLabel('sold_to'),
                 ),
               ]),
               const SizedBox(height: 10),
               LibraryDateFieldButton(
-                label: 'Sale Date',
+                label: _personalFieldLabel('sold_at'),
                 value: _draft.personal.soldAt,
                 onChanged: (date) =>
                     setState(() => _draft.personal.soldAt = date),
@@ -815,7 +970,7 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
             children: [
               LibraryEditResponsiveRow(children: [
                 MediaTrackingStatusField(
-                  label: 'Tracking status',
+                  label: _personalFieldLabel('read_status'),
                   value: _draft.tracking.trackingController.text.isEmpty
                       ? null
                       : _draft.tracking.trackingController.text,
@@ -827,12 +982,13 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
                 ),
                 MediaRatingField(
                   controller: _draft.tracking.ratingController,
+                  label: _personalFieldLabel('rating'),
                 ),
               ]),
               const SizedBox(height: 10),
               LibraryEditTextField(
                 controller: _draft.tracking.trackingNotesController,
-                label: 'Progress / Tracking Notes',
+                label: _personalFieldLabel('notes'),
                 maxLines: 3,
               ),
             ],
@@ -940,17 +1096,22 @@ class _LibraryEditRendererState extends ConsumerState<LibraryEditRenderer>
           });
         }
       },
-      child: InputDecorator(
-        decoration: const InputDecoration(
-          labelText: 'Location',
-          prefixIcon: Icon(Icons.place),
-        ),
-        child: Text(
-          _draft.personal.selectedLocationName ?? 'Pick location...',
-          style: TextStyle(
-            color: _draft.personal.selectedLocationName != null
-                ? Theme.of(context).colorScheme.onSurface
-                : Theme.of(context).hintColor,
+      child: LibraryFormField(
+        label: _personalFieldLabel('location_id'),
+        child: InputDecorator(
+          decoration: const InputDecoration(
+            constraints:
+                BoxConstraints(minHeight: LibraryMetrics.defaultFieldHeight),
+            contentPadding: EdgeInsets.symmetric(horizontal: 10),
+            prefixIcon: Icon(Icons.place),
+          ),
+          child: Text(
+            _draft.personal.selectedLocationPath ?? 'Pick location...',
+            style: TextStyle(
+              color: _draft.personal.selectedLocationPath != null
+                  ? Theme.of(context).colorScheme.onSurface
+                  : Theme.of(context).hintColor,
+            ),
           ),
         ),
       ),

@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/core/api/dto/admin_metadata.dart';
 import 'package:collectarr_app/state/api_provider.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
@@ -480,6 +481,7 @@ class _AdminUserEditorDialogState extends State<_AdminUserEditorDialog> {
   @override
   Widget build(BuildContext context) {
     return AccentAlertDialog(
+      headerIcon: AppIcons.inlineEdit,
       title: const Text('Edit user'),
       content: SizedBox(
         width: 420,

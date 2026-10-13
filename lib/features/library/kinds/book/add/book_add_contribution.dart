@@ -5,48 +5,33 @@ import 'book_manual_candidate.dart';
 final bookKindAdd = StandardLibraryAddCapability<BookAddDraft>(
   kind: CatalogMediaKind.book,
   initialDraftBuilder: BookAddDraft.new,
-  typedProviderCandidateProjectionBuilder: (candidate) =>
-      bookCatalogTransportFromTypedCandidate(
-          candidate as BookProviderCandidate),
   coreCatalogProjectionBuilder: bookCatalogTransportFromCoreItem,
   manualDraftBuilder: BookAddManualDraft.new,
   manualCandidateBuilder: buildBookManualCandidate,
-  ownedPayloadBuilder: (item, common, draft, details, {kindValue}) =>
-      BookOwnedItemCreatePayload(
-    catalogRef: item.reference,
-    details: details as BookOwnedDetailsDraft,
+  manualProposalBuilder: buildBookManualProposalData,
+  entryPayloadBuilder: (item, common, draft, details, {kindValue}) =>
+      BookLibraryEntryCreatePayload(
+    details: details as BookEntryDetailsDraft,
     condition: common.condition,
     grade: kindValue ?? draft.grade,
     purchaseDate: common.purchaseDate,
     pricePaidCents: common.pricePaidCents,
     currency: common.currency,
     personalNotes: common.personalNotes,
-    quantity: common.quantity,
     tags: common.tags,
     locationId: common.locationId,
     purchaseStore: common.purchaseStore,
+    ownerLabel: common.ownerLabel,
     collectionStatus: common.collectionStatus,
     isDigital: common.isDigital,
   ),
   digitalCopyFlagBuilder: (item) {
-    final payload =
-        item.kindCapability.mapTransport((transport) => transport).payload;
-    final direct = payload['is_digital'];
-    if (direct is bool) return direct;
-    final format =
-        (payload['physical_format'] ?? payload['physical_format_label'])
-            ?.toString()
-            .toLowerCase();
+    final metadata = item.kindCapability.mapTransport(
+      (transport) => BookCatalogMetadata.fromJson(transport.kindData),
+    );
+    final format = metadata.physicalFormat?.toLowerCase();
     if (format == 'digital' || format == 'ebook' || format == 'web') {
       return true;
-    }
-    final series = payload['series'];
-    if (series is Map && series['is_digital'] is bool) {
-      return series['is_digital'] as bool;
-    }
-    final publishing = payload['publishing'];
-    if (publishing is Map && publishing['is_digital'] is bool) {
-      return publishing['is_digital'] as bool;
     }
     return null;
   },
@@ -56,9 +41,6 @@ final bookKindAdd = StandardLibraryAddCapability<BookAddDraft>(
     ),
     core: LibraryAddCoreSearchCapability(
       inputBuilder: _buildBookCoreSearchInput,
-    ),
-    provider: LibraryAddProviderSearchCapability(
-      queryBuilder: _buildBookProviderQuery,
       ranking: buildLibraryAddSearchRanking(
         fields: [
           LibraryAddSearchRankField(
@@ -66,90 +48,47 @@ final bookKindAdd = StandardLibraryAddCapability<BookAddDraft>(
             exactWeight: 110,
             containsWeight: 44,
             metadataValues: (item) {
-              final metadata = item.kindCapability
-                  .mapTransport((transport) => transport)
-                  .kindMetadata;
-              return metadata is BookCatalogMetadata
-                  ? metadata.authors
-                  : const <Object?>[];
+              final metadata = item.kindCapability.mapTransport((transport) =>
+                  BookCatalogMetadata.fromJson(transport.kindData));
+              return metadata.authors;
             },
-            typedProviderValues: (candidate) =>
-                candidate is BookProviderCandidate
-                    ? [candidate.summary]
-                    : const <Object?>[],
           ),
           LibraryAddSearchRankField(
             id: bookIsbnFilterId,
             exactWeight: 90,
             containsWeight: 30,
             metadataValues: (item) {
-              final metadata = item.kindCapability
-                  .mapTransport((transport) => transport)
-                  .kindMetadata;
-              return metadata is BookCatalogMetadata
-                  ? [metadata.barcode, metadata.itemNumber]
-                  : const <Object?>[];
+              final metadata = item.kindCapability.mapTransport((transport) =>
+                  BookCatalogMetadata.fromJson(transport.kindData));
+              return [metadata.barcode, metadata.itemNumber];
             },
-            typedProviderValues: (candidate) =>
-                candidate is BookProviderCandidate
-                    ? [candidate.providerItemId]
-                    : const <Object?>[],
           ),
           LibraryAddSearchRankField(
             id: bookPublisherFilterId,
             exactWeight: 60,
             containsWeight: 24,
             metadataValues: (item) {
-              final metadata = item.kindCapability
-                  .mapTransport((transport) => transport)
-                  .kindMetadata;
-              return metadata is BookCatalogMetadata
-                  ? [metadata.publisher, metadata.originalPublisher]
-                  : const <Object?>[];
+              final metadata = item.kindCapability.mapTransport((transport) =>
+                  BookCatalogMetadata.fromJson(transport.kindData));
+              return [metadata.publisher];
             },
-            typedProviderValues: (candidate) =>
-                candidate is BookProviderCandidate
-                    ? [candidate.publisher]
-                    : const <Object?>[],
           ),
           LibraryAddSearchRankField(
             id: bookYearFilterId,
             exactWeight: 55,
             containsWeight: 20,
             metadataValues: (item) {
-              final metadata = item.kindCapability
-                  .mapTransport((transport) => transport)
-                  .kindMetadata;
-              return metadata is BookCatalogMetadata
-                  ? [metadata.originalPublicationDate?.year]
-                  : const <Object?>[];
+              final metadata = item.kindCapability.mapTransport((transport) =>
+                  BookCatalogMetadata.fromJson(transport.kindData));
+              return [metadata.releaseDate?.year];
             },
-            typedProviderValues: (candidate) =>
-                candidate is BookProviderCandidate
-                    ? [candidate.series?.volumeStartYear]
-                    : const <Object?>[],
           ),
         ],
       ),
-      strategy:
-          LibraryAddTypedProviderSearchStrategy(searchBookProviderCandidates),
-      candidatePreviewLoader: loadBookProviderCandidatePreview,
     ),
   ),
   manualPaneBuilder: buildBookAddManualPane,
 );
-
-Future<List<LibraryHierarchyNode>> fetchBookVolumes({
-  required ApiClient api,
-  required String itemId,
-}) async {
-  final work =
-      await api.getBookWorkDto(itemId).timeout(const Duration(seconds: 60));
-  final book = BookCoreMapper.fromWorkDto(work);
-  return BookHierarchyMapper.toLibraryNodes(book.editions);
-}
-
-String bookChildrenTitle(int count) => 'Editions ($count)';
 
 Iterable<String> getBookFacetValues(
   BookWorkspaceDto dto,
@@ -214,17 +153,6 @@ MetadataSearchQuery _buildBookCoreSearchInput(
     barcode: _optionalBookText(isbn.isNotEmpty ? isbn : context.identifierCode),
     limit: limit,
   );
-}
-
-String _buildBookProviderQuery(LibraryAddSearchContext context) {
-  return buildLibraryAddSearchQuery([
-    context.query,
-    context.textValueFor(bookAuthorFilterId),
-    context.textValueFor(bookIsbnFilterId),
-    context.textValueFor(bookPublisherFilterId),
-    context.textValueFor(bookYearFilterId),
-    context.identifierCode,
-  ]);
 }
 
 String? _optionalBookText(String value) {

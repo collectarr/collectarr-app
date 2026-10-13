@@ -66,13 +66,13 @@ final class LibraryAddSearchScopesFilterValue extends LibraryAddFilterValue {
 
   @override
   String get displayValue =>
-      scopes.map((scope) => scope.providerValue).join(' ');
+      scopes.map((scope) => scope.catalogValue).join(' ');
 
   @override
   bool get hasValue => scopes.isNotEmpty;
 }
 
-/// Descriptor for a single field in the kind-owned advanced search filter row.
+/// Descriptor for a single field in the kind-entry advanced search filter row.
 class LibraryAddAdvancedFilterField<T> {
   const LibraryAddAdvancedFilterField({
     required this.id,

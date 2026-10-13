@@ -57,9 +57,9 @@ class LibraryFolderTreeBuilder {
     final groupMode = modes[depth];
     final workspace = libraryKindWorkspaceForKind(type.kind);
     final fields =
-        items.isEmpty ? null : workspace.fieldsForNode(items.first.node);
+        items.isEmpty ? null : workspace.fieldsForTarget(items.first.target);
     final groupId = fields?.decodeGroupId(groupMode) ??
-        (workspace.fieldsForGroupModeAcrossScopes(groupMode)?.decodeGroupId(
+        (workspace.fieldsForGroupModeAcrossTargets(groupMode)?.decodeGroupId(
                   groupMode,
                 ) ??
             DynamicLibraryGroupId(groupMode));
@@ -72,16 +72,9 @@ class LibraryFolderTreeBuilder {
       final nextPath = [...pathBuckets, bucket.title];
       final childItems = [
         for (final item in items)
-          if ((index != null
-                  ? index.getGroupBucket(
-                      item,
-                      groupId,
-                      (it, mode) =>
-                          groupingEngine.getGroupBucketForItem(it, type, mode),
-                    )
-                  : groupingEngine.getGroupBucketForItem(
-                      item, type, groupId)) ==
-              bucket.title)
+          if (groupingEngine
+              .bucketsForItem(item, type, groupId, index: index)
+              .contains(bucket.title))
             item,
       ];
       final subtree = _buildFolderTreeNodes(
@@ -95,8 +88,6 @@ class LibraryFolderTreeBuilder {
         index: index,
       );
       final id = libraryFolderTreeNodeId(modes: modes, buckets: nextPath);
-      final descendantSelected =
-          selectedNodeId != null && selectedNodeId.startsWith('$id|');
       children.add(
         LibraryFolderTreeNode(
           id: id,
@@ -106,9 +97,7 @@ class LibraryFolderTreeBuilder {
           groupMode: groupMode,
           bucketValue: bucket.title,
           children: subtree,
-          isExpanded: expandedNodeIds.contains(id) ||
-              descendantSelected ||
-              (subtree.isNotEmpty && subtree.any((node) => node.isExpanded)),
+          isExpanded: expandedNodeIds.contains(id),
         ),
       );
     }

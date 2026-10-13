@@ -21,6 +21,7 @@ class PickListValue {
     this.mediaKind,
     required this.value,
     this.displayLabel,
+    this.sortName,
     this.normalizedValue,
     this.aliases = const [],
     this.sortOrder = 0,
@@ -33,6 +34,10 @@ class PickListValue {
   final String? mediaKind;
   final String value;
   final String? displayLabel;
+  final String? sortName;
+
+  String get effectiveSortName =>
+      sortName?.trim().isNotEmpty == true ? sortName!.trim() : effectiveLabel;
   final String? normalizedValue;
   final List<String> aliases;
   final int sortOrder;

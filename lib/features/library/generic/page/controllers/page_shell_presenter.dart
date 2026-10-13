@@ -20,6 +20,29 @@ abstract final class LibraryPageShellPresenter {
         : state._projectionForShelf(shelfState, viewState);
     final useFab =
         state.ref.watch(uiPreferencesProvider.select((p) => p.fabAddButton));
+    if (projection != null) {
+      final uri = state.widget.routeUri;
+      final request = uri.queryParameters['toolRequest'];
+      final tool = uri.queryParameters['tool'];
+      if (request != null &&
+          request != state._handledToolRequest &&
+          (tool == 'reassignIndex' || tool == 'transferFieldData')) {
+        state._handledToolRequest = request;
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (!state.mounted || state.widget.routeUri != uri) return;
+          final parameters = Map<String, String>.of(uri.queryParameters)
+            ..remove('tool')
+            ..remove('toolRequest');
+          if (GoRouter.maybeOf(state.context) != null) {
+            state.context
+                .replace(uri.replace(queryParameters: parameters).toString());
+          }
+          unawaited(tool == 'reassignIndex'
+              ? state._dialogCoordinator.reassignIndexFlow(projection)
+              : state._dialogCoordinator.showTransferFieldDataFlow(projection));
+        });
+      }
+    }
     final toolbar = state._toolbarController.buildToolbar(
       context: context,
       projection: projection,
@@ -35,9 +58,9 @@ abstract final class LibraryPageShellPresenter {
           resolvedProjection,
           viewState,
           shelfState: stateValue,
-          allOwnedCopies: [
+          allLibraryEntries: [
             for (final item in resolvedProjection.allItems)
-              if (item.source.ownedSummary case final owned?) owned,
+              if (item.source.libraryEntrySummary case final entry?) entry,
           ],
           allWishlistItems: allWishlistItems,
         );
@@ -51,12 +74,11 @@ abstract final class LibraryPageShellPresenter {
       content: content,
       bottomBar: LibraryCollectionTabBar(
         mediaKind: state.widget.type.kind.apiValue,
-        activeSmartListId: state._session.preferences.activeSmartListId,
-        onSmartListSelected: state._applySmartList,
-        onAllSelected: state._clearSmartList,
+        accent: state.widget.accent,
+        onCollectionSelected: (_) => state._onCollectionSelected(),
       ),
       accent: state.widget.accent,
-      showAddButton: useFab,
+      showAddButton: useFab || MediaQuery.sizeOf(context).width < 900,
       isScanningCover: state._isScanningCover,
       onAdd: () => state._dialogCoordinator.showAddDialogFlow(),
       onEscape: state._handleKeyboardEscape,
@@ -79,50 +101,26 @@ abstract final class LibraryPageShellPresenter {
     LibraryProjection projection,
     LibraryWorkspaceViewState viewState, {
     required ShelfState shelfState,
-    required List<OwnedItemSummary> allOwnedCopies,
+    required List<LibraryEntrySummary> allLibraryEntries,
     required List<WishlistItem> allWishlistItems,
   }) {
     final registration = state.widget.type;
-    final activeScope = projection.allItems.isNotEmpty
-        ? projection.allItems.first.node.scope
-        : libraryBrowserNavigationPolicy.entityScopeForBrowserMode(
-            viewState.browserMode,
-          );
-    final activeFields = libraryKindWorkspaceForKind(registration.kind)
-        .fieldsForScope(activeScope);
+    final workspace = libraryKindWorkspaceForKind(registration.kind);
+    final activeFields = projection.allItems.isNotEmpty
+        ? workspace.fieldsForTarget(projection.allItems.first.target)
+        : workspace.fields;
     final workspaceOverride = state.buildWorkspaceOverride(
       projection,
       viewState,
-      allOwnedCopies: allOwnedCopies,
+      allLibraryEntries: allLibraryEntries,
       allWishlistItems: allWishlistItems,
     );
-    final releasePositionLabel =
-        state._releasePositionLabelForProjection(projection);
-    if (state.activeReleaseFolderTitleItemId != null &&
-        projection.filteredItems.isNotEmpty) {
-      final hasSelection = projection.filteredItems.any(
-        (item) => item.node.id == state._session.selection.selectedId,
-      );
-      if (!hasSelection) {
-        final firstReleaseId = projection.filteredItems.first.node.id;
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (!state.mounted ||
-              state._session.selection.selectedId == firstReleaseId) {
-            return;
-          }
-          state._activateItem(firstReleaseId);
-        });
-      }
-    }
-    // Switching Work/Release scope invalidates the previous node id. Keep the
-    // inspector attached to the active entity scope instead of leaving it on
-    // the previous Work projection while the browser shows Releases.
     if (state._session.selection.selectedId != null &&
         projection.filteredItems.isNotEmpty &&
         !projection.filteredItems.any(
-          (item) => item.node.id == state._session.selection.selectedId,
+          (item) => item.target.id == state._session.selection.selectedId,
         )) {
-      final firstVisibleId = projection.filteredItems.first.node.id;
+      final firstVisibleId = projection.filteredItems.first.target.id;
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (!state.mounted ||
             state._session.selection.selectedId == firstVisibleId) {
@@ -140,7 +138,7 @@ abstract final class LibraryPageShellPresenter {
         state._session.selection.selectedId == null &&
         state._session.selection.value.itemIds.isEmpty &&
         projection.filteredItems.isNotEmpty) {
-      final firstVisibleId = projection.filteredItems.first.node.id;
+      final firstVisibleId = projection.filteredItems.first.target.id;
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (!state.mounted ||
             state._session.selection.selectedId != null ||
@@ -180,8 +178,6 @@ abstract final class LibraryPageShellPresenter {
       hasActiveFilter: state._hasActiveFilter,
       onAdd: () => state._dialogCoordinator.showAddDialogFlow(),
       onClearFilters: state._clearFilters,
-      onEditFilters: () =>
-          state._dialogCoordinator.showFilterDialogFlow(projection),
       selectionEnabled: state._session.selection.value.enabled &&
           viewState.viewMode != LibraryViewMode.cardFlow,
       selectedItemIds: state._session.selection.value.itemIds,
@@ -189,12 +185,10 @@ abstract final class LibraryPageShellPresenter {
       onActivateItem: state._activateItem,
       onToggleSelectionItem: state._toggleSelectionItem,
       onOpenItem: (item) {
-        final isMediaTitle = item.node.scope == LibraryEntityScope.work;
-        if (state._shouldOpenReleaseFolder(item) && isMediaTitle) {
-          state._openReleaseFolder(item);
-          return;
+        state._activateItem(item.target.id);
+        if (viewState.detailsLayout == LibraryDetailsLayout.hidden) {
+          state._editCoordinator.showDetailPage(item, projection: projection);
         }
-        state._editCoordinator.showDetailPage(item);
       },
       onBoxSelectionChanged: (ids) => state._rebuild(() {
         state._session.selection.value =
@@ -213,7 +207,7 @@ abstract final class LibraryPageShellPresenter {
       collapsedGroupBuckets: state._session.preferences.collapsedGroupBuckets,
       onGroupBucketCollapsedToggled: state._toggleCollapsedGroupBucket,
       onSetCollapsedGroupBuckets: state._setCollapsedGroupBuckets,
-      onGroupModeChanged: state._setGroupMode,
+      onGroupModeChanged: state._setFolderPreset,
       onSortChanged: (column) => state._updateViewState(
         (stateValue) => stateValue.withSortColumn(
           activeFields.decodeSortId(column),
@@ -225,14 +219,6 @@ abstract final class LibraryPageShellPresenter {
           activeFields.decodeColumnId(column),
           width,
           state._viewProfile,
-        ),
-      ),
-      onColumnReordered: (column, beforeColumn) => state._updateViewState(
-        (stateValue) => stateValue.withReorderedColumn(
-          column: activeFields.decodeColumnId(column),
-          beforeColumn: beforeColumn == null
-              ? null
-              : activeFields.decodeColumnId(beforeColumn),
         ),
       ),
       onCoverSizeChanged: (size) => state._updateViewState(
@@ -254,11 +240,11 @@ abstract final class LibraryPageShellPresenter {
       onLayoutSnapshotChanged: (snapshot) {
         state.ref.read(libraryLayoutSnapshotProvider.notifier).update(snapshot);
       },
-      onAddOwned: (item) =>
+      onAddEntry: (item) =>
           state._collectionActionCoordinator.runCollectionAction(
-        (actions) => actions.addOwned(item),
+        (actions) => actions.addEntry(item),
       ),
-      onRemoveOwned: state._collectionActionCoordinator.confirmAndRemoveOwned,
+      onRemoveEntry: state._collectionActionCoordinator.confirmAndRemoveEntry,
       onAddWishlist: (item) =>
           state._collectionActionCoordinator.runCollectionAction(
         (actions) => actions.addWishlist(item),
@@ -267,8 +253,8 @@ abstract final class LibraryPageShellPresenter {
           state._collectionActionCoordinator.runCollectionAction(
         (actions) => actions.removeWishlist(item),
       ),
-      onEditItem: (item, ownedItem) =>
-          unawaited(state._editCoordinator.showEditDialog(item, ownedItem)),
+      onEditItem: (item, libraryEntry) =>
+          unawaited(state._editCoordinator.showEditDialog(item, libraryEntry)),
       workspaceOverride: workspaceOverride,
       onItemContextMenu: (item, position) => state._collectionActionCoordinator
           .handleItemContextMenu(projection, item, position),
@@ -319,7 +305,6 @@ abstract final class LibraryPageShellPresenter {
       onFolderDisplayModeChanged: state._setFolderDisplayMode,
       onFolderTreeNodeSelected: state._selectFolderTreePath,
       onFolderTreeNodeExpandedToggled: state._toggleFolderTreeNodeExpanded,
-      inspectorContextLabel: releasePositionLabel,
       desktopToolbarBand: LibraryDesktopSecondaryToolbar(
         type: state.widget.type,
         viewState: viewState,
@@ -335,21 +320,6 @@ abstract final class LibraryPageShellPresenter {
         onViewModeChanged: (mode) => state._updateViewState(
           (stateValue) => stateValue.copyWith(viewMode: mode),
         ),
-        browserMode: state._activeBrowserMode,
-        onBrowserModeChanged: state._setBrowserMode,
-        showReleaseFolderBack:
-            libraryBrowserNavigationPolicy.shouldShowReleaseFolderBack(
-          browserMode: state._activeBrowserMode,
-          releaseFolderWorkId: state.activeReleaseFolderTitleItemId,
-        ),
-        releaseFolderLabel: state._releaseFolderLabelForProjection(projection),
-        onReleaseFolderBack:
-            libraryBrowserNavigationPolicy.shouldShowReleaseFolderBack(
-          browserMode: state._activeBrowserMode,
-          releaseFolderWorkId: state.activeReleaseFolderTitleItemId,
-        )
-                ? state._closeReleaseFolder
-                : null,
         onDetailsLayoutChanged: (layout) => state._updateViewState(
           (stateValue) => stateValue.copyWith(detailsLayout: layout),
         ),
@@ -359,8 +329,9 @@ abstract final class LibraryPageShellPresenter {
         onCoverSizeChanged: (size) => state._updateViewState(
           (stateValue) => stateValue.copyWith(coverSize: size),
         ),
-        selectedBucket: state._session.facets.linkedMetadataFilter?.chipLabel ??
-            state._session.facets.selectedBucket,
+        selectedBucket: state._session.facets.selectedBucket,
+        linkedMetadataFilterLabel:
+            state._session.facets.linkedMetadataFilter?.chipLabel,
         onClearBucket: state._clearToolbarSearchChip,
         quickView: state._session.facets.quickView,
         activeSortFavoriteId: state._activeSortFavorite?.id,
@@ -374,10 +345,6 @@ abstract final class LibraryPageShellPresenter {
         onQuickViewSelected: (view) => state._setQuickView(
             state._session.facets.quickView == view ? null : view),
         onClearFilters: state._clearFilters,
-        onEditFilters: () =>
-            state._dialogCoordinator.showFilterDialogFlow(projection),
-        activeFilterCount:
-            state._session.selection.filterSelection.activeFilterCount,
         onRandomPick: projection.filteredItems.isNotEmpty
             ? () => state._collectionActionCoordinator
                 .pickRandomItemFlow(projection)
@@ -403,17 +370,20 @@ abstract final class LibraryPageShellPresenter {
                 ? state._dialogCoordinator.showGradePickListEditorFlow
                 : null,
         onEditTagPickList: state._dialogCoordinator.showTagPickListEditorFlow,
-        onTransferFieldData: state._hasOwnedItemsInProjection(projection)
+        onTransferFieldData: state._hasLibraryEntriesInProjection(projection)
             ? () =>
                 state._dialogCoordinator.showTransferFieldDataFlow(projection)
             : null,
         onReassignIndex: state.widget.type.toolbarActionAvailability
                     .allows(LibraryToolbarActionId.reassignIndex) &&
-                state._hasOwnedItemsInProjection(projection)
+                state._hasLibraryEntriesInProjection(projection)
             ? () => state._dialogCoordinator.reassignIndexFlow(projection)
             : null,
         onPrintReport: projection.filteredItems.isNotEmpty
             ? () => state._reportCoordinator.printReportFlow(projection)
+            : null,
+        onExportCsvTxt: projection.filteredItems.isNotEmpty
+            ? () => state._sharingCoordinator.exportCsvTxtFlow(projection)
             : null,
         onShareCollection: projection.filteredItems.isNotEmpty
             ? () => state._sharingCoordinator.shareCollectionFlow(projection)
@@ -471,33 +441,43 @@ abstract final class LibraryPageShellPresenter {
           state._selectAllVisible(projection);
         }
       },
-      onBulkEdit: state._hasOwnedItemsInSelection(projection)
+      onBulkEdit: state._hasLibraryEntriesInSelection(projection)
           ? () => state._collectionActionCoordinator.bulkEditFlow(projection)
           : null,
       onPrintToPdf: state._hasSelectedItemsInSelection(projection)
           ? () => state._reportCoordinator.printSelectedReportFlow(projection)
           : null,
       onExportCsvTxt: state._hasSelectedItemsInSelection(projection)
-          ? () =>
-              state._sharingCoordinator.shareSelectedCollectionFlow(projection)
+          ? () => state._sharingCoordinator.exportSelectedCsvTxtFlow(projection)
           : null,
-      onBulkDuplicate: state._hasOwnedItemsInSelection(projection)
+      onExportXml: state._hasLibraryEntriesInSelection(projection)
+          ? () => state._sharingCoordinator.exportSelectedXmlFlow(projection)
+          : null,
+      onMerge: state._collectionActionCoordinator.canMergeSelection(projection)
+          ? () =>
+              state._collectionActionCoordinator.mergeSelectionFlow(projection)
+          : null,
+      onBulkDuplicate: state._hasLibraryEntriesInSelection(projection)
           ? () =>
               state._collectionActionCoordinator.bulkDuplicateFlow(projection)
           : null,
-      onBulkLoan: state._hasLoanableOwnedItemsInSelection(projection)
+      onBulkLoan: state._hasLoanableLibraryEntriesInSelection(projection)
           ? () => state._dialogCoordinator.showLoanSelectionFlow(projection)
           : null,
-      onTransferFieldData: state._hasOwnedItemsInSelection(projection)
+      onTransferFieldData: state._hasLibraryEntriesInSelection(projection)
           ? () => state._dialogCoordinator
               .showTransferFieldDataForSelectionFlow(projection)
           : null,
       onBulkUpdateValues: null,
       onBulkUpdateKeyInfo: null,
-      onBulkMoveToOwned: state
-              ._hasMoveToOwnedEligibleItemsInSelection(projection)
+      onMoveToCollection: state._hasLibraryEntriesInSelection(projection)
+          ? () => state._collectionActionCoordinator
+              .moveSelectionToCollectionFlow(projection)
+          : null,
+      onBulkMoveToEntry: state
+              ._hasMoveToEntryEligibleItemsInSelection(projection)
           ? () =>
-              state._collectionActionCoordinator.bulkMoveToOwnedFlow(projection)
+              state._collectionActionCoordinator.bulkMoveToEntryFlow(projection)
           : null,
       onBulkMoveToWishlist:
           state._hasMoveToWishlistEligibleItemsInSelection(projection)

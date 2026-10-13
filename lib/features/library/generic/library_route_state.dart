@@ -2,8 +2,9 @@ import 'dart:convert';
 
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
+import 'package:collectarr_app/core/models/smart_list_criteria.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
-import 'package:collectarr_app/features/library/generic/filter_dialog.dart';
+import 'package:collectarr_app/features/library/generic/library_filters.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
@@ -158,18 +159,17 @@ class LibraryRouteState {
     }
     final registration = type;
     final workspace = libraryKindWorkspaceForKind(registration.kind);
-    // Route state predates the scoped workspace node, so a persisted group
-    // mode may target a release/copy even when the current page starts at the
-    // work scope. Keep route normalization structural without collapsing
-    // those scoped group identities back into the work registry.
-    final allowedGroupModes = workspace.availableGroupIdsForAllScopes
+    // A persisted group mode may target local entry fields even when the
+    // current page starts with canonical Catalog Item fields. Resolve against
+    // both field registries without collapsing their identities.
+    final allowedGroupModes = workspace.availableGroupIdsForAllTargets
         .map((group) => group.value)
         .toSet();
     final filteredFolderPreset = sanitizeLibraryFolderPreset(
       folderPreset,
       allowedModes: allowedGroupModes,
     );
-    final allowedSortColumns = workspace.availableSortColumnIdsForAllScopes;
+    final allowedSortColumns = workspace.availableSortColumnIdsForAllTargets;
     final filteredSortRules = sortRules == null
         ? null
         : [
@@ -178,7 +178,7 @@ class LibraryRouteState {
           ];
     final resolvedGroupId = groupMode == null
         ? null
-        : workspace.resolveGroupIdAcrossScopes(groupMode!);
+        : workspace.resolveGroupIdAcrossTargets(groupMode!);
     final filteredGroupMode = filteredFolderPreset?.primaryMode ??
         (groupMode != null &&
                 (allowedGroupModes.contains(groupMode) ||
@@ -282,8 +282,8 @@ class LibraryRouteState {
       return null;
     }
     final payload = JsonMap.from({
-      if (selection.ownershipFilter != LibraryOwnershipFilter.all)
-        'ownership': selection.ownershipFilter.name,
+      if (selection.entriesFilter != LibraryEntryPolicyFilter.all)
+        'entries': selection.entriesFilter.name,
       if (selection.trackingStatusFilter != LibraryTrackingStatusFilter.all)
         'tracking': selection.trackingStatusFilter.name,
       if (selection.loanStatusFilter != LibraryLoanStatusFilter.all)
@@ -302,6 +302,11 @@ class LibraryRouteState {
         'fields': {
           for (final entry in selection.fieldValues.entries)
             if (_trimmed(entry.value) != null) entry.key: _trimmed(entry.value),
+        },
+      if (selection.fieldCriteria.isNotEmpty)
+        'fieldCriteria': {
+          for (final entry in selection.fieldCriteria.entries)
+            entry.key: entry.value.toJson(),
         },
       if (selection.missingCover) 'missingCover': true,
       if (selection.missingMetadata) 'missingMetadata': true,
@@ -325,6 +330,7 @@ class LibraryRouteState {
         (key, value) => MapEntry(key.toString(), value),
       );
       final fieldValues = <String, String?>{};
+      final fieldCriteria = <String, SmartListFieldCriterion>{};
       final rawFields = map['fields'];
       if (rawFields is Map) {
         for (final entry in rawFields.entries) {
@@ -332,6 +338,14 @@ class LibraryRouteState {
           if (value != null) {
             fieldValues[_normalizeFilterFieldId(entry.key.toString())] = value;
           }
+        }
+      }
+      final rawCriteria = map['fieldCriteria'];
+      if (rawCriteria is Map) {
+        for (final entry in rawCriteria.entries) {
+          if (entry.key is! String) continue;
+          fieldCriteria[_normalizeFilterFieldId(entry.key as String)] =
+              SmartListFieldCriterion.fromJson(entry.value);
         }
       }
       for (final key in const [
@@ -351,9 +365,9 @@ class LibraryRouteState {
         }
       }
       return LibraryFilterSelection(
-        ownershipFilter:
-            _enumByName(LibraryOwnershipFilter.values, map['ownership']) ??
-                LibraryOwnershipFilter.all,
+        entriesFilter:
+            _enumByName(LibraryEntryPolicyFilter.values, map['entries']) ??
+                LibraryEntryPolicyFilter.all,
         trackingStatusFilter: _enumByName(
               LibraryTrackingStatusFilter.values,
               map['tracking'],
@@ -370,6 +384,7 @@ class LibraryRouteState {
         customFieldDefinitionId: _trimmed(map['customFieldDefinitionId']),
         customFieldValue: _trimmed(map['customFieldValue']),
         fieldValues: fieldValues,
+        fieldCriteria: fieldCriteria,
         missingCover: map['missingCover'] == true,
         missingMetadata: map['missingMetadata'] == true,
       );

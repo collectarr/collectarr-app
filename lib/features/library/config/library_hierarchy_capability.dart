@@ -5,7 +5,7 @@ import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/hierarchy/domain/library_hierarchy_data_capability.dart';
 import 'package:collectarr_app/features/library/hierarchy/domain/library_hierarchy_node.dart';
 
-/// Encapsulates content hierarchy and kind-owned child loading.
+/// Encapsulates content hierarchy and kind-entry child loading.
 class LibraryHierarchyCapability implements LibraryHierarchyDataCapability {
   const LibraryHierarchyCapability({
     this.childrenTitleBuilder,

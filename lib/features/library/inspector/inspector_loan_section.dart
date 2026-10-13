@@ -1,7 +1,9 @@
+import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/loan.dart';
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/features/collection/repositories/loan_repository.dart';
+import 'package:collectarr_app/features/library/entries/library_entries_repository.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
 import 'package:collectarr_app/features/library/details/library_detail_section.dart';
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart'
@@ -14,12 +16,12 @@ import 'package:uuid/uuid.dart';
 class InspectorLoanSection extends StatefulWidget {
   const InspectorLoanSection({
     super.key,
-    required this.ownedRef,
+    required this.libraryEntryRef,
     required this.db,
     required this.accent,
   });
 
-  final OwnedItemRef ownedRef;
+  final LibraryEntryRef libraryEntryRef;
   final LocalDatabase db;
   final Color accent;
 
@@ -40,14 +42,14 @@ class _InspectorLoanSectionState extends State<InspectorLoanSection> {
   @override
   void didUpdateWidget(InspectorLoanSection oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.ownedRef != widget.ownedRef) {
+    if (oldWidget.libraryEntryRef != widget.libraryEntryRef) {
       _load();
     }
   }
 
   Future<void> _load() async {
     final repo = LoanRepository(widget.db);
-    final loans = await repo.getLoansForItem(widget.ownedRef);
+    final loans = await repo.getLoansForItem(widget.libraryEntryRef);
     if (mounted) {
       setState(() {
         _loans = loans;
@@ -60,23 +62,26 @@ class _InspectorLoanSectionState extends State<InspectorLoanSection> {
     final result = await showDialog<Loan>(
       context: context,
       builder: (context) => _LoanCreateDialog(
-        ownedRef: widget.ownedRef,
+        libraryEntryRef: widget.libraryEntryRef,
         accent: widget.accent,
       ),
     );
     if (result != null) {
       await LoanRepository(widget.db).create(result);
+      await enqueueLibraryEntrySnapshot(widget.db, widget.libraryEntryRef);
       await _load();
     }
   }
 
   Future<void> _returnLoan(Loan loan) async {
     await LoanRepository(widget.db).markReturned(loan.id);
+    await enqueueLibraryEntrySnapshot(widget.db, widget.libraryEntryRef);
     await _load();
   }
 
   Future<void> _deleteLoan(Loan loan) async {
     await LoanRepository(widget.db).delete(loan.id);
+    await enqueueLibraryEntrySnapshot(widget.db, widget.libraryEntryRef);
     await _load();
   }
 
@@ -178,7 +183,7 @@ class _InspectorLoanSectionState extends State<InspectorLoanSection> {
               'History',
               style: Theme.of(context).textTheme.labelMedium?.copyWith(
                     color: widget.accent.withValues(alpha: 0.8),
-                    fontWeight: FontWeight.w800,
+                    fontWeight: FontWeight.w700,
                     letterSpacing: 0.2,
                   ),
             ),
@@ -309,11 +314,11 @@ class _LoanTile extends StatelessWidget {
 
 class _LoanCreateDialog extends StatefulWidget {
   const _LoanCreateDialog({
-    required this.ownedRef,
+    required this.libraryEntryRef,
     required this.accent,
   });
 
-  final OwnedItemRef ownedRef;
+  final LibraryEntryRef libraryEntryRef;
   final Color accent;
 
   @override
@@ -337,6 +342,7 @@ class _LoanCreateDialogState extends State<_LoanCreateDialog> {
   Widget build(BuildContext context) {
     final palette = appPalette(context);
     return AccentAlertDialog(
+      headerIcon: AppIcons.palette,
       backgroundColor: palette.panel,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       title: Text('Lend Item', style: TextStyle(color: widget.accent)),
@@ -403,7 +409,7 @@ class _LoanCreateDialogState extends State<_LoanCreateDialog> {
     if (name.isEmpty) return;
     final loan = Loan(
       id: const Uuid().v4(),
-      ownedRef: widget.ownedRef,
+      libraryEntryRef: widget.libraryEntryRef,
       borrowerName: name,
       lentDate: _lentDate,
       dueDate: _dueDate,

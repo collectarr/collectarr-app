@@ -1,9 +1,10 @@
+import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/core/api/dto/media_catalog.dart';
 import 'package:collectarr_app/features/library/config/library_kind_style.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/home/home_nav_models.dart';
 import 'package:collectarr_app/features/library/providers/media_catalog_provider.dart';
 import 'package:collectarr_app/features/library/providers/library_nav_preferences.dart';
-import 'package:collectarr_app/features/library/v1/catalog_item_v1_kind_identities.dart';
 import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 import 'package:flutter/material.dart';
 
@@ -401,7 +402,7 @@ class _SettingsMiniStat extends StatelessWidget {
             const SizedBox(width: 6),
             Text(
               label,
-              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w800),
+              style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700),
             ),
           ],
         ),
@@ -419,11 +420,13 @@ List<CatalogMediaType> _orderedSettingsMediaTypes(
   };
   final topLevelByKind = {
     for (final type in catalog)
-      if (catalogItemV1KindIdentities.containsKey(type.mediaKind))
+      if (type.isTopLevel ||
+          defaultLibraryKindRegistry.tryGet(type.mediaKind) != null)
         type.kind: type,
   };
   final defaultKinds = [
-    for (final kind in catalogItemV1KindIdentities.keys) kind.apiValue,
+    for (final registration in defaultLibraryKindRegistry.allKinds)
+      registration.kind.apiValue,
   ];
   for (final kind in defaultKinds) {
     topLevelByKind.putIfAbsent(kind, () {
@@ -517,6 +520,7 @@ Future<Color?> _showLibraryAccentPickerDialog(
         builder: (context, setState) {
           color = current();
           return AccentAlertDialog(
+            headerIcon: AppIcons.palette,
             title: Text('Accent: $title'),
             content: SizedBox(
               width: 420,

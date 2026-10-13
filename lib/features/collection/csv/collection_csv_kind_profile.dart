@@ -1,10 +1,10 @@
 import 'package:collectarr_app/core/models/json_encodable.dart';
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/money.dart';
+import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_import_transport.dart';
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
-import 'package:collectarr_app/features/library/ownership/owned_import_transport.dart';
+import 'package:collectarr_app/features/library/entries/entry_import_transport.dart';
+import 'package:collectarr_app/features/library/entries/library_entry_record.dart';
 
 /// Structural cells contributed by a kind to the collection CSV host.
 ///
@@ -32,13 +32,13 @@ abstract interface class CollectionCsvKindProfile {
     List<String> catalogCells,
   );
 
-  /// Builds the kind-owned JSON payload at the CSV serialization boundary.
+  /// Builds the kind-entry JSON payload at the CSV serialization boundary.
   ///
   /// Collection does not inspect this map. It passes it immediately to the
   /// generated kind persistence dispatcher, which decodes it into the
-  /// concrete Owned aggregate and returns only a structural mutation result.
-  OwnedImportTransport ownedItemImportTransport(
-    CollectionCsvOwnedImport input,
+  /// concrete Entry aggregate and returns only a structural mutation result.
+  EntryImportTransport libraryEntryImportTransport(
+    CollectionCsvEntryImport input,
   );
 
   /// The complete CLZ header for a single-kind export.
@@ -57,68 +57,74 @@ abstract interface class CollectionCsvKindProfile {
     required List<String> values,
   });
 
-  List<String>? importOwnedCells({
+  List<String>? importEntryCells({
     required List<String> header,
     required List<String> values,
   });
 
   Map<String, List<String>> get columnAliases;
 
-  List<String> catalogCells(LibraryWorkspaceSource entry);
+  List<String> catalogCells(LibraryWorkspaceContext entry);
 
   /// Serializes the owning kind's collection-value column at the CSV boundary.
   ///
   /// The collection row intentionally has no canonical grade field. A kind
-  /// decides whether and how its Owned aggregate contributes this column.
-  String? ownedCollectionValue(LibraryWorkspaceSource entry);
+  /// decides whether and how its Entry aggregate contributes this column.
+  String? entryCollectionValue(LibraryWorkspaceContext entry);
 
-  /// Schema-v1 personal cells whose meaning is owned by the selected kind.
+  /// Schema-v1 personal cells whose meaning is entry by the selected kind.
   /// The Collection host only places these values in the wire row.
-  String? ownedCondition(LibraryWorkspaceSource entry);
+  String? entryCondition(LibraryWorkspaceContext entry);
 
-  int? ownedIndexNumber(LibraryWorkspaceSource entry);
+  int? entryIndexNumber(LibraryWorkspaceContext entry);
 
-  String? ownedTags(LibraryWorkspaceSource entry);
+  String? entryTags(LibraryWorkspaceContext entry);
 
-  List<String> ownedCellsBeforeQuantity(
-    LibraryWorkspaceSource entry, {
+  /// Kind-entry values positioned after price and before location in the
+  /// CLZ-friendly layout, such as a Comic cover price.
+  List<String> entryCellsBeforeLocation(
+    LibraryWorkspaceContext entry, {
     required bool clzFriendly,
   });
 
-  List<String> ownedCellsAfterIndex(
-    LibraryWorkspaceSource entry, {
+  List<String> entryCellsAfterIndex(
+    LibraryWorkspaceContext entry, {
     required bool clzFriendly,
   });
 }
 
 /// Values carried from the schema-v1 CSV boundary into one owning kind.
 ///
-/// This is an import command, not a common Owned domain model. It contains
+/// This is an import command, not a common Entry domain model. It contains
 /// only transport columns shared by the file format; the owning projection
-/// decides how they become its concrete Owned aggregate.
-final class CollectionCsvOwnedImport {
-  const CollectionCsvOwnedImport({
+/// decides how they become its concrete Entry aggregate.
+final class CollectionCsvEntryImport {
+  const CollectionCsvEntryImport({
     required this.id,
-    required this.catalogRef,
+    required this.kind,
+    this.sourceCatalogItemRef,
+    this.catalogData = const {},
     required this.now,
-    required this.kindOwnedCells,
+    required this.kindEntryCells,
     this.existingPayload,
     this.condition,
     this.purchaseDate,
     this.pricePaidCents,
     this.currency,
     this.personalNotes,
-    this.quantity = 1,
     this.locationId,
     this.indexNumber,
     this.tags,
     this.soldAt,
     this.sellPriceCents,
     this.soldTo,
+    this.quantity,
   });
 
   final String id;
-  final CatalogEntityRef catalogRef;
+  final CatalogMediaKind kind;
+  final CatalogItemRef? sourceCatalogItemRef;
+  final JsonMap catalogData;
   final DateTime now;
   final JsonMap? existingPayload;
   final String? condition;
@@ -126,93 +132,97 @@ final class CollectionCsvOwnedImport {
   final int? pricePaidCents;
   final String? currency;
   final String? personalNotes;
-  final int quantity;
   final String? locationId;
   final int? indexNumber;
   final String? tags;
   final DateTime? soldAt;
   final int? sellPriceCents;
   final String? soldTo;
-  final List<String> kindOwnedCells;
+  final int? quantity;
+  final List<String> kindEntryCells;
 }
 
-/// Optional kind-owned decoder for the positional owned cells emitted by a
+/// Optional kind-entry decoder for the positional entry cells emitted by a
 /// collection CSV projection.
 ///
 /// The Collection host may carry these cells through its row model, but it
 /// must not interpret their meaning. Kinds implement this contract next to
 /// their CSV profile.
-abstract interface class CollectionCsvOwnedCellsDecoder {
-  JsonEncodable? decodeOwnedCells(List<String> cells);
+abstract interface class CollectionCsvEntryCellsDecoder {
+  JsonEncodable? decodeEntryCells(List<String> cells);
 }
 
-/// Shared serialization-boundary mechanics for kind-owned CSV import.
+/// Shared serialization-boundary mechanics for kind-entry CSV import.
 ///
 /// The helper writes only schema-v1 personal columns. Concrete projections
-/// still choose the final Owned type and decode their own kind cells.
-mixin CollectionCsvKindOwnedImportSupport {
-  OwnedImportTransport ownedItemImportTransport(
-    CollectionCsvOwnedImport input,
+/// still choose the final Entry type and decode their own kind cells.
+mixin CollectionCsvKindEntryImportSupport {
+  EntryImportTransport libraryEntryImportTransport(
+    CollectionCsvEntryImport input,
   ) {
-    final payload = collectionCsvKindOwnedImportPayload(input);
-    final details = decodeOwnedCells(input.kindOwnedCells);
+    final payload = collectionCsvKindEntryImportPayload(input);
+    final details = decodeEntryCells(input.kindEntryCells);
     if (details != null) {
-      payload.addAll(details.toJson());
+      final personal = Map<String, dynamic>.from(
+        payload['personal_data'] as Map,
+      )..addAll(details.toJson());
+      payload['personal_data'] = personal;
     }
-    return OwnedImportTransport(
-      ref: OwnedItemRef(
-        kind: input.catalogRef.kind,
-        id: OwnedItemId(input.id),
+    return EntryImportTransport(
+      ref: LibraryEntryRef(
+        kind: input.kind,
+        id: LibraryEntryId(input.id),
       ),
-      catalogRef: input.catalogRef,
       payload: payload,
     );
   }
 
-  JsonEncodable? decodeOwnedCells(List<String> cells);
+  JsonEncodable? decodeEntryCells(List<String> cells);
 }
 
-Map<String, dynamic> collectionCsvKindOwnedImportPayload(
-  CollectionCsvOwnedImport input,
+Map<String, dynamic> collectionCsvKindEntryImportPayload(
+  CollectionCsvEntryImport input,
 ) {
-  final payload = input.existingPayload == null
-      ? <String, dynamic>{
-          'id': input.id,
-          'created_at': input.now.toUtc().toIso8601String(),
-          'quantity': input.quantity,
-        }
-      : Map<String, dynamic>.from(input.existingPayload!);
-
-  payload['catalog_ref'] = input.catalogRef.toJson();
-  payload['updated_at'] = input.now.toUtc().toIso8601String();
-  if (input.condition != null) payload['condition'] = input.condition;
+  final existing = input.existingPayload == null
+      ? null
+      : LibraryEntryRecord.fromJson(input.existingPayload!);
+  final personal =
+      Map<String, dynamic>.from(existing?.personalData ?? const {});
+  personal['created_at'] ??= input.now.toUtc().toIso8601String();
+  if (input.condition != null) personal['condition'] = input.condition;
   if (input.purchaseDate != null) {
-    payload['purchase_date'] = input.purchaseDate!.toUtc().toIso8601String();
+    personal['purchase_date'] = input.purchaseDate!.toUtc().toIso8601String();
   }
   if (input.pricePaidCents != null) {
-    payload['price_paid_cents'] = input.pricePaidCents;
+    personal['price_paid_cents'] = input.pricePaidCents;
   }
-  if (input.currency != null) payload['currency'] = input.currency;
+  if (input.currency != null) personal['currency'] = input.currency;
   if (input.personalNotes != null) {
-    payload['personal_notes'] = input.personalNotes;
+    personal['personal_notes'] = input.personalNotes;
   }
-  if (input.quantity != 1 || input.existingPayload == null) {
-    payload['quantity'] = input.quantity;
-  }
-  if (input.locationId != null) payload['location_id'] = input.locationId;
+  if (input.locationId != null) personal['location_id'] = input.locationId;
   if (input.indexNumber != null) {
-    payload['index_number'] = input.indexNumber;
+    personal['index_number'] = input.indexNumber;
   }
-  if (input.tags != null) payload['tags'] = input.tags;
+  if (input.tags != null) personal['tags'] = input.tags;
   if (input.soldAt != null) {
-    payload['sold_at'] = input.soldAt!.toUtc().toIso8601String();
+    personal['sold_at'] = input.soldAt!.toUtc().toIso8601String();
   }
   if (input.sellPriceCents != null) {
-    payload['sell_price_cents'] = input.sellPriceCents;
+    personal['sell_price_cents'] = input.sellPriceCents;
   }
-  if (input.soldTo != null) payload['sold_to'] = input.soldTo;
-  return payload;
+  if (input.soldTo != null) personal['sold_to'] = input.soldTo;
+  if (input.quantity != null) personal['quantity'] = input.quantity;
+  return {
+    'id': input.id,
+    'kind': input.kind.apiValue,
+    'catalog_data': input.catalogData,
+    'personal_data': personal,
+    'source_catalog_ref':
+        (existing?.sourceCatalogRef ?? input.sourceCatalogItemRef)?.toJson(),
+    'updated_at': input.now.toUtc().toIso8601String(),
+  };
 }
 
 const collectionCsvV1CatalogCellCount = 11;
-const collectionCsvV1OwnedCellCount = 9;
+const collectionCsvV1EntryCellCount = 9;

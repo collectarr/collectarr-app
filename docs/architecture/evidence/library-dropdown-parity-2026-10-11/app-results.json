@@ -1,0 +1,19 @@
+{
+  "checks": [
+    "status",
+    "more",
+    "layout",
+    "search-scope",
+    "sort-favorites",
+    "density",
+    "groups",
+    "tools",
+    "column-favorites",
+    "columns-1844",
+    "columns-1000",
+    "columns-700",
+    "columns-380",
+    "edit-status"
+  ],
+  "errors": []
+}

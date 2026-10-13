@@ -1,3 +1,4 @@
+import 'models/pick_list_value.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/features/pick_lists/pick_list_options.dart';
 import 'package:collectarr_app/features/pick_lists/pick_list_repository.dart';
@@ -40,8 +41,11 @@ class DatabaseVocabularyRepository implements VocabularyRepository {
       mediaKind: mediaKind,
     );
 
+    final hidden =
+        await _pickLists.hiddenValues(definition.key, mediaKind: mediaKind);
     final builtInStrings = definition.builtIns
         .map((item) => item.toString())
+        .where((value) => !hidden.contains(normalizePickListValue(value)))
         .toList(growable: false);
 
     return mergePickListValues(

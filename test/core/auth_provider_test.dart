@@ -264,7 +264,7 @@ class _RejectedLoginClient extends ApiClient {
 }
 
 DioException _authRejectedByServerReset() {
-  final requestOptions = RequestOptions(path: '/metadata/providers/search');
+  final requestOptions = RequestOptions(path: '/api/v1/search');
   return DioException(
     requestOptions: requestOptions,
     response: Response<Map<String, dynamic>>(
@@ -279,7 +279,7 @@ DioException _authRejectedByServerReset() {
 }
 
 DioException _missingBearerToken() {
-  final requestOptions = RequestOptions(path: '/metadata/providers/search');
+  final requestOptions = RequestOptions(path: '/api/v1/search');
   return DioException(
     requestOptions: requestOptions,
     response: Response<Map<String, dynamic>>(

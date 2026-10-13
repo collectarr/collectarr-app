@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_page_header.dart';
 import 'package:collectarr_app/core/models/activity_event.dart';
 import 'package:collectarr_app/features/activity/global_activity_provider.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
@@ -76,9 +77,7 @@ class _GlobalActivityPageState extends ConsumerState<GlobalActivityPage> {
     final asyncEntries = ref.watch(globalActivityProvider);
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Activity'),
-      ),
+      appBar: AppPageHeader(icon: Icons.history, title: const Text('Activity')),
       body: asyncEntries.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (error, _) => Center(

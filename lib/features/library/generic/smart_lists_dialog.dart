@@ -1,12 +1,15 @@
+import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/custom_field.dart';
-import 'package:collectarr_app/core/models/smart_list.dart';
+import 'package:collectarr_app/core/models/smart_list_criteria.dart';
 import 'package:collectarr_app/features/collection/repositories/smart_list_repository.dart';
-import 'package:collectarr_app/features/library/generic/filter_dialog.dart';
+import 'package:collectarr_app/features/library/generic/library_filters.dart';
 import 'package:collectarr_app/features/library/generic/quick_view.dart';
+import 'package:collectarr_app/features/library/generic/smart_list.dart';
+import 'package:collectarr_app/features/library/generic/smart_list_field_rules_dialog.dart';
 import 'package:collectarr_app/features/library/config/presentation/library_sort_presentation.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/ui/accent_alert_dialog.dart';
@@ -20,7 +23,7 @@ class SmartListLoadResult {
     this.sortColumn,
     this.sortAscending,
     this.searchQuery,
-    this.entityScope,
+    this.target,
   });
 
   final LibraryFilterSelection filterSelection;
@@ -29,7 +32,7 @@ class SmartListLoadResult {
   final String? sortColumn;
   final bool? sortAscending;
   final String? searchQuery;
-  final LibraryEntityScope? entityScope;
+  final SmartListCriteriaTarget? target;
 }
 
 /// Shows the smart lists dialog and returns a [SmartListLoadResult] if the user
@@ -37,15 +40,16 @@ class SmartListLoadResult {
 Future<SmartListLoadResult?> showSmartListsDialog({
   required BuildContext context,
   required LocalDatabase db,
-  String? mediaKind,
+  required String mediaKind,
   required LibraryFilterSelection currentFilter,
   LibraryQuickView? currentQuickView,
   List<LibrarySortRule>? currentSortRules,
   String? currentSortColumn,
   bool? currentSortAscending,
   String? currentSearchQuery,
-  LibraryEntityScope? currentEntityScope,
+  required SmartListCriteriaTarget currentTarget,
   List<CustomFieldDefinition> customFieldDefinitions = const [],
+  bool allowCurrentViewUpdate = true,
 }) {
   return showDialog<SmartListLoadResult>(
     context: context,
@@ -58,8 +62,9 @@ Future<SmartListLoadResult?> showSmartListsDialog({
       currentSortColumn: currentSortColumn,
       currentSortAscending: currentSortAscending,
       currentSearchQuery: currentSearchQuery,
-      currentEntityScope: currentEntityScope,
+      currentTarget: currentTarget,
       customFieldDefinitions: customFieldDefinitions,
+      allowCurrentViewUpdate: allowCurrentViewUpdate,
     ),
   );
 }
@@ -74,20 +79,22 @@ class _SmartListsDialog extends StatefulWidget {
     this.currentSortColumn,
     this.currentSortAscending,
     this.currentSearchQuery,
-    this.currentEntityScope,
+    required this.currentTarget,
     this.customFieldDefinitions = const [],
+    this.allowCurrentViewUpdate = true,
   });
 
   final LocalDatabase db;
-  final String? mediaKind;
+  final String mediaKind;
   final LibraryFilterSelection currentFilter;
   final LibraryQuickView? currentQuickView;
   final List<LibrarySortRule>? currentSortRules;
   final String? currentSortColumn;
   final bool? currentSortAscending;
   final String? currentSearchQuery;
-  final LibraryEntityScope? currentEntityScope;
+  final SmartListCriteriaTarget currentTarget;
   final List<CustomFieldDefinition> customFieldDefinitions;
+  final bool allowCurrentViewUpdate;
 
   @override
   State<_SmartListsDialog> createState() => _SmartListsDialogState();
@@ -106,7 +113,10 @@ class _SmartListsDialogState extends State<_SmartListsDialog> {
 
   Future<void> _load() async {
     final repo = SmartListRepository(widget.db);
-    final lists = await repo.getAll(mediaKind: widget.mediaKind);
+    final lists = await repo.getAll(
+      mediaKind: widget.mediaKind,
+      target: widget.currentTarget,
+    );
     if (mounted) {
       final currentSelection = _selectedListId;
       setState(() {
@@ -127,9 +137,60 @@ class _SmartListsDialogState extends State<_SmartListsDialog> {
     );
     if (name == null || name.isEmpty) return;
 
+    final kinds = await _chooseKinds({widget.mediaKind});
+    if (kinds == null || kinds.isEmpty) return;
+
     final repo = SmartListRepository(widget.db);
-    await repo.create(_currentViewSmartList(name: name));
+    await repo.create(_currentViewSmartList(name: name, kinds: kinds));
     await _load();
+  }
+
+  Future<Set<String>?> _chooseKinds(Set<String> initialKinds) {
+    final selectedKinds = Set<String>.of(initialKinds);
+    return showDialog<Set<String>>(
+      context: context,
+      builder: (dialogContext) => StatefulBuilder(
+        builder: (context, setDialogState) => AccentAlertDialog(
+          headerIcon: AppIcons.smartLists,
+          backgroundColor: appPalette(context).panel,
+          title: const Text('Smart List kinds'),
+          content: SizedBox(
+            width: 420,
+            child: Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                for (final kind in CatalogMediaKind.values)
+                  if (!kind.isUnknown)
+                    FilterChip(
+                      label: Text(kind.apiValue),
+                      selected: selectedKinds.contains(kind.apiValue),
+                      onSelected: (selected) => setDialogState(() {
+                        if (selected) {
+                          selectedKinds.add(kind.apiValue);
+                        } else {
+                          selectedKinds.remove(kind.apiValue);
+                        }
+                      }),
+                    ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(dialogContext),
+              child: const Text('Cancel'),
+            ),
+            FilledButton(
+              onPressed: selectedKinds.isEmpty
+                  ? null
+                  : () => Navigator.pop(dialogContext, selectedKinds),
+              child: const Text('Save'),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   Future<String?> _promptForName({
@@ -142,6 +203,7 @@ class _SmartListsDialogState extends State<_SmartListsDialog> {
     return showDialog<String>(
       context: context,
       builder: (ctx) => AccentAlertDialog(
+        headerIcon: AppIcons.smartLists,
         backgroundColor: appPalette(ctx).panel,
         title: Text(title),
         content: TextField(
@@ -166,17 +228,32 @@ class _SmartListsDialogState extends State<_SmartListsDialog> {
     );
   }
 
-  SmartList _currentViewSmartList({required String name, String? id}) {
+  SmartList _currentViewSmartList({
+    required String name,
+    String? id,
+    Set<String>? kinds,
+  }) {
     return SmartList(
       id: id ?? '',
       name: name,
-      mediaKind: widget.mediaKind,
-      entityScope: widget.currentEntityScope,
+      target: widget.currentTarget,
+      kinds: kinds == null
+          ? [widget.mediaKind]
+          : [
+              for (final kind in CatalogMediaKind.values)
+                if (kinds.contains(kind.apiValue)) kind.apiValue,
+            ],
       filterSelection: widget.currentFilter,
       quickView: widget.currentQuickView,
-      sortRules: widget.currentSortRules,
-      sortColumn: widget.currentSortColumn,
-      sortAscending: widget.currentSortAscending,
+      sortRules: widget.currentSortRules ??
+          (widget.currentSortColumn == null
+              ? null
+              : [
+                  LibrarySortRule(
+                    column: widget.currentSortColumn!,
+                    ascending: widget.currentSortAscending ?? true,
+                  ),
+                ]),
       searchQuery: widget.currentSearchQuery,
     );
   }
@@ -197,13 +274,62 @@ class _SmartListsDialogState extends State<_SmartListsDialog> {
       SmartList(
         id: list.id,
         name: name,
-        mediaKind: list.mediaKind,
-        entityScope: list.entityScope,
+        target: list.target,
+        kinds: list.kinds,
         filterSelection: list.filterSelection,
         quickView: list.quickView,
         sortRules: list.sortRules,
-        sortColumn: list.sortColumn,
-        sortAscending: list.sortAscending,
+        searchQuery: list.searchQuery,
+      ),
+    );
+    await _load();
+  }
+
+  Future<void> _editKinds(SmartList list) async {
+    final result = await _chooseKinds(list.kinds.toSet());
+    if (result == null || result.isEmpty) return;
+
+    await SmartListRepository(widget.db).update(
+      SmartList(
+        id: list.id,
+        name: list.name,
+        target: list.target,
+        kinds: [
+          for (final kind in CatalogMediaKind.values)
+            if (result.contains(kind.apiValue)) kind.apiValue,
+        ],
+        filterSelection: list.filterSelection,
+        quickView: list.quickView,
+        sortRules: list.sortRules,
+        searchQuery: list.searchQuery,
+      ),
+    );
+    await _load();
+  }
+
+  Future<void> _editFieldRules(SmartList list) async {
+    final kind = catalogMediaKindFromApiValue(widget.mediaKind);
+    if (kind.isUnknown) return;
+    final criteria = await showSmartListFieldRulesDialog(
+      context: context,
+      kind: kind,
+      target: list.target,
+      initial: list.filterSelection.fieldCriteria,
+      kinds: list.kinds,
+    );
+    if (criteria == null) return;
+    await SmartListRepository(widget.db).update(
+      SmartList(
+        id: list.id,
+        name: list.name,
+        target: list.target,
+        kinds: list.kinds,
+        filterSelection: list.filterSelection.copyWith(
+          fieldValues: const {},
+          fieldCriteria: criteria,
+        ),
+        quickView: list.quickView,
+        sortRules: list.sortRules,
         searchQuery: list.searchQuery,
       ),
     );
@@ -214,8 +340,9 @@ class _SmartListsDialogState extends State<_SmartListsDialog> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AccentAlertDialog(
+        headerIcon: AppIcons.smartLists,
         backgroundColor: appPalette(ctx).panel,
-        title: const Text('Overwrite Smart List'),
+        title: Text('Overwrite Smart List'),
         content: Text(
           'Replace "${list.name}" with the current filters, search, sort and quick view?',
         ),
@@ -236,7 +363,11 @@ class _SmartListsDialogState extends State<_SmartListsDialog> {
     }
 
     final repo = SmartListRepository(widget.db);
-    await repo.update(_currentViewSmartList(name: list.name, id: list.id));
+    await repo.update(_currentViewSmartList(
+      name: list.name,
+      id: list.id,
+      kinds: list.kinds.toSet(),
+    ));
     await _load();
   }
 
@@ -244,9 +375,12 @@ class _SmartListsDialogState extends State<_SmartListsDialog> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AccentAlertDialog(
+        headerIcon: AppIcons.delete,
         backgroundColor: appPalette(ctx).panel,
-        title: const Text('Delete Smart List'),
-        content: Text('Delete "${list.name}"?'),
+        title: Text('Delete Smart List'),
+        content: Text(
+          'Delete "${list.name}"?',
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
@@ -278,7 +412,7 @@ class _SmartListsDialogState extends State<_SmartListsDialog> {
         sortColumn: list.sortColumn,
         sortAscending: list.sortAscending,
         searchQuery: list.searchQuery,
-        entityScope: list.entityScope,
+        target: list.target,
       ),
     );
   }
@@ -304,9 +438,16 @@ class _SmartListsDialogState extends State<_SmartListsDialog> {
       backgroundColor: palette.panel,
       title: Row(
         children: [
-          const Icon(Icons.auto_awesome_mosaic, size: 20),
+          Icon(
+            AppIcons.smartLists,
+            size: 20,
+          ),
           const SizedBox(width: 8),
-          const Expanded(child: Text('Smart Lists')),
+          Expanded(
+            child: Text(
+              'Smart Lists',
+            ),
+          ),
           IconButton(
             icon: const Icon(Icons.add, size: 20),
             tooltip: 'Save current view as smart list',
@@ -416,6 +557,9 @@ class _SmartListsDialogState extends State<_SmartListsDialog> {
                                     widget.customFieldDefinitions,
                                 onLoad: () => _load_(selectedList),
                                 onRename: () => _rename(selectedList),
+                                onEditKinds: () => _editKinds(selectedList),
+                                onEditFieldRules: () =>
+                                    _editFieldRules(selectedList),
                                 onOverwriteFromCurrentView: () =>
                                     _overwriteFromCurrentView(selectedList),
                                 onDelete: () => _delete(selectedList),
@@ -457,6 +601,8 @@ class _SmartListDetailsPane extends StatelessWidget {
     required this.customFieldDefinitions,
     required this.onLoad,
     required this.onRename,
+    required this.onEditKinds,
+    required this.onEditFieldRules,
     required this.onOverwriteFromCurrentView,
     required this.onDelete,
   });
@@ -465,6 +611,8 @@ class _SmartListDetailsPane extends StatelessWidget {
   final List<CustomFieldDefinition> customFieldDefinitions;
   final VoidCallback onLoad;
   final Future<void> Function() onRename;
+  final Future<void> Function() onEditKinds;
+  final Future<void> Function() onEditFieldRules;
   final Future<void> Function() onOverwriteFromCurrentView;
   final Future<void> Function() onDelete;
 
@@ -518,8 +666,9 @@ class _SmartListDetailsPane extends StatelessWidget {
                         if (list.searchQuery != null &&
                             list.searchQuery!.isNotEmpty)
                           Chip(label: Text('Search: ${list.searchQuery!}')),
-                        if (list.mediaKind != null)
-                          Chip(label: Text('Kind: ${list.mediaKind!}')),
+                        Chip(label: Text('Target: ${list.target.value}')),
+                        for (final kind in list.kinds)
+                          Chip(label: Text('Kind: $kind')),
                       ],
                     ),
                     const SizedBox(height: 16),
@@ -562,6 +711,16 @@ class _SmartListDetailsPane extends StatelessWidget {
                   label: const Text('Rename'),
                 ),
                 OutlinedButton.icon(
+                  onPressed: () => onEditKinds(),
+                  icon: const Icon(Icons.category_outlined),
+                  label: const Text('Kinds'),
+                ),
+                OutlinedButton.icon(
+                  onPressed: () => onEditFieldRules(),
+                  icon: const Icon(Icons.rule_folder_outlined),
+                  label: const Text('Field rules'),
+                ),
+                OutlinedButton.icon(
                   onPressed: () => onOverwriteFromCurrentView(),
                   icon: const Icon(Icons.save_as_outlined),
                   label: const Text('Use current view'),
@@ -582,18 +741,20 @@ class _SmartListDetailsPane extends StatelessWidget {
   List<String> _criteriaChips(SmartList list) {
     final filter = list.filterSelection;
     return [
-      if (filter.ownershipFilter != LibraryOwnershipFilter.all)
-        'Ownership: ${libraryOwnershipFilterLabel(filter.ownershipFilter, mediaType: list.mediaKind)}',
+      if (filter.entriesFilter != LibraryEntryPolicyFilter.all)
+        'EntryPolicy: ${libraryEntryPolicyFilterLabel(filter.entriesFilter, mediaType: list.kinds.first)}',
       if (filter.trackingStatusFilter != LibraryTrackingStatusFilter.all)
-        'Tracking: ${libraryTrackingStatusFilterLabel(filter.trackingStatusFilter, mediaType: list.mediaKind)}',
+        'Tracking: ${libraryTrackingStatusFilterLabel(filter.trackingStatusFilter, mediaType: list.kinds.first)}',
       if (filter.loanStatusFilter != LibraryLoanStatusFilter.all)
-        'Loan: ${libraryLoanStatusFilterLabel(filter.loanStatusFilter, mediaType: list.mediaKind)}',
+        'Loan: ${libraryLoanStatusFilterLabel(filter.loanStatusFilter, mediaType: list.kinds.first)}',
       if (filter.hasActiveDateRange) 'Date: ${_dateRangeLabel(filter)}',
       if (filter.customFieldDefinitionId != null)
         'Custom: ${_customFieldChipLabel(filter)}',
       for (final entry in filter.fieldValues.entries)
         if (entry.value?.isNotEmpty == true)
           '${libraryFallbackLabelForId(entry.key)}: ${entry.value}',
+      for (final entry in filter.fieldCriteria.entries)
+        '${libraryFallbackLabelForId(entry.key)} ${_fieldCriterionLabel(entry.value)}',
       if (filter.missingCover) 'Missing cover',
       if (filter.missingMetadata) 'Missing metadata',
     ];
@@ -602,7 +763,7 @@ class _SmartListDetailsPane extends StatelessWidget {
   String _dateRangeLabel(LibraryFilterSelection filter) {
     final field = libraryDateRangeFieldLabel(
       filter.dateRangeField,
-      mediaType: list.mediaKind,
+      mediaType: list.kinds.first,
     );
     final from =
         filter.dateFrom == null ? null : _formatDateChip(filter.dateFrom!);
@@ -639,6 +800,14 @@ class _SmartListDetailsPane extends StatelessWidget {
     final day = local.day.toString().padLeft(2, '0');
     return '${local.year}-$month-$day';
   }
+
+  String _fieldCriterionLabel(SmartListFieldCriterion criterion) =>
+      switch (criterion.operator) {
+        SmartListFieldOperator.equals => '= ${criterion.value}',
+        SmartListFieldOperator.notEquals => '≠ ${criterion.value}',
+        SmartListFieldOperator.contains => 'contains "${criterion.value}"',
+        SmartListFieldOperator.isEmpty => 'is empty',
+      };
 }
 
 enum _SmartListAction {

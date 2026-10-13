@@ -1,12 +1,14 @@
+import 'package:collectarr_app/ui/app_icons.dart';
+import 'package:collectarr_app/features/library/ui/library_item_confirmation.dart';
+import 'package:collectarr_app/ui/theme/app_theme.dart';
+import 'package:collectarr_app/features/settings/ui_preferences.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_contributors.dart';
 import 'package:collectarr_app/features/library/config/library_search_target.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
-import 'package:collectarr_app/features/catalog/transport/catalog_snapshot_repository.dart';
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/core/models/tracking_summary.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
-import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
 import 'package:collectarr_app/features/collection/repositories/reading_queue_repository.dart';
 import 'package:collectarr_app/features/library/bundles/bundle_release_contents_section.dart';
 import 'package:collectarr_app/features/library/detail/library_detail_launcher.dart';
@@ -20,22 +22,20 @@ import 'package:collectarr_app/features/library/inspector/inspector_loan_section
 import 'package:collectarr_app/features/library/inspector/inspector_reading_queue_section.dart';
 import 'package:collectarr_app/features/library/details/library_detail_wiring.dart';
 import 'package:collectarr_app/features/library/sharing/collection_share_dialog.dart';
+import 'package:collectarr_app/features/library/collections/library_collection_repository.dart';
+import 'package:collectarr_app/features/library/collections/library_collections_dialog.dart';
+import 'package:collectarr_app/features/library/config/library_kind_style.dart';
 import 'package:collectarr_app/features/library/config/library_entry_helpers.dart';
-import 'package:collectarr_app/features/library/add/models/library_add_common_draft.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
-import 'package:collectarr_app/features/library/config/library_entity_action_capability.dart';
+import 'package:collectarr_app/features/collection/commands/library_entry_commands.dart';
+import 'package:collectarr_app/features/library/config/library_target_action_capability.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
-import 'package:collectarr_app/features/library/details/library_detail_section.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_tokens.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_workspace_release_summary.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/ui/library_dialog_scaffold.dart';
 import 'package:collectarr_app/ui/accent_alert_dialog.dart';
-import 'package:collectarr_app/ui/theme/app_theme.dart';
-import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:flutter/material.dart';
-import 'package:collectarr_app/ui/compact_search_dropdown_form_field.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class LibraryInspector extends ConsumerStatefulWidget {
@@ -44,14 +44,13 @@ class LibraryInspector extends ConsumerStatefulWidget {
     required this.type,
     required this.projection,
     required this.item,
-    required this.ownedItem,
-    this.ownedItemDispatch,
-    this.ownedCopies,
+    required this.libraryEntry,
+    this.libraryEntryDispatch,
     this.detailsLayout = LibraryDetailsLayout.hidden,
     this.densityPreset = LibraryWorkspaceDensityPreset.compact,
     required this.accent,
-    required this.onAddOwned,
-    required this.onRemoveOwned,
+    required this.onAddEntry,
+    required this.onRemoveEntry,
     required this.onAddWishlist,
     required this.onRemoveWishlist,
     required this.onEdit,
@@ -61,130 +60,88 @@ class LibraryInspector extends ConsumerStatefulWidget {
     this.searchTarget = LibrarySearchTarget.all,
     this.db,
     this.contextLabel,
+    this.fullscreen = false,
   });
 
   final LibraryKindRegistration type;
   final LibraryProjection projection;
   final LibraryProjectionView? item;
-  final OwnedItemSummary? ownedItem;
-  final LibraryOwnedItemDispatch? ownedItemDispatch;
-  final List<OwnedItemSummary>? ownedCopies;
+  final LibraryEntrySummary? libraryEntry;
+  final LibraryEntryDispatch? libraryEntryDispatch;
   final LibraryDetailsLayout detailsLayout;
   final LibraryWorkspaceDensityPreset densityPreset;
   final Color accent;
-  final VoidCallback? onAddOwned;
-  final VoidCallback? onRemoveOwned;
+  final VoidCallback? onAddEntry;
+  final VoidCallback? onRemoveEntry;
   final VoidCallback? onAddWishlist;
   final VoidCallback? onRemoveWishlist;
-  final void Function(OwnedItemSummary? ownedItem)? onEdit;
+  final void Function(LibraryEntrySummary? libraryEntry)? onEdit;
   final ValueChanged<LibraryDetailsLayout>? onDetailsLayoutChanged;
   final ValueChanged<String>? onFilterByValue;
   final String? searchQuery;
   final LibrarySearchTarget searchTarget;
   final LocalDatabase? db;
   final String? contextLabel;
+  final bool fullscreen;
 
   @override
   ConsumerState<LibraryInspector> createState() => _LibraryInspectorState();
 }
 
 class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
-  OwnedItemRef? _selectedOwnedItemRef;
-  bool _selectNewestOwnedItem = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _selectedOwnedItemRef = widget.ownedItem?.ref;
-  }
-
-  @override
-  void didUpdateWidget(covariant LibraryInspector oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (widget.item?.node.id != oldWidget.item?.node.id) {
-      _selectedOwnedItemRef = widget.ownedItem?.ref;
-      _selectNewestOwnedItem = false;
-      return;
-    }
-    if (widget.ownedItem?.ref != oldWidget.ownedItem?.ref &&
-        widget.ownedItem != null &&
-        _selectedOwnedItemRef == null) {
-      _selectedOwnedItemRef = widget.ownedItem!.ref;
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     final selected = widget.item;
     if (selected == null) {
       return EmptyInspector(type: widget.type, accent: widget.accent);
     }
-    final ownedItemDispatch =
-        widget.ownedItemDispatch ?? selected.source.ownedItemDispatch;
+    final libraryEntryDispatch =
+        widget.libraryEntryDispatch ?? selected.source.libraryEntryDispatch;
     // Mixed inspector state carries only the structural summary. Concrete
-    // kind-owned data remains available through ownedItemDispatch after dispatch.
-    final ownedCopies = widget.ownedCopies ??
-        (widget.ownedItem == null
-            ? const <OwnedItemSummary>[]
-            : <OwnedItemSummary>[widget.ownedItem!]);
-    final ownedSummaryResolution = resolveActiveOwnedSummary(
-      ownedCopies,
-      fallback: widget.ownedItem,
-      selectedOwnedItemRef: _selectedOwnedItemRef,
-      selectNewest: _selectNewestOwnedItem,
-    );
-    final activeOwnedItem = ownedSummaryResolution.ownedItem;
-    if (ownedSummaryResolution.nextSelectedOwnedItemRef != null &&
-        (ownedSummaryResolution.nextSelectedOwnedItemRef !=
-                _selectedOwnedItemRef ||
-            (ownedSummaryResolution.clearNewest && _selectNewestOwnedItem))) {
-      _scheduleOwnedCopySelection(
-        ownedSummaryResolution.nextSelectedOwnedItemRef!,
-        clearNewest: ownedSummaryResolution.clearNewest,
-      );
-    }
+    // kind-entry data remains available through libraryEntryDispatch after dispatch.
+    final activeLibraryEntry =
+        widget.libraryEntry ?? selected.source.libraryEntrySummary;
+    final libraryEntries = activeLibraryEntry == null
+        ? const <LibraryEntrySummary>[]
+        : <LibraryEntrySummary>[activeLibraryEntry];
     final activeTrackingSummary = resolveActiveTrackingSummary(
       libraryTrackingSummariesForItem(
-        widget.type,
         selected,
-        ref.watch(trackingSummariesByCatalogRefProvider),
-        ownedItem: activeOwnedItem,
+        ref.watch(trackingSummariesByLibraryEntryRefProvider),
+        libraryEntry: activeLibraryEntry,
       ),
-      activeOwnedItem,
+      activeLibraryEntry,
     );
-    final canCreateCopy = libraryOwnershipForKind(widget.type.kind)
-        .canCreateCopyAt(selected.node);
-    final onToggleOwned = selected.source.isOwned
-        ? activeOwnedItem == null
-            ? widget.onRemoveOwned
-            : () => _removeOwnedCopy(activeOwnedItem)
-        : !canCreateCopy
+    final canAddEntry = libraryEntryPolicyForKind(widget.type.kind)
+        .canCreateCopyAt(selected.target);
+    final onToggleEntry = selected.source.isEntry
+        ? widget.onRemoveEntry ??
+            (activeLibraryEntry == null
+                ? null
+                : () => _removeLibraryEntry(activeLibraryEntry))
+        : !canAddEntry
             ? null
-            : widget.onAddOwned;
+            : widget.onAddEntry;
     final onToggleWishlist = selected.source.isWishlisted
         ? widget.onRemoveWishlist
         : widget.onAddWishlist;
     final onEdit =
-        widget.onEdit == null ? null : () => widget.onEdit!(activeOwnedItem);
-    final onDuplicate = activeOwnedItem == null
+        widget.onEdit == null ? null : () => widget.onEdit!(activeLibraryEntry);
+    final onDuplicate = activeLibraryEntry == null
         ? null
-        : () => _duplicateOwnedCopy(selected, activeOwnedItem);
-    final onLoan = activeOwnedItem == null || widget.db == null
+        : () => _duplicateLibraryEntry(selected, activeLibraryEntry);
+    final onLoan = activeLibraryEntry == null || widget.db == null
         ? null
-        : () => _showOwnedSectionDialog(
+        : () => _showEntrySectionDialog(
               context,
               title: 'Loans',
               child: InspectorLoanSection(
-                ownedRef: activeOwnedItem.ref,
+                libraryEntryRef: activeLibraryEntry.ref,
                 db: widget.db!,
                 accent: widget.accent,
               ),
             );
-    final onRefreshMetadata = libraryMetadataForKind(widget.type.kind)
-            .supportedProvidersForKind(widget.type.kind)
-            .isEmpty
-        ? null
-        : () => _refreshSelectedEntryMetadata(selected);
+    void onRefreshMetadata() => _refreshSelectedEntryMetadata(selected);
     void onShare() => _shareInspectorEntry(selected);
     late final LibraryItemActions scopedActions;
     void onOpenDetails() {
@@ -193,8 +150,11 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
         request: LibraryDetailPageRequest(
           type: widget.type,
           item: selected,
-          ownedSummary: ownedSummaryResolution.ownedItem,
-          ownedItemDispatch: ownedItemDispatch,
+          projection: widget.projection,
+          searchQuery: widget.searchQuery,
+          searchTarget: widget.searchTarget,
+          libraryEntrySummary: activeLibraryEntry,
+          libraryEntryDispatch: libraryEntryDispatch,
           accent: widget.accent,
           actions: scopedActions,
           onFilterByValue: widget.onFilterByValue,
@@ -202,51 +162,41 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
       );
     }
 
-    final addCopy = !canCreateCopy
-        ? null
-        : () => _addOwnedCopy(
-              selected,
-              ownedItem: activeOwnedItem,
-            );
-    final actionRegistry = libraryEntityActionsForKind(widget.type.kind).build(
-      LibraryEntityActionContext(
+    scopedActions = libraryEntityActionsForKind(widget.type.kind).build(
+      LibraryTargetActionContext(
         type: widget.type,
         buildContext: context,
         projection: widget.projection,
         item: selected,
-        ownedItem: activeOwnedItem,
-        ownedCopies: ownedCopies,
-        onAddCopy: addCopy,
-        onOpenDetails: onOpenDetails,
-        onSelectOwnedItem: (ref) => setState(() => _selectedOwnedItemRef = ref),
-        onToggleOwned: onToggleOwned,
+        libraryEntry: activeLibraryEntry,
+        onOpenDetails: widget.fullscreen ? null : onOpenDetails,
+        onToggleEntry: onToggleEntry,
         onToggleWishlist: onToggleWishlist,
         onEdit: onEdit,
         onDuplicate: onDuplicate,
         onLoan: onLoan,
         onRefreshMetadata: onRefreshMetadata,
         onShare: onShare,
-        onUnlinkFromCore: null,
+        onUnlinkFromCore: activeLibraryEntry?.sourceCatalogRef == null
+            ? null
+            : () => _unlinkFromCore(activeLibraryEntry!),
         accent: widget.accent,
       ),
     );
-    final resolvedActions = actionRegistry.actionsForScope(selected.node.scope);
-    scopedActions = resolvedActions;
-
     return _buildContent(
       context,
       ref,
       selected,
-      activeOwnedItem,
-      ownedCopies,
+      activeLibraryEntry,
+      libraryEntries,
       activeTrackingSummary,
       LibraryInspectorRequest(
         type: widget.type,
         item: selected,
-        ownedItem: activeOwnedItem,
-        ownedItemDispatch: ownedItemDispatch,
+        libraryEntry: activeLibraryEntry,
+        libraryEntryDispatch: libraryEntryDispatch,
         onEdit: scopedActions.onEdit,
-        ownedCopies: ownedCopies,
+        libraryEntries: libraryEntries,
         trackingSummary: activeTrackingSummary,
         accent: widget.accent,
         detailsLayout: widget.detailsLayout,
@@ -265,8 +215,8 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
     BuildContext context,
     WidgetRef ref,
     LibraryProjectionView selected,
-    OwnedItemSummary? activeOwnedItem,
-    List<OwnedItemSummary> ownedCopies,
+    LibraryEntrySummary? activeLibraryEntry,
+    List<LibraryEntrySummary> libraryEntries,
     TrackingSummary? activeTrackingSummary,
     LibraryInspectorRequest inspectorRequest, {
     required bool usesCustomInspectorPanel,
@@ -277,14 +227,14 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
     final registration = widget.type;
     final inspectorCapability = libraryInspectorForKind(registration.kind);
     final hero =
-        inspectorCapability.heroBuilderForScope(selected.node.scope)?.call(
+        inspectorCapability.heroBuilderForTarget(selected.target)?.call(
                   context,
                   inspectorRequest,
                 ) ??
             InspectorHero(
               type: widget.type,
               item: selected,
-              ownedItem: activeOwnedItem,
+              libraryEntry: activeLibraryEntry,
               accent: widget.accent,
               contextLabel: widget.contextLabel,
             );
@@ -302,31 +252,6 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
               onFilterByValue: widget.onFilterByValue,
             ),
           ];
-    Widget? ownedCopiesSection;
-    if (ownedCopies.isNotEmpty) {
-      ownedCopiesSection = _InspectorOwnedCopiesSection(
-        copies: ownedCopies,
-        releases: libraryPresentationForKind(widget.type.kind)
-            .builder
-            .buildWorkspaceReleases(
-              selected.source,
-            ),
-        collectionValueReader:
-            libraryOwnedEditForKind(widget.type.kind).readOwnedCollectionValue,
-        ownedItemDispatch: inspectorRequest.ownedItemDispatch,
-        selectedOwnedItemRef: activeOwnedItem?.ref,
-        accent: widget.accent,
-        onAddCopy: entityActions.onAddCopy,
-        onSelected:
-            ownedCopies.length < 2 || entityActions.onSelectOwnedItem == null
-                ? null
-                : (ref) {
-                    if (ref != null) {
-                      entityActions.onSelectOwnedItem!(ref);
-                    }
-                  },
-      );
-    }
     final bundleSection = activeBundleReleaseId == null
         ? null
         : BundleReleaseContentsSection(
@@ -334,9 +259,9 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
             accent: widget.accent,
           );
     final trailingSections = <Widget>[
-      if (activeOwnedItem != null && widget.db != null)
+      if (activeLibraryEntry != null && widget.db != null)
         InspectorCustomFieldsSection(
-          ownedRef: activeOwnedItem.ref,
+          libraryEntryRef: activeLibraryEntry.ref,
           db: widget.db!,
           accent: widget.accent,
           onFilterByValue: widget.onFilterByValue,
@@ -345,17 +270,17 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
         InspectorPersonalSection(
           type: widget.type,
           item: selected,
-          ownedItem: activeOwnedItem,
-          ownedItemDispatch: inspectorRequest.ownedItemDispatch,
+          libraryEntry: activeLibraryEntry,
+          libraryEntryDispatch: inspectorRequest.libraryEntryDispatch,
           trackingSummary: activeTrackingSummary,
           accent: widget.accent,
           onFilterByValue: widget.onFilterByValue,
         ),
-      if (activeOwnedItem != null &&
+      if (activeLibraryEntry != null &&
           widget.db != null &&
-          libraryInspectorForKind(widget.type.kind).supportsOwnedItemImages)
+          libraryInspectorForKind(widget.type.kind).supportsLibraryEntryImages)
         InspectorItemImagesSection(
-          ownedRef: activeOwnedItem.ref,
+          libraryEntryRef: activeLibraryEntry.ref,
           db: widget.db!,
           accent: widget.accent,
         ),
@@ -364,70 +289,128 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
               type: widget.type,
               item: selected,
               accent: widget.accent,
-              ownedItem: activeOwnedItem,
+              libraryEntry: activeLibraryEntry,
               trackingSummary: activeTrackingSummary,
             )
           : null),
     ];
-    final palette = appPalette(context);
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: palette.panel,
-        border: Border(
-          left: BorderSide(color: palette.divider),
-        ),
-      ),
-      child: ListView(
-        padding: const EdgeInsets.fromLTRB(8, 0, 8, 12),
-        children: [
-          InspectorUnifiedToolbar(
-            item: selected,
-            onEdit: entityActions.onEdit,
-            onShare: entityActions.onShare,
-            onDuplicate: entityActions.onDuplicate,
-            onToggleOwned: entityActions.onToggleOwned,
-            onLoan: entityActions.onLoan,
-            onRefreshMetadata: entityActions.onRefreshMetadata,
-            onDetailsLayoutChanged: widget.onDetailsLayoutChanged,
-            detailsLayout: widget.detailsLayout,
-          ),
-          SizedBox(height: density.inspectorOuterGap),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 4),
-            child: Column(
-              children: [
-                hero,
-                SizedBox(height: density.inspectorOuterGap),
-                if (!usesCustomInspectorPanel)
-                  InspectorActionBar(
-                    type: widget.type,
+    final preferences = ref.watch(uiPreferencesProvider);
+    final template =
+        detailsPanelPalette(context, preferences.detailsPanelTemplate)
+            .copyWith(accent: widget.accent);
+    return Theme(
+      data: buildLibraryTheme(palette: template),
+      child: Builder(
+          builder: (context) => ColoredBox(
+                color: widget.fullscreen
+                    ? appManagementCanvasColor(context)
+                    : preferences.detailsPanelTemplate ==
+                            DetailsPanelTemplate.blue
+                        ? template.panel
+                        : libraryWorkspaceBackgroundColor(context),
+                child: Column(children: [
+                  InspectorUnifiedToolbar(
                     item: selected,
-                    onToggleOwned: entityActions.onToggleOwned,
-                    onToggleWishlist: entityActions.onToggleWishlist,
+                    contentMaxWidth: widget.fullscreen ? 960 : null,
+                    includeLayoutControl: !widget.fullscreen ||
+                        widget.onDetailsLayoutChanged != null,
+                    accent: widget.accent,
                     onEdit: entityActions.onEdit,
-                    onOpenDetails: entityActions.onOpenDetails ?? () {},
-                    semanticActions: entityActions.semanticActions,
+                    onShare: entityActions.onShare,
+                    onMoveToCollection:
+                        activeLibraryEntry == null || widget.db == null
+                            ? null
+                            : () => _moveToCollection(activeLibraryEntry),
+                    onUnlinkFromCore: entityActions.onUnlinkFromCore,
+                    onDuplicate: entityActions.onDuplicate,
+                    onToggleEntry: entityActions.onToggleEntry,
+                    onLoan: entityActions.onLoan,
+                    onRefreshMetadata: entityActions.onRefreshMetadata,
+                    onDetailsLayoutChanged: widget.onDetailsLayoutChanged,
+                    detailsLayout: widget.detailsLayout,
                   ),
-              ],
-            ),
-          ),
-          if (ownedCopies.isNotEmpty) ...[
-            SizedBox(height: density.inspectorOuterGap),
-            ownedCopiesSection!,
-          ],
-          if (activeBundleReleaseId != null) ...[
-            SizedBox(height: density.inspectorOuterGap),
-            bundleSection!,
-          ],
-          SizedBox(height: density.inspectorOuterGap),
-          ...effectivePrimarySections,
-          ...trailingSections,
-        ],
-      ),
+                  Expanded(
+                      child: Align(
+                          alignment: Alignment.topCenter,
+                          child: ConstrainedBox(
+                              constraints: BoxConstraints(
+                                  maxWidth: widget.fullscreen
+                                      ? 960
+                                      : double.infinity),
+                              child: ColoredBox(
+                                  color:
+                                      libraryWorkspaceBackgroundColor(context),
+                                  child: Stack(fit: StackFit.expand, children: [
+                                    if (preferences.showInspectorBackdrop)
+                                      ExcludeSemantics(
+                                          child: IgnorePointer(
+                                              child: InspectorBackdrop(
+                                                  item: selected,
+                                                  libraryEntry:
+                                                      activeLibraryEntry,
+                                                  backgroundColor: preferences
+                                                              .detailsPanelTemplate ==
+                                                          DetailsPanelTemplate
+                                                              .blue
+                                                      ? template.panel
+                                                      : null))),
+                                    ListView(
+                                      padding: const EdgeInsets.fromLTRB(
+                                          8, 0, 8, 12),
+                                      children: [
+                                        SizedBox(
+                                            height: density.inspectorOuterGap),
+                                        Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                              horizontal: 4),
+                                          child: Column(
+                                            children: [
+                                              hero,
+                                              SizedBox(
+                                                  height: density
+                                                      .inspectorOuterGap),
+                                              if (!usesCustomInspectorPanel &&
+                                                  inspectorCapability
+                                                      .showsActionBar)
+                                                InspectorActionBar(
+                                                  type: widget.type,
+                                                  item: selected,
+                                                  onToggleEntry: entityActions
+                                                      .onToggleEntry,
+                                                  onToggleWishlist:
+                                                      entityActions
+                                                          .onToggleWishlist,
+                                                  onEdit: entityActions.onEdit,
+                                                  onOpenDetails: entityActions
+                                                          .onOpenDetails ??
+                                                      () {},
+                                                  semanticActions: entityActions
+                                                      .semanticActions,
+                                                ),
+                                            ],
+                                          ),
+                                        ),
+                                        if (activeBundleReleaseId != null) ...[
+                                          SizedBox(
+                                              height:
+                                                  density.inspectorOuterGap),
+                                          bundleSection!,
+                                        ],
+                                        SizedBox(
+                                            height: density.inspectorOuterGap),
+                                        ...effectivePrimarySections,
+                                        InspectorEbayLinksSection(
+                                            item: selected),
+                                        ...trailingSections,
+                                      ],
+                                    ),
+                                  ]))))),
+                ]),
+              )),
     );
   }
 
-  Future<void> _showOwnedSectionDialog(
+  Future<void> _showEntrySectionDialog(
     BuildContext context, {
     required String title,
     required Widget child,
@@ -435,6 +418,7 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
     return showDialog<void>(
       context: context,
       builder: (context) => LibraryDialogScaffold(
+        headerIcon: AppIcons.tabDetails,
         title: Text(
           title,
         ),
@@ -444,98 +428,48 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
     );
   }
 
-  void _scheduleOwnedCopySelection(
-    OwnedItemRef ownedItemRef, {
-    bool clearNewest = true,
-  }) {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted) {
-        return;
-      }
-      setState(() {
-        _selectedOwnedItemRef = ownedItemRef;
-        if (clearNewest) {
-          _selectNewestOwnedItem = false;
-        }
-      });
-    });
-  }
-
-  Future<void> _addOwnedCopy(
-    LibraryProjectionView item, {
-    OwnedItemSummary? ownedItem,
-  }) async {
-    if (!libraryOwnershipForKind(widget.type.kind).canCreateCopyAt(item.node)) {
-      return;
-    }
-    final catalogRef = item.source.catalogRef;
-    if (catalogRef == null) {
-      return;
-    }
-    final catalogItem = await CatalogSnapshotRepository(
-      widget.db ?? ref.read(localDatabaseProvider),
-    ).findCandidateByRef(catalogRef.rootScope);
-    if (catalogItem == null) {
-      return;
-    }
-    await ref.read(collectionCommandCoordinatorProvider).addOwnedItem(
-          libraryAddForKind(widget.type.kind).buildCommand(
-            catalogItem,
-            const LibraryAddCommonDraft(),
-            libraryAddForKind(widget.type.kind).createInitialDraft(),
-            targetRef: ownedItem?.targetRef ??
-                ownedItem?.catalogRef ??
-                libraryTrackingTargetForItem(widget.type, item) ??
-                catalogItem.reference,
-          ),
-        );
+  Future<void> _removeLibraryEntry(LibraryEntrySummary item) async {
+    await ref.read(libraryEntryMutationsProvider).removeItem(item.ref);
     if (!mounted) {
       return;
     }
-    setState(() {
-      _selectedOwnedItemRef = null;
-      _selectNewestOwnedItem = true;
-    });
+    setState(() {});
   }
 
-  Future<void> _removeOwnedCopy(OwnedItemSummary item) async {
-    await ref.read(ownedItemMutationsProvider).removeItem(item.ref);
-    if (!mounted) {
-      return;
-    }
-    setState(() {
-      if (_selectedOwnedItemRef == item.ref) {
-        _selectedOwnedItemRef = null;
-      }
-      _selectNewestOwnedItem = false;
-    });
-  }
-
-  Future<void> _duplicateOwnedCopy(
+  Future<void> _duplicateLibraryEntry(
     LibraryProjectionView item,
-    OwnedItemSummary ownedItem,
+    LibraryEntrySummary libraryEntry,
   ) async {
-    final duplicated = await ref.read(ownedItemMutationsProvider).duplicateItem(
-          ownedItem.ref,
-          targetRef: ownedItem.catalogRef,
-          tracking: OwnedItemTrackingDraft(
-            status: item.source.trackingSummary?.status,
-            rating: item.source.trackingSummary?.rating,
-            startedAt: item.source.trackingSummary?.startedAt,
-            finishedAt: item.source.trackingSummary?.completedAt,
-            notes: item.source.trackingSummary?.notes,
-          ),
-        );
+    if (ref.read(uiPreferencesProvider).confirmDuplication &&
+        !await confirmLibraryDuplication(context, 1)) {
+      return;
+    }
+    if (!mounted) return;
+    final trackingSummary = item.source.trackingSummary;
+    final duplicated =
+        await ref.read(libraryEntryMutationsProvider).duplicateItem(
+              libraryEntry.ref,
+              tracking: trackingSummary == null
+                  ? null
+                  : LibraryEntryTrackingDraft(
+                      status: trackingSummary.status,
+                      sourceType: trackingSummary.sourceType,
+                      rating: trackingSummary.rating,
+                      startedAt: trackingSummary.startedAt,
+                      finishedAt: trackingSummary.completedAt,
+                      notes: trackingSummary.notes,
+                      progressCurrent: trackingSummary.progress.current,
+                      progressTotal: trackingSummary.progress.total,
+                      timesCompleted: trackingSummary.progress.timesCompleted,
+                    ),
+            );
     if (duplicated == null) {
       return;
     }
     if (!mounted) {
       return;
     }
-    setState(() {
-      _selectedOwnedItemRef = null;
-      _selectNewestOwnedItem = true;
-    });
+    setState(() {});
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text('Duplicated "${item.dto.primaryLabel}"')),
     );
@@ -567,108 +501,60 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
       context: context,
       title: item.dto.primaryLabel,
       items: <LibraryProjectionView>[item],
+      accent: widget.accent,
     );
   }
-}
 
-class _InspectorOwnedCopiesSection extends StatelessWidget {
-  const _InspectorOwnedCopiesSection({
-    required this.copies,
-    required this.releases,
-    required this.collectionValueReader,
-    required this.ownedItemDispatch,
-    required this.selectedOwnedItemRef,
-    required this.accent,
-    required this.onAddCopy,
-    this.onSelected,
-  });
-
-  final List<OwnedItemSummary> copies;
-  final List<LibraryWorkspaceReleaseSummary> releases;
-  final String? Function(LibraryOwnedItemDispatch?) collectionValueReader;
-  final LibraryOwnedItemDispatch? ownedItemDispatch;
-  final OwnedItemRef? selectedOwnedItemRef;
-  final Color accent;
-  final VoidCallback? onAddCopy;
-  final ValueChanged<OwnedItemRef?>? onSelected;
-
-  @override
-  Widget build(BuildContext context) {
-    return LibraryDetailSection(
-      title: copies.length == 1 ? 'Copy' : 'Copies',
-      accentColor: accent,
-      children: [
-        Row(
-          children: [
-            Expanded(
-              child: copies.length < 2
-                  ? Text(
-                      '1 copy in collection',
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            color: Colors.white,
-                            fontWeight: FontWeight.w700,
-                          ),
-                    )
-                  : CompactSearchDropdownFormField<OwnedItemRef>(
-                      initialValue: selectedOwnedItemRef,
-                      isExpanded: true,
-                      decoration: const InputDecoration(
-                        labelText: 'Active copy',
-                      ),
-                      items: [
-                        for (var index = 0; index < copies.length; index += 1)
-                          DropdownMenuItem<OwnedItemRef>(
-                            value: copies[index].ref,
-                            child: Text(
-                              buildOwnedCopyLabelFromWorkspaceReleases(
-                                    copies[index],
-                                    releases,
-                                    index,
-                                    collectionValue: collectionValueReader(
-                                        ownedItemDispatch),
-                                  ) ??
-                                  'Copy ${index + 1}',
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                      ],
-                      onChanged: onSelected,
-                    ),
-            ),
-            if (onAddCopy != null) ...[
-              const SizedBox(width: 8),
-              OutlinedButton.icon(
-                onPressed: onAddCopy,
-                icon: const Icon(Icons.copy_all_outlined),
-                label: const Text('Add copy'),
-              ),
-            ],
-          ],
-        ),
-        if (copies.length > 1) ...[
-          const SizedBox(height: 8),
-          Text(
-            '${copies.length} copies in collection',
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: appPalette(context).textMuted,
-                  fontWeight: FontWeight.w600,
-                ),
-          ),
-        ],
-      ],
+  Future<void> _moveToCollection(LibraryEntrySummary entry) async {
+    final db = widget.db!;
+    final repository = LibraryCollectionRepository(db);
+    final collections = await repository.watch(entry.ref.kind.apiValue).first;
+    if (!mounted) return;
+    final destination = await chooseLibraryCollection(
+      context,
+      db: db,
+      kind: entry.ref.kind.apiValue,
+      excluding: collections
+          .where((c) => c.entryIds.contains(entry.ref.id.value))
+          .firstOrNull
+          ?.id,
     );
+    if (destination == null) return;
+    await repository.move([entry.ref], destination);
+  }
+
+  Future<void> _unlinkFromCore(LibraryEntrySummary entry) async {
+    final confirmed = await showDialog<bool>(
+        context: context,
+        builder: (context) => Theme(
+            data: libraryAccentTheme(context, widget.accent),
+            child: AccentAlertDialog(
+              headerIcon: AppIcons.tabDetails,
+              title: const Text('Unlink from Core'),
+              content: const Text(
+                  'Keep this item and all local data, and remove its link to Core?'),
+              actions: [
+                TextButton(
+                    onPressed: () => Navigator.pop(context, false),
+                    child: const Text('Cancel')),
+                FilledButton(
+                    onPressed: () => Navigator.pop(context, true),
+                    child: const Text('Unlink')),
+              ],
+            )));
+    if (confirmed != true || !mounted) return;
+    await ref.read(libraryEntryMutationsProvider).unlinkFromCore(entry.ref);
   }
 }
 
 class _InspectorReadingQueueActionButton extends StatefulWidget {
   const _InspectorReadingQueueActionButton({
-    required this.ownedRef,
+    required this.libraryEntryRef,
     required this.db,
     required this.accent,
   });
 
-  final OwnedItemRef ownedRef;
+  final LibraryEntryRef libraryEntryRef;
   final LocalDatabase db;
   final Color accent;
 
@@ -691,7 +577,7 @@ class _InspectorReadingQueueActionButtonState
 
   Future<void> _load() async {
     final queue = await ReadingQueueRepository(widget.db).getQueue();
-    final index = queue.indexOf(widget.ownedRef);
+    final index = queue.indexOf(widget.libraryEntryRef);
     if (!mounted) {
       return;
     }
@@ -706,11 +592,12 @@ class _InspectorReadingQueueActionButtonState
     await showDialog<void>(
       context: context,
       builder: (context) => AccentAlertDialog(
+        headerIcon: AppIcons.readingQueue,
         title: const Text('Reading Queue'),
         content: SizedBox(
           width: 360,
           child: InspectorReadingQueueSection(
-            ownedRef: widget.ownedRef,
+            libraryEntryRef: widget.libraryEntryRef,
             db: widget.db,
             accent: widget.accent,
           ),

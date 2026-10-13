@@ -1,11 +1,27 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
-import 'package:collectarr_app/features/library/v1/catalog_item_v1_kind_identities.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/providers/library_nav_preferences.dart';
 import 'package:collectarr_app/ui/library_accent_scope.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
 const Color kLibraryFallbackAccent = kAppAccent;
+
+ThemeData libraryAccentTheme(BuildContext context, Color accent) {
+  final theme = Theme.of(context);
+  final palette = appPalette(context);
+  return theme.copyWith(
+    colorScheme: theme.colorScheme
+        .copyWith(primary: accent, onPrimary: appContrastingTextColor(accent)),
+    extensions: [
+      ...theme.extensions.values.where((value) => value is! AppThemePalette),
+      palette.copyWith(
+          accent: accent,
+          selection:
+              Color.alphaBlend(accent.withValues(alpha: 0.22), palette.panel)),
+    ],
+  );
+}
 
 Color libraryAccentForKind(CatalogMediaKind kind) {
   if (cachedLibraryAccentHexForKind(kind) case final accentHex?) {
@@ -15,7 +31,7 @@ Color libraryAccentForKind(CatalogMediaKind kind) {
 }
 
 Color libraryDefaultAccentForKind(CatalogMediaKind kind) {
-  return catalogItemV1IdentityForKind(kind).accent;
+  return libraryKindRegistrationForKind(kind).identity.accent;
 }
 
 LinearGradient libraryChromeGradient(
@@ -57,23 +73,19 @@ Color libraryChromeBorderColor(
   );
 }
 
-class AnimatedLibraryChromeGradient extends StatelessWidget {
-  const AnimatedLibraryChromeGradient({
+class AnimatedLibraryChrome extends StatelessWidget {
+  const AnimatedLibraryChrome({
     super.key,
     required this.accent,
     required this.child,
     this.duration,
     this.curve = Curves.easeOutCubic,
-    this.begin = Alignment.topLeft,
-    this.end = Alignment.bottomRight,
     this.borderBuilder,
   });
 
   final Color accent;
   final Duration? duration;
   final Curve curve;
-  final AlignmentGeometry begin;
-  final AlignmentGeometry end;
   final Widget child;
   final BoxBorder Function(Color animatedAccent, Brightness brightness)?
       borderBuilder;
@@ -92,12 +104,8 @@ class AnimatedLibraryChromeGradient extends StatelessWidget {
         final palette = appPalette(context);
         return DecoratedBox(
           decoration: BoxDecoration(
-            gradient: libraryChromeGradient(
-              animatedAccent,
-              brightness: palette.brightness,
-              begin: begin,
-              end: end,
-            ),
+            gradient: libraryChromeGradient(animatedAccent,
+                brightness: palette.brightness),
             border: borderBuilder?.call(animatedAccent, palette.brightness),
           ),
           child: child,
@@ -108,5 +116,5 @@ class AnimatedLibraryChromeGradient extends StatelessWidget {
 }
 
 IconData libraryIconForKind(CatalogMediaKind kind) {
-  return catalogItemV1IdentityForKind(kind).icon;
+  return libraryKindRegistrationForKind(kind).identity.icon;
 }

@@ -11,7 +11,7 @@ class LibraryToolbarStatsCalculator {
     required int shownCount,
     required LibraryKindRegistration type,
   }) {
-    var owned = 0;
+    var entry = 0;
     var wishlist = 0;
     var missingCover = 0;
     var missingMetadata = 0;
@@ -22,8 +22,8 @@ class LibraryToolbarStatsCalculator {
     for (final item in allItems) {
       final dto = item.dto;
 
-      if (item.source.isOwned) {
-        owned += 1;
+      if (item.source.isEntry) {
+        entry += 1;
       }
       if (item.source.isWishlisted) {
         wishlist += 1;
@@ -32,7 +32,7 @@ class LibraryToolbarStatsCalculator {
         missingCover += 1;
       }
       final financial = libraryStatsForKind(type.kind)
-          .buildOwnedFinancialSummary(item.source);
+          .buildEntryFinancialSummary(item.source);
       totalPricePaid += financial.pricePaidCents ?? 0;
       totalSellPrice += financial.sellPriceCents ?? 0;
       currency ??= financial.currency;
@@ -41,7 +41,7 @@ class LibraryToolbarStatsCalculator {
     return LibraryToolbarCounts(
       shown: shownCount,
       total: allItems.length,
-      owned: owned,
+      entry: entry,
       wishlist: wishlist,
       missingCover: missingCover,
       missingMetadata: missingMetadata,

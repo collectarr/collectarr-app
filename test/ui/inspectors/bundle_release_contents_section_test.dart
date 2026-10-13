@@ -89,7 +89,6 @@ BundleReleaseDetail _detail({String title = 'Collector Box'}) {
       primaryCount: 2,
       bonusCount: 1,
     ),
-    providerLinks: const [],
     members: const [
       BundleReleaseMember(
         itemId: 'ep-2',

@@ -1,5 +1,5 @@
 import 'package:collectarr_app/core/db/local_database.dart';
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/core/models/structural_ref_validation.dart';
 import 'package:drift/drift.dart';
 
@@ -8,26 +8,54 @@ class ReadingQueueRepository {
 
   final LocalDatabase _db;
 
-  /// Get all queued owned-item references in order.
-  Future<List<OwnedItemRef>> getQueue() async {
+  /// Get all queued entry-item references in order.
+  Future<List<LibraryEntryRef>> getQueue() async {
     final rows = await (_db.select(_db.readingQueueCache)
           ..orderBy([(t) => OrderingTerm.asc(t.position)]))
         .get();
-    return rows.map((r) => OwnedItemRef.fromKey(r.ownedRefKey)).toList();
+    return rows
+        .map((r) => LibraryEntryRef.fromKey(r.libraryEntryRefKey))
+        .toList();
   }
 
   /// Check if an item is in the queue.
-  Future<bool> isInQueue(OwnedItemRef ref) async {
-    requireKnownOwnedRef(ref);
+  Future<bool> isInQueue(LibraryEntryRef ref) async {
+    requireKnownLibraryEntryRef(ref);
     final row = await (_db.select(_db.readingQueueCache)
-          ..where((t) => t.ownedRefKey.equals(ref.key)))
+          ..where((t) => t.libraryEntryRefKey.equals(ref.key)))
         .getSingleOrNull();
     return row != null;
   }
 
+  Future<int?> positionFor(LibraryEntryRef ref) async {
+    requireKnownLibraryEntryRef(ref);
+    final row = await (_db.select(_db.readingQueueCache)
+          ..where((t) => t.libraryEntryRefKey.equals(ref.key)))
+        .getSingleOrNull();
+    return row?.position;
+  }
+
+  Future<void> applySyncedPosition(
+    LibraryEntryRef ref,
+    int? position,
+  ) async {
+    requireKnownLibraryEntryRef(ref);
+    if (position == null) {
+      await removeFromQueue(ref);
+      return;
+    }
+    await _db.into(_db.readingQueueCache).insertOnConflictUpdate(
+          ReadingQueueCacheCompanion.insert(
+            libraryEntryRefKey: ref.key,
+            position: position,
+            addedAt: DateTime.now().toUtc(),
+          ),
+        );
+  }
+
   /// Add item to end of queue.
-  Future<void> addToQueue(OwnedItemRef ref) async {
-    requireKnownOwnedRef(ref);
+  Future<void> addToQueue(LibraryEntryRef ref) async {
+    requireKnownLibraryEntryRef(ref);
     final maxPos = await _db
         .customSelect(
           'SELECT COALESCE(MAX(position), 0) AS m FROM reading_queue_cache',
@@ -36,7 +64,7 @@ class ReadingQueueRepository {
     final pos = (maxPos.data['m'] as int) + 1;
     await _db.into(_db.readingQueueCache).insertOnConflictUpdate(
           ReadingQueueCacheCompanion.insert(
-            ownedRefKey: ref.key,
+            libraryEntryRefKey: ref.key,
             position: pos,
             addedAt: DateTime.now().toUtc(),
           ),
@@ -44,16 +72,16 @@ class ReadingQueueRepository {
   }
 
   /// Remove item from queue.
-  Future<void> removeFromQueue(OwnedItemRef ref) async {
-    requireKnownOwnedRef(ref);
+  Future<void> removeFromQueue(LibraryEntryRef ref) async {
+    requireKnownLibraryEntryRef(ref);
     await (_db.delete(_db.readingQueueCache)
-          ..where((t) => t.ownedRefKey.equals(ref.key)))
+          ..where((t) => t.libraryEntryRefKey.equals(ref.key)))
         .go();
   }
 
   /// Move item to a new position (reorder).
-  Future<void> moveToPosition(OwnedItemRef ref, int newPosition) async {
-    requireKnownOwnedRef(ref);
+  Future<void> moveToPosition(LibraryEntryRef ref, int newPosition) async {
+    requireKnownLibraryEntryRef(ref);
     final queue = await getQueue();
     queue.remove(ref);
     final insertIdx = newPosition.clamp(0, queue.length);
@@ -64,14 +92,14 @@ class ReadingQueueRepository {
         batch.update(
           _db.readingQueueCache,
           ReadingQueueCacheCompanion(position: Value(i)),
-          where: (t) => t.ownedRefKey.equals(queue[i].key),
+          where: (t) => t.libraryEntryRefKey.equals(queue[i].key),
         );
       }
     });
   }
 
   /// Move item to top (next to read).
-  Future<void> moveToTop(OwnedItemRef ref) async {
+  Future<void> moveToTop(LibraryEntryRef ref) async {
     await moveToPosition(ref, 0);
   }
 }

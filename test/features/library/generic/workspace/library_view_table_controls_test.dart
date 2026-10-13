@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/features/library/workspace/table/library_view_table_controls.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_control_models.dart';
@@ -101,7 +102,7 @@ void main() {
     await tester.tap(
       find.descendant(
         of: find.byKey(const ValueKey('library-column-split-button')),
-        matching: find.byIcon(Icons.keyboard_arrow_down),
+        matching: find.byIcon(AppIcons.chevronDown),
       ),
     );
     await tester.pumpAndSettle();

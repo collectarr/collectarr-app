@@ -1,27 +1,40 @@
 import 'package:collectarr_app/core/db/local_database.dart';
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/catalog_item_ref.dart';
+import 'package:collectarr_app/core/models/library_entry_projection.dart';
+import 'package:collectarr_app/core/models/library_entry_ref.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_snapshot_repository.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_workspace_catalog_data.dart';
-import 'catalog_workspace_data_dispatch.dart';
+import 'package:collectarr_app/features/library/entries/library_entry_store.dart';
+import 'package:collectarr_app/features/library/kinds/registry/catalog_workspace_data_dispatch.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_workspace_kind_data.dart';
 
-/// Reads catalog transport at the storage boundary and immediately dispatches
-/// it into the owning kind's structural workspace data.
-///
-/// Collection/Shelf needs workspace data for rendering, but it must not carry
-/// or rehydrate a generic catalog snapshot itself. Keeping this adapter next
-/// to the generated kind dispatch makes the boundary explicit and leaves the
-/// feature host with only structural workspace data.
+/// Loads kind-owned workspace data without converting a local entry identity
+/// into a Core Catalog Item reference.
 final class CatalogWorkspaceDataRepository {
   CatalogWorkspaceDataRepository(this._db);
 
   final LocalDatabase _db;
 
-  Future<Map<CatalogEntityRef, LibraryWorkspaceCatalogData>> findByRefs(
-    Iterable<CatalogEntityRef> refs,
+  Future<Map<LibraryEntryRef, LibraryWorkspaceKindData>> findEntries(
+    Iterable<LibraryEntryRef> refs,
   ) async {
+    final records = await LibraryEntryStore(_db).findByRefs(refs);
+    if (records.isEmpty) return const {};
+    return enrichedWorkspaceKindDataByEntry(
+      _db,
+      {
+        for (final entry in records.entries) entry.key: entry.value.catalogData,
+      },
+    );
+  }
+
+  Future<Map<CatalogItemRef, LibraryWorkspaceKindData>> findCatalogItems(
+    Iterable<CatalogItemRef> refs,
+  ) async {
+    final requested = refs.toSet();
+    if (requested.isEmpty) return const {};
+    final result = <CatalogItemRef, LibraryWorkspaceKindData>{};
     final transportItems =
-        await CatalogSnapshotRepository(_db).findTransportsByRefs(refs);
-    final result = <CatalogEntityRef, LibraryWorkspaceCatalogData>{};
+        await CatalogSnapshotRepository(_db).findTransportsByRefs(requested);
     for (final entry in transportItems.entries) {
       result[entry.key] = await enrichedWorkspaceCatalogDataFromTransport(
         _db,

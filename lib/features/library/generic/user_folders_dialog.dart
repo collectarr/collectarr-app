@@ -1,7 +1,9 @@
+import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/core/models/user_folder.dart';
 import 'package:collectarr_app/features/collection/repositories/user_folder_repository.dart';
+import 'package:collectarr_app/features/library/entries/library_entries_repository.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/ui/accent_alert_dialog.dart';
@@ -28,7 +30,7 @@ class _UserFoldersDialog extends StatefulWidget {
 
 class _UserFoldersDialogState extends State<_UserFoldersDialog> {
   List<UserFolder> _folders = [];
-  Map<String, List<OwnedItemRef>> _folderOwnedRefs = {};
+  Map<String, List<LibraryEntryRef>> _folderLibraryEntryRefs = {};
   bool _loading = true;
 
   @override
@@ -40,14 +42,15 @@ class _UserFoldersDialogState extends State<_UserFoldersDialog> {
   Future<void> _load() async {
     final repo = UserFolderRepository(widget.db);
     final folders = await repo.getAll();
-    final ownedRefs = <String, List<OwnedItemRef>>{};
+    final libraryEntryRefs = <String, List<LibraryEntryRef>>{};
     for (final folder in folders) {
-      ownedRefs[folder.id] = await repo.getOwnedRefsInFolder(folder.id);
+      libraryEntryRefs[folder.id] =
+          await repo.getLibraryEntryRefsInFolder(folder.id);
     }
     if (mounted) {
       setState(() {
         _folders = folders;
-        _folderOwnedRefs = ownedRefs;
+        _folderLibraryEntryRefs = libraryEntryRefs;
         _loading = false;
       });
     }
@@ -84,6 +87,7 @@ class _UserFoldersDialogState extends State<_UserFoldersDialog> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AccentAlertDialog(
+        headerIcon: AppIcons.delete,
         backgroundColor: appPalette(ctx).panel,
         title: const Text('Delete Folder'),
         content: Text(
@@ -105,7 +109,11 @@ class _UserFoldersDialogState extends State<_UserFoldersDialog> {
     if (confirmed != true) return;
 
     final repo = UserFolderRepository(widget.db);
+    final refs = await repo.getLibraryEntryRefsInFolder(folder.id);
     await repo.delete(folder.id);
+    for (final ref in refs) {
+      await enqueueLibraryEntrySnapshot(widget.db, ref);
+    }
     await _load();
   }
 
@@ -116,31 +124,36 @@ class _UserFoldersDialogState extends State<_UserFoldersDialog> {
     String? initialValue,
   }) async {
     final nameCtrl = TextEditingController(text: initialValue ?? '');
-    return showDialog<String>(
-      context: context,
-      builder: (ctx) => AccentAlertDialog(
-        backgroundColor: appPalette(ctx).panel,
-        title: Text(title),
-        content: TextField(
-          controller: nameCtrl,
-          autofocus: true,
-          decoration: InputDecoration(
-            labelText: 'Name',
-            hintText: hintText,
+    try {
+      return await showDialog<String>(
+        context: context,
+        builder: (ctx) => AccentAlertDialog(
+          headerIcon: AppIcons.folderOpen,
+          backgroundColor: appPalette(ctx).panel,
+          title: Text(title),
+          content: TextField(
+            controller: nameCtrl,
+            autofocus: true,
+            decoration: InputDecoration(
+              labelText: 'Name',
+              hintText: hintText,
+            ),
           ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: const Text('Cancel'),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.pop(ctx, nameCtrl.text.trim()),
+              child: Text(confirmLabel),
+            ),
+          ],
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: const Text('Cancel'),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.pop(ctx, nameCtrl.text.trim()),
-            child: Text(confirmLabel),
-          ),
-        ],
-      ),
-    );
+      );
+    } finally {
+      nameCtrl.dispose();
+    }
   }
 
   @override
@@ -181,7 +194,8 @@ class _UserFoldersDialogState extends State<_UserFoldersDialog> {
                         Divider(height: 1, color: palette.divider),
                     itemBuilder: (context, i) {
                       final folder = _folders[i];
-                      final count = _folderOwnedRefs[folder.id]?.length ?? 0;
+                      final count =
+                          _folderLibraryEntryRefs[folder.id]?.length ?? 0;
                       return ListTile(
                         leading: Icon(
                           _iconForFolder(folder.iconName),

@@ -1,10 +1,9 @@
 import 'dart:async';
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/catalog_item_ref.dart';
+import 'package:collectarr_app/core/models/structural_ref_validation.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/core/sync/sync_change.dart';
 import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
-import 'package:collectarr_app/features/catalog/transport/catalog_transport_repository.dart';
-import 'package:collectarr_app/features/catalog/transport/catalog_import_transport.dart';
 import 'package:collectarr_app/features/collection/events/collection_event.dart';
 import 'package:collectarr_app/features/collection/repositories/wishlist_items_cache_repository.dart';
 import 'package:collectarr_app/features/collection/runner/collection_mutation_runner.dart';
@@ -16,31 +15,31 @@ String _defaultIdGenerator() => const Uuid().v4();
 final class WishlistMutations {
   const WishlistMutations({
     required this.wishlist,
-    required this.catalogTransport,
     required this.syncQueue,
     required this.mutationRunner,
     this.idGenerator = _defaultIdGenerator,
   });
 
   final WishlistItemsCacheRepository wishlist;
-  final CatalogTransportRepository catalogTransport;
   final SyncQueueRepository syncQueue;
   final CollectionMutationRunner mutationRunner;
   final IdGenerator idGenerator;
 
   Future<void> addToWishlist(
-    CatalogEntityRef catalogRef, {
+    CatalogItemRef catalogRef, {
     bool notify = true,
   }) async {
-    if (!catalogRef.isKnown ||
-        catalogRef.mediaKind == CatalogMediaKind.unknown) {
+    try {
+      requireKnownCatalogItemRef(catalogRef, 'wishlist.catalogRef');
+    } on ArgumentError {
       throw StateError(
         'Cannot add wishlist item without a registered catalog kind: '
         '${catalogRef.id}',
       );
     }
     final now = DateTime.now().toUtc();
-    final catalogRootRef = catalogRef.rootScope;
+    final existing = await wishlist.findActiveByCatalogRef(catalogRef);
+    final localRef = existing?.catalogRef ?? catalogRef;
     await mutationRunner.run(
       action: () async {
         final existing = await wishlist.findActiveByCatalogRef(catalogRef);
@@ -52,37 +51,9 @@ final class WishlistMutations {
             updatedAt: now,
           );
           await wishlist.upsert(item);
-          await syncQueue
-              .enqueue(_syncChangeForWishlistItem(item, 'upsert', now));
-          await syncQueue
-              .enqueue(_syncChangeForCatalogRef(catalogRootRef, now));
-        }
-      },
-      eventsToEmit: [WishlistChanged(catalogRef)],
-    );
-  }
-
-  Future<void> addLocalOnlyCatalog(
-    CatalogImportTransport item, {
-    CatalogEntityRef? catalogRef,
-    bool notify = true,
-  }) async {
-    final now = DateTime.now().toUtc();
-    final localRef = catalogRef ?? item.ref;
-    await mutationRunner.run(
-      action: () async {
-        await catalogTransport.upsertTransports([item]);
-        final existing = await wishlist.findActiveByCatalogRef(localRef);
-        if (existing == null) {
-          final wishlistItem = WishlistItem(
-            id: idGenerator(),
-            catalogRef: localRef,
-            createdAt: now,
-            updatedAt: now,
+          await syncQueue.enqueue(
+            _syncChangeForWishlistItem(item, 'upsert', now),
           );
-          await wishlist.upsert(wishlistItem);
-          await syncQueue
-              .enqueue(_syncChangeForWishlistItem(wishlistItem, 'upsert', now));
         }
       },
       eventsToEmit: [WishlistChanged(localRef)],
@@ -91,7 +62,7 @@ final class WishlistMutations {
 
   Future<WishlistItem> updateWishlistItem(
     WishlistItem item, {
-    CatalogEntityRef? catalogRef,
+    CatalogItemRef? catalogRef,
     int? targetPriceCents,
     String? currency,
     String? notes,
@@ -114,9 +85,6 @@ final class WishlistMutations {
         await wishlist.upsert(updated);
         await syncQueue
             .enqueue(_syncChangeForWishlistItem(updated, 'upsert', now));
-        await syncQueue.enqueue(
-          _syncChangeForCatalogRef(updatedCatalogRef.rootScope, now),
-        );
       },
       eventsToEmit: [WishlistChanged(updatedCatalogRef)],
     );
@@ -125,7 +93,7 @@ final class WishlistMutations {
 
   Future<void> removeFromWishlist({
     String? wishlistItemId,
-    CatalogEntityRef? catalogRef,
+    CatalogItemRef? catalogRef,
     bool notify = true,
   }) async {
     final now = DateTime.now().toUtc();
@@ -158,7 +126,7 @@ final class WishlistMutations {
   }
 
   Future<void> toggleWishlist(
-    CatalogEntityRef catalogRef,
+    CatalogItemRef catalogRef,
   ) async {
     final existing = await wishlist.findActiveByCatalogRef(catalogRef);
     if (existing == null) {
@@ -177,7 +145,7 @@ final class WishlistMutations {
 
   Future<List<WishlistItem>> _wishlistItemsForMutation({
     String? wishlistItemId,
-    CatalogEntityRef? catalogRef,
+    CatalogItemRef? catalogRef,
   }) async {
     if (wishlistItemId != null) {
       final item = await wishlist.findById(wishlistItemId);
@@ -200,21 +168,6 @@ final class WishlistMutations {
       entityId: item.id,
       action: action,
       payload: item.toSyncPayload(),
-      clientChangedAt: now,
-    );
-  }
-
-  SyncChange _syncChangeForCatalogRef(
-    CatalogEntityRef catalogRef,
-    DateTime now,
-  ) {
-    final root = catalogRef.rootScope;
-    return SyncChange(
-      id: 'catalog:${root.id}:upsert:${now.millisecondsSinceEpoch}',
-      entityType: 'catalog_item',
-      entityId: root.id,
-      action: 'upsert',
-      payload: {'id': root.id, 'kind': root.kind.apiValue},
       clientChangedAt: now,
     );
   }

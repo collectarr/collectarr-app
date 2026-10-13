@@ -1,9 +1,15 @@
+import 'package:collectarr_app/ui/library_accent_scope.dart';
+import 'package:collectarr_app/features/library/workspace/layout/library_folder_row.dart';
+import 'dart:async';
+import 'package:collectarr_app/features/library/generic/view_preference_store.dart';
+import 'package:collectarr_app/features/library/workspace/schema/library_group_values.dart';
 import 'package:collectarr_app/features/settings/ui_preferences.dart';
 import 'package:collectarr_app/features/library/ui/library_chrome_tokens.dart';
 import 'package:collectarr_app/features/library/ui/library_density_scope.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
+import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -14,7 +20,7 @@ class LibraryBucket {
     required this.count,
     this.coverUrl,
     this.startYear,
-    this.ownedCount,
+    this.entryCount,
     this.missingNumbers = const <int>[],
   });
 
@@ -22,15 +28,15 @@ class LibraryBucket {
   final int count;
   final String? coverUrl;
   final int? startYear;
-  final int? ownedCount;
+  final int? entryCount;
   final List<int> missingNumbers;
 
   int? get completionPercent {
-    final owned = ownedCount;
-    if (owned == null || count <= 0) {
+    final entry = entryCount;
+    if (entry == null || count <= 0) {
       return null;
     }
-    final percent = ((owned / count) * 100).round();
+    final percent = ((entry / count) * 100).round();
     if (percent < 0) {
       return 0;
     }
@@ -48,6 +54,9 @@ class LibraryBucketSidebar extends ConsumerStatefulWidget {
     required this.selectedBucket,
     required this.onSelectBucket,
     this.title = 'Buckets',
+    this.allBucketLabel,
+    this.preferenceStore,
+    this.folderPreset,
     this.icon = Icons.folder,
     this.trailing,
     this.headerOverride,
@@ -79,6 +88,9 @@ class LibraryBucketSidebar extends ConsumerStatefulWidget {
   final String? selectedBucket;
   final ValueChanged<String> onSelectBucket;
   final String title;
+  final String? allBucketLabel;
+  final LibraryViewPreferenceStore? preferenceStore;
+  final LibraryFolderPreset? folderPreset;
   final IconData icon;
   final Widget? trailing;
   final Widget? headerOverride;
@@ -112,11 +124,68 @@ class LibraryBucketSidebar extends ConsumerStatefulWidget {
       _LibraryBucketSidebarState();
 }
 
-enum _SidebarSortMode { alphabetical, byCount }
-
 class _LibraryBucketSidebarState extends ConsumerState<LibraryBucketSidebar> {
   final _searchController = TextEditingController();
-  var _sortMode = _SidebarSortMode.alphabetical;
+  var _sortMode = LibraryFolderSortMode.alphabetical;
+
+  int _sortRevision = 0;
+  Future<void> _sortWrite = Future<void>.value();
+
+  @override
+  void initState() {
+    super.initState();
+    _restoreSortMode();
+  }
+
+  @override
+  void didUpdateWidget(covariant LibraryBucketSidebar oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.preferenceStore?.kind != widget.preferenceStore?.kind ||
+        oldWidget.folderPreset?.storageValue !=
+            widget.folderPreset?.storageValue) {
+      _searchController.clear();
+      _restoreSortMode();
+    }
+  }
+
+  void _restoreSortMode() {
+    final revision = ++_sortRevision;
+    final store = widget.preferenceStore;
+    final preset = widget.folderPreset;
+    _sortMode = store != null && preset != null
+        ? store.cachedFolderSortMode(preset) ??
+            LibraryFolderSortMode.alphabetical
+        : LibraryFolderSortMode.alphabetical;
+    if (store == null || preset == null) return;
+    unawaited(() async {
+      try {
+        final restored = await store.readFolderSortMode(preset);
+        if (!mounted || revision != _sortRevision) return;
+        setState(
+            () => _sortMode = restored ?? LibraryFolderSortMode.alphabetical);
+      } catch (error) {
+        debugPrint('Could not restore folder sorting: $error');
+      }
+    }());
+  }
+
+  void _toggleSortMode() {
+    ++_sortRevision;
+    setState(() {
+      _sortMode = _sortMode == LibraryFolderSortMode.alphabetical
+          ? LibraryFolderSortMode.byCount
+          : LibraryFolderSortMode.alphabetical;
+    });
+    final store = widget.preferenceStore;
+    final preset = widget.folderPreset;
+    final mode = _sortMode;
+    if (store == null || preset == null) return;
+    _sortWrite = _sortWrite
+        .then((_) => store.writeFolderSortMode(preset, mode))
+        .catchError((Object error) {
+      debugPrint('Could not save folder sorting: $error');
+    });
+  }
 
   @override
   void dispose() {
@@ -139,13 +208,28 @@ class _LibraryBucketSidebarState extends ConsumerState<LibraryBucketSidebar> {
       };
     }).toList();
     switch (_sortMode) {
-      case _SidebarSortMode.alphabetical:
+      case LibraryFolderSortMode.alphabetical:
         // Keep original order (already alphabetical from projection).
         break;
-      case _SidebarSortMode.byCount:
-        items.sort((a, b) => b.count.compareTo(a.count));
+      case LibraryFolderSortMode.byCount:
+        items.sort(
+            (a, b) => _compareFolders(a.title, a.count, b.title, b.count));
     }
     return items;
+  }
+
+  int _compareFolders(String a, int aCount, String b, int bCount) {
+    if (a == b) return 0;
+    if (a == widget.allBucketLabel) return -1;
+    if (b == widget.allBucketLabel) return 1;
+    if (a == libraryEmptyGroupLabel || b == libraryEmptyGroupLabel) {
+      return compareLibraryGroupBuckets(a, b);
+    }
+    if (_sortMode == LibraryFolderSortMode.byCount) {
+      final countOrder = bCount.compareTo(aCount);
+      if (countOrder != 0) return countOrder;
+    }
+    return compareLibraryGroupBuckets(a, b);
   }
 
   List<LibraryFolderTreeNode> _filteredSortedTree(
@@ -181,10 +265,11 @@ class _LibraryBucketSidebarState extends ConsumerState<LibraryBucketSidebar> {
     String query,
   ) {
     final filteredChildren = _filterTreeNodes(node.children, query);
-    final expanded =
-        query.isNotEmpty || node.isExpanded || filteredChildren.isNotEmpty;
+    final expanded = query.isNotEmpty ||
+        node.isExpanded ||
+        widget.expandedTreeNodeIds.contains(node.id);
     return node.copyWith(
-      children: _sortTreeNodes(filteredChildren),
+      children: filteredChildren,
       isExpanded: expanded,
     );
   }
@@ -192,14 +277,12 @@ class _LibraryBucketSidebarState extends ConsumerState<LibraryBucketSidebar> {
   List<LibraryFolderTreeNode> _sortTreeNodes(
       List<LibraryFolderTreeNode> nodes) {
     final sorted = nodes.toList(growable: true);
-    switch (_sortMode) {
-      case _SidebarSortMode.alphabetical:
-        sorted.sort((a, b) => a.label.compareTo(b.label));
-        break;
-      case _SidebarSortMode.byCount:
-        sorted.sort((a, b) => b.cumulativeCount.compareTo(a.cumulativeCount));
-        break;
-    }
+    sorted.sort((a, b) => _compareFolders(
+          a.label,
+          a.count,
+          b.label,
+          b.count,
+        ));
     return [
       for (final node in sorted)
         node.copyWith(children: _sortTreeNodes(node.children)),
@@ -210,6 +293,17 @@ class _LibraryBucketSidebarState extends ConsumerState<LibraryBucketSidebar> {
   Widget build(BuildContext context) {
     final palette = appPalette(context);
     final filtered = _filteredSorted;
+    Iterable<int> treeCounts(List<LibraryFolderTreeNode> nodes) sync* {
+      for (final node in nodes) {
+        yield node.count;
+        yield* treeCounts(node.children);
+      }
+    }
+
+    final countWidth = libraryFolderCountWidth(context, [
+      for (final bucket in widget.buckets) bucket.count,
+      ...treeCounts(widget.treeRoots),
+    ]);
     final density = LibraryDensityScope.maybeOf(context)?.density ??
         LibraryDensity.comfortable;
     final densityScale = switch (density) {
@@ -218,7 +312,7 @@ class _LibraryBucketSidebarState extends ConsumerState<LibraryBucketSidebar> {
       LibraryDensity.dense => 0.8,
     };
     final resolvedBackgroundColor = widget.backgroundColor == kAppPanel
-        ? palette.panel
+        ? libraryFolderDepthColor(context, 0)
         : widget.backgroundColor;
     final resolvedHeaderColor = widget.headerColor == kAppSurface
         ? palette.surface
@@ -229,9 +323,6 @@ class _LibraryBucketSidebarState extends ConsumerState<LibraryBucketSidebar> {
     final resolvedSelectionColor = widget.selectionColor == kAppSelection
         ? palette.selection
         : widget.selectionColor;
-    final resolvedBadgeColor = widget.badgeColor == kAppBadgeBackground
-        ? palette.badgeBackground
-        : widget.badgeColor;
     final resolvedMutedTextColor = widget.mutedTextColor == kAppTextMuted
         ? palette.textMuted
         : widget.mutedTextColor;
@@ -276,8 +367,8 @@ class _LibraryBucketSidebarState extends ConsumerState<LibraryBucketSidebar> {
                                 .textTheme
                                 .labelLarge
                                 ?.copyWith(
-                                  fontWeight: FontWeight.w800,
-                                  letterSpacing: 0.12,
+                                  fontWeight: FontWeight.w400,
+                                  letterSpacing: 0,
                                 ),
                           ),
                         ),
@@ -298,23 +389,17 @@ class _LibraryBucketSidebarState extends ConsumerState<LibraryBucketSidebar> {
             onBucketCompletionScopeChanged:
                 widget.onBucketCompletionScopeChanged,
             onChanged: () => setState(() {}),
-            onToggleSort: () => setState(() {
-              _sortMode = _sortMode == _SidebarSortMode.alphabetical
-                  ? _SidebarSortMode.byCount
-                  : _SidebarSortMode.alphabetical;
-            }),
+            onToggleSort: _toggleSortMode,
           ),
           Expanded(
-            child: widget.folderDisplayMode == LibraryFolderDisplayMode.tree
+            child: ((widget.folderPreset != null &&
+                        widget.folderPreset!.modes.length > 1 &&
+                        widget.treeRoots.isNotEmpty) ||
+                    widget.folderDisplayMode == LibraryFolderDisplayMode.tree)
                 ? _FolderTreePane(
                     roots: _filteredSortedTree(widget.treeRoots),
+                    countWidth: countWidth,
                     selectedNodeId: widget.selectedTreeNodeId,
-                    expandedNodeIds: widget.expandedTreeNodeIds,
-                    dividerColor: resolvedDividerColor,
-                    selectionColor: resolvedSelectionColor,
-                    selectedBadgeColor: widget.selectedBadgeColor,
-                    badgeColor: resolvedBadgeColor,
-                    mutedTextColor: resolvedMutedTextColor,
                     accentColor: widget.accentColor,
                     rowPadding: ref.watch(
                       uiPreferencesProvider.select((p) => p.sidebarRowPadding),
@@ -347,18 +432,15 @@ class _LibraryBucketSidebarState extends ConsumerState<LibraryBucketSidebar> {
                       );
                       return _LibrarySeriesRow(
                         bucket: bucket,
+                        countWidth: countWidth,
                         selected: selected,
                         onTap: () => widget.onSelectBucket(bucket.title),
-                        dividerColor: resolvedDividerColor,
                         selectionColor: resolvedSelectionColor,
-                        selectedBadgeColor: widget.selectedBadgeColor,
-                        badgeColor: resolvedBadgeColor,
-                        mutedTextColor: resolvedMutedTextColor,
                         leadingInset: widget.ancestorScopeLabels.isEmpty
                             ? 0
                             : 14.0 + widget.ancestorScopeLabels.length * 12.0,
                         extraVerticalPadding:
-                            (rowPadding * densityScale).clamp(0.8, 3.0),
+                            (rowPadding * densityScale).clamp(0.0, 12.0),
                       );
                     },
                   ),
@@ -384,7 +466,7 @@ class _SidebarSearchAndSort extends StatelessWidget {
   });
 
   final TextEditingController controller;
-  final _SidebarSortMode sortMode;
+  final LibraryFolderSortMode sortMode;
   final String searchPlaceholder;
   final Color accentColor;
   final Color dividerColor;
@@ -398,9 +480,9 @@ class _SidebarSearchAndSort extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.fromLTRB(6, 4, 6, 6),
+      padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 3),
       decoration: BoxDecoration(
-        border: Border(bottom: BorderSide(color: dividerColor)),
+        border: Border(top: BorderSide(color: dividerColor)),
       ),
       child: LayoutBuilder(
         builder: (context, constraints) {
@@ -412,7 +494,7 @@ class _SidebarSearchAndSort extends StatelessWidget {
               onBucketCompletionScopeChanged != null && availableWidth >= 220;
           final showSort = availableWidth >= 140;
           final trailingWidth =
-              (showCompletionScope ? 34.0 : 0.0) + (showSort ? 58.0 : 0.0);
+              (showCompletionScope ? 34.0 : 0.0) + (showSort ? 65.0 : 0.0);
           final searchWidth = availableWidth - trailingWidth;
           final showClearButton = searchWidth >= 72;
           final showSearchField = searchWidth >= 44;
@@ -421,80 +503,71 @@ class _SidebarSearchAndSort extends StatelessWidget {
             children: [
               Expanded(
                 child: SizedBox(
-                  height: 30,
+                  height: 26,
                   child: showSearchField
-                      ? Row(
-                          children: [
+                      ? DecoratedBox(
+                          decoration: BoxDecoration(
+                            color:
+                                Theme.of(context).brightness == Brightness.dark
+                                    ? const Color(0xff444444)
+                                    : appPalette(context).panelRaised,
+                            borderRadius: BorderRadius.circular(2),
+                          ),
+                          child: Row(children: [
                             Expanded(
-                              child: DecoratedBox(
-                                decoration: BoxDecoration(
-                                  color: Colors.black.withValues(alpha: 0.1),
-                                  border: Border.all(color: dividerColor),
-                                  borderRadius: BorderRadius.circular(2),
-                                ),
                                 child: TextField(
-                                  controller: controller,
-                                  onChanged: (_) => onChanged(),
-                                  style: const TextStyle(fontSize: 12),
-                                  decoration: InputDecoration(
-                                    hintText: searchPlaceholder,
-                                    hintStyle: TextStyle(
-                                      fontSize: 12,
-                                      color: mutedTextColor,
-                                    ),
-                                    isDense: true,
-                                    contentPadding: const EdgeInsets.symmetric(
-                                      horizontal: 8,
-                                      vertical: 8,
-                                    ),
-                                    border: InputBorder.none,
-                                  ),
-                                ),
+                              controller: controller,
+                              cursorColor: accentColor,
+                              textAlignVertical: TextAlignVertical.center,
+                              onChanged: (_) => onChanged(),
+                              style: libraryFolderTextStyle(context)
+                                  .copyWith(height: 1),
+                              decoration: InputDecoration(
+                                hintText: searchPlaceholder,
+                                hintStyle: libraryFolderTextStyle(context)
+                                    .copyWith(height: 1, color: mutedTextColor),
+                                filled: false,
+                                isDense: true,
+                                contentPadding:
+                                    const EdgeInsets.symmetric(horizontal: 4),
+                                border: InputBorder.none,
+                                enabledBorder: InputBorder.none,
+                                focusedBorder: InputBorder.none,
                               ),
-                            ),
+                            )),
                             if (showClearButton)
-                              DecoratedBox(
-                                decoration: BoxDecoration(
-                                  color: Colors.black.withValues(alpha: 0.1),
-                                  border: Border(
-                                    top: BorderSide(color: dividerColor),
-                                    right: BorderSide(color: dividerColor),
-                                    bottom: BorderSide(color: dividerColor),
+                              SizedBox(
+                                width: 26,
+                                height: 26,
+                                child: IconButton(
+                                  style: IconButton.styleFrom(
+                                    backgroundColor: Colors.transparent,
                                   ),
-                                  borderRadius: const BorderRadius.horizontal(
-                                    right: Radius.circular(2),
-                                  ),
-                                ),
-                                child: InkWell(
-                                  mouseCursor: WidgetStateMouseCursor.clickable,
-                                  onTap: () {
+                                  tooltip: controller.text.isEmpty
+                                      ? 'Search folders'
+                                      : 'Clear folder search',
+                                  padding: EdgeInsets.zero,
+                                  constraints: const BoxConstraints(
+                                      minWidth: 26, minHeight: 26),
+                                  onPressed: () {
                                     if (controller.text.isNotEmpty) {
                                       controller.clear();
                                     }
                                     onChanged();
                                   },
-                                  child: SizedBox(
-                                    width: 28,
-                                    height: 30,
-                                    child: Icon(
+                                  icon: Icon(
                                       controller.text.isEmpty
                                           ? Icons.search
                                           : Icons.close,
-                                      size: 15,
-                                      color: mutedTextColor,
-                                    ),
-                                  ),
+                                      size: 14,
+                                      color: mutedTextColor),
                                 ),
                               ),
-                          ],
+                          ]),
                         )
                       : Center(
-                          child: Icon(
-                            Icons.search,
-                            size: 15,
-                            color: mutedTextColor,
-                          ),
-                        ),
+                          child: Icon(Icons.search,
+                              size: 14, color: mutedTextColor)),
                 ),
               ),
               if (showCompletionScope) ...[
@@ -508,14 +581,8 @@ class _SidebarSearchAndSort extends StatelessWidget {
                 ),
               ],
               if (showSort) ...[
-                const SizedBox(width: 6),
-                _SidebarSortSwitch(
-                  sortMode: sortMode,
-                  accentColor: accentColor,
-                  dividerColor: dividerColor,
-                  mutedTextColor: mutedTextColor,
-                  onTap: onToggleSort,
-                ),
+                const SizedBox(width: 5),
+                _SidebarSortSwitch(sortMode: sortMode, onTap: onToggleSort),
               ],
             ],
           );
@@ -578,7 +645,7 @@ class _SidebarStatusScopeButton extends StatelessWidget {
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                           fontWeight: value == scope
                               ? FontWeight.w700
-                              : FontWeight.w500,
+                              : FontWeight.w400,
                         ),
                   ),
                 ),
@@ -597,86 +664,86 @@ class _SidebarStatusScopeButton extends StatelessWidget {
 }
 
 class _SidebarSortSwitch extends StatelessWidget {
-  const _SidebarSortSwitch({
-    required this.sortMode,
-    required this.accentColor,
-    required this.dividerColor,
-    required this.mutedTextColor,
-    required this.onTap,
-  });
-
-  final _SidebarSortMode sortMode;
-  final Color accentColor;
-  final Color dividerColor;
-  final Color mutedTextColor;
+  const _SidebarSortSwitch({required this.sortMode, required this.onTap});
+  final LibraryFolderSortMode sortMode;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
-    final alphabeticalSelected = sortMode == _SidebarSortMode.alphabetical;
-    return Tooltip(
-      message: alphabeticalSelected ? 'Sort by count' : 'Sort alphabetically',
-      child: InkWell(
-        mouseCursor: WidgetStateMouseCursor.clickable,
-        onTap: onTap,
-        child: Container(
-          width: 52,
-          height: 28,
-          decoration: BoxDecoration(
-            color: Colors.black.withValues(alpha: 0.1),
-            borderRadius: BorderRadius.circular(2),
-            border: Border.all(color: dividerColor),
-          ),
-          child: Row(
-            children: [
-              Expanded(
-                child: _SidebarSortModeIcon(
-                  icon: Icons.sort_by_alpha,
-                  selected: alphabeticalSelected,
-                  accentColor: accentColor,
-                  mutedTextColor: mutedTextColor,
+    final alphabetical = sortMode == LibraryFolderSortMode.alphabetical;
+    final duration = LibraryAccentScope.of(context).animationDuration;
+    final palette = appPalette(context);
+    return Material(
+      color: palette.surface,
+      borderRadius: BorderRadius.circular(4),
+      clipBehavior: Clip.antiAlias,
+      child: SizedBox(
+        width: 60,
+        height: 26,
+        child: Stack(children: [
+          AnimatedAlign(
+            duration: duration,
+            curve: Curves.easeOutCubic,
+            alignment:
+                alphabetical ? Alignment.centerLeft : Alignment.centerRight,
+            child: Padding(
+              padding: const EdgeInsets.all(2),
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  color: libraryFolderHoverColor(context),
+                  borderRadius: BorderRadius.circular(4),
                 ),
+                child: const SizedBox(width: 26, height: 22),
               ),
-              Container(width: 1, color: dividerColor),
-              Expanded(
-                child: _SidebarSortModeIcon(
-                  icon: Icons.sort,
-                  selected: !alphabeticalSelected,
-                  accentColor: accentColor,
-                  mutedTextColor: mutedTextColor,
-                ),
-              ),
-            ],
+            ),
           ),
-        ),
+          Row(children: [
+            for (final mode in LibraryFolderSortMode.values)
+              Expanded(child: _sortButton(context, mode, duration)),
+          ]),
+        ]),
       ),
     );
   }
-}
 
-class _SidebarSortModeIcon extends StatelessWidget {
-  const _SidebarSortModeIcon({
-    required this.icon,
-    required this.selected,
-    required this.accentColor,
-    required this.mutedTextColor,
-  });
+  Widget _sortButton(
+      BuildContext context, LibraryFolderSortMode mode, Duration duration) {
+    final selected = mode == sortMode;
+    final label = mode == LibraryFolderSortMode.alphabetical
+        ? 'Sort alphabetically'
+        : 'Sort by count';
+    void select() {
+      Tooltip.dismissAllToolTips();
+      if (!selected) onTap();
+    }
 
-  final IconData icon;
-  final bool selected;
-  final Color accentColor;
-  final Color mutedTextColor;
-
-  @override
-  Widget build(BuildContext context) {
-    return ColoredBox(
-      color:
-          selected ? accentColor.withValues(alpha: 0.14) : Colors.transparent,
-      child: Center(
-        child: Icon(
-          icon,
-          size: 15,
-          color: selected ? accentColor : mutedTextColor,
+    return Tooltip(
+      message: label,
+      excludeFromSemantics: true,
+      child: Semantics(
+        button: true,
+        selected: selected,
+        label: label,
+        value: selected ? 'Selected' : null,
+        onTap: select,
+        excludeSemantics: true,
+        child: InkWell(
+          onTap: select,
+          mouseCursor: SystemMouseCursors.click,
+          hoverColor: libraryFolderHoverColor(context),
+          child: Center(
+              child: AnimatedOpacity(
+            duration: duration,
+            curve: Curves.easeOutCubic,
+            opacity: selected ? 1 : 0.25,
+            child: Icon(
+              mode == LibraryFolderSortMode.alphabetical
+                  ? AppIcons.sortAlpha
+                  : AppIcons.sortCount,
+              size: 18,
+              color: appPalette(context).textPrimary,
+            ),
+          )),
         ),
       ),
     );
@@ -687,54 +754,33 @@ class _FolderTreePane extends StatelessWidget {
   const _FolderTreePane({
     required this.roots,
     required this.selectedNodeId,
-    required this.expandedNodeIds,
-    required this.dividerColor,
-    required this.selectionColor,
-    required this.selectedBadgeColor,
-    required this.badgeColor,
-    required this.mutedTextColor,
     required this.accentColor,
     required this.rowPadding,
+    required this.countWidth,
     this.onSelectPath,
     this.onToggleExpanded,
   });
-
   final List<LibraryFolderTreeNode> roots;
   final String? selectedNodeId;
-  final Set<String> expandedNodeIds;
-  final Color dividerColor;
-  final Color selectionColor;
-  final Color selectedBadgeColor;
-  final Color badgeColor;
-  final Color mutedTextColor;
   final Color accentColor;
-  final double rowPadding;
+  final double rowPadding, countWidth;
   final ValueChanged<List<LibraryFolderTreeNode>>? onSelectPath;
   final ValueChanged<String>? onToggleExpanded;
 
   @override
-  Widget build(BuildContext context) {
-    return ListView(
-      children: [
+  Widget build(BuildContext context) => ListView(children: [
         for (final node in roots)
           _FolderTreeNodeView(
             node: node,
-            path: const <LibraryFolderTreeNode>[],
+            path: const [],
             selectedNodeId: selectedNodeId,
-            expandedNodeIds: expandedNodeIds,
-            dividerColor: dividerColor,
-            selectionColor: selectionColor,
-            selectedBadgeColor: selectedBadgeColor,
-            badgeColor: badgeColor,
-            mutedTextColor: mutedTextColor,
-            accentColor: accentColor,
+            accent: accentColor,
             rowPadding: rowPadding,
+            countWidth: countWidth,
             onSelectPath: onSelectPath,
             onToggleExpanded: onToggleExpanded,
           ),
-      ],
-    );
-  }
+      ]);
 }
 
 class _FolderTreeNodeView extends StatelessWidget {
@@ -742,301 +788,127 @@ class _FolderTreeNodeView extends StatelessWidget {
     required this.node,
     required this.path,
     required this.selectedNodeId,
-    required this.expandedNodeIds,
-    required this.dividerColor,
-    required this.selectionColor,
-    required this.selectedBadgeColor,
-    required this.badgeColor,
-    required this.mutedTextColor,
-    required this.accentColor,
+    required this.accent,
     required this.rowPadding,
+    required this.countWidth,
     this.onSelectPath,
     this.onToggleExpanded,
   });
-
   final LibraryFolderTreeNode node;
   final List<LibraryFolderTreeNode> path;
   final String? selectedNodeId;
-  final Set<String> expandedNodeIds;
-  final Color dividerColor;
-  final Color selectionColor;
-  final Color selectedBadgeColor;
-  final Color badgeColor;
-  final Color mutedTextColor;
-  final Color accentColor;
-  final double rowPadding;
+  final Color accent;
+  final double rowPadding, countWidth;
   final ValueChanged<List<LibraryFolderTreeNode>>? onSelectPath;
   final ValueChanged<String>? onToggleExpanded;
 
   @override
   Widget build(BuildContext context) {
     final nextPath = [...path, node];
-    final isSelected = node.id == selectedNodeId;
-    final isExpanded = expandedNodeIds.contains(node.id) || node.isExpanded;
-    final hasChildren = node.children.isNotEmpty;
-    final selectedFill = Color.alphaBlend(
-      selectionColor.withValues(alpha: 0.26),
-      appPalette(context).panel,
-    );
-    final selectedTextColor = appContrastingTextColor(selectedFill);
-    final selectedCountColor =
-        libraryAccentTextColor(selectedBadgeColor, selectedFill);
-    final bgColor = isSelected ? selectedFill : Colors.transparent;
-    final indentation = path.length * 14.0;
-    final row = DecoratedBox(
-      decoration: BoxDecoration(
-        color: bgColor,
-        border: Border(bottom: BorderSide(color: dividerColor)),
-      ),
-      child: SizedBox(
-        height: 30 + rowPadding * 2,
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            if (constraints.maxWidth < 72 + indentation) {
-              return const SizedBox.expand();
-            }
-            return Padding(
-              padding: EdgeInsets.only(left: 6 + indentation, right: 8),
-              child: Row(
-                children: [
-                  SizedBox(
-                    width: 18,
-                    child: hasChildren
-                        ? IconButton(
-                            tooltip: isExpanded ? 'Collapse' : 'Expand',
-                            onPressed: onToggleExpanded == null
-                                ? null
-                                : () => onToggleExpanded!(node.id),
-                            padding: EdgeInsets.zero,
-                            constraints: const BoxConstraints(
-                                minWidth: 18, minHeight: 18),
-                            visualDensity: VisualDensity.compact,
-                            iconSize: 16,
-                            icon: Icon(
-                              isExpanded
-                                  ? Icons.expand_more
-                                  : Icons.chevron_right,
-                              color: isSelected ? accentColor : mutedTextColor,
-                            ),
-                          )
-                        : Icon(Icons.fiber_manual_record,
-                            size: 8,
-                            color: mutedTextColor.withValues(alpha: 0.6)),
-                  ),
-                  const SizedBox(width: 4),
-                  SizedBox(
-                    width: 20,
-                    child: Text(
-                      node.count.toString(),
-                      textAlign: TextAlign.left,
-                      style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                            color: isSelected ? selectedCountColor : badgeColor,
-                            fontWeight: FontWeight.w700,
-                          ),
-                    ),
-                  ),
-                  const SizedBox(width: 6),
-                  Expanded(
-                    child: GestureDetector(
-                      behavior: HitTestBehavior.opaque,
-                      onTap: onSelectPath == null
-                          ? null
-                          : () => onSelectPath!(nextPath),
-                      child: MouseRegion(
-                        cursor: onSelectPath == null
-                            ? SystemMouseCursors.basic
-                            : SystemMouseCursors.click,
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 4),
-                          child: Text(
-                            node.label,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: Theme.of(context)
-                                .textTheme
-                                .bodySmall
-                                ?.copyWith(
-                                  color: isSelected ? selectedTextColor : null,
-                                  fontWeight: isSelected
-                                      ? FontWeight.w700
-                                      : FontWeight.w600,
-                                ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
+    final selected = node.id == selectedNodeId;
+    return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+      LibraryFolderRow(
+        separateAfter: node.label == libraryEmptyGroupLabel,
+        label: node.label,
+        count: node.count,
+        selected: selected,
+        accent: accent,
+        depth: path.length,
+        indentation: path.length * 12,
+        rowPadding: rowPadding,
+        countWidth: countWidth,
+        onTap: onSelectPath == null ? null : () => onSelectPath!(nextPath),
+        leading: node.id == 'root'
+            ? null
+            : SizedBox(
+                width: 26,
+                height: 26,
+                child: node.hasChildren
+                    ? IconButton(
+                        tooltip: node.isExpanded ? 'Collapse' : 'Expand',
+                        onPressed: onToggleExpanded == null
+                            ? null
+                            : () => onToggleExpanded!(node.id),
+                        padding: EdgeInsets.zero,
+                        constraints:
+                            const BoxConstraints(minWidth: 26, minHeight: 26),
+                        visualDensity: VisualDensity.compact,
+                        icon: Icon(
+                            node.isExpanded
+                                ? Icons.expand_more
+                                : Icons.chevron_right,
+                            size: 16,
+                            color: selected
+                                ? appPalette(context).textPrimary
+                                : appPalette(context).textMuted),
+                      )
+                    : null,
               ),
-            );
-          },
-        ),
       ),
-    );
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        row,
-        if (isExpanded)
-          for (final child in node.children)
-            _FolderTreeNodeView(
-              node: child,
-              path: nextPath,
-              selectedNodeId: selectedNodeId,
-              expandedNodeIds: expandedNodeIds,
-              dividerColor: dividerColor,
-              selectionColor: selectionColor,
-              selectedBadgeColor: selectedBadgeColor,
-              badgeColor: badgeColor,
-              mutedTextColor: mutedTextColor,
-              accentColor: accentColor,
-              rowPadding: rowPadding,
-              onSelectPath: onSelectPath,
-              onToggleExpanded: onToggleExpanded,
-            ),
-      ],
-    );
+      if (node.isExpanded)
+        Container(
+          decoration: BoxDecoration(
+              border: Border(
+                  left: BorderSide(
+                      color: node.id == 'root'
+                          ? Colors.transparent
+                          : selected
+                              ? accent
+                              : appPalette(context).divider))),
+          child: Column(children: [
+            for (final child in node.children)
+              _FolderTreeNodeView(
+                node: child,
+                path: node.id == 'root' ? path : nextPath,
+                selectedNodeId: selectedNodeId,
+                accent: accent,
+                rowPadding: rowPadding,
+                countWidth: countWidth,
+                onSelectPath: onSelectPath,
+                onToggleExpanded: onToggleExpanded,
+              ),
+          ]),
+        ),
+    ]);
   }
 }
 
-class _LibrarySeriesRow extends StatefulWidget {
+class _LibrarySeriesRow extends StatelessWidget {
   const _LibrarySeriesRow({
     required this.bucket,
     required this.selected,
     required this.onTap,
-    required this.dividerColor,
     required this.selectionColor,
-    required this.selectedBadgeColor,
-    required this.badgeColor,
-    required this.mutedTextColor,
+    required this.countWidth,
     this.leadingInset = 0,
-    this.extraVerticalPadding = 4.0,
+    this.extraVerticalPadding = 4,
   });
-
   final LibraryBucket bucket;
   final bool selected;
   final VoidCallback onTap;
-  final Color dividerColor;
   final Color selectionColor;
-  final Color selectedBadgeColor;
-  final Color badgeColor;
-  final Color mutedTextColor;
-  final double leadingInset;
-  final double extraVerticalPadding;
-
-  @override
-  State<_LibrarySeriesRow> createState() => _LibrarySeriesRowState();
-}
-
-class _LibrarySeriesRowState extends State<_LibrarySeriesRow> {
-  bool _hovered = false;
+  final double countWidth, leadingInset, extraVerticalPadding;
 
   @override
   Widget build(BuildContext context) {
-    final selectedFill = Color.alphaBlend(
-      widget.selectionColor.withValues(alpha: 0.26),
-      appPalette(context).panel,
+    final row = LibraryFolderRow(
+      separateAfter: bucket.title == libraryEmptyGroupLabel,
+      label: bucket.title,
+      count: bucket.count,
+      selected: selected,
+      onTap: onTap,
+      accent: selectionColor,
+      countWidth: countWidth,
+      indentation: leadingInset,
+      rowPadding: extraVerticalPadding,
     );
-    final selectedTextColor = appContrastingTextColor(selectedFill);
-    final countTextColor = widget.selected
-        ? libraryAccentTextColor(widget.selectedBadgeColor, selectedFill)
-        : widget.mutedTextColor;
-    final gapTooltip = widget.bucket.missingNumbers.isNotEmpty
-        ? 'Missing: ${_formatMissingNumbers(widget.bucket.missingNumbers)}'
-        : null;
-    final bgColor = widget.selected
-        ? selectedFill
-        : _hovered
-            ? Color.alphaBlend(
-                widget.selectionColor.withValues(alpha: 0.14),
-                appPalette(context).panel,
-              )
-            : Colors.transparent;
-    Widget row = MouseRegion(
-      cursor: SystemMouseCursors.click,
-      onEnter: (_) => setState(() => _hovered = true),
-      onExit: (_) => setState(() => _hovered = false),
-      child: GestureDetector(
-        onTap: widget.onTap,
-        child: DecoratedBox(
-          decoration: BoxDecoration(
-            color: bgColor,
-            border: Border(
-              left: BorderSide(
-                color: widget.selected
-                    ? widget.selectedBadgeColor
-                    : Colors.transparent,
-                width: 2,
-              ),
-              bottom: BorderSide(color: widget.dividerColor),
-            ),
-          ),
-          child: SizedBox(
-            height: 30 + widget.extraVerticalPadding * 2,
-            child: LayoutBuilder(
-              builder: (context, constraints) {
-                // The sidebar is animated down to an almost zero-width rail.
-                // Do not lay out the fixed count/inset children while that
-                // transition is in progress; there is no visible content to
-                // preserve and the row would otherwise overflow before the
-                // rail finishes collapsing.
-                if (constraints.maxWidth <
-                    72 + (widget.leadingInset > 0 ? widget.leadingInset : 0)) {
-                  return const SizedBox.expand();
-                }
-                return Padding(
-                  padding: const EdgeInsets.only(left: 6, right: 8),
-                  child: Row(
-                    children: [
-                      if (widget.leadingInset > 0)
-                        SizedBox(width: widget.leadingInset),
-                      SizedBox(
-                        width: 20,
-                        child: Text(
-                          widget.bucket.count.toString(),
-                          textAlign: TextAlign.left,
-                          style:
-                              Theme.of(context).textTheme.labelSmall?.copyWith(
-                                    color: countTextColor,
-                                    fontWeight: FontWeight.w700,
-                                  ),
-                        ),
-                      ),
-                      const SizedBox(width: 6),
-                      Expanded(
-                        child: Text(
-                          widget.bucket.title,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: Theme.of(context)
-                              .textTheme
-                              .bodySmall
-                              ?.copyWith(
-                                color:
-                                    widget.selected ? selectedTextColor : null,
-                                fontWeight: widget.selected
-                                    ? FontWeight.w700
-                                    : FontWeight.w600,
-                              ),
-                        ),
-                      ),
-                    ],
-                  ),
-                );
-              },
-            ),
-          ),
-        ),
-      ),
-    );
-    if (gapTooltip != null) {
-      row = Tooltip(
-        message: gapTooltip,
-        waitDuration: const Duration(milliseconds: 400),
-        child: row,
-      );
-    }
-    return row;
+    return bucket.missingNumbers.isEmpty
+        ? row
+        : Tooltip(
+            message: 'Missing: ${_formatMissingNumbers(bucket.missingNumbers)}',
+            waitDuration: const Duration(milliseconds: 400),
+            child: row,
+          );
   }
 }
 
@@ -1064,7 +936,7 @@ class _SidebarAncestorScopeRow extends StatelessWidget {
         border: Border(bottom: BorderSide(color: dividerColor)),
       ),
       child: SizedBox(
-        height: 30,
+        height: kLibraryFolderRowHeight,
         child: LayoutBuilder(
           builder: (context, constraints) {
             if (constraints.maxWidth < 72 + depth * 12) {
@@ -1084,7 +956,7 @@ class _SidebarAncestorScopeRow extends StatelessWidget {
                       overflow: TextOverflow.ellipsis,
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
                             color: mutedTextColor,
-                            fontWeight: FontWeight.w700,
+                            fontWeight: FontWeight.w400,
                           ),
                     ),
                   ),

@@ -1,14 +1,14 @@
 import 'package:flutter/foundation.dart';
-import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
-import 'package:collectarr_app/features/library/kinds/comic/domain/comic_owned_item.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_catalog_item.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_library_entry.dart';
 import 'package:xml/xml.dart';
 
 /// Serializes and deserializes ComicInfo.xml (ComicRack/Kavita/Komga standard).
 class ComicInfoXml {
   const ComicInfoXml();
 
-  /// Builds ComicInfo.xml from the typed Comic media and owned copy.
-  String serialize(ComicMedia comic, [ComicOwnedItem? owned]) {
+  /// Builds ComicInfo.xml from the typed Comic media and collection item.
+  String serialize(ComicCatalogItem comic, [ComicLibraryEntry? entry]) {
     final builder = XmlBuilder();
     builder.processing('xml', 'version="1.0" encoding="utf-8"');
     builder.element('ComicInfo', nest: () {
@@ -28,11 +28,11 @@ class ComicInfoXml {
         comic.seriesTitle ?? comic.title,
       );
       _optionalElement(builder, 'Number', comic.issueNumber);
-      if (comic.series?.volumeNumber != null) {
+      if (comic.volumeNumber != null) {
         _optionalElement(
           builder,
           'Volume',
-          comic.series!.volumeNumber.toString(),
+          comic.volumeNumber!,
         );
       }
       _optionalElement(builder, 'Summary', comic.synopsis);
@@ -42,20 +42,22 @@ class ComicInfoXml {
         _optionalElement(builder, 'Day', comic.releaseDate!.day.toString());
       }
       _optionalElement(builder, 'Publisher', comic.publisher);
-      _optionalElement(builder, 'Format', comic.physicalFormatLabel);
+      _optionalElement(builder, 'Format', comic.physicalFormat);
 
-      // Personal fields from the typed Comic owned copy.
-      if (owned != null) {
-        _optionalElement(builder, 'Notes', owned.personalNotes);
-        if (owned.reading.rating != null && owned.reading.rating! > 0) {
+      // Personal fields from the typed Comic collection item.
+      if (entry != null) {
+        _optionalElement(builder, 'Notes', entry.personal.personalNotes);
+        if (entry.personal.reading.rating != null &&
+            entry.personal.reading.rating! > 0) {
           // ComicInfo uses 0-5 scale; our rating is 0-10, map accordingly
           final comicInfoRating =
-              (owned.reading.rating! / 2).round().clamp(0, 5);
+              (entry.personal.reading.rating! / 2).round().clamp(0, 5);
           _optionalElement(
               builder, 'CommunityRating', comicInfoRating.toStringAsFixed(1));
         }
-        if (owned.tags != null && owned.tags!.trim().isNotEmpty) {
-          _optionalElement(builder, 'Tags', owned.tags);
+        if (entry.personal.tags != null &&
+            entry.personal.tags!.trim().isNotEmpty) {
+          _optionalElement(builder, 'Tags', entry.personal.tags);
         }
       }
     });

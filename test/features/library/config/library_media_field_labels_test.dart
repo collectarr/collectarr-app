@@ -33,10 +33,11 @@ void main() {
     final movieLabels =
         libraryMediaSearchFieldLabels(const MovieRegistration());
 
-    expect(musicLabels.queryHint, 'Enter album, artist, release, or label...');
+    expect(musicLabels.queryHint, 'Enter album, artist, format, or label...');
     expect(musicLabels.emptySearchMessage,
-        'Enter an album, artist, release, or label.');
-    expect(movieLabels.queryHint, 'Enter title, creator, or keyword...');
+        'Enter an album, artist, format, or label.');
+    expect(
+        movieLabels.queryHint, 'Search by title, studio, year, or release...');
   });
 
   test('filter labels vary by media type', () {
@@ -73,7 +74,7 @@ void main() {
     final bookLabels = libraryMediaPreviewLabels(const BookRegistration());
 
     expect(musicLabels.labelFor('series'), 'Artist');
-    expect(musicLabels.labelFor('item_count'), 'Releases');
+    expect(musicLabels.labelFor('item_count'), 'Albums');
     expect(movieLabels.labelFor('series'), 'Series');
     expect(movieLabels.labelFor('item_count'), 'Items');
     expect(bookLabels.labelFor('item_count'), 'Volumes');
@@ -88,11 +89,9 @@ void main() {
         'Top Franchises');
     expect(gameKindPresentation.statsLabels.labelFor('top_publisher'),
         'Top Publishers / Studios');
-    expect(comicKindMetadata.usesTreeProviderCandidates, isTrue);
-    expect(bookKindMetadata.usesTreeProviderCandidates, isFalse);
   });
 
-  test('filter definitions are kind-owned and grade is not universal', () {
+  test('filter definitions are kind-entry and grade is not universal', () {
     final comicFilterIds = comicKindPresentation.filterDefinitions
         .map((definition) => definition.id)
         .toSet();

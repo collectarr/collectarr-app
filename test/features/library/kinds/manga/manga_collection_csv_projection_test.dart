@@ -1,4 +1,3 @@
-import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/kinds/manga/integrations/collection_csv/manga_collection_csv_import_profile.dart';
 import 'package:collectarr_app/features/library/kinds/manga/integrations/collection_csv/manga_collection_csv_projection.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -50,7 +49,7 @@ void main() {
       '9784592132043',
     ]);
     expect(
-      profile.importOwnedCells(
+      profile.importEntryCells(
         header: const ['Media Type'],
         values: const ['Manga'],
       ),
@@ -60,26 +59,27 @@ void main() {
 
   test('projects Manga catalog cells with volume semantics', () {
     final projection = const MangaCollectionCsvProjection();
-    final entry = LibraryWorkspaceSource(
+    final entry = testLibraryWorkspaceSource(
       itemId: 'manga-1',
       catalogData: testWorkspaceCatalogData(
           testCatalogItemWithKindMetadata(testCatalogItem(
         id: 'manga-1',
         kind: 'manga',
         title: 'Berserk',
-        itemNumber: '1',
-        variant: 'Tankobon',
         editionTitle: 'Volume 1',
         physicalFormat: 'tankobon',
         physicalFormatLabel: 'Tankobon',
         publisher: 'Hakusensha',
-        releaseDate: DateTime.utc(1990, 11, 1),
         barcode: '9784592132043',
+        payload: const {
+          'volume_number': 1,
+          'variant_name': 'Tankobon',
+          'original_publication_date': '1990-11-01T00:00:00.000Z',
+        },
       )).asShelfCatalogItem),
-      ownedSummary: testOwnedSummary(testOwnedItem(
-        id: 'owned-1',
+      libraryEntrySummary: testLibraryEntrySummary(testLibraryEntry(
+        id: 'entry-1',
         itemId: 'manga-1',
-        quantity: 1,
         updatedAt: DateTime.utc(2026, 5, 15),
       )),
     );
@@ -98,11 +98,11 @@ void main() {
       '9784592132043',
     ]);
     expect(
-      projection.ownedCellsBeforeQuantity(entry, clzFriendly: false),
+      projection.entryCellsBeforeLocation(entry, clzFriendly: false),
       isEmpty,
     );
     expect(
-      projection.ownedCellsAfterIndex(entry, clzFriendly: false),
+      projection.entryCellsAfterIndex(entry, clzFriendly: false),
       everyElement(isEmpty),
     );
   });

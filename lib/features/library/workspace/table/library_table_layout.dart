@@ -20,32 +20,6 @@ List<T> orderedLibraryTableColumns<T>({
   ];
 }
 
-List<T> reorderLibraryTableColumns<T>({
-  required Iterable<T> columns,
-  required T column,
-  required T? beforeColumn,
-}) {
-  final ordered = columns.toList(growable: true);
-  final currentIndex = ordered.indexOf(column);
-  if (currentIndex == -1) {
-    return ordered;
-  }
-  if (beforeColumn != null && beforeColumn == column) {
-    return ordered;
-  }
-  final targetIndex =
-      beforeColumn == null ? ordered.length : ordered.indexOf(beforeColumn);
-  if (targetIndex == -1) {
-    return ordered;
-  }
-
-  final movingColumn = ordered.removeAt(currentIndex);
-  final insertIndex =
-      beforeColumn == null ? ordered.length : ordered.indexOf(beforeColumn);
-  ordered.insert(insertIndex, movingColumn);
-  return ordered;
-}
-
 double libraryTableColumnWidth<T>({
   required T column,
   required Map<T, double> customWidths,

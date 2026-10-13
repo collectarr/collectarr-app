@@ -1,49 +1,49 @@
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/metadata_field_id.dart';
+import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/core/models/user_metadata_override.dart';
 
-/// Resolves opaque kind-owned metadata overrides for catalog display.
+/// Resolves opaque kind-entry metadata overrides for catalog display.
 ///
-/// The host compares structural references only. Field IDs and values remain
+/// The host compares local entry references only. Field IDs and values remain
 /// the responsibility of the owning kind.
 class MetadataOverrideResolver {
   MetadataOverrideResolver(Iterable<UserMetadataOverride> overrides)
       : _byField = {
           for (final override in overrides)
             if (!override.isDeleted)
-              _key(override.targetRef, override.fieldId): override,
+              _key(override.libraryEntryRef, override.fieldId): override,
         };
 
-  final Map<(CatalogEntityRef, MetadataFieldId), UserMetadataOverride> _byField;
+  final Map<(LibraryEntryRef, MetadataFieldId), UserMetadataOverride> _byField;
 
-  static (CatalogEntityRef, MetadataFieldId) _key(
-    CatalogEntityRef target,
+  static (LibraryEntryRef, MetadataFieldId) _key(
+    LibraryEntryRef libraryEntryRef,
     MetadataFieldId fieldId,
   ) =>
-      (target, fieldId);
+      (libraryEntryRef, fieldId);
 
   bool get hasOverrides => _byField.isNotEmpty;
 
   Iterable<UserMetadataOverride> get overrides => _byField.values;
 
   UserMetadataOverride? find(
-    CatalogEntityRef target,
+    LibraryEntryRef libraryEntryRef,
     MetadataFieldId fieldId,
   ) =>
-      _byField[_key(target, fieldId)];
+      _byField[_key(libraryEntryRef, fieldId)];
 
   String? resolve(
-    CatalogEntityRef target,
+    LibraryEntryRef libraryEntryRef,
     MetadataFieldId fieldId,
     String? original,
   ) =>
-      find(target, fieldId)?.overrideValue ?? original;
+      find(libraryEntryRef, fieldId)?.overrideValue ?? original;
 
-  Map<CatalogEntityRef, List<UserMetadataOverride>> groupedByTarget() {
-    final result = <CatalogEntityRef, List<UserMetadataOverride>>{};
+  Map<LibraryEntryRef, List<UserMetadataOverride>> groupedByLibraryEntry() {
+    final result = <LibraryEntryRef, List<UserMetadataOverride>>{};
     for (final override in _byField.values) {
       result
-          .putIfAbsent(override.targetRef, () => <UserMetadataOverride>[])
+          .putIfAbsent(override.libraryEntryRef, () => <UserMetadataOverride>[])
           .add(override);
     }
     return result;

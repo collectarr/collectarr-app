@@ -10,13 +10,13 @@ class HierarchyChildrenSection extends ConsumerWidget {
   const HierarchyChildrenSection({
     super.key,
     required this.kind,
+    required this.itemId,
     this.title,
-    this.itemId,
   });
 
   final CatalogMediaKind kind;
+  final String itemId;
   final String? title;
-  final String? itemId;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

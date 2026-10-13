@@ -6,14 +6,8 @@ import 'package:collectarr_app/features/collection/providers/local_cover_image_p
 import 'package:collectarr_app/features/collection/repositories/location_provider.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/generic/library_custom_field_cache.dart';
-import 'package:collectarr_app/features/library/detail/library_detail_page.dart';
 import 'package:collectarr_app/features/library/home/home_counts.dart';
-import 'package:collectarr_app/features/library/kinds/anime/tracking/anime_tracking_state_provider.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/data/boardgame_play_session_providers.dart';
-import 'package:collectarr_app/features/library/kinds/music/data/music_listening_providers.dart';
-import 'package:collectarr_app/features/library/kinds/music/data/music_release_image_providers.dart';
-import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_tracking_mutation_provider.dart';
-import 'package:collectarr_app/features/library/kinds/tv/tracking/tv_tracking_state_provider.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_provider_invalidation_registry.dart';
 import 'package:collectarr_app/features/settings/database_backup.dart';
 import 'package:collectarr_app/features/sync/state/sync_controller.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
@@ -71,17 +65,9 @@ void invalidateLocalDatabaseProjections(WidgetRef ref) {
   ref.invalidate(globalActivityProvider);
   ref.invalidate(calendarEventsProvider);
   ref.invalidate(localItemImageProvider);
-  ref.invalidate(localCoverImageProvider);
-  ref.invalidate(animeTrackingStateBySeriesIdProvider);
-  ref.invalidate(boardGamePlaySessionsProvider);
-  ref.invalidate(boardGameAllPlaySessionsProvider);
-  ref.invalidate(boardGamePlayStatsProvider);
-  ref.invalidate(musicListeningEventsProvider);
-  ref.invalidate(musicReleaseGroupTrackingSummaryProvider);
-  ref.invalidate(musicReleaseImagesProvider);
-  ref.invalidate(overdueLoanOwnedItemIdsProvider);
-  ref.invalidate(activeOwnedCopiesByCatalogItemProvider);
+  ref.invalidate(overdueLoanLibraryEntryIdsProvider);
   ref.invalidate(libraryCustomFieldCacheProvider);
-  ref.invalidate(tvTrackingStateBySeriesIdProvider);
-  ref.invalidate(tvCustomEpisodesByCatalogRefProvider);
+  for (final invalidate in kindDatabaseMaintenanceProjectionInvalidators) {
+    invalidate(ref);
+  }
 }

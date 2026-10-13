@@ -1,9 +1,11 @@
-import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/models/item_image.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/edit/draft/library_edit_models.dart';
-import 'package:collectarr_app/features/library/kinds/comic/domain/comic_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_catalog_item.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_link.dart';
+import 'package:collectarr_app/features/library/kinds/comic/forms/comic_person_draft.dart';
+import 'package:collectarr_app/features/library/edit/fields/library_external_links_table.dart';
 import 'package:flutter/material.dart';
 
 import 'comic_edit_models.dart';
@@ -13,41 +15,43 @@ class ComicEditController {
     required this.item,
     required this.itemImages,
   })  : crossoverController = TextEditingController(text: item.crossover ?? ''),
-        storyArcsController =
-            TextEditingController(text: item.storyArcs.join(', ')),
-        imprintController = TextEditingController(
-            text: item.imprint ?? item.publishing?.imprint ?? ''),
-        pageCountController = TextEditingController(
-            text: (item.pageCount ?? item.publishing?.pageCount)?.toString() ??
-                ''),
+        storyArcsController = TextEditingController(
+          text: item.storyArcs
+              .map((arc) => arc.name)
+              .whereType<String>()
+              .join(', '),
+        ),
+        imprintController = TextEditingController(text: item.imprint ?? ''),
+        pageCountController =
+            TextEditingController(text: item.pageCount?.toString() ?? ''),
         ageRatingController = TextEditingController(text: item.ageRating ?? ''),
         genresEditController =
             TextEditingController(text: item.genres.join(', ')),
-        seriesGroupController = TextEditingController(),
+        seriesGroupController =
+            TextEditingController(text: item.seriesGroup ?? ''),
         numberController = TextEditingController(text: item.issueNumber ?? ''),
-        publisherController = TextEditingController(
-            text: item.publisher ?? item.publishing?.originalPublisher ?? ''),
+        publisherController = TextEditingController(text: item.publisher ?? ''),
         editionTitleController =
             TextEditingController(text: item.editionTitle ?? ''),
         barcodeController = TextEditingController(text: item.barcode ?? ''),
         variantController = TextEditingController(text: item.variant ?? ''),
         physicalFormatLabelController = TextEditingController(
-            text: item.physicalFormatLabel ?? item.variant ?? ''),
+            text: item.physicalFormat ?? item.variant ?? ''),
         physicalFormatId = item.physicalFormat,
         coverDateController = TextEditingController(
             text: item.coverDate == null ? '' : formatDate(item.coverDate!)),
         languageController = TextEditingController(text: item.language),
         countryController = TextEditingController(text: item.country),
-        seriesTitleController = TextEditingController(
-            text: item.seriesTitle ?? item.series?.seriesTitle ?? item.title),
-        seriesId = item.series?.seriesId,
+        seriesTitleController =
+            TextEditingController(text: item.seriesTitle ?? item.title),
+        seriesId = item.seriesId,
         releaseDateController = TextEditingController(
             text:
                 item.releaseDate == null ? '' : formatDate(item.releaseDate!)),
         releaseYearController = TextEditingController(
             text: item.releaseDate?.year.toString() ?? '');
 
-  final ComicMedia item;
+  final ComicCatalogItem item;
   final List<ItemImage> itemImages;
 
   final TextEditingController crossoverController;
@@ -75,29 +79,33 @@ class ComicEditController {
 
   final List<EditableComicCreator> creators = [];
   final List<EditableComicCharacter> characters = [];
-  final List<Map<String, TextEditingController>> links = [];
-  final TextEditingController characterDraftController =
-      TextEditingController();
+  final List<LibraryExternalLinkDraftRow> links = [];
+  final Map<LibraryExternalLinkDraftRow, ComicLink> originalLinks = {};
 
   void initialize() {
     creators.addAll(initComicCreators(item));
     characters.addAll(initComicCharacters(item));
     for (final link in item.links.where((entry) => entry.isExternalLink)) {
-      links.add(createLinkControllers(
+      final row = createLinkDraft(
         title: link.title ?? link.description ?? '',
         url: link.url,
-      ));
+        description: link.description ?? '',
+      );
+      links.add(row);
+      originalLinks[row] = link;
     }
   }
 
-  Map<String, TextEditingController> createLinkControllers({
+  LibraryExternalLinkDraftRow createLinkDraft({
     String title = '',
     String url = '',
+    String description = '',
   }) {
-    return <String, TextEditingController>{
-      'title': TextEditingController(text: title),
-      'url': TextEditingController(text: url),
-    };
+    return LibraryExternalLinkDraftRow(
+      title: title,
+      url: url,
+      description: description,
+    );
   }
 
   void dispose() {
@@ -108,7 +116,6 @@ class ComicEditController {
     ageRatingController.dispose();
     genresEditController.dispose();
     seriesGroupController.dispose();
-    characterDraftController.dispose();
     numberController.dispose();
     publisherController.dispose();
     editionTitleController.dispose();
@@ -128,8 +135,7 @@ class ComicEditController {
       character.dispose();
     }
     for (final link in links) {
-      link['title']?.dispose();
-      link['url']?.dispose();
+      link.dispose();
     }
   }
 
@@ -145,48 +151,16 @@ class ComicEditController {
         .where((s) => s.isNotEmpty)
         .toList();
 
-    final currentMeta = selection.kindItem.kindCapability
-            .mapTransport((transport) => transport)
-            .kindMetadata is ComicMedia
-        ? selection.kindItem.kindCapability
-            .mapTransport((transport) => transport)
-            .kindMetadata as ComicMedia
-        : item;
-
-    final updatedSeries = (currentMeta.series != null ||
-            seriesId != null ||
-            emptyToNull(seriesTitleController.text) != null)
-        ? CatalogSeriesDetailsDto(
-            seriesId: seriesId ?? currentMeta.series?.seriesId,
-            seriesTitle: emptyToNull(seriesTitleController.text) ??
-                currentMeta.series?.seriesTitle,
-            volumeName: currentMeta.series?.volumeName,
-            volumeNumber: currentMeta.series?.volumeNumber,
-            volumeStartYear: currentMeta.series?.volumeStartYear,
-          )
-        : null;
-
-    final updatedPublishing = (currentMeta.publishing != null ||
-            emptyToNull(publisherController.text) != null ||
-            emptyToNull(imprintController.text) != null ||
-            int.tryParse(pageCountController.text) != null)
-        ? CatalogPublishingDetailsDto(
-            originalPublisher: emptyToNull(publisherController.text) ??
-                currentMeta.publishing?.originalPublisher,
-            imprint: emptyToNull(imprintController.text) ??
-                currentMeta.publishing?.imprint,
-            pageCount: int.tryParse(pageCountController.text) ??
-                currentMeta.publishing?.pageCount,
-          )
-        : null;
+    final currentMeta = selection.kindItem.kindCapability.mapTransport(
+      (transport) => ComicCatalogItem.fromJson(transport.kindData),
+    );
 
     final updatedMeta = currentMeta.copyWith(
       title: emptyToNull(seriesTitleController.text) ?? currentMeta.title,
       crossover: emptyToNull(crossoverController.text),
-      storyArcs:
-          parsedStoryArcs.isNotEmpty ? parsedStoryArcs : currentMeta.storyArcs,
+      storyArcs: _replaceStoryArcs(currentMeta.storyArcs, parsedStoryArcs),
       ageRating: emptyToNull(ageRatingController.text),
-      genres: parsedGenres.isNotEmpty ? parsedGenres : currentMeta.genres,
+      genres: parsedGenres,
       imprint: emptyToNull(imprintController.text),
       pageCount: int.tryParse(pageCountController.text),
       issueNumber: emptyToNull(numberController.text),
@@ -195,24 +169,19 @@ class ComicEditController {
       barcode: emptyToNull(barcodeController.text),
       variant: emptyToNull(variantController.text),
       physicalFormat: physicalFormatId,
-      physicalFormatLabel: emptyToNull(physicalFormatLabelController.text) ??
-          currentMeta.physicalFormatLabel ??
-          currentMeta.variant,
       coverDate: parseDate(coverDateController.text),
       releaseDate: parseDate(releaseDateController.text),
       language: emptyToNull(languageController.text) ?? currentMeta.language,
       country: emptyToNull(countryController.text) ?? currentMeta.country,
       seriesTitle: emptyToNull(seriesTitleController.text),
-      series:
-          updatedSeries != null && updatedSeries.hasData ? updatedSeries : null,
-      publishing: updatedPublishing != null && updatedPublishing.hasData
-          ? updatedPublishing
-          : null,
+      seriesId: seriesId ?? currentMeta.seriesId,
+      seriesGroup: emptyToNull(seriesGroupController.text),
     );
 
     final updatedItem = selection.kindItem.kindCapability.mapTransport(
       (transport) => CatalogSearchCandidate.fromItem(
-        transport.withKindMetadata(updatedMeta),
+        transport.replacingKindData(updatedMeta),
+        basedOn: selection.kindItem,
       ),
     );
     final withMetadata = selection.copyWith(kindItem: updatedItem);
@@ -221,6 +190,23 @@ class ComicEditController {
       creators,
       characters,
       links,
+      originalExternalLinks: originalLinks,
     );
   }
+}
+
+List<ComicStoryArc> _replaceStoryArcs(
+  List<ComicStoryArc> original,
+  List<String> values,
+) {
+  final existing = {
+    for (final arc in original)
+      if (arc.name?.trim().isNotEmpty == true)
+        arc.name!.trim().toLowerCase(): arc,
+  };
+  return [
+    for (final value in values)
+      (existing[value.toLowerCase()] ?? const ComicStoryArc())
+          .copyWith(name: value),
+  ];
 }

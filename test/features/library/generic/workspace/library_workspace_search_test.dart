@@ -22,7 +22,7 @@ void main() {
               onScanBarcode: () {},
               onScanCover: () {},
               onRandomPick: () {},
-              selectedFilterLabel: 'Owned',
+              selectedFilterLabel: 'Entry',
               onClearFilter: () {},
               selectionColor: Colors.cyan,
             ),
@@ -32,10 +32,10 @@ void main() {
     );
 
     expect(find.byIcon(Icons.search), findsOneWidget);
-    expect(find.byIcon(Icons.qr_code_2), findsOneWidget);
+    expect(find.byIcon(Icons.barcode_reader), findsOneWidget);
     expect(find.byIcon(Icons.image_search), findsOneWidget);
     expect(find.byIcon(Icons.casino_outlined), findsOneWidget);
-    expect(find.text('Owned'), findsOneWidget);
+    expect(find.text('Entry'), findsOneWidget);
 
     await tester.tap(find.byIcon(Icons.search));
     await tester.pump();
@@ -74,11 +74,16 @@ void main() {
 
     expect(find.byKey(const ValueKey('library-search-target-button')),
         findsOneWidget);
-    expect(find.text('Albums & Tracks'), findsOneWidget);
+    expect(
+      find.byKey(const ValueKey('library-search-target-icon-all')),
+      findsOneWidget,
+    );
+    expect(find.text('Albums & Tracks'), findsNothing);
 
     await tester
         .tap(find.byKey(const ValueKey('library-search-target-button')));
     await tester.pumpAndSettle();
+    expect(find.byType(PopupMenuItem<LibrarySearchTarget>), findsNWidgets(3));
     await tester.tap(find.text('Tracks').last);
     await tester.pumpAndSettle();
 

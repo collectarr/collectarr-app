@@ -2,6 +2,23 @@ import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 
+// Shared paint for the folder panel and the collection browsing surface.
+Color libraryWorkspaceBackgroundColor(BuildContext context) =>
+    appPalette(context).panel;
+
+Color libraryWorkspaceToolbarColor(BuildContext context) =>
+    appPalette(context).toolbar;
+
+Color libraryWorkspacePaneDividerColor(BuildContext context) =>
+    Theme.of(context).brightness == Brightness.dark
+        ? const Color(0xff262626)
+        : appPalette(context).divider;
+
+Border libraryWorkspaceToolbarBorder(BuildContext context) => Border(
+      top: BorderSide(color: appPalette(context).divider),
+      bottom: BorderSide(color: libraryWorkspacePaneDividerColor(context)),
+    );
+
 const kLibraryToolbarCompactDropdownSize = 28.0;
 const kLibraryToolbarCompactDropdownWidth = 38.0;
 const kLibraryToolbarBandHeight = 38.0;
@@ -90,16 +107,16 @@ extension LibraryWorkspaceDensityPresetMetrics
   double get tableHeaderHeight {
     return switch (this) {
       LibraryWorkspaceDensityPreset.comfortable => 30.0,
-      LibraryWorkspaceDensityPreset.compact => 28.0,
+      LibraryWorkspaceDensityPreset.compact => 26.0,
       LibraryWorkspaceDensityPreset.ultraCompact => 26.0,
     };
   }
 
   double get tableRowHeight {
     return switch (this) {
-      LibraryWorkspaceDensityPreset.comfortable => 38.0,
-      LibraryWorkspaceDensityPreset.compact => 34.0,
-      LibraryWorkspaceDensityPreset.ultraCompact => 30.0,
+      LibraryWorkspaceDensityPreset.comfortable => 32.0,
+      LibraryWorkspaceDensityPreset.compact => 26.0,
+      LibraryWorkspaceDensityPreset.ultraCompact => 22.0,
     };
   }
 
@@ -171,41 +188,36 @@ extension LibraryWorkspaceDensityPresetMetrics
   }
 }
 
-Color libraryToolbarMenuSurface(BuildContext context) => Color.alphaBlend(
-      Colors.black.withValues(alpha: 0.05),
-      appPalette(context).panelRaised,
-    );
-
+Color libraryToolbarMenuSurface(BuildContext context) =>
+    appPalette(context).isDark
+        ? const Color(0xff444444)
+        : appPalette(context).panelRaised;
 Color libraryToolbarMenuBorder(BuildContext context) =>
-    appPalette(context).divider.withValues(alpha: 0.95);
+    appPalette(context).isDark
+        ? const Color(0xff666666)
+        : appPalette(context).divider;
 
 Color libraryToolbarMenuText(BuildContext context) =>
     appPalette(context).textPrimary;
-
 Color libraryToolbarMenuMutedText(BuildContext context) =>
     appPalette(context).textMuted;
-
-Color libraryToolbarMenuHover(BuildContext context) => Color.alphaBlend(
-      appPalette(context).textPrimary.withValues(
-            alpha: appPalette(context).isDark ? 0.14 : 0.08,
-          ),
-      libraryToolbarMenuSurface(context),
-    );
-
-Color libraryToolbarControlSurface(BuildContext context) => Color.alphaBlend(
-      Colors.white.withValues(alpha: 0.015),
-      appPalette(context).toolbar,
-    );
-
+Color libraryToolbarMenuHover(BuildContext context) =>
+    appPalette(context).isDark
+        ? const Color(0xff464950)
+        : appPalette(context).highlight;
+Color libraryToolbarControlSurface(BuildContext context) =>
+    libraryWorkspaceToolbarColor(context);
 Color libraryToolbarControlBorder(BuildContext context) =>
-    appPalette(context).divider.withValues(alpha: 0.75);
+    appPalette(context).divider;
+Color libraryToolbarControlHover(BuildContext context) =>
+    appPalette(context).isDark
+        ? const Color(0xff464950)
+        : appPalette(context).panelRaised;
 
-Color libraryToolbarControlHover(BuildContext context) => Color.alphaBlend(
-      appPalette(context).textPrimary.withValues(
-            alpha: appPalette(context).isDark ? 0.12 : 0.07,
-          ),
-      libraryToolbarControlSurface(context),
-    );
+Color libraryWorkspaceTableHeaderColor(BuildContext context) =>
+    appPalette(context).isDark
+        ? const Color(0xff464950)
+        : appPalette(context).surface;
 
 Color libraryWorkspaceSelectionBackground(
   BuildContext context, {

@@ -1,5 +1,5 @@
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_personal_field_registry.dart';
-import 'package:collectarr_app/features/library/metadata/library_field_ownership.dart';
+import 'package:collectarr_app/features/library/metadata/library_field_entries.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:collectarr_app/ui/compact_search_dropdown_form_field.dart';
 import 'package:collectarr_app/ui/accent_dialog_header.dart';
@@ -102,7 +102,7 @@ class _SyncSettingsDialogState extends State<SyncSettingsDialog> {
       icon: Icons.sync,
       trailing: TextButton(
         style: TextButton.styleFrom(
-          foregroundColor: appContrastingTextColor(appPalette(context).accent),
+          foregroundColor: Colors.white,
         ),
         onPressed: () {
           setState(() {
@@ -128,7 +128,7 @@ class _SyncSettingsDialogState extends State<SyncSettingsDialog> {
             field.group,
             style: TextStyle(
               fontSize: 12,
-              fontWeight: FontWeight.w800,
+              fontWeight: FontWeight.w700,
               color: kAppHighlight,
               letterSpacing: 0.5,
             ),

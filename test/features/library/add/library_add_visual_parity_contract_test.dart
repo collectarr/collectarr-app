@@ -33,7 +33,6 @@ void main() {
         commonDraft: const LibraryAddCommonDraft(),
         kindDraft: null,
         manualDraft: manualDraft.kindDraft,
-        titleController: manualDraft.titleController,
         tagsController: manualDraft.tagsController,
         personalNotesController: manualDraft.personalNotesController,
         coverPriceController: manualDraft.coverPriceController,
@@ -43,16 +42,16 @@ void main() {
         sellPriceController: manualDraft.sellPriceController,
         soldDateController: manualDraft.soldDateController,
         ownerLabelController: manualDraft.ownerLabelController,
-        linksController: manualDraft.linksController,
         isAdding: false,
         defaultCondition:
             libraryEditPresentationForKind(runtime.kind).defaultCondition,
         defaultLocationLabel: null,
         defaultPurchaseDate: null,
         defaultTags: null,
-        onAddOwned: () {},
+        onAddEntry: () {},
         onAddWishlist: () {},
         onAddTrack: () {},
+        onPropose: () {},
       );
       for (final density in LibraryDensity.values) {
         await tester.pumpWidget(

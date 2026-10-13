@@ -1,21 +1,29 @@
 part of 'admin_metadata.dart';
 
-// Catalog summary, search, and audit log models
+// Catalog summary, ingest jobs, search, audit log models
 
 class AdminCatalogSummary {
   const AdminCatalogSummary({
     required this.items,
     this.itemsByKind = const <String, int>{},
+    required this.series,
+    required this.volumes,
+    required this.editions,
+    required this.variants,
     required this.imageAssets,
-    required this.imageCacheEntries,
+    required this.pendingProposals,
     required this.missingCoverItems,
     required this.duplicateCandidateGroups,
   });
 
   final int items;
   final Map<String, int> itemsByKind;
+  final int series;
+  final int volumes;
+  final int editions;
+  final int variants;
   final int imageAssets;
-  final int imageCacheEntries;
+  final int pendingProposals;
   final int missingCoverItems;
   final int duplicateCandidateGroups;
 
@@ -36,31 +44,44 @@ class AdminCatalogSummary {
               ),
             )
           : const <String, int>{},
+      series: json['series'] as int? ?? 0,
+      volumes: json['volumes'] as int? ?? 0,
+      editions: json['editions'] as int? ?? 0,
+      variants: json['variants'] as int? ?? 0,
       imageAssets: json['image_assets'] as int? ?? 0,
-      imageCacheEntries: json['image_cache_entries'] as int? ?? 0,
+      pendingProposals: json['pending_proposals'] as int? ?? 0,
       missingCoverItems: json['missing_cover_items'] as int? ?? 0,
       duplicateCandidateGroups: json['duplicate_candidate_groups'] as int? ?? 0,
     );
   }
 }
 
-class AdminCatalogItemIntegrityReport {
-  const AdminCatalogItemIntegrityReport({
-    required this.scannedItems,
-    required this.invalidItems,
-    this.scanLimit,
-    this.scanLimited = false,
+class AdminNormalizedMetadataDriftReport {
+  const AdminNormalizedMetadataDriftReport({
+    required this.expectedSchemaVersion,
+    required this.scannedEntities,
+    required this.entitiesWithNormalized,
+    required this.driftedEntities,
+    required this.typedScannedItems,
+    required this.typedDriftedItems,
+    this.schemaIssueCount = 0,
+    this.blockingIssueCount = 0,
+    required this.releaseGateOk,
     this.issueCounts = const <String, int>{},
   });
 
-  final int scannedItems;
-  final int invalidItems;
-  final int? scanLimit;
-  final bool scanLimited;
+  final int expectedSchemaVersion;
+  final int scannedEntities;
+  final int entitiesWithNormalized;
+  final int driftedEntities;
+  final int typedScannedItems;
+  final int typedDriftedItems;
+  final int schemaIssueCount;
+  final int blockingIssueCount;
+  final bool releaseGateOk;
   final Map<String, int> issueCounts;
 
-  bool get isValid => invalidItems == 0;
-  int get issueCount => issueCounts.values.fold(0, (sum, count) => sum + count);
+  bool get hasDrift => driftedEntities > 0 || typedDriftedItems > 0;
 
   String? get topIssue {
     if (issueCounts.isEmpty) {
@@ -77,174 +98,26 @@ class AdminCatalogItemIntegrityReport {
     return entries.first.key;
   }
 
-  factory AdminCatalogItemIntegrityReport.fromJson(Map<String, dynamic> json) {
+  factory AdminNormalizedMetadataDriftReport.fromJson(
+      Map<String, dynamic> json) {
     final issueCounts = json['issue_counts'];
-    return AdminCatalogItemIntegrityReport(
-      scannedItems: json['scanned_items'] as int? ?? 0,
-      invalidItems: json['invalid_items'] as int? ?? 0,
-      scanLimit: json['scan_limit'] as int?,
-      scanLimited: json['scan_limited'] as bool? ?? false,
+    return AdminNormalizedMetadataDriftReport(
+      expectedSchemaVersion: json['expected_schema_version'] as int? ?? 0,
+      scannedEntities: json['scanned_entities'] as int? ?? 0,
+      entitiesWithNormalized: json['entities_with_normalized'] as int? ?? 0,
+      driftedEntities: json['drifted_entities'] as int? ?? 0,
+      typedScannedItems: json['typed_scanned_items'] as int? ?? 0,
+      typedDriftedItems: json['typed_drifted_items'] as int? ?? 0,
+      schemaIssueCount: json['schema_issue_count'] as int? ?? 0,
+      blockingIssueCount: json['blocking_issue_count'] as int? ?? 0,
+      releaseGateOk: json['release_gate_ok'] as bool? ??
+          ((json['blocking_issue_count'] as int? ?? 0) == 0 &&
+              (json['typed_drifted_items'] as int? ?? 0) == 0),
       issueCounts: issueCounts is Map<String, dynamic>
           ? issueCounts.map(
               (key, value) => MapEntry(key, (value as num?)?.toInt() ?? 0),
             )
           : const <String, int>{},
-    );
-  }
-}
-
-class AdminProviderIngestHistoryEntry {
-  const AdminProviderIngestHistoryEntry({
-    required this.id,
-    required this.timestamp,
-    required this.provider,
-    required this.providerItemId,
-    required this.status,
-    required this.attempts,
-    this.itemId,
-    this.error,
-  });
-
-  final int id;
-  final DateTime timestamp;
-  final String provider;
-  final String providerItemId;
-  final String status;
-  final int attempts;
-  final String? itemId;
-  final String? error;
-
-  bool get isFailed => status == 'failed';
-
-  String get displayTitle => '$provider $providerItemId';
-
-  factory AdminProviderIngestHistoryEntry.fromJson(Map<String, dynamic> json) {
-    return AdminProviderIngestHistoryEntry(
-      id: json['id'] as int? ?? 0,
-      timestamp: DateTime.tryParse(json['timestamp'] as String? ?? '') ??
-          DateTime.fromMillisecondsSinceEpoch(0, isUtc: true),
-      provider: json['provider'] as String? ?? '',
-      providerItemId: json['provider_item_id']?.toString() ?? '',
-      status: json['status'] as String? ?? 'unknown',
-      attempts: json['attempts'] as int? ?? 0,
-      itemId: json['item_id']?.toString(),
-      error: json['error'] as String?,
-    );
-  }
-}
-
-class AdminProviderIngestJob {
-  const AdminProviderIngestJob({
-    required this.id,
-    required this.provider,
-    required this.providerItemId,
-    required this.status,
-    required this.attempts,
-    required this.maxAttempts,
-    required this.createdAt,
-    required this.updatedAt,
-    this.nextRunAt,
-    this.itemId,
-    this.lastError,
-  });
-
-  final String id;
-  final String provider;
-  final String providerItemId;
-  final String status;
-  final int attempts;
-  final int maxAttempts;
-  final DateTime? nextRunAt;
-  final String? itemId;
-  final String? lastError;
-  final DateTime createdAt;
-  final DateTime updatedAt;
-
-  bool get isFailed => status == 'failed';
-  bool get isQueued => status == 'queued';
-  bool get isRunning => status == 'running';
-  bool get isDone => status == 'done';
-
-  String get displayTitle => '$provider $providerItemId';
-
-  factory AdminProviderIngestJob.fromJson(Map<String, dynamic> json) {
-    return AdminProviderIngestJob(
-      id: json['id']?.toString() ?? '',
-      provider: json['provider'] as String? ?? '',
-      providerItemId: json['provider_item_id']?.toString() ?? '',
-      status: json['status'] as String? ?? 'queued',
-      attempts: json['attempts'] as int? ?? 0,
-      maxAttempts: json['max_attempts'] as int? ?? 1,
-      nextRunAt: _parseDateTime(json['next_run_at'] as String?),
-      itemId: json['item_id']?.toString(),
-      lastError: json['last_error'] as String?,
-      createdAt: _parseDateTime(json['created_at'] as String?) ??
-          DateTime.fromMillisecondsSinceEpoch(0, isUtc: true),
-      updatedAt: _parseDateTime(json['updated_at'] as String?) ??
-          DateTime.fromMillisecondsSinceEpoch(0, isUtc: true),
-    );
-  }
-}
-
-class AdminProviderIngestJobRunResult {
-  const AdminProviderIngestJobRunResult({
-    required this.processed,
-    required this.jobs,
-    required this.recovered,
-  });
-
-  final int processed;
-  final List<AdminProviderIngestJob> jobs;
-  final int recovered;
-
-  factory AdminProviderIngestJobRunResult.fromJson(Map<String, dynamic> json) {
-    return AdminProviderIngestJobRunResult(
-      processed: json['processed'] as int? ?? 0,
-      recovered: json['recovered'] as int? ?? 0,
-      jobs: [
-        for (final row in (json['jobs'] as List<dynamic>? ?? []))
-          AdminProviderIngestJob.fromJson(row as Map<String, dynamic>),
-      ],
-    );
-  }
-}
-
-class AdminProviderIngestJobSummary {
-  const AdminProviderIngestJobSummary({
-    required this.queued,
-    required this.running,
-    required this.failed,
-    required this.done,
-    required this.dueQueued,
-    required this.staleRunning,
-    this.oldestQueuedAt,
-    this.nextRunAt,
-    this.latestFailureAt,
-  });
-
-  final int queued;
-  final int running;
-  final int failed;
-  final int done;
-  final int dueQueued;
-  final int staleRunning;
-  final DateTime? oldestQueuedAt;
-  final DateTime? nextRunAt;
-  final DateTime? latestFailureAt;
-
-  int get total => queued + running + failed + done;
-
-  factory AdminProviderIngestJobSummary.fromJson(Map<String, dynamic> json) {
-    return AdminProviderIngestJobSummary(
-      queued: json['queued'] as int? ?? 0,
-      running: json['running'] as int? ?? 0,
-      failed: json['failed'] as int? ?? 0,
-      done: json['done'] as int? ?? 0,
-      dueQueued: json['due_queued'] as int? ?? 0,
-      staleRunning: json['stale_running'] as int? ?? 0,
-      oldestQueuedAt: _parseDateTime(json['oldest_queued_at'] as String?),
-      nextRunAt: _parseDateTime(json['next_run_at'] as String?),
-      latestFailureAt: _parseDateTime(json['latest_failure_at'] as String?),
     );
   }
 }
@@ -355,10 +228,6 @@ class AdminAuditLogEntry {
     final fields = detailsJson['fields'];
     if (fields is List && fields.isNotEmpty) {
       return 'fields: ${fields.join(', ')}';
-    }
-    final providerItemId = detailsJson['provider_item_id'];
-    if (providerItemId != null) {
-      return 'provider item $providerItemId';
     }
     final sourceItemIds = detailsJson['source_item_ids'];
     if (sourceItemIds is List && sourceItemIds.isNotEmpty) {

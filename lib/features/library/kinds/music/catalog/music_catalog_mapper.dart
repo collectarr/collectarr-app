@@ -1,574 +1,571 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/core/models/partial_date.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_ids.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_medium.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_release.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_release_group.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_external_link.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_release_relations.dart';
+import 'package:collectarr_app/core/models/catalog_item_ref.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_transport_payload.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_album.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_disc.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_track.dart';
 
-/// Maps catalog transport into Music's canonical release-group graph.
-///
-/// The input is still a transport envelope because mixed catalog search and
-/// older persisted payloads cross that boundary. The result is always the
-/// concrete Music graph; no legacy metadata aggregate is created.
+/// Translates the strict Core Music v2 document into the local Music aggregate.
 final class MusicCatalogMapper {
   const MusicCatalogMapper._();
 
-  static MusicReleaseGroup mapDtoToMusic(CatalogItemDto dto) =>
+  static const coreFields = <String>{
+    'id',
+    'kind',
+    'revision',
+    'title',
+    'sort_title',
+    'subtitle',
+    'artist',
+    'artist_credits',
+    'original_release_date',
+    'release_date',
+    'label',
+    'barcode',
+    'catalog_number',
+    'genres',
+    'packaging',
+    'country',
+    'extra',
+    'box_set',
+    'credits',
+    'external_links',
+    'cover_image_url',
+    'back_cover_image_url',
+    'thumbnail_image_url',
+    'discs',
+  };
+
+  static const discFields = <String>{
+    'id',
+    'disc_number',
+    'title',
+    'format_family',
+    'format',
+    'sound_types',
+    'recording_date',
+    'recording_locations',
+    'is_live',
+    'spars_code',
+    'color',
+    'vinyl_weight_grams',
+    'rpm',
+    'matrix_number',
+    'matrix_number_side_a',
+    'matrix_number_side_b',
+    'credits',
+    'tracks',
+  };
+
+  static const creditFields = <String>{
+    'id',
+    'contributor_id',
+    'name',
+    'sort_name',
+    'role',
+    'role_id',
+    'instruments',
+    'sequence',
+  };
+
+  static const trackFields = <String>{
+    'id',
+    'position',
+    'position_order',
+    'title',
+    'artist',
+    'composition',
+    'duration_ms',
+    'is_header',
+    'parent_header_id',
+    'indent_level',
+  };
+
+  /// Encodes catalog-owned fields only. Local paths and timestamps stay local.
+  static CatalogItemDto toCatalogItemDto(
+    MusicAlbum album, {
+    CatalogItemRef? ref,
+  }) {
+    final itemRef = ref ?? album.id;
+    if (itemRef == null || itemRef.kind != CatalogMediaKind.music) {
+      throw StateError('Encoding a Music Catalog Item requires its Core ID.');
+    }
+    final music = <String, dynamic>{
+      'id': itemRef.id,
+      'kind': CatalogMediaKind.music.apiValue,
+      'revision': album.revision,
+      'title': album.title,
+      if (album.sortTitle != null) 'sort_title': album.sortTitle,
+      if (album.subtitle != null) 'subtitle': album.subtitle,
+      if (album.artist != null) 'artist': album.artist,
+      'artist_credits': [
+        for (final credit in album.artistCredits)
+          {
+            'id': credit.id,
+            'name': credit.creditedName,
+            'sequence': credit.sequence,
+            if (credit.sortName != null) 'sort_name': credit.sortName,
+            if (credit.artistId != null) 'artist_id': credit.artistId,
+            if (credit.joinPhrase != null) 'join_phrase': credit.joinPhrase,
+          },
+      ],
+      if (album.originalReleaseDateParts != null)
+        'original_release_date': album.originalReleaseDateParts!.toJson(),
+      if (album.releaseDateParts != null)
+        'release_date': album.releaseDateParts!.toJson(),
+      if (album.publisher != null) 'label': album.publisher,
+      if (album.barcode != null) 'barcode': album.barcode,
+      if (album.catalogNumber != null) 'catalog_number': album.catalogNumber,
+      'genres': album.genres,
+      if (album.packaging != null) 'packaging': album.packaging,
+      if (album.countryCode != null) 'country': album.countryCode,
+      'extra': album.extra,
+      if (album.boxSet != null) 'box_set': album.boxSet,
+      'credits': album.credits.map((credit) => credit.toJson()).toList(),
+      'external_links':
+          album.externalLinks.map((link) => link.toJson()).toList(),
+      if (album.coverImageUrl != null) 'cover_image_url': album.coverImageUrl,
+      if (album.backCoverImageUrl != null)
+        'back_cover_image_url': album.backCoverImageUrl,
+      if (album.thumbnailImageUrl != null)
+        'thumbnail_image_url': album.thumbnailImageUrl,
+      'discs': [for (final disc in album.discs) _discToCatalogData(disc)],
+    };
+    fromCatalogPayload(music);
+    return CatalogItemDto.raw(
+      id: itemRef.id,
+      mediaKind: itemRef.kind,
+      kindData: music,
+    );
+  }
+
+  static Map<String, Object?> _discToCatalogData(MusicDisc disc) => {
+        'id': disc.id.value,
+        'disc_number': disc.discNumber,
+        if (disc.title != null) 'title': disc.title,
+        if (disc.formatFamily != null)
+          'format_family': disc.formatFamily!.value,
+        if (disc.format != null) 'format': disc.format,
+        'sound_types': disc.soundTypes,
+        if (disc.recordingDate != null)
+          'recording_date': disc.recordingDate!.toJson(),
+        'recording_locations': disc.recordingLocations,
+        if (disc.isLive != null) 'is_live': disc.isLive,
+        if (disc.sparsCode != null) 'spars_code': disc.sparsCode,
+        if (disc.color != null) 'color': disc.color,
+        if (disc.vinylWeightGrams != null)
+          'vinyl_weight_grams': disc.vinylWeightGrams,
+        if (disc.rpm != null) 'rpm': disc.rpm,
+        if (disc.matrixNumber != null) 'matrix_number': disc.matrixNumber,
+        if (disc.matrixNumberSideA != null)
+          'matrix_number_side_a': disc.matrixNumberSideA,
+        if (disc.matrixNumberSideB != null)
+          'matrix_number_side_b': disc.matrixNumberSideB,
+        'credits': disc.credits.map((credit) => credit.toJson()).toList(),
+        'tracks': [
+          for (var index = 0; index < disc.tracks.length; index++)
+            _trackToCatalogData(disc.tracks[index], index),
+        ],
+      };
+
+  static Map<String, Object?> _trackToCatalogData(
+    MusicTrack track,
+    int index,
+  ) =>
+      {
+        'id': track.id.value,
+        'position': track.isHeader ? '' : track.position,
+        'position_order': track.positionOrder ?? index,
+        'title': track.title,
+        'is_header': track.isHeader,
+        'indent_level': track.indentLevel,
+        if (track.parentHeaderId != null)
+          'parent_header_id': track.parentHeaderId,
+        if (!track.isHeader && track.artist != null) 'artist': track.artist,
+        if (!track.isHeader && track.composition != null)
+          'composition': track.composition,
+        if (!track.isHeader && track.durationMs != null)
+          'duration_ms': track.durationMs,
+      };
+
+  static MusicAlbum mapDtoToMusic(CatalogItemDto dto) =>
       mapMetadataItemToMusic(dto);
 
-  static MusicReleaseGroup mapMetadataItemToMusic(CatalogItemDto item) {
-    final metadata = item.kindMetadata;
-    if (metadata is MusicReleaseGroup) return metadata;
-    if (metadata is MusicRelease) return _groupFromRelease(metadata);
-    return _fromPayload(item.payload, item);
+  static MusicAlbum mapMetadataItemToMusic(CatalogItemDto item) {
+    final payload = catalogTransportPayloadFor(item);
+    return switch (item.origin) {
+      CatalogItemOrigin.privateLocal => MusicAlbum.fromJson(
+          Map<String, dynamic>.from(payload)
+            ..remove('id')
+            ..remove('kind'),
+        ),
+      CatalogItemOrigin.core => fromCatalogPayload(payload),
+    };
   }
 
-  static MusicReleaseGroup _fromPayload(
-    Map<String, dynamic> payload,
-    CatalogItemDto item,
-  ) {
-    // Some transport envelopes keep kind-specific fields under `music` while
-    // the canonical graph uses release-group/release/medium/track fields at
-    // the top level. Flatten that only at this transport boundary.
-    final nestedMusic = payload['music'];
-    final sourcePayload = nestedMusic is Map
-        ? <String, dynamic>{
-            ...payload,
-            ...Map<String, dynamic>.from(nestedMusic),
-          }
-        : payload;
-    _normalizeAlbumDetails(sourcePayload);
-    final groupId = _text(sourcePayload['release_group_id']) ??
-        _text(sourcePayload['id']) ??
-        item.id;
-    final isReleaseGroup =
-        sourcePayload['entity_type'] == 'music_release_group';
-    final rawReleases = _maps(sourcePayload['releases']);
-    final releases = <MusicRelease>[];
-
-    for (var index = 0; index < rawReleases.length; index++) {
-      releases.add(
-        _releaseFromPayload(
-          rawReleases[index],
-          groupId: groupId,
-          fallbackId: '$groupId:release:${index + 1}',
-          fallbackGroup: sourcePayload,
-        ),
-      );
+  static CatalogItemDto toLocalCatalogItemDto(MusicAlbum album, {String? id}) {
+    final localId = id ?? album.id?.id;
+    if (localId == null || localId.trim().isEmpty) {
+      throw StateError('Encoding a local Music item requires its entry ID.');
     }
-
-    if (releases.isEmpty) {
-      for (final edition in item.editions) {
-        releases.add(
-          _releaseFromEdition(
-            edition,
-            groupId: groupId,
-            fallbackGroup: sourcePayload,
-          ),
-        );
-      }
-    }
-
-    if (!isReleaseGroup &&
-        releases.isEmpty &&
-        (sourcePayload['release_group_id'] != null ||
-            sourcePayload['mediums'] is Iterable ||
-            sourcePayload['medium_id'] != null)) {
-      final release = MusicRelease.fromJson({
-        ...sourcePayload,
-        'release_group_id': sourcePayload['release_group_id'] ?? groupId,
-        'id': sourcePayload['release_id'] ??
-            sourcePayload['id'] ??
-            '$groupId:release',
-      });
-      return _groupFromRelease(
-        release,
-        groupId: MusicReleaseGroupId(
-          _text(sourcePayload['release_group_id']) ?? groupId,
-        ),
-        payload: sourcePayload,
-      );
-    }
-
-    if (releases.isEmpty) {
-      final tracks = _maps(sourcePayload['tracks']);
-      if (tracks.isNotEmpty) {
-        releases.add(
-          _releaseFromPayload(
-            {
-              'id': '$groupId:release',
-              'title': sourcePayload['title'],
-              'tracks': tracks,
-            },
-            groupId: groupId,
-            fallbackId: '$groupId:release',
-            fallbackGroup: sourcePayload,
-          ),
-        );
-      }
-    }
-
-    if (releases.isEmpty && !isReleaseGroup) {
-      releases.add(
-        _releaseFromPayload(
-          sourcePayload,
-          groupId: groupId,
-          fallbackId: '$groupId:release',
-          fallbackGroup: sourcePayload,
-        ),
-      );
-    }
-
-    final primary = releases.firstOrNull;
-    final series = sourcePayload['series'];
-    final seriesMap = series is Map
-        ? Map<String, dynamic>.from(series)
-        : const <String, dynamic>{};
-    return MusicReleaseGroup(
-      id: MusicReleaseGroupId(groupId),
-      title: _text(sourcePayload['title']) ?? item.title,
-      sortTitle: _text(sourcePayload['sort_title']),
-      artist: _text(
-            sourcePayload['artist'] ?? sourcePayload['artist_name'],
-          ) ??
-          _text(seriesMap['series_title'] ?? seriesMap['artist']) ??
-          _artistFromContributions(primary?.contributions),
-      originalTitle:
-          _text(sourcePayload['original_title'] ?? item.originalTitle),
-      originalReleaseDate: _date(sourcePayload['original_release_date']) ??
-          _date(sourcePayload['release_date']),
-      recordingDate: _date(sourcePayload['recording_date']),
-      studio: _text(sourcePayload['studio']),
-      isLive: sourcePayload['is_live'] as bool?,
-      genres: _strings(sourcePayload['genres']),
-      coverImageUrl:
-          _text(sourcePayload['cover_image_url'] ?? item.coverImageUrl),
-      coverImageKey: _text(sourcePayload['cover_image_key']),
-      externalLinks: _externalLinks(sourcePayload),
-      localCoverImagePath: _text(sourcePayload['local_cover_image_path']),
-      localBackImagePath: _text(sourcePayload['local_back_image_path']),
-      localThumbnailImagePath:
-          _text(sourcePayload['local_thumbnail_image_path']),
-      releases: releases,
+    final localData = Map<String, dynamic>.from(album.toJson())
+      ..remove('id')
+      ..remove('kind');
+    return CatalogItemDto.raw(
+      id: localId,
+      mediaKind: CatalogMediaKind.music,
+      kindData: localData,
+      origin: CatalogItemOrigin.privateLocal,
     );
   }
 
-  static MusicRelease _releaseFromPayload(
-    Map<String, dynamic> source, {
-    required String groupId,
-    required String fallbackId,
-    required Map<String, dynamic> fallbackGroup,
-  }) {
-    final rawMediums = _maps(source['mediums']);
-    if (rawMediums.isNotEmpty) {
-      final fallbackType = _releaseMediumType(source, fallbackGroup);
-      return MusicRelease.fromJson(
-        _releasePayload(
-          source,
-          groupId: groupId,
-          fallbackId: fallbackId,
-          fallbackGroup: fallbackGroup,
-          mediums: [
-            for (var index = 0; index < rawMediums.length; index++)
-              {
-                ...rawMediums[index],
-                if (index == 0 &&
-                    _text(rawMediums[index]['medium_type']) == null &&
-                    fallbackType != null)
-                  'medium_type': fallbackType,
-              },
-          ],
-        ),
-      );
+  static MusicAlbum fromCatalogPayload(Map<String, dynamic> payload) {
+    _assertFields(payload, coreFields, 'Music Catalog Item');
+    final id = _requiredText(payload['id'], 'Music Catalog Item id');
+    _requiredText(payload['title'], 'Music Catalog Item title');
+    if (payload['kind'] != 'music') {
+      throw FormatException(
+          'Expected a Music Catalog Item, received ${payload['kind']}.');
+    }
+    final revision = payload['revision'];
+    if (revision is! int || revision < 1) {
+      throw const FormatException(
+          'Music Catalog Item revision must be positive.');
+    }
+    for (final field in const [
+      'sort_title',
+      'subtitle',
+      'artist',
+      'label',
+      'barcode',
+      'catalog_number',
+      'country',
+      'packaging',
+      'box_set',
+      'cover_image_url',
+      'back_cover_image_url',
+      'thumbnail_image_url',
+    ]) {
+      _optionalText(payload[field], 'Music Catalog Item $field');
     }
 
-    final rawDiscs = _maps(source['discs']);
-    final rawTracks = _maps(source['tracks']);
-    final groupedTracks = _groupTracksByMedium(
-      rawTracks,
-      discTitles: _maps(source['disc_titles']),
+    final artistCredits = _requiredMaps(
+      payload['artist_credits'],
+      path: 'Music artist credits',
     );
-    final trackCount =
-        _int(source['track_count'] ?? fallbackGroup['track_count']);
-    final mediumType = _releaseMediumType(source, fallbackGroup);
-    final mediumSource = rawDiscs.isNotEmpty
-        ? rawDiscs
-        : groupedTracks.isNotEmpty
-            ? groupedTracks
-            : trackCount == null && mediumType == null
-                ? const <Map<String, dynamic>>[]
-                : [
-                    {
-                      if (trackCount != null) 'track_count': trackCount,
-                      if (mediumType != null) 'medium_type': mediumType,
-                    },
-                  ];
-    final releaseId = _text(source['id']) ?? fallbackId;
-    final mediums = [
-      for (var index = 0; index < mediumSource.length; index++)
-        _mediumFromPayload(
-          mediumSource[index],
-          releaseId: releaseId,
-          fallbackNumber: index + 1,
-          fallbackType: mediumType,
-        ),
-    ];
+    final albumCredits =
+        _requiredMaps(payload['credits'], path: 'Music credits');
+    final discs = _requiredMaps(payload['discs'], path: 'Music discs');
+    _requiredStrings(payload['genres'], path: 'Music genres');
+    _requiredStrings(payload['extra'], path: 'Music extra');
+    _validatePartialDate(payload['original_release_date'],
+        'Music Catalog Item original_release_date');
+    _validatePartialDate(
+        payload['release_date'], 'Music Catalog Item release_date');
+    _validateArtistCredits(artistCredits);
+    final creditIds = <String>{};
+    _validateCredits(
+      albumCredits,
+      path: 'Music album credits',
+      sharedIds: creditIds,
+    );
+    _validateDiscs(discs, creditIds: creditIds);
 
-    return MusicRelease.fromJson({
-      ..._releasePayload(
-        source,
-        groupId: groupId,
-        fallbackId: fallbackId,
-        fallbackGroup: fallbackGroup,
-      ),
-      'id': releaseId,
-      'mediums': mediums.map((medium) => medium.toJson()).toList(),
-    });
-  }
-
-  static String? _releaseMediumType(
-    Map<String, dynamic> source,
-    Map<String, dynamic> fallbackGroup,
-  ) =>
-      _text(
-        source['medium_type'] ??
-            source['format'] ??
-            source['physical_format'] ??
-            source['physical_format_label'] ??
-            source['variant'] ??
-            fallbackGroup['medium_type'] ??
-            fallbackGroup['format'] ??
-            fallbackGroup['physical_format'] ??
-            fallbackGroup['physical_format_label'] ??
-            fallbackGroup['variant'],
-      );
-
-  static Map<String, dynamic> _releasePayload(
-    Map<String, dynamic> source, {
-    required String groupId,
-    required String fallbackId,
-    required Map<String, dynamic> fallbackGroup,
-    List<Map<String, dynamic>>? mediums,
-  }) {
-    final releaseType = _text(source['release_type'] ?? source['type']);
-    final releaseStatus = _text(
-      source['release_status'] ?? fallbackGroup['release_status'],
-    );
-    final packaging = _text(source['packaging'] ?? fallbackGroup['packaging']);
-    final releaseDate = _date(
-      source['release_date'] ?? fallbackGroup['release_date'],
-    );
-    final sourceTitle = _text(source['title']);
-    final groupTitle = _text(fallbackGroup['title']);
-    final editionTitle = _text(fallbackGroup['edition_title']);
-    final fallbackSeries = fallbackGroup['series'];
-    final fallbackSeriesMap = fallbackSeries is Map
-        ? Map<String, dynamic>.from(fallbackSeries)
-        : const <String, dynamic>{};
-    final subtitle = _text(
-      source['subtitle'] ??
-          source['edition_title'] ??
-          fallbackGroup['edition_title'] ??
-          fallbackSeriesMap['volume_name'],
-    );
-    final title = editionTitle != null &&
-            (sourceTitle == null || sourceTitle == groupTitle)
-        ? editionTitle
-        : sourceTitle ?? editionTitle ?? groupTitle ?? 'Release';
-    return {
-      ...source,
-      'id': _text(source['id']) ?? fallbackId,
-      'release_group_id': groupId,
+    final localPayload = <String, dynamic>{
+      'id': id,
       'kind': 'music',
-      'title': title,
-      if (subtitle != null) 'subtitle': subtitle,
-      if (releaseType != null) 'release_type': releaseType,
-      if (releaseStatus != null) 'release_status': releaseStatus,
-      if (releaseDate != null) 'release_date': releaseDate.toIso8601String(),
-      if (packaging != null) 'packaging': packaging,
-      if (mediums != null) 'mediums': mediums,
-      if (mediums != null)
-        'medium_types':
-            _strings(mediums.map((medium) => medium['medium_type'])),
-      if (_text(source['publisher'] ??
-              source['label'] ??
-              fallbackGroup['publisher'])
-          case final publisher?)
-        'publisher': publisher,
-      if (_text(source['country_code'] ??
-              source['country'] ??
-              fallbackGroup['country_code'] ??
-              fallbackGroup['country'])
-          case final country?)
-        'country_code': country,
-      if (_text(source['language'] ??
-              source['release_language'] ??
-              fallbackGroup['language'])
-          case final language?)
-        'language': language,
-      if (_text(source['barcode'] ?? fallbackGroup['barcode'])
-          case final barcode?)
-        'barcode': barcode,
-      if (_text(source['upc'] ?? fallbackGroup['upc']) case final upc?)
-        'upc': upc,
-      if (_text(source['catalog_number'] ?? fallbackGroup['catalog_number'])
-          case final catalogNumber?)
-        'catalog_number': catalogNumber,
-      if (_text(source['cover_image_url'] ?? fallbackGroup['cover_image_url'])
-          case final coverImageUrl?)
-        'cover_image_url': coverImageUrl,
-      if (_text(source['cover_image_key'] ?? fallbackGroup['cover_image_key'])
-          case final coverImageKey?)
-        'cover_image_key': coverImageKey,
-      if (source['external_links'] != null)
-        'external_links': source['external_links'],
-      if (source['trailer_urls'] != null)
-        'trailer_urls': source['trailer_urls'],
-      if (source['box_set'] == null && fallbackGroup['box_set'] != null)
-        'box_set': fallbackGroup['box_set'],
-      if (source['box_set_ref'] == null && fallbackGroup['box_set_ref'] != null)
-        'box_set_ref': fallbackGroup['box_set_ref'],
-      if (source['box_set_position'] == null &&
-          fallbackGroup['box_set_position'] != null)
-        'box_set_position': fallbackGroup['box_set_position'],
+      'revision': revision,
+      'title': payload['title'],
+      if (payload['sort_title'] != null) 'sort_title': payload['sort_title'],
+      if (payload['subtitle'] != null) 'subtitle': payload['subtitle'],
+      if (payload['artist'] != null) 'artist': payload['artist'],
+      if (payload['original_release_date'] != null)
+        'original_release_date': payload['original_release_date'],
+      if (payload['release_date'] != null)
+        'release_date': payload['release_date'],
+      if (payload['label'] != null) 'publisher': payload['label'],
+      if (payload['barcode'] != null) 'barcode': payload['barcode'],
+      if (payload['catalog_number'] != null)
+        'catalog_number': payload['catalog_number'],
+      'genres': payload['genres'],
+      if (payload['packaging'] != null) 'packaging': payload['packaging'],
+      if (payload['country'] != null) 'country_code': payload['country'],
+      'extra': payload['extra'],
+      if (payload['box_set'] != null) 'box_set': payload['box_set'],
+      'credits': albumCredits,
+      'artist_credits': [
+        for (final credit in artistCredits)
+          {
+            'id': credit['id'],
+            'credited_name': credit['name'],
+            'sequence': credit['sequence'],
+            if (credit['sort_name'] != null) 'sort_name': credit['sort_name'],
+            if (credit['artist_id'] != null) 'artist_id': credit['artist_id'],
+            if (credit['join_phrase'] != null)
+              'join_phrase': credit['join_phrase'],
+          },
+      ],
+      'external_links': _requiredMaps(
+        payload['external_links'],
+        path: 'Music external links',
+      ),
+      if (payload['cover_image_url'] != null)
+        'cover_image_url': payload['cover_image_url'],
+      if (payload['back_cover_image_url'] != null)
+        'back_cover_image_url': payload['back_cover_image_url'],
+      if (payload['thumbnail_image_url'] != null)
+        'thumbnail_image_url': payload['thumbnail_image_url'],
+      'discs': discs,
     };
+    return MusicAlbum.fromJson(localPayload);
   }
 
-  static MusicRelease _releaseFromEdition(
-    CatalogEditionDto edition, {
-    required String groupId,
-    required Map<String, dynamic> fallbackGroup,
+  static void _validateArtistCredits(List<Map<String, dynamic>> credits) {
+    final ids = <String>{};
+    final sequences = <int>{};
+    for (var index = 0; index < credits.length; index++) {
+      final credit = credits[index];
+      const fields = {
+        'id',
+        'name',
+        'sort_name',
+        'artist_id',
+        'sequence',
+        'join_phrase',
+      };
+      _assertFields(credit, fields, 'Music artist credit ${index + 1}');
+      final id = _requiredText(credit['id'], 'Music artist credit id');
+      _requiredText(credit['name'], 'Music artist credit name');
+      _optionalText(credit['sort_name'], 'Music artist credit sort_name');
+      _optionalText(credit['artist_id'], 'Music artist credit artist_id');
+      final joinPhrase = credit['join_phrase'];
+      if (joinPhrase != null && joinPhrase is! String) {
+        throw const FormatException(
+          'Music artist credit join_phrase must be text or null.',
+        );
+      }
+      final sequence = credit['sequence'];
+      if (sequence is! int ||
+          sequence < 1 ||
+          !ids.add(id) ||
+          !sequences.add(sequence)) {
+        throw const FormatException(
+            'Music artist credits require unique IDs and sequences.');
+      }
+    }
+  }
+
+  static void _validateCredits(
+    List<Map<String, dynamic>> credits, {
+    required String path,
+    Set<String>? sharedIds,
   }) {
-    final releaseId = edition.id;
-    final fallbackTracks = _maps(fallbackGroup['tracks']);
-    final mediums = edition.discs.isNotEmpty
-        ? [
-            for (var index = 0; index < edition.discs.length; index++)
-              _mediumFromPayload(
-                edition.discs[index].toJson(),
-                releaseId: releaseId,
-                fallbackNumber: edition.discs[index].discNumber ?? index + 1,
-                fallbackType: edition.physicalFormat,
-              ),
-          ]
-        : fallbackTracks.isEmpty
-            ? const <MusicMedium>[]
-            : [
-                _mediumFromPayload(
-                  {
-                    'medium_number': 1,
-                    'tracks': fallbackTracks,
-                  },
-                  releaseId: releaseId,
-                  fallbackNumber: 1,
-                  fallbackType: edition.physicalFormat,
-                ),
-              ];
-    return MusicRelease.fromJson({
-      'id': releaseId,
-      'release_group_id': groupId,
-      'title': edition.title,
-      if (edition.format != null) 'release_type': edition.format,
-      if (edition.publisher != null) 'publisher': edition.publisher,
-      if (edition.upc != null) 'barcode': edition.upc,
-      if (_text(fallbackGroup['catalog_number']) case final catalogNumber?)
-        'catalog_number': catalogNumber,
-      if (_text(fallbackGroup['release_status']) case final releaseStatus?)
-        'release_status': releaseStatus,
-      if (edition.releaseDateParts != null)
-        'release_date_parts': edition.releaseDateParts!.toJson(),
-      if (edition.releaseDate != null)
-        'release_date': edition.releaseDate!.toIso8601String(),
-      if (edition.language != null) 'language': edition.language,
-      if (edition.physicalFormat != null)
-        'medium_types': [edition.physicalFormat],
-      'mediums': mediums.map((medium) => medium.toJson()).toList(),
-      if (_text(fallbackGroup['country_code'] ?? fallbackGroup['country']) !=
-          null)
-        'country_code':
-            fallbackGroup['country_code'] ?? fallbackGroup['country'],
-    });
+    final ids = sharedIds ?? <String>{};
+    final sequences = <int>{};
+    for (var index = 0; index < credits.length; index++) {
+      final credit = credits[index];
+      _assertFields(credit, creditFields, '$path ${index + 1}');
+      final id = _requiredText(credit['id'], '$path id');
+      _optionalText(credit['contributor_id'], '$path contributor_id');
+      _requiredText(credit['name'], '$path name');
+      _optionalText(credit['sort_name'], '$path sort_name');
+      _requiredText(credit['role'], '$path role');
+      _optionalText(credit['role_id'], '$path role_id');
+      _requiredStrings(credit['instruments'], path: '$path instruments');
+      final sequence = credit['sequence'];
+      if (sequence is! int ||
+          sequence < 1 ||
+          !ids.add(id) ||
+          !sequences.add(sequence)) {
+        throw FormatException('$path require unique IDs and sequences.');
+      }
+    }
   }
 
-  static MusicMedium _mediumFromPayload(
-    Map<String, dynamic> source, {
-    required String releaseId,
-    required int fallbackNumber,
-    String? fallbackType,
+  static void _validateDiscs(
+    List<Map<String, dynamic>> discs, {
+    required Set<String> creditIds,
   }) {
-    final number = _int(source['medium_number'] ?? source['disc_number']) ??
-        fallbackNumber;
-    final mediumId = _text(source['id']) ?? '$releaseId:medium:$number';
-    final rawTracks = _maps(source['tracks']);
-    final tracks = [
-      for (var index = 0; index < rawTracks.length; index++)
-        _trackPayload(
-          rawTracks[index],
-          mediumId: mediumId,
-          fallbackPosition: index + 1,
-        ),
-    ];
-    return MusicMedium.fromJson({
-      ...source,
-      'id': mediumId,
-      'release_id': releaseId,
-      'medium_number': number,
-      if (source['medium_type'] == null && fallbackType != null)
-        'medium_type': fallbackType,
-      'tracks': tracks,
-    });
-  }
-
-  static Map<String, dynamic> _trackPayload(
-    Map<String, dynamic> source, {
-    required String mediumId,
-    required int fallbackPosition,
-  }) {
-    final position = _text(source['position'] ?? source['number']) ??
-        fallbackPosition.toString();
-    final durationSeconds = _int(source['duration_seconds']);
-    return {
-      ...source,
-      'id': source['id'] ?? '$mediumId:track:$position',
-      'medium_id': mediumId,
-      'position': position,
-      'title': _text(source['title']) ?? 'Track $position',
-      if (_text(source['artist']) != null) 'artist': source['artist'],
-      if (source['duration_ms'] == null && durationSeconds != null)
-        'duration_ms': durationSeconds * 1000,
-    };
-  }
-
-  static List<Map<String, dynamic>> _groupTracksByMedium(
-    List<Map<String, dynamic>> tracks, {
-    List<Map<String, dynamic>> discTitles = const [],
-  }) {
-    final grouped = <int, List<Map<String, dynamic>>>{};
-    final titlesByDisc = <int, String>{
-      for (final value in discTitles)
-        if (_int(value['disc_number']) case final number?)
-          if (_text(value['title']) case final title?) number: title,
-    };
-    for (final number in titlesByDisc.keys) {
-      grouped.putIfAbsent(number, () => <Map<String, dynamic>>[]);
+    final discIds = <String>{};
+    final trackIds = <String>{};
+    var previousDiscNumber = 0;
+    const families = {'vinyl', 'opticalDisc', 'tape', 'digital', 'other'};
+    for (var discIndex = 0; discIndex < discs.length; discIndex++) {
+      final disc = discs[discIndex];
+      final path = 'Music disc ${discIndex + 1}';
+      _assertFields(disc, discFields, path);
+      final id = _requiredText(disc['id'], '$path id');
+      final number = disc['disc_number'];
+      if (number is! int || number <= previousDiscNumber || !discIds.add(id)) {
+        throw const FormatException(
+            'Music disc IDs and numbers must be unique and ordered.');
+      }
+      previousDiscNumber = number;
+      for (final field in const [
+        'title',
+        'format',
+        'color',
+        'rpm',
+        'spars_code',
+        'matrix_number',
+        'matrix_number_side_a',
+        'matrix_number_side_b',
+      ]) {
+        _optionalText(disc[field], '$path $field');
+      }
+      final family = disc['format_family'];
+      if (family != null && !families.contains(family)) {
+        throw FormatException('$path has an unrecognized format_family.');
+      }
+      if (disc['format'] != null && family == null) {
+        throw FormatException(
+          '$path format requires an explicit format_family.',
+        );
+      }
+      final weight = disc['vinyl_weight_grams'];
+      if (weight != null && (weight is! int || weight <= 0)) {
+        throw FormatException('$path vinyl_weight_grams must be positive.');
+      }
+      _requiredStrings(disc['sound_types'], path: '$path sound_types');
+      _requiredStrings(
+        disc['recording_locations'],
+        path: '$path recording_locations',
+      );
+      _validatePartialDate(disc['recording_date'], '$path recording_date');
+      if (disc['is_live'] != null && disc['is_live'] is! bool) {
+        throw FormatException('$path is_live must be boolean or null.');
+      }
+      _validateCredits(
+        _requiredMaps(disc['credits'], path: '$path credits'),
+        path: '$path credits',
+        sharedIds: creditIds,
+      );
+      final tracks = _requiredMaps(disc['tracks'], path: '$path tracks');
+      var previousTrackOrder = -1;
+      for (var trackIndex = 0; trackIndex < tracks.length; trackIndex++) {
+        final track = tracks[trackIndex];
+        final trackPath = '$path track ${trackIndex + 1}';
+        _assertFields(track, trackFields, trackPath);
+        final trackId = _requiredText(track['id'], '$trackPath id');
+        final order = track['position_order'];
+        final position = track['position'];
+        final title = track['title'];
+        final isHeader = track['is_header'] == true;
+        if (!trackIds.add(trackId) ||
+            order is! int ||
+            order <= previousTrackOrder ||
+            position is! String ||
+            position != position.trim() ||
+            (isHeader && position.isNotEmpty) ||
+            (!isHeader && position.isEmpty) ||
+            title is! String ||
+            title.isEmpty ||
+            title != title.trim() ||
+            track['is_header'] is! bool ||
+            track['indent_level'] is! int ||
+            (track['indent_level'] as int) < 0 ||
+            (track['indent_level'] as int) > 8 ||
+            (track['duration_ms'] != null &&
+                (track['duration_ms'] is! int ||
+                    (track['duration_ms'] as int) < 0)) ||
+            (isHeader &&
+                (track['artist'] != null ||
+                    track['composition'] != null ||
+                    track['duration_ms'] != null))) {
+          throw FormatException(
+              '$trackPath has invalid identity or ordering fields.');
+        }
+        previousTrackOrder = order;
+        _optionalText(track['artist'], '$trackPath artist');
+        _optionalText(track['composition'], '$trackPath composition');
+        _optionalText(track['parent_header_id'], '$trackPath parent_header_id');
+      }
     }
-    for (final track in tracks) {
-      final medium = _int(track['medium_number'] ?? track['disc_number']) ?? 1;
-      grouped.putIfAbsent(medium, () => []).add(track);
+  }
+
+  static void _validatePartialDate(Object? value, String path) {
+    if (value == null) return;
+    if (value is! Map) {
+      throw FormatException('$path must be a PartialDate object.');
     }
-    final orderedDiscNumbers = grouped.keys.toList()..sort();
-    return [
-      for (final discNumber in orderedDiscNumbers)
-        {
-          'medium_number': discNumber,
-          if (titlesByDisc[discNumber] case final title?) 'title': title,
-          'tracks': grouped[discNumber]!,
-        },
-    ];
-  }
-
-  /// Accepts the flattened MusicAlbum v1 details at the old local catalog
-  /// boundary while the remaining Music persistence/workspace path is being
-  /// moved off release-group aggregates.
-  static void _normalizeAlbumDetails(Map<String, dynamic> source) {
-    final artists = _maps(source['artists']);
-    final labels = _maps(source['labels']);
-    if (_text(source['artist']) == null && artists.isNotEmpty) {
-      source['artist'] = artists
-          .map((artist) => _text(artist['name']))
-          .whereType<String>()
-          .where((name) => name.isNotEmpty)
-          .join(', ');
+    final fields = Map<Object?, Object?>.from(value);
+    if (fields.isEmpty ||
+        fields.keys.any((key) => !{'year', 'month', 'day'}.contains(key)) ||
+        fields.values.any((part) => part != null && part is! int) ||
+        !fields.values.any((part) => part is int)) {
+      throw FormatException('$path must be a PartialDate object.');
     }
-    final primaryLabel = labels.firstOrNull;
-    if (_text(source['publisher']) == null && primaryLabel != null) {
-      source['publisher'] = primaryLabel['name'];
+    final yearValue = fields['year'];
+    final monthValue = fields['month'];
+    final dayValue = fields['day'];
+    final year = yearValue is int ? yearValue : null;
+    final month = monthValue is int ? monthValue : null;
+    final day = dayValue is int ? dayValue : null;
+    if ((yearValue != null && (year == null || year < 1 || year > 9999)) ||
+        (monthValue != null && (month == null || month < 1 || month > 12)) ||
+        (dayValue != null && (day == null || day < 1 || day > 31)) ||
+        (day != null && month == null) ||
+        (month != null && year == null)) {
+      throw FormatException('$path contains invalid PartialDate values.');
     }
-    if (_text(source['catalog_number']) == null && primaryLabel != null) {
-      source['catalog_number'] = primaryLabel['catalog_number'];
+    if (year != null && month != null && day != null) {
+      final parsed = DateTime.tryParse(
+        '${year.toString().padLeft(4, '0')}-${month.toString().padLeft(2, '0')}-${day.toString().padLeft(2, '0')}',
+      );
+      if (parsed == null ||
+          parsed.year != year ||
+          parsed.month != month ||
+          parsed.day != day) {
+        throw FormatException('$path contains an invalid calendar date.');
+      }
     }
   }
 
-  static MusicReleaseGroup _groupFromRelease(
-    MusicRelease release, {
-    MusicReleaseGroupId? groupId,
-    Map<String, dynamic>? payload,
-  }) {
-    return MusicReleaseGroup(
-      id: groupId ?? release.releaseGroupId,
-      title: _text(payload?['title']) ?? release.title,
-      artist: _text(payload?['artist']),
-      originalReleaseDate:
-          _date(payload?['original_release_date']) ?? release.releaseDate,
-      originalReleaseDateParts: PartialDate.tryParse(
-            payload?['original_release_date_parts'] ??
-                payload?['original_release_date'],
-          ) ??
-          release.releaseDateParts,
-      coverImageUrl:
-          _text(payload?['cover_image_url']) ?? release.coverImageUrl,
-      coverImageKey:
-          _text(payload?['cover_image_key']) ?? release.coverImageKey,
-      externalLinks:
-          payload == null ? release.externalLinks : _externalLinks(payload),
-      releases: [release],
-      localCoverImagePath: _text(payload?['local_cover_image_path']),
-      localBackImagePath: _text(payload?['local_back_image_path']),
-      localThumbnailImagePath: _text(payload?['local_thumbnail_image_path']),
-    );
-  }
-
-  static String? _artistFromContributions(
-      List<MusicReleaseContribution>? values) {
-    for (final value in values ?? const <MusicReleaseContribution>[]) {
-      final name = value.displayName;
-      if (name != null) return name;
+  static void _assertFields(
+    Map<String, dynamic> value,
+    Set<String> allowed,
+    String path,
+  ) {
+    final unsupported = value.keys.where((key) => !allowed.contains(key));
+    if (unsupported.isNotEmpty) {
+      throw FormatException('Unrecognized $path field "${unsupported.first}".');
     }
-    return null;
   }
+}
 
-  static List<MusicExternalLink> _externalLinks(Map<String, dynamic> payload) {
-    final raw = [
-      ..._maps(payload['external_links']),
-      ..._maps(payload['trailer_urls']),
-    ];
-    final seen = <String>{};
-    final links = <MusicExternalLink>[];
-    for (final value in raw) {
-      final url = _text(value['url']);
-      if (url == null || !seen.add(url)) continue;
-      links.add(MusicExternalLink.fromJson(value));
-    }
-    return links;
+List<Map<String, dynamic>> _requiredMaps(Object? value,
+    {required String path}) {
+  if (value is! List) throw FormatException('$path must be a list.');
+  return [
+    for (final (index, entry) in value.indexed)
+      if (entry is Map)
+        Map<String, dynamic>.from(entry)
+      else
+        throw FormatException('$path entry ${index + 1} must be an object.'),
+  ];
+}
+
+List<String> _requiredStrings(Object? value, {required String path}) {
+  if (value is! List || value.any((entry) => entry is! String)) {
+    throw FormatException('$path must be a list of strings.');
   }
+  return [
+    for (final (index, entry) in value.cast<String>().indexed)
+      if (entry.isNotEmpty && entry == entry.trim())
+        entry
+      else
+        throw FormatException('$path entry ${index + 1} must be trimmed text.'),
+  ];
+}
 
-  static String? _text(Object? value) {
-    final text = value?.toString().trim();
-    return text == null || text.isEmpty ? null : text;
+String _requiredText(Object? value, String path) {
+  if (value is! String || value.isEmpty || value != value.trim()) {
+    throw FormatException('$path must be non-empty trimmed text.');
   }
+  return value;
+}
 
-  static int? _int(Object? value) {
-    if (value is int) return value;
-    if (value is num) return value.toInt();
-    return int.tryParse(value?.toString().trim() ?? '');
-  }
-
-  static DateTime? _date(Object? value) =>
-      DateTime.tryParse(value?.toString().trim() ?? '');
-
-  static List<String> _strings(Object? value) => value is Iterable
-      ? [
-          for (final entry in value)
-            if (_text(entry) case final text?) text
-        ]
-      : const <String>[];
-
-  static List<Map<String, dynamic>> _maps(Object? value) => value is Iterable
-      ? [
-          for (final entry in value)
-            if (entry is Map) Map<String, dynamic>.from(entry),
-        ]
-      : const <Map<String, dynamic>>[];
+String? _optionalText(Object? value, String path) {
+  if (value == null) return null;
+  return _requiredText(value, path);
 }

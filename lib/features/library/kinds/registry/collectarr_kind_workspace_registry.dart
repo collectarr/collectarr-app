@@ -1,12 +1,10 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
-import 'package:collectarr_app/features/library/config/library_catalog_target_capability.dart';
-import 'package:collectarr_app/features/library/config/library_entity_vocabulary.dart';
+import 'package:collectarr_app/features/library/config/library_target_vocabulary.dart';
 import 'package:collectarr_app/features/library/config/library_facet_module.dart';
 import 'package:collectarr_app/features/library/config/library_hierarchy_capability.dart';
 import 'package:collectarr_app/features/library/config/library_inspector_capability.dart';
 import 'package:collectarr_app/features/library/config/library_kind_toolbar_module.dart';
 import 'package:collectarr_app/features/library/config/library_search_target.dart';
-import 'package:collectarr_app/features/library/release/library_release_detail_source.dart';
 import 'package:collectarr_app/features/library/kinds/anime/anime_module.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/boardgame_module.dart';
 import 'package:collectarr_app/features/library/kinds/book/book_module.dart';
@@ -18,8 +16,6 @@ import 'package:collectarr_app/features/library/kinds/music/music_module.dart';
 import 'package:collectarr_app/features/library/kinds/tv/tv_module.dart';
 import 'package:collectarr_app/features/library/tracking/media_tracking_profile.dart';
 import 'package:collectarr_app/features/library/tracking/library_tracking_topology.dart';
-import 'package:collectarr_app/features/library/workspace/config/library_projection_capability.dart';
-import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_view_state.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_workspace.dart';
 
@@ -55,19 +51,14 @@ final Map<CatalogMediaKind, LibraryHierarchyCapability>
     collectarrKindHierarchies =
     Map.unmodifiable(<CatalogMediaKind, LibraryHierarchyCapability>{
   CatalogMediaKind.anime: animeKindHierarchy,
-  CatalogMediaKind.boardgame: boardGameKindHierarchy,
-  CatalogMediaKind.book: bookKindHierarchy,
-  CatalogMediaKind.comic: comicKindHierarchy,
-  CatalogMediaKind.game: gameKindHierarchy,
-  CatalogMediaKind.manga: mangaKindHierarchy,
   CatalogMediaKind.movie: movieKindHierarchy,
   CatalogMediaKind.music: musicKindHierarchy,
   CatalogMediaKind.tv: tvKindHierarchy,
 });
 
-final Map<CatalogMediaKind, LibraryEntityVocabulary>
+final Map<CatalogMediaKind, LibraryTargetVocabulary>
     collectarrKindEntityVocabularies =
-    Map.unmodifiable(<CatalogMediaKind, LibraryEntityVocabulary>{
+    Map.unmodifiable(<CatalogMediaKind, LibraryTargetVocabulary>{
   CatalogMediaKind.anime: animeKindEntityVocabulary,
   CatalogMediaKind.boardgame: boardGameKindEntityVocabulary,
   CatalogMediaKind.book: bookKindEntityVocabulary,
@@ -91,77 +82,6 @@ final Map<CatalogMediaKind, LibraryInspectorCapability>
   CatalogMediaKind.movie: movieKindInspector,
   CatalogMediaKind.music: musicKindInspector,
   CatalogMediaKind.tv: tvKindInspector,
-});
-
-final Map<CatalogMediaKind, WorkProjectionCapability<LibraryWorkspaceDto>>
-    collectarrKindWorkCapabilities = Map.unmodifiable(
-  <CatalogMediaKind, WorkProjectionCapability<LibraryWorkspaceDto>>{
-    CatalogMediaKind.anime: animeKindWorkCapability,
-    CatalogMediaKind.boardgame: boardGameKindWorkCapability,
-    CatalogMediaKind.book: bookKindWorkCapability,
-    CatalogMediaKind.comic: comicKindWorkCapability,
-    CatalogMediaKind.game: gameKindWorkCapability,
-    CatalogMediaKind.manga: mangaKindWorkCapability,
-    CatalogMediaKind.movie: movieKindWorkCapability,
-    CatalogMediaKind.music: musicKindWorkCapability,
-    CatalogMediaKind.tv: tvKindWorkCapability,
-  },
-);
-
-final Map<CatalogMediaKind, ReleaseProjectionCapability<LibraryWorkspaceDto>?>
-    collectarrKindReleaseCapabilities = Map.unmodifiable(
-  <CatalogMediaKind, ReleaseProjectionCapability<LibraryWorkspaceDto>?>{
-    CatalogMediaKind.anime: animeKindReleaseCapability,
-    CatalogMediaKind.boardgame: boardGameKindReleaseCapability
-        as ReleaseProjectionCapability<LibraryWorkspaceDto>?,
-    CatalogMediaKind.book: bookKindReleaseCapability
-        as ReleaseProjectionCapability<LibraryWorkspaceDto>?,
-    CatalogMediaKind.comic: comicKindReleaseCapability
-        as ReleaseProjectionCapability<LibraryWorkspaceDto>?,
-    CatalogMediaKind.game: gameKindReleaseCapability
-        as ReleaseProjectionCapability<LibraryWorkspaceDto>?,
-    CatalogMediaKind.manga: mangaKindReleaseCapability
-        as ReleaseProjectionCapability<LibraryWorkspaceDto>?,
-    CatalogMediaKind.movie: movieKindReleaseCapability,
-    CatalogMediaKind.music: musicKindReleaseCapability
-        as ReleaseProjectionCapability<LibraryWorkspaceDto>?,
-    CatalogMediaKind.tv: tvKindReleaseCapability,
-  },
-);
-
-final Map<CatalogMediaKind, LibraryReleaseDetailSource?>
-    collectarrKindReleaseDetailSources = Map.unmodifiable(
-  <CatalogMediaKind, LibraryReleaseDetailSource?>{
-    CatalogMediaKind.anime: animeKindReleaseDetailSource,
-    CatalogMediaKind.boardgame:
-        boardGameKindReleaseDetailSource as LibraryReleaseDetailSource?,
-    CatalogMediaKind.book:
-        bookKindReleaseDetailSource as LibraryReleaseDetailSource?,
-    CatalogMediaKind.comic:
-        comicKindReleaseDetailSource as LibraryReleaseDetailSource?,
-    CatalogMediaKind.game:
-        gameKindReleaseDetailSource as LibraryReleaseDetailSource?,
-    CatalogMediaKind.manga:
-        mangaKindReleaseDetailSource as LibraryReleaseDetailSource?,
-    CatalogMediaKind.movie: movieKindReleaseDetailSource,
-    CatalogMediaKind.music:
-        musicKindReleaseDetailSource as LibraryReleaseDetailSource?,
-    CatalogMediaKind.tv: tvKindReleaseDetailSource,
-  },
-);
-
-final Map<CatalogMediaKind, LibraryCatalogTargetCapability>
-    collectarrKindCatalogTargets =
-    Map.unmodifiable(<CatalogMediaKind, LibraryCatalogTargetCapability>{
-  CatalogMediaKind.anime: animeKindCatalogTarget,
-  CatalogMediaKind.boardgame: boardGameKindCatalogTarget,
-  CatalogMediaKind.book: bookKindCatalogTarget,
-  CatalogMediaKind.comic: comicKindCatalogTarget,
-  CatalogMediaKind.game: gameKindCatalogTarget,
-  CatalogMediaKind.manga: mangaKindCatalogTarget,
-  CatalogMediaKind.movie: movieKindCatalogTarget,
-  CatalogMediaKind.music: musicKindCatalogTarget,
-  CatalogMediaKind.tv: tvKindCatalogTarget,
 });
 
 final Map<CatalogMediaKind, LibraryKindToolbarModule?> collectarrKindToolbars =

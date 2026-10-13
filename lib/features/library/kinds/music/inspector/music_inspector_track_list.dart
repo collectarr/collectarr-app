@@ -3,10 +3,10 @@ import 'package:collectarr_app/features/library/kinds/music/domain/music_track_l
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
-/// Music-owned track presentation.
+/// Music-entry track presentation.
 ///
 /// The shared inspector track widget intentionally accepts only generic
-/// catalog tracks. Music must render its own ordered medium entries so header
+/// catalog tracks. Music must render its own ordered disc entries so header
 /// rows, hierarchy and track-level artist credits survive the projection.
 final class MusicInspectorTrackList extends StatelessWidget {
   const MusicInspectorTrackList({
@@ -35,7 +35,7 @@ final class MusicInspectorTrackList extends StatelessWidget {
           '$playableCount ${playableCount == 1 ? 'track' : 'tracks'}',
           style: Theme.of(context).textTheme.titleSmall?.copyWith(
                 color: palette.textPrimary,
-                fontWeight: FontWeight.w800,
+                fontWeight: FontWeight.w700,
               ),
         ),
         const SizedBox(height: 8),
@@ -103,7 +103,7 @@ final class _MusicInspectorDisc extends StatelessWidget {
               'Disc #$discNumber',
               style: Theme.of(context).textTheme.labelLarge?.copyWith(
                     color: palette.textPrimary,
-                    fontWeight: FontWeight.w800,
+                    fontWeight: FontWeight.w700,
                   ),
             ),
             if (duration != null) ...[
@@ -184,7 +184,7 @@ final class _MusicInspectorTrackRow extends StatelessWidget {
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
                         color: track.isHeader ? accent : palette.textPrimary,
                         fontWeight:
-                            track.isHeader ? FontWeight.w800 : FontWeight.w600,
+                            track.isHeader ? FontWeight.w700 : FontWeight.w600,
                       ),
                 ),
                 if (!track.isHeader && artist != null && artist.isNotEmpty)

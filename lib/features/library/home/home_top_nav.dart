@@ -1,36 +1,58 @@
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/routing/app_router.dart';
+import 'package:collectarr_app/core/models/library_entry_projection.dart';
+import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
+import 'package:collectarr_app/core/api/dto/media_catalog.dart';
+import 'package:collectarr_app/features/library/home/home_catalog.dart';
+import 'package:collectarr_app/features/library/home/home_nav_models.dart';
+import 'package:collectarr_app/features/library/home/home_counts.dart';
+import 'package:collectarr_app/features/library/home/home_nav_button.dart';
 import 'package:collectarr_app/features/library/config/library_kind_style.dart';
-import 'package:collectarr_app/features/library/workspace/config/library_workspace_tokens.dart';
-import 'package:collectarr_app/features/sync/state/sync_controller.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
+import 'package:collectarr_app/features/library/providers/library_nav_preferences.dart';
 
+import 'package:collectarr_app/features/library/home/compact_kind_picker.dart';
+import 'package:collectarr_app/ui/adaptive/adaptive.dart';
 import 'package:collectarr_app/ui/library_accent_scope.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-class MediaLibraryActionsBar extends StatelessWidget {
-  const MediaLibraryActionsBar({
+class MediaLibraryNav extends ConsumerWidget {
+  const MediaLibraryNav({
     super.key,
-    required this.overdueLoanCount,
-    required this.selectedOverdueLoanCount,
+    required this.types,
+    required this.counts,
+    this.overdueLoanCount = 0,
+    this.selectedOverdueLoanCount = 0,
     required this.selectedLabel,
+    required this.registry,
+    required this.selectedKind,
+    required this.onSelected,
     this.animationDuration = kAppAnimNormal,
   });
 
+  final List<CatalogMediaType> types;
+  final Map<String, LibraryKindCount> counts;
   final int overdueLoanCount;
   final int selectedOverdueLoanCount;
   final String selectedLabel;
+  final LibraryKindRegistry registry;
+  final String selectedKind;
+  final ValueChanged<CatalogMediaType> onSelected;
   final Duration animationDuration;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final selected = selectedLibraryHomeType(types, selectedKind);
     final accentData = LibraryAccentScope.of(context);
-    return AnimatedLibraryChromeGradient(
+    final windowClass = AppWindowClass.of(context);
+    final isCompact = windowClass.isCompact;
+
+    return AnimatedLibraryChrome(
       accent: accentData.accent,
-      begin: Alignment.centerLeft,
-      end: Alignment.centerRight,
-      duration: animationDuration,
       borderBuilder: (animatedAccent, brightness) => Border(
         top: BorderSide(
           color: libraryChromeBorderColor(
@@ -47,22 +69,201 @@ class MediaLibraryActionsBar extends StatelessWidget {
       ),
       child: SizedBox(
         height: 36,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 6),
-          child: Row(
-            children: [
-              _MediaLibraryOverdueActions(
+        child: Row(
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(left: 6, right: 4),
+              child: _MediaLibraryOverdueActions(
                 overdueLoanCount: overdueLoanCount,
                 selectedOverdueLoanCount: selectedOverdueLoanCount,
                 selectedLabel: selectedLabel,
               ),
-              const Spacer(),
-              const _LibraryTopNavSyncButton(),
-            ],
-          ),
+            ),
+            Expanded(
+              child: isCompact
+                  ? Align(
+                      alignment: Alignment.centerLeft,
+                      child: CompactLibraryKindPicker(
+                        types: types,
+                        counts: counts,
+                        registry: registry,
+                        selectedKind: selected.kind,
+                        onSelected: onSelected,
+                      ),
+                    )
+                  : MediaLibraryNavStrip(
+                      types: types,
+                      counts: counts,
+                      registry: registry,
+                      selectedKind: selected.kind,
+                      onSelected: onSelected,
+                      animationDuration: animationDuration,
+                    ),
+            ),
+          ],
         ),
       ),
     );
+  }
+}
+
+class MediaLibraryTitleBar extends ConsumerWidget {
+  const MediaLibraryTitleBar({
+    super.key,
+    required this.type,
+    this.overdueLoanCount = 0,
+    this.selectedOverdueLoanCount = 0,
+    required this.selectedLabel,
+    required this.registry,
+  });
+
+  final CatalogMediaType type;
+  final int overdueLoanCount;
+  final int selectedOverdueLoanCount;
+  final String selectedLabel;
+  final LibraryKindRegistry registry;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final accentData = LibraryAccentScope.of(context);
+    final palette = appPalette(context);
+    final icon = registry.tryGet(type.mediaKind)?.identity.icon ??
+        libraryIconForKind(type.mediaKind);
+    return AnimatedLibraryChrome(
+      accent: accentData.accent,
+      borderBuilder: (animatedAccent, brightness) => Border(
+        top: BorderSide(
+          color: libraryChromeBorderColor(
+            animatedAccent,
+            brightness: brightness,
+          ),
+        ),
+        bottom: BorderSide(
+          color: libraryChromeBorderColor(
+            animatedAccent,
+            brightness: brightness,
+          ),
+        ),
+      ),
+      child: SizedBox(
+        height: 36,
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final titleWidth = _headerTitleWidth(
+              labels: [libraryNavLabel(type)],
+              maxWidth: constraints.maxWidth,
+            );
+            return Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8),
+              child: Row(
+                children: [
+                  DecoratedBox(
+                    decoration: BoxDecoration(
+                      border: Border(right: BorderSide(color: palette.divider)),
+                    ),
+                    child: SizedBox(
+                      width: titleWidth,
+                      child: Align(
+                        alignment: Alignment.centerLeft,
+                        child: _MediaLibraryTitle(
+                          icon: icon,
+                          label: libraryNavLabel(type),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const Spacer(),
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      _MediaLibraryOverdueActions(
+                        overdueLoanCount: overdueLoanCount,
+                        selectedOverdueLoanCount: selectedOverdueLoanCount,
+                        selectedLabel: selectedLabel,
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            );
+          },
+        ),
+      ),
+    );
+  }
+}
+
+class _MediaLibraryTitle extends StatelessWidget {
+  const _MediaLibraryTitle({
+    required this.icon,
+    required this.label,
+  });
+
+  final IconData icon;
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = appPalette(context);
+    final titleColor = palette.textPrimary;
+    return Row(
+      mainAxisSize: MainAxisSize.max,
+      children: [
+        Icon(icon, size: 18, color: palette.textMuted),
+        const SizedBox(width: 6),
+        Expanded(
+          child: Row(
+            children: [
+              Expanded(
+                child: Text(
+                  label,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  softWrap: false,
+                  style: TextStyle(
+                    color: titleColor,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+/// Keep the overdue-loan shortcut in the main app bar after removing the extra row.
+class LibraryOverdueLoansAction extends ConsumerWidget {
+  const LibraryOverdueLoansAction(
+      {super.key, required this.selectedKind, required this.selectedLabel});
+  final String selectedKind;
+  final String selectedLabel;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final overdue = ref.watch(overdueLoanLibraryEntryIdsProvider).maybeWhen(
+        data: (value) => value, orElse: () => const <LibraryEntryRef>{});
+    if (overdue.isEmpty) return const SizedBox.shrink();
+    final counts = ref.watch(shelfProvider).maybeWhen(
+        data: (value) => overdueLoanCountsByKind(value, overdue),
+        orElse: () => const <String, int>{});
+    final selectedCount = counts[selectedKind] ?? 0;
+    return IconButton(
+        tooltip:
+            '${overdue.length} overdue loans ? $selectedCount in $selectedLabel ? Open Loans',
+        visualDensity: VisualDensity.compact,
+        style: IconButton.styleFrom(
+            foregroundColor: Colors.white,
+            backgroundColor: Colors.transparent,
+            side: BorderSide.none),
+        onPressed: () => context.go(
+            AppRoutes.loansForKind(catalogMediaKindFromApiValue(selectedKind))),
+        icon: Badge(
+            label: Text('${overdue.length}'),
+            child: const Icon(Icons.warning_amber_rounded)));
   }
 }
 
@@ -90,52 +291,12 @@ class _MediaLibraryOverdueActions extends StatelessWidget {
               overdueLoanCount: overdueLoanCount,
               selectedOverdueLoanCount: selectedOverdueLoanCount,
               selectedLabel: selectedLabel,
-              onPressed: () => context.go(AppRoutes.loans),
+              onPressed: () => context.go(AppRoutes.loansForKind(
+                  catalogMediaKindFromApiValue(
+                      LibraryAccentScope.of(context).kind))),
             ),
           ],
         ],
-      ),
-    );
-  }
-}
-
-class _LibraryTopNavSyncButton extends ConsumerWidget {
-  const _LibraryTopNavSyncButton();
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final sync = ref.watch(syncControllerProvider);
-    return Tooltip(
-      message: sync.isSyncing
-          ? 'Personal sync is running'
-          : sync.pendingCount > 0
-              ? 'Run personal sync now (${sync.pendingCount} pending)'
-              : 'Run personal sync now',
-      child: SizedBox.square(
-        dimension: kLibraryToolbarControlHeight,
-        child: IconButton(
-          onPressed: sync.isSyncing
-              ? null
-              : () => ref.read(syncControllerProvider.notifier).syncNow(),
-          icon: Icon(
-            sync.isOffline ? Icons.cloud_off_outlined : Icons.sync_outlined,
-            size: 18,
-          ),
-          visualDensity: VisualDensity.compact,
-          padding: EdgeInsets.zero,
-          constraints: const BoxConstraints.tightFor(
-            width: kLibraryToolbarControlHeight,
-            height: kLibraryToolbarControlHeight,
-          ),
-          style: IconButton.styleFrom(
-            foregroundColor: appPalette(context).textMuted,
-            backgroundColor: appPalette(context).surface,
-            side: BorderSide(color: appPalette(context).divider),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(3),
-            ),
-          ),
-        ),
       ),
     );
   }
@@ -194,6 +355,298 @@ class _OverdueLoanChip extends StatelessWidget {
                         ),
                   ),
                 ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+double _headerTitleWidth({
+  required Iterable<String> labels,
+  required double maxWidth,
+}) {
+  var maxLabelLength = 0;
+  for (final label in labels) {
+    if (label.length > maxLabelLength) {
+      maxLabelLength = label.length;
+    }
+  }
+  final estimated =
+      (18.0 + 6 + maxLabelLength * 8.2 + 14).clamp(104.0, 240.0).toDouble();
+  final available = maxWidth * 0.24;
+  if (available <= 0) {
+    return estimated;
+  }
+  return estimated.clamp(104.0, available).toDouble();
+}
+
+class MediaLibraryNavStrip extends StatefulWidget {
+  const MediaLibraryNavStrip({
+    super.key,
+    required this.types,
+    required this.counts,
+    required this.registry,
+    required this.selectedKind,
+    required this.onSelected,
+    this.animationDuration = kAppAnimNormal,
+  });
+
+  final List<CatalogMediaType> types;
+  final Map<String, LibraryKindCount> counts;
+  final LibraryKindRegistry registry;
+  final String selectedKind;
+  final ValueChanged<CatalogMediaType> onSelected;
+  final Duration animationDuration;
+
+  @override
+  State<MediaLibraryNavStrip> createState() => _MediaLibraryNavStripState();
+}
+
+class _MediaLibraryNavStripState extends State<MediaLibraryNavStrip> {
+  final _scrollController = ScrollController();
+  bool _showLeft = false;
+  bool _showRight = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController.addListener(_updateArrows);
+    WidgetsBinding.instance.addPostFrameCallback((_) => _updateArrows());
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _updateArrows() {
+    if (!_scrollController.hasClients) return;
+    final pos = _scrollController.position;
+    final left = pos.pixels > 0;
+    final right = pos.pixels < pos.maxScrollExtent - 1;
+    if (left != _showLeft || right != _showRight) {
+      setState(() {
+        _showLeft = left;
+        _showRight = right;
+      });
+    }
+  }
+
+  void _scrollBy(double delta) {
+    final target = (_scrollController.offset + delta)
+        .clamp(0.0, _scrollController.position.maxScrollExtent);
+    _scrollController.animateTo(target,
+        duration: const Duration(milliseconds: 200), curve: Curves.easeOut);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final groups = buildLibraryNavGroups(widget.types);
+    return Listener(
+      onPointerSignal: (event) {
+        if (event is PointerScrollEvent && _scrollController.hasClients) {
+          final delta = event.scrollDelta.dy != 0
+              ? event.scrollDelta.dy
+              : event.scrollDelta.dx;
+          _scrollBy(delta);
+        }
+      },
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          return Stack(
+            children: [
+              ScrollConfiguration(
+                behavior: ScrollConfiguration.of(context).copyWith(
+                  dragDevices: {
+                    PointerDeviceKind.touch,
+                    PointerDeviceKind.mouse,
+                    PointerDeviceKind.trackpad,
+                  },
+                ),
+                child: SingleChildScrollView(
+                  controller: _scrollController,
+                  scrollDirection: Axis.horizontal,
+                  child: Padding(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 1, vertical: 4),
+                    child: ConstrainedBox(
+                      constraints: BoxConstraints(
+                        minWidth: (constraints.maxWidth - 2)
+                            .clamp(0.0, double.infinity),
+                      ),
+                      child: Align(
+                        alignment: Alignment.centerLeft,
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            for (var index = 0;
+                                index < groups.length;
+                                index += 1)
+                              Builder(
+                                builder: (context) {
+                                  final group = groups[index];
+                                  final representative = group.primaryType;
+                                  final groupCount = group.types.fold<int>(
+                                    0,
+                                    (sum, type) =>
+                                        sum +
+                                        (widget.counts[type.kind]?.total ?? 0),
+                                  );
+                                  return Padding(
+                                    padding: EdgeInsets.only(
+                                      right: index == groups.length - 1 ? 0 : 1,
+                                    ),
+                                    child: MediaLibraryNavButton(
+                                      type: representative,
+                                      color: libraryAccentForKind(
+                                        representative.mediaKind,
+                                      ),
+                                      icon: widget.registry
+                                              .tryGet(representative.mediaKind)
+                                              ?.identity
+                                              .icon ??
+                                          libraryIconForKind(
+                                            representative.mediaKind,
+                                          ),
+                                      label: group.label,
+                                      tooltip: group.label,
+                                      selected: group
+                                          .containsKind(widget.selectedKind),
+                                      count: groupCount,
+                                      onPressed: () =>
+                                          widget.onSelected(representative),
+                                      animationDuration:
+                                          widget.animationDuration,
+                                    ),
+                                  );
+                                },
+                              ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              if (_showLeft)
+                Positioned(
+                  left: 0,
+                  top: 0,
+                  bottom: 0,
+                  child: Center(
+                    child: _ScrollArrowButton(
+                      icon: Icons.chevron_left,
+                      onTap: () => _scrollBy(-120),
+                    ),
+                  ),
+                ),
+              if (_showRight)
+                Positioned(
+                  right: 0,
+                  top: 0,
+                  bottom: 0,
+                  child: Center(
+                    child: _ScrollArrowButton(
+                      icon: Icons.chevron_right,
+                      onTap: () => _scrollBy(120),
+                    ),
+                  ),
+                ),
+            ],
+          );
+        },
+      ),
+    );
+  }
+}
+
+class _ScrollArrowButton extends StatelessWidget {
+  const _ScrollArrowButton({
+    required this.icon,
+    required this.onTap,
+  });
+
+  final IconData icon;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = appPalette(context);
+    final buttonBackground = palette.surface;
+    final buttonForeground = appContrastingTextColor(buttonBackground);
+    return Semantics(
+      button: true,
+      label: icon == Icons.chevron_left ? 'Scroll left' : 'Scroll right',
+      child: GestureDetector(
+        onTap: onTap,
+        child: MouseRegion(
+          cursor: SystemMouseCursors.click,
+          child: Container(
+            width: 20,
+            height: 28,
+            decoration: BoxDecoration(
+              color: buttonBackground,
+              borderRadius: BorderRadius.circular(4),
+              border: Border.all(color: palette.divider),
+            ),
+            child: Icon(
+              icon,
+              size: 16,
+              color: buttonForeground,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class MediaLibraryCollapsedRailStrip extends ConsumerWidget {
+  const MediaLibraryCollapsedRailStrip({
+    super.key,
+    required this.accent,
+  });
+
+  final Color accent;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final palette = appPalette(context);
+    final accentData = LibraryAccentScope.of(context);
+    final handleBackground = Color.alphaBlend(
+      accentData.accent.withValues(alpha: 0.14),
+      palette.surfaceSubtle.withValues(alpha: palette.isDark ? 0.9 : 1),
+    );
+    final handleForeground = appContrastingTextColor(handleBackground);
+    return AnimatedLibraryChrome(
+      accent: accentData.accent,
+      child: SizedBox(
+        width: 10,
+        child: Align(
+          alignment: Alignment.bottomCenter,
+          child: Material(
+            color: Colors.transparent,
+            child: Tooltip(
+              message: 'Show library selector',
+              child: InkWell(
+                mouseCursor: WidgetStateMouseCursor.clickable,
+                onTap: () => ref
+                    .read(libraryNavPreferencesProvider.notifier)
+                    .toggleCollapsed(),
+                child: Container(
+                  width: 10,
+                  height: 36,
+                  color: handleBackground,
+                  child: Icon(
+                    Icons.chevron_right,
+                    size: 14,
+                    color: handleForeground,
+                  ),
+                ),
               ),
             ),
           ),

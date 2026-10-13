@@ -3,8 +3,7 @@ import 'package:collectarr_app/features/catalog/transport/catalog_search_candida
 import 'package:collectarr_app/features/library/add/models/library_kind_add_draft.dart';
 import 'package:collectarr_app/features/library/kinds/movie/add/movie_add_manual_draft.dart';
 import 'package:collectarr_app/features/library/kinds/movie/add/movie_add_schema.dart';
-import 'package:collectarr_app/features/library/kinds/movie/forms/movie_catalog_form_adapters.dart';
-import 'package:collectarr_app/features/library/models/library_item_identity.dart';
+import 'package:collectarr_app/features/library/kinds/movie/forms/movie_format_value.dart';
 
 CatalogSearchCandidate? buildMovieManualCandidate(
   LibraryKindAddDraft draft, {
@@ -14,17 +13,99 @@ CatalogSearchCandidate? buildMovieManualCandidate(
   if (movieAddSchema.validate?.call(draft) != null) return null;
 
   final id = 'manual-movie-${DateTime.now().microsecondsSinceEpoch}';
-  final movie = movieMediaFromManualCatalogFormValues(
-    values: draft.values,
+  final movieDraft = draft;
+  final values = movieDraft.values;
+  final editionTitle = _text(values.editionTitle);
+  final releaseDateParts = values.releaseDateParts;
+  final credits = [
+    ...movieDraft.castCredits,
+    ...movieDraft.crewCredits,
+  ].map((credit) => credit.toInput()).where((credit) => credit.name.isNotEmpty);
+  final aliases = _split(values.searchAliases);
+  final item = CatalogItemDto.raw(
     id: id,
-    title: title,
-  );
-  final item = CatalogItemDto(
-    identity: LibraryItemIdentity(
-      id: id,
-      mediaKind: CatalogMediaKind.movie,
-    ),
-    kindMetadata: movie,
+    mediaKind: CatalogMediaKind.movie,
+    origin: CatalogItemOrigin.privateLocal,
+    kindData: {
+      'title': title.trim(),
+      if (_text(values.displayTitle) case final value?) 'display_title': value,
+      if (_text(values.sortTitle) case final value?) 'sort_key': value,
+      if (_text(values.originalTitle) case final value?)
+        'original_title': value,
+      if (_text(values.localizedTitle) case final value?)
+        'localized_title': value,
+      if (aliases.isNotEmpty) 'search_aliases': aliases,
+      if (_text(values.synopsis) case final value?) 'synopsis': value,
+      if (_text(values.coverImageUrl) case final value?)
+        'cover_image_url': value,
+      if (releaseDateParts != null) ...{
+        'release_date': releaseDateParts.isoString,
+        'release_date_parts': releaseDateParts.toJson(),
+      },
+      if (editionTitle != null) 'edition_title': editionTitle,
+      if (_text(values.subtitle) case final value?) 'subtitle': value,
+      if (values.audioTracks.isNotEmpty)
+        'audio_tracks': values.audioTracks.join(', '),
+      if (values.subtitles.isNotEmpty) 'subtitles': values.subtitles.join(', '),
+      if (_text(values.screenRatio) case final value?) 'screen_ratio': value,
+      if (_text(values.layers) case final value?) 'layers': value,
+      if (_text(values.color) case final value?) 'color': value,
+      if (values.nrDiscs case final value?) 'nr_discs': value,
+      if (_text(values.originalLanguage) case final value?)
+        'original_language': value,
+      if (moviePhysicalFormatId(values.format) case final value?)
+        'physical_format': value,
+      if (_text(values.region) case final value?) 'country': value,
+      if (_text(values.distributor) case final value?) 'publisher': value,
+      if (_text(values.language) case final value?) 'language': value,
+      if (_text(values.ageRating) case final value?) 'age_rating': value,
+      if (_text(values.audienceRating) case final value?)
+        'audience_rating': value,
+      if (values.runtimeMinutes case final value?) 'runtime_minutes': value,
+      if (values.genres.isNotEmpty) 'genres': List<String>.of(values.genres),
+      if (_text(values.barcode) case final value?) 'barcode': value,
+      if (_text(values.itemNumber) case final value?) 'item_number': value,
+      if (_text(values.variant) case final value?) 'variant_name': value,
+      if (credits.isNotEmpty)
+        'contributors': [
+          for (final credit in credits)
+            {
+              'name': credit.name,
+              if (credit.role != null) 'role': credit.role,
+            },
+        ],
+      if (values.characters.isNotEmpty)
+        'characters': [
+          for (final character in values.characters)
+            if (character.name.trim().isNotEmpty) character.toJsonValue(),
+        ],
+    },
   );
   return CatalogSearchCandidate.fromItem(item);
 }
+
+/// Serializes the selected flat Catalog Item fields for Core review.
+Map<String, Object?>? buildMovieManualProposalData(
+  LibraryKindAddDraft draft, {
+  required String title,
+}) {
+  final candidate = buildMovieManualCandidate(draft, title: title);
+  if (candidate == null) return null;
+  return candidate.kindCapability.mapTransport(
+    (item) => Map<String, Object?>.from(item.payload)
+      ..remove('id')
+      ..remove('kind'),
+  );
+}
+
+String? _text(String value) {
+  final normalized = value.trim();
+  return normalized.isEmpty ? null : normalized;
+}
+
+List<String> _split(String value) => value
+    .split(RegExp(r'[,;\r\n]+'))
+    .map((entry) => entry.trim())
+    .where((entry) => entry.isNotEmpty)
+    .toSet()
+    .toList(growable: false);

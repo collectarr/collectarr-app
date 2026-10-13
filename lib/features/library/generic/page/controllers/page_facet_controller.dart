@@ -87,6 +87,22 @@ abstract final class _LibraryFacetControllerOps {
     String mode,
     LibraryFacetIdRuntime facetId,
   ) {
+    // Route hydration can reach this from initState/didUpdateWidget. Keep
+    // provider notifications outside the widget build phase.
+    if (SchedulerBinding.instance.schedulerPhase ==
+        SchedulerPhase.persistentCallbacks) {
+      final expectedKind = state.widget.type.kind;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!state.mounted || state.widget.type.kind != expectedKind) return;
+        final latestShelf = state.ref.read(shelfProvider).asData?.value;
+        if (latestShelf == null ||
+            facetIdForMode(state, state._activeGroupMode) != facetId) {
+          return;
+        }
+        ensureFacetBucketsLoaded(state, latestShelf, mode, facetId);
+      });
+      return;
+    }
     final signature = genericShelfSignature(state, shelf);
     final cached = _controllerState(state).bucketsByFacetId[facetId];
     if (cached != null && cached.shelfSignature == signature) {
@@ -112,7 +128,7 @@ abstract final class _LibraryFacetControllerOps {
   ) async {
     final loadKey = facetLoadKey(state, facetId, signature);
     final shelfItems = libraryItemsForShelf(shelf, state.widget.type);
-    final shelfItemIds = {for (final item in shelfItems) item.node.id};
+    final shelfItemIds = {for (final item in shelfItems) item.target.id};
     try {
       final buckets = await const LibraryFacetBucketService()
           .load(
@@ -195,9 +211,15 @@ abstract final class _LibraryFacetControllerOps {
     GenericLibraryPageState state,
     ShelfState shelf,
   ) {
-    return libraryShelfSignature([
-      for (final item in libraryItemsForShelf(shelf, state.widget.type))
-        item.node.id,
+    return libraryFacetContentSignature([
+      for (final source in shelf.entries)
+        if (source.mediaKind == state.widget.type.kind &&
+            source.kindPresentationData != null)
+          (
+            id: source.target.id,
+            updatedAt: source.updatedAt,
+            metadata: source.kindPresentationData,
+          ),
     ]);
   }
 }

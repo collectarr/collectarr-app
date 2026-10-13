@@ -1,7 +1,5 @@
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
 class LibraryCtrlScrollZoom extends StatelessWidget {
   const LibraryCtrlScrollZoom({
@@ -22,37 +20,7 @@ class LibraryCtrlScrollZoom extends StatelessWidget {
   final Widget child;
 
   @override
-  Widget build(BuildContext context) {
-    return Listener(
-      behavior: HitTestBehavior.translucent,
-      onPointerSignal: _handlePointerSignal,
-      child: child,
-    );
-  }
-
-  void _handlePointerSignal(PointerSignalEvent event) {
-    if (event is! PointerScrollEvent ||
-        !viewMode.supportsCoverSize ||
-        !isLibraryZoomModifierPressed()) {
-      return;
-    }
-    GestureBinding.instance.pointerSignalResolver.register(event, (_) {
-      final next = zoomedLibraryCoverSize(
-        current: coverSize,
-        scrollDeltaY: event.scrollDelta.dy,
-        min: minCoverSize,
-        max: maxCoverSize,
-      );
-      if (next != coverSize) {
-        onCoverSizeChanged(next);
-      }
-    });
-  }
-}
-
-bool isLibraryZoomModifierPressed() {
-  final keyboard = HardwareKeyboard.instance;
-  return keyboard.isControlPressed || keyboard.isMetaPressed;
+  Widget build(BuildContext context) => child;
 }
 
 double zoomedLibraryCoverSize({

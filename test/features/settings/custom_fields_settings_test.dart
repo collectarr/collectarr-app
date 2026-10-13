@@ -1,3 +1,5 @@
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/features/collection/repositories/custom_field_repository.dart';
@@ -7,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
+  setUp(() => SharedPreferences.setMockInitialValues({}));
   testWidgets(
       'custom fields settings renders scoped rows without tile warnings',
       (tester) async {
@@ -19,23 +22,20 @@ void main() {
         name: 'Release Notes',
         fieldType: 'text',
         mediaKind: 'movie',
-        editScope: 'release',
+        editScope: CustomFieldTargetScope.libraryEntry.apiValue,
         createdAt: DateTime.utc(2026, 1, 1),
       ),
     );
 
     await tester.pumpWidget(
-      MaterialApp(
-        home: Scaffold(
-          body: CustomFieldsSettings(db: db),
-        ),
-      ),
+      ProviderScope(
+          child: MaterialApp(
+        home: Scaffold(body: CustomFieldsSettings(db: db)),
+      )),
     );
     await tester.pumpAndSettle();
 
     expect(find.text('Release Notes'), findsOneWidget);
-    expect(find.text('Movie'), findsOneWidget);
-    expect(find.text('Release'), findsOneWidget);
     expect(find.text('Text'), findsOneWidget);
   });
 }

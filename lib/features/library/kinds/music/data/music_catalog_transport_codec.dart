@@ -1,6 +1,9 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_display_summary.dart';
+import 'package:collectarr_app/core/models/catalog_item_ref.dart';
+import 'package:collectarr_app/core/models/library_entry_ref.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_item_cache_repository.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_kind_derived_data.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_kind_transport_codec.dart';
 import 'package:collectarr_app/features/catalog/serial/serial_authority_repository.dart';
@@ -9,60 +12,85 @@ import 'package:collectarr_app/features/pick_lists/pick_list_definition_contribu
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_pick_list_contributors.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_serial_authority_contributors.dart';
 import 'package:collectarr_app/features/library/kinds/music/catalog/music_catalog_mapper.dart';
-import 'package:collectarr_app/features/library/kinds/music/data/music_repository.dart';
 import 'package:collectarr_app/features/library/kinds/music/data/music_listening_repository.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_release_group.dart';
-import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_catalog_data.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_workspace_catalog_data.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_album.dart';
+import 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_data.dart';
+import 'package:collectarr_app/features/library/workspace/entry/library_workspace_kind_data.dart';
 
 final class MusicCatalogTransportCodec
     implements
-        CatalogKindTransportCodec<MusicReleaseGroup>,
-        CatalogWorkspaceDataEnricher {
+        CatalogKindTransportCodec<MusicAlbum>,
+        CatalogWorkspaceDataEnricher,
+        CatalogWorkspaceDataBatchEnricher {
   const MusicCatalogTransportCodec();
 
   @override
   CatalogMediaKind get kind => CatalogMediaKind.music;
 
   @override
-  MusicReleaseGroup decode(CatalogItemDto item) {
-    final metadata = item.kindMetadata;
-    if (metadata is MusicReleaseGroup) return metadata;
-    return MusicCatalogMapper.mapMetadataItemToMusic(item);
-  }
+  MusicAlbum decode(CatalogItemDto item) =>
+      MusicCatalogMapper.mapMetadataItemToMusic(item);
 
   @override
-  Future<void> upsert(LocalDatabase db, MusicReleaseGroup item) {
-    return MusicRepository(db).updateReleaseGroup(item);
-  }
+  MusicAlbum decodeKindData(Map<String, dynamic> kindData) =>
+      MusicAlbum.fromJson(kindData);
 
   @override
-  CatalogDisplaySummary summarize(MusicReleaseGroup item) =>
-      CatalogDisplaySummary.root(
+  CatalogItemDto encode(String id, MusicAlbum item) =>
+      MusicCatalogMapper.toCatalogItemDto(
+        item,
+        ref: CatalogItemRef(kind: kind, id: id),
+      );
+
+  @override
+  CatalogDisplaySummary summarize(String catalogItemId, MusicAlbum item) =>
+      CatalogDisplaySummary.forCatalogItem(
         kind: kind,
-        id: item.id.value,
+        id: catalogItemId,
         primaryLabel: item.title,
-        imageUrl: item.coverImageUrl ?? item.primaryRelease?.coverImageUrl,
+        imageUrl: item.coverImageUrl,
       );
 
   @override
-  MusicWorkspaceCatalogData workspaceData(CatalogItemDto item) =>
-      MusicWorkspaceCatalogData.fromMusic(
-        decode(item),
-        ref: item.catalogRef,
-      );
+  MusicWorkspaceData workspaceData(CatalogItemDto item) =>
+      MusicWorkspaceData.fromMusic(decode(item));
 
   @override
-  Future<LibraryWorkspaceCatalogData> enrichWorkspaceData(
+  MusicWorkspaceData workspaceDataFromKindData(
+    Map<String, dynamic> kindData,
+  ) =>
+      MusicWorkspaceData.fromMusic(MusicAlbum.fromJson(kindData));
+
+  @override
+  Future<LibraryWorkspaceKindData> enrichWorkspaceData(
     LocalDatabase db,
-    CatalogItemDto item,
-    LibraryWorkspaceCatalogData data,
-  ) async {
-    if (data is! MusicWorkspaceCatalogData) return data;
-    final summary = await MusicListeningRepository(db).getTrackingSummary(
-      data.music.id,
-    );
+    LibraryWorkspaceKindData data, {
+    LibraryEntryRef? libraryEntryRef,
+  }) async {
+    if (data is! MusicWorkspaceData || libraryEntryRef == null) {
+      return data;
+    }
+    final summary =
+        await MusicListeningRepository(db).getSummary(libraryEntryRef);
     return data.copyWith(listeningSummary: summary);
+  }
+
+  @override
+  Future<Map<LibraryEntryRef, LibraryWorkspaceKindData>>
+      enrichWorkspaceDataForEntries(
+    LocalDatabase db,
+    Map<LibraryEntryRef, LibraryWorkspaceKindData> dataByEntry,
+  ) async {
+    final summaries =
+        await MusicListeningRepository(db).getSummaries(dataByEntry.keys);
+    return {
+      for (final entry in dataByEntry.entries)
+        entry.key: entry.value is MusicWorkspaceData
+            ? (entry.value as MusicWorkspaceData).copyWith(
+                listeningSummary: summaries[entry.key],
+              )
+            : entry.value,
+    };
   }
 
   @override
@@ -77,9 +105,7 @@ final class MusicCatalogTransportCodec
     return countPickListCatalogValuesByValue(
       contributor: contributor,
       listName: listName,
-      metadata: [
-        for (final item in await listTransport(db)) decode(item),
-      ],
+      metadata: await listCatalogAndEntryMetadata(db),
       normalizedValues: normalizedValues,
     );
   }
@@ -113,7 +139,7 @@ final class MusicCatalogTransportCodec
   Future<void> captureDerivedDataTyped(
     PickListRepository pickLists,
     SerialAuthorityRepository serialAuthority,
-    MusicReleaseGroup item,
+    MusicAlbum item,
   ) async {
     await captureCatalogKindDerivedData(
       kind: kind,
@@ -123,7 +149,7 @@ final class MusicCatalogTransportCodec
     );
   }
 
-  CatalogKindDerivedData? _derivedDataFromTyped(MusicReleaseGroup item) =>
+  CatalogKindDerivedData? _derivedDataFromTyped(MusicAlbum item) =>
       catalogDerivedDataFor(
         kind: kind,
         metadata: item,
@@ -132,57 +158,19 @@ final class MusicCatalogTransportCodec
       );
 
   @override
-  Future<void> upsertTransport(LocalDatabase db, CatalogItemDto item) {
-    return upsert(db, decode(item));
-  }
-
-  @override
-  Future<List<CatalogItemDto>> listTransport(LocalDatabase db) async {
-    final releases = await MusicRepository(db).searchReleaseGroups();
-    return [
-      for (final item in releases) _projection(item),
-    ];
-  }
+  Future<List<CatalogItemDto>> listTransport(LocalDatabase db) =>
+      CatalogItemCacheRepository(db).findAll(kind: kind);
 
   @override
   Future<List<CatalogDisplaySummary>> listSummaries(LocalDatabase db) async {
-    final releases = await MusicRepository(db).searchReleaseGroups();
+    final items = await listTransport(db);
     return [
-      for (final item in releases) summarize(item),
+      for (final item in items) summarize(item.id, decode(item)),
     ];
   }
 }
 
 int? _replacementValueFromPayload(CatalogItemDto item) {
-  final direct = item.payload['cover_price_cents'];
-  if (direct is num) return direct.toInt();
-  final publishing = item.payload['publishing'];
-  final nested = publishing is Map ? publishing['cover_price_cents'] : null;
-  return nested is num ? nested.toInt() : null;
-}
-
-CatalogItemDto _projection(MusicReleaseGroup item) {
-  // The local repository stores the graph in normalized release/medium/track
-  // tables. Rebuild the complete typed graph for catalog snapshots instead
-  // of projecting only the group's provider metadata, otherwise a local add
-  // loses its tracklist when the catalog is read back.
-  final payload = Map<String, dynamic>.from(item.toJson())
-    ..['id'] = item.id.value
-    ..['kind'] = 'music'
-    ..['title'] = item.title;
-  final primaryRelease = item.primaryRelease;
-  payload.putIfAbsent(
-    'cover_image_url',
-    () => primaryRelease?.coverImageUrl,
-  );
-  payload.putIfAbsent(
-    'thumbnail_image_url',
-    () => primaryRelease?.coverImageUrl ?? item.coverImageUrl,
-  );
-  payload.putIfAbsent('barcode', () => primaryRelease?.barcode);
-  payload['track_count'] = item.trackCount;
-  payload['tracks'] = [for (final track in item.tracks) track.track.toJson()];
-  final projection = CatalogItemDto.fromJson(payload);
-  return projection
-      .withKindMetadata(MusicReleaseGroup.fromJson(projection.payload));
+  final value = item.kindData['cover_price_cents'];
+  return value is num ? value.toInt() : null;
 }

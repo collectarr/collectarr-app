@@ -1,10 +1,10 @@
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 
-/// Game-owned aliases for the collection CSV boundary.
+/// Game-entry aliases for the collection CSV boundary.
 final class GameCollectionCsvImportProfile {
   const GameCollectionCsvImportProfile();
 
-  /// Canonical schema-v1 header owned by this kind's CSV integration.
+  /// Canonical schema-v1 header entry by this kind's CSV integration.
   ///
   /// The same wire positions may be duplicated between kinds intentionally;
   /// Collection never interprets these labels as a shared domain schema.
@@ -27,7 +27,6 @@ final class GameCollectionCsvImportProfile {
     'price_paid_cents',
     'currency',
     'notes',
-    'quantity',
     'location_id',
     'index_number',
     'cover_price_cents',
@@ -67,7 +66,6 @@ final class GameCollectionCsvImportProfile {
     'Purchase Price',
     'Currency',
     'Cover Price',
-    'Quantity',
     'Location ID',
     'Index',
     'Raw / Slabbed',
@@ -149,7 +147,7 @@ final class GameCollectionCsvImportProfile {
     ];
   }
 
-  List<String>? importOwnedCells({
+  List<String>? importEntryCells({
     required List<String> header,
     required List<String> values,
   }) {

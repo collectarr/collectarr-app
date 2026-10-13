@@ -1,3 +1,5 @@
+import 'package:collectarr_app/features/library/workspace/schema/library_group_values.dart';
+import 'package:collectarr_app/features/library/config/library_entry_field_metadata.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/config/generic_library_media_presentation_builder.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_identifier_types.dart';
@@ -8,10 +10,11 @@ const genericPreviewLabels = LibraryMediaPreviewLabels(
   values: {'item_count': 'Items'},
 );
 
-const genericLibraryFilterDefinitions = <LibraryFilterDefinition<Object?>>[
+final genericLibraryFilterDefinitions = <LibraryFilterDefinition<Object?>>[
   LibraryFilterDefinition<Object?>(
     id: 'location',
     label: 'Location',
+    metadata: LibraryEntryFieldMetadata.location,
     anyLabel: 'Any location',
   ),
 ];
@@ -40,8 +43,8 @@ String _simpleLibraryBucketLabel(
     LibraryGroupSemantic.location =>
       _locationBucket(context.source.locationPath),
     LibraryGroupSemantic.title => _titleBucket(context),
-    LibraryGroupSemantic.ownership => context.source.isOwned
-        ? overrides.labelFor('owned', fallback: 'Owned')
+    LibraryGroupSemantic.entries => context.source.isEntry
+        ? overrides.labelFor('entry', fallback: 'Entry')
         : context.source.isWishlisted
             ? overrides.labelFor('wishlist', fallback: 'Wishlist')
             : overrides.labelFor('catalog_only', fallback: 'Catalog only'),
@@ -52,19 +55,18 @@ String _simpleLibraryBucketLabel(
 String _locationBucket(String? location) {
   final normalized = location?.trim();
   if (normalized == null || normalized.isEmpty) {
-    return 'No location';
+    return libraryEmptyGroupLabel;
   }
   return normalized;
 }
 
 String _titleBucket(LibraryBucketingContext context) {
-  final catalogTitle = context.source.catalogData?.title;
-  final trimmed = (catalogTitle ?? context.item.dto.primaryLabel).trim();
-  if (trimmed.isEmpty) return 'Unknown';
+  final trimmed = context.item.dto.primaryLabel.trim();
+  if (trimmed.isEmpty) return libraryEmptyGroupLabel;
   return trimmed.substring(0, 1).toUpperCase();
 }
 
-const genericLibraryMediaPresentation = LibraryMediaPresentation(
+final genericLibraryMediaPresentation = LibraryMediaPresentation(
   searchFieldLabels: LibraryMediaSearchFieldLabels(
     queryHint: 'Search catalog...',
     emptySearchMessage: 'Enter a search query.',

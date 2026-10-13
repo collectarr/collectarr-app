@@ -1,5 +1,6 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/library_entry_ref.dart';
+import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_record.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
@@ -8,16 +9,17 @@ import 'package:collectarr_app/dev/seeds/seed_catalog_item_factory.dart';
 import 'package:collectarr_app/dev/seeds/dev_seed_kind_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/comic/tracking/comic_tracking_unit.dart';
 import 'package:collectarr_app/features/library/kinds/comic/tracking/comic_tracking_state.dart';
-import 'package:collectarr_app/features/library/kinds/comic/ownership/comic_owned_details.dart';
+import 'package:collectarr_app/features/library/kinds/comic/entries/comic_entry_details.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
-import 'package:collectarr_app/features/library/kinds/comic/data/comic_owned_repository.dart';
-import 'package:collectarr_app/features/library/kinds/comic/data/comic_owned_item_projection.dart';
-import 'package:collectarr_app/features/library/kinds/comic/domain/comic_ids.dart';
+import 'package:collectarr_app/features/library/kinds/comic/data/comic_entry_repository.dart';
+import 'package:collectarr_app/features/library/kinds/comic/data/comic_library_entry_projection.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_reading_state.dart';
-import 'package:collectarr_app/features/library/kinds/comic/domain/comic_owned_item.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_library_entry.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_personal_data.dart';
+import 'package:collectarr_app/features/library/kinds/comic/domain/comic_catalog_item.dart';
 import 'package:collectarr_app/features/barcode/barcode_checksum.dart';
 
-final comicDevSeedContributor = TypedDevSeedKindContributor<ComicOwnedItem>(
+final comicDevSeedContributor = TypedDevSeedKindContributor<ComicLibraryEntry>(
   kind: CatalogMediaKind.comic,
   catalogDefaults: DevSeedCatalogDefaults(
     includePublishingDetails: true,
@@ -35,11 +37,9 @@ final comicDevSeedContributor = TypedDevSeedKindContributor<ComicOwnedItem>(
   validateCatalog: validateComicSeedCatalog,
   validateCatalogGraph: validateComicSeedCatalogGraph,
   validateBarcode: validateComicSeedBarcode,
-  ownedItemsTyped: comicSeedOwnedItems,
-  ownedSummaryTyped: ComicOwnedItemProjection.toSummary,
-  validateOwnedTyped: validateComicSeedOwned,
-  seedOwnedTyped: (db, now) =>
-      ComicOwnedRepository(db).upsertAll(comicSeedOwnedItems(now)),
+  libraryEntriesTyped: comicSeedLibraryEntries,
+  libraryEntrySummaryTyped: ComicLibraryEntryProjection.toSummary,
+  validateEntryTyped: validateComicSeedEntry,
   trackingRecords: comicSeedTrackingStates,
   trackingUnits: comicSeedTrackingUnits,
   seedDatabase: seedComicDatabase,
@@ -65,45 +65,32 @@ List<String> validateComicSeedCatalog(CatalogItemDto item) {
   final issues = <String>[];
   final prefix = '${item.kind}/${item.id}';
   seedRequirePublishingQuality(issues, prefix, item);
-  seedRequireText(issues, prefix, 'publisher', item.publisher);
+  seedRequireText(
+    issues,
+    prefix,
+    'publisher',
+    ComicCatalogItem.fromJson(item.kindData).publisher,
+  );
   return issues;
 }
 
 List<String> validateComicSeedCatalogGraph(CatalogItemDto item) {
   final issues = <String>[];
   final prefix = '${item.kind}/${item.id}';
-  final issuesPayload = seedRequireObjectList(
-    issues,
-    prefix,
-    'issues',
-    item.payload['issues'],
-  );
-  seedValidateChildren(
-    issues,
-    prefix,
-    'issues',
-    issuesPayload,
-    kind: CatalogMediaKind.comic,
-    parentId: item.id,
-    parentKey: 'work_id',
-    titleKey: 'title',
-  );
-  for (var index = 0; index < issuesPayload.length; index++) {
-    final issue = issuesPayload[index];
-    seedRequireText(
-      issues,
-      prefix,
-      'issues[$index].issue_number',
-      issue['issue_number'] ?? item.itemNumber,
-    );
+  final metadata = ComicCatalogItem.fromJson(item.kindData);
+  seedRequireText(issues, prefix, 'issue_number', metadata.issueNumber);
+  if (item.kindData.containsKey('issues') ||
+      item.kindData.containsKey('editions') ||
+      item.kindData.containsKey('releases')) {
+    issues.add('$prefix must be a flat Comic Catalog Item.');
   }
   return issues;
 }
 
-List<String> validateComicSeedOwned(ComicOwnedItem item) {
+List<String> validateComicSeedEntry(ComicLibraryEntry item) {
   final issues = <String>[];
-  final prefix = '${item.catalogRef.kind}/${item.id}';
-  final details = item.details;
+  final prefix = 'comic/${item.id}';
+  final details = item.personal.details;
   seedRequireText(issues, prefix, 'comic.raw_or_slabbed', details.rawOrSlabbed);
   seedRequireText(issues, prefix, 'comic.page_quality', details.pageQuality);
   if (details.lastBagBoardDate == null) {
@@ -126,20 +113,14 @@ Iterable<ComicTrackingUnit> comicSeedTrackingUnits(
   for (final item in items.where(
     (item) => item.mediaKind == CatalogMediaKind.comic,
   )) {
-    final issues = item.payload['issues'];
-    final issue = issues is List && issues.isNotEmpty ? issues.first : null;
-    final issueMap = issue is Map ? issue : const <String, dynamic>{};
-    final issueNumber = issueMap['issue_number']?.toString() ??
-        issueMap['number']?.toString() ??
-        item.itemNumber ??
-        '1';
-    final issueId = issueMap['id']?.toString() ?? 'issue-01';
+    final issueNumber =
+        ComicCatalogItem.fromJson(item.kindData).issueNumber ?? '1';
+    final issueId = item.id;
     yield ComicTrackingUnit(
       id: 'seed-unit-comic-${item.id}-$issueId',
-      targetRef: CatalogEntityRef(
-        kind: item.mediaKind,
-        entityType: CatalogEntityTypeId.root,
-        id: item.id,
+      libraryEntryRef: seedLibraryEntryRef(
+        item.mediaKind,
+        'seed-entry-${item.id}',
       ),
       issueNumber: issueNumber,
       completedAt: now.subtract(const Duration(days: 2)),
@@ -149,24 +130,20 @@ Iterable<ComicTrackingUnit> comicSeedTrackingUnits(
 }
 
 CatalogItemDto enrichComicSeedItem(CatalogItemDto item) {
-  final issues = [
-    for (final edition in seedEditionPayloads(item))
-      {
-        ...edition,
-        'id': edition['id']?.toString() ?? '${item.id}-issue-01',
-        'kind': 'comic',
-        'work_id': item.id,
-        'issue_number': edition['issue_number'] ?? item.itemNumber ?? '1',
-        'title': edition['title'] ?? item.editionTitle ?? item.title,
-        'publisher': edition['publisher'] ?? item.publisher,
-        'imprint': edition['imprint'] ?? item.publisher,
-        'upc': edition['upc'] ?? item.barcode,
-        'release_date': edition['release_date'] ??
-            item.releaseDate?.toUtc().toIso8601String(),
-        'cover_image_url': edition['cover_image_url'] ?? item.coverImageUrl,
-      },
-  ];
-  return withSeedPayload(item, {'issues': issues});
+  final data = Map<String, dynamic>.from(item.kindData)
+    ..remove('issues')
+    ..remove('editions')
+    ..remove('releases');
+  final issueNumber = data.remove('item_number');
+  if (data['issue_number'] == null && issueNumber != null) {
+    data['issue_number'] = issueNumber;
+  }
+  return CatalogItemDto.raw(
+    id: item.id,
+    mediaKind: CatalogMediaKind.comic,
+    kindData: data,
+    origin: item.origin,
+  );
 }
 
 List<CatalogItemDto> comicSeedCatalogItems() => [
@@ -194,7 +171,7 @@ List<CatalogItemDto> comicSeedCatalogItems() => [
         ageRating: 'Mature',
         sortKey: 'saga-0001',
         itemNumber: '1',
-        series: const CatalogSeriesDetailsDto(
+        series: const SeedSeriesDetails(
           seriesId: 'seed-series-saga',
           seriesTitle: 'Saga',
           volumeName: 'Saga',
@@ -202,7 +179,7 @@ List<CatalogItemDto> comicSeedCatalogItems() => [
           volumeStartYear: 2012,
           tags: 'sci-fi, space opera, fantasy, romance',
         ),
-        publishing: const CatalogPublishingDetailsDto(
+        publishing: const SeedPublishingDetails(
           pageCount: 44,
           coverPriceCents: 299,
           currency: 'USD',
@@ -222,26 +199,6 @@ List<CatalogItemDto> comicSeedCatalogItems() => [
         ],
         storyArcs: ['Chapter One'],
         genres: ['sci-fi', 'fantasy', 'space opera'],
-        editions: [
-          CatalogEditionDto(
-            id: 'seed-ed-saga-01-first',
-            title: 'Saga #1 (First Printing)',
-            format: 'Single Issue',
-            publisher: 'Image Comics',
-            releaseDate: DateTime.utc(2012, 3, 14),
-            variants: [
-              CatalogVariantDto(
-                id: 'seed-var-saga-01-dm',
-                name: 'Direct Market Cover A',
-                variantType: 'physical',
-                barcode: '70985301254200111',
-                coverPriceCents: 299,
-                currency: 'USD',
-                isPrimary: true,
-              ),
-            ],
-          ),
-        ],
       ),
       seedCatalogItem(
         id: 'seed-comic-02',
@@ -262,12 +219,12 @@ List<CatalogItemDto> comicSeedCatalogItems() => [
         barcode: '70985301254200211',
         itemNumber: '2',
         sortKey: 'saga-0002',
-        series: const CatalogSeriesDetailsDto(
+        series: const SeedSeriesDetails(
           seriesId: 'seed-series-saga',
           seriesTitle: 'Saga',
           volumeNumber: '1',
         ),
-        publishing: const CatalogPublishingDetailsDto(
+        publishing: const SeedPublishingDetails(
             pageCount: 32, coverPriceCents: 299, currency: 'USD'),
         creators: [
           {'name': 'Brian K. Vaughan', 'role': 'writer'},
@@ -298,7 +255,7 @@ List<CatalogItemDto> comicSeedCatalogItems() => [
         ageRating: 'Mature',
         sortKey: 'watchmen-0001',
         itemNumber: '1',
-        series: const CatalogSeriesDetailsDto(
+        series: const SeedSeriesDetails(
           seriesId: 'seed-series-watchmen',
           seriesTitle: 'Watchmen',
           volumeName: 'Watchmen',
@@ -306,7 +263,7 @@ List<CatalogItemDto> comicSeedCatalogItems() => [
           volumeStartYear: 1986,
           tags: 'superhero deconstruction, cold war, alternate history',
         ),
-        publishing: const CatalogPublishingDetailsDto(
+        publishing: const SeedPublishingDetails(
             pageCount: 36, coverPriceCents: 150, currency: 'USD'),
         creators: [
           {'name': 'Alan Moore', 'role': 'writer'},
@@ -345,14 +302,14 @@ List<CatalogItemDto> comicSeedCatalogItems() => [
         language: 'en',
         sortKey: 'dark-knight-returns-0001',
         itemNumber: '1',
-        series: const CatalogSeriesDetailsDto(
+        series: const SeedSeriesDetails(
           seriesId: 'seed-series-dkr',
           seriesTitle: 'The Dark Knight Returns',
           volumeName: 'The Dark Knight Returns',
           volumeNumber: '1',
           volumeStartYear: 1986,
         ),
-        publishing: const CatalogPublishingDetailsDto(
+        publishing: const SeedPublishingDetails(
             pageCount: 52, coverPriceCents: 295, currency: 'USD'),
         creators: [
           {'name': 'Frank Miller', 'role': 'writer & penciller'},
@@ -389,7 +346,7 @@ List<CatalogItemDto> comicSeedCatalogItems() => [
         language: 'en',
         sortKey: 'batman-year-one-0001',
         itemNumber: '404',
-        publishing: const CatalogPublishingDetailsDto(
+        publishing: const SeedPublishingDetails(
             pageCount: 32, coverPriceCents: 75, currency: 'USD'),
         creators: [
           {'name': 'Frank Miller', 'role': 'writer'},
@@ -426,14 +383,14 @@ List<CatalogItemDto> comicSeedCatalogItems() => [
         language: 'en',
         sortKey: 'invincible-0001',
         itemNumber: '1',
-        series: const CatalogSeriesDetailsDto(
+        series: const SeedSeriesDetails(
           seriesId: 'seed-series-invincible',
           seriesTitle: 'Invincible',
           volumeName: 'Invincible',
           volumeNumber: '1',
           volumeStartYear: 2003,
         ),
-        publishing: const CatalogPublishingDetailsDto(
+        publishing: const SeedPublishingDetails(
             pageCount: 32, coverPriceCents: 295, currency: 'USD'),
         creators: [
           {'name': 'Robert Kirkman', 'role': 'writer'},
@@ -469,14 +426,14 @@ List<CatalogItemDto> comicSeedCatalogItems() => [
         language: 'en',
         sortKey: 'sandman-0001',
         itemNumber: '1',
-        series: const CatalogSeriesDetailsDto(
+        series: const SeedSeriesDetails(
           seriesId: 'seed-series-sandman',
           seriesTitle: 'The Sandman',
           volumeName: 'Preludes & Nocturnes',
           volumeNumber: '1',
           volumeStartYear: 1989,
         ),
-        publishing: const CatalogPublishingDetailsDto(
+        publishing: const SeedPublishingDetails(
             pageCount: 40, coverPriceCents: 150, currency: 'USD'),
         creators: [
           {'name': 'Neil Gaiman', 'role': 'writer'},
@@ -513,7 +470,7 @@ List<CatalogItemDto> comicSeedCatalogItems() => [
         language: 'en',
         sortKey: 'kingdom-come-0001',
         itemNumber: '1',
-        publishing: const CatalogPublishingDetailsDto(
+        publishing: const SeedPublishingDetails(
             pageCount: 52, coverPriceCents: 495, currency: 'USD'),
         creators: [
           {'name': 'Mark Waid', 'role': 'writer'},
@@ -550,7 +507,7 @@ List<CatalogItemDto> comicSeedCatalogItems() => [
         language: 'en',
         sortKey: 'all-star-superman-0001',
         itemNumber: '1',
-        publishing: const CatalogPublishingDetailsDto(
+        publishing: const SeedPublishingDetails(
             pageCount: 32, coverPriceCents: 299, currency: 'USD'),
         creators: [
           {'name': 'Grant Morrison', 'role': 'writer'},
@@ -586,7 +543,7 @@ List<CatalogItemDto> comicSeedCatalogItems() => [
         language: 'en',
         sortKey: 'kravens-last-hunt-0001',
         itemNumber: '293',
-        publishing: const CatalogPublishingDetailsDto(
+        publishing: const SeedPublishingDetails(
             pageCount: 32, coverPriceCents: 75, currency: 'USD'),
         creators: [
           {'name': 'J.M. DeMatteis', 'role': 'writer'},
@@ -623,14 +580,14 @@ List<CatalogItemDto> comicSeedCatalogItems() => [
         language: 'en',
         sortKey: 'hellboy-0001',
         itemNumber: '1',
-        series: const CatalogSeriesDetailsDto(
+        series: const SeedSeriesDetails(
           seriesId: 'seed-series-hellboy',
           seriesTitle: 'Hellboy',
           volumeName: 'Seed of Destruction',
           volumeNumber: '1',
           volumeStartYear: 1994,
         ),
-        publishing: const CatalogPublishingDetailsDto(
+        publishing: const SeedPublishingDetails(
             pageCount: 32, coverPriceCents: 250, currency: 'USD'),
         creators: [
           {'name': 'Mike Mignola', 'role': 'writer & artist'},
@@ -667,7 +624,7 @@ List<CatalogItemDto> comicSeedCatalogItems() => [
         ageRating: 'Mature',
         sortKey: 'preacher-0001',
         itemNumber: '1',
-        publishing: const CatalogPublishingDetailsDto(
+        publishing: const SeedPublishingDetails(
             pageCount: 36, coverPriceCents: 195, currency: 'USD'),
         creators: [
           {'name': 'Garth Ennis', 'role': 'writer'},
@@ -703,7 +660,7 @@ List<CatalogItemDto> comicSeedCatalogItems() => [
         language: 'en',
         sortKey: 'daredevil-born-again-0001',
         itemNumber: '227',
-        publishing: const CatalogPublishingDetailsDto(
+        publishing: const SeedPublishingDetails(
             pageCount: 32, coverPriceCents: 75, currency: 'USD'),
         creators: [
           {'name': 'Frank Miller', 'role': 'writer'},
@@ -740,7 +697,7 @@ List<CatalogItemDto> comicSeedCatalogItems() => [
         language: 'en',
         sortKey: 'xmen-dofp-0001',
         itemNumber: '141',
-        publishing: const CatalogPublishingDetailsDto(
+        publishing: const SeedPublishingDetails(
             pageCount: 32, coverPriceCents: 50, currency: 'USD'),
         creators: [
           {'name': 'Chris Claremont', 'role': 'writer'},
@@ -778,7 +735,7 @@ List<CatalogItemDto> comicSeedCatalogItems() => [
         country: 'US',
         language: 'en',
         sortKey: 'killing-joke-0001',
-        publishing: const CatalogPublishingDetailsDto(
+        publishing: const SeedPublishingDetails(
             pageCount: 64, coverPriceCents: 1799, currency: 'USD'),
         creators: [
           {'name': 'Alan Moore', 'role': 'writer'},
@@ -794,17 +751,33 @@ List<CatalogItemDto> comicSeedCatalogItems() => [
       ),
     ];
 
-List<ComicOwnedItem> comicSeedOwnedItems(DateTime now) => [
-      for (final itemId in seedIds(CatalogMediaKind.comic, 15))
-        ComicOwnedItem(
-          id: ComicOwnedItemId('seed-owned-$itemId'),
-          catalogRef: seedCatalogRef(CatalogMediaKind.comic, itemId),
-          createdAt: now.subtract(const Duration(days: 260)),
-          updatedAt: now,
+List<ComicLibraryEntry> comicSeedLibraryEntries(DateTime now) {
+  final metadataById = {
+    for (final item in comicSeedCatalogItems())
+      item.id: ComicCatalogItem.fromJson({
+        ...item.kindData,
+        'id': 'seed-entry-${item.id}',
+      }).copyWith(
+        id: CatalogItemRef(
+          kind: CatalogMediaKind.comic,
+          id: 'seed-entry-${item.id}',
+        ),
+      ),
+  };
+  return [
+    for (final itemId in seedIds(CatalogMediaKind.comic, 15))
+      ComicLibraryEntry(
+        id: LibraryEntryId('seed-entry-$itemId'),
+        metadata: metadataById[itemId] ??
+            (throw StateError('Missing Comic seed catalog item: $itemId')),
+        sourceCatalogRef: seedCatalogRef(CatalogMediaKind.comic, itemId),
+        createdAt: now.subtract(const Duration(days: 260)),
+        updatedAt: now,
+        personal: ComicPersonalData(
           isDigital: false,
           condition: 'Near Mint',
           grade: '9.8',
-          details: ComicOwnedDetails(
+          details: ComicEntryDetails(
             rawOrSlabbed: 'raw',
             gradingCompany: 'CGC',
             pageQuality: 'White Pages',
@@ -817,23 +790,20 @@ List<ComicOwnedItem> comicSeedOwnedItems(DateTime now) => [
           currency: 'USD',
           personalNotes:
               'Bagged & boarded in mylar with acid-free backing board.',
-          quantity: 1,
           purchaseStore: 'Midtown Comics',
           collectionStatus: 'collected',
         ),
-    ];
+      ),
+  ];
+}
 
 List<TrackingStorageRecord> comicSeedTrackingStates(DateTime now) => [
       for (var i = 1; i <= 15; i++)
         ComicTrackingState(
           id: 'seed-track-comic-${seedOrdinal2(i)}',
-          catalogRef: seedCatalogRef(
+          libraryEntryRef: seedLibraryEntryRef(
             CatalogMediaKind.comic,
-            'seed-comic-${seedOrdinal2(i)}',
-          ),
-          ownedRef: seedOwnedRef(
-            CatalogMediaKind.comic,
-            'seed-owned-seed-comic-${seedOrdinal2(i)}',
+            'seed-entry-seed-comic-${seedOrdinal2(i)}',
           ),
           sourceType: TrackingSourceType.physical,
           status: i <= 12
@@ -848,21 +818,23 @@ List<TrackingStorageRecord> comicSeedTrackingStates(DateTime now) => [
     ];
 
 Future<void> seedComicReadingStates(LocalDatabase db, DateTime now) async {
-  final repository = ComicOwnedRepository(db);
+  final repository = ComicEntryRepository(db);
   for (var i = 1; i <= 15; i++) {
-    final id = ComicOwnedItemId('seed-owned-seed-comic-${seedOrdinal2(i)}');
+    final id = LibraryEntryId('seed-entry-seed-comic-${seedOrdinal2(i)}');
     final item = await repository.findById(id);
     if (item == null) {
       throw StateError(
-          'Missing Comic owned seed while adding reading state: $id');
+          'Missing Comic entry seed while adding reading state: $id');
     }
     await repository.upsert(
       item.copyWith(
-        reading: ComicReadingState(
-          rating: i.isEven ? 9 : 8,
-          status: i <= 12 ? 'completed' : 'in_progress',
-          startedAt: DateTime.utc(2022, 7, 1),
-          finishedAt: i <= 12 ? DateTime.utc(2022, 7, 2) : null,
+        personal: item.personal.copyWith(
+          reading: ComicReadingState(
+            rating: i.isEven ? 9 : 8,
+            status: i <= 12 ? 'completed' : 'in_progress',
+            startedAt: DateTime.utc(2022, 7, 1),
+            finishedAt: i <= 12 ? DateTime.utc(2022, 7, 2) : null,
+          ),
         ),
         updatedAt: now,
       ),

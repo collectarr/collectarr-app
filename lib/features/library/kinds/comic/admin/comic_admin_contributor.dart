@@ -28,90 +28,32 @@ class ComicAdminContributor implements LibraryAdminContributor {
       ];
 
   @override
-  List<LibraryAdminCorrectionField> get correctionFields => [
-        adminCorrectionFieldValueOverride(
+  List<LibraryAdminCorrectionField> get correctionFieldOverrides => [
+        adminRequiredCorrectionField(
           key: 'title',
-          required: true,
           read: (item) => item.title,
         ),
-        adminCorrectionFieldValueOverride(
-          key: 'edition_title',
-          read: (item) =>
-              item.primaryEdition?.title ??
-              item.canonicalFieldValues['edition_title'],
-        ),
-        adminCorrectionFieldValueOverride(
+        adminCorrectionFieldReadOverride(
           key: 'release_date',
           read: (item) =>
-              item.primaryEdition?.releaseDateParts ??
-              item.primaryEdition?.releaseDate ??
               item.canonicalFieldValues['cover_date'] ??
               item.canonicalFieldValues['release_date'],
-        ),
-        adminCorrectionFieldValueOverride(
-          key: 'publisher',
-          read: (item) =>
-              item.primaryEdition?.publisher ??
-              item.canonicalFieldValues['publisher'],
-        ),
-        adminCorrectionFieldValueOverride(
-          key: 'imprint',
-          read: (item) => item.canonicalFieldValues['imprint'],
-        ),
-        adminCorrectionFieldValueOverride(
-          key: 'subtitle',
-          read: (item) => item.canonicalFieldValues['subtitle'],
-        ),
-        adminCorrectionFieldValueOverride(
-          key: 'series_group',
-          read: (item) => item.canonicalFieldValues['series_group'],
-        ),
-        adminCorrectionFieldValueOverride(
-          key: 'barcode',
-          read: (item) =>
-              item.primaryVariant?.barcode ??
-              item.canonicalFieldValues['barcode'],
-        ),
-        adminCorrectionFieldValueOverride(
-          key: 'variant_name',
-          read: (item) =>
-              item.primaryVariant?.name ??
-              item.canonicalFieldValues['variant_name'],
-        ),
-        adminCorrectionFieldValueOverride(
-          key: 'page_count',
-          read: (item) => item.canonicalFieldValues['page_count'],
-        ),
-        adminCorrectionFieldValueOverride(
-          key: 'catalog_number',
-          read: (item) => item.canonicalFieldValues['catalog_number'],
-        ),
-        adminCorrectionFieldValueOverride(
-          key: 'release_status',
-          read: (item) => item.canonicalFieldValues['release_status'],
-        ),
-        adminCorrectionFieldValueOverride(
-          key: 'genres',
-          read: (item) => item.canonicalFieldValues['genres'],
-        ),
-        adminCorrectionFieldValueOverride(
-          key: 'cover_image_url',
-          read: (item) =>
-              item.primaryVariant?.coverImageUrl ??
-              item.canonicalFieldValues['cover_image_url'],
-        ),
-        adminCorrectionFieldValueOverride(
-          key: 'thumbnail_image_url',
-          read: (item) =>
-              item.primaryVariant?.thumbnailImageUrl ??
-              item.canonicalFieldValues['thumbnail_image_url'],
         ),
         adminPhysicalFormatCorrectionField(
           key: 'physical_format',
           read: (item) =>
-              item.primaryEdition?.physicalFormat ??
-              item.primaryEdition?.physicalFormatLabel ??
-              item.canonicalFieldValues['physical_format'],
+              item.canonicalFieldValues['physical_format'] ??
+              item.canonicalFieldValues['physical_format_label'],
+        ),
+        adminRelatedListCorrectionField(
+          key: 'series_tags',
+          label: 'Series tags',
+          relatedFieldKey: 'tags',
+          relatedEntityId: (item) =>
+              item.canonicalFieldValues['series_id']?.toString(),
+          read: (item) =>
+              item.canonicalFieldValues['series_tags'] ??
+              item.canonicalFieldValues['tags'],
         ),
         adminUrlListCorrectionField(
           key: 'external_links',

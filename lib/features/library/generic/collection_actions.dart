@@ -4,58 +4,55 @@ import 'package:collectarr_app/features/library/config/library_entry_helpers.dar
 import 'package:collectarr_app/features/library/add/models/library_add_common_draft.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
+import 'package:collectarr_app/features/library/domain/library_target_ref.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class LibraryCollectionActions {
   const LibraryCollectionActions({
     required this.coordinator,
-    required this.ownedMutations,
+    required this.entryMutations,
     required this.wishlistMutations,
     required this.catalogSnapshots,
   });
 
   final CollectionCommandCoordinator coordinator;
-  final OwnedItemMutations ownedMutations;
+  final LibraryEntryMutations entryMutations;
   final WishlistMutations wishlistMutations;
   final CatalogSnapshotRepository catalogSnapshots;
 
-  Future<void> addOwned(LibraryProjectionItem item) async {
-    final catalogRef = item.source.catalogRef;
-    if (catalogRef == null) return;
-    final catalogItem =
-        await catalogSnapshots.findCandidateByRef(catalogRef.rootScope);
+  Future<void> addEntry(LibraryProjectionItem item) async {
+    final target = item.target;
+    if (target is! CatalogTargetRef) return;
+    final catalogRef = target.ref;
+    final catalogItem = await catalogSnapshots.findCandidateByRef(catalogRef);
     if (catalogItem == null) return;
-    final registration = libraryKindRegistrationForKind(catalogItem.summary.kind);
-    final targetRef = item.source.ownedSummary?.targetRef ??
-        item.source.wishlistItem?.catalogRef ??
-        item.source.catalogRef ??
-        catalogItem.reference;
-    await coordinator.addOwnedItem(
+    final registration =
+        libraryKindRegistrationForKind(catalogItem.summary.kind);
+    await coordinator.addLibraryEntry(
       libraryAddForKind(registration.kind).buildCommand(
         catalogItem,
         const LibraryAddCommonDraft(),
         libraryAddForKind(registration.kind).createInitialDraft(),
-        targetRef: targetRef,
       ),
     );
   }
 
-  Future<void> removeOwned(LibraryProjectionItem item) async {
-    final ownedRef = item.source.ownedRef;
-    if (ownedRef == null) {
+  Future<void> removeEntry(LibraryProjectionItem item) async {
+    final libraryEntryRef = item.source.libraryEntryRef;
+    if (libraryEntryRef == null) {
       return;
     }
-    await ownedMutations.removeItem(ownedRef);
+    await entryMutations.removeItem(libraryEntryRef);
   }
 
   Future<void> addWishlist(LibraryProjectionItem item) {
     final targetRef = resolveLibraryMutationTargetFromSummary(
       item: item,
-      ownedItem: item.source.ownedSummary,
+      libraryEntry: item.source.libraryEntrySummary,
       wishlistItem: item.source.wishlistItem,
     );
-    final catalogRef = targetRef ?? item.source.catalogRef;
+    final catalogRef = targetRef;
     if (catalogRef == null) return Future<void>.value();
     return wishlistMutations.addToWishlist(catalogRef);
   }
@@ -63,12 +60,13 @@ class LibraryCollectionActions {
   Future<void> removeWishlist(LibraryProjectionItem item) {
     final targetRef = resolveLibraryMutationTargetFromSummary(
       item: item,
-      ownedItem: item.source.ownedSummary,
+      libraryEntry: item.source.libraryEntrySummary,
       wishlistItem: item.source.wishlistItem,
     );
+    final catalogRef = targetRef;
     return wishlistMutations.removeFromWishlist(
       wishlistItemId: item.source.wishlistItem?.id,
-      catalogRef: targetRef ?? item.source.catalogRef,
+      catalogRef: catalogRef,
     );
   }
 }
@@ -77,7 +75,7 @@ final genericLibraryCollectionActionsProvider =
     Provider<LibraryCollectionActions>((ref) {
   return LibraryCollectionActions(
     coordinator: ref.watch(collectionCommandCoordinatorProvider),
-    ownedMutations: ref.watch(ownedItemMutationsProvider),
+    entryMutations: ref.watch(libraryEntryMutationsProvider),
     wishlistMutations: ref.watch(wishlistMutationsProvider),
     catalogSnapshots: CatalogSnapshotRepository(
       ref.watch(localDatabaseProvider),

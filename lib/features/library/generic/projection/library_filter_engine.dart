@@ -1,11 +1,12 @@
 import 'package:collectarr_app/core/models/custom_field.dart';
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
-import 'package:collectarr_app/features/library/generic/filter_dialog.dart';
+import 'package:collectarr_app/features/library/generic/library_filters.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_identifier_types.dart';
 import 'package:flutter/material.dart';
+import 'package:collectarr_app/features/library/config/library_search_target.dart';
 
 class LibraryFilterEngine {
   const LibraryFilterEngine({
@@ -19,16 +20,17 @@ class LibraryFilterEngine {
     required LibraryProjectionQuery query,
     required LibrarySearchDocument searchDoc,
     required LibraryKindRegistration type,
+    LibrarySearchTarget searchTarget = LibrarySearchTarget.all,
     LibraryProjectionIndex? index,
-    Set<OwnedItemRef> activeLoanOwnedItemIds = const {},
+    Set<LibraryEntryRef> activeLoanLibraryEntryIds = const {},
     Map<String, Map<String, String>> customFieldValuesByDefinitionByItem =
         const {},
   }) {
-    if (!searchDoc.matches(query.searchQuery)) {
+    if (!searchDoc.matches(query.searchQuery, searchTarget: searchTarget)) {
       return false;
     }
     if (query.constrainedItemIds != null &&
-        !query.constrainedItemIds!.contains(item.node.id)) {
+        !query.constrainedItemIds!.contains(item.target.id)) {
       return false;
     }
     if (!_matchesBucketScopeFilters(
@@ -50,7 +52,7 @@ class LibraryFilterEngine {
       item,
       type,
       query.filterSelection,
-      activeLoanOwnedItemIds,
+      activeLoanLibraryEntryIds,
       customFieldValuesByDefinitionByItem,
     )) {
       return false;
@@ -69,14 +71,9 @@ class LibraryFilterEngine {
     LibraryProjectionIndex? index,
   ) {
     if (selectedBucket == null) return true;
-    final bucket = index != null
-        ? index.getGroupBucket(
-            item,
-            groupId,
-            (it, mode) => groupingEngine.getGroupBucketForItem(it, type, mode),
-          )
-        : groupingEngine.getGroupBucketForItem(item, type, groupId);
-    return bucket == selectedBucket;
+    return groupingEngine
+        .bucketsForItem(item, type, groupId, index: index)
+        .contains(selectedBucket);
   }
 
   bool _matchesBucketScopeFilters(
@@ -86,15 +83,9 @@ class LibraryFilterEngine {
     LibraryProjectionIndex? index,
   ) {
     for (final filter in filters) {
-      final bucket = index != null
-          ? index.getGroupBucket(
-              item,
-              filter.groupId,
-              (it, mode) =>
-                  groupingEngine.getGroupBucketForItem(it, type, mode),
-            )
-          : groupingEngine.getGroupBucketForItem(item, type, filter.groupId);
-      if (bucket != filter.bucket) {
+      if (!groupingEngine
+          .bucketsForItem(item, type, filter.groupId, index: index)
+          .contains(filter.bucket)) {
         return false;
       }
     }
@@ -113,15 +104,15 @@ class LibraryFilterEngine {
     LibraryProjectionItem item,
     LibraryCollectionStatusScope scope,
   ) {
-    final isSold = item.source.ownedSummary?.soldAt != null;
-    final isWishlistOnly = item.source.isWishlisted && !item.source.isOwned;
-    final isCatalogOnly = !item.source.isOwned && !item.source.isWishlisted;
-    final isInCollection = item.source.isOwned && !isSold;
+    final isSold = item.source.libraryEntrySummary?.soldAt != null;
+    final isWishlistOnly = item.source.isWishlisted && !item.source.isEntry;
+    final isCatalogOnly = !item.source.isEntry && !item.source.isWishlisted;
+    final isInCollection = item.source.isEntry && !isSold;
 
     return switch (scope) {
       LibraryCollectionStatusScope.all => true,
       LibraryCollectionStatusScope.inCollection => isInCollection,
-      // For-sale and on-order are kind-owned states. The mixed workspace has
+      // For-sale and on-order are kind-entry states. The mixed workspace has
       // no semantic status field and therefore cannot infer either one.
       LibraryCollectionStatusScope.forSale => false,
       LibraryCollectionStatusScope.wishList => isWishlistOnly,
@@ -142,7 +133,7 @@ class LibraryFilterEngine {
         ?.call(item, quickView);
     if (kindResult != null) return kindResult;
     return switch (quickView) {
-      LibraryQuickView.owned => item.source.isOwned,
+      LibraryQuickView.entry => item.source.isEntry,
       LibraryQuickView.wishlist => item.source.isWishlisted,
       LibraryQuickView.missingCovers =>
         item.dto.imageUrl == null || item.dto.imageUrl!.isEmpty,
@@ -155,7 +146,7 @@ class LibraryFilterEngine {
     LibraryProjectionItem item,
     LibraryKindRegistration type,
     LibraryFilterSelection filters,
-    Set<OwnedItemRef> activeLoanOwnedItemIds,
+    Set<LibraryEntryRef> activeLoanLibraryEntryIds,
     Map<String, Map<String, String>> customFieldValuesByDefinitionByItem,
   ) {
     if (!filters.hasActiveFilters) {
@@ -166,6 +157,8 @@ class LibraryFilterEngine {
       filters,
       filterDefinitions:
           libraryPresentationForKind(type.kind).filterDefinitions,
+      fieldRegistry:
+          libraryKindWorkspaceForKind(type.kind).fieldsForTarget(item.target),
     )) {
       return false;
     }
@@ -176,7 +169,7 @@ class LibraryFilterEngine {
       return false;
     }
     if (!_matchesLoanFilter(
-        item, filters.loanStatusFilter, activeLoanOwnedItemIds)) {
+        item, filters.loanStatusFilter, activeLoanLibraryEntryIds)) {
       return false;
     }
     if (!_matchesDateRange(item, filters)) {
@@ -201,11 +194,11 @@ class LibraryFilterEngine {
     if (definitionId == null || definitionId.isEmpty) {
       return true;
     }
-    final ownedRefKey = item.source.ownedRef?.key;
-    if (ownedRefKey == null) {
+    final libraryEntryRefKey = item.source.libraryEntryRef?.key;
+    if (libraryEntryRefKey == null) {
       return false;
     }
-    final values = customFieldValuesByDefinitionByItem[ownedRefKey];
+    final values = customFieldValuesByDefinitionByItem[libraryEntryRefKey];
     final actualValue = values?[definitionId]?.trim();
     if (actualValue == null || actualValue.isEmpty) {
       return false;
@@ -224,16 +217,16 @@ class LibraryFilterEngine {
   bool _matchesLoanFilter(
     LibraryProjectionItem item,
     LibraryLoanStatusFilter filter,
-    Set<OwnedItemRef> activeLoanOwnedItemIds,
+    Set<LibraryEntryRef> activeLoanLibraryEntryIds,
   ) {
     if (filter == LibraryLoanStatusFilter.all) {
       return true;
     }
-    final ownedRef = item.source.ownedRef;
-    if (ownedRef == null) {
+    final libraryEntryRef = item.source.libraryEntryRef;
+    if (libraryEntryRef == null) {
       return false;
     }
-    final hasActiveLoan = activeLoanOwnedItemIds.contains(ownedRef);
+    final hasActiveLoan = activeLoanLibraryEntryIds.contains(libraryEntryRef);
     return switch (filter) {
       LibraryLoanStatusFilter.all => true,
       LibraryLoanStatusFilter.onLoan => hasActiveLoan,

@@ -67,7 +67,15 @@ void main() {
 
     final alphabetRow = find.byType(LibraryToolbarAlphabetRow);
     expect(alphabetRow, findsOneWidget);
-    expect(tester.getSize(alphabetRow).width, greaterThan(380));
+    expect(tester.getSize(alphabetRow).width, greaterThan(900));
+    expect(
+      tester.getRect(find.text('Z')).right,
+      lessThanOrEqualTo(tester.getRect(alphabetRow).right),
+    );
+
+    tester.view.physicalSize = const Size(1440, 900);
+    await tester.pump();
+    expect(tester.getSize(alphabetRow).width, greaterThan(560));
 
     expect(find.text('#'), findsOneWidget);
     expect(find.text('0-9'), findsOneWidget);
@@ -76,6 +84,10 @@ void main() {
   testWidgets('alphabet row selected button uses library accent', (
     tester,
   ) async {
+    tester.view.physicalSize = const Size(900, 600);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
     const selectedLetter = 'A';
     final accent = movieKindIdentity.accent;
 
@@ -92,13 +104,22 @@ void main() {
       ),
     );
 
+    final container = tester.widget<Container>(
+      find.ancestor(of: find.text(selectedLetter), matching: find.byType(Container)).first,
+    );
+    final decoration = container.decoration as BoxDecoration?;
+    expect(decoration?.color, accent);
     final selectedText = tester.widget<Text>(find.text(selectedLetter));
-    expect(selectedText.style?.color, accent);
+    expect(selectedText.style?.color, Colors.white);
   });
 
   testWidgets('alphabet buttons have a slightly wider touch target', (
     tester,
   ) async {
+    tester.view.physicalSize = const Size(900, 600);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
     await tester.pumpWidget(
       MaterialApp(
         home: Scaffold(
@@ -523,7 +544,7 @@ void main() {
       (tester) async {
     final searchController = TextEditingController();
     addTearDown(searchController.dispose);
-    tester.view.physicalSize = const Size(700, 900);
+    tester.view.physicalSize = const Size(550, 900);
     tester.view.devicePixelRatio = 1.0;
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
@@ -565,8 +586,11 @@ void main() {
                 onTransferFieldData: () {},
                 onBulkUpdateValues: null,
                 onBulkUpdateKeyInfo: null,
-                onBulkMoveToOwned: null,
+                onBulkMoveToEntry: null,
                 onBulkMoveToWishlist: null,
+                onExportXml: null,
+                onMerge: null,
+                onMoveToCollection: null,
                 onBulkRemove: () {},
                 onBulkRefreshMetadata: () {},
               ),
@@ -661,7 +685,7 @@ void main() {
     }
   });
 
-  test('comic kind exposes a contributor-owned missing issues toolbar action',
+  test('comic kind exposes a contributor-entry missing issues toolbar action',
       () {
     final action = comicKindToolbar.actions
         .firstWhere((a) => a.id == 'comic.missing_issues');

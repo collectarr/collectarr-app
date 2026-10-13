@@ -1,8 +1,11 @@
+import 'dart:async';
+
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/core/routing/app_router.dart';
 import 'package:collectarr_app/features/library/config/library_kind_style.dart';
 import 'package:collectarr_app/features/library/home/home_catalog.dart';
-import 'package:collectarr_app/features/library/home/home_kind_menu.dart';
 import 'package:collectarr_app/features/library/home/home_nav_models.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/providers/library_nav_preferences.dart';
 import 'package:collectarr_app/features/library/providers/media_catalog_provider.dart';
 import 'package:collectarr_app/features/library/providers/selected_library_provider.dart';
@@ -16,10 +19,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-class AppShell extends ConsumerStatefulWidget {
-  const AppShell({super.key, required this.navigationShell});
+import 'shell/app_shell_app_bar.dart';
+import 'shell/app_navigation_drawer.dart';
+import 'shell/app_navigation_model.dart';
+import 'shell/app_shell_actions.dart';
 
-  final StatefulNavigationShell navigationShell;
+class AppShell extends ConsumerStatefulWidget {
+  const AppShell({super.key, required this.child, required this.routeUri});
+
+  final Widget child;
+  final Uri routeUri;
 
   @override
   ConsumerState<AppShell> createState() => _AppShellState();
@@ -27,15 +36,17 @@ class AppShell extends ConsumerStatefulWidget {
 
 class _AppShellState extends ConsumerState<AppShell> {
   bool _didRequestInitialOnlineFirstSync = false;
+  DrawerAction? _openDrawerAction;
 
-  /// Branch indices in the GoRouter StatefulShellRoute:
-  /// 0 = libraries, 1 = shelf, 2 = loans, 3 = calendar, 4 = admin, 5 = settings
-  static const _branchLibraries = 0;
-  static const _branchShelf = 1;
-  static const _branchLoans = 2;
-  static const _branchCalendar = 3;
-  static const _branchAdmin = 4;
-  static const _branchSettings = 5;
+  late final AppShellActions _actions = AppShellActions(
+    ref: ref,
+    shellContext: () => context,
+    isMounted: () => mounted,
+    selectedOverlay: () => _openDrawerAction,
+    onSelectionChanged: (action) {
+      if (mounted) setState(() => _openDrawerAction = action);
+    },
+  );
 
   @override
   void initState() {
@@ -50,112 +61,72 @@ class _AppShellState extends ConsumerState<AppShell> {
   }
 
   @override
+  void didUpdateWidget(covariant AppShell oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.routeUri != widget.routeUri) _openDrawerAction = null;
+  }
+
+  DrawerAction? get _selectedDrawerAction =>
+      _openDrawerAction ?? appDrawerActionForRoute(widget.routeUri.path);
+
+  @override
   Widget build(BuildContext context) {
     final auth = ref.watch(authControllerProvider);
-    final catalog = fallbackMediaCatalog;
+    final catalog = ref.watch(mediaCatalogProvider).maybeWhen(
+          data: (value) => value,
+          orElse: () => fallbackMediaCatalog,
+        );
     final navPreferences = ref.watch(libraryNavPreferencesProvider);
     final libraryTypes = selectableLibraryHomeTypes(catalog, navPreferences);
-    final selectedKind = ref.watch(selectedLibraryKindProvider);
+    final selectedKind = widget.routeUri.queryParameters['kind'] ??
+        ref.watch<String>(selectedLibraryKindProvider);
     final activeLibrary = selectedLibraryHomeType(
       libraryTypes,
       canonicalLibraryNavKind(selectedKind) ?? selectedKind,
     ).kind;
-    final accent =
-        libraryAccentForKind(catalogMediaKindFromValue(activeLibrary));
+    final activeKind = catalogMediaKindFromValue(activeLibrary);
+    final activeType = defaultLibraryKindRegistry.require(activeKind);
+    final accent = libraryAccentForKind(activeKind);
     final uiPreferences = ref.watch(uiPreferencesProvider);
     final mediaQuery = MediaQuery.maybeOf(context);
     final accentTheme = buildLibraryAccentTheme(Theme.of(context), accent);
-    final toolbarIconStyle = Theme.of(context).iconButtonTheme.style?.copyWith(
-              backgroundColor: const WidgetStatePropertyAll(Colors.transparent),
-            ) ??
-        IconButton.styleFrom(backgroundColor: Colors.transparent);
 
     final shell = LibraryAccentScope(
       kind: activeLibrary,
       accent: accent,
       animationsEnabled: uiPreferences.animationsEnabled,
       child: Scaffold(
-        appBar: AppBar(
-          toolbarHeight: 40,
-          automaticallyImplyLeading: false,
-          leadingWidth: 44,
-          leading: Builder(
-            builder: (context) => IconButton(
-              key: const Key('app.open-navigation'),
-              tooltip: 'Open navigation',
-              visualDensity: VisualDensity.compact,
-              style: toolbarIconStyle,
-              onPressed: () => Scaffold.of(context).openDrawer(),
-              icon: const Icon(Icons.menu),
-            ),
-          ),
-          titleSpacing: 2,
-          title: const Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(Icons.library_music_outlined, size: 19),
-              SizedBox(width: 7),
-              Text('Collectarr'),
-            ],
-          ),
-          backgroundColor: libraryAccentChromeFallbackColor(accent),
-          foregroundColor: Colors.white,
-          surfaceTintColor: Colors.transparent,
-          elevation: 0,
-          scrolledUnderElevation: 0,
-          titleTextStyle: const TextStyle(
-            color: Colors.white,
-            fontSize: 16,
-            fontWeight: FontWeight.w800,
-            letterSpacing: 0.2,
-          ),
-          iconTheme: const IconThemeData(color: Colors.white, size: 19),
-          flexibleSpace: LibraryAccentChrome(
-            accent: accent,
-            animationDuration: uiPreferences.animationsEnabled
-                ? kAppAnimNormal
-                : Duration.zero,
-          ),
-          actions: [
-            MediaLibraryKindMenu(
-              types: libraryTypes,
-              onSelected: (type) {
-                ref
-                    .read(selectedLibraryKindProvider.notifier)
-                    .select(type.kind);
-                final libraryUri = Uri(
-                  path: '/libraries',
-                  queryParameters: {'kind': type.kind},
-                );
-                context.go(libraryUri.toString());
-              },
-            ),
-            IconButton(
-              key: const Key('nav.settings'),
-              tooltip: 'Settings',
-              visualDensity: VisualDensity.compact,
-              style: toolbarIconStyle,
-              onPressed: () => widget.navigationShell.goBranch(
-                _branchSettings,
-                initialLocation:
-                    widget.navigationShell.currentIndex == _branchSettings,
-              ),
-              icon: const Icon(Icons.settings_outlined),
-            ),
-            const SizedBox(width: 4),
-          ],
-        ),
-        drawer: _AppNavigationDrawer(
-          currentBranch: widget.navigationShell.currentIndex,
-          isAdmin: auth.isAdmin,
+        appBar: AppShellAppBar(
+          type: activeType,
           accent: accent,
-          onBranchSelected: (drawerContext, branch) {
-            Navigator.of(drawerContext).pop();
-            widget.navigationShell.goBranch(
-              branch,
-              initialLocation: branch == widget.navigationShell.currentIndex,
-            );
+          types: libraryTypes,
+          animationsEnabled: uiPreferences.animationsEnabled,
+          onKindSelected: (type) {
+            ref.read(selectedLibraryKindProvider.notifier).select(type.kind);
+            context.go(AppRoutes.forKind(AppRoutes.libraries, type.kind));
           },
+          onOpenNavigation: () => unawaited(showAppNavigationDrawer(
+            context: context,
+            animationsEnabled: uiPreferences.animationsEnabled,
+            type: activeType,
+            selectedAction: _selectedDrawerAction,
+            isAdmin: auth.isAdmin,
+            accent: accent,
+            addLabel: 'Add ${activeType.identity.pluralLabel} from Core',
+            onSelected: (drawerContext, action) {
+              Navigator.of(drawerContext).pop();
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                if (!mounted) return;
+                unawaited(_actions.handle(
+                  action,
+                  type: activeType,
+                  accent: accent,
+                ));
+              });
+            },
+          )),
+          onSettings: () =>
+              context.go(AppRoutes.forKind(AppRoutes.settings, activeLibrary)),
         ),
         body: Stack(
           children: [
@@ -165,7 +136,7 @@ class _AppShellState extends ConsumerState<AppShell> {
                   ? kAppAnimNormal
                   : Duration.zero,
               curve: Curves.easeOutCubic,
-              child: widget.navigationShell,
+              child: widget.child,
             ),
             const SyncStatusOverlay(),
           ],
@@ -181,171 +152,6 @@ class _AppShellState extends ConsumerState<AppShell> {
             mediaQuery.disableAnimations || !uiPreferences.animationsEnabled,
       ),
       child: shell,
-    );
-  }
-}
-
-class _AppNavigationDrawer extends StatelessWidget {
-  const _AppNavigationDrawer({
-    required this.currentBranch,
-    required this.isAdmin,
-    required this.accent,
-    required this.onBranchSelected,
-  });
-
-  final int currentBranch;
-  final bool isAdmin;
-  final Color accent;
-  final void Function(BuildContext context, int branch) onBranchSelected;
-
-  @override
-  Widget build(BuildContext context) {
-    final palette = appPalette(context);
-    return Drawer(
-      width: (MediaQuery.sizeOf(context).width * 0.86)
-          .clamp(0.0, 320.0)
-          .toDouble(),
-      child: SafeArea(
-        child: Column(
-          children: [
-            Container(
-              height: 76,
-              width: double.infinity,
-              padding: const EdgeInsets.symmetric(horizontal: 18),
-              color: libraryAccentChromeFallbackColor(accent),
-              child: const Row(
-                children: [
-                  Icon(Icons.library_music_outlined,
-                      color: Colors.white, size: 24),
-                  SizedBox(width: 12),
-                  Text(
-                    'Collectarr',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 18,
-                      fontWeight: FontWeight.w800,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Expanded(
-              child: ListView(
-                padding: const EdgeInsets.symmetric(vertical: 10),
-                children: [
-                  _DrawerSectionLabel('Collection', color: palette.textMuted),
-                  _destination(
-                    context,
-                    branch: _AppShellState._branchLibraries,
-                    label: 'Libraries',
-                    icon: Icons.apps_outlined,
-                    key: const Key('nav.library'),
-                  ),
-                  _destination(
-                    context,
-                    branch: _AppShellState._branchShelf,
-                    label: 'Shelf',
-                    icon: Icons.inventory_2_outlined,
-                    key: const Key('nav.shelf'),
-                  ),
-                  const Divider(height: 18),
-                  _DrawerSectionLabel('Tools', color: palette.textMuted),
-                  _destination(
-                    context,
-                    branch: _AppShellState._branchLoans,
-                    label: 'Loans',
-                    icon: Icons.handshake_outlined,
-                    key: const Key('nav.loans'),
-                  ),
-                  _destination(
-                    context,
-                    branch: _AppShellState._branchCalendar,
-                    label: 'Calendar',
-                    icon: Icons.calendar_month_outlined,
-                    key: const Key('nav.calendar'),
-                  ),
-                  if (isAdmin) ...[
-                    const Divider(height: 18),
-                    _DrawerSectionLabel('Administration',
-                        color: palette.textMuted),
-                    _destination(
-                      context,
-                      branch: _AppShellState._branchAdmin,
-                      label: 'Admin',
-                      icon: Icons.admin_panel_settings_outlined,
-                      key: const Key('nav.admin'),
-                    ),
-                  ],
-                  const Divider(height: 18),
-                  _DrawerSectionLabel('Customization',
-                      color: palette.textMuted),
-                  _destination(
-                    context,
-                    branch: _AppShellState._branchSettings,
-                    label: 'Settings',
-                    icon: Icons.settings_outlined,
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _destination(
-    BuildContext context, {
-    required int branch,
-    required String label,
-    required IconData icon,
-    Key? key,
-  }) {
-    final selected = currentBranch == branch;
-    final palette = appPalette(context);
-    return ListTile(
-      key: key,
-      dense: true,
-      visualDensity: VisualDensity.compact,
-      selected: selected,
-      selectedTileColor: accent.withValues(alpha: palette.isDark ? 0.2 : 0.1),
-      leading: Icon(
-        icon,
-        size: 19,
-        color: selected ? accent : palette.textSecondary,
-      ),
-      title: Text(
-        label,
-        style: TextStyle(
-          fontSize: 13,
-          fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
-          color: selected ? palette.textPrimary : null,
-        ),
-      ),
-      onTap: () => onBranchSelected(context, branch),
-    );
-  }
-}
-
-class _DrawerSectionLabel extends StatelessWidget {
-  const _DrawerSectionLabel(this.label, {required this.color});
-
-  final String label;
-  final Color color;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(18, 7, 12, 5),
-      child: Text(
-        label.toUpperCase(),
-        style: TextStyle(
-          color: color,
-          fontSize: 12,
-          fontWeight: FontWeight.w800,
-          letterSpacing: 0.8,
-        ),
-      ),
     );
   }
 }

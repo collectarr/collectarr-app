@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/features/catalog/serial/serial_authority_repository.dart';
 import 'package:collectarr_app/ui/accent_dialog_header.dart';
@@ -319,6 +320,7 @@ class _SeriesManagerDialogState extends State<_SeriesManagerDialog> {
         return StatefulBuilder(
           builder: (context, setState) {
             return AccentAlertDialog(
+              headerIcon: AppIcons.merge,
               backgroundColor: kAppPanel,
               title: Text('Merge ${source.title} Into'),
               content: CompactSearchDropdownFormField<String>(
@@ -629,7 +631,7 @@ class _SeriesHeaderLabel extends StatelessWidget {
       style: TextStyle(
         color: palette.textMuted,
         fontSize: 12,
-        fontWeight: FontWeight.w800,
+        fontWeight: FontWeight.w700,
         letterSpacing: 0.6,
       ),
     );
@@ -785,7 +787,7 @@ class _SeriesRowText extends StatelessWidget {
       style: TextStyle(
         color: muted ? palette.textMuted : palette.textPrimary,
         fontSize: 13,
-        fontWeight: emphasized ? FontWeight.w800 : FontWeight.w600,
+        fontWeight: emphasized ? FontWeight.w700 : FontWeight.w600,
       ),
     );
   }
@@ -822,7 +824,7 @@ class _SeriesCountChip extends StatelessWidget {
           style: TextStyle(
             color: textColor ?? color,
             fontSize: 12,
-            fontWeight: FontWeight.w800,
+            fontWeight: FontWeight.w700,
           ),
         ),
       ),
@@ -860,7 +862,7 @@ class _SeriesEmptyState extends StatelessWidget {
               style: TextStyle(
                 color: palette.textPrimary,
                 fontSize: 15,
-                fontWeight: FontWeight.w800,
+                fontWeight: FontWeight.w700,
               ),
             ),
             const SizedBox(height: 6),

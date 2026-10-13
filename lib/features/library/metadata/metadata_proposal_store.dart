@@ -7,8 +7,7 @@ class MetadataProposalRecord {
   const MetadataProposalRecord({
     required this.localId,
     this.serverId,
-    required this.provider,
-    required this.query,
+    required this.kind,
     this.title,
     required this.status,
     required this.source,
@@ -17,8 +16,7 @@ class MetadataProposalRecord {
 
   final String localId;
   final String? serverId;
-  final String provider;
-  final String query;
+  final String kind;
   final String? title;
   final String status;
   final String source;
@@ -28,46 +26,38 @@ class MetadataProposalRecord {
     return MetadataProposalRecord(
       localId: json['local_id'] as String? ?? '',
       serverId: json['server_id'] as String?,
-      provider: json['provider'] as String? ?? 'unknown',
-      query: json['query'] as String? ?? '',
+      kind: json['kind'] as String? ?? '',
       title: json['title'] as String?,
-      status: json['status'] as String? ?? 'submitted',
+      status: json['status'] as String? ?? 'pending',
       source: json['source'] as String? ?? 'App',
       createdAt: DateTime.tryParse(json['created_at'] as String? ?? '') ??
           DateTime.fromMillisecondsSinceEpoch(0, isUtc: true),
     );
   }
 
-  JsonMap toJson() {
-    return {
-      'local_id': localId,
-      if (serverId != null) 'server_id': serverId,
-      'provider': provider,
-      'query': query,
-      if (title != null) 'title': title,
-      'status': status,
-      'source': source,
-      'created_at': createdAt.toUtc().toIso8601String(),
-    };
-  }
+  JsonMap toJson() => {
+        'local_id': localId,
+        if (serverId != null) 'server_id': serverId,
+        'kind': kind,
+        if (title != null) 'title': title,
+        'status': status,
+        'source': source,
+        'created_at': createdAt.toUtc().toIso8601String(),
+      };
 }
 
 class MetadataProposalStore {
   const MetadataProposalStore();
 
-  static const _key = 'collectarr.metadata_proposals.local_history';
+  static const _key = 'collectarr.catalog_item_proposals.local_history.v1';
   static const _maxRecords = 50;
 
   Future<List<MetadataProposalRecord>> read() async {
     final prefs = await SharedPreferences.getInstance();
     final raw = prefs.getString(_key);
-    if (raw == null || raw.trim().isEmpty) {
-      return const [];
-    }
+    if (raw == null || raw.trim().isEmpty) return const [];
     final decoded = jsonDecode(raw);
-    if (decoded is! List) {
-      return const [];
-    }
+    if (decoded is! List) return const [];
     return [
       for (final value in decoded)
         if (value is JsonMap)
@@ -79,15 +69,13 @@ class MetadataProposalStore {
 
   Future<void> recordResponse({
     required JsonMap response,
-    required String provider,
-    required String query,
+    required String kind,
     required String source,
     String? title,
-  }) async {
-    await record(
+  }) {
+    return record(
       serverId: response['id']?.toString(),
-      provider: provider,
-      query: query,
+      kind: kind,
       title: title,
       status: response['status']?.toString() ?? 'pending',
       source: source,
@@ -96,8 +84,7 @@ class MetadataProposalStore {
 
   Future<void> record({
     String? serverId,
-    required String provider,
-    required String query,
+    required String kind,
     String? title,
     required String status,
     required String source,
@@ -108,8 +95,7 @@ class MetadataProposalStore {
       MetadataProposalRecord(
         localId: now.microsecondsSinceEpoch.toString(),
         serverId: _clean(serverId),
-        provider: provider,
-        query: query,
+        kind: kind,
         title: _clean(title),
         status: status,
         source: source,
@@ -119,9 +105,7 @@ class MetadataProposalStore {
     ].take(_maxRecords).toList(growable: false);
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(
-      _key,
-      jsonEncode([for (final record in next) record.toJson()]),
-    );
+        _key, jsonEncode([for (final record in next) record.toJson()]));
   }
 
   Future<void> clear() async {

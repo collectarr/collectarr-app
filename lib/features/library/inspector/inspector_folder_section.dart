@@ -1,8 +1,10 @@
+import 'package:collectarr_app/ui/app_icons.dart';
 import 'dart:async';
 import 'package:collectarr_app/core/db/local_database.dart';
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/core/models/user_folder.dart';
 import 'package:collectarr_app/features/collection/repositories/user_folder_repository.dart';
+import 'package:collectarr_app/features/library/entries/library_entries_repository.dart';
 import 'package:collectarr_app/features/library/details/library_detail_section.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
@@ -11,12 +13,12 @@ import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 class InspectorFolderSection extends StatefulWidget {
   const InspectorFolderSection({
     super.key,
-    required this.ownedRef,
+    required this.libraryEntryRef,
     required this.db,
     required this.accent,
   });
 
-  final OwnedItemRef ownedRef;
+  final LibraryEntryRef libraryEntryRef;
   final LocalDatabase db;
   final Color accent;
 
@@ -37,7 +39,7 @@ class _InspectorFolderSectionState extends State<InspectorFolderSection> {
 
   Future<void> _load() async {
     final repo = UserFolderRepository(widget.db);
-    final itemFolders = await repo.getFoldersForItem(widget.ownedRef);
+    final itemFolders = await repo.getFoldersForItem(widget.libraryEntryRef);
     final all = await repo.getAll();
     if (mounted) {
       setState(() {
@@ -62,14 +64,16 @@ class _InspectorFolderSectionState extends State<InspectorFolderSection> {
       ),
     );
     if (result != null && result.isNotEmpty) {
-      await repo.addItemToFolder(result, widget.ownedRef);
+      await repo.addItemToFolder(result, widget.libraryEntryRef);
+      await enqueueLibraryEntrySnapshot(widget.db, widget.libraryEntryRef);
       unawaited(_load());
     }
   }
 
   Future<void> _removeFromFolder(String folderId) async {
     final repo = UserFolderRepository(widget.db);
-    await repo.removeItemFromFolder(folderId, widget.ownedRef);
+    await repo.removeItemFromFolder(folderId, widget.libraryEntryRef);
+    await enqueueLibraryEntrySnapshot(widget.db, widget.libraryEntryRef);
     unawaited(_load());
   }
 
@@ -230,6 +234,7 @@ class _FolderPickerDialogState extends State<_FolderPickerDialog> {
     final name = await showDialog<String>(
       context: context,
       builder: (ctx) => AccentAlertDialog(
+        headerIcon: AppIcons.folderOpen,
         backgroundColor: appPalette(ctx).panel,
         title: const Text('New Folder'),
         content: TextField(

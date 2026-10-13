@@ -78,7 +78,15 @@ class LibrarySortPreset {
   bool get isSaved => id != null && !isBuiltIn;
 }
 
-enum LibraryTableColumnGroup { main, edition, value, personal }
+enum LibraryTableColumnGroup {
+  main,
+  edition,
+  credits,
+  images,
+  value,
+  personal,
+  loan
+}
 
 class LibraryTableColumnPreset {
   const LibraryTableColumnPreset({

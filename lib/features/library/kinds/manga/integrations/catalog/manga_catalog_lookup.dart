@@ -1,8 +1,8 @@
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/catalog/catalog_kind_lookup.dart';
-import 'package:collectarr_app/features/library/kinds/manga/data/manga_repository.dart';
-import 'package:collectarr_app/features/library/kinds/manga/domain/manga_media.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_item_cache_repository.dart';
+import 'package:collectarr_app/features/library/kinds/manga/domain/manga_metadata.dart';
 
 final class MangaCatalogLookup implements CatalogKindLookup {
   MangaCatalogLookup(this._db);
@@ -26,9 +26,9 @@ final class MangaCatalogLookup implements CatalogKindLookup {
   Future<CatalogSearchHit?> _findByBarcode(String barcode) async {
     final normalized = normalizeCatalogLookupValue(barcode);
     if (normalized.isEmpty) return null;
-    for (final media in await MangaRepository(_db).search()) {
-      if (_matchesBarcode(media, normalized)) {
-        return _hit(media);
+    for (final item in await _items()) {
+      if (_matchesBarcode(item, normalized)) {
+        return _hit(item);
       }
     }
     return null;
@@ -41,53 +41,58 @@ final class MangaCatalogLookup implements CatalogKindLookup {
     final normalizedTitle = normalizeCatalogLookupTitle(title);
     if (normalizedTitle.isEmpty) return null;
     final normalizedItemNumber = itemNumber?.trim();
-    for (final media in await MangaRepository(_db).search()) {
-      if (normalizeCatalogLookupTitle(media.title) != normalizedTitle) {
+    for (final item in await _items()) {
+      final metadata = _metadata(item);
+      if (normalizeCatalogLookupTitle(metadata.title) != normalizedTitle) {
         continue;
       }
       if (normalizedItemNumber != null &&
           normalizedItemNumber.isNotEmpty &&
-          _itemNumber(media)?.trim() != normalizedItemNumber) {
+          _itemNumber(item)?.trim() != normalizedItemNumber) {
         continue;
       }
-      return _hit(media);
+      return _hit(item);
     }
     return null;
   }
 
-  CatalogSearchHit _hit(MangaMedia media) {
+  Future<List<CatalogItemDto>> _items() async {
+    final items = await CatalogItemCacheRepository(_db).findAll(kind: kind);
+    return items
+      ..sort((left, right) =>
+          _metadata(left).title.compareTo(_metadata(right).title));
+  }
+
+  CatalogSearchHit _hit(CatalogItemDto item) {
     return catalogLookupHit(
       kind: kind,
-      id: media.id,
-      title: media.title,
-      subtitle: _itemNumber(media),
+      id: item.id,
+      title: _metadata(item).title,
+      subtitle: _itemNumber(item),
     );
   }
 
-  bool _matchesBarcode(MangaMedia media, String normalized) {
-    if (_same(_text(media.rawPayload['barcode']), normalized)) return true;
-    if (_same(_text(media.rawPayload['isbn']), normalized)) return true;
-    final identifiers = media.identifiers;
-    for (final identifier in identifiers) {
-      final value = identifier is Map
-          ? identifier['value'] ?? identifier['barcode'] ?? identifier['isbn']
-          : null;
-      if (_same(_text(value), normalized)) return true;
-    }
-    return false;
+  bool _matchesBarcode(CatalogItemDto item, String normalized) {
+    final metadata = _metadata(item);
+    return [
+      metadata.barcode,
+      metadata.isbn,
+      metadata.itemNumber,
+      for (final identifier in metadata.identifiers)
+        identifier.normalizedValue ?? identifier.value,
+    ].any((value) => _same(value, normalized));
   }
 
-  String? _itemNumber(MangaMedia media) {
-    return _text(media.rawPayload['item_number']) ??
-        _text(media.rawPayload['volume_number']);
+  String? _itemNumber(CatalogItemDto item) {
+    final metadata = _metadata(item);
+    return metadata.volumeNumber?.toString();
   }
 
-  String? _text(Object? value) {
-    final text = value?.toString().trim();
-    return text == null || text.isEmpty ? null : text;
-  }
+  MangaMetadata _metadata(CatalogItemDto item) =>
+      MangaMetadata.fromJson(item.kindData);
 
   bool _same(String? value, String normalized) {
+    value = value?.trim();
     return value != null && normalizeCatalogLookupValue(value) == normalized;
   }
 }

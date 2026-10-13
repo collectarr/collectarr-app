@@ -4,73 +4,49 @@ import 'package:collectarr_app/features/library/inspector/sections/personal_stat
 import 'package:collectarr_app/features/library/kinds/anime/presentation.dart';
 import 'package:flutter/material.dart';
 
-Widget buildAnimeWorkInspectorHero(
+Widget buildAnimeCatalogItemInspectorHero(
   BuildContext context,
   LibraryInspectorRequest request,
 ) {
   return LibraryDetailHero(
     type: request.type,
     item: request.item,
-    ownedItem: request.ownedItem,
-    ownedCopies: request.ownedCopies,
+    libraryEntry: request.libraryEntry,
     accent: request.accent,
   );
 }
 
-Widget buildAnimeReleaseInspectorHero(
+Widget buildAnimeLibraryEntryInspectorHero(
   BuildContext context,
   LibraryInspectorRequest request,
 ) {
   return LibraryDetailHero(
     type: request.type,
     item: request.item,
-    ownedItem: request.ownedItem,
-    ownedCopies: request.ownedCopies,
+    libraryEntry: request.libraryEntry,
     accent: request.accent,
   );
 }
 
-Widget buildAnimeCopyInspectorHero(
-  BuildContext context,
-  LibraryInspectorRequest request,
-) {
-  return LibraryDetailHero(
-    type: request.type,
-    item: request.item,
-    ownedItem: request.ownedItem,
-    ownedCopies: [
-      if (request.ownedItem != null) request.ownedItem!,
-    ],
-    accent: request.accent,
-  );
-}
-
-List<Widget> buildAnimeWorkInspectorSections(
+List<Widget> buildAnimeCatalogItemInspectorSections(
   BuildContext context,
   LibraryInspectorRequest request,
 ) {
   return _buildAnimeMetadataSections(context, request);
 }
 
-List<Widget> buildAnimeReleaseInspectorSections(
-  BuildContext context,
-  LibraryInspectorRequest request,
-) {
-  return _buildAnimeMetadataSections(context, request);
-}
-
-List<Widget> buildAnimeCopyInspectorSections(
+List<Widget> buildAnimeLibraryEntryInspectorSections(
   BuildContext context,
   LibraryInspectorRequest request,
 ) {
   return [
     ..._buildAnimeMetadataSections(context, request),
-    if (request.ownedItem != null || request.trackingSummary != null)
+    if (request.libraryEntry != null || request.trackingSummary != null)
       InspectorPersonalStatusSection(
         type: request.type,
         item: request.item,
-        ownedItem: request.ownedItem,
-        ownedItemDispatch: request.ownedItemDispatch,
+        libraryEntry: request.libraryEntry,
+        libraryEntryDispatch: request.libraryEntryDispatch,
         trackingSummary: request.trackingSummary,
         accent: request.accent,
         onFilterByValue: request.onFilterByValue,

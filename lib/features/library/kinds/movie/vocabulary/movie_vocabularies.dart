@@ -1,15 +1,17 @@
 import 'package:collectarr_app/core/db/local_database.dart';
-import 'package:collectarr_app/features/library/kinds/movie/data/movie_owned_repository.dart';
+import 'package:collectarr_app/features/library/kinds/movie/data/movie_entry_repository.dart';
 import 'package:collectarr_app/features/pick_lists/models/vocabulary_definition.dart';
 import 'package:collectarr_app/features/pick_lists/models/vocabulary_id.dart';
 import 'package:collectarr_app/features/pick_lists/pick_list_definition_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/movie/domain/movie_metadata.dart';
-import 'package:collectarr_app/features/library/kinds/movie/domain/movie_owned_item.dart';
-import 'package:collectarr_app/features/library/kinds/movie/ownership/movie_owned_details.dart';
+import 'package:collectarr_app/features/library/kinds/movie/domain/movie_library_entry.dart';
+import 'package:collectarr_app/features/library/kinds/movie/entries/movie_entry_details.dart';
+import 'package:collectarr_app/features/library/kinds/movie/config/movie_field_identities.dart';
 
 abstract final class MovieVocabularyIds {
   static const condition = VocabularyId<String>('movie.condition');
-  static const physicalFormat = VocabularyId<String>('movie.physical_format');
+  static const genre = MovieFieldIdentities.genreVocabulary;
+  static const physicalFormat = MovieFieldIdentities.formatVocabulary;
   static const region = VocabularyId<String>('movie.region');
   static const packaging = VocabularyId<String>('movie.packaging');
   static const distributor = VocabularyId<String>('movie.distributor');
@@ -20,73 +22,83 @@ abstract final class MovieVocabularyIds {
 }
 
 abstract final class MovieVocabularies {
-  static Future<int> countOwnedValue(
-    LocalDatabase db,
-    String semanticName,
-    String normalizedValue,
-  ) {
-    return countPickListOwnedValues(
-      items: MovieOwnedRepository(db).listActive(),
-      normalizedValue: normalizedValue,
-      valuesFrom: (item) => _ownedValues(item, semanticName),
-    );
+  static Future<List<String>> entryOptions(
+      LocalDatabase db, String semanticName) async {
+    return [
+      for (final item in await MovieEntryRepository(db).listActive())
+        ..._entryValues(item, semanticName)
+            .whereType<String>()
+            .where((value) => value.trim().isNotEmpty)
+    ];
   }
 
-  static Future<PickListOwnedMergeResult> previewOwnedMerge(
+  static Future<Map<String, int>> entryUsageCounts(
+          LocalDatabase db, String semanticName) =>
+      countPickListEntryUsages(
+          items: MovieEntryRepository(db).listActive(),
+          valuesFrom: (item) => _entryValues(item, semanticName));
+
+  static Future<PickListEntryMergeResult> previewEntryMerge(
     LocalDatabase db,
     String semanticName,
     Set<String> normalizedSourceValues,
   ) {
-    return previewPickListOwnedMerge(
-      items: MovieOwnedRepository(db).listActive(),
+    return previewPickListEntryMerge(
+      items: MovieEntryRepository(db).listActive(),
       idFrom: (item) => item.id.value,
-      valuesFrom: (item) => _ownedValues(item, semanticName),
+      valuesFrom: (item) => _entryValues(item, semanticName),
       normalizedSourceValues: normalizedSourceValues,
     );
   }
 
-  static Future<void> applyOwnedMerge(
+  static Future<void> applyEntryMerge(
     LocalDatabase db,
     String semanticName,
     Set<String> normalizedSourceValues,
     String targetValue,
   ) {
-    return applyPickListOwnedMerge(
-      items: MovieOwnedRepository(db).listActive(),
-      valuesFrom: (item) => _ownedValues(item, semanticName),
+    return applyPickListEntryMerge(
+      items: MovieEntryRepository(db).listActive(),
+      valuesFrom: (item) => _entryValues(item, semanticName),
       replaceValue: (item, sources, target) =>
-          _replaceOwnedValue(item, semanticName, sources, target),
-      save: MovieOwnedRepository(db).upsert,
+          _replaceEntryValue(item, semanticName, sources, target),
+      save: MovieEntryRepository(db).upsert,
       normalizedSourceValues: normalizedSourceValues,
       targetValue: targetValue,
     );
   }
 
-  static MovieOwnedItem _replaceOwnedValue(
-    MovieOwnedItem item,
+  static MovieLibraryEntry _replaceEntryValue(
+    MovieLibraryEntry item,
     String semanticName,
     Set<String> normalizedSourceValues,
     String targetValue,
   ) {
     switch (semanticName) {
       case 'condition':
-        return item.copyWith(condition: targetValue);
+        return item.copyWith(
+            personal: item.personal.copyWith(condition: targetValue));
       case 'grade':
-        return item.copyWith(grade: targetValue);
+        return item.copyWith(
+            personal: item.personal.copyWith(grade: targetValue));
       case 'purchase_store':
-        return item.copyWith(purchaseStore: targetValue);
+        return item.copyWith(
+            personal: item.personal.copyWith(purchaseStore: targetValue));
       case 'sold_to':
-        return item.copyWith(soldTo: targetValue);
+        return item.copyWith(
+            personal: item.personal.copyWith(soldTo: targetValue));
       case 'collection_status':
-        return item.copyWith(collectionStatus: targetValue);
+        return item.copyWith(
+            personal: item.personal.copyWith(collectionStatus: targetValue));
       case 'tags':
         return item.copyWith(
+            personal: item.personal.copyWith(
           tags: replacePickListDelimitedValue(
-            item.tags,
+            item.personal.tags,
             normalizedSourceValues,
             targetValue,
           ),
-        );
+        ));
     }
     final key = switch (semanticName) {
       'features' => 'features',
@@ -96,20 +108,22 @@ abstract final class MovieVocabularies {
       _ => null,
     };
     if (key == null) return item;
-    final details = item.details.toJson()..[key] = targetValue;
-    return item.copyWith(details: MovieOwnedDetails.fromJson(details));
+    final details = item.personal.details.toJson()..[key] = targetValue;
+    return item.copyWith(
+        personal: item.personal
+            .copyWith(details: MovieEntryDetails.fromJson(details)));
   }
 
-  static Iterable<String?> _ownedValues(
-    MovieOwnedItem item,
+  static Iterable<String?> _entryValues(
+    MovieLibraryEntry item,
     String semanticName,
   ) sync* {
     final standard = switch (semanticName) {
-      'condition' => item.condition,
-      'grade' => item.grade,
-      'purchase_store' => item.purchaseStore,
-      'sold_to' => item.soldTo,
-      'collection_status' => item.collectionStatus,
+      'condition' => item.personal.condition,
+      'grade' => item.personal.grade,
+      'purchase_store' => item.personal.purchaseStore,
+      'sold_to' => item.personal.soldTo,
+      'collection_status' => item.personal.collectionStatus,
       _ => null,
     };
     if (standard != null) {
@@ -117,7 +131,7 @@ abstract final class MovieVocabularies {
       return;
     }
     if (semanticName == 'tags') {
-      yield* item.tags?.split(',') ?? const <String>[];
+      yield* item.personal.tags?.split(',') ?? const <String>[];
       return;
     }
     final key = switch (semanticName) {
@@ -128,7 +142,12 @@ abstract final class MovieVocabularies {
       _ => null,
     };
     if (key != null) {
-      yield* pickListTextValues(item.details.toJson()[key]);
+      yield* pickListTextValues(item.personal.details.toJson()[key]);
+    }
+    for (final vocabulary in all) {
+      if (vocabulary.key.split('.').last == semanticName) {
+        yield* vocabulary.valuesFrom?.call(item.metadata) ?? const <String>[];
+      }
     }
   }
 
@@ -142,6 +161,35 @@ abstract final class MovieVocabularies {
       'Good',
       'Fair',
       'Poor',
+    ],
+  );
+
+  static const genre = VocabularyDefinition<String>(
+    id: MovieVocabularyIds.genre,
+    label: 'Genre',
+    multiValue: true,
+    valuesFrom: TypedVocabularyProjector<MovieCatalogMetadata>(_genreValues),
+    builtIns: [
+      'Action',
+      'Adventure',
+      'Animation',
+      'Biography',
+      'Comedy',
+      'Crime',
+      'Documentary',
+      'Drama',
+      'Family',
+      'Fantasy',
+      'History',
+      'Horror',
+      'Music',
+      'Mystery',
+      'Romance',
+      'Science Fiction',
+      'Sport',
+      'Thriller',
+      'War',
+      'Western',
     ],
   );
 
@@ -165,8 +213,6 @@ abstract final class MovieVocabularies {
   static const region = VocabularyDefinition<String>(
     id: MovieVocabularyIds.region,
     label: 'Region',
-    valuesFrom:
-        TypedVocabularyProjector<MovieCatalogMetadata>(_regionCatalogValues),
     builtIns: [
       'Region A / Region 1',
       'Region B / Region 2',
@@ -178,9 +224,6 @@ abstract final class MovieVocabularies {
   static const packaging = VocabularyDefinition<String>(
     id: MovieVocabularyIds.packaging,
     label: 'Packaging',
-    valuesFrom: TypedVocabularyProjector<MovieCatalogMetadata>(
-      _packagingCatalogValues,
-    ),
     builtIns: [
       'Standard Keep Case',
       'Steelbook',
@@ -197,9 +240,6 @@ abstract final class MovieVocabularies {
   static const distributor = VocabularyDefinition<String>(
     id: MovieVocabularyIds.distributor,
     label: 'Distributor / Boutique Label',
-    valuesFrom: TypedVocabularyProjector<MovieCatalogMetadata>(
-      _distributorCatalogValues,
-    ),
     builtIns: [
       'Criterion Collection',
       'Arrow Video',
@@ -280,8 +320,6 @@ abstract final class MovieVocabularies {
   static const hdr = VocabularyDefinition<String>(
     id: MovieVocabularyIds.hdr,
     label: 'HDR / Video Format',
-    valuesFrom:
-        TypedVocabularyProjector<MovieCatalogMetadata>(_hdrCatalogValues),
     builtIns: [
       'Dolby Vision',
       'HDR10+',
@@ -292,6 +330,7 @@ abstract final class MovieVocabularies {
 
   static const all = <VocabularyDefinition<dynamic>>[
     condition,
+    genre,
     physicalFormat,
     region,
     packaging,
@@ -303,61 +342,31 @@ abstract final class MovieVocabularies {
   ];
 }
 
+Iterable<String?> _genreValues(MovieCatalogMetadata metadata) =>
+    vocabularyValues([metadata.genres]);
+
 Iterable<String?> _physicalFormatCatalogValues(
   MovieCatalogMetadata metadata,
 ) sync* {
   yield* vocabularyValues([
-    metadata.physicalFormatLabel,
     metadata.physicalFormat,
-    metadata.releases.map((release) => release.physicalFormat),
-  ]);
-}
-
-Iterable<String?> _regionCatalogValues(MovieCatalogMetadata metadata) {
-  return vocabularyValues([
-    metadata.region,
-    metadata.releases.map((release) => release.region),
-  ]);
-}
-
-Iterable<String?> _packagingCatalogValues(MovieCatalogMetadata metadata) {
-  return vocabularyValues([
-    metadata.packaging,
-    metadata.releases.map((release) => release.packaging),
-  ]);
-}
-
-Iterable<String?> _distributorCatalogValues(MovieCatalogMetadata metadata) {
-  return vocabularyValues([
-    metadata.distributor,
-    metadata.releases.map((release) => release.distributor),
   ]);
 }
 
 Iterable<String?> _screenRatioCatalogValues(MovieCatalogMetadata metadata) {
   return vocabularyValues([
     metadata.screenRatio,
-    metadata.releases.map((release) => release.screenRatio),
   ]);
 }
 
 Iterable<String?> _audioCatalogValues(MovieCatalogMetadata metadata) {
   return vocabularyValues([
     metadata.audioTracks,
-    metadata.releases.expand((release) => release.audioTracks),
   ]);
 }
 
 Iterable<String?> _subtitlesCatalogValues(MovieCatalogMetadata metadata) {
   return vocabularyValues([
     metadata.subtitles,
-    metadata.releases.expand((release) => release.subtitles),
-  ]);
-}
-
-Iterable<String?> _hdrCatalogValues(MovieCatalogMetadata metadata) {
-  return vocabularyValues([
-    metadata.hdr,
-    metadata.releases.expand((release) => release.hdrFormats),
   ]);
 }

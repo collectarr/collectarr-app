@@ -1,6 +1,10 @@
 import 'package:collectarr_app/ui/theme/app_theme.dart';
+import 'package:collectarr_app/ui/library_accent_scope.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_tokens.dart';
 import 'package:flutter/material.dart';
+import 'library_workspace_menus.dart';
+import 'library_workspace_controls.dart';
+import 'package:collectarr_app/ui/app_icons.dart';
 
 enum LibraryDenseButtonTone { surface, accent, subtle }
 
@@ -12,14 +16,16 @@ class LibraryDenseMenuEntry<T> {
     this.active = false,
     this.enabled = true,
     this.trailingLabel,
+    this.section,
   });
 
   final T value;
   final String label;
-  final IconData icon;
+  final IconData? icon;
   final bool active;
   final bool enabled;
   final String? trailingLabel;
+  final String? section;
 }
 
 class LibraryDenseButton extends StatefulWidget {
@@ -31,6 +37,7 @@ class LibraryDenseButton extends StatefulWidget {
     this.onPressed,
     this.tone = LibraryDenseButtonTone.surface,
     this.padding,
+    this.menuTrigger = false,
   });
 
   final String label;
@@ -39,6 +46,7 @@ class LibraryDenseButton extends StatefulWidget {
   final VoidCallback? onPressed;
   final LibraryDenseButtonTone tone;
   final EdgeInsetsGeometry? padding;
+  final bool menuTrigger;
 
   @override
   State<LibraryDenseButton> createState() => _LibraryDenseButtonState();
@@ -50,25 +58,26 @@ class _LibraryDenseButtonState extends State<LibraryDenseButton> {
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
-    final enabled = widget.onPressed != null;
+    final accent = LibraryAccentScope.accentOf(context);
+    final enabled = widget.onPressed != null || widget.menuTrigger;
     final background = switch (widget.tone) {
       LibraryDenseButtonTone.accent => enabled
-          ? palette.accent
+          ? accent
           : Color.alphaBlend(
-              palette.accent.withValues(alpha: 0.45),
+              accent.withValues(alpha: 0.45),
               palette.panelRaised,
             ),
       LibraryDenseButtonTone.subtle => palette.surfaceSubtle,
-      LibraryDenseButtonTone.surface => palette.panelRaised,
+      LibraryDenseButtonTone.surface => libraryToolbarControlSurface(context),
     };
     final borderColor = widget.tone == LibraryDenseButtonTone.accent
-        ? palette.accent.withValues(alpha: 0.74)
+        ? accent.withValues(alpha: 0.74)
         : palette.divider;
     final hoveredBackground = enabled
         ? Color.alphaBlend(
             (widget.tone == LibraryDenseButtonTone.accent
                     ? Colors.white
-                    : palette.accent)
+                    : accent)
                 .withValues(
                     alpha: widget.tone == LibraryDenseButtonTone.accent
                         ? 0.08
@@ -85,12 +94,15 @@ class _LibraryDenseButtonState extends State<LibraryDenseButton> {
             : palette.textMuted;
 
     return MouseRegion(
+      cursor: enabled ? SystemMouseCursors.click : SystemMouseCursors.basic,
       onEnter: (_) => setState(() => _hovered = true),
       onExit: (_) => setState(() => _hovered = false),
       child: Material(
         color: Colors.transparent,
         child: InkWell(
-          mouseCursor: WidgetStateMouseCursor.clickable,
+          mouseCursor: widget.menuTrigger
+              ? SystemMouseCursors.click
+              : WidgetStateMouseCursor.clickable,
           onTap: widget.onPressed,
           borderRadius: BorderRadius.circular(4),
           child: AnimatedContainer(
@@ -108,12 +120,14 @@ class _LibraryDenseButtonState extends State<LibraryDenseButton> {
             child: DefaultTextStyle(
               style: Theme.of(context).textTheme.labelLarge?.copyWith(
                         color: foreground,
-                        fontWeight: FontWeight.w700,
+                        fontWeight: FontWeight.w500,
+                        fontSize: 14,
                         letterSpacing: 0.1,
                       ) ??
                   TextStyle(
                     color: foreground,
-                    fontWeight: FontWeight.w700,
+                    fontWeight: FontWeight.w500,
+                    fontSize: 14,
                     letterSpacing: 0.1,
                   ),
               child: Row(
@@ -162,22 +176,23 @@ class _LibraryDenseIconButtonState extends State<LibraryDenseIconButton> {
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
+    final accent = LibraryAccentScope.accentOf(context);
     final enabled = widget.onPressed != null;
     final background = switch (widget.tone) {
       LibraryDenseButtonTone.accent => enabled
-          ? palette.accent
+          ? accent
           : Color.alphaBlend(
-              palette.accent.withValues(alpha: 0.45),
+              accent.withValues(alpha: 0.45),
               palette.panelRaised,
             ),
       LibraryDenseButtonTone.subtle => palette.surfaceSubtle,
-      LibraryDenseButtonTone.surface => palette.panelRaised,
+      LibraryDenseButtonTone.surface => libraryToolbarControlSurface(context),
     };
     final hoveredBackground = _hovered
         ? Color.alphaBlend(
             (widget.tone == LibraryDenseButtonTone.accent
                     ? Colors.white
-                    : palette.accent)
+                    : accent)
                 .withValues(
                     alpha: widget.tone == LibraryDenseButtonTone.accent
                         ? 0.08
@@ -212,7 +227,7 @@ class _LibraryDenseIconButtonState extends State<LibraryDenseIconButton> {
                 borderRadius: BorderRadius.circular(4),
                 border: Border.all(
                   color: widget.tone == LibraryDenseButtonTone.accent
-                      ? palette.accent.withValues(alpha: 0.74)
+                      ? accent.withValues(alpha: 0.74)
                       : palette.divider,
                 ),
               ),
@@ -249,29 +264,26 @@ class LibraryDenseMenuButton<T> extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final palette = appPalette(context);
+    final accent = LibraryAccentScope.accentOf(context);
     return PopupMenuButton<T>(
+      popUpAnimationStyle: AnimationStyle.noAnimation,
       tooltip: tooltip ?? label,
       onSelected: onSelected,
       padding: EdgeInsets.zero,
-      color: Color.alphaBlend(
-        palette.accent.withValues(alpha: 0.025),
-        palette.panelRaised,
-      ),
+      color: libraryToolbarMenuSurface(context),
       surfaceTintColor: Colors.transparent,
       shadowColor: Colors.black.withValues(alpha: 0.22),
-      menuPadding: const EdgeInsets.symmetric(vertical: 2),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(4),
-        side: BorderSide(color: palette.divider.withValues(alpha: 0.9)),
-      ),
+      menuPadding: EdgeInsets.zero,
+      position: PopupMenuPosition.under,
+      shape: libraryToolbarDropdownMenuShape(context),
       itemBuilder: (context) => [
         for (final entry in entries)
           PopupMenuItem<T>(
             value: entry.value,
             enabled: entry.enabled,
             height: kLibraryToolbarPopupItemHeight,
-            child: _LibraryDenseMenuItemRow(entry: entry),
+            padding: const EdgeInsets.symmetric(horizontal: 7),
+            child: _LibraryDenseMenuItemRow(entry: entry, accent: accent),
           ),
       ],
       child: LibraryDenseButton(
@@ -280,6 +292,7 @@ class LibraryDenseMenuButton<T> extends StatelessWidget {
         trailingIcon: trailingIcon,
         tone: tone,
         padding: padding,
+        menuTrigger: true,
       ),
     );
   }
@@ -295,6 +308,7 @@ class LibraryDenseSplitButton<T> extends StatelessWidget {
     required this.onSelected,
     this.tone = LibraryDenseButtonTone.surface,
     this.tooltip,
+    this.iconOnly = false,
   });
 
   final String label;
@@ -305,54 +319,65 @@ class LibraryDenseSplitButton<T> extends StatelessWidget {
   final LibraryDenseButtonTone tone;
   final String? tooltip;
 
+  final bool iconOnly;
+
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
+    final accent = LibraryAccentScope.accentOf(context);
     final background = switch (tone) {
-      LibraryDenseButtonTone.accent => palette.accent,
+      LibraryDenseButtonTone.accent => accent,
       LibraryDenseButtonTone.subtle => palette.surfaceSubtle,
-      LibraryDenseButtonTone.surface => palette.panelRaised,
+      LibraryDenseButtonTone.surface => libraryToolbarControlSurface(context),
     };
     final foreground = tone == LibraryDenseButtonTone.accent
         ? appContrastingTextColor(background)
         : palette.textPrimary;
     final border = tone == LibraryDenseButtonTone.accent
-        ? palette.accent.withValues(alpha: 0.74)
+        ? accent.withValues(alpha: 0.74)
         : palette.divider;
 
     return DecoratedBox(
       decoration: BoxDecoration(
         color: background,
-        borderRadius: BorderRadius.circular(4),
-        border: Border.all(color: border),
+        border: Border(right: BorderSide(color: border)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Material(
-            color: Colors.transparent,
-            child: InkWell(
-              mouseCursor: WidgetStateMouseCursor.clickable,
-              onTap: onPressed,
-              borderRadius:
-                  const BorderRadius.horizontal(left: Radius.circular(4)),
-              child: Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(icon, size: 14, color: foreground),
-                    const SizedBox(width: 7),
-                    Text(
-                      label,
-                      style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                            color: foreground,
-                            fontWeight: FontWeight.w700,
-                            letterSpacing: 0.1,
-                          ),
-                    ),
-                  ],
+          Semantics(
+            label: iconOnly ? label : null,
+            button: iconOnly,
+            child: Material(
+              color: Colors.transparent,
+              child: InkWell(
+                mouseCursor: WidgetStateMouseCursor.clickable,
+                onTap: onPressed,
+                hoverColor: libraryToolbarControlHover(context),
+                borderRadius:
+                    const BorderRadius.horizontal(left: Radius.circular(4)),
+                child: Padding(
+                  padding: EdgeInsets.symmetric(
+                      horizontal: iconOnly ? 7 : 10,
+                      vertical: iconOnly ? 7 : 5),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(icon, size: iconOnly ? 16 : 14, color: foreground),
+                      if (!iconOnly) ...[
+                        const SizedBox(width: 7),
+                        Text(
+                          label,
+                          style:
+                              Theme.of(context).textTheme.labelLarge?.copyWith(
+                                    color: foreground,
+                                    fontWeight: FontWeight.w700,
+                                    letterSpacing: 0.1,
+                                  ),
+                        ),
+                      ],
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -360,33 +385,43 @@ class LibraryDenseSplitButton<T> extends StatelessWidget {
           Container(
               width: 1, height: 20, color: foreground.withValues(alpha: 0.18)),
           PopupMenuButton<T>(
+            popUpAnimationStyle: AnimationStyle.noAnimation,
             tooltip: tooltip ?? label,
             padding: EdgeInsets.zero,
             onSelected: onSelected,
-            color: Color.alphaBlend(
-              palette.accent.withValues(alpha: 0.025),
-              palette.panelRaised,
-            ),
+            color: libraryToolbarMenuSurface(context),
             surfaceTintColor: Colors.transparent,
             shadowColor: Colors.black.withValues(alpha: 0.22),
-            menuPadding: const EdgeInsets.symmetric(vertical: 2),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(4),
-              side: BorderSide(color: palette.divider.withValues(alpha: 0.9)),
-            ),
+            menuPadding: EdgeInsets.zero,
+            position: PopupMenuPosition.under,
+            shape: libraryToolbarDropdownMenuShape(context),
             itemBuilder: (context) => [
-              for (final entry in entries)
+              for (final entry in entries) ...[
+                if (entry.section != null)
+                  PopupMenuItem<T>(
+                      enabled: false,
+                      height: 24,
+                      padding: const EdgeInsets.symmetric(horizontal: 7),
+                      child: Text(entry.section!,
+                          style: TextStyle(
+                              fontSize: 14,
+                              color: libraryToolbarMenuMutedText(context)))),
                 PopupMenuItem<T>(
                   value: entry.value,
                   enabled: entry.enabled,
                   height: kLibraryToolbarPopupItemHeight,
-                  child: _LibraryDenseMenuItemRow(entry: entry),
+                  padding: const EdgeInsets.symmetric(horizontal: 7),
+                  child: _LibraryDenseMenuItemRow(entry: entry, accent: accent),
                 ),
+              ],
             ],
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
-              child:
-                  Icon(Icons.keyboard_arrow_down, size: 16, color: foreground),
+            child: LibraryToolbarHoverSurface(
+              child: SizedBox(
+                  width: 18,
+                  height: 30,
+                  child: Center(
+                      child: Icon(AppIcons.chevronDown,
+                          size: 12, color: foreground))),
             ),
           ),
         ],
@@ -396,46 +431,33 @@ class LibraryDenseSplitButton<T> extends StatelessWidget {
 }
 
 class _LibraryDenseMenuItemRow<T> extends StatelessWidget {
-  const _LibraryDenseMenuItemRow({required this.entry});
+  const _LibraryDenseMenuItemRow({required this.entry, required this.accent});
 
   final LibraryDenseMenuEntry<T> entry;
+  final Color accent;
 
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
     final foreground = entry.enabled ? palette.textPrimary : palette.textMuted;
-    return Row(
-      children: [
-        Icon(
-          entry.active ? Icons.check_circle : entry.icon,
+    return LibraryWorkspaceMenuRow(
+      label: entry.label,
+      padding: EdgeInsets.zero,
+      leadingSpacing: 7,
+      leading: Icon(entry.active ? Icons.check : entry.icon,
           size: 14,
           color: entry.enabled
-              ? (entry.active ? palette.accent : palette.textPrimary)
-              : palette.textMuted,
-        ),
-        const SizedBox(width: 7),
-        Expanded(
-          child: Text(
-            entry.label,
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: foreground,
-                  fontWeight: entry.active ? FontWeight.w800 : FontWeight.w600,
-                  fontSize: 13,
-                ),
-          ),
-        ),
-        if (entry.trailingLabel case final trailing?) ...[
-          const SizedBox(width: 7),
-          Text(
-            trailing,
-            style: Theme.of(context).textTheme.labelSmall?.copyWith(
+              ? (entry.active ? accent : foreground)
+              : palette.textMuted),
+      textStyle: TextStyle(
+          color: foreground, fontWeight: FontWeight.w500, fontSize: 14),
+      trailing: entry.trailingLabel == null
+          ? null
+          : Text(entry.trailingLabel!,
+              style: TextStyle(
                   color: palette.textMuted,
                   fontWeight: FontWeight.w700,
-                  fontSize: 12,
-                ),
-          ),
-        ],
-      ],
+                  fontSize: 13)),
     );
   }
 }

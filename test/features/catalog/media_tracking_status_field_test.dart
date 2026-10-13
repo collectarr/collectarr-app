@@ -13,11 +13,15 @@ void main() {
     await tester.pumpWidget(
       MaterialApp(
         home: Scaffold(
-          body: MediaTrackingStatusField(
-            profile: comicTrackingProfile,
-            value: 'reading',
-            label: 'Read status',
-            onChanged: (value) => selected = value,
+          body: Column(
+            children: [
+              MediaTrackingStatusField(
+                profile: comicTrackingProfile,
+                value: 'reading',
+                label: 'Read status',
+                onChanged: (value) => selected = value,
+              ),
+            ],
           ),
         ),
       ),
@@ -25,7 +29,7 @@ void main() {
 
     expect(find.text('Reading'), findsOneWidget);
 
-    await tester.tap(find.byType(DropdownButtonFormField<String>));
+    await tester.tap(find.byType(MediaTrackingStatusField));
     await pumpUntilSettled(tester);
     await tester.tap(find.text('Read').last);
     await pumpUntilSettled(tester);

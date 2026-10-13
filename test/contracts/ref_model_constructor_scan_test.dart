@@ -29,15 +29,15 @@ String _extractSyncPayloadBody(String content) {
 
 void main() {
   test('ref-based models no longer accept itemId in constructors', () {
-    final ownedItem = _read(
-      'lib/features/library/kinds/comic/domain/comic_owned_item.dart',
+    final libraryEntry = _read(
+      'lib/features/library/kinds/comic/domain/comic_library_entry.dart',
     );
     final wishlistItem = _read('lib/core/models/wishlist_item.dart');
     final trackingRecord = _read(
       'lib/features/library/tracking/tracking_storage_record.dart',
     );
 
-    expect(ownedItem, isNot(contains('String? itemId,')));
+    expect(libraryEntry, isNot(contains('String? itemId,')));
     expect(wishlistItem, isNot(contains('String? itemId,')));
     expect(trackingRecord, isNot(contains('String? itemId,')));
   });
@@ -52,9 +52,9 @@ void main() {
     final watchSession = _read('lib/core/models/watch_session.dart');
     final trackingUnit = _read('lib/core/models/tracking_unit_summary.dart');
 
-    expect(tvCustomEpisode, contains("'catalog_ref'"));
+    expect(tvCustomEpisode, contains("'library_entry_ref'"));
     expect(tvCustomEpisode, isNot(contains("'item_id'")));
-    expect(animeCustomEpisode, contains("'catalog_ref'"));
+    expect(animeCustomEpisode, contains("'library_entry_ref'"));
     expect(animeCustomEpisode, isNot(contains("'item_id'")));
     expect(_extractSyncPayloadBody(watchSession), isNot(contains("'item_id'")));
     expect(_extractSyncPayloadBody(trackingUnit), isNot(contains("'item_id'")));

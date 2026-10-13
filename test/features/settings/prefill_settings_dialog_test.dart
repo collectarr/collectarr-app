@@ -1,5 +1,6 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/features/settings/prefill_settings_dialog.dart';
+import 'package:collectarr_app/features/library/add/models/library_add_prefill_defaults.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:drift/drift.dart' show Value;
 import 'package:drift/native.dart';
@@ -15,7 +16,7 @@ void main() {
     SharedPreferences.setMockInitialValues({});
   });
 
-  test('ignores unsupported kind-owned prefill keys', () async {
+  test('ignores unsupported kind-entry prefill keys', () async {
     SharedPreferences.setMockInitialValues({
       'collectarr.prefill.condition': 'Very Fine',
       'collectarr.prefill.grade': '9.6',

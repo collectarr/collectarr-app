@@ -1,7 +1,7 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_display_summary.dart';
-import 'package:collectarr_app/features/catalog/transport/catalog_transport_payload.dart';
+import 'package:collectarr_app/features/catalog/transport/catalog_item_cache_repository.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_kind_derived_data.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_kind_transport_codec.dart';
 import 'package:collectarr_app/features/catalog/serial/serial_authority_repository.dart';
@@ -9,41 +9,53 @@ import 'package:collectarr_app/features/pick_lists/pick_list_repository.dart';
 import 'package:collectarr_app/features/pick_lists/pick_list_definition_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_pick_list_contributors.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_serial_authority_contributors.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/data/boardgame_repository.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_media.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/workspace/boardgame_workspace_catalog_data.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/workspace/boardgame_workspace_data.dart';
 
 final class BoardGameCatalogTransportCodec
-    implements CatalogKindTransportCodec<BoardGameMedia> {
+    implements CatalogKindTransportCodec<BoardGameMetadata> {
   const BoardGameCatalogTransportCodec();
 
   @override
   CatalogMediaKind get kind => CatalogMediaKind.boardgame;
 
   @override
-  BoardGameMedia decode(CatalogItemDto item) {
-    final metadata = item.kindMetadata;
-    if (metadata is BoardGameMedia) return metadata;
-    return BoardGameMedia.fromJson(catalogTransportPayloadFor(item));
-  }
+  BoardGameMetadata decode(CatalogItemDto item) =>
+      BoardGameMetadata.fromJson(item.kindData);
 
   @override
-  Future<void> upsert(LocalDatabase db, BoardGameMedia item) {
-    return BoardGameRepository(db).updateMedia(item);
-  }
+  BoardGameMetadata decodeKindData(Map<String, dynamic> kindData) =>
+      BoardGameMetadata.fromJson(kindData);
 
   @override
-  CatalogDisplaySummary summarize(BoardGameMedia item) =>
-      CatalogDisplaySummary.root(
+  CatalogItemDto encode(String id, BoardGameMetadata item) =>
+      CatalogItemDto.raw(
+        id: id,
+        mediaKind: kind,
+        kindData: item.toJson(),
+      );
+
+  @override
+  CatalogDisplaySummary summarize(
+    String catalogItemId,
+    BoardGameMetadata item,
+  ) =>
+      CatalogDisplaySummary.forCatalogItem(
         kind: kind,
-        id: item.id.value,
+        id: catalogItemId,
         primaryLabel: item.title,
         imageUrl: item.thumbnailImageUrl ?? item.coverImageUrl,
       );
 
   @override
-  BoardGameWorkspaceCatalogData workspaceData(CatalogItemDto item) =>
-      BoardGameWorkspaceCatalogData.fromTransport(item);
+  BoardGameWorkspaceData workspaceData(CatalogItemDto item) =>
+      BoardGameWorkspaceData(metadata: decode(item));
+
+  @override
+  BoardGameWorkspaceData workspaceDataFromKindData(
+    Map<String, dynamic> kindData,
+  ) =>
+      BoardGameWorkspaceData(metadata: BoardGameMetadata.fromJson(kindData));
 
   @override
   Future<Map<String, int>> countCatalogValues(
@@ -57,9 +69,7 @@ final class BoardGameCatalogTransportCodec
     return countPickListCatalogValuesByValue(
       contributor: contributor,
       listName: listName,
-      metadata: [
-        for (final item in await listTransport(db)) decode(item),
-      ],
+      metadata: await listCatalogAndEntryMetadata(db),
       normalizedValues: normalizedValues,
     );
   }
@@ -93,7 +103,7 @@ final class BoardGameCatalogTransportCodec
   Future<void> captureDerivedDataTyped(
     PickListRepository pickLists,
     SerialAuthorityRepository serialAuthority,
-    BoardGameMedia item,
+    BoardGameMetadata item,
   ) async {
     await captureCatalogKindDerivedData(
       kind: kind,
@@ -103,7 +113,7 @@ final class BoardGameCatalogTransportCodec
     );
   }
 
-  CatalogKindDerivedData? _derivedDataFromTyped(BoardGameMedia item) =>
+  CatalogKindDerivedData? _derivedDataFromTyped(BoardGameMetadata item) =>
       catalogDerivedDataFor(
         kind: kind,
         metadata: item,
@@ -112,42 +122,20 @@ final class BoardGameCatalogTransportCodec
       );
 
   @override
-  Future<void> upsertTransport(LocalDatabase db, CatalogItemDto item) {
-    return upsert(db, decode(item));
-  }
-
-  @override
   Future<List<CatalogItemDto>> listTransport(LocalDatabase db) async {
-    final media = await BoardGameRepository(db).search();
-    return [
-      for (final item in media) _projection(item),
-    ];
+    return CatalogItemCacheRepository(db).findAll(kind: kind);
   }
 
   @override
   Future<List<CatalogDisplaySummary>> listSummaries(LocalDatabase db) async {
-    final media = await BoardGameRepository(db).search();
     return [
-      for (final item in media) summarize(item),
+      for (final item in await listTransport(db))
+        summarize(item.id, decode(item)),
     ];
   }
 }
 
 int? _replacementValueFromPayload(CatalogItemDto item) {
-  final direct = item.payload['cover_price_cents'];
-  if (direct is num) return direct.toInt();
-  final publishing = item.payload['publishing'];
-  final nested = publishing is Map ? publishing['cover_price_cents'] : null;
-  return nested is num ? nested.toInt() : null;
-}
-
-CatalogItemDto _projection(BoardGameMedia item) {
-  final payload = Map<String, dynamic>.from(item.rawPayload);
-  payload['id'] ??= item.id.value;
-  payload['kind'] ??= 'boardgame';
-  payload['title'] ??= item.title;
-  final projection = CatalogItemDto.fromJson(payload);
-  return projection.withKindMetadata(
-    BoardGameMedia.fromJson(projection.payload),
-  );
+  final value = item.kindData['cover_price_cents'];
+  return value is num ? value.toInt() : null;
 }

@@ -1,4 +1,5 @@
 import 'package:collectarr_app/core/api/dto/media_catalog.dart';
+import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/config/library_catalog_kind_defaults.dart';
 
 class LibraryNavGroup {
@@ -183,7 +184,8 @@ NavTypeSplit splitLibraryNavTypes(
 }
 
 String libraryNavLabel(CatalogMediaType type) {
-  return catalogDisplayPluralLabel(type);
+  return defaultLibraryKindRegistry.tryGet(type.mediaKind)?.identity.title ??
+      catalogDisplayPluralLabel(type);
 }
 
 _LibraryNavGroupSpec? _libraryNavGroupSpecForKind(String kind) {

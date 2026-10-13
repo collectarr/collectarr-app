@@ -1,5 +1,6 @@
 import 'package:collectarr_app/core/api/api_client.dart';
 import 'package:collectarr_app/core/api/dto/metadata_search_query.dart';
+import 'package:collectarr_app/core/api/dto/catalog_search_page.dart';
 import 'package:collectarr_app/features/library/kinds/comic/comic_module.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_query.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -49,18 +50,22 @@ class _FakeLibraryMetadataApiClient extends ApiClient {
   String? lastBarcodeKind;
 
   @override
-  Future<List<Map<String, dynamic>>> searchMetadata(
+  Future<CatalogSearchPage> searchMetadataPage(
     MetadataSearchQuery query, {
     CancelToken? cancelToken,
   }) async {
     lastSearchQuery = query;
-    return const [
-      {
-        'id': 'comic-1',
-        'kind': 'comic',
-        'title': 'Batman',
-      },
-    ];
+    return const CatalogSearchPage(
+      items: [
+        {
+          'id': 'comic-1',
+          'kind': 'comic',
+          'title': 'Batman',
+        },
+      ],
+      nextOffset: null,
+      hasMore: false,
+    );
   }
 
   @override

@@ -22,17 +22,12 @@ New-Item -ItemType Directory -Force -Path $TargetDir | Out-Null
 
 $files = @(
   "openapi.json",
-  "catalog-item-v1.json",
+  "music-catalog-v2.json",
+  "metadata-field-schema.json",
+  "catalog-item-v2.json",
   "active-kinds.json",
   "contract-manifest.json"
 )
-
-foreach ($obsoleteFile in @("metadata-field-schema.json", "provider-support.json")) {
-  $obsoletePath = Join-Path $TargetDir $obsoleteFile
-  if (Test-Path $obsoletePath) {
-    Remove-Item -LiteralPath $obsoletePath
-  }
-}
 
 foreach ($file in $files) {
   $source = Join-Path $coreContracts $file
@@ -48,7 +43,9 @@ $manifestPath = Join-Path $TargetDir "contract-manifest.json"
 $manifest = Get-Content $manifestPath -Raw | ConvertFrom-Json
 $hashKeyByFile = @{
   "openapi.json"                     = "openApiHash"
-  "catalog-item-v1.json"             = "catalogItemHash"
+  "music-catalog-v2.json"            = "musicCatalogV2Hash"
+  "metadata-field-schema.json"       = "fieldSchemaHash"
+  "catalog-item-v2.json"             = "catalogItemV2Hash"
   "active-kinds.json"                = "activeKindsHash"
 }
 

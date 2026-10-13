@@ -1,11 +1,10 @@
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
 import 'package:collectarr_app/core/models/personal_tracking_base.dart';
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_record.dart';
 import 'package:collectarr_app/core/models/tracking_progress_snapshot.dart';
 
-/// Comic-owned tracking lifecycle entry.
+/// Comic-entry tracking lifecycle entry.
 ///
 /// Comics currently have no additional hierarchy coordinates, but the
 /// lifecycle aggregate still belongs to Comic rather than to a universal
@@ -14,8 +13,7 @@ final class ComicTrackingState extends PersonalTrackingBase
     with TrackingStorageRecordBehavior {
   ComicTrackingState({
     required this.id,
-    required this.catalogRef,
-    this.ownedRef,
+    required this.libraryEntryRef,
     Object? sourceType,
     super.status,
     super.rating,
@@ -34,9 +32,7 @@ final class ComicTrackingState extends PersonalTrackingBase
   @override
   final String id;
   @override
-  final CatalogEntityRef catalogRef;
-  @override
-  final OwnedItemRef? ownedRef;
+  final LibraryEntryRef libraryEntryRef;
   @override
   final TrackingSourceType? sourceType;
   @override
@@ -66,8 +62,7 @@ final class ComicTrackingState extends PersonalTrackingBase
   @override
   ComicTrackingState copyWith({
     String? id,
-    CatalogEntityRef? catalogRef,
-    Object? ownedRef = trackingStorageUnset,
+    Object? libraryEntryRef = trackingStorageUnset,
     Object? sourceType = trackingStorageUnset,
     Object? status = trackingStorageUnset,
     Object? rating = trackingStorageUnset,
@@ -82,10 +77,9 @@ final class ComicTrackingState extends PersonalTrackingBase
   }) {
     return ComicTrackingState(
       id: id ?? this.id,
-      catalogRef: catalogRef ?? this.catalogRef,
-      ownedRef: identical(ownedRef, trackingStorageUnset)
-          ? this.ownedRef
-          : ownedRef as OwnedItemRef?,
+      libraryEntryRef: identical(libraryEntryRef, trackingStorageUnset)
+          ? this.libraryEntryRef
+          : libraryEntryRef as LibraryEntryRef,
       sourceType: identical(sourceType, trackingStorageUnset)
           ? this.sourceType
           : sourceType,

@@ -6,7 +6,7 @@ part of '../generic_library_page.dart';
 
 typedef _PreparedPageEditTarget = ({
   LibraryProjectionItem item,
-  OwnedItemSummary? owned,
+  LibraryEntrySummary? entry,
   WishlistItem? wishlist,
   TrackingSummary? activeTrackingSummary,
   CatalogSearchCandidate catalogItem,
@@ -19,7 +19,8 @@ class LibraryPageEditCoordinator {
 
   final GenericLibraryPageState _s;
 
-  void showDetailPage(LibraryProjectionItem item) {
+  void showDetailPage(LibraryProjectionItem item,
+      {LibraryProjection? projection}) {
     if (_s.canOpenItemDetailDrilldown(item)) {
       _s.openItemDetailDrilldown(item);
       return;
@@ -29,15 +30,20 @@ class LibraryPageEditCoordinator {
       request: LibraryDetailPageRequest(
         type: _s.widget.type,
         item: item,
-        ownedSummary: item.source.ownedSummary,
-        ownedItemDispatch: item.source.ownedItemDispatch,
+        projection: projection,
+        searchQuery: _s._searchController.text.trim(),
+        searchTarget: _s._effectiveSearchTarget,
+        onDetailsLayoutChanged: (layout) => _s
+            ._updateViewState((value) => value.copyWith(detailsLayout: layout)),
+        libraryEntrySummary: item.source.libraryEntrySummary,
+        libraryEntryDispatch: item.source.libraryEntryDispatch,
         accent: _s.widget.accent,
-        onAddOwned: () => _s._collectionActionCoordinator.runCollectionAction(
-          (actions) => actions.addOwned(item),
+        onAddEntry: () => _s._collectionActionCoordinator.runCollectionAction(
+          (actions) => actions.addEntry(item),
         ),
-        onRemoveOwned: item.source.isOwned != true
+        onRemoveEntry: item.source.isEntry != true
             ? null
-            : () => _s._collectionActionCoordinator.confirmAndRemoveOwned(item),
+            : () => _s._collectionActionCoordinator.confirmAndRemoveEntry(item),
         onAddWishlist: () =>
             _s._collectionActionCoordinator.runCollectionAction(
           (actions) => actions.addWishlist(item),
@@ -62,9 +68,8 @@ class LibraryPageEditCoordinator {
 
   Future<void> showEditDialog(
     LibraryProjectionItem item,
-    OwnedItemSummary? ownedItemOverride, {
+    LibraryEntrySummary? libraryEntryOverride, {
     bool openMetadataCompareOnOpen = false,
-    LibraryEntityScope? scope,
   }) async {
     if (_s._isEditDialogInFlight) {
       return;
@@ -83,7 +88,7 @@ class LibraryPageEditCoordinator {
           orElse: () => const <WishlistItem>[],
         );
     final trackingSummaries =
-        _s.ref.read(trackingSummariesByCatalogRefProvider);
+        _s.ref.read(trackingSummariesByLibraryEntryRefProvider);
     final shelfState = _s.ref.read(shelfProvider).asData?.value;
     final viewState =
         _s._session.preferences.viewState ?? _s._viewProfile.defaults();
@@ -100,28 +105,48 @@ class LibraryPageEditCoordinator {
 
     Future<_PreparedPageEditTarget?> prepareTarget(
       LibraryProjectionItem target, {
-      OwnedItemSummary? ownedOverride,
+      LibraryEntrySummary? entryOverride,
       bool compareOnOpen = false,
-      LibraryEntityScope? scopeOverride,
     }) async {
-      final targetCatalogRef = target.source.catalogRef;
-      if (targetCatalogRef == null) return null;
-      final catalogItem = await snapshotRepo.findCandidateByRef(
-        targetCatalogRef.rootScope,
-      );
-      if (catalogItem == null) return null;
+      // Edit the independent local entry, never its optional Core source.
+      final targetEntryRef =
+          entryOverride?.ref ?? target.target.libraryEntryRef;
+      final CatalogSearchCandidate? catalogItem;
+      if (targetEntryRef != null) {
+        final record = await LibraryEntryStore(db).find(
+          targetEntryRef.kind,
+          targetEntryRef.id.value,
+        );
+        catalogItem = record == null || record.deletedAt != null
+            ? null
+            : CatalogSearchCandidate.fromLibraryEntry(
+                ref: targetEntryRef,
+                kindData: record.catalogData,
+                primaryLabel: target.source.title,
+                subtitle: target.source.catalogSummary?.subtitle,
+                imageUrl: target.source.catalogSummary?.imageUrl,
+              );
+      } else {
+        final catalogRef = target.target.catalogItemRef;
+        catalogItem = catalogRef == null
+            ? null
+            : await snapshotRepo.findCandidateByRef(catalogRef);
+      }
+      if (catalogItem == null) {
+        throw StateError('The selected item has no available edit snapshot.');
+      }
 
-      final owned = ownedOverride;
+      final entry = entryOverride ?? target.source.libraryEntrySummary;
       WishlistItem? wishlist = target.source.wishlistItem;
-      if (wishlist == null ||
-          wishlist.isDeleted ||
-          (wishlist.catalogRef.rootId ?? wishlist.catalogRef.id) !=
-              catalogItem.reference.id) {
+      final candidateCatalogRef = catalogItem.catalogRef;
+      if (candidateCatalogRef != null &&
+          (wishlist == null ||
+              wishlist.isDeleted ||
+              wishlist.catalogRef != candidateCatalogRef)) {
         wishlist = null;
         for (final candidate in wishlistItems) {
           if (!candidate.isDeleted &&
-              (candidate.catalogRef.rootId ?? candidate.catalogRef.id) ==
-                  catalogItem.reference.id) {
+              candidate.catalogRef == candidateCatalogRef) {
             wishlist = candidate;
             break;
           }
@@ -130,22 +155,15 @@ class LibraryPageEditCoordinator {
 
       final activeTrackingSummary = resolveActiveTrackingSummary(
         libraryTrackingSummariesForItem(
-          _s.widget.type,
           target,
           trackingSummaries,
-          ownedItem: owned,
+          libraryEntry: entry,
         ),
-        owned,
+        entry,
       );
-      var currentIndex = viewItems.indexWhere(
-        (candidate) => candidate.node.id == target.node.id,
+      final currentIndex = viewItems.indexWhere(
+        (candidate) => candidate.target.stableKey == target.target.stableKey,
       );
-      if (currentIndex < 0) {
-        currentIndex = viewItems.indexWhere(
-          (candidate) =>
-              candidate.source.catalogRef?.id == catalogItem.reference.id,
-        );
-      }
       final previousItem =
           currentIndex > 0 ? viewItems[currentIndex - 1] : null;
       final nextItem = currentIndex >= 0 && currentIndex < viewItems.length - 1
@@ -154,10 +172,11 @@ class LibraryPageEditCoordinator {
       final baseRequest = LibraryEditDialogRequest(
         type: _s.widget.type,
         item: catalogItem,
-        node: target.node,
-        ownedItem: owned,
-        ownedItemDispatch: target.source.ownedItemDispatch,
-        scope: scopeOverride ?? target.node.scope,
+        target: targetEntryRef == null
+            ? target.target
+            : EntryTargetRef(targetEntryRef),
+        libraryEntry: entry,
+        libraryEntryDispatch: target.source.libraryEntryDispatch,
         wishlistItem: wishlist,
         trackingSummary: activeTrackingSummary,
         accent: _s.widget.accent,
@@ -172,24 +191,15 @@ class LibraryPageEditCoordinator {
         openMetadataCompareOnOpen: compareOnOpen,
       );
 
-      final definitionsFuture = customFieldRepo.listDefinitions(
-        mediaKind: _s.widget.type.kind.apiValue,
-        targetScope: owned != null
-            ? CustomFieldTargetScope.ownedCopy
-            : target.node.scope == LibraryEntityScope.release
-                ? CustomFieldTargetScope.release
-                : CustomFieldTargetScope.media,
-      );
-      final customFieldScope = owned != null
-          ? CustomFieldTargetScope.ownedCopy
-          : target.node.scope == LibraryEntityScope.release
-              ? CustomFieldTargetScope.release
-              : null;
-      final customFieldTargetId = owned?.ref.key ??
-          switch (target.node) {
-            LibraryReleaseRef(:final releaseId) => releaseId,
-            _ => null,
-          };
+      final definitionsFuture = entry == null
+          ? Future.value(const <CustomFieldDefinition>[])
+          : customFieldRepo.listDefinitions(
+              mediaKind: _s.widget.type.kind.apiValue,
+              targetScope: CustomFieldTargetScope.libraryEntry,
+            );
+      final customFieldScope =
+          entry != null ? CustomFieldTargetScope.libraryEntry : null;
+      final customFieldTargetId = entry?.ref.key;
       final customFieldValuesFuture =
           customFieldScope != null && customFieldTargetId != null
               ? customFieldRepo.listValuesForTarget(
@@ -197,8 +207,8 @@ class LibraryPageEditCoordinator {
                   targetScope: customFieldScope,
                 )
               : Future.value(const <CustomFieldValue>[]);
-      final imagesFuture = owned != null
-          ? itemImageRepo.listForOwnedRef(owned.ref)
+      final imagesFuture = entry != null
+          ? itemImageRepo.listForLibraryEntryRef(entry.ref)
           : Future.value(const <ItemImage>[]);
       final definitions = await definitionsFuture;
       final customFieldValues = await customFieldValuesFuture;
@@ -211,7 +221,7 @@ class LibraryPageEditCoordinator {
 
       return (
         item: target,
-        owned: owned,
+        entry: entry,
         wishlist: wishlist,
         activeTrackingSummary: activeTrackingSummary,
         catalogItem: catalogItem,
@@ -228,7 +238,13 @@ class LibraryPageEditCoordinator {
         if (prepared == null || dialogClosed || !_s.mounted) return;
         activeTarget = prepared;
         requestListenable?.value = prepared.request;
-      } catch (_) {
+      } catch (error, stackTrace) {
+        logRecoverableError(
+          source: 'library_edit',
+          message: 'Could not prepare the next editor item.',
+          error: error,
+          stackTrace: stackTrace,
+        );
         if (!dialogClosed && _s.mounted) {
           ScaffoldMessenger.of(_s.context).showSnackBar(
             const SnackBar(content: Text('Could not load the selected item.')),
@@ -245,11 +261,16 @@ class LibraryPageEditCoordinator {
       try {
         initialTarget = await prepareTarget(
           item,
-          ownedOverride: ownedItemOverride,
+          entryOverride: libraryEntryOverride,
           compareOnOpen: openMetadataCompareOnOpen,
-          scopeOverride: scope,
         );
-      } catch (_) {
+      } catch (error, stackTrace) {
+        logRecoverableError(
+          source: 'library_edit',
+          message: 'Could not prepare the selected editor item.',
+          error: error,
+          stackTrace: stackTrace,
+        );
         if (_s.mounted) {
           ScaffoldMessenger.of(_s.context).showSnackBar(
             const SnackBar(content: Text('Could not load the selected item.')),
@@ -264,21 +285,21 @@ class LibraryPageEditCoordinator {
         context: _s.context,
         request: initialTarget.request,
         requestListenable: requestListenable,
+        onCommit: (result) => _persistEditResult(
+          result,
+          target: activeTarget.item.target,
+          entry: activeTarget.entry,
+          wishlist: activeTarget.wishlist,
+          activeTrackingSummary: activeTarget.activeTrackingSummary,
+          catalogItem: activeTarget.catalogItem,
+          customFieldRepo: customFieldRepo,
+          itemImageRepo: itemImageRepo,
+        ),
       );
       dialogClosed = true;
       if (result == null || !_s.mounted) {
         return;
       }
-      await _persistEditResult(
-        result,
-        node: activeTarget.item.node,
-        owned: activeTarget.owned,
-        wishlist: activeTarget.wishlist,
-        activeTrackingSummary: activeTarget.activeTrackingSummary,
-        catalogItem: activeTarget.catalogItem,
-        customFieldRepo: customFieldRepo,
-        itemImageRepo: itemImageRepo,
-      );
       if (!_s.mounted) {
         return;
       }
@@ -301,6 +322,18 @@ class LibraryPageEditCoordinator {
         SnackBar(
             content: Text('${_s.widget.type.identity.singularLabel} updated')),
       );
+    } catch (error, stackTrace) {
+      logRecoverableError(
+        source: 'library_edit',
+        message: 'Could not open the item editor.',
+        error: error,
+        stackTrace: stackTrace,
+      );
+      if (_s.mounted) {
+        ScaffoldMessenger.of(_s.context).showSnackBar(
+          const SnackBar(content: Text('Could not open the item editor.')),
+        );
+      }
     } finally {
       dialogClosed = true;
       requestListenable?.dispose();
@@ -310,8 +343,8 @@ class LibraryPageEditCoordinator {
 
   Future<void> _persistEditResult(
     LibraryEditSelection result, {
-    required LibraryEntityRef node,
-    required OwnedItemSummary? owned,
+    required LibraryTargetRef target,
+    required LibraryEntrySummary? entry,
     required WishlistItem? wishlist,
     required TrackingSummary? activeTrackingSummary,
     required CatalogSearchCandidate catalogItem,
@@ -323,129 +356,127 @@ class LibraryPageEditCoordinator {
     final wishlistMutations = _s.ref.read(wishlistMutationsProvider);
     final trackingMutations = _s.ref.read(trackingMutationsProvider);
 
-    await _s.ref.read(catalogTransportMutationsProvider).upsertTransport(
-          result.kindItem.kindCapability.toImportTransport(),
-        );
-    if (owned != null) {
-      final payload = result.ownedUpdatePayload;
-      if (payload == null) {
-        throw StateError(
-          'Owned edit result did not contain a kind-owned update payload.',
-        );
+    await _s.ref.read(collectionMutationRunnerProvider).run(action: () async {
+      // Catalog data, entry personal data, attachments, custom fields, and
+      // activity changes belong to one edit commit. This mutation uses the
+      // same runner, so its transaction is nested into the current one.
+      if (entry != null) {
+        final kindData = result.kindItem.kindCapability
+            .mapTransport((item) => item.kindData);
+        await _s.ref.read(libraryEntryMutationsProvider).updateCatalogData(
+              entry.ref,
+              kindData,
+            );
+        await _s.ref
+            .read(catalogTransportRepositoryProvider)
+            .captureEntryDerivedData(
+              kind: entry.ref.kind,
+              kindData: kindData,
+            );
+      } else {
+        await _s.ref
+            .read(catalogTransportMutationsProvider)
+            .upsertTransport(result.kindItem.toImportTransport());
       }
-      await coordinator.updateOwnedItem(
-        UpdateOwnedItemCommand(
-          ownedRef: owned.ref,
-          payload: payload,
-        ),
-        syncTracking: false,
-      );
-      final tracking = result.tracking;
-      if (tracking != null || activeTrackingSummary != null) {
-        await trackingMutations.syncOwnedTrackingState(
-          owned.ref,
-          catalogRef: owned.catalogRef,
-          isDigital: owned.isDigital,
-          targetRef: tracking?.targetRef ?? activeTrackingSummary?.catalogRef,
-          status: mediaTrackingStatusFromValue(tracking?.readStatus) ??
-              activeTrackingSummary?.status,
-          rating: tracking?.rating ?? activeTrackingSummary?.rating,
-          startedAt: tracking?.startedAt ?? activeTrackingSummary?.startedAt,
-          finishedAt:
-              tracking?.finishedAt ?? activeTrackingSummary?.completedAt,
-          progressCurrent: tracking?.progressCurrent ??
-              activeTrackingSummary?.progress.current,
-          progressTotal:
-              tracking?.progressTotal ?? activeTrackingSummary?.progress.total,
-          timesCompleted: tracking?.timesCompleted ??
-              activeTrackingSummary?.progress.timesCompleted,
-          notes: tracking?.notes ?? activeTrackingSummary?.notes,
-          sourceType: activeTrackingSummary?.sourceType,
-          kindPatch: result.trackingKindPatch,
-        );
-      }
-      if (result.customFieldEdits.isNotEmpty) {
-        await _persistCustomFieldEdits(
-          result.customFieldEdits,
-          targetId: owned.ref.key,
-          targetScope: CustomFieldTargetScope.ownedCopy,
-          catalogRef: owned.catalogRef ?? catalogItem.reference,
-          repository: customFieldRepo,
-        );
-      }
-      // Save item image edits
-      for (final edit in result.itemImageEdits) {
-        if (edit.deleted) {
-          await itemImageRepo.delete(edit.id);
-        } else if (edit.imageData != null) {
-          await itemImageRepo.add(ItemImage(
-            id: edit.id,
-            ownedRef: owned.ref,
-            imageType: edit.imageType,
-            imageData: edit.imageData!,
-            caption: edit.caption,
-            sortOrder: edit.sortOrder,
-            createdAt: edit.createdAt ?? now,
-          ));
-        } else {
-          await itemImageRepo.updateMetadata(
-            edit.id,
-            caption: edit.caption,
-            imageType: edit.imageType,
-            sortOrder: edit.sortOrder,
+      if (entry != null) {
+        if (result.entryUpdatePayload != null) {
+          await coordinator.updateLibraryEntry(
+            UpdateLibraryEntryCommand(
+                libraryEntryRef: entry.ref,
+                payload: result.entryUpdatePayload!),
+            syncTracking: false,
           );
         }
+        if (result.entryPersonalData != null) {
+          final database = _s.ref.read(localDatabaseProvider);
+          await LibraryEntryStore(database).updatePersonal(
+              entry.ref.kind, entry.ref.id.value, result.entryPersonalData!);
+        }
+        if (result.customFieldEdits.isNotEmpty) {
+          await _persistCustomFieldEdits(
+            result.customFieldEdits,
+            targetId: entry.ref.key,
+            targetScope: CustomFieldTargetScope.libraryEntry,
+            repository: customFieldRepo,
+          );
+        }
+        for (final edit in result.itemImageEdits) {
+          if (edit.deleted) {
+            await itemImageRepo.delete(edit.id);
+          } else if (edit.imageData != null) {
+            await itemImageRepo.add(ItemImage(
+              id: edit.id,
+              libraryEntryRef: entry.ref,
+              imageType: edit.imageType,
+              imageData: edit.imageData!,
+              caption: edit.caption,
+              sortOrder: edit.sortOrder,
+              createdAt: edit.createdAt ?? now,
+            ));
+          } else {
+            await itemImageRepo.updateMetadata(
+              edit.id,
+              caption: edit.caption,
+              imageType: edit.imageType,
+              sortOrder: edit.sortOrder,
+            );
+          }
+        }
       }
-    }
-    if (owned == null &&
-        result.scope == LibraryEntityScope.release &&
-        node is LibraryReleaseRef &&
-        result.customFieldEdits.isNotEmpty) {
-      await _persistCustomFieldEdits(
-        result.customFieldEdits,
-        targetId: node.releaseId,
-        targetScope: CustomFieldTargetScope.release,
-        catalogRef: catalogItem.reference,
-        repository: customFieldRepo,
-      );
-    }
-    if (wishlist != null && result.wishlist != null) {
-      await wishlistMutations.updateWishlistItem(
-        wishlist,
-        catalogRef: result.wishlist!.catalogRef,
-        targetPriceCents: result.wishlist!.targetPriceCents,
-        currency: result.wishlist!.currency,
-        notes: result.wishlist!.notes,
-        notify: false,
-      );
-    }
-    if (owned == null && result.tracking != null) {
-      await trackingMutations.upsertTrackingState(
-        TrackingTarget.catalog(catalogItem.reference),
-        targetRef: result.tracking!.targetRef ?? catalogItem.reference,
-        sourceType: activeTrackingSummary?.sourceType,
-        status: mediaTrackingStatusFromValue(result.tracking!.readStatus),
-        rating: result.tracking!.rating,
-        startedAt: result.tracking!.startedAt,
-        finishedAt: result.tracking!.finishedAt,
-        progressCurrent: result.tracking!.progressCurrent ??
-            activeTrackingSummary?.progress.current,
-        progressTotal: result.tracking!.progressTotal ??
-            activeTrackingSummary?.progress.total,
-        timesCompleted: result.tracking!.timesCompleted ??
-            activeTrackingSummary?.progress.timesCompleted,
-        notes: result.tracking!.notes ?? activeTrackingSummary?.notes,
-        kindPatch: result.trackingKindPatch,
-        notify: false,
-      );
-    }
+      for (final change in result.localChanges) {
+        await change.persist(_s.ref.read(localDatabaseProvider));
+      }
+      if (entry != null) {
+        final entries = _s.ref.read(libraryEntriesRepositoryProvider);
+        final syncQueue = _s.ref.read(syncQueueRepositoryProvider);
+        await syncQueue.enqueue(
+          await entries.syncChangeForCurrentEntry(
+            entry.ref,
+            action: 'upsert',
+            changedAt: now.toUtc(),
+          ),
+        );
+      }
+      if (wishlist != null && result.wishlist != null) {
+        await wishlistMutations.updateWishlistItem(
+          wishlist,
+          catalogRef: result.wishlist!.catalogRef,
+          targetPriceCents: result.wishlist!.targetPriceCents,
+          currency: result.wishlist!.currency,
+          notes: result.wishlist!.notes,
+          notify: false,
+        );
+      }
+      if (entry == null && result.tracking != null) {
+        throw StateError(
+          'Tracking changes require a local library entry. Add the item to '
+          'the library before tracking it.',
+        );
+      }
+      if (entry != null && result.tracking != null) {
+        await trackingMutations.upsertTrackingState(
+          entry.ref,
+          sourceType: activeTrackingSummary?.sourceType,
+          status: mediaTrackingStatusFromValue(result.tracking!.readStatus),
+          rating: result.tracking!.rating,
+          startedAt: result.tracking!.startedAt,
+          finishedAt: result.tracking!.finishedAt,
+          progressCurrent: result.tracking!.progressCurrent,
+          progressTotal: result.tracking!.progressTotal,
+          timesCompleted: result.tracking!.timesCompleted,
+          notes: result.tracking!.notes,
+          kindPatch: result.trackingKindPatch,
+          replaceNullableFields: true,
+          notify: false,
+        );
+      }
+    });
   }
 
   Future<void> _persistCustomFieldEdits(
     Map<String, String?> edits, {
     required String targetId,
     required CustomFieldTargetScope targetScope,
-    required CatalogEntityRef catalogRef,
     required CustomFieldRepository repository,
   }) async {
     await repository.deleteValuesForTarget(
@@ -459,7 +490,6 @@ class LibraryPageEditCoordinator {
           id: const Uuid().v4(),
           targetId: targetId,
           targetScope: targetScope,
-          catalogRef: catalogRef,
           fieldDefinitionId: entry.key,
           value: entry.value,
           updatedAt: now,

@@ -1,4 +1,10 @@
+import 'package:collectarr_app/ui/app_panel_title.dart';
+import 'package:collectarr_app/ui/app_icons.dart';
+import 'package:collectarr_app/features/library/config/library_kind_style.dart';
+import 'package:collectarr_app/features/library/ui/library_panel_header.dart';
 import 'package:collectarr_app/ui/accent_dialog_header.dart';
+import 'package:collectarr_app/ui/app_dialog.dart';
+import 'package:collectarr_app/ui/library_accent_scope.dart';
 import 'package:flutter/material.dart';
 
 /// Alert dialog with a header using the application's main accent.
@@ -6,6 +12,7 @@ class AccentAlertDialog extends StatelessWidget {
   const AccentAlertDialog({
     super.key,
     this.title,
+    this.headerIcon,
     this.content,
     this.actions,
     this.icon,
@@ -27,6 +34,7 @@ class AccentAlertDialog extends StatelessWidget {
   });
 
   final Widget? title;
+  final IconData? headerIcon;
   final Widget? content;
   final List<Widget>? actions;
   final Widget? icon;
@@ -51,37 +59,48 @@ class AccentAlertDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final titleWidget = _buildTitle(context);
-    final hasAccentHeader = titleWidget is AccentDialogHeader;
+    final hasAccentHeader = titleWidget != null;
+    final currentDepth = ModalDialogDepthScope.of(context);
+    final inheritedAlignment = ModalDialogDepthScope.parentAlignmentOf(context);
+    final resolvedAlignment = alignment ??
+        (currentDepth > 0
+            ? Alignment.center
+            : (inheritedAlignment ?? kDefaultDialogAlignment));
 
-    return AlertDialog(
-      icon: icon,
-      iconPadding: iconPadding,
-      iconColor: iconColor,
-      title: titleWidget,
-      content: content,
-      actions: actions,
-      titlePadding: hasAccentHeader ? EdgeInsets.zero : titlePadding,
-      contentPadding: contentPadding,
-      actionsPadding: actionsPadding,
-      buttonPadding: buttonPadding,
-      backgroundColor: backgroundColor,
-      surfaceTintColor: surfaceTintColor,
-      insetPadding: insetPadding,
-      clipBehavior: clipBehavior ?? Clip.antiAlias,
-      shape: shape ??
-          RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(_defaultRadius),
-          ),
-      alignment: alignment,
-      semanticLabel: semanticLabel,
-      scrollable: scrollable,
+    return ModalDialogDepthScope(
+      depth: currentDepth + 1,
+      parentAlignment: resolvedAlignment,
+      child: AlertDialog(
+        icon: hasAccentHeader ? null : icon,
+        iconPadding: iconPadding,
+        iconColor: iconColor,
+        title: titleWidget,
+        content: content,
+        actions: actions,
+        titlePadding: hasAccentHeader ? EdgeInsets.zero : titlePadding,
+        contentPadding: contentPadding,
+        actionsPadding: actionsPadding,
+        buttonPadding: buttonPadding,
+        backgroundColor: backgroundColor,
+        surfaceTintColor: surfaceTintColor,
+        insetPadding: insetPadding,
+        clipBehavior: clipBehavior ?? Clip.antiAlias,
+        shape: shape ??
+            RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(_defaultRadius),
+            ),
+        alignment: resolvedAlignment,
+        semanticLabel: semanticLabel,
+        scrollable: scrollable,
+      ),
     );
   }
 
   Widget? _buildTitle(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    final resolvedAccent = colorScheme.primary;
-    final accentForeground = colorScheme.onPrimary;
+    final resolvedAccent =
+        LibraryAccentScope.accentOf(context, fallback: colorScheme.primary);
+    const accentForeground = Colors.white;
     final baseTitle = title;
     if (baseTitle == null) {
       return null;
@@ -92,21 +111,40 @@ class AccentAlertDialog extends StatelessWidget {
     if (baseTitle is Text && (baseTitle.data?.trim().isNotEmpty ?? false)) {
       return AccentDialogHeader(
         title: baseTitle.data!,
+        icon: headerIcon ??
+            (icon is Icon ? (icon as Icon).icon : null) ??
+            AppIcons.tabDetails,
         onClose: headerOnClose,
       );
     }
-    return Container(
-      decoration: BoxDecoration(color: resolvedAccent),
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-      child: DefaultTextStyle(
-        style: TextStyle(
-          color: accentForeground,
-          fontSize: 14,
-          fontWeight: FontWeight.w800,
+    return AnimatedLibraryChrome(
+      accent: resolvedAccent,
+      borderBuilder: (animatedAccent, _) => Border(
+        bottom: BorderSide(
+          color: Color.alphaBlend(
+            Colors.white.withValues(alpha: 0.12),
+            animatedAccent,
+          ),
         ),
-        child: IconTheme(
-          data: IconThemeData(color: accentForeground),
-          child: baseTitle,
+      ),
+      child: LibraryPanelHeader(
+        backgroundColor: Colors.transparent,
+        foregroundColor: accentForeground,
+        borderColor: Colors.transparent,
+        onClose: headerOnClose ?? () => Navigator.of(context).maybePop(),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+        child: DefaultTextStyle(
+          style: appPanelTitleStyle,
+          child: IconTheme(
+            data: const IconThemeData(color: accentForeground),
+            child: Row(children: [
+              if (headerIcon != null) ...[
+                Icon(headerIcon, size: 20, color: Colors.white),
+                const SizedBox(width: 10),
+              ],
+              Expanded(child: baseTitle),
+            ]),
+          ),
         ),
       ),
     );

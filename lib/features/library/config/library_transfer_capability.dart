@@ -1,10 +1,7 @@
 import 'package:collectarr_app/core/models/custom_field.dart';
-import 'package:collectarr_app/features/library/domain/library_entity_scope.dart';
 import 'package:collectarr_app/features/library/generic/transferable_field.dart';
 
-const kTransferableMediaFieldKeys = <String>[];
-
-const kTransferableReleaseFieldKeys = <String>[
+const kTransferableEntryDetailFieldKeys = <String>[
   'features',
   'boxSetName',
   'packaging',
@@ -20,18 +17,17 @@ const kTransferablePersonalFieldKeys = <String>[
   'purchaseStore',
   'pricePaidCents',
   'sellPriceCents',
-  'quantity',
   'indexNumber',
   'purchaseDate',
   'soldAt',
 ];
 
 const kDefaultTransferableFieldKeys = <String>[
-  ...kTransferableReleaseFieldKeys,
+  ...kTransferableEntryDetailFieldKeys,
   ...kTransferablePersonalFieldKeys,
 ];
 
-/// Encapsulates transferable field logic when moving copies between editions or media items.
+/// Encapsulates transferable field logic between independent local entries.
 class LibraryTransferCapability {
   const LibraryTransferCapability({
     this.transferableFieldKeys = kDefaultTransferableFieldKeys,
@@ -51,27 +47,13 @@ class LibraryTransferCapability {
     ];
   }
 
-  List<String> fieldKeysForScope(
-      [LibraryEntityScope scope = LibraryEntityScope.copy]) {
-    return switch (scope) {
-      LibraryEntityScope.work => kTransferableMediaFieldKeys,
-      LibraryEntityScope.release => [
-          for (final f in allFields())
-            if (f.scope == LibraryEntityScope.release) f.key,
-        ],
-      LibraryEntityScope.copy => transferableFieldKeys,
-    };
-  }
-
   List<TransferableField> fieldsWithCustomFields(
-    List<CustomFieldDefinition> definitions, {
-    LibraryEntityScope scope = LibraryEntityScope.copy,
-  }) {
+    List<CustomFieldDefinition> definitions,
+  ) {
     return TransferableField.withCustomFields(
       definitions,
       availableFields: allFields(),
-      fieldKeys: fieldKeysForScope(scope),
-      scope: scope,
+      fieldKeys: transferableFieldKeys,
     );
   }
 }

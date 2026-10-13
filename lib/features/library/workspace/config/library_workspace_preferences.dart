@@ -1,5 +1,4 @@
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
-import 'package:collectarr_app/features/library/config/library_browser_navigation_policy.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_field_registry.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
@@ -8,7 +7,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class LibraryWorkspacePreferenceSnapshot {
   const LibraryWorkspacePreferenceSnapshot({
-    this.browserMode = LibraryWorkspaceBrowserMode.work,
     required this.viewMode,
     required this.detailsLayout,
     required this.isSidebarVisible,
@@ -24,7 +22,6 @@ class LibraryWorkspacePreferenceSnapshot {
     required this.columnWidths,
   });
 
-  final LibraryWorkspaceBrowserMode browserMode;
   final LibraryViewMode viewMode;
   final LibraryDetailsLayout detailsLayout;
   final bool isSidebarVisible;
@@ -115,15 +112,8 @@ class LibraryWorkspacePreferences {
         prefs.getDouble(_key('details_width')) ?? defaultDetailsWidth;
     final detailsHeight =
         prefs.getDouble(_key('details_height')) ?? defaultDetailsHeight;
-    final browserMode = _enumByName(
-          LibraryWorkspaceBrowserMode.values,
-          prefs.getString(_key('browser_mode')),
-        ) ??
-        LibraryWorkspaceBrowserMode.work;
     final fields =
-        libraryKindWorkspaceForKind(registration.kind).fieldsForScope(
-      libraryBrowserNavigationPolicy.entityScopeForBrowserMode(browserMode),
-    );
+        libraryKindWorkspaceForKind(registration.kind).workspaceFields;
     final sortRules = _decodeSortRules(
       prefs.getStringList(_key('sort_rules')),
       fields,
@@ -149,17 +139,12 @@ class LibraryWorkspacePreferences {
       fields,
     );
     final snapshot = LibraryWorkspacePreferenceSnapshot(
-      browserMode: browserMode,
       viewMode: _enumByName(
             LibraryViewMode.values,
             prefs.getString(_key('view_mode')),
           ) ??
           defaultViewMode,
-      densityPreset: _enumByName(
-            registration.identity.availableDensityPresets,
-            prefs.getString(_key('density_preset')),
-          ) ??
-          defaultDensityPreset,
+      densityPreset: defaultDensityPreset,
       detailsLayout: _enumByName(
             LibraryDetailsLayout.values,
             prefs.getString(_key('details_layout')),
@@ -197,13 +182,16 @@ class LibraryWorkspacePreferences {
     return snapshot;
   }
 
+  Future<void> writeDetailsLayout(LibraryDetailsLayout layout) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_key('details_layout'), layout.name);
+    _cachedChromeByConfig.remove(registration.identity.preferenceKey(''));
+    _cachedSnapshots.remove(registration.identity.preferenceKey(''));
+  }
+
   Future<void> write(LibraryWorkspacePreferenceSnapshot snapshot) async {
     final fields =
-        libraryKindWorkspaceForKind(registration.kind).fieldsForScope(
-      libraryBrowserNavigationPolicy.entityScopeForBrowserMode(
-        snapshot.browserMode,
-      ),
-    );
+        libraryKindWorkspaceForKind(registration.kind).workspaceFields;
     final normalizedVisibleColumns = _normalizeVisibleColumns(
       snapshot.visibleColumns,
       fields,
@@ -218,7 +206,6 @@ class LibraryWorkspacePreferences {
     );
     final normalizedSortColumn = sortDef?.id.value ?? fields.defaultSort.value;
     final normalizedSnapshot = LibraryWorkspacePreferenceSnapshot(
-      browserMode: snapshot.browserMode,
       viewMode: snapshot.viewMode,
       detailsLayout: snapshot.detailsLayout,
       isSidebarVisible: snapshot.isSidebarVisible,
@@ -241,15 +228,7 @@ class LibraryWorkspacePreferences {
     _cachedSnapshots[registration.identity.preferenceKey('')] =
         normalizedSnapshot;
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(
-      _key('browser_mode'),
-      normalizedSnapshot.browserMode.name,
-    );
     await prefs.setString(_key('view_mode'), normalizedSnapshot.viewMode.name);
-    await prefs.setString(
-      _key('density_preset'),
-      normalizedSnapshot.densityPreset.name,
-    );
     await prefs.setString(
         _key('details_layout'), normalizedSnapshot.detailsLayout.name);
     await prefs.setBool(
@@ -283,7 +262,10 @@ class LibraryWorkspacePreferences {
     );
   }
 
-  String _key(String suffix) => registration.identity.preferenceKey(suffix);
+  // The v1 baseline reads and writes only its own preference keys. It does not
+  // decode earlier layout or scope formats.
+  String _key(String suffix) =>
+      'library.workspace.v1.${registration.identity.preferenceKey(suffix)}';
 
   Set<String> _decodeVisibleColumns(
     List<String>? values,
@@ -301,10 +283,6 @@ class LibraryWorkspacePreferences {
       if (colDef != null) {
         columns.add(colDef.id.value);
       }
-    }
-    final primaryColumn = fields.findColumnDefinition(fields.primaryColumn);
-    if (primaryColumn != null) {
-      columns.add(primaryColumn.id.value);
     }
     return columns.isEmpty
         ? defaultCols.map((column) => column.value).toSet()
@@ -396,10 +374,6 @@ class LibraryWorkspacePreferences {
       if (colDef != null) {
         normalized.add(colDef.id.value);
       }
-    }
-    final primaryColumn = fields.findColumnDefinition(fields.primaryColumn);
-    if (primaryColumn != null) {
-      normalized.add(primaryColumn.id.value);
     }
     return normalized.isEmpty
         ? defaultCols.map((column) => column.value).toSet()

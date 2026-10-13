@@ -8,16 +8,12 @@ class AuthUser {
     this.email,
     this.displayName,
     this.isAdmin = false,
-    this.role = 'viewer',
   });
 
   final String? id;
   final String? email;
   final String? displayName;
   final bool isAdmin;
-  final String role;
-
-  bool get canEditCatalog => role == 'editor' || role == 'admin';
 
   factory AuthUser.fromJson(Map<String, dynamic>? json) {
     if (json == null) {
@@ -28,7 +24,6 @@ class AuthUser {
       email: _string(json['email']),
       displayName: _string(json['display_name']),
       isAdmin: _bool(json['is_admin']),
-      role: _string(json['role']) ?? 'viewer',
     );
   }
 

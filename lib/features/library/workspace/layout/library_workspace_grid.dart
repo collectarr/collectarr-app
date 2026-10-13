@@ -98,12 +98,15 @@ class _LibraryWorkspaceGridState<T> extends State<LibraryWorkspaceGrid<T>> {
 
   @override
   Widget build(BuildContext context) {
-    if (widget.items.isEmpty) {
-      return widget.emptyBuilder(context);
-    }
     final backgroundColor = widget.backgroundColor == kAppGridCanvas
         ? appPalette(context).gridCanvas
         : widget.backgroundColor;
+    if (widget.items.isEmpty) {
+      return ColoredBox(
+        color: backgroundColor,
+        child: widget.emptyBuilder(context),
+      );
+    }
     return LayoutBuilder(
       builder: (context, constraints) {
         final padding = widget.padding.resolve(Directionality.of(context));

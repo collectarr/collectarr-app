@@ -3,38 +3,32 @@ import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
-import 'package:collectarr_app/features/library/workspace/config/library_entity_workspace_projector.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
+import 'package:collectarr_app/features/library/workspace/config/library_target_workspace_projector.dart';
+import 'package:collectarr_app/features/library/workspace/entry/personal_overlay.dart';
+import 'package:collectarr_app/features/library/workspace/entry/workspace_item.dart';
+import 'package:collectarr_app/features/library/domain/library_target_ref.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_field_registry.dart';
 import 'package:collectarr_app/features/library/workspace/table/library_table_layout.dart';
 import 'package:collectarr_app/features/library/workspace/table/media_table_columns.dart';
-import 'package:collectarr_app/features/library/config/library_hierarchy_capability.dart';
 import 'package:collectarr_app/features/library/tracking/library_tracking_topology.dart';
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:flutter/material.dart';
 
-/// Workspace behavior owned by one concrete kind.
+/// Workspace behavior entry by one concrete kind.
 ///
-/// The registry may hold this behind the structural interface, but all field
-/// and projection callbacks are bound to the concrete [TDto] implementation
-/// when the kind contributor constructs the workspace.
-abstract interface class LibraryEntityWorkspace {
-  LibraryEntityScope get scope;
+/// The kind registry holds this interface while field and projection
+/// callbacks remain bound to the concrete [TDto] implementation.
+abstract interface class LibraryTargetWorkspace {
   LibraryFieldRegistry<LibraryWorkspaceDto> get fields;
-  LibraryEntityWorkspaceProjector<LibraryWorkspaceDto> get projector;
+  LibraryTargetWorkspaceProjector<LibraryWorkspaceDto> get projector;
 }
 
-final class TypedLibraryEntityWorkspace<TDto extends LibraryWorkspaceDto>
-    implements LibraryEntityWorkspace {
-  TypedLibraryEntityWorkspace({
-    required this.scope,
+final class TypedLibraryTargetWorkspace<TDto extends LibraryWorkspaceDto>
+    implements LibraryTargetWorkspace {
+  TypedLibraryTargetWorkspace({
     required LibraryFieldRegistry<TDto> fields,
     required this.projector,
   })  : typedFields = fields,
         structuralFields = fields.asStructural();
-
-  @override
-  final LibraryEntityScope scope;
 
   final LibraryFieldRegistry<TDto> typedFields;
 
@@ -44,74 +38,64 @@ final class TypedLibraryEntityWorkspace<TDto extends LibraryWorkspaceDto>
   LibraryFieldRegistry<LibraryWorkspaceDto> get fields => structuralFields;
 
   @override
-  final LibraryEntityWorkspaceProjector<TDto> projector;
+  final LibraryTargetWorkspaceProjector<TDto> projector;
 }
 
 abstract interface class LibraryKindWorkspace {
   LibraryTrackingTopology get trackingTopology;
 
-  LibraryEntityWorkspace workspaceForScope(LibraryEntityScope scope);
+  LibraryTargetWorkspace workspaceForTarget(LibraryTargetRef target);
 
-  LibraryEntityWorkspaceProjector<LibraryWorkspaceDto> projectorForScope(
-      LibraryEntityScope scope);
+  LibraryTargetWorkspaceProjector<LibraryWorkspaceDto> projectorForTarget(
+    LibraryTargetRef target,
+  );
 
   LibraryFieldRegistry<LibraryWorkspaceDto> get fields;
 
-  /// Selects the kind-owned schema from the structural workspace node.
-  ///
-  /// Generic workspace code supplies the node shape; it never interprets
-  /// Music-specific entity names or fields.
-  LibraryFieldRegistry<LibraryWorkspaceDto> fieldsForNode(
-      LibraryEntityRef node);
-  LibraryFieldRegistry<LibraryWorkspaceDto> fieldsForScope(
-    LibraryEntityScope scope,
+  LibraryFieldRegistry<LibraryWorkspaceDto> fieldsForTarget(
+    LibraryTargetRef target,
   );
-  LibraryFieldRegistry<LibraryWorkspaceDto>? fieldsForGroupModeAcrossScopes(
+  LibraryFieldRegistry<LibraryWorkspaceDto> get libraryEntryFields;
+
+  /// Explicit catalog and local-entry choices exposed by library controls.
+  LibraryFieldRegistry<LibraryWorkspaceDto> get workspaceFields;
+
+  LibraryFieldRegistry<LibraryWorkspaceDto>? fieldsForGroupModeAcrossTargets(
       String raw);
-  Object? groupValueAcrossScopes(
+  Object? groupValueAcrossTargets(
     LibraryProjectionItem item,
     String raw,
   );
 
-  /// Resolves the concrete catalog target represented by a structural node
-  /// for lifecycle operations. Kinds may refine a root reference (for
-  /// example, a release node), while generic callers keep the result opaque.
-  CatalogEntityRef trackingTargetForNode(
-    LibraryEntityRef node,
-    CatalogEntityRef rootRef,
-  );
   List<LibraryGroupIdRuntime> get availableGroupIds;
-  List<LibraryGroupIdRuntime> availableGroupIdsForScope(
-    LibraryEntityScope scope,
-  );
-  List<LibrarySortIdRuntime> availableSortIdsForScope(
-    LibraryEntityScope scope,
-  );
-  List<LibraryGroupIdRuntime> get availableGroupIdsForAllScopes;
-  Set<String> get availableSortColumnIdsForAllScopes;
-  LibraryGroupIdRuntime? resolveGroupIdAcrossScopes(String raw);
+  List<LibraryGroupIdRuntime> get libraryEntryGroupIds;
+  List<LibrarySortIdRuntime> get libraryEntrySortIds;
+  List<LibraryGroupIdRuntime> get availableGroupIdsForAllTargets;
+  Set<String> get availableSortColumnIdsForAllTargets;
+  LibraryGroupIdRuntime? resolveGroupIdAcrossTargets(String raw);
 
   Set<LibraryFieldIdRuntime> get defaultTableColumns;
   List<LibraryFieldIdRuntime> orderedTableColumns(
       Set<LibraryFieldIdRuntime> columns,
-      {LibraryEntityRef? node});
+      {LibraryTargetRef? target});
   double tableWidthForColumns(Set<LibraryFieldIdRuntime> columns,
       Map<LibraryFieldIdRuntime, double> customWidths,
-      {LibraryEntityRef? node});
+      {LibraryTargetRef? target});
   double tableColumnWidth(LibraryFieldIdRuntime column,
       Map<LibraryFieldIdRuntime, double> customWidths,
-      {LibraryEntityRef? node});
+      {LibraryTargetRef? target});
   double defaultTableColumnWidth(LibraryFieldIdRuntime column,
-      {LibraryEntityRef? node});
-  String columnLabel(LibraryFieldIdRuntime column, {LibraryEntityRef? node});
+      {LibraryTargetRef? target});
+  String columnLabel(LibraryFieldIdRuntime column, {LibraryTargetRef? target});
   String columnDisplayName(LibraryFieldIdRuntime column,
-      {LibraryEntityRef? node});
+      {LibraryTargetRef? target});
   LibraryTableColumnGroup columnGroup(LibraryFieldIdRuntime column,
-      {LibraryEntityRef? node});
+      {LibraryTargetRef? target});
   String columnGroupLabel(LibraryTableColumnGroup group);
-  bool columnIsNumeric(LibraryFieldIdRuntime column, {LibraryEntityRef? node});
+  bool columnIsNumeric(LibraryFieldIdRuntime column,
+      {LibraryTargetRef? target});
   LibrarySortIdRuntime? columnSort(LibraryFieldIdRuntime column,
-      {LibraryEntityRef? node});
+      {LibraryTargetRef? target});
   Widget buildTableCell(
     LibraryProjectionView item,
     LibraryFieldIdRuntime column,
@@ -129,8 +113,7 @@ abstract interface class LibraryKindWorkspace {
   int compareSubgroupKeys(String left, String right);
 
   LibraryProjectionView project({
-    required LibraryWorkspaceSource source,
-    required LibraryEntityRef node,
+    required LibraryWorkspaceContext source,
   });
 
   void sort(
@@ -158,106 +141,98 @@ abstract interface class LibraryKindWorkspace {
   );
   void validateProjection(LibraryProjectionView item);
   LibraryWorkspaceDto createWorkspaceDto({
-    required LibraryWorkspaceSource source,
-    required LibraryEntityRef node,
+    required WorkspaceItem item,
+    required PersonalOverlay personal,
   });
 }
 
 final class TypedLibraryKindWorkspace<TDto extends LibraryWorkspaceDto>
     implements LibraryKindWorkspace {
   TypedLibraryKindWorkspace({
-    required this.entityWorkspaces,
-    required this.hierarchy,
+    required this.catalogItemWorkspace,
+    required this.libraryEntryWorkspace,
     required this.trackingTopology,
-    this.trackingTargetResolver,
-  }) {
-    final missing = LibraryEntityScope.values
-        .where((scope) => !entityWorkspaces.containsKey(scope))
-        .toList(growable: false);
-    if (missing.isNotEmpty) {
-      throw StateError(
-        'Workspace registry is missing entity scopes: '
-        '${missing.map((scope) => scope.apiValue).join(', ')}.',
-      );
-    }
-    for (final scope in LibraryEntityScope.values) {
-      final workspace = entityWorkspaces[scope]!;
-      if (workspace.scope != scope) {
-        throw StateError(
-          'Workspace registered for ${scope.apiValue} exposes '
-          '${workspace.scope.apiValue}.',
-        );
-      }
-    }
-  }
+  });
 
-  final Map<LibraryEntityScope, LibraryEntityWorkspace> entityWorkspaces;
+  final TypedLibraryTargetWorkspace<TDto> catalogItemWorkspace;
+  final TypedLibraryTargetWorkspace<TDto> libraryEntryWorkspace;
 
   @override
-  LibraryEntityWorkspace workspaceForScope(LibraryEntityScope scope) {
-    final workspace = entityWorkspaces[scope];
-    if (workspace == null) {
-      throw StateError(
-        'No workspace registered for entity scope ${scope.apiValue}.',
-      );
-    }
-    return workspace;
-  }
+  LibraryTargetWorkspace workspaceForTarget(LibraryTargetRef target) =>
+      switch (target) {
+        CatalogTargetRef() => catalogItemWorkspace,
+        EntryTargetRef() => libraryEntryWorkspace,
+      };
 
   @override
-  LibraryEntityWorkspaceProjector<TDto> projectorForScope(
-    LibraryEntityScope scope,
+  LibraryTargetWorkspaceProjector<TDto> projectorForTarget(
+    LibraryTargetRef target,
   ) =>
-      workspaceForScope(scope).projector
-          as LibraryEntityWorkspaceProjector<TDto>;
+      workspaceForTarget(target).projector
+          as LibraryTargetWorkspaceProjector<TDto>;
 
-  LibraryFieldRegistry<TDto> _typedFieldsForScope(
-    LibraryEntityScope scope,
-  ) {
-    final workspace = workspaceForScope(scope);
-    if (workspace is! TypedLibraryEntityWorkspace<TDto>) {
-      throw StateError(
-        'Workspace for ${scope.apiValue} does not expose the registered '
-        'typed DTO $TDto.',
-      );
-    }
-    return workspace.typedFields;
+  LibraryFieldRegistry<TDto> _typedLibraryEntryFields() {
+    return libraryEntryWorkspace.typedFields;
   }
 
-  LibraryFieldRegistry<TDto> _typedFieldsForNode(LibraryEntityRef node) =>
-      _typedFieldsForScope(node.scope);
+  LibraryFieldRegistry<TDto> _typedFieldsForTarget(LibraryTargetRef target) =>
+      switch (target) {
+        CatalogTargetRef() => catalogItemWorkspace.typedFields,
+        EntryTargetRef() => libraryEntryWorkspace.typedFields,
+      };
 
   @override
   LibraryFieldRegistry<LibraryWorkspaceDto> get fields =>
-      workspaceForScope(LibraryEntityScope.work).fields;
-
-  final CatalogEntityRef Function(
-    LibraryEntityRef node,
-    CatalogEntityRef rootRef,
-  )? trackingTargetResolver;
-
-  final LibraryHierarchyCapability hierarchy;
+      catalogItemWorkspace.fields;
 
   @override
   final LibraryTrackingTopology trackingTopology;
 
   @override
-  LibraryFieldRegistry<LibraryWorkspaceDto> fieldsForNode(
-          LibraryEntityRef node) =>
-      workspaceForScope(node.scope).fields;
-
-  @override
-  LibraryFieldRegistry<LibraryWorkspaceDto> fieldsForScope(
-    LibraryEntityScope scope,
+  LibraryFieldRegistry<LibraryWorkspaceDto> fieldsForTarget(
+    LibraryTargetRef target,
   ) =>
-      workspaceForScope(scope).fields;
+      switch (target) {
+        CatalogTargetRef() => catalogItemWorkspace.fields,
+        EntryTargetRef() => libraryEntryWorkspace.fields,
+      };
 
   @override
-  LibraryFieldRegistry<LibraryWorkspaceDto>? fieldsForGroupModeAcrossScopes(
+  LibraryFieldRegistry<LibraryWorkspaceDto> get libraryEntryFields =>
+      libraryEntryWorkspace.fields;
+
+  @override
+  late final LibraryFieldRegistry<LibraryWorkspaceDto> workspaceFields =
+      LibraryFieldRegistry<LibraryWorkspaceDto>(
+    kindNamespace: fields.kindNamespace,
+    fields: _mergeChoices(fields.fields, libraryEntryFields.fields,
+        (definition) => definition.id.value),
+    columns: _mergeChoices(fields.columns, libraryEntryFields.columns,
+        (definition) => definition.id.value),
+    sorts: _mergeChoices(fields.sorts, libraryEntryFields.sorts,
+        (definition) => definition.id.value),
+    groups: _mergeChoices(fields.groups, libraryEntryFields.groups,
+        (definition) => definition.id.value),
+    primaryColumn: fields.primaryColumn,
+    defaultVisibleColumns: fields.defaultVisibleColumns,
+    defaultSort: fields.defaultSort,
+    defaultGroup: fields.defaultGroup,
+  );
+
+  static List<T> _mergeChoices<T>(
+          List<T> catalog, List<T> local, String Function(T) idOf) =>
+      {
+        for (final value in [...catalog, ...local]) idOf(value): value
+      }.values.toList(growable: false);
+
+  @override
+  LibraryFieldRegistry<LibraryWorkspaceDto>? fieldsForGroupModeAcrossTargets(
     String raw,
   ) {
-    for (final scope in LibraryEntityScope.values) {
-      final registry = fieldsForScope(scope);
+    for (final registry in [
+      catalogItemWorkspace.fields,
+      libraryEntryWorkspace.fields,
+    ]) {
       final groupId = registry.decodeGroupId(raw);
       if (registry.findGroupDefinition(groupId) != null) return registry;
     }
@@ -265,18 +240,20 @@ final class TypedLibraryKindWorkspace<TDto extends LibraryWorkspaceDto>
   }
 
   @override
-  Object? groupValueAcrossScopes(
+  Object? groupValueAcrossTargets(
     LibraryProjectionItem item,
     String raw,
   ) {
-    for (final scope in LibraryEntityScope.values) {
-      final registry = _typedFieldsForScope(scope);
+    for (final registry in [
+      catalogItemWorkspace.typedFields,
+      libraryEntryWorkspace.typedFields,
+    ]) {
       final groupId = registry.decodeGroupId(raw);
       final definition = registry.findGroupDefinition(groupId);
       if (definition == null) continue;
       final context = LibraryProjectionContext<TDto>(
-        source: item.source,
-        node: item.node,
+        item: item.source.item,
+        personal: item.source.personal,
         dto: item.dto as TDto,
       );
       return definition.getValue(context);
@@ -285,22 +262,13 @@ final class TypedLibraryKindWorkspace<TDto extends LibraryWorkspaceDto>
   }
 
   @override
-  CatalogEntityRef trackingTargetForNode(
-    LibraryEntityRef node,
-    CatalogEntityRef rootRef,
-  ) =>
-      trackingTargetResolver?.call(node, rootRef) ?? rootRef;
-
-  @override
   List<LibraryGroupIdRuntime> get availableGroupIds => [
         for (final definition in fields.groups) definition.id,
       ];
 
   @override
-  List<LibraryGroupIdRuntime> availableGroupIdsForScope(
-    LibraryEntityScope scope,
-  ) {
-    final scopedFields = _typedFieldsForScope(scope);
+  List<LibraryGroupIdRuntime> get libraryEntryGroupIds {
+    final scopedFields = _typedLibraryEntryFields();
     final allGroups = [
       for (final definition in scopedFields.groups) definition.id,
     ];
@@ -308,20 +276,20 @@ final class TypedLibraryKindWorkspace<TDto extends LibraryWorkspaceDto>
   }
 
   @override
-  List<LibraryGroupIdRuntime> get availableGroupIdsForAllScopes {
+  List<LibraryGroupIdRuntime> get availableGroupIdsForAllTargets {
     final seenIds = <String>{};
     return [
-      for (final scope in LibraryEntityScope.values)
-        for (final groupId in availableGroupIdsForScope(scope))
-          if (seenIds.add(groupId.value)) groupId,
+      for (final groupId in [
+        ...availableGroupIds,
+        ...libraryEntryGroupIds,
+      ])
+        if (seenIds.add(groupId.value)) groupId,
     ];
   }
 
   @override
-  List<LibrarySortIdRuntime> availableSortIdsForScope(
-    LibraryEntityScope scope,
-  ) {
-    final scopedFields = _typedFieldsForScope(scope);
+  List<LibrarySortIdRuntime> get libraryEntrySortIds {
+    final scopedFields = _typedLibraryEntryFields();
     final allSorts = [
       for (final definition in scopedFields.sorts) definition.id
     ];
@@ -329,15 +297,20 @@ final class TypedLibraryKindWorkspace<TDto extends LibraryWorkspaceDto>
   }
 
   @override
-  Set<String> get availableSortColumnIdsForAllScopes => {
-        for (final scope in LibraryEntityScope.values)
-          for (final sort in availableSortIdsForScope(scope)) sort.value,
+  Set<String> get availableSortColumnIdsForAllTargets => {
+        for (final sort in [
+          ...fields.sorts.map((sort) => sort.id),
+          ...libraryEntrySortIds,
+        ])
+          sort.value,
       };
 
   @override
-  LibraryGroupIdRuntime? resolveGroupIdAcrossScopes(String raw) {
-    for (final scope in LibraryEntityScope.values) {
-      final registry = fieldsForScope(scope);
+  LibraryGroupIdRuntime? resolveGroupIdAcrossTargets(String raw) {
+    for (final registry in [
+      catalogItemWorkspace.fields,
+      libraryEntryWorkspace.fields,
+    ]) {
       final definition = registry.findGroupDefinition(
         registry.decodeGroupId(raw),
       );
@@ -350,16 +323,17 @@ final class TypedLibraryKindWorkspace<TDto extends LibraryWorkspaceDto>
   Set<LibraryFieldIdRuntime> get defaultTableColumns =>
       fields.defaultVisibleColumns;
 
-  LibraryFieldRegistry<TDto> _fieldsForOptionalNode(LibraryEntityRef? node) =>
-      node == null
-          ? _typedFieldsForScope(LibraryEntityScope.work)
-          : _typedFieldsForNode(node);
+  LibraryFieldRegistry<TDto> _fieldsForOptionalTarget(
+          LibraryTargetRef? target) =>
+      target == null
+          ? catalogItemWorkspace.typedFields
+          : _typedFieldsForTarget(target);
 
   @override
   List<LibraryFieldIdRuntime> orderedTableColumns(
       Set<LibraryFieldIdRuntime> columns,
-      {LibraryEntityRef? node}) {
-    final schema = _fieldsForOptionalNode(node);
+      {LibraryTargetRef? target}) {
+    final schema = _fieldsForOptionalTarget(target);
     return orderedLibraryTableColumns(
       columns: columns,
       defaultColumns: schema.defaultVisibleColumns,
@@ -369,8 +343,8 @@ final class TypedLibraryKindWorkspace<TDto extends LibraryWorkspaceDto>
   @override
   double tableWidthForColumns(Set<LibraryFieldIdRuntime> columns,
       Map<LibraryFieldIdRuntime, double> customWidths,
-      {LibraryEntityRef? node}) {
-    final schema = _fieldsForOptionalNode(node);
+      {LibraryTargetRef? target}) {
+    final schema = _fieldsForOptionalTarget(target);
     return standardMediaTableWidthForColumns(
       fields: schema,
       columns: columns,
@@ -381,35 +355,36 @@ final class TypedLibraryKindWorkspace<TDto extends LibraryWorkspaceDto>
   @override
   double tableColumnWidth(LibraryFieldIdRuntime column,
       Map<LibraryFieldIdRuntime, double> customWidths,
-      {LibraryEntityRef? node}) {
+      {LibraryTargetRef? target}) {
     return standardMediaTableColumnWidth(
-        _fieldsForOptionalNode(node), column, customWidths);
+        _fieldsForOptionalTarget(target), column, customWidths);
   }
 
   @override
   double defaultTableColumnWidth(LibraryFieldIdRuntime column,
-      {LibraryEntityRef? node}) {
+      {LibraryTargetRef? target}) {
     return defaultPlannedMediaTableColumnWidth(
-        _fieldsForOptionalNode(node), column);
+        _fieldsForOptionalTarget(target), column);
   }
 
   @override
-  String columnLabel(LibraryFieldIdRuntime column, {LibraryEntityRef? node}) {
+  String columnLabel(LibraryFieldIdRuntime column, {LibraryTargetRef? target}) {
     return standardMediaTableColumnLabelForType(
-        _fieldsForOptionalNode(node), column);
+        _fieldsForOptionalTarget(target), column);
   }
 
   @override
   String columnDisplayName(LibraryFieldIdRuntime column,
-      {LibraryEntityRef? node}) {
+      {LibraryTargetRef? target}) {
     return standardMediaTableColumnDisplayNameForType(
-        _fieldsForOptionalNode(node), column);
+        _fieldsForOptionalTarget(target), column);
   }
 
   @override
   LibraryTableColumnGroup columnGroup(LibraryFieldIdRuntime column,
-      {LibraryEntityRef? node}) {
-    return standardMediaTableColumnGroup(_fieldsForOptionalNode(node), column);
+      {LibraryTargetRef? target}) {
+    return standardMediaTableColumnGroup(
+        _fieldsForOptionalTarget(target), column);
   }
 
   @override
@@ -418,15 +393,17 @@ final class TypedLibraryKindWorkspace<TDto extends LibraryWorkspaceDto>
   }
 
   @override
-  bool columnIsNumeric(LibraryFieldIdRuntime column, {LibraryEntityRef? node}) {
+  bool columnIsNumeric(LibraryFieldIdRuntime column,
+      {LibraryTargetRef? target}) {
     return standardMediaTableColumnIsNumeric(
-        _fieldsForOptionalNode(node), column);
+        _fieldsForOptionalTarget(target), column);
   }
 
   @override
   LibrarySortIdRuntime? columnSort(LibraryFieldIdRuntime column,
-      {LibraryEntityRef? node}) {
-    return standardMediaTableColumnSort(_fieldsForOptionalNode(node), column);
+      {LibraryTargetRef? target}) {
+    return standardMediaTableColumnSort(
+        _fieldsForOptionalTarget(target), column);
   }
 
   @override
@@ -436,7 +413,7 @@ final class TypedLibraryKindWorkspace<TDto extends LibraryWorkspaceDto>
   ) {
     validateProjection(item);
     return standardMediaTableCellTyped(
-      _typedFieldsForNode(item.node),
+      _typedFieldsForTarget(item.target),
       item,
       column,
     );
@@ -450,19 +427,19 @@ final class TypedLibraryKindWorkspace<TDto extends LibraryWorkspaceDto>
   ) {
     validateProjection(left);
     validateProjection(right);
-    final nodeFields = _typedFieldsForNode(left.node);
+    final targetFields = _typedFieldsForTarget(left.target);
     for (final rule in rules) {
-      final sortDef = nodeFields.findSortDefinition(rule.sortId);
+      final sortDef = targetFields.findSortDefinition(rule.sortId);
       if (sortDef != null) {
         final result = sortDef.compare(
           LibraryProjectionContext<TDto>(
-            source: left.source,
-            node: left.node,
+            item: left.source.item,
+            personal: left.source.personal,
             dto: left.dto as TDto,
           ),
           LibraryProjectionContext<TDto>(
-            source: right.source,
-            node: right.node,
+            item: right.source.item,
+            personal: right.source.personal,
             dto: right.dto as TDto,
           ),
         );
@@ -480,13 +457,13 @@ final class TypedLibraryKindWorkspace<TDto extends LibraryWorkspaceDto>
     LibraryGroupIdRuntime groupId,
   ) {
     validateProjection(item);
-    final nodeFields = _typedFieldsForNode(item.node);
-    final subgroupKey = nodeFields.findGroupDefinition(groupId)?.subgroupKey;
+    final targetFields = _typedFieldsForTarget(item.target);
+    final subgroupKey = targetFields.findGroupDefinition(groupId)?.subgroupKey;
     if (subgroupKey == null) return null;
     return subgroupKey(
       LibraryProjectionContext<TDto>(
-        source: item.source,
-        node: item.node,
+        item: item.source.item,
+        personal: item.source.personal,
         dto: item.dto as TDto,
       ),
     );
@@ -499,13 +476,14 @@ final class TypedLibraryKindWorkspace<TDto extends LibraryWorkspaceDto>
 
   @override
   LibraryProjectionView project({
-    required LibraryWorkspaceSource source,
-    required LibraryEntityRef node,
+    required LibraryWorkspaceContext source,
   }) {
     return LibraryProjectionItem<TDto>(
       source: source,
-      node: node,
-      dto: createWorkspaceDto(source: source, node: node) as TDto,
+      dto: createWorkspaceDto(
+        item: source.item,
+        personal: source.personal,
+      ) as TDto,
     );
   }
 
@@ -519,8 +497,8 @@ final class TypedLibraryKindWorkspace<TDto extends LibraryWorkspaceDto>
       validateProjection(item);
     }
     if (items.isEmpty) return;
-    final nodeFields = _typedFieldsForNode(items.first.node);
-    nodeFields.sortEntries(items, sortId, ascending: ascending);
+    final targetFields = _typedFieldsForTarget(items.first.target);
+    targetFields.sortEntries(items, sortId, ascending: ascending);
   }
 
   @override
@@ -531,8 +509,8 @@ final class TypedLibraryKindWorkspace<TDto extends LibraryWorkspaceDto>
   ) {
     validateProjection(left);
     validateProjection(right);
-    final nodeFields = _typedFieldsForNode(left.node);
-    return nodeFields.compareEntries(left, right, sortId);
+    final targetFields = _typedFieldsForTarget(left.target);
+    return targetFields.compareEntries(left, right, sortId);
   }
 
   @override
@@ -541,13 +519,13 @@ final class TypedLibraryKindWorkspace<TDto extends LibraryWorkspaceDto>
     LibraryGroupIdRuntime groupId,
   ) {
     validateProjection(item);
-    final nodeFields = _typedFieldsForNode(item.node);
-    return nodeFields.getGroupValue(item, groupId);
+    final targetFields = _typedFieldsForTarget(item.target);
+    return targetFields.getGroupValue(item, groupId);
   }
 
   @override
   bool groupModeSupportsCompletion(LibraryGroupIdRuntime groupId) {
-    return fieldsForGroupModeAcrossScopes(groupId.value)
+    return fieldsForGroupModeAcrossTargets(groupId.value)
             ?.findGroupDefinition(groupId)
             ?.sequenceValue !=
         null;
@@ -559,8 +537,8 @@ final class TypedLibraryKindWorkspace<TDto extends LibraryWorkspaceDto>
     LibraryGroupIdRuntime groupId,
   ) {
     validateProjection(item);
-    final nodeFields = _typedFieldsForNode(item.node);
-    return nodeFields.getGroupSequenceValue(item, groupId);
+    final targetFields = _typedFieldsForTarget(item.target);
+    return targetFields.getGroupSequenceValue(item, groupId);
   }
 
   @override
@@ -569,8 +547,8 @@ final class TypedLibraryKindWorkspace<TDto extends LibraryWorkspaceDto>
     LibraryFieldIdRuntime columnId,
   ) {
     validateProjection(item);
-    final nodeFields = _typedFieldsForNode(item.node);
-    return nodeFields.getColumnValue(item, columnId);
+    final targetFields = _typedFieldsForTarget(item.target);
+    return targetFields.getColumnValue(item, columnId);
   }
 
   @override
@@ -585,21 +563,12 @@ final class TypedLibraryKindWorkspace<TDto extends LibraryWorkspaceDto>
 
   @override
   LibraryWorkspaceDto createWorkspaceDto({
-    required LibraryWorkspaceSource source,
-    required LibraryEntityRef node,
+    required WorkspaceItem item,
+    required PersonalOverlay personal,
   }) {
-    final releaseState = node.scope == LibraryEntityScope.release
-        ? LibraryReleaseState(
-            isOwned: source.isOwned,
-            isWishlisted: source.isWishlisted,
-            isTracked: source.isTracked,
-            trackingSummary: source.trackingSummary,
-          )
-        : null;
-    return projectorForScope(node.scope).project(
-      source: source,
-      entity: node,
-      releaseState: releaseState,
+    return projectorForTarget(item.target).project(
+      item: item,
+      personal: personal,
     );
   }
 }

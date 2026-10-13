@@ -1,6 +1,5 @@
 import 'add_contract.dart';
 import 'dart:typed_data';
-import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -19,10 +18,9 @@ import 'fields_contract.dart';
 import 'group_contract.dart';
 import 'kind_identity_contract.dart';
 import 'media_edit_contract.dart';
-import 'owned_edit_contract.dart';
+import 'entry_edit_contract.dart';
 import 'overrides/override_contract.dart';
 import 'persistence_contract.dart';
-import 'provider_integration_contract.dart';
 import 'release_edit_contract.dart';
 import 'repository_contract.dart';
 import 'sort_contract.dart';
@@ -57,31 +55,6 @@ void main() {
     ),
     actualFields: (_) => const ['id', 'ignoredField'],
   );
-
-  test('ComicWorkDto fields are explicitly classified', () {
-    final source = File(
-      'lib/core/api/generated/collectarr_api.models.dart',
-    ).readAsStringSync();
-    validateCoreDtoFieldAdoption(
-      source: source,
-      policy: CoreFieldAdoptionPolicy(
-        dtoName: 'ComicWorkDto',
-        mapped: {
-          'id',
-          'title',
-          'contributors',
-          'description',
-          'firstPublicationDate',
-          'originalLanguage',
-          'sortTitle',
-          'subtitle',
-          'issues',
-          'kind',
-        },
-        intentionallyIgnored: const {},
-      ),
-    );
-  });
 
   test('Core field adoption rejects an unclassified DTO field', () {
     const source = '''
@@ -180,7 +153,7 @@ class FixtureDto {
     name: 'fixture',
     create: () => 1,
     vocabularies: (_) => const {
-      'status': ['owned', 'wanted']
+      'status': ['entry', 'wanted']
     },
   );
 
@@ -205,18 +178,11 @@ class FixtureDto {
     fieldIds: (_, __) => const ['format'],
   );
 
-  defineOwnedEditContract<int>(
+  defineEntryEditContract<int>(
     name: 'fixture',
     create: () => 1,
-    tabIds: (_) => const ['owned'],
+    tabIds: (_) => const ['entry'],
     fieldIds: (_, __) => const ['condition'],
-  );
-
-  defineProviderIntegrationContract<int>(
-    name: 'fixture',
-    create: () => 1,
-    providerIds: (_) => const ['fixture-provider'],
-    load: (_, __) async => const Object(),
   );
 
   defineTrackingContract<int>(

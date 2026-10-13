@@ -1,56 +1,32 @@
 import 'package:collectarr_app/core/db/local_database.dart';
+import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/test/helpers/test_data_factories.dart';
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
-import 'package:collectarr_app/features/library/kinds/music/music_physical_media_formats.dart';
-import 'package:collectarr_app/features/library/kinds/music/edit/music_release_edit_dialog.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_ids.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_release.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_release_group.dart';
+import 'package:collectarr_app/features/library/kinds/music/config/music_physical_media_formats.dart';
+import 'package:collectarr_app/features/library/kinds/music/edit/music_album_edit_dialog.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_album.dart';
+import 'package:collectarr_app/features/library/kinds/music/edit/music_album_edit_schema.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:drift/native.dart';
+import 'package:collectarr_app/features/library/ui/primitives/library_form_controls.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  test('music release edit never falls back from a stale release id', () {
-    final group = MusicReleaseGroup(
-      id: MusicReleaseGroupId('group-edit'),
-      title: 'Album',
-      releases: [
-        MusicRelease(
-          id: const MusicReleaseId('release-primary'),
-          releaseGroupId: const MusicReleaseGroupId('group-edit'),
-          title: 'Primary',
-        ),
-      ],
+  test('music edit header uses album and artist without an Edit prefix', () {
+    final title = musicAlbumEditSchema.title!(
+      MusicAlbum(
+        title: 'Test Album',
+        artist: 'Test Artist',
+      ),
     );
 
-    expect(
-      () => resolveMusicReleaseForEdit(
-        group,
-        requestedReleaseId: 'release-stale',
-      ),
-      throwsStateError,
-    );
-    expect(
-      () => resolveMusicReleaseForEdit(
-        group,
-        requestedReleaseId: null,
-      ),
-      throwsStateError,
-    );
-    expect(
-      resolveMusicReleaseForEdit(
-        group,
-        requestedReleaseId: null,
-        editPrimaryRelease: true,
-      ).id.value,
-      'release-primary',
-    );
+    expect(title, 'Test Album / Test Artist');
+    expect(title, isNot(startsWith('Edit')));
   });
 
   testWidgets('music links tab exposes editable external links',
@@ -64,6 +40,7 @@ void main() {
     addTearDown(db.close);
 
     final type = const MusicRegistration();
+    var nextRequests = 0;
     final item = testCatalogItemWithKindMetadata(
       testCatalogItem(
         id: 'music-1',
@@ -74,9 +51,9 @@ void main() {
     final request = LibraryEditDialogRequest(
       type: type,
       item: CatalogSearchCandidate.fromItem(item),
-      ownedItem: null,
+      libraryEntry: null,
       accent: Colors.deepPurple,
-      editPrimaryRelease: true,
+      onNext: () => nextRequests++,
     );
 
     await tester.pumpWidget(
@@ -90,7 +67,7 @@ void main() {
                   await showDialog<void>(
                     context: context,
                     builder: (context) =>
-                        buildMusicReleaseLibraryEditDialog(context, request),
+                        buildMusicAlbumLibraryEditDialog(context, request),
                   );
                 },
                 child: const Text('Open'),
@@ -104,30 +81,51 @@ void main() {
     await tester.tap(find.text('Open'));
     await tester.pumpAndSettle();
 
+    final dialogSurface = find.byKey(const ValueKey('library-dialog-surface'));
+    expect(tester.getSize(dialogSurface).width, closeTo(1152, 1));
+    expect(tester.getTopLeft(dialogSurface).dy, closeTo(10, 1));
+
+    expect(find.text('Credits'), findsOneWidget);
+    expect(find.text('Classical'), findsNothing);
+    expect(find.text('People'), findsNothing);
+
+    final titleInput = find.byType(TextFormField).first;
+    await tester.enterText(titleInput, 'Unsaved music title');
+    await tester.tap(find.text('Next'));
+    await tester.pumpAndSettle();
+    expect(nextRequests, 0);
+    expect(find.text('Unsaved changes'), findsOneWidget);
+    await tester.tap(find.text('Keep editing'));
+    await tester.pumpAndSettle();
+    expect(find.text('Unsaved music title'), findsOneWidget);
+    await tester.tap(find.text('Next'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Discard changes'));
+    await tester.pumpAndSettle();
+    expect(nextRequests, 1);
+
     final coversTab = find.text('Covers').last;
     await tester.ensureVisible(coversTab);
     await tester.tap(coversTab);
     await tester.pumpAndSettle();
     expect(
-      find.byKey(const ValueKey('musicReleaseCoverImageUrlField')),
-      findsOneWidget,
+      find.byKey(const ValueKey('musicAlbumCoverImageUrlField')),
+      findsNothing,
     );
+    expect(find.text('Find Online'), findsNWidgets(2));
 
     final linksTab = find.text('Links').last;
     await tester.ensureVisible(linksTab);
     await tester.tap(linksTab);
     await tester.pumpAndSettle();
-    expect(find.text('New Link'), findsOneWidget);
-    await tester.tap(find.text('New Link'));
+    expect(find.text('Add Link'), findsOneWidget);
+    await tester.tap(find.text('Add Link'));
     await tester.pumpAndSettle();
     expect(
       find.byWidgetPredicate(
         (widget) =>
-            widget is TextFormField &&
-            widget.key is ValueKey<String> &&
-            (widget.key as ValueKey<String>)
-                .value
-                .startsWith('musicReleaseLinkUrl_'),
+            widget is LibraryTextFormControl &&
+            widget.decoration?.hintText == 'https://example.com',
       ),
       findsOneWidget,
     );
@@ -145,20 +143,36 @@ void main() {
     addTearDown(db.close);
 
     final type = const MusicRegistration();
-    final item = testCatalogItemWithKindMetadata(
-      testCatalogItem(
-        id: 'music-vinyl',
-        kind: 'music',
-        title: 'Dark Side of the Moon',
-        physicalFormat: 'Vinyl',
-      ),
+    final item = CatalogItemDto.raw(
+      id: 'music-vinyl',
+      mediaKind: CatalogMediaKind.music,
+      kindData: const {
+        'title': 'Dark Side of the Moon',
+        'revision': 1,
+        'artist_credits': <Map<String, Object?>>[],
+        'genres': <String>[],
+        'extra': <String>[],
+        'credits': <Map<String, Object?>>[],
+        'external_links': <Map<String, Object?>>[],
+        'discs': [
+          {
+            'id': 'd-1',
+            'disc_number': 1,
+            'format': 'Vinyl (12" LP)',
+            'format_family': 'vinyl',
+            'sound_types': <String>[],
+            'recording_locations': <String>[],
+            'credits': <Map<String, Object?>>[],
+            'tracks': <Map<String, Object?>>[],
+          },
+        ],
+      },
     );
     final request = LibraryEditDialogRequest(
       type: type,
       item: CatalogSearchCandidate.fromItem(item),
-      ownedItem: null,
+      libraryEntry: null,
       accent: Colors.deepPurple,
-      editPrimaryRelease: true,
       physicalFormats: musicPhysicalMediaFormats,
       customFieldDefinitions: [
         CustomFieldDefinition(
@@ -181,7 +195,7 @@ void main() {
                   await showDialog<void>(
                     context: context,
                     builder: (context) =>
-                        buildMusicReleaseLibraryEditDialog(context, request),
+                        buildMusicAlbumLibraryEditDialog(context, request),
                   );
                 },
                 child: const Text('Open'),
@@ -194,8 +208,10 @@ void main() {
 
     await tester.tap(find.text('Open'));
     await tester.pumpAndSettle();
+    await tester.tap(find.text('Main').last);
+    await tester.pumpAndSettle();
 
     expect(tester.takeException(), isNull);
-    expect(find.text('Vinyl'), findsWidgets);
+    expect(find.text('Format'), findsOneWidget);
   });
 }

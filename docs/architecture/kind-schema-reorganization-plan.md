@@ -1,10 +1,9 @@
 # Kind Form and Workspace Schema Reorganization Plan
 
-> **Superseded:** this plan records the former Work/Release/Copy implementation
-> and is not the current target. The all-kind Catalog Item v1 cutover in
-> [catalog-item-v1-cutover.md](catalog-item-v1-cutover.md) replaces its scopes,
-> preference migration, and completion claims. Do not use this document as
-> evidence that the Catalog Item v1 cutover is complete.
+> Historical plan: this Work/Release schema organization has been superseded by
+> the flattened Catalog Item + local entry cutover. The old scope tables and
+> progress notes below describe the 2026-09 snapshot only; they do not describe
+> active App architecture. Use current status and field ledgers for decisions.
 
 ## Goal and boundaries
 
@@ -18,15 +17,15 @@ Keep these three concepts distinct:
 | --- | --- | --- |
 | Form field spec | Input control, label, validation, value binding | Release barcode in Add/Edit |
 | Workspace field | Projected value used by a view | Release barcode column/filter value |
-| Domain property | Stored semantic value | `MusicRelease` barcode |
+| Domain property | Stored semantic value | Music Catalog Item barcode (historical App property name: `MusicRelease`) |
 
 The first two may share a semantic name, but they do not need the same class or identical identifier. A projected or computed workspace field may have no editable form counterpart.
 
 ## Current starting point
 
 - Add and dedicated Edit share typed, scope-specific form field definitions for all nine kinds. The older combined Core-candidate editor remains a separate correction flow: it edits `CatalogSearchCandidate` transport values and preserves custom links, images, relations, and copy/tracking panels; the typed forms edit persisted kind entities. A field label shared across those flows does not make their values or write targets identical.
-- Music now has separate Release Group, Release, and Owned Copy field catalogs and schemas, with scope-aware preference migration for the split release date and track count IDs.
-- All nine kinds now expose explicit Work, Release, and Copy workspace schemas. The eight non-Music aggregate `*_fields.dart` files and the generic `forScope(...)` materializer have been removed.
+- Music now uses one Catalog Item field catalog and one Collection Item field catalog. Its previous Release Group/Release schemas and scope-aware preference codec have been removed.
+- The eight non-Music kinds expose explicit Work, Release, and Copy schemas. Music now exposes Catalog Item and Copy schemas. The eight non-Music aggregate `*_fields.dart` files and the generic `forScope(...)` materializer have been removed.
 
 ## Target layout
 
@@ -65,7 +64,7 @@ Keep reusable formatting and simple field factories under a kind-local `workspac
 | Board Game | Game/work | Edition | Owned game | Introduce a declarative Add field schema or an explicit reusable form spec; preserve components and personal completeness data. |
 | Movie | Movie/work | Edition/release | Owned movie | Finish the existing typed pilot; separate its combined value object and older combined Work editor where scopes differ. |
 | TV | Series/work | TV release | Owned TV | Consolidate the existing typed form pilot; preserve seasons/episodes and tracking as separate nested flows. |
-| Music | Release Group/work | Release | Owned Copy | Separate the three workspace field catalogs; share Add/Edit specs at the matching level while keeping mediums, discs, tracks, listening, and copy media nested. |
+| Music | Album Catalog Item | — | Collection Item | Keep album facts on one flat Catalog Item; retain discs, tracks, credits, listening events, and personal copy details at their actual child or personal target. |
 
 Use existing domain model names where they differ from these UI labels. Do not rename domain classes solely to make folder names uniform.
 
@@ -93,9 +92,9 @@ The live per-kind ledger is recorded in [kind-schema-reorganization-inventory.md
 
 Catalog Add and dedicated Edit forms use typed scope values and the same kind-owned field specs for all nine kinds. The older combined Core-candidate edit flow was reviewed kind by kind. It edits the transport candidate used for Core correction proposals and also owns legacy relations, links, images, and the combined copy/tracking shell; dedicated typed Edit forms update the persisted Work or Release domain entity. These are different models and write operations, so sharing a `LibraryFieldSpec<TDraft>` across them would require a new adapter model and would blur their persistence boundaries. Keep the Core-candidate flow kind-owned through its edit-session contract; do not add an alias or a second field catalog to the typed Add/Edit forms. Copy and tracking remain separate from catalog metadata.
 
-### 3. Make Music the explicit-workspace pilot — complete
+### 3. Flatten Music workspace — complete
 
-Release Group, Release, and Owned Copy now have separate field catalogs next to their scoped schemas. Columns, sorts, and groups are composed by those scoped schema files, and the aggregate `MusicWorkspaceFieldScope`/`musicFieldForScope` catalog is deleted. Title, artist, status, and cover retain shared IDs because they have the same role in each projected entity; Release Group and Release date/track count have distinct IDs because the values differ. The Music preference codec maps the old date/count IDs according to the saved browser scope. Release Group aggregate listening stays derived and read-only; Release listening and Copy personal data stay at their own scopes.
+Music now exposes one Catalog Item projection and one Collection Item projection. Its Release Group model, Release workspace projection, old field schemas, and preference codec were removed. Album dates, identifiers, credits, covers, tracks, and listening history are attached to the concrete Catalog Item; personal copy data remains on Collection Items. The generic root-scope type still uses `work` for kinds that have not completed the shared cutover.
 
 ### 4. Migrate the remaining workspace schemas — complete
 
@@ -103,7 +102,7 @@ Book, Game, Board Game, Comic, Manga, Movie, TV, and Anime each now define Work,
 
 ### 5. Complete Add/Edit forms for the remaining kinds — complete
 
-All nine kinds have typed catalog form values, kind-owned field specs, and adapters used by Add and dedicated Edit at matching Work/Release scopes. A source audit confirms each kind's Add schema and dedicated Edit schemas import the same `*_catalog_field_specs.dart`. The older combined Core-candidate editor stays isolated because it edits a different transport model and supports Core correction proposals; kind-specific relations and nested editors remain with their kind. Music's Release Group, Release, and Copy forms remain separate; tracklists and copy media are not flattened into a generic field array.
+At the 2026-09 snapshot, all nine kinds had typed catalog form values and kind-owned field specs. The eight non-Music kinds still had Work/Release paths at that time. This historical state was superseded by the flattened Catalog Item implementation; Music's tracks, credits, and discs remain kind-owned contained data.
 
 ### 6. Remove superseded paths — complete
 

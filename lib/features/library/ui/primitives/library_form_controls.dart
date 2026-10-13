@@ -1,0 +1,305 @@
+import 'package:collectarr_app/features/library/ui/library_metrics.dart';
+import 'package:collectarr_app/core/models/partial_date.dart';
+import 'package:collectarr_app/ui/library_accent_scope.dart';
+import 'package:collectarr_app/ui/theme/app_theme.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+
+/// Compact external labels shared by catalog and personal forms.
+class LibraryFormField extends StatelessWidget {
+  const LibraryFormField(
+      {super.key,
+      required this.label,
+      required this.child,
+      this.action,
+      this.labelStyle});
+  final String label;
+  final Widget child;
+  final Widget? action;
+  final TextStyle? labelStyle;
+
+  @override
+  Widget build(BuildContext context) => Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          SizedBox(
+            height: 20,
+            child: Row(children: [
+              Expanded(
+                  child: Text(label,
+                      style: TextStyle(
+                        color: appPalette(context).textMuted,
+                        fontSize: 12,
+                        fontWeight: kAppBoldFontWeight,
+                        height: 20 / 12,
+                        letterSpacing: 0,
+                      ).merge(labelStyle))),
+              if (action != null) action!,
+            ]),
+          ),
+          const SizedBox(height: 1),
+          child,
+        ],
+      );
+}
+
+/// Shared unlabelled text input used inside the common labelled form chrome.
+/// Callers own field meaning and draft updates; this owns input appearance.
+class LibraryTextFormControl extends StatelessWidget {
+  const LibraryTextFormControl({
+    super.key,
+    this.controller,
+    this.initialValue,
+    this.validator,
+    this.onChanged,
+    this.decoration,
+    this.minimumHeight = LibraryMetrics.defaultFieldHeight,
+    this.keyboardType,
+    this.inputFormatters,
+    this.minLines,
+    this.maxLines = 1,
+    this.expands = false,
+    this.obscureText = false,
+    this.enabled = true,
+    this.readOnly = false,
+    this.autofocus = false,
+    this.focusNode,
+    this.style,
+    this.textAlign = TextAlign.start,
+    this.textCapitalization = TextCapitalization.none,
+    this.textInputAction,
+    this.onFieldSubmitted,
+    this.cursorColor,
+  }) : assert(controller == null || initialValue == null);
+
+  final TextEditingController? controller;
+  final String? initialValue;
+  final String? Function(String?)? validator;
+  final ValueChanged<String>? onChanged;
+  final InputDecoration? decoration;
+  final double minimumHeight;
+  final TextInputType? keyboardType;
+  final List<TextInputFormatter>? inputFormatters;
+  final int? minLines;
+  final int? maxLines;
+  final bool expands;
+  final bool obscureText;
+  final bool enabled;
+  final bool readOnly;
+  final bool autofocus;
+  final FocusNode? focusNode;
+  final TextStyle? style;
+  final TextAlign textAlign;
+  final TextCapitalization textCapitalization;
+  final TextInputAction? textInputAction;
+  final ValueChanged<String>? onFieldSubmitted;
+  final Color? cursorColor;
+
+  @override
+  Widget build(BuildContext context) {
+    final effectiveAccent = LibraryAccentScope.maybeOf(context)?.accent ??
+        Theme.of(context).textSelectionTheme.cursorColor ??
+        appPalette(context).accent;
+    final effectiveCursorColor = cursorColor ?? effectiveAccent;
+    return TextFormField(
+      controller: controller,
+      cursorColor: effectiveCursorColor,
+      initialValue: initialValue,
+      focusNode: focusNode,
+      autofocus: autofocus,
+      validator: validator,
+      onChanged: onChanged,
+      onFieldSubmitted: onFieldSubmitted,
+      keyboardType: keyboardType,
+      inputFormatters: inputFormatters,
+      minLines: minLines,
+      maxLines: maxLines,
+      expands: expands,
+      obscureText: obscureText,
+      enabled: enabled,
+      readOnly: readOnly,
+      style: style ?? context.libraryTextTheme.controlText,
+      textAlign: textAlign,
+      textAlignVertical: TextAlignVertical.center,
+      textCapitalization: textCapitalization,
+      textInputAction: textInputAction,
+      decoration: (decoration ?? const InputDecoration()).copyWith(
+        constraints: BoxConstraints(minHeight: minimumHeight),
+        contentPadding: (maxLines == 1 &&
+                minimumHeight == LibraryMetrics.defaultFieldHeight)
+            ? const EdgeInsets.symmetric(horizontal: 7, vertical: 6)
+            : decoration?.contentPadding,
+      ),
+    );
+  }
+}
+
+class LibraryFormGroup extends StatelessWidget {
+  const LibraryFormGroup({super.key, required this.title, required this.child});
+  final String title;
+  final Widget child;
+  @override
+  Widget build(BuildContext context) => Stack(children: [
+        Padding(
+            padding: const EdgeInsets.only(top: 9),
+            child: Container(
+              width: double.infinity,
+              padding: const EdgeInsets.fromLTRB(10, 19, 10, 10),
+              decoration: BoxDecoration(
+                  border: Border.all(color: appPalette(context).divider),
+                  borderRadius: BorderRadius.circular(3)),
+              child: child,
+            )),
+        Align(
+            alignment: Alignment.topCenter,
+            child: ColoredBox(
+              color: appPalette(context).panelRaised,
+              child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 7),
+                  child: Text(title,
+                      style: TextStyle(
+                          color: appPalette(context).textMuted,
+                          fontWeight: FontWeight.w700,
+                          fontSize: 16.8,
+                          height: 24 / 16.8))),
+            )),
+      ]);
+}
+
+class LibraryPartialDateInput extends StatefulWidget {
+  const LibraryPartialDateInput({
+    super.key,
+    this.value,
+    required this.onChanged,
+    this.focusNode,
+  });
+  final PartialDate? value;
+  final ValueChanged<PartialDate?> onChanged;
+  final FocusNode? focusNode;
+
+  @override
+  State<LibraryPartialDateInput> createState() =>
+      _LibraryPartialDateInputState();
+}
+
+class _LibraryPartialDateInputState extends State<LibraryPartialDateInput> {
+  late final List<TextEditingController> _controllers;
+
+  @override
+  void initState() {
+    super.initState();
+    _controllers = [
+      TextEditingController(text: widget.value?.year?.toString() ?? ''),
+      TextEditingController(
+          text: widget.value?.month?.toString().padLeft(2, '0') ?? ''),
+      TextEditingController(
+          text: widget.value?.day?.toString().padLeft(2, '0') ?? ''),
+    ];
+  }
+
+  @override
+  void didUpdateWidget(LibraryPartialDateInput oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.value == widget.value || widget.value == _read()) return;
+    final parts = [widget.value?.year, widget.value?.month, widget.value?.day];
+    for (var i = 0; i < 3; i++) {
+      _controllers[i].text =
+          parts[i]?.toString().padLeft(i == 0 ? 4 : 2, '0') ?? '';
+    }
+  }
+
+  PartialDate? _read() {
+    final parts = _controllers.map((c) => int.tryParse(c.text)).toList();
+    if (parts.every((part) => part == null)) return null;
+    if ((parts[0] != null && (parts[0]! < 1 || parts[0]! > 9999)) ||
+        (parts[1] != null && (parts[1]! < 1 || parts[1]! > 12)) ||
+        (parts[2] != null && (parts[2]! < 1 || parts[2]! > 31))) {
+      return widget.value;
+    }
+    return PartialDate(year: parts[0], month: parts[1], day: parts[2]);
+  }
+
+  @override
+  void dispose() {
+    for (final controller in _controllers) {
+      controller.dispose();
+    }
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => Row(children: [
+        for (var i = 0; i < 3; i++) ...[
+          if (i > 0)
+            Container(
+              width: 8,
+              height: 1,
+              color: appPalette(context).divider,
+            ),
+          Expanded(
+              flex: i == 0 ? 3 : 2,
+              child: LibraryTextFormControl(
+                controller: _controllers[i],
+                focusNode: i == 0 ? widget.focusNode : null,
+                textAlign: TextAlign.center,
+                keyboardType: TextInputType.number,
+                inputFormatters: [
+                  FilteringTextInputFormatter.digitsOnly,
+                  LengthLimitingTextInputFormatter(i == 0 ? 4 : 2)
+                ],
+                decoration: InputDecoration(
+                  hintText: ['YYYY', 'MM', 'DD'][i],
+                ),
+                validator: (raw) {
+                  if (raw == null || raw.isEmpty) return null;
+                  final value = int.tryParse(raw);
+                  final max = [9999, 12, 31][i];
+                  if (value == null || value < 1 || value > max) {
+                    return 'Invalid';
+                  }
+                  final date = _read();
+                  if (date?.isFullDate == true && date?.asDateTime == null) {
+                    return 'Invalid';
+                  }
+                  return null;
+                },
+                onChanged: (_) => widget.onChanged(_read()),
+              )),
+        ],
+      ]);
+}
+
+/// CLZ-style mutually exclusive choices; shared by enum and boolean fields.
+class LibrarySegmentedField<T> extends StatelessWidget {
+  const LibrarySegmentedField(
+      {super.key,
+      required this.value,
+      required this.options,
+      required this.onChanged});
+  final T? value;
+  final Map<T, String> options;
+  final ValueChanged<T> onChanged;
+
+  @override
+  Widget build(BuildContext context) => Row(children: [
+        for (final entry in options.entries)
+          Expanded(
+              child: SizedBox(
+                  height: LibraryMetrics.defaultFieldHeight,
+                  child: OutlinedButton(
+                    style: OutlinedButton.styleFrom(
+                      backgroundColor: value == entry.key
+                          ? appPalette(context).surfaceBright
+                          : appPalette(context).surface,
+                      padding: const EdgeInsets.symmetric(horizontal: 6),
+                      foregroundColor: value == entry.key
+                          ? appPalette(context).textPrimary
+                          : appPalette(context).textMuted,
+                      shape: const RoundedRectangleBorder(),
+                    ),
+                    onPressed: () => onChanged(entry.key),
+                    child: Text(entry.value),
+                  ))),
+      ]);
+}

@@ -1,4 +1,9 @@
 import '../music_module_dependencies.dart';
+import 'package:collectarr_app/core/models/partial_date.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_album.dart';
+
+export 'package:collectarr_app/features/library/kinds/music/workspace/music_workspace_facets.dart'
+    show musicLibraryFacetModule, musicLibraryFacetDefinitions;
 
 const musicArtistFilterId = musicAddArtistFilterId;
 const musicLabelFilterId = musicAddLabelFilterId;
@@ -9,62 +14,76 @@ TransferableField musicTransferField({
   required String label,
   required IconData icon,
   required TransferableFieldType type,
-  required String? Function(MusicOwnedItem item) read,
-  required MusicOwnedItem Function(MusicOwnedItem item, String? value) write,
-  LibraryEntityScope scope = LibraryEntityScope.copy,
+  required String? Function(MusicLibraryEntry item) read,
+  required MusicLibraryEntry Function(MusicLibraryEntry item, String? value)
+      write,
 }) {
-  return TransferableField.typed<MusicOwnedItem>(
+  return TransferableField.typed<MusicLibraryEntry>(
     key: key,
     label: label,
     icon: icon,
     type: type,
-    scope: scope,
-    decode: (value) => value as MusicOwnedItem,
+    decode: (value) => value as MusicLibraryEntry,
     read: read,
     write: write,
   );
 }
 
 final musicUniversalTransferableFields =
-    TransferableField.universalForTyped<MusicOwnedItem>(
-  decode: (value) => value as MusicOwnedItem,
-  readCondition: (item) => item.condition,
-  writeCondition: (item, value) => item.copyWith(condition: value),
-  readPersonalNotes: (item) => item.personalNotes,
-  writePersonalNotes: (item, value) => item.copyWith(personalNotes: value),
-  readLocationId: (item) => item.locationId,
-  writeLocationId: (item, value) => item.copyWith(locationId: value),
-  readTags: (item) => item.tags,
-  writeTags: (item, value) => item.copyWith(tags: value),
-  readCurrency: (item) => item.currency,
-  writeCurrency: (item, value) => item.copyWith(currency: value),
-  readSoldTo: (item) => item.soldTo,
-  writeSoldTo: (item, value) => item.copyWith(soldTo: value),
-  readPurchaseStore: (item) => item.purchaseStore,
-  writePurchaseStore: (item, value) => item.copyWith(purchaseStore: value),
-  readPricePaidCents: (item) => item.pricePaidCents?.toString(),
+    TransferableField.universalForTyped<MusicLibraryEntry>(
+  decode: (value) => value as MusicLibraryEntry,
+  readCondition: (item) => item.personal.condition,
+  writeCondition: (item, value) =>
+      item.copyWith(personal: item.personal.copyWith(condition: value)),
+  readPersonalNotes: (item) => item.personal.personalNotes,
+  writePersonalNotes: (item, value) => item.copyWith(
+    personal: item.personal.copyWith(personalNotes: value),
+  ),
+  readLocationId: (item) => item.personal.locationId,
+  writeLocationId: (item, value) =>
+      item.copyWith(personal: item.personal.copyWith(locationId: value)),
+  readTags: (item) => item.personal.tags,
+  writeTags: (item, value) =>
+      item.copyWith(personal: item.personal.copyWith(tags: value)),
+  readCurrency: (item) => item.personal.currency,
+  writeCurrency: (item, value) =>
+      item.copyWith(personal: item.personal.copyWith(currency: value)),
+  readSoldTo: (item) => item.personal.soldTo,
+  writeSoldTo: (item, value) =>
+      item.copyWith(personal: item.personal.copyWith(soldTo: value)),
+  readPurchaseStore: (item) => item.personal.purchaseStore,
+  writePurchaseStore: (item, value) =>
+      item.copyWith(personal: item.personal.copyWith(purchaseStore: value)),
+  readPricePaidCents: (item) => item.personal.pricePaidCents?.toString(),
   writePricePaidCents: (item, value) => item.copyWith(
-    pricePaidCents: value == null ? null : int.tryParse(value),
+    personal: item.personal.copyWith(
+      pricePaidCents: value == null ? null : int.tryParse(value),
+    ),
   ),
-  readSellPriceCents: (item) => item.sellPriceCents?.toString(),
+  readSellPriceCents: (item) => item.personal.sellPriceCents?.toString(),
   writeSellPriceCents: (item, value) => item.copyWith(
-    sellPriceCents: value == null ? null : int.tryParse(value),
+    personal: item.personal.copyWith(
+      sellPriceCents: value == null ? null : int.tryParse(value),
+    ),
   ),
-  readQuantity: (item) => item.quantity.toString(),
-  writeQuantity: (item, value) => item.copyWith(
-    quantity: value == null ? 1 : int.tryParse(value) ?? 1,
-  ),
-  readIndexNumber: (item) => item.indexNumber?.toString(),
+  readIndexNumber: (item) => item.personal.indexNumber?.toString(),
   writeIndexNumber: (item, value) => item.copyWith(
-    indexNumber: value == null ? null : int.tryParse(value),
+    personal: item.personal.copyWith(
+      indexNumber: value == null ? null : int.tryParse(value),
+    ),
   ),
-  readPurchaseDate: (item) => item.purchaseDate?.toIso8601String(),
+  readPurchaseDate: (item) => item.personal.purchaseDate?.toIso8601String(),
   writePurchaseDate: (item, value) => item.copyWith(
-    purchaseDate: value == null ? null : DateTime.tryParse(value),
+    personal: item.personal.copyWith(
+      purchaseDate: value == null ? null : DateTime.tryParse(value),
+      purchaseDateParts: PartialDate.tryParse(value),
+    ),
   ),
-  readSoldAt: (item) => item.soldAt?.toIso8601String(),
+  readSoldAt: (item) => item.personal.soldAt?.toIso8601String(),
   writeSoldAt: (item, value) => item.copyWith(
-    soldAt: value == null ? null : DateTime.tryParse(value),
+    personal: item.personal.copyWith(
+      soldAt: value == null ? null : DateTime.tryParse(value),
+    ),
   ),
 );
 
@@ -74,48 +93,40 @@ final musicTransferableFields = <TransferableField>[
     label: 'Grade',
     icon: Icons.workspace_premium_outlined,
     type: TransferableFieldType.text,
-    read: (item) => item.grade,
-    write: (item, value) => item.copyWith(grade: value),
+    read: (item) => item.personal.grade,
+    write: (item, value) =>
+        item.copyWith(personal: item.personal.copyWith(grade: value)),
   ),
 ];
 
-const musicAddChrome = LibraryAddChromeConfig(
-  mediaReferenceLabel: 'Album',
-  trackScopeSummary:
-      'Tracking stays album-level here. Edition and variant scope are only available for owned or wishlist entries.',
-  mediaReferenceHelperLabel: 'Track or save the album itself.',
-  editionReferenceHelperLabel:
-      'Attach ownership to an album edition. Pick a variant only if you want one exact format or pressing.',
-);
+const musicAddChrome = LibraryAddChromeConfig();
 
-Iterable<String?> musicLinkedMetadataValues(MusicReleaseGroup group) => [
-      group.artist,
-      group.primaryRelease?.publisher,
-      group.primaryRelease?.countryCode,
-      group.primaryRelease?.language,
-      ...?group.primaryRelease?.contributions
-          .map((credit) => credit.displayName),
-      ...group.genres,
+Iterable<String?> musicLinkedMetadataValues(MusicAlbum music) => [
+      music.artist,
+      music.publisher,
+      music.countryCode,
+      ...music.credits.map((credit) => credit.name),
+      ...music.discs.expand(
+        (disc) => disc.credits.map((credit) => credit.name),
+      ),
+      ...music.genres,
     ];
 
-MusicReleaseGroup? musicLinkedMetadata(LibraryWorkspaceSource source) {
-  final catalog = source.catalogData;
-  return catalog is MusicWorkspaceCatalogData ? catalog.music : null;
+MusicAlbum? musicLinkedMetadata(LibraryWorkspaceContext source) {
+  final catalog = source.kindPresentationData;
+  return catalog is MusicWorkspaceData ? catalog.music : null;
 }
 
 MetadataSearchQuery musicMetadataSearchQuery({
-  required LibraryWorkspaceSource source,
+  required LibraryWorkspaceContext source,
   required String title,
 }) {
   final metadata = musicLinkedMetadata(source);
-  final release = metadata?.primaryRelease;
   return MetadataSearchQuery(
     query: title,
-    barcode: release?.barcode ?? release?.upc,
-    publisher: release?.publisher,
+    barcode: metadata?.barcode,
+    publisher: metadata?.publisher,
     year: metadata?.originalReleaseDate?.year,
     limit: 5,
   );
 }
-
-const musicLibraryFacetModule = LibraryFacetModule();

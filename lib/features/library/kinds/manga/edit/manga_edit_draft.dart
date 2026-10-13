@@ -1,9 +1,10 @@
 import 'package:collectarr_app/features/library/edit/draft/library_edit_form_fields.dart';
 import 'package:collectarr_app/features/library/kinds/manga/catalog/manga_catalog_fields.dart';
 import 'package:collectarr_app/core/models/tracking_summary.dart';
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
-import 'package:collectarr_app/features/library/kinds/manga/data/manga_owned_item_projection.dart';
-import 'package:collectarr_app/features/collection/commands/owned_item_commands.dart';
+import 'package:collectarr_app/core/models/library_entry_projection.dart';
+import 'package:collectarr_app/core/models/partial_date.dart';
+import 'package:collectarr_app/features/library/kinds/manga/data/manga_library_entry_projection.dart';
+import 'package:collectarr_app/features/collection/commands/library_entry_commands.dart';
 import 'package:collectarr_app/features/library/edit/contracts/library_edit_kind_draft.dart';
 import 'package:collectarr_app/features/library/edit/draft/text_controller_group.dart';
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
@@ -12,30 +13,32 @@ import 'package:collectarr_app/features/catalog/transport/catalog_search_candida
 import 'package:flutter/material.dart';
 
 import 'package:collectarr_app/features/library/kinds/manga/domain/manga_metadata.dart';
-import 'package:collectarr_app/features/library/kinds/manga/domain/manga_media.dart';
-import 'package:collectarr_app/features/library/kinds/registry/library_owned_item_dispatch.dart';
-import 'package:collectarr_app/features/library/kinds/manga/domain/manga_owned_item.dart';
-import 'package:collectarr_app/features/library/kinds/manga/ownership/manga_owned_details_draft.dart';
-import 'package:collectarr_app/features/library/kinds/manga/ownership/manga_owned_item_update_payload.dart';
-import 'package:collectarr_app/features/library/edit/draft/personal_state_draft.dart';
+import 'package:collectarr_app/features/library/kinds/registry/library_entry_dispatch.dart';
+import 'package:collectarr_app/features/library/kinds/manga/domain/manga_library_entry.dart';
+import 'package:collectarr_app/features/library/kinds/manga/entries/manga_entry_details_draft.dart';
+import 'package:collectarr_app/features/library/kinds/manga/entries/manga_library_entry_update_payload.dart';
+import 'package:collectarr_app/features/library/edit/draft/library_entry_personal_bindings.dart';
+import 'package:collectarr_app/features/library/edit/fields/library_external_links_table.dart';
 
 enum MangaCanonicalEditField {
   title,
-  displayTitle,
   sortTitle,
   originalTitle,
   localizedTitle,
   searchAliases,
   synopsis,
   coverImage,
+  backCoverImage,
   thumbnailImage
 }
 
 class MangaEditDraft
-    with LibraryWorkEditSessionLinkDefaults, LibraryCopyEditSessionDefaults
-    implements LibraryReleaseEditSession, LibraryCopyEditSession {
+    with
+        LibraryCatalogItemEditSessionLinkDefaults,
+        LibraryEntryEditSessionDefaults
+    implements LibraryCatalogItemEditSession, LibraryEntryEditSession {
   MangaEditDraft({
-    this.ownedItem,
+    this.libraryEntry,
     this.rawOrSlabbed,
     this.signedBy,
     this.gradingCompany,
@@ -68,14 +71,22 @@ class MangaEditDraft
     required this.themesController,
     required this.authorsController,
     required this.artistsController,
+    required this.charactersController,
+    required this.seriesGroupController,
+    required this.ageRatingController,
+    required this.isbnController,
+    required this.bindingController,
+    required this.releaseDescriptionController,
     required this.demographicController,
     required this.statusController,
     required this.serializationController,
     required this.originalPublisherController,
     required this.localizedPublisherController,
+    required this.externalLinks,
+    required this.originalExternalLinks,
   });
 
-  final MangaOwnedItem? ownedItem;
+  final MangaLibraryEntry? libraryEntry;
 
   String? rawOrSlabbed;
   String? signedBy;
@@ -109,14 +120,26 @@ class MangaEditDraft
   final TextEditingController themesController;
   final TextEditingController authorsController;
   final TextEditingController artistsController;
+  final TextEditingController charactersController;
+  final TextEditingController seriesGroupController;
+  final TextEditingController ageRatingController;
+  final TextEditingController isbnController;
+  final TextEditingController bindingController;
+  final TextEditingController releaseDescriptionController;
   final TextEditingController demographicController;
   final TextEditingController statusController;
   final TextEditingController serializationController;
   final TextEditingController originalPublisherController;
   final TextEditingController localizedPublisherController;
+  final List<LibraryExternalLinkDraftRow> externalLinks;
+  final Map<LibraryExternalLinkDraftRow, MangaExternalLink>
+      originalExternalLinks;
+  bool _externalLinksEdited = false;
+
+  void markExternalLinksEdited() => _externalLinksEdited = true;
 
   @override
-  JsonEncodable toDetailsDraft() => MangaOwnedDetailsDraft(
+  JsonEncodable toDetailsDraft() => MangaEntryDetailsDraft(
         rawOrSlabbed: rawOrSlabbed,
         signedBy: signedBy,
         gradingCompany: gradingCompany,
@@ -136,44 +159,42 @@ class MangaEditDraft
       );
 
   @override
-  void initializePersonalState(PersonalStateDraft personal) {
-    final item = ownedItem;
+  void initializePersonalState(LibraryEntryPersonalBindings personal) {
+    final item = libraryEntry;
     if (item == null) return;
-    personal.ownerLabelController.text = item.ownerLabel ?? '';
-    personal.conditionController.text = item.condition ?? '';
-    personal.gradeController.text = item.grade ?? '';
-    personal.purchaseDateController.text =
-        item.purchaseDate == null ? '' : formatDate(item.purchaseDate!);
-    personal.priceController.text = item.pricePaidCents == null
+    personal.ownerLabelController.text = item.personal.ownerLabel ?? '';
+    personal.conditionController.text = item.personal.condition ?? '';
+    personal.gradeController.text = item.personal.grade ?? '';
+    personal.purchaseDateController.text = item.personal.purchaseDate == null
         ? ''
-        : (item.pricePaidCents! / 100).toStringAsFixed(2);
-    personal.currencyController.text = item.currency ?? '';
-    personal.quantityController.text = item.quantity.toString();
-    personal.indexNumberController.text = item.indexNumber?.toString() ?? '';
-    personal.notesController.text = item.personalNotes ?? '';
-    personal.tagsController.text = item.tags ?? '';
-    personal.sellPriceController.text = item.sellPriceCents == null
+        : formatDate(item.personal.purchaseDate!);
+    personal.priceController.text = item.personal.pricePaidCents == null
         ? ''
-        : (item.sellPriceCents! / 100).toStringAsFixed(2);
-    personal.soldToController.text = item.soldTo ?? '';
-    personal.purchaseStoreController.text = item.purchaseStore ?? '';
-    personal.marketValueController.text = item.marketValueCents == null
+        : (item.personal.pricePaidCents! / 100).toStringAsFixed(2);
+    personal.currencyController.text = item.personal.currency ?? '';
+    personal.indexNumberController.text =
+        item.personal.indexNumber?.toString() ?? '';
+    personal.notesController.text = item.personal.personalNotes ?? '';
+    personal.tagsController.text = item.personal.tags ?? '';
+    personal.sellPriceController.text = item.personal.sellPriceCents == null
         ? ''
-        : (item.marketValueCents! / 100).toStringAsFixed(2);
-    personal.selectedLocationId = item.locationId;
-    personal.soldAt = item.soldAt;
-    personal.collectionStatus = item.collectionStatus;
+        : (item.personal.sellPriceCents! / 100).toStringAsFixed(2);
+    personal.soldToController.text = item.personal.soldTo ?? '';
+    personal.purchaseStoreController.text = item.personal.purchaseStore ?? '';
+    personal.marketValueController.text = item.personal.marketValueCents == null
+        ? ''
+        : (item.personal.marketValueCents! / 100).toStringAsFixed(2);
+    personal.selectedLocationId = item.personal.locationId;
+    personal.soldAt = item.personal.soldAt;
+    personal.collectionStatus = item.personal.collectionStatus;
   }
 
   @override
-  MangaOwnedItemUpdatePayload buildOwnedUpdatePayload({
-    required OwnedItemRef ownedRef,
-    required PersonalStateDraft personal,
+  MangaLibraryEntryUpdatePayload buildEntryUpdatePayload({
+    required LibraryEntryRef libraryEntryRef,
+    required LibraryEntryPersonalBindings personal,
   }) {
-    final targetRef = personal.selectedOwnedTargetRef;
-    return MangaOwnedItemUpdatePayload(
-      targetRef: targetRef == null ? const Patch.clear() : Patch.set(targetRef),
-      quantity: Patch.set(parseInt(personal.quantityController.text) ?? 1),
+    return MangaLibraryEntryUpdatePayload(
       isDigital: const Patch.unchanged(),
       marketValueCents: const Patch.unchanged(),
       indexNumber: const Patch.unchanged(),
@@ -216,7 +237,7 @@ class MangaEditDraft
       soldTo: personal.soldToController.text.trim().isEmpty
           ? const Patch.clear()
           : Patch.set(personal.soldToController.text.trim()),
-      details: Patch.set(toDetailsDraft() as MangaOwnedDetailsDraft),
+      details: Patch.set(toDetailsDraft() as MangaEntryDetailsDraft),
     );
   }
 
@@ -237,11 +258,20 @@ class MangaEditDraft
     themesController.dispose();
     authorsController.dispose();
     artistsController.dispose();
+    charactersController.dispose();
+    seriesGroupController.dispose();
+    ageRatingController.dispose();
+    isbnController.dispose();
+    bindingController.dispose();
+    releaseDescriptionController.dispose();
     demographicController.dispose();
     statusController.dispose();
     serializationController.dispose();
     originalPublisherController.dispose();
     localizedPublisherController.dispose();
+    for (final link in externalLinks) {
+      link.dispose();
+    }
   }
 
   @override
@@ -256,34 +286,38 @@ class MangaEditDraft
         .map((entry) => entry.trim())
         .where((entry) => entry.isNotEmpty)
         .toList();
+    final metadata = mangaEditMetadataFromCandidate(selection.kindItem);
+    final updatedMetadata = MangaMetadata.fromJson(applyJsonFieldPatch(
+      metadata,
+      {
+        'title': fields.controller(MangaCanonicalEditField.title).text.trim(),
+        'original_title': emptyToNull(
+          fields.controller(MangaCanonicalEditField.originalTitle).text,
+        ),
+        'localized_title': emptyToNull(
+          fields.controller(MangaCanonicalEditField.localizedTitle).text,
+        ),
+        'search_aliases': aliases,
+        'synopsis': emptyToNull(
+          fields.controller(MangaCanonicalEditField.synopsis).text,
+        ),
+        'cover_image_url': emptyToNull(
+          fields.controller(MangaCanonicalEditField.coverImage).text,
+        ),
+        'back_cover_image_url': emptyToNull(
+          fields.controller(MangaCanonicalEditField.backCoverImage).text,
+        ),
+        'thumbnail_image_url': emptyToNull(
+          fields.controller(MangaCanonicalEditField.thumbnailImage).text,
+        ),
+        'sort_key': emptyToNull(
+          fields.controller(MangaCanonicalEditField.sortTitle).text,
+        ),
+      },
+    ));
     return selection.copyWith(
-      kindItem: CatalogSearchCandidate.fromItem(selection
-          .kindItem.kindCapability
-          .mapTransport((transport) => transport.copyWith(
-                title: fields
-                    .controller(MangaCanonicalEditField.title)
-                    .text
-                    .trim(),
-                displayTitle: emptyToNull(fields
-                    .controller(MangaCanonicalEditField.displayTitle)
-                    .text),
-                sortKey: emptyToNull(
-                    fields.controller(MangaCanonicalEditField.sortTitle).text),
-                originalTitle: emptyToNull(fields
-                    .controller(MangaCanonicalEditField.originalTitle)
-                    .text),
-                localizedTitle: emptyToNull(fields
-                    .controller(MangaCanonicalEditField.localizedTitle)
-                    .text),
-                searchAliases: aliases.isEmpty ? null : aliases,
-                synopsis: emptyToNull(
-                    fields.controller(MangaCanonicalEditField.synopsis).text),
-                coverImageUrl: emptyToNull(
-                    fields.controller(MangaCanonicalEditField.coverImage).text),
-                thumbnailImageUrl: emptyToNull(fields
-                    .controller(MangaCanonicalEditField.thumbnailImage)
-                    .text),
-              ))),
+      kindItem:
+          selection.kindItem.kindCapability.replacingKindData(updatedMetadata),
     );
   }
 
@@ -293,9 +327,8 @@ class MangaEditDraft
     CatalogSearchCandidate item,
   ) {
     final metadata = item.mangaCatalogFields;
+    final kindMetadata = mangaEditMetadataFromCandidate(item);
     fields.create(MangaCanonicalEditField.title, initialValue: metadata.title);
-    fields.create(MangaCanonicalEditField.displayTitle,
-        initialValue: metadata.displayTitle ?? '');
     fields.create(MangaCanonicalEditField.sortTitle,
         initialValue: metadata.sortKey ?? '');
     fields.create(MangaCanonicalEditField.originalTitle,
@@ -308,6 +341,8 @@ class MangaEditDraft
         initialValue: metadata.synopsis ?? '');
     fields.create(MangaCanonicalEditField.coverImage,
         initialValue: metadata.coverImageUrl ?? '');
+    fields.create(MangaCanonicalEditField.backCoverImage,
+        initialValue: kindMetadata.backCoverImageUrl ?? '');
     fields.create(MangaCanonicalEditField.thumbnailImage,
         initialValue: metadata.thumbnailImageUrl ?? '');
     return LibraryEditFormSchema(
@@ -323,13 +358,13 @@ class MangaEditDraft
           id: MangaCanonicalEditField.sortTitle,
           section: LibraryEditFormSection.details,
           controller: fields.controller(MangaCanonicalEditField.sortTitle),
-          label: 'Sort title',
+          label: 'Sort Title',
         ),
         LibraryEditFormFieldSpec(
           id: MangaCanonicalEditField.originalTitle,
           section: LibraryEditFormSection.details,
           controller: fields.controller(MangaCanonicalEditField.originalTitle),
-          label: 'Original title',
+          label: 'Original Title',
         ),
         LibraryEditFormFieldSpec(
           id: MangaCanonicalEditField.localizedTitle,
@@ -338,16 +373,10 @@ class MangaEditDraft
           label: 'Localized title',
         ),
         LibraryEditFormFieldSpec(
-          id: MangaCanonicalEditField.displayTitle,
-          section: LibraryEditFormSection.details,
-          controller: fields.controller(MangaCanonicalEditField.displayTitle),
-          label: 'Display title',
-        ),
-        LibraryEditFormFieldSpec(
           id: MangaCanonicalEditField.searchAliases,
           section: LibraryEditFormSection.details,
           controller: fields.controller(MangaCanonicalEditField.searchAliases),
-          label: 'Search aliases',
+          label: 'Search Aliases',
           visible: false,
         ),
         LibraryEditFormFieldSpec(
@@ -362,6 +391,12 @@ class MangaEditDraft
           section: LibraryEditFormSection.artwork,
           controller: fields.controller(MangaCanonicalEditField.coverImage),
           label: 'Cover Image URL',
+        ),
+        LibraryEditFormFieldSpec(
+          id: MangaCanonicalEditField.backCoverImage,
+          section: LibraryEditFormSection.artwork,
+          controller: fields.controller(MangaCanonicalEditField.backCoverImage),
+          label: 'Back Cover Image URL',
         ),
         LibraryEditFormFieldSpec(
           id: MangaCanonicalEditField.synopsis,
@@ -386,8 +421,12 @@ class MangaEditDraft
     final volumeNumber = int.tryParse(volumeNumberController.text);
     final impr = emptyToNull(imprintController.text);
     final pub = emptyToNull(publisherController.text);
+    final isbn = emptyToNull(isbnController.text);
     final barcode = emptyToNull(barcodeController.text);
+    final binding = emptyToNull(bindingController.text);
     final format = emptyToNull(physicalFormatController.text);
+    final seriesGroup = emptyToNull(seriesGroupController.text);
+    final ageRating = emptyToNull(ageRatingController.text);
     final variant = emptyToNull(variantController.text);
     final editionTitle = emptyToNull(editionTitleController.text);
     final originalPublisher = emptyToNull(originalPublisherController.text);
@@ -398,48 +437,88 @@ class MangaEditDraft
     final status = emptyToNull(statusController.text);
     final serialization = emptyToNull(serializationController.text);
 
-    final updatedMetadata = meta.copyWith(
-      pageCount: count ?? meta.pageCount,
-      volumeNumber: volumeNumber ?? meta.volumeNumber,
-      itemNumber: volumeNumber?.toString() ?? meta.itemNumber,
-      editionTitle: editionTitle ?? meta.editionTitle,
-      variant: variant ?? meta.variant,
-      imprint: impr ?? meta.imprint,
-      publisher: pub ?? meta.publisher,
-      originalPublisher: originalPublisher ?? meta.originalPublisher,
-      localizedPublisher: localizedPublisher ?? meta.localizedPublisher,
-      barcode: barcode ?? meta.barcode,
-      isbn: barcode ?? meta.isbn,
-      physicalFormatLabel: format ?? meta.physicalFormatLabel,
-      physicalFormat: format ?? meta.physicalFormat,
-      editionFormat: format == null
-          ? meta.editionFormat
-          : MangaEditionFormat.fromString(format),
-      language: language ?? meta.language,
-      country: country ?? meta.country,
-      genres: _splitValues(genresController.text, fallback: meta.genres),
-      themes: _splitValues(themesController.text, fallback: meta.themes),
-      authors: _splitValues(authorsController.text, fallback: meta.authors),
-      artists: _splitValues(artistsController.text, fallback: meta.artists),
-      demographic: demographic == null
-          ? meta.demographic
-          : MangaDemographic.fromString(demographic),
-      publicationStatus: status == null
-          ? meta.publicationStatus
-          : MangaPublicationStatus.fromString(status),
-      serializationPlatform: serialization ?? meta.serializationPlatform,
-      localizedReleaseDate:
-          parseDate(releaseDateController.text) ?? meta.localizedReleaseDate,
-    );
+    final releaseYear = int.tryParse(releaseYearController.text.trim());
+    final releaseDate = PartialDate.tryParse(releaseDateController.text.trim());
+    final updatedExternalLinks = [
+      for (final (index, row) in externalLinks
+          .where((row) => row.urlController.text.trim().isNotEmpty)
+          .indexed)
+        _mangaExternalLinkFromDraft(
+          row,
+          index + 1,
+          originalExternalLinks[row],
+        ),
+    ];
+    final updatedMetadata = MangaMetadata.fromJson(applyJsonFieldPatch(meta, {
+      'page_count': count,
+      'volume_number': volumeNumber?.toString(),
+      'series_group': seriesGroup,
+      'edition_title': editionTitle,
+      'variant_name': variant,
+      'imprint': impr,
+      'publisher': pub,
+      'original_publisher': originalPublisher,
+      'localized_publisher': localizedPublisher,
+      'isbn': isbn,
+      'barcode': barcode,
+      'identifiers': _editedMangaIdentifiers(
+        meta.identifiers,
+        isbn: isbn,
+        barcode: barcode,
+      ).map((identifier) => identifier.toJson()).toList(),
+      'physical_format_label': binding,
+      'physical_format': format,
+      'edition_format': format == null
+          ? meta.editionFormat.name
+          : MangaEditionFormat.fromString(format).name,
+      'age_rating': ageRating,
+      'language': language ?? meta.language,
+      'country': country ?? meta.country,
+      'genres': _splitValues(genresController.text),
+      'themes': _splitValues(themesController.text),
+      'authors': _splitValues(authorsController.text),
+      'artists': _splitValues(artistsController.text),
+      'creators': _editedMangaCredits(
+        original: meta.creators,
+        authors: _splitValues(authorsController.text),
+        artists: _splitValues(artistsController.text),
+        originalAuthors: meta.authors,
+        originalArtists: meta.artists,
+      ).map((credit) => credit.toJson()).toList(),
+      'characters': _editedMangaCharacters(
+        charactersController.text,
+        meta.characters,
+      ).map((character) => character.toJsonValue()).toList(),
+      'demographic': demographic == null
+          ? meta.demographic.name
+          : MangaDemographic.fromString(demographic).name,
+      'publication_status': status == null
+          ? meta.publicationStatus.name
+          : MangaPublicationStatus.fromString(status).name,
+      'release_status': status,
+      'serialization_platform': serialization,
+      'description': emptyToNull(releaseDescriptionController.text),
+      'original_publication_date': releaseYear == null || releaseYear < 1
+          ? null
+          : DateTime.utc(releaseYear).toIso8601String(),
+      'localized_release_date': releaseDate?.asDateTime?.toIso8601String(),
+      'release_date': releaseDate?.toJson(),
+      'release_date_parts': releaseDate?.toJson(),
+      if (_externalLinksEdited)
+        'external_links': [
+          for (final link in updatedExternalLinks) link.toJson(),
+        ],
+    }));
 
     final updatedItem = selection.kindItem.kindCapability.mapTransport(
       (transport) => CatalogSearchCandidate.fromItem(
-        transport.withKindMetadata(
+        transport.replacingKindData(
           mangaEditKindMetadataForCandidate(
             selection.kindItem,
             updatedMetadata,
           ),
         ),
+        basedOn: selection.kindItem,
       ),
     );
     return selection.copyWith(kindItem: updatedItem);
@@ -448,15 +527,23 @@ class MangaEditDraft
 
 LibraryEditSessionBundle createMangaEditDraft({
   required CatalogSearchCandidate item,
-  LibraryOwnedItemDispatch? ownedItemDispatch,
+  LibraryEntryDispatch? libraryEntryDispatch,
   TrackingSummary? trackingSummary,
   required TextControllerGroup textControllers,
 }) {
-  final owned = MangaOwnedItemProjection.fromDispatch(ownedItemDispatch);
-  final manga = owned?.details;
+  final entry = MangaLibraryEntryProjection.fromDispatch(libraryEntryDispatch);
+  final manga = entry?.personal.details;
   final metadata = mangaEditMetadataFromCandidate(item);
+  final externalLinkRows = <LibraryExternalLinkDraftRow>[];
+  final originalExternalLinks =
+      <LibraryExternalLinkDraftRow, MangaExternalLink>{};
+  for (final link in metadata.externalLinks) {
+    final row = _mangaExternalLinkDraftRow(link);
+    externalLinkRows.add(row);
+    originalExternalLinks[row] = link;
+  }
   final draft = MangaEditDraft(
-    ownedItem: owned,
+    libraryEntry: entry,
     rawOrSlabbed: manga?.grading.rawOrSlabbed,
     signedBy: manga?.signedBy,
     gradingCompany: manga?.gradingCompany,
@@ -486,10 +573,10 @@ LibraryEditSessionBundle createMangaEditDraft({
           '',
     ),
     barcodeController: textControllers.create(
-      text: metadata.barcode ?? metadata.isbn ?? '',
+      text: metadata.barcode ?? '',
     ),
     volumeNumberController: textControllers.create(
-      text: metadata.itemNumber ?? metadata.volumeNumber?.toString() ?? '',
+      text: metadata.volumeNumber?.toString() ?? '',
     ),
     editionTitleController: textControllers.create(
       text: metadata.editionTitle ?? '',
@@ -498,9 +585,7 @@ LibraryEditSessionBundle createMangaEditDraft({
       text: metadata.variant ?? '',
     ),
     physicalFormatController: textControllers.create(
-      text: metadata.physicalFormatLabel ??
-          metadata.physicalFormat ??
-          metadata.editionFormat.label,
+      text: metadata.physicalFormat ?? metadata.editionFormat.label,
     ),
     languageController: textControllers.create(text: metadata.language),
     countryController: textControllers.create(text: metadata.country),
@@ -515,6 +600,24 @@ LibraryEditSessionBundle createMangaEditDraft({
     ),
     artistsController: textControllers.create(
       text: metadata.artists.join(', '),
+    ),
+    charactersController: textControllers.create(
+      text: metadata.characters.map((character) => character.name).join(', '),
+    ),
+    seriesGroupController: textControllers.create(
+      text: metadata.seriesGroup ?? '',
+    ),
+    ageRatingController: textControllers.create(
+      text: metadata.ageRating ?? '',
+    ),
+    isbnController: textControllers.create(
+      text: metadata.isbn ?? '',
+    ),
+    bindingController: textControllers.create(
+      text: metadata.physicalFormatLabel ?? '',
+    ),
+    releaseDescriptionController: textControllers.create(
+      text: metadata.description ?? '',
     ),
     demographicController: textControllers.create(
       text: metadata.demographic.label,
@@ -532,77 +635,238 @@ LibraryEditSessionBundle createMangaEditDraft({
       text: metadata.localizedPublisher ?? '',
     ),
     releaseDateController: textControllers.create(
-      text: metadata.localizedReleaseDate != null
-          ? formatDate(metadata.localizedReleaseDate!)
-          : (metadata.originalPublicationDate != null
-              ? formatDate(metadata.originalPublicationDate!)
-              : ''),
-    ),
-    releaseYearController: textControllers.create(
-      text: metadata.localizedReleaseDate?.year.toString() ??
-          metadata.originalPublicationDate?.year.toString() ??
+      text: metadata.releaseDateParts?.isoString ??
+          metadata.releaseDate?.isoString ??
+          metadata.localizedReleaseDate?.toIso8601String().substring(0, 10) ??
           '',
     ),
+    releaseYearController: textControllers.create(
+      text: metadata.originalPublicationDate?.year.toString() ?? '',
+    ),
+    externalLinks: externalLinkRows,
+    originalExternalLinks: originalExternalLinks,
   );
   return LibraryEditSessionBundle(
-    workSession: draft,
-    releaseSession: draft,
-    copySession: draft,
+    catalogItemSession: draft,
+    entrySession: draft,
     disposeSession: draft.dispose,
   );
 }
 
-/// Normalizes the two concrete Manga transport representations that can reach
-/// an edit flow: provider/API candidates carry [MangaMetadata], while local
-/// catalog candidates carry the canonical [MangaMedia] aggregate.
-MangaMetadata mangaEditMetadataFromCandidate(CatalogSearchCandidate item) {
-  final transport = item.kindCapability.mapTransport((transport) => transport);
-  final rawMetadata = transport.kindMetadata;
-  return switch (rawMetadata) {
-    MangaMetadata metadata => metadata,
-    MangaMedia media => MangaMetadata.fromJson({
-        ...media.rawPayload,
-        'id': media.id,
-        'title': media.title,
-        if (media.originalLanguage != null &&
-            !media.rawPayload.containsKey('language'))
-          'language': media.originalLanguage,
-        if (media.status != null &&
-            !media.rawPayload.containsKey('publication_status'))
-          'publication_status': media.status,
-        if (media.originalPublicationDate != null &&
-            !media.rawPayload.containsKey('original_publication_date'))
-          'original_publication_date':
-              media.originalPublicationDate!.toIso8601String(),
-      }),
-    null => MangaMetadata.fromJson(transport.payload),
-    _ => throw StateError(
-        'Expected MangaMetadata or MangaMedia for Manga editing, '
-        'got ${rawMetadata.runtimeType}',
-      ),
-  };
+LibraryExternalLinkDraftRow _mangaExternalLinkDraftRow(
+  MangaExternalLink link,
+) =>
+    LibraryExternalLinkDraftRow(
+      title: link.title ?? link.label ?? link.name ?? '',
+      url: link.url,
+      description: link.description ?? '',
+    );
+
+MangaExternalLink _mangaExternalLinkFromDraft(
+  LibraryExternalLinkDraftRow row,
+  int position,
+  MangaExternalLink? original,
+) {
+  final title = _mangaOptional(row.titleController.text);
+  return MangaExternalLink(
+    url: row.urlController.text.trim(),
+    id: original?.id,
+    description: _mangaOptional(row.descriptionController.text),
+    kind: original?.kind ?? 'external',
+    label: title,
+    linkType: original?.linkType,
+    name: original?.name,
+    position: position,
+    site: original?.site,
+    title: title,
+  );
 }
 
-Object mangaEditKindMetadataForCandidate(
+String? _mangaOptional(String value) {
+  final normalized = value.trim();
+  return normalized.isEmpty ? null : normalized;
+}
+
+/// Decodes the flat Manga Catalog Item payload for editing.
+MangaMetadata mangaEditMetadataFromCandidate(CatalogSearchCandidate item) {
+  final transport = item.kindCapability.mapTransport((transport) => transport);
+  return MangaMetadata.fromJson(transport.payload);
+}
+
+MangaMetadata mangaEditKindMetadataForCandidate(
   CatalogSearchCandidate item,
   MangaMetadata metadata,
 ) {
-  final rawMetadata =
-      item.kindCapability.mapTransport((transport) => transport).kindMetadata;
-  if (rawMetadata is! MangaMedia) return metadata;
-
-  return MangaMedia.fromJson({
-    ...rawMetadata.toJson(),
-    ...metadata.toJson(),
-  });
+  return metadata;
 }
 
-List<String> _splitValues(String value, {required List<String> fallback}) {
-  final values = value
-      .split(RegExp(r'[,\r\n]+'))
-      .map((entry) => entry.trim())
-      .where((entry) => entry.isNotEmpty)
-      .toSet()
-      .toList();
-  return values.isEmpty ? fallback : values;
+List<String> _splitValues(String value) => value
+    .split(RegExp(r'[,\r\n]+'))
+    .map((entry) => entry.trim())
+    .where((entry) => entry.isNotEmpty)
+    .toSet()
+    .toList();
+
+List<MangaCredit> _editedMangaCredits({
+  required List<MangaCredit> original,
+  required List<String> authors,
+  required List<String> artists,
+  required List<String> originalAuthors,
+  required List<String> originalArtists,
+}) {
+  final authorKeys = originalAuthors.map(_normalizedName).toSet();
+  final artistKeys = originalArtists.map(_normalizedName).toSet();
+  final authorCredits = <String, MangaCredit>{};
+  final artistCredits = <String, MangaCredit>{};
+  final otherCredits = <MangaCredit>[];
+
+  for (final credit in original) {
+    final name = _normalizedName(credit.name ?? credit.creditedName ?? '');
+    final role = credit.role?.trim().toLowerCase() ?? '';
+    if (role.contains('author') || authorKeys.contains(name)) {
+      authorCredits.putIfAbsent(name, () => credit);
+    } else if (role.contains('artist') || artistKeys.contains(name)) {
+      artistCredits.putIfAbsent(name, () => credit);
+    } else {
+      otherCredits.add(credit);
+    }
+  }
+
+  final edited = <MangaCredit>[];
+  for (final name in authors) {
+    edited.add(_mangaCreditForName(
+      name,
+      authorCredits[_normalizedName(name)],
+      role: 'author',
+      sequence: edited.length,
+    ));
+  }
+  for (final name in artists) {
+    edited.add(_mangaCreditForName(
+      name,
+      artistCredits[_normalizedName(name)],
+      role: 'artist',
+      sequence: edited.length,
+    ));
+  }
+  for (final credit in otherCredits) {
+    edited.add(_mangaCreditForName(
+      credit.name ?? credit.creditedName ?? '',
+      credit,
+      role: credit.role ?? '',
+      sequence: edited.length,
+    ));
+  }
+  return edited;
 }
+
+MangaCredit _mangaCreditForName(
+  String name,
+  MangaCredit? previous, {
+  required String role,
+  required int sequence,
+}) =>
+    MangaCredit(
+      artistId: previous?.artistId,
+      creditedName: previous?.creditedName,
+      id: previous?.id,
+      imageUrl: previous?.imageUrl,
+      instrument: previous?.instrument,
+      joinPhrase: previous?.joinPhrase,
+      name: name,
+      personId: previous?.personId,
+      role: previous?.role?.isNotEmpty == true ? previous!.role : role,
+      roleId: previous?.roleId,
+      sequence: sequence,
+      sortName: previous?.sortName,
+    );
+
+String _normalizedName(String value) => value.trim().toLowerCase();
+
+List<MangaIdentifier> _editedMangaIdentifiers(
+  List<MangaIdentifier> original, {
+  required String? isbn,
+  required String? barcode,
+}) {
+  const isbnIdentifierTypes = {
+    'isbn',
+    'isbn10',
+    'isbn_10',
+    'isbn13',
+    'isbn_13',
+  };
+  String normalizedType(MangaIdentifier value) =>
+      value.identifierType.toLowerCase().replaceAll('-', '_');
+
+  final identifiers = [
+    for (final identifier in original)
+      if (!isbnIdentifierTypes.contains(normalizedType(identifier)) &&
+          normalizedType(identifier) != 'barcode')
+        identifier,
+  ];
+  final originalIsbn = original.where(
+    (identifier) => isbnIdentifierTypes.contains(normalizedType(identifier)),
+  );
+  final previousIsbn = originalIsbn.isEmpty ? null : originalIsbn.first;
+  final previousBarcode = original
+      .where((identifier) => normalizedType(identifier) == 'barcode')
+      .firstOrNull;
+  if (isbn != null) {
+    identifiers.add(
+      MangaIdentifier(
+        identifierType: 'isbn',
+        value: isbn,
+        id: previousIsbn?.id,
+        normalizedValue:
+            previousIsbn?.value == isbn ? previousIsbn?.normalizedValue : null,
+        isPrimary: true,
+      ),
+    );
+  }
+  if (barcode != null) {
+    identifiers.add(
+      MangaIdentifier(
+        identifierType: 'barcode',
+        value: barcode,
+        id: previousBarcode?.id,
+        normalizedValue: previousBarcode?.value == barcode
+            ? previousBarcode?.normalizedValue
+            : null,
+        isPrimary: isbn == null,
+      ),
+    );
+  }
+  return identifiers;
+}
+
+List<MangaCharacter> _editedMangaCharacters(
+  String value,
+  List<MangaCharacter> original,
+) {
+  final previousByName = {
+    for (final character in original)
+      character.name.trim().toLowerCase(): character,
+  };
+  return [
+    for (final name in _splitValues(value))
+      _mangaCharacterWithPreservedDetails(
+        name,
+        previousByName.remove(name.toLowerCase()),
+      ),
+  ];
+}
+
+MangaCharacter _mangaCharacterWithPreservedDetails(
+  String name,
+  MangaCharacter? previous,
+) =>
+    MangaCharacter(
+      name: name,
+      id: previous?.id,
+      characterId: previous?.characterId,
+      role: previous?.role,
+      description: previous?.description,
+      imageUrl: previous?.imageUrl,
+      aliases: previous?.aliases ?? const [],
+      plainValue: previous?.plainValue ?? true,
+    );

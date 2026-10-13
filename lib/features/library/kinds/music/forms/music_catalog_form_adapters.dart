@@ -1,141 +1,77 @@
 import 'package:collectarr_app/features/library/kinds/music/domain/music_external_link.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_ids.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_medium.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_release.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_release_group.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_release_relations.dart';
-import 'package:collectarr_app/features/library/kinds/music/forms/music_release_form_values.dart';
-import 'package:collectarr_app/features/library/kinds/music/forms/music_release_group_form_values.dart';
+import 'package:collectarr_app/core/models/catalog_item_ref.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_disc.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_album.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_credit.dart';
+import 'package:collectarr_app/features/library/kinds/music/forms/music_album_form_values.dart';
 
-abstract final class MusicReleaseGroupFormAdapter {
-  static MusicReleaseGroup create(
-    MusicReleaseGroupFormValues values, {
-    required MusicReleaseGroupId id,
-    List<MusicRelease> releases = const [],
+abstract final class MusicAlbumFormAdapter {
+  static MusicAlbum create(
+    MusicAlbumFormValues values, {
+    required CatalogItemRef id,
+    List<MusicDisc> discs = const [],
   }) =>
-      MusicReleaseGroup(
+      MusicAlbum(
         id: id,
-        title: values.title.trim(),
-        sortTitle: _text(values.sortTitle),
-        artist: _text(values.artist),
-        originalTitle: _text(values.originalTitle),
-        originalReleaseDate: values.originalReleaseDate,
-        recordingDate: values.recordingDate,
-        studio: _text(values.studio),
-        isLive: values.isLive,
-        genres: List.unmodifiable(values.genres),
-        coverImageUrl: _text(values.coverImageUrl),
-        releases: List.unmodifiable(releases),
-      );
-
-  static MusicReleaseGroup update(
-    MusicReleaseGroup original,
-    MusicReleaseGroupFormValues values, {
-    required List<MusicExternalLink> externalLinks,
-    required String? localCoverImagePath,
-    required String? localBackImagePath,
-    required String? localThumbnailImagePath,
-  }) =>
-      MusicReleaseGroup(
-        id: original.id,
-        title: values.title.trim(),
-        sortTitle: _text(values.sortTitle),
-        artist: _text(values.artist),
-        originalTitle: _text(values.originalTitle),
-        originalReleaseDate: values.originalReleaseDate,
-        originalReleaseDateParts:
-            values.originalReleaseDate == original.originalReleaseDate
-                ? original.originalReleaseDateParts
-                : null,
-        recordingDate: values.recordingDate,
-        recordingDateParts: values.recordingDate == original.recordingDate
-            ? original.recordingDateParts
-            : null,
-        studio: _text(values.studio),
-        isLive: values.isLive,
-        genres: List.unmodifiable(values.genres),
-        artistCredits: original.artistCredits,
-        coverImageUrl: _text(values.coverImageUrl),
-        coverImageKey: original.coverImageKey,
-        externalLinks: List.unmodifiable(externalLinks),
-        releases: original.releases,
-        localCoverImagePath: localCoverImagePath,
-        localBackImagePath: localBackImagePath,
-        localThumbnailImagePath: localThumbnailImagePath,
-        createdAt: original.createdAt,
-        updatedAt: original.updatedAt,
-      );
-}
-
-abstract final class MusicReleaseFormAdapter {
-  static MusicRelease create(
-    MusicReleaseFormValues values, {
-    required MusicReleaseId id,
-    required MusicReleaseGroupId releaseGroupId,
-    List<MusicMedium> mediums = const [],
-  }) =>
-      MusicRelease(
-        id: id,
-        releaseGroupId: releaseGroupId,
         title: values.title.trim(),
         sortTitle: _text(values.sortTitle),
         subtitle: _text(values.subtitle),
-        releaseType: _text(values.releaseType),
-        releaseStatus: _text(values.releaseStatus),
-        releaseDate: values.releaseDate,
+        artist: _text(values.artist),
+        artistCredits: List.unmodifiable(values.artistCredits),
+        originalReleaseDateParts: values.originalReleaseDateParts,
+        genres: List.unmodifiable(values.genres),
+        releaseDateParts: values.releaseDateParts,
         publisher: _text(values.publisher),
         countryCode: _text(values.countryCode),
-        language: _text(values.language),
         barcode: _text(values.barcode),
-        upc: _text(values.upc),
         catalogNumber: _text(values.catalogNumber),
         packaging: _text(values.packaging),
-        boxSetName: _text(values.boxSetName),
+        extra: List.unmodifiable(values.extra),
+        boxSet: _text(values.boxSet),
         coverImageUrl: _text(values.coverImageUrl),
-        boxSetMembership: values.boxSetMembership,
-        mediums: List.unmodifiable(mediums),
+        backCoverImageUrl: _text(values.backCoverImageUrl),
+        credits: List.unmodifiable(values.credits),
+        discs: List.unmodifiable(discs),
       );
 
-  static MusicRelease update(
-    MusicRelease original,
-    MusicReleaseFormValues values, {
-    List<MusicMedium>? mediums,
+  static MusicAlbum update(
+    MusicAlbum original,
+    MusicAlbumFormValues values, {
+    List<MusicDisc>? discs,
     List<MusicExternalLink>? externalLinks,
-    List<MusicReleaseContribution>? contributions,
+    List<MusicCredit>? credits,
   }) =>
-      MusicRelease(
+      MusicAlbum(
         id: original.id,
-        releaseGroupId: original.releaseGroupId,
         title: values.title.trim(),
         sortTitle: _text(values.sortTitle),
         subtitle: _text(values.subtitle),
-        releaseType: _text(values.releaseType),
-        releaseStatus: _text(values.releaseStatus),
-        releaseDate: values.releaseDate,
-        releaseDateParts: values.releaseDate == original.releaseDate
-            ? original.releaseDateParts
-            : null,
+        artist: _text(values.artist),
+        originalReleaseDateParts: values.originalReleaseDateParts,
+        genres: List.unmodifiable(values.genres),
+        releaseDateParts: values.releaseDateParts,
         publisher: _text(values.publisher),
         countryCode: _text(values.countryCode),
-        language: _text(values.language),
         barcode: _text(values.barcode),
-        upc: _text(values.upc),
         catalogNumber: _text(values.catalogNumber),
         packaging: _text(values.packaging),
-        boxSetName: _text(values.boxSetName),
+        boxSet: _text(values.boxSet),
         coverImageUrl: _text(values.coverImageUrl),
         coverImageKey: original.coverImageKey,
+        backCoverImageUrl: _text(values.backCoverImageUrl),
+        thumbnailImageUrl: original.thumbnailImageUrl,
+        localCoverImagePath: original.localCoverImagePath,
+        localBackImagePath: original.localBackImagePath,
+        localThumbnailImagePath: original.localThumbnailImagePath,
+        extra: List.unmodifiable(values.extra),
         externalLinks:
             List.unmodifiable(externalLinks ?? original.externalLinks),
-        boxSetMembership: values.boxSetMembership,
+        revision: original.revision,
         createdAt: original.createdAt,
         updatedAt: original.updatedAt,
-        contributions:
-            List.unmodifiable(contributions ?? original.contributions),
-        artistCredits: original.artistCredits,
-        labels: original.labels,
-        identifiers: original.identifiers,
-        mediums: List.unmodifiable(mediums ?? original.mediums),
+        credits: List.unmodifiable(credits ?? values.credits),
+        artistCredits: List.unmodifiable(values.artistCredits),
+        discs: List.unmodifiable(discs ?? original.discs),
       );
 }
 

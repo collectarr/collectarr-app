@@ -2,7 +2,7 @@ import 'package:collectarr_app/features/library/config/library_item_actions.dart
 import 'package:collectarr_app/features/library/details/library_inspector_info_line.dart';
 import 'package:collectarr_app/features/library/details/library_inspector_title_card.dart';
 import 'package:collectarr_app/features/library/details/library_detail_models.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/workspace/boardgame_workspace_catalog_data.dart';
+import 'package:collectarr_app/features/library/kinds/boardgame/workspace/boardgame_workspace_data.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/workspace/boardgame_workspace_dto.dart';
 import 'package:collectarr_app/features/library/details/library_detail_panel_scaffold.dart';
 import 'package:collectarr_app/features/library/detail/library_detail_hero.dart';
@@ -23,7 +23,7 @@ Widget buildBoardGameInspectorPanel(
   return BoardGameInspectorPanel(request: request);
 }
 
-List<Widget> buildBoardGameWorkInspectorSections(
+List<Widget> buildBoardGameCatalogItemInspectorSections(
   BuildContext context,
   LibraryInspectorRequest inspector,
 ) {
@@ -33,27 +33,18 @@ List<Widget> buildBoardGameWorkInspectorSections(
   ];
 }
 
-List<Widget> buildBoardGameReleaseInspectorSections(
+List<Widget> buildBoardGameLibraryEntryInspectorSections(
   BuildContext context,
   LibraryInspectorRequest inspector,
 ) {
   return [
     _BoardGameInspectorMain(inspector: inspector),
-  ];
-}
-
-List<Widget> buildBoardGameCopyInspectorSections(
-  BuildContext context,
-  LibraryInspectorRequest inspector,
-) {
-  return [
-    _BoardGameInspectorMain(inspector: inspector),
-    if (inspector.ownedItem != null || inspector.trackingSummary != null)
+    if (inspector.libraryEntry != null || inspector.trackingSummary != null)
       InspectorPersonalStatusSection(
         type: inspector.type,
         item: inspector.item,
-        ownedItem: inspector.ownedItem,
-        ownedItemDispatch: inspector.ownedItemDispatch,
+        libraryEntry: inspector.libraryEntry,
+        libraryEntryDispatch: inspector.libraryEntryDispatch,
         trackingSummary: inspector.trackingSummary,
         accent: inspector.accent,
         onFilterByValue: inspector.onFilterByValue,
@@ -61,41 +52,25 @@ List<Widget> buildBoardGameCopyInspectorSections(
   ];
 }
 
-Widget buildBoardGameWorkInspectorHero(
+Widget buildBoardGameCatalogItemInspectorHero(
   BuildContext context,
   LibraryInspectorRequest request,
 ) =>
     LibraryDetailHero(
       type: request.type,
       item: request.item,
-      ownedItem: request.ownedItem,
-      ownedCopies: request.ownedCopies,
+      libraryEntry: request.libraryEntry,
       accent: request.accent,
     );
 
-Widget buildBoardGameReleaseInspectorHero(
+Widget buildBoardGameLibraryEntryInspectorHero(
   BuildContext context,
   LibraryInspectorRequest request,
 ) =>
     LibraryDetailHero(
       type: request.type,
       item: request.item,
-      ownedItem: request.ownedItem,
-      ownedCopies: request.ownedCopies,
-      accent: request.accent,
-    );
-
-Widget buildBoardGameCopyInspectorHero(
-  BuildContext context,
-  LibraryInspectorRequest request,
-) =>
-    LibraryDetailHero(
-      type: request.type,
-      item: request.item,
-      ownedItem: request.ownedItem,
-      ownedCopies: [
-        if (request.ownedItem != null) request.ownedItem!,
-      ],
+      libraryEntry: request.libraryEntry,
       accent: request.accent,
     );
 
@@ -117,7 +92,7 @@ class BoardGameInspectorPanel extends StatelessWidget {
         onEdit: request.onEdit,
         onShare: request.onShare,
         onDuplicate: request.onDuplicate,
-        onToggleOwned: request.onToggleOwned,
+        onToggleEntry: request.onToggleEntry,
         onLoan: request.onLoan,
         onRefreshMetadata: request.onRefreshMetadata,
         onUnlinkFromCore: request.onUnlinkFromCore,
@@ -181,14 +156,14 @@ class _BoardGameInspectorMain extends StatelessWidget {
     final dto = item.dto;
     final adapter = dto is BoardGameWorkspaceDto ? dto : null;
     final bgDto = dto is BoardGameWorkspaceDto ? dto : null;
-    final metadata = item.source.catalogData is BoardGameWorkspaceCatalogData
-        ? (item.source.catalogData! as BoardGameWorkspaceCatalogData).metadata
+    final metadata = item.source.kindPresentationData is BoardGameWorkspaceData
+        ? (item.source.kindPresentationData! as BoardGameWorkspaceData).metadata
         : null;
     final palette = appPalette(context);
     final releaseYear = adapter?.releaseDate?.year.toString();
-    final creatorsList = metadata?.creators
-            .map((Map<String, dynamic> c) => (c['name'] ?? '').toString())
-            .where((n) => n.trim().isNotEmpty)
+    final creatorsList = metadata?.credits
+            .map((credit) => credit.name)
+            .where((name) => name.trim().isNotEmpty)
             .toList() ??
         const [];
     final designerText = _joinNonEmpty(creatorsList);
@@ -231,7 +206,7 @@ class _BoardGameInspectorMain extends StatelessWidget {
                         if (releaseYear != null) '($releaseYear)',
                       ].join(' '),
                       style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                            fontWeight: FontWeight.w800,
+                            fontWeight: FontWeight.w700,
                           ),
                     ),
                   const SizedBox(height: 8),

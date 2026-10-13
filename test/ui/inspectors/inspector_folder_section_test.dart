@@ -1,7 +1,6 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
-import 'package:collectarr_app/core/models/money.dart';
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/features/library/inspector/inspector_folder_section.dart';
 import 'package:drift/drift.dart' show Value;
 import 'package:drift/native.dart';
@@ -27,7 +26,7 @@ void main() {
     await db.into(db.userFolderItemsCache).insert(
           UserFolderItemsCacheCompanion.insert(
             folderId: 'folder-1',
-            ownedRefKey: 'book:owned-1',
+            libraryEntryRefKey: 'book:entry-1',
             sortOrder: const Value(1),
           ),
         );
@@ -36,9 +35,9 @@ void main() {
       MaterialApp(
         home: Scaffold(
           body: InspectorFolderSection(
-            ownedRef: const OwnedItemRef(
+            libraryEntryRef: const LibraryEntryRef(
               kind: CatalogMediaKind.book,
-              id: OwnedItemId('owned-1'),
+              id: LibraryEntryId('entry-1'),
             ),
             db: db,
             accent: Colors.orange,
@@ -60,7 +59,7 @@ void main() {
     final folderItems = await db.select(db.userFolderItemsCache).get();
     expect(folderItems, hasLength(1));
     expect(folderItems.single.folderId, 'folder-1');
-    expect(folderItems.single.ownedRefKey, 'book:owned-1');
+    expect(folderItems.single.libraryEntryRefKey, 'book:entry-1');
     expect(find.text('Favorites'), findsOneWidget);
   });
 }

@@ -1,5 +1,4 @@
-import 'package:collectarr_app/core/api/dto/admin_metadata.dart';
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/features/library/add/controllers/library_add_preview_controller.dart';
 import 'package:collectarr_app/features/library/add/controllers/library_add_search_state.dart';
 import 'package:collectarr_app/features/library/add/controllers/library_add_selection_state.dart';
@@ -9,8 +8,6 @@ import 'package:collectarr_app/features/library/add/models/library_add_common_dr
 import 'package:collectarr_app/features/library/add/models/library_add_kind_draft.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_target.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_tracking_draft.dart';
-import 'package:collectarr_app/features/library/bundles/models/library_bundle_detail.dart';
-import 'package:collectarr_app/features/providers/transport/provider_search_candidate.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -54,7 +51,6 @@ final class LibraryAddSessionState {
   final bool isAdding;
 
   CatalogSearchCandidate? get selectedItem {
-    if (!selection.showCoreResults) return null;
     final id = selection.selectedResultId;
     if (id == null) return null;
     for (final item in search.results) {
@@ -64,55 +60,18 @@ final class LibraryAddSessionState {
     return null;
   }
 
-  ProviderSearchCandidate? get selectedCandidate {
-    if (!selection.showProviderResults) return null;
-    final id = selection.selectedProviderCandidateId;
-    if (id == null) return null;
-    for (final candidate in search.providerResults) {
-      if (candidate.localCatalogId == id) return candidate;
-    }
-    return null;
-  }
-
-  LibraryBundleDetail? get selectedBundleReleaseDetail {
-    final bundleReleaseId = selection.selectedBundleReleaseId;
-    if (bundleReleaseId == null) return null;
-    return preview.bundleReleaseDetailForId(bundleReleaseId);
-  }
-
-  AdminProviderPreview? get selectedCandidatePreview {
-    final candidate = selectedCandidate;
-    if (candidate == null) return null;
-    return preview.providerPreviewFor(candidate.localCatalogId);
-  }
-
   List<CatalogSearchCandidate> visibleCoreResults(
     LibraryAddResultPolicy policy, {
-    required bool Function(CatalogSearchCandidate item) isOwnedCatalogItem,
+    required bool Function(CatalogSearchCandidate item) isEntryCatalogItem,
   }) {
-    if (!selection.showCoreResults) {
-      return const <CatalogSearchCandidate>[];
-    }
-    final ownedRefs = <CatalogEntityRef>{
+    final libraryEntryRefs = <CatalogItemRef>{
       for (final item in search.results)
-        if (isOwnedCatalogItem(item)) item.reference,
+        if (isEntryCatalogItem(item)) item.reference,
     };
     return policy.filterCoreResults(
       items: search.results,
       state: selection.resultPolicyState,
-      ownedCatalogRefs: ownedRefs,
-    );
-  }
-
-  List<ProviderSearchCandidate> visibleProviderResults(
-    LibraryAddResultPolicy policy,
-  ) {
-    if (!selection.showProviderResults) {
-      return const <ProviderSearchCandidate>[];
-    }
-    return policy.filterProviderResults(
-      candidates: search.providerResults,
-      state: selection.resultPolicyState,
+      entryCatalogRefs: libraryEntryRefs,
     );
   }
 

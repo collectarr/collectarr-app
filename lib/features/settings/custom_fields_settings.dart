@@ -1,46 +1,45 @@
+import 'package:collectarr_app/features/library/inspector/inspector_custom_fields_section.dart';
+import 'package:collectarr_app/features/settings/custom_field_editor_dialog.dart';
+import 'package:collectarr_app/features/settings/custom_fields_tab_settings_dialog.dart';
 import 'dart:async';
-import 'dart:convert';
-import 'package:collectarr_app/core/logging/recoverable_error.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/features/collection/repositories/custom_field_repository.dart';
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
-import 'package:collectarr_app/features/library/v1/catalog_item_v1_kind_identities.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
-import 'package:collectarr_app/ui/compact_search_dropdown_form_field.dart';
+import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/ui/accent_alert_dialog.dart';
-import 'package:uuid/uuid.dart';
+import 'package:collectarr_app/features/settings/custom_field_dialog.dart';
+import 'package:collectarr_app/features/library/ui/library_management_page.dart';
+import 'package:collectarr_app/features/library/generic/library_custom_field_cache.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:collectarr_app/features/settings/custom_field_type_picker.dart';
+import 'package:collectarr_app/features/settings/custom_fields_display_settings.dart';
 
-Future<void> showCustomFieldsManagementDialog({
+Future<void> showCustomFieldsManagementPage({
   required BuildContext context,
   required LocalDatabase db,
   bool startCreating = false,
-}) {
-  return showDialog<void>(
-    context: context,
-    builder: (context) => AccentAlertDialog(
-      backgroundColor: appPalette(context).panel,
-      title: const Text('Manage custom fields'),
-      content: SizedBox(
-        width: 920,
-        height: 560,
+  Color? accent,
+  String? mediaKind,
+}) =>
+    Navigator.of(context).push<void>(MaterialPageRoute(
+      builder: (context) => LibraryManagementPage(
+        title: 'Manage Custom Fields',
+        svgAsset: AppIcons.customFieldsSvg,
+        backgroundColor: appManagementCanvasColor(context),
+        accent: accent ?? appPalette(context).accent,
         child: SingleChildScrollView(
-          child: CustomFieldsSettings(
-            db: db,
-            startCreating: startCreating,
-          ),
+          padding: const EdgeInsets.fromLTRB(15, 18, 15, 24),
+          child: Center(
+              child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 930),
+            child: CustomFieldsSettings(
+                db: db, mediaKind: mediaKind, startCreating: startCreating),
+          )),
         ),
       ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.of(context).pop(),
-          child: const Text('Close'),
-        ),
-      ],
-    ),
-  );
-}
+    ));
 
 /// Settings panel for managing custom field definitions.
 class CustomFieldsSettings extends StatefulWidget {
@@ -48,10 +47,12 @@ class CustomFieldsSettings extends StatefulWidget {
     super.key,
     required this.db,
     this.startCreating = false,
+    this.mediaKind,
   });
 
   final LocalDatabase db;
   final bool startCreating;
+  final String? mediaKind;
 
   @override
   State<CustomFieldsSettings> createState() => _CustomFieldsSettingsState();
@@ -62,12 +63,14 @@ class _CustomFieldsSettingsState extends State<CustomFieldsSettings> {
   List<CustomFieldDefinition> _definitions = const [];
   bool _loading = true;
   bool _openedInitialEditor = false;
+  CustomFieldsDisplaySettings _display = const CustomFieldsDisplaySettings();
 
   @override
   void initState() {
     super.initState();
     _repo = CustomFieldRepository(widget.db);
     _reload();
+    unawaited(_loadDisplay());
     if (widget.startCreating) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (!mounted || _openedInitialEditor) {
@@ -79,8 +82,26 @@ class _CustomFieldsSettingsState extends State<CustomFieldsSettings> {
     }
   }
 
+  Future<void> _loadDisplay() async {
+    final display = await CustomFieldsDisplaySettings.read(widget.mediaKind);
+    if (mounted) setState(() => _display = display);
+  }
+
+  Future<void> _configureTab() async {
+    final result = await showDialog<CustomFieldsDisplaySettings>(
+      context: context,
+      builder: (context) => CustomFieldsTabSettingsDialog(settings: _display),
+    );
+    if (result == null) return;
+    await result.save(widget.mediaKind);
+    if (mounted) {
+      setState(() => _display = result);
+      _invalidate();
+    }
+  }
+
   Future<void> _reload() async {
-    final defs = await _repo.listDefinitions();
+    final defs = await _repo.listDefinitions(mediaKind: widget.mediaKind);
     if (mounted) {
       setState(() {
         _definitions = defs;
@@ -97,18 +118,42 @@ class _CustomFieldsSettingsState extends State<CustomFieldsSettings> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.only(bottom: 18),
+          decoration: BoxDecoration(
+              border: Border(
+                  bottom: BorderSide(color: appPalette(context).divider))),
+          child: Row(children: [
+            Expanded(
+                child: Text(_display.tabName,
+                    style: const TextStyle(
+                        fontSize: 22, fontWeight: FontWeight.w700))),
+            IconButton(
+                tooltip: 'Custom Fields help',
+                onPressed: _showHelp,
+                icon: const Icon(AppIcons.customFieldHelp, size: 16)),
+            IconButton(
+                tooltip: 'Custom Fields settings',
+                onPressed: _configureTab,
+                icon: const Icon(AppIcons.settings, size: 16)),
+          ]),
+        ),
         if (_definitions.isEmpty)
           Padding(
-            padding: const EdgeInsets.only(bottom: 12),
-            child: Text(
-              'No custom fields defined yet. Add one to track extra data on your items.',
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: Theme.of(context)
-                        .colorScheme
-                        .onSurface
-                        .withValues(alpha: 0.6),
-                  ),
-            ),
+            padding: const EdgeInsets.only(top: 20, bottom: 2),
+            child:
+                Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              const Text('You do not have any Custom Fields yet.',
+                  style: TextStyle(fontSize: 14)),
+              InkWell(
+                  mouseCursor: SystemMouseCursors.click,
+                  onTap: _showHelp,
+                  child: Text('Read about Custom Fields before adding them.',
+                      style: TextStyle(
+                          fontSize: 14,
+                          color: Theme.of(context).colorScheme.primary))),
+            ]),
           ),
         ReorderableListView.builder(
           shrinkWrap: true,
@@ -128,32 +173,79 @@ class _CustomFieldsSettingsState extends State<CustomFieldsSettings> {
           },
         ),
         const SizedBox(height: 8),
-        OutlinedButton.icon(
+        FilledButton.icon(
+          style: FilledButton.styleFrom(
+              foregroundColor: Colors.white,
+              minimumSize: const Size(0, 32),
+              visualDensity: VisualDensity.standard,
+              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              padding: const EdgeInsets.symmetric(horizontal: 8),
+              textStyle:
+                  const TextStyle(fontSize: 14, fontWeight: FontWeight.w700)),
           onPressed: () => _showEditor(),
-          icon: const Icon(Icons.add),
-          label: const Text('Add custom field'),
+          icon: const Icon(AppIcons.add, size: 14),
+          label: const Text('Add Custom Field'),
         ),
       ],
     );
   }
+
+  void _showHelp() => showDialog<void>(
+      context: context,
+      builder: (_) => CustomFieldDialog(
+          title: 'Custom Fields',
+          actions: [
+            TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Close'))
+          ],
+          child: const Padding(
+              padding: EdgeInsets.all(15),
+              child: Text(
+                  'Custom Fields store your own information on collection items. Choose a field type, give it a name and try its preview.\n\n'
+                  'Pick Lists let you manage values later. Fixed Button Bar and Fixed List values are locked after creation.\n\n'
+                  'Use the drag handles to reorder fields. Tab settings control the name and visibility in the edit screen.\n\n'
+                  'Deleting a field permanently removes its saved values.'))));
 
   Future<void> _onReorder(int oldIndex, int newIndex) async {
     final reordered = List.of(_definitions);
     final item = reordered.removeAt(oldIndex);
     reordered.insert(newIndex, item);
     setState(() => _definitions = reordered);
-    for (var i = 0; i < reordered.length; i++) {
-      await _repo.upsertDefinition(reordered[i].copyWith(sortOrder: i));
-    }
+    await _repo.reorderDefinitions(reordered.map((def) => def.id).toList());
+    _invalidate();
   }
 
   Future<void> _showEditor({CustomFieldDefinition? existing}) async {
-    final result = await showDialog<CustomFieldDefinition>(
+    final type = existing?.valueType ??
+        await showDialog<CustomFieldValueType>(
+          context: context,
+          builder: (context) => const CustomFieldTypePicker(),
+        );
+    if (type == null || !mounted) return;
+    final display = existing == null
+        ? const CustomFieldDisplaySettings()
+        : await CustomFieldDisplaySettings.read(existing.id);
+    if (!mounted) return;
+    final all = await _repo.listDefinitions();
+    if (!mounted) return;
+    final nextOrder = all.fold<int>(
+        0,
+        (value, definition) =>
+            definition.sortOrder >= value ? definition.sortOrder + 1 : value);
+    final result = await showDialog<CustomFieldEditorResult>(
       context: context,
-      builder: (context) => _CustomFieldEditor(existing: existing),
+      builder: (context) => CustomFieldEditorDialog(
+          existing: existing,
+          initialType: type,
+          initialMediaKind: widget.mediaKind,
+          initialDisplay: display,
+          sortOrder: nextOrder),
     );
     if (result != null) {
-      await _repo.upsertDefinition(result);
+      await _repo.upsertDefinition(result.definition);
+      await result.display.save(result.definition.id);
+      _invalidate();
       await _reload();
     }
   }
@@ -162,6 +254,7 @@ class _CustomFieldsSettingsState extends State<CustomFieldsSettings> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AccentAlertDialog(
+        headerIcon: AppIcons.delete,
         title: const Text('Delete custom field?'),
         content: Text(
           'This will permanently remove "${def.name}" and all its values from every item.',
@@ -180,379 +273,91 @@ class _CustomFieldsSettingsState extends State<CustomFieldsSettings> {
     );
     if (confirmed == true) {
       await _repo.deleteDefinition(def.id);
+      await CustomFieldDisplaySettings.delete(def.id);
+      _invalidate();
       await _reload();
     }
   }
+
+  void _invalidate() {
+    final container = ProviderScope.containerOf(context, listen: false);
+    container.invalidate(libraryCustomFieldCacheProvider);
+    invalidateInspectorCustomFields(container);
+  }
 }
 
-class _DefinitionTile extends StatelessWidget {
-  const _DefinitionTile({
-    super.key,
-    required this.definition,
-    required this.index,
-    required this.onEdit,
-    required this.onDelete,
-  });
-
+class _DefinitionTile extends StatefulWidget {
+  const _DefinitionTile(
+      {super.key,
+      required this.definition,
+      required this.index,
+      required this.onEdit,
+      required this.onDelete});
   final CustomFieldDefinition definition;
   final int index;
   final VoidCallback onEdit;
   final VoidCallback onDelete;
+  @override
+  State<_DefinitionTile> createState() => _DefinitionTileState();
+}
 
+class _DefinitionTileState extends State<_DefinitionTile> {
+  bool _hovered = false;
   @override
   Widget build(BuildContext context) {
     final palette = appPalette(context);
-    return Material(
-      color: palette.panelRaised,
-      borderRadius: BorderRadius.circular(12),
-      clipBehavior: Clip.antiAlias,
-      child: InkWell(
-        mouseCursor: WidgetStateMouseCursor.clickable,
-        onTap: onEdit,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-          child: LayoutBuilder(
-            builder: (context, constraints) {
-              final stacked = constraints.maxWidth < 640;
-              final kindLabel = _mediaKindLabel(definition.mediaKind);
-              final scopeLabel = _editScopeLabel(definition.editScope);
-              final typeLabel = definition.valueTypeLabel;
-              final rowChildren = <Widget>[
-                ReorderableDragStartListener(
-                  index: index,
-                  child: Icon(
-                    Icons.drag_handle,
-                    color: palette.textMuted,
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  flex: 3,
-                  child: Column(
+    return MouseRegion(
+      cursor: SystemMouseCursors.grab,
+      onEnter: (_) => setState(() => _hovered = true),
+      onExit: (_) => setState(() => _hovered = false),
+      child: AnimatedContainer(
+          duration: const Duration(milliseconds: 100),
+          curve: Curves.linear,
+          transformAlignment: Alignment.center,
+          transform: Matrix4.identity()
+            ..scaleByDouble(_hovered ? 1.015 : 1, _hovered ? 1.015 : 1, 1, 1)
+            ..rotateZ(_hovered ? .0087266 : 0),
+          decoration: BoxDecoration(
+              color: appManagementCanvasColor(context),
+              boxShadow: [
+                if (_hovered)
+                  BoxShadow(color: palette.divider, offset: const Offset(2, 2))
+              ]),
+          height: 50,
+          padding: const EdgeInsets.symmetric(horizontal: 10),
+          child: Row(children: [
+            ReorderableDragStartListener(
+                index: widget.index,
+                child: SizedBox(
+                    width: 32,
+                    height: 32,
+                    child: Icon(AppIcons.customFieldDrag,
+                        size: 16, color: palette.textMuted))),
+            const SizedBox(width: 10),
+            CustomFieldTypeIcon(type: widget.definition.valueType, size: 26),
+            const SizedBox(width: 15),
+            Expanded(
+                child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        definition.name,
-                        style: const TextStyle(fontWeight: FontWeight.w700),
-                      ),
-                      const SizedBox(height: 2),
-                      Text(
-                        kindLabel,
-                        style:
-                            TextStyle(color: palette.textMuted, fontSize: 12),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(width: 12),
-                _DefinitionPill(label: scopeLabel),
-                const SizedBox(width: 8),
-                _DefinitionPill(label: typeLabel),
-                const SizedBox(width: 8),
-                IconButton(
-                  icon: const Icon(Icons.edit_outlined, size: 20),
-                  onPressed: onEdit,
-                  tooltip: 'Edit',
-                ),
-                IconButton(
-                  icon: const Icon(Icons.delete_outline, size: 20),
-                  onPressed: onDelete,
-                  tooltip: 'Delete',
-                ),
-              ];
-              if (!stacked) {
-                return Row(children: rowChildren);
-              }
-              return Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Row(
-                    children: [
-                      ReorderableDragStartListener(
-                        index: index,
-                        child: Icon(
-                          Icons.drag_handle,
-                          color: palette.textMuted,
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              definition.name,
-                              style: const TextStyle(
-                                fontWeight: FontWeight.w700,
-                              ),
-                            ),
-                            const SizedBox(height: 2),
-                            Text(
-                              kindLabel,
-                              style: TextStyle(
-                                color: palette.textMuted,
-                                fontSize: 12,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                  Wrap(
-                    spacing: 8,
-                    runSpacing: 8,
-                    crossAxisAlignment: WrapCrossAlignment.center,
-                    children: [
-                      _DefinitionPill(label: scopeLabel),
-                      _DefinitionPill(label: typeLabel),
-                      IconButton(
-                        icon: const Icon(Icons.edit_outlined, size: 20),
-                        onPressed: onEdit,
-                        tooltip: 'Edit',
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.delete_outline, size: 20),
-                        onPressed: onDelete,
-                        tooltip: 'Delete',
-                      ),
-                    ],
-                  ),
-                ],
-              );
-            },
-          ),
-        ),
-      ),
+                  Text(widget.definition.name,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                          fontSize: 14, fontWeight: FontWeight.w700)),
+                  Text(widget.definition.valueTypeLabel,
+                      style: TextStyle(fontSize: 13, color: palette.textMuted)),
+                ])),
+            IconButton(
+                tooltip: 'Edit',
+                onPressed: widget.onEdit,
+                icon: const Icon(AppIcons.edit, size: 16)),
+            IconButton(
+                tooltip: 'Delete',
+                onPressed: widget.onDelete,
+                icon: const Icon(AppIcons.delete, size: 16)),
+          ])),
     );
   }
-}
-
-class _CustomFieldEditor extends StatefulWidget {
-  const _CustomFieldEditor({this.existing});
-
-  final CustomFieldDefinition? existing;
-
-  @override
-  State<_CustomFieldEditor> createState() => _CustomFieldEditorState();
-}
-
-class _CustomFieldEditorState extends State<_CustomFieldEditor> {
-  final _formKey = GlobalKey<FormState>();
-  late final TextEditingController _nameController;
-  late final TextEditingController _optionsController;
-  late CustomFieldValueType _fieldType;
-  String? _mediaKind;
-  String? _editScope;
-
-  static final List<CustomFieldValueType> _fieldTypes =
-      CustomFieldValueType.values;
-
-  @override
-  void initState() {
-    super.initState();
-    final existing = widget.existing;
-    _nameController = TextEditingController(text: existing?.name ?? '');
-    _fieldType = existing?.valueType ?? CustomFieldValueType.text;
-    _mediaKind = existing?.mediaKind;
-    _editScope = existing?.editScope;
-    _optionsController = TextEditingController(
-      text: _decodeOptions(existing?.options),
-    );
-  }
-
-  @override
-  void dispose() {
-    _nameController.dispose();
-    _optionsController.dispose();
-    super.dispose();
-  }
-
-  String _decodeOptions(String? json) {
-    if (json == null || json.isEmpty) return '';
-    try {
-      final list = jsonDecode(json) as List;
-      return list.join(', ');
-    } catch (error, stackTrace) {
-      logRecoverableError(
-        source: 'custom_fields',
-        message: 'Failed to decode custom field options JSON.',
-        error: error,
-        stackTrace: stackTrace,
-      );
-      return '';
-    }
-  }
-
-  String? _encodeOptions() {
-    if (!_fieldType.supportsOptions) return null;
-    final items = _optionsController.text
-        .split(',')
-        .map((e) => e.trim())
-        .where((e) => e.isNotEmpty)
-        .toList();
-    return items.isEmpty ? null : encodeCustomFieldOptions(items);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final isNew = widget.existing == null;
-    return AccentAlertDialog(
-      title: Text(isNew ? 'New custom field' : 'Edit custom field'),
-      content: Form(
-        key: _formKey,
-        child: SizedBox(
-          width: 400,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextFormField(
-                controller: _nameController,
-                decoration: const InputDecoration(labelText: 'Field name'),
-                autofocus: true,
-                validator: (value) =>
-                    (value == null || value.trim().isEmpty) ? 'Required' : null,
-              ),
-              const SizedBox(height: 12),
-              CompactSearchDropdownFormField<CustomFieldValueType>(
-                initialValue: _fieldType,
-                dropdownColor: appPalette(context).panelRaised,
-                borderRadius: kAppMenuBorderRadius,
-                decoration: const InputDecoration(labelText: 'Field type'),
-                items: [
-                  for (final type in _fieldTypes)
-                    DropdownMenuItem<CustomFieldValueType>(
-                      value: type,
-                      child: Text(type.label),
-                    ),
-                ],
-                onChanged: (value) {
-                  if (value != null) setState(() => _fieldType = value);
-                },
-              ),
-              const SizedBox(height: 12),
-              CompactSearchDropdownFormField<String>(
-                initialValue: _mediaKind,
-                dropdownColor: appPalette(context).panelRaised,
-                borderRadius: kAppMenuBorderRadius,
-                decoration: const InputDecoration(
-                  labelText: 'Applies to',
-                  hintText: 'All libraries',
-                ),
-                items: [
-                  const DropdownMenuItem<String>(
-                    value: null,
-                    child: Text('All libraries'),
-                  ),
-                  for (final identity in catalogItemV1KindIdentities.values)
-                    DropdownMenuItem<String>(
-                      value: identity.kind.apiValue,
-                      child: Text(identity.singularLabel),
-                    ),
-                ],
-                onChanged: (value) => setState(() => _mediaKind = value),
-              ),
-              const SizedBox(height: 12),
-              CompactSearchDropdownFormField<String?>(
-                initialValue: _editScope,
-                dropdownColor: appPalette(context).panelRaised,
-                borderRadius: kAppMenuBorderRadius,
-                decoration: const InputDecoration(
-                  labelText: 'Applies in',
-                  hintText: 'All scopes',
-                ),
-                items: const [
-                  DropdownMenuItem<String?>(
-                    value: null,
-                    child: Text('All scopes'),
-                  ),
-                  DropdownMenuItem<String?>(
-                    value: 'media',
-                    child: Text('Media'),
-                  ),
-                  DropdownMenuItem<String?>(
-                    value: 'release',
-                    child: Text('Release'),
-                  ),
-                ],
-                onChanged: (value) => setState(() => _editScope = value),
-              ),
-              if (_fieldType.supportsOptions) ...[
-                const SizedBox(height: 12),
-                TextFormField(
-                  controller: _optionsController,
-                  decoration: const InputDecoration(
-                    labelText: 'Options (comma-separated)',
-                    hintText: 'Option A, Option B, Option C',
-                  ),
-                  maxLines: 2,
-                ),
-              ],
-            ],
-          ),
-        ),
-      ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.of(context).pop(),
-          child: const Text('Cancel'),
-        ),
-        FilledButton(
-          onPressed: _submit,
-          child: Text(isNew ? 'Create' : 'Save'),
-        ),
-      ],
-    );
-  }
-
-  void _submit() {
-    if (!_formKey.currentState!.validate()) return;
-    final def = CustomFieldDefinition(
-      id: widget.existing?.id ?? const Uuid().v4(),
-      name: _nameController.text.trim(),
-      fieldType: _fieldType.apiValue,
-      mediaKind: _mediaKind,
-      editScope: _editScope,
-      sortOrder: widget.existing?.sortOrder ?? 0,
-      options: _encodeOptions(),
-      createdAt: widget.existing?.createdAt ?? DateTime.now(),
-    );
-    Navigator.of(context).pop(def);
-  }
-}
-
-class _DefinitionPill extends StatelessWidget {
-  const _DefinitionPill({required this.label});
-
-  final String label;
-
-  @override
-  Widget build(BuildContext context) {
-    return Chip(
-      label: Text(label),
-      visualDensity: VisualDensity.compact,
-      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-    );
-  }
-}
-
-String _mediaKindLabel(String? kind) {
-  if (kind == null || kind.trim().isEmpty) {
-    return 'All libraries';
-  }
-  final normalized = kind.trim().toLowerCase();
-  final mediaKind = catalogMediaKindFromValue(normalized);
-  final identity = catalogItemV1KindIdentities[mediaKind];
-  if (identity != null) return identity.singularLabel;
-  return normalized;
-}
-
-String _editScopeLabel(String? scope) {
-  return switch (scope) {
-    null => 'All scopes',
-    'media' => 'Media',
-    'release' => 'Release',
-    _ => scope,
-  };
 }

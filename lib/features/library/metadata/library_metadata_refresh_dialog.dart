@@ -1,3 +1,4 @@
+import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_contributors.dart';
 import 'package:collectarr_app/core/settings/connection_diagnostics.dart';
 import 'package:collectarr_app/core/api/dto/metadata_search_query.dart';
@@ -96,7 +97,7 @@ class _LibraryMetadataRefreshDialogState
     return LibraryDialogScaffold(
       title: Row(
         children: [
-          const Icon(Icons.sync, size: 20),
+          const Icon(AppIcons.sync, size: 20),
           const SizedBox(width: 8),
           Expanded(
             child: Text(
@@ -120,7 +121,7 @@ class _LibraryMetadataRefreshDialogState
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Search Collectarr Core for fresher metadata and cache the returned snapshots locally on this device.',
+                'Search Collectarr Core for catalog records and cache matching results on this device.',
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                       color: palette.textMuted,
                       fontWeight: FontWeight.w700,
@@ -128,19 +129,8 @@ class _LibraryMetadataRefreshDialogState
               ),
               const SizedBox(height: 14),
               _RefreshSourcePanel(
-                type: widget.type,
                 accent: widget.accent,
               ),
-              if (libraryMetadataForKind(widget.type.kind)
-                  .supportedProvidersForKind(widget.type.kind)
-                  .isEmpty) ...[
-                const SizedBox(height: 8),
-                _RefreshNotice(
-                  icon: Icons.warning_amber_outlined,
-                  text:
-                      'No metadata provider is configured for this media type. Refresh may only find existing Core catalog records; manual add remains available.',
-                ),
-              ],
               const SizedBox(height: 12),
               SegmentedButton<_RefreshScope>(
                 segments: [
@@ -222,7 +212,7 @@ class _LibraryMetadataRefreshDialogState
                       dimension: 16,
                       child: CircularProgressIndicator(strokeWidth: 2),
                     )
-                  : const Icon(Icons.sync),
+                  : const Icon(AppIcons.sync),
               label: Text(_finished ? 'Run again' : 'Refresh'),
             ),
             if (_finished) ...[
@@ -269,7 +259,7 @@ class _LibraryMetadataRefreshDialogState
         return;
       }
       _updateRow(
-        entry.node.workId,
+        entry.target.stableKey,
         (row) => row.copyWith(
           status: _RefreshRowStatus.running,
           message: 'Searching Core...',
@@ -283,7 +273,7 @@ class _LibraryMetadataRefreshDialogState
           input: _inputForEntry(entry),
         );
         _updateRow(
-          entry.node.workId,
+          entry.target.stableKey,
           (row) => row.copyWith(
             status: results.isEmpty
                 ? _RefreshRowStatus.missing
@@ -295,7 +285,7 @@ class _LibraryMetadataRefreshDialogState
         );
       } catch (error) {
         _updateRow(
-          entry.node.workId,
+          entry.target.stableKey,
           (row) => row.copyWith(
             status: _RefreshRowStatus.failed,
             message: _shortError(
@@ -318,7 +308,7 @@ class _LibraryMetadataRefreshDialogState
     setState(() {
       _rows = [
         for (final row in _rows)
-          row.entry.node.workId == entryId ? update(row) : row,
+          row.entry.target.stableKey == entryId ? update(row) : row,
       ];
     });
   }
@@ -434,11 +424,9 @@ class _RefreshSummary {
 
 class _RefreshSourcePanel extends StatelessWidget {
   const _RefreshSourcePanel({
-    required this.type,
     required this.accent,
   });
 
-  final LibraryKindRegistration type;
   final Color accent;
 
   @override
@@ -469,7 +457,7 @@ class _RefreshSourcePanel extends StatelessWidget {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    _providerSummary(type),
+                    'Searches canonical catalog records already available in Core.',
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
                           color: palette.textMuted,
                           fontWeight: FontWeight.w700,
@@ -538,7 +526,7 @@ class _RefreshTargetList extends StatelessWidget {
                 row.entry.dto.primaryLabel,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: const TextStyle(fontWeight: FontWeight.w800),
+                style: const TextStyle(fontWeight: FontWeight.w700),
               ),
               subtitle: Text(
                 row.message,
@@ -582,7 +570,7 @@ class _RefreshStat extends StatelessWidget {
               style: TextStyle(
                 color: palette.textMuted,
                 fontSize: 12,
-                fontWeight: FontWeight.w800,
+                fontWeight: FontWeight.w700,
               ),
             ),
             const SizedBox(width: 6),
@@ -641,22 +629,11 @@ List<LibraryProjectionView> _dedupe(Iterable<LibraryProjectionView> values) {
   final seen = <String>{};
   final result = <LibraryProjectionView>[];
   for (final value in values) {
-    if (seen.add(value.node.workId)) {
+    if (seen.add(value.target.stableKey)) {
       result.add(value);
     }
   }
   return result;
-}
-
-String _providerSummary(LibraryKindRegistration type) {
-  final supportedProviders =
-      libraryMetadataForKind(type.kind).supportedProvidersForKind(type.kind);
-  if (supportedProviders.isEmpty) {
-    return 'No providers are registered for this media type yet; existing Core catalog rows can still be searched.';
-  }
-  final labels =
-      supportedProviders.map((provider) => provider.label).join(', ');
-  return 'Core may use: $labels.';
 }
 
 String _shortError(Object error) {
@@ -670,7 +647,7 @@ String _shortError(Object error) {
 IconData _statusIcon(_RefreshRowStatus status) {
   return switch (status) {
     _RefreshRowStatus.waiting => Icons.radio_button_unchecked,
-    _RefreshRowStatus.running => Icons.sync,
+    _RefreshRowStatus.running => AppIcons.sync,
     _RefreshRowStatus.matched => Icons.check_circle,
     _RefreshRowStatus.missing => Icons.search_off,
     _RefreshRowStatus.failed => Icons.error_outline,

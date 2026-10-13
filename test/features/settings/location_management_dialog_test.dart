@@ -1,6 +1,7 @@
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
 import 'package:collectarr_app/features/settings/location_management_dialog.dart';
+import 'package:collectarr_app/ui/compact_search_dropdown_form_field.dart';
 import 'package:drift/drift.dart' show Value;
 import 'package:drift/native.dart';
 
@@ -62,7 +63,7 @@ void main() {
     );
 
     final parentDropdown = find.byWidgetPredicate(
-      (widget) => widget is DropdownButtonFormField<String?>,
+      (widget) => widget is CompactSearchDropdownFormField<String?>,
     );
     await tester.ensureVisible(parentDropdown);
     await tester.tap(parentDropdown);

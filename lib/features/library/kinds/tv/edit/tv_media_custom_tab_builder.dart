@@ -1,14 +1,13 @@
 import 'package:collectarr_app/features/library/edit/draft/library_edit_shell_state.dart';
-import 'package:collectarr_app/features/library/domain/library_entity_scope.dart';
-import 'package:collectarr_app/features/library/kinds/tv/edit/tv_edit_draft_contract.dart';
-import 'package:collectarr_app/features/library/kinds/tv/edit/tv_edit_controller.dart';
+import 'package:collectarr_app/features/library/kinds/tv/edit/tabs/tv_episodes_tab.dart';
+import 'package:collectarr_app/features/library/kinds/tv/edit/tabs/tv_catalog_media_tab.dart';
+import 'package:collectarr_app/features/library/kinds/tv/edit/tabs/tv_episode_media_map_tab.dart';
 import 'package:collectarr_app/features/library/kinds/tv/edit/tabs/tv_cast_tab.dart';
 import 'package:collectarr_app/features/library/kinds/tv/edit/tabs/tv_crew_tab.dart';
-import 'package:collectarr_app/features/library/kinds/tv/edit/tabs/tv_discs_tab.dart';
-import 'package:collectarr_app/features/library/kinds/tv/edit/tabs/tv_edition_tab.dart';
 import 'package:collectarr_app/features/library/kinds/tv/edit/tabs/tv_links_tab.dart';
-import 'package:collectarr_app/features/library/kinds/tv/edit/tabs/tv_media_tab.dart';
-import 'package:collectarr_app/features/library/kinds/tv/edit/tabs/tv_specs_tab.dart';
+import 'package:collectarr_app/features/library/kinds/tv/edit/tv_catalog_form_edit_tab.dart';
+import 'package:collectarr_app/features/library/kinds/tv/edit/tv_edit_draft.dart';
+import 'package:collectarr_app/features/library/kinds/tv/add/tv_add_schema.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:flutter/material.dart';
 
@@ -17,55 +16,106 @@ Widget? buildTvMediaCustomTabView({
   required BuildContext context,
   required LibraryEditShellState draft,
   required Color accent,
-  required LibraryEntityScope scope,
   required CatalogSearchCandidate item,
   required VoidCallback markDirty,
 }) {
-  final tvEdit = (draft.session.workSession is TvEditDraftContract)
-      ? (draft.session.workSession as TvEditDraftContract).tvEdit
-      : TvEditController(itemId: item.reference.id, catalogRef: item.reference);
+  final entryDraft = draft.session.catalogItemSession;
+  if (entryDraft is! TvEditDraft) {
+    throw StateError(
+      'TV tab "$tabId" requires the registered TV edit draft.',
+    );
+  }
+  final tvEdit = entryDraft.tvEdit;
+  final mediaEdit = entryDraft.mediaEdit;
 
   return switch (tabId) {
-    'edition' => TvEditEditionTab(
-        draft: draft,
+    'episodes' || 'tv_episodes' => TvEpisodesTab(
+        type: draft.type,
+        item: item.kindCapability.mapTransport((transport) => transport),
         accent: accent,
-        physicalFormats: const [],
+        mediaEdit: mediaEdit,
       ),
-    'specs' => TvEditSpecsTab(
-        draft: draft,
-        tvEdit: tvEdit,
+    'catalog_media' => TvCatalogMediaTab(
         accent: accent,
-        audioTrackOptions: const [],
-        subtitleOptions: const [],
-        layersOptions: const [],
-        colorOptions: const [],
+        mediaEdit: mediaEdit,
+      ),
+    'episode_media_map' => TvEpisodeMediaMapTab(
+        type: draft.type,
+        item: item.kindCapability.mapTransport((transport) => transport),
+        accent: accent,
+        mediaEdit: mediaEdit,
+      ),
+    'media' => TvCatalogFormEditTab(
+        state: draft,
+        draft: entryDraft,
+        itemId: draft.target?.id ??
+            item.catalogRef?.id ??
+            (throw StateError('TV editor requires an explicit target.')),
+        fieldIds: tvMainFieldIds,
+        sectionLabel: 'Main',
+        markDirty: markDirty,
+      ),
+    'edition' => TvCatalogFormEditTab(
+        state: draft,
+        draft: entryDraft,
+        itemId: draft.target?.id ??
+            item.catalogRef?.id ??
+            (throw StateError('TV editor requires an explicit target.')),
+        fieldIds: tvEditionFieldIds,
+        sectionLabel: 'Edition',
+        markDirty: markDirty,
+      ),
+    'specs' => TvCatalogFormEditTab(
+        state: draft,
+        draft: entryDraft,
+        itemId: draft.target?.id ??
+            item.catalogRef?.id ??
+            (throw StateError('TV editor requires an explicit target.')),
+        fieldIds: tvSpecsFieldIds,
+        sectionLabel: 'Specs',
+        markDirty: markDirty,
+      ),
+    'synopsis' => TvCatalogFormEditTab(
+        state: draft,
+        draft: entryDraft,
+        itemId: draft.target?.id ??
+            item.catalogRef?.id ??
+            (throw StateError('TV editor requires an explicit target.')),
+        fieldIds: const {'synopsis'},
+        sectionLabel: 'Plot',
+        markDirty: markDirty,
+      ),
+    'cover' => TvCatalogFormEditTab(
+        state: draft,
+        draft: entryDraft,
+        itemId: draft.target?.id ??
+            item.catalogRef?.id ??
+            (throw StateError('TV editor requires an explicit target.')),
+        fieldIds: const {'cover_image_url'},
+        sectionLabel: 'Covers',
+        markDirty: markDirty,
       ),
     'cast' => TvEditCastTab(
         accent: accent,
-        tvEdit: tvEdit,
+        state: draft,
+        draft: entryDraft,
+        itemId: draft.target?.id ??
+            item.catalogRef?.id ??
+            (throw StateError('TV editor requires an explicit target.')),
+        markDirty: markDirty,
       ),
     'crew' => TvEditCrewTab(
         accent: accent,
         tvEdit: tvEdit,
-      ),
-    'discs' => TvEditDiscsTab(
-        item: item,
-        accent: accent,
+        markDirty: markDirty,
       ),
     'links' => TvEditLinksTab(
         item: item,
         accent: accent,
-        tvEdit: tvEdit,
-      ),
-    'media' => TvEditMediaTab(
-        draft: draft,
-        tvEdit: tvEdit,
-        accent: accent,
-        countryOptions: const [],
-        languageOptions: const [],
-        ageRatingOptions: const [],
-        audienceRatingOptions: const [],
-        genreOptions: const [],
+        userExternalLinks: draft.userExternalLinks,
+        isEntry:
+            draft.libraryEntry != null || draft.libraryEntryDispatch != null,
+        markDirty: markDirty,
       ),
     _ => null,
   };

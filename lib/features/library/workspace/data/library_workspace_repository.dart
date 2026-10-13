@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
 import 'library_workspace_query.dart';
 
 abstract class LibraryWorkspaceRepository {
@@ -37,7 +36,7 @@ class LocalLibraryWorkspaceRepository implements LibraryWorkspaceRepository {
   }
 
   List<LibraryProjectionView> _processEntries(
-    List<LibraryWorkspaceSource> shelfEntries,
+    List<LibraryWorkspaceContext> shelfEntries,
     LibraryWorkspaceQuery query,
   ) {
     final registration = libraryKindRegistrationForKind(query.kind);
@@ -45,10 +44,8 @@ class LocalLibraryWorkspaceRepository implements LibraryWorkspaceRepository {
 
     final items = <LibraryProjectionView>[];
     for (final source in shelfEntries) {
-      final catalogRef = source.catalogRef;
-      if (catalogRef?.mediaKind == query.kind) {
-        final node = LibraryWorkRef(workId: catalogRef!.id);
-        items.add(workspace.project(source: source, node: node));
+      if (source.mediaKind == query.kind) {
+        items.add(workspace.project(source: source));
       }
     }
 
@@ -64,12 +61,6 @@ class LocalLibraryWorkspaceRepository implements LibraryWorkspaceRepository {
     if (query.collectionId != null) {
       filtered = filtered.where((item) {
         return item.source.locationPath == query.collectionId;
-      }).toList();
-    }
-
-    if (query.scopeId != null) {
-      filtered = filtered.where((item) {
-        return item.node.workId == query.scopeId;
       }).toList();
     }
 
@@ -92,19 +83,6 @@ class LocalLibraryWorkspaceRepository implements LibraryWorkspaceRepository {
           if (!hasMatch) {
             return false;
           }
-        }
-        return true;
-      }).toList();
-    }
-
-    if (query.presentationLevelId != null) {
-      filtered = filtered.where((item) {
-        if (query.presentationLevelId == 'title') {
-          return item.node.scope == LibraryEntityScope.work;
-        } else if (query.presentationLevelId == 'release') {
-          return item.node.scope == LibraryEntityScope.release;
-        } else if (query.presentationLevelId == 'copy') {
-          return item.node.scope == LibraryEntityScope.copy;
         }
         return true;
       }).toList();

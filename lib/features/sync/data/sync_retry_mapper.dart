@@ -1,23 +1,22 @@
 import 'package:collectarr_app/core/db/local_database.dart';
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/money.dart';
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/core/models/catalog_item_ref.dart';
+import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/core/models/tracking_state_ref.dart';
+import 'package:collectarr_app/core/models/tracking_unit_ref.dart';
 import 'package:collectarr_app/core/models/watch_session_ref.dart';
 import 'package:collectarr_app/core/sync/sync_change.dart';
-import 'package:collectarr_app/features/catalog/transport/catalog_snapshot_repository.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_repository.dart';
+import 'package:collectarr_app/features/library/tracking/tracking_unit_storage_repository.dart';
+import 'package:collectarr_app/features/library/tracking/library_tracking_registry.dart';
 import 'package:collectarr_app/features/collection/repositories/wishlist_items_cache_repository.dart';
 import 'package:collectarr_app/features/library/tracking/custom_episode_codec.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.dart';
-import 'package:drift/drift.dart';
-import 'package:collectarr_app/features/library/kinds/registry/collectarr_owned_item_persistence.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_library_entry_persistence.dart';
 import 'package:collectarr_app/features/collection/repositories/location_repository.dart';
+import 'package:collectarr_app/features/collection/repositories/user_folder_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/user_metadata_overrides_cache_repository.dart';
 import 'package:collectarr_app/features/library/tracking/watch_sessions_repository.dart';
-import 'package:collectarr_app/features/library/data/owned_copy_v1_repository.dart';
-import 'package:collectarr_app/features/library/data/catalog_item_wishlist_v1_repository.dart';
-import 'package:collectarr_app/features/library/domain/owned_copy_v1.dart';
 import 'package:uuid/uuid.dart';
 
 class SyncRetryMapper {
@@ -29,50 +28,26 @@ class SyncRetryMapper {
     required DateTime changedAt,
     required Uuid uuid,
   }) async {
-    switch (change.entityType) {
-      case 'catalog_item_wishlist_v1':
-        return CatalogItemWishlistV1Repository(db).currentSyncChange(
-          change.entityId,
-          changeId: uuid.v4(),
+    for (final codec in libraryKindSyncEntityCodecs) {
+      if (codec.entityType == change.entityType) {
+        return codec.retryRejected(
+          change,
+          db: db,
           changedAt: changedAt,
+          uuid: uuid,
         );
-      case 'owned_copy_v1':
-        final raw = change.localPayload;
-        if (raw == null) return null;
-        final copy = OwnedCopyV1.fromJson(raw);
-        final repository = OwnedCopyV1Repository(db);
-        final current = await repository.get(
-          copy.ref,
-          includeDeleted: true,
-        );
-        if (current == null) return null;
-        final row = await (db.select(db.ownedCopiesV1Cache)
-              ..where((table) =>
-                  table.kind.equals(copy.ref.kind.apiValue) &
-                  table.catalogItemId.equals(copy.ref.itemId) &
-                  table.id.equals(copy.ref.copyId)))
-            .getSingleOrNull();
-        if (row == null) return null;
-        return SyncChange(
-          id: uuid.v4(),
-          entityType: change.entityType,
-          entityId: repository.syncEntityIdFor(copy.ref),
-          action: row.deletedAt == null ? 'upsert' : 'delete',
-          payload: Map<String, dynamic>.from(current.toJson()),
-          clientChangedAt: changedAt,
-        );
-      case 'owned_item':
-        final rawCatalogRef = change.localPayload?['catalog_ref'];
-        if (rawCatalogRef is! Map) return null;
-        final catalogRef = CatalogEntityRef.fromJson(
-          Map<String, dynamic>.from(rawCatalogRef),
-        );
-        final ownedRef = OwnedItemRef(
-          kind: catalogRef.mediaKind,
-          id: OwnedItemId(change.entityId),
-        );
-        final serialized =
-            await CollectarrOwnedItemPersistence(db).syncPayloadByRef(ownedRef);
+      }
+    }
+
+    switch (change.entityType) {
+      case 'library_entry':
+        final payload = change.localPayload ?? change.servicePayload;
+        final kind = catalogMediaKindFromApiValue(payload?['kind'] as String?);
+        if (kind.isUnknown) return null;
+        final libraryEntryRef =
+            LibraryEntryRef(kind: kind, id: LibraryEntryId(change.entityId));
+        final serialized = await CollectarrLibraryEntryPersistence(db)
+            .syncPayloadByRef(libraryEntryRef);
         if (serialized == null) {
           return null;
         }
@@ -101,17 +76,17 @@ class SyncRetryMapper {
         );
       case 'tracking_entry':
         final trackingPayload = change.localPayload ?? change.servicePayload;
-        final rawCatalogRef = trackingPayload?['catalog_ref'];
-        if (rawCatalogRef is! Map) return null;
-        final trackingCatalogRef = CatalogEntityRef.fromJson(
-          Map<String, dynamic>.from(rawCatalogRef),
+        final rawEntryRef = trackingPayload?['library_entry_ref'];
+        if (rawEntryRef is! Map) return null;
+        final trackingEntryRef = LibraryEntryRef.fromJson(
+          Map<String, Object?>.from(rawEntryRef),
         );
         final tracking = await TrackingStorageRepository(
           db,
           codecs: libraryTrackingStorageCodecs,
         ).syncPayloadByRef(
           TrackingStateRef(
-            kind: trackingCatalogRef.mediaKind,
+            kind: trackingEntryRef.kind,
             id: change.entityId,
           ),
         );
@@ -126,45 +101,45 @@ class SyncRetryMapper {
           payload: tracking.payload,
           clientChangedAt: changedAt,
         );
-      case 'library_item_snapshot':
-        final payload = change.localPayload ?? change.servicePayload;
-        final rawKind = payload?['kind'];
-        if (rawKind is! String || rawKind.trim().isEmpty) {
-          return null;
-        }
-        final catalogRef = CatalogEntityRef(
-          kind: catalogMediaKindFromApiValue(rawKind),
-          entityType: CatalogEntityTypeId.root,
-          id: change.entityId,
+      case 'tracking_unit':
+        final unitPayload = change.localPayload ?? change.servicePayload;
+        final rawEntryRef = unitPayload?['library_entry_ref'];
+        if (rawEntryRef is! Map) return null;
+        final entryRef = LibraryEntryRef.fromJson(
+          Map<String, Object?>.from(rawEntryRef),
         );
-        final item =
-            await CatalogSnapshotRepository(db).findCandidateByRef(catalogRef);
-        if (item == null) {
-          return null;
-        }
+        final unit = await TrackingUnitStorageRepository(
+          db,
+          codecs: libraryTrackingUnitCodecs,
+        ).findByRef(
+          TrackingUnitRef(
+            kind: entryRef.kind,
+            id: change.entityId,
+          ),
+        );
+        if (unit == null) return null;
         return SyncChange(
           id: uuid.v4(),
           entityType: change.entityType,
-          entityId: item.reference.id,
-          action: 'upsert',
-          payload: item.kindCapability.toSyncPayload(),
+          entityId: unit.id,
+          action: unit.isDeleted ? 'delete' : 'upsert',
+          payload: unit.toSyncPayload(),
           clientChangedAt: changedAt,
         );
       case 'watch_session':
         final watchSessionPayload =
             change.localPayload ?? change.servicePayload;
-        final rawTargetRef = watchSessionPayload?['catalog_ref'] ??
-            watchSessionPayload?['target_ref'];
-        if (rawTargetRef is! Map) return null;
-        final targetRef = CatalogEntityRef.fromJson(
-          Map<String, dynamic>.from(rawTargetRef),
+        final rawEntryRef = watchSessionPayload?['library_entry_ref'];
+        if (rawEntryRef is! Map) return null;
+        final entryRef = LibraryEntryRef.fromJson(
+          Map<String, Object?>.from(rawEntryRef),
         );
         final session = await WatchSessionsRepository(
           db,
           codecs: libraryWatchSessionCodecs,
         ).findByRef(
           WatchSessionRef(
-            kind: targetRef.mediaKind,
+            kind: entryRef.kind,
             id: change.entityId,
           ),
         );
@@ -201,12 +176,12 @@ class SyncRetryMapper {
       case 'custom_episode':
         final customEpisodePayload =
             change.localPayload ?? change.servicePayload;
-        final rawSeriesRef = customEpisodePayload?['catalog_ref'];
+        final rawSeriesRef = customEpisodePayload?['library_entry_ref'];
         if (rawSeriesRef is! Map) return null;
-        final seriesRef = CatalogEntityRef.fromJson(
-          Map<String, dynamic>.from(rawSeriesRef),
+        final seriesRef = LibraryEntryRef.fromJson(
+          Map<String, Object?>.from(rawSeriesRef),
         );
-        final codec = _customEpisodeCodecFor(seriesRef.mediaKind);
+        final codec = _customEpisodeCodecFor(seriesRef.kind);
         final record = await codec.readSyncRecord(db, change.entityId);
         if (record == null) {
           return null;
@@ -239,6 +214,29 @@ class SyncRetryMapper {
             entityId: change.entityId,
             action: 'delete',
             payload: change.localPayload ?? const {},
+            clientChangedAt: changedAt,
+          );
+        }
+        return null;
+      case 'user_folder':
+        final folder = await UserFolderRepository(db).findById(change.entityId);
+        if (folder != null) {
+          return SyncChange(
+            id: uuid.v4(),
+            entityType: change.entityType,
+            entityId: folder.id,
+            action: 'upsert',
+            payload: folder.toSyncPayload(),
+            clientChangedAt: changedAt,
+          );
+        }
+        if (change.localAction == 'delete') {
+          return SyncChange(
+            id: uuid.v4(),
+            entityType: change.entityType,
+            entityId: change.entityId,
+            action: 'delete',
+            payload: const {},
             clientChangedAt: changedAt,
           );
         }
@@ -285,7 +283,7 @@ class SyncRetryMapper {
       if (codec.kind == kind) return codec;
     }
     throw UnsupportedError(
-      'No kind-owned custom-episode codec is registered for ${kind.apiValue}',
+      'No kind-entry custom-episode codec is registered for ${kind.apiValue}',
     );
   }
 }

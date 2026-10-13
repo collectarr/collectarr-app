@@ -1,21 +1,21 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
+import 'package:collectarr_app/core/models/library_entry_ref.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_record.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/dev/seeds/seed_helpers.dart';
 import 'package:collectarr_app/dev/seeds/seed_catalog_item_factory.dart';
+import 'package:collectarr_app/dev/seeds/music_seed_catalog_details.dart';
 import 'package:collectarr_app/dev/seeds/dev_seed_kind_contributor.dart';
-import 'package:collectarr_app/features/library/kinds/music/ownership/music_owned_details.dart';
+import 'package:collectarr_app/features/library/kinds/music/entries/music_entry_details.dart';
 import 'package:collectarr_app/features/library/kinds/music/tracking/music_tracking_state.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_owned_item.dart';
-import 'package:collectarr_app/features/library/kinds/music/data/music_owned_item_projection.dart';
-import 'package:collectarr_app/features/library/kinds/music/data/music_owned_repository.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_ids.dart';
-import 'package:collectarr_app/features/library/kinds/music/domain/music_entity_ownership.dart';
+import 'package:collectarr_app/features/library/kinds/music/catalog/music_catalog_mapper.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_library_entry.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_personal_data.dart';
+import 'package:collectarr_app/features/library/kinds/music/data/music_library_entry_projection.dart';
 
-final musicDevSeedContributor = TypedDevSeedKindContributor<MusicOwnedItem>(
+final musicDevSeedContributor = TypedDevSeedKindContributor<MusicLibraryEntry>(
   kind: CatalogMediaKind.music,
-  trackingRequiresOwnedRef: false,
   catalogDefaults: DevSeedCatalogDefaults(
     includePublishingDetails: false,
     paperType: null,
@@ -32,11 +32,9 @@ final musicDevSeedContributor = TypedDevSeedKindContributor<MusicOwnedItem>(
   validateCatalog: validateMusicSeedCatalog,
   validateCatalogGraph: validateMusicSeedCatalogGraph,
   validateBarcode: seedValidateStandardBarcode,
-  ownedItemsTyped: musicSeedOwnedItems,
-  ownedSummaryTyped: MusicOwnedItemProjection.toSummary,
-  validateOwnedTyped: validateMusicSeedOwned,
-  seedOwnedTyped: (db, now) =>
-      MusicOwnedRepository(db).upsertAll(musicSeedOwnedItems(now)),
+  libraryEntriesTyped: musicSeedLibraryEntries,
+  libraryEntrySummaryTyped: MusicLibraryEntryProjection.toSummary,
+  validateEntryTyped: validateMusicSeedEntry,
   trackingRecords: musicSeedTrackingStates,
 );
 
@@ -44,248 +42,180 @@ void enrichMusicSeedPayload(
   CatalogItemDto item,
   Map<String, dynamic> payload,
 ) {
-  final musicMap = payload['music'] is Map
-      ? payload['music'] as Map
-      : const <String, dynamic>{};
-  final musicTracks = musicMap['tracks'];
-  payload.putIfAbsent(
-    'track_count',
-    () =>
-        musicMap['track_count'] ??
-        (musicTracks is List && musicTracks.isNotEmpty
-            ? musicTracks.length
-            : 10),
-  );
-  payload.putIfAbsent('catalog_number', () => 'SEED-${item.id}');
-  payload.putIfAbsent(
-    'original_release_date',
-    () => item.releaseDate?.toUtc().toIso8601String(),
-  );
-  payload.putIfAbsent(
-    'recording_date',
-    () => item.releaseDate?.toUtc().toIso8601String(),
-  );
-  payload.putIfAbsent('artist', () => _seedMusicArtist(item));
-  payload.putIfAbsent('studio', () => item.publisher);
-  payload.putIfAbsent('is_live', () => false);
-  payload.putIfAbsent('composition', () => item.title);
+  payload
+    ..clear()
+    ..addAll(_canonicalMusicSeedPayload(item));
 }
 
 List<String> validateMusicSeedCatalog(CatalogItemDto item) {
   final issues = <String>[];
   final prefix = '${item.kind}/${item.id}';
-  final payload = item.payload;
-  seedRequirePositiveInt(issues, prefix, 'track_count', payload['track_count']);
-  seedRequireTrackList(issues, prefix, payload['tracks']);
-  final tracks = payload['tracks'];
-  final trackCount = payload['track_count'];
-  if (tracks is List && trackCount is int && tracks.length != trackCount) {
-    issues.add('$prefix: track_count must equal the number of track objects');
+  final album = MusicCatalogMapper.mapMetadataItemToMusic(item);
+  seedRequireText(issues, prefix, 'catalog_number', album.catalogNumber);
+  if (album.discs.isEmpty) {
+    issues.add('$prefix: discs must contain at least one disc');
   }
-  seedRequireText(issues, prefix, 'catalog_number', payload['catalog_number']);
   return issues;
 }
 
 List<String> validateMusicSeedCatalogGraph(CatalogItemDto item) {
   final issues = <String>[];
   final prefix = '${item.kind}/${item.id}';
-  final releases = seedRequireObjectList(
-    issues,
-    prefix,
-    'releases',
-    item.payload['releases'],
-  );
-  seedValidateChildren(
-    issues,
-    prefix,
-    'releases',
-    releases,
-    kind: CatalogMediaKind.music,
-    parentId: item.id,
-    parentKey: 'release_group_id',
-    titleKey: 'title',
-  );
-  for (var releaseIndex = 0; releaseIndex < releases.length; releaseIndex++) {
-    final release = releases[releaseIndex];
-    final mediums = seedRequireObjectList(
+  final album = MusicCatalogMapper.mapMetadataItemToMusic(item);
+  for (var discIndex = 0; discIndex < album.discs.length; discIndex++) {
+    final disc = album.discs[discIndex];
+    seedRequireText(issues, prefix, 'discs[$discIndex].id', disc.id.value);
+    seedRequirePositiveNumber(
       issues,
       prefix,
-      'releases[$releaseIndex].mediums',
-      release['mediums'],
+      'discs[$discIndex].disc_number',
+      disc.discNumber,
     );
-    seedValidateChildren(
-      issues,
-      prefix,
-      'releases[$releaseIndex].mediums',
-      mediums,
-      kind: CatalogMediaKind.music,
-      parentId: release['id']?.toString() ?? '',
-      parentKey: 'release_id',
-      titleKey: 'title',
-    );
-    for (var mediumIndex = 0; mediumIndex < mediums.length; mediumIndex++) {
-      final medium = mediums[mediumIndex];
-      final tracks = seedRequireObjectList(
+    if (disc.tracks.isEmpty) {
+      issues.add('$prefix: discs[$discIndex].tracks must not be empty');
+    }
+    for (var trackIndex = 0; trackIndex < disc.tracks.length; trackIndex++) {
+      final track = disc.tracks[trackIndex];
+      seedRequireText(
         issues,
         prefix,
-        'releases[$releaseIndex].mediums[$mediumIndex].tracks',
-        medium['tracks'],
+        'discs[$discIndex].tracks[$trackIndex].id',
+        track.id.value,
       );
-      for (var trackIndex = 0; trackIndex < tracks.length; trackIndex++) {
-        final track = tracks[trackIndex];
-        seedRequireText(
-          issues,
-          prefix,
-          'releases[$releaseIndex].mediums[$mediumIndex].tracks[$trackIndex].id',
-          track['id'],
-        );
-        seedRequireText(
-          issues,
-          prefix,
-          'releases[$releaseIndex].mediums[$mediumIndex].tracks[$trackIndex].medium_id',
-          track['medium_id'],
-        );
-        if (track['medium_id']?.toString() != medium['id']?.toString()) {
-          issues.add(
-            '$prefix: releases[$releaseIndex].mediums[$mediumIndex].tracks[$trackIndex].medium_id must reference the parent medium',
-          );
-        }
-        seedRequireText(
-          issues,
-          prefix,
-          'releases[$releaseIndex].mediums[$mediumIndex].tracks[$trackIndex].title',
-          track['title'],
-        );
-        seedRequirePositiveNumber(
-          issues,
-          prefix,
-          'releases[$releaseIndex].mediums[$mediumIndex].tracks[$trackIndex].position',
-          track['position'],
-        );
-        seedRequirePositiveNumber(
-          issues,
-          prefix,
-          'releases[$releaseIndex].mediums[$mediumIndex].tracks[$trackIndex].duration_ms',
-          track['duration_ms'],
-        );
-      }
+      seedRequireText(
+        issues,
+        prefix,
+        'discs[$discIndex].tracks[$trackIndex].position',
+        track.position,
+      );
+      seedRequireText(
+        issues,
+        prefix,
+        'discs[$discIndex].tracks[$trackIndex].title',
+        track.title,
+      );
     }
   }
   return issues;
 }
 
-List<String> validateMusicSeedOwned(MusicOwnedItem item) {
+List<String> validateMusicSeedEntry(MusicLibraryEntry item) {
   final issues = <String>[];
-  final prefix = '${item.catalogRef.kind}/${item.id}';
-  final details = item.details;
+  final prefix = 'music/${item.id}';
+  final details = item.personal.details;
   if (details.media.isEmpty) {
     issues.add('$prefix: music.media must not be empty');
   }
-  for (final medium in details.media) {
-    if (medium.mediumIndex < 1) {
-      issues.add('$prefix: music.media.medium_index must be positive');
-    }
+  for (final disc in details.media) {
     seedRequireText(
       issues,
       prefix,
-      'music.media[${medium.mediumIndex}].storage_device',
-      medium.storageDevice,
+      'music.media[${disc.discId}].storage_device',
+      disc.storageDevice,
     );
     seedRequireText(
       issues,
       prefix,
-      'music.media[${medium.mediumIndex}].storage_slot',
-      medium.storageSlot,
+      'music.media[${disc.discId}].storage_slot',
+      disc.storageSlot,
     );
-    for (var index = 0; index < medium.matrixRunouts.length; index++) {
-      final runout = medium.matrixRunouts[index];
-      seedRequireText(
-        issues,
-        prefix,
-        'music.media[${medium.mediumIndex}].matrix_runouts[$index].side',
-        runout.side,
-      );
-      seedRequireText(
-        issues,
-        prefix,
-        'music.media[${medium.mediumIndex}].matrix_runouts[$index].runout_text',
-        runout.runoutText,
-      );
-    }
   }
   return issues;
 }
 
 CatalogItemDto enrichMusicSeedItem(CatalogItemDto item) {
-  final music = item.payload['music'];
-  final musicPayload =
-      music is Map ? Map<String, dynamic>.from(music) : <String, dynamic>{};
-  final rawTracks = musicPayload['tracks'];
-  final releaseId = '${item.id}-release-01';
-  final mediumId = '$releaseId-medium-01';
-  final tracks = rawTracks is List && rawTracks.isNotEmpty
-      ? [
-          for (var index = 0; index < rawTracks.length; index++)
-            _musicSeedTrack(rawTracks[index], item, mediumId, index),
-        ]
-      : [
-          _musicSeedTrack(
-            {
-              'title': '${item.title} — Track 1',
-              'track_number': '1',
-              'duration_seconds': 180,
-            },
-            item,
-            mediumId,
-            0,
-          ),
-        ];
-  final medium = {
-    'id': mediumId,
-    'kind': 'music',
-    'release_id': releaseId,
-    'medium_number': 1,
-    'medium_type': item.physicalFormat ?? 'Digital',
-    'title': item.editionTitle ?? item.title,
-    'track_count': tracks.length,
-    'tracks': tracks,
-    'media_condition': 'excellent',
-    'sound_type': 'stereo',
-    'spars': 'none',
-    'rpm': 33,
-    'vinyl_color': 'black',
-    'vinyl_weight': '180g',
+  final payload = _canonicalMusicSeedPayload(item);
+  payload.remove('id');
+  payload.remove('kind');
+  return CatalogItemDto.raw(
+    id: item.id,
+    mediaKind: CatalogMediaKind.music,
+    kindData: payload,
+  );
+}
+
+Map<String, dynamic> _canonicalMusicSeedPayload(CatalogItemDto item) {
+  final source = item.kindData;
+  final rawDiscs = _maps(source['discs']);
+  final discs = [
+    for (var discIndex = 0; discIndex < rawDiscs.length; discIndex++)
+      _canonicalMusicSeedDisc(item, rawDiscs[discIndex], discIndex),
+  ];
+  final releaseDate = _seedText(source['release_date']);
+  final sortTitle = _seedText(source['sort_title']);
+  final subtitle = _seedText(source['subtitle'] ?? source['edition_title']);
+  final format = _seedText(source['format'] ?? source['physical_format']);
+  final label = _seedText(source['label'] ?? source['publisher']);
+  return {
+    'id': item.id,
+    'kind': CatalogMediaKind.music.apiValue,
+    'title': _seedText(source['title']) ?? 'Untitled album',
+    if (sortTitle != null) 'sort_title': sortTitle,
+    if (subtitle != null) 'subtitle': subtitle,
+    if (_seedMusicArtist(item) case final artist?) 'artist': artist,
+    if (releaseDate != null) 'release_date': releaseDate,
+    if (label != null) 'label': label,
+    if (format != null) 'format': format,
+    if (_seedText(source['barcode']) case final barcode?) 'barcode': barcode,
+    if (_seedText(source['catalog_number']) case final catalogNumber?)
+      'catalog_number': catalogNumber,
+    if (_seedText(source['country']) case final country?) 'country': country,
+    if (source['genres'] is Iterable)
+      'genres': List<String>.from(source['genres'] as Iterable),
+    if (_seedText(source['cover_image_url']) case final cover?)
+      'cover_image_url': cover,
+    if (_seedText(source['thumbnail_image_url']) case final thumbnail?)
+      'thumbnail_image_url': thumbnail,
+    'is_live': source['is_live'] == true,
+    if (discs.isNotEmpty) 'discs': discs,
   };
-  final release = {
-    'id': releaseId,
-    'kind': 'music',
-    'release_group_id': item.id,
-    'title': item.editionTitle ?? item.title,
-    'publisher': item.publisher,
-    'catalog_number': musicPayload['catalog_number'] ?? 'SEED-${item.id}',
-    'barcode': item.barcode,
-    'release_date': item.releaseDate?.toUtc().toIso8601String(),
-    'release_type': 'Album',
-    'release_status': musicPayload['release_status'] ?? 'Official',
-    'country_code': item.payload['country']?.toString(),
-    'language': item.payload['language']?.toString(),
-    'packaging': item.physicalFormatLabel,
-    'cover_image_url': item.coverImageUrl,
-    'mediums': [medium],
+}
+
+Map<String, dynamic> _canonicalMusicSeedDisc(
+  CatalogItemDto item,
+  Map<String, dynamic> source,
+  int index,
+) {
+  final discNumber = _seedInt(source['disc_number']) ?? index + 1;
+  final discId = '${item.id}:disc:$discNumber';
+  final tracks = _maps(source['tracks']);
+  return {
+    'id': discId,
+    'disc_number': discNumber,
+    if (_seedText(source['title'] ?? source['name']) case final title?)
+      'title': title,
+    if (_seedText(source['matrix_number_side_a']) case final sideA?)
+      'matrix_number_side_a': sideA,
+    if (_seedText(source['matrix_number_side_b']) case final sideB?)
+      'matrix_number_side_b': sideB,
+    'tracks': [
+      for (var trackIndex = 0; trackIndex < tracks.length; trackIndex++)
+        _canonicalMusicSeedTrack(tracks[trackIndex], discId, trackIndex),
+    ],
   };
-  return withSeedPayload(item, {
-    'release_group_id': item.id,
-    'artist': _seedMusicArtist(item),
-    'original_release_date': item.releaseDate?.toUtc().toIso8601String(),
-    'recording_date': item.releaseDate?.toUtc().toIso8601String(),
-    'studio': item.publisher,
-    'is_live': false,
-    'releases': [release],
-    'track_count': tracks.length,
-  });
+}
+
+Map<String, dynamic> _canonicalMusicSeedTrack(
+  Map<String, dynamic> source,
+  String discId,
+  int index,
+) {
+  final durationMs = _seedInt(source['duration_ms']) ??
+      (_seedInt(source['duration_seconds'])?.toInt() ?? 0) * 1000;
+  return {
+    'id': '$discId:track:${index + 1}',
+    'position':
+        (source['position'] ?? source['track_number'] ?? index + 1).toString(),
+    'position_order': _seedInt(source['position_order']) ?? index + 1,
+    'title': _seedText(source['title']) ?? 'Track ${index + 1}',
+    if (_seedText(source['artist']) case final artist?) 'artist': artist,
+    if (durationMs > 0) 'duration_ms': durationMs,
+  };
 }
 
 String? _seedMusicArtist(CatalogItemDto item) {
+  final explicitArtist = _seedText(item.kindData['artist']);
+  if (explicitArtist != null) return explicitArtist;
   final rawCreators = item.payload['creators'];
   final creators = rawCreators is Iterable
       ? rawCreators
@@ -296,31 +226,23 @@ String? _seedMusicArtist(CatalogItemDto item) {
     final name = creator['name']?.toString().trim();
     if (name != null && name.isNotEmpty) return name;
   }
-  return item.publisher;
+  return null;
 }
 
-Map<String, dynamic> _musicSeedTrack(
-  Object? raw,
-  CatalogItemDto item,
-  String mediumId,
-  int index,
-) {
-  final source =
-      raw is Map ? Map<String, dynamic>.from(raw) : const <String, dynamic>{};
-  final durationSeconds = source['duration_seconds'];
-  final trackNumber = (index + 1).toString().padLeft(2, '0');
-  return {
-    ...source,
-    'id': '$mediumId-track-$trackNumber',
-    'kind': 'music',
-    'medium_id': mediumId,
-    'position': source['position'] ?? source['track_number'] ?? index + 1,
-    'title': source['title'] ?? '${item.title} — Track ${index + 1}',
-    if (durationSeconds is num) 'duration_ms': durationSeconds.toInt() * 1000,
-    'composition': source['composition'] ?? item.title,
-    'instrument': source['instrument'] ?? 'ensemble',
-  };
+List<Map<String, dynamic>> _maps(Object? value) => value is Iterable
+    ? [
+        for (final entry in value)
+          if (entry is Map) Map<String, dynamic>.from(entry),
+      ]
+    : const <Map<String, dynamic>>[];
+
+String? _seedText(Object? value) {
+  final text = value?.toString().trim();
+  return text == null || text.isEmpty ? null : text;
 }
+
+int? _seedInt(Object? value) =>
+    value is num ? value.toInt() : int.tryParse(value?.toString().trim() ?? '');
 
 List<CatalogItemDto> musicSeedCatalogItems() => [
       seedCatalogItem(
@@ -328,8 +250,6 @@ List<CatalogItemDto> musicSeedCatalogItems() => [
         kind: CatalogMediaKind.music,
         title: 'The Dark Side of the Moon',
         displayTitle: 'Pink Floyd - The Dark Side of the Moon (1973)',
-        synopsis:
-            'The eighth studio album by the English rock band Pink Floyd, released on 1 March 1973. A concept album that explores themes such as conflict, greed, time, death, and mental illness.',
         publisher: 'Harvest Records / EMI',
         releaseYear: 1973,
         releaseDate: DateTime.utc(1973, 3, 1),
@@ -343,7 +263,6 @@ List<CatalogItemDto> musicSeedCatalogItems() => [
         barcode: '0190295996901',
         variant: '180g Gatefold Vinyl',
         country: 'GB',
-        language: 'en',
         sortKey: 'pink-floyd-0001',
         creators: [
           {'name': 'Pink Floyd', 'role': 'artist'},
@@ -354,94 +273,70 @@ List<CatalogItemDto> musicSeedCatalogItems() => [
           {'name': 'Alan Parsons', 'role': 'engineer'},
         ],
         genres: ['progressive rock', 'psychedelic rock', 'art rock'],
-        music: const MusicCatalogDetailsDto(
-          trackCount: 10,
+        music: const MusicSeedCatalogDetails(
           catalogNumber: 'SHVL 804',
-          releaseStatus: 'Official',
           discs: [
-            CatalogDiscDto(discNumber: 1, name: 'Vinyl LP (Side 1 & 2)'),
+            MusicSeedDisc(discNumber: 1, name: 'Vinyl LP (Side 1 & 2)'),
           ],
           tracks: [
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '1',
                 title: 'Speak to Me',
                 durationSeconds: 67,
                 artist: 'Pink Floyd'),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '2',
                 title: 'Breathe (In the Air)',
                 durationSeconds: 169,
                 artist: 'Pink Floyd'),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '3',
                 title: 'On the Run',
                 durationSeconds: 225,
                 artist: 'Pink Floyd'),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '4',
                 title: 'Time',
                 durationSeconds: 413,
                 artist: 'Pink Floyd'),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '5',
                 title: 'The Great Gig in the Sky',
                 durationSeconds: 284,
                 artist: 'Pink Floyd'),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '6',
                 title: 'Money',
                 durationSeconds: 382,
                 artist: 'Pink Floyd'),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '7',
                 title: 'Us and Them',
                 durationSeconds: 469,
                 artist: 'Pink Floyd'),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '8',
                 title: 'Any Colour You Like',
                 durationSeconds: 205,
                 artist: 'Pink Floyd'),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '9',
                 title: 'Brain Damage',
                 durationSeconds: 228,
                 artist: 'Pink Floyd'),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '10',
                 title: 'Eclipse',
                 durationSeconds: 123,
                 artist: 'Pink Floyd'),
           ],
         ),
-        editions: [
-          CatalogEditionDto(
-            id: 'seed-ed-dsotm-vinyl-50',
-            title: '50th Anniversary Remaster 180g Vinyl',
-            format: 'Vinyl',
-            publisher: 'Pink Floyd Records',
-            releaseDate: DateTime.utc(2023, 3, 24),
-            variants: [
-              CatalogVariantDto(
-                id: 'seed-var-dsotm-vinyl-50',
-                name: 'Gatefold 180g LP + Posters & Stickers',
-                variantType: 'physical',
-                barcode: '0190295996901',
-                coverPriceCents: 3499,
-                currency: 'USD',
-                isPrimary: true,
-              ),
-            ],
-          ),
-        ],
       ),
       seedCatalogItem(
         id: 'seed-music-02',
         kind: CatalogMediaKind.music,
         title: 'Rumours',
         displayTitle: 'Fleetwood Mac - Rumours (1977)',
-        synopsis:
-            'The eleventh studio album by British-American rock band Fleetwood Mac, recorded amidst the romantic unraveling of all four band members.',
         publisher: 'Warner Bros. Records',
         releaseYear: 1977,
         releaseDate: DateTime.utc(1977, 2, 4),
@@ -453,7 +348,6 @@ List<CatalogItemDto> musicSeedCatalogItems() => [
         physicalFormat: 'Vinyl',
         barcode: '081227970901',
         country: 'US',
-        language: 'en',
         sortKey: 'fleetwood-mac-0001',
         creators: [
           {'name': 'Fleetwood Mac', 'role': 'artist'},
@@ -464,42 +358,40 @@ List<CatalogItemDto> musicSeedCatalogItems() => [
           {'name': 'John McVie', 'role': 'bass'},
         ],
         genres: ['soft rock', 'pop rock', 'classic rock'],
-        music: const MusicCatalogDetailsDto(
-          trackCount: 11,
+        music: const MusicSeedCatalogDetails(
           catalogNumber: 'BSK 3010',
-          releaseStatus: 'Official',
           tracks: [
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '1',
                 title: 'Second Hand News',
                 durationSeconds: 163),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '2', title: 'Dreams', durationSeconds: 254),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '3',
                 title: 'Never Going Back Again',
                 durationSeconds: 134),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '4', title: 'Don\'t Stop', durationSeconds: 191),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '5',
                 title: 'Go Your Own Way',
                 durationSeconds: 218),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '6', title: 'Songbird', durationSeconds: 200),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '7', title: 'The Chain', durationSeconds: 268),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '8',
                 title: 'You Make Loving Fun',
                 durationSeconds: 211),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '9',
                 title: 'I Don\'t Want to Know',
                 durationSeconds: 195),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '10', title: 'Oh Daddy', durationSeconds: 234),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '11',
                 title: 'Gold Dust Woman',
                 durationSeconds: 291),
@@ -511,8 +403,6 @@ List<CatalogItemDto> musicSeedCatalogItems() => [
         kind: CatalogMediaKind.music,
         title: 'Kind of Blue',
         displayTitle: 'Miles Davis - Kind of Blue (1959)',
-        synopsis:
-            'Recorded at Columbia\'s 30th Street Studio in New York City, Kind of Blue is widely regarded as the greatest and most influential jazz album of all time.',
         publisher: 'Columbia Records',
         releaseYear: 1959,
         releaseDate: DateTime.utc(1959, 8, 17),
@@ -524,7 +414,6 @@ List<CatalogItemDto> musicSeedCatalogItems() => [
         physicalFormat: 'Vinyl',
         barcode: '886973355213',
         country: 'US',
-        language: 'en',
         sortKey: 'miles-davis-0001',
         creators: [
           {'name': 'Miles Davis', 'role': 'trumpet & bandleader'},
@@ -535,22 +424,20 @@ List<CatalogItemDto> musicSeedCatalogItems() => [
           {'name': 'Jimmy Cobb', 'role': 'drums'},
         ],
         genres: ['modal jazz', 'cool jazz'],
-        music: const MusicCatalogDetailsDto(
-          trackCount: 5,
+        music: const MusicSeedCatalogDetails(
           catalogNumber: 'CL 1355',
-          releaseStatus: 'Official',
           tracks: [
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '1', title: 'So What', durationSeconds: 562),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '2',
                 title: 'Freddie Freeloader',
                 durationSeconds: 586),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '3', title: 'Blue in Green', durationSeconds: 337),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '4', title: 'All Blues', durationSeconds: 693),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '5',
                 title: 'Flamenco Sketches',
                 durationSeconds: 566),
@@ -562,8 +449,6 @@ List<CatalogItemDto> musicSeedCatalogItems() => [
         kind: CatalogMediaKind.music,
         title: 'Thriller',
         displayTitle: 'Michael Jackson - Thriller (1982)',
-        synopsis:
-            'The sixth studio album by American singer Michael Jackson, produced by Quincy Jones. It became the best-selling album of all time worldwide.',
         publisher: 'Epic Records',
         releaseYear: 1982,
         releaseDate: DateTime.utc(1982, 11, 30),
@@ -575,7 +460,6 @@ List<CatalogItemDto> musicSeedCatalogItems() => [
         physicalFormat: 'SACD',
         barcode: '196587345624',
         country: 'US',
-        language: 'en',
         sortKey: 'michael-jackson-0001',
         creators: [
           {'name': 'Michael Jackson', 'role': 'vocals & songwriter'},
@@ -584,34 +468,32 @@ List<CatalogItemDto> musicSeedCatalogItems() => [
           {'name': 'Eddie Van Halen', 'role': 'guitar solo (Beat It)'},
         ],
         genres: ['pop', 'post-disco', 'funk', 'rock'],
-        music: const MusicCatalogDetailsDto(
-          trackCount: 9,
+        music: const MusicSeedCatalogDetails(
           catalogNumber: 'QE 38112',
-          releaseStatus: 'Official',
           tracks: [
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '1',
                 title: 'Wanna Be Startin\' Somethin\'',
                 durationSeconds: 363),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '2', title: 'Baby Be Mine', durationSeconds: 260),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '3',
                 title: 'The Girl Is Mine (with Paul McCartney)',
                 durationSeconds: 222),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '4', title: 'Thriller', durationSeconds: 357),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '5', title: 'Beat It', durationSeconds: 258),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '6', title: 'Billie Jean', durationSeconds: 294),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '7', title: 'Human Nature', durationSeconds: 246),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '8',
                 title: 'P.Y.T. (Pretty Young Thing)',
                 durationSeconds: 239),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '9',
                 title: 'The Lady in My Life',
                 durationSeconds: 300),
@@ -623,8 +505,6 @@ List<CatalogItemDto> musicSeedCatalogItems() => [
         kind: CatalogMediaKind.music,
         title: 'Nevermind',
         displayTitle: 'Nirvana - Nevermind (1991)',
-        synopsis:
-            'Produced by Butch Vig, Nevermind brought Pacific Northwest grunge rock to mainstream global popularity and altered the landscape of modern rock.',
         publisher: 'DGC Records / Geffen',
         releaseYear: 1991,
         releaseDate: DateTime.utc(1991, 9, 24),
@@ -636,7 +516,6 @@ List<CatalogItemDto> musicSeedCatalogItems() => [
         physicalFormat: 'Vinyl',
         barcode: '602438517558',
         country: 'US',
-        language: 'en',
         sortKey: 'nirvana-0001',
         creators: [
           {'name': 'Nirvana', 'role': 'artist'},
@@ -646,40 +525,38 @@ List<CatalogItemDto> musicSeedCatalogItems() => [
           {'name': 'Butch Vig', 'role': 'producer'},
         ],
         genres: ['grunge', 'alternative rock'],
-        music: const MusicCatalogDetailsDto(
-          trackCount: 12,
+        music: const MusicSeedCatalogDetails(
           catalogNumber: 'DGC-24425',
-          releaseStatus: 'Official',
           tracks: [
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '1',
                 title: 'Smells Like Teen Spirit',
                 durationSeconds: 301),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '2', title: 'In Bloom', durationSeconds: 254),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '3',
                 title: 'Come as You Are',
                 durationSeconds: 219),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '4', title: 'Breed', durationSeconds: 183),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '5', title: 'Lithium', durationSeconds: 257),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '6', title: 'Polly', durationSeconds: 177),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '7',
                 title: 'Territorial Pissings',
                 durationSeconds: 142),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '8', title: 'Drain You', durationSeconds: 223),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '9', title: 'Lounge Act', durationSeconds: 156),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '10', title: 'Stay Away', durationSeconds: 212),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '11', title: 'On a Plain', durationSeconds: 196),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '12',
                 title: 'Something in the Way',
                 durationSeconds: 232),
@@ -691,8 +568,6 @@ List<CatalogItemDto> musicSeedCatalogItems() => [
         kind: CatalogMediaKind.music,
         title: 'Random Access Memories',
         displayTitle: 'Daft Punk - Random Access Memories (2013)',
-        synopsis:
-            'The fourth and final studio album by French electronic duo Daft Punk, celebrating late 1970s and early 1980s American music through live instrumentation and analog recording.',
         publisher: 'Daft Life / Columbia Records',
         releaseYear: 2013,
         releaseDate: DateTime.utc(2013, 5, 17),
@@ -704,7 +579,6 @@ List<CatalogItemDto> musicSeedCatalogItems() => [
         physicalFormat: 'Vinyl',
         barcode: '196587737313',
         country: 'FR',
-        language: 'en',
         sortKey: 'daft-punk-0001',
         creators: [
           {'name': 'Daft Punk', 'role': 'artist & producer'},
@@ -715,54 +589,52 @@ List<CatalogItemDto> musicSeedCatalogItems() => [
           {'name': 'Pharrell Williams', 'role': 'vocals'},
         ],
         genres: ['disco', 'electronic', 'funk', 'synth-pop'],
-        music: const MusicCatalogDetailsDto(
-          trackCount: 13,
+        music: const MusicSeedCatalogDetails(
           catalogNumber: '88883716861',
-          releaseStatus: 'Official',
           tracks: [
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '1',
                 title: 'Give Life Back to Music',
                 durationSeconds: 275),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '2',
                 title: 'The Game of Love',
                 durationSeconds: 322),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '3',
                 title: 'Giorgio by Moroder',
                 durationSeconds: 544),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '4', title: 'Within', durationSeconds: 228),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '5',
                 title: 'Instant Crush (feat. Julian Casablancas)',
                 durationSeconds: 337),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '6',
                 title: 'Lose Yourself to Dance (feat. Pharrell Williams)',
                 durationSeconds: 353),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '7',
                 title: 'Touch (feat. Paul Williams)',
                 durationSeconds: 498),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '8',
                 title: 'Get Lucky (feat. Pharrell Williams)',
                 durationSeconds: 369),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '9', title: 'Beyond', durationSeconds: 290),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '10', title: 'Motherboard', durationSeconds: 341),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '11',
                 title: 'Fragments of Time (feat. Todd Edwards)',
                 durationSeconds: 279),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '12',
                 title: 'Doin\' It Right (feat. Panda Bear)',
                 durationSeconds: 251),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '13', title: 'Contact', durationSeconds: 381),
           ],
         ),
@@ -772,8 +644,6 @@ List<CatalogItemDto> musicSeedCatalogItems() => [
         kind: CatalogMediaKind.music,
         title: 'OK Computer',
         displayTitle: 'Radiohead - OK Computer (1997)',
-        synopsis:
-            'Radiohead\'s third studio album, depicting a world beset by rampant consumerism, social alienation, emotional isolation, and political malaise.',
         publisher: 'Parlophone / Capitol',
         releaseYear: 1997,
         releaseDate: DateTime.utc(1997, 5, 21),
@@ -785,7 +655,6 @@ List<CatalogItemDto> musicSeedCatalogItems() => [
         physicalFormat: 'Vinyl',
         barcode: '634904086817',
         country: 'GB',
-        language: 'en',
         sortKey: 'radiohead-0001',
         creators: [
           {'name': 'Radiohead', 'role': 'artist'},
@@ -794,46 +663,44 @@ List<CatalogItemDto> musicSeedCatalogItems() => [
           {'name': 'Nigel Godrich', 'role': 'producer'},
         ],
         genres: ['alternative rock', 'art rock', 'experimental rock'],
-        music: const MusicCatalogDetailsDto(
-          trackCount: 12,
+        music: const MusicSeedCatalogDetails(
           catalogNumber: 'NODATA 02',
-          releaseStatus: 'Official',
           tracks: [
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '1', title: 'Airbag', durationSeconds: 284),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '2',
                 title: 'Paranoid Android',
                 durationSeconds: 383),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '3',
                 title: 'Subterranean Homesick Alien',
                 durationSeconds: 267),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '4',
                 title: 'Exit Music (For a Film)',
                 durationSeconds: 264),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '5', title: 'Let Down', durationSeconds: 299),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '6', title: 'Karma Police', durationSeconds: 261),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '7',
                 title: 'Fitter Happier',
                 durationSeconds: 117),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '8',
                 title: 'Electioneering',
                 durationSeconds: 230),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '9',
                 title: 'Climbing Up the Walls',
                 durationSeconds: 285),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '10', title: 'No Surprises', durationSeconds: 228),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '11', title: 'Lucky', durationSeconds: 259),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '12', title: 'The Tourist', durationSeconds: 324),
           ],
         ),
@@ -843,8 +710,6 @@ List<CatalogItemDto> musicSeedCatalogItems() => [
         kind: CatalogMediaKind.music,
         title: 'To Pimp a Butterfly',
         displayTitle: 'Kendrick Lamar - To Pimp a Butterfly (2015)',
-        synopsis:
-            'The third studio album by American rapper Kendrick Lamar, incorporating musical styles such as jazz, funk, soul, and spoken word into a searing exploration of race and personal identity.',
         publisher: 'Top Dawg Entertainment / Aftermath / Interscope',
         releaseYear: 2015,
         releaseDate: DateTime.utc(2015, 3, 15),
@@ -856,7 +721,6 @@ List<CatalogItemDto> musicSeedCatalogItems() => [
         physicalFormat: 'Vinyl',
         barcode: '0602547311009',
         country: 'US',
-        language: 'en',
         sortKey: 'kendrick-lamar-0001',
         creators: [
           {'name': 'Kendrick Lamar', 'role': 'lead artist & vocals'},
@@ -865,59 +729,56 @@ List<CatalogItemDto> musicSeedCatalogItems() => [
           {'name': 'Flying Lotus', 'role': 'producer'},
         ],
         genres: ['conscious hip hop', 'jazz rap', 'funk', 'neo-soul'],
-        music: const MusicCatalogDetailsDto(
-          trackCount: 16,
+        music: const MusicSeedCatalogDetails(
           catalogNumber: 'B0022956-01',
-          releaseStatus: 'Official',
           tracks: [
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '1',
                 title: 'Wesley\'s Theory',
                 durationSeconds: 287),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '2',
                 title: 'For Free? (Interlude)',
                 durationSeconds: 130),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '3', title: 'King Kunta', durationSeconds: 234),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '4',
                 title: 'Institutionalized',
                 durationSeconds: 271),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '5', title: 'These Walls', durationSeconds: 300),
-            CatalogTrackDto(trackNumber: '6', title: 'u', durationSeconds: 268),
-            CatalogTrackDto(
+            MusicSeedTrack(trackNumber: '6', title: 'u', durationSeconds: 268),
+            MusicSeedTrack(
                 trackNumber: '7', title: 'Alright', durationSeconds: 219),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '8',
                 title: 'For Sale? (Interlude)',
                 durationSeconds: 291),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '9', title: 'Momma', durationSeconds: 283),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '10',
                 title: 'Hood Politics',
                 durationSeconds: 283),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '11',
                 title: 'How Much a Dollar Cost',
                 durationSeconds: 261),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '12',
                 title: 'Complexion (A Zulu Love)',
                 durationSeconds: 263),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '13',
                 title: 'The Blacker the Berry',
                 durationSeconds: 328),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '14',
                 title: 'You Ain\'t Gotta Lie (Momma Said)',
                 durationSeconds: 241),
-            CatalogTrackDto(
-                trackNumber: '15', title: 'i', durationSeconds: 336),
-            CatalogTrackDto(
+            MusicSeedTrack(trackNumber: '15', title: 'i', durationSeconds: 336),
+            MusicSeedTrack(
                 trackNumber: '16', title: 'Mortal Man', durationSeconds: 727),
           ],
         ),
@@ -927,8 +788,6 @@ List<CatalogItemDto> musicSeedCatalogItems() => [
         kind: CatalogMediaKind.music,
         title: 'Abbey Road',
         displayTitle: 'The Beatles - Abbey Road (1969)',
-        synopsis:
-            'The eleventh studio album by the English rock band the Beatles, featuring the iconic side-two medley and famous zebra crossing cover photograph.',
         publisher: 'Apple Records / EMI',
         releaseYear: 1969,
         releaseDate: DateTime.utc(1969, 9, 26),
@@ -940,7 +799,6 @@ List<CatalogItemDto> musicSeedCatalogItems() => [
         physicalFormat: 'Vinyl',
         barcode: '0602577915123',
         country: 'GB',
-        language: 'en',
         sortKey: 'beatles-0001',
         creators: [
           {'name': 'The Beatles', 'role': 'artist'},
@@ -951,62 +809,60 @@ List<CatalogItemDto> musicSeedCatalogItems() => [
           {'name': 'George Martin', 'role': 'producer'},
         ],
         genres: ['rock', 'pop rock', 'psychedelic rock'],
-        music: const MusicCatalogDetailsDto(
-          trackCount: 17,
+        music: const MusicSeedCatalogDetails(
           catalogNumber: 'PCS 7088',
-          releaseStatus: 'Official',
           tracks: [
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '1', title: 'Come Together', durationSeconds: 259),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '2', title: 'Something', durationSeconds: 182),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '3',
                 title: 'Maxwell\'s Silver Hammer',
                 durationSeconds: 207),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '4', title: 'Oh! Darling', durationSeconds: 207),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '5',
                 title: 'Octopus\'s Garden',
                 durationSeconds: 171),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '6',
                 title: 'I Want You (She\'s So Heavy)',
                 durationSeconds: 467),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '7',
                 title: 'Here Comes the Sun',
                 durationSeconds: 185),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '8', title: 'Because', durationSeconds: 165),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '9',
                 title: 'You Never Give Me Your Money',
                 durationSeconds: 242),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '10', title: 'Sun King', durationSeconds: 146),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '11',
                 title: 'Mean Mr. Mustard',
                 durationSeconds: 66),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '12', title: 'Polythene Pam', durationSeconds: 72),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '13',
                 title: 'She Came In Through the Bathroom Window',
                 durationSeconds: 117),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '14',
                 title: 'Golden Slumbers',
                 durationSeconds: 91),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '15',
                 title: 'Carry That Weight',
                 durationSeconds: 96),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '16', title: 'The End', durationSeconds: 140),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '17', title: 'Her Majesty', durationSeconds: 23),
           ],
         ),
@@ -1016,8 +872,6 @@ List<CatalogItemDto> musicSeedCatalogItems() => [
         kind: CatalogMediaKind.music,
         title: 'Led Zeppelin IV',
         displayTitle: 'Led Zeppelin - Untitled (Led Zeppelin IV) (1971)',
-        synopsis:
-            'The untitled fourth studio album by English rock band Led Zeppelin, commonly known as Led Zeppelin IV, featuring the landmark song "Stairway to Heaven".',
         publisher: 'Atlantic Records',
         releaseYear: 1971,
         releaseDate: DateTime.utc(1971, 11, 8),
@@ -1029,7 +883,6 @@ List<CatalogItemDto> musicSeedCatalogItems() => [
         physicalFormat: 'Vinyl',
         barcode: '081227965778',
         country: 'GB',
-        language: 'en',
         sortKey: 'led-zeppelin-0001',
         creators: [
           {'name': 'Led Zeppelin', 'role': 'artist'},
@@ -1039,34 +892,32 @@ List<CatalogItemDto> musicSeedCatalogItems() => [
           {'name': 'John Bonham', 'role': 'drums'},
         ],
         genres: ['hard rock', 'heavy metal', 'folk rock'],
-        music: const MusicCatalogDetailsDto(
-          trackCount: 8,
+        music: const MusicSeedCatalogDetails(
           catalogNumber: 'SD 7208',
-          releaseStatus: 'Official',
           tracks: [
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '1', title: 'Black Dog', durationSeconds: 296),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '2', title: 'Rock and Roll', durationSeconds: 220),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '3',
                 title: 'The Battle of Evermore',
                 durationSeconds: 351),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '4',
                 title: 'Stairway to Heaven',
                 durationSeconds: 482),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '5',
                 title: 'Misty Mountain Hop',
                 durationSeconds: 278),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '6', title: 'Four Sticks', durationSeconds: 284),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '7',
                 title: 'Going to California',
                 durationSeconds: 211),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '8',
                 title: 'When the Levee Breaks',
                 durationSeconds: 427),
@@ -1079,8 +930,6 @@ List<CatalogItemDto> musicSeedCatalogItems() => [
         title: 'The Rise and Fall of Ziggy Stardust',
         displayTitle:
             'David Bowie - The Rise and Fall of Ziggy Stardust (1972)',
-        synopsis:
-            'David Bowie\'s groundbreaking glam rock concept album telling the story of Ziggy Stardust, an androgynous alien rock star acting as a messenger for human salvation.',
         publisher: 'RCA Records / Parlophone',
         releaseYear: 1972,
         releaseDate: DateTime.utc(1972, 6, 16),
@@ -1092,7 +941,6 @@ List<CatalogItemDto> musicSeedCatalogItems() => [
         physicalFormat: 'Vinyl',
         barcode: '0190296726804',
         country: 'GB',
-        language: 'en',
         sortKey: 'david-bowie-0001',
         creators: [
           {'name': 'David Bowie', 'role': 'lead vocals & acoustic guitar'},
@@ -1100,42 +948,40 @@ List<CatalogItemDto> musicSeedCatalogItems() => [
           {'name': 'Ken Scott', 'role': 'producer'},
         ],
         genres: ['glam rock', 'proto-punk', 'art rock'],
-        music: const MusicCatalogDetailsDto(
-          trackCount: 11,
+        music: const MusicSeedCatalogDetails(
           catalogNumber: 'SF 8287',
-          releaseStatus: 'Official',
           tracks: [
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '1', title: 'Five Years', durationSeconds: 282),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '2', title: 'Soul Love', durationSeconds: 214),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '3',
                 title: 'Moonage Daydream',
                 durationSeconds: 280),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '4', title: 'Starman', durationSeconds: 250),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '5',
                 title: 'It Ain\'t Easy',
                 durationSeconds: 178),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '6', title: 'Lady Stardust', durationSeconds: 201),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '7', title: 'Star', durationSeconds: 167),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '8',
                 title: 'Hang On to Yourself',
                 durationSeconds: 160),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '9',
                 title: 'Ziggy Stardust',
                 durationSeconds: 193),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '10',
                 title: 'Suffragette City',
                 durationSeconds: 205),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '11',
                 title: 'Rock \'n\' Roll Suicide',
                 durationSeconds: 178),
@@ -1147,8 +993,6 @@ List<CatalogItemDto> musicSeedCatalogItems() => [
         kind: CatalogMediaKind.music,
         title: 'A Night at the Opera',
         displayTitle: 'Queen - A Night at the Opera (1975)',
-        synopsis:
-            'The fourth studio album by British rock band Queen, named after the Marx Brothers\' film and featuring the operatic multi-tracked epic "Bohemian Rhapsody".',
         publisher: 'EMI / Hollywood Records',
         releaseYear: 1975,
         releaseDate: DateTime.utc(1975, 11, 21),
@@ -1160,7 +1004,6 @@ List<CatalogItemDto> musicSeedCatalogItems() => [
         physicalFormat: 'Vinyl',
         barcode: '0050087332211',
         country: 'GB',
-        language: 'en',
         sortKey: 'queen-0001',
         creators: [
           {'name': 'Queen', 'role': 'artist'},
@@ -1169,50 +1012,48 @@ List<CatalogItemDto> musicSeedCatalogItems() => [
           {'name': 'Roy Thomas Baker', 'role': 'producer'},
         ],
         genres: ['progressive rock', 'hard rock', 'glam rock', 'opera rock'],
-        music: const MusicCatalogDetailsDto(
-          trackCount: 12,
+        music: const MusicSeedCatalogDetails(
           catalogNumber: 'EMTC 103',
-          releaseStatus: 'Official',
           tracks: [
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '1',
                 title: 'Death on Two Legs (Dedicated to...)',
                 durationSeconds: 223),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '2',
                 title: 'Lazing on a Sunday Afternoon',
                 durationSeconds: 67),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '3',
                 title: 'I\'m in Love with My Car',
                 durationSeconds: 185),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '4',
                 title: 'You\'re My Best Friend',
                 durationSeconds: 172),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '5', title: '\'39', durationSeconds: 211),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '6', title: 'Sweet Lady', durationSeconds: 243),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '7',
                 title: 'Seaside Rendezvous',
                 durationSeconds: 135),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '8',
                 title: 'The Prophet\'s Song',
                 durationSeconds: 500),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '9',
                 title: 'Love of My Life',
                 durationSeconds: 219),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '10', title: 'Good Company', durationSeconds: 203),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '11',
                 title: 'Bohemian Rhapsody',
                 durationSeconds: 355),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '12',
                 title: 'God Save the Queen',
                 durationSeconds: 75),
@@ -1224,8 +1065,6 @@ List<CatalogItemDto> musicSeedCatalogItems() => [
         kind: CatalogMediaKind.music,
         title: 'Mezzanine',
         displayTitle: 'Massive Attack - Mezzanine (1998)',
-        synopsis:
-            'The third studio album by English electronic music group Massive Attack, known for its dark, brooding sound palette blending trip hop with dub, electronica, and post-punk.',
         publisher: 'Circa / Virgin Records',
         releaseYear: 1998,
         releaseDate: DateTime.utc(1998, 4, 20),
@@ -1237,7 +1076,6 @@ List<CatalogItemDto> musicSeedCatalogItems() => [
         physicalFormat: 'Vinyl',
         barcode: '0602567479703',
         country: 'GB',
-        language: 'en',
         sortKey: 'massive-attack-0001',
         creators: [
           {'name': 'Massive Attack', 'role': 'artist'},
@@ -1246,36 +1084,34 @@ List<CatalogItemDto> musicSeedCatalogItems() => [
           {'name': 'Elizabeth Fraser', 'role': 'guest vocals (Teardrop)'},
         ],
         genres: ['trip hop', 'downtempo', 'electronica', 'dark ambient'],
-        music: const MusicCatalogDetailsDto(
-          trackCount: 11,
+        music: const MusicSeedCatalogDetails(
           catalogNumber: 'WBRLP4',
-          releaseStatus: 'Official',
           tracks: [
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '1', title: 'Angel', durationSeconds: 379),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '2', title: 'Risingson', durationSeconds: 298),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '3', title: 'Teardrop', durationSeconds: 329),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '4',
                 title: 'Inertia Creeps',
                 durationSeconds: 356),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '5', title: 'Exchange', durationSeconds: 251),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '6',
                 title: 'Dissolved Girl',
                 durationSeconds: 367),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '7', title: 'Man Next Door', durationSeconds: 355),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '8', title: 'Black Milk', durationSeconds: 381),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '9', title: 'Mezzanine', durationSeconds: 354),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '10', title: 'Group Four', durationSeconds: 497),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '11', title: '(Exchange)', durationSeconds: 254),
           ],
         ),
@@ -1285,8 +1121,6 @@ List<CatalogItemDto> musicSeedCatalogItems() => [
         kind: CatalogMediaKind.music,
         title: 'Dummy',
         displayTitle: 'Portishead - Dummy (1994)',
-        synopsis:
-            'The debut studio album by English band Portishead, which won the 1995 Mercury Music Prize and defined the Bristol sound of 1990s trip hop.',
         publisher: 'Go! Beat Records',
         releaseYear: 1994,
         releaseDate: DateTime.utc(1994, 8, 22),
@@ -1298,7 +1132,6 @@ List<CatalogItemDto> musicSeedCatalogItems() => [
         physicalFormat: 'Vinyl',
         barcode: '042282855312',
         country: 'GB',
-        language: 'en',
         sortKey: 'portishead-0001',
         creators: [
           {'name': 'Portishead', 'role': 'artist'},
@@ -1307,36 +1140,34 @@ List<CatalogItemDto> musicSeedCatalogItems() => [
           {'name': 'Adrian Utley', 'role': 'guitar & bass'},
         ],
         genres: ['trip hop', 'lo-fi', 'electronica'],
-        music: const MusicCatalogDetailsDto(
-          trackCount: 11,
+        music: const MusicSeedCatalogDetails(
           catalogNumber: '828 553-1',
-          releaseStatus: 'Official',
           tracks: [
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '1', title: 'Mysterons', durationSeconds: 302),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '2', title: 'Sour Times', durationSeconds: 251),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '3', title: 'Strangers', durationSeconds: 235),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '4',
                 title: 'It Could Be Sweet',
                 durationSeconds: 256),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '5',
                 title: 'Wandering Star',
                 durationSeconds: 291),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '6', title: 'It\'s a Fire', durationSeconds: 229),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '7', title: 'Numb', durationSeconds: 234),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '8', title: 'Roads', durationSeconds: 302),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '9', title: 'Pedestal', durationSeconds: 219),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '10', title: 'Biscuit', durationSeconds: 301),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '11', title: 'Glory Box', durationSeconds: 306),
           ],
         ),
@@ -1346,8 +1177,6 @@ List<CatalogItemDto> musicSeedCatalogItems() => [
         kind: CatalogMediaKind.music,
         title: 'London Calling',
         displayTitle: 'The Clash - London Calling (1979)',
-        synopsis:
-            'The third studio album by English rock band the Clash, blending punk rock with reggae, ska, rockabilly, and soul, and featuring Pennie Smith\'s iconic bass-smashing cover photograph.',
         publisher: 'CBS Records',
         releaseYear: 1979,
         releaseDate: DateTime.utc(1979, 12, 14),
@@ -1359,7 +1188,6 @@ List<CatalogItemDto> musicSeedCatalogItems() => [
         physicalFormat: 'Vinyl',
         barcode: '888751127012',
         country: 'GB',
-        language: 'en',
         sortKey: 'the-clash-0001',
         creators: [
           {'name': 'The Clash', 'role': 'artist'},
@@ -1370,74 +1198,72 @@ List<CatalogItemDto> musicSeedCatalogItems() => [
           {'name': 'Guy Stevens', 'role': 'producer'},
         ],
         genres: ['punk rock', 'post-punk', 'ska', 'reggae rock'],
-        music: const MusicCatalogDetailsDto(
-          trackCount: 19,
+        music: const MusicSeedCatalogDetails(
           catalogNumber: 'CBS CLASH 3',
-          releaseStatus: 'Official',
           tracks: [
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '1',
                 title: 'London Calling',
                 durationSeconds: 199),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '2',
                 title: 'Brand New Cadillac',
                 durationSeconds: 128),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '3', title: 'Jimmy Jazz', durationSeconds: 234),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '4', title: 'Hateful', durationSeconds: 164),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '5',
                 title: 'Rudie Can\'t Fail',
                 durationSeconds: 209),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '6', title: 'Spanish Bombs', durationSeconds: 198),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '7',
                 title: 'The Right Profile',
                 durationSeconds: 234),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '8',
                 title: 'Lost in the Supermarket',
                 durationSeconds: 227),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '9', title: 'Clampdown', durationSeconds: 229),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '10',
                 title: 'The Guns of Brixton',
                 durationSeconds: 189),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '11',
                 title: 'Wrong \'Em Boyo',
                 durationSeconds: 190),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '12',
                 title: 'Death or Glory',
                 durationSeconds: 235),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '13', title: 'Koka Kola', durationSeconds: 107),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '14',
                 title: 'The Card Cheat',
                 durationSeconds: 229),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '15',
                 title: 'Lover\'s Rock',
                 durationSeconds: 243),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '16',
                 title: 'Four Horsemen',
                 durationSeconds: 175),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '17',
                 title: 'I\'m Not Down',
                 durationSeconds: 186),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '18',
                 title: 'Revolution Rock',
                 durationSeconds: 333),
-            CatalogTrackDto(
+            MusicSeedTrack(
                 trackNumber: '19',
                 title: 'Train in Vain',
                 durationSeconds: 181),
@@ -1446,31 +1272,29 @@ List<CatalogItemDto> musicSeedCatalogItems() => [
       ),
     ];
 
-List<MusicOwnedItem> musicSeedOwnedItems(DateTime now) => [
-      for (final itemId in seedIds(CatalogMediaKind.music, 15))
-        MusicOwnedItem(
-          id: MusicOwnedItemId('seed-owned-$itemId'),
-          catalogRef: seedCatalogRef(CatalogMediaKind.music, itemId),
-          targetRef: musicReleaseRefForRoot(
-            seedCatalogRef(CatalogMediaKind.music, itemId),
-            '$itemId:release',
-          ),
-          createdAt: now.subtract(const Duration(days: 220)),
-          updatedAt: now,
+List<MusicLibraryEntry> musicSeedLibraryEntries(DateTime now) {
+  final metadataById = {
+    for (final item in musicSeedCatalogItems())
+      item.id: MusicCatalogMapper.mapMetadataItemToMusic(
+        enrichMusicSeedItem(item),
+      ),
+  };
+
+  return [
+    for (final itemId in seedIds(CatalogMediaKind.music, 15))
+      MusicLibraryEntry(
+        id: LibraryEntryId('seed-entry-$itemId'),
+        metadata: metadataById[itemId]!,
+        sourceCatalogRef: seedCatalogRef(CatalogMediaKind.music, itemId),
+        personal: MusicPersonalData(
           isDigital: false,
           condition: 'Mint',
-          details: MusicOwnedDetails(
+          details: MusicEntryDetails(
             media: [
-              MusicOwnedMediumDetails(
-                mediumIndex: 1,
+              MusicEntryDiscDetails(
+                discId: '$itemId:disc:1',
                 storageDevice: 'Vinyl shelf',
                 storageSlot: 'M-${itemId.substring(itemId.length - 2)}',
-                matrixRunouts: [
-                  MusicMatrixRunout(
-                    side: 'A',
-                    runoutText: 'SEED-${itemId.toUpperCase()}-A',
-                  ),
-                ],
               ),
             ],
             lastCleanedDate: DateTime.utc(2024, 4, 20),
@@ -1479,22 +1303,22 @@ List<MusicOwnedItem> musicSeedOwnedItems(DateTime now) => [
           pricePaidCents: 3499,
           currency: 'USD',
           personalNotes: '180g Vinyl in antistatic inner sleeve. Clean spin.',
-          quantity: 1,
           purchaseStore: 'Local Record Store / Acoustic Sounds',
           collectionStatus: 'collected',
         ),
-    ];
+        createdAt: now.subtract(const Duration(days: 220)),
+        updatedAt: now,
+      ),
+  ];
+}
 
 List<TrackingStorageRecord> musicSeedTrackingStates(DateTime now) => [
       for (var i = 1; i <= 15; i++)
         MusicTrackingState(
           id: 'seed-track-music-${seedOrdinal2(i)}',
-          releaseRef: musicReleaseRefForRoot(
-            seedCatalogRef(
-              CatalogMediaKind.music,
-              'seed-music-${seedOrdinal2(i)}',
-            ),
-            'seed-music-${seedOrdinal2(i)}:release',
+          libraryEntryRef: seedLibraryEntryRef(
+            CatalogMediaKind.music,
+            'seed-entry-seed-music-${seedOrdinal2(i)}',
           ),
           sourceType: TrackingSourceType.physical,
           status: MediaTrackingStatus.completed,

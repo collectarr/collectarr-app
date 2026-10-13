@@ -1,5 +1,9 @@
+import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
+import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
-import 'package:collectarr_app/features/library/kinds/tv/data/tv_owned_item_projection.dart';
+import 'package:collectarr_app/features/library/config/library_entry_field_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/tv/config/tv_workspace_field_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/tv/data/tv_library_entry_projection.dart';
 import 'package:collectarr_app/features/library/config/workspace_presentation_support.dart';
 import 'package:collectarr_app/features/library/kinds/tv/presentation_builder.dart';
 import 'package:collectarr_app/features/library/kinds/tv/workspace/tv_card_presentation.dart';
@@ -36,6 +40,7 @@ const tvLibraryBucketLabelOverrides = LibraryPresentationLabels();
 
 final tvLibraryFilterDefinitions = <LibraryFilterDefinition<Object?>>[
   LibraryFilterDefinition<Object?>(
+    metadata: TvWorkspaceFieldMetadata.series,
     id: 'series',
     label: 'Series',
     anyLabel: 'Any series',
@@ -44,20 +49,23 @@ final tvLibraryFilterDefinitions = <LibraryFilterDefinition<Object?>>[
         : null,
   ),
   LibraryFilterDefinition<Object?>(
+    metadata: LibraryEntryFieldMetadata.location,
     id: 'location',
     label: 'Location',
     anyLabel: 'Any location',
   ),
   LibraryFilterDefinition<Object?>(
+    metadata: LibraryEntryFieldMetadata.tag,
     id: 'tag',
     label: 'Tag',
     anyLabel: 'Any tag',
     inputKind: LibraryFilterInputKind.autocomplete,
-    value: (item) => TvOwnedItemProjection.fromDispatch(
-      item.source.ownedItemDispatch,
-    )?.tags?.split(','),
+    value: (item) => TvLibraryEntryProjection.fromDispatch(
+      item.source.libraryEntryDispatch,
+    )?.personal.tags?.split(','),
   ),
   LibraryFilterDefinition<Object?>(
+    metadata: TvWorkspaceFieldMetadata.publisher,
     id: 'publisher',
     label: 'Network',
     anyLabel: 'Any network',
@@ -66,6 +74,7 @@ final tvLibraryFilterDefinitions = <LibraryFilterDefinition<Object?>>[
         : null,
   ),
   LibraryFilterDefinition<Object?>(
+    metadata: TvWorkspaceFieldMetadata.releaseYear,
     id: 'year',
     label: 'Year',
     anyLabel: 'Any year',
@@ -74,14 +83,16 @@ final tvLibraryFilterDefinitions = <LibraryFilterDefinition<Object?>>[
         : null,
   ),
   LibraryFilterDefinition<Object?>(
+    metadata: LibraryEntryFieldMetadata.condition,
     id: 'condition',
     label: 'Condition',
     anyLabel: 'Any condition',
-    value: (item) => TvOwnedItemProjection.fromDispatch(
-      item.source.ownedItemDispatch,
-    )?.condition,
+    value: (item) => TvLibraryEntryProjection.fromDispatch(
+      item.source.libraryEntryDispatch,
+    )?.personal.condition,
   ),
   LibraryFilterDefinition<Object?>(
+    metadata: TvWorkspaceFieldMetadata.country,
     id: 'country',
     label: 'Country',
     anyLabel: 'Any country',
@@ -90,6 +101,7 @@ final tvLibraryFilterDefinitions = <LibraryFilterDefinition<Object?>>[
         : null,
   ),
   LibraryFilterDefinition<Object?>(
+    metadata: TvWorkspaceFieldMetadata.language,
     id: 'language',
     label: 'Language',
     anyLabel: 'Any language',
@@ -108,6 +120,16 @@ String tvLibraryBucketLabelBuilder(LibraryBucketingContext context) {
 }
 
 final tvLibraryMediaPresentation = LibraryMediaPresentation(
+  sortFavorites: [
+    LibrarySortFavorite(
+        id: 'title_asc',
+        label: 'Title A-Z',
+        icon: AppIcons.sortAlpha,
+        rules: [
+          LibrarySortRule(
+              column: TvWorkspaceFieldMetadata.title.id, ascending: true)
+        ]),
+  ],
   searchFieldLabels: const LibraryMediaSearchFieldLabels(
     queryHint: 'Enter series, episode, or keyword...',
     emptySearchMessage: 'Enter a series, episode, or keyword.',
@@ -127,7 +149,7 @@ final tvLibraryMediaPresentation = LibraryMediaPresentation(
   bucketLabelBuilder: tvLibraryBucketLabelBuilder,
   cardPresentationBuilder: buildTvCardPresentation,
   compactBucketIcon: Icons.tv_outlined,
-  emptyStateProviderSummarySuffix: ' Episodes are tracked as seasons.',
+  emptyStateSummarySuffix: ' Episodes are tracked as seasons.',
   previewLabels: tvPreviewLabels,
   statsLabels: tvStatsLabels,
   filterDefinitions: tvLibraryFilterDefinitions,

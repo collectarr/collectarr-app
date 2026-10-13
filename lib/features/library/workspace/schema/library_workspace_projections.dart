@@ -1,8 +1,6 @@
 import 'package:collectarr_app/core/models/tracking_status.dart';
-import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
-import 'package:collectarr_app/features/library/workspace/config/library_entity_workspace_projector.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_workspace_catalog_data.dart';
+import 'package:collectarr_app/features/library/workspace/entry/personal_overlay.dart';
+import 'package:collectarr_app/features/library/workspace/entry/workspace_item.dart';
 
 class WorkspaceCommonProjection {
   const WorkspaceCommonProjection({
@@ -13,27 +11,19 @@ class WorkspaceCommonProjection {
     this.coverImageUrl,
   });
 
-  factory WorkspaceCommonProjection.fromStructuralShelf(
-    LibraryWorkspaceSource source,
-    LibraryEntityRef node, {
-    String? overrideTitle,
-    String? overrideSynopsis,
-    DateTime? overrideReleaseDate,
-    String? overrideCoverImageUrl,
+  factory WorkspaceCommonProjection.fromKindPresentation(
+    WorkspaceItem item, {
+    required String title,
+    String? synopsis,
+    DateTime? releaseDate,
+    String? coverImageUrl,
   }) {
-    final release = node is LibraryReleaseRef ? node.release : null;
-
     return WorkspaceCommonProjection(
-      title: overrideTitle ?? source.title,
-      synopsis: overrideSynopsis ??
-          libraryWorkspaceCatalogSynopsis(source.catalogData),
-      releaseDate: overrideReleaseDate ??
-          release?.releaseDate ??
-          source.catalogData?.releaseDate,
-      currency: source.ownedSummary?.currency,
-      coverImageUrl: overrideCoverImageUrl ??
-          source.catalogSummary?.imageUrl ??
-          source.catalogData?.coverImageUrl,
+      title: title,
+      synopsis: synopsis,
+      releaseDate: releaseDate,
+      currency: item.entrySummary?.currency,
+      coverImageUrl: coverImageUrl ?? item.presentation?.imageUrl,
     );
   }
 
@@ -44,9 +34,9 @@ class WorkspaceCommonProjection {
   final String? coverImageUrl;
 }
 
-class PersonalCopyProjection {
-  PersonalCopyProjection({
-    this.isOwned = false,
+class PersonalEntryProjection {
+  PersonalEntryProjection({
+    this.isEntry = false,
     this.isWishlisted = false,
     this.isTracked = false,
     this.condition,
@@ -61,31 +51,34 @@ class PersonalCopyProjection {
     this.notes,
   }) : updatedAt = updatedAt ?? DateTime.utc(1970);
 
-  factory PersonalCopyProjection.fromShelf(
-    LibraryWorkspaceSource source, {
-    LibraryReleaseState? releaseState,
-  }) {
-    final tracking = releaseState == null
-        ? source.trackingSummary
-        : releaseState.trackingSummary;
-    return PersonalCopyProjection(
-      isOwned: releaseState?.isOwned ?? source.isOwned,
-      isWishlisted: releaseState?.isWishlisted ?? source.isWishlisted,
-      isTracked: releaseState?.isTracked ?? source.isTracked,
+  factory PersonalEntryProjection.fromShelf(
+    WorkspaceItem item,
+    PersonalOverlay personal,
+  ) {
+    final tracking = personal.tracking;
+    final entryUpdatedAt = item.entrySummary?.updatedAt;
+    final personalUpdatedAt = personal.updatedAt;
+    return PersonalEntryProjection(
+      isEntry: item.entrySummary != null,
+      isWishlisted: personal.isWishlisted,
+      isTracked: personal.isTracked,
       condition: null,
-      locationPath: source.locationPath,
+      locationPath: personal.locationPath,
       trackingStatus: mediaTrackingStatusToStorageValue(tracking?.status),
       rating: tracking?.rating,
-      pricePaidCents: source.ownedSummary?.pricePaidCents,
-      addedAt: source.addedAt,
-      updatedAt: source.updatedAt,
+      pricePaidCents: item.entrySummary?.pricePaidCents,
+      addedAt: item.entrySummary?.createdAt ?? personal.wishlist?.createdAt,
+      updatedAt:
+          entryUpdatedAt == null || !entryUpdatedAt.isAfter(personalUpdatedAt)
+              ? personalUpdatedAt
+              : entryUpdatedAt,
       tags: null,
       collectionStatus: null,
-      notes: source.ownedSummary?.notes,
+      notes: item.entrySummary?.notes,
     );
   }
 
-  final bool isOwned;
+  final bool isEntry;
   final bool isWishlisted;
   final bool isTracked;
   final String? condition;

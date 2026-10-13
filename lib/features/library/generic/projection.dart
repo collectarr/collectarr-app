@@ -1,8 +1,8 @@
 import 'package:collectarr_app/core/models/custom_field.dart';
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
-import 'package:collectarr_app/features/library/generic/filter_dialog.dart';
+import 'package:collectarr_app/features/library/generic/library_filters.dart';
 import 'package:collectarr_app/features/library/generic/projection/library_folder_tree_builder.dart';
 import 'package:collectarr_app/features/library/generic/projection/library_grouping_engine.dart';
 import 'package:collectarr_app/features/library/generic/projection/library_projection_engine.dart';
@@ -11,12 +11,10 @@ import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/generic/quick_view.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_typed_field_definition.dart';
-import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_shelf_entry.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_view_state.dart';
 import 'package:collectarr_app/features/library/workspace/layout/library_bucket_sidebar.dart';
 import 'package:flutter/foundation.dart';
-import 'package:collectarr_app/features/library/config/library_browser_navigation_policy.dart';
 import 'package:collectarr_app/features/library/config/library_search_target.dart';
 import 'package:flutter/material.dart';
 
@@ -195,7 +193,7 @@ LibraryGroupDefinition<dynamic, dynamic, Object?>?
 ]) {
   if (type != null) {
     final workspace = libraryKindWorkspaceForKind(type.kind);
-    final fields = workspace.fieldsForGroupModeAcrossScopes(mode);
+    final fields = workspace.fieldsForGroupModeAcrossTargets(mode);
     if (fields == null) {
       return null;
     }
@@ -283,8 +281,8 @@ List<String> libraryGroupModesForType(
   LibraryKindRegistration type,
 ) {
   return [
-    for (final mode
-        in libraryKindWorkspaceForKind(type.kind).availableGroupIdsForAllScopes)
+    for (final mode in libraryKindWorkspaceForKind(type.kind)
+        .availableGroupIdsForAllTargets)
       mode.value,
   ];
 }
@@ -310,10 +308,10 @@ String? libraryGroupModeFromStorageValue(String value,
 
   if (type != null) {
     final workspace = libraryKindWorkspaceForKind(type.kind);
-    final fields = workspace.fieldsForGroupModeAcrossScopes(candidate);
+    final fields = workspace.fieldsForGroupModeAcrossTargets(candidate);
     if (fields == null) {
       return switch (candidate) {
-        'title' || 'location' || 'ownership' => candidate,
+        'title' || 'location' || 'entries' => candidate,
         _ => null,
       };
     }
@@ -343,12 +341,28 @@ class LibraryProjection {
     required this.counts,
   });
 
+  factory LibraryProjection.forItem(LibraryProjectionView view) {
+    final item = LibraryProjectionItem(
+      source: view.source,
+      dto: view.dto,
+      customFieldBadges: view.customFieldBadges,
+    );
+    return LibraryProjection(
+        allItems: [item],
+        filteredItems: [item],
+        buckets: const [],
+        selectedItem: item,
+        counts: LibraryToolbarCounts(
+            shown: 1,
+            total: 1,
+            entry: view.source.isEntry ? 1 : 0,
+            wishlist: view.source.isWishlisted ? 1 : 0));
+  }
+
   factory LibraryProjection.fromShelf({
     required ShelfState shelf,
     required LibraryKindRegistration type,
     required LibraryWorkspaceViewState viewState,
-    LibraryWorkspaceBrowserMode browserMode = LibraryWorkspaceBrowserMode.work,
-    String? releaseFolderWorkId,
     required String query,
     LibraryLinkedMetadataFilter? linkedMetadataFilter,
     required String? selectedBucket,
@@ -360,20 +374,19 @@ class LibraryProjection {
     List<LibraryBucketScopeFilter> bucketScopeFilters = const [],
     List<LibraryBucket>? overrideBuckets,
     Set<String>? constrainedItemIds,
+    Set<String>? collectionEntryIds,
     LibraryFilterSelection filterSelection = LibraryFilterSelection.none,
     List<CustomFieldDefinition> customFieldDefinitions = const [],
     Map<String, List<String>> customFieldValuesByItem = const {},
     Map<String, Map<String, String>> customFieldValuesByDefinitionByItem =
         const {},
-    Set<OwnedItemRef> activeLoanOwnedItemIds = const {},
+    Set<LibraryEntryRef> activeLoanLibraryEntryIds = const {},
     LibrarySearchTarget searchTarget = LibrarySearchTarget.all,
   }) {
     return const LibraryProjectionService().build(
       shelf: shelf,
       type: type,
       viewState: viewState,
-      browserMode: browserMode,
-      releaseFolderWorkId: releaseFolderWorkId,
       query: query,
       linkedMetadataFilter: linkedMetadataFilter,
       selectedBucket: selectedBucket,
@@ -384,11 +397,12 @@ class LibraryProjection {
       bucketScopeFilters: bucketScopeFilters,
       overrideBuckets: overrideBuckets,
       constrainedItemIds: constrainedItemIds,
+      collectionEntryIds: collectionEntryIds,
       filterSelection: filterSelection,
       customFieldDefinitions: customFieldDefinitions,
       customFieldValuesByItem: customFieldValuesByItem,
       customFieldValuesByDefinitionByItem: customFieldValuesByDefinitionByItem,
-      activeLoanOwnedItemIds: activeLoanOwnedItemIds,
+      activeLoanLibraryEntryIds: activeLoanLibraryEntryIds,
       searchTarget: searchTarget,
     );
   }
@@ -440,7 +454,7 @@ LibraryProjectionItem? librarySelectedItem(
     return null;
   }
   for (final item in items) {
-    if (item.node.id == selectedItemId) {
+    if (item.target.id == selectedItemId) {
       return item;
     }
   }

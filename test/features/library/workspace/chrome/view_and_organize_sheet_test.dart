@@ -5,12 +5,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  testWidgets(
-      'ViewAndOrganizeSheet switches layout and density modes and updates cover size',
+  testWidgets('ViewAndOrganizeSheet switches layouts and updates cover size',
       (tester) async {
     LibraryViewMode selectedView = LibraryViewMode.grid;
-    LibraryWorkspaceDensityPreset selectedDensity =
-        LibraryWorkspaceDensityPreset.compact;
     double selectedCoverSize = 140.0;
     bool sortOpened = false;
 
@@ -24,8 +21,6 @@ void main() {
             child: ViewAndOrganizeSheet(
               currentViewMode: selectedView,
               onViewModeChanged: (v) => selectedView = v,
-              currentDensity: selectedDensity,
-              onDensityChanged: (d) => selectedDensity = d,
               currentDetailsLayout: LibraryDetailsLayout.hidden,
               onDetailsLayoutChanged: (_) {},
               currentCoverSize: selectedCoverSize,
@@ -49,10 +44,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(selectedView, LibraryViewMode.list);
 
-    // Switch density to comfortable
-    await tester.tap(find.byKey(const ValueKey('density_comfortable')));
-    await tester.pumpAndSettle();
-    expect(selectedDensity, LibraryWorkspaceDensityPreset.comfortable);
+    expect(find.text('Density'), findsNothing);
 
     // Open sort dialog
     await tester.tap(find.byKey(const ValueKey('sheet_open_sort')));
@@ -77,8 +69,6 @@ void main() {
                       context: context,
                       currentViewMode: LibraryViewMode.grid,
                       onViewModeChanged: (_) {},
-                      currentDensity: LibraryWorkspaceDensityPreset.compact,
-                      onDensityChanged: (_) {},
                       currentDetailsLayout: LibraryDetailsLayout.hidden,
                       onDetailsLayoutChanged: (_) {},
                       currentCoverSize: 150,

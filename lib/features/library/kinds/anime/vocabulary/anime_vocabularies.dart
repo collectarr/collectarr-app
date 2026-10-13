@@ -1,16 +1,17 @@
 import 'package:collectarr_app/core/db/local_database.dart';
-import 'package:collectarr_app/features/library/kinds/anime/data/anime_owned_repository.dart';
+import 'package:collectarr_app/features/library/kinds/anime/data/anime_entry_repository.dart';
 import 'package:collectarr_app/features/pick_lists/models/vocabulary_definition.dart';
 import 'package:collectarr_app/features/pick_lists/models/vocabulary_id.dart';
 import 'package:collectarr_app/features/pick_lists/pick_list_definition_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_metadata.dart';
-import 'package:collectarr_app/features/library/kinds/anime/domain/anime_owned_item.dart';
-import 'package:collectarr_app/features/library/kinds/anime/ownership/anime_owned_details.dart';
+import 'package:collectarr_app/features/library/kinds/anime/domain/anime_library_entry.dart';
+import 'package:collectarr_app/features/library/kinds/anime/entries/anime_entry_details.dart';
+import 'package:collectarr_app/features/library/kinds/anime/config/anime_field_identities.dart';
 
 abstract final class AnimeVocabularyIds {
   static const condition = VocabularyId<String>('anime.condition');
   static const demographic = VocabularyId<String>('anime.demographic');
-  static const format = VocabularyId<String>('anime.format');
+  static const format = AnimeFieldIdentities.formatVocabulary;
   static const studio = VocabularyId<String>('anime.studio');
   static const season = VocabularyId<String>('anime.season');
   static const physicalFormat = VocabularyId<String>('anime.physical_format');
@@ -21,73 +22,83 @@ abstract final class AnimeVocabularyIds {
 }
 
 abstract final class AnimeVocabularies {
-  static Future<int> countOwnedValue(
-    LocalDatabase db,
-    String semanticName,
-    String normalizedValue,
-  ) {
-    return countPickListOwnedValues(
-      items: AnimeOwnedRepository(db).listActive(),
-      normalizedValue: normalizedValue,
-      valuesFrom: (item) => _ownedValues(item, semanticName),
-    );
+  static Future<List<String>> entryOptions(
+      LocalDatabase db, String semanticName) async {
+    return [
+      for (final item in await AnimeEntryRepository(db).listActive())
+        ..._entryValues(item, semanticName)
+            .whereType<String>()
+            .where((value) => value.trim().isNotEmpty)
+    ];
   }
 
-  static Future<PickListOwnedMergeResult> previewOwnedMerge(
+  static Future<Map<String, int>> entryUsageCounts(
+          LocalDatabase db, String semanticName) =>
+      countPickListEntryUsages(
+          items: AnimeEntryRepository(db).listActive(),
+          valuesFrom: (item) => _entryValues(item, semanticName));
+
+  static Future<PickListEntryMergeResult> previewEntryMerge(
     LocalDatabase db,
     String semanticName,
     Set<String> normalizedSourceValues,
   ) {
-    return previewPickListOwnedMerge(
-      items: AnimeOwnedRepository(db).listActive(),
+    return previewPickListEntryMerge(
+      items: AnimeEntryRepository(db).listActive(),
       idFrom: (item) => item.id.value,
-      valuesFrom: (item) => _ownedValues(item, semanticName),
+      valuesFrom: (item) => _entryValues(item, semanticName),
       normalizedSourceValues: normalizedSourceValues,
     );
   }
 
-  static Future<void> applyOwnedMerge(
+  static Future<void> applyEntryMerge(
     LocalDatabase db,
     String semanticName,
     Set<String> normalizedSourceValues,
     String targetValue,
   ) {
-    return applyPickListOwnedMerge(
-      items: AnimeOwnedRepository(db).listActive(),
-      valuesFrom: (item) => _ownedValues(item, semanticName),
+    return applyPickListEntryMerge(
+      items: AnimeEntryRepository(db).listActive(),
+      valuesFrom: (item) => _entryValues(item, semanticName),
       replaceValue: (item, sources, target) =>
-          _replaceOwnedValue(item, semanticName, sources, target),
-      save: AnimeOwnedRepository(db).upsert,
+          _replaceEntryValue(item, semanticName, sources, target),
+      save: AnimeEntryRepository(db).upsert,
       normalizedSourceValues: normalizedSourceValues,
       targetValue: targetValue,
     );
   }
 
-  static AnimeOwnedItem _replaceOwnedValue(
-    AnimeOwnedItem item,
+  static AnimeLibraryEntry _replaceEntryValue(
+    AnimeLibraryEntry item,
     String semanticName,
     Set<String> normalizedSourceValues,
     String targetValue,
   ) {
     switch (semanticName) {
       case 'condition':
-        return item.copyWith(condition: targetValue);
+        return item.copyWith(
+            personal: item.personal.copyWith(condition: targetValue));
       case 'grade':
-        return item.copyWith(grade: targetValue);
+        return item.copyWith(
+            personal: item.personal.copyWith(grade: targetValue));
       case 'purchase_store':
-        return item.copyWith(purchaseStore: targetValue);
+        return item.copyWith(
+            personal: item.personal.copyWith(purchaseStore: targetValue));
       case 'sold_to':
-        return item.copyWith(soldTo: targetValue);
+        return item.copyWith(
+            personal: item.personal.copyWith(soldTo: targetValue));
       case 'collection_status':
-        return item.copyWith(collectionStatus: targetValue);
+        return item.copyWith(
+            personal: item.personal.copyWith(collectionStatus: targetValue));
       case 'tags':
         return item.copyWith(
+            personal: item.personal.copyWith(
           tags: replacePickListDelimitedValue(
-            item.tags,
+            item.personal.tags,
             normalizedSourceValues,
             targetValue,
           ),
-        );
+        ));
     }
     final key = switch (semanticName) {
       'features' => 'features',
@@ -97,20 +108,22 @@ abstract final class AnimeVocabularies {
       _ => null,
     };
     if (key == null) return item;
-    final details = item.details.toJson()..[key] = targetValue;
-    return item.copyWith(details: AnimeOwnedDetails.fromJson(details));
+    final details = item.personal.details.toJson()..[key] = targetValue;
+    return item.copyWith(
+        personal: item.personal
+            .copyWith(details: AnimeEntryDetails.fromJson(details)));
   }
 
-  static Iterable<String?> _ownedValues(
-    AnimeOwnedItem item,
+  static Iterable<String?> _entryValues(
+    AnimeLibraryEntry item,
     String semanticName,
   ) sync* {
     final standard = switch (semanticName) {
-      'condition' => item.condition,
-      'grade' => item.grade,
-      'purchase_store' => item.purchaseStore,
-      'sold_to' => item.soldTo,
-      'collection_status' => item.collectionStatus,
+      'condition' => item.personal.condition,
+      'grade' => item.personal.grade,
+      'purchase_store' => item.personal.purchaseStore,
+      'sold_to' => item.personal.soldTo,
+      'collection_status' => item.personal.collectionStatus,
       _ => null,
     };
     if (standard != null) {
@@ -118,7 +131,7 @@ abstract final class AnimeVocabularies {
       return;
     }
     if (semanticName == 'tags') {
-      yield* item.tags?.split(',') ?? const <String>[];
+      yield* item.personal.tags?.split(',') ?? const <String>[];
       return;
     }
     final key = switch (semanticName) {
@@ -129,7 +142,12 @@ abstract final class AnimeVocabularies {
       _ => null,
     };
     if (key != null) {
-      yield* pickListTextValues(item.details.toJson()[key]);
+      yield* pickListTextValues(item.personal.details.toJson()[key]);
+    }
+    for (final vocabulary in all) {
+      if (vocabulary.key.split('.').last == semanticName) {
+        yield* vocabulary.valuesFrom?.call(item.metadata) ?? const <String>[];
+      }
     }
   }
 
@@ -311,23 +329,20 @@ Iterable<String?> _physicalFormatCatalogValues(AnimeMetadata metadata) sync* {
   yield* vocabularyValues([
     metadata.physicalFormatLabel,
     metadata.physicalFormat,
-    metadata.editions.map((edition) => edition.physicalFormatLabel),
-    metadata.editions.map((edition) => edition.physicalFormat),
+    metadata.media.map((media) => media.mediaType),
   ]);
 }
 
 Iterable<String?> _regionCatalogValues(AnimeMetadata metadata) sync* {
   yield* vocabularyValues([
     metadata.country,
-    metadata.editions.map((edition) => edition.region),
+    metadata.media.map((media) => media.regionCode),
   ]);
 }
 
 Iterable<String?> _packagingCatalogValues(AnimeMetadata metadata) sync* {
   yield* vocabularyValues([
-    metadata.editions.map(
-      (edition) => _rawText(edition.metadata?['packaging']),
-    ),
+    metadata.media.map((media) => media.mediaType),
   ]);
 }
 
@@ -335,18 +350,11 @@ Iterable<String?> _distributorCatalogValues(AnimeMetadata metadata) sync* {
   yield* vocabularyValues([
     metadata.publisher,
     metadata.studios,
-    metadata.editions.map((edition) => edition.publisher),
   ]);
 }
 
 Iterable<String?> _hdrCatalogValues(AnimeMetadata metadata) sync* {
   yield* vocabularyValues([
-    metadata.editions.map((edition) =>
-        ((edition.metadata?['hdr_formats'] as Iterable?)?.map(_rawText))),
+    metadata.media.map((media) => media.hdrFormat),
   ]);
-}
-
-String? _rawText(Object? value) {
-  final text = value?.toString().trim();
-  return text == null || text.isEmpty ? null : text;
 }

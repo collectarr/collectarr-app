@@ -1,5 +1,6 @@
+import 'package:collectarr_app/features/library/workspace/layout/library_folder_row.dart';
+import 'package:collectarr_app/features/library/generic/view_preference_store.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
-import 'package:collectarr_app/features/library/generic/filter_dialog.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/generic/sidebar/sidebar_header.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
@@ -36,10 +37,6 @@ class LibrarySidebar extends StatelessWidget {
     this.linkedMetadataFilterLabel,
     this.selectedLetter,
     this.bucketStatusSummary,
-    this.filterSelection = LibraryFilterSelection.none,
-    this.hasActiveFilters = false,
-    this.onEditFilters,
-    this.onClearFilters,
     this.onCollectionStatusScopeChanged,
     this.onBucketCompletionScopeChanged,
     required this.onClearFilter,
@@ -66,7 +63,7 @@ class LibrarySidebar extends StatelessWidget {
   final bool groupLoading;
   final String selectedBucket;
   final ValueChanged<String> onSelected;
-  final ValueChanged<String> onGroupModeChanged;
+  final ValueChanged<LibraryFolderPreset> onGroupModeChanged;
   final List<String>? availableGroupModes;
   final List<String> breadcrumbs;
   final List<String> ancestorScopeLabels;
@@ -82,10 +79,6 @@ class LibrarySidebar extends StatelessWidget {
   final String? linkedMetadataFilterLabel;
   final String? selectedLetter;
   final LibraryBucketStatusSummary? bucketStatusSummary;
-  final LibraryFilterSelection filterSelection;
-  final bool hasActiveFilters;
-  final VoidCallback? onEditFilters;
-  final VoidCallback? onClearFilters;
   final ValueChanged<LibraryCollectionStatusScope>?
       onCollectionStatusScopeChanged;
   final ValueChanged<LibraryBucketCompletionScope>?
@@ -108,13 +101,16 @@ class LibrarySidebar extends StatelessWidget {
   Widget build(BuildContext context) {
     return LibraryBucketSidebar(
       title: 'Folders',
+      preferenceStore: LibraryViewPreferenceStore(type.kind),
+      folderPreset: folderPreset ?? LibraryFolderPreset.single(groupMode),
+      allBucketLabel: genericAllBucketLabel(type),
       icon: Icons.folder_open_outlined,
       buckets: buckets,
       selectedBucket: selectedBucket,
       onSelectBucket: onSelected,
       accentColor: accent,
-      selectionColor: accent.withValues(alpha: 0.42),
-      backgroundColor: appPalette(context).panel,
+      selectionColor: accent,
+      backgroundColor: libraryFolderDepthColor(context, 0),
       headerColor: appPalette(context).surface,
       dividerColor: appPalette(context).divider,
       selectedBadgeColor: appPalette(context).highlight,
@@ -136,7 +132,7 @@ class LibrarySidebar extends StatelessWidget {
           folderPreset ?? LibraryFolderPreset.single(groupMode),
           type,
         ),
-        onChanged: (preset) => onGroupModeChanged(preset.primaryMode),
+        onChanged: onGroupModeChanged,
         breadcrumbs: breadcrumbs,
         onNavigateBack: onNavigateBack,
         onNavigateToBreadcrumb: onNavigateToBreadcrumb,
@@ -151,10 +147,6 @@ class LibrarySidebar extends StatelessWidget {
         linkedMetadataFilterLabel: linkedMetadataFilterLabel,
         selectedLetter: selectedLetter,
         bucketStatusSummary: bucketStatusSummary,
-        filterSelection: filterSelection,
-        hasActiveFilters: hasActiveFilters,
-        onEditFilters: onEditFilters,
-        onClearFilters: onClearFilters,
         onCollectionStatusScopeChanged: onCollectionStatusScopeChanged,
         onClearFilter: onClearFilter,
         onHideSidebar: onHideSidebar,

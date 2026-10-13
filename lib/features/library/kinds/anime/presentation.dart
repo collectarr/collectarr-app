@@ -1,23 +1,26 @@
+import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
+import 'package:collectarr_app/ui/app_icons.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/core/models/json_encodable.dart';
+import 'package:collectarr_app/features/library/kinds/anime/domain/anime_metadata.dart';
 import 'package:collectarr_app/features/library/kinds/anime/catalog/anime_catalog_fields.dart';
-import 'package:collectarr_app/features/library/kinds/anime/data/anime_owned_item_projection.dart';
-import 'package:collectarr_app/core/api/dto/admin_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/anime/data/anime_library_entry_projection.dart';
 import 'package:collectarr_app/features/library/config/library_duplicate_presentation.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
-import 'package:collectarr_app/features/library/kinds/anime/provider/anime_provider_candidates.dart';
-import 'package:collectarr_app/features/providers/transport/provider_search_candidate.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
+import 'package:collectarr_app/features/library/config/library_entry_field_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/anime/config/anime_workspace_field_metadata.dart';
 import 'package:collectarr_app/features/library/config/workspace_presentation_support.dart';
 import 'package:collectarr_app/features/library/kinds/anime/workspace/anime_card_presentation.dart';
-import 'package:collectarr_app/features/library/kinds/anime/workspace/anime_workspace_catalog_data.dart';
+import 'package:collectarr_app/features/library/kinds/anime/workspace/anime_workspace_data.dart';
 import 'package:collectarr_app/features/library/kinds/anime/workspace/anime_workspace_dto.dart';
 import 'package:collectarr_app/features/library/config/presentation/library_media_presentation_builder_helpers.dart';
 import 'package:collectarr_app/features/library/details/library_detail_models.dart';
 import 'package:collectarr_app/features/library/details/library_detail_section.dart';
 import 'package:collectarr_app/features/library/generic/display.dart';
 import 'package:collectarr_app/features/library/generic/projection_item.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_entity_ref.dart';
+import 'package:collectarr_app/features/library/domain/library_target_ref.dart';
 import 'package:collectarr_app/features/library/kinds/anime/anime_physical_media_formats.dart';
 import 'package:collectarr_app/features/library/widgets/format_badge.dart';
 import 'package:flutter/material.dart';
@@ -37,7 +40,7 @@ class AnimeLibraryMediaPresentationBuilder
   String? buildAddPreviewItemNumber({
     required CatalogSearchCandidate item,
   }) =>
-      item.kindCapability.mapTransport((transport) => transport).itemNumber;
+      item.animeCatalogFields.itemNumber;
 
   @override
   List<LibraryFormatBadgeDescriptor> buildAddPreviewFormatBadges({
@@ -45,33 +48,28 @@ class AnimeLibraryMediaPresentationBuilder
   }) {
     final seen = <String>{};
     final result = <LibraryFormatBadgeDescriptor>[];
-    for (final edition in item.kindCapability
-        .mapTransport((transport) => transport)
-        .editions) {
-      final badge = animeFormatBadge(
-        edition.physicalFormat,
-        label: edition.physicalFormatLabel,
-      );
-      if (badge == null || !seen.add(badge.key)) continue;
-      result.add(badge);
-    }
+    final fields = item.animeCatalogFields;
+    final badge = animeFormatBadge(
+      fields.physicalFormat,
+      label: fields.physicalFormatLabel,
+    );
+    if (badge != null && seen.add(badge.key)) result.add(badge);
     return result;
   }
 
   @override
   List<LibraryDuplicateCandidate> buildDuplicateCandidates(
-    LibraryWorkspaceSource entry,
+    LibraryWorkspaceContext entry,
   ) {
-    final catalog = entry.catalogData;
-    if (catalog is! AnimeWorkspaceCatalogData) return const [];
-    final item = catalog.video;
+    final catalog = entry.kindPresentationData;
+    if (catalog is! AnimeWorkspaceData) return const [];
     final identifier =
-        normalizeLibraryDuplicateIdentifier(item.primaryRelease?.barcode);
+        normalizeLibraryDuplicateIdentifier(catalog.metadata.barcode);
     if (identifier == null) return const [];
     return [
       LibraryDuplicateCandidate(
         key: 'identifier:$identifier',
-        label: 'Identifier ${item.primaryRelease!.barcode!.trim()}',
+        label: 'Identifier ${catalog.metadata.barcode!.trim()}',
         reason: 'Same identifier',
         confidenceScore: 78,
       ),
@@ -79,133 +77,22 @@ class AnimeLibraryMediaPresentationBuilder
   }
 
   @override
-  List<LibraryWorkspaceReleaseSummary> buildWorkspaceReleases(
-    LibraryWorkspaceSource entry,
-  ) {
-    final catalog = entry.catalogData;
-    if (catalog is! AnimeWorkspaceCatalogData) return const [];
-    return [
-      for (final release in catalog.video.releases)
-        LibraryWorkspaceReleaseSummary(
-          id: release.id,
-          title: release.title,
-          formatLabel: release.formatLabel,
-          formatBadge: animeFormatBadge(release.formatLabel),
-          releaseDate: release.releaseDate,
-          mediaLabels: [
-            for (var index = 0; index < release.media.length; index += 1)
-              release.media[index].title ?? 'Media \${index + 1}',
-          ],
-          runtimeMinutes: release.videoDetails?.runtimeMinutes,
-        ),
-    ];
-  }
-
-  @override
   List<LibraryWorkspaceLinkSummary> buildWorkspaceLinks(
-    LibraryWorkspaceSource entry,
+    LibraryWorkspaceContext entry,
   ) {
-    final catalog = entry.catalogData;
-    if (catalog is! AnimeWorkspaceCatalogData) return const [];
+    final catalog = entry.kindPresentationData;
+    if (catalog is! AnimeWorkspaceData) return const [];
     return [
-      for (final value in catalog.video.trailerUrls)
-        if (value is Map<Object?, Object?>)
-          if (value['url']?.toString().trim() case final url?
-              when url.isNotEmpty)
-            LibraryWorkspaceLinkSummary(
-              url: url,
-              label: value['title']?.toString(),
-              source: value['source']?.toString(),
-              isTrailer: value['kind']?.toString() != 'external' &&
-                  value['kind']?.toString() != 'link',
-              isAutomatic: value['is_automatic'] != false,
-            ),
-    ];
-  }
-
-  @override
-  List<LibraryAddReleaseOption> buildReleaseOptions({
-    required CatalogSearchCandidate item,
-  }) {
-    return [
-      for (final edition in item.kindCapability
-          .mapTransport((transport) => transport)
-          .editions)
-        LibraryAddReleaseOption(
-          id: edition.id,
-          title: edition.title,
-          formatId: edition.physicalFormat,
-          formatLabel: edition.physicalFormatLabel,
-          formatBadge: animeFormatBadge(
-            edition.physicalFormat,
-            label: edition.physicalFormatLabel,
+      for (final value in catalog.metadata.links)
+        if (value.url.trim().isNotEmpty)
+          LibraryWorkspaceLinkSummary(
+            url: value.url,
+            label: value.title,
+            source: value.source,
+            isTrailer: value.isTrailerLink,
+            isAutomatic: value.isAutomatic,
           ),
-          releaseDate: edition.releaseDate,
-          coverImageUrl: edition.variants.firstOrNull?.coverImageUrl,
-          identifierCode: edition.identifierCode,
-          variants: [
-            for (final variant in edition.variants)
-              LibraryAddVariantOption(
-                id: variant.id,
-                name: variant.name,
-                coverImageUrl: variant.coverImageUrl,
-                identifierCode: variant.identifierCode,
-                formatId: variant.physicalFormat,
-                formatLabel: variant.physicalFormatLabel,
-                formatBadge: animeFormatBadge(
-                  variant.physicalFormat,
-                  label: variant.physicalFormatLabel,
-                ),
-                isPrimary: variant.isPrimary,
-              ),
-          ],
-        ),
     ];
-  }
-
-  @override
-  Map<String, dynamic> buildProviderProposalPayload({
-    required CatalogSearchCandidate item,
-  }) =>
-      item.kindCapability
-          .mapTransport((transport) => transport.toSyncPayload());
-
-  @override
-  CatalogSearchCandidate mergeProviderAddResult({
-    required CatalogSearchCandidate ingested,
-    required CatalogSearchCandidate edited,
-  }) {
-    final ingestedMetadata = ingested.animeCatalogFields;
-    final editedMetadata = edited.animeCatalogFields;
-    final merged = CatalogSearchCandidate.fromItem(
-        ingested.kindCapability.mapTransport((transport) => transport.copyWith(
-              title: edited.summary.primaryLabel,
-              displayTitle:
-                  editedMetadata.displayTitle ?? ingestedMetadata.displayTitle,
-              localizedTitle: editedMetadata.localizedTitle ??
-                  ingestedMetadata.localizedTitle,
-              originalTitle: editedMetadata.originalTitle ??
-                  ingestedMetadata.originalTitle,
-              searchAliases: editedMetadata.searchAliases.isNotEmpty
-                  ? editedMetadata.searchAliases
-                  : ingestedMetadata.searchAliases,
-              sortKey: editedMetadata.sortKey ?? ingestedMetadata.sortKey,
-              synopsis: editedMetadata.synopsis ?? ingestedMetadata.synopsis,
-              coverImageUrl: editedMetadata.coverImageUrl ??
-                  ingestedMetadata.coverImageUrl,
-              thumbnailImageUrl: editedMetadata.thumbnailImageUrl ??
-                  ingestedMetadata.thumbnailImageUrl,
-              coverImageData: editedMetadata.coverImageData ??
-                  ingestedMetadata.coverImageData,
-            )));
-    return edited.kindCapability.mapTransport(
-      (transport) => CatalogSearchCandidate.fromItem(
-        merged.kindCapability.mapTransport(
-          (mergedTransport) =>
-              mergedTransport.withKindMetadata(transport.kindMetadata),
-        ),
-      ),
-    );
   }
 
   @override
@@ -215,23 +102,21 @@ class AnimeLibraryMediaPresentationBuilder
   }) {
     final hydratedMetadata = hydrated.animeCatalogFields;
     final fallbackMetadata = fallback.animeCatalogFields;
-    final hydratedEditions =
-        hydrated.kindCapability.mapTransport((transport) => transport.editions);
-    final fallbackEditions =
-        fallback.kindCapability.mapTransport((transport) => transport.editions);
-    final editions =
-        hydratedEditions.isEmpty ? fallbackEditions : hydratedEditions;
     final coverImageUrl =
         hydratedMetadata.coverImageUrl ?? fallbackMetadata.coverImageUrl;
     final thumbnailImageUrl = hydratedMetadata.coverImageUrl != null
         ? hydratedMetadata.thumbnailImageUrl
         : fallbackMetadata.thumbnailImageUrl ?? fallbackMetadata.coverImageUrl;
     return CatalogSearchCandidate.fromItem(
-        hydrated.kindCapability.mapTransport((transport) => transport.copyWith(
-              coverImageUrl: coverImageUrl,
-              thumbnailImageUrl: thumbnailImageUrl,
-              editions: editions,
-            )));
+      hydrated.kindCapability.mapTransport((transport) {
+        final metadata = AnimeMetadata.fromJson(transport.kindData);
+        final updated = AnimeMetadata.fromJson(applyJsonFieldPatch(metadata, {
+          'cover_image_url': coverImageUrl,
+          'thumbnail_image_url': thumbnailImageUrl,
+        }));
+        return transport.replacingKindData(updated);
+      }),
+    );
   }
 
   @override
@@ -259,7 +144,7 @@ class AnimeLibraryMediaPresentationBuilder
     return [
       (
         previewLabels.labelFor('publisher', fallback: 'Publisher'),
-        item.kindCapability.mapTransport((transport) => transport).publisher
+        item.animeCatalogFields.publisher
       ),
       (
         'Released',
@@ -267,139 +152,26 @@ class AnimeLibraryMediaPresentationBuilder
             ? item.animeCatalogFields.releaseYear?.toString()
             : '${releaseDate.year}-${releaseDate.month.toString().padLeft(2, '0')}-${releaseDate.day.toString().padLeft(2, '0')}',
       ),
-      if (item.kindCapability
-              .mapTransport((transport) => transport)
-              .itemNumber !=
-          null)
+      if (item.animeCatalogFields.itemNumber != null)
         (
           previewLabels.labelFor('item_number', fallback: 'Number'),
-          item.kindCapability.mapTransport((transport) => transport).itemNumber
+          item.animeCatalogFields.itemNumber
         ),
-      if (item.kindCapability.mapTransport((transport) => transport).variant !=
-          null)
+      if (item.animeCatalogFields.variant != null)
         (
           previewLabels.labelFor('variant', fallback: 'Variant'),
-          item.kindCapability.mapTransport((transport) => transport).variant
+          item.animeCatalogFields.variant
         ),
       (
         previewLabels.labelFor('barcode', fallback: 'Barcode'),
-        item.kindCapability
-            .mapTransport((transport) => transport)
-            .identifierCode
+        item.animeCatalogFields.barcode
       ),
     ];
   }
 
   @override
-  List<(String, String?)> buildAddPreviewMetadataRowsForCandidate({
-    required ProviderSearchCandidate candidate,
-    required LibraryMediaPreviewLabels previewLabels,
-  }) {
-    if (candidate is! AnimeProviderCandidate) return const [];
-    return [
-      if (candidate.series?.seriesTitle != null)
-        (
-          previewLabels.labelFor('series', fallback: 'Series'),
-          candidate.series!.seriesTitle
-        ),
-      if (candidate.issueNumber != null)
-        (
-          previewLabels.labelFor('item_number', fallback: 'Number'),
-          candidate.issueNumber
-        ),
-      if (candidate.publisher != null)
-        (
-          previewLabels.labelFor('publisher', fallback: 'Publisher'),
-          candidate.publisher
-        ),
-      if (candidate.series?.volumeStartYear != null)
-        ('Year', candidate.series!.volumeStartYear.toString()),
-      if (candidate.variantName != null)
-        (
-          previewLabels.labelFor('variant', fallback: 'Variant'),
-          candidate.variantName
-        ),
-      if (candidate.issueCount != null)
-        (
-          previewLabels.labelFor('item_count', fallback: 'Items'),
-          candidate.issueCount.toString()
-        ),
-    ];
-  }
-
-  @override
-  List<(String, String?)> buildAddPreviewMetadataRowsForFullPreview({
-    required AdminProviderPreview preview,
-    required LibraryMediaPreviewLabels previewLabels,
-  }) {
-    final series = preview.series;
-    final publishing = preview.publishing;
-    final music = preview.music;
-    final video = preview.video;
-    final game = preview.game;
-    final releaseDate = preview.releaseDate;
-    final releaseDateText = releaseDate == null
-        ? null
-        : '${releaseDate.year}-${releaseDate.month.toString().padLeft(2, '0')}-${releaseDate.day.toString().padLeft(2, '0')}';
-    final musicCatalogNumber = (music?['catalog_number'] as String?)?.trim();
-    final musicReleaseStatus = (music?['release_status'] as String?)?.trim();
-    final gamePlatforms = (game?['platforms'] as List<dynamic>?)
-        ?.map((value) => value.toString().trim())
-        .where((value) => value.isNotEmpty)
-        .toList();
-    final runtimeMinutes = (video?['runtime_minutes'] as num?)?.toInt();
-    final pageCount = publishing?.pageCount?.toString();
-    final seriesGroup = publishing?.seriesGroup?.trim();
-    return [
-      if (series?.seriesTitle != null)
-        (
-          previewLabels.labelFor('series', fallback: 'Series'),
-          series!.seriesTitle
-        ),
-      if (preview.publisher != null)
-        (
-          previewLabels.labelFor('publisher', fallback: 'Publisher'),
-          preview.publisher
-        ),
-      if (releaseDateText != null) ('Released', releaseDateText),
-      if (series?.volumeStartYear != null)
-        ('Year', series!.volumeStartYear.toString()),
-      if (preview.itemNumber != null)
-        (
-          previewLabels.labelFor('item_number', fallback: 'Number'),
-          preview.itemNumber
-        ),
-      if (preview.identifierCode != null)
-        (
-          previewLabels.labelFor('barcode', fallback: 'Barcode'),
-          preview.identifierCode,
-        ),
-      if (preview.isbn != null) ('ISBN', preview.isbn),
-      if (preview.country != null) ('Country', preview.country),
-      if (preview.language != null) ('Language', preview.language),
-      if (preview.physicalFormatLabel != null)
-        ('Format', preview.physicalFormatLabel),
-      if (preview.variantName != null)
-        (
-          previewLabels.labelFor('variant', fallback: 'Variant'),
-          preview.variantName
-        ),
-      if (musicCatalogNumber != null && musicCatalogNumber.isNotEmpty)
-        ('Catalog No.', musicCatalogNumber),
-      if (gamePlatforms != null && gamePlatforms.isNotEmpty)
-        ('Platforms', gamePlatforms.join(', ')),
-      if (runtimeMinutes != null) ('Runtime', '$runtimeMinutes min'),
-      if (pageCount != null) ('Pages', pageCount),
-      if (musicReleaseStatus != null && musicReleaseStatus.isNotEmpty)
-        ('Release Status', musicReleaseStatus),
-      if (seriesGroup != null && seriesGroup.isNotEmpty)
-        ('Series Group', seriesGroup),
-    ];
-  }
-
-  @override
   bool canOpenKindDrilldown(LibraryProjectionView item) {
-    return item.node.scope == LibraryEntityScope.work &&
+    return item.target is CatalogTargetRef &&
         item.source.mediaKind == CatalogMediaKind.anime;
   }
 
@@ -426,7 +198,7 @@ class AnimeLibraryMediaPresentationBuilder
       identityFacts: [
         if (includeIdentityFacts) ...[
           LibraryDetailField(label: 'Kind', value: singularLabel),
-          LibraryDetailField(label: 'ID', value: item.node.workId),
+          LibraryDetailField(label: 'ID', value: item.target.id),
           LibraryDetailField(label: 'Title', value: dto.primaryLabel),
         ],
         if (seriesTitle != null)
@@ -435,13 +207,13 @@ class AnimeLibraryMediaPresentationBuilder
             value: seriesTitle,
             onTap: tapFor(seriesTitle),
           ),
-        if (item.node.scope != LibraryEntityScope.work && variant != null)
+        if (item.target is EntryTargetRef && variant != null)
           LibraryDetailField(
             label: 'Format / Edition',
             value: variant,
             onTap: tapFor(variant),
           ),
-        if (item.node.scope != LibraryEntityScope.work && barcode != null)
+        if (item.target is EntryTargetRef && barcode != null)
           LibraryDetailField(label: 'UPC / Barcode', value: barcode),
       ],
       contextFacts: [
@@ -509,32 +281,20 @@ class AnimeLibraryMediaPresentationBuilder
 LibraryAddSearchResultDisplay _buildAnimeSearchResultDisplay(
   CatalogSearchCandidate item,
 ) {
-  final itemNumber = item.kindCapability
-      .mapTransport((transport) => transport)
-      .itemNumber
-      ?.trim();
+  final itemNumber = item.animeCatalogFields.itemNumber?.trim();
   final subtitle = [
-    if (item.kindCapability
-            .mapTransport((transport) => transport)
-            .publisher
-            ?.trim()
-        case final value? when value.isNotEmpty)
+    if (item.animeCatalogFields.publisher?.trim() case final value?
+        when value.isNotEmpty)
       value,
     if ((item.animeCatalogFields.releaseYear ??
             item.animeCatalogFields.releaseDate?.year)
         case final year?)
       year.toString(),
-    if (item.kindCapability
-            .mapTransport((transport) => transport)
-            .physicalFormatLabel
-            ?.trim()
-        case final value? when value.isNotEmpty)
+    if (item.animeCatalogFields.physicalFormatLabel?.trim() case final value?
+        when value.isNotEmpty)
       value,
-    if (item.kindCapability
-            .mapTransport((transport) => transport)
-            .identifierCode
-            ?.trim()
-        case final value? when value.isNotEmpty)
+    if (item.animeCatalogFields.barcode?.trim() case final value?
+        when value.isNotEmpty)
       value,
   ].join(' | ');
   return LibraryAddSearchResultDisplay(
@@ -567,6 +327,7 @@ const animeStatsLabels = LibraryMediaStatsLabels(
 
 final animeLibraryFilterDefinitions = <LibraryFilterDefinition<Object?>>[
   LibraryFilterDefinition<Object?>(
+    metadata: AnimeWorkspaceFieldMetadata.series,
     id: 'series',
     label: 'Series',
     anyLabel: 'Any series',
@@ -575,20 +336,23 @@ final animeLibraryFilterDefinitions = <LibraryFilterDefinition<Object?>>[
         : null,
   ),
   LibraryFilterDefinition<Object?>(
+    metadata: LibraryEntryFieldMetadata.location,
     id: 'location',
     label: 'Location',
     anyLabel: 'Any location',
   ),
   LibraryFilterDefinition<Object?>(
+    metadata: LibraryEntryFieldMetadata.tag,
     id: 'tag',
     label: 'Tag',
     anyLabel: 'Any tag',
     inputKind: LibraryFilterInputKind.autocomplete,
-    value: (item) => AnimeOwnedItemProjection.fromDispatch(
-      item.source.ownedItemDispatch,
-    )?.tags?.split(','),
+    value: (item) => AnimeLibraryEntryProjection.fromDispatch(
+      item.source.libraryEntryDispatch,
+    )?.personal.tags?.split(','),
   ),
   LibraryFilterDefinition<Object?>(
+    metadata: AnimeWorkspaceFieldMetadata.publisher,
     id: 'publisher',
     label: 'Studio',
     anyLabel: 'Any studio',
@@ -597,6 +361,7 @@ final animeLibraryFilterDefinitions = <LibraryFilterDefinition<Object?>>[
         : null,
   ),
   LibraryFilterDefinition<Object?>(
+    metadata: AnimeWorkspaceFieldMetadata.releaseYear,
     id: 'year',
     label: 'Year',
     anyLabel: 'Any year',
@@ -605,14 +370,16 @@ final animeLibraryFilterDefinitions = <LibraryFilterDefinition<Object?>>[
         : null,
   ),
   LibraryFilterDefinition<Object?>(
+    metadata: LibraryEntryFieldMetadata.condition,
     id: 'condition',
     label: 'Condition',
     anyLabel: 'Any condition',
-    value: (item) => AnimeOwnedItemProjection.fromDispatch(
-      item.source.ownedItemDispatch,
-    )?.condition,
+    value: (item) => AnimeLibraryEntryProjection.fromDispatch(
+      item.source.libraryEntryDispatch,
+    )?.personal.condition,
   ),
   LibraryFilterDefinition<Object?>(
+    metadata: AnimeWorkspaceFieldMetadata.country,
     id: 'country',
     label: 'Country',
     anyLabel: 'Any country',
@@ -621,6 +388,7 @@ final animeLibraryFilterDefinitions = <LibraryFilterDefinition<Object?>>[
         : null,
   ),
   LibraryFilterDefinition<Object?>(
+    metadata: AnimeWorkspaceFieldMetadata.language,
     id: 'language',
     label: 'Language',
     anyLabel: 'Any language',
@@ -655,6 +423,25 @@ String animeLibraryBucketLabelBuilder(LibraryBucketingContext context) {
 }
 
 final animeLibraryMediaPresentation = LibraryMediaPresentation(
+  sortFavorites: [
+    LibrarySortFavorite(
+        id: 'title_asc',
+        label: 'Title A-Z',
+        icon: AppIcons.sortAlpha,
+        rules: [
+          LibrarySortRule(
+              column: AnimeWorkspaceFieldMetadata.title.id, ascending: true)
+        ]),
+    LibrarySortFavorite(
+        id: 'release_latest',
+        label: 'Latest release',
+        icon: AppIcons.calendar,
+        rules: [
+          LibrarySortRule(
+              column: AnimeWorkspaceFieldMetadata.releaseDate.id,
+              ascending: false)
+        ]),
+  ],
   searchFieldLabels: const LibraryMediaSearchFieldLabels(
     queryHint: 'Enter title, creator, or keyword...',
     emptySearchMessage: 'Enter a title, creator, series, or keyword.',

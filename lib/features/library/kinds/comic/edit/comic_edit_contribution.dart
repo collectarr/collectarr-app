@@ -1,28 +1,16 @@
 import '../comic_module_dependencies.dart';
-import '../ownership/comic_transfer_owned_item.dart';
+import '../entries/comic_transfer_library_entry.dart';
 
 final comicKindEditCapabilities = LibraryEditCapabilitySet(
-  editRegistry: LibraryEntityEditRegistry(contributors: [
-    LibraryEntityEditContributor(
-      scope: LibraryEntityScope.work,
-      builder: buildComicLibraryEditDialog,
-    ),
-    LibraryEntityEditContributor(
-      scope: LibraryEntityScope.release,
-      builder: buildComicReleaseLibraryEditDialog,
-    ),
-    LibraryEntityEditContributor(
-      scope: LibraryEntityScope.copy,
-      builder: buildComicMediaLibraryEditDialog,
-    ),
-  ]),
+  editRegistry: LibraryTargetEditRegistry(
+      catalogItem: buildComicLibraryEditDialog,
+      libraryEntry: buildComicCatalogItemLibraryEditDialog),
   vocabularies: StandardKindVocabularyCapability(ComicVocabularies.all),
   presentation: comicsLibraryEditPresentation,
-  coreCorrectionTargetResolver: resolveStructuralLibraryCoreCorrectionTarget,
   conditions: ComicVocabularies.condition.builtIns,
   collectionValueOptions: ComicVocabularies.grade.builtIns,
-  ownedCollectionValueReader: (ownedItem) => switch (ownedItem?.value) {
-    ComicOwnedItem item => item.grade,
+  entryCollectionValueReader: (libraryEntry) => switch (libraryEntry?.value) {
+    ComicLibraryEntry item => item.personal.grade,
     _ => null,
   },
   defaultCondition: 'Near Mint',
@@ -33,20 +21,20 @@ final comicKindEditCapabilities = LibraryEditCapabilitySet(
     showsPhysicalFormatBadge: true,
   ),
   createSession: createComicEditDraft,
-  ownedDigitalFlagResolver: resolveComicOwnedDigitalFlag,
-  ownedFormatHintResolver: resolveComicOwnedFormatHint,
-  ownedIndexUpdatePayloadBuilder: (_, indexNumber) =>
-      ComicOwnedItemUpdatePayload.partial(
+  entryDigitalFlagResolver: resolveComicEntryDigitalFlag,
+  entryFormatHintResolver: resolveComicEntryFormatHint,
+  entryIndexUpdatePayloadBuilder: (_, indexNumber) =>
+      ComicLibraryEntryUpdatePayload.partial(
     indexNumber: Patch.set(indexNumber),
   ),
-  ownedConditionValueUpdatePayloadBuilder: (_, condition, collectionValue) =>
-      ComicOwnedItemUpdatePayload.partial(
+  entryConditionValueUpdatePayloadBuilder: (_, condition, collectionValue) =>
+      ComicLibraryEntryUpdatePayload.partial(
     condition: Patch.set(condition),
     grade: Patch.set(collectionValue),
   ),
-  ownedBulkUpdatePayloadBuilder:
+  entryBulkUpdatePayloadBuilder:
       (_, condition, collectionValue, locationId, tags) =>
-          ComicOwnedItemUpdatePayload.partial(
+          ComicLibraryEntryUpdatePayload.partial(
     condition:
         condition == null ? const Patch.unchanged() : Patch.set(condition),
     grade: collectionValue == null
@@ -56,7 +44,7 @@ final comicKindEditCapabilities = LibraryEditCapabilitySet(
         locationId == null ? const Patch.unchanged() : Patch.set(locationId),
     tags: tags == null ? const Patch.unchanged() : Patch.set(tags),
   ),
-  ownedPersonalDetailsUpdatePayloadBuilder: (
+  entryPersonalDetailsUpdatePayloadBuilder: (
     _,
     purchaseDate,
     pricePaidCents,
@@ -66,7 +54,7 @@ final comicKindEditCapabilities = LibraryEditCapabilitySet(
     locationChanged,
     locationId,
   ) =>
-      ComicOwnedItemUpdatePayload.partial(
+      ComicLibraryEntryUpdatePayload.partial(
     purchaseDate: Patch.set(purchaseDate),
     pricePaidCents: Patch.set(pricePaidCents),
     currency: Patch.set(currency),
@@ -75,30 +63,29 @@ final comicKindEditCapabilities = LibraryEditCapabilitySet(
     locationId:
         locationChanged ? Patch.set(locationId) : const Patch.unchanged(),
   ),
-  ownedTransferUpdatePayloadBuilder: (_, updated) {
-    final typed = comicTransferOwnedItem(updated);
-    return ComicOwnedItemUpdatePayload.partial(
-      condition: Patch.set(typed.condition),
-      grade: Patch.set(typed.grade),
-      personalNotes: Patch.set(typed.personalNotes),
-      locationId: Patch.set(typed.locationId),
-      tags: Patch.set(typed.tags),
-      currency: Patch.set(typed.currency),
-      soldTo: Patch.set(typed.soldTo),
-      purchaseStore: Patch.set(typed.purchaseStore),
-      pricePaidCents: Patch.set(typed.pricePaidCents),
-      sellPriceCents: Patch.set(typed.sellPriceCents),
-      quantity: Patch.set(typed.quantity),
-      indexNumber: Patch.set(typed.indexNumber),
-      purchaseDate: Patch.set(typed.purchaseDate),
-      soldAt: Patch.set(typed.soldAt),
+  entryTransferUpdatePayloadBuilder: (_, updated) {
+    final typed = comicTransferLibraryEntry(updated);
+    return ComicLibraryEntryUpdatePayload.partial(
+      condition: Patch.set(typed.personal.condition),
+      grade: Patch.set(typed.personal.grade),
+      personalNotes: Patch.set(typed.personal.personalNotes),
+      locationId: Patch.set(typed.personal.locationId),
+      tags: Patch.set(typed.personal.tags),
+      currency: Patch.set(typed.personal.currency),
+      soldTo: Patch.set(typed.personal.soldTo),
+      purchaseStore: Patch.set(typed.personal.purchaseStore),
+      pricePaidCents: Patch.set(typed.personal.pricePaidCents),
+      sellPriceCents: Patch.set(typed.personal.sellPriceCents),
+      indexNumber: Patch.set(typed.personal.indexNumber),
+      purchaseDate: Patch.set(typed.personal.purchaseDate),
+      soldAt: Patch.set(typed.personal.soldAt),
       details: Patch.set(
-        const ComicOwnedDetailsCodec().draftFromDetails(
-          typed.details,
+        const ComicEntryDetailsCodec().draftFromDetails(
+          typed.personal.details,
         ),
       ),
     );
   },
-  ownedDetailsResetPayloadBuilder: () =>
-      ComicOwnedItemUpdatePayload.partial(details: const Patch.clear()),
+  entryDetailsResetPayloadBuilder: () =>
+      ComicLibraryEntryUpdatePayload.partial(details: const Patch.clear()),
 );

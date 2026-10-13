@@ -1,17 +1,16 @@
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/kinds/game/domain/game_metadata.dart';
-import 'package:collectarr_app/features/library/kinds/game/workspace/game_workspace_catalog_data.dart';
+import 'package:collectarr_app/features/library/kinds/game/workspace/game_workspace_data.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
-import 'package:collectarr_app/features/library/workspace/entry/library_workspace_catalog_data.dart';
 import 'package:flutter/material.dart';
 
 class GameStatsCapability implements LibraryStatsCapability {
   const GameStatsCapability();
 
   @override
-  LibraryOwnedFinancialSummary buildOwnedFinancialSummary(
-      LibraryWorkspaceSource entry) {
-    return LibraryOwnedFinancialSummary(
+  LibraryEntryFinancialSummary buildEntryFinancialSummary(
+      LibraryWorkspaceContext entry) {
+    return LibraryEntryFinancialSummary(
       pricePaidCents: entry.pricePaidCents,
       sellPriceCents: entry.sellPriceCents,
       currency: entry.currency,
@@ -20,25 +19,22 @@ class GameStatsCapability implements LibraryStatsCapability {
 
   @override
   LibraryStatsMetadataProjection? buildMetadataProjection(
-      LibraryWorkspaceSource entry) {
-    final catalog = entry.catalogData;
+      LibraryWorkspaceContext entry) {
     final metadata = _metadata(entry);
-    if (catalog == null || metadata == null) return null;
+    if (metadata == null) return null;
     final secondary =
-        (metadata.publishers.firstOrNull ?? metadata.developers.firstOrNull)
-            ?.trim();
+        (metadata.publisher ?? metadata.developers.firstOrNull)?.trim();
     return LibraryStatsMetadataProjection(
       primaryGroup:
-          (metadata.series ?? metadata.franchise ?? metadata.title).trim(),
+          (metadata.seriesTitle ?? metadata.franchise ?? metadata.title).trim(),
       secondaryGroup: secondary,
-      hasCover: catalog.coverImageUrl?.trim().isNotEmpty == true,
+      hasCover: metadata.coverImageUrl?.trim().isNotEmpty == true,
       hasSynopsis: metadata.synopsis?.trim().isNotEmpty == true ||
-          libraryWorkspaceCatalogSynopsis(catalog)?.trim().isNotEmpty == true,
+          metadata.synopsis?.trim().isNotEmpty == true,
       hasSecondaryMetadata: secondary?.isNotEmpty == true ||
           metadata.platforms.isNotEmpty ||
           metadata.physicalFormat?.trim().isNotEmpty == true,
-      hasReleaseDate:
-          metadata.releaseDate != null || catalog.releaseDate != null,
+      hasReleaseDate: metadata.releaseDate != null,
     );
   }
 
@@ -57,8 +53,24 @@ class GameStatsCapability implements LibraryStatsCapability {
   ) =>
       const [];
 
-  static GameCatalogMetadata? _metadata(LibraryWorkspaceSource entry) {
-    final catalog = entry.catalogData;
-    return catalog is GameWorkspaceCatalogData ? catalog.metadata : null;
+  @override
+  Widget? buildCustomHeader(
+    BuildContext context,
+    ShelfState state,
+    LibraryKindRegistration type,
+  ) =>
+      null;
+
+  @override
+  Widget? buildCustomStatsPage(
+    BuildContext context,
+    ShelfState state,
+    LibraryKindRegistration type,
+  ) =>
+      null;
+
+  static GameCatalogMetadata? _metadata(LibraryWorkspaceContext entry) {
+    final catalog = entry.kindPresentationData;
+    return catalog is GameWorkspaceData ? catalog.metadata : null;
   }
 }

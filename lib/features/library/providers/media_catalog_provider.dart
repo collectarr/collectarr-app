@@ -1,10 +1,9 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
 import 'package:collectarr_app/core/logging/recoverable_error.dart';
 import 'package:collectarr_app/core/api/dto/media_catalog.dart';
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/config/library_catalog_kind_defaults.dart';
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
-import 'package:collectarr_app/features/library/v1/catalog_item_v1_kind_identities.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.dart';
 import 'package:collectarr_app/state/api_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -57,7 +56,7 @@ List<PhysicalMediaFormat> physicalMediaFormatsForKind(
   if (formats.isNotEmpty) {
     return formats;
   }
-  return const [];
+  return libraryPhysicalMediaFormatsForKind(kind);
 }
 
 List<CatalogMediaType> _normalizeCatalogMediaTypes(
@@ -69,12 +68,23 @@ List<CatalogMediaType> _normalizeCatalogMediaTypes(
 }
 
 final fallbackMediaCatalog = [
-  for (final entry in catalogItemV1KindIdentities.entries)
+  for (final registration in collectarrKindRegistrationsList)
     CatalogMediaType(
-      kind: entry.key.apiValue,
-      singularLabel: entry.value.singularLabel,
-      pluralLabel: entry.value.pluralLabel,
-      routeSegments: entry.value.routeSegments,
-      isTopLevel: entry.value.isTopLevel,
+      kind: registration.kind.apiValue,
+      singularLabel: registration.identity.singularLabel,
+      pluralLabel: registration.identity.pluralLabel,
+      routeSegments: registration.identity.routeSegments,
+      isTopLevel: registration.identity.isTopLevel,
+      physicalFormats: [
+        for (final format
+            in libraryPhysicalMediaFormatsForKind(registration.kind))
+          CatalogPhysicalFormat(
+            id: format.id,
+            label: format.label,
+            mediaFamily: format.mediaFamily,
+            variantType: format.variantType,
+            aliases: format.aliases.toList(growable: false),
+          ),
+      ],
     ),
 ];

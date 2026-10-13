@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/workspace/schema/library_group_values.dart';
 import 'package:collectarr_app/features/library/config/library_media_presentation_models.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_identifier_types.dart';
 
@@ -16,8 +17,8 @@ String defaultLibraryBucketLabel(
     LibraryGroupSemantic.title => _titleBucket(context),
     LibraryGroupSemantic.location =>
       _locationBucket(context.source.locationPath),
-    LibraryGroupSemantic.ownership => context.source.isOwned
-        ? overrides.labelFor('owned', fallback: 'Owned')
+    LibraryGroupSemantic.entries => context.source.isEntry
+        ? overrides.labelFor('entry', fallback: 'Entry')
         : context.source.isWishlisted
             ? overrides.labelFor('wishlist', fallback: 'Wishlist')
             : overrides.labelFor('catalog_only', fallback: 'Catalog only'),
@@ -39,14 +40,13 @@ String _unqualifiedGroupMode(String mode) {
 String _locationBucket(String? location) {
   final normalized = location?.trim();
   if (normalized == null || normalized.isEmpty) {
-    return 'No location';
+    return libraryEmptyGroupLabel;
   }
   return normalized;
 }
 
 String _titleBucket(LibraryBucketingContext context) {
-  final catalogTitle = context.source.catalogData?.title;
-  final trimmed = (catalogTitle ?? context.item.dto.primaryLabel).trim();
-  if (trimmed.isEmpty) return 'Unknown';
+  final trimmed = context.item.dto.primaryLabel.trim();
+  if (trimmed.isEmpty) return libraryEmptyGroupLabel;
   return trimmed.substring(0, 1).toUpperCase();
 }

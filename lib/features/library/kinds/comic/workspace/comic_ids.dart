@@ -1,12 +1,14 @@
 import 'package:collectarr_app/features/library/workspace/schema/library_identifier_types.dart';
+import 'package:collectarr_app/features/library/kinds/comic/config/comic_field_identities.dart';
 
 abstract final class ComicFieldIds {
   static const status = LibraryFieldId<ComicKind, String?>('comic.status');
   static const cover = LibraryFieldId<ComicKind, String?>('comic.cover');
-  static const series = LibraryFieldId<ComicKind, String?>('comic.series');
+  static const series =
+      LibraryFieldId<ComicKind, String?>(ComicFieldIdentities.seriesId);
   static const title = LibraryFieldId<ComicKind, String>('comic.title');
   static const issueNumber =
-      LibraryFieldId<ComicKind, String?>('comic.issue_number');
+      LibraryFieldId<ComicKind, String?>(ComicFieldIdentities.issueNumberId);
   static const publisher =
       LibraryFieldId<ComicKind, String?>('comic.publisher');
   static const releaseDate =
@@ -56,14 +58,18 @@ abstract final class ComicFieldIds {
   static const artist = LibraryFieldId<ComicKind, String?>('comic.artist');
   static const coverArtist =
       LibraryFieldId<ComicKind, String?>('comic.cover_artist');
-  static const imprint = LibraryFieldId<ComicKind, String?>('comic.imprint');
-  static const variant = LibraryFieldId<ComicKind, String?>('comic.variant');
-  static const pageCount = LibraryFieldId<ComicKind, int?>('comic.page_count');
+  static const imprint =
+      LibraryFieldId<ComicKind, String?>(ComicFieldIdentities.imprintId);
+  static const variant =
+      LibraryFieldId<ComicKind, String?>(ComicFieldIdentities.variantId);
+  static const pageCount =
+      LibraryFieldId<ComicKind, int?>(ComicFieldIdentities.pageCountId);
 }
 
 abstract final class ComicSortIds {
-  static const series = LibrarySortId<ComicKind>('comic.series');
-  static const issueNumber = LibrarySortId<ComicKind>('comic.issue_number');
+  static const series = LibrarySortId<ComicKind>(ComicFieldIdentities.seriesId);
+  static const issueNumber =
+      LibrarySortId<ComicKind>(ComicFieldIdentities.issueNumberId);
   static const publisher = LibrarySortId<ComicKind>('comic.publisher');
   static const status = LibrarySortId<ComicKind>('comic.status');
   static const title = LibrarySortId<ComicKind>('comic.title');
@@ -76,7 +82,8 @@ abstract final class ComicSortIds {
 }
 
 abstract final class ComicGroupIds {
-  static const series = LibraryGroupId<ComicKind, String?>('comic.series');
+  static const series =
+      LibraryGroupId<ComicKind, String?>(ComicFieldIdentities.seriesId);
   static const publisher =
       LibraryGroupId<ComicKind, String?>('comic.publisher');
   static const location = LibraryGroupId<ComicKind, String?>(

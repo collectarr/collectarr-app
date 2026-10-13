@@ -1,6 +1,53 @@
 import 'package:flutter/material.dart';
+import 'package:collectarr_app/ui/app_icons.dart';
+import 'package:collectarr_app/ui/app_motion.dart';
 
 import '../config/library_workspace_tokens.dart';
+
+/// Paint hover above opaque popup children while leaving their gestures intact.
+class LibraryToolbarHoverSurface extends StatefulWidget {
+  const LibraryToolbarHoverSurface(
+      {super.key,
+      required this.child,
+      this.enabled = true,
+      this.backgroundColor});
+  final Widget child;
+  final bool enabled;
+  final Color? backgroundColor;
+
+  @override
+  State<LibraryToolbarHoverSurface> createState() =>
+      _LibraryToolbarHoverSurfaceState();
+}
+
+class _LibraryToolbarHoverSurfaceState
+    extends State<LibraryToolbarHoverSurface> {
+  bool _hovered = false;
+
+  @override
+  Widget build(BuildContext context) => MouseRegion(
+        cursor: widget.enabled
+            ? SystemMouseCursors.click
+            : SystemMouseCursors.basic,
+        onEnter: (_) {
+          if (widget.enabled) setState(() => _hovered = true);
+        },
+        onExit: (_) => setState(() => _hovered = false),
+        child: AnimatedContainer(
+          duration: MediaQuery.disableAnimationsOf(context)
+              ? Duration.zero
+              : appControlHoverDuration,
+          decoration: BoxDecoration(
+            color: _hovered && widget.enabled
+                ? libraryToolbarControlHover(context)
+                : widget.backgroundColor ??
+                    libraryToolbarControlSurface(context),
+            borderRadius: BorderRadius.circular(5),
+          ),
+          child: widget.child,
+        ),
+      );
+}
 
 BoxDecoration libraryToolbarDropdownDecoration(
   BuildContext context, {
@@ -9,9 +56,9 @@ BoxDecoration libraryToolbarDropdownDecoration(
 }) {
   return BoxDecoration(
     color: backgroundColor ?? libraryToolbarControlSurface(context),
-    borderRadius: BorderRadius.circular(2),
-    border: Border.all(
-      color: borderColor ?? libraryToolbarControlBorder(context),
+    border: Border(
+      right: BorderSide(
+          color: borderColor ?? libraryToolbarControlBorder(context)),
     ),
   );
 }
@@ -40,6 +87,7 @@ class _LibraryToolbarCompactDropdownTriggerState
   @override
   Widget build(BuildContext context) {
     return MouseRegion(
+      cursor: SystemMouseCursors.click,
       onEnter: (_) => setState(() => _hovered = true),
       onExit: (_) => setState(() => _hovered = false),
       child: DecoratedBox(
@@ -61,7 +109,7 @@ class _LibraryToolbarCompactDropdownTriggerState
               ),
               const SizedBox(width: 1),
               Icon(
-                Icons.arrow_drop_down,
+                AppIcons.chevronDown,
                 size: 14,
                 color: widget.arrowColor ??
                     libraryToolbarControlMutedText(context),
@@ -91,7 +139,10 @@ class LibraryToolbarFrame extends StatelessWidget {
     return DecoratedBox(
       decoration: BoxDecoration(
         color: backgroundColor,
-        border: Border(bottom: BorderSide(color: dividerColor)),
+        border: Border(
+          top: BorderSide(color: dividerColor),
+          bottom: BorderSide(color: libraryWorkspacePaneDividerColor(context)),
+        ),
       ),
       child: child,
     );
@@ -140,27 +191,28 @@ class LibraryWorkspaceIconButton extends StatelessWidget {
 }
 
 class LibraryWorkspaceSeparator extends StatelessWidget {
-  const LibraryWorkspaceSeparator({
-    super.key,
-    required this.color,
-    this.horizontalPadding = 7,
-    this.height = 24,
-  });
-
-  final Color color;
+  const LibraryWorkspaceSeparator(
+      {super.key, this.color, this.horizontalPadding = 4, this.height = 32});
+  final Color? color;
   final double horizontalPadding;
   final double height;
-
   @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
-      child: SizedBox(
-        height: height,
-        child: VerticalDivider(width: 1, thickness: 1, color: color),
-      ),
-    );
-  }
+  Widget build(BuildContext context) => Padding(
+        padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
+        child: Container(
+            width: 2,
+            height: height,
+            decoration: BoxDecoration(
+              border: Border(
+                left: BorderSide(
+                    color: color ?? libraryWorkspacePaneDividerColor(context)),
+                right: BorderSide(
+                    color: Theme.of(context).brightness == Brightness.dark
+                        ? const Color(0xff4a4a4a)
+                        : Colors.white),
+              ),
+            )),
+      );
 }
 
 class LibraryWorkspaceControlStrip extends StatelessWidget {

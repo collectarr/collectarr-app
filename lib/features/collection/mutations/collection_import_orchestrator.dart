@@ -1,8 +1,8 @@
 import 'dart:async';
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/core/models/json_encodable.dart';
-import 'package:collectarr_app/core/models/money.dart';
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/custom_field.dart';
+import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/core/sync/sync_change.dart';
 import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
@@ -13,12 +13,14 @@ import 'package:collectarr_app/features/catalog/catalog_lookup_repository.dart';
 import 'package:collectarr_app/features/collection/csv/collection_csv_kind_profile.dart';
 import 'package:collectarr_app/features/collection/csv/collection_csv_models.dart';
 import 'package:collectarr_app/features/collection/events/collection_event.dart';
-import 'package:collectarr_app/features/library/ownership/owned_items_repository.dart';
-import 'package:collectarr_app/features/library/ownership/owned_import_transport.dart';
+import 'package:collectarr_app/features/library/entries/library_entries_repository.dart';
+import 'package:collectarr_app/features/library/entries/entry_import_transport.dart';
+import 'package:collectarr_app/features/library/entries/library_entry_record.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_repository.dart';
 import 'package:collectarr_app/features/collection/repositories/wishlist_items_cache_repository.dart';
+import 'package:collectarr_app/features/collection/repositories/custom_field_repository.dart';
 import 'package:collectarr_app/features/collection/runner/collection_mutation_runner.dart';
-import 'package:collectarr_app/features/library/config/owned_item_mutation_result.dart';
+import 'package:collectarr_app/features/library/config/library_entry_mutation_result.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_import.dart';
 import 'package:uuid/uuid.dart';
 
@@ -27,7 +29,7 @@ String _defaultIdGenerator() => const Uuid().v4();
 
 final class CollectionImportOrchestrator {
   CollectionImportOrchestrator({
-    required this.ownedItems,
+    required this.libraryEntries,
     required this.wishlist,
     required this.catalogTransport,
     required this.catalogSummaries,
@@ -41,7 +43,7 @@ final class CollectionImportOrchestrator {
           for (final profile in csvProfiles) profile.kind: profile,
         };
 
-  final OwnedItemsRepository ownedItems;
+  final LibraryEntriesRepository libraryEntries;
   final WishlistItemsCacheRepository wishlist;
   final CatalogTransportRepository catalogTransport;
   final CatalogDisplaySummaryRepository catalogSummaries;
@@ -70,15 +72,18 @@ final class CollectionImportOrchestrator {
     final existingCatalogSummaries = await catalogSummaries.findByRefs(rowRefs);
     final importedCatalogItems = <CatalogImportTransport>[];
     final importedCatalogItemsByRef =
-        <CatalogEntityRef, CatalogImportTransport>{};
+        <CatalogItemRef, CatalogImportTransport>{};
     for (final row in resolvedRows) {
       final rowRef = _catalogRefForRow(row);
       if (rowRef == null) continue;
       // An existing catalog item is already authoritative local state. Only
-      // a kind-owned CSV projection may create a new catalog snapshot for an
+      // a kind-entry CSV projection may create a new catalog snapshot for an
       // import row; Collection must not re-persist existing metadata or
       // synthesize a generic semantic fallback.
       if (existingCatalogSummaries.containsKey(rowRef)) continue;
+      // A complete library-entry envelope already contains its own catalog
+      // facts. Do not create a second catalog record from its CSV projection.
+      if (row.fullEntryPayload != null) continue;
       final item = _catalogTransportFromCsvRow(row);
       if (item == null) continue;
       importedCatalogItemsByRef[rowRef] = item;
@@ -87,75 +92,71 @@ final class CollectionImportOrchestrator {
 
     final now = DateTime.now().toUtc();
     final existingWishlist = {
-      for (final item in await wishlist.findActiveByCatalogRefs(rowRefs))
+      for (final item in await wishlist.findActiveByCatalogRefs(
+        rowRefs.map((ref) => ref),
+      ))
         item.catalogRef: item,
     };
-    final existingOwned = _ownedSummariesByTarget(
-      await ownedItems.listActiveSummaries(),
+    final existingEntry = _entrySummariesByTarget(
+      await libraryEntries.listActiveSummaries(),
       rowRefs,
       includeRootScope: false,
     );
     final activeWishlistRefs = existingWishlist.keys.toSet();
-    final ownedItemRefs = <OwnedItemRef>[];
-    final ownedWrites = <Future<OwnedItemMutationResult> Function()>[];
+    final libraryEntryRefs = <LibraryEntryRef>[];
+    final entryWrites = <Future<LibraryEntryMutationResult> Function()>[];
     final trackingImports = <TrackingStorageImport>[];
     final wishlistDeletes = <WishlistItem>[];
     final wishlistUpserts = <WishlistItem>[];
     final syncChanges = <SyncChange>[];
-    final snapshotRefs = <CatalogEntityRef>{};
     var imported = 0;
 
     for (final row in resolvedRows) {
-      if (!row.isOwned && !row.isWishlisted) continue;
+      if (!row.isEntry && !row.isWishlisted) continue;
       final rowRef = _catalogRefForRow(row);
       if (rowRef == null) continue;
+      final wishlistCatalogRef = _wishlistCatalogRefForRow(row) ?? rowRef;
+      final wishlistRef = wishlistCatalogRef;
 
       imported++;
-      final importedCatalogItem = importedCatalogItemsByRef[rowRef];
-      final existingCatalogSummary = existingCatalogSummaries[rowRef];
-      final catalogKind = importedCatalogItem?.ref.kind ??
-          existingCatalogSummary?.kind ??
+      final catalogKind = importedCatalogItemsByRef[rowRef]?.ref.kind ??
+          existingCatalogSummaries[rowRef]?.kind ??
           row.mediaKind;
-      final catalogId = importedCatalogItem?.ref.id ?? row.itemId;
-      if ((importedCatalogItem != null || existingCatalogSummary != null) &&
-          snapshotRefs.add(rowRef)) {
-        syncChanges.add(
-          SyncChange(
-            id: 'catalog:$catalogId:upsert:${now.millisecondsSinceEpoch}',
-            entityType: 'catalog_item',
-            entityId: catalogId,
-            action: 'upsert',
-            payload: {'id': catalogId},
-            clientChangedAt: now,
-          ),
-        );
-      }
 
-      final existingWishlistItem = existingWishlist[rowRef];
-      if (row.isOwned) {
-        final existingOwnedSummary = existingOwned[rowRef];
-        final existingOwnedPayload = existingOwnedSummary == null
+      final existingWishlistItem = existingWishlist[wishlistRef];
+      if (row.isEntry) {
+        final existingLibraryEntrySummary = existingEntry[rowRef];
+        final existingEntryPayload = existingLibraryEntrySummary == null
             ? null
-            : await ownedItems.payloadByRef(existingOwnedSummary.ref);
-        final ownedImport = _ownedItemImportFromCsvRow(
+            : await libraryEntries
+                .payloadByRef(existingLibraryEntrySummary.ref);
+        final entryCatalogData = await _catalogDataForEntryImport(
+          row,
+          rowRef,
+          importedCatalogItemsByRef,
+        );
+        final entryImport = await _libraryEntryImportFromCsvRow(
           row,
           now,
-          existingSummary: existingOwnedSummary,
-          existingPayload: existingOwnedPayload,
+          catalogData: entryCatalogData,
+          existingSummary: existingLibraryEntrySummary,
+          existingPayload: existingEntryPayload,
           catalogKind: catalogKind,
         );
-        final ownedRef = ownedImport.ref;
-        ownedWrites.add(
-          () => ownedItems.replaceFromTransport(ownedImport.transport),
-        );
-        ownedItemRefs.add(ownedRef);
+        final libraryEntryRef = entryImport.ref;
+        entryWrites.add(() async {
+          final persisted =
+              await libraryEntries.replaceFromTransport(entryImport.transport);
+          await _writeCsvCustomFields(row, persisted.ref, now);
+          return persisted;
+        });
+        libraryEntryRefs.add(libraryEntryRef);
 
         if (!row.tracking.isEmpty) {
           trackingImports.add(
             TrackingStorageImport(
               entryId: idGenerator(),
-              catalogRef: ownedImport.transport.catalogRef,
-              ownedRef: ownedRef,
+              libraryEntryRef: libraryEntryRef,
               now: now,
               rating: row.tracking.rating,
               status: row.tracking.status,
@@ -166,7 +167,7 @@ final class CollectionImportOrchestrator {
         }
 
         if (existingWishlistItem != null &&
-            activeWishlistRefs.contains(rowRef)) {
+            activeWishlistRefs.contains(wishlistRef)) {
           final deleted = existingWishlistItem.copyWith(
             updatedAt: now,
             deletedAt: now,
@@ -182,14 +183,14 @@ final class CollectionImportOrchestrator {
               clientChangedAt: now,
             ),
           );
-          activeWishlistRefs.remove(rowRef);
+          activeWishlistRefs.remove(wishlistRef);
         }
       }
 
-      if (row.isWishlisted && !activeWishlistRefs.contains(rowRef)) {
+      if (row.isWishlisted && !activeWishlistRefs.contains(wishlistRef)) {
         final wishlistItem = WishlistItem(
           id: idGenerator(),
-          catalogRef: rowRef,
+          catalogRef: wishlistRef,
           createdAt: now,
           updatedAt: now,
         );
@@ -204,7 +205,7 @@ final class CollectionImportOrchestrator {
             clientChangedAt: now,
           ),
         );
-        activeWishlistRefs.add(rowRef);
+        activeWishlistRefs.add(wishlistRef);
       }
     }
 
@@ -213,11 +214,11 @@ final class CollectionImportOrchestrator {
         if (importedCatalogItems.isNotEmpty) {
           await catalogTransport.upsertTransports(importedCatalogItems);
         }
-        for (final write in ownedWrites) {
+        for (final write in entryWrites) {
           final persisted = await write();
           syncChanges.add(
-            ownedItems.syncChangeForMutation(
-              persisted,
+            await libraryEntries.syncChangeForCurrentEntry(
+              persisted.ref,
               action: 'upsert',
               changedAt: now,
             ),
@@ -249,7 +250,7 @@ final class CollectionImportOrchestrator {
         }
       },
       eventsToEmit: [
-        for (final item in ownedItemRefs) OwnedItemAdded(item),
+        for (final item in libraryEntryRefs) LibraryEntryAdded(item),
         for (final _ in trackingImports) const TrackingChanged(),
         for (final item in wishlistUpserts) WishlistChanged(item.catalogRef),
         for (final item in wishlistDeletes) WishlistChanged(item.catalogRef),
@@ -280,7 +281,7 @@ final class CollectionImportOrchestrator {
           if (matched != null) {
             row = row.copyWith(
               itemId: matched.ref.id,
-              catalogRef: matched.ref,
+              catalogItemRef: matched.ref,
               mediaKind: matched.kind,
               title: matched.title,
               kindDisplayTitle: matched.title,
@@ -301,7 +302,7 @@ final class CollectionImportOrchestrator {
           if (matched != null) {
             row = row.copyWith(
               itemId: matched.ref.id,
-              catalogRef: matched.ref,
+              catalogItemRef: matched.ref,
               mediaKind: matched.kind,
               title: matched.title,
               kindDisplayTitle: matched.title,
@@ -323,7 +324,7 @@ final class CollectionImportOrchestrator {
 
     final validRows = candidateRows;
 
-    final seenRefs = <CatalogEntityRef>{};
+    final seenRefs = <CatalogItemRef>{};
     final uniqueRows = <CollectionImportRow>[];
     final duplicateRows = <CollectionImportRow>[];
 
@@ -342,9 +343,9 @@ final class CollectionImportOrchestrator {
     }
 
     final uniqueRefs =
-        uniqueRows.map(_catalogRefForRow).whereType<CatalogEntityRef>().toSet();
-    final existingOwnedMap = _ownedSummariesByTarget(
-      await ownedItems.listActiveSummaries(),
+        uniqueRows.map(_catalogRefForRow).whereType<CatalogItemRef>().toSet();
+    final existingEntryMap = _entrySummariesByTarget(
+      await libraryEntries.listActiveSummaries(),
       uniqueRefs,
       includeRootScope: true,
     );
@@ -354,7 +355,7 @@ final class CollectionImportOrchestrator {
 
     for (final row in uniqueRows) {
       final rowRef = _catalogRefForRow(row);
-      if (rowRef != null && existingOwnedMap.containsKey(rowRef)) {
+      if (rowRef != null && existingEntryMap.containsKey(rowRef)) {
         conflictRows.add(row);
       } else {
         resolvedRows.add(row);
@@ -370,18 +371,52 @@ final class CollectionImportOrchestrator {
     );
   }
 
-  CatalogEntityRef? _catalogRefForRow(CollectionImportRow row) {
-    final importedRef = row.catalogRef;
-    if (importedRef != null && importedRef.isKnown) {
-      return importedRef;
+  CatalogItemRef? _catalogRefForRow(CollectionImportRow row) {
+    final completeEntry = row.fullEntryPayload;
+    if (completeEntry != null) {
+      final id = completeEntry['id'];
+      if (id is! String || id.trim().isEmpty || row.mediaKind.isUnknown) {
+        return null;
+      }
+      return CatalogItemRef(
+        kind: row.mediaKind,
+        id: id,
+      );
+    }
+    final importedRef = row.catalogItemRef;
+    if (importedRef != null) {
+      return CatalogItemRef(
+        kind: importedRef.kind,
+        id: importedRef.id,
+      );
     }
     if (row.mediaKind.isUnknown || row.itemId.trim().isEmpty) {
       return null;
     }
-    return CatalogEntityRef(
+    return CatalogItemRef(
       kind: row.mediaKind,
-      entityType: CatalogEntityTypeId.root,
       id: row.itemId,
+    );
+  }
+
+  /// Entry envelopes use their local ID for entry matching. Wishlist state is
+  /// a separate Catalog Item relationship, so recover it from the explicit
+  /// CSV reference or Core provenance instead of reusing the local entry ID.
+  CatalogItemRef? _wishlistCatalogRefForRow(CollectionImportRow row) {
+    final explicitRef = row.catalogItemRef;
+    if (explicitRef != null) {
+      return CatalogItemRef(
+        kind: explicitRef.kind,
+        id: explicitRef.id,
+      );
+    }
+    final rawSource = row.fullEntryPayload?['source_catalog_ref'];
+    if (rawSource is! Map) return null;
+    final source =
+        CatalogItemRef.fromJson(Map<String, Object?>.from(rawSource));
+    return CatalogItemRef(
+      kind: source.kind,
+      id: source.id,
     );
   }
 
@@ -389,7 +424,7 @@ final class CollectionImportOrchestrator {
   ///
   /// Collection only normalizes the structural identity cell needed by the
   /// serialization boundary. It must not reconstruct a rich
-  /// when the row did not come from a complete kind-owned catalog projection.
+  /// when the row did not come from a complete kind-entry catalog projection.
   CatalogImportTransport? _catalogTransportFromCsvRow(
     CollectionImportRow row,
   ) {
@@ -426,30 +461,67 @@ final class CollectionImportOrchestrator {
     );
   }
 
-  _OwnedImport _ownedItemImportFromCsvRow(
+  Future<_EntryImport> _libraryEntryImportFromCsvRow(
     CollectionImportRow row,
     DateTime now, {
-    OwnedItemSummary? existingSummary,
+    required JsonMap catalogData,
+    LibraryEntrySummary? existingSummary,
     JsonMap? existingPayload,
     CatalogMediaKind? catalogKind,
-  }) {
+  }) async {
     final kind = existingSummary?.ref.kind ?? catalogKind ?? row.mediaKind;
-    final catalogRef = existingSummary?.catalogRef ??
-        row.catalogRef ??
-        CatalogEntityRef(
-          kind: kind,
-          entityType: CatalogEntityTypeId.root,
-          id: row.itemId,
+    if (row.fullEntryPayload case final fullPayload?) {
+      final incoming = LibraryEntryRecord.fromJson(fullPayload);
+      if (incoming.kind != kind) {
+        throw FormatException(
+          'CSV entry kind ${incoming.kind.apiValue} does not match ${kind.apiValue}.',
         );
+      }
+      final incomingRef = LibraryEntryRef(
+        kind: incoming.kind,
+        id: LibraryEntryId(incoming.id),
+      );
+      final existingById = await libraryEntries.payloadByRef(incomingRef);
+      final useExistingIdentity = existingSummary?.ref == incomingRef;
+      final id = existingById == null || useExistingIdentity
+          ? incoming.id
+          : idGenerator();
+      final personalData = Map<String, dynamic>.from(incoming.personalData);
+      if (row.personal.quantity != null) {
+        personalData['quantity'] = row.personal.quantity;
+      }
+      final importedRecord = LibraryEntryRecord(
+        id: id,
+        kind: kind,
+        catalogData: incoming.catalogData,
+        personalData: personalData,
+        sourceCatalogRef: incoming.sourceCatalogRef,
+        updatedAt: now,
+      );
+      final ref = LibraryEntryRef(kind: kind, id: LibraryEntryId(id));
+      // This transport target is the entry itself. The optional Core identity
+      // is carried only by source_catalog_ref inside the full record.
+      return (
+        ref: ref,
+        transport: EntryImportTransport(
+          ref: ref,
+          payload: JsonMap.from(importedRecord.toJson()),
+        ),
+      );
+    }
     final personal = row.personal;
     final projection = _profileForKind(kind);
     if (projection != null) {
-      final ownedRef = existingSummary?.ref ??
-          OwnedItemRef(kind: kind, id: OwnedItemId(idGenerator()));
-      final transport = projection.ownedItemImportTransport(
-        CollectionCsvOwnedImport(
-          id: ownedRef.id.value,
-          catalogRef: catalogRef,
+      final libraryEntryRef = existingSummary?.ref ??
+          LibraryEntryRef(
+            kind: kind,
+            id: LibraryEntryId(idGenerator()),
+          );
+      final transport = projection.libraryEntryImportTransport(
+        CollectionCsvEntryImport(
+          id: libraryEntryRef.id.value,
+          kind: kind,
+          sourceCatalogItemRef: row.catalogItemRef,
           now: now,
           existingPayload: existingPayload,
           condition: personal.condition,
@@ -457,52 +529,132 @@ final class CollectionImportOrchestrator {
           pricePaidCents: personal.pricePaidCents,
           currency: personal.currency,
           personalNotes: personal.notes,
-          quantity: personal.quantity ?? 1,
           locationId: personal.locationId,
           indexNumber: personal.indexNumber,
           tags: personal.tags,
           soldAt: personal.soldAt,
           sellPriceCents: personal.sellPriceCents,
           soldTo: personal.soldTo,
-          kindOwnedCells: row.kindOwnedCells,
+          quantity: personal.quantity,
+          kindEntryCells: row.kindEntryCells,
+          catalogData: catalogData,
         ),
       );
       return (
-        ref: ownedRef,
+        ref: libraryEntryRef,
         transport: transport,
       );
     }
     throw StateError('No CSV projection registered for ${kind.apiValue}.');
   }
 
+  Future<JsonMap> _catalogDataForEntryImport(
+    CollectionImportRow row,
+    CatalogItemRef ref,
+    Map<CatalogItemRef, CatalogImportTransport> imported,
+  ) async {
+    final complete = row.fullEntryPayload?['catalog_data'];
+    if (complete is Map) return Map<String, dynamic>.from(complete);
+    final importedTransport = imported[ref];
+    if (importedTransport != null) {
+      return importedTransport.decodeItem().kindData;
+    }
+    final existing = await catalogTransport.findCatalogItem(ref);
+    if (existing != null) return existing.kindData;
+    return {if (row.title?.trim().isNotEmpty ?? false) 'title': row.title};
+  }
+
+  Future<void> _writeCsvCustomFields(
+    CollectionImportRow row,
+    LibraryEntryRef ref,
+    DateTime now,
+  ) async {
+    if (row.fullEntryPayload != null || row.customFieldValues.isEmpty) return;
+    final repository = CustomFieldRepository(libraryEntries.database);
+    final definitions = await repository.listDefinitions(
+      mediaKind: ref.kind.apiValue,
+      targetScope: CustomFieldTargetScope.libraryEntry,
+    );
+    final definitionsByName = {
+      for (final definition in definitions)
+        definition.name.trim().toLowerCase(): definition,
+    };
+    final values = <CustomFieldValue>[];
+    for (final cell in row.customFieldValues.entries) {
+      final value = cell.value?.trim();
+      if (value == null || value.isEmpty) continue;
+      final key = cell.key.trim().toLowerCase();
+      var definition = definitionsByName[key];
+      if (definition == null) {
+        definition = CustomFieldDefinition(
+          id: idGenerator(),
+          name: cell.key,
+          fieldType: CustomFieldValueType.text.apiValue,
+          mediaKind: ref.kind.apiValue,
+          editScope: CustomFieldTargetScope.libraryEntry.apiValue,
+          createdAt: now,
+        );
+        await repository.upsertDefinition(definition);
+        definitionsByName[key] = definition;
+      }
+      values.add(
+        CustomFieldValue(
+          id: idGenerator(),
+          targetId: ref.key,
+          targetScope: CustomFieldTargetScope.libraryEntry,
+          fieldDefinitionId: definition.id,
+          value: value,
+          updatedAt: now,
+        ),
+      );
+    }
+    await repository.upsertValues(values);
+  }
+
   CollectionCsvKindProfile? _profileForKind(CatalogMediaKind kind) =>
       _csvProfiles[kind];
 
-  Map<CatalogEntityRef, OwnedItemSummary> _ownedSummariesByTarget(
-      Iterable<OwnedItemSummary> summaries, Iterable<CatalogEntityRef> targets,
+  Map<CatalogItemRef, LibraryEntrySummary> _entrySummariesByTarget(
+      Iterable<LibraryEntrySummary> summaries, Iterable<CatalogItemRef> targets,
       {required bool includeRootScope}) {
     final targetSet = targets.toSet();
-    final targetRoots = {for (final target in targetSet) target.rootScope};
-    final result = <CatalogEntityRef, OwnedItemSummary>{};
+    final targetRoots = {for (final target in targetSet) target};
+    final result = <CatalogItemRef, LibraryEntrySummary>{};
     for (final summary in summaries) {
-      final catalogRef = summary.catalogRef;
-      if (catalogRef == null ||
-          (!targetSet.contains(catalogRef) &&
-              !targetRoots.contains(catalogRef.rootScope))) {
-        continue;
-      }
-      result[catalogRef] = summary;
-      if (includeRootScope) {
-        result[catalogRef.rootScope] = summary;
+      final localRef = CatalogItemRef(
+        kind: summary.ref.kind,
+        id: summary.ref.id.value,
+      );
+      final sourceRef = summary.sourceCatalogRef == null
+          ? null
+          : CatalogItemRef(
+              kind: summary.sourceCatalogRef!.kind,
+              id: summary.sourceCatalogRef!.id,
+            );
+      final candidates = [localRef, if (sourceRef != null) sourceRef];
+      for (final candidate in candidates) {
+        if (!targetSet.contains(candidate) &&
+            !targetRoots.contains(candidate)) {
+          continue;
+        }
+        // CSV may identify a local record by either its local identity or its
+        // Core provenance. Both resolve to the same independently editable
+        // entry, while persistence continues to store provenance separately.
+        result[localRef] = summary;
+        result[candidate] = summary;
+        if (includeRootScope) {
+          result[localRef] = summary;
+          result[candidate] = summary;
+        }
       }
     }
     return result;
   }
 }
 
-typedef _OwnedImport = ({
-  OwnedItemRef ref,
-  OwnedImportTransport transport,
+typedef _EntryImport = ({
+  LibraryEntryRef ref,
+  EntryImportTransport transport,
 });
 
 class CollectionImportPreview {

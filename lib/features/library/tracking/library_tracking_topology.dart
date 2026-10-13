@@ -1,10 +1,10 @@
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
 import 'package:flutter/material.dart';
 
 @immutable
 final class LibraryTrackingSessionLabels {
   const LibraryTrackingSessionLabels({
     required this.title,
+    required this.trackingStatusTitle,
     required this.nounSingular,
     required this.nounPlural,
     required this.addTooltip,
@@ -13,6 +13,7 @@ final class LibraryTrackingSessionLabels {
   });
 
   final String title;
+  final String trackingStatusTitle;
   final String nounSingular;
   final String nounPlural;
   final String addTooltip;
@@ -21,6 +22,7 @@ final class LibraryTrackingSessionLabels {
 
   static const watch = LibraryTrackingSessionLabels(
     title: 'Watch history',
+    trackingStatusTitle: 'Watched',
     nounSingular: 'watch',
     nounPlural: 'watches',
     addTooltip: 'Log a watch',
@@ -30,6 +32,7 @@ final class LibraryTrackingSessionLabels {
 
   static const read = LibraryTrackingSessionLabels(
     title: 'Read history',
+    trackingStatusTitle: 'Read',
     nounSingular: 'read',
     nounPlural: 'reads',
     addTooltip: 'Log a read',
@@ -39,6 +42,7 @@ final class LibraryTrackingSessionLabels {
 
   static const listen = LibraryTrackingSessionLabels(
     title: 'Listen history',
+    trackingStatusTitle: 'Played',
     nounSingular: 'listen',
     nounPlural: 'listens',
     addTooltip: 'Log a listen',
@@ -48,6 +52,7 @@ final class LibraryTrackingSessionLabels {
 
   static const play = LibraryTrackingSessionLabels(
     title: 'Play history',
+    trackingStatusTitle: 'Played',
     nounSingular: 'play',
     nounPlural: 'plays',
     addTooltip: 'Log a play',
@@ -56,70 +61,41 @@ final class LibraryTrackingSessionLabels {
   );
 }
 
-/// Structural targets understood by a kind's tracking integration.
-///
-/// `work`, `release`, and `copy` are the common library entity scopes. The
-/// `content` target is intentionally separate because kinds such as TV,
-/// Anime, Comic, and Manga track seasons, episodes, volumes, or chapters
-/// inside the work/release shell.
-enum LibraryTrackingTargetScope { work, release, copy, content }
+/// Whole-item tracking belongs to the local entry; repeated child progress is
+/// keyed by the same entry plus kind-owned content coordinates.
+enum LibraryTrackingTarget { libraryEntry, content }
 
-enum LibraryTrackingLookupScope {
-  exactCatalog,
-  rootCatalog,
-}
-
-enum LibraryOwnedTrackingTarget {
-  catalog,
-  owned,
-}
-
-extension LibraryTrackingTargetScopeLabels on LibraryTrackingTargetScope {
+extension LibraryTrackingTargetLabels on LibraryTrackingTarget {
   String get apiValue => switch (this) {
-        LibraryTrackingTargetScope.work => 'work',
-        LibraryTrackingTargetScope.release => 'release',
-        LibraryTrackingTargetScope.copy => 'copy',
-        LibraryTrackingTargetScope.content => 'content',
+        LibraryTrackingTarget.libraryEntry => 'library_entry',
+        LibraryTrackingTarget.content => 'content',
       };
 }
 
-/// Kind-owned tracking topology.
+/// Kind-entry tracking topology.
 ///
-/// Tracking is deliberately not folded into the work/release/copy workspace
-/// contract. A kind may expose a writable release state, a derived work
-/// aggregate, and a separate content timeline at the same time.
+/// Tracking state belongs to a local library entry. Contained repeated content
+/// can keep its own progress, aggregated under that entry's Catalog Item.
 @immutable
 final class LibraryTrackingTopology {
   const LibraryTrackingTopology({
-    this.writableTargets = const <LibraryTrackingTargetScope>{},
-    this.aggregateTargets = const <LibraryTrackingTargetScope>{},
-    this.contentTargets = const <LibraryTrackingTargetScope>{},
-    this.lookupScope = LibraryTrackingLookupScope.rootCatalog,
-    this.ownedTrackingTarget = LibraryOwnedTrackingTarget.owned,
+    this.writableTargets = const <LibraryTrackingTarget>{},
+    this.aggregateTargets = const <LibraryTrackingTarget>{},
+    this.contentTargets = const <LibraryTrackingTarget>{},
     this.sessionLabels = LibraryTrackingSessionLabels.watch,
   });
 
-  final Set<LibraryTrackingTargetScope> writableTargets;
-  final Set<LibraryTrackingTargetScope> aggregateTargets;
-  final Set<LibraryTrackingTargetScope> contentTargets;
-  final LibraryTrackingLookupScope lookupScope;
-  final LibraryOwnedTrackingTarget ownedTrackingTarget;
+  final Set<LibraryTrackingTarget> writableTargets;
+  final Set<LibraryTrackingTarget> aggregateTargets;
+  final Set<LibraryTrackingTarget> contentTargets;
   final LibraryTrackingSessionLabels sessionLabels;
 
-  bool get usesCatalogTargetForOwnedTracking =>
-      ownedTrackingTarget == LibraryOwnedTrackingTarget.catalog;
-
-  CatalogEntityRef lookupReferenceFor(CatalogEntityRef ref) =>
-      lookupScope == LibraryTrackingLookupScope.exactCatalog
-          ? ref
-          : ref.rootScope;
-
-  bool canWrite(LibraryTrackingTargetScope target) =>
+  bool canWrite(LibraryTrackingTarget target) =>
       writableTargets.contains(target);
 
-  bool aggregates(LibraryTrackingTargetScope target) =>
+  bool aggregates(LibraryTrackingTarget target) =>
       aggregateTargets.contains(target);
 
-  bool isContentTarget(LibraryTrackingTargetScope target) =>
+  bool isContentTarget(LibraryTrackingTarget target) =>
       contentTargets.contains(target);
 }

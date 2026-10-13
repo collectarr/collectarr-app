@@ -33,8 +33,8 @@ class AppErrorBanner extends StatelessWidget {
                 message,
                 style: TextStyle(
                   color: palette.errorForeground,
-                  fontSize: 12,
-                  fontWeight: FontWeight.w800,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w700,
                 ),
               ),
             ),

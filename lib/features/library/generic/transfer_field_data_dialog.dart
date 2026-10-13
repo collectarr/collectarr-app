@@ -1,3 +1,5 @@
+import 'package:collectarr_app/ui/app_icons.dart';
+import 'dart:async';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/features/collection/collection_mutations.dart';
@@ -8,6 +10,8 @@ import 'package:flutter/material.dart';
 import 'package:collectarr_app/ui/compact_search_dropdown_form_field.dart';
 import 'package:collectarr_app/ui/accent_alert_dialog.dart';
 import 'package:uuid/uuid.dart';
+
+enum TransferItemScope { all, currentList, checkboxed }
 
 /// Result returned when the transfer completes.
 class TransferFieldResult {
@@ -24,13 +28,16 @@ class TransferFieldResult {
 
 /// Shows the Transfer Field Data dialog.
 ///
-/// [items] should be the currently visible (filtered) owned items.
+/// Counts and transfer previews follow the chosen collection scope.
 Future<TransferFieldResult?> showTransferFieldDataDialog({
   required BuildContext context,
   required LocalDatabase db,
   required LibraryKindRegistration type,
-  required List<TransferableOwnedItem> items,
-  required OwnedItemMutations mutations,
+  required List<TransferableLibraryEntry> allItems,
+  required List<TransferableLibraryEntry> currentItems,
+  required List<TransferableLibraryEntry> selectedItems,
+  required TransferItemScope initialScope,
+  required LibraryEntryMutations mutations,
   required List<CustomFieldDefinition> customFieldDefinitions,
 }) {
   return showDialog<TransferFieldResult>(
@@ -39,7 +46,10 @@ Future<TransferFieldResult?> showTransferFieldDataDialog({
     builder: (_) => _TransferFieldDataDialog(
       db: db,
       type: type,
-      items: items,
+      allItems: allItems,
+      currentItems: currentItems,
+      selectedItems: selectedItems,
+      initialScope: initialScope,
       mutations: mutations,
       customFieldDefinitions: customFieldDefinitions,
     ),
@@ -50,15 +60,21 @@ class _TransferFieldDataDialog extends StatefulWidget {
   const _TransferFieldDataDialog({
     required this.db,
     required this.type,
-    required this.items,
+    required this.allItems,
+    required this.currentItems,
+    required this.selectedItems,
+    required this.initialScope,
     required this.mutations,
     required this.customFieldDefinitions,
   });
 
   final LocalDatabase db;
   final LibraryKindRegistration type;
-  final List<TransferableOwnedItem> items;
-  final OwnedItemMutations mutations;
+  final List<TransferableLibraryEntry> allItems;
+  final List<TransferableLibraryEntry> currentItems;
+  final List<TransferableLibraryEntry> selectedItems;
+  final TransferItemScope initialScope;
+  final LibraryEntryMutations mutations;
   final List<CustomFieldDefinition> customFieldDefinitions;
 
   @override
@@ -73,10 +89,40 @@ class _TransferFieldDataDialogState extends State<_TransferFieldDataDialog> {
   TransferMode _mode = TransferMode.move;
   TransferConflict _conflict = TransferConflict.skip;
   bool _executing = false;
+  late TransferItemScope _scope;
+  Map<String, List<CustomFieldValue>> _customValues = {};
+  String? _error;
+
+  List<TransferableLibraryEntry> get _items => switch (_scope) {
+        TransferItemScope.all => widget.allItems,
+        TransferItemScope.currentList => widget.currentItems,
+        TransferItemScope.checkboxed => widget.selectedItems,
+      };
+
+  Future<void> _loadCustomValues() async {
+    try {
+      final values = await CustomFieldRepository(widget.db).listAllValues();
+      if (mounted) setState(() => _customValues = values);
+    } catch (error) {
+      if (mounted) {
+        setState(() => _error = 'Could not load custom fields: $error');
+      }
+    }
+  }
+
+  String? _read(TransferableField field, TransferableLibraryEntry item) =>
+      field.isCustomField
+          ? (_customValues[item.ref.key] ?? [])
+              .where((value) => value.fieldDefinitionId == field.customFieldId)
+              .firstOrNull
+              ?.value
+          : field.readFrom(item.value);
 
   @override
   void initState() {
     super.initState();
+    _scope = widget.initialScope;
+    unawaited(_loadCustomValues());
     _fields = libraryTransferForKind(widget.type.kind).fieldsWithCustomFields(
       widget.customFieldDefinitions,
     );
@@ -90,8 +136,8 @@ class _TransferFieldDataDialogState extends State<_TransferFieldDataDialog> {
     final src = _source;
     if (src == null) return 0;
     int count = 0;
-    for (final item in widget.items) {
-      final value = src.readFrom(item.value);
+    for (final item in _items) {
+      final value = _read(src, item);
       if (value != null && value.isNotEmpty) count++;
     }
     return count;
@@ -101,8 +147,8 @@ class _TransferFieldDataDialogState extends State<_TransferFieldDataDialog> {
     final tgt = _target;
     if (tgt == null) return 0;
     int count = 0;
-    for (final item in widget.items) {
-      final value = tgt.readFrom(item.value);
+    for (final item in _items) {
+      final value = _read(tgt, item);
       if (value != null && value.isNotEmpty) count++;
     }
     return count;
@@ -122,144 +168,151 @@ class _TransferFieldDataDialogState extends State<_TransferFieldDataDialog> {
   Future<void> _execute() async {
     final src = _source!;
     final tgt = _target!;
-    setState(() => _executing = true);
+    setState(() {
+      _executing = true;
+      _error = null;
+    });
+    try {
+      final cfRepo = CustomFieldRepository(widget.db);
+      final now = DateTime.now().toUtc();
+      int transferred = 0;
+      int skipped = 0;
 
-    final cfRepo = CustomFieldRepository(widget.db);
-    final now = DateTime.now().toUtc();
-    int transferred = 0;
-    int skipped = 0;
-
-    // If custom fields are involved, pre-load values for all items.
-    Map<String, List<CustomFieldValue>>? allCfValues;
-    if (src.isCustomField || tgt.isCustomField) {
-      allCfValues = await cfRepo.listAllValues();
-    }
-
-    for (int i = 0; i < widget.items.length; i++) {
-      final item = widget.items[i];
-
-      // Read source value (built-in or custom field).
-      String? sourceValue;
-      if (src.isCustomField) {
-        final values = allCfValues?[item.ref.key] ?? [];
-        sourceValue = values
-            .where((v) => v.fieldDefinitionId == src.customFieldId)
-            .map((v) => v.value)
-            .where((v) => v != null && v.isNotEmpty)
-            .firstOrNull;
-      } else {
-        sourceValue = src.readFrom(item.value);
+      // If custom fields are involved, pre-load values for all items.
+      Map<String, List<CustomFieldValue>>? allCfValues;
+      if (src.isCustomField || tgt.isCustomField) {
+        allCfValues = await cfRepo.listAllValues();
       }
 
-      if (sourceValue == null || sourceValue.isEmpty) {
-        skipped++;
-        continue;
-      }
+      await widget.mutations.mutationRunner.run(action: () async {
+        for (int i = 0; i < _items.length; i++) {
+          final item = _items[i];
 
-      // Read existing target value.
-      String? existingTarget;
-      if (tgt.isCustomField) {
-        final values = allCfValues?[item.ref.key] ?? [];
-        existingTarget = values
-            .where((v) => v.fieldDefinitionId == tgt.customFieldId)
-            .map((v) => v.value)
-            .where((v) => v != null && v.isNotEmpty)
-            .firstOrNull;
-      } else {
-        existingTarget = tgt.readFrom(item.value);
-      }
+          // Read source value (built-in or custom field).
+          String? sourceValue;
+          if (src.isCustomField) {
+            final values = allCfValues?[item.ref.key] ?? [];
+            sourceValue = values
+                .where((v) => v.fieldDefinitionId == src.customFieldId)
+                .map((v) => v.value)
+                .where((v) => v != null && v.isNotEmpty)
+                .firstOrNull;
+          } else {
+            sourceValue = _read(src, item);
+          }
 
-      final hasExistingTarget =
-          existingTarget != null && existingTarget.isNotEmpty;
-
-      // Apply conflict strategy.
-      String? newTargetValue;
-      if (hasExistingTarget) {
-        switch (_conflict) {
-          case TransferConflict.skip:
+          if (sourceValue == null || sourceValue.isEmpty) {
             skipped++;
             continue;
-          case TransferConflict.overwrite:
-            newTargetValue = sourceValue;
-          case TransferConflict.append:
-            if (tgt.type == TransferableFieldType.text) {
-              newTargetValue = '$existingTarget; $sourceValue';
-            } else {
-              newTargetValue = sourceValue;
-            }
-        }
-      } else {
-        newTargetValue = sourceValue;
-      }
-
-      // Write target.
-      if (tgt.isCustomField) {
-        final existing = (allCfValues?[item.ref.key] ?? [])
-            .where((v) => v.fieldDefinitionId == tgt.customFieldId)
-            .firstOrNull;
-        await cfRepo.upsertValue(CustomFieldValue(
-          id: existing?.id ?? const Uuid().v4(),
-          targetId: item.ref.key,
-          targetScope: CustomFieldTargetScope.ownedCopy,
-          catalogRef: item.catalogRef,
-          fieldDefinitionId: tgt.customFieldId!,
-          value: newTargetValue,
-          updatedAt: now,
-        ));
-      } else {
-        var updated = tgt.writeTo(item.value, newTargetValue);
-        // Clear source if mode is Move.
-        if (_mode == TransferMode.move && !src.isCustomField) {
-          updated = src.writeTo(updated, null);
-        }
-        await widget.mutations.updateOwnedItem(
-          libraryOwnedEditForKind(widget.type.kind).buildTransferUpdateCommand(
-            ownedRef: item.ref,
-            updated: updated,
-          ),
-        );
-        transferred++;
-        continue;
-      }
-
-      // Clear source for custom fields when mode is Move.
-      if (_mode == TransferMode.move) {
-        if (src.isCustomField) {
-          final existing = (allCfValues?[item.ref.key] ?? [])
-              .where((v) => v.fieldDefinitionId == src.customFieldId)
-              .firstOrNull;
-          if (existing != null) {
-            await cfRepo.upsertValue(CustomFieldValue(
-              id: existing.id,
-              targetId: item.ref.key,
-              targetScope: CustomFieldTargetScope.ownedCopy,
-              catalogRef: item.catalogRef,
-              fieldDefinitionId: src.customFieldId!,
-              value: null,
-              updatedAt: now,
-            ));
           }
-        } else {
-          final updated = src.writeTo(item.value, null);
-          await widget.mutations.updateOwnedItem(
-            libraryOwnedEditForKind(widget.type.kind)
-                .buildTransferUpdateCommand(
-              ownedRef: item.ref,
-              updated: updated,
-            ),
-          );
+
+          // Read existing target value.
+          String? existingTarget;
+          if (tgt.isCustomField) {
+            final values = allCfValues?[item.ref.key] ?? [];
+            existingTarget = values
+                .where((v) => v.fieldDefinitionId == tgt.customFieldId)
+                .map((v) => v.value)
+                .where((v) => v != null && v.isNotEmpty)
+                .firstOrNull;
+          } else {
+            existingTarget = _read(tgt, item);
+          }
+
+          final hasExistingTarget =
+              existingTarget != null && existingTarget.isNotEmpty;
+
+          // Apply conflict strategy.
+          String? newTargetValue;
+          if (hasExistingTarget) {
+            switch (_conflict) {
+              case TransferConflict.skip:
+                skipped++;
+                continue;
+              case TransferConflict.overwrite:
+                newTargetValue = sourceValue;
+              case TransferConflict.append:
+                if (tgt.type == TransferableFieldType.text) {
+                  newTargetValue = '$existingTarget; $sourceValue';
+                } else {
+                  newTargetValue = sourceValue;
+                }
+            }
+          } else {
+            newTargetValue = sourceValue;
+          }
+
+          final valid = switch (tgt.type) {
+            TransferableFieldType.text => true,
+            TransferableFieldType.integer =>
+              int.tryParse(newTargetValue) != null,
+            TransferableFieldType.date =>
+              DateTime.tryParse(newTargetValue) != null,
+            TransferableFieldType.boolean =>
+              newTargetValue == 'true' || newTargetValue == 'false',
+          };
+          if (!valid) {
+            throw FormatException(
+                '${tgt.label} cannot accept "$newTargetValue".');
+          }
+
+          var updated = item.value;
+          if (tgt.isCustomField) {
+            final existing = (allCfValues?[item.ref.key] ?? [])
+                .where((v) => v.fieldDefinitionId == tgt.customFieldId)
+                .firstOrNull;
+            await cfRepo.upsertValue(CustomFieldValue(
+                id: existing?.id ?? const Uuid().v4(),
+                targetId: item.ref.key,
+                targetScope: CustomFieldTargetScope.libraryEntry,
+                fieldDefinitionId: tgt.customFieldId!,
+                value: newTargetValue,
+                updatedAt: now));
+          } else {
+            updated = tgt.writeTo(updated, newTargetValue);
+          }
+          if (_mode == TransferMode.move) {
+            if (src.isCustomField) {
+              final existing = (allCfValues?[item.ref.key] ?? [])
+                  .where((v) => v.fieldDefinitionId == src.customFieldId)
+                  .firstOrNull;
+              if (existing != null) {
+                await cfRepo.upsertValue(CustomFieldValue(
+                    id: existing.id,
+                    targetId: item.ref.key,
+                    targetScope: CustomFieldTargetScope.libraryEntry,
+                    fieldDefinitionId: src.customFieldId!,
+                    value: null,
+                    updatedAt: now));
+              }
+            } else {
+              updated = src.writeTo(updated, null);
+            }
+          }
+          // Persist once, after attachments, so Sync sees the final moved values.
+          await widget.mutations.updateLibraryEntry(
+              libraryEntryEditForKind(widget.type.kind)
+                  .buildTransferUpdateCommand(
+                      libraryEntryRef: item.ref, updated: updated));
+
+          transferred++;
         }
+      });
+
+      if (mounted) {
+        Navigator.of(context).pop(TransferFieldResult(
+          transferred: transferred,
+          skipped: skipped,
+          total: _items.length,
+        ));
       }
-
-      transferred++;
-    }
-
-    if (mounted) {
-      Navigator.of(context).pop(TransferFieldResult(
-        transferred: transferred,
-        skipped: skipped,
-        total: widget.items.length,
-      ));
+    } catch (error) {
+      if (mounted) {
+        setState(
+            () => _error = 'Transfer failed; no fields were changed: $error');
+      }
+    } finally {
+      if (mounted) setState(() => _executing = false);
     }
   }
 
@@ -276,7 +329,7 @@ class _TransferFieldDataDialogState extends State<_TransferFieldDataDialog> {
     return AccentAlertDialog(
       title: const Row(
         children: [
-          Icon(Icons.swap_horiz, size: 24),
+          Icon(AppIcons.transferFieldData, size: 24),
           SizedBox(width: 8),
           Text('Transfer Field Data'),
         ],
@@ -295,13 +348,41 @@ class _TransferFieldDataDialogState extends State<_TransferFieldDataDialog> {
                   children: [
                     Text(
                       'Move or copy data from one field to another across '
-                      '${widget.items.length} items.',
+                      '${_items.length} items.',
                       style: theme.textTheme.bodyMedium,
                     ),
                     const SizedBox(height: 20),
+                    Text(
+                        '1. Which ${widget.type.identity.pluralLabel.toLowerCase()}',
+                        style: theme.textTheme.titleSmall),
+                    RadioGroup<TransferItemScope>(
+                        groupValue: _scope,
+                        onChanged: (value) {
+                          if (value != null) setState(() => _scope = value);
+                        },
+                        child: Column(children: [
+                          RadioListTile(
+                              value: TransferItemScope.all,
+                              title: Text('All (${widget.allItems.length})'),
+                              dense: true),
+                          RadioListTile(
+                              value: TransferItemScope.currentList,
+                              title: Text(
+                                  'Current List (${widget.currentItems.length})'),
+                              dense: true),
+                          RadioListTile(
+                              value: TransferItemScope.checkboxed,
+                              title: Text(
+                                  'Checkboxed (${widget.selectedItems.length})'),
+                              dense: true),
+                        ])),
+                    if (_error != null)
+                      Text(_error!,
+                          style: TextStyle(color: theme.colorScheme.error)),
+                    const SizedBox(height: 16),
                     // Source field
                     _FieldDropdown(
-                      label: 'Source field',
+                      label: '2. Source field',
                       value: _source,
                       fields: _fields,
                       exclude: _target,
@@ -311,7 +392,7 @@ class _TransferFieldDataDialogState extends State<_TransferFieldDataDialog> {
                       const SizedBox(height: 4),
                       Text(
                         '$sourceCount item${sourceCount == 1 ? '' : 's'} '
-                        'have data in this field',
+                        '${sourceCount == 1 ? 'has' : 'have'} data in this field',
                         style: theme.textTheme.bodySmall?.copyWith(
                           color: theme.colorScheme.onSurfaceVariant,
                         ),
@@ -320,7 +401,7 @@ class _TransferFieldDataDialogState extends State<_TransferFieldDataDialog> {
                     const SizedBox(height: 16),
                     // Target field
                     _FieldDropdown(
-                      label: 'Target field',
+                      label: '3. Destination field',
                       value: _target,
                       fields: _fields,
                       exclude: _source,
@@ -387,6 +468,16 @@ class _TransferFieldDataDialogState extends State<_TransferFieldDataDialog> {
           ? null
           : [
               TextButton(
+                  onPressed: () => setState(() {
+                        _scope = widget.initialScope;
+                        _source = null;
+                        _target = null;
+                        _mode = TransferMode.move;
+                        _conflict = TransferConflict.skip;
+                        _error = null;
+                      }),
+                  child: const Text('Reset')),
+              TextButton(
                 onPressed: () => Navigator.of(context).pop(),
                 child: const Text('Cancel'),
               ),
@@ -421,6 +512,7 @@ class _FieldDropdown extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return CompactSearchDropdownFormField<TransferableField>(
+      key: ValueKey((label, value?.key)),
       decoration: InputDecoration(
         labelText: label,
         border: const OutlineInputBorder(),

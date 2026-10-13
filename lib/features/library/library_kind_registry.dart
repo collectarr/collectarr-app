@@ -11,11 +11,10 @@ import 'package:collectarr_app/features/library/config/library_barcode_resolver.
 import 'package:collectarr_app/features/collection/csv/collection_csv_kind_profile.dart';
 import 'package:collectarr_app/features/library/config/library_export_preview_contributor.dart';
 import 'package:collectarr_app/features/library/config/library_facet_module.dart';
-import 'package:collectarr_app/features/library/config/library_shelf_extension_contributor.dart';
 import 'package:collectarr_app/features/barcode/scanned_code.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.dart';
+import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_export_registry.dart';
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_workspace.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 export 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
@@ -73,11 +72,6 @@ final Map<CatalogMediaKind, CollectionCsvKindProfile>
 Iterable<CollectionCsvKindProfile> get collectionCsvKindProfiles =>
     _collectionCsvProjections.values;
 
-final Map<CatalogMediaKind, LibraryShelfExtensionContributor>
-    _shelfExtensionContributors = Map.unmodifiable(
-  collectionShelfExtensionsByKind,
-);
-
 final Map<CatalogMediaKind, LibraryExportPreviewContributor>
     _exportPreviewContributors = Map.unmodifiable(
   collectionExportPreviewContributorsByKind,
@@ -134,7 +128,7 @@ Iterable<ActivityEvent> libraryActivityEventsForWatchSessions(
   final sessionList = sessions.toList(growable: false);
   final byKind = <CatalogMediaKind, List<WatchSession>>{};
   for (final session in sessionList) {
-    byKind.putIfAbsent(session.targetRef.mediaKind, () => []).add(session);
+    byKind.putIfAbsent(session.libraryEntryRef.kind, () => []).add(session);
   }
 
   for (final entry in byKind.entries) {
@@ -182,7 +176,7 @@ String? resolveLibraryBarcodeForKind(
   return libraryBarcodeResolverForKind(kind)?.resolve(code);
 }
 
-/// Returns the kind-owned semantic CSV contribution for a serialization
+/// Returns the kind-entry semantic CSV contribution for a serialization
 /// boundary. The generic Collection feature receives cells only; it never
 /// inspects Comic or another kind's domain fields.
 CollectionCsvKindProfile? collectionCsvKindProfileFor(
@@ -191,21 +185,11 @@ CollectionCsvKindProfile? collectionCsvKindProfileFor(
   return _collectionCsvProjections[kind];
 }
 
-/// Composition-root dispatch for kind-owned extensions on the mixed Shelf.
-///
-/// The Collection feature owns the slot and row lifecycle. The kind registry
-/// only looks up a structural contributor; it does not encode kind branches.
-Widget? libraryShelfExtensionForEntry(
-  LibraryWorkspaceSource entry, {
-  required bool expanded,
-  required VoidCallback onToggle,
-}) {
-  final kind = entry.catalogSummary?.kind ?? CatalogMediaKind.unknown;
-  return _shelfExtensionContributors[kind]?.build(
-    entry,
-    expanded: expanded,
-    onToggle: onToggle,
-  );
+/// Returns the semantic fields and optional child-row mode for report export.
+LibraryExportCapability? libraryExportCapabilityForKind(
+  CatalogMediaKind kind,
+) {
+  return collectarrKindExportCapabilities[kind];
 }
 
 final libraryKindRegistryProvider = Provider<LibraryKindRegistry>((ref) {
@@ -236,17 +220,11 @@ LibraryKindWorkspace libraryKindWorkspaceForKind(CatalogMediaKind kind) {
   return workspace;
 }
 
-/// Composition-root dispatch for kind-owned facet extraction and remote facet
+/// Composition-root dispatch for kind-entry facet extraction and remote facet
 /// loading. The generic library only receives the structural facet contract;
 /// it does not read facet semantics from [LibraryKindRegistration].
 LibraryFacetModule? libraryKindFacetModuleForKind(CatalogMediaKind kind) {
   return collectarrKindFacetModules[kind];
-}
-
-ProviderCorrectionBuilder? libraryKindProviderCorrectionBuilderForKind(
-  CatalogMediaKind kind,
-) {
-  return libraryProviderCorrectionBuildersByKind[kind];
 }
 
 bool libraryGroupModeSupportsCompletion(
@@ -264,7 +242,7 @@ bool libraryGroupModeSupportsCompletion(
 /// The registry may assemble kind implementations; callers receive only the
 /// structural artifact contract and never import a concrete kind.
 List<ExportPreviewArtifact> libraryExportPreviewArtifacts(
-  Iterable<LibraryWorkspaceSource> entries,
+  Iterable<LibraryWorkspaceContext> entries,
 ) {
   return [
     for (final contributor in _exportPreviewContributors.values)

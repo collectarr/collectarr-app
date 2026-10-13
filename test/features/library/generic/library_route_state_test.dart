@@ -1,12 +1,37 @@
-import 'package:collectarr_app/features/library/generic/filter_dialog.dart';
+import 'package:collectarr_app/features/library/generic/library_filters.dart';
 import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/features/library/generic/library_route_state.dart';
 import 'package:collectarr_app/features/library/generic/toolbar_chrome.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
+import 'package:collectarr_app/core/models/smart_list_criteria.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.dart';
 
 void main() {
+  test('library route state round-trips Smart List field operators', () {
+    final state = LibraryRouteState(
+      kind: 'music',
+      filterSelection: const LibraryFilterSelection(
+        fieldCriteria: {
+          'music.disc.format': SmartListFieldCriterion(
+            operator: SmartListFieldOperator.notEquals,
+            value: 'Cassette',
+          ),
+          'music.disc.recording_locations': SmartListFieldCriterion(
+            operator: SmartListFieldOperator.isEmpty,
+          ),
+        },
+      ),
+    );
+
+    final uri =
+        state.toUri(Uri.parse('/libraries'), type: const MusicRegistration());
+    final parsed = LibraryRouteState.fromUri(uri);
+
+    expect(parsed.filterSelection.fieldCriteria,
+        state.filterSelection.fieldCriteria);
+  });
+
   test('library route state round-trips reproducible view params', () {
     final state = LibraryRouteState(
       kind: 'movie',
@@ -22,7 +47,7 @@ void main() {
       bucketCompletionScope: LibraryBucketCompletionScope.completed,
       quickView: LibraryQuickView.missingMetadata,
       filterSelection: LibraryFilterSelection(
-        ownershipFilter: LibraryOwnershipFilter.owned,
+        entriesFilter: LibraryEntryPolicyFilter.entry,
         trackingStatusFilter: LibraryTrackingStatusFilter.completed,
         fieldValues: {'location': 'Shelf A'},
         missingMetadata: true,
@@ -66,7 +91,7 @@ void main() {
     );
     expect(parsed.quickView, LibraryQuickView.missingMetadata);
     expect(
-        parsed.filterSelection.ownershipFilter, LibraryOwnershipFilter.owned);
+        parsed.filterSelection.entriesFilter, LibraryEntryPolicyFilter.entry);
     expect(
       parsed.filterSelection.trackingStatusFilter,
       LibraryTrackingStatusFilter.completed,
@@ -109,9 +134,9 @@ void main() {
     final state = LibraryRouteState(
       kind: 'movie',
       searchQuery: 'alien',
-      quickView: LibraryQuickView.owned,
+      quickView: LibraryQuickView.entry,
       filterSelection: const LibraryFilterSelection(
-        ownershipFilter: LibraryOwnershipFilter.owned,
+        entriesFilter: LibraryEntryPolicyFilter.entry,
       ),
     );
 
@@ -138,19 +163,19 @@ void main() {
 
     expect(filtered.quickView, isNull);
     expect(
-        filtered.filterSelection.ownershipFilter, LibraryOwnershipFilter.all);
+        filtered.filterSelection.entriesFilter, LibraryEntryPolicyFilter.all);
     expect(filtered.filterSelection.fieldValue('grade'), isNull);
 
     final comicsFiltered = state.filteredForType(const ComicRegistration());
     expect(comicsFiltered.quickView, isNull);
-    expect(comicsFiltered.filterSelection.ownershipFilter,
-        LibraryOwnershipFilter.all);
+    expect(comicsFiltered.filterSelection.entriesFilter,
+        LibraryEntryPolicyFilter.all);
   });
 
   test('filtered route state resets series scope outside series grouping', () {
     final state = LibraryRouteState(
       kind: 'book',
-      groupMode: 'publisher',
+      groupMode: 'book.publisher',
       bucketCompletionScope: LibraryBucketCompletionScope.completed,
     );
 
@@ -160,7 +185,7 @@ void main() {
 
     final seriesFiltered = LibraryRouteState(
       kind: 'book',
-      groupMode: 'series',
+      groupMode: 'book.series',
       bucketCompletionScope: LibraryBucketCompletionScope.completed,
     ).filteredForType(const BookRegistration());
     expect(

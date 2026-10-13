@@ -1,5 +1,5 @@
 import 'package:collectarr_app/core/api/dto/catalog/catalog_item_dto.dart';
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/library_entry_ref.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_record.dart';
 import 'package:collectarr_app/core/models/tracking_source.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
@@ -8,13 +8,13 @@ import 'package:collectarr_app/dev/seeds/seed_catalog_item_factory.dart';
 import 'package:collectarr_app/dev/seeds/dev_seed_kind_contributor.dart';
 import 'package:collectarr_app/features/library/kinds/book/tracking/book_tracking_unit.dart';
 import 'package:collectarr_app/features/library/kinds/book/tracking/book_tracking_state.dart';
-import 'package:collectarr_app/features/library/kinds/book/ownership/book_owned_details.dart';
-import 'package:collectarr_app/features/library/kinds/book/domain/book_owned_item.dart';
-import 'package:collectarr_app/features/library/kinds/book/data/book_owned_item_projection.dart';
-import 'package:collectarr_app/features/library/kinds/book/data/book_owned_repository.dart';
-import 'package:collectarr_app/features/library/kinds/book/domain/book_ids.dart';
+import 'package:collectarr_app/features/library/kinds/book/entries/book_entry_details.dart';
+import 'package:collectarr_app/features/library/kinds/book/domain/book_library_entry.dart';
+import 'package:collectarr_app/features/library/kinds/book/domain/book_personal_data.dart';
+import 'package:collectarr_app/features/library/kinds/book/domain/book_metadata.dart';
+import 'package:collectarr_app/features/library/kinds/book/data/book_library_entry_projection.dart';
 
-final bookDevSeedContributor = TypedDevSeedKindContributor<BookOwnedItem>(
+final bookDevSeedContributor = TypedDevSeedKindContributor<BookLibraryEntry>(
   kind: CatalogMediaKind.book,
   catalogDefaults: DevSeedCatalogDefaults(
     includePublishingDetails: true,
@@ -32,11 +32,9 @@ final bookDevSeedContributor = TypedDevSeedKindContributor<BookOwnedItem>(
   validateCatalog: validateBookSeedCatalog,
   validateCatalogGraph: validateBookSeedCatalogGraph,
   validateBarcode: seedValidateStandardBarcode,
-  ownedItemsTyped: bookSeedOwnedItems,
-  ownedSummaryTyped: BookOwnedItemProjection.toSummary,
-  validateOwnedTyped: validateBookSeedOwned,
-  seedOwnedTyped: (db, now) =>
-      BookOwnedRepository(db).upsertAll(bookSeedOwnedItems(now)),
+  libraryEntriesTyped: bookSeedLibraryEntries,
+  libraryEntrySummaryTyped: BookLibraryEntryProjection.toSummary,
+  validateEntryTyped: validateBookSeedEntry,
   trackingRecords: bookSeedTrackingStates,
   trackingUnits: bookSeedTrackingUnits,
 );
@@ -60,39 +58,29 @@ List<String> validateBookSeedCatalog(CatalogItemDto item) {
 List<String> validateBookSeedCatalogGraph(CatalogItemDto item) {
   final issues = <String>[];
   final prefix = '${item.kind}/${item.id}';
-  final editions = seedRequireObjectList(
+  final printings = seedRequireObjectList(
     issues,
     prefix,
-    'editions',
-    item.payload['editions'],
+    'printings',
+    item.kindData['printings'],
   );
-  seedValidateChildren(
-    issues,
-    prefix,
-    'editions',
-    editions,
-    kind: CatalogMediaKind.book,
-    parentId: item.id,
-    parentKey: 'work_id',
-    titleKey: 'display_title',
-  );
-  for (var index = 0; index < editions.length; index++) {
+  for (var index = 0; index < printings.length; index++) {
     seedRequireText(
-        issues, prefix, 'editions[$index].isbn', editions[index]['isbn']);
+        issues, prefix, 'printings[$index].isbn', printings[index]['isbn']);
     seedRequireText(
       issues,
       prefix,
-      'editions[$index].publisher',
-      editions[index]['publisher'],
+      'printings[$index].publisher',
+      printings[index]['publisher'],
     );
   }
   return issues;
 }
 
-List<String> validateBookSeedOwned(BookOwnedItem item) {
+List<String> validateBookSeedEntry(BookLibraryEntry item) {
   final issues = <String>[];
-  final prefix = '${item.catalogRef.kind}/${item.id}';
-  final details = item.details;
+  final prefix = 'book/${item.id}';
+  final details = item.personal.details;
   seedRequireText(issues, prefix, 'book.signed_by', details.signedBy);
   if (!details.dustJacketPresent) {
     issues.add('$prefix: book.dust_jacket_present must be true');
@@ -107,13 +95,14 @@ Iterable<BookTrackingUnit> bookSeedTrackingUnits(
   for (final item in items.where(
     (item) => item.mediaKind == CatalogMediaKind.book,
   )) {
-    final volumeNumber = _seedBookInt(item.itemNumber) ?? 1;
+    final volumeNumber =
+        _seedBookInt(BookCatalogMetadata.fromJson(item.kindData).itemNumber) ??
+            1;
     yield BookTrackingUnit(
       id: 'seed-unit-book-${item.id}',
-      targetRef: CatalogEntityRef(
-        kind: item.mediaKind,
-        entityType: CatalogEntityTypeId.root,
-        id: item.id,
+      libraryEntryRef: seedLibraryEntryRef(
+        item.mediaKind,
+        'seed-entry-${item.id}',
       ),
       volumeNumber: volumeNumber,
       chapterNumber: 1,
@@ -126,26 +115,33 @@ Iterable<BookTrackingUnit> bookSeedTrackingUnits(
 int? _seedBookInt(String? value) => int.tryParse(value ?? '');
 
 CatalogItemDto enrichBookSeedItem(CatalogItemDto item) {
-  final editions = [
-    for (final edition in seedEditionPayloads(item))
-      {
-        ...edition,
-        'id': edition['id']?.toString() ?? '${item.id}-edition-01',
-        'kind': 'book',
-        'work_id': item.id,
-        'display_title': edition['title'] ?? item.editionTitle ?? item.title,
-        'format': edition['format'] ?? item.physicalFormat,
-        'binding': edition['binding'] ?? item.physicalFormat,
-        'publisher': edition['publisher'] ?? item.publisher,
-        'isbn': edition['isbn'] ?? item.barcode,
-        'language': edition['language'] ?? item.payload['language'],
-        'region': edition['region'] ?? item.payload['country'],
-        'publication_date': edition['release_date'] ??
-            item.releaseDate?.toUtc().toIso8601String(),
-        'page_count': item.payload['page_count'],
-      },
-  ];
-  return withSeedPayload(item, {'editions': editions});
+  final data = Map<String, dynamic>.from(item.kindData)
+    ..remove('editions')
+    ..remove('releases');
+  final metadata = BookCatalogMetadata.fromJson(data);
+  final printings = metadata.printings.isNotEmpty
+      ? metadata.printings
+      : [
+          BookCatalogPrinting(
+            id: '${item.id}-printing-01',
+            printingNumber: int.tryParse(metadata.itemNumber ?? ''),
+            title: metadata.editionTitle ?? metadata.title,
+            releaseDate: metadata.releaseDate,
+            releaseDateParts: metadata.releaseDateParts,
+            publisher: metadata.publisher,
+            language: metadata.language,
+            isbn: metadata.isbn ?? metadata.barcode,
+          ),
+        ];
+  return CatalogItemDto.raw(
+    id: item.id,
+    mediaKind: CatalogMediaKind.book,
+    origin: item.origin,
+    kindData: {
+      ...data,
+      'printings': [for (final printing in printings) printing.toJson()],
+    },
+  );
 }
 
 List<CatalogItemDto> bookSeedCatalogItems() => [
@@ -173,7 +169,7 @@ List<CatalogItemDto> bookSeedCatalogItems() => [
         ageRating: 'Adult',
         sortKey: 'dune-0001',
         itemNumber: '1',
-        series: const CatalogSeriesDetailsDto(
+        series: const SeedSeriesDetails(
           seriesId: 'seed-series-dune-chronicles',
           seriesTitle: 'Dune Chronicles',
           volumeName: 'Dune',
@@ -181,7 +177,7 @@ List<CatalogItemDto> bookSeedCatalogItems() => [
           volumeStartYear: 1965,
           tags: 'sci-fi, space opera, politics, ecology',
         ),
-        publishing: const CatalogPublishingDetailsDto(
+        publishing: const SeedPublishingDetails(
           pageCount: 688,
           coverPriceCents: 4000,
           currency: 'USD',
@@ -199,35 +195,6 @@ List<CatalogItemDto> bookSeedCatalogItems() => [
         ],
         storyArcs: ['Arrakis Revolt'],
         genres: ['science fiction', 'space opera', 'philosophical fiction'],
-        editions: [
-          CatalogEditionDto(
-            id: 'seed-ed-dune-deluxe',
-            title: 'Dune Deluxe Edition',
-            format: 'Hardcover',
-            publisher: 'Ace Books',
-            isbn: '9780593099322',
-            releaseDate: DateTime.utc(2019, 10, 1),
-            variants: [
-              CatalogVariantDto(
-                id: 'seed-var-dune-deluxe',
-                name: 'Deluxe Hardcover w/ Stained Edges',
-                variantType: 'physical',
-                isbn: '9780593099322',
-                coverPriceCents: 4000,
-                currency: 'USD',
-                isPrimary: true,
-              ),
-            ],
-          ),
-          CatalogEditionDto(
-            id: 'seed-ed-dune-pb',
-            title: 'Mass Market Paperback',
-            format: 'Paperback',
-            publisher: 'Ace Books',
-            isbn: '9780441172719',
-            releaseDate: DateTime.utc(1990, 9, 1),
-          ),
-        ],
       ),
       seedCatalogItem(
         id: 'seed-book-02',
@@ -250,14 +217,14 @@ List<CatalogItemDto> bookSeedCatalogItems() => [
         language: 'en',
         sortKey: 'dune-0002',
         itemNumber: '2',
-        series: const CatalogSeriesDetailsDto(
+        series: const SeedSeriesDetails(
           seriesId: 'seed-series-dune-chronicles',
           seriesTitle: 'Dune Chronicles',
           volumeName: 'Dune Messiah',
           volumeNumber: '2',
           volumeStartYear: 1965,
         ),
-        publishing: const CatalogPublishingDetailsDto(
+        publishing: const SeedPublishingDetails(
             pageCount: 336, coverPriceCents: 1700, currency: 'USD'),
         creators: [
           {'name': 'Frank Herbert', 'role': 'author'},
@@ -292,14 +259,14 @@ List<CatalogItemDto> bookSeedCatalogItems() => [
         language: 'en',
         sortKey: 'foundation-0001',
         itemNumber: '1',
-        series: const CatalogSeriesDetailsDto(
+        series: const SeedSeriesDetails(
           seriesId: 'seed-series-foundation',
           seriesTitle: 'Foundation Series',
           volumeName: 'Foundation',
           volumeNumber: '1',
           volumeStartYear: 1951,
         ),
-        publishing: const CatalogPublishingDetailsDto(
+        publishing: const SeedPublishingDetails(
             pageCount: 256, coverPriceCents: 899, currency: 'USD'),
         creators: [
           {'name': 'Isaac Asimov', 'role': 'author'},
@@ -333,14 +300,14 @@ List<CatalogItemDto> bookSeedCatalogItems() => [
         language: 'en',
         sortKey: 'neuromancer-0001',
         itemNumber: '1',
-        series: const CatalogSeriesDetailsDto(
+        series: const SeedSeriesDetails(
           seriesId: 'seed-series-sprawl',
           seriesTitle: 'Sprawl Trilogy',
           volumeName: 'Sprawl',
           volumeNumber: '1',
           volumeStartYear: 1984,
         ),
-        publishing: const CatalogPublishingDetailsDto(
+        publishing: const SeedPublishingDetails(
             pageCount: 271, coverPriceCents: 999, currency: 'USD'),
         creators: [
           {'name': 'William Gibson', 'role': 'author'},
@@ -375,14 +342,14 @@ List<CatalogItemDto> bookSeedCatalogItems() => [
         language: 'en',
         sortKey: 'middle-earth-0001',
         itemNumber: '1',
-        series: const CatalogSeriesDetailsDto(
+        series: const SeedSeriesDetails(
           seriesId: 'seed-series-middle-earth',
           seriesTitle: 'Middle-earth Legendarium',
           volumeName: 'The Hobbit',
           volumeNumber: '1',
           volumeStartYear: 1937,
         ),
-        publishing: const CatalogPublishingDetailsDto(
+        publishing: const SeedPublishingDetails(
             pageCount: 320, coverPriceCents: 3500, currency: 'USD'),
         creators: [
           {'name': 'J.R.R. Tolkien', 'role': 'author & illustrator'},
@@ -416,7 +383,7 @@ List<CatalogItemDto> bookSeedCatalogItems() => [
         country: 'GB',
         language: 'en',
         sortKey: 'nineteen-eighty-four-0001',
-        publishing: const CatalogPublishingDetailsDto(
+        publishing: const SeedPublishingDetails(
             pageCount: 328, coverPriceCents: 999, currency: 'USD'),
         creators: [
           {'name': 'George Orwell', 'role': 'author'},
@@ -446,14 +413,14 @@ List<CatalogItemDto> bookSeedCatalogItems() => [
         language: 'en',
         sortKey: 'middle-earth-0002',
         itemNumber: '2',
-        series: const CatalogSeriesDetailsDto(
+        series: const SeedSeriesDetails(
           seriesId: 'seed-series-middle-earth',
           seriesTitle: 'Middle-earth Legendarium',
           volumeName: 'The Lord of the Rings',
           volumeNumber: '1',
           volumeStartYear: 1954,
         ),
-        publishing: const CatalogPublishingDetailsDto(
+        publishing: const SeedPublishingDetails(
             pageCount: 432, coverPriceCents: 2600, currency: 'USD'),
         creators: [
           {'name': 'J.R.R. Tolkien', 'role': 'author'},
@@ -489,14 +456,14 @@ List<CatalogItemDto> bookSeedCatalogItems() => [
         language: 'en',
         sortKey: 'hyperion-0001',
         itemNumber: '1',
-        series: const CatalogSeriesDetailsDto(
+        series: const SeedSeriesDetails(
           seriesId: 'seed-series-hyperion',
           seriesTitle: 'Hyperion Cantos',
           volumeName: 'Hyperion',
           volumeNumber: '1',
           volumeStartYear: 1989,
         ),
-        publishing: const CatalogPublishingDetailsDto(
+        publishing: const SeedPublishingDetails(
             pageCount: 482, coverPriceCents: 1099, currency: 'USD'),
         creators: [
           {'name': 'Dan Simmons', 'role': 'author'},
@@ -530,7 +497,7 @@ List<CatalogItemDto> bookSeedCatalogItems() => [
         country: 'US',
         language: 'en',
         sortKey: 'snow-crash-0001',
-        publishing: const CatalogPublishingDetailsDto(
+        publishing: const SeedPublishingDetails(
             pageCount: 480, coverPriceCents: 1800, currency: 'USD'),
         creators: [
           {'name': 'Neal Stephenson', 'role': 'author'},
@@ -565,14 +532,14 @@ List<CatalogItemDto> bookSeedCatalogItems() => [
         language: 'en',
         sortKey: 'enders-game-0001',
         itemNumber: '1',
-        series: const CatalogSeriesDetailsDto(
+        series: const SeedSeriesDetails(
           seriesId: 'seed-series-ender',
           seriesTitle: 'Enderverse',
           volumeName: 'Ender\'s Saga',
           volumeNumber: '1',
           volumeStartYear: 1985,
         ),
-        publishing: const CatalogPublishingDetailsDto(
+        publishing: const SeedPublishingDetails(
             pageCount: 352, coverPriceCents: 899, currency: 'USD'),
         creators: [
           {'name': 'Orson Scott Card', 'role': 'author'},
@@ -606,7 +573,7 @@ List<CatalogItemDto> bookSeedCatalogItems() => [
         country: 'US',
         language: 'en',
         sortKey: 'fahrenheit-451-0001',
-        publishing: const CatalogPublishingDetailsDto(
+        publishing: const SeedPublishingDetails(
             pageCount: 256, coverPriceCents: 1700, currency: 'USD'),
         creators: [
           {'name': 'Ray Bradbury', 'role': 'author'},
@@ -639,7 +606,7 @@ List<CatalogItemDto> bookSeedCatalogItems() => [
         country: 'GB',
         language: 'en',
         sortKey: 'brave-new-world-0001',
-        publishing: const CatalogPublishingDetailsDto(
+        publishing: const SeedPublishingDetails(
             pageCount: 288, coverPriceCents: 1699, currency: 'USD'),
         creators: [
           {'name': 'Aldous Huxley', 'role': 'author'},
@@ -673,7 +640,7 @@ List<CatalogItemDto> bookSeedCatalogItems() => [
         language: 'en',
         sortKey: 'stormlight-0001',
         itemNumber: '1',
-        series: const CatalogSeriesDetailsDto(
+        series: const SeedSeriesDetails(
           seriesId: 'seed-series-stormlight',
           seriesTitle: 'The Stormlight Archive',
           volumeName: 'The Way of Kings',
@@ -681,7 +648,7 @@ List<CatalogItemDto> bookSeedCatalogItems() => [
           volumeStartYear: 2010,
           tags: 'high fantasy, epic, cosmere',
         ),
-        publishing: const CatalogPublishingDetailsDto(
+        publishing: const SeedPublishingDetails(
             pageCount: 1007, coverPriceCents: 3799, currency: 'USD'),
         creators: [
           {'name': 'Brandon Sanderson', 'role': 'author'},
@@ -718,14 +685,14 @@ List<CatalogItemDto> bookSeedCatalogItems() => [
         language: 'en',
         sortKey: 'kingkiller-0001',
         itemNumber: '1',
-        series: const CatalogSeriesDetailsDto(
+        series: const SeedSeriesDetails(
           seriesId: 'seed-series-kingkiller',
           seriesTitle: 'The Kingkiller Chronicle',
           volumeName: 'The Kingkiller Chronicle',
           volumeNumber: '1',
           volumeStartYear: 2007,
         ),
-        publishing: const CatalogPublishingDetailsDto(
+        publishing: const SeedPublishingDetails(
             pageCount: 662, coverPriceCents: 2995, currency: 'USD'),
         creators: [
           {'name': 'Patrick Rothfuss', 'role': 'author'},
@@ -753,7 +720,7 @@ List<CatalogItemDto> bookSeedCatalogItems() => [
         country: 'US',
         language: 'en',
         sortKey: 'project-hail-mary-0001',
-        publishing: const CatalogPublishingDetailsDto(
+        publishing: const SeedPublishingDetails(
             pageCount: 496, coverPriceCents: 2899, currency: 'USD'),
         creators: [
           {'name': 'Andy Weir', 'role': 'author'},
@@ -763,16 +730,24 @@ List<CatalogItemDto> bookSeedCatalogItems() => [
       ),
     ];
 
-List<BookOwnedItem> bookSeedOwnedItems(DateTime now) => [
-      for (final itemId in seedIds(CatalogMediaKind.book, 15))
-        BookOwnedItem(
-          id: BookOwnedItemId('seed-owned-$itemId'),
-          catalogRef: seedCatalogRef(CatalogMediaKind.book, itemId),
-          createdAt: now.subtract(const Duration(days: 300)),
-          updatedAt: now,
+List<BookLibraryEntry> bookSeedLibraryEntries(DateTime now) {
+  final metadataById = {
+    for (final item in bookSeedCatalogItems())
+      item.id: BookCatalogMetadata.fromJson(item.kindData),
+  };
+  return [
+    for (final itemId in seedIds(CatalogMediaKind.book, 15))
+      BookLibraryEntry(
+        id: LibraryEntryId('seed-entry-$itemId'),
+        metadata: metadataById[itemId] ??
+            (throw StateError('Missing Book seed catalog item: $itemId')),
+        sourceCatalogRef: seedCatalogRef(CatalogMediaKind.book, itemId),
+        createdAt: now.subtract(const Duration(days: 300)),
+        updatedAt: now,
+        personal: BookPersonalData(
           isDigital: false,
           condition: 'Near Mint',
-          details: const BookOwnedDetails(
+          details: BookEntryDetails(
             signedBy: 'Facsimile author signature',
             dustJacketPresent: true,
             dustJacketCondition: 'Fine',
@@ -781,23 +756,20 @@ List<BookOwnedItem> bookSeedOwnedItems(DateTime now) => [
           pricePaidCents: 2499,
           currency: 'USD',
           personalNotes: 'Deluxe physical copy on library shelf.',
-          quantity: 1,
           purchaseStore: 'Barnes & Noble',
           collectionStatus: 'collected',
         ),
-    ];
+      ),
+  ];
+}
 
 List<TrackingStorageRecord> bookSeedTrackingStates(DateTime now) => [
       for (var i = 1; i <= 15; i++)
         BookTrackingState(
           id: 'seed-track-book-${seedOrdinal2(i)}',
-          catalogRef: seedCatalogRef(
+          libraryEntryRef: seedLibraryEntryRef(
             CatalogMediaKind.book,
-            'seed-book-${seedOrdinal2(i)}',
-          ),
-          ownedRef: seedOwnedRef(
-            CatalogMediaKind.book,
-            'seed-owned-seed-book-${seedOrdinal2(i)}',
+            'seed-entry-seed-book-${seedOrdinal2(i)}',
           ),
           sourceType: TrackingSourceType.physical,
           status: i <= 10

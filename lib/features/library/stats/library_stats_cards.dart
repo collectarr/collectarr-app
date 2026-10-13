@@ -404,7 +404,7 @@ class _DistributionRow extends StatelessWidget {
               style: TextStyle(
                 color: colors.textMuted,
                 fontSize: 12,
-                fontWeight: FontWeight.w800,
+                fontWeight: FontWeight.w700,
               ),
             ),
           ),
@@ -469,7 +469,7 @@ class _MoneyDistributionRow extends StatelessWidget {
               style: TextStyle(
                 color: colors.textMuted,
                 fontSize: 12,
-                fontWeight: FontWeight.w800,
+                fontWeight: FontWeight.w700,
               ),
             ),
           ),

@@ -1,17 +1,22 @@
 import 'package:collectarr_app/features/library/config/library_edit_presentation_models.dart';
 import 'package:collectarr_app/features/library/config/library_item_actions.dart';
 import 'package:collectarr_app/features/library/config/presentation/library_edit_presentation_builder_base.dart';
-import 'package:collectarr_app/features/library/edit/draft/library_edit_shell_state.dart';
 import 'package:collectarr_app/features/library/edit/shell/library_edit_dialog.dart';
 import 'package:collectarr_app/features/library/kinds/movie/edit/movie_custom_tab_builder.dart';
 import 'package:flutter/material.dart';
 
-const _movieMediaTabs = [
+const _movieCatalogItemTabs = [
   LibraryEditTabSpec(
-    id: 'media',
+    id: 'catalog_item',
     icon: Icons.movie,
-    label: 'Media',
+    label: 'Main',
     sectionIds: ['catalog_snapshot'],
+  ),
+  LibraryEditTabSpec(
+    id: 'edition',
+    icon: Icons.info_outline,
+    label: 'Edition details',
+    sectionIds: ['edition_details'],
   ),
   LibraryEditTabSpec(
     id: 'synopsis',
@@ -32,6 +37,12 @@ const _movieMediaTabs = [
     sectionIds: ['crew_list'],
   ),
   LibraryEditTabSpec(
+    id: 'specs',
+    icon: Icons.tune_outlined,
+    label: 'Specs',
+    sectionIds: ['video_specs', 'hdr', 'audio_subtitles', 'features'],
+  ),
+  LibraryEditTabSpec(
     id: 'read_history',
     icon: Icons.auto_stories_outlined,
     label: 'Tracking',
@@ -49,143 +60,93 @@ const _movieMediaTabs = [
     label: 'Covers',
     sectionIds: ['cover_images'],
   ),
-  LibraryEditTabSpec(
-    id: 'photos',
-    icon: Icons.image,
-    label: 'Images',
-    sectionIds: ['photos'],
-  ),
 ];
 
-const _movieReleaseTabs = [
-  LibraryEditTabSpec(
-    id: 'edition',
-    icon: Icons.info_outline,
-    label: 'Edition Details',
-    sectionIds: ['release_details', 'ownership_reference', 'box_set'],
-  ),
-  LibraryEditTabSpec(
-    id: 'personal',
-    icon: Icons.person,
-    label: 'Personal',
-    sectionIds: [
-      'ownership_fields',
-      'purchase_fields',
-      'sold_fields',
-      'wishlist_reference',
-      'owned_notes',
-      'collection_fields_info',
-      'ownership_reference',
-      'owned_grading',
-    ],
-  ),
-  LibraryEditTabSpec(
-    id: 'read_history',
-    icon: Icons.auto_stories_outlined,
-    label: 'Tracking',
-    sectionIds: ['tracking_context', 'tracking_personal'],
-  ),
-  LibraryEditTabSpec(
-    id: 'custom',
-    icon: Icons.edit_note,
-    label: 'User Defined',
-    sectionIds: ['custom_fields'],
-  ),
-  LibraryEditTabSpec(
-    id: 'specs',
-    icon: Icons.info_outline,
-    label: 'Edition Details',
-    sectionIds: ['video_specs', 'hdr', 'audio_subtitles', 'features'],
-  ),
-  LibraryEditTabSpec(
-    id: 'cover',
-    icon: Icons.camera_alt,
-    label: 'Covers',
-    sectionIds: ['cover_images'],
-  ),
-  LibraryEditTabSpec(
-    id: 'photos',
-    icon: Icons.image,
-    label: 'Images',
-    sectionIds: ['photos'],
-  ),
+const _movieLibraryEntryTabs = [
+  ..._movieCatalogItemTabs,
 ];
 
-const _movieCombinedTabs = [
-  ..._movieMediaTabs,
-  ..._movieReleaseTabs,
-];
-
-class MovieLibraryCombinedEditPresentationBuilder
+class MovieLibraryCatalogItemEditPresentationBuilder
     extends LibraryEditPresentationBuilderBase {
-  const MovieLibraryCombinedEditPresentationBuilder()
+  const MovieLibraryCatalogItemEditPresentationBuilder()
       : super(
-          showOwnershipReferenceSection: true,
-          useOwnedMainArtworkLayout: false,
+          useEntryMainArtworkLayout: false,
           useDetailsTab: false,
           useArtworkCoverTab: false,
           useArtworkPhotosTab: false,
           trackingSectionTitle: 'Watch tracking',
-          ownedDigitalTrackingSectionTitle: 'Ownership details',
-          ownedDigitalTrackingHint:
-              'Digital items keep tracking, notes and value fields, while copy-specific physical fields stay disabled.',
-          ownershipReferenceTitle: 'Release / copy reference',
-          ownedBundleLabel: 'Owned release bundle',
-          ownedTabs: _movieCombinedTabs,
-          trackedTabs: _movieCombinedTabs,
-          catalogTabs: _movieCombinedTabs,
+          entryDigitalTrackingSectionTitle: 'Digital Entry Details',
+          entryDigitalTrackingHint:
+              'Digital items keep tracking, notes, and value fields, while physical media fields stay disabled.',
+          entryTabs: _movieCatalogItemTabs,
+          trackedTabs: _movieCatalogItemTabs,
+          catalogTabs: _movieCatalogItemTabs,
           customTabBuilder: buildMovieCustomTabView,
         );
 }
 
-class MovieLibraryMediaEditPresentationBuilder
+class MovieLibraryEntryEditPresentationBuilder
     extends LibraryEditPresentationBuilderBase {
-  const MovieLibraryMediaEditPresentationBuilder()
+  const MovieLibraryEntryEditPresentationBuilder()
       : super(
-          showOwnershipReferenceSection: true,
-          useOwnedMainArtworkLayout: false,
+          useEntryMainArtworkLayout: false,
           useDetailsTab: false,
           useArtworkCoverTab: false,
           useArtworkPhotosTab: false,
           trackingSectionTitle: 'Watch tracking',
-          ownedDigitalTrackingSectionTitle: 'Ownership details',
-          ownedDigitalTrackingHint:
-              'Digital items keep tracking, notes and value fields, while copy-specific physical fields stay disabled.',
-          ownershipReferenceTitle: 'Release / copy reference',
-          ownedBundleLabel: 'Owned release bundle',
-          ownedTabs: _movieMediaTabs,
-          trackedTabs: _movieMediaTabs,
-          catalogTabs: _movieMediaTabs,
-          customTabBuilder: buildMovieCustomTabView,
-        );
-}
-
-class MovieLibraryReleaseEditPresentationBuilder
-    extends LibraryEditPresentationBuilderBase {
-  const MovieLibraryReleaseEditPresentationBuilder()
-      : super(
-          showOwnershipReferenceSection: true,
-          useOwnedMainArtworkLayout: false,
-          useDetailsTab: false,
-          useArtworkCoverTab: false,
-          useArtworkPhotosTab: false,
-          trackingSectionTitle: 'Watch tracking',
-          ownedDigitalTrackingSectionTitle: 'Ownership details',
-          ownedDigitalTrackingHint:
-              'Digital items keep tracking, notes and value fields, while copy-specific physical fields stay disabled.',
-          ownershipReferenceTitle: 'Release / copy reference',
-          ownedBundleLabel: 'Owned release bundle',
-          ownedTabs: _movieReleaseTabs,
-          trackedTabs: _movieReleaseTabs,
-          catalogTabs: _movieReleaseTabs,
+          entryDigitalTrackingSectionTitle: 'Digital Entry Details',
+          entryDigitalTrackingHint:
+              'Digital items keep tracking, notes, and value fields, while physical media fields stay disabled.',
+          entryTabs: _movieLibraryEntryTabs,
+          trackedTabs: _movieLibraryEntryTabs,
+          catalogTabs: _movieLibraryEntryTabs,
           customTabBuilder: buildMovieCustomTabView,
         );
 }
 
 const movieLibraryEditPresentation = LibraryEditPresentation(
-  builder: MovieLibraryCombinedEditPresentationBuilder(),
-  workBuilder: MovieLibraryMediaEditPresentationBuilder(),
-  releaseBuilder: MovieLibraryReleaseEditPresentationBuilder(),
+  builder: MovieLibraryCatalogItemEditPresentationBuilder(),
+  entryBuilder: MovieLibraryEntryEditPresentationBuilder(),
+  sharedTabs: [
+    LibraryEditTabContribution(
+      tab: LibraryEditTabSpec(
+        id: 'photos',
+        icon: Icons.image,
+        label: 'Images',
+        sectionIds: ['photos'],
+      ),
+      afterTabId: 'cover',
+    ),
+    LibraryEditTabContribution(
+      tab: LibraryEditTabSpec(
+        id: 'personal',
+        icon: Icons.person,
+        label: 'Personal',
+        sectionIds: [
+          'entries_fields',
+          'purchase_fields',
+          'sold_fields',
+          'wishlist_reference',
+          'entry_notes',
+          'collection_fields_info',
+          'entries_reference',
+          'entry_grading',
+        ],
+      ),
+      scope: LibraryEditTabTargetScope.libraryEntry,
+      afterTabId: 'photos',
+    ),
+    LibraryEditTabContribution(
+      tab: LibraryEditTabSpec(
+        id: 'custom',
+        icon: Icons.edit_note,
+        label: 'User Defined',
+        sectionIds: ['custom_fields'],
+      ),
+      scope: LibraryEditTabTargetScope.libraryEntry,
+      afterTabId: 'personal',
+    ),
+  ],
 );
 
 class MovieLibraryEditDialog extends StatelessWidget {
@@ -195,12 +156,7 @@ class MovieLibraryEditDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return LibraryEditRenderer.fromDraft(
-      draft: LibraryEditShellState.fromRequest(request),
-      onPrevious: request.onPrevious,
-      onNext: request.onNext,
-      scope: request.resolvedScope,
-    );
+    return LibraryEditRenderer.fromRequest(request: request);
   }
 }
 

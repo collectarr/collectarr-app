@@ -1,14 +1,11 @@
 import 'package:collectarr_app/features/library/edit/draft/library_edit_shell_state.dart';
-import 'package:collectarr_app/features/library/domain/library_entity_scope.dart';
 import 'package:collectarr_app/features/library/kinds/anime/edit/anime_edit_draft_contract.dart';
-import 'package:collectarr_app/features/library/kinds/anime/edit/anime_edit_controller.dart';
 import 'package:collectarr_app/features/library/kinds/anime/edit/tabs/anime_cast_tab.dart';
 import 'package:collectarr_app/features/library/kinds/anime/edit/tabs/anime_crew_tab.dart';
 import 'package:collectarr_app/features/library/kinds/anime/edit/tabs/anime_discs_tab.dart';
-import 'package:collectarr_app/features/library/kinds/anime/edit/tabs/anime_edition_tab.dart';
 import 'package:collectarr_app/features/library/kinds/anime/edit/tabs/anime_links_tab.dart';
-import 'package:collectarr_app/features/library/kinds/anime/edit/tabs/anime_media_tab.dart';
-import 'package:collectarr_app/features/library/kinds/anime/edit/tabs/anime_specs_tab.dart';
+import 'package:collectarr_app/features/library/kinds/anime/edit/anime_catalog_form_edit_tab.dart';
+import 'package:collectarr_app/features/library/kinds/anime/add/anime_add_schema.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:flutter/material.dart';
 
@@ -17,36 +14,70 @@ Widget? buildAnimeMediaCustomTabView({
   required BuildContext context,
   required LibraryEditShellState draft,
   required Color accent,
-  required LibraryEntityScope scope,
   required CatalogSearchCandidate item,
   required VoidCallback markDirty,
 }) {
-  final animeEdit = (draft.session.workSession is AnimeEditDraftContract)
-      ? (draft.session.workSession as AnimeEditDraftContract).animeEdit
-      : AnimeEditController(itemId: item.reference.id, catalogRef: item.reference);
+  final catalogDraft = draft.session.catalogItemSession;
+  if (catalogDraft is! AnimeEditDraftContract) {
+    throw StateError(
+      'Anime tab "$tabId" requires the registered Anime edit draft.',
+    );
+  }
+  final animeEdit = catalogDraft.animeEdit;
 
   return switch (tabId) {
-    'edition' => AnimeEditEditionTab(
-        draft: draft,
-        accent: accent,
-        physicalFormats: const [],
+    'main' => AnimeCatalogFormEditTab(
+        state: draft,
+        draft: catalogDraft,
+        itemId: draft.target?.id ??
+            item.catalogRef?.id ??
+            (throw StateError('Anime editor requires an explicit target.')),
+        fieldIds: animeMainFieldIds,
+        sectionLabel: 'Main',
+        markDirty: markDirty,
       ),
-    'specs' => AnimeEditSpecsTab(
-        draft: draft,
-        animeEdit: animeEdit,
-        accent: accent,
-        audioTrackOptions: const [],
-        subtitleOptions: const [],
-        layersOptions: const [],
-        colorOptions: const [],
+    'media' => AnimeCatalogFormEditTab(
+        state: draft,
+        draft: catalogDraft,
+        itemId: draft.target?.id ??
+            item.catalogRef?.id ??
+            (throw StateError('Anime editor requires an explicit target.')),
+        fieldIds: animeDetailsFieldIds,
+        sectionLabel: 'Details',
+        markDirty: markDirty,
+      ),
+    'edition' => AnimeCatalogFormEditTab(
+        state: draft,
+        draft: catalogDraft,
+        itemId: draft.target?.id ??
+            item.catalogRef?.id ??
+            (throw StateError('Anime editor requires an explicit target.')),
+        fieldIds: animeEditionFieldIds,
+        sectionLabel: 'Edition',
+        physicalFormatOptions: [
+          for (final format in draft.physicalFormats) format.label,
+        ],
+        markDirty: markDirty,
+      ),
+    'specs' => AnimeCatalogFormEditTab(
+        state: draft,
+        draft: catalogDraft,
+        itemId: draft.target?.id ??
+            item.catalogRef?.id ??
+            (throw StateError('Anime editor requires an explicit target.')),
+        fieldIds: animeSpecsFieldIds,
+        sectionLabel: 'Specs',
+        markDirty: markDirty,
       ),
     'cast' => AnimeEditCastTab(
         accent: accent,
         animeEdit: animeEdit,
+        markDirty: markDirty,
       ),
     'crew' => AnimeEditCrewTab(
         accent: accent,
         animeEdit: animeEdit,
+        markDirty: markDirty,
       ),
     'discs' => AnimeEditDiscsTab(
         item: item,
@@ -55,17 +86,30 @@ Widget? buildAnimeMediaCustomTabView({
     'links' => AnimeEditLinksTab(
         item: item,
         accent: accent,
-        animeEdit: animeEdit,
+        userExternalLinks: draft.userExternalLinks,
+        isEntry:
+            draft.libraryEntry != null || draft.libraryEntryDispatch != null,
+        markDirty: markDirty,
       ),
-    'media' => AnimeEditMediaTab(
-        draft: draft,
-        animeEdit: animeEdit,
-        accent: accent,
-        countryOptions: const [],
-        languageOptions: const [],
-        ageRatingOptions: const [],
-        audienceRatingOptions: const [],
-        genreOptions: const [],
+    'cover' => AnimeCatalogFormEditTab(
+        state: draft,
+        draft: catalogDraft,
+        itemId: draft.target?.id ??
+            item.catalogRef?.id ??
+            (throw StateError('Anime editor requires an explicit target.')),
+        fieldIds: animeCoverFieldIds,
+        sectionLabel: 'Cover',
+        markDirty: markDirty,
+      ),
+    'synopsis' => AnimeCatalogFormEditTab(
+        state: draft,
+        draft: catalogDraft,
+        itemId: draft.target?.id ??
+            item.catalogRef?.id ??
+            (throw StateError('Anime editor requires an explicit target.')),
+        fieldIds: animeSynopsisFieldIds,
+        sectionLabel: 'Synopsis',
+        markDirty: markDirty,
       ),
     _ => null,
   };

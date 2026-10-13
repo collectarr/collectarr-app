@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 
 enum LibraryViewMode { grid, card, horizontalCards, cardFlow, list, shelves }
 
-enum LibraryWorkspaceBrowserMode { work, release }
-
 enum LibraryWorkspaceDensityPreset { comfortable, compact, ultraCompact }
 
 extension LibraryViewModeCoverSizeSupport on LibraryViewMode {
@@ -22,6 +20,8 @@ extension LibraryViewModeCoverSizeSupport on LibraryViewMode {
 enum LibraryDetailsLayout { right, bottom, hidden }
 
 enum LibraryFolderDisplayMode { drilldown, tree }
+
+enum LibraryFolderSortMode { alphabetical, byCount }
 
 extension LibraryFolderDisplayModeLabels on LibraryFolderDisplayMode {
   String get label {

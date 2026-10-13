@@ -1,9 +1,14 @@
+import 'package:collectarr_app/features/library/edit/draft/library_entry_edit_draft.dart';
 import 'dart:async';
 import 'dart:math' as math;
 
+import 'package:flutter/foundation.dart' show listEquals;
 import 'package:collectarr_app/features/library/edit/fields/edit_dialog_widgets.dart';
 import 'package:collectarr_app/features/library/edit/library_edit_tab_strip.dart';
-import 'package:collectarr_app/features/library/schema/library_field_spec_control_builder.dart';
+import 'package:collectarr_app/features/library/edit/session/library_vocabulary_edit_accumulator.dart';
+import 'package:collectarr_app/features/library/forms/library_form_schema_validation.dart';
+import 'package:collectarr_app/features/library/forms/library_field_spec_renderer.dart';
+import 'package:collectarr_app/features/library/forms/library_schema_text_controller_store.dart';
 import 'package:collectarr_app/features/pick_lists/pick_list_repository.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:flutter/material.dart';
@@ -11,53 +16,129 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'edit_schema.dart';
 
-/// A kind-owned tab mounted alongside schema tabs without widening the edit
+/// A kind-entry tab mounted alongside schema tabs without widening the edit
 /// draft model. The tab content may manage its own independent mutations.
 final class EditSchemaExtraTab {
   const EditSchemaExtraTab({
+    required this.id,
     required this.label,
     required this.content,
-    this.icon = Icons.extension_outlined,
-  });
+    this.icon,
+    this.svgAsset,
+    this.validate,
+  }) : assert(icon != null || svgAsset != null,
+            'Either icon or svgAsset must be provided.');
 
+  final String id;
   final String label;
-  final IconData icon;
+  final IconData? icon;
+  final String? svgAsset;
   final Widget content;
+
+  /// Validates an extra tab even when it has not been mounted yet.
+  final String? Function()? validate;
 }
 
 class EditSchemaRenderer<TModel, TDraft> extends StatefulWidget {
-  const EditSchemaRenderer({
+  factory EditSchemaRenderer({
+    Key? key,
+    required EditSchema<TModel, TDraft> schema,
+    required TModel model,
+    required TDraft draft,
+    required FutureOr<void> Function(TDraft draft) onSave,
+    VoidCallback? onCancel,
+    String? title,
+    bool showTitle = true,
+    int initialTabIndex = 0,
+    bool showTabBar = true,
+    bool showFooter = true,
+    bool fillAvailableHeight = false,
+    bool tabNavigationEnabled = true,
+    Color? tabAccent,
+    String? tabOrderKey,
+    List<EditSchemaExtraTab> extraTabs = const [],
+    String? mediaKind,
+    LibraryVocabularyEditAccumulator? vocabularyAccumulator,
+  }) =>
+      EditSchemaRenderer<TModel, TDraft>._(
+        key: key,
+        schema: schema,
+        model: model,
+        draft: draft,
+        onSave: onSave,
+        onCancel: onCancel,
+        title: title,
+        showTitle: showTitle,
+        initialTabIndex: initialTabIndex,
+        showTabBar: showTabBar,
+        showFooter: showFooter,
+        fillAvailableHeight: fillAvailableHeight,
+        tabNavigationEnabled: tabNavigationEnabled,
+        tabAccent: tabAccent,
+        tabOrderKey: tabOrderKey,
+        extraTabs: extraTabs,
+        mediaKind: mediaKind,
+        vocabularyAccumulator: vocabularyAccumulator,
+      );
+
+  const EditSchemaRenderer.embedded({
+    super.key,
+    required this.schema,
+    required this.model,
+    required this.draft,
+    this.title,
+    this.showTitle = true,
+    this.initialTabIndex = 0,
+    this.showTabBar = true,
+    this.tabNavigationEnabled = true,
+    this.tabAccent,
+    this.tabOrderKey,
+    this.extraTabs = const [],
+    this.mediaKind,
+    this.vocabularyAccumulator,
+  })  : onSave = null,
+        onCancel = null,
+        showFooter = false,
+        fillAvailableHeight = false;
+
+  const EditSchemaRenderer._({
     super.key,
     required this.schema,
     required this.model,
     required this.draft,
     required this.onSave,
-    this.onCancel,
-    this.title,
-    this.showTitle = true,
-    this.initialTabIndex = 0,
-    this.showTabBar = true,
-    this.showFooter = true,
-    this.tabAccent,
-    this.tabOrderKey,
-    this.extraTabs = const [],
-    this.mediaKind,
+    required this.onCancel,
+    required this.title,
+    required this.showTitle,
+    required this.initialTabIndex,
+    required this.showTabBar,
+    required this.showFooter,
+    required this.fillAvailableHeight,
+    required this.tabNavigationEnabled,
+    required this.tabAccent,
+    required this.tabOrderKey,
+    required this.extraTabs,
+    required this.mediaKind,
+    required this.vocabularyAccumulator,
   });
 
   final EditSchema<TModel, TDraft> schema;
   final TModel model;
   final TDraft draft;
-  final FutureOr<void> Function(TDraft draft) onSave;
+  final FutureOr<void> Function(TDraft draft)? onSave;
   final VoidCallback? onCancel;
   final String? title;
   final bool showTitle;
   final int initialTabIndex;
   final bool showTabBar;
   final bool showFooter;
+  final bool fillAvailableHeight;
+  final bool tabNavigationEnabled;
   final Color? tabAccent;
   final String? tabOrderKey;
   final List<EditSchemaExtraTab> extraTabs;
   final String? mediaKind;
+  final LibraryVocabularyEditAccumulator? vocabularyAccumulator;
 
   @override
   State<EditSchemaRenderer<TModel, TDraft>> createState() =>
@@ -66,22 +147,35 @@ class EditSchemaRenderer<TModel, TDraft> extends StatefulWidget {
 
 class EditSchemaRendererState<TModel, TDraft>
     extends State<EditSchemaRenderer<TModel, TDraft>> {
-  late final Map<String, TextEditingController> _textControllers;
+  final _textControllers = LibrarySchemaTextControllerStore();
+  final Map<String, FocusNode> _fieldFocusNodes = {};
   late List<int> _tabOrder;
   late int _selectedTabIndex;
-  final Map<String, Map<String, ({String listName, String value})>>
-      _pendingVocabularyValues = {};
+  String? _selectedTabId;
+  final _localVocabularyAccumulator = LibraryVocabularyEditAccumulator();
   bool _isSaving = false;
   String? _saveError;
   String? _validationError;
 
+  LibraryVocabularyEditAccumulator get _vocabularyAccumulator =>
+      widget.vocabularyAccumulator ?? _localVocabularyAccumulator;
+
   @override
   void initState() {
     super.initState();
-    _selectedTabIndex = loadLibraryEditTabSelection(widget.tabOrderKey) ??
-        widget.initialTabIndex;
-    _textControllers = {};
     _tabOrder = List.generate(_totalTabCount, (index) => index);
+    final savedTabId = loadLibraryEditTabSelection(widget.tabOrderKey);
+    final savedSourceIndex = _sourceIndexForTabId(savedTabId);
+    final visibleIndexes = _orderedVisibleTabIndexes();
+    final savedVisibleIndex = savedSourceIndex == null
+        ? -1
+        : visibleIndexes.indexOf(savedSourceIndex);
+    _selectedTabIndex = savedVisibleIndex >= 0
+        ? savedVisibleIndex
+        : _boundedInitialTabIndex(visibleIndexes.length);
+    _selectedTabId = savedVisibleIndex >= 0
+        ? savedTabId
+        : _tabIdForVisibleIndex(visibleIndexes, _selectedTabIndex);
     _rememberSelectedTab();
     if (widget.showTabBar && _totalTabCount > 0) {
       _loadSavedTabOrder();
@@ -89,10 +183,43 @@ class EditSchemaRendererState<TModel, TDraft>
   }
 
   void _rememberSelectedTab() {
+    final visibleIndexes = _orderedVisibleTabIndexes();
+    _selectedTabId ??= _tabIdForVisibleIndex(visibleIndexes, _selectedTabIndex);
     saveLibraryEditTabSelection(
       storageKey: widget.tabOrderKey,
-      index: _selectedTabIndex,
+      tabId: _selectedTabId ?? '',
     );
+  }
+
+  int _boundedInitialTabIndex(int visibleTabCount) {
+    if (visibleTabCount == 0) return 0;
+    return widget.initialTabIndex.clamp(0, visibleTabCount - 1).toInt();
+  }
+
+  int? _sourceIndexForTabId(String? tabId) {
+    if (tabId == null) return null;
+    for (var index = 0; index < widget.schema.tabs.length; index++) {
+      if (widget.schema.tabs[index].id == tabId) return index;
+    }
+    for (var index = 0; index < widget.extraTabs.length; index++) {
+      if (widget.extraTabs[index].id == tabId) {
+        return widget.schema.tabs.length + index;
+      }
+    }
+    return null;
+  }
+
+  String? _tabIdForSourceIndex(int sourceIndex) {
+    if (sourceIndex < 0 || sourceIndex >= _totalTabCount) return null;
+    if (sourceIndex < widget.schema.tabs.length) {
+      return widget.schema.tabs[sourceIndex].id;
+    }
+    return widget.extraTabs[sourceIndex - widget.schema.tabs.length].id;
+  }
+
+  String? _tabIdForVisibleIndex(List<int> visibleIndexes, int index) {
+    if (index < 0 || index >= visibleIndexes.length) return null;
+    return _tabIdForSourceIndex(visibleIndexes[index]);
   }
 
   int get _totalTabCount => widget.schema.tabs.length + widget.extraTabs.length;
@@ -104,11 +231,26 @@ class EditSchemaRendererState<TModel, TDraft>
     );
     if (!mounted) return;
     if (order != null) {
-      setState(() => _tabOrder = order);
+      setState(() {
+        _tabOrder = order;
+        final visibleIndexes = _orderedVisibleTabIndexes();
+        final selectedSourceIndex = _sourceIndexForTabId(_selectedTabId);
+        final selectedVisibleIndex = selectedSourceIndex == null
+            ? -1
+            : visibleIndexes.indexOf(selectedSourceIndex);
+        if (selectedVisibleIndex >= 0) {
+          _selectedTabIndex = selectedVisibleIndex;
+        } else {
+          _selectedTabIndex = _boundedInitialTabIndex(visibleIndexes.length);
+          _selectedTabId =
+              _tabIdForVisibleIndex(visibleIndexes, _selectedTabIndex);
+        }
+      });
+      _rememberSelectedTab();
       return;
     }
 
-    // Preserve an existing schema-only order when kind-owned tabs were added
+    // Preserve an existing schema-only order when kind-entry tabs were added
     // later; place those new tabs after the saved schema tabs.
     if (widget.extraTabs.isEmpty) return;
     final schemaOrder = await loadLibraryEditTabOrder(
@@ -124,7 +266,20 @@ class EditSchemaRendererState<TModel, TDraft>
             index++)
           index,
       ];
+      final visibleIndexes = _orderedVisibleTabIndexes();
+      final selectedSourceIndex = _sourceIndexForTabId(_selectedTabId);
+      final selectedVisibleIndex = selectedSourceIndex == null
+          ? -1
+          : visibleIndexes.indexOf(selectedSourceIndex);
+      if (selectedVisibleIndex >= 0) {
+        _selectedTabIndex = selectedVisibleIndex;
+      } else {
+        _selectedTabIndex = _boundedInitialTabIndex(visibleIndexes.length);
+        _selectedTabId =
+            _tabIdForVisibleIndex(visibleIndexes, _selectedTabIndex);
+      }
     });
+    _rememberSelectedTab();
   }
 
   Future<void> _saveTabOrder() {
@@ -179,6 +334,7 @@ class EditSchemaRendererState<TModel, TDraft>
       _tabOrder = [...visibleOrder, ...hiddenOrder];
       if (selectedSourceIndex != null) {
         _selectedTabIndex = visibleOrder.indexOf(selectedSourceIndex);
+        _selectedTabId = _tabIdForSourceIndex(selectedSourceIndex);
       }
     });
     _rememberSelectedTab();
@@ -187,8 +343,9 @@ class EditSchemaRendererState<TModel, TDraft>
 
   @override
   void dispose() {
-    for (final controller in _textControllers.values) {
-      controller.dispose();
+    _textControllers.dispose();
+    for (final node in _fieldFocusNodes.values) {
+      node.dispose();
     }
     super.dispose();
   }
@@ -196,10 +353,25 @@ class EditSchemaRendererState<TModel, TDraft>
   @override
   void didUpdateWidget(EditSchemaRenderer<TModel, TDraft> oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.schema.tabs.length != widget.schema.tabs.length ||
-        oldWidget.extraTabs.length != widget.extraTabs.length) {
+    final oldTabIds = [
+      for (final tab in oldWidget.schema.tabs) tab.id,
+      for (final tab in oldWidget.extraTabs) tab.id,
+    ];
+    final nextTabIds = [
+      for (final tab in widget.schema.tabs) tab.id,
+      for (final tab in widget.extraTabs) tab.id,
+    ];
+    if (!listEquals(oldTabIds, nextTabIds)) {
       _tabOrder = List.generate(_totalTabCount, (index) => index);
-      _selectedTabIndex = 0;
+      final visibleIndexes = _orderedVisibleTabIndexes();
+      final selectedSourceIndex = _sourceIndexForTabId(_selectedTabId);
+      final selectedVisibleIndex = selectedSourceIndex == null
+          ? -1
+          : visibleIndexes.indexOf(selectedSourceIndex);
+      _selectedTabIndex = selectedVisibleIndex >= 0
+          ? selectedVisibleIndex
+          : _boundedInitialTabIndex(visibleIndexes.length);
+      _selectedTabId = _tabIdForVisibleIndex(visibleIndexes, _selectedTabIndex);
       _rememberSelectedTab();
       if (widget.showTabBar && _totalTabCount > 0) {
         _loadSavedTabOrder();
@@ -221,10 +393,12 @@ class EditSchemaRendererState<TModel, TDraft>
     );
     if (selectedIndex != _selectedTabIndex) {
       _selectedTabIndex = selectedIndex;
+      _selectedTabId =
+          _tabIdForVisibleIndex(visibleTabIndexes, _selectedTabIndex);
       _rememberSelectedTab();
     }
 
-    // This renderer is also used directly by kind-owned dialogs. `showDialog`
+    // This renderer is also used directly by kind-entry dialogs. `showDialog`
     // supplies the route and barrier, but it does not add a Material surface
     // for arbitrary builder output. Keep the renderer self-contained so its
     // TextFields, dropdowns, and input decorators are valid in every host.
@@ -245,21 +419,48 @@ class EditSchemaRendererState<TModel, TDraft>
           ],
           if (widget.showTabBar)
             _buildTabBar(context, visibleTabIndexes, selectedIndex),
-          ConstrainedBox(
-            constraints: const BoxConstraints(maxHeight: 720),
-            child: ListView(
-              shrinkWrap: true,
-              padding: const EdgeInsets.fromLTRB(16, 14, 16, 10),
-              children: [
-                if (!widget.showFooter) _buildFeedback(context),
-                _buildSelectedContent(
-                    context, visibleTabIndexes, selectedIndex),
-              ],
+          if (widget.fillAvailableHeight)
+            Flexible(
+              fit: FlexFit.loose,
+              child: _contentList(context, visibleTabIndexes, selectedIndex),
+            )
+          else
+            ConstrainedBox(
+              constraints: const BoxConstraints(maxHeight: 720),
+              child: _contentList(context, visibleTabIndexes, selectedIndex),
             ),
-          ),
           if (widget.showFooter) _buildFooter(context),
         ],
       ),
+    );
+  }
+
+  Widget _contentList(
+    BuildContext context,
+    List<int> visibleTabIndexes,
+    int selectedIndex,
+  ) {
+    return ListView(
+      shrinkWrap: true,
+      padding: EdgeInsets.zero,
+      children: [
+        if (!widget.showFooter &&
+            (_validationError != null || _saveError != null))
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 14, 16, 10),
+            child: _buildFeedback(context),
+          ),
+        EditTabShell(
+          scrollable: false,
+          children: [
+            _buildSelectedContent(
+              context,
+              visibleTabIndexes,
+              selectedIndex,
+            ),
+          ],
+        ),
+      ],
     );
   }
 
@@ -290,9 +491,11 @@ class EditSchemaRendererState<TModel, TDraft>
         selectedIndex: selectedIndex,
         onSelect: (index) => setState(() {
           _selectedTabIndex = index;
+          _selectedTabId = _tabIdForVisibleIndex(tabIndexes, index);
           _rememberSelectedTab();
         }),
-        allowReorder: true,
+        allowReorder: widget.tabNavigationEnabled,
+        enabled: widget.tabNavigationEnabled,
         onReorderItem: (oldIndex, newIndex) =>
             _onReorderTab(oldIndex, newIndex, tabIndexes),
       ),
@@ -303,87 +506,57 @@ class EditSchemaRendererState<TModel, TDraft>
     if (index < widget.schema.tabs.length) {
       final tab = widget.schema.tabs[index];
       return EditTab(
-        icon: tab.icon ?? Icons.edit_outlined,
+        key: ValueKey<String>('schema-tab-${tab.id}'),
+        icon: tab.svgAsset == null ? (tab.icon ?? Icons.edit_outlined) : null,
+        svgAsset: tab.svgAsset,
         label: tab.label,
       );
     }
-    final tab = widget.extraTabs[index - widget.schema.tabs.length];
-    return EditTab(icon: tab.icon, label: tab.label);
+    final extraIndex = index - widget.schema.tabs.length;
+    final tab = widget.extraTabs[extraIndex];
+    return EditTab(
+      key: ValueKey<String>('extra-tab-${tab.id}'),
+      icon: tab.svgAsset == null ? tab.icon : null,
+      svgAsset: tab.svgAsset,
+      label: tab.label,
+    );
   }
 
   Widget _buildTabContent(BuildContext context, EditTabSpec<TDraft> tab) {
     final sections = tab.sections
         .where((section) => section.isVisible(widget.draft))
         .toList(growable: false);
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        for (final section in sections) ...[
-          Text(section.label, style: Theme.of(context).textTheme.titleSmall),
-          const SizedBox(height: 8),
-          _buildFieldWrap(context, section.fields),
-          const SizedBox(height: 18),
-        ],
-      ],
-    );
-  }
-
-  Widget _buildFieldWrap(
-    BuildContext context,
-    List<LibraryFieldSpec<TDraft>> fields,
-  ) {
-    final visibleFields = fields
-        .where((field) => field.isVisible(widget.draft))
-        .toList(growable: false);
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final wide = constraints.maxWidth >= 680;
-        final width =
-            wide ? (constraints.maxWidth - 12) / 2 : constraints.maxWidth;
-        return Wrap(
-          spacing: 12,
-          runSpacing: 12,
-          children: [
-            for (final field in visibleFields)
-              SizedBox(width: width, child: _buildField(field)),
-          ],
-        );
+    return LibraryFieldSpecRenderer<TDraft>.embedded(
+      schema: LibraryFormSchema<TDraft>(sections: sections),
+      draft: widget.draft,
+      emptyMessage: null,
+      mediaKind: widget.mediaKind,
+      controllerFor: _controllerFor,
+      focusNodeFor: (fieldId) => _fieldFocusNode(tab.id, fieldId),
+      onChanged: () {
+        if (mounted) setState(() => _validationError = null);
       },
+      onVocabularyValueChanged: _rememberVocabularyValue,
+      onVocabularyValuesChanged: _rememberVocabularyValues,
     );
   }
 
-  Widget _buildField(LibraryFieldSpec<TDraft> field) =>
-      LibraryFieldSpecControlBuilder<TDraft>(
-        context: context,
-        draft: widget.draft,
-        mode: LibraryFieldSpecControlMode.edit,
-        controllerFor: _controllerFor,
-        mediaKind: widget.mediaKind,
-        onChanged: () {
-          if (mounted) setState(() => _validationError = null);
-        },
-        onVocabularyValueChanged: _rememberVocabularyValue,
-        onVocabularyValuesChanged: _rememberVocabularyValues,
-      ).build(field);
+  FocusNode _fieldFocusNode(String tabId, String fieldId) {
+    final key = '$tabId::$fieldId';
+    return _fieldFocusNodes.putIfAbsent(key, FocusNode.new);
+  }
 
   void _rememberVocabularyValue({
     required String fieldId,
     required String? listName,
     required String? value,
   }) {
-    final normalizedValue = value?.trim();
-    if (listName == null ||
-        normalizedValue == null ||
-        normalizedValue.isEmpty) {
-      _pendingVocabularyValues.remove(fieldId);
-      return;
-    }
-    _pendingVocabularyValues[fieldId] = {
-      normalizedValue.toLowerCase(): (
-        listName: listName,
-        value: normalizedValue,
-      ),
-    };
+    _vocabularyAccumulator.replaceValue(
+      fieldId: fieldId,
+      listName: listName,
+      value: value,
+      mediaKind: widget.mediaKind,
+    );
   }
 
   void _rememberVocabularyValues({
@@ -391,29 +564,17 @@ class EditSchemaRendererState<TModel, TDraft>
     required String? listName,
     required Set<String> values,
   }) {
-    if (listName == null || values.isEmpty) {
-      _pendingVocabularyValues.remove(fieldId);
-      return;
-    }
-    final pending = <String, ({String listName, String value})>{};
-    for (final value in values) {
-      final normalizedValue = value.trim();
-      if (normalizedValue.isEmpty) continue;
-      pending[normalizedValue.toLowerCase()] = (
-        listName: listName,
-        value: normalizedValue,
-      );
-    }
-    if (pending.isEmpty) {
-      _pendingVocabularyValues.remove(fieldId);
-    } else {
-      _pendingVocabularyValues[fieldId] = pending;
-    }
+    _vocabularyAccumulator.replaceValues(
+      fieldId: fieldId,
+      listName: listName,
+      values: values,
+      mediaKind: widget.mediaKind,
+    );
   }
 
   PickListRepository? _pendingVocabularyRepository() {
     final mediaKind = widget.mediaKind;
-    if (mediaKind == null || _pendingVocabularyValues.isEmpty) return null;
+    if (mediaKind == null || _vocabularyAccumulator.isEmpty) return null;
     final db = ProviderScope.containerOf(context, listen: false)
         .read(localDatabaseProvider);
     return PickListRepository(db);
@@ -424,16 +585,14 @@ class EditSchemaRendererState<TModel, TDraft>
   ) async {
     final mediaKind = widget.mediaKind;
     if (repository == null || mediaKind == null) return;
-    for (final fieldValues in _pendingVocabularyValues.values) {
-      for (final pending in fieldValues.values) {
-        await repository.addValue(
-          pending.listName,
-          pending.value,
-          mediaKind: mediaKind,
-        );
-      }
+    for (final pending in _vocabularyAccumulator.values) {
+      await repository.addValue(
+        pending.listName,
+        pending.value,
+        mediaKind: pending.mediaKind ?? mediaKind,
+      );
     }
-    _pendingVocabularyValues.clear();
+    _vocabularyAccumulator.clear();
   }
 
   Widget _buildFeedback(BuildContext context) {
@@ -506,15 +665,31 @@ class EditSchemaRendererState<TModel, TDraft>
   }
 
   Future<void> _save() async {
+    if (_isSaving) return;
+    final onSave = widget.onSave;
+    if (onSave == null) return;
+    final formIsValid = Form.maybeOf(context)?.validate() ?? true;
     final schemaError = widget.schema.validate?.call(
       widget.model,
       widget.draft,
     );
-    final fieldError = _firstFieldError();
-    if (schemaError != null || fieldError != null) {
+    final fieldIssue = _firstFieldIssue();
+    if (!formIsValid || schemaError != null || fieldIssue != null) {
+      final visibleTabs = _orderedVisibleTabIndexes();
+      final invalidVisibleIndex =
+          fieldIssue == null ? -1 : visibleTabs.indexOf(fieldIssue.tabIndex);
       setState(() {
-        _validationError = schemaError ?? fieldError;
+        _validationError = schemaError ?? fieldIssue?.error;
+        if (invalidVisibleIndex >= 0) {
+          _selectedTabIndex = invalidVisibleIndex;
+        }
       });
+      _rememberSelectedTab();
+      if (schemaError == null &&
+          fieldIssue?.focusKey != null &&
+          invalidVisibleIndex >= 0) {
+        _focusInvalidField(fieldIssue!.focusKey!);
+      }
       return;
     }
 
@@ -523,9 +698,21 @@ class EditSchemaRendererState<TModel, TDraft>
       _saveError = null;
     });
     try {
-      final repository = _pendingVocabularyRepository();
-      await widget.onSave(widget.draft);
-      await _savePendingVocabularyValues(repository);
+      final usesExternalAccumulator = widget.vocabularyAccumulator != null;
+      final repository =
+          usesExternalAccumulator ? null : _pendingVocabularyRepository();
+      final entry = LibraryEntryEditScope.maybeOf(context);
+      if (entry != null) {
+        if (!usesExternalAccumulator && !_vocabularyAccumulator.isEmpty) {
+          entry.vocabularyEdits.mergeFrom(_vocabularyAccumulator);
+        }
+        await onSave(widget.draft);
+      } else {
+        await onSave(widget.draft);
+        if (!usesExternalAccumulator) {
+          await _savePendingVocabularyValues(repository);
+        }
+      }
     } catch (error) {
       if (!mounted) return;
       setState(() {
@@ -544,26 +731,68 @@ class EditSchemaRendererState<TModel, TDraft>
   /// own the visible Save button without duplicating schema behavior.
   Future<void> save() => _save();
 
-  String? _firstFieldError() {
-    for (final tab in widget.schema.tabs) {
-      if (!tab.isVisible(widget.draft)) continue;
-      for (final section in tab.sections) {
-        if (!section.isVisible(widget.draft)) continue;
-        for (final field in section.fields) {
-          if (field.isVisible(widget.draft)) {
-            final error = field.validate(widget.draft);
-            if (error != null) return error;
-          }
-        }
+  void _focusInvalidField(String key) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      final node = _fieldFocusNodes[key];
+      if (node == null) return;
+      node.requestFocus();
+      final targetContext = node.context;
+      if (targetContext != null) {
+        unawaited(
+          Scrollable.ensureVisible(
+            targetContext,
+            alignment: 0.25,
+            duration: Duration.zero,
+          ),
+        );
       }
-    }
-    return null;
+    });
+  }
+
+  ({int tabIndex, String error, String? focusKey})? _firstFieldIssue() {
+    final controllers =
+        LibrarySchemaTextControllerScope.readOf(context) ?? _textControllers;
+    final failure = firstLibraryFormTabValidationFailure([
+      for (final sourceIndex in _orderedVisibleTabIndexes())
+        if (sourceIndex < widget.schema.tabs.length)
+          LibraryFormValidationTab(
+            id: widget.schema.tabs[sourceIndex].id,
+            index: sourceIndex,
+            validate: () => firstLibraryFormValidationProblem(
+              schema: LibraryFormSchema<TDraft>(
+                sections: widget.schema.tabs[sourceIndex].sections,
+              ),
+              draft: widget.draft,
+              controllers: controllers,
+              validateSchema: false,
+            ),
+          )
+        else
+          LibraryFormValidationTab(
+            id: widget.extraTabs[sourceIndex - widget.schema.tabs.length].id,
+            index: sourceIndex,
+            validate: () {
+              final error = widget
+                  .extraTabs[sourceIndex - widget.schema.tabs.length].validate
+                  ?.call();
+              return error == null ? null : LibraryFormValidationProblem(error);
+            },
+          ),
+    ]);
+    if (failure == null) return null;
+    return (
+      tabIndex: failure.tabIndex,
+      error: failure.problem.message,
+      focusKey: failure.problem.fieldId == null
+          ? null
+          : '${failure.tabId}::${failure.problem.fieldId}',
+    );
   }
 
   TextEditingController _controllerFor(String id, String initialValue) {
-    return _textControllers.putIfAbsent(
-      id,
-      () => TextEditingController(text: initialValue),
-    );
+    return (LibrarySchemaTextControllerScope.maybeOf(context) ??
+            _textControllers)
+        .controllerFor(id, initialValue);
   }
 }

@@ -3,34 +3,39 @@ part of 'admin_page.dart';
 enum _CanonicalInspectAction { edit, covers }
 
 class _CanonicalInspectResult {
-  const _CanonicalInspectResult._({this.action});
+  const _CanonicalInspectResult._({this.action, this.bundleReleaseId});
 
   const _CanonicalInspectResult.action(_CanonicalInspectAction action)
       : this._(action: action);
 
+  const _CanonicalInspectResult.bundle(String bundleReleaseId)
+      : this._(bundleReleaseId: bundleReleaseId);
+
   final _CanonicalInspectAction? action;
+  final String? bundleReleaseId;
 }
 
 class _CanonicalItemInspectionDialog extends StatelessWidget {
   const _CanonicalItemInspectionDialog({
     required this.item,
     required this.auditLogs,
+    required this.bundleReleases,
     required this.metadataFields,
   });
 
   final AdminMetadataItem item;
   final List<AdminAuditLogEntry> auditLogs;
+  final List<BundleReleaseSummary> bundleReleases;
   final List<LibraryAdminCorrectionField> metadataFields;
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
     final dialogWidth =
         (MediaQuery.sizeOf(context).width - 96).clamp(280.0, 820.0).toDouble();
     return AccentAlertDialog(
       title: Row(
         children: [
-          Icon(Icons.fact_check_outlined, color: colorScheme.primary),
+          const Icon(AppIcons.admin, color: Colors.white),
           const SizedBox(width: 8),
           Expanded(
             child: Text(
@@ -51,6 +56,7 @@ class _CanonicalItemInspectionDialog extends StatelessWidget {
               _CanonicalItemSummary(
                 item: item,
                 auditLogs: auditLogs,
+                bundleReleases: bundleReleases,
                 metadataFields: metadataFields,
               ),
               if (auditLogs.isEmpty) ...[
@@ -96,11 +102,13 @@ class _CanonicalItemSummary extends StatelessWidget {
   const _CanonicalItemSummary({
     required this.item,
     this.auditLogs = const [],
+    this.bundleReleases = const [],
     this.metadataFields = const [],
   });
 
   final AdminMetadataItem item;
   final List<AdminAuditLogEntry> auditLogs;
+  final List<BundleReleaseSummary> bundleReleases;
   final List<LibraryAdminCorrectionField> metadataFields;
 
   @override
@@ -131,10 +139,7 @@ class _CanonicalItemSummary extends StatelessWidget {
               children: [
                 Row(
                   children: [
-                    Icon(
-                      Icons.fact_check_outlined,
-                      color: colorScheme.primary,
-                    ),
+                    const Icon(AppIcons.admin, color: Colors.white),
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
@@ -152,6 +157,8 @@ class _CanonicalItemSummary extends StatelessWidget {
                   runSpacing: 6,
                   children: [
                     _MiniChip(label: item.kind),
+                    if (item.displayPhysicalFormat case final format?)
+                      _MiniChip(label: format),
                   ],
                 ),
                 const SizedBox(height: 8),
@@ -170,6 +177,10 @@ class _CanonicalItemSummary extends StatelessWidget {
                         ),
                   ],
                 ),
+                if (bundleReleases.isNotEmpty) ...[
+                  const SizedBox(height: 12),
+                  _BundleReleaseSummaryList(bundleReleases: bundleReleases),
+                ],
                 if (auditLogs.isNotEmpty) ...[
                   const SizedBox(height: 12),
                   _ItemAuditTimeline(logs: auditLogs),
@@ -193,6 +204,74 @@ class _CanonicalItemSummary extends StatelessWidget {
           },
         ),
       ),
+    );
+  }
+}
+
+class _BundleReleaseSummaryList extends StatelessWidget {
+  const _BundleReleaseSummaryList({required this.bundleReleases});
+
+  final List<BundleReleaseSummary> bundleReleases;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text('Bundle releases', style: Theme.of(context).textTheme.titleSmall),
+        const SizedBox(height: 8),
+        for (final bundle in bundleReleases)
+          Padding(
+            padding: const EdgeInsets.only(bottom: 8),
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(12),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            bundle.title,
+                            style: Theme.of(context).textTheme.titleSmall,
+                          ),
+                          const SizedBox(height: 6),
+                          Wrap(
+                            spacing: 6,
+                            runSpacing: 6,
+                            children: [
+                              _MiniChip(
+                                label:
+                                    '${bundle.contentSummary.totalItems} members',
+                              ),
+                              if (bundle.bundleType != null)
+                                _MiniChip(label: bundle.bundleType!),
+                              if (bundle.publisher != null)
+                                _MiniChip(label: bundle.publisher!),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    OutlinedButton.icon(
+                      onPressed: () => Navigator.of(context).pop(
+                        _CanonicalInspectResult.bundle(bundle.id),
+                      ),
+                      icon: const Icon(Icons.inventory_2_outlined),
+                      label: const Text('Edit bundle'),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+      ],
     );
   }
 }
@@ -228,10 +307,10 @@ class _CoverInspectionDialogState extends State<_CoverInspectionDialog> {
   void initState() {
     super.initState();
     _coverController = TextEditingController(
-      text: item.displayCoverUrl ?? '',
+      text: item.coverImageUrl ?? '',
     );
     _thumbnailController = TextEditingController(
-      text: item.displayThumbnailUrl ?? '',
+      text: item.thumbnailImageUrl ?? '',
     );
     _coverController.addListener(_urlFieldsChanged);
     _thumbnailController.addListener(_urlFieldsChanged);
@@ -249,6 +328,7 @@ class _CoverInspectionDialogState extends State<_CoverInspectionDialog> {
   @override
   Widget build(BuildContext context) {
     return AccentAlertDialog(
+      headerIcon: AppIcons.tabImages,
       title: Text('Covers: ${item.displayTitle}'),
       content: SizedBox(
         width: 640,
@@ -276,7 +356,6 @@ class _CoverInspectionDialogState extends State<_CoverInspectionDialog> {
                       child: LibraryCoverImage(
                         title: item.title,
                         itemNumber: item.itemNumber,
-                        imageUrl: item.displayThumbnailUrl,
                       ),
                     ),
                     const SizedBox(width: 12),
@@ -291,7 +370,7 @@ class _CoverInspectionDialogState extends State<_CoverInspectionDialog> {
                           ),
                           const SizedBox(height: 6),
                           Text(
-                            'Used by the client when the provider has no usable cover URL.',
+                            'Used by the client when the catalog item has no cover URL.',
                             style: Theme.of(context).textTheme.bodySmall,
                           ),
                         ],
@@ -325,7 +404,6 @@ class _CoverInspectionDialogState extends State<_CoverInspectionDialog> {
                   isError: !_checkMessage!.startsWith('URL is reachable'),
                 ),
               ],
-              const SizedBox(height: 12),
             ],
           ),
         ),

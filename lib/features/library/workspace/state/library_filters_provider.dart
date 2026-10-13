@@ -16,7 +16,6 @@ final libraryFiltersProvider =
       sortId: session.filters.sortId,
       sortAscending: session.filters.sortAscending,
       visibleColumnIds: session.filters.visibleColumnIds,
-      presentationLevelId: session.filters.presentationLevelId,
     );
   },
 );

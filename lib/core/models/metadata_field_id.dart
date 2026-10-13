@@ -1,4 +1,4 @@
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:flutter/foundation.dart';
 
 /// Opaque metadata field identity used by in-memory override APIs.
@@ -17,7 +17,7 @@ final class MetadataFieldId {
 
   String get serializedValue => value;
 
-  bool appliesTo(CatalogEntityRef target) => target.mediaKind == kind;
+  bool appliesTo(CatalogMediaKind target) => target == kind;
 
   @override
   bool operator ==(Object other) {

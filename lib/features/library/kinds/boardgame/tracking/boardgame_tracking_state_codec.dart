@@ -1,8 +1,6 @@
-import 'dart:convert';
-
 import 'package:collectarr_app/core/db/local_database.dart';
-import 'package:collectarr_app/core/models/catalog_entity_ref.dart';
-import 'package:collectarr_app/core/models/owned_item_projection.dart';
+import 'package:collectarr_app/core/models/catalog_media_kind.dart';
+import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/features/library/tracking/tracking_storage_record.dart';
 import 'package:collectarr_app/core/models/tracking_progress_snapshot.dart';
 import 'package:collectarr_app/core/models/tracking_state_ref.dart';
@@ -11,7 +9,7 @@ import 'package:drift/drift.dart';
 
 import 'boardgame_tracking_state.dart';
 
-/// BoardGame-owned lifecycle tracking mapping. Edition and completeness data
+/// BoardGame-entry lifecycle tracking mapping. Edition and completeness data
 /// are deliberately not interpreted by the sync host.
 final class BoardGameTrackingStateCodec
     with TrackingStorageCodecSupport
@@ -34,8 +32,7 @@ final class BoardGameTrackingStateCodec
         TrackingStorageRead(
           trackingStorageRowFromColumns(
             id: row.id,
-            catalogRefJson: row.catalogRefJson,
-            ownedRefKey: row.ownedRefKey,
+            libraryEntryRefKey: row.libraryEntryRefKey,
             sourceType: row.sourceType,
             status: row.status,
             rating: row.rating,
@@ -83,8 +80,7 @@ final class BoardGameTrackingStateCodec
         fromStorageRow(
           trackingStorageRowFromColumns(
             id: row.id,
-            catalogRefJson: row.catalogRefJson,
-            ownedRefKey: row.ownedRefKey,
+            libraryEntryRefKey: row.libraryEntryRefKey,
             sourceType: row.sourceType,
             status: row.status,
             rating: row.rating,
@@ -117,8 +113,7 @@ final class BoardGameTrackingStateCodec
     return fromStorageRow(
       trackingStorageRowFromColumns(
         id: row.id,
-        catalogRefJson: row.catalogRefJson,
-        ownedRefKey: row.ownedRefKey,
+        libraryEntryRefKey: row.libraryEntryRefKey,
         sourceType: row.sourceType,
         status: row.status,
         rating: row.rating,
@@ -140,12 +135,11 @@ final class BoardGameTrackingStateCodec
   @override
   Future<void> upsertToStorage(
       LocalDatabase db, TrackingStorageRecord entry) async {
-    _validateKind(entry.catalogRef);
+    validateTrackingEntryKind(entry.libraryEntryRef);
     await db.into(db.boardGameTrackingRows).insertOnConflictUpdate(
           BoardGameTrackingRowsCompanion.insert(
             id: entry.id,
-            catalogRefJson: jsonEncode(entry.catalogRef.toJson()),
-            ownedRefKey: Value(entry.ownedRef?.key),
+            libraryEntryRefKey: entry.libraryEntryRef.key,
             sourceType: Value(entry.sourceTypeApiValue),
             status: Value(entry.statusStorageValue),
             rating: Value(entry.rating),
@@ -167,7 +161,7 @@ final class BoardGameTrackingStateCodec
     TrackingStorageRecord entry,
     DateTime deletedAt,
   ) async {
-    _validateKind(entry.catalogRef);
+    validateTrackingEntryKind(entry.libraryEntryRef);
     await (db.update(db.boardGameTrackingRows)
           ..where((row) => row.id.equals(entry.id)))
         .write(
@@ -181,8 +175,7 @@ final class BoardGameTrackingStateCodec
   @override
   BoardGameTrackingState create({
     required String id,
-    required CatalogEntityRef catalogRef,
-    OwnedItemRef? ownedRef,
+    required LibraryEntryRef libraryEntryRef,
     Object? sourceType,
     Object? status,
     int? rating,
@@ -195,11 +188,10 @@ final class BoardGameTrackingStateCodec
     required DateTime updatedAt,
     DateTime? deletedAt,
   }) {
-    _validateKind(catalogRef);
+    validateTrackingEntryKind(libraryEntryRef);
     return BoardGameTrackingState(
       id: id,
-      catalogRef: catalogRef,
-      ownedRef: ownedRef,
+      libraryEntryRef: libraryEntryRef,
       sourceType: sourceType,
       status: status,
       rating: rating,
@@ -223,7 +215,7 @@ final class BoardGameTrackingStateCodec
 
   @override
   Map<String, dynamic> toSyncPayload(TrackingStorageRecord entry) {
-    _validateKind(entry.catalogRef);
+    validateTrackingEntryKind(entry.libraryEntryRef);
     return entry.toSyncPayload()
       ..addAll({
         'progress_current': entry.progress.current,
@@ -239,12 +231,10 @@ final class BoardGameTrackingStateCodec
     required DateTime updatedAt,
     DateTime? deletedAt,
   }) {
-    final catalogRef = _catalogRefFromPayload(payload);
-    _validateKind(catalogRef);
+    final libraryEntryRef = trackingLibraryEntryRefFromPayload(payload, kind);
     return BoardGameTrackingState(
       id: id,
-      catalogRef: catalogRef,
-      ownedRef: ownedItemRefFromSerialized(payload['owned_ref']),
+      libraryEntryRef: libraryEntryRef,
       sourceType: payload['source_type'] as String?,
       status: payload['status'] as String?,
       rating: _int(payload['rating']),
@@ -264,11 +254,10 @@ final class BoardGameTrackingStateCodec
     TrackingStorageRow row,
     Object? coordinates,
   ) {
-    _validateKind(row.catalogRef);
+    validateTrackingEntryKind(row.libraryEntryRef);
     return BoardGameTrackingState(
       id: row.id,
-      catalogRef: row.catalogRef,
-      ownedRef: row.ownedRef,
+      libraryEntryRef: row.libraryEntryRef,
       sourceType: row.sourceType,
       status: row.status,
       rating: row.rating,
@@ -281,26 +270,6 @@ final class BoardGameTrackingStateCodec
       updatedAt: row.updatedAt,
       deletedAt: row.deletedAt,
     );
-  }
-
-  CatalogEntityRef _catalogRefFromPayload(Map<String, dynamic> payload) {
-    final raw = payload['catalog_ref'];
-    if (raw is! Map) {
-      throw const FormatException(
-        'BoardGame tracking entry is missing catalog_ref',
-      );
-    }
-    return CatalogEntityRef.fromJson(Map<String, dynamic>.from(raw));
-  }
-
-  void _validateKind(CatalogEntityRef ref) {
-    if (ref.mediaKind != kind) {
-      throw ArgumentError.value(
-        ref.mediaKind,
-        'catalogRef.kind',
-        'Expected BoardGame tracking entry',
-      );
-    }
   }
 }
 

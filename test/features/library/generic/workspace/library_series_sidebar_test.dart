@@ -6,6 +6,45 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
+  testWidgets(
+      'folder sort buttons select their own order and keep action labels',
+      (tester) async {
+    await tester.pumpWidget(ProviderScope(
+        child: MaterialApp(
+      home: Scaffold(
+          body: SizedBox(
+        width: 260,
+        height: 240,
+        child: LibraryBucketSidebar(
+          buckets: const [
+            LibraryBucket(title: 'Alpha', count: 1),
+            LibraryBucket(title: 'Zebra', count: 5)
+          ],
+          selectedBucket: 'Alpha',
+          onSelectBucket: (_) {},
+        ),
+      )),
+    )));
+    await tester.pumpAndSettle();
+    expect(tester.getTopLeft(find.text('Alpha')).dy,
+        lessThan(tester.getTopLeft(find.text('Zebra')).dy));
+    await tester.tap(find.byTooltip('Sort by count'));
+    await tester.pumpAndSettle();
+    expect(tester.getTopLeft(find.text('Zebra')).dy,
+        lessThan(tester.getTopLeft(find.text('Alpha')).dy));
+    await tester.tap(find.byTooltip('Sort by count'));
+    await tester.pumpAndSettle();
+    expect(tester.getTopLeft(find.text('Zebra')).dy,
+        lessThan(tester.getTopLeft(find.text('Alpha')).dy));
+    await tester.tap(find.byTooltip('Sort alphabetically'));
+    await tester.pumpAndSettle();
+    expect(tester.getTopLeft(find.text('Alpha')).dy,
+        lessThan(tester.getTopLeft(find.text('Zebra')).dy));
+    expect(find.byTooltip('Sort by count'), findsOneWidget);
+    expect(find.byTooltip('Sort alphabetically'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets('series sidebar renders buckets and handles selection',
       (tester) async {
     String? selected;
@@ -22,7 +61,7 @@ void main() {
                   LibraryBucket(
                     title: 'Action Comics',
                     count: 12,
-                    ownedCount: 6,
+                    entryCount: 6,
                   ),
                   LibraryBucket(title: 'Superman', count: 4),
                 ],
@@ -116,7 +155,7 @@ void main() {
         const LibraryBucket(
           title: 'Saga',
           count: 6,
-          ownedCount: 3,
+          entryCount: 3,
         ),
       ),
       'Saga 6 (50%)',

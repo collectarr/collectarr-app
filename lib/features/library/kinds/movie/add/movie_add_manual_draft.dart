@@ -1,13 +1,29 @@
 import 'package:collectarr_app/features/library/add/models/library_kind_add_draft.dart';
+import 'package:collectarr_app/features/library/kinds/movie/forms/movie_credit_draft.dart';
 import 'package:collectarr_app/features/library/kinds/movie/forms/movie_catalog_form_values.dart';
 
 /// Movie's Add session owns catalog values; renderer widgets own input controllers.
-final class MovieAddManualDraft implements LibraryKindAddDraft {
-  MovieAddManualDraft({MovieCatalogFormValues? values})
-      : values = values ?? MovieCatalogFormValues();
+final class MovieAddManualDraft implements LibraryKindAddDraftWithResources {
+  MovieAddManualDraft({
+    MovieCatalogFormValues? values,
+    String? catalogTitle,
+  }) : values = values ?? MovieCatalogFormValues(title: catalogTitle ?? '') {
+    if (catalogTitle != null) this.values.title = catalogTitle;
+  }
 
   final MovieCatalogFormValues values;
+  final List<EditableMovieCredit> castCredits = [];
+  final List<EditableMovieCredit> crewCredits = [];
+  @override
+  String get catalogTitle => values.title;
 
   @override
-  void dispose() {}
+  set catalogTitle(String value) => values.title = value;
+
+  @override
+  void dispose() {
+    for (final credit in [...castCredits, ...crewCredits]) {
+      credit.dispose();
+    }
+  }
 }
