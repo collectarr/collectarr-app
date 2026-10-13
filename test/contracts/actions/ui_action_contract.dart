@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import '../contract_test_helpers.dart';
+import '../support/contract_test_helpers.dart';
 
 /// Structural contract for a kind-entry action exposed to generic UI hosts.
 ///

@@ -1,4 +1,4 @@
-import '../contract_test_helpers.dart';
+import '../support/contract_test_helpers.dart';
 
 void defineMetadataOverrideContract<TSchema, TTarget, TField, TValue>({
   required String name,

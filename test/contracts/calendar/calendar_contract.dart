@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:flutter_test/flutter_test.dart';
 
-import '../contract_test_helpers.dart';
+import '../support/contract_test_helpers.dart';
 
 void defineCalendarContributorContract<TContributor, TContext, TEvent>({
   required String name,

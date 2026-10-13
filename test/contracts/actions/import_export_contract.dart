@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:collectarr_app/features/library/actions/import_export_actions.dart';
-import '../contract_test_helpers.dart';
+import '../support/contract_test_helpers.dart';
 
 void defineExportActionContract<TAction, TContext>({
   required String name,

@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import '../contract_test_helpers.dart';
+import '../support/contract_test_helpers.dart';
 
 void defineBarcodeResolverContract<TResolver, TCode, TResult>({
   required String name,

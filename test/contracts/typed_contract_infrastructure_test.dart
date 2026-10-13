@@ -1,4 +1,4 @@
-import 'add_contract.dart';
+import 'support/add_contract.dart';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
@@ -11,22 +11,22 @@ import 'actions/import_export_contract.dart';
 import 'actions/ui_action_contract.dart';
 import 'barcode/barcode_contract.dart';
 import 'calendar/calendar_contract.dart';
-import 'core_field_adoption_contract.dart';
-import 'core_mapping_contract.dart';
-import 'facet_contract.dart';
-import 'fields_contract.dart';
-import 'group_contract.dart';
-import 'kind_identity_contract.dart';
-import 'media_edit_contract.dart';
-import 'entry_edit_contract.dart';
+import 'support/core_field_adoption_contract.dart';
+import 'support/core_mapping_contract.dart';
+import 'support/facet_contract.dart';
+import 'support/fields_contract.dart';
+import 'support/group_contract.dart';
+import 'support/kind_identity_contract.dart';
+import 'support/media_edit_contract.dart';
+import 'support/entry_edit_contract.dart';
 import 'overrides/override_contract.dart';
-import 'persistence_contract.dart';
-import 'release_edit_contract.dart';
-import 'repository_contract.dart';
-import 'sort_contract.dart';
-import 'tracking_contract.dart';
-import 'vocabulary_contract.dart';
-import 'workspace_contract.dart';
+import 'support/persistence_contract.dart';
+import 'support/release_edit_contract.dart';
+import 'support/repository_contract.dart';
+import 'support/sort_contract.dart';
+import 'support/tracking_contract.dart';
+import 'support/vocabulary_contract.dart';
+import 'support/workspace_contract.dart';
 
 void main() {
   defineKindIdentityContract<String>(

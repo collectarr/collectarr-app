@@ -2,7 +2,7 @@ import 'package:collectarr_app/features/pick_lists/models/vocabulary_definition.
 import 'package:collectarr_app/features/library/kinds/comic/vocabulary/comic_vocabularies.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'vocabulary_contract.dart';
+import 'support/vocabulary_contract.dart';
 
 void main() {
   defineVocabularyContract<List<VocabularyDefinition<dynamic>>>(
