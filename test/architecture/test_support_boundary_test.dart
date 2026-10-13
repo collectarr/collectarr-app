@@ -36,10 +36,9 @@ void main() {
     final lib = Directory(p.join(root.path, 'lib'));
     final support = Directory(p.join(lib.path, 'test'));
     try {
-      expect(testSupportLayoutViolations(root.path), isEmpty);
+      expect(testLayoutViolations(root.path), isEmpty);
       support.createSync(recursive: true);
-      expect(testSupportLayoutViolations(root.path),
-          contains(startsWith('TK022')));
+      expect(testLayoutViolations(root.path), contains(startsWith('TK022')));
     } finally {
       if (support.existsSync()) support.deleteSync();
       if (lib.existsSync()) lib.deleteSync();

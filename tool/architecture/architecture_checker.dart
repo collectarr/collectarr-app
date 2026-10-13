@@ -863,7 +863,7 @@ void runArchitectureChecker([List<String> args = const <String>[]]) {
   final allComplexityWarnings = <String>[];
   final allKindFieldLeaks = <KindFieldLeakFinding>[];
 
-  allViolations.addAll(testSupportLayoutViolations(repoRoot));
+  allViolations.addAll(testLayoutViolations(repoRoot));
   _checkKindModuleLayout(repoRoot, allViolations);
 
   for (final file in files) {
@@ -1190,8 +1190,31 @@ String? _resolveImportPath(
   return p.normalize(p.join(sourceDir, uriString));
 }
 
-Iterable<String> testSupportLayoutViolations(String repoRoot) sync* {
+Iterable<String> testLayoutViolations(String repoRoot) sync* {
   if (Directory(p.join(repoRoot, 'lib', 'test')).existsSync()) {
     yield 'TK022 lib/test/: Test support must live outside production source.';
+  }
+  final tests = Directory(p.join(repoRoot, 'test'));
+  if (!tests.existsSync()) return;
+  for (final file in tests.listSync(followLinks: false).whereType<File>()) {
+    if (file.path.endsWith('.dart') &&
+        p.basename(file.path) != 'flutter_test_config.dart') {
+      yield 'TX001 test/${p.basename(file.path)}: Tests must follow production ownership.';
+    }
+  }
+  for (final file in tests
+      .listSync(recursive: true, followLinks: false)
+      .whereType<File>()) {
+    final name = p.basename(file.path);
+    if (name.contains('benchmark') && name.endsWith('.dart')) {
+      yield 'TX002 ${p.relative(file.path, from: repoRoot)}: Benchmarks belong outside test/.';
+    }
+    if (name == 'helpers.dart' &&
+        p
+            .relative(file.path, from: repoRoot)
+            .replaceAll('\\', '/')
+            .startsWith('test/features/')) {
+      yield 'TX003 ${p.relative(file.path, from: repoRoot)}: Name feature helpers by their responsibility.';
+    }
   }
 }
