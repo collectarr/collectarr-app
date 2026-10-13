@@ -558,9 +558,9 @@ class _MusicInspectorHeader extends ConsumerWidget {
                   child: Text(music.title,
                       style: TextStyle(
                           color: inspector.accent,
-                          fontSize: 26,
+                          fontSize: 24,
                           fontWeight: FontWeight.w700,
-                          height: 1.15))),
+                          height: 1.1))),
               if (model.entry?.personal.quantity case final quantity?
                   when quantity > 1)
                 Padding(

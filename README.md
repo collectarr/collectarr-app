@@ -168,6 +168,10 @@ flutter run -d windows `
   --dart-define=COLLECTARR_MANUAL_URL=http://127.0.0.1:4321/collectarr-site/manual/
 ```
 
+Normal text uses a local Gilroy Medium face in the UI 400 weight slot, matching
+CLZ’s font-face definition. Source font files and saved font bytes are unchanged;
+only the engine registration uses an in-memory weight alias.
+
 ## Releases and architecture
 
 [Versioning policy](docs/versioning-policy.md) defines semantic versions and

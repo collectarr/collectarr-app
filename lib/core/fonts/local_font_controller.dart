@@ -3,7 +3,7 @@ import 'package:crypto/crypto.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'fallback_font_weight.dart';
+import 'font_weight.dart';
 import 'local_font_access.dart' as access;
 import 'local_font_face.dart';
 
@@ -39,6 +39,7 @@ class LocalFontController extends ChangeNotifier {
   final _registeredFamilies = <String, String>{};
   String _family = 'Plus Jakarta Sans';
   String? _startupError;
+  LocalFontFace? get normalTextFace => faces[500] ?? faces[400];
   bool get enabled => _enabled;
   String get activeFamily => _family;
   String? get startupError => _startupError;
@@ -215,16 +216,30 @@ class LocalFontController extends ChangeNotifier {
     }
     // New contents get a fresh engine alias. Toggle/reuse needs no new fonts.
     final family = 'Collectarr Local Font ${++_generation}';
+    // CLZ declares Gilroy Medium as its CSS 400 face. FontLoader has no CSS
+    // weight override, so register an in-memory copy in the normal text slot.
+    final normalFace = current[500] ?? current[400];
     for (final entry in _fallback.entries) {
-      if (current.containsKey(entry.key)) continue;
+      if (current.containsKey(entry.key) ||
+          (entry.key == 400 && normalFace != null)) {
+        continue;
+      }
       final data = await rootBundle
           .load('assets/fonts/PlusJakartaSans-${entry.value}.ttf');
       final bytes =
           data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes);
       await _registerFont(
-          family, entry.key == 900 ? fallbackFontAtWeight(bytes, 900) : bytes);
+          family, entry.key == 900 ? fontBytesAtWeight(bytes, 900) : bytes);
+    }
+    if (normalFace != null) {
+      await _registerFont(
+          family,
+          normalFace.weight == 400
+              ? normalFace.bytes
+              : fontBytesAtWeight(normalFace.bytes, 400));
     }
     for (final face in current.values) {
+      if (face.weight == 400) continue;
       await _registerFont(family, face.bytes);
     }
     _registeredFamilies[fingerprint] = family;

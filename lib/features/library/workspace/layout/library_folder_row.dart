@@ -10,7 +10,7 @@ const kLibraryFolderCountMinWidth = 28.0;
 TextStyle libraryFolderTextStyle(BuildContext context) =>
     (Theme.of(context).textTheme.bodyMedium ?? const TextStyle()).copyWith(
       fontSize: 14,
-      fontWeight: FontWeight.w500,
+      fontWeight: FontWeight.w400,
       height: 22 / 14,
       letterSpacing: 0,
     );

@@ -6,7 +6,7 @@ void main() {
   test('Library text roles expose the supported semantic sizes', () {
     final textTheme = ThemeData().textTheme;
 
-    expect(textTheme.libraryDialogTitle.fontSize, 15);
+    expect(textTheme.libraryDialogTitle.fontSize, 18);
     expect(textTheme.libraryDetailTitle.fontSize, 16);
     expect(textTheme.libraryBody.fontSize, 14);
     expect(textTheme.libraryMeta.fontSize, 13);

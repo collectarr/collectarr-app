@@ -476,7 +476,7 @@ class _LibraryGroupModeDropdownMenuState
                       'No favorites',
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
                             color: libraryToolbarMenuMutedText(context),
-                            fontWeight: FontWeight.w500,
+                            fontWeight: FontWeight.w400,
                           ),
                     ),
                   )
@@ -623,7 +623,7 @@ class _LibraryGroupModeDropdownMenuState
         padding: const EdgeInsets.fromLTRB(10, 6, 10, 6),
         backgroundColor: selectedBackground,
         textStyle: TextStyle(
-          fontWeight: FontWeight.w500,
+          fontWeight: FontWeight.w400,
           fontSize: 14,
           color: libraryToolbarMenuText(context),
         ),
@@ -644,7 +644,7 @@ class _LibraryGroupModeDropdownMenuState
         padding: const EdgeInsets.fromLTRB(10, 6, 10, 6),
         backgroundColor: selectedBackground,
         textStyle: TextStyle(
-          fontWeight: FontWeight.w500,
+          fontWeight: FontWeight.w400,
           fontSize: 14,
           color: libraryToolbarMenuText(context),
         ),

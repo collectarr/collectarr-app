@@ -1,9 +1,8 @@
 import 'dart:typed_data';
 
-/// Gives the bundled 800 face an explicit 900 selection slot, so a missing
-/// Gilroy 900 uses the fallback rather than a synthesized Gilroy 800.
-/// Glyphs remain the bundled ExtraBold face; only selection metadata changes.
-Uint8List fallbackFontAtWeight(Uint8List input, int weight) {
+/// Registers a copy in an explicit engine weight slot, like a CSS font-face.
+/// Glyph tables and the caller's original bytes remain unchanged.
+Uint8List fontBytesAtWeight(Uint8List input, int weight) {
   final bytes = Uint8List.fromList(input);
   final data = ByteData.sublistView(bytes);
   int? head;
@@ -19,7 +18,7 @@ Uint8List fallbackFontAtWeight(Uint8List input, int weight) {
     }
   }
   if (head == null) {
-    throw const FormatException('Fallback font lacks a head table.');
+    throw const FormatException('Font lacks a head table.');
   }
   data.setUint32(head + 8, 0);
   data.setUint32(

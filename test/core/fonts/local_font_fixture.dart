@@ -20,8 +20,9 @@ Uint8List fontFixture(
     records.add([entry.key, bytes.length, raw.length]);
     raw.addAll(bytes);
   }
-  final tables = variable ? 3 : 2;
-  final os2 = 12 + tables * 16;
+  final tables = variable ? 4 : 3;
+  final head = 12 + tables * 16;
+  final os2 = head + 56;
   final name = os2 + 64;
   final nameLength = 6 + records.length * 12 + raw.length;
   final bytes = Uint8List(name + nameLength);
@@ -37,7 +38,8 @@ Uint8List fontFixture(
 
   table(0, 0x4f532f32, os2, 64);
   table(1, 0x6e616d65, name, nameLength);
-  if (variable) table(2, 0x66766172, 0, 0);
+  table(2, 0x68656164, head, 54);
+  if (variable) table(3, 0x66766172, 0, 0);
   data.setUint16(os2 + 4, weight);
   data.setUint16(os2 + 62, italic ? 1 : 0);
   data.setUint16(name + 2, records.length);

@@ -7,7 +7,7 @@ String get appFontFamily => LocalFontController.instance.activeFamily;
 const kAppFontFamilyFallback = ['Plus Jakarta Sans'];
 const kAppBodyFontSize = 14.0;
 const kAppCaptionFontSize = 13.0;
-const kAppNormalFontWeight = FontWeight.w500;
+const kAppNormalFontWeight = FontWeight.w400;
 const kAppMediumFontWeight = FontWeight.w500;
 const kAppSemiBoldFontWeight = FontWeight.w600;
 const kAppBoldFontWeight = FontWeight.w700;
@@ -32,13 +32,12 @@ TextTheme buildAppTextTheme(TextTheme base, Color foreground) {
   return themed.copyWith(
     titleLarge: role(themed.titleLarge, 18, kAppBoldFontWeight),
     titleMedium: role(themed.titleMedium, 16, kAppBoldFontWeight),
-    titleSmall: role(themed.titleSmall, 14, kAppSemiBoldFontWeight),
+    titleSmall: role(themed.titleSmall, 14, kAppBoldFontWeight),
     bodyLarge: role(themed.bodyLarge, 16, kAppNormalFontWeight),
     bodyMedium: role(themed.bodyMedium, kAppBodyFontSize, kAppNormalFontWeight),
     bodySmall:
         role(themed.bodySmall, kAppCaptionFontSize, kAppNormalFontWeight),
-    labelLarge:
-        role(themed.labelLarge, kAppBodyFontSize, kAppSemiBoldFontWeight),
+    labelLarge: role(themed.labelLarge, kAppBodyFontSize, kAppNormalFontWeight),
     labelMedium:
         role(themed.labelMedium, kAppCaptionFontSize, kAppSemiBoldFontWeight),
     labelSmall:

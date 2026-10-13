@@ -5,14 +5,14 @@ import 'package:flutter/material.dart';
 extension LibraryTextTheme on TextTheme {
   /// Panel and dialog title styling (prominent header).
   TextStyle get panelTitle => (titleMedium ?? const TextStyle()).copyWith(
-        fontWeight: FontWeight.w800,
-        letterSpacing: -0.1,
+        fontWeight: FontWeight.w700,
+        letterSpacing: 0,
       );
 
   /// Form section title styling (structured form segment headers).
   TextStyle get sectionTitle => (titleSmall ?? const TextStyle()).copyWith(
-        fontWeight: FontWeight.w800,
-        letterSpacing: -0.05,
+        fontWeight: FontWeight.w700,
+        letterSpacing: 0,
       );
 
   /// Metadata field labels, key-value captions, and input field hints/headers.
@@ -28,14 +28,14 @@ extension LibraryTextTheme on TextTheme {
   /// Text shown inside editable controls and their selected values.
   TextStyle get controlText => (bodyMedium ?? const TextStyle()).copyWith(
         fontSize: 14,
-        fontWeight: kAppSemiBoldFontWeight,
+        fontWeight: kAppNormalFontWeight,
         height: 20 / 14,
       );
 
   /// Supporting, explanatory, helper, or footnote text.
   TextStyle get supportingText => (bodySmall ?? const TextStyle()).copyWith(
         fontSize: 13,
-        fontWeight: FontWeight.w500,
+        fontWeight: kAppNormalFontWeight,
         letterSpacing: 0.0,
       );
 
@@ -44,15 +44,15 @@ extension LibraryTextTheme on TextTheme {
 
   /// Table column headers and uppercase badge / metric labels.
   TextStyle get tableHeader => (labelSmall ?? const TextStyle()).copyWith(
-        fontSize: 13,
-        fontWeight: FontWeight.w800,
-        letterSpacing: 0.1,
+        fontSize: 14,
+        fontWeight: FontWeight.w700,
+        letterSpacing: 0,
       );
 
   /// Add-dialog title and other prominent Library chrome labels.
   TextStyle get libraryDialogTitle =>
       (titleMedium ?? const TextStyle()).copyWith(
-        fontSize: 15,
+        fontSize: 18,
         fontWeight: FontWeight.w700,
       );
 
@@ -66,7 +66,7 @@ extension LibraryTextTheme on TextTheme {
   /// Standard Library body/result text.
   TextStyle get libraryBody => (bodyMedium ?? const TextStyle()).copyWith(
         fontSize: 14,
-        fontWeight: FontWeight.w500,
+        fontWeight: kAppNormalFontWeight,
       );
 
   /// Metadata, rating, and secondary action text.
@@ -81,7 +81,7 @@ extension LibraryTextTheme on TextTheme {
         fontWeight: FontWeight.w600,
       );
 
-  /// Title fallback for the older panel chrome implementation.
+  /// Compact panel chrome title.
   TextStyle get libraryChromeTitle =>
       (bodyMedium ?? const TextStyle()).copyWith(
         fontSize: 14,

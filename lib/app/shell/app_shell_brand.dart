@@ -22,19 +22,23 @@ class AppShellBrand extends StatelessWidget {
           Icon(icon, key: iconKey, size: 23, color: Colors.white),
           const SizedBox(width: 7),
           Flexible(
-            child: Text(
-              'COLLECTARR ${kindTitle.toUpperCase()}',
-              key: titleKey,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: TextStyle(
-                fontFamily: appFontFamily,
-                color: Colors.white,
-                fontSize: 16,
-                fontWeight: FontWeight.w800,
-                letterSpacing: 0.2,
-              ),
-            ),
+            child: FittedBox(
+                fit: BoxFit.scaleDown,
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  'COLLECTARR ${kindTitle.toUpperCase()}',
+                  key: titleKey,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontFamily: appFontFamily,
+                    color: Colors.white,
+                    fontSize: 24,
+                    height: 1,
+                    fontWeight: FontWeight.w900,
+                    letterSpacing: 0,
+                  ),
+                )),
           ),
         ],
       );

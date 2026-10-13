@@ -29,7 +29,7 @@ class LibraryViewModeDropdown extends StatelessWidget {
     final menuMuted = libraryToolbarMenuMutedText(context);
     final dropdownTextStyle = Theme.of(context).textTheme.bodyMedium?.copyWith(
           height: 1,
-          fontWeight: FontWeight.w500,
+          fontWeight: FontWeight.w400,
           color: menuText,
         );
     final menuWidth = _measureViewDropdownWidth(
@@ -129,7 +129,7 @@ class LibraryDetailsLayoutDropdown extends StatelessWidget {
     final menuMuted = libraryToolbarMenuMutedText(context);
     final dropdownTextStyle = Theme.of(context).textTheme.bodyMedium?.copyWith(
           height: 1,
-          fontWeight: FontWeight.w500,
+          fontWeight: FontWeight.w400,
           color: menuText,
         );
     final detailsMenuWidth = _measureDetailsDropdownWidth(
@@ -205,7 +205,7 @@ class LibraryDetailsLayoutDropdown extends StatelessWidget {
                       'Layout',
                       style: TextStyle(
                         fontSize: 12.5,
-                        fontWeight: FontWeight.w500,
+                        fontWeight: FontWeight.w400,
                         color: menuText,
                       ),
                     ),

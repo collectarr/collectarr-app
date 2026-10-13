@@ -122,7 +122,7 @@ class AppPageBackButton extends StatelessWidget {
           foregroundColor: appPalette(context).textPrimary,
           backgroundColor: Colors.transparent,
           padding: const EdgeInsets.symmetric(horizontal: 4),
-          textStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700),
+          textStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.w400),
         ),
         icon: const Icon(AppIcons.chevronLeft, size: 18),
         label: const Text('Back'),

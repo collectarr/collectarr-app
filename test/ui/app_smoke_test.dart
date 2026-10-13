@@ -4,7 +4,6 @@ library;
 import 'package:collectarr_app/app/shell/app_navigation_drawer.dart';
 import 'package:collectarr_app/app/shell/app_navigation_model.dart';
 
-
 import 'dart:convert';
 
 import 'package:collectarr_app/core/routing/app_router.dart';
@@ -184,7 +183,7 @@ void main() {
               .selectedAction,
           DrawerAction.printToPdf);
       expect(tester.widget<Text>(find.text('Libraries')).style?.fontWeight,
-          FontWeight.w500);
+          FontWeight.w400);
       expect(
           tester
               .widget<Text>(find.descendant(

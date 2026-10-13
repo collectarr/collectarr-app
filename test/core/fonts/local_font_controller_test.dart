@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'package:collectarr_app/core/fonts/fallback_font_weight.dart';
+import 'package:collectarr_app/core/fonts/font_weight.dart';
 import 'package:collectarr_app/core/fonts/local_font_controller.dart';
 import 'package:collectarr_app/core/fonts/local_font_face.dart';
 import 'package:flutter/services.dart';
@@ -12,6 +12,25 @@ void main() {
   setUp(() => SharedPreferences.setMockInitialValues({}));
   LocalFontFace face(int weight) =>
       LocalFontFace.parse(fontFixture(weight: weight), source: 'Imported');
+  test('normal text selects local Medium without changing imported font bytes',
+      () async {
+    final medium = face(500);
+    final original = List<int>.of(medium.bytes);
+    final registered = <int, Uint8List>{};
+    final controller = LocalFontController(registerFont: (_, bytes) async {
+      registered[fontWeight(bytes)] = Uint8List.fromList(bytes);
+    });
+    await controller.initialize(discover: false);
+    await controller.importFaces([face(400), medium, face(700)]);
+    final normal = LocalFontFace.parse(registered[400]!, source: 'Imported');
+    expect(normal.weight, 400);
+    expect(normal.name, contains('500'));
+    expect(medium.bytes, original);
+    expect(controller.faces[500]!.weight, 500);
+    expect(controller.faces[400]!.name, contains('400'));
+    controller.dispose();
+  });
+
   test('fills every missing UI weight, persists and restores imported faces',
       () async {
     final registered = <int>[];
@@ -145,7 +164,7 @@ void main() {
         (await rootBundle.load('assets/fonts/PlusJakartaSans-ExtraBold.ttf'))
             .buffer
             .asUint8List();
-    final modified = fallbackFontAtWeight(original, 900);
+    final modified = fontBytesAtWeight(original, 900);
     expect(fontWeight(original), 800);
     expect(fontWeight(modified), 900);
     var checksum = 0;

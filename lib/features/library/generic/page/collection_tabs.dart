@@ -188,7 +188,8 @@ class LibraryCollectionTab extends StatelessWidget {
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                    fontWeight: isActive ? FontWeight.w700 : FontWeight.w500,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w400,
                     color: foreground,
                   ),
             ),

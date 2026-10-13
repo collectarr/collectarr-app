@@ -173,7 +173,7 @@ class _SingleValuePickFieldState extends State<SingleValuePickField> {
                     Expanded(
                         child: Text(option,
                             style: const TextStyle(
-                                fontSize: 14, fontWeight: FontWeight.w500))),
+                                fontSize: 14, fontWeight: FontWeight.w400))),
                   ],
                 ),
               ),

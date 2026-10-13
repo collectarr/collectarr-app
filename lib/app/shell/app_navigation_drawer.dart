@@ -221,7 +221,7 @@ class _AppNavigationDrawerState extends State<AppNavigationDrawer> {
                   style: TextStyle(
                     fontFamily: appFontFamily,
                     fontSize: 14,
-                    fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
+                    fontWeight: selected ? FontWeight.w700 : FontWeight.w400,
                     color: itemColor,
                   ),
                 ),
