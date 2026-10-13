@@ -18,15 +18,17 @@ final _ranking = buildLibraryAddSearchRanking(
       metadataValues: (item) => [
         item.kindCapability
             .mapTransport((transport) => transport)
-            .payload['publisher']
+            .payload['label']
       ],
     ),
     LibraryAddSearchRankField(
       id: _yearFilterId,
       exactWeight: 55,
       containsWeight: 20,
-      metadataValues: (item) =>
-          [item.kindCapability.toImportTransport().payload['release_year']],
+      metadataValues: (item) => [
+        (item.kindCapability.toImportTransport().payload['release_date']
+            as Map?)?['year']
+      ],
     ),
     LibraryAddSearchRankField(
       id: _issueFilterId,
@@ -35,7 +37,7 @@ final _ranking = buildLibraryAddSearchRanking(
       metadataValues: (item) => [
         item.kindCapability
             .mapTransport((transport) => transport)
-            .payload['item_number']
+            .payload['catalog_number']
       ],
     ),
   ],
@@ -116,7 +118,7 @@ void main() {
       expect(
           result.first.kindCapability
               .mapTransport((transport) => transport)
-              .payload['publisher'],
+              .payload['label'],
           'DC Comics');
     });
 
@@ -135,9 +137,9 @@ void main() {
         ),
       );
       expect(
-          result.first.kindCapability
+          (result.first.kindCapability
               .toImportTransport()
-              .payload['release_year'],
+              .payload['release_date'] as Map?)?['year'],
           2012);
     });
 
@@ -158,7 +160,7 @@ void main() {
       expect(
           result.first.kindCapability
               .mapTransport((transport) => transport)
-              .payload['item_number'],
+              .payload['catalog_number'],
           '1');
     });
   });
@@ -207,13 +209,13 @@ CatalogSearchCandidate _item({
   int? releaseYear,
 }) {
   return CatalogSearchCandidate.fromItem(
-    testCatalogItemFromJson({
-      'id': 'test-${title.hashCode}',
-      'kind': 'comic',
-      'title': title,
-      if (publisher != null) 'publisher': publisher,
-      if (itemNumber != null) 'item_number': itemNumber,
-      if (releaseYear != null) 'release_year': releaseYear,
-    }),
+    testCatalogItem(
+      id: 'test-${title.hashCode}',
+      kind: 'music',
+      title: title,
+      publisher: publisher,
+      releaseDate: releaseYear == null ? null : DateTime.utc(releaseYear),
+      payload: {if (itemNumber != null) 'catalog_number': itemNumber},
+    ),
   );
 }

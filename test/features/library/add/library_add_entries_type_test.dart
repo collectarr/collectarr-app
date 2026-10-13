@@ -25,7 +25,7 @@ void main() {
         child: MaterialApp(
           home: Scaffold(
             body: LibraryAddDialog(
-              type: const MovieRegistration(),
+              type: const MusicRegistration(),
               autoLookupInitialIdentifier: false,
             ),
           ),

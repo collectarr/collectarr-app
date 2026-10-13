@@ -70,9 +70,9 @@ void main() {
     addTearDown(db.close);
 
     await PickListRepository(db).addValue(
-      'comic.condition',
+      'music.condition',
       'Near Mint',
-      mediaKind: 'comic',
+      mediaKind: 'music',
     );
 
     await tester.pumpWidget(
@@ -83,8 +83,8 @@ void main() {
             body: PickListManagerPage(
               db: db,
               registry: defaultPickListRegistry,
-              initialListName: 'comic.condition',
-              initialMediaKind: 'comic',
+              initialListName: 'music.condition',
+              initialMediaKind: 'music',
             ),
           ),
         ),
@@ -93,8 +93,8 @@ void main() {
 
     await pumpUntilSettled(tester);
 
-    expect(find.text('Manage Conditions'), findsOneWidget);
-    expect(find.text('Condition list'), findsOneWidget);
+    expect(find.text('Manage Package/Sleeve Conditions'), findsOneWidget);
+    expect(find.text('Package/Sleeve Condition list'), findsOneWidget);
     expect(find.text('Near Mint'), findsWidgets);
   });
 }

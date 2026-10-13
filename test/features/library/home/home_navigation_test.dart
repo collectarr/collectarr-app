@@ -3,115 +3,30 @@ import 'package:collectarr_app/features/library/home/home_nav_models.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  test('top navigation keeps the selected library visible on narrow widths',
+  const music = CatalogMediaType(
+      kind: 'music', singularLabel: 'Album', pluralLabel: 'Albums');
+  test('active library remains visible at the smallest navigation capacity',
       () {
-    const types = [
-      CatalogMediaType(
-        kind: 'music',
-        singularLabel: 'Comic',
-        pluralLabel: 'Comics',
-        routeSegments: ['comics'],
-      ),
-      CatalogMediaType(
-        kind: 'game',
-        singularLabel: 'Game',
-        pluralLabel: 'Games',
-        routeSegments: ['games'],
-      ),
-      CatalogMediaType(
-        kind: 'music',
-        singularLabel: 'Movie',
-        pluralLabel: 'Movies',
-        routeSegments: ['movies'],
-      ),
-    ];
-
-    final split = splitLibraryNavTypes(types, 'movie', 2);
-
-    expect(split.visible.map((type) => type.kind), ['comic', 'movie']);
-    expect(split.overflow.map((type) => type.kind), ['game']);
+    final split = splitLibraryNavTypes([music], 'music', 1);
+    expect(split.visible, [music]);
+    expect(split.overflow, isEmpty);
   });
-
-  test('library nav labels use catalog kind defaults', () {
-    expect(
-        libraryNavLabel(const CatalogMediaType(
-          kind: 'music',
-          singularLabel: 'Album',
-          pluralLabel: 'Albums',
-        )),
-        'Music');
-    expect(
-      libraryNavLabel(
-        const CatalogMediaType(
-          kind: 'music',
-          singularLabel: 'Movie',
-          pluralLabel: 'Movies',
-          routeSegments: ['movies'],
-        ),
-      ),
-      'Movies',
-    );
-    expect(
-      libraryNavLabel(
-        const CatalogMediaType(
-          kind: 'boardgame',
-          singularLabel: 'Boardgame',
-          pluralLabel: 'Boardgame',
-          routeSegments: ['boardgames'],
-        ),
-      ),
-      'Board Games',
-    );
-    expect(
-      libraryNavLabel(
-        const CatalogMediaType(
-          kind: 'podcast',
-          singularLabel: 'Podcast',
-          pluralLabel: 'Podcasts',
-          routeSegments: ['podcasts'],
-        ),
-      ),
-      'Podcasts',
-    );
+  test('Music navigation labels differ from album action labels', () {
+    expect(libraryNavLabel(music), 'Music');
+    expect(music.pluralLabel, 'Albums');
   });
-
-  test('canonical library nav kinds only normalize whitespace and case', () {
-    expect(canonicalLibraryNavKind('movie'), 'movie');
-    expect(canonicalLibraryNavKind('comic'), 'comic');
-    expect(canonicalLibraryNavKind('book'), 'book');
-    expect(canonicalLibraryNavKind('  MOVIE  '), 'movie');
+  test('navigation normalizes released kinds and rejects inactive kinds', () {
+    expect(canonicalLibraryNavKind('  MUSIC  '), 'music');
+    for (final kind in ['movie', 'comic', 'book', 'unknown', '']) {
+      expect(canonicalLibraryNavKind(kind), isNull);
+    }
     expect(canonicalLibraryNavKind(null), isNull);
   });
-
-  test('library nav groups follow the top-level catalog kinds', () {
-    const types = [
-      CatalogMediaType(
-        kind: 'music',
-        singularLabel: 'Comic',
-        pluralLabel: 'Comics',
-        routeSegments: ['comics'],
-      ),
-      CatalogMediaType(
-        kind: 'music',
-        singularLabel: 'Movie',
-        pluralLabel: 'Movies',
-        routeSegments: ['movies'],
-      ),
-      CatalogMediaType(
-        kind: 'music',
-        singularLabel: 'Book',
-        pluralLabel: 'Books',
-        routeSegments: ['books'],
-      ),
-    ];
-
-    final groups = buildLibraryNavGroups(types);
-
-    expect(groups.map((group) => group.label), ['Comics', 'Movies', 'Books']);
-    expect(groups[0].types.map((type) => type.kind), ['comic']);
-    expect(groups[1].types.map((type) => type.kind), ['movie']);
-    expect(selectedLibraryNavGroup(groups, 'movie').label, 'Movies');
+  test('navigation groups resolve the active Music library', () {
+    final groups = buildLibraryNavGroups([music]);
+    expect(groups.single.label, 'Music');
+    expect(groups.single.types, [music]);
     expect(
-        selectedLibraryNavGroup(groups, 'comic').containsKind('comic'), isTrue);
+        selectedLibraryNavGroup(groups, 'music').containsKind('music'), isTrue);
   });
 }

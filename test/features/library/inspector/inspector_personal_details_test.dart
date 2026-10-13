@@ -1,9 +1,9 @@
 import 'package:collectarr_app/core/models/library_entry_ref.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
-import 'package:collectarr_app/features/library/kinds/movie/tracking/movie_tracking_state.dart';
+import 'package:collectarr_app/features/library/kinds/music/tracking/music_tracking_state.dart';
 import 'package:collectarr_app/features/library/inspector/inspector_personal_details.dart';
-import 'package:collectarr_app/features/library/kinds/movie/tracking/movie_tracking_profile.dart';
-import 'package:collectarr_app/features/library/kinds/movie/data/movie_entry_repository.dart';
+import 'package:collectarr_app/features/library/kinds/music/tracking/music_tracking_profile.dart';
+import 'package:collectarr_app/features/library/kinds/music/data/music_entry_repository.dart';
 import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:drift/drift.dart' show Value;
 import 'package:drift/native.dart';
@@ -45,11 +45,11 @@ void main() {
             sortOrder: const Value(2),
           ),
         );
-    await MovieEntryRepository(db).upsert(
-      testMovieLibraryEntryFrom(testLibraryEntry(
+    await MusicEntryRepository(db).upsert(
+      testMusicLibraryEntryFrom(testLibraryEntry(
         id: 'entry-1',
-        itemId: 'movie-1',
-        kind: 'movie',
+        itemId: 'music-1',
+        kind: 'music',
         locationId: 'loc-a',
         updatedAt: DateTime.utc(2026, 5, 23),
       )),
@@ -57,8 +57,8 @@ void main() {
 
     final libraryEntry = testLibraryEntry(
       id: 'entry-1',
-      itemId: 'movie-1',
-      kind: 'movie',
+      itemId: 'music-1',
+      kind: 'music',
       locationId: 'loc-a',
       updatedAt: DateTime.utc(2026, 5, 23),
     );
@@ -90,7 +90,7 @@ void main() {
         .tap(find.widgetWithText(FilledButton, 'Apply personal changes'));
     await pumpUntilSettled(tester);
 
-    final updated = (await MovieEntryRepository(db).listActive()).single;
+    final updated = (await MusicEntryRepository(db).listActive()).single;
     expect(updated.personal.locationId, 'loc-b');
   });
 
@@ -104,11 +104,11 @@ void main() {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
 
-    await MovieEntryRepository(db).upsert(
-      testMovieLibraryEntryFrom(testLibraryEntry(
-        id: 'movie-1',
-        itemId: 'movie-1',
-        kind: 'movie',
+    await MusicEntryRepository(db).upsert(
+      testMusicLibraryEntryFrom(testLibraryEntry(
+        id: 'music-1',
+        itemId: 'music-1',
+        kind: 'music',
         updatedAt: DateTime.utc(2026, 5, 23),
       )),
     );
@@ -117,9 +117,9 @@ void main() {
     await trackingRepository.upsertStorageRecord(
       trackingRepository.create(
         id: 'tracking-1',
-        libraryEntryRef: LibraryEntryRef.fromKey('movie:movie-1'),
+        libraryEntryRef: LibraryEntryRef.fromKey('music:music-1'),
         sourceType: 'digital',
-        status: 'Plan to watch',
+        status: 'Want to listen',
         rating: 7,
         startedAt: DateTime.utc(2026, 5, 20),
         updatedAt: DateTime.utc(2026, 5, 23),
@@ -133,17 +133,17 @@ void main() {
           home: Scaffold(
             body: InspectorTrackingDetailsEditor(
               trackingSummary: trackingSummaryFromRecord(
-                MovieTrackingState(
+                MusicTrackingState(
                   id: 'tracking-1',
-                  libraryEntryRef: LibraryEntryRef.fromKey('movie:movie-1'),
+                  libraryEntryRef: LibraryEntryRef.fromKey('music:music-1'),
                   sourceType: 'digital',
-                  status: 'Plan to watch',
+                  status: 'Want to listen',
                   rating: 7,
                   startedAt: DateTime.utc(2026, 5, 20),
                   updatedAt: DateTime.utc(2026, 5, 23),
                 ),
               ),
-              profile: movieTrackingProfile,
+              profile: musicTrackingProfile,
               accent: Colors.orange,
             ),
           ),
@@ -162,7 +162,7 @@ void main() {
     final updated = await readSingleTrackingState(db);
     expect(updated.sourceTypeApiValue, 'digital');
     expect(updated.rating, 7);
-    expect(updated.libraryEntryRef.id.value, 'movie-1');
+    expect(updated.libraryEntryRef.id.value, 'music-1');
     expect(updated.updatedAt.isAfter(DateTime.utc(2026, 5, 23)), isTrue);
   });
 }

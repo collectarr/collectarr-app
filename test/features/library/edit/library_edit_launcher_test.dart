@@ -21,7 +21,7 @@ void main() {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
     final completer = Completer<LibraryEditDialogRequest>();
-    final request = _bookEditRequest();
+    final request = _musicEditRequest();
 
     await tester.pumpWidget(
       ProviderScope(
@@ -62,14 +62,14 @@ void main() {
   });
 }
 
-LibraryEditDialogRequest _bookEditRequest() {
+LibraryEditDialogRequest _musicEditRequest() {
   return LibraryEditDialogRequest(
-    type: const BookRegistration(),
-    item: CatalogSearchCandidate.fromItem(testCatalogItemFromJson({
-      'id': 'book-1',
-      'kind': 'book',
-      'title': 'The Return of the King',
-    })),
+    type: const MusicRegistration(),
+    item: CatalogSearchCandidate.fromItem(testCatalogItem(
+      id: 'music-1',
+      kind: 'music',
+      title: 'The Return of the King',
+    )),
     libraryEntry: null,
     accent: Colors.orange,
   );

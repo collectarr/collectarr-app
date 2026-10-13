@@ -28,14 +28,10 @@ void main() {
       expect(capability.mappableFields.any((f) => f.key == 'title'), isTrue);
     });
 
-    test('book, comic, and other kinds resolve import capabilities', () {
-      final bookCap = libraryImportForKind(CatalogMediaKind.book);
-      expect(bookCap.sources.any((s) => s.id == 'text'), isTrue);
-      expect(bookCap.sources.any((s) => s.id == 'goodreads'), isTrue);
-
-      final comicCap = libraryImportForKind(CatalogMediaKind.comic);
-      expect(comicCap.sources.any((s) => s.id == 'text'), isTrue);
-      expect(comicCap.sources.any((s) => s.id == 'comicrack'), isTrue);
+    test('unreleased kinds cannot borrow Music import semantics', () {
+      for (final kind in [CatalogMediaKind.book, CatalogMediaKind.comic]) {
+        expect(() => libraryImportForKind(kind), throwsArgumentError);
+      }
     });
   });
 

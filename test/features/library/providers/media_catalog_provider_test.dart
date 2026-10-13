@@ -29,9 +29,9 @@ void main() {
     final api = _CatalogApiClient([
       const CatalogMediaType(
         kind: 'music',
-        singularLabel: 'Movie',
-        pluralLabel: 'Movies',
-        routeSegments: ['movies'],
+        singularLabel: 'Album',
+        pluralLabel: 'Albums',
+        routeSegments: ['music'],
       ),
     ]);
     final first = ProviderContainer(
@@ -61,16 +61,16 @@ void main() {
           _CatalogApiClient([
             const CatalogMediaType(
               kind: 'music',
-              singularLabel: 'Movie',
-              pluralLabel: 'Movies',
-              routeSegments: ['movies'],
+              singularLabel: 'Album',
+              pluralLabel: 'Albums',
+              routeSegments: ['music'],
               physicalFormats: [
                 CatalogPhysicalFormat(
-                  id: 'hd-dvd',
-                  label: 'HD DVD',
-                  mediaFamily: 'video',
+                  id: 'shm-cd',
+                  label: 'SHM-CD',
+                  mediaFamily: 'audio',
                   variantType: 'physical',
-                  aliases: ['hddvd'],
+                  aliases: ['shmcd'],
                 ),
               ],
             ),
@@ -86,8 +86,8 @@ void main() {
       CatalogMediaKind.music,
     );
 
-    final format = formats.singleWhere((format) => format.id == 'hd-dvd');
-    expect(format.aliases, {'hddvd'});
+    final format = formats.singleWhere((format) => format.id == 'shm-cd');
+    expect(format.aliases, {'shmcd'});
   });
 
   test('media catalog provider normalizes known display labels', () async {
@@ -105,7 +105,7 @@ void main() {
               kind: 'movie',
               singularLabel: 'Film',
               pluralLabel: 'Films',
-              routeSegments: ['movies'],
+              routeSegments: ['music'],
             ),
             const CatalogMediaType(
               kind: 'boardgame',

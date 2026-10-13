@@ -6,7 +6,7 @@ import 'package:collectarr_app/core/models/tracking_state_ref.dart';
 import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/features/catalog/catalog_display_summary_repository.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_common_draft.dart';
-import 'package:collectarr_app/features/library/kinds/movie/entries/movie_entry_details_draft.dart';
+import 'package:collectarr_app/features/library/kinds/music/entries/music_entry_details_draft.dart';
 import 'package:collectarr_app/features/collection/events/collection_event.dart';
 import 'package:collectarr_app/features/collection/events/collection_event_bus.dart';
 import 'package:collectarr_app/features/collection/mutations/library_entry_mutations.dart';
@@ -41,10 +41,10 @@ void main() {
     SharedPreferences.setMockInitialValues({});
     db = LocalDatabase(NativeDatabase.memory());
     await CatalogItemCacheRepository(db).upsert(
-      testCatalogItem(id: 'movie-100', kind: 'movie', title: 'Movie 100'),
+      testCatalogItem(id: 'movie-100', kind: 'music', title: 'Movie 100'),
     );
     await CatalogItemCacheRepository(db).upsert(
-      testCatalogItem(id: 'movie-200', kind: 'movie', title: 'Movie 200'),
+      testCatalogItem(id: 'movie-200', kind: 'music', title: 'Movie 200'),
     );
     eventBus = CollectionEventBus();
     runner = CollectionMutationRunner(
@@ -103,9 +103,9 @@ void main() {
 
     final item = await entryMutations.addLibraryEntry(
       typedAddLibraryEntryCommand(
-        catalogRef: testCatalogRef('movie-100', kind: 'movie'),
+        catalogRef: testCatalogRef('movie-100', kind: 'music'),
         common: const LibraryAddCommonDraft(),
-        details: const MovieEntryDetailsDraft(),
+        details: const MusicEntryDetailsDraft(),
       ),
     );
 
@@ -118,7 +118,7 @@ void main() {
       'add collection item with matching wishlist entry emits LibraryEntryAdded and WishlistChanged',
       () async {
     await wishlistMutations.addToWishlist(
-      testCatalogRef('movie-200', kind: 'movie'),
+      testCatalogRef('movie-200', kind: 'music'),
     );
 
     final events = <CollectionEvent>[];
@@ -126,16 +126,16 @@ void main() {
 
     final item = await entryMutations.addLibraryEntry(
       typedAddLibraryEntryCommand(
-        catalogRef: testCatalogRef('movie-200', kind: 'movie'),
+        catalogRef: testCatalogRef('movie-200', kind: 'music'),
         common: const LibraryAddCommonDraft(),
-        details: const MovieEntryDetailsDraft(),
+        details: const MusicEntryDetailsDraft(),
       ),
     );
 
     await Future<void>.delayed(Duration.zero);
     expect(events, [
       LibraryEntryAdded(item),
-      WishlistChanged(testCatalogRef('movie-200', kind: 'movie')),
+      WishlistChanged(testCatalogRef('movie-200', kind: 'music')),
     ]);
     await sub.cancel();
   });
@@ -152,11 +152,11 @@ void main() {
         eventsToEmit: [
           LibraryEntryAdded(
             const LibraryEntryRef(
-              kind: CatalogMediaKind.movie,
+              kind: CatalogMediaKind.music,
               id: LibraryEntryId('should-not-emit'),
             ),
           ),
-          WishlistChanged(testCatalogRef('should-not-emit', kind: 'movie')),
+          WishlistChanged(testCatalogRef('should-not-emit', kind: 'music')),
         ],
       ),
       throwsA(isA<Exception>()),
@@ -169,7 +169,7 @@ void main() {
 
   test('remove tracking emits TrackingChanged only', () async {
     const entryRef = LibraryEntryRef(
-      kind: CatalogMediaKind.book,
+      kind: CatalogMediaKind.music,
       id: LibraryEntryId('book-300'),
     );
     await trackingMutations.upsertTrackingState(

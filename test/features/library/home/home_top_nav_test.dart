@@ -20,29 +20,7 @@ void main() {
 
     const types = [
       CatalogMediaType(
-        kind: 'music',
-        singularLabel: 'Comic',
-        pluralLabel: 'Comics',
-        routeSegments: ['comics'],
-      ),
-      CatalogMediaType(
-        kind: 'music',
-        singularLabel: 'Manga',
-        pluralLabel: 'Manga',
-        routeSegments: ['manga'],
-      ),
-      CatalogMediaType(
-        kind: 'music',
-        singularLabel: 'Movie',
-        pluralLabel: 'Movies',
-        routeSegments: ['movies'],
-      ),
-      CatalogMediaType(
-        kind: 'tv',
-        singularLabel: 'Show',
-        pluralLabel: 'Shows',
-        routeSegments: ['tv'],
-      ),
+          kind: 'music', singularLabel: 'Album', pluralLabel: 'Albums')
     ];
 
     await tester.pumpWidget(
@@ -55,7 +33,7 @@ void main() {
               types: types,
               counts: const {},
               registry: defaultLibraryKindRegistry,
-              selectedKind: 'comic',
+              selectedKind: 'music',
               onSelected: (_) {},
             ),
           ),

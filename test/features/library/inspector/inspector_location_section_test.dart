@@ -2,7 +2,7 @@ import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/features/library/inspector/inspector_location_section.dart';
-import 'package:collectarr_app/features/library/kinds/comic/data/comic_entry_repository.dart';
+import 'package:collectarr_app/features/library/kinds/music/data/music_entry_repository.dart';
 import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
@@ -23,11 +23,11 @@ void main() {
             sortOrder: const Value(1),
           ),
         );
-    await ComicEntryRepository(db).upsert(
-      testComicLibraryEntryFrom(testLibraryEntry(
+    await MusicEntryRepository(db).upsert(
+      testMusicLibraryEntryFrom(testLibraryEntry(
         id: 'entry-1',
         itemId: 'comic-1',
-        kind: 'comic',
+        kind: 'music',
         locationId: 'loc-1',
         updatedAt: DateTime.utc(2026, 5, 22),
       )),
@@ -38,7 +38,7 @@ void main() {
         home: Scaffold(
           body: InspectorLocationSection(
             libraryEntryRef: const LibraryEntryRef(
-              kind: CatalogMediaKind.comic,
+              kind: CatalogMediaKind.music,
               id: LibraryEntryId('entry-1'),
             ),
             db: db,
@@ -58,7 +58,7 @@ void main() {
     await tester.tap(find.text('Cancel'));
     await pumpUntilSettled(tester);
 
-    final entry = (await ComicEntryRepository(db).listActive()).single;
+    final entry = (await MusicEntryRepository(db).listActive()).single;
 
     expect(entry.personal.locationId, 'loc-1');
     expect(find.text('Office Shelf'), findsOneWidget);
