@@ -7,7 +7,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![GitHub Release](https://img.shields.io/github/v/release/collectarr/collectarr-app)](https://github.com/collectarr/collectarr-app/releases)
 [![Issues](https://img.shields.io/github/issues/collectarr/collectarr-app)](https://github.com/collectarr/collectarr-app/issues)
-![Flutter](https://img.shields.io/badge/Flutter-3.44.0-02569B?logo=flutter&logoColor=white)
+![Flutter](https://img.shields.io/badge/Flutter-3.47.7-02569B?logo=flutter&logoColor=white)
 
 Collectarr is a local-first collection manager for **Music, Books, Comics,
 Manga, Movies, TV, Anime, Games and Board Games**. The Flutter app owns your
@@ -62,7 +62,7 @@ recording-date sorts preserve mixed-disc semantics.
 
 ## Development setup
 
-Use **Flutter 3.44.0**, the version pinned in CI, and the repository's dependency
+Use **Flutter 3.47.7**, the version pinned in CI, and the repository's dependency
 lockfile. Run commands from this checkout:
 
 ```powershell

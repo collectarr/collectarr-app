@@ -5696,6 +5696,17 @@
             "music.last_listened"
           ]
         },
+        "length": {
+          "symbols": [
+            "length"
+          ],
+          "databaseColumns": [],
+          "databaseTables": [],
+          "sqlNames": [],
+          "workspaceFieldIds": [
+            "music.length"
+          ]
+        },
         "libraryEntryRefKey": {
           "symbols": [
             "libraryEntryRefKey",

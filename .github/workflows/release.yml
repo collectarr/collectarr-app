@@ -110,7 +110,7 @@ jobs:
         if: steps.release_context.outputs.release_published == 'true'
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.44.0'
+          flutter-version: '3.47.7'
 
       - name: Install dependencies
         if: steps.release_context.outputs.release_published == 'true'
@@ -184,7 +184,7 @@ jobs:
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.44.0'
+          flutter-version: '3.47.7'
 
       - name: Install dependencies
         run: flutter pub get --enforce-lockfile
@@ -216,7 +216,7 @@ jobs:
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.44.0'
+          flutter-version: '3.47.7'
 
       - name: Install dependencies
         run: flutter pub get --enforce-lockfile
@@ -326,7 +326,7 @@ jobs:
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.44.0'
+          flutter-version: '3.47.7'
 
       - name: Install dependencies
         run: flutter pub get --enforce-lockfile
@@ -388,7 +388,7 @@ jobs:
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.44.0'
+          flutter-version: '3.47.7'
 
       - name: Install dependencies
         run: flutter pub get --enforce-lockfile

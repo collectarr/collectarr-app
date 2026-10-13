@@ -239,7 +239,8 @@ void main() {
     );
   });
 
-  testWidgets('settings page appearance renders sliders with gridSpacing 24.0 without throwing',
+  testWidgets(
+      'settings page appearance renders sliders with gridSpacing 24.0 without throwing',
       (tester) async {
     SharedPreferences.setMockInitialValues({
       UiPreferencesStore.gridSpacingKey: 24.0,

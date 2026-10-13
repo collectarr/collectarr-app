@@ -1,0 +1,3 @@
+# Preserve canonical bytes used by pinned contract checksums on every platform.
+/tool/core_contracts/*.json text eol=lf
+/lib/core/api/generated/catalog_item_v2_fields.dart text eol=lf

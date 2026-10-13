@@ -31,8 +31,8 @@ void main() {
     expect(dialog.columnLabel('music.cover'), 'Cover');
     expect(dialog.presets.map((preset) => preset.label),
         containsAll(['Essential', 'Reference']));
-    expect(dialog.presets.map((preset) => preset.label),
-        contains('Collection'));
+    expect(
+        dialog.presets.map((preset) => preset.label), contains('Collection'));
     await tester.tap(find.byTooltip('Manage Favorites'));
     await tester.pumpAndSettle();
     expect(
