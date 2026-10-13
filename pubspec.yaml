@@ -12,7 +12,7 @@ dependencies:
     sdk: flutter
   flutter_riverpod: ^3.4.3
   dio: ^5.11.1
-  drift: ^2.34.0
+  drift: ^2.35.2
   web: ^1.1.1
   path: ^1.9.1
   path_provider: ^2.1.6
@@ -50,8 +50,8 @@ dev_dependencies:
     sdk: flutter
   flutter_lints: ^6.0.0
   build_runner: ^2.15.1
-  drift_dev: ^2.34.0
-  analyzer: ^12.1.0
+  drift_dev: ^2.35.1
+  analyzer: ^13.3.0
   vm_service: ^15.3.0
 
 flutter:
