@@ -1,123 +1,41 @@
-/// Desktop and mobile smoke tests for navigation and mandatory destination keys.
-library;
-
+import '../../support/app/provider_overrides.dart';
+import '../../support/app/test_app_harness.dart';
+import 'package:collectarr_app/core/db/local_database.dart';
+import 'package:drift/native.dart';
+// Desktop and mobile smoke tests for navigation and mandatory destination keys.
 import 'package:collectarr_app/app/shell/app_navigation_drawer.dart';
 import 'package:collectarr_app/app/shell/app_navigation_model.dart';
 
-import 'dart:convert';
-
 import 'package:collectarr_app/core/routing/app_router.dart';
-import 'package:collectarr_app/features/collection/collection_controller.dart';
-import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
-import 'package:collectarr_app/features/library/providers/media_catalog_provider.dart';
-import 'package:collectarr_app/state/auth_provider.dart';
-import 'package:collectarr_app/features/sync/state/sync_controller.dart';
 import 'package:collectarr_app/app/app_shell.dart';
 import 'package:collectarr_app/features/library/add/library_add_dialog.dart';
 import 'package:collectarr_app/features/library/home/home_page.dart';
 import 'package:collectarr_app/ui/app_page_header.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-
-import '../../support/fakes/secure_storage_mock.dart';
 import '../../support/fixtures/test_constants.dart';
 
-// ---------------------------------------------------------------------------
-// Fake auth / sync helpers
-// ---------------------------------------------------------------------------
-
-String _jwtExpiringAt(DateTime exp) {
-  final header = base64Url.encode(utf8.encode('{"alg":"HS256","typ":"JWT"}'));
-  final payload = base64Url.encode(
-    utf8.encode(
-        '{"sub":"test","email":"test@example.com","exp":${exp.millisecondsSinceEpoch ~/ 1000}}'),
-  );
-  return '$header.$payload.fake_signature';
-}
-
-class _AuthenticatedAuthController extends AuthController {
-  _AuthenticatedAuthController();
-}
-
-class _NoOpSyncController extends SyncController {
-  _NoOpSyncController();
-
-  @override
-  Future<void> syncOnlineFirstIfEnabled() async {}
-}
-
-// ---------------------------------------------------------------------------
-// Test app builder
-// ---------------------------------------------------------------------------
-
-Widget _smokeApp({List<Override> overrides = const []}) {
-  return ProviderScope(
-    overrides: overrides,
-    child: Consumer(
-      builder: (context, ref, _) {
-        final router = ref.watch(appRouterProvider);
-        return MaterialApp.router(routerConfig: router);
-      },
-    ),
-  );
-}
-
-List<Override> _testOverrides() {
-  return [
-    authControllerProvider.overrideWith(
-      () => _AuthenticatedAuthController(),
-    ),
-    syncControllerProvider.overrideWith(
-      () => _NoOpSyncController(),
-    ),
-    shelfProvider.overrideWith(
-      (ref) async => const ShelfState(
-        entries: [],
-        entryCount: 0,
-        wishlistCount: 0,
-        pricedCount: 0,
-        totalPaidCents: null,
-        primaryCurrency: null,
-        hasMixedCurrencies: false,
-      ),
-    ),
-    collectionProvider.overrideWith((ref) async => const []),
-    mediaCatalogProvider.overrideWith(
-      (ref) async => fallbackMediaCatalog,
-    ),
-  ];
-}
-
-void _mockAuthPreferences() {
-  SharedPreferences.setMockInitialValues({
-    'collectarr.auth.token': _jwtExpiringAt(
-      DateTime.now().toUtc().add(const Duration(hours: 1)),
-    ),
-    'collectarr.auth.email': 'test@example.com',
-    'collectarr.auth.is_admin': true,
-  });
-}
-
-// ---------------------------------------------------------------------------
-// Tests
-// ---------------------------------------------------------------------------
-
 void main() {
-  setUp(setUpSecureStorageMock);
+  late LocalDatabase database;
+  setUp(() {
+    setUpTestAppPreferences();
+    database = LocalDatabase(NativeDatabase.memory());
+  });
+  tearDown(() async => database.close());
 
   group('App Mandatory Destination Smoke Tests', () {
     testWidgets(
         'direct Music settings route retains kind when returning to library',
         (tester) async {
-      _mockAuthPreferences();
+      setUpTestAppPreferences();
       tester.view.physicalSize = kDesktopTestSize;
       tester.view.devicePixelRatio = kDesktopTestDPR;
       addTearDown(tester.view.resetPhysicalSize);
       addTearDown(tester.view.resetDevicePixelRatio);
-      await tester.pumpWidget(_smokeApp(overrides: _testOverrides()));
+      await tester.pumpWidget(testApp(
+          overrides: testAppOverrides(
+              database: database, stubEmptyCollections: true)));
       await pumpUntilSettled(tester);
       final container =
           ProviderScope.containerOf(tester.element(find.byType(AppShell)));
@@ -133,17 +51,20 @@ void main() {
           'music');
       expect(find.text('COLLECTARR MUSIC'), findsOneWidget);
       expect(tester.takeException(), isNull);
+      await disposeTestApp(tester);
     });
 
     testWidgets(
         'Music header persists on pushed tools and Core add returns to library',
         (tester) async {
-      _mockAuthPreferences();
+      setUpTestAppPreferences();
       tester.view.physicalSize = kDesktopTestSize;
       tester.view.devicePixelRatio = kDesktopTestDPR;
       addTearDown(tester.view.resetPhysicalSize);
       addTearDown(tester.view.resetDevicePixelRatio);
-      await tester.pumpWidget(_smokeApp(overrides: _testOverrides()));
+      await tester.pumpWidget(testApp(
+          overrides: testAppOverrides(
+              database: database, stubEmptyCollections: true)));
       await pumpUntilSettled(tester);
       final container =
           ProviderScope.containerOf(tester.element(find.byType(AppShell)));
@@ -221,12 +142,13 @@ void main() {
       expect(find.byType(LibraryHomePage), findsOneWidget);
       expect(find.text('COLLECTARR MUSIC'), findsOneWidget);
       expect(tester.takeException(), isNull);
+      await disposeTestApp(tester);
     });
 
     testWidgets(
         'desktop smoke: can navigate through all mandatory destinations',
         (tester) async {
-      _mockAuthPreferences();
+      setUpTestAppPreferences();
 
       tester.view.physicalSize = kDesktopTestSize;
       tester.view.devicePixelRatio = kDesktopTestDPR;
@@ -234,7 +156,9 @@ void main() {
       addTearDown(tester.view.resetDevicePixelRatio);
 
       await tester.pumpWidget(
-        _smokeApp(overrides: _testOverrides()),
+        testApp(
+            overrides: testAppOverrides(
+                database: database, stubEmptyCollections: true)),
       );
       await pumpUntilSettled(tester);
 
@@ -283,12 +207,13 @@ void main() {
       expect(find.byType(AppShell), findsOneWidget);
 
       expect(tester.takeException(), isNull);
+      await disposeTestApp(tester);
     });
 
     testWidgets(
         'mobile phone smoke (390x844): navigates shell, settings, and back without overflow',
         (tester) async {
-      _mockAuthPreferences();
+      setUpTestAppPreferences();
 
       tester.view.physicalSize = const Size(390, 844);
       tester.view.devicePixelRatio = 1.0;
@@ -303,7 +228,9 @@ void main() {
       addTearDown(() => FlutterError.onError = originalOnError);
 
       await tester.pumpWidget(
-        _smokeApp(overrides: _testOverrides()),
+        testApp(
+            overrides: testAppOverrides(
+                database: database, stubEmptyCollections: true)),
       );
       await pumpUntilSettled(tester);
 
@@ -341,6 +268,7 @@ void main() {
         }
       }
       expect(err, isNull);
+      await disposeTestApp(tester);
     });
   });
 }

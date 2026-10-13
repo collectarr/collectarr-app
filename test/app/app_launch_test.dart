@@ -1,3 +1,4 @@
+import '../support/app/auth_fakes.dart';
 import 'package:collectarr_app/core/routing/app_router.dart';
 import 'package:collectarr_app/state/auth_provider.dart';
 import 'package:collectarr_app/main.dart';
@@ -9,18 +10,13 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../support/fakes/secure_storage_mock.dart';
 import '../support/fixtures/test_constants.dart';
 
-class _SignedOutAuthController extends AuthController {
-  @override
-  AuthState build() => const AuthState();
-}
-
 void main() {
   setUp(setUpSecureStorageMock);
 
   testWidgets('app auth route renders sign-in controls', (tester) async {
     SharedPreferences.setMockInitialValues({});
     final container = ProviderContainer(overrides: [
-      authControllerProvider.overrideWith(_SignedOutAuthController.new),
+      authControllerProvider.overrideWith(SignedOutAuthFake.new),
     ]);
     addTearDown(container.dispose);
     container.read(appRouterProvider).go(AppRoutes.auth);

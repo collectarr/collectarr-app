@@ -44,3 +44,20 @@ remain covered by the Music correctness tests.
 Coverage is an informational artifact, without a global percentage threshold.
 The full release gate still includes generators, analyze, architecture checks,
 correctness tests, native integration flows and platform builds.
+
+## Native application flows
+
+The native flows share explicit auth/sync overrides and an owned database through
+`test/support/app/`. Navigation smoke uses empty collection projections; add and
+edit flows use the real repositories/providers. The Core fake accepts only its
+explicit Music search requests and rejects unexpected network traffic.
+
+```sh
+flutter test integration_test/app_smoke_test.dart -d windows
+flutter test integration_test/library_add_flow_test.dart -d windows
+flutter test integration_test/library_edit_flow_test.dart -d windows
+```
+
+Run them sequentially per checkout to avoid native SQLite library locks. CI runs
+the same files on Linux under Xvfb. Personal persistence uses a temporary database
+created by the test, closes it and reloads it; it never opens the user's database.

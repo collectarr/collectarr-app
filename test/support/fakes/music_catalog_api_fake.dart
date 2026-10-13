@@ -1,3 +1,4 @@
+import 'dart:typed_data';
 import 'package:collectarr_app/core/api/api_client.dart';
 import 'package:collectarr_app/core/api/dto/metadata_search_query.dart';
 import 'package:dio/dio.dart';
@@ -7,11 +8,13 @@ import '../builders/catalog_item_builder.dart';
 class MusicCatalogApiFake extends ApiClient {
   MusicCatalogApiFake({
     this.searchId = 'music-1',
+    this.title = 'Batman',
     String Function(String)? barcodeId,
   })  : barcodeId = barcodeId ?? ((_) => 'music-1'),
-        super(baseUrl: 'http://unused');
+        super(baseUrl: 'http://unused', dio: _isolatedDio());
 
   final String searchId;
+  final String title;
   final String Function(String) barcodeId;
   MetadataSearchQuery? lastSearchQuery;
   String? lastBarcode;
@@ -47,7 +50,7 @@ class MusicCatalogApiFake extends ApiClient {
         testCatalogItem(
           id: barcode == null ? searchId : barcodeId(barcode),
           kind: 'music',
-          title: 'Batman',
+          title: title,
           barcode: barcode,
         ).toJson()
       ],
@@ -55,4 +58,17 @@ class MusicCatalogApiFake extends ApiClient {
       'next_offset': null,
     };
   }
+}
+
+Dio _isolatedDio() => Dio(BaseOptions(baseUrl: 'http://unused'))
+  ..httpClientAdapter = _RejectUnexpectedNetwork();
+
+class _RejectUnexpectedNetwork implements HttpClientAdapter {
+  @override
+  Future<ResponseBody> fetch(RequestOptions options,
+          Stream<Uint8List>? requestStream, Future<void>? cancelFuture) async =>
+      throw StateError(
+          'Unexpected test HTTP request: ${options.method} ${options.path}');
+  @override
+  void close({bool force = false}) {}
 }

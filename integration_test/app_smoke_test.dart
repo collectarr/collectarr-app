@@ -1,119 +1,20 @@
-/// End-to-end smoke test for the Collectarr app across desktop and mobile form factors.
-///
-/// Launches the full [CollectarrApp] with mocked auth/sync/database providers
-/// and navigates through the main navigation destinations.
-///
-/// Run with:
-///   flutter test integration_test/app_smoke_test.dart
-library;
-
-import 'dart:convert';
-
-import 'package:collectarr_app/core/routing/app_router.dart';
+import '../test/support/app/provider_overrides.dart';
+import '../test/support/app/test_app_harness.dart';
+// End-to-end smoke test for the Collectarr app across desktop and mobile form factors.
+//
+// Launches the full [CollectarrApp] with mocked auth/sync/database providers
+// and navigates through the main navigation destinations.
+//
+// Run with:
+//   flutter test integration_test/app_smoke_test.dart
 import 'package:collectarr_app/core/db/local_database.dart';
-import 'package:collectarr_app/state/local_database_provider.dart';
 import 'package:drift/native.dart';
-import 'package:collectarr_app/features/collection/collection_controller.dart';
-import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
-import 'package:collectarr_app/features/library/providers/media_catalog_provider.dart';
-import 'package:collectarr_app/state/auth_provider.dart';
-import 'package:collectarr_app/features/sync/state/sync_controller.dart';
-import 'package:collectarr_app/features/sync/state/sync_state.dart';
 import 'package:collectarr_app/app/app_shell.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-
 import '../test/support/fakes/secure_storage_mock.dart';
 import '../test/support/fixtures/test_constants.dart';
-
-// ---------------------------------------------------------------------------
-// Fake auth / sync helpers
-// ---------------------------------------------------------------------------
-
-String _jwtExpiringAt(DateTime exp) {
-  final header = base64Url.encode(utf8.encode('{"alg":"HS256","typ":"JWT"}'));
-  final payload = base64Url.encode(
-    utf8.encode(
-        '{"sub":"test","email":"test@example.com","exp":${exp.millisecondsSinceEpoch ~/ 1000}}'),
-  );
-  return '$header.$payload.fake_signature';
-}
-
-class _AuthenticatedAuthController extends AuthController {
-  _AuthenticatedAuthController();
-}
-
-class _NoOpSyncController extends SyncController {
-  _NoOpSyncController();
-
-  @override
-  SyncState build() => SyncState();
-
-  @override
-  Future<void> syncOnlineFirstIfEnabled() async {}
-}
-
-// ---------------------------------------------------------------------------
-// Test app builder
-// ---------------------------------------------------------------------------
-
-Widget _integrationApp({List<Override> overrides = const []}) {
-  return ProviderScope(
-    overrides: overrides,
-    child: Consumer(
-      builder: (context, ref, _) {
-        final router = ref.watch(appRouterProvider);
-        return MaterialApp.router(routerConfig: router);
-      },
-    ),
-  );
-}
-
-List<Override> _testOverrides(LocalDatabase database) {
-  return [
-    localDatabaseProvider.overrideWithValue(database),
-    authControllerProvider.overrideWith(
-      () => _AuthenticatedAuthController(),
-    ),
-    syncControllerProvider.overrideWith(
-      () => _NoOpSyncController(),
-    ),
-    shelfProvider.overrideWith(
-      (ref) async => const ShelfState(
-        entries: [],
-        entryCount: 0,
-        wishlistCount: 0,
-        pricedCount: 0,
-        totalPaidCents: null,
-        primaryCurrency: null,
-        hasMixedCurrencies: false,
-      ),
-    ),
-    collectionProvider.overrideWith((ref) async => const []),
-    mediaCatalogProvider.overrideWith(
-      (ref) async => fallbackMediaCatalog,
-    ),
-  ];
-}
-
-void _mockAuthPreferences() {
-  final token = _jwtExpiringAt(
-    DateTime.now().toUtc().add(const Duration(hours: 1)),
-  );
-  setSecureStorageValue('collectarr.auth.token', token);
-  SharedPreferences.setMockInitialValues({
-    'collectarr.auth.email': 'test@example.com',
-    'collectarr.auth.is_admin': true,
-  });
-}
-
-// ---------------------------------------------------------------------------
-// Tests
-// ---------------------------------------------------------------------------
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
@@ -129,7 +30,7 @@ void main() {
     testWidgets(
         'desktop smoke: can navigate through all mandatory destinations',
         (tester) async {
-      _mockAuthPreferences();
+      setUpTestAppPreferences();
       addTearDown(() async {
         await tester.pumpWidget(const SizedBox.shrink());
         await pumpUntilSettled(tester);
@@ -141,7 +42,9 @@ void main() {
       addTearDown(tester.view.resetDevicePixelRatio);
 
       await tester.pumpWidget(
-        _integrationApp(overrides: _testOverrides(database)),
+        testApp(
+            overrides: testAppOverrides(
+                database: database, stubEmptyCollections: true)),
       );
       await pumpUntilSettled(tester);
 
@@ -194,7 +97,7 @@ void main() {
     testWidgets(
         'mobile phone smoke (390x844): navigates shell, settings, and back without overflow',
         (tester) async {
-      _mockAuthPreferences();
+      setUpTestAppPreferences();
       addTearDown(() async {
         await tester.pumpWidget(const SizedBox.shrink());
         await pumpUntilSettled(tester);
@@ -206,7 +109,9 @@ void main() {
       addTearDown(tester.view.resetDevicePixelRatio);
 
       await tester.pumpWidget(
-        _integrationApp(overrides: _testOverrides(database)),
+        testApp(
+            overrides: testAppOverrides(
+                database: database, stubEmptyCollections: true)),
       );
       await pumpUntilSettled(tester);
 

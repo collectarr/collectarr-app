@@ -66,8 +66,11 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y libgtk-3-dev libsecret-1-dev libjsoncpp-dev xvfb
 
-      - name: Run integration smoke tests
-        run: xvfb-run -a flutter test integration_test/app_smoke_test.dart -d linux
+      - name: Run native navigation, Core add and persistence flows
+        run: |
+          for flow in integration_test/*_test.dart; do
+            xvfb-run -a flutter test "$flow" -d linux
+          done
 
   build-web:
     runs-on: ubuntu-latest
