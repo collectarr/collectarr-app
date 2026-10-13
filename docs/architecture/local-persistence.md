@@ -16,7 +16,7 @@ Drift output:
 
 ```powershell
 dart run tool/generate_kind_registries.dart
-dart run build_runner build --delete-conflicting-outputs
+dart run build_runner build
 ```
 
 ## Local record

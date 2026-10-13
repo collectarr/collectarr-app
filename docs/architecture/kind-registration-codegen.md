@@ -35,7 +35,7 @@ an architecture inventory, not a registration source.
 Drift's generated database code is produced separately by `build_runner`:
 
 ```text
-dart run build_runner build --delete-conflicting-outputs
+dart run build_runner build
 ```
 
 CI runs these generation steps independently and checks that generated files are
