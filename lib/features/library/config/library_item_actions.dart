@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/generic/projection.dart';
 import 'package:collectarr_app/core/models/custom_field.dart';
 import 'package:collectarr_app/core/models/item_image.dart';
 import 'package:collectarr_app/core/models/library_entry_projection.dart';
@@ -8,7 +9,6 @@ import 'package:collectarr_app/features/library/add/models/library_add_target.da
 import 'package:collectarr_app/features/library/kinds/registry/library_kind_capability_types.dart';
 import 'package:collectarr_app/features/library/config/library_search_target.dart';
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
-import 'package:collectarr_app/features/library/generic/projection_item.dart';
 import 'package:collectarr_app/features/library/domain/library_target_ref.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_config.dart';
@@ -220,6 +220,10 @@ class LibraryDetailPageRequest {
     required this.item,
     required this.libraryEntrySummary,
     this.libraryEntryDispatch,
+    this.projection,
+    this.searchQuery,
+    this.searchTarget = LibrarySearchTarget.all,
+    this.onDetailsLayoutChanged,
     required this.accent,
     this.actions = const LibraryItemActions(),
     VoidCallback? onAddEntry,
@@ -240,6 +244,10 @@ class LibraryDetailPageRequest {
 
   /// Concrete kind-entry aggregate available after Library kind dispatch.
   final LibraryEntryDispatch? libraryEntryDispatch;
+  final LibraryProjection? projection;
+  final String? searchQuery;
+  final LibrarySearchTarget searchTarget;
+  final ValueChanged<LibraryDetailsLayout>? onDetailsLayoutChanged;
   final Color accent;
   final LibraryItemActions actions;
   final ValueChanged<String>? onFilterByValue;
@@ -258,11 +266,6 @@ class LibraryDetailPageRequest {
   void Function(LibraryEntrySummary? libraryEntry)? get onEdit =>
       _onEdit ?? (actions.onEdit != null ? (_) => actions.onEdit!() : null);
 }
-
-typedef LibraryDetailPageBuilder = Widget Function(
-  BuildContext context,
-  LibraryDetailPageRequest request,
-);
 
 /// Optional kind-entry contribution rendered inside a media detail host.
 ///

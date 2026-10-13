@@ -8,7 +8,6 @@ import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/detail/library_detail_page.dart';
 import 'package:collectarr_app/features/library/home/home_page.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_routes.dart';
-import 'package:collectarr_app/features/library/kinds/registry/library_kind_contributors.dart';
 import 'package:collectarr_app/features/settings/settings_page.dart';
 import 'package:collectarr_app/state/auth_provider.dart';
 import 'package:collectarr_app/app/app_shell.dart';
@@ -131,10 +130,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
               if (request == null) {
                 child = LibraryHomePage(routeUri: state.uri);
               } else {
-                final builder = libraryInspectorForKind(request.type.kind)
-                        .detailPageBuilderForTarget(request.item.target) ??
-                    _buildDefaultDetailPage;
-                child = builder(context, request);
+                child = _buildDefaultDetailPage(context, request);
               }
               return CustomTransitionPage<void>(
                 key: state.pageKey,
@@ -182,6 +178,11 @@ Widget _buildDefaultDetailPage(
     type: request.type,
     item: request.item,
     libraryEntrySummary: request.libraryEntrySummary,
+    libraryEntryDispatch: request.libraryEntryDispatch,
+    projection: request.projection,
+    searchQuery: request.searchQuery,
+    searchTarget: request.searchTarget,
+    onDetailsLayoutChanged: request.onDetailsLayoutChanged,
     accent: request.accent,
     onAddEntry: request.onAddEntry,
     onRemoveEntry: request.onRemoveEntry,

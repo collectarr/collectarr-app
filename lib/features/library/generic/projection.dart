@@ -341,6 +341,24 @@ class LibraryProjection {
     required this.counts,
   });
 
+  factory LibraryProjection.forItem(LibraryProjectionView view) {
+    final item = LibraryProjectionItem(
+      source: view.source,
+      dto: view.dto,
+      customFieldBadges: view.customFieldBadges,
+    );
+    return LibraryProjection(
+        allItems: [item],
+        filteredItems: [item],
+        buckets: const [],
+        selectedItem: item,
+        counts: LibraryToolbarCounts(
+            shown: 1,
+            total: 1,
+            entry: view.source.isEntry ? 1 : 0,
+            wishlist: view.source.isWishlisted ? 1 : 0));
+  }
+
   factory LibraryProjection.fromShelf({
     required ShelfState shelf,
     required LibraryKindRegistration type,

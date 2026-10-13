@@ -184,7 +184,12 @@ abstract final class LibraryPageShellPresenter {
       onApplySelection: state._applySelection,
       onActivateItem: state._activateItem,
       onToggleSelectionItem: state._toggleSelectionItem,
-      onOpenItem: (item) => state._editCoordinator.showDetailPage(item),
+      onOpenItem: (item) {
+        state._activateItem(item.target.id);
+        if (viewState.detailsLayout == LibraryDetailsLayout.hidden) {
+          state._editCoordinator.showDetailPage(item, projection: projection);
+        }
+      },
       onBoxSelectionChanged: (ids) => state._rebuild(() {
         state._session.selection.value =
             state._session.selection.value.replace(ids);

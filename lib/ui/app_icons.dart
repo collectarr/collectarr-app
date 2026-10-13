@@ -132,6 +132,14 @@ abstract final class AppIcons {
   static const IconData close =
       IconData(0xf00d, fontFamily: _solid, fontPackage: _fontPackage);
 
+  static const IconData duplicateAction =
+      IconData(0xf24d, fontFamily: _solid, fontPackage: _fontPackage);
+  static const IconData removeAction =
+      IconData(0xf1f8, fontFamily: _solid, fontPackage: _fontPackage);
+  static const IconData loanAction =
+      IconData(0xf017, fontFamily: _solid, fontPackage: _fontPackage);
+  static const IconData moveCollection =
+      IconData(0xf1c0, fontFamily: _solid, fontPackage: _fontPackage);
   // --- Selection & Toolbar Actions ---
   static const IconData selectAll =
       IconData(0xf14a, fontFamily: _regular, fontPackage: _fontPackage);

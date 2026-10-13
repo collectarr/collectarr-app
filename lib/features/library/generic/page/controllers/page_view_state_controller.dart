@@ -63,14 +63,14 @@ abstract final class _LibraryViewStateControllerOps {
     GenericLibraryPageState state,
     LibraryWorkspaceViewState Function(LibraryWorkspaceViewState state) update,
   ) {
-    final previous = state._session.preferences.viewState;
-    if (previous == null) {
-      return;
-    }
+    final previous =
+        state._session.preferences.viewState ?? state._viewProfile.defaults();
     final next = update(previous);
     if (viewStateEquals(state, previous, next)) {
       return;
     }
+    // A pending initial load must not overwrite a user interaction.
+    ++state._session.preferences.viewStateLoadToken;
     state._mutateState(() {
       state._session.preferences.viewState = next;
     });

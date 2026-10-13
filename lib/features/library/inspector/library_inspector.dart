@@ -60,6 +60,7 @@ class LibraryInspector extends ConsumerStatefulWidget {
     this.searchTarget = LibrarySearchTarget.all,
     this.db,
     this.contextLabel,
+    this.fullscreen = false,
   });
 
   final LibraryKindRegistration type;
@@ -81,6 +82,7 @@ class LibraryInspector extends ConsumerStatefulWidget {
   final LibrarySearchTarget searchTarget;
   final LocalDatabase? db;
   final String? contextLabel;
+  final bool fullscreen;
 
   @override
   ConsumerState<LibraryInspector> createState() => _LibraryInspectorState();
@@ -148,6 +150,9 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
         request: LibraryDetailPageRequest(
           type: widget.type,
           item: selected,
+          projection: widget.projection,
+          searchQuery: widget.searchQuery,
+          searchTarget: widget.searchTarget,
           libraryEntrySummary: activeLibraryEntry,
           libraryEntryDispatch: libraryEntryDispatch,
           accent: widget.accent,
@@ -164,7 +169,7 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
         projection: widget.projection,
         item: selected,
         libraryEntry: activeLibraryEntry,
-        onOpenDetails: onOpenDetails,
+        onOpenDetails: widget.fullscreen ? null : onOpenDetails,
         onToggleEntry: onToggleEntry,
         onToggleWishlist: onToggleWishlist,
         onEdit: onEdit,
@@ -297,13 +302,18 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
       data: buildLibraryTheme(palette: template),
       child: Builder(
           builder: (context) => ColoredBox(
-                color: preferences.detailsPanelTemplate ==
-                        DetailsPanelTemplate.blue
-                    ? template.panel
-                    : libraryWorkspaceBackgroundColor(context),
+                color: widget.fullscreen
+                    ? appManagementCanvasColor(context)
+                    : preferences.detailsPanelTemplate ==
+                            DetailsPanelTemplate.blue
+                        ? template.panel
+                        : libraryWorkspaceBackgroundColor(context),
                 child: Column(children: [
                   InspectorUnifiedToolbar(
                     item: selected,
+                    contentMaxWidth: widget.fullscreen ? 960 : null,
+                    includeLayoutControl: !widget.fullscreen ||
+                        widget.onDetailsLayoutChanged != null,
                     accent: widget.accent,
                     onEdit: entityActions.onEdit,
                     onShare: entityActions.onShare,
@@ -320,56 +330,81 @@ class _LibraryInspectorState extends ConsumerState<LibraryInspector> {
                     detailsLayout: widget.detailsLayout,
                   ),
                   Expanded(
-                      child: Stack(fit: StackFit.expand, children: [
-                    if (preferences.showInspectorBackdrop)
-                      ExcludeSemantics(
-                          child: IgnorePointer(
-                              child: InspectorBackdrop(
-                                  item: selected,
-                                  libraryEntry: activeLibraryEntry,
-                                  backgroundColor:
-                                      preferences.detailsPanelTemplate ==
-                                              DetailsPanelTemplate.blue
-                                          ? template.panel
-                                          : null))),
-                    ListView(
-                      padding: const EdgeInsets.fromLTRB(8, 0, 8, 12),
-                      children: [
-                        SizedBox(height: density.inspectorOuterGap),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 4),
-                          child: Column(
-                            children: [
-                              hero,
-                              SizedBox(height: density.inspectorOuterGap),
-                              if (!usesCustomInspectorPanel &&
-                                  inspectorCapability.showsActionBar)
-                                InspectorActionBar(
-                                  type: widget.type,
-                                  item: selected,
-                                  onToggleEntry: entityActions.onToggleEntry,
-                                  onToggleWishlist:
-                                      entityActions.onToggleWishlist,
-                                  onEdit: entityActions.onEdit,
-                                  onOpenDetails:
-                                      entityActions.onOpenDetails ?? () {},
-                                  semanticActions:
-                                      entityActions.semanticActions,
-                                ),
-                            ],
-                          ),
-                        ),
-                        if (activeBundleReleaseId != null) ...[
-                          SizedBox(height: density.inspectorOuterGap),
-                          bundleSection!,
-                        ],
-                        SizedBox(height: density.inspectorOuterGap),
-                        ...effectivePrimarySections,
-                        InspectorEbayLinksSection(item: selected),
-                        ...trailingSections,
-                      ],
-                    ),
-                  ])),
+                      child: Align(
+                          alignment: Alignment.topCenter,
+                          child: ConstrainedBox(
+                              constraints: BoxConstraints(
+                                  maxWidth: widget.fullscreen
+                                      ? 960
+                                      : double.infinity),
+                              child: ColoredBox(
+                                  color:
+                                      libraryWorkspaceBackgroundColor(context),
+                                  child: Stack(fit: StackFit.expand, children: [
+                                    if (preferences.showInspectorBackdrop)
+                                      ExcludeSemantics(
+                                          child: IgnorePointer(
+                                              child: InspectorBackdrop(
+                                                  item: selected,
+                                                  libraryEntry:
+                                                      activeLibraryEntry,
+                                                  backgroundColor: preferences
+                                                              .detailsPanelTemplate ==
+                                                          DetailsPanelTemplate
+                                                              .blue
+                                                      ? template.panel
+                                                      : null))),
+                                    ListView(
+                                      padding: const EdgeInsets.fromLTRB(
+                                          8, 0, 8, 12),
+                                      children: [
+                                        SizedBox(
+                                            height: density.inspectorOuterGap),
+                                        Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                              horizontal: 4),
+                                          child: Column(
+                                            children: [
+                                              hero,
+                                              SizedBox(
+                                                  height: density
+                                                      .inspectorOuterGap),
+                                              if (!usesCustomInspectorPanel &&
+                                                  inspectorCapability
+                                                      .showsActionBar)
+                                                InspectorActionBar(
+                                                  type: widget.type,
+                                                  item: selected,
+                                                  onToggleEntry: entityActions
+                                                      .onToggleEntry,
+                                                  onToggleWishlist:
+                                                      entityActions
+                                                          .onToggleWishlist,
+                                                  onEdit: entityActions.onEdit,
+                                                  onOpenDetails: entityActions
+                                                          .onOpenDetails ??
+                                                      () {},
+                                                  semanticActions: entityActions
+                                                      .semanticActions,
+                                                ),
+                                            ],
+                                          ),
+                                        ),
+                                        if (activeBundleReleaseId != null) ...[
+                                          SizedBox(
+                                              height:
+                                                  density.inspectorOuterGap),
+                                          bundleSection!,
+                                        ],
+                                        SizedBox(
+                                            height: density.inspectorOuterGap),
+                                        ...effectivePrimarySections,
+                                        InspectorEbayLinksSection(
+                                            item: selected),
+                                        ...trailingSections,
+                                      ],
+                                    ),
+                                  ]))))),
                 ]),
               )),
     );

@@ -20,12 +20,10 @@ final class LibraryTargetInspectorContributor {
   const LibraryTargetInspectorContributor({
     this.heroBuilder,
     this.sectionsBuilder,
-    this.detailPageBuilder,
   });
 
   final LibraryInspectorHeroBuilder? heroBuilder;
   final LibraryDetailSectionsBuilder? sectionsBuilder;
-  final LibraryDetailPageBuilder? detailPageBuilder;
 }
 
 final class LibraryTargetInspectorRegistry {
@@ -68,11 +66,6 @@ class LibraryInspectorCapability {
 
   LibraryInspectorHeroBuilder? heroBuilderForTarget(LibraryTargetRef target) =>
       entityRegistry.contributorForTarget(target)?.heroBuilder;
-
-  LibraryDetailPageBuilder? detailPageBuilderForTarget(
-    LibraryTargetRef target,
-  ) =>
-      entityRegistry.contributorForTarget(target)?.detailPageBuilder;
 
   List<LibraryDetailField> buildPersonalDetailFields({
     required BuildContext context,

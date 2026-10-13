@@ -19,7 +19,8 @@ class LibraryPageEditCoordinator {
 
   final GenericLibraryPageState _s;
 
-  void showDetailPage(LibraryProjectionItem item) {
+  void showDetailPage(LibraryProjectionItem item,
+      {LibraryProjection? projection}) {
     if (_s.canOpenItemDetailDrilldown(item)) {
       _s.openItemDetailDrilldown(item);
       return;
@@ -29,6 +30,11 @@ class LibraryPageEditCoordinator {
       request: LibraryDetailPageRequest(
         type: _s.widget.type,
         item: item,
+        projection: projection,
+        searchQuery: _s._searchController.text.trim(),
+        searchTarget: _s._effectiveSearchTarget,
+        onDetailsLayoutChanged: (layout) => _s
+            ._updateViewState((value) => value.copyWith(detailsLayout: layout)),
         libraryEntrySummary: item.source.libraryEntrySummary,
         libraryEntryDispatch: item.source.libraryEntryDispatch,
         accent: _s.widget.accent,

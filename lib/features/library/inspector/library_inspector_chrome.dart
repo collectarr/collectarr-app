@@ -235,15 +235,6 @@ class InspectorToolIconButton extends StatelessWidget {
   }
 }
 
-enum InspectorToolbarMenuAction {
-  duplicate,
-  removeOrCollect,
-  loan,
-  refreshMetadata,
-  moveToCollection,
-  unlinkFromCore,
-}
-
 class _InspectorBarButton extends StatelessWidget {
   const _InspectorBarButton({
     required this.tooltip,
@@ -303,7 +294,7 @@ class _InspectorBarButton extends StatelessWidget {
                     label!,
                     style: TextStyle(
                       fontSize: 14,
-                      fontWeight: FontWeight.w700,
+                      fontWeight: FontWeight.w400,
                       color: onPressed != null ? foreground : disabledColor,
                     ),
                   ),
@@ -333,6 +324,7 @@ class InspectorUnifiedToolbar extends ConsumerWidget {
     this.onDetailsLayoutChanged,
     this.framed = false,
     this.includeLayoutControl = true,
+    this.contentMaxWidth,
   });
 
   final LibraryProjectionView item;
@@ -349,6 +341,7 @@ class InspectorUnifiedToolbar extends ConsumerWidget {
   final ValueChanged<LibraryDetailsLayout>? onDetailsLayoutChanged;
   final bool framed;
   final bool includeLayoutControl;
+  final double? contentMaxWidth;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -420,76 +413,54 @@ class InspectorUnifiedToolbar extends ConsumerWidget {
                   ),
                 ],
                 _inspectorToolbarSeparator(context),
-                PopupMenuButton<InspectorToolbarMenuAction>(
-                  tooltip: 'More inspector actions',
-                  padding: EdgeInsets.zero,
-                  color: libraryToolbarMenuSurface(context),
-                  surfaceTintColor: Colors.transparent,
-                  menuPadding: EdgeInsets.zero,
-                  shape: libraryToolbarDropdownMenuShape(context),
-                  position: PopupMenuPosition.under,
-                  onSelected: (action) {
-                    switch (action) {
-                      case InspectorToolbarMenuAction.duplicate:
-                        onDuplicate?.call();
-                      case InspectorToolbarMenuAction.removeOrCollect:
-                        onToggleEntry?.call();
-                      case InspectorToolbarMenuAction.loan:
-                        onLoan?.call();
-                      case InspectorToolbarMenuAction.refreshMetadata:
-                        onRefreshMetadata?.call();
-                      case InspectorToolbarMenuAction.moveToCollection:
-                        onMoveToCollection?.call();
-                      case InspectorToolbarMenuAction.unlinkFromCore:
-                        onUnlinkFromCore?.call();
-                    }
-                  },
-                  itemBuilder: (context) => [
+                MenuAnchor(
+                  alignmentOffset: const Offset(-5, 4),
+                  style: MenuStyle(
+                    alignment: AlignmentDirectional.bottomStart,
+                    backgroundColor: WidgetStatePropertyAll(
+                        libraryToolbarMenuSurface(context)),
+                    surfaceTintColor:
+                        const WidgetStatePropertyAll(Colors.transparent),
+                    elevation: const WidgetStatePropertyAll(0),
+                    padding: const WidgetStatePropertyAll(EdgeInsets.zero),
+                    shape: WidgetStatePropertyAll(
+                        libraryToolbarDropdownMenuShape(context)),
+                  ),
+                  menuChildren: [
                     if (onDuplicate != null)
-                      _inspectorMenuItem(InspectorToolbarMenuAction.duplicate,
-                          'Duplicate', AppIcons.duplicates),
+                      _inspectorMenuItem(
+                          'Duplicate', AppIcons.duplicateAction, onDuplicate),
                     if (onToggleEntry != null)
                       _inspectorMenuItem(
-                          InspectorToolbarMenuAction.removeOrCollect,
                           item.source.isEntry ? 'Remove' : 'Collect',
                           item.source.isEntry
-                              ? AppIcons.delete
-                              : AppIcons.collect),
+                              ? AppIcons.removeAction
+                              : AppIcons.collect,
+                          onToggleEntry),
+                    _inspectorMenuItem('Loan', AppIcons.loanAction, onLoan),
                     if (onMoveToCollection != null)
-                      _inspectorMenuItem(
-                          InspectorToolbarMenuAction.moveToCollection,
-                          'Move to other collection',
-                          AppIcons.collections),
-                    if (onUnlinkFromCore != null)
-                      _inspectorMenuItem(
-                          InspectorToolbarMenuAction.unlinkFromCore,
-                          'Unlink from Core',
-                          AppIcons.unlink),
-                    _inspectorMenuItem(
-                        InspectorToolbarMenuAction.loan, 'Loan', AppIcons.loans,
-                        enabled: onLoan != null),
-                    _inspectorMenuItem(
-                        InspectorToolbarMenuAction.refreshMetadata,
-                        'Update from Core',
-                        AppIcons.updateFromCore,
-                        enabled: onRefreshMetadata != null),
+                      _inspectorMenuItem('Move to other collection',
+                          AppIcons.moveCollection, onMoveToCollection),
+                    if (onRefreshMetadata != null) ...[
+                      Divider(
+                          height: 1, color: libraryToolbarMenuBorder(context)),
+                      _inspectorMenuItem('Update from Core',
+                          AppIcons.updateFromCore, onRefreshMetadata),
+                    ],
+                    if (onUnlinkFromCore != null) ...[
+                      Divider(
+                          height: 1, color: libraryToolbarMenuBorder(context)),
+                      _inspectorMenuItem('Unlink from Core', AppIcons.unlink,
+                          onUnlinkFromCore),
+                    ],
                   ],
-                  style: ButtonStyle(
-                      mouseCursor: WidgetStateMouseCursor.clickable,
-                      overlayColor: WidgetStateProperty.resolveWith((s) =>
-                          s.contains(WidgetState.hovered)
-                              ? (palette.isDark
-                                  ? const Color(0xff464950)
-                                  : palette.panelRaised)
-                              : null)),
-                  child: Padding(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 6, vertical: 5),
-                    child: Icon(
-                      AppIcons.more,
-                      size: 15,
-                      color: palette.textPrimary.withValues(alpha: 0.9),
-                    ),
+                  builder: (context, controller, child) => _InspectorBarButton(
+                    tooltip: 'More inspector actions',
+                    semanticsLabel: 'More inspector actions',
+                    icon: AppIcons.more,
+                    onPressed: () => controller.isOpen
+                        ? controller.close()
+                        : controller.open(),
                   ),
                 ),
               ],
@@ -520,7 +491,12 @@ class InspectorUnifiedToolbar extends ConsumerWidget {
               : libraryWorkspaceToolbarBorder(context),
         ),
         padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
-        child: content,
+        child: contentMaxWidth == null
+            ? content
+            : Center(
+                child: ConstrainedBox(
+                    constraints: BoxConstraints(maxWidth: contentMaxWidth!),
+                    child: content)),
       ),
     );
 
@@ -530,29 +506,43 @@ class InspectorUnifiedToolbar extends ConsumerWidget {
   }
 }
 
-PopupMenuItem<InspectorToolbarMenuAction> _inspectorMenuItem(
-  InspectorToolbarMenuAction action,
-  String label,
-  IconData icon, {
-  bool enabled = true,
-}) =>
-    PopupMenuItem<InspectorToolbarMenuAction>(
-      value: action,
-      enabled: enabled,
-      height: 30,
-      padding: const EdgeInsets.symmetric(horizontal: 7),
-      child: Builder(builder: (context) {
-        final color = enabled
-            ? libraryToolbarMenuText(context)
-            : libraryToolbarMenuMutedText(context);
-        return LibraryWorkspaceMenuRow(
-          label: label,
-          leading: Icon(icon, size: 14, color: color),
-          padding: EdgeInsets.zero,
-          textStyle: TextStyle(
-              fontSize: 14, fontWeight: FontWeight.w500, color: color),
+Widget _inspectorMenuItem(
+        String label, IconData icon, VoidCallback? callback) =>
+    Builder(
+      builder: (context) {
+        final color = callback == null
+            ? libraryToolbarMenuMutedText(context)
+            : libraryToolbarMenuText(context);
+        return MenuItemButton(
+          onPressed: callback,
+          style: ButtonStyle(
+            minimumSize: const WidgetStatePropertyAll(Size(0, 30)),
+            maximumSize:
+                const WidgetStatePropertyAll(Size(double.infinity, 30)),
+            padding: const WidgetStatePropertyAll(
+                EdgeInsets.symmetric(horizontal: 7)),
+            shape: const WidgetStatePropertyAll(RoundedRectangleBorder()),
+            visualDensity: VisualDensity.standard,
+            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+            mouseCursor: WidgetStatePropertyAll(callback == null
+                ? SystemMouseCursors.basic
+                : SystemMouseCursors.click),
+            backgroundColor: WidgetStateProperty.resolveWith((states) =>
+                states.contains(WidgetState.hovered)
+                    ? libraryToolbarMenuHover(context)
+                    : Colors.transparent),
+          ),
+          child: LibraryWorkspaceMenuRow(
+              label: label,
+              leading: Icon(icon, size: 14, color: color),
+              padding: EdgeInsets.zero,
+              textStyle: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w400,
+                  height: 24 / 14,
+                  color: color)),
         );
-      }),
+      },
     );
 
 Widget _inspectorToolbarSeparator(BuildContext context) =>
