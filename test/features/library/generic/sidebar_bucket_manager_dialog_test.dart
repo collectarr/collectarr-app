@@ -8,14 +8,14 @@ void main() {
       () {
     expect(
       () => libraryGroupModeSupportsBucketManagement(
-        const MovieRegistration(),
+        const MusicRegistration(),
         'story_arc',
       ),
       returnsNormally,
     );
     expect(
       libraryGroupModeSupportsBucketManagement(
-        const MovieRegistration(),
+        const MusicRegistration(),
         'story_arc',
       ),
       isFalse,
@@ -49,7 +49,7 @@ void main() {
               child: ElevatedButton(
                 onPressed: () => showLibraryBucketManagerDialog(
                   context: context,
-                  type: const MovieRegistration(),
+                  type: const MusicRegistration(),
                   groupMode: 'genre',
                   accent: Colors.cyan,
                   entries: const [

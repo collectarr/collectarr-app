@@ -7,7 +7,7 @@ void main() {
       () {
     const types = [
       CatalogMediaType(
-        kind: 'comic',
+        kind: 'music',
         singularLabel: 'Comic',
         pluralLabel: 'Comics',
         routeSegments: ['comics'],
@@ -19,7 +19,7 @@ void main() {
         routeSegments: ['games'],
       ),
       CatalogMediaType(
-        kind: 'movie',
+        kind: 'music',
         singularLabel: 'Movie',
         pluralLabel: 'Movies',
         routeSegments: ['movies'],
@@ -43,7 +43,7 @@ void main() {
     expect(
       libraryNavLabel(
         const CatalogMediaType(
-          kind: 'movie',
+          kind: 'music',
           singularLabel: 'Movie',
           pluralLabel: 'Movies',
           routeSegments: ['movies'],
@@ -86,19 +86,19 @@ void main() {
   test('library nav groups follow the top-level catalog kinds', () {
     const types = [
       CatalogMediaType(
-        kind: 'comic',
+        kind: 'music',
         singularLabel: 'Comic',
         pluralLabel: 'Comics',
         routeSegments: ['comics'],
       ),
       CatalogMediaType(
-        kind: 'movie',
+        kind: 'music',
         singularLabel: 'Movie',
         pluralLabel: 'Movies',
         routeSegments: ['movies'],
       ),
       CatalogMediaType(
-        kind: 'book',
+        kind: 'music',
         singularLabel: 'Book',
         pluralLabel: 'Books',
         routeSegments: ['books'],

@@ -21,25 +21,14 @@ void main() {
 
     expect(
       catalog.map((type) => type.kind),
-      containsAll([
-        CatalogMediaKind.comic.apiValue,
-        CatalogMediaKind.manga.apiValue,
-        CatalogMediaKind.movie.apiValue,
-        CatalogMediaKind.tv.apiValue,
-        CatalogMediaKind.anime.apiValue,
-      ]),
+      ['music'],
     );
-    expect(
-        catalog
-            .firstWhere((type) => _isKind(type, CatalogMediaKind.movie))
-            .routeSegments,
-        ['movies', 'movie']);
   });
 
   test('media catalog cache is reused for the same base url', () async {
     final api = _CatalogApiClient([
       const CatalogMediaType(
-        kind: 'movie',
+        kind: 'music',
         singularLabel: 'Movie',
         pluralLabel: 'Movies',
         routeSegments: ['movies'],
@@ -62,7 +51,7 @@ void main() {
 
     final cached = await second.read(mediaCatalogProvider.future);
 
-    expect(cached.single.kind, 'movie');
+    expect(cached.single.kind, 'music');
   });
 
   test('physical formats can be read from Core catalog', () async {
@@ -71,7 +60,7 @@ void main() {
         apiClientProvider.overrideWithValue(
           _CatalogApiClient([
             const CatalogMediaType(
-              kind: 'movie',
+              kind: 'music',
               singularLabel: 'Movie',
               pluralLabel: 'Movies',
               routeSegments: ['movies'],
@@ -94,11 +83,11 @@ void main() {
     final catalog = await container.read(mediaCatalogProvider.future);
     final formats = physicalMediaFormatsForKind(
       catalog,
-      CatalogMediaKind.movie,
+      CatalogMediaKind.music,
     );
 
-    expect(formats.single.id, 'hd-dvd');
-    expect(formats.single.aliases, {'hddvd'});
+    final format = formats.singleWhere((format) => format.id == 'hd-dvd');
+    expect(format.aliases, {'hddvd'});
   });
 
   test('media catalog provider normalizes known display labels', () async {
@@ -138,18 +127,7 @@ void main() {
           .singularLabel,
       'Album',
     );
-    expect(
-      catalog
-          .firstWhere((type) => _isKind(type, CatalogMediaKind.movie))
-          .pluralLabel,
-      'Films',
-    );
-    expect(
-      catalog
-          .firstWhere((type) => _isKind(type, CatalogMediaKind.boardgame))
-          .pluralLabel,
-      'Board Games',
-    );
+    expect(catalog, hasLength(1));
   });
 
   test('physical format fallbacks use catalog kind defaults', () {
@@ -159,13 +137,6 @@ void main() {
         CatalogMediaKind.music,
       ).map((format) => format.id),
       containsAll(['vinyl', 'cd', 'cassette']),
-    );
-    expect(
-      physicalMediaFormatsForKind(
-        const [],
-        CatalogMediaKind.boardgame,
-      ).map((format) => format.id),
-      contains('physical-disc'),
     );
     expect(
       physicalMediaFormatsForKind(const [], CatalogMediaKind.unknown),

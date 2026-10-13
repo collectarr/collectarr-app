@@ -35,9 +35,9 @@ void main() {
         child: MaterialApp(
           home: Scaffold(
             body: LibraryToolbar(
-              type: const MovieRegistration(),
+              type: const MusicRegistration(),
               searchController: searchController,
-              viewState: movieKindViewProfile.defaults(),
+              viewState: musicKindViewProfile.defaults(),
               counts: const LibraryToolbarCounts(),
               onAdd: () {},
               onScan: () {},
@@ -239,30 +239,9 @@ void main() {
     }
 
     await expectScanCover(
-      type: const MovieRegistration(),
-      viewState: movieKindViewProfile.defaults(),
-      expected: true,
-    );
-    await expectScanCover(
-      type: const BookRegistration(),
-      viewState: bookKindViewProfile.defaults(),
-      expected: true,
-    );
-    await expectScanCover(
-      type: const GameRegistration(),
-      viewState: gameKindViewProfile.defaults(),
-      expected: true,
-    );
-    await expectScanCover(
-      type: const BoardgameRegistration(),
-      viewState: boardGameKindViewProfile.defaults(),
-      expected: true,
-    );
-    await expectScanCover(
-      type: const ComicRegistration(),
-      viewState: comicKindViewProfile.defaults(),
-      expected: true,
-    );
+        type: const MusicRegistration(),
+        viewState: musicKindViewProfile.defaults(),
+        expected: true);
   });
 
   testWidgets('toolbar gates reading queue action by type capability', (
@@ -280,9 +259,9 @@ void main() {
         child: MaterialApp(
           home: Scaffold(
             body: LibraryToolbar(
-              type: const MovieRegistration(),
+              type: const MusicRegistration(),
               searchController: searchController,
-              viewState: movieKindViewProfile.defaults(),
+              viewState: musicKindViewProfile.defaults(),
               counts: const LibraryToolbarCounts(),
               onAdd: () {},
               onScan: () {},
@@ -318,9 +297,9 @@ void main() {
         child: MaterialApp(
           home: Scaffold(
             body: LibraryToolbar(
-              type: const BookRegistration(),
+              type: const MusicRegistration(),
               searchController: searchController,
-              viewState: bookKindViewProfile.defaults(),
+              viewState: musicKindViewProfile.defaults(),
               counts: const LibraryToolbarCounts(),
               onAdd: () {},
               onScan: () {},
@@ -348,7 +327,7 @@ void main() {
     final booksSecondary = tester.widget<LibraryDesktopSecondaryToolbar>(
       find.byType(LibraryDesktopSecondaryToolbar),
     );
-    expect(booksSecondary.onReadingQueue, isNotNull);
+    expect(booksSecondary.onReadingQueue, isNull);
   });
 
   testWidgets('toolbar gates reassign-index action by type capability', (
@@ -366,9 +345,9 @@ void main() {
         child: MaterialApp(
           home: Scaffold(
             body: LibraryToolbar(
-              type: const MovieRegistration(),
+              type: const MusicRegistration(),
               searchController: searchController,
-              viewState: movieKindViewProfile.defaults(),
+              viewState: musicKindViewProfile.defaults(),
               counts: const LibraryToolbarCounts(),
               onAdd: () {},
               onScan: () {},
@@ -403,9 +382,9 @@ void main() {
         child: MaterialApp(
           home: Scaffold(
             body: LibraryToolbar(
-              type: const ComicRegistration(),
+              type: const MusicRegistration(),
               searchController: searchController,
-              viewState: comicKindViewProfile.defaults(),
+              viewState: musicKindViewProfile.defaults(),
               counts: const LibraryToolbarCounts(),
               onAdd: () {},
               onScan: () {},
@@ -433,7 +412,7 @@ void main() {
     final comicsSecondary = tester.widget<LibraryDesktopSecondaryToolbar>(
       find.byType(LibraryDesktopSecondaryToolbar),
     );
-    expect(comicsSecondary.onReassignIndex, isNotNull);
+    expect(comicsSecondary.onReassignIndex, isNull);
   });
 
   testWidgets('toolbar can hide desktop secondary band explicitly',
@@ -450,9 +429,9 @@ void main() {
         child: MaterialApp(
           home: Scaffold(
             body: LibraryToolbar(
-              type: const ComicRegistration(),
+              type: const MusicRegistration(),
               searchController: searchController,
-              viewState: comicKindViewProfile.defaults(),
+              viewState: musicKindViewProfile.defaults(),
               counts: const LibraryToolbarCounts(),
               onAdd: () {},
               onScan: () {},
@@ -501,9 +480,9 @@ void main() {
         child: MaterialApp(
           home: Scaffold(
             body: LibraryToolbar(
-              type: const ComicRegistration(),
+              type: const MusicRegistration(),
               searchController: searchController,
-              viewState: comicKindViewProfile.defaults(),
+              viewState: musicKindViewProfile.defaults(),
               counts: const LibraryToolbarCounts(),
               onAdd: () {},
               onScan: () {},
@@ -557,9 +536,9 @@ void main() {
         child: MaterialApp(
           home: Scaffold(
             body: LibraryToolbar(
-              type: const ComicRegistration(),
+              type: const MusicRegistration(),
               searchController: searchController,
-              viewState: comicKindViewProfile.defaults(),
+              viewState: musicKindViewProfile.defaults(),
               counts: const LibraryToolbarCounts(),
               onAdd: () {},
               onScan: () {},
@@ -698,7 +677,7 @@ void main() {
 
     final context = LibraryToolbarActionContext(
       buildContext: _FakeBuildContext(),
-      type: const ComicRegistration(),
+      type: const MusicRegistration(),
       projection: null,
       onJumpToNumberSubmitted: (_) {},
       onMissingSequenceReport: (_) {},

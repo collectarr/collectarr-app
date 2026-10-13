@@ -33,9 +33,9 @@ void main() {
           )
           .toString(),
     );
-    expect(fieldFor('title', 'game')?['editable'], isTrue);
-    expect(fieldFor('physical_format_label', 'game')?['editable'], isFalse);
-    expect(fieldFor('platforms', 'game')?['valueType'], 'string_list');
-    expect(fieldFor('platforms', 'boardgame')?['valueType'], 'string_list');
+    expect(fieldFor('title', 'music')?['editable'], isTrue);
+    expect(fieldFor('physical_format_label', 'music')?['editable'], isFalse);
+    expect(fieldFor('genres', 'music')?['valueType'], 'string_list');
+    expect(fieldFor('platforms', 'boardgame'), isNull);
   });
 }

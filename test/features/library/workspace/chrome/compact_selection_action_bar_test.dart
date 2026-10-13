@@ -16,7 +16,7 @@ void main() {
       MaterialApp(
         home: Scaffold(
           bottomNavigationBar: LibraryAccentScope(
-            kind: 'comic',
+            kind: 'music',
             accent: Colors.deepOrange,
             animationsEnabled: true,
             child: CompactSelectionActionBar(

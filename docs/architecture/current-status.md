@@ -1,11 +1,27 @@
 # Current Architecture Status
 
-Last reviewed: 2026-10-11. This report reflects the current working tree and
+Last reviewed: 2026-10-13. This report reflects the current working tree and
 the post-audit release evidence recorded below. The architecture guard has no
 unreviewed AST violations; its exact baseline retains 44 reviewed field-leak
 findings, all still observed and none stale. The checker reports 364
 informational complexity findings. The latest uniform-application-header gate
 reports 370. The latest dropdown and column-selector gate reports 371.
+
+## Music v1 release baseline
+
+The release exposes Music only through UI, capability registrations and pinned
+Core contracts. Future kinds remain isolated source modules; fresh SQLite
+creates shared and Music tables only. The current shape starts at version 1
+using the generic database filename in application support; the existing
+Documents database remains untouched and is never downgraded.
+
+Current album/disc/track/credit shapes are preserved. Packages and public
+contract labels start at 1.0.0/v1. Source ownership audits still include all kinds.
+
+Analyze, architecture boundaries, contract generation checks, the 67-test
+Music/database/settings gate and the Windows debug build pass. Full-suite
+fixture alignment is pending: do not merge/publish before the complete gate.
+Test cleanup follows the current [testing plan](test-suite-ownership.md).
 
 ## Implemented
 
@@ -239,7 +255,7 @@ rechecked through Opera DevTools CLI on 10 October; no remote settings were save
 ## Active Music v2 refactor
 
 The staged field-semantics and Music v2 roadmap is tracked in
-[`music-v2-refactor-plan.md`](music-v2-refactor-plan.md). Field metadata now
+[`current-status.md`](current-status.md). Field metadata now
 owns cardinality, source/path, and workspace capabilities across all nine
 kinds. The strict Core Music v2 bundle is pinned in App, and the App domain has
 stable album/disc credits, disc-owned recording metadata, coarse format

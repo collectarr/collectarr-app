@@ -10,7 +10,7 @@ void main() {
 
     expect(
       contributors.map((contributor) => contributor.kind).toSet(),
-      CatalogMediaKind.values.where((kind) => !kind.isUnknown).toSet(),
+      {CatalogMediaKind.music},
     );
     for (final contributor in contributors) {
       final keys = contributor.proposalFields.map((field) => field.key);
@@ -43,17 +43,8 @@ void main() {
     }
   });
 
-  test('Game owns the platform proposal payload codec', () {
-    final contributor = libraryAdminContributorForKind(CatalogMediaKind.game)!;
-    final field = contributor.proposalFields
-        .singleWhere((field) => field.key == 'platforms');
-    final values = LibraryMetadataCorrectionValues.fromSerialized({
-      'platforms': ['Switch'],
-    });
-
-    expect(field.read(values), 'Switch');
-    field.write(values, 'PlayStation 5, Nintendo Switch');
-    expect(values.read('platforms'), ['PlayStation 5', 'Nintendo Switch']);
+  test('unreleased Game admin operations are not registered', () {
+    expect(libraryAdminContributorForKind(CatalogMediaKind.game), isNull);
   });
 
   test('Music owns the track proposal payload codec and validation', () {

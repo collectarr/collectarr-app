@@ -67,7 +67,7 @@ void main() {
                 treeRoots: const [
                   LibraryFolderTreeNode(
                     id: 'root',
-                    label: '[All Comics]',
+                    label: '[All Albums]',
                     count: 2,
                     cumulativeCount: 2,
                     groupMode: 'series',
@@ -96,7 +96,7 @@ void main() {
       ),
     );
 
-    expect(find.text('[All Comics]'), findsOneWidget);
+    expect(find.text('[All Albums]'), findsOneWidget);
     expect(find.text('Batman'), findsOneWidget);
 
     await tester.tap(find.text('Batman').last);

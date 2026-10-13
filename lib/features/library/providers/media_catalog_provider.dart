@@ -63,7 +63,9 @@ List<CatalogMediaType> _normalizeCatalogMediaTypes(
   List<CatalogMediaType> catalog,
 ) {
   return [
-    for (final type in catalog) normalizeCatalogMediaTypeDefaults(type),
+    for (final type in catalog)
+      if (collectarrKindRegistrations.containsKey(type.mediaKind))
+        normalizeCatalogMediaTypeDefaults(type),
   ];
 }
 

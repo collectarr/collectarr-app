@@ -22,11 +22,6 @@ void main() {
     value: 'NOTACODE',
     symbology: ScannedCodeSymbology.unknown,
   );
-  const comicSupplementCode = ScannedCode(
-    rawValue: '70985301254200111',
-    value: '70985301254200111',
-    symbology: ScannedCodeSymbology.upcA,
-  );
 
   for (final resolver in libraryBarcodeResolvers) {
     defineBarcodeResolverContract<LibraryBarcodeResolver, ScannedCode, String>(
@@ -46,52 +41,21 @@ void main() {
     );
   }
 
-  test('all kind resolvers are registered with their owning kind', () {
-    final resolversByKind = {
-      for (final resolver in libraryBarcodeResolvers) resolver.kind: resolver,
-    };
-
-    expect(
-        resolversByKind.keys,
-        containsAll([
-          CatalogMediaKind.anime,
-          CatalogMediaKind.boardgame,
-          CatalogMediaKind.book,
-          CatalogMediaKind.comic,
-          CatalogMediaKind.game,
-          CatalogMediaKind.manga,
-          CatalogMediaKind.movie,
-          CatalogMediaKind.music,
-          CatalogMediaKind.tv,
-        ]));
-    expect(resolversByKind, hasLength(9));
-    expect(
-      resolversByKind[CatalogMediaKind.book]!.resolve(retailCode),
-      isNull,
-    );
-    expect(
-      resolversByKind[CatalogMediaKind.manga]!.resolve(retailCode),
-      retailCode.value,
-    );
+  test('only the released Music barcode resolver is registered', () {
+    expect(libraryBarcodeResolvers.map((resolver) => resolver.kind).toSet(),
+        {CatalogMediaKind.music});
   });
 
   test('barcode dispatch normalizes before invoking the owning resolver', () {
     expect(
       resolveLibraryBarcodeForKind(
-        CatalogMediaKind.comic,
+        CatalogMediaKind.music,
         '012-345-678-905',
       ),
       retailCode.value,
     );
     expect(
-      resolveLibraryBarcodeForKind(
-        CatalogMediaKind.comic,
-        comicSupplementCode.value,
-      ),
-      comicSupplementCode.value,
-    );
-    expect(
-      resolveLibraryBarcodeForKind(CatalogMediaKind.book, isbn13.rawValue),
+      resolveLibraryBarcodeForKind(CatalogMediaKind.music, isbn13.rawValue),
       isbn13.value,
     );
     expect(

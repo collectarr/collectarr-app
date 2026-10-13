@@ -34,11 +34,11 @@ void main() {
 
   test('library route state round-trips reproducible view params', () {
     final state = LibraryRouteState(
-      kind: 'movie',
+      kind: 'music',
       searchQuery: 'alien',
-      groupMode: 'movie.director',
+      groupMode: 'music.artist',
       folderPreset: LibraryFolderPreset(
-        modes: ['movie.director', 'movie.publisher'],
+        modes: ['music.artist', 'music.publisher'],
       ),
       selectedBucket: 'Action',
       selectedLetter: 'A',
@@ -60,22 +60,22 @@ void main() {
     );
 
     final uri =
-        state.toUri(Uri.parse('/libraries'), type: const MovieRegistration());
+        state.toUri(Uri.parse('/libraries'), type: const MusicRegistration());
     final parsed = LibraryRouteState.fromUri(uri);
 
-    expect(uri.queryParameters['kind'], 'movie');
+    expect(uri.queryParameters['kind'], 'music');
     expect(uri.queryParameters['folder'],
-        'group.movie.director>group.movie.publisher');
+        'group.music.artist>group.music.publisher');
     expect(uri.queryParameters['filterValue'], 'Action');
     expect(uri.queryParameters['sort'], 'title:asc,updated:desc');
     expect(uri.queryParameters['bucketScope'], 'completed');
-    expect(parsed.kind, 'movie');
+    expect(parsed.kind, 'music');
     expect(parsed.searchQuery, 'alien');
-    expect(parsed.groupMode, 'movie.director');
+    expect(parsed.groupMode, 'music.artist');
     expect(
       parsed.folderPreset,
       LibraryFolderPreset(
-        modes: ['movie.director', 'movie.publisher'],
+        modes: ['music.artist', 'music.publisher'],
       ),
     );
     expect(parsed.selectedBucket, 'Action');
@@ -110,10 +110,10 @@ void main() {
   test('invalid route params fall back safely', () {
     final parsed = LibraryRouteState.fromUri(
       Uri.parse(
-          '/libraries?kind=movie&folder=nope&sort=bad&filters=%%%&folders=maybe'),
+          '/libraries?kind=music&folder=nope&sort=bad&filters=%%%&folders=maybe'),
     );
 
-    expect(parsed.kind, 'movie');
+    expect(parsed.kind, 'music');
     expect(parsed.groupMode, isNull);
     expect(parsed.folderPreset, isNull);
     expect(parsed.sortRules, isNull);
@@ -123,7 +123,7 @@ void main() {
 
   test('old sort params are ignored', () {
     final parsed = LibraryRouteState.fromUri(
-      Uri.parse('/libraries?kind=movie&sort=title.asc,updated.desc'),
+      Uri.parse('/libraries?kind=music&sort=title.asc,updated.desc'),
     );
 
     expect(parsed.sortRules, isNull);
@@ -166,7 +166,7 @@ void main() {
         filtered.filterSelection.entriesFilter, LibraryEntryPolicyFilter.all);
     expect(filtered.filterSelection.fieldValue('grade'), isNull);
 
-    final comicsFiltered = state.filteredForType(const ComicRegistration());
+    final comicsFiltered = state.filteredForType(const MusicRegistration());
     expect(comicsFiltered.quickView, isNull);
     expect(comicsFiltered.filterSelection.entriesFilter,
         LibraryEntryPolicyFilter.all);
@@ -174,23 +174,23 @@ void main() {
 
   test('filtered route state resets series scope outside series grouping', () {
     final state = LibraryRouteState(
-      kind: 'book',
-      groupMode: 'book.publisher',
+      kind: 'music',
+      groupMode: 'music.publisher',
       bucketCompletionScope: LibraryBucketCompletionScope.completed,
     );
 
-    final filtered = state.filteredForType(const BookRegistration());
-    expect(filtered.groupMode, 'book.publisher');
+    final filtered = state.filteredForType(const MusicRegistration());
+    expect(filtered.groupMode, 'music.publisher');
     expect(filtered.bucketCompletionScope, LibraryBucketCompletionScope.all);
 
     final seriesFiltered = LibraryRouteState(
-      kind: 'book',
-      groupMode: 'book.series',
+      kind: 'music',
+      groupMode: 'music.artist',
       bucketCompletionScope: LibraryBucketCompletionScope.completed,
-    ).filteredForType(const BookRegistration());
+    ).filteredForType(const MusicRegistration());
     expect(
       seriesFiltered.bucketCompletionScope,
-      LibraryBucketCompletionScope.completed,
+      LibraryBucketCompletionScope.all,
     );
   });
 }

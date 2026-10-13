@@ -8,7 +8,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
-  final kinds = CatalogMediaKind.values.where((kind) => !kind.isUnknown);
+  final kinds = [CatalogMediaKind.music];
 
   setUp(() {
     LibraryWorkspacePreferences.resetCachedChromeForTesting();
@@ -89,7 +89,7 @@ void main() {
   });
 
   test('profile loading keeps an explicitly saved details position', () async {
-    final profile = libraryViewProfileForKind(CatalogMediaKind.comic);
+    final profile = libraryViewProfileForKind(CatalogMediaKind.music);
     await profile.save(
       profile.defaults().copyWith(detailsLayout: LibraryDetailsLayout.right),
     );
@@ -99,8 +99,8 @@ void main() {
     expect(loaded.detailsLayout, LibraryDetailsLayout.right);
   });
 
-  test('removed Comic favorite pins are filtered from the common lists', () {
-    final registration = libraryKindRegistrationForKind(CatalogMediaKind.comic);
+  test('unsupported favorite pins are filtered from the common lists', () {
+    final registration = libraryKindRegistrationForKind(CatalogMediaKind.music);
 
     expect(
       sanitizeLibraryPinnedSortFavoriteIds(

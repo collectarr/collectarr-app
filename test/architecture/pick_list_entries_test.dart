@@ -40,8 +40,7 @@ void main() {
             .readAsStringSync();
     expect(registrySource, isNot(contains('library_kind_registry.dart')));
 
-    final expectedKinds =
-        CatalogMediaKind.values.where((kind) => !kind.isUnknown).toSet();
+    final expectedKinds = {CatalogMediaKind.music};
     final contributors = defaultPickListDefinitionContributors;
     expect(
       contributors.map((contributor) => contributor.kind).toSet(),

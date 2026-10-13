@@ -765,11 +765,11 @@
       "type": "object"
     }
   },
-  "$id": "https://schemas.collectarr.app/music-catalog/v2",
+  "$id": "https://schemas.collectarr.app/music-catalog/v1",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "contractVersion": "2.2.0",
-  "coreCommit": "7262d10ac2e6dadc592b31ecc97b48562cb7d6f3",
-  "generatedAt": "2026-10-09T17:50:51.410583Z",
+  "contractVersion": "1.0.0",
+  "coreCommit": "a2577d5c92b8cbfb0340b1def12ead811426b09a",
+  "generatedAt": "2026-10-13T13:52:28.564295Z",
   "roots": {
     "credit": {
       "$ref": "#/$defs/CatalogMusicCreditResponse"
@@ -784,6 +784,6 @@
       "$ref": "#/$defs/CatalogMusicTrackResponse"
     }
   },
-  "schemaVersion": 2,
-  "title": "Collectarr Music Catalog Item v2"
+  "schemaVersion": 1,
+  "title": "Collectarr Music Catalog Item v1"
 }

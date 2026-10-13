@@ -1,3 +1,22 @@
+import 'package:collectarr_app/features/library/kinds/music/domain/music_album.dart';
+import 'package:collectarr_app/features/library/kinds/anime/anime_module.dart'
+    show animeKindMetadata;
+import 'package:collectarr_app/features/library/kinds/boardgame/boardgame_module.dart'
+    show boardGameKindMetadata;
+import 'package:collectarr_app/features/library/kinds/book/book_module.dart'
+    show bookKindMetadata;
+import 'package:collectarr_app/features/library/kinds/comic/comic_module.dart'
+    show comicKindMetadata;
+import 'package:collectarr_app/features/library/kinds/game/game_module.dart'
+    show gameKindMetadata;
+import 'package:collectarr_app/features/library/kinds/manga/manga_module.dart'
+    show mangaKindMetadata;
+import 'package:collectarr_app/features/library/kinds/movie/movie_module.dart'
+    show movieKindMetadata;
+import 'package:collectarr_app/features/library/kinds/music/music_module.dart'
+    show musicKindMetadata;
+import 'package:collectarr_app/features/library/kinds/tv/tv_module.dart'
+    show tvKindMetadata;
 import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/core/models/catalog_display_summary.dart';
 import 'package:collectarr_app/test/helpers/test_library_entry_fixture.dart';
@@ -198,13 +217,23 @@ extension ShelfCatalogFixture on CatalogItemDto {
       );
 
   LibraryWorkspaceKindData get asShelfCatalogData =>
-      workspaceCatalogDataFromTransport(CatalogImportTransport.fromItem(this));
+      testWorkspaceCatalogData(this);
 }
 
-LibraryWorkspaceKindData testWorkspaceCatalogData(CatalogItemDto item) =>
-    workspaceCatalogDataFromTransport(
-      CatalogImportTransport.fromItem(item),
-    );
+LibraryWorkspaceKindData testWorkspaceCatalogData(CatalogItemDto item) {
+  final codecs = {
+    CatalogMediaKind.anime: animeKindMetadata.catalogTransportCodec,
+    CatalogMediaKind.boardgame: boardGameKindMetadata.catalogTransportCodec,
+    CatalogMediaKind.book: bookKindMetadata.catalogTransportCodec,
+    CatalogMediaKind.comic: comicKindMetadata.catalogTransportCodec,
+    CatalogMediaKind.game: gameKindMetadata.catalogTransportCodec,
+    CatalogMediaKind.manga: mangaKindMetadata.catalogTransportCodec,
+    CatalogMediaKind.movie: movieKindMetadata.catalogTransportCodec,
+    CatalogMediaKind.music: musicKindMetadata.catalogTransportCodec,
+    CatalogMediaKind.tv: tvKindMetadata.catalogTransportCodec,
+  };
+  return codecs[item.mediaKind]!.workspaceData(item);
+}
 
 CatalogItemDto testCatalogItemFromJson(Map<String, dynamic> json) {
   return testCatalogItemWithKindMetadata(CatalogItemDto.fromJson(json));
@@ -521,7 +550,10 @@ MangaLibraryEntry testMangaLibraryEntryFrom(TestLibraryEntry item) =>
     MangaLibraryEntry.fromJson(item.toJson());
 
 MusicLibraryEntry testMusicLibraryEntryFrom(TestLibraryEntry item) =>
-    MusicLibraryEntry.fromJson(item.toJson());
+    MusicLibraryEntry.fromJson({
+      ...item.toJson(),
+      'catalog_data': MusicAlbum(title: item.catalogTitle).toJson(),
+    });
 
 TvLibraryEntry testTvLibraryEntryFrom(TestLibraryEntry item) =>
     TvLibraryEntry.fromJson(item.toJson());

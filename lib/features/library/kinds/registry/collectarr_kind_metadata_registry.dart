@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/kinds/registry/library_release_scope.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/config/physical_media_formats.dart';
 import 'package:collectarr_app/features/library/config/presentation/library_media_presentation.dart';
@@ -14,7 +15,7 @@ import 'package:collectarr_app/features/library/kinds/tv/tv_module.dart';
 
 final Map<CatalogMediaKind, List<PhysicalMediaFormat>>
     collectarrKindPhysicalMediaFormats =
-    Map.unmodifiable(<CatalogMediaKind, List<PhysicalMediaFormat>>{
+    releasedKindContributions(<CatalogMediaKind, List<PhysicalMediaFormat>>{
   CatalogMediaKind.anime: animeKindPhysicalMediaFormats,
   CatalogMediaKind.boardgame: boardGameKindPhysicalMediaFormats,
   CatalogMediaKind.book: bookKindPhysicalMediaFormats,
@@ -28,7 +29,7 @@ final Map<CatalogMediaKind, List<PhysicalMediaFormat>>
 
 final Map<CatalogMediaKind, LibraryMediaPresentation>
     collectarrKindPresentations =
-    Map.unmodifiable(<CatalogMediaKind, LibraryMediaPresentation>{
+    releasedKindContributions(<CatalogMediaKind, LibraryMediaPresentation>{
   CatalogMediaKind.anime: animeKindPresentation,
   CatalogMediaKind.boardgame: boardGameKindPresentation,
   CatalogMediaKind.book: bookKindPresentation,
@@ -41,7 +42,7 @@ final Map<CatalogMediaKind, LibraryMediaPresentation>
 });
 
 final Map<CatalogMediaKind, LibraryMetadataCapability> collectarrKindMetadata =
-    Map.unmodifiable(<CatalogMediaKind, LibraryMetadataCapability>{
+    releasedKindContributions(<CatalogMediaKind, LibraryMetadataCapability>{
   CatalogMediaKind.anime: animeKindMetadata,
   CatalogMediaKind.boardgame: boardGameKindMetadata,
   CatalogMediaKind.book: bookKindMetadata,

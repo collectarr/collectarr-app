@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/kinds/registry/library_release_scope.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/library_entry_projection.dart';
@@ -19,7 +20,7 @@ import 'package:collectarr_app/features/library/entries/entry_kind_contributor.d
 /// modules.
 final Map<CatalogMediaKind, EntryKindContributor>
     collectarrEntryKindContributors =
-    Map.unmodifiable(<CatalogMediaKind, EntryKindContributor>{
+    releasedKindContributions(<CatalogMediaKind, EntryKindContributor>{
   CatalogMediaKind.anime: animeEntryContributor,
   CatalogMediaKind.boardgame: boardGameEntryContributor,
   CatalogMediaKind.book: bookEntryContributor,
@@ -44,7 +45,7 @@ typedef LibraryEntrySummaryReader = Future<List<LibraryEntrySummary>> Function(
 );
 
 final Map<CatalogMediaKind, LibraryEntrySummaryReader>
-    libraryLibraryEntrySummaryReadersByKind = Map.unmodifiable({
+    libraryLibraryEntrySummaryReadersByKind = releasedKindContributions({
   for (final entry in collectarrEntryKindContributors.entries)
     entry.key: entry.value.listActiveSummaries,
 });

@@ -7,14 +7,12 @@ void main() {
     final db = LocalDatabase(NativeDatabase.memory());
     addTearDown(db.close);
 
-    expect(db.schemaVersion, 3);
+    expect(db.schemaVersion, 1);
     final version = await db.customSelect('PRAGMA user_version').getSingle();
-    expect(version.data.values.single, 3);
+    expect(version.data.values.single, 1);
 
     final tables = await db
-        .customSelect(
-          "SELECT name FROM sqlite_master WHERE type = 'table'",
-        )
+        .customSelect("SELECT name FROM sqlite_master WHERE type = 'table'")
         .get();
     final names = tables.map((row) => row.data['name']).whereType<String>();
 
@@ -22,10 +20,10 @@ void main() {
     expect(names, contains('library_collections'));
     expect(names, contains('library_collection_memberships'));
     expect(names, contains('catalog_items_cache'));
-    expect(names, contains('comic_tracking_rows'));
+    expect(names, isNot(contains('comic_tracking_rows')));
     expect(names, contains('music_tracking_rows'));
     expect(names, contains('music_listen_events_rows'));
-    expect(names, contains('anime_watch_session_rows'));
+    expect(names, isNot(contains('anime_watch_session_rows')));
     expect(names, isNot(contains('comic_media_rows')));
     expect(names, isNot(contains('comic_library_entries_rows')));
     expect(names, isNot(contains('book_release_rows')));
@@ -39,29 +37,34 @@ void main() {
     expect(names, isNot(contains('music_track_rows')));
   });
 
-  test('creates all kind-tracking tables', () async {
-    final db = LocalDatabase(NativeDatabase.memory());
-    addTearDown(db.close);
-
-    final expected = <String>[
-      'library_entries',
-      'anime_tracking_rows',
-      'board_game_tracking_rows',
-      'book_tracking_rows',
-      'comic_tracking_rows',
-      'game_tracking_rows',
-      'manga_tracking_rows',
-      'movie_tracking_rows',
-      'music_tracking_rows',
-      'tv_tracking_rows',
-    ];
-    final tables = await db
-        .customSelect(
-          "SELECT name FROM sqlite_master WHERE type = 'table'",
-        )
-        .get();
-    final names = tables.map((row) => row.data['name']).whereType<String>();
-
-    expect(names, containsAll(expected));
-  });
+  test(
+    'release schema exactly matches the physical Music-only tables',
+    () async {
+      final db = LocalDatabase(NativeDatabase.memory());
+      addTearDown(db.close);
+      final tables = await db
+          .customSelect(
+            "SELECT name FROM sqlite_master WHERE type = 'table' AND name NOT LIKE 'sqlite_%'",
+          )
+          .get();
+      final names = tables.map((row) => row.data['name'] as String).toSet();
+      expect(names, db.allTables.map((table) => table.actualTableName).toSet());
+      expect(names, hasLength(21));
+      expect(names.where((name) => name.endsWith('_rows')).toSet(), {
+        'music_tracking_rows',
+        'music_listen_events_rows',
+      });
+      final columns = await db
+          .customSelect('PRAGMA table_info(pick_list_values_cache)')
+          .get();
+      expect(
+        columns.map((row) => row.data['name']),
+        containsAll(['sort_name', 'is_hidden']),
+      );
+      expect(
+        names,
+        containsAll(['library_collections', 'library_collection_memberships']),
+      );
+    },
+  );
 }

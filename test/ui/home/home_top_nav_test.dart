@@ -20,19 +20,19 @@ void main() {
 
     const types = [
       CatalogMediaType(
-        kind: 'comic',
+        kind: 'music',
         singularLabel: 'Comic',
         pluralLabel: 'Comics',
         routeSegments: ['comics'],
       ),
       CatalogMediaType(
-        kind: 'manga',
+        kind: 'music',
         singularLabel: 'Manga',
         pluralLabel: 'Manga',
         routeSegments: ['manga'],
       ),
       CatalogMediaType(
-        kind: 'movie',
+        kind: 'music',
         singularLabel: 'Movie',
         pluralLabel: 'Movies',
         routeSegments: ['movies'],

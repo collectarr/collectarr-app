@@ -15,7 +15,11 @@ void main() {
   testWidgets('desktop secondary toolbar exposes a split sort launcher', (
     tester,
   ) async {
-    final type = libraryKindRegistrationForKind(CatalogMediaKind.comic);
+    tester.view.physicalSize = const Size(1400, 900);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    final type = libraryKindRegistrationForKind(CatalogMediaKind.music);
     final runtime = type;
     var sortColumnsCount = 0;
     var manageSortFavoritesCount = 0;
@@ -25,8 +29,8 @@ void main() {
       label: 'Series | Issue',
       icon: Icons.swap_vert,
       rules: [
-        LibrarySortRule(column: 'comic.series', ascending: true),
-        LibrarySortRule(column: 'comic.issue_number', ascending: true),
+        LibrarySortRule(column: 'music.artist_summary', ascending: true),
+        LibrarySortRule(column: 'music.title', ascending: true),
       ],
     );
 
@@ -99,7 +103,7 @@ void main() {
   testWidgets(
       'desktop secondary toolbar hides details layout control when the details panel is visible',
       (tester) async {
-    final type = libraryKindRegistrationForKind(CatalogMediaKind.comic);
+    final type = libraryKindRegistrationForKind(CatalogMediaKind.music);
     final runtime = type;
 
     await tester.pumpWidget(
@@ -140,7 +144,7 @@ void main() {
   testWidgets(
       'desktop secondary toolbar shows details layout control when the details panel is hidden',
       (tester) async {
-    final type = libraryKindRegistrationForKind(CatalogMediaKind.comic);
+    final type = libraryKindRegistrationForKind(CatalogMediaKind.music);
     final runtime = type;
 
     await tester.pumpWidget(
@@ -181,7 +185,7 @@ void main() {
   testWidgets('desktop secondary toolbar exposes a split column launcher', (
     tester,
   ) async {
-    final type = libraryKindRegistrationForKind(CatalogMediaKind.comic);
+    final type = libraryKindRegistrationForKind(CatalogMediaKind.music);
     final runtime = type;
     var manageColumnsCount = 0;
     String? appliedPreset;
@@ -336,7 +340,7 @@ void main() {
       'desktop grouping stays in the sidebar without duplicate toolbar chips', (
     tester,
   ) async {
-    final type = libraryKindRegistrationForKind(CatalogMediaKind.comic);
+    final type = libraryKindRegistrationForKind(CatalogMediaKind.music);
     final runtime = type;
     String? linkedLabel;
     var cleared = false;
@@ -398,7 +402,7 @@ void main() {
 
   testWidgets('compact toolbar exposes a visible folders shortcut',
       (tester) async {
-    final type = libraryKindRegistrationForKind(CatalogMediaKind.comic);
+    final type = libraryKindRegistrationForKind(CatalogMediaKind.music);
     var foldersPressed = 0;
     final searchController = TextEditingController();
     addTearDown(searchController.dispose);
@@ -447,7 +451,7 @@ void main() {
       'sort favorites manager dialog renders pinned and available panes', (
     tester,
   ) async {
-    final type = libraryKindRegistrationForKind(CatalogMediaKind.comic);
+    final type = libraryKindRegistrationForKind(CatalogMediaKind.music);
     const sortFavorite = LibrarySortFavorite(
       id: 'series_issue',
       label: 'Series | Issue',

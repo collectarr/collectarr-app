@@ -78,13 +78,13 @@ void main() {
   test('buildLibrarySidebarBreadcrumbs avoids duplicating current label', () {
     final current = buildScope(bucket: 'Batman');
     final breadcrumbs = buildLibrarySidebarBreadcrumbs(
-      rootLabel: 'All Comics',
+      rootLabel: 'All Albums',
       history: [current],
       current: current,
       labelForScope: (scope) => scope.selectedBucket ?? 'Root',
     );
 
-    expect(breadcrumbs, ['All Comics', 'Batman']);
+    expect(breadcrumbs, ['All Albums', 'Batman']);
   });
 
   test('popLibrarySidebarScopeHistory returns target and trimmed history', () {

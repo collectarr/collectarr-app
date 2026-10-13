@@ -85,7 +85,10 @@ String? canonicalLibraryNavKind(String? kind) {
   if (normalized == null || normalized.isEmpty) {
     return null;
   }
-  return normalized;
+  return defaultLibraryKindRegistry.allKinds
+          .any((registration) => registration.kind.apiValue == normalized)
+      ? normalized
+      : null;
 }
 
 class NavTypeSplit {

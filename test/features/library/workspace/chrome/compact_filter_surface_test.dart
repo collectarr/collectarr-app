@@ -18,7 +18,7 @@ void main() {
           body: StatefulBuilder(
             builder: (context, setState) {
               return LibraryAccentScope(
-                kind: 'comic',
+                kind: 'music',
                 accent: Colors.deepOrange,
                 animationsEnabled: true,
                 child: CompactFilterSurface(
@@ -78,7 +78,7 @@ void main() {
           body: StatefulBuilder(
             builder: (context, setState) {
               return LibraryAccentScope(
-                kind: 'comic',
+                kind: 'music',
                 accent: Colors.deepOrange,
                 animationsEnabled: true,
                 child: CompactFilterSurface(

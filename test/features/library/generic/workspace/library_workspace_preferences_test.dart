@@ -8,8 +8,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
-  final comicRuntime = libraryKindRegistrationForKind(CatalogMediaKind.comic);
-  final mangaRuntime = libraryKindRegistrationForKind(CatalogMediaKind.manga);
+  final comicRuntime = libraryKindRegistrationForKind(CatalogMediaKind.music);
+  final mangaRuntime = libraryKindRegistrationForKind(CatalogMediaKind.music);
 
   setUp(() {
     LibraryWorkspacePreferences.resetCachedChromeForTesting();
@@ -25,16 +25,16 @@ void main() {
         viewMode: LibraryViewMode.list,
         detailsLayout: LibraryDetailsLayout.bottom,
         isSidebarVisible: true,
-        sortColumn: 'comic.series',
+        sortColumn: 'music.artist',
         sortAscending: false,
         densityPreset: LibraryWorkspaceDensityPreset.compact,
         sortRules: [
           LibrarySortRule(
-            column: 'comic.series',
+            column: 'music.artist',
             ascending: false,
           ),
           LibrarySortRule(
-            column: 'comic.title',
+            column: 'music.title',
             ascending: false,
           ),
         ],
@@ -43,12 +43,12 @@ void main() {
         detailsWidth: 390,
         detailsHeight: 244,
         visibleColumns: {
-          'comic.title',
-          'comic.series',
+          'music.title',
+          'music.artist',
         },
         columnWidths: {
-          'comic.title': 320,
-          'comic.series': 120,
+          'music.title': 320,
+          'music.artist': 120,
         },
       ),
     );
@@ -62,15 +62,15 @@ void main() {
 
     expect(restored.viewMode, LibraryViewMode.list);
     expect(restored.detailsLayout, LibraryDetailsLayout.bottom);
-    expect(restored.sortColumn, 'comic.series');
+    expect(restored.sortColumn, 'music.artist');
     expect(restored.sortAscending, isFalse);
     expect(restored.sortRules, [
       const LibrarySortRule(
-        column: 'comic.series',
+        column: 'music.artist',
         ascending: false,
       ),
       const LibrarySortRule(
-        column: 'comic.title',
+        column: 'music.title',
         ascending: false,
       ),
     ]);
@@ -79,15 +79,15 @@ void main() {
     expect(restored.detailsWidth, 390);
     expect(restored.detailsHeight, 244);
     expect(restored.visibleColumns, {
-      'comic.title',
-      'comic.series',
+      'music.title',
+      'music.artist',
     });
     expect(restored.visibleColumns.toList(), [
-      'comic.title',
-      'comic.series',
+      'music.title',
+      'music.artist',
     ]);
-    expect(restored.columnWidths['comic.title'], 320);
-    expect(restored.columnWidths['comic.series'], 120);
+    expect(restored.columnWidths['music.title'], 320);
+    expect(restored.columnWidths['music.artist'], 120);
   });
 
   test('workspace chrome size and position are retained per library', () async {
@@ -107,11 +107,11 @@ void main() {
         detailsWidth: 430,
         detailsHeight: 260,
         visibleColumns: {
-          'comic.title',
+          'music.title',
           'comic.condition',
         },
         columnWidths: {
-          'comic.title': 320,
+          'music.title': 320,
         },
       ),
     );
@@ -146,7 +146,7 @@ void main() {
         viewMode: LibraryViewMode.grid,
         detailsLayout: LibraryDetailsLayout.right,
         isSidebarVisible: true,
-        sortColumn: 'comic.title',
+        sortColumn: 'music.title',
         sortAscending: true,
         densityPreset: LibraryWorkspaceDensityPreset.compact,
         coverSize: 144,
@@ -154,7 +154,7 @@ void main() {
         detailsWidth: 980,
         detailsHeight: 540,
         visibleColumns: {
-          'comic.title',
+          'music.title',
           'comic.issue_number',
         },
         columnWidths: {},
@@ -182,7 +182,7 @@ void main() {
         viewMode: LibraryViewMode.list,
         detailsLayout: LibraryDetailsLayout.bottom,
         isSidebarVisible: false,
-        sortColumn: 'comic.series',
+        sortColumn: 'music.artist',
         sortAscending: false,
         densityPreset: LibraryWorkspaceDensityPreset.compact,
         coverSize: 144,
@@ -190,8 +190,8 @@ void main() {
         detailsWidth: 430,
         detailsHeight: 260,
         visibleColumns: {
-          'comic.title',
-          'comic.series',
+          'music.title',
+          'music.artist',
         },
         columnWidths: {},
       ),
@@ -202,7 +202,7 @@ void main() {
         viewMode: LibraryViewMode.grid,
         detailsLayout: LibraryDetailsLayout.right,
         isSidebarVisible: true,
-        sortColumn: 'comic.title',
+        sortColumn: 'music.title',
         sortAscending: true,
         densityPreset: LibraryWorkspaceDensityPreset.compact,
         coverSize: 128,
@@ -210,8 +210,8 @@ void main() {
         detailsWidth: 340,
         detailsHeight: 300,
         visibleColumns: {
-          'comic.title',
-          'comic.series',
+          'music.title',
+          'music.artist',
         },
         columnWidths: {},
       ),
@@ -230,7 +230,7 @@ void main() {
       maxCoverSize: 188,
     );
 
-    expect(comics.sortColumn, 'comic.series');
+    expect(comics.sortColumn, 'music.artist');
     expect(comics.sortAscending, isFalse);
     expect(comics.detailsLayout, LibraryDetailsLayout.bottom);
     expect(comics.isSidebarVisible, isFalse);

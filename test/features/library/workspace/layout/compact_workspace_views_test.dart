@@ -28,7 +28,7 @@ void main() {
       MaterialApp(
         home: Scaffold(
           body: LibraryAccentScope(
-            kind: 'comic',
+            kind: 'music',
             accent: Colors.deepOrange,
             animationsEnabled: true,
             child: CompactWorkspaceListView<_TestItem>(
@@ -75,7 +75,7 @@ void main() {
       MaterialApp(
         home: Scaffold(
           body: LibraryAccentScope(
-            kind: 'comic',
+            kind: 'music',
             accent: Colors.deepOrange,
             animationsEnabled: true,
             child: CompactWorkspaceListView<_TestItem>(
@@ -101,7 +101,7 @@ void main() {
       MaterialApp(
         home: Scaffold(
           body: LibraryAccentScope(
-            kind: 'comic',
+            kind: 'music',
             accent: Colors.deepOrange,
             animationsEnabled: true,
             child: CompactWorkspaceGridView<_TestItem>(

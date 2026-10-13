@@ -91,3 +91,16 @@ Use Flutter 3.47.7 and the locked dependency set. Keep hashed contract files at
 LF. Regenerate Drift and kind artifacts, verify pinned contracts, run format,
 analyze, architecture checks, unit/widget tests, native integration smoke and
 Windows/Web builds. Keep native tests on isolated in-memory databases.
+
+## Test ownership and selection
+
+- Ordinary tests mirror production ownership under `lib/`; only architecture,
+  contracts and support are special categories. Keep benchmarks outside `test/`.
+- Production code must not contain `lib/test/` or import test-support code.
+- Use small owned fixtures/builders. Shared setup never hides kind semantics.
+- Separate behavioral checks from layout/motion contracts; do not duplicate
+  pixel geometry assertions in multiple feature tests.
+- Make kind test selection explicit and easy to change. Disabling a kind must
+  not disable common correctness, contracts or source ownership checks.
+- Prefer stable behavior names and local fixtures; share only with real consumers.
+- Measure directory timings before sharding; coverage reports are informational.

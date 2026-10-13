@@ -28,7 +28,7 @@ requires a non-null `format_family` under Core contract 2.2.0. The disc's
 labels used by grouped views and exports.
 
 Core response models in `app/schemas/catalog_music_item.py` define the strict
-wire schema. Core exports `contracts/music-catalog-v2.json` and pins its hash
+wire schema. Core exports `contracts/music-catalog-v1.json` and pins its hash
 in the contract manifest. App pins that bundle under `tool/core_contracts/`
 and generates the API client and Music field inventory from the v2 artifacts.
 Run the App contract check after refreshing the bundle:

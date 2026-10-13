@@ -35,8 +35,8 @@ jobs:
       - name: Verify pinned Music catalog contract and mapper
         run: dart run tool/check_music_catalog_contract.dart
 
-      - name: Verify generated Catalog Item v2 field schema
-        run: dart run tool/generate_catalog_item_v2_fields.dart --check
+      - name: Verify generated Catalog Item v1 field schema
+        run: dart run tool/generate_catalog_item_v1_fields.dart --check
 
       - name: Generate Drift code
         run: dart run build_runner build --delete-conflicting-outputs

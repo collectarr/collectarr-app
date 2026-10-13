@@ -11,17 +11,7 @@ void main() {
 
     expect(
       Set<String>.from(body['kinds'] as List<dynamic>),
-      equals({
-        'comic',
-        'manga',
-        'anime',
-        'book',
-        'game',
-        'boardgame',
-        'movie',
-        'tv',
-        'music',
-      }),
+      equals({'music'}),
     );
   });
 }

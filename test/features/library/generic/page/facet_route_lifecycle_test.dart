@@ -33,7 +33,7 @@ void main() {
         builder: (_, route) => GenericLibraryPage(
           key: const ValueKey('library-page'),
           type: route.uri.queryParameters['kind'] == 'book'
-              ? const BookRegistration()
+              ? const MusicRegistration()
               : const MusicRegistration(),
           topBar: const SizedBox.shrink(),
           accent: Colors.orange,

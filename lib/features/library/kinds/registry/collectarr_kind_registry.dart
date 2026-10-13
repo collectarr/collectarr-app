@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/kinds/registry/library_release_scope.dart';
 // Explicit application composition root.
 //
 // Keep concrete kind wiring visible here. Mechanical artifacts such as Drift
@@ -50,21 +51,21 @@ import 'package:collectarr_app/features/library/kinds/tv/tv_module.dart';
 export 'package:collectarr_app/features/library/kinds/tv/tv_module.dart';
 
 final List<LibraryKindRegistration> collectarrKindRegistrationsList = [
-  const AnimeRegistration(),
-  const BoardgameRegistration(),
-  const BookRegistration(),
-  const ComicRegistration(),
-  const GameRegistration(),
-  const MangaRegistration(),
-  const MovieRegistration(),
-  const MusicRegistration(),
-  const TvRegistration(),
+  for (final registration in const <LibraryKindRegistration>[
+    AnimeRegistration(),
+    BoardgameRegistration(),
+    BookRegistration(),
+    ComicRegistration(),
+    GameRegistration(),
+    MangaRegistration(),
+    MovieRegistration(),
+    MusicRegistration(),
+    TvRegistration(),
+  ])
+    if (releasedLibraryKinds.contains(registration.kind)) registration,
 ];
 
-final List<GoRoute> collectarrKindRoutes = [
-  ...ComicRouteContributor().buildRoutes(),
-  ...BookRouteContributor().buildRoutes(),
-];
+final List<GoRoute> collectarrKindRoutes = [];
 
 final Map<CatalogMediaKind, LibraryKindRegistration>
     collectarrKindRegistrations = Map.unmodifiable({

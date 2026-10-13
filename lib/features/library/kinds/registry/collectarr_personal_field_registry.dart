@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/kinds/registry/library_release_scope.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/kinds/anime/anime_module.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/boardgame_module.dart';
@@ -12,7 +13,7 @@ import 'package:collectarr_app/features/library/metadata/library_field_entries.d
 import 'package:collectarr_app/features/library/metadata/library_personal_field_contributor.dart';
 
 final Map<CatalogMediaKind, LibraryPersonalFieldContributor>
-    collectarrKindPersonalFieldContributors = Map.unmodifiable({
+    collectarrKindPersonalFieldContributors = releasedKindContributions({
   CatalogMediaKind.anime: animeKindPersonalFieldContributor,
   CatalogMediaKind.boardgame: boardGameKindPersonalFieldContributor,
   CatalogMediaKind.book: bookKindPersonalFieldContributor,

@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:collectarr_app/core/api/generated/catalog_item_v2_fields.dart';
+import 'package:collectarr_app/core/api/generated/catalog_item_v1_fields.dart';
 import 'package:crypto/crypto.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -17,10 +17,10 @@ void main() {
       File('tool/core_contracts/metadata-field-schema.json').readAsStringSync(),
     ) as Map<String, dynamic>;
     final catalogItemSchema = jsonDecode(
-      File('tool/core_contracts/catalog-item-v2.json').readAsStringSync(),
+      File('tool/core_contracts/catalog-item-v1.json').readAsStringSync(),
     ) as Map<String, dynamic>;
     final musicContract = jsonDecode(
-      File('tool/core_contracts/music-catalog-v2.json').readAsStringSync(),
+      File('tool/core_contracts/music-catalog-v1.json').readAsStringSync(),
     ) as Map<String, dynamic>;
 
     expect(manifest['contractVersion'], isA<String>());
@@ -33,8 +33,8 @@ void main() {
       _fileHash('tool/core_contracts/metadata-field-schema.json'),
     );
     expect(
-      manifest['catalogItemV2Hash'],
-      _fileHash('tool/core_contracts/catalog-item-v2.json'),
+      manifest['catalogItemV1Hash'],
+      _fileHash('tool/core_contracts/catalog-item-v1.json'),
     );
     expect(
       manifest['activeKindsHash'],
@@ -48,32 +48,22 @@ void main() {
 
     expect(
       Set<String>.from(activeKinds['kinds'] as List<dynamic>),
-      equals({
-        'comic',
-        'manga',
-        'anime',
-        'book',
-        'game',
-        'boardgame',
-        'movie',
-        'tv',
-        'music',
-      }),
+      equals({'music'}),
     );
     expect(fieldSchema['contractVersion'], manifest['contractVersion']);
     expect(fieldSchema['fields'], isNotEmpty);
-    expect(catalogItemSchema['schemaVersion'], 2);
-    expect(catalogItemSchema['contractVersion'], '2.0.0');
+    expect(catalogItemSchema['schemaVersion'], 1);
+    expect(catalogItemSchema['contractVersion'], '1.0.0');
     final catalogKinds = catalogItemSchema['kinds'] as Map<String, dynamic>;
     expect(
-      catalogItemV2FieldsByKind.keys.toSet(),
+      catalogItemV1FieldsByKind.keys.toSet(),
       catalogKinds.keys.toSet(),
     );
     for (final entry in catalogKinds.entries) {
       final kindSchema = entry.value as Map<String, dynamic>;
       final properties = kindSchema['properties'] as Map<String, dynamic>;
       expect(
-        catalogItemV2FieldsByKind[entry.key],
+        catalogItemV1FieldsByKind[entry.key],
         properties.keys.toSet(),
         reason: 'Generated App fields drifted for ${entry.key}.',
       );
@@ -130,8 +120,8 @@ void main() {
       return null;
     }
 
-    expect(fieldFor('title', 'game')?['editable'], isTrue);
-    expect(fieldFor('title', 'game')?['valueType'], 'string');
+    expect(fieldFor('title', 'music')?['editable'], isTrue);
+    expect(fieldFor('title', 'music')?['valueType'], 'string');
   });
 }
 

@@ -2,15 +2,15 @@ import 'package:collectarr_app/features/library/workspace/config/library_workspa
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/features/library/workspace/config/library_workspace_preferences.dart';
 import 'package:collectarr_app/features/library/workspace/entry/library_workspace_view_state.dart';
-import 'package:collectarr_app/features/library/kinds/comic/comic_module.dart';
+import 'package:collectarr_app/features/library/kinds/music/music_module.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
 import 'package:collectarr_app/features/library/workspace/schema/library_identifier_types.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
-  final runtime = libraryKindRegistrationForKind(CatalogMediaKind.comic);
-  final workspace = comicKindWorkspace;
+  final runtime = libraryKindRegistrationForKind(CatalogMediaKind.music);
+  final workspace = musicKindWorkspace;
   LibraryFieldIdRuntime field(String value) =>
       workspace.fields.decodeColumnId(value);
   LibrarySortIdRuntime sort(String value) =>
@@ -38,7 +38,7 @@ void main() {
             coverSize: 144,
             visibleColumns: {
               field('title'),
-              field('issue'),
+              field('artist_summary'),
             },
           ),
       };
@@ -56,7 +56,7 @@ void main() {
 
     expect(defaults.viewMode, LibraryViewMode.grid);
     expect(defaults.detailsLayout, LibraryDetailsLayout.bottom);
-    expect(defaults.sortId, sort('comic.release_date'));
+    expect(defaults.sortId, workspace.fields.defaultSort);
     expect(defaults.coverSize, 128);
     expect(defaults.sidebarWidth, 250);
     expect(defaults.detailsWidth, 340);
@@ -141,11 +141,11 @@ void main() {
           viewMode: LibraryViewMode.card,
           sortRules: const [
             LibrarySortRuleRuntime(
-              sortId: LibrarySortId<ComicKind>('comic.series'),
+              sortId: LibrarySortId<MusicKind>('music.artist_summary'),
               ascending: true,
             ),
             LibrarySortRuleRuntime(
-              sortId: LibrarySortId<ComicKind>('comic.title'),
+              sortId: LibrarySortId<MusicKind>('music.title'),
               ascending: false,
             ),
           ],
@@ -161,11 +161,11 @@ void main() {
     expect(restored.viewMode, LibraryViewMode.card);
     expect(restored.sortRules, [
       const LibrarySortRuleRuntime(
-        sortId: LibrarySortId<ComicKind>('comic.series'),
+        sortId: LibrarySortId<MusicKind>('music.artist_summary'),
         ascending: true,
       ),
       const LibrarySortRuleRuntime(
-        sortId: LibrarySortId<ComicKind>('comic.title'),
+        sortId: LibrarySortId<MusicKind>('music.title'),
         ascending: false,
       ),
     ]);

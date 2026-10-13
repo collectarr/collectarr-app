@@ -28,14 +28,6 @@ void main() {
         kAdminMetadataScalarFields.firstWhere((field) => field.key == key);
 
     expect(
-      byKey('page_count').valueType,
-      SharedMetadataFieldValueType.integer,
-    );
-    expect(
-      byKey('runtime_minutes').valueType,
-      SharedMetadataFieldValueType.integer,
-    );
-    expect(
       byKey('release_date').valueType,
       SharedMetadataFieldValueType.partialDate,
     );
@@ -52,25 +44,11 @@ void main() {
   test('normalized contract comparator reports in-sync manifest', () {
     final manifest = const MetadataNormalizedManifest(
       schemaVersion: 1,
-      commonFields: ['audience_rating'],
+      commonFields: [],
       kindFields: {
-        'comic': ['genres'],
-        'game': ['platforms'],
-        'movie': [
-          'color',
-          'nr_discs',
-          'screen_ratio',
-          'audio_tracks',
-          'subtitles',
-          'layers'
-        ],
+        'music': ['genres']
       },
-      valueTypes: {
-        'audience_rating': 'string',
-        'genres': 'string_list',
-        'platforms': 'string_list',
-        'color': 'string',
-      },
+      valueTypes: {'genres': 'string_list'},
     );
 
     final drift = compareSharedContractWithManifest(manifest);

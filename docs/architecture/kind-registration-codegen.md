@@ -40,7 +40,7 @@ dart run build_runner build --delete-conflicting-outputs
 
 CI runs these generation steps independently and checks that generated files are
 up to date. It also verifies the pinned Music catalog contract against the
-mapper and the generated Catalog Item v2 fields against their pinned contract.
+mapper and the generated Catalog Item v1 fields against their pinned contract.
 The distinction is intentional: the kind registry is reviewed application
 source, while the generators produce mechanical table/seed composition, the
 field-entry manifest, and Drift implementation code.
