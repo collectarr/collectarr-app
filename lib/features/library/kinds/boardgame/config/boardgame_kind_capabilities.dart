@@ -43,7 +43,6 @@ final boardGameKindIdentity = const LibraryKindIdentity(
 );
 
 final boardGameKindMetadata = const LibraryMetadataCapability(
-  catalogMetadataDecoder: BoardGameMetadata.fromJson,
   catalogTransportCodec: BoardGameCatalogTransportCodec(),
   searchQueryBuilder: boardGameMetadataSearchQuery,
 );

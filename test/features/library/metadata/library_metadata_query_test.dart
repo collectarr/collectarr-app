@@ -1,18 +1,15 @@
-import 'package:collectarr_app/core/api/api_client.dart';
-import 'package:collectarr_app/core/api/dto/metadata_search_query.dart';
-import 'package:collectarr_app/core/api/dto/catalog_search_page.dart';
-import 'package:collectarr_app/features/library/kinds/comic/comic_module.dart';
+import '../../../support/fakes/music_catalog_api_fake.dart';
+import 'package:collectarr_app/features/library/kinds/music/music_module.dart';
 import 'package:collectarr_app/features/library/metadata/library_metadata_query.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:dio/dio.dart';
 
 void main() {
   test('library metadata search parses results into metadata items', () async {
-    final api = _FakeLibraryMetadataApiClient();
+    final api = MusicCatalogApiFake();
 
     final results = await searchLibraryMetadata(
       api,
-      comicKindIdentity.kind,
+      musicKindIdentity.kind,
       query: 'Batman',
       series: 'Batman',
       issueNumber: '1',
@@ -20,66 +17,28 @@ void main() {
     );
 
     expect(api.lastSearchQuery?.query, 'Batman');
-    expect(api.lastSearchQuery?.kind, 'comic');
+    expect(api.lastSearchQuery?.kind, 'music');
     expect(api.lastSearchQuery?.series, 'Batman');
-    expect(api.lastSearchQuery?.issueNumber, '1');
+    expect(api.lastSearchQuery?.issueNumber, isNull);
     expect(api.lastSearchQuery?.year, 1940);
-    expect(results.single.reference.id, 'comic-1');
+    expect(results.single.reference.id, 'music-1');
+    expect(results.single.kindCapability.toImportTransport().payload.keys,
+        isNot(contains('created_at')));
+    expect(results.single.kindCapability.toImportTransport().payload.keys,
+        isNot(contains('updated_at')));
   });
 
   test('library barcode lookup parses result into metadata item', () async {
-    final api = _FakeLibraryMetadataApiClient();
+    final api = MusicCatalogApiFake();
 
     final result = await lookupLibraryBarcode(
       api,
-      comicKindIdentity.kind,
+      musicKindIdentity.kind,
       '012-345-678-905',
     );
 
     expect(api.lastBarcode, '012345678905');
-    expect(api.lastBarcodeKind, 'comic');
-    expect(result.reference.id, 'comic-1');
+    expect(api.lastBarcodeKind, 'music');
+    expect(result.reference.id, 'music-1');
   });
-}
-
-class _FakeLibraryMetadataApiClient extends ApiClient {
-  _FakeLibraryMetadataApiClient() : super(baseUrl: 'http://unused');
-
-  MetadataSearchQuery? lastSearchQuery;
-  String? lastBarcode;
-  String? lastBarcodeKind;
-
-  @override
-  Future<CatalogSearchPage> searchMetadataPage(
-    MetadataSearchQuery query, {
-    CancelToken? cancelToken,
-  }) async {
-    lastSearchQuery = query;
-    return const CatalogSearchPage(
-      items: [
-        {
-          'id': 'comic-1',
-          'kind': 'comic',
-          'title': 'Batman',
-        },
-      ],
-      nextOffset: null,
-      hasMore: false,
-    );
-  }
-
-  @override
-  Future<Map<String, dynamic>> lookupBarcode(
-    String barcode, {
-    String? kind,
-    CancelToken? cancelToken,
-  }) async {
-    lastBarcode = barcode;
-    lastBarcodeKind = kind;
-    return const {
-      'id': 'comic-1',
-      'kind': 'comic',
-      'title': 'Batman',
-    };
-  }
 }

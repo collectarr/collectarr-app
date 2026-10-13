@@ -91,7 +91,6 @@ final mangaKindIdentity = const LibraryKindIdentity(
 );
 
 final mangaKindMetadata = LibraryMetadataCapability(
-  catalogMetadataDecoder: MangaMetadata.fromJson,
   catalogTransportCodec: MangaCatalogTransportCodec(),
   searchQueryBuilder: mangaMetadataSearchQuery,
 );

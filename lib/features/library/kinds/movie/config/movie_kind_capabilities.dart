@@ -79,7 +79,6 @@ final movieKindIdentity = const LibraryKindIdentity(
 );
 
 final movieKindMetadata = const LibraryMetadataCapability(
-  catalogMetadataDecoder: MovieCatalogMetadata.fromJson,
   catalogTransportCodec: MovieCatalogTransportCodec(),
   searchQueryBuilder: movieMetadataSearchQuery,
 );

@@ -21,7 +21,6 @@ final class LibraryAddHydrationService {
     );
     return CatalogSearchCandidate.fromApiJson(
       json: json,
-      metadataDecoder: libraryMetadataForKind(type.kind).catalogMetadataDecoder,
       summaryBuilder: summarizeCatalogTransportPayload,
     );
   }

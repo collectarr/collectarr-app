@@ -104,12 +104,10 @@ Future<LibraryMetadataSearchPage> searchLibraryMetadataPage(
           query: input,
           cancelToken: cancelToken,
         );
-  final decoder = capability.catalogMetadataDecoder;
   final items = [
     for (final row in page.items)
       CatalogSearchCandidate.fromApiJson(
         json: row,
-        metadataDecoder: decoder,
         summaryBuilder: summarizeCatalogTransportPayload,
       ),
   ];
@@ -185,7 +183,6 @@ Future<CatalogSearchCandidate> lookupLibraryBarcode(
   }
   return CatalogSearchCandidate.fromApiJson(
     json: row,
-    metadataDecoder: capability.catalogMetadataDecoder,
     summaryBuilder: summarizeCatalogTransportPayload,
   );
 }
