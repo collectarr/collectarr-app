@@ -21,7 +21,7 @@ jobs:
       - name: Measure 1000 and 5000 album workspaces
         run: flutter test benchmark/music_workspace_benchmark.dart --enable-vmservice --no-dds --reporter expanded
       - name: Save measurements
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: music-workspace-benchmark
           path: build/benchmarks/music-workspace.json
