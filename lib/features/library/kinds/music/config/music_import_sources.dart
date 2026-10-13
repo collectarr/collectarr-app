@@ -122,7 +122,7 @@ final musicImportSources = <LibraryImportSourceDefinition>[
     sourceType: LibraryImportSourceType.guidedFile,
     fileExtensions: ['csv'],
     description:
-        'To import your list of albums from Discogs, you need to export a CSV file of your albums out of your Discogs account. Here\'s what to do:',
+        'To import your list of albums from Discogs, you need to export a CSV file of your albums out of your Discogs account.\nHere\'s what to do:',
     instructions: [
       'Log in to your Discogs account.',
       'Open your Dashboard and click "Export".',
@@ -140,7 +140,7 @@ final musicImportSources = <LibraryImportSourceDefinition>[
     sourceType: LibraryImportSourceType.guidedFile,
     fileExtensions: ['xml'],
     description:
-        'To import your list of albums from CATraxx, you need to export an XML file of your albums out of CATraxx. Here\'s what to do:',
+        'To import your list of albums from CATraxx, you need to export an XML file of your albums out of CATraxx.\nHere\'s what to do:',
     instructions: [
       'Start CATraxx on your computer.',
       'Click menu File > Export > XML',
@@ -159,7 +159,7 @@ final musicImportSources = <LibraryImportSourceDefinition>[
     sourceType: LibraryImportSourceType.guidedFile,
     fileExtensions: ['txt'],
     description:
-        'To import your list of albums from Delicious, you need to export a TXT file of your Delicious collection. Here\'s what to do:',
+        'To import your list of albums from Delicious, you need to export a TXT file of your Delicious collection.\nHere\'s what to do:',
     instructions: [
       'Start Delicious Library on your computer.',
       'Click menu File > Export To > Another Application.',
@@ -182,7 +182,7 @@ final musicImportSources = <LibraryImportSourceDefinition>[
     sourceType: LibraryImportSourceType.guidedFile,
     fileExtensions: ['oxl', 'xml'],
     description:
-        'To import your list of albums from OrangeCD, you need to export an OXL file of your albums out of OrangeCD. Here\'s what to do:',
+        'To import your list of albums from OrangeCD, you need to export an OXL file of your albums out of OrangeCD.\nHere\'s what to do:',
     instructions: [
       'Start OrangeCD on your computer.',
       'Click menu Database > Import and export',
@@ -201,7 +201,7 @@ final musicImportSources = <LibraryImportSourceDefinition>[
     sourceType: LibraryImportSourceType.guidedFile,
     fileExtensions: ['xml'],
     description:
-        'To import your list of albums from CDpedia, you need to export an XML file of your albums out of CDpedia. Here\'s what to do:',
+        'To import your list of albums from CDpedia, you need to export an XML file of your albums out of CDpedia.\nHere\'s what to do:',
     instructions: [
       'Start CDpedia on your computer.',
       'Click menu File > Export',
@@ -221,7 +221,7 @@ final musicImportSources = <LibraryImportSourceDefinition>[
     sourceType: LibraryImportSourceType.guidedFile,
     fileExtensions: ['xml'],
     description:
-        'To import your list of albums from Music Collector, you need to export an XML file of your albums out of Music Collector. Here\'s what to do:',
+        'To import your list of albums from Music Collector, you need to export an XML file of your albums out of Music Collector.\nHere\'s what to do:',
     instructions: [
       'Start Music Collector on your computer.',
       'Click menu File > Export to > XML.',
@@ -239,7 +239,7 @@ final musicImportSources = <LibraryImportSourceDefinition>[
     sourceType: LibraryImportSourceType.guidedFile,
     fileExtensions: ['xml'],
     description:
-        'To import your list of albums from CLZ Music Web, you need to export an XML file of your albums out of CLZ Music Web. Here\'s what to do:',
+        'To import your list of albums from CLZ Music Web, you need to export an XML file of your albums out of CLZ Music Web.\nHere\'s what to do:',
     instructions: [
       'Login to CLZ Music Web.',
       'Click the menu on the left and navigate to "Export to XML".',

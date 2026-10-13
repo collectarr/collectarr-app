@@ -45,7 +45,7 @@ enum ImportMultiFieldDelimiter {
   final String char;
 }
 
-/// Full-page Import Data view matching CLZ Music Web 1:1.
+/// Kind-owned file import workflows presented with shared library chrome.
 class LibraryImportDataPage extends ConsumerStatefulWidget {
   const LibraryImportDataPage({
     super.key,
@@ -146,19 +146,20 @@ class _LibraryImportDataPageState extends ConsumerState<LibraryImportDataPage> {
     };
 
     return Scaffold(
-      backgroundColor: palette.surface,
+      backgroundColor: appManagementCanvasColor(context),
       appBar: AppPageHeader(
-          icon: Icons.file_upload_outlined,
+          icon: AppIcons.importData,
           leading: AppPageBackButton(
             key: const Key('import_data.back'),
             onPressed: _navigateBack,
           ),
           title: Text(pageTitle)),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+        padding: EdgeInsets.symmetric(
+            horizontal: 24, vertical: _activeSourceId == null ? 24 : 10),
         child: Center(
           child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 1140),
+            constraints: const BoxConstraints(maxWidth: 960),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
@@ -192,7 +193,7 @@ class _LibraryImportDataPageState extends ConsumerState<LibraryImportDataPage> {
         border: Border.all(color: const Color(0xFFEBCCD1)),
         borderRadius: BorderRadius.circular(4),
       ),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -203,7 +204,8 @@ class _LibraryImportDataPageState extends ConsumerState<LibraryImportDataPage> {
                 const Text(
                   'Attention!',
                   style: TextStyle(
-                    fontSize: 18,
+                    fontSize: 20,
+                    height: 1.1,
                     fontWeight: FontWeight.w700,
                     color: Color(0xFFA94442),
                   ),
@@ -224,7 +226,12 @@ class _LibraryImportDataPageState extends ConsumerState<LibraryImportDataPage> {
           ),
           IconButton(
             key: const Key('import_data.dismiss_warning'),
-            icon: const Icon(Icons.close, size: 18, color: Color(0xFFA94442)),
+            icon: const Icon(AppIcons.close, size: 14),
+            style: IconButton.styleFrom(
+              backgroundColor: Colors.transparent,
+              foregroundColor: const Color(0xFFA94442).withValues(alpha: 0.5),
+              hoverColor: Colors.transparent,
+            ),
             padding: EdgeInsets.zero,
             constraints: const BoxConstraints(minWidth: 24, minHeight: 24),
             tooltip: 'Dismiss',
@@ -247,7 +254,8 @@ class _LibraryImportDataPageState extends ConsumerState<LibraryImportDataPage> {
         Text(
           'Import from:',
           style: TextStyle(
-            fontSize: 26,
+            fontSize: 30,
+            height: 1.1,
             fontWeight: FontWeight.w700,
             color: palette.textPrimary,
           ),
@@ -255,7 +263,7 @@ class _LibraryImportDataPageState extends ConsumerState<LibraryImportDataPage> {
         const SizedBox(height: 16),
         Container(
           width: double.infinity,
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(10),
           decoration: BoxDecoration(
             color: palette.panel,
             borderRadius: BorderRadius.circular(4),
@@ -266,7 +274,7 @@ class _LibraryImportDataPageState extends ConsumerState<LibraryImportDataPage> {
             children: [
               for (final source in capability.sources) ...[
                 _buildSourceCard(palette, source),
-                const SizedBox(height: 12),
+                const SizedBox(height: 30),
               ],
             ],
           ),
@@ -282,7 +290,7 @@ class _LibraryImportDataPageState extends ConsumerState<LibraryImportDataPage> {
     return LayoutBuilder(
       builder: (context, constraints) {
         final cardWidth = constraints.maxWidth >= 700
-            ? (constraints.maxWidth - 20) / 2
+            ? (constraints.maxWidth - 30) / 2
             : constraints.maxWidth;
 
         return ConstrainedBox(
@@ -299,17 +307,16 @@ class _LibraryImportDataPageState extends ConsumerState<LibraryImportDataPage> {
               hoverColor: Colors.white.withValues(alpha: 0.04),
               onTap: () => _selectSource(source.id),
               child: Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                padding: const EdgeInsets.all(10),
                 child: Row(
                   children: [
                     _buildSourceLogo(source, 45),
-                    const SizedBox(width: 16),
+                    const SizedBox(width: 10),
                     Expanded(
                       child: Text(
                         source.title,
                         style: TextStyle(
-                          fontSize: 16,
+                          fontSize: 18,
                           fontWeight: FontWeight.w700,
                           color: palette.textPrimary,
                         ),
@@ -364,25 +371,25 @@ class _LibraryImportDataPageState extends ConsumerState<LibraryImportDataPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text(
-          'Import ${_pluralLabel.toLowerCase()} from CSV / TXT',
-          style: const TextStyle(
-            fontSize: 24,
-            fontWeight: FontWeight.w700,
-            color: Colors.white,
-          ),
-        ),
-        const SizedBox(height: 16),
         Container(
-          padding: const EdgeInsets.all(24),
+          padding: const EdgeInsets.all(10),
           decoration: BoxDecoration(
             color: palette.panel,
-            borderRadius: BorderRadius.circular(4),
-            border: Border.all(color: palette.cardBorder),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
+              Text(
+                'Import ${_pluralLabel.toLowerCase()} from CSV / TXT',
+                style: const TextStyle(
+                  fontSize: 22,
+                  height: 1.1,
+                  fontWeight: FontWeight.w700,
+                  color: Colors.white,
+                ),
+              ),
+              const SizedBox(height: 10),
+
               // 1. Upload file
               const Text(
                 '1. Upload your .csv or .txt file:',
@@ -398,7 +405,7 @@ class _LibraryImportDataPageState extends ConsumerState<LibraryImportDataPage> {
                 selectedFileName: _selectedFileName,
                 onPick: _pickCsvFile,
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: 16),
 
               // 2. Data format settings
               const Text(
@@ -411,7 +418,7 @@ class _LibraryImportDataPageState extends ConsumerState<LibraryImportDataPage> {
               ),
               const SizedBox(height: 12),
               _buildFormatSettingsSection(palette),
-              const SizedBox(height: 24),
+              const SizedBox(height: 16),
 
               // 3. Field mapping
               const Text(
@@ -456,7 +463,7 @@ class _LibraryImportDataPageState extends ConsumerState<LibraryImportDataPage> {
                         ? Colors.redAccent
                         : Colors.greenAccent,
                     fontSize: 14,
-                    fontWeight: FontWeight.w600,
+                    fontWeight: FontWeight.w400,
                   ),
                 ),
                 const SizedBox(height: 14),
@@ -467,11 +474,11 @@ class _LibraryImportDataPageState extends ConsumerState<LibraryImportDataPage> {
                 builder: (context, constraints) {
                   final isDesktop = constraints.maxWidth >= 600;
                   final button = SizedBox(
-                    height: 42,
+                    height: 32,
                     child: ElevatedButton(
                       key: const Key('import_csv.submit'),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF287A9F),
+                        backgroundColor: accent,
                         foregroundColor: Colors.white,
                         elevation: 0,
                         shape: RoundedRectangleBorder(
@@ -506,8 +513,8 @@ class _LibraryImportDataPageState extends ConsumerState<LibraryImportDataPage> {
                           : Text(
                               'Import $_pluralLabel',
                               style: const TextStyle(
-                                fontSize: 15,
-                                fontWeight: FontWeight.w700,
+                                fontSize: 14,
+                                fontWeight: FontWeight.w400,
                               ),
                             ),
                     ),
@@ -538,44 +545,58 @@ class _LibraryImportDataPageState extends ConsumerState<LibraryImportDataPage> {
   }) {
     return Container(
       decoration: BoxDecoration(
-        color: palette.panelRaised,
+        color: palette.panel,
         borderRadius: BorderRadius.circular(4),
-        border: Border.all(color: palette.cardBorder),
+        border: Border.all(
+            color: palette.isDark
+                ? appManagementCanvasColor(context)
+                : palette.divider),
       ),
-      child: Row(
-        children: [
-          ElevatedButton(
-            key: const Key('import_file_picker_btn'),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF31B0D5),
-              foregroundColor: Colors.white,
-              shape: const RoundedRectangleBorder(
-                borderRadius: BorderRadius.horizontal(left: Radius.circular(3)),
+      padding: const EdgeInsets.all(14),
+      child: Container(
+        decoration: BoxDecoration(
+          color: palette.isDark ? const Color(0xFF444444) : palette.field,
+          border: Border.all(color: palette.divider),
+          borderRadius: BorderRadius.circular(4),
+        ),
+        child: Row(
+          children: [
+            ElevatedButton(
+              key: const Key('import_file_picker_btn'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Theme.of(context).colorScheme.primary,
+                foregroundColor: Colors.white,
+                shape: const RoundedRectangleBorder(
+                  borderRadius:
+                      BorderRadius.horizontal(left: Radius.circular(3)),
+                ),
+                minimumSize: const Size(0, 32),
+                fixedSize: const Size.fromHeight(32),
+                padding: const EdgeInsets.symmetric(horizontal: 10),
+                elevation: 0,
               ),
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              elevation: 0,
-            ),
-            onPressed: onPick,
-            child: const Text(
-              'Choose File...',
-              style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
-            ),
-          ),
-          const SizedBox(width: 14),
-          Expanded(
-            child: Text(
-              selectedFileName ?? 'No File Selected',
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w500,
-                color: selectedFileName == null
-                    ? Colors.white
-                    : palette.textPrimary,
+              onPressed: onPick,
+              child: const Text(
+                'Choose File...',
+                style: TextStyle(fontWeight: FontWeight.w400, fontSize: 14),
               ),
-              overflow: TextOverflow.ellipsis,
             ),
-          ),
-        ],
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                selectedFileName ?? 'No File Selected',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w400,
+                  color: selectedFileName == null
+                      ? Colors.white
+                      : palette.textPrimary,
+                ),
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -584,11 +605,11 @@ class _LibraryImportDataPageState extends ConsumerState<LibraryImportDataPage> {
     return LayoutBuilder(
       builder: (context, constraints) {
         final cardWidth = constraints.maxWidth >= 720
-            ? (constraints.maxWidth - 36) / 4
+            ? (constraints.maxWidth - 60) / 4
             : (constraints.maxWidth - 12) / 2;
 
         return Wrap(
-          spacing: 12,
+          spacing: constraints.maxWidth >= 720 ? 20 : 12,
           runSpacing: 12,
           children: [
             // Header
@@ -617,7 +638,7 @@ class _LibraryImportDataPageState extends ConsumerState<LibraryImportDataPage> {
                           child: Checkbox(
                             key: const Key('import_format.skip_header'),
                             value: _skipFirstRow,
-                            activeColor: const Color(0xFF31B0D5),
+                            activeColor: Theme.of(context).colorScheme.primary,
                             checkColor: Colors.white,
                             materialTapTargetSize:
                                 MaterialTapTargetSize.shrinkWrap,
@@ -745,22 +766,27 @@ class _LibraryImportDataPageState extends ConsumerState<LibraryImportDataPage> {
     required Widget child,
   }) {
     return Container(
-      padding: const EdgeInsets.all(14),
+      constraints: const BoxConstraints(minHeight: 148),
+      padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
-        color: palette.panelRaised,
+        color: palette.panel,
         borderRadius: BorderRadius.circular(4),
-        border: Border.all(color: palette.cardBorder),
+        border: Border.all(
+            color: palette.isDark
+                ? appManagementCanvasColor(context)
+                : palette.divider),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              Expanded(
+              Flexible(
                 child: Text(
                   title,
                   style: const TextStyle(
                     fontSize: 16,
+                    height: 1.1,
                     fontWeight: FontWeight.w700,
                     color: Colors.white,
                   ),
@@ -778,7 +804,7 @@ class _LibraryImportDataPageState extends ConsumerState<LibraryImportDataPage> {
               ),
             ],
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 10),
           child,
         ],
       ),
@@ -802,17 +828,22 @@ class _LibraryImportDataPageState extends ConsumerState<LibraryImportDataPage> {
             Icon(
               selected ? Icons.radio_button_checked : Icons.radio_button_off,
               size: 16,
-              color: selected ? const Color(0xFF31B0D5) : Colors.white70,
+              color: selected
+                  ? Theme.of(context).colorScheme.primary
+                  : Colors.white70,
             ),
             const SizedBox(width: 8),
-            Text(
+            Flexible(
+                child: Text(
               label,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
               style: const TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w700,
                 color: Colors.white,
               ),
-            ),
+            )),
             if (badge != null) ...[
               const SizedBox(width: 6),
               Container(
@@ -841,12 +872,15 @@ class _LibraryImportDataPageState extends ConsumerState<LibraryImportDataPage> {
   Widget _buildFieldMappingArea(AppThemePalette palette) {
     if (_parsedRows.isEmpty) {
       return Container(
-        height: 84,
+        height: 58,
         alignment: Alignment.center,
         decoration: BoxDecoration(
-          color: palette.panelRaised,
+          color: palette.panel,
           borderRadius: BorderRadius.circular(4),
-          border: Border.all(color: palette.cardBorder),
+          border: Border.all(
+              color: palette.isDark
+                  ? appManagementCanvasColor(context)
+                  : palette.divider),
         ),
         child: const Icon(
           Icons.description,
@@ -984,27 +1018,27 @@ class _LibraryImportDataPageState extends ConsumerState<LibraryImportDataPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text(
-          source.title.startsWith('Import ')
-              ? source.title
-              : 'Import from ${source.title}',
-          style: const TextStyle(
-            fontSize: 24,
-            fontWeight: FontWeight.w700,
-            color: Colors.white,
-          ),
-        ),
-        const SizedBox(height: 16),
         Container(
-          padding: const EdgeInsets.all(24),
+          padding: const EdgeInsets.all(10),
           decoration: BoxDecoration(
             color: palette.panel,
-            borderRadius: BorderRadius.circular(4),
-            border: Border.all(color: palette.cardBorder),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
+              Text(
+                source.title.startsWith('Import ')
+                    ? source.title
+                    : 'Import from ${source.title}',
+                style: const TextStyle(
+                  fontSize: 30,
+                  height: 1.1,
+                  fontWeight: FontWeight.w700,
+                  color: Colors.white,
+                ),
+              ),
+              const SizedBox(height: 10),
+
               if (source.description.isNotEmpty) ...[
                 Text(
                   source.description,
@@ -1014,12 +1048,12 @@ class _LibraryImportDataPageState extends ConsumerState<LibraryImportDataPage> {
                     height: 1.4,
                   ),
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 10),
               ],
               if (source.instructions.isNotEmpty) ...[
                 for (int i = 0; i < source.instructions.length; i++)
                   Padding(
-                    padding: const EdgeInsets.only(bottom: 8),
+                    padding: const EdgeInsets.only(left: 24),
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -1027,7 +1061,8 @@ class _LibraryImportDataPageState extends ConsumerState<LibraryImportDataPage> {
                           '${i + 1}. ',
                           style: const TextStyle(
                             fontSize: 14,
-                            fontWeight: FontWeight.w700,
+                            height: 20 / 14,
+                            fontWeight: FontWeight.w400,
                             color: Colors.white,
                           ),
                         ),
@@ -1037,7 +1072,7 @@ class _LibraryImportDataPageState extends ConsumerState<LibraryImportDataPage> {
                             style: const TextStyle(
                               fontSize: 14,
                               color: Colors.white,
-                              height: 1.35,
+                              height: 20 / 14,
                             ),
                           ),
                         ),
@@ -1051,7 +1086,8 @@ class _LibraryImportDataPageState extends ConsumerState<LibraryImportDataPage> {
               Text(
                 source.filePrompt,
                 style: const TextStyle(
-                  fontSize: 16,
+                  fontSize: 22,
+                  height: 1.1,
                   fontWeight: FontWeight.w700,
                   color: Colors.white,
                 ),
@@ -1072,7 +1108,7 @@ class _LibraryImportDataPageState extends ConsumerState<LibraryImportDataPage> {
                         ? Colors.redAccent
                         : Colors.greenAccent,
                     fontSize: 14,
-                    fontWeight: FontWeight.w600,
+                    fontWeight: FontWeight.w400,
                   ),
                 ),
                 const SizedBox(height: 14),
@@ -1083,11 +1119,11 @@ class _LibraryImportDataPageState extends ConsumerState<LibraryImportDataPage> {
                 builder: (context, constraints) {
                   final isDesktop = constraints.maxWidth >= 600;
                   final button = SizedBox(
-                    height: 42,
+                    height: 32,
                     child: ElevatedButton(
                       key: const Key('import_guided.submit'),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF287A9F),
+                        backgroundColor: accent,
                         foregroundColor: Colors.white,
                         elevation: 0,
                         shape: RoundedRectangleBorder(
@@ -1121,8 +1157,8 @@ class _LibraryImportDataPageState extends ConsumerState<LibraryImportDataPage> {
                           : const Text(
                               'Import',
                               style: TextStyle(
-                                fontSize: 15,
-                                fontWeight: FontWeight.w700,
+                                fontSize: 14,
+                                fontWeight: FontWeight.w400,
                               ),
                             ),
                     ),
