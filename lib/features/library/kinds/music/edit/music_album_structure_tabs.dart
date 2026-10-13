@@ -149,7 +149,7 @@ final class _MusicAlbumStructureTabState
                   Text('Add Disc',
                       style: TextStyle(
                           fontSize: 14,
-                          fontWeight: FontWeight.w500,
+                          fontWeight: FontWeight.w400,
                           color: Colors.white)),
                 ]))),
       ),
@@ -164,7 +164,7 @@ final class _MusicAlbumStructureTabState
           'Disc Title',
           style: TextStyle(
             fontSize: 13,
-            fontWeight: FontWeight.w800,
+            fontWeight: FontWeight.w700,
             color: Color(0xFFAAAAAA),
           ),
         ),
@@ -225,7 +225,7 @@ final class _MusicAlbumStructureTabState
           'Tracks',
           style: TextStyle(
             fontSize: 13,
-            fontWeight: FontWeight.w800,
+            fontWeight: FontWeight.w700,
             color: Colors.white,
           ),
         ),
@@ -337,8 +337,8 @@ final class _MusicAlbumStructureTabState
                       Text(
                         'Cancel',
                         style: TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w600,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w400,
                           color: Colors.white,
                         ),
                       ),
@@ -379,8 +379,8 @@ final class _MusicAlbumStructureTabState
                       const Text(
                         'All',
                         style: TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w600,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w400,
                           color: Colors.white,
                         ),
                       ),
@@ -444,8 +444,8 @@ final class _MusicAlbumStructureTabState
                       Text(
                         'Autocap',
                         style: TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w600,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w400,
                           color: Colors.white,
                         ),
                       ),
@@ -492,8 +492,8 @@ final class _MusicAlbumStructureTabState
                           Text(
                             'Move to other disc',
                             style: TextStyle(
-                              fontSize: 13,
-                              fontWeight: FontWeight.w600,
+                              fontSize: 14,
+                              fontWeight: FontWeight.w400,
                               color: Colors.white,
                             ),
                           ),
@@ -528,8 +528,8 @@ final class _MusicAlbumStructureTabState
                       Text(
                         'Remove',
                         style: TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w600,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w400,
                           color: Colors.white,
                         ),
                       ),
@@ -1054,8 +1054,8 @@ final class _MusicAlbumStructureTabState
             Text(
               label,
               style: const TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w600,
+                fontSize: 14,
+                fontWeight: FontWeight.w400,
                 color: Colors.white,
               ),
             ),

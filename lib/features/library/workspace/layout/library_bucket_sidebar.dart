@@ -367,8 +367,8 @@ class _LibraryBucketSidebarState extends ConsumerState<LibraryBucketSidebar> {
                                 .textTheme
                                 .labelLarge
                                 ?.copyWith(
-                                  fontWeight: FontWeight.w500,
-                                  letterSpacing: 0.12,
+                                  fontWeight: FontWeight.w400,
+                                  letterSpacing: 0,
                                 ),
                           ),
                         ),
@@ -645,7 +645,7 @@ class _SidebarStatusScopeButton extends StatelessWidget {
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                           fontWeight: value == scope
                               ? FontWeight.w700
-                              : FontWeight.w500,
+                              : FontWeight.w400,
                         ),
                   ),
                 ),
@@ -956,7 +956,7 @@ class _SidebarAncestorScopeRow extends StatelessWidget {
                       overflow: TextOverflow.ellipsis,
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
                             color: mutedTextColor,
-                            fontWeight: FontWeight.w500,
+                            fontWeight: FontWeight.w400,
                           ),
                     ),
                   ),

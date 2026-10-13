@@ -138,7 +138,7 @@ class _ItemImagesEditSectionState extends State<ItemImagesEditSection> {
           style: Theme.of(context).textTheme.bodySmall?.copyWith(
                 color: appPalette(context).textMuted,
                 fontSize: 14,
-                fontWeight: FontWeight.w600,
+                fontWeight: FontWeight.w400,
               ),
         ),
         const SizedBox(height: 12),

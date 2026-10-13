@@ -355,7 +355,7 @@ class EditSectionLoadingState extends StatelessWidget {
                 style: TextStyle(
                   color: palette.textMuted,
                   fontSize: 13,
-                  fontWeight: FontWeight.w600,
+                  fontWeight: FontWeight.w400,
                 ),
               ),
             ),
@@ -614,7 +614,7 @@ class ValueContextChip extends StatelessWidget {
             value,
             style: Theme.of(context).textTheme.controlText.copyWith(
                   color: p.textPrimary,
-                  fontWeight: FontWeight.w600,
+                  fontWeight: FontWeight.w400,
                 ),
           ),
         ],
@@ -1210,7 +1210,7 @@ class FooterReadonlyField extends StatelessWidget {
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: Theme.of(context).textTheme.controlText.copyWith(
-                      fontWeight: FontWeight.w600,
+                      fontWeight: FontWeight.w400,
                     ),
               ),
             ],
@@ -1271,7 +1271,7 @@ class EditSummaryPill extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                   style: Theme.of(context).textTheme.controlText.copyWith(
                         color: appPalette(context).textPrimary,
-                        fontWeight: FontWeight.w600,
+                        fontWeight: FontWeight.w400,
                       ),
                 ),
               ],
@@ -1311,7 +1311,7 @@ class IssuePill extends StatelessWidget {
           label,
           style: Theme.of(context).textTheme.controlText.copyWith(
                 color: foreground,
-                fontWeight: FontWeight.w600,
+                fontWeight: FontWeight.w400,
               ),
         ),
       ),
