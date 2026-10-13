@@ -19,8 +19,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../../helpers/test_constants.dart';
-import '../../helpers/test_data_factories.dart';
+import '../../support/fixtures/test_constants.dart';
+import '../../support/builders/test_data_factories.dart';
 
 void main() {
   testWidgets('loan manager renders on desktop and filters loans',

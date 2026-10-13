@@ -8,7 +8,7 @@ import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_r
 
 import '../../../support/widget/library_add_test_harness.dart';
 
-import '../../../helpers/test_constants.dart';
+import '../../../support/fixtures/test_constants.dart';
 
 void main() {
   testWidgets('manual action opens edit modal with save action',

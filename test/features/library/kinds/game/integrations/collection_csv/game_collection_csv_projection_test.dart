@@ -1,7 +1,7 @@
 import 'package:collectarr_app/features/library/kinds/game/integrations/collection_csv/game_collection_csv_import_profile.dart';
 import 'package:collectarr_app/features/library/kinds/game/integrations/collection_csv/game_collection_csv_projection.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:collectarr_app/test/helpers/test_data_factories.dart';
+import '../../../../../../support/builders/test_data_factories.dart';
 
 void main() {
   test('Game import profile owns platform and UPC aliases', () {

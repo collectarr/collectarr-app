@@ -19,9 +19,9 @@ import 'package:collectarr_app/features/library/kinds/tv/tv_module.dart'
     show tvKindMetadata;
 import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'package:collectarr_app/core/models/catalog_display_summary.dart';
-import 'package:collectarr_app/test/helpers/test_library_entry_fixture.dart';
+import '../fixtures/test_library_entry_fixture.dart';
 
-export 'test_library_entry_fixture.dart';
+export '../fixtures/test_library_entry_fixture.dart';
 import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/core/models/tracking_status.dart';
 import 'package:collectarr_app/features/library/domain/library_target_ref.dart';

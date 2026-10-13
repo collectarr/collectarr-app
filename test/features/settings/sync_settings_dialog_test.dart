@@ -2,7 +2,7 @@ import 'package:collectarr_app/features/settings/sync_settings_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import '../../helpers/test_constants.dart';
+import '../../support/fixtures/test_constants.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {

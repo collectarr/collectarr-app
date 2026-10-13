@@ -2,7 +2,7 @@ import 'package:collectarr_app/features/library/kinds/movie/stats/movie_stats_ca
 import 'package:collectarr_app/features/library/kinds/movie/value/movie_value_capability.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import '../../../../../helpers/test_data_factories.dart';
+import '../../../../../support/builders/test_data_factories.dart';
 
 void main() {
   test('Movie stats use typed metadata for runtime, ratings, and facets', () {

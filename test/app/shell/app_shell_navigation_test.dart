@@ -22,8 +22,8 @@ import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../../helpers/secure_storage_mock.dart';
-import '../../helpers/test_constants.dart';
+import '../../support/fakes/secure_storage_mock.dart';
+import '../../support/fixtures/test_constants.dart';
 
 // ---------------------------------------------------------------------------
 // Fake auth / sync helpers

@@ -1,7 +1,7 @@
 import 'package:collectarr_app/features/library/kinds/manga/integrations/collection_csv/manga_collection_csv_import_profile.dart';
 import 'package:collectarr_app/features/library/kinds/manga/integrations/collection_csv/manga_collection_csv_projection.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:collectarr_app/test/helpers/test_data_factories.dart';
+import '../../../../../../support/builders/test_data_factories.dart';
 
 void main() {
   test('Manga import profile owns chapter and ISBN aliases', () {

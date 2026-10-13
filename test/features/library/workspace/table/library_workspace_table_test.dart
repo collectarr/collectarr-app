@@ -9,7 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:collectarr_app/ui/theme/app_theme.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import '../../../../helpers/test_constants.dart';
+import '../../../../support/fixtures/test_constants.dart';
 
 DecoratedBox _rowDecorationForText(WidgetTester tester, String text) {
   final candidates = tester.widgetList<DecoratedBox>(

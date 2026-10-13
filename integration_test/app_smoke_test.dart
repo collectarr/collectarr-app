@@ -27,8 +27,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../test/helpers/secure_storage_mock.dart';
-import '../test/helpers/test_constants.dart';
+import '../test/support/fakes/secure_storage_mock.dart';
+import '../test/support/fixtures/test_constants.dart';
 
 // ---------------------------------------------------------------------------
 // Fake auth / sync helpers

@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../helpers/test_constants.dart';
+import '../../support/fixtures/test_constants.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {

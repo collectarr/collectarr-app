@@ -1,7 +1,7 @@
 import 'package:collectarr_app/features/library/kinds/comic/integrations/collection_csv/comic_collection_csv_projection.dart';
 import 'package:collectarr_app/features/library/kinds/comic/integrations/collection_csv/comic_collection_csv_import_profile.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:collectarr_app/test/helpers/test_data_factories.dart';
+import '../../../../../../support/builders/test_data_factories.dart';
 
 void main() {
   test('Comic import profile owns CLZ aliases and value parsing', () {

@@ -12,7 +12,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:collectarr_app/features/library/kinds/registry/collectarr_kind_registry.dart';
 
-import '../../../helpers/secure_storage_mock.dart';
+import '../../../support/fakes/secure_storage_mock.dart';
 
 void main() {
   setUp(() {

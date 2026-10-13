@@ -258,7 +258,6 @@ class ArchitectureRuleVisitor extends RecursiveAstVisitor<void> {
   void visitSimpleIdentifier(SimpleIdentifier node) {
     if (_forbiddenFlattenedIdentityNames.contains(node.name) &&
         relativePath.startsWith('lib/') &&
-        !relativePath.startsWith('lib/test/') &&
         !relativePath.endsWith('.g.dart') &&
         !relativePath.endsWith('.freezed.dart')) {
       final line = lineInfo.getLocation(node.offset).lineNumber;
@@ -424,6 +423,17 @@ class ArchitectureRuleVisitor extends RecursiveAstVisitor<void> {
 
     final importedRelativePath =
         p.relative(importedPath, from: repoRoot).replaceAll('\\', '/');
+
+    if (relativePath.startsWith('lib/') &&
+        (importedRelativePath.startsWith('test/') ||
+            importedRelativePath.startsWith('integration_test/') ||
+            importedRelativePath.startsWith('lib/test/'))) {
+      violations.add(
+        'TK022 $relativePath:$lineNumber: Production code must not '
+        '$directive test support ($uriString)',
+      );
+      return;
+    }
 
     if (isRegistryFile || _compositionRoots.contains(relativePath)) {
       if (importedRelativePath.startsWith('lib/features/library/kinds/') &&
@@ -853,6 +863,7 @@ void runArchitectureChecker([List<String> args = const <String>[]]) {
   final allComplexityWarnings = <String>[];
   final allKindFieldLeaks = <KindFieldLeakFinding>[];
 
+  allViolations.addAll(testSupportLayoutViolations(repoRoot));
   _checkKindModuleLayout(repoRoot, allViolations);
 
   for (final file in files) {
@@ -1092,8 +1103,7 @@ bool isBoundaryFile(String relativePath) {
   if (!relativePath.startsWith('lib/')) {
     return false;
   }
-  if (relativePath.startsWith('lib/test/') ||
-      relativePath.startsWith('lib/dev/') ||
+  if (relativePath.startsWith('lib/dev/') ||
       relativePath.startsWith('lib/features/library/kinds/') ||
       relativePath.startsWith('lib/core/api/generated/') ||
       _compositionRoots.contains(relativePath)) {
@@ -1178,4 +1188,10 @@ String? _resolveImportPath(
   }
   final sourceDir = p.dirname(sourceFilePath);
   return p.normalize(p.join(sourceDir, uriString));
+}
+
+Iterable<String> testSupportLayoutViolations(String repoRoot) sync* {
+  if (Directory(p.join(repoRoot, 'lib', 'test')).existsSync()) {
+    yield 'TK022 lib/test/: Test support must live outside production source.';
+  }
 }

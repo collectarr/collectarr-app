@@ -24,7 +24,7 @@ import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:collectarr_app/test/helpers/test_data_factories.dart';
+import '../../../support/builders/test_data_factories.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();

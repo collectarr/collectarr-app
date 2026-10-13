@@ -8,7 +8,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/library_entry_projection.dart';
 
-import '../../../helpers/test_constants.dart';
+import '../../../support/fixtures/test_constants.dart';
 
 void main() {
   testWidgets(

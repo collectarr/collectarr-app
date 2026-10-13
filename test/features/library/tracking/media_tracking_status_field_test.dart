@@ -3,7 +3,7 @@ import 'package:collectarr_app/features/library/tracking/media_tracking_status_f
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import '../../../helpers/test_constants.dart';
+import '../../../support/fixtures/test_constants.dart';
 
 void main() {
   testWidgets('renders profile labels and reports storage values',

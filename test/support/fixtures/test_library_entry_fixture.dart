@@ -5,8 +5,7 @@ import 'package:collectarr_app/core/models/library_entry_ref.dart';
 /// Test-only fixture used by mixed-kind tests while constructing the concrete
 /// kind aggregate is not the subject of the test.
 ///
-/// This intentionally lives under `lib/test` and is never used by
-/// production code. It is not a domain model or a compatibility API.
+/// This fixture lives under test support and is never used by production code. It is not a domain model or a compatibility API.
 final class TestLibraryEntry {
   const TestLibraryEntry({
     required this.id,

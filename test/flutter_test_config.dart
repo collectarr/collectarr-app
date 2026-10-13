@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:drift/drift.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'helpers/secure_storage_mock.dart';
+import 'support/fakes/secure_storage_mock.dart';
 
 /// Global test configuration.
 ///
