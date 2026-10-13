@@ -1,7 +1,9 @@
 import 'package:collectarr_app/features/library/kinds/tv/integrations/collection_csv/tv_collection_csv_import_profile.dart';
 import 'package:collectarr_app/features/library/kinds/tv/integrations/collection_csv/tv_collection_csv_projection.dart';
 import 'package:flutter_test/flutter_test.dart';
-import '../../../../../../support/builders/test_data_factories.dart';
+import '../../../../../../support/builders/catalog_item_builder.dart';
+import '../../../../../../support/builders/library_entry_builder.dart';
+import '../../../../../../support/builders/workspace_item_builder.dart';
 
 void main() {
   test('TV import profile owns network and season aliases', () {
@@ -61,8 +63,7 @@ void main() {
     final projection = const TvCollectionCsvProjection();
     final entry = testLibraryWorkspaceSource(
       itemId: 'tv-1',
-      catalogData: testWorkspaceCatalogData(
-          testCatalogItemWithKindMetadata(testCatalogItem(
+      catalogData: testWorkspaceCatalogData(testCatalogItem(
         id: 'tv-1',
         kind: 'tv',
         title: 'The X-Files',
@@ -73,7 +74,7 @@ void main() {
         physicalFormat: '4k-uhd',
         physicalFormatLabel: '4K UHD',
         payload: const {'variant_name': 'Complete Series'},
-      )).asShelfCatalogItem),
+      ).asShelfCatalogItem),
       libraryEntrySummary: testLibraryEntrySummary(testLibraryEntry(
         id: 'entry-1',
         itemId: 'tv-1',

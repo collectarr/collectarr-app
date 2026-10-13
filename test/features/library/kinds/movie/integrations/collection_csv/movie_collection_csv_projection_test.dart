@@ -1,7 +1,9 @@
 import 'package:collectarr_app/features/library/kinds/movie/integrations/collection_csv/movie_collection_csv_import_profile.dart';
 import 'package:collectarr_app/features/library/kinds/movie/integrations/collection_csv/movie_collection_csv_projection.dart';
 import 'package:flutter_test/flutter_test.dart';
-import '../../../../../../support/builders/test_data_factories.dart';
+import '../../../../../../support/builders/catalog_item_builder.dart';
+import '../../../../../../support/builders/library_entry_builder.dart';
+import '../../../../../../support/builders/workspace_item_builder.dart';
 
 void main() {
   test('Movie import profile owns CLZ aliases and value parsing', () {
@@ -52,8 +54,7 @@ void main() {
     final projection = const MovieCollectionCsvProjection();
     final entry = testLibraryWorkspaceSource(
       itemId: 'movie-1',
-      catalogData: testWorkspaceCatalogData(
-          testCatalogItemWithKindMetadata(testCatalogItem(
+      catalogData: testWorkspaceCatalogData(testCatalogItem(
         id: 'movie-1',
         kind: 'movie',
         title: 'Blade Runner',
@@ -65,7 +66,7 @@ void main() {
         editionTitle: 'Final Cut 4K release',
         physicalFormat: '4k-uhd',
         physicalFormatLabel: '4K UHD',
-      )).asShelfCatalogItem),
+      ).asShelfCatalogItem),
       libraryEntrySummary: testLibraryEntrySummary(testLibraryEntry(
         id: 'entry-1',
         itemId: 'movie-1',

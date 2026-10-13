@@ -3,7 +3,8 @@ import 'package:collectarr_app/features/library/kinds/comic/integrations/comic_i
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_catalog_item.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import '../../../../../../support/builders/test_data_factories.dart';
+import '../../../../../../support/builders/catalog_item_builder.dart';
+import '../../../../../../support/builders/workspace_item_builder.dart';
 
 void main() {
   test('ComicInfo export is contributed from a typed Comic boundary', () {

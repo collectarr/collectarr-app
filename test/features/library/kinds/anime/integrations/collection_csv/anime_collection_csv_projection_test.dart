@@ -1,7 +1,9 @@
 import 'package:collectarr_app/features/library/kinds/anime/integrations/collection_csv/anime_collection_csv_import_profile.dart';
 import 'package:collectarr_app/features/library/kinds/anime/integrations/collection_csv/anime_collection_csv_projection.dart';
 import 'package:flutter_test/flutter_test.dart';
-import '../../../../../../support/builders/test_data_factories.dart';
+import '../../../../../../support/builders/catalog_item_builder.dart';
+import '../../../../../../support/builders/library_entry_builder.dart';
+import '../../../../../../support/builders/workspace_item_builder.dart';
 
 void main() {
   test('Anime import profile owns studio and format aliases', () {
@@ -61,8 +63,7 @@ void main() {
     final projection = const AnimeCollectionCsvProjection();
     final entry = testLibraryWorkspaceSource(
       itemId: 'anime-1',
-      catalogData: testWorkspaceCatalogData(
-          testCatalogItemWithKindMetadata(testCatalogItem(
+      catalogData: testWorkspaceCatalogData(testCatalogItem(
         id: 'anime-1',
         kind: 'anime',
         title: 'Cowboy Bebop',
@@ -74,7 +75,7 @@ void main() {
         physicalFormat: 'blu-ray',
         physicalFormatLabel: 'Blu-ray',
         payload: const {'variant_name': 'TV / Collector'},
-      )).asShelfCatalogItem),
+      ).asShelfCatalogItem),
       libraryEntrySummary: testLibraryEntrySummary(testLibraryEntry(
         id: 'entry-1',
         itemId: 'anime-1',

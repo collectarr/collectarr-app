@@ -1,7 +1,9 @@
 import 'package:collectarr_app/features/library/kinds/comic/integrations/collection_csv/comic_collection_csv_projection.dart';
 import 'package:collectarr_app/features/library/kinds/comic/integrations/collection_csv/comic_collection_csv_import_profile.dart';
 import 'package:flutter_test/flutter_test.dart';
-import '../../../../../../support/builders/test_data_factories.dart';
+import '../../../../../../support/builders/catalog_item_builder.dart';
+import '../../../../../../support/builders/library_entry_builder.dart';
+import '../../../../../../support/builders/workspace_item_builder.dart';
 
 void main() {
   test('Comic import profile owns CLZ aliases and value parsing', () {
@@ -49,8 +51,7 @@ void main() {
     final projection = const ComicCollectionCsvProjection();
     final entry = testLibraryWorkspaceSource(
       itemId: 'comic-1',
-      catalogData: testWorkspaceCatalogData(
-          testCatalogItemWithKindMetadata(testCatalogItem(
+      catalogData: testWorkspaceCatalogData(testCatalogItem(
         id: 'comic-1',
         kind: 'comic',
         title: 'Spider-Man',
@@ -63,7 +64,7 @@ void main() {
           'issue_number': '1',
           'variant_name': 'Newsstand',
         },
-      )).asShelfCatalogItem),
+      ).asShelfCatalogItem),
       libraryEntry: testLibraryEntry(
         id: 'entry-1',
         itemId: 'comic-1',

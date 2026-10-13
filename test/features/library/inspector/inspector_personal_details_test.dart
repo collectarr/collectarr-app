@@ -14,7 +14,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../support/fixtures/test_constants.dart';
 import '../../../support/fakes/secure_storage_mock.dart';
-import '../../../support/builders/test_data_factories.dart';
+import '../../../support/builders/library_entry_builder.dart';
+import '../../../support/builders/tracking_summary_builder.dart';
 import '../../../support/fixtures/tracking_state_test_helpers.dart';
 
 void main() {

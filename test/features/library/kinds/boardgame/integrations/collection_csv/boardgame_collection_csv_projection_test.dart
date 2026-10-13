@@ -1,7 +1,9 @@
 import 'package:collectarr_app/features/library/kinds/boardgame/integrations/collection_csv/boardgame_collection_csv_import_profile.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/integrations/collection_csv/boardgame_collection_csv_projection.dart';
 import 'package:flutter_test/flutter_test.dart';
-import '../../../../../../support/builders/test_data_factories.dart';
+import '../../../../../../support/builders/catalog_item_builder.dart';
+import '../../../../../../support/builders/library_entry_builder.dart';
+import '../../../../../../support/builders/workspace_item_builder.dart';
 
 void main() {
   test('BoardGame import profile owns edition and barcode aliases', () {
@@ -54,8 +56,7 @@ void main() {
     final projection = const BoardGameCollectionCsvProjection();
     final entry = testLibraryWorkspaceSource(
       itemId: 'boardgame-1',
-      catalogData: testWorkspaceCatalogData(
-          testCatalogItemWithKindMetadata(testCatalogItem(
+      catalogData: testWorkspaceCatalogData(testCatalogItem(
         id: 'boardgame-1',
         kind: 'boardgame',
         title: 'Catan',
@@ -66,7 +67,7 @@ void main() {
         releaseDate: DateTime.utc(1995, 4, 1),
         barcode: '4002051693302',
         payload: const {'variant_name': 'Seafarers'},
-      )).asShelfCatalogItem),
+      ).asShelfCatalogItem),
       libraryEntrySummary: testLibraryEntrySummary(testLibraryEntry(
         id: 'entry-1',
         itemId: 'boardgame-1',

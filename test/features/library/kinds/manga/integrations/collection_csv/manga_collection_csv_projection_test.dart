@@ -1,7 +1,9 @@
 import 'package:collectarr_app/features/library/kinds/manga/integrations/collection_csv/manga_collection_csv_import_profile.dart';
 import 'package:collectarr_app/features/library/kinds/manga/integrations/collection_csv/manga_collection_csv_projection.dart';
 import 'package:flutter_test/flutter_test.dart';
-import '../../../../../../support/builders/test_data_factories.dart';
+import '../../../../../../support/builders/catalog_item_builder.dart';
+import '../../../../../../support/builders/library_entry_builder.dart';
+import '../../../../../../support/builders/workspace_item_builder.dart';
 
 void main() {
   test('Manga import profile owns chapter and ISBN aliases', () {
@@ -61,8 +63,7 @@ void main() {
     final projection = const MangaCollectionCsvProjection();
     final entry = testLibraryWorkspaceSource(
       itemId: 'manga-1',
-      catalogData: testWorkspaceCatalogData(
-          testCatalogItemWithKindMetadata(testCatalogItem(
+      catalogData: testWorkspaceCatalogData(testCatalogItem(
         id: 'manga-1',
         kind: 'manga',
         title: 'Berserk',
@@ -76,7 +77,7 @@ void main() {
           'variant_name': 'Tankobon',
           'original_publication_date': '1990-11-01T00:00:00.000Z',
         },
-      )).asShelfCatalogItem),
+      ).asShelfCatalogItem),
       libraryEntrySummary: testLibraryEntrySummary(testLibraryEntry(
         id: 'entry-1',
         itemId: 'manga-1',

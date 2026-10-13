@@ -2,7 +2,7 @@ import 'package:collectarr_app/features/library/add/library_add_ranking.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_advanced_filter.dart';
 import 'package:collectarr_app/features/library/add/models/library_add_search_context.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_search_candidate.dart';
-import '../../../support/builders/test_data_factories.dart';
+import '../../../support/builders/catalog_item_builder.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 const _publisherFilterId = LibraryAddFilterId('test.publisher');

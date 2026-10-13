@@ -1,7 +1,9 @@
 import 'package:collectarr_app/features/library/kinds/game/integrations/collection_csv/game_collection_csv_import_profile.dart';
 import 'package:collectarr_app/features/library/kinds/game/integrations/collection_csv/game_collection_csv_projection.dart';
 import 'package:flutter_test/flutter_test.dart';
-import '../../../../../../support/builders/test_data_factories.dart';
+import '../../../../../../support/builders/catalog_item_builder.dart';
+import '../../../../../../support/builders/library_entry_builder.dart';
+import '../../../../../../support/builders/workspace_item_builder.dart';
 
 void main() {
   test('Game import profile owns platform and UPC aliases', () {
@@ -54,8 +56,7 @@ void main() {
     final projection = const GameCollectionCsvProjection();
     final entry = testLibraryWorkspaceSource(
       itemId: 'game-1',
-      catalogData: testWorkspaceCatalogData(
-          testCatalogItemWithKindMetadata(testCatalogItem(
+      catalogData: testWorkspaceCatalogData(testCatalogItem(
         id: 'game-1',
         kind: 'game',
         title: 'The Legend of Zelda',
@@ -69,7 +70,7 @@ void main() {
           'platforms': ['Nintendo Switch'],
           'edition_title': 'Collector edition',
         },
-      )).asShelfCatalogItem),
+      ).asShelfCatalogItem),
       libraryEntrySummary: testLibraryEntrySummary(testLibraryEntry(
         id: 'entry-1',
         itemId: 'game-1',

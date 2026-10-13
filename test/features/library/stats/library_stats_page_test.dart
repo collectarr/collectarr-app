@@ -14,7 +14,7 @@ import 'package:collectarr_app/features/library/stats/library_stats_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import '../../../support/builders/test_data_factories.dart';
+import '../../../support/builders/workspace_item_builder.dart';
 import '../../../support/fixtures/test_constants.dart';
 
 void main() {

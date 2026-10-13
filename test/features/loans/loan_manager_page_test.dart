@@ -1,3 +1,4 @@
+import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import 'dart:io';
 import 'package:collectarr_app/dev/seeds/music_inspector_reference_seed.dart';
 import 'package:collectarr_app/core/sync/sync_queue_repository.dart';
@@ -6,7 +7,6 @@ import 'dart:convert';
 import 'package:flutter/services.dart';
 import 'package:collectarr_app/core/db/local_database.dart';
 import 'package:collectarr_app/core/models/loan.dart';
-import 'package:collectarr_app/core/models/catalog_media_kind.dart';
 import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/features/collection/repositories/loan_repository.dart';
 import 'package:collectarr_app/features/catalog/transport/catalog_transport_repository.dart';
@@ -20,7 +20,9 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../support/fixtures/test_constants.dart';
-import '../../support/builders/test_data_factories.dart';
+import '../../support/builders/catalog_item_builder.dart';
+import '../../support/fixtures/music_fixtures.dart';
+import 'package:collectarr_app/features/library/kinds/music/domain/music_personal_data.dart';
 
 void main() {
   testWidgets('loan manager renders on desktop and filters loans',
@@ -38,14 +40,14 @@ void main() {
       testCatalogItem(id: 'comic-1', kind: 'music', title: 'Action Comics #1'),
     ]);
     await MusicEntryRepository(db).upsert(
-      testMusicLibraryEntryFrom(testLibraryEntry(
+      musicLibraryEntryFixture(
         id: 'entry-1',
-        itemId: 'comic-1',
-        kind: 'music',
-        catalogTitle: 'Action Comics #1',
-        condition: 'Near Mint',
+        metadata: musicAlbumFixture(title: 'Action Comics #1'),
+        sourceCatalogRef:
+            const CatalogItemRef(kind: CatalogMediaKind.music, id: 'comic-1'),
+        personal: const MusicPersonalData(condition: 'Near Mint'),
         updatedAt: DateTime.utc(2026, 5, 1),
-      )),
+      ),
     );
 
     final loanRepo = LoanRepository(db);
@@ -135,14 +137,14 @@ void main() {
           id: 'comic-2', kind: 'music', title: 'Detective Comics #27'),
     ]);
     await MusicEntryRepository(db).upsert(
-      testMusicLibraryEntryFrom(testLibraryEntry(
+      musicLibraryEntryFixture(
         id: 'entry-2',
-        itemId: 'comic-2',
-        kind: 'music',
-        catalogTitle: 'Detective Comics #27',
-        condition: 'Near Mint',
+        metadata: musicAlbumFixture(title: 'Detective Comics #27'),
+        sourceCatalogRef:
+            const CatalogItemRef(kind: CatalogMediaKind.music, id: 'comic-2'),
+        personal: const MusicPersonalData(condition: 'Near Mint'),
         updatedAt: DateTime.utc(2026, 5, 1),
-      )),
+      ),
     );
 
     final loanRepo = LoanRepository(db);
