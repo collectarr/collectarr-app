@@ -27,7 +27,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:vm_service/vm_service.dart';
 import 'package:vm_service/vm_service_io.dart';
 
-const _runBenchmark = bool.fromEnvironment('RUN_MUSIC_WORKSPACE_BENCHMARK');
 const _selectedAlbumCount =
     int.fromEnvironment('MUSIC_WORKSPACE_BENCHMARK_ALBUMS');
 const _repeatCount = 3;
@@ -48,6 +47,7 @@ void main() {
             'must be 1000, 5000, or unset',
           );
         }
+        final reports = <Map<String, Object?>>[];
         for (final albumCount in albumCounts) {
           final albums = _benchmarkAlbums(albumCount);
           _warmUp(albums.take(200).toList(growable: false));
@@ -148,7 +148,7 @@ void main() {
 
           final afterAllPeak = ProcessInfo.maxRss;
           final factsTime = _measureFacts(albums);
-          stdout.writeln(jsonEncode({
+          final report = <String, Object?>{
             'albums': albumCount,
             'discs': albums.fold<int>(
               0,
@@ -177,13 +177,18 @@ void main() {
             'projectionAllocatedBytes': projectionAllocations.allocatedBytes,
             'projectionAllocatedInstances':
                 projectionAllocations.allocatedInstances,
-          }));
+          };
+          reports.add(report);
+          stdout.writeln(jsonEncode(report));
         }
+        final output = File('build/benchmarks/music-workspace.json');
+        await output.parent.create(recursive: true);
+        await output
+            .writeAsString(const JsonEncoder.withIndent('  ').convert(reports));
       } finally {
         await allocationProfiler.dispose();
       }
     },
-    skip: !_runBenchmark,
   );
 }
 
