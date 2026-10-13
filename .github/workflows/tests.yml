@@ -56,8 +56,13 @@ jobs:
       - name: Run unit and widget tests
         run: flutter test
 
+      - name: Install Linux integration test dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libgtk-3-dev libsecret-1-dev libjsoncpp-dev xvfb
+
       - name: Run integration smoke tests
-        run: flutter test integration_test/app_smoke_test.dart
+        run: xvfb-run -a flutter test integration_test/app_smoke_test.dart -d linux
 
   build-web:
     runs-on: ubuntu-latest

@@ -10,6 +10,9 @@ library;
 import 'dart:convert';
 
 import 'package:collectarr_app/core/routing/app_router.dart';
+import 'package:collectarr_app/core/db/local_database.dart';
+import 'package:collectarr_app/state/local_database_provider.dart';
+import 'package:drift/native.dart';
 import 'package:collectarr_app/features/collection/collection_controller.dart';
 import 'package:collectarr_app/features/collection/repositories/shelf_controller.dart';
 import 'package:collectarr_app/features/library/providers/media_catalog_provider.dart';
@@ -70,8 +73,9 @@ Widget _integrationApp({List<Override> overrides = const []}) {
   );
 }
 
-List<Override> _testOverrides() {
+List<Override> _testOverrides(LocalDatabase database) {
   return [
+    localDatabaseProvider.overrideWithValue(database),
     authControllerProvider.overrideWith(
       () => _AuthenticatedAuthController(),
     ),
@@ -114,13 +118,22 @@ void _mockAuthPreferences() {
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
-  setUp(setUpSecureStorageMock);
+  late LocalDatabase database;
+  setUp(() {
+    setUpSecureStorageMock();
+    database = LocalDatabase(NativeDatabase.memory());
+  });
+  tearDown(() async => database.close());
 
   group('App Smoke Tests', () {
     testWidgets(
         'desktop smoke: can navigate through all mandatory destinations',
         (tester) async {
       _mockAuthPreferences();
+      addTearDown(() async {
+        await tester.pumpWidget(const SizedBox.shrink());
+        await pumpUntilSettled(tester);
+      });
 
       tester.view.physicalSize = kDesktopTestSize;
       tester.view.devicePixelRatio = kDesktopTestDPR;
@@ -128,13 +141,13 @@ void main() {
       addTearDown(tester.view.resetDevicePixelRatio);
 
       await tester.pumpWidget(
-        _integrationApp(overrides: _testOverrides()),
+        _integrationApp(overrides: _testOverrides(database)),
       );
       await pumpUntilSettled(tester);
 
       expect(find.byType(AppShell), findsOneWidget);
       expect(find.byKey(const Key('app.open-navigation')), findsOneWidget);
-      expect(find.byKey(const Key('app.brand-logo')), findsOneWidget);
+      expect(find.byKey(const Key('app.brand-title')), findsOneWidget);
       expect(find.byKey(const Key('nav.settings')), findsOneWidget);
 
       Future<void> openDrawer() async {
@@ -145,15 +158,13 @@ void main() {
       // Verify all mandatory destination keys exist
       await openDrawer();
       expect(find.byKey(const Key('nav.library')), findsOneWidget);
-      expect(find.byKey(const Key('nav.shelf')), findsOneWidget);
       expect(find.byKey(const Key('nav.more')), findsOneWidget);
       expect(find.byKey(const Key('nav.calendar')), findsOneWidget);
       expect(find.byKey(const Key('nav.settings')), findsOneWidget);
 
-      // Navigate to Shelf
-      await tester.tap(find.byKey(const Key('nav.shelf')));
+      // Close navigation by selecting the current library.
+      await tester.tap(find.byKey(const Key('nav.library')));
       await pumpUntilSettled(tester);
-      expect(find.byType(AppShell), findsOneWidget);
 
       // Navigate to Loans / More
       await openDrawer();
@@ -184,6 +195,10 @@ void main() {
         'mobile phone smoke (390x844): navigates shell, settings, and back without overflow',
         (tester) async {
       _mockAuthPreferences();
+      addTearDown(() async {
+        await tester.pumpWidget(const SizedBox.shrink());
+        await pumpUntilSettled(tester);
+      });
 
       tester.view.physicalSize = const Size(390, 844);
       tester.view.devicePixelRatio = 1.0;
@@ -191,7 +206,7 @@ void main() {
       addTearDown(tester.view.resetDevicePixelRatio);
 
       await tester.pumpWidget(
-        _integrationApp(overrides: _testOverrides()),
+        _integrationApp(overrides: _testOverrides(database)),
       );
       await pumpUntilSettled(tester);
 
@@ -203,7 +218,6 @@ void main() {
       await tester.tap(find.byKey(const Key('app.open-navigation')));
       await pumpUntilSettled(tester);
       expect(find.byKey(const Key('nav.library')), findsOneWidget);
-      expect(find.byKey(const Key('nav.shelf')), findsOneWidget);
 
       // Return to the current library branch, which closes the drawer.
       await tester.tap(find.byKey(const Key('nav.library')));
