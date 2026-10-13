@@ -11,11 +11,9 @@ final class TestLibraryEntry {
     required this.id,
     required this.catalogRef,
     this.catalogTitle = 'Test Item',
-    this.catalogIssueNumber,
     required this.details,
     this.createdAt,
     this.isDigital,
-    this.targetRef,
     this.condition,
     this.collectionValue,
     this.purchaseDate,
@@ -40,10 +38,8 @@ final class TestLibraryEntry {
   final String id;
   final CatalogItemRef catalogRef;
   final String catalogTitle;
-  final String? catalogIssueNumber;
   final DateTime? createdAt;
   final bool? isDigital;
-  final CatalogItemRef? targetRef;
   final String? condition;
   final String? collectionValue;
   final DateTime? purchaseDate;
@@ -72,37 +68,10 @@ final class TestLibraryEntry {
         id: LibraryEntryId(id),
       );
 
-  JsonMap toSyncPayload() => {
-        'catalog_ref': catalogRef.toJson(),
-        if (createdAt != null)
-          'created_at': createdAt!.toUtc().toIso8601String(),
-        if (isDigital != null) 'is_digital': isDigital,
-        'target_ref': targetRef?.toJson(),
-        'condition': condition,
-        'grade': collectionValue,
-        'purchase_date': purchaseDate?.toUtc().toIso8601String(),
-        'price_paid_cents': pricePaidCents,
-        'currency': currency,
-        'personal_notes': personalNotes,
-        'index_number': indexNumber,
-        'tags': tags,
-        'sold_at': soldAt?.toUtc().toIso8601String(),
-        'sell_price_cents': sellPriceCents,
-        'sold_to': soldTo,
-        if (ownerUserId != null) 'owner_user_id': ownerUserId,
-        if (ownerLabel != null) 'owner_label': ownerLabel,
-        'location_id': locationId,
-        if (purchaseStore != null) 'purchase_store': purchaseStore,
-        if (collectionStatus != null) 'collection_status': collectionStatus,
-        if (marketValueCents != null) 'market_value_cents': marketValueCents,
-        ...details.toJson(),
-      };
-
   JsonMap toJson() => {
         'id': id,
         'catalog_data': <String, dynamic>{
           'title': catalogTitle,
-          if (catalogIssueNumber != null) 'issue_number': catalogIssueNumber,
         },
         'source_catalog_ref': catalogRef.toJson(),
         'created_at': createdAt?.toUtc().toIso8601String(),

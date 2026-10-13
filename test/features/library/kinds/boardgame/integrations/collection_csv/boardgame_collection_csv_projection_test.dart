@@ -69,6 +69,7 @@ void main() {
         payload: const {'variant_name': 'Seafarers'},
       ).asShelfCatalogItem),
       libraryEntrySummary: testLibraryEntrySummary(testLibraryEntry(
+        kind: 'boardgame',
         id: 'entry-1',
         itemId: 'boardgame-1',
         updatedAt: DateTime.utc(2026, 5, 15),

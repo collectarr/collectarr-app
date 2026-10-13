@@ -1,3 +1,5 @@
+import 'package:collectarr_app/core/models/json_encodable.dart';
+import '../fixtures/entry_details_codec_fixtures.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_album.dart';
 import 'package:collectarr_app/core/models/catalog_item_ref.dart';
 import '../fixtures/test_library_entry_fixture.dart';
@@ -5,22 +7,13 @@ import '../fixtures/test_library_entry_fixture.dart';
 import 'package:collectarr_app/core/models/library_entry_projection.dart';
 import 'package:collectarr_app/core/models/wishlist_item.dart';
 import 'package:collectarr_app/features/library/library_kind_registry.dart';
-import 'package:collectarr_app/features/library/kinds/anime/entries/anime_entry_details.dart';
 import 'package:collectarr_app/features/library/kinds/anime/domain/anime_library_entry.dart';
-import 'package:collectarr_app/features/library/kinds/boardgame/entries/boardgame_entry_details.dart';
 import 'package:collectarr_app/features/library/kinds/boardgame/domain/boardgame_library_entry.dart';
-import 'package:collectarr_app/features/library/kinds/book/entries/book_entry_details.dart';
 import 'package:collectarr_app/features/library/kinds/book/domain/book_library_entry.dart';
-import 'package:collectarr_app/features/library/kinds/comic/entries/comic_entry_details.dart';
 import 'package:collectarr_app/features/library/kinds/comic/domain/comic_library_entry.dart';
-import 'package:collectarr_app/features/library/kinds/game/entries/game_entry_details.dart';
 import 'package:collectarr_app/features/library/kinds/game/domain/game_library_entry.dart';
-import 'package:collectarr_app/features/library/kinds/movie/entries/movie_entry_details.dart';
 import 'package:collectarr_app/features/library/kinds/movie/domain/movie_library_entry.dart';
-import 'package:collectarr_app/features/library/kinds/music/entries/music_entry_details.dart';
-import 'package:collectarr_app/features/library/kinds/tv/entries/tv_entry_details.dart';
 import 'package:collectarr_app/features/library/kinds/tv/domain/tv_library_entry.dart';
-import 'package:collectarr_app/features/library/kinds/manga/entries/manga_entry_details.dart';
 import 'package:collectarr_app/features/library/kinds/manga/domain/manga_library_entry.dart';
 import 'package:collectarr_app/features/library/kinds/music/domain/music_library_entry.dart';
 
@@ -29,17 +22,13 @@ export '../fixtures/test_library_entry_fixture.dart';
 TestLibraryEntry testLibraryEntry({
   String id = 'entry-1',
   String itemId = 'test-item-1',
-  String kind = 'comic',
+  required String kind,
   String catalogTitle = 'Test Item',
-  String? catalogIssueNumber,
+  JsonEncodable? details,
   CatalogItemRef? catalogRef,
   DateTime? createdAt,
   DateTime? updatedAt,
   bool? isDigital,
-  CatalogItemRef? targetRef,
-  String? editionId,
-  String? variantId,
-  String? bundleReleaseId,
   String? condition,
   String? grade,
   DateTime? purchaseDate,
@@ -47,24 +36,6 @@ TestLibraryEntry testLibraryEntry({
   String? currency,
   String? personalNotes,
   int? indexNumber,
-  int? coverPriceCents,
-  String? rawOrSlabbed,
-  String? gradingCompany,
-  String? graderNotes,
-  String? signedBy,
-  bool obiStripPresent = false,
-  String? labelType,
-  String? customLabel,
-  String? pageQuality,
-  String? certificationNumber,
-  bool keyComic = false,
-  String? keyReason,
-  String? keyCategory,
-  String? keySeverity,
-  int? rating,
-  String? readStatus,
-  DateTime? startedAt,
-  DateTime? finishedAt,
   String? tags,
   DateTime? deletedAt,
   DateTime? soldAt,
@@ -73,25 +44,9 @@ TestLibraryEntry testLibraryEntry({
   String? ownerUserId,
   String? ownerLabel,
   String? locationId,
-  String? features,
-  List<String>? hdrFormats,
   String? purchaseStore,
-  String? boxSetId,
-  String? boxSetName,
-  String? storageDevice,
-  String? storageSlot,
-  String? region,
-  String? packaging,
-  String? distributor,
   String? collectionStatus,
-  DateTime? lastBagBoardDate,
   int? marketValueCents,
-  String? gameCompleteness,
-  bool? gameHasBox,
-  bool? gameHasManual,
-  String? gamePriceChartingId,
-  String? gameCoreRegion,
-  bool? gameValueIsLocked,
 }) {
   final resolvedCatalogRef = catalogRef ??
       CatalogItemRef(
@@ -99,100 +54,21 @@ TestLibraryEntry testLibraryEntry({
         id: itemId,
       );
 
-  final details = switch (resolvedCatalogRef.kind) {
-    CatalogMediaKind.comic => ComicEntryDetails(
-        rawOrSlabbed: rawOrSlabbed,
-        gradingCompany: gradingCompany,
-        graderNotes: graderNotes,
-        signedBy: signedBy,
-        labelType: labelType,
-        customLabel: customLabel,
-        pageQuality: pageQuality,
-        certificationNumber: certificationNumber,
-        keyComic: keyComic,
-        keyReason: keyReason,
-        keyCategory: keyCategory,
-        keySeverity: keySeverity,
-        coverPriceCents: coverPriceCents,
-        lastBagBoardDate: lastBagBoardDate,
-      ),
-    CatalogMediaKind.manga => MangaEntryDetails(
-        signedBy: signedBy,
-        gradingCompany: gradingCompany,
-        graderNotes: graderNotes,
-        obiStripPresent: obiStripPresent,
-        printing: '1st Print',
-        localizedEdition: 'English edition',
-      ),
-    CatalogMediaKind.movie => MovieEntryDetails(
-        features: features,
-        hdrFormats: hdrFormats ?? const <String>[],
-        boxSetId: boxSetId,
-        boxSetName: boxSetName,
-        region: region,
-        packaging: packaging,
-        distributor: distributor,
-      ),
-    CatalogMediaKind.tv => TvEntryDetails(
-        features: features,
-        hdrFormats: hdrFormats ?? const <String>[],
-        boxSetId: boxSetId,
-        boxSetName: boxSetName,
-        region: region,
-        packaging: packaging,
-        distributor: distributor,
-      ),
-    CatalogMediaKind.anime => AnimeEntryDetails(
-        features: features,
-        hdrFormats: hdrFormats ?? const <String>[],
-        boxSetId: boxSetId,
-        boxSetName: boxSetName,
-        region: region,
-        packaging: packaging,
-        distributor: distributor,
-      ),
-    CatalogMediaKind.game => GameEntryDetails(
-        completeness: gameCompleteness,
-        hasBox: gameHasBox,
-        hasManual: gameHasManual,
-        priceChartingId: gamePriceChartingId,
-        coreRegion: gameCoreRegion,
-        valueIsLocked: gameValueIsLocked,
-      ),
-    CatalogMediaKind.boardgame => const BoardgameEntryDetails(
-        editionLanguage: 'English',
-        editionRegion: 'US',
-        componentCondition: 'Very Good',
-        componentCompleteness: 'Complete',
-      ),
-    CatalogMediaKind.music => MusicEntryDetails(
-        media: [
-          MusicEntryDiscDetails(
-            discId: 'disc-1',
-            storageDevice: storageDevice,
-            storageSlot: storageSlot,
-          ),
-        ],
-      ),
-    CatalogMediaKind.book => BookEntryDetails(
-        signedBy: signedBy,
-      ),
-    CatalogMediaKind.unknown => throw ArgumentError(
-        'Test collection item requires a registered kind: $kind'),
-  };
-
-  final resolvedTargetRef = targetRef;
+  if (resolvedCatalogRef.kind != catalogMediaKindFromApiValue(kind)) {
+    throw ArgumentError('Entry fixture kind must match catalog provenance.');
+  }
+  final detailsFixture = entryDetailsFixtureForTest(resolvedCatalogRef.kind);
+  final resolvedDetails = details ?? detailsFixture.defaultDetails();
+  detailsFixture.validate(resolvedDetails);
 
   return TestLibraryEntry(
     id: id,
     catalogRef: resolvedCatalogRef,
     catalogTitle: catalogTitle,
-    catalogIssueNumber: catalogIssueNumber,
     createdAt: createdAt,
     updatedAt: updatedAt ?? DateTime.utc(2025, 1, 1),
     isDigital: isDigital,
-    targetRef: resolvedTargetRef,
-    details: details,
+    details: resolvedDetails,
     condition: condition,
     collectionValue: grade,
     purchaseDate: purchaseDate,

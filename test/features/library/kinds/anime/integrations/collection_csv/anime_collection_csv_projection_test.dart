@@ -1,9 +1,8 @@
+import '../../../../../../support/contracts/collection_csv_contract.dart';
 import 'package:collectarr_app/features/library/kinds/anime/integrations/collection_csv/anime_collection_csv_import_profile.dart';
 import 'package:collectarr_app/features/library/kinds/anime/integrations/collection_csv/anime_collection_csv_projection.dart';
 import 'package:flutter_test/flutter_test.dart';
 import '../../../../../../support/builders/catalog_item_builder.dart';
-import '../../../../../../support/builders/library_entry_builder.dart';
-import '../../../../../../support/builders/workspace_item_builder.dart';
 
 void main() {
   test('Anime import profile owns studio and format aliases', () {
@@ -61,9 +60,8 @@ void main() {
 
   test('projects Anime catalog cells without video hierarchy erasure', () {
     final projection = const AnimeCollectionCsvProjection();
-    final entry = testLibraryWorkspaceSource(
-      itemId: 'anime-1',
-      catalogData: testWorkspaceCatalogData(testCatalogItem(
+    final entry = collectionCsvFixture(
+      catalog: testCatalogItem(
         id: 'anime-1',
         kind: 'anime',
         title: 'Cowboy Bebop',
@@ -75,15 +73,11 @@ void main() {
         physicalFormat: 'blu-ray',
         physicalFormatLabel: 'Blu-ray',
         payload: const {'variant_name': 'TV / Collector'},
-      ).asShelfCatalogItem),
-      libraryEntrySummary: testLibraryEntrySummary(testLibraryEntry(
-        id: 'entry-1',
-        itemId: 'anime-1',
-        updatedAt: DateTime.utc(2026, 5, 15),
-      )),
+      ),
     );
 
-    expect(projection.catalogCells(entry), [
+    verifyCollectionCsvCatalogContract(
+      projection: projection, fixture: entry, expectedCells: [
       'anime-1',
       'anime',
       'Cowboy Bebop',

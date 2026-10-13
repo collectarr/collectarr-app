@@ -1,3 +1,4 @@
+import 'package:collectarr_app/features/library/kinds/comic/entries/comic_entry_details.dart';
 import 'package:collectarr_app/features/library/kinds/comic/integrations/collection_csv/comic_collection_csv_projection.dart';
 import 'package:collectarr_app/features/library/kinds/comic/integrations/collection_csv/comic_collection_csv_import_profile.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -66,11 +67,10 @@ void main() {
         },
       ).asShelfCatalogItem),
       libraryEntry: testLibraryEntry(
+        kind: 'comic',
         id: 'entry-1',
         itemId: 'comic-1',
-        coverPriceCents: 399,
-        rawOrSlabbed: 'Raw',
-        keyComic: true,
+        details: const ComicEntryDetails(coverPriceCents: 399, rawOrSlabbed: 'Raw', keyComic: true),
         updatedAt: DateTime.utc(2026, 5, 12),
       ),
     );

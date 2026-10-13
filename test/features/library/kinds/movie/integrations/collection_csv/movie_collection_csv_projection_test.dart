@@ -68,6 +68,7 @@ void main() {
         physicalFormatLabel: '4K UHD',
       ).asShelfCatalogItem),
       libraryEntrySummary: testLibraryEntrySummary(testLibraryEntry(
+        kind: 'movie',
         id: 'entry-1',
         itemId: 'movie-1',
         updatedAt: DateTime.utc(2026, 5, 15),

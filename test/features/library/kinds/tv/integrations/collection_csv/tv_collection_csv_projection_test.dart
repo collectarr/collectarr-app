@@ -76,6 +76,7 @@ void main() {
         payload: const {'variant_name': 'Complete Series'},
       ).asShelfCatalogItem),
       libraryEntrySummary: testLibraryEntrySummary(testLibraryEntry(
+        kind: 'tv',
         id: 'entry-1',
         itemId: 'tv-1',
         updatedAt: DateTime.utc(2026, 5, 15),

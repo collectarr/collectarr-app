@@ -72,6 +72,7 @@ void main() {
         },
       ).asShelfCatalogItem),
       libraryEntrySummary: testLibraryEntrySummary(testLibraryEntry(
+        kind: 'game',
         id: 'entry-1',
         itemId: 'game-1',
         updatedAt: DateTime.utc(2026, 5, 15),

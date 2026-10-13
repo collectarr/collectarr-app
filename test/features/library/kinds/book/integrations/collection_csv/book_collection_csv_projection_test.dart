@@ -1,9 +1,8 @@
+import '../../../../../../support/contracts/collection_csv_contract.dart';
 import 'package:collectarr_app/features/library/kinds/book/integrations/collection_csv/book_collection_csv_import_profile.dart';
 import 'package:collectarr_app/features/library/kinds/book/integrations/collection_csv/book_collection_csv_projection.dart';
 import 'package:flutter_test/flutter_test.dart';
 import '../../../../../../support/builders/catalog_item_builder.dart';
-import '../../../../../../support/builders/library_entry_builder.dart';
-import '../../../../../../support/builders/workspace_item_builder.dart';
 
 void main() {
   test('Book import profile owns ISBN and edition aliases', () {
@@ -61,9 +60,8 @@ void main() {
 
   test('projects Book catalog cells with edition semantics', () {
     final projection = const BookCollectionCsvProjection();
-    final entry = testLibraryWorkspaceSource(
-      itemId: 'book-1',
-      catalogData: testWorkspaceCatalogData(testCatalogItem(
+    final entry = collectionCsvFixture(
+      catalog: testCatalogItem(
         id: 'book-1',
         kind: 'book',
         title: 'The Hobbit',
@@ -74,15 +72,11 @@ void main() {
         releaseDate: DateTime.utc(1937, 9, 21),
         barcode: '9780261102217',
         payload: const {'variant_name': 'Hardcover'},
-      ).asShelfCatalogItem),
-      libraryEntrySummary: testLibraryEntrySummary(testLibraryEntry(
-        id: 'entry-1',
-        itemId: 'book-1',
-        updatedAt: DateTime.utc(2026, 5, 15),
-      )),
+      ),
     );
 
-    expect(projection.catalogCells(entry), [
+    verifyCollectionCsvCatalogContract(
+      projection: projection, fixture: entry, expectedCells: [
       'book-1',
       'book',
       'The Hobbit',

@@ -79,6 +79,7 @@ void main() {
         },
       ).asShelfCatalogItem),
       libraryEntrySummary: testLibraryEntrySummary(testLibraryEntry(
+        kind: 'manga',
         id: 'entry-1',
         itemId: 'manga-1',
         updatedAt: DateTime.utc(2026, 5, 15),
