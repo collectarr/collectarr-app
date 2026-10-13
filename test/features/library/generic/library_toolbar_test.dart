@@ -105,7 +105,10 @@ void main() {
     );
 
     final container = tester.widget<Container>(
-      find.ancestor(of: find.text(selectedLetter), matching: find.byType(Container)).first,
+      find
+          .ancestor(
+              of: find.text(selectedLetter), matching: find.byType(Container))
+          .first,
     );
     final decoration = container.decoration as BoxDecoration?;
     expect(decoration?.color, accent);

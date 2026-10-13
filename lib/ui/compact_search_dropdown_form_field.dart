@@ -435,7 +435,7 @@ class _CompactSearchDropdownFormFieldState<T> extends FormFieldState<T> {
                       padding: const EdgeInsets.fromLTRB(8, 5, 8, 5),
                       child: TextField(
                         controller: _searchController,
-                      cursorColor: theme.colorScheme.primary,
+                        cursorColor: theme.colorScheme.primary,
                         focusNode: _searchFocusNode,
                         onChanged: (query) =>
                             setState(() => _searchQuery = query),

@@ -153,6 +153,8 @@ class ArchitectureRuleVisitor extends RecursiveAstVisitor<void> {
     'id',
     'kind',
     'value',
+    // String and collection lengths are Dart protocols, not inferred media data.
+    'length',
     'key',
     'apiValue',
     'api_value',
