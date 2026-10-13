@@ -215,6 +215,33 @@ class ArchitectureRuleVisitor extends RecursiveAstVisitor<void> {
     'wishlist',
   };
 
+  // Permanent ownership boundary, replacing the historical cleanup proof scan.
+  static const _removedRuntimeAbstractions = {
+    'LibraryMetadataItem',
+    'LibraryCatalogItemView',
+    'LibraryKindMetadataRuntime',
+    'CatalogKindCodec',
+    'KindEditDraft',
+    'LibrarySectionRegistry',
+    'DefaultLibraryEditPresentationBuilder',
+    'CatalogCache',
+    'LibraryEditCapability',
+    'collectarrKindEdits',
+    'MetadataOverrideFieldOption',
+  };
+
+  void _checkRemovedRuntimeAbstraction(String name, int offset) {
+    if (!relativePath.startsWith('lib/') ||
+        relativePath.endsWith('.g.dart') ||
+        relativePath.endsWith('.freezed.dart') ||
+        !_removedRuntimeAbstractions.contains(name)) {
+      return;
+    }
+    final line = lineInfo.getLocation(offset).lineNumber;
+    violations.add('TK023 $relativePath:$line: Removed runtime abstraction '
+        '"$name" contradicts kind-owned typed contracts.');
+  }
+
   static const _forbiddenRuntimeTypeNames = {
     'CatalogItemDto',
     'LibraryKindMetadataRuntime',
@@ -256,6 +283,7 @@ class ArchitectureRuleVisitor extends RecursiveAstVisitor<void> {
 
   @override
   void visitSimpleIdentifier(SimpleIdentifier node) {
+    _checkRemovedRuntimeAbstraction(node.name, node.offset);
     if (_forbiddenFlattenedIdentityNames.contains(node.name) &&
         relativePath.startsWith('lib/') &&
         !relativePath.endsWith('.g.dart') &&
@@ -492,6 +520,7 @@ class ArchitectureRuleVisitor extends RecursiveAstVisitor<void> {
 
   @override
   void visitNamedType(NamedType node) {
+    _checkRemovedRuntimeAbstraction(node.name.lexeme, node.offset);
     if (_forbiddenRuntimeTypeNames.contains(node.name.lexeme) &&
         _isForbiddenRuntimeTypeContext(relativePath)) {
       final line = lineInfo.getLocation(node.offset).lineNumber;
@@ -600,6 +629,7 @@ class ArchitectureRuleVisitor extends RecursiveAstVisitor<void> {
     final endLine = lineInfo.getLocation(node.end).lineNumber;
     final classLength = endLine - startLine + 1;
     final className = node.namePart.toSource();
+    _checkRemovedRuntimeAbstraction(className, node.offset);
     if (classLength > 500 && !_isExempt(relativePath)) {
       complexityWarnings.add(
         'CX002 $relativePath:$startLine: Class "$className" exceeds complexity budget ($classLength > 500 lines)',
